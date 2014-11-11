@@ -18,6 +18,7 @@ package com.android.server.telecom;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.telecom.Log;
 import android.media.AudioAttributes;
@@ -27,6 +28,7 @@ import android.os.Bundle;
 import android.os.Vibrator;
 
 import com.android.internal.annotations.VisibleForTesting;
+import lineageos.providers.LineageSettings;
 
 /**
  * Controls the ringtone player.
@@ -138,11 +140,24 @@ public class Ringer {
         if (isRingerAudible) {
             mRingingCall = foregroundCall;
             Log.addEvent(foregroundCall, LogUtils.Events.START_RINGER);
+
+            float startVolume = 0;
+            int rampUpTime = 0;
+
+            final ContentResolver cr = mContext.getContentResolver();
+            if (LineageSettings.System.getInt(cr,
+                    LineageSettings.System.INCREASING_RING, 0) != 0) {
+                startVolume = LineageSettings.System.getFloat(cr,
+                        LineageSettings.System.INCREASING_RING_START_VOLUME, 0.1f);
+                rampUpTime = LineageSettings.System.getInt(cr,
+                        LineageSettings.System.INCREASING_RING_RAMP_UP_TIME, 20);
+            }
+
             // Because we wait until a contact info query to complete before processing a
             // call (for the purposes of direct-to-voicemail), the information about custom
             // ringtones should be available by the time this code executes. We can safely
             // request the custom ringtone from the call and expect it to be current.
-            mRingtonePlayer.play(mRingtoneFactory, foregroundCall);
+            mRingtonePlayer.play(mRingtoneFactory, foregroundCall, startVolume, rampUpTime);
         } else {
             Log.i(this, "startRinging: skipping because ringer would not be audible. " +
                     "isVolumeOverZero=%s, shouldRingForContact=%s, isRingtonePresent=%s",
