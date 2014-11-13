@@ -337,6 +337,21 @@ public class ParcelableCallUtils {
 
         Connection.PROPERTY_SELF_MANAGED,
         android.telecom.Call.Details.PROPERTY_SELF_MANAGED
+
+        Connection.PROPERTY_WAS_FORWARDED,
+        android.telecom.Call.Details.PROPERTY_WAS_FORWARDED,
+
+        Connection.PROPERTY_HELD_REMOTELY,
+        android.telecom.Call.Details.PROPERTY_HELD_REMOTELY,
+
+        Connection.PROPERTY_DIALING_IS_WAITING,
+        android.telecom.Call.Details.PROPERTY_DIALING_IS_WAITING,
+
+        Connection.PROPERTY_ADDITIONAL_CALL_FORWARDED,
+        android.telecom.Call.Details.PROPERTY_ADDITIONAL_CALL_FORWARDED,
+
+        Connection.PROPERTY_REMOTE_INCOMING_CALLS_BARRED,
+        android.telecom.Call.Details.PROPERTY_REMOTE_INCOMING_CALLS_BARRED
     };
 
     private static int convertConnectionToCallProperties(int connectionProperties) {
