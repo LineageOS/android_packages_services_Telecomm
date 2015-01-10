@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7aa08908_30b4fdcf",
+        "filename": "src/com/android/server/telecom/ProximitySensorManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2015-01-10T12:04:35Z",
+      "side": 1,
+      "message": "You don\u0027t want to do this after the wakelock acquisition?",
+      "revId": "b94c514dce215882076ce444518211ef5f05cae1",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
