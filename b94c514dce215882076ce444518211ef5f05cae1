@@ -34,6 +34,24 @@
       "revId": "b94c514dce215882076ce444518211ef5f05cae1",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7aa08908_70f4c586",
+        "filename": "src/com/android/server/telecom/ProximitySensorManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2015-01-10T12:27:23Z",
+      "side": 1,
+      "message": "Before the wakelock is acquired you can still suspend.",
+      "parentUuid": "7aa08908_70c6854a",
+      "revId": "b94c514dce215882076ce444518211ef5f05cae1",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
