@@ -155,6 +155,7 @@ public class ParcelableCallUtils {
                 capabilities,
                 properties,
                 connectTimeMillis,
+                call.getCreationTimeMillis(),
                 handle,
                 call.getHandlePresentation(),
                 callerDisplayName,
