@@ -864,6 +864,13 @@ public class CallsManager extends Call.ListenerBase
                     call.putExtras(Call.SOURCE_CONNECTION_SERVICE, dropCallExtras);
                 }
             }
+
+            if (phoneAccount.getExtras()
+                    .getBoolean(PhoneAccount.EXTRA_ALWAYS_USE_VOIP_AUDIO_MODE)) {
+                Log.d(this, "processIncomingCallIntent: defaulting to voip mode for call %s",
+                        call.getId());
+                call.setIsVoipAudioMode(true);
+            }
         }
         if (extras.getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false)) {
             if (phoneAccount != null &&
@@ -1151,11 +1158,20 @@ public class CallsManager extends Call.ListenerBase
             extras = new Bundle(extras);
             extras.putParcelableList(android.telecom.Call.AVAILABLE_PHONE_ACCOUNTS, accounts);
         } else {
+            PhoneAccount accountToUse =
+                    mPhoneAccountRegistrar.getPhoneAccount(phoneAccountHandle, initiatingUser);
+            if (accountToUse != null && accountToUse.getExtras() != null) {
+                if (accountToUse.getExtras()
+                        .getBoolean(PhoneAccount.EXTRA_ALWAYS_USE_VOIP_AUDIO_MODE)) {
+                    Log.d(this, "startOutgoingCall: defaulting to voip mode for call %s",
+                            call.getId());
+                    call.setIsVoipAudioMode(true);
+                }
+            }
+
             call.setState(
                     CallState.CONNECTING,
                     phoneAccountHandle == null ? "no-handle" : phoneAccountHandle.toString());
-            PhoneAccount accountToUse =
-                    mPhoneAccountRegistrar.getPhoneAccount(phoneAccountHandle, initiatingUser);
             if (extras != null
                     && extras.getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false)) {
                 if (accountToUse != null
@@ -1643,11 +1659,16 @@ public class CallsManager extends Call.ListenerBase
             Log.i(this, "Attempted to add account to unknown call %s", call);
         } else {
             call.setTargetPhoneAccount(account);
-
+            PhoneAccount realPhoneAccount =
+                    mPhoneAccountRegistrar.getPhoneAccountUnchecked(account);
+            if (realPhoneAccount != null && realPhoneAccount.getExtras() != null
+                    && realPhoneAccount.getExtras()
+                    .getBoolean(PhoneAccount.EXTRA_ALWAYS_USE_VOIP_AUDIO_MODE)) {
+                Log.d("phoneAccountSelected: default to voip mode for call %s", call.getId());
+                call.setIsVoipAudioMode(true);
+            }
             if (call.getIntentExtras()
                     .getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false)) {
-                PhoneAccount realPhoneAccount =
-                        mPhoneAccountRegistrar.getPhoneAccountUnchecked(account);
                 if (realPhoneAccount != null
                         && realPhoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_RTT)) {
                     call.setRttStreams(true);
