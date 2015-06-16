@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa31d9ce_6dc1b12e",
+        "filename": "callinfo_provider/provider.mk",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9813
+      },
+      "writtenOn": "2015-06-16T11:00:05Z",
+      "side": 1,
+      "message": "copyright",
+      "revId": "66df46f0c660eae758aaf3a3a1c8402af590770c",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa31d9ce_8ddc251a",
+        "filename": "callinfo_provider/src/com/android/server/telecom/CallInfoProvider.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9813
+      },
+      "writtenOn": "2015-06-16T11:00:05Z",
+      "side": 1,
+      "message": "copyright",
+      "revId": "66df46f0c660eae758aaf3a3a1c8402af590770c",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa31d9ce_ade1e9d2",
+        "filename": "src/com/android/server/telecom/MissedCallInfo.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9813
+      },
+      "writtenOn": "2015-06-16T11:00:05Z",
+      "side": 1,
+      "message": "same",
+      "revId": "66df46f0c660eae758aaf3a3a1c8402af590770c",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
