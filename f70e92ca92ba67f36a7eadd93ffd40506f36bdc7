@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da36d5c6_89309909",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2015-06-18T00:35:29Z",
+      "side": 1,
+      "message": "mode :)",
+      "range": {
+        "startLine": 10,
+        "startChar": 38,
+        "endLine": 10,
+        "endChar": 42
+      },
+      "revId": "f70e92ca92ba67f36a7eadd93ffd40506f36bdc7",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da36d5c6_c93a91e7",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 2195
+      },
+      "writtenOn": "2015-06-18T00:35:29Z",
+      "side": 1,
+      "message": "HeadsetStateMachine?",
+      "range": {
+        "startLine": 320,
+        "startChar": 15,
+        "endLine": 320,
+        "endChar": 31
+      },
+      "revId": "f70e92ca92ba67f36a7eadd93ffd40506f36bdc7",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
