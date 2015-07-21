@@ -59,6 +59,24 @@
     },
     {
       "key": {
+        "uuid": "df140735_ff3a57cb",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 6334
+      },
+      "writtenOn": "2015-07-21T21:53:50Z",
+      "side": 1,
+      "message": "Especially since i think some some devices defined the manufacturer as Samsung and not samsung",
+      "parentUuid": "df140735_9c036910",
+      "revId": "222c43f11468081f49dbedcb388a0df879c54517",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "df140735_7ffe4706",
         "filename": "src/com/android/server/telecom/CallAudioManager.java",
         "patchSetId": 1
