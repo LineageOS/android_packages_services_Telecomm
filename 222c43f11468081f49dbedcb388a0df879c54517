@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df140735_ff113755",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2015-07-21T21:50:32Z",
+      "side": 1,
+      "message": "Not sure this is a valid thing to return here.",
+      "range": {
+        "startLine": 454,
+        "startChar": 19,
+        "endLine": 454,
+        "endChar": 21
+      },
+      "revId": "222c43f11468081f49dbedcb388a0df879c54517",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "df140735_bf1bbf71",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2015-07-21T21:50:32Z",
+      "side": 1,
+      "message": "FWIW, Ringer.java squashes the contents of this function into one line:\n\nSubscriptionManager.getPhoneId(Integer.valueOf(call.getTargetPhoneAccount().getId());",
+      "revId": "222c43f11468081f49dbedcb388a0df879c54517",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "df140735_9c036910",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2015-07-21T21:50:32Z",
+      "side": 1,
+      "message": "You should use a unique identifier, either a system property, or an overlay here for this, rather than relying on model \u003d\u003d Samsung \u0026\u0026 sim count \u003d\u003d 2.",
+      "revId": "222c43f11468081f49dbedcb388a0df879c54517",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "df140735_7ffe4706",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2015-07-21T21:50:32Z",
+      "side": 1,
+      "message": "Maybe move this into the block below?",
+      "revId": "222c43f11468081f49dbedcb388a0df879c54517",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
