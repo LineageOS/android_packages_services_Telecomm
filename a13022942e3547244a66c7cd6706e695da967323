@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df140735_c806b721",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 453,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2015-07-23T05:03:39Z",
+      "side": 1,
+      "message": "The reason I was asking you about squashing this function into setAudioParameters instead of having a separate function is that I don\u0027t think you can hit these error conditions.",
+      "revId": "a13022942e3547244a66c7cd6706e695da967323",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
