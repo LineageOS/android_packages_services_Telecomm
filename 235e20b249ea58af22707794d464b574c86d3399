@@ -34,6 +34,24 @@
       "revId": "235e20b249ea58af22707794d464b574c86d3399",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "df140735_f33a9032",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2015-07-23T21:11:30Z",
+      "side": 1,
+      "message": "Well, an argument could be made either way.",
+      "parentUuid": "df140735_33392841",
+      "revId": "235e20b249ea58af22707794d464b574c86d3399",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
