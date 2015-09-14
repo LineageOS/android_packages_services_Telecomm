@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f1a1f67_5c0eece5",
+        "filename": "src/com/android/server/telecom/InCallController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 11035
+      },
+      "writtenOn": "2015-09-14T07:28:47Z",
+      "side": 1,
+      "message": "skip entry rather than removing and adding again later",
+      "range": {
+        "startLine": 298,
+        "startChar": 8,
+        "endLine": 317,
+        "endChar": 9
+      },
+      "revId": "ad05adfb7bb2d5e0ab2bfc3ea03da5b23d160e7a",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f1a1f67_fcf498d1",
+        "filename": "src/com/android/server/telecom/InCallController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 11035
+      },
+      "writtenOn": "2015-09-14T07:28:47Z",
+      "side": 1,
+      "message": "The bindFlags and extras passed for a preferred \"InCallUi\" and others were different. This patch is removing that logic, not sure why and how it\u0027s needed if the goal is to keep a persistent connection to the perferred \"InCallUi\" since boot.",
+      "range": {
+        "startLine": 372,
+        "startChar": 17,
+        "endLine": 384,
+        "endChar": 25
+      },
+      "revId": "ad05adfb7bb2d5e0ab2bfc3ea03da5b23d160e7a",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
