@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "1f1a1f67_bf5f320d",
+        "filename": "src/com/android/server/telecom/InCallController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 10293
+      },
+      "writtenOn": "2015-09-14T22:56:18Z",
+      "side": 1,
+      "message": "In this implementation we will call bind (resulting in a package manager query) for every new call added.  This adds latency to every subsequent call after the first one.  Might be negligible though... need to measure it.",
+      "revId": "ad05adfb7bb2d5e0ab2bfc3ea03da5b23d160e7a",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f1a1f67_7f9f5ab4",
+        "filename": "src/com/android/server/telecom/InCallController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 10293
+      },
+      "writtenOn": "2015-09-14T22:56:18Z",
+      "side": 1,
+      "message": "Skipping unbind has implications in the app.  Ambient (and TC if enabled) would always be running.",
+      "revId": "ad05adfb7bb2d5e0ab2bfc3ea03da5b23d160e7a",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f1a1f67_5c0eece5",
         "filename": "src/com/android/server/telecom/InCallController.java",
         "patchSetId": 1
