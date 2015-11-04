@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f2f7f8d_a5d6f2f0",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2015-11-04T01:42:37Z",
+      "side": 1,
+      "message": "} catch (...)\n\nAlso, you may want to catch the specific type of exception instead.",
+      "revId": "96f45c1ae41f2bded49f2f2ea7f0a5d3b166c356",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f2f7f8d_c547bebc",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2015-11-04T01:42:37Z",
+      "side": 1,
+      "message": "IN_COMMUNICATION denotes VOIP, typically, why not just make it break on MODE_IN_COMMUNICATION instead?",
+      "revId": "96f45c1ae41f2bded49f2f2ea7f0a5d3b166c356",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f2f7f8d_a5ef12af",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2015-11-04T01:42:37Z",
+      "side": 1,
+      "message": "} else if (...) {",
+      "revId": "96f45c1ae41f2bded49f2f2ea7f0a5d3b166c356",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
