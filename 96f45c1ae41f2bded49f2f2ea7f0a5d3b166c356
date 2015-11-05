@@ -50,6 +50,24 @@
       "revId": "96f45c1ae41f2bded49f2f2ea7f0a5d3b166c356",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f2f7f8d_48babede",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 3134
+      },
+      "writtenOn": "2015-11-05T01:34:11Z",
+      "side": 1,
+      "message": "Also, are we doing a wrong thing here? Previosly we always passed a parameter to the AudioManger. Now we can end with no passing parameters at all if getPhoneId returns -1. Is that the correct behaviour? I guess that it isn\u0027t the problem that this patch tries to fix, but the Integer.valueOf() problem, right?",
+      "parentUuid": "1f2f7f8d_a5ef12af",
+      "revId": "96f45c1ae41f2bded49f2f2ea7f0a5d3b166c356",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
