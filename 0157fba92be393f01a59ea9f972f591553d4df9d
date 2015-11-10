@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "1f2f7f8d_f82d9c46",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1063
+      },
+      "writtenOn": "2015-11-10T20:22:26Z",
+      "side": 1,
+      "message": "No need to import anything from java.lang.",
+      "revId": "0157fba92be393f01a59ea9f972f591553d4df9d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f2f7f8d_98e1f801",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 1063
+      },
+      "writtenOn": "2015-11-10T20:22:26Z",
+      "side": 1,
+      "message": "How about this (more consise and conforms to the coding style):\n\nprivate int getPhoneId(Call call) {\n    PhoneAccountHandle account \u003d call.getTargetPhoneAccount();\n    if (account !\u003d null) {\n        try {\n            int index \u003d Integer.parseInt(account.getId());\n            int phoneId \u003d SubscriptionManager.getPhoneId(index);\n            if (SubscriptionManager.isValidPhoneId(phoneId)) {\n                return phoneId;\n            }\n        } catch (NumberFormatException e) {\n            Log.e(this, e, \"Cannot get phoneId from ID value \" + account.getId());\n        }\n    }\n    return -1;\n}",
+      "revId": "0157fba92be393f01a59ea9f972f591553d4df9d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f2f7f8d_239bfec9",
         "filename": "src/com/android/server/telecom/CallAudioManager.java",
         "patchSetId": 2
@@ -13,6 +47,23 @@
       "writtenOn": "2015-11-10T01:34:31Z",
       "side": 1,
       "message": "Is there actually an integer parsing problem here if you only arrive in this code block when mode is IN_CALL?",
+      "revId": "0157fba92be393f01a59ea9f972f591553d4df9d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f2f7f8d_18ed08ef",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 1063
+      },
+      "writtenOn": "2015-11-10T20:22:26Z",
+      "side": 1,
+      "message": "} else if (phoneId \u003d\u003d 1) {",
       "revId": "0157fba92be393f01a59ea9f972f591553d4df9d",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
