@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "1f2f7f8d_91af9393",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1063
+      },
+      "writtenOn": "2015-11-11T14:34:25Z",
+      "side": 1,
+      "message": "No, it\u0027s not. See e.g. the \u0027Importing an entire package\u0027 section in https://docs.oracle.com/javase/tutorial/java/package/usepkgs.html",
+      "parentUuid": "1f2f7f8d_7b21a64d",
+      "revId": "0157fba92be393f01a59ea9f972f591553d4df9d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f2f7f8d_98e1f801",
         "filename": "src/com/android/server/telecom/CallAudioManager.java",
         "patchSetId": 2
