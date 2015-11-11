@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1f2f7f8d_7b21a64d",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 14210
+      },
+      "writtenOn": "2015-11-11T00:12:18Z",
+      "side": 1,
+      "message": "By fact it\u0027s need, because if remove that import - it will not handle try-catch properly and will get into system crash. You check PhoneAccountRegistrar - that is similar handling in getUserSelectedVoicePhoneAccount",
+      "parentUuid": "1f2f7f8d_f82d9c46",
+      "revId": "0157fba92be393f01a59ea9f972f591553d4df9d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f2f7f8d_98e1f801",
         "filename": "src/com/android/server/telecom/CallAudioManager.java",
         "patchSetId": 2
@@ -47,6 +65,24 @@
       "writtenOn": "2015-11-10T01:34:31Z",
       "side": 1,
       "message": "Is there actually an integer parsing problem here if you only arrive in this code block when mode is IN_CALL?",
+      "revId": "0157fba92be393f01a59ea9f972f591553d4df9d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f2f7f8d_18a9887a",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 14210
+      },
+      "writtenOn": "2015-11-11T00:12:18Z",
+      "side": 1,
+      "message": "I\u0027m not sure, but yesterday somewhere in code i found there can be Emergency mode which will have account with ID \u003d \u0027E\u0027 ?\nFound it - PhoneAccountRegistrar.getUserSelectedVoicePhoneAccount there is check \u0027if (id.equals(\"E\"))\u0027.",
+      "parentUuid": "1f2f7f8d_239bfec9",
       "revId": "0157fba92be393f01a59ea9f972f591553d4df9d",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
