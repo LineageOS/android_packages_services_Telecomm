@@ -34,6 +34,24 @@
       "revId": "c09333061f29a8ebd02f2aa23afa17f23258a82b",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f2f7f8d_cc6fc2c3",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1063
+      },
+      "writtenOn": "2015-11-11T19:34:59Z",
+      "side": 1,
+      "message": "That PhoneAccountRegistrar reference is virtually useless, as the patch in question is a CAF one and they - mildly speaking - in most cases aren\u0027t exactly Java experts.\n\nWhat do you expect the test program at [1] to output? As you might have expected, it reports an exception. If that for whatever reason doesn\u0027t work here, that\u0027s more than weird and must be investigated and understood, not simply papered over.\n\n[1] http://pastebin.com/VHEkVCNc",
+      "parentUuid": "1f2f7f8d_716c2736",
+      "revId": "c09333061f29a8ebd02f2aa23afa17f23258a82b",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
