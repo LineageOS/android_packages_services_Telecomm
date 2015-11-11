@@ -16,6 +16,24 @@
       "revId": "c09333061f29a8ebd02f2aa23afa17f23258a82b",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f2f7f8d_716c2736",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 14210
+      },
+      "writtenOn": "2015-11-11T18:26:45Z",
+      "side": 1,
+      "message": "1) I did try it yesterday (and was tried it before) - once i remove that import, try catch in getPhoneId stop working. Because when i do SIP call android soft-reboot and i checked logcat - there is crash happen because of unhandled NumberFormatException\n2) Could you check PhoneAccountRegistrar.java - there are 4 java.lang imports - why they was added ? I found it was commited there quite far ago https://github.com/CyanogenMod/android_packages_services_Telecomm/commit/2a7bc9c81dc8e66be8e7a788a9dade2a34bf245f and other 3 imports was already there.\n\nAnswering to another your comment - I know java and know why we should not import java.lang. But i also trust my eyes and have example in nearest file PhoneAccountRegistrar.",
+      "parentUuid": "1f2f7f8d_51912b52",
+      "revId": "c09333061f29a8ebd02f2aa23afa17f23258a82b",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
