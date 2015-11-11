@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f2f7f8d_51912b52",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1063
+      },
+      "writtenOn": "2015-11-11T14:35:00Z",
+      "side": 1,
+      "message": "As mentioned before, this is not needed.",
+      "revId": "c09333061f29a8ebd02f2aa23afa17f23258a82b",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
