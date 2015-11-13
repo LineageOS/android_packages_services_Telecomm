@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f2f7f8d_848f4ecb",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2015-11-13T02:16:53Z",
+      "side": 1,
+      "message": "Maybe this should be Log.v or Log.d ?",
+      "revId": "72ca773b1302f79fdcaff37f292aa85552b82437",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f2f7f8d_64bea266",
+        "filename": "src/com/android/server/telecom/PhoneAccountRegistrar.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2015-11-13T02:16:53Z",
+      "side": 1,
+      "message": "Is this code block solving a separate issue now?",
+      "revId": "72ca773b1302f79fdcaff37f292aa85552b82437",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
