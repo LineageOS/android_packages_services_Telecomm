@@ -33,6 +33,24 @@
       "revId": "72ca773b1302f79fdcaff37f292aa85552b82437",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f2f7f8d_95e65644",
+        "filename": "src/com/android/server/telecom/PhoneAccountRegistrar.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 14210
+      },
+      "writtenOn": "2015-11-13T19:53:30Z",
+      "side": 1,
+      "message": "Not sure if that is separate issue, because it is also sip related issue. And also make calls not work properly. Issue is - if you do not reboot phone to long time (few days), then accounts may reorder and SIP account appear on top. Once that happen you will be not able to call any number using other than SIP account, it will persisntently stick with SIP account, even single reboot may not solve. I was need like 2-3 and more reboots until accounts appear in proper order.",
+      "parentUuid": "1f2f7f8d_64bea266",
+      "revId": "72ca773b1302f79fdcaff37f292aa85552b82437",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
