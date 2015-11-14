@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1f2f7f8d_d67d041d",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 14210
+      },
+      "writtenOn": "2015-11-14T20:37:10Z",
+      "side": 1,
+      "message": "Not sure, because below we have 2 Log.i per mode. If add here Log.i, than may be remove both below Log.i lines ?",
+      "parentUuid": "1f2f7f8d_848f4ecb",
+      "revId": "72ca773b1302f79fdcaff37f292aa85552b82437",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f2f7f8d_64bea266",
         "filename": "src/com/android/server/telecom/PhoneAccountRegistrar.java",
         "patchSetId": 4
