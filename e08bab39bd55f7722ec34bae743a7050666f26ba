@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f4e5783_3fe9f77f",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 13648
+      },
+      "writtenOn": "2015-11-23T01:21:52Z",
+      "side": 1,
+      "message": "What is the purpose of this part of code? Couldn\u0027t we simply ditch switch and check only if (mode \u003d\u003d AudioManager.MODE_IN_CALL)?",
+      "range": {
+        "startLine": 476,
+        "startChar": 0,
+        "endLine": 479,
+        "endChar": 22
+      },
+      "revId": "e08bab39bd55f7722ec34bae743a7050666f26ba",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
