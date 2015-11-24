@@ -22,6 +22,30 @@
       "revId": "7a369a6ce2c835044bd566037cb0d009361e851c",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ff82abbf_6261f639",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2015-11-24T06:39:24Z",
+      "side": 1,
+      "message": "We could, yes. I think the original code had all 3 cases causing you to drop into the setAudioParameters code.",
+      "parentUuid": "3f4b6375_84f9c64e",
+      "range": {
+        "startLine": 135,
+        "startChar": 32,
+        "endLine": 138,
+        "endChar": 42
+      },
+      "revId": "7a369a6ce2c835044bd566037cb0d009361e851c",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
