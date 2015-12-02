@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf8cb3f7_9418f4d3",
+        "filename": "src/com/android/server/telecom/PhoneAccountRegistrar.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2015-12-02T02:47:44Z",
+      "side": 1,
+      "message": "Do you mind explaining the emergency logic here? Does the emergency account only exist if you\u0027ve dialed an emergency number?",
+      "revId": "b4f6f73b549ab1b0f8388392b4b93476c97fcc8b",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
