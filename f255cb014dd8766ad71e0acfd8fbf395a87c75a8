@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3fce034c_58f2a308",
+        "filename": "src/com/android/server/telecom/PhoneAccountRegistrar.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2016-01-07T03:08:27Z",
+      "side": 1,
+      "message": "There is also getAllPhoneAccountsCount, which returns exactly this.",
+      "revId": "f255cb014dd8766ad71e0acfd8fbf395a87c75a8",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
