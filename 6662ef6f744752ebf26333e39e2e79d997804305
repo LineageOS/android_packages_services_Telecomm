@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1fcbff3d_e67df1e7",
+        "filename": "src/com/android/server/telecom/CallsManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 2092,
+      "author": {
+        "id": 13513
+      },
+      "writtenOn": "2016-01-19T07:35:02Z",
+      "side": 1,
+      "message": "Hi, are u referring code from some place? Trying to understand the issue scenario and the comment u have here.",
+      "revId": "6662ef6f744752ebf26333e39e2e79d997804305",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
