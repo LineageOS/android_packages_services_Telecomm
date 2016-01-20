@@ -46,6 +46,30 @@
       "revId": "3576de7b861e2b0c1e574a53696314068f01042a",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1fcbff3d_bf892827",
+        "filename": "res/values/cm_strings.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 4550
+      },
+      "writtenOn": "2016-01-20T02:51:14Z",
+      "side": 1,
+      "message": "We don\u0027t use camel case in strings unless it\u0027s really needed (eg. trademarks)",
+      "parentUuid": "1fcbff3d_9faf8c93",
+      "range": {
+        "startLine": 34,
+        "startChar": 35,
+        "endLine": 34,
+        "endChar": 50
+      },
+      "revId": "3576de7b861e2b0c1e574a53696314068f01042a",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
