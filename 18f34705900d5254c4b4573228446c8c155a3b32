@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1fcbff3d_4d896273",
+        "filename": "src/com/android/server/telecom/ConnectionServiceWrapper.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 9813
+      },
+      "writtenOn": "2016-01-29T07:12:31Z",
+      "side": 1,
+      "message": "I hate the need to create the disconnect cause, we need to refactor a lot of this code.",
+      "revId": "18f34705900d5254c4b4573228446c8c155a3b32",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
