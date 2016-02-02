@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1fcbff3d_a9655147",
+        "filename": "src/com/android/server/telecom/CallsManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1147,
+      "author": {
+        "id": 9813
+      },
+      "writtenOn": "2016-02-02T07:41:37Z",
+      "side": 1,
+      "message": "this was a bit flaky for me when disconnecting on the remote end too early",
+      "revId": "0fa57d464948cc5dbb85ce90ff4ed77db37c73c8",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
