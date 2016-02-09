@@ -96,9 +96,6 @@ public class CallIntentProcessor {
             Context context,
             CallsManager callsManager,
             Intent intent) {
-        if (shouldPreventDuplicateVideoCall(context, callsManager, intent)) {
-            return;
-        }
 
         Uri handle = intent.getData();
         String scheme = handle.getScheme();
@@ -232,33 +229,6 @@ public class CallIntentProcessor {
             errorIntent.putExtra(ErrorDialogActivity.ERROR_MESSAGE_ID_EXTRA, errorMessageId);
             errorIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivityAsUser(errorIntent, UserHandle.CURRENT);
-        }
-    }
-
-    /**
-     * Whether an outgoing video call should be prevented from going out. Namely, don't allow an
-     * outgoing video call if there is already an ongoing video call. Notify the user if their call
-     * is not sent.
-     *
-     * @return {@code true} if the outgoing call is a video call and should be prevented from going
-     *     out, {@code false} otherwise.
-     */
-    private static boolean shouldPreventDuplicateVideoCall(
-            Context context,
-            CallsManager callsManager,
-            Intent intent) {
-        int intentVideoState = intent.getIntExtra(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
-                VideoProfile.STATE_AUDIO_ONLY);
-        if (VideoProfile.isAudioOnly(intentVideoState)
-                || !callsManager.hasVideoCall()) {
-            return false;
-        } else {
-            // Display an error toast to the user.
-            Toast.makeText(
-                    context,
-                    context.getResources().getString(R.string.duplicate_video_call_not_allowed),
-                    Toast.LENGTH_LONG).show();
-            return true;
         }
     }
 }
