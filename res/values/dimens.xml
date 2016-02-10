@@ -20,4 +20,11 @@
     <dimen name="notification_icon_size">64dp</dimen>
 
     <dimen name="dialer_settings_actionbar_elevation">2dp</dimen>
+
+    <dimen name="blocked_numbers_large_padding">16dp</dimen>
+    <dimen name="blocked_numbers_extra_large_padding">32dp</dimen>
+    <dimen name="blocked_numbers_delete_icon_size">24dp</dimen>
+    <dimen name="blocked_numbers_progress_bar_padding">100dp</dimen>
+    <dimen name="blocked_numbers_font_size">16sp</dimen>
+    <dimen name="blocked_numbers_line_spacing">8sp</dimen>
 </resources>

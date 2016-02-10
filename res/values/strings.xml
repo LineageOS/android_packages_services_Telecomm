@@ -116,6 +116,28 @@
     <string name="change_default_dialer_no_previous_app_set_text">Use <xliff:g id="new_app">%s</xliff:g> as your default dialer app?</string>
 
 
+    <!-- Blocked numbers -->
+    <string name="blocked_numbers">Blocked numbers</string>
+    <!-- Text shown at the beginning of the blocked numbers screen to explain what the screen is about. -->
+    <string name="blocked_numbers_msg">Calls and texts from numbers on this list are blocked.</string>
+    <!-- Button to add a blocked number. -->
+    <string name="block_number">Add a number</string>
+    <!-- Body of dialog to confirm unblocking a number. -->
+    <string name="unblock_dialog_body">Unblock <xliff:g id="number_to_block">%1$s</xliff:g>?</string>
+    <!-- Button to unblock a number. -->
+    <string name="unblock_button">Unblock</string>
+    <!-- Body of dialog to block a number.  -->
+    <string name="add_blocked_dialog_body">Block calls and texts from</string>
+    <!-- Hint shown in the edit text box for adding a blocked number -->
+    <string name="add_blocked_number_hint">Number or email</string>
+    <!-- Button to block a number. -->
+    <string name="block_button">Block</string>
+    <!-- String shown to users unable to manage blocked numbers because they are not owners of the
+        device. -->
+    <string name="non_primary_user">Only the device owner can view and manage blocked numbers.</string>
+    <!-- Description of icon to delete blocked number. -->
+    <string name="delete_icon_description">Tab to unblock</string>
+
     <!-- DO NOT TRANSLATE. Label for test Subscription 0. -->
     <string name="test_account_0_label">Q Mobile</string>
     <!-- DO NOT TRANSLATE. Label for test Subscription 1. -->

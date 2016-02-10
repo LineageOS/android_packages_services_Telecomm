@@ -51,6 +51,7 @@ import android.telephony.TelephonyManager;
 import com.android.internal.telecom.ITelecomService;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
+import com.android.server.telecom.settings.BlockedNumbersActivity;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -1176,10 +1177,12 @@ public class TelecomServiceImpl {
             Log.dumpCallEvents(pw);
         }
 
-        // TODO: Add javadoc which points to TelecomManager
+        /**
+         * @see android.telecom.TelecomManager#launchManageBlockedNumbersActivity
+         */
         @Override
         public void launchManageBlockedNumbersActivity(String callingPackageName) {
-            // TODO: Add implementation
+            BlockedNumbersActivity.start(mContext);
         }
     };
 
