@@ -72,7 +72,7 @@ public class BlockedNumbersActivity extends ListActivity
         }
 
         UserManager userManager = (UserManager) getSystemService(Context.USER_SERVICE);
-        if (userManager.isPrimaryUser()) {
+        if (!userManager.isPrimaryUser()) {
             TextView nonPrimaryUserText = (TextView) findViewById(R.id.non_primary_user);
             nonPrimaryUserText.setVisibility(View.VISIBLE);
 
