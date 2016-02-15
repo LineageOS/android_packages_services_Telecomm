@@ -48,4 +48,14 @@
     <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"Thay đổi ứng dụng Trình quay số mặc định?"</string>
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"Sử dụng <xliff:g id="NEW_APP">%1$s</xliff:g> làm ứng dụng trình quay số mặc định của bạn thay vì <xliff:g id="CURRENT_APP">%2$s</xliff:g>?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"Sử dụng <xliff:g id="NEW_APP">%s</xliff:g> làm ứng dụng trình quay số mặc định của bạn?"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"Số bị chặn"</string>
+    <string name="blocked_numbers_msg" msgid="8210089024274925462">"Cuộc gọi và tin nhắn từ các số trên danh sách này bị chặn."</string>
+    <string name="block_number" msgid="1101252256321306179">"Thêm số điện thoại"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"Bỏ chặn <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"Bỏ chặn"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Chặn cuộc gọi và tin nhắn từ"</string>
+    <string name="add_blocked_number_hint" msgid="1601214698916175149">"Số điện thoại hoặc email"</string>
+    <string name="block_button" msgid="8822290682524373357">"Chặn"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"Chỉ chủ sở hữu thiết bị mới có thể xem và quản lý các số bị chặn."</string>
+    <string name="delete_icon_description" msgid="1828583824185681368">"Tab để bỏ chặn"</string>
 </resources>

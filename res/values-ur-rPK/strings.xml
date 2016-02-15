@@ -48,4 +48,14 @@
     <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"ڈیفالٹ ڈائلر ایپ تبدیل کریں"</string>
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"<xliff:g id="CURRENT_APP">%2$s</xliff:g> کی بجائے <xliff:g id="NEW_APP">%1$s</xliff:g> کو بطور اپنی ڈیفالٹ ڈائلر ایپ استعمال کریں؟"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"<xliff:g id="NEW_APP">%s</xliff:g> کو بطور اپنی ڈیفالٹ ڈائلر ایپ استعمال کریں؟"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"مسدود کردہ نمبرز"</string>
+    <string name="blocked_numbers_msg" msgid="8210089024274925462">"اس فہرست پر موجود نمبرز سے کالز اور پیغامات مسدود ہیں۔"</string>
+    <string name="block_number" msgid="1101252256321306179">"ایک نمبر کا اضافہ کریں"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> غیر مسدود کریں؟"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"غیر مسدود کریں"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"ان کی کالز اور پیغامات مدسود کریں"</string>
+    <string name="add_blocked_number_hint" msgid="1601214698916175149">"نمبر یا ای میل"</string>
+    <string name="block_button" msgid="8822290682524373357">"مسدود کریں"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"صرف آلہ کا مالک مسدود کردہ نمبرز کو دیکھ سکتا ہے اور ان کا نظم کر سکتا ہے۔"</string>
+    <string name="delete_icon_description" msgid="1828583824185681368">"غیر مسدود کرنے کا ٹیب"</string>
 </resources>

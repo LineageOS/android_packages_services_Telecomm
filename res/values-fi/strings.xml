@@ -48,4 +48,14 @@
     <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"Vaihdetaanko oletuspuhelusovellus?"</string>
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"Asetetaanko oletuspuhelusovellukseksi <xliff:g id="NEW_APP">%1$s</xliff:g> sovelluksen <xliff:g id="CURRENT_APP">%2$s</xliff:g> sijaan?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"Asetetaanko <xliff:g id="NEW_APP">%s</xliff:g> oletuspuhelusovellukseksi?"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"Estetyt numerot"</string>
+    <string name="blocked_numbers_msg" msgid="8210089024274925462">"Tämän luettelon numeroista saapuvat puhelut ja tekstiviestit estetään."</string>
+    <string name="block_number" msgid="1101252256321306179">"Lisää numero"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"Kumotaanko numeron <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> esto?"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"Kumoa esto"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Estä puhelut ja tekstiviestit numerosta"</string>
+    <string name="add_blocked_number_hint" msgid="1601214698916175149">"Numero tai sähköpostiosoite"</string>
+    <string name="block_button" msgid="8822290682524373357">"Estä"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"Vain laitteen omistaja voi katsella ja hallinnoida estettyjä numeroita."</string>
+    <string name="delete_icon_description" msgid="1828583824185681368">"Kumoa esto koskettamalla."</string>
 </resources>

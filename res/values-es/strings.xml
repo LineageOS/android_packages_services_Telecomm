@@ -48,4 +48,14 @@
     <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"¿Cambiar el marcador predeterminado?"</string>
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"¿Quieres utilizar <xliff:g id="NEW_APP">%1$s</xliff:g> en lugar de <xliff:g id="CURRENT_APP">%2$s</xliff:g> como marcador predeterminado?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"¿Quieres utilizar <xliff:g id="NEW_APP">%s</xliff:g> como marcador predeterminado?"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"Números bloqueados"</string>
+    <string name="blocked_numbers_msg" msgid="8210089024274925462">"Las llamadas y los mensajes de texto de los números de esta lista están bloqueados."</string>
+    <string name="block_number" msgid="1101252256321306179">"Añadir un número"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"¿Desbloquear el número <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"Desbloquear"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Bloquear llamadas y mensajes de texto del número"</string>
+    <string name="add_blocked_number_hint" msgid="1601214698916175149">"Número o correo electrónico"</string>
+    <string name="block_button" msgid="8822290682524373357">"Bloquear"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"Solo el propietario del dispositivo puede ver y administrar los números bloqueados."</string>
+    <string name="delete_icon_description" msgid="1828583824185681368">"Toca para desbloquear"</string>
 </resources>

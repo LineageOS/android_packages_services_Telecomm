@@ -48,4 +48,14 @@
     <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"變更預設撥號器應用程式？"</string>
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"使用 <xliff:g id="NEW_APP">%1$s</xliff:g> 取代 <xliff:g id="CURRENT_APP">%2$s</xliff:g> 作為預設撥號器應用程式？"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"使用 <xliff:g id="NEW_APP">%s</xliff:g> 為預設撥號器應用程式？"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"已封鎖的號碼"</string>
+    <string name="blocked_numbers_msg" msgid="8210089024274925462">"系統已封鎖此清單中所有號碼的來電和短訊。"</string>
+    <string name="block_number" msgid="1101252256321306179">"新增號碼"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"要解除封鎖 <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> 嗎？"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"解除封鎖"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"封鎖下列號碼的來電和短訊："</string>
+    <string name="add_blocked_number_hint" msgid="1601214698916175149">"號碼或電郵"</string>
+    <string name="block_button" msgid="8822290682524373357">"封鎖"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"只有裝置擁有者可查看和管理已封鎖的號碼。"</string>
+    <string name="delete_icon_description" msgid="1828583824185681368">"輕按即可解除封鎖"</string>
 </resources>

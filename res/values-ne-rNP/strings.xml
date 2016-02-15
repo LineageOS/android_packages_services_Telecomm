@@ -48,4 +48,14 @@
     <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"पूर्वनिर्धारित डायलर अनुप्रयोग फेर्ने हो?"</string>
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"<xliff:g id="CURRENT_APP">%2$s</xliff:g>को सट्टामा <xliff:g id="NEW_APP">%1$s</xliff:g>लाई पूर्वनिर्धारित डायलर अनुप्रयोगको रूपमा प्रयोग गर्ने हो?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"<xliff:g id="NEW_APP">%s</xliff:g>लाई तपाईँको पूर्वनिर्धारित डायलर अनुप्रयोगको रूपमा प्रयोग गर्ने हो?"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"रोकिएका नम्बरहरू"</string>
+    <string name="blocked_numbers_msg" msgid="8210089024274925462">"यस सूचीमा नम्बरहरूबाट आउने कल र पाठ सन्देशहरू रोकिएका छन्।"</string>
+    <string name="block_number" msgid="1101252256321306179">"नम्बर थप्नुहोस्"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> लाई अनब्लक गर्ने?"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"अनब्लक गर्नुहोस्"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"कल र पाठ सन्देशहरू रोक्नुहोस्"</string>
+    <string name="add_blocked_number_hint" msgid="1601214698916175149">"नम्बर वा इमेल"</string>
+    <string name="block_button" msgid="8822290682524373357">"रोक्नुहोस्"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"यन्त्र मालिकले मात्र हेर्न र रोकिएका नम्बरहरूको व्यवस्थापन गर्न सक्छ।"</string>
+    <string name="delete_icon_description" msgid="1828583824185681368">"अनलक गर्ने ट्याब"</string>
 </resources>

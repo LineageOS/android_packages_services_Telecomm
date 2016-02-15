@@ -48,4 +48,14 @@
     <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"Да се промени ли основното приложение за дайлер?"</string>
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"<xliff:g id="NEW_APP">%1$s</xliff:g> да се използва ли вместо <xliff:g id="CURRENT_APP">%2$s</xliff:g> като основното ви приложение за дайлер?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"Да се използва ли <xliff:g id="NEW_APP">%s</xliff:g> като основното ви приложение за дайлер?"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"Блокирани номера"</string>
+    <string name="blocked_numbers_msg" msgid="8210089024274925462">"Обажданията и текстовите съобщения от номерата в този списък са блокирани."</string>
+    <string name="block_number" msgid="1101252256321306179">"Добавяне на номер"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"Искате ли да отблокирате <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"Отблокиране"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Блокиране на обажданията и текстовите съобщения от"</string>
+    <string name="add_blocked_number_hint" msgid="1601214698916175149">"Номер или имейл адрес"</string>
+    <string name="block_button" msgid="8822290682524373357">"Блокиране"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"Само собственикът на устройството може да преглежда и управлява блокираните номера."</string>
+    <string name="delete_icon_description" msgid="1828583824185681368">"Раздел за отблокиране"</string>
 </resources>

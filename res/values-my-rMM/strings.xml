@@ -48,4 +48,14 @@
     <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"စက်ရုံထုတ်ဖုန်းခေါ်အပ်ဖ်ကိုပြောင်းလိုပါသလား"</string>
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"<xliff:g id="CURRENT_APP">%2$s</xliff:g> အစား <xliff:g id="NEW_APP">%1$s</xliff:g> ကိုသင့်ရဲ့ စက်ရုံထုတ်ဖုန်းခေါ်အပ်ဖ်အဖြစ် သုံးလိုပါသလား"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"<xliff:g id="NEW_APP">%s</xliff:g> ကိုသင့်ရဲ့စက်ရုံထုတ်ဖုန်းခေါ်အပ်ဖ်အဖြစ် သုံးလိုပါသလား"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"ပိတ်ဆို့ထားသည့် နံပါတ်များ"</string>
+    <string name="blocked_numbers_msg" msgid="8210089024274925462">"ဤစာရင်းထဲရှိ နံပါတ်များမှ စာများနှင့် ခေါ်ဆိုမှုများကို ပိတ်ဆို့ထားပါသည်။"</string>
+    <string name="block_number" msgid="1101252256321306179">"နံပါတ်တစ်ခု ထည့်ပါ"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ကို ပိတ်ဆို့မှုပြန်ဖွင့်မလား။"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"ပိတ်ဆို့မှုပြန်ဖွင့်ပါ"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"ဖော်ပြပါပုဂ္ဂိုလ်ထံမှ စာနှင့် ခေါ်ဆိုမှုများကို ပိတ်ဆို့ပါ"</string>
+    <string name="add_blocked_number_hint" msgid="1601214698916175149">"နံပါတ် သို့မဟုတ် အီးမေးလ်"</string>
+    <string name="block_button" msgid="8822290682524373357">"ပိတ်ဆို့ပါ"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"ပိတ်ဆို့ထားသည့် နံပါတ်များကို စက်ပစ္စည်းပိုင်ရှင်သာလျှင် ကြည့်ရှု၍ စီမံခန့်ခွဲနိုင်ပါသည်။"</string>
+    <string name="delete_icon_description" msgid="1828583824185681368">"ပိတ်ဆို့မှုပြန်ဖွင့်ရန် တို့ပါ"</string>
 </resources>

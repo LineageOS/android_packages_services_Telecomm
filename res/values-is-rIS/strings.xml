@@ -48,4 +48,14 @@
     <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"Viltu skipta um sjálfgefið hringiforrit?"</string>
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"Nota <xliff:g id="NEW_APP">%1$s</xliff:g> í stað <xliff:g id="CURRENT_APP">%2$s</xliff:g> sem sjálfgefið hringiforrit?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"Nota <xliff:g id="NEW_APP">%s</xliff:g> sem sjálfgefið hringiforrit?"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"Númer á bannlista"</string>
+    <string name="blocked_numbers_msg" msgid="8210089024274925462">"Lokað er fyrir símtöl og textaskilaboð úr númerum á þessum lista."</string>
+    <string name="block_number" msgid="1101252256321306179">"Bæta við númeri"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"Taka <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> af bannlista?"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"Taka af bannlista"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Loka fyrir símtöl og skilaboð frá"</string>
+    <string name="add_blocked_number_hint" msgid="1601214698916175149">"Númer eða netfang"</string>
+    <string name="block_button" msgid="8822290682524373357">"Setja á bannlista"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"Aðeins eigandi tækisins getur skoðað og stjórnað númerum á bannlista."</string>
+    <string name="delete_icon_description" msgid="1828583824185681368">"Flipi til að taka númer af bannlista"</string>
 </resources>

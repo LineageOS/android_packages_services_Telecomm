@@ -48,4 +48,14 @@
     <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"डीफॉल्ट डायलर अॅप बदलायचा?"</string>
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"आपला डीफॉल्ट डायलर अॅप म्हणून <xliff:g id="CURRENT_APP">%2$s</xliff:g> ऐवजी <xliff:g id="NEW_APP">%1$s</xliff:g> वापरायचा?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"आपला डीफॉल्ट डायलर अॅप म्हणून <xliff:g id="NEW_APP">%s</xliff:g> वापरायचा?"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"अवरोधित केलेले नंबर"</string>
+    <string name="blocked_numbers_msg" msgid="8210089024274925462">"या सूचीमधील नंबरवरील कॉल आणि मजकूर अवरोधित केले आहेत."</string>
+    <string name="block_number" msgid="1101252256321306179">"एक नंबर जोडा"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> अनावरोधित करायचा?"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"अनावरोधित करा"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"यावरील कॉल आणि मजकूर अवरोधित करा"</string>
+    <string name="add_blocked_number_hint" msgid="1601214698916175149">"नंबर किंवा ईमेल"</string>
+    <string name="block_button" msgid="8822290682524373357">"अवरोधित करा"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"फक्त डिव्हाइस मालक अवरोधित केलेले नंबर पाहू आणि व्यवस्थापित करू शकतो."</string>
+    <string name="delete_icon_description" msgid="1828583824185681368">"अनावरोधित करण्यासाठी टॅब"</string>
 </resources>

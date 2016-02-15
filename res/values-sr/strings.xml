@@ -48,4 +48,14 @@
     <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"Променити подразумевану апликацију Телефон?"</string>
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"Желите ли да користите апликацију <xliff:g id="NEW_APP">%1$s</xliff:g> уместо апликације <xliff:g id="CURRENT_APP">%2$s</xliff:g> као подразумевану апликацију за позивање телефонских бројева?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"Желите ли да користите апликацију <xliff:g id="NEW_APP">%s</xliff:g> као подразумевану апликацију за позивање телефонских бројева?"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"Блокирани бројеви"</string>
+    <string name="blocked_numbers_msg" msgid="8210089024274925462">"Позиви и SMS-ови са бројева на овој листи су блокирани."</string>
+    <string name="block_number" msgid="1101252256321306179">"Додај број"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"Желите ли да деблокирате <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"Деблокирај"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Блокирајте позиве и SMS-ове од"</string>
+    <string name="add_blocked_number_hint" msgid="1601214698916175149">"Број или имејл"</string>
+    <string name="block_button" msgid="8822290682524373357">"Блокирај"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"Само власник уређаја може да прегледа блокиране бројеве и управља њима."</string>
+    <string name="delete_icon_description" msgid="1828583824185681368">"Додирните да бисте деблокирали"</string>
 </resources>

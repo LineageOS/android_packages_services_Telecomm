@@ -48,4 +48,14 @@
     <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"기본 다이얼러 앱을 변경하시겠습니까?"</string>
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"<xliff:g id="CURRENT_APP">%2$s</xliff:g> 대신 <xliff:g id="NEW_APP">%1$s</xliff:g>을(를) 기본 다이얼러 앱으로 사용하시겠습니까?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"<xliff:g id="NEW_APP">%s</xliff:g>을(를) 기본 다이얼러 앱으로 사용하시겠습니까?"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"차단된 번호"</string>
+    <string name="blocked_numbers_msg" msgid="8210089024274925462">"이 목록의 번호로부터 수신되는 전화와 문자 메시지가 차단됩니다."</string>
+    <string name="block_number" msgid="1101252256321306179">"번호 추가"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>번을 차단 해제하시겠습니까?"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"차단 해제"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"전화와 문자 메시지를 차단할 번호"</string>
+    <string name="add_blocked_number_hint" msgid="1601214698916175149">"번호 또는 이메일 주소"</string>
+    <string name="block_button" msgid="8822290682524373357">"차단"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"기기 소유자만 차단된 번호를 보고 관리할 수 있습니다."</string>
+    <string name="delete_icon_description" msgid="1828583824185681368">"차단 해제하려면 탭하세요."</string>
 </resources>

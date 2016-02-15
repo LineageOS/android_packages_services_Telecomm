@@ -48,4 +48,14 @@
     <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"Tukar apl Pendail lalai?"</string>
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"Gunakan <xliff:g id="NEW_APP">%1$s</xliff:g> dan bukannya <xliff:g id="CURRENT_APP">%2$s</xliff:g> sebagai apl pendail lalai anda?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"Gunakan <xliff:g id="NEW_APP">%s</xliff:g> sebagai apl pendail lalai anda?"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"Nombor yang disekat"</string>
+    <string name="blocked_numbers_msg" msgid="8210089024274925462">"Panggilan dan teks daripada nombor dalam senarai ini disekat."</string>
+    <string name="block_number" msgid="1101252256321306179">"Tambahkan nombor"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"Nyahsekat <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"Nyahsekat"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Sekat panggilan dan teks daripada"</string>
+    <string name="add_blocked_number_hint" msgid="1601214698916175149">"Nombor atau e-mel"</string>
+    <string name="block_button" msgid="8822290682524373357">"Sekat"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"Hanya pemilik peranti boleh melihat dan menguruskan nombor yang disekat."</string>
+    <string name="delete_icon_description" msgid="1828583824185681368">"Tab untuk nyahsekat"</string>
 </resources>

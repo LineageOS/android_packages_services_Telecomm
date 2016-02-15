@@ -48,4 +48,14 @@
     <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"Kas muuta helistamise vaikerakendust?"</string>
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"Kas kasutada rakendust <xliff:g id="NEW_APP">%1$s</xliff:g> rakenduse <xliff:g id="CURRENT_APP">%2$s</xliff:g> asemel helistamise vaikerakendusena?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"Kas kasutada rakendust <xliff:g id="NEW_APP">%s</xliff:g> helistamise vaikerakendusena?"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"Blokeeritud numbrid"</string>
+    <string name="blocked_numbers_msg" msgid="8210089024274925462">"Kõned ja tekstsõnumid selles loendis olevatelt numbritelt on blokeeritud."</string>
+    <string name="block_number" msgid="1101252256321306179">"Lisa number"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"Kas deblokeerida number <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"Deblokeeri"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Blokeeri kõned ja tekstsõnumid numbrilt"</string>
+    <string name="add_blocked_number_hint" msgid="1601214698916175149">"Number või e-posti aadress"</string>
+    <string name="block_button" msgid="8822290682524373357">"Blokeeri"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"Ainult seadme omanik saab blokeeritud numbreid vaadata ja hallata."</string>
+    <string name="delete_icon_description" msgid="1828583824185681368">"Puudutage deblokeerimiseks"</string>
 </resources>

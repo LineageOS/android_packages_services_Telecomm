@@ -48,4 +48,14 @@
     <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"Pakeisti numatytąją numerio rinkiklio programą?"</string>
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"Naudoti „<xliff:g id="NEW_APP">%1$s</xliff:g>“ vietoje „<xliff:g id="CURRENT_APP">%2$s</xliff:g>“ kaip numatytąją numerio rinkiklio programą?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"Naudoti „<xliff:g id="NEW_APP">%s</xliff:g>“ kaip numatytąją numerio rinkiklio programą?"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"Užblokuoti numeriai"</string>
+    <string name="blocked_numbers_msg" msgid="8210089024274925462">"Skambučiai ir teksto pranešimai iš šio numerio yra užblokuoti."</string>
+    <string name="block_number" msgid="1101252256321306179">"Pridėti numerį"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"Panaikinti <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> blokavimą?"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"Atblokuoti"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Blokuoti skambučius ir teksto pranešimus nuo"</string>
+    <string name="add_blocked_number_hint" msgid="1601214698916175149">"Numeris arba el. pašto adresas"</string>
+    <string name="block_button" msgid="8822290682524373357">"Blokuoti"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"Tik įrenginio savininkas gali peržiūrėti ir tvarkyti užblokuotus numerius."</string>
+    <string name="delete_icon_description" msgid="1828583824185681368">"Palieskite, kad panaikintumėte blokavimą"</string>
 </resources>

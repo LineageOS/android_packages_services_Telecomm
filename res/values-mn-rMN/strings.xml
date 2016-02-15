@@ -48,4 +48,14 @@
     <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"Үндсэн залгагч апп-ыг өөрчлөх үү?"</string>
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"<xliff:g id="NEW_APP">%1$s</xliff:g>-ыг <xliff:g id="CURRENT_APP">%2$s</xliff:g>-ын оронд таны үндсэн залгагч апп болгон тохируулах уу?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"<xliff:g id="NEW_APP">%s</xliff:g>-ыг таны үндсэн залгагч апп болгон тохируулах уу?"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"Блоклосон дугаар"</string>
+    <string name="blocked_numbers_msg" msgid="8210089024274925462">"Энэ жагсаалтад байгаа дугаараас ирэх дуудлага, текстийг блоклосон."</string>
+    <string name="block_number" msgid="1101252256321306179">"Дугаар нэмэх"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>-г блокоос гаргах уу?"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"Блокоос гаргах"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Дараахаас ирэх дуудлага, текстийг блоклох"</string>
+    <string name="add_blocked_number_hint" msgid="1601214698916175149">"Дугаар эсвэл имэйл"</string>
+    <string name="block_button" msgid="8822290682524373357">"Блоклох"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"Зөвхөн энэ төхөөрөмжийн эзэн блоклосон дугаарыг харж, өөрчлөх боломжтой."</string>
+    <string name="delete_icon_description" msgid="1828583824185681368">"Блокоос гаргахын тулд дарна уу"</string>
 </resources>
