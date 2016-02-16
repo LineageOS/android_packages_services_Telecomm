@@ -16,6 +16,24 @@
       "revId": "9483780dcb48a29b278b36d5ff47093fc933b940",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ffb9cba7_df3bce99",
+        "filename": "src/com/android/server/telecom/CallsManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 6351
+      },
+      "writtenOn": "2016-02-16T07:12:29Z",
+      "side": 1,
+      "message": "I actually intentionally changed the name in case someone does merge in upstream code that uses the old name.\n\nIf new code using the old name is merged, a compile error is a nice signal that someone needs to look at the change and make sure it makes sense (or if not how to update it to support a device without qcom\u0027s LCH).\n\nIt is a lot easier to do that when the compiler tells you to look at it rather than when your software suddenly no longer works correctly because some code you never looked at didn\u0027t take your quirk into account.",
+      "parentUuid": "ffb9cba7_0db13f90",
+      "revId": "9483780dcb48a29b278b36d5ff47093fc933b940",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
