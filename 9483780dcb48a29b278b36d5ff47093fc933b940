@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ffb9cba7_0db13f90",
+        "filename": "src/com/android/server/telecom/CallsManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 13513
+      },
+      "writtenOn": "2016-02-16T05:42:05Z",
+      "side": 1,
+      "message": "Please keep the old def also, this way if there is code that is added in the future which uses the old definition MAXIMUM_DSDA_TOP_LEVEL_CALLS then we dont end up with compile errors. Also looks like u are not really using this new define differently, so why not just keep the same name.",
+      "revId": "9483780dcb48a29b278b36d5ff47093fc933b940",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
