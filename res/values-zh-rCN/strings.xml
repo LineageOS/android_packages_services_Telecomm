@@ -56,6 +56,6 @@
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"屏蔽以下号码的来电和短信："</string>
     <string name="add_blocked_number_hint" msgid="1601214698916175149">"电话号码或电子邮件地址"</string>
     <string name="block_button" msgid="8822290682524373357">"屏蔽"</string>
-    <string name="non_primary_user" msgid="5180129233352533459">"只有设备所有者才能查看和管理已屏蔽的号码。"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"只有机主才能查看和管理已屏蔽的号码。"</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"点按即可取消屏蔽"</string>
 </resources>

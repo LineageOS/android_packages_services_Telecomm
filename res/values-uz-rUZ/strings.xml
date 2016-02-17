@@ -49,11 +49,11 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"Raqam terish uchun birlamchi ilova sifatida <xliff:g id="CURRENT_APP">%2$s</xliff:g> o‘rniga <xliff:g id="NEW_APP">%1$s</xliff:g> ilovasi tanlansinmi?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"<xliff:g id="NEW_APP">%s</xliff:g> raqam terish uchun birlamchi ilova sifatida tanlansinmi?"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Bloklangan raqamlar"</string>
-    <string name="blocked_numbers_msg" msgid="8210089024274925462">"Bu ro‘yxatdagi raqamlardan kelgan qo‘ng‘iroqlar va SMS xabarlar bloklangan."</string>
+    <string name="blocked_numbers_msg" msgid="8210089024274925462">"Bu ro‘yxatdagi raqamlardan keladigan qo‘ng‘iroqlar va SMS xabarlar bloklanadi."</string>
     <string name="block_number" msgid="1101252256321306179">"Telefon raqamini qo‘shish"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> raqami blokdan chiqarilsinmi?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Blokdan chiqarish"</string>
-    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Mazkur raqamdan kelgan qo‘ng‘iroqlar va SMS xabarlarni bloklang:"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Bu raqamdan kelgan qo‘ng‘iroqlar va SMS xabarlar bloklansin"</string>
     <string name="add_blocked_number_hint" msgid="1601214698916175149">"Telefon raqami yoki e-pochta manzili"</string>
     <string name="block_button" msgid="8822290682524373357">"Bloklash"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Faqat qurilma egasi bloklangan raqamlarni ko‘rishi va boshqarishi mumkin."</string>

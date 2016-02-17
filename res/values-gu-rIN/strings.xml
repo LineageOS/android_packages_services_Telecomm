@@ -57,5 +57,5 @@
     <string name="add_blocked_number_hint" msgid="1601214698916175149">"નંબર અથવા ઇમેઇલ"</string>
     <string name="block_button" msgid="8822290682524373357">"અવરોધિત કરો"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"ફક્ત ઉપકરણના માલિક અવરોધિત નંબરોને જોઈ અને સંચાલિત કરી શકે છે."</string>
-    <string name="delete_icon_description" msgid="1828583824185681368">"અનાવરોધિત કરવા માટે ટૅપ કરો"</string>
+    <string name="delete_icon_description" msgid="1828583824185681368">"અનાવરોધિત કરવા માટે ટૅબ કરો"</string>
 </resources>
