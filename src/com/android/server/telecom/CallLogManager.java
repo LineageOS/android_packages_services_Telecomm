@@ -21,11 +21,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.UserHandle;
+import android.os.PersistableBundle;
 import android.provider.CallLog.Calls;
 import android.telecom.DisconnectCause;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.VideoProfile;
+import android.telephony.CarrierConfigManager;
 import android.telephony.PhoneNumberUtils;
 
 // TODO: Needed for move to system service: import com.android.internal.R;
@@ -197,8 +199,14 @@ public final class CallLogManager extends CallsManagerListenerBase {
         // On some devices, to avoid accidental redialing of emergency numbers, we *never* log
         // emergency calls to the Call Log.  (This behavior is set on a per-product basis, based
         // on carrier requirements.)
-        final boolean okToLogEmergencyNumber =
-                mContext.getResources().getBoolean(R.bool.allow_emergency_numbers_in_call_log);
+        boolean okToLogEmergencyNumber = false;
+        CarrierConfigManager configManager = (CarrierConfigManager) mContext.getSystemService(
+                Context.CARRIER_CONFIG_SERVICE);
+        PersistableBundle configBundle = configManager.getConfig();
+        if (configBundle != null) {
+            okToLogEmergencyNumber = configBundle.getBoolean(
+                    CarrierConfigManager.KEY_ALLOW_EMERGENCY_NUMBERS_IN_CALL_LOG_BOOL);
+        }
 
         // Don't log emergency numbers if the device doesn't allow it.
         final boolean isOkToLogThisCall = !isEmergency || okToLogEmergencyNumber;
