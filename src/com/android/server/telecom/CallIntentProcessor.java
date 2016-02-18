@@ -125,7 +125,12 @@ public class CallIntentProcessor {
 
         final boolean isPrivilegedDialer = intent.getBooleanExtra(KEY_IS_PRIVILEGED_DIALER, false);
 
-        fixInitiatingUserIfNecessary(context, intent);
+        boolean fixedInitiatingUser = fixInitiatingUserIfNecessary(context, intent);
+        // Show the toast to warn user that it is a personal call though initiated in work profile.
+        if (fixedInitiatingUser) {
+            Toast.makeText(context, R.string.toast_personal_call_msg, Toast.LENGTH_LONG).show();
+        }
+
         UserHandle initiatingUser = intent.getParcelableExtra(KEY_INITIATING_USER);
 
         // Send to CallsManager to ensure the InCallUI gets kicked off before the broadcast returns
@@ -153,8 +158,10 @@ public class CallIntentProcessor {
     /**
      * If the call is initiated from managed profile but there is no work dialer installed, treat
      * the call is initiated from its parent user.
+     *
+     * @return whether the initiating user is fixed.
      */
-    static void fixInitiatingUserIfNecessary(Context context, Intent intent) {
+    static boolean fixInitiatingUserIfNecessary(Context context, Intent intent) {
         final UserHandle initiatingUser = intent.getParcelableExtra(KEY_INITIATING_USER);
         if (UserUtil.isManagedProfile(context, initiatingUser)) {
             boolean noDialerInstalled = DefaultDialerManager.getInstalledDialerApplications(context,
@@ -165,8 +172,10 @@ public class CallIntentProcessor {
                         userManager.getProfileParent(
                                 initiatingUser.getIdentifier()).getUserHandle();
                 intent.putExtra(KEY_INITIATING_USER, parentUserHandle);
+                return true;
             }
         }
+        return false;
     }
 
     static void processIncomingCallIntent(CallsManager callsManager, Intent intent) {

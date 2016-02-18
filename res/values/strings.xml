@@ -158,4 +158,6 @@
 
     <!-- DO NOT TRANSLATE. Hardcoded number used for restricted incoming phone numbers. -->
     <string name="handle_restricted">RESTRICTED</string>
+
+    <string name="toast_personal_call_msg">Using the personal dialer to make the call</string>
 </resources>
