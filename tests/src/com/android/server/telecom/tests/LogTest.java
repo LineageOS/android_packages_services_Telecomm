@@ -440,8 +440,9 @@ public class LogTest extends TelecomTestCase{
         Thread.sleep(1100);
         assertEquals(0, Log.sSessionMapper.size());
         // "Suggest" that the GC collects the now isolated Session and subsession and wait for it
-        // to occur.
-        System.gc();
+        // to occur. "System.gc()" was previously used, but it does not always perform GC, so the
+        // internal method is now called.
+        Runtime.getRuntime().gc();
         Thread.sleep(1000);
         assertEquals(null, sessionRef.get());
     }
