@@ -54,9 +54,9 @@ lite_test_telecom() {
     fi
     # Build and exit script early if build fails
     if [ $installwdep = true ] ; then
-      ANDROID_COMPILE_WITH_JACK=false mmma -j40 "packages/services/Telecomm/tests" ${emma_opt}
+      mmma -j40 "packages/services/Telecomm/tests" ${emma_opt}
     else
-      ANDROID_COMPILE_WITH_JACK=false mmm "packages/services/Telecomm/tests" ${emma_opt}
+      mmm "packages/services/Telecomm/tests" ${emma_opt}
     fi
     if [ $? -ne 0 ] ; then
       echo "Make failed! try using -a instead of -i if building with coverage"
@@ -87,6 +87,13 @@ lite_test_telecom() {
     adb root
     adb wait-for-device
     adb pull /data/user/0/com.android.server.telecom.tests/files/coverage.ec /tmp/
-    java -cp external/emma/lib/emma.jar emma report -r html -sp packages/services/Telecomm/src -in out/target/common/obj/APPS/TelecomUnitTests_intermediates/coverage.em -in /tmp/coverage.ec
+    if [ ! -d "$T/coverage" ] ; then
+      mkdir -p "$T/coverage"
+    fi
+    java -jar "$T/prebuilts/sdk/tools/jack-jacoco-reporter.jar" \
+      --report-dir "$T/coverage/" \
+      --metadata-file "$T/out/target/common/obj/APPS/TelecomUnitTests_intermediates/coverage.em" \
+      --coverage-file "/tmp/coverage.ec" \
+      --source-dir "$T/packages/services/Telecomm/src/"
   fi
 }
