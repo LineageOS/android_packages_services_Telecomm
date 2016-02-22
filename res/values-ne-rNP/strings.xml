@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"रोक्नुहोस्"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"यन्त्रको मालिकले रोकिएका नम्बरहरूलाई हेर्न र व्यवस्थापन गर्न सक्छ।"</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"अनब्लक गर्ने ट्याब"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"कल गर्न व्यक्तिगत डायलर प्रयोग गर्नुहोस्"</string>
 </resources>

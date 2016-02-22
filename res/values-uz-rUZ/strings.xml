@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"Bloklash"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Faqat qurilma egasi bloklangan raqamlarni ko‘rishi va boshqarishi mumkin."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Blokdan chiqarish uchun bosing"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"Qo‘ng‘iroq qilish uchun shaxsiy raqam tergichdan foydalanilmoqda"</string>
 </resources>

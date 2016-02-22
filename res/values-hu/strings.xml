@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"Letiltás"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Csak az eszköz tulajdonosa nézheti meg és kezelheti a letiltott számokat."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Koppintson a letiltás feloldásához"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"Hívás indítása a személyes tárcsázóval"</string>
 </resources>

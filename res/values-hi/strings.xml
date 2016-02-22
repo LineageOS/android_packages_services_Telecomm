@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"अवरुद्ध करें"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"केवल डिवाइस स्वामी अवरुद्ध किए गए नंबर देख और प्रबंधित कर सकते हैं."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"अनवरोधित करने के लिए टैब करें"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"कॉल करने के लिए व्यक्तिगत डायलर का उपयोग करना"</string>
 </resources>

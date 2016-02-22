@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"រារាំង"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"មានតែម្ចាស់ឧបករណ៍តែប៉ុណ្ណោះដែលអាចមើល និងគ្រប់គ្រងបញ្ជីរារាំងបាន"</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"ផ្ទាំងដែលត្រូវឈប់រារាំង"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"កំពុងប្រើកម្មវិធីហៅផ្ទាល់ខ្លួនដើម្បីធ្វើការហៅទូរស័ព្ទ"</string>
 </resources>

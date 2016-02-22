@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"ບລັອກ"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"ມີແຕ່ເຈົ້າຂອງອຸປະກອນເທົ່ານັ້ນທີ່ສາມາດເບິ່ງ ແລະ ຈັດການເບີທີ່ຖືກບລັອກໄວ້."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"ແຕະເພື່ອຍົກເລີກການບລັອກ"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"ໃຊ້ແປ້ນໂທສ່ວນຕົວເພື່ອໂທອອກ"</string>
 </resources>

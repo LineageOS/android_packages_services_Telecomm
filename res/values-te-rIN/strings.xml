@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"బ్లాక్ చేయి"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"కేవలం పరికర యజమాని మాత్రమే బ్లాక్ చేసిన నంబర్‌లను వీక్షించగలరు మరియు నిర్వహించగలరు."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"అన్‌బ్లాక్ చేయడానికి నొక్కండి"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"కాల్ చేయడానికి వ్యక్తిగత డయలర్‌ను ఉపయోగిస్తోంది"</string>
 </resources>

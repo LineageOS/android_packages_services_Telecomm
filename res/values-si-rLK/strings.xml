@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"අවහිර කරන්න"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"උපාංගය හිමිකරුට පමණක් අවහිර අංක බැලීමට සහ කළමනාකරණය කිරීමට හැකිය."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"අවහිර නොකිරීමේ කිරීමේ ටැබය"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"ඇමතුම ගැනීමට පුද්ගලික ඩයල්කරු භාවිත කරමින්"</string>
 </resources>

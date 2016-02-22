@@ -42,7 +42,7 @@
     <string name="outgoing_call_not_allowed_no_permission" msgid="1996571596464271228">"Această aplicație nu poate efectua apeluri fără permisiunea Telefon."</string>
     <string name="outgoing_call_error_no_phone_number_supplied" msgid="1940125199802007505">"Pentru a apela, introduceți un număr valid."</string>
     <string name="duplicate_video_call_not_allowed" msgid="3749211605014548386">"Apelul nu poate fi adăugat în acest moment."</string>
-    <string name="no_vm_number" msgid="4164780423805688336">"Lipseşte numărul mesageriei vocale"</string>
+    <string name="no_vm_number" msgid="4164780423805688336">"Lipsește numărul mesageriei vocale"</string>
     <string name="no_vm_number_msg" msgid="1300729501030053828">"Niciun număr de mesagerie vocală nu este stocat pe cardul SIM."</string>
     <string name="add_vm_number_str" msgid="4676479471644687453">"Adăugați numărul"</string>
     <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"Schimbați aplicația Telefon prestabilită?"</string>
@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"Blocați"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Numai proprietarul dispozitivului poate vedea și gestiona numerele blocate."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Atingeți pentru a debloca"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"Utilizarea telefonului personal pentru a apela"</string>
 </resources>

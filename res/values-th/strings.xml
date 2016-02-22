@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"บล็อก"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"มีเพียงเจ้าของอุปกรณ์เท่านั้นที่สามารถดูและจัดการหมายเลขที่ถูกบล็อก"</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"แตะเพื่อเลิกบล็อก"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"การใช้โทรศัพท์ส่วนตัวเพื่อทำการโทร"</string>
 </resources>

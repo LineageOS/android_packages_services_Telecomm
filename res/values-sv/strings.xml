@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"Blockera"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Bara enhetens ägare kan se och hantera blockerade nummer."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Tryck här om du vill häva blockeringen"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"Ringer med den egna uppringningsfunktionen"</string>
 </resources>

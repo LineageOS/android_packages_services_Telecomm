@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"ਬਲੌਕ ਕਰੋ"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"ਸਿਰਫ਼ ਡੀਵਾਈਸ ਮਾਲਕ ਹੀ ਬਲੌਕ ਕੀਤੇ ਗਏ ਨੰਬਰਾਂ ਨੂੰ ਵੇਖ ਅਤੇ ਪ੍ਰਬੰਧਿਤ ਕਰ ਸਕਦਾ ਹੈ।"</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"ਅਣਬਲੌਕ ਕਰਨ ਲਈ ਟੈਪ ਕਰੋ"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"ਕਾਲ ਕਰਨ ਲਈ ਨਿੱਜੀ ਡਾਇਲਰ ਦੀ ਵਰਤੋਂ ਕਰਨੀ"</string>
 </resources>

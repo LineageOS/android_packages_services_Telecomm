@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"مسدود کردن"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"فقط مالک دستگاه می‌تواند شماره‌های مسدودشده را مدیریت کند."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"ضربه برای گشودن"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"استفاده از شماره‌گیر شخصی برای گرفتن تماس"</string>
 </resources>

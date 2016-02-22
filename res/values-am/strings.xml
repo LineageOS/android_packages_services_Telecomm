@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"አግድ"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"የመሣሪያው ባለቤት ብቻ ነው የታገዱ ቁጥሮችን ማየት እና ማስተዳደር የሚችለው።"</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"እንዳይታገድ ለማድረግ መታ ያድርጉ"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"ጥሪውን ለማድረግ የግል መደወያውን መጠቀም"</string>
 </resources>

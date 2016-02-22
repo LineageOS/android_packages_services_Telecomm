@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"Zablokuj"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Tylko właściciel urządzenia może przeglądać zablokowane numery i nimi zarządzać."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Kliknij, by odblokować"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"Wykonuję połączenie z osobistego telefonu"</string>
 </resources>

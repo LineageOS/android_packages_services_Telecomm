@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"ബ്ലോക്കുചെയ്യുക"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"ബ്ലോക്കുചെയ്ത നമ്പറുകൾ ഉപകരണ ഉടമയ്ക്ക് മാത്രമേ കാണാനും മാനേജുചെയ്യാനും കഴിയൂ."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"അൺബ്ലോക്കുചെയ്യുന്നതിനുള്ള ടാബ്"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"കോൾ ചെയ്യുന്നതിന് സ്വകാര്യ ഡയലർ ഉപയോഗിക്കുന്നു"</string>
 </resources>

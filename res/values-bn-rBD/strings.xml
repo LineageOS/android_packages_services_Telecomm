@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"অবরোধ করুন"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"শুধুমাত্র ডিভাইসের মালিক এই অবরুদ্ধ নম্বরগুলিকে দেখতে এবং পরিচালনা করতে পারেন৷"</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"অবরোধ মুক্ত করতে আলতো চাপ দিন"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"কল করার জন্য ব্যক্তিগত ডায়ালার ব্যবহার করা হচ্ছে"</string>
 </resources>

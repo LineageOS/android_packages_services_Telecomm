@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"ပိတ်ဆို့ပါ"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"ပိတ်ဆို့ထားသည့် နံပါတ်များကို စက်ပစ္စည်းပိုင်ရှင်သာလျှင် ကြည့်ရှု၍ စီမံခန့်ခွဲနိုင်ပါသည်။"</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"ပိတ်ဆို့မှုပြန်ဖွင့်ရန် တို့ပါ"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"ဖုန်းခေါ်ဆိုမှုပြုလုပ်ရန် ကိုယ်ရေးကိုယ်တာ ဖုန်းခေါ်ဆိုမှုစနစ်ကို အသုံးပြုခြင်း"</string>
 </resources>

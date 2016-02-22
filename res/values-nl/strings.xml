@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"Blokkeren"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Alleen de eigenaar van het apparaat kan geblokkeerd nummers bekijken en beheren."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Tik om blokkering op te heffen"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"De persoonlijke kiezer gebruiken om te bellen"</string>
 </resources>

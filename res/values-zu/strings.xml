@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"Vimba"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Umnikazi wedivayisi kuphela ongabuka aphinde aphathe izinombolo ezivinjelwe."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Ithebhu lokuvulela"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"Ukusebenzisa okokudayila komuntu siqu ukwenza ikholi"</string>
 </resources>

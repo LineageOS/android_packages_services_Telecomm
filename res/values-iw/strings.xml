@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"חסום"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"רק בעל המכשיר יכול להציג ולנהל מספרים חסומים."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"הקש כדי לבטל את החסימה"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"משתמש בחייגן האישי כדי להתקשר"</string>
 </resources>

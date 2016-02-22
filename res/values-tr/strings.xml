@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"Engelle"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Yalnızca cihaz sahibi engellenen numaraları görüntüleyebilir ve yönetebilir."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Engellemeyi kaldırmak için hafifçe dokunun"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"Telefon etmek için kişisel numara çeviriciyi kullanma"</string>
 </resources>

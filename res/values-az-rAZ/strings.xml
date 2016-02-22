@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"Blok edin"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Yalnız cihaz sahibi blok edilmiş nömrələrə baxa və idarə edə bilər."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Kiliddən çıxarmaq üçün basın"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"Zəng etmək üçün şəxsi nömrə yığımı istifadə olunur"</string>
 </resources>

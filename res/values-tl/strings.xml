@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"I-block"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Ang may-ari ng device lang ang makakakita at makakapamahala sa mga naka-block na numero."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Tab upang alisin sa pagkaka-block"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"Ginagamit ang personal na dialer upang tumawag"</string>
 </resources>

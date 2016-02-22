@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"अवरोधित करा"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"फक्त डिव्हाइस मालक अवरोधित केलेले नंबर पाहू आणि व्यवस्थापित करू शकतो."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"अनावरोधित करण्यासाठी टॅब"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"कॉल करण्यासाठी वैयक्तिक डायलर वापरणे"</string>
 </resources>

@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"Zuia"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Ni mmiliki wa kifaa pekee anayeweza kuangalia na kuthibiti nambari zilizozuiwa."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Kichupo cha kuondoa kizuizi"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"Kupiga simu kwa kutumia kipiga simu cha binafsi"</string>
 </resources>

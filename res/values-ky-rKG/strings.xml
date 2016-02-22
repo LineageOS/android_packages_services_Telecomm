@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"Бөгөттөө"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Бөгөттөлгөн номерлерди түзмөк ээси гана көрүп жана башкара алат."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Бөгөттөн чыгаруучу өтмөк"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"Чалууларды аткаруу үчүн жеке тергич колдонулууда"</string>
 </resources>

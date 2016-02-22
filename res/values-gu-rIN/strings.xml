@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"અવરોધિત કરો"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"ફક્ત ઉપકરણના માલિક અવરોધિત નંબરોને જોઈ અને સંચાલિત કરી શકે છે."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"અનાવરોધિત કરવા માટે ટૅબ કરો"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"કૉલ કરવા માટે વ્યક્તિગત ડાયલરનો ઉપયોગ કરી રહ્યાં છે"</string>
 </resources>

@@ -58,4 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"ನಿರ್ಬಂಧಿಸು"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"ಸಾಧನ ಮಾಲೀಕರು ಮಾತ್ರ ನಿರ್ಬಂಧಿಸಿದ ಸಂಖ್ಯೆಗಳನ್ನು ವೀಕ್ಷಿಸಬಹುದು ಮತ್ತು ನಿರ್ವಹಿಸಬಹುದು."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"ನಿರ್ಬಂಧ ತೆಗೆಯಲು ಟ್ಯಾಬ್"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"ಕರೆ ಮಾಡಲು ವೈಯಕ್ತಿಕ ಡಯಲರ್ ಬಳಸಲಾಗುತ್ತಿದೆ"</string>
 </resources>
