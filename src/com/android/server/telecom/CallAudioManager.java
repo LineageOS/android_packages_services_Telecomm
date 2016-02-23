@@ -268,6 +268,10 @@ public class CallAudioManager extends CallsManagerListenerBase {
         return mCallAudioRouteStateMachine.getCurrentCallAudioState();
     }
 
+    public Call getPossiblyHeldForegroundCall() {
+        return mForegroundCall;
+    }
+
     public Call getForegroundCall() {
         if (mForegroundCall != null && mForegroundCall.getState() != CallState.ON_HOLD) {
             return mForegroundCall;

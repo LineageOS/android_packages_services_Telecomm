@@ -1219,7 +1219,7 @@ public class CallsManager extends Call.ListenerBase
         removeCall(call);
         if (mLocallyDisconnectingCalls.contains(call)) {
             mLocallyDisconnectingCalls.remove(call);
-            Call foregroundCall = getForegroundCall();
+            Call foregroundCall = mCallAudioManager.getPossiblyHeldForegroundCall();
             if (foregroundCall != null && foregroundCall.getState() == CallState.ON_HOLD) {
                 foregroundCall.unhold();
             }
