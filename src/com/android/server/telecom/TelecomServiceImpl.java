@@ -967,7 +967,8 @@ public class TelecomServiceImpl {
                                     phoneAccountHandle.getComponentName().getPackageName());
                             // Make sure it doesn't cross the UserHandle boundary
                             enforceUserHandleMatchesCaller(phoneAccountHandle);
-                            enforcePhoneAccountIsRegisteredEnabled(phoneAccountHandle);
+                            enforcePhoneAccountIsRegisteredEnabled(phoneAccountHandle,
+                                    Binder.getCallingUserHandle());
                         }
                         long token = Binder.clearCallingIdentity();
                         try {
@@ -1009,7 +1010,8 @@ public class TelecomServiceImpl {
 
                         // Make sure it doesn't cross the UserHandle boundary
                         enforceUserHandleMatchesCaller(phoneAccountHandle);
-                        enforcePhoneAccountIsRegisteredEnabled(phoneAccountHandle);
+                        enforcePhoneAccountIsRegisteredEnabled(phoneAccountHandle,
+                                Binder.getCallingUserHandle());
                         long token = Binder.clearCallingIdentity();
 
                         try {
@@ -1296,9 +1298,10 @@ public class TelecomServiceImpl {
 
     // Enforce that the PhoneAccountHandle being passed in is both registered to the current user
     // and enabled.
-    private void enforcePhoneAccountIsRegisteredEnabled(PhoneAccountHandle phoneAccountHandle) {
-        PhoneAccount phoneAccount = mPhoneAccountRegistrar.getPhoneAccountOfCurrentUser(
-                phoneAccountHandle);
+    private void enforcePhoneAccountIsRegisteredEnabled(PhoneAccountHandle phoneAccountHandle,
+                                                        UserHandle callingUserHandle) {
+        PhoneAccount phoneAccount = mPhoneAccountRegistrar.getPhoneAccount(phoneAccountHandle,
+                callingUserHandle);
         if(phoneAccount == null) {
             EventLog.writeEvent(0x534e4554, "26864502", Binder.getCallingUid(), "R");
             throw new SecurityException("This PhoneAccountHandle is not registered for this user!");
