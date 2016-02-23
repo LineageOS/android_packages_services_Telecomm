@@ -16,7 +16,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="telecommAppLabel" product="default" msgid="3477737022166975496">"ਫੋਨ"</string>
+    <string name="telecommAppLabel" product="default" msgid="9166784827254469057">"ਫ਼ੋਨ - ਕਾਲ ਪ੍ਰਬੰਧਨ"</string>
+    <string name="userCallActivityLabel" product="default" msgid="5415173590855187131">"ਫ਼ੋਨ"</string>
     <string name="unknown" msgid="6878797917991465859">"ਅਗਿਆਤ"</string>
     <string name="notification_missedCallTitle" msgid="7554385905572364535">"ਮਿਸਡ ਕਾਲ"</string>
     <string name="notification_missedCallsTitle" msgid="1361677948941502522">"ਮਿਸਡ ਕਾਲਾਂ"</string>
@@ -35,11 +36,16 @@
     <string name="respond_via_sms_setting_summary" msgid="9150281183930613065"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="20379890418289778">"ਤਤਕਾਲ ਜਵਾਬ"</string>
     <string name="respond_via_sms_confirmation_format" msgid="7229149977515784269">"ਸੁਨੇਹਾ <xliff:g id="PHONE_NUMBER">%s</xliff:g> ਨੂੰ ਭੇਜਿਆ ਗਿਆ।"</string>
-    <string name="outgoing_call_not_allowed" msgid="1435394568102165287">"ਡਿਵਾਈਸ ਦੇ ਮਾਲਕ ਵੱਲੋਂ ਕੇਵਲ ਐਮਰਜੈਂਸੀ ਕਾਲਾਂ ਦੀ ਆਗਿਆ ਹੈ।"</string>
+    <string name="enable_account_preference_title" msgid="2021848090086481720">"ਕਾਲਿੰਗ ਖਾਤੇ"</string>
+    <string name="outgoing_call_not_allowed_user_restriction" msgid="6872406278300131364">"ਸਿਰਫ਼ ਸੰਕਟ ਕਾਲਾਂ ਨੂੰ ਮਨਜ਼ੂਰੀ ਹੈ।"</string>
+    <string name="outgoing_call_not_allowed_no_permission" msgid="1996571596464271228">"ਇਹ ਐਪਲੀਕੇਸ਼ਨ ਫੋਨ ਅਨੁਮਤੀ ਦੇ ਬਿਨਾਂ ਆਉਟਗੋਇੰਗ ਕਾਲਾਂ ਨਹੀਂ ਕਰ ਸਕਦੀ।"</string>
     <string name="outgoing_call_error_no_phone_number_supplied" msgid="1940125199802007505">"ਇੱਕ ਕਾਲ ਕਰਨ ਲਈ, ਇੱਕ ਪ੍ਰਮਾਣਿਕ ਨੰਬਰ ਦਰਜ ਕਰੋ।"</string>
     <string name="duplicate_video_call_not_allowed" msgid="3749211605014548386">"ਇਸ ਵੇਲੇ ਕਾਲ ਨਹੀਂ ਜੋੜੀ ਸਕਦੀ।"</string>
     <string name="video_call_not_allowed_if_tty_enabled" msgid="7593649283571253283">"ਕਿਰਪਾ ਕਰਕੇ ਵੀਡੀਓ ਕਾਲਾਂ ਨੂੰ ਕਰਨ ਲਈ TTY ਮੋਡ ਅਸਮਰਥਿਤ ਕਰੋ."</string>
     <string name="no_vm_number" msgid="4164780423805688336">"ਲੁਪਤ ਵੌਇਸਮੇਲ ਨੰਬਰ"</string>
     <string name="no_vm_number_msg" msgid="1300729501030053828">"SIM ਕਾਰਡ ਤੇ ਕੋਈ ਵੌਇਸਮੇਲ ਨੰਬਰ ਸਟੋਰ ਨਹੀਂ ਕੀਤਾ ਗਿਆ ਹੈ।"</string>
     <string name="add_vm_number_str" msgid="4676479471644687453">"ਨੰਬਰ ਜੋੜੋ"</string>
+    <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"ਕੀ ਡਿਫ਼ੌਲਟ ਡਾਇਲਰ ਐਪ ਨੂੰ ਬਦਲਣਾ ਹੈ?"</string>
+    <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"ਕੀ <xliff:g id="CURRENT_APP">%2$s</xliff:g> ਦੀ ਬਜਾਏ <xliff:g id="NEW_APP">%1$s</xliff:g> ਨੂੰ ਆਪਣੀ ਡਿਫ਼ੌਲਟ ਡਾਇਲਰ ਐਪ ਦਾ ਉਪਯੋਗ ਕਰਨਾ ਹੈ?"</string>
+    <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"ਕੀ <xliff:g id="NEW_APP">%s</xliff:g> ਨੂੰ ਆਪਣੀ ਡਿਫ਼ੌਲਟ ਡਾਇਲਰ ਐਪ ਦਾ ਉਪਯੋਗ ਕਰਨਾ ਹੈ?"</string>
 </resources>

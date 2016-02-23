@@ -16,7 +16,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="telecommAppLabel" product="default" msgid="3477737022166975496">"ફોન"</string>
+    <string name="telecommAppLabel" product="default" msgid="9166784827254469057">"ફોન કૉલ સંચાલન"</string>
+    <string name="userCallActivityLabel" product="default" msgid="5415173590855187131">"ફોન"</string>
     <string name="unknown" msgid="6878797917991465859">"અજાણ્યું"</string>
     <string name="notification_missedCallTitle" msgid="7554385905572364535">"છૂટેલો કૉલ"</string>
     <string name="notification_missedCallsTitle" msgid="1361677948941502522">"છૂટેલા કૉલ્સ"</string>
@@ -35,11 +36,16 @@
     <string name="respond_via_sms_setting_summary" msgid="9150281183930613065"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="20379890418289778">"ઝડપી પ્રતિસાદ"</string>
     <string name="respond_via_sms_confirmation_format" msgid="7229149977515784269">"<xliff:g id="PHONE_NUMBER">%s</xliff:g> પર સંદેશ મોકલ્યો."</string>
-    <string name="outgoing_call_not_allowed" msgid="1435394568102165287">"ઉપકરણના માલિક દ્વારા ફક્ત કટોકટીના કૉલ્સને મંજૂરી અપાયેલ છે"</string>
+    <string name="enable_account_preference_title" msgid="2021848090086481720">"કૉલિંગ એકાઉન્ટ્સ"</string>
+    <string name="outgoing_call_not_allowed_user_restriction" msgid="6872406278300131364">"ફક્ત કટોકટીના કૉલ્સને મંજૂરી છે."</string>
+    <string name="outgoing_call_not_allowed_no_permission" msgid="1996571596464271228">"ફોન પરવાનગી વિના આ એપ્લિકેશન આઉટગોઇંગ કૉલ્સ કરી શકતી નથી."</string>
     <string name="outgoing_call_error_no_phone_number_supplied" msgid="1940125199802007505">"કૉલ કરવા માટે, માન્ય નંબર દાખલ કરો."</string>
     <string name="duplicate_video_call_not_allowed" msgid="3749211605014548386">"આ સમયે કૉલ ઉમેરી શકાતો નથી."</string>
     <string name="video_call_not_allowed_if_tty_enabled" msgid="7593649283571253283">"કૃપા કરીને વિડિઓ કૉલ્સ કરવા માટે TTY મોડ અક્ષમ કરો."</string>
     <string name="no_vm_number" msgid="4164780423805688336">"વૉઇસમેઇલ નંબર ખૂટે છે"</string>
     <string name="no_vm_number_msg" msgid="1300729501030053828">"SIM કાર્ડ પર કોઈ વૉઇસમેઇલ નંબર સંગ્રહિત નથી."</string>
     <string name="add_vm_number_str" msgid="4676479471644687453">"નંબર ઉમેરો"</string>
+    <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"ડિફોલ્ટ ડાયલર એપ્લિકેશન બદલીએ?"</string>
+    <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"તમારી ડિફોલ્ટ ડાયલર એપ્લિકેશન તરીકે <xliff:g id="CURRENT_APP">%2$s</xliff:g> ને બદલે <xliff:g id="NEW_APP">%1$s</xliff:g> નો ઉપયોગ કરીએ?"</string>
+    <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"તમારી ડિફોલ્ટ ડાયલર એપ્લિકેશન તરીકે <xliff:g id="NEW_APP">%s</xliff:g> નો ઉપયોગ કરીએ?"</string>
 </resources>
