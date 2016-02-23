@@ -587,6 +587,23 @@ public class ConnectionServiceWrapper extends ServiceBinder {
                 Log.endSession();
             }
         }
+
+        @Override
+        public void onConnectionEvent(String callId, String event) {
+            Log.startSession("CSW.oCE");
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        call.onConnectionEvent(event);
+                    }
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+                Log.endSession();
+            }
+        }
     }
 
     private final Adapter mAdapter = new Adapter();

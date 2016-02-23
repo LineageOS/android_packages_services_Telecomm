@@ -55,6 +55,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     private Call mForegroundCall;
     private boolean mIsTonePlaying = false;
+    private InCallTonePlayer mHoldTonePlayer;
 
     public CallAudioManager(CallAudioRouteStateMachine callAudioRouteStateMachine,
             CallsManager callsManager,
@@ -211,6 +212,19 @@ public class CallAudioManager extends CallsManagerListenerBase {
         if (isUpgradeRequest) {
             mPlayerFactory.createPlayer(InCallTonePlayer.TONE_VIDEO_UPGRADE).startTone();
         }
+    }
+
+    /**
+     * Play or stop a call hold tone for a call.  Triggered via
+     * {@link Connection#sendConnectionEvent(String)} when the
+     * {@link Connection#EVENT_ON_HOLD_TONE_START} event or
+     * {@link Connection#EVENT_ON_HOLD_TONE_STOP} event is passed through to the
+     *
+     * @param call The call which requested the hold tone.
+     */
+    @Override
+    public void onHoldToneRequested(Call call) {
+        maybePlayHoldTone();
     }
 
     @Override
@@ -490,6 +504,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
         if (mForegroundCall != oldForegroundCall) {
             mDtmfLocalTonePlayer.onForegroundCallChanged(oldForegroundCall, mForegroundCall);
+            maybePlayHoldTone();
         }
     }
 
@@ -556,6 +571,51 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     private void stopRingbackForCall(Call call) {
         mRingbackPlayer.stopRingbackForCall(call);
+    }
+
+    /**
+     * Determines if a hold tone should be played and then starts or stops it accordingly.
+     */
+    private void maybePlayHoldTone() {
+        if (shouldPlayHoldTone()) {
+            if (mHoldTonePlayer == null) {
+                mHoldTonePlayer = mPlayerFactory.createPlayer(InCallTonePlayer.TONE_CALL_WAITING);
+                mHoldTonePlayer.start();
+            }
+        } else {
+            if (mHoldTonePlayer != null) {
+                mHoldTonePlayer.stopTone();
+                mHoldTonePlayer = null;
+            }
+        }
+    }
+
+    /**
+     * Determines if a hold tone should be played.
+     * A hold tone should be played only if foreground call is equals with call which is
+     * remotely held.
+     *
+     * @return {@code true} if the the hold tone should be played, {@code false} otherwise.
+     */
+    private boolean shouldPlayHoldTone() {
+        Call foregroundCall = getForegroundCall();
+        // If there is no foreground call, no hold tone should play.
+        if (foregroundCall == null) {
+            return false;
+        }
+
+        // If another call is ringing, no hold tone should play.
+        if (mCallsManager.hasRingingCall()) {
+            return false;
+        }
+
+        // If the foreground call isn't active, no hold tone should play. This might happen, for
+        // example, if the user puts a remotely held call on hold itself.
+        if (!foregroundCall.isActive()) {
+            return false;
+        }
+
+        return foregroundCall.isRemotelyHeld();
     }
 
     private void dumpCallsInCollection(IndentingPrintWriter pw, Collection<Call> calls) {
