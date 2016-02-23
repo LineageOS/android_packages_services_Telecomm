@@ -101,6 +101,8 @@ public class Log {
         public static final String BLOCK_CHECK_INITIATED = "BLOCK_CHECK_INITIATED";
         public static final String BLOCK_CHECK_TIMED_OUT = "BLOCK_CHECK_TIMED_OUT";
         public static final String BLOCK_CHECK_FINISHED = "BLOCK_CHECK_FINISHED";
+        public static final String REMOTELY_HELD = "REMOTELY_HELD";
+        public static final String REMOTELY_UNHELD = "REMOTELY_UNHELD";
 
         /**
          * Maps from a request to a response.  The same event could be listed as the

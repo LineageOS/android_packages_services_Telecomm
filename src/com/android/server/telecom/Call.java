@@ -104,6 +104,7 @@ public class Call implements CreateConnectionResponse {
         void onPhoneAccountChanged(Call call);
         void onConferenceableCallsChanged(Call call);
         boolean onCanceledViaNewOutgoingCallBroadcast(Call call);
+        void onHoldToneRequested(Call call);
     }
 
     public abstract static class ListenerBase implements Listener {
@@ -161,6 +162,9 @@ public class Call implements CreateConnectionResponse {
         public boolean onCanceledViaNewOutgoingCallBroadcast(Call call) {
             return false;
         }
+
+        @Override
+        public void onHoldToneRequested(Call call) {}
     }
 
     private final OnQueryCompleteListener mCallerInfoQueryListener =
@@ -364,6 +368,14 @@ public class Call implements CreateConnectionResponse {
 
     // Set to true once the NewOutgoingCallIntentBroadcast comes back and is processed.
     private boolean mIsNewOutgoingCallIntentBroadcastDone = false;
+
+
+    /**
+     * Indicates whether the call is remotely held.  A call is considered remotely held when
+     * {@link #onConnectionEvent(String)} receives the {@link Connection#EVENT_ON_HOLD_TONE_START}
+     * event.
+     */
+    private boolean mIsRemotelyHeld = false;
 
     /**
      * Persists the specified parameters and initializes the new instance.
@@ -1920,5 +1932,37 @@ public class Call implements CreateConnectionResponse {
 
     public void setNewOutgoingCallIntentBroadcastIsDone() {
         mIsNewOutgoingCallIntentBroadcastDone = true;
+    }
+
+    /**
+     * Determines if the call has been held by the remote party.
+     *
+     * @return {@code true} if the call is remotely held, {@code false} otherwise.
+     */
+    public boolean isRemotelyHeld() {
+        return mIsRemotelyHeld;
+    }
+
+    /**
+     * Handles Connection events received from a {@link ConnectionService}.
+     *
+     * @param event The event.
+     */
+    public void onConnectionEvent(String event) {
+        if (Connection.EVENT_ON_HOLD_TONE_START.equals(event)) {
+            mIsRemotelyHeld = true;
+            Log.event(this, Log.Events.REMOTELY_HELD);
+            // Inform listeners of the fact that a call hold tone was received.  This will trigger
+            // the CallAudioManager to play a tone via the InCallTonePlayer.
+            for (Listener l : mListeners) {
+                l.onHoldToneRequested(this);
+            }
+        } else if (Connection.EVENT_ON_HOLD_TONE_END.equals(event)) {
+            mIsRemotelyHeld = false;
+            Log.event(this, Log.Events.REMOTELY_UNHELD);
+            for (Listener l : mListeners) {
+                l.onHoldToneRequested(this);
+            }
+        }
     }
 }
