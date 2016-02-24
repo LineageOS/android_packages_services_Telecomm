@@ -58,5 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"Blokovať"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Iba vlastník zariadenia môže zobrazovať a spravovať blokované čísla."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Klepnutím odblokujete"</string>
-    <string name="toast_personal_call_msg" msgid="5115361633476779723">"Na zavolanie sa používa osobné vytáčanie"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"Na volanie sa používa osobné vytáčanie"</string>
 </resources>

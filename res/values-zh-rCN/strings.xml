@@ -58,6 +58,5 @@
     <string name="block_button" msgid="8822290682524373357">"屏蔽"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"只有机主才能查看和管理已屏蔽的号码。"</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"点按即可取消屏蔽"</string>
-    <!-- no translation found for toast_personal_call_msg (5115361633476779723) -->
-    <skip />
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"使用个人拨号器拨打电话"</string>
 </resources>
