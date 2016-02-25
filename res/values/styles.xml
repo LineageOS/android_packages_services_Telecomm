@@ -38,6 +38,7 @@
         <item name="android:colorPrimaryDark">@color/dialer_settings_color_dark</item>
         <item name="android:homeAsUpIndicator">@drawable/ic_back_arrow</item>
         <item name="android:windowContentOverlay">@null</item>
+        <item name="android:colorAccent">@color/theme_color</item>
     </style>
 
     <style name="TelecomDialerSettingsActionBarStyle" parent="android:Widget.Material.ActionBar">
