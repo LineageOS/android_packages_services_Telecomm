@@ -541,6 +541,10 @@ public class TelecomServiceImplTest extends TelecomTestCase {
 
     @SmallTest
     public void testAddNewIncomingCall() throws Exception {
+        PhoneAccount phoneAccount = makePhoneAccount(TEL_PA_HANDLE_CURRENT).build();
+        phoneAccount.setIsEnabled(true);
+        doReturn(phoneAccount).when(mFakePhoneAccountRegistrar).getPhoneAccount(
+                eq(TEL_PA_HANDLE_CURRENT), any(UserHandle.class));
         doNothing().when(mAppOpsManager).checkPackage(anyInt(), anyString());
         Bundle extras = createSampleExtras();
 
@@ -573,6 +577,10 @@ public class TelecomServiceImplTest extends TelecomTestCase {
 
     @SmallTest
     public void testAddNewUnknownCall() throws Exception {
+        PhoneAccount phoneAccount = makePhoneAccount(TEL_PA_HANDLE_CURRENT).build();
+        phoneAccount.setIsEnabled(true);
+        doReturn(phoneAccount).when(mFakePhoneAccountRegistrar).getPhoneAccount(
+                eq(TEL_PA_HANDLE_CURRENT), any(UserHandle.class));
         doNothing().when(mAppOpsManager).checkPackage(anyInt(), anyString());
         Bundle extras = createSampleExtras();
 
