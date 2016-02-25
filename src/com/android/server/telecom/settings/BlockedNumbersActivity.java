@@ -33,6 +33,8 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.android.server.telecom.R;
 
@@ -159,6 +161,12 @@ public class BlockedNumbersActivity extends ListActivity
                         mBlockButton = ((AlertDialog) dialog)
                                 .getButton(AlertDialog.BUTTON_POSITIVE);
                         mBlockButton.setEnabled(false);
+                        // show keyboard
+                        InputMethodManager inputMethodManager =
+                                (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        inputMethodManager.showSoftInput(editText,
+                                InputMethodManager.SHOW_IMPLICIT);
+
                     }
                 });
         dialog.show();

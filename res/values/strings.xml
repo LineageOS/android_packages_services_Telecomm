@@ -119,7 +119,7 @@
     <!-- Blocked numbers -->
     <string name="blocked_numbers">Blocked numbers</string>
     <!-- Text shown at the beginning of the blocked numbers screen to explain what the screen is about. -->
-    <string name="blocked_numbers_msg">Calls and texts from numbers on this list are blocked.</string>
+    <string name="blocked_numbers_msg">You won\'t receive calls or texts from blocked numbers.</string>
     <!-- Button to add a blocked number. -->
     <string name="block_number">Add a number</string>
     <!-- Body of dialog to confirm unblocking a number. -->
@@ -129,7 +129,7 @@
     <!-- Body of dialog to block a number.  -->
     <string name="add_blocked_dialog_body">Block calls and texts from</string>
     <!-- Hint shown in the edit text box for adding a blocked number -->
-    <string name="add_blocked_number_hint">Number or email</string>
+    <string name="add_blocked_number_hint">Phone number</string>
     <!-- Button to block a number. -->
     <string name="block_button">Block</string>
     <!-- String shown to users unable to manage blocked numbers because they are not owners of the
