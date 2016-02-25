@@ -20,6 +20,7 @@ import com.android.server.telecom.CallIntentProcessor;
 import com.android.server.telecom.Log;
 import com.android.server.telecom.R;
 import com.android.server.telecom.TelephonyUtil;
+import com.android.server.telecom.UserUtil;
 
 import android.app.AppOpsManager;
 import android.content.Context;
@@ -97,17 +98,22 @@ public class UserCallIntentProcessor {
                     PhoneAccount.SCHEME_SIP : PhoneAccount.SCHEME_TEL, uriString, null);
         }
 
-        final UserManager userManager =
-                (UserManager) mContext.getSystemService(Context.USER_SERVICE);
-        if (userManager.hasUserRestriction(UserManager.DISALLOW_OUTGOING_CALLS, mUserHandle)
-                && !TelephonyUtil.shouldProcessAsEmergency(mContext, handle)) {
-            // Only emergency calls are allowed for users with the DISALLOW_OUTGOING_CALLS
-            // restriction.
-            showErrorDialogForRestrictedOutgoingCall(mContext,
-                    R.string.outgoing_call_not_allowed_user_restriction);
-            Log.w(this, "Rejecting non-emergency phone call due to DISALLOW_OUTGOING_CALLS "
-                    + "restriction");
-            return;
+        // Check DISALLOW_OUTGOING_CALLS restriction. Note: We are skipping this check in a managed
+        // profile user because this check can always be bypassed by copying and pasting the phone
+        // number into the personal dialer.
+        if (!UserUtil.isManagedProfile(mContext, mUserHandle)) {
+            final UserManager userManager =
+                    (UserManager) mContext.getSystemService(Context.USER_SERVICE);
+            if (userManager.hasUserRestriction(UserManager.DISALLOW_OUTGOING_CALLS, mUserHandle)
+                    && !TelephonyUtil.shouldProcessAsEmergency(mContext, handle)) {
+                // Only emergency calls are allowed for users with the DISALLOW_OUTGOING_CALLS
+                // restriction.
+                showErrorDialogForRestrictedOutgoingCall(mContext,
+                        R.string.outgoing_call_not_allowed_user_restriction);
+                Log.w(this, "Rejecting non-emergency phone call due to DISALLOW_OUTGOING_CALLS "
+                        + "restriction");
+                return;
+            }
         }
 
         if (!canCallNonEmergency && !TelephonyUtil.shouldProcessAsEmergency(mContext, handle)) {
