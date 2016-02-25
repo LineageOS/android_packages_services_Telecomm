@@ -423,6 +423,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
             notifyCallConnectionFailure(errorDisconnectCause);
             return;
         }
+        mLastErrorDisconnectCause = errorDisconnectCause;
         attemptNextPhoneAccount();
     }
 }

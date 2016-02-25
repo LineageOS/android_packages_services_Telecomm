@@ -1316,14 +1316,6 @@ public class CallsManager extends Call.ListenerBase
             if (call.isEmergencyCall()) {
                 // We never support add call if one of the calls is an emergency call.
                 return false;
-            } else  if (!call.getChildCalls().isEmpty() && !call.can(Connection.CAPABILITY_HOLD)) {
-                // This is to deal with CDMA conference calls. CDMA conference calls do not
-                // allow the addition of another call when it is already in a 3 way conference.
-                // So, we detect that it is a CDMA conference call by checking if the call has
-                // some children and it does not support the CAPABILILTY_HOLD
-                // TODO: This maybe cleaner if the lower layers can explicitly signal to telecom
-                // about this limitation (b/22880180).
-                return false;
             } else if (call.getParentCall() == null) {
                 count++;
             }
