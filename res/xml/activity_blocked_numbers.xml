@@ -15,56 +15,75 @@
   ~ limitations under the License
   -->
 
-<FrameLayout
+<ScrollView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/blocked_numbers_large_padding"
-        android:paddingRight="@dimen/blocked_numbers_large_padding">
-
-    <TextView
-            android:id="@+id/non_primary_user"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/non_primary_user"
-            android:paddingTop="@dimen/blocked_numbers_large_padding"
-            style="@style/BlockedNumbersText"
-            android:visibility="gone" />
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
     <LinearLayout
-            android:id="@+id/manage_blocked_ui"
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="@dimen/blocked_numbers_large_padding">
+            android:layout_height="match_parent">
 
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/blocked_numbers_msg"
-                android:paddingBottom="@dimen/blocked_numbers_extra_large_padding"
-                style="@style/BlockedNumbersText" />
+        <include
+                android:id="@+id/butter_bar"
+                layout="@xml/blocking_suppressed_butterbar" />
 
-        <TextView
-                android:id="@+id/add_blocked"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/block_number"
-                android:paddingBottom="@dimen/blocked_numbers_extra_large_padding"
-                style="@style/BlockedNumbersAddButton" />
-
-        <ProgressBar
-                android:id="@+id/progress_bar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:indeterminate="true"
-                android:layout_marginTop="@dimen/blocked_numbers_progress_bar_padding"
-                style="@android:style/Widget.ProgressBar.Large" />
-
-        <ListView
-                android:id="@android:id/list"
+        <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:paddingLeft="@dimen/blocked_numbers_large_padding"
+                android:paddingRight="@dimen/blocked_numbers_large_padding">
+
+            <TextView
+                    android:id="@+id/non_primary_user"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/non_primary_user"
+                    android:paddingTop="@dimen/blocked_numbers_large_padding"
+                    style="@style/BlockedNumbersTitleText"
+                    android:visibility="gone" />
+
+            <LinearLayout
+                    android:id="@+id/manage_blocked_ui"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/blocked_numbers_large_padding">
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/blocked_numbers_msg"
+                        android:paddingBottom="@dimen/blocked_numbers_extra_large_padding"
+                        style="@style/BlockedNumbersTitleText" />
+
+                <TextView
+                        android:id="@+id/add_blocked"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/block_number"
+                        android:paddingBottom="@dimen/blocked_numbers_extra_large_padding"
+                        style="@style/BlockedNumbersButton"
+                        android:background="?android:attr/selectableItemBackgroundBorderless" />
+
+                <ProgressBar
+                        android:id="@+id/progress_bar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:indeterminate="true"
+                        android:layout_marginTop="@dimen/blocked_numbers_progress_bar_padding"
+                        style="@android:style/Widget.ProgressBar.Large" />
+
+                <ListView
+                        android:id="@android:id/list"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:nestedScrollingEnabled="true"
+                        android:paddingBottom="@dimen/blocked_numbers_extra_large_padding" />
+            </LinearLayout>
+        </FrameLayout>
     </LinearLayout>
-</FrameLayout>
+</ScrollView>
