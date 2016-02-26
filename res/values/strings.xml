@@ -137,6 +137,13 @@
     <string name="non_primary_user">Only the device owner can view and manage blocked numbers.</string>
     <!-- Description of icon to delete blocked number. -->
     <string name="delete_icon_description">Tab to unblock</string>
+    <!-- Title for butter bar shown when call blocking is disabled. -->
+    <string name="blocked_numbers_butter_bar_title">Blocking temporarily off</string>
+    <!-- Explanation for butter bar shown when call blocking is disabled. -->
+    <string name="blocked_numbers_butter_bar_body">After you dial or text an emergency number, blocking is turned off to ensure that emergency services can contact you.</string>
+    <!-- Button to re-enable blocking shown in butter bar shown when call blocking is disabled. -->
+    <string name="blocked_numbers_butter_bar_button">Re-enable now</string>
+
 
     <!-- DO NOT TRANSLATE. Label for test Subscription 0. -->
     <string name="test_account_0_label">Q Mobile</string>

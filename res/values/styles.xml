@@ -59,7 +59,7 @@
         <item name="android:src">@drawable/ic_more_vert_24dp</item>
     </style>
 
-    <style name="BlockedNumbersAddButton">
+    <style name="BlockedNumbersButton">
         <item name="android:textColor">@color/theme_color</item>
         <item name="android:textSize">@dimen/blocked_numbers_font_size</item>
         <item name="android:textAllCaps">true</item>
@@ -68,5 +68,15 @@
     <style name="BlockedNumbersText">
         <item name="android:textSize">@dimen/blocked_numbers_font_size</item>
         <item name="android:lineSpacingExtra">@dimen/blocked_numbers_line_spacing</item>
+    </style>
+
+    <style name="BlockedNumbersTitleText"  parent="BlockedNumbersText">
+        <item name="android:textColor">@color/blocked_numbers_title_text_color</item>
+    </style>
+
+    <style name="BlockedNumbersSecondaryText">
+        <item name="android:textColor">@color/blocked_numbers_secondary_text_color</item>
+        <item name="android:textSize">@dimen/blocked_numbers_secondary_font_size</item>
+        <item name="android:lineSpacingExtra">@dimen/blocked_numbers_secondary_line_spacing</item>
     </style>
 </resources>

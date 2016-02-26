@@ -26,5 +26,8 @@
     <dimen name="blocked_numbers_delete_icon_size">24dp</dimen>
     <dimen name="blocked_numbers_progress_bar_padding">100dp</dimen>
     <dimen name="blocked_numbers_font_size">16sp</dimen>
+    <dimen name="blocked_numbers_secondary_font_size">14sp</dimen>
     <dimen name="blocked_numbers_line_spacing">8sp</dimen>
+    <dimen name="blocked_numbers_secondary_line_spacing">6sp</dimen>
+    <dimen name="blocked_numbers_divider_stroke">1dp</dimen>
 </resources>

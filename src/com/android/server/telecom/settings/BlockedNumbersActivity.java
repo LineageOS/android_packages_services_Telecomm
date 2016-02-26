@@ -55,7 +55,11 @@ public class BlockedNumbersActivity extends ListActivity
     private BlockedNumbersAdapter mAdapter;
     private TextView mAddButton;
     private ProgressBar mProgressBar;
+    private RelativeLayout mButterBar;
     @Nullable private Button mBlockButton;
+    private TextView mReEnableButton;
+
+    private BroadcastReceiver mBlockingStatusReceiver;
 
     public static void start(Context context) {
         Intent intent = new Intent(context, BlockedNumbersActivity.class);
@@ -87,7 +91,6 @@ public class BlockedNumbersActivity extends ListActivity
         mAddButton.setOnClickListener(this);
 
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
-
         String[] fromColumns = {BlockedNumberContract.BlockedNumbers.COLUMN_ORIGINAL_NUMBER};
         int[] toViews = {R.id.blocked_number};
         mAdapter = new BlockedNumbersAdapter(this, R.xml.layout_blocked_number, null, fromColumns,
@@ -98,7 +101,28 @@ public class BlockedNumbersActivity extends ListActivity
         listView.setDivider(null);
         listView.setDividerHeight(0);
 
+        mButterBar = (RelativeLayout) findViewById(R.id.butter_bar);
+        mReEnableButton = (TextView) mButterBar.findViewById(R.id.reenable_button);
+        mReEnableButton.setOnClickListener(this);
+
+        updateButterBar();
+
+        mBlockingStatusReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                updateButterBar();
+            }
+        };
+        registerReceiver(mBlockingStatusReceiver, new IntentFilter(
+                BlockedNumberContract.SystemContract.ACTION_BLOCK_SUPPRESSION_STATE_CHANGED));
+
         getLoaderManager().initLoader(0, null, this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(mBlockingStatusReceiver);
+        super.onDestroy();
     }
 
     @Override
@@ -109,6 +133,14 @@ public class BlockedNumbersActivity extends ListActivity
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void updateButterBar() {
+        if (BlockedNumberContract.SystemContract.getBlockSuppressionStatus(this).isSuppressed) {
+            mButterBar.setVisibility(View.VISIBLE);
+        } else {
+            mButterBar.setVisibility(View.GONE);
         }
     }
 
@@ -134,6 +166,9 @@ public class BlockedNumbersActivity extends ListActivity
     public void onClick(View view) {
         if (view == mAddButton) {
             showAddBlockedNumberDialog();
+        } else if (view == mReEnableButton) {
+            BlockedNumberContract.SystemContract.endBlockSuppression(this);
+            mButterBar.setVisibility(View.GONE);
         }
     }
 
