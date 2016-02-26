@@ -85,6 +85,12 @@ public class CallAudioRouteStateMachine extends StateMachine {
     // Wired headset, earpiece, or speakerphone, in that order of precedence.
     public static final int SWITCH_BASELINE_ROUTE = 1005;
 
+    public static final int USER_SWITCH_EARPIECE = 1101;
+    public static final int USER_SWITCH_BLUETOOTH = 1102;
+    public static final int USER_SWITCH_HEADSET = 1103;
+    public static final int USER_SWITCH_SPEAKER = 1104;
+    public static final int USER_SWITCH_BASELINE_ROUTE = 1105;
+
     public static final int REINITIALIZE = 2001;
 
     public static final int MUTE_ON = 3001;
@@ -113,6 +119,12 @@ public class CallAudioRouteStateMachine extends StateMachine {
         put(SWITCH_HEADSET, "SWITCH_HEADSET");
         put(SWITCH_SPEAKER, "SWITCH_SPEAKER");
         put(SWITCH_BASELINE_ROUTE, "SWITCH_BASELINE_ROUTE");
+
+        put(USER_SWITCH_EARPIECE, "USER_SWITCH_EARPIECE");
+        put(USER_SWITCH_BLUETOOTH, "USER_SWITCH_BLUETOOTH");
+        put(USER_SWITCH_HEADSET, "USER_SWITCH_HEADSET");
+        put(USER_SWITCH_SPEAKER, "USER_SWITCH_SPEAKER");
+        put(USER_SWITCH_BASELINE_ROUTE, "USER_SWITCH_BASELINE_ROUTE");
 
         put(REINITIALIZE, "REINITIALIZE");
 
@@ -204,24 +216,17 @@ public class CallAudioRouteStateMachine extends StateMachine {
                         return NOT_HANDLED;
                     }
                 case SWITCH_BASELINE_ROUTE:
-                    if ((mAvailableRoutes & ROUTE_EARPIECE) != 0) {
-                        sendInternalMessage(SWITCH_EARPIECE);
-                    } else if ((mAvailableRoutes & ROUTE_WIRED_HEADSET) != 0) {
-                        sendInternalMessage(SWITCH_HEADSET);
-                    } else if (!mDoesDeviceSupportEarpieceRoute) {
-                        sendInternalMessage(SWITCH_SPEAKER);
-                    } else {
-                        Log.e(this, new IllegalStateException(),
-                                "Neither headset nor earpiece are available, but there is an " +
-                                        "earpiece on the device. Defaulting to earpiece.");
-                        sendInternalMessage(SWITCH_EARPIECE);
-                    }
+                    sendInternalMessage(calculateBaselineRouteMessage(false));
+                    return HANDLED;
+                case USER_SWITCH_BASELINE_ROUTE:
+                    sendInternalMessage(calculateBaselineRouteMessage(true));
                     return HANDLED;
                 case REINITIALIZE:
                     CallAudioState initState = getInitialAudioState();
                     mAvailableRoutes = initState.getSupportedRouteMask();
                     mIsMuted = initState.isMuted();
                     mWasOnSpeaker = initState.getRoute() == ROUTE_SPEAKER;
+                    mHasUserExplicitlyLeftBluetooth = false;
                     transitionTo(mRouteCodeToQuiescentState.get(initState.getRoute()));
                     return HANDLED;
                 default:
@@ -269,9 +274,11 @@ public class CallAudioRouteStateMachine extends StateMachine {
             }
             switch (msg.what) {
                 case SWITCH_EARPIECE:
+                case USER_SWITCH_EARPIECE:
                     // Nothing to do here
                     return HANDLED;
                 case SWITCH_BLUETOOTH:
+                case USER_SWITCH_BLUETOOTH:
                     if ((mAvailableRoutes & ROUTE_BLUETOOTH) != 0) {
                         transitionTo(mActiveBluetoothRoute);
                     } else {
@@ -279,6 +286,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case SWITCH_HEADSET:
+                case USER_SWITCH_HEADSET:
                     if ((mAvailableRoutes & ROUTE_WIRED_HEADSET) != 0) {
                         transitionTo(mActiveHeadsetRoute);
                     } else {
@@ -286,6 +294,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case SWITCH_SPEAKER:
+                case USER_SWITCH_SPEAKER:
                     transitionTo(mActiveSpeakerRoute);
                     return HANDLED;
                 case SWITCH_FOCUS:
@@ -313,6 +322,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
         @Override
         public void enter() {
             super.enter();
+            mHasUserExplicitlyLeftBluetooth = false;
             updateInternalCallAudioState();
         }
 
@@ -369,7 +379,11 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     sendInternalMessage(SWITCH_HEADSET);
                     return HANDLED;
                 case CONNECT_BLUETOOTH:
-                    sendInternalMessage(SWITCH_BLUETOOTH);
+                    if (!mHasUserExplicitlyLeftBluetooth) {
+                        sendInternalMessage(SWITCH_BLUETOOTH);
+                    } else {
+                        updateSystemAudioState();
+                    }
                     return HANDLED;
                 case DISCONNECT_BLUETOOTH:
                     updateSystemAudioState();
@@ -428,6 +442,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
             }
             switch (msg.what) {
                 case SWITCH_EARPIECE:
+                case USER_SWITCH_EARPIECE:
                     if ((mAvailableRoutes & ROUTE_EARPIECE) != 0) {
                         transitionTo(mActiveEarpieceRoute);
                     } else {
@@ -435,6 +450,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case SWITCH_BLUETOOTH:
+                case USER_SWITCH_BLUETOOTH:
                     if ((mAvailableRoutes & ROUTE_BLUETOOTH) != 0) {
                         transitionTo(mActiveBluetoothRoute);
                     } else {
@@ -442,9 +458,11 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case SWITCH_HEADSET:
+                case USER_SWITCH_HEADSET:
                     // Nothing to do
                     return HANDLED;
                 case SWITCH_SPEAKER:
+                case USER_SWITCH_SPEAKER:
                     transitionTo(mActiveSpeakerRoute);
                     return HANDLED;
                 case SWITCH_FOCUS:
@@ -472,6 +490,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
         @Override
         public void enter() {
             super.enter();
+            mHasUserExplicitlyLeftBluetooth = false;
             updateInternalCallAudioState();
         }
 
@@ -531,7 +550,11 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     updateSystemAudioState();
                     return HANDLED;
                 case CONNECT_BLUETOOTH:
-                    sendInternalMessage(SWITCH_BLUETOOTH);
+                    if (!mHasUserExplicitlyLeftBluetooth) {
+                        sendInternalMessage(SWITCH_BLUETOOTH);
+                    } else {
+                        updateSystemAudioState();
+                    }
                     return HANDLED;
                 case DISCONNECT_BLUETOOTH:
                     updateSystemAudioState();
@@ -590,6 +613,9 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 return HANDLED;
             }
             switch (msg.what) {
+                case USER_SWITCH_EARPIECE:
+                    mHasUserExplicitlyLeftBluetooth = true;
+                    // fall through
                 case SWITCH_EARPIECE:
                     if ((mAvailableRoutes & ROUTE_EARPIECE) != 0) {
                         transitionTo(mActiveEarpieceRoute);
@@ -598,8 +624,12 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case SWITCH_BLUETOOTH:
+                case USER_SWITCH_BLUETOOTH:
                     // Nothing to do
                     return HANDLED;
+                case USER_SWITCH_HEADSET:
+                    mHasUserExplicitlyLeftBluetooth = true;
+                    // fall through
                 case SWITCH_HEADSET:
                     if ((mAvailableRoutes & ROUTE_WIRED_HEADSET) != 0) {
                         transitionTo(mActiveHeadsetRoute);
@@ -607,6 +637,9 @@ public class CallAudioRouteStateMachine extends StateMachine {
                         Log.w(this, "Ignoring switch to headset command. Not available.");
                     }
                     return HANDLED;
+                case USER_SWITCH_SPEAKER:
+                    mHasUserExplicitlyLeftBluetooth = true;
+                    // fall through
                 case SWITCH_SPEAKER:
                     transitionTo(mActiveSpeakerRoute);
                     return HANDLED;
@@ -635,6 +668,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
         @Override
         public void enter() {
             super.enter();
+            mHasUserExplicitlyLeftBluetooth = false;
             updateInternalCallAudioState();
         }
 
@@ -751,6 +785,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
             }
             switch(msg.what) {
                 case SWITCH_EARPIECE:
+                case USER_SWITCH_EARPIECE:
                     if ((mAvailableRoutes & ROUTE_EARPIECE) != 0) {
                         transitionTo(mActiveEarpieceRoute);
                     } else {
@@ -758,6 +793,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case SWITCH_BLUETOOTH:
+                case USER_SWITCH_BLUETOOTH:
                     if ((mAvailableRoutes & ROUTE_BLUETOOTH) != 0) {
                         transitionTo(mActiveBluetoothRoute);
                     } else {
@@ -765,6 +801,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case SWITCH_HEADSET:
+                case USER_SWITCH_HEADSET:
                     if ((mAvailableRoutes & ROUTE_WIRED_HEADSET) != 0) {
                         transitionTo(mActiveHeadsetRoute);
                     } else {
@@ -772,6 +809,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case SWITCH_SPEAKER:
+                case USER_SWITCH_SPEAKER:
                     // Nothing to do
                     return HANDLED;
                 case SWITCH_FOCUS:
@@ -799,6 +837,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
         @Override
         public void enter() {
             super.enter();
+            mHasUserExplicitlyLeftBluetooth = false;
             // Omit setting mWasOnSpeaker to true here, since this does not reflect a call
             // actually being on speakerphone.
             updateInternalCallAudioState();
@@ -861,7 +900,11 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     sendInternalMessage(SWITCH_HEADSET);
                     return HANDLED;
                 case CONNECT_BLUETOOTH:
-                    sendInternalMessage(SWITCH_BLUETOOTH);
+                    if (!mHasUserExplicitlyLeftBluetooth) {
+                        sendInternalMessage(SWITCH_BLUETOOTH);
+                    } else {
+                        updateSystemAudioState();
+                    }
                     return HANDLED;
                 case DISCONNECT_BLUETOOTH:
                     updateSystemAudioState();
@@ -908,6 +951,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
     private final StatusBarNotifier mStatusBarNotifier;
     private final CallAudioManager.AudioServiceFactory mAudioServiceFactory;
     private final boolean mDoesDeviceSupportEarpieceRoute;
+    private boolean mHasUserExplicitlyLeftBluetooth = false;
 
     private HashMap<String, Integer> mStateNameToRouteCode;
     private HashMap<Integer, AudioState> mRouteCodeToQuiescentState;
@@ -1213,5 +1257,20 @@ public class CallAudioRouteStateMachine extends StateMachine {
             }
         }
         return true;
+    }
+
+    private int calculateBaselineRouteMessage(boolean isExplicitUserRequest) {
+        if ((mAvailableRoutes & ROUTE_EARPIECE) != 0) {
+            return isExplicitUserRequest ? USER_SWITCH_EARPIECE : SWITCH_EARPIECE;
+        } else if ((mAvailableRoutes & ROUTE_WIRED_HEADSET) != 0) {
+            return isExplicitUserRequest ? USER_SWITCH_HEADSET : SWITCH_HEADSET;
+        } else if (!mDoesDeviceSupportEarpieceRoute) {
+            return isExplicitUserRequest ? USER_SWITCH_SPEAKER : SWITCH_SPEAKER;
+        } else {
+            Log.e(this, new IllegalStateException(),
+                    "Neither headset nor earpiece are available, but there is an " +
+                            "earpiece on the device. Defaulting to earpiece.");
+            return isExplicitUserRequest ? USER_SWITCH_EARPIECE : SWITCH_EARPIECE;
+        }
     }
 }

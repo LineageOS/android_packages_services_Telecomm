@@ -321,23 +321,23 @@ public class CallAudioManager extends CallsManagerListenerBase {
         switch (route) {
             case CallAudioState.ROUTE_BLUETOOTH:
                 mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
-                        CallAudioRouteStateMachine.SWITCH_BLUETOOTH);
+                        CallAudioRouteStateMachine.USER_SWITCH_BLUETOOTH);
                 return;
             case CallAudioState.ROUTE_SPEAKER:
                 mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
-                        CallAudioRouteStateMachine.SWITCH_SPEAKER);
+                        CallAudioRouteStateMachine.USER_SWITCH_SPEAKER);
                 return;
             case CallAudioState.ROUTE_WIRED_HEADSET:
                 mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
-                        CallAudioRouteStateMachine.SWITCH_HEADSET);
+                        CallAudioRouteStateMachine.USER_SWITCH_HEADSET);
                 return;
             case CallAudioState.ROUTE_EARPIECE:
                 mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
-                        CallAudioRouteStateMachine.SWITCH_EARPIECE);
+                        CallAudioRouteStateMachine.USER_SWITCH_EARPIECE);
                 return;
             case CallAudioState.ROUTE_WIRED_OR_EARPIECE:
                 mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
-                        CallAudioRouteStateMachine.SWITCH_BASELINE_ROUTE);
+                        CallAudioRouteStateMachine.USER_SWITCH_BASELINE_ROUTE);
                 return;
             default:
                 Log.wtf(this, "Invalid route specified: %d", route);
