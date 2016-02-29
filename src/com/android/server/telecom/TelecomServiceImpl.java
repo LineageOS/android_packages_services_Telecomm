@@ -1184,9 +1184,17 @@ public class TelecomServiceImpl {
         /**
          * @see android.telecom.TelecomManager#launchManageBlockedNumbersActivity
          */
+        // TODO: Delete this.
         @Override
         public void launchManageBlockedNumbersActivity(String callingPackageName) {
             BlockedNumbersActivity.start(mContext);
+        }
+
+        // TODO: Add a link to TelecomManager#createManageBlockedNumbersIntent
+        @Override
+        public Intent createManageBlockedNumbersIntent() {
+            // TODO: Implement this.
+            return null;
         }
     };
 
