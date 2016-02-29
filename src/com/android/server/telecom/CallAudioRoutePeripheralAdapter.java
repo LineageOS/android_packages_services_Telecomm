@@ -20,8 +20,9 @@ package com.android.server.telecom;
  * A class that acts as a listener to things that could change call audio routing, namely
  * bluetooth status, wired headset status, and dock status.
  */
-public class CallAudioRoutePeripheralAdapter implements BluetoothManager.BluetoothStateListener,
-        WiredHeadsetManager.Listener, DockManager.Listener {
+public class CallAudioRoutePeripheralAdapter implements WiredHeadsetManager.Listener,
+        DockManager.Listener, BluetoothManager.BluetoothStateListener {
+
     private final CallAudioRouteStateMachine mCallAudioRouteStateMachine;
     private final BluetoothManager mBluetoothManager;
 
@@ -38,21 +39,50 @@ public class CallAudioRoutePeripheralAdapter implements BluetoothManager.Bluetoo
         dockManager.addListener(this);
     }
 
-    @Override
-    public void onBluetoothStateChange(BluetoothManager bluetoothManager) {
-        if (bluetoothManager.isBluetoothAvailable()) {
-            mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
-                    CallAudioRouteStateMachine.CONNECT_BLUETOOTH);
-        } else {
-            mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
-                    CallAudioRouteStateMachine.DISCONNECT_BLUETOOTH);
-        }
-    }
-
     public boolean isBluetoothAudioOn() {
         return mBluetoothManager.isBluetoothAudioConnected();
     }
 
+    @Override
+    public void onBluetoothStateChange(int oldState, int newState) {
+        switch (oldState) {
+            case BluetoothManager.BLUETOOTH_DISCONNECTED:
+            case BluetoothManager.BLUETOOTH_UNINITIALIZED:
+                switch (newState) {
+                    case BluetoothManager.BLUETOOTH_DEVICE_CONNECTED:
+                    case BluetoothManager.BLUETOOTH_AUDIO_CONNECTED:
+                        mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+                                CallAudioRouteStateMachine.CONNECT_BLUETOOTH);
+                        break;
+                }
+                break;
+            case BluetoothManager.BLUETOOTH_DEVICE_CONNECTED:
+                switch (newState) {
+                    case BluetoothManager.BLUETOOTH_DISCONNECTED:
+                        mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+                                CallAudioRouteStateMachine.DISCONNECT_BLUETOOTH);
+                        break;
+                    case BluetoothManager.BLUETOOTH_AUDIO_CONNECTED:
+                        mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+                                CallAudioRouteStateMachine.SWITCH_BLUETOOTH);
+                        break;
+                }
+                break;
+            case BluetoothManager.BLUETOOTH_AUDIO_CONNECTED:
+            case BluetoothManager.BLUETOOTH_AUDIO_PENDING:
+                switch (newState) {
+                    case BluetoothManager.BLUETOOTH_DISCONNECTED:
+                        mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+                                CallAudioRouteStateMachine.DISCONNECT_BLUETOOTH);
+                        break;
+                    case BluetoothManager.BLUETOOTH_DEVICE_CONNECTED:
+                        mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+                                CallAudioRouteStateMachine.BT_AUDIO_DISCONNECT);
+                        break;
+                }
+                break;
+        }
+    }
     /**
       * Updates the audio route when the headset plugged in state changes. For example, if audio is
       * being routed over speakerphone and a headset is plugged in then switch to wired headset.
