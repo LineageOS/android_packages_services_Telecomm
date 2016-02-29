@@ -121,8 +121,7 @@ public final class Ringer {
             // call (for the purposes of direct-to-voicemail), the information about custom
             // ringtones should be available by the time this code executes. We can safely
             // request the custom ringtone from the call and expect it to be current.
-            mRingtonePlayer.play(
-                    mRingtoneFactory.getRingtone(foregroundCall.getRingtone()));
+            mRingtonePlayer.play(mRingtoneFactory, foregroundCall.getRingtone());
         } else {
             Log.v(this, "startRingingOrCallWaiting, skipping because volume is 0");
         }

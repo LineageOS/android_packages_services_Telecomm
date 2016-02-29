@@ -17,11 +17,13 @@
 package com.android.server.telecom;
 
 import android.media.Ringtone;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.os.SomeArgs;
 import com.android.internal.util.Preconditions;
 
 /**
@@ -45,13 +47,12 @@ public class AsyncRingtonePlayer {
     private Ringtone mRingtone;
 
     /** Plays the ringtone. */
-    public void play(Ringtone ringtone) {
+    public void play(RingtoneFactory factory, Uri ringtoneUri) {
         Log.d(this, "Posting play.");
-        if (ringtone == null) {
-            Log.i(this, "null (silence -- not playing anything)");
-            return;
-        }
-        postMessage(EVENT_PLAY, true /* shouldCreateHandler */, ringtone);
+        SomeArgs args = SomeArgs.obtain();
+        args.arg1 = factory;
+        args.arg2 = ringtoneUri;
+        postMessage(EVENT_PLAY, true /* shouldCreateHandler */, args);
     }
 
     /** Stops playing the ringtone. */
@@ -67,7 +68,7 @@ public class AsyncRingtonePlayer {
      * @param messageCode The message to post.
      * @param shouldCreateHandler True when a handler should be created to handle this message.
      */
-    private void postMessage(int messageCode, boolean shouldCreateHandler, Ringtone ringtone) {
+    private void postMessage(int messageCode, boolean shouldCreateHandler, SomeArgs args) {
         synchronized(this) {
             if (mHandler == null && shouldCreateHandler) {
                 mHandler = getNewHandler();
@@ -76,7 +77,7 @@ public class AsyncRingtonePlayer {
             if (mHandler == null) {
                 Log.d(this, "Message %d skipped because there is no handler.", messageCode);
             } else {
-                mHandler.obtainMessage(messageCode, ringtone).sendToTarget();
+                mHandler.obtainMessage(messageCode, args).sendToTarget();
             }
         }
     }
@@ -95,7 +96,7 @@ public class AsyncRingtonePlayer {
             public void handleMessage(Message msg) {
                 switch(msg.what) {
                     case EVENT_PLAY:
-                        handlePlay((Ringtone) msg.obj);
+                        handlePlay((SomeArgs) msg.obj);
                         break;
                     case EVENT_REPEAT:
                         handleRepeat();
@@ -111,7 +112,10 @@ public class AsyncRingtonePlayer {
     /**
      * Starts the actual playback of the ringtone. Executes on ringtone-thread.
      */
-    private void handlePlay(Ringtone ringtone) {
+    private void handlePlay(SomeArgs args) {
+        RingtoneFactory factory = (RingtoneFactory) args.arg1;
+        Uri ringtoneUri = (Uri) args.arg2;
+        args.recycle();
         // don't bother with any of this if there is an EVENT_STOP waiting.
         if (mHandler.hasMessages(EVENT_STOP)) {
             return;
@@ -121,7 +125,12 @@ public class AsyncRingtonePlayer {
         Log.i(this, "Play ringtone.");
 
         if (mRingtone == null) {
-            mRingtone = ringtone;
+            mRingtone = factory.getRingtone(ringtoneUri);
+            if (mRingtone == null) {
+                Log.event(null, Log.Events.ERROR_LOG, "Failed to get ringtone from factory. " +
+                        "Skipping ringing. Uri was: " + ringtoneUri.toSafeString());
+                return;
+            }
         }
 
         handleRepeat();
