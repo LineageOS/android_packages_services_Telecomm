@@ -49,14 +49,17 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"<xliff:g id="NEW_APP">%1$s</xliff:g>を<xliff:g id="CURRENT_APP">%2$s</xliff:g>の代わりに既定の電話アプリとして使用しますか？"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"<xliff:g id="NEW_APP">%s</xliff:g>を既定の電話アプリとして使用しますか？"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"ブロックした番号"</string>
-    <string name="blocked_numbers_msg" msgid="8210089024274925462">"このリストにある番号からの通話とテキスト メッセージがブロックされます。"</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"ブロックした電話番号から発信された通話やテキスト メッセージは着信しません。"</string>
     <string name="block_number" msgid="1101252256321306179">"番号を追加"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> のブロックを解除しますか？"</string>
     <string name="unblock_button" msgid="3078048901972674170">"ブロックを解除"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"次の発信元からの通話とテキスト メッセージをブロック"</string>
-    <string name="add_blocked_number_hint" msgid="1601214698916175149">"番号またはメールアドレス"</string>
+    <string name="add_blocked_number_hint" msgid="6847675097085433553">"電話番号"</string>
     <string name="block_button" msgid="8822290682524373357">"ブロック"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"ブロックした番号を表示、管理できるのは端末の所有者のみです。"</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"タップするとブロックを解除します"</string>
+    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"ブロックが一時的に OFF になっています"</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"緊急通報番号に電話をかけたり、テキスト メッセージを送信したりすると、ブロックが OFF になり、緊急通報受理機関からの通話を着信できるようになります。"</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"再度有効にする"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"個人用の電話アプリで電話する"</string>
 </resources>

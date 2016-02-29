@@ -49,14 +49,22 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"გსურთ ამკრეფის ნაგულისხმევ აპად <xliff:g id="CURRENT_APP">%2$s</xliff:g>-ის ნაცვლად <xliff:g id="NEW_APP">%1$s</xliff:g>-ის გამოყენება?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"გსურთ, გამოიყენოთ <xliff:g id="NEW_APP">%s</xliff:g>, როგორც ამკრეფის ნაგულისხმევი აპი?"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"დაბლოკილი ნომრები"</string>
-    <string name="blocked_numbers_msg" msgid="8210089024274925462">"ამ სიაში შემავალი ნომრებიდან შემოსული ზარები და ტექსტური შეტყობინებები დაბლოკილია."</string>
+    <!-- no translation found for blocked_numbers_msg (1045015186124965643) -->
+    <skip />
     <string name="block_number" msgid="1101252256321306179">"ნომრის დამატება"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"გსურთ, განბლოკოთ <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"განბლოკვა"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"ზარებისა და ტექსტური შეტყობინებების დაბლოკვა ნომრიდან:"</string>
-    <string name="add_blocked_number_hint" msgid="1601214698916175149">"ტელეფონის ნომერი ან ელფოსტა"</string>
+    <!-- no translation found for add_blocked_number_hint (6847675097085433553) -->
+    <skip />
     <string name="block_button" msgid="8822290682524373357">"დაბლოკვა"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"დაბლოკილი ნომრების ნახვა და მართვა მხოლოდ მოწყობილობის მფლობელს შეუძლია."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"შეეხეთ განსაბლოკად"</string>
+    <!-- no translation found for blocked_numbers_butter_bar_title (438170866438793182) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_butter_bar_body (2223244484319442431) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_butter_bar_button (2197943354922010696) -->
+    <skip />
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"ზარის განსახორციელებლად გამოიყენება პირადი დამრეკი"</string>
 </resources>

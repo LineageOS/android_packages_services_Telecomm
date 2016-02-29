@@ -49,14 +49,22 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"<xliff:g id="NEW_APP">%1$s</xliff:g>ஐ <xliff:g id="CURRENT_APP">%2$s</xliff:g>க்குப் பதிலாக, இயல்புநிலை டயலர் பயன்பாடாகப் பயன்படுத்தவா?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"<xliff:g id="NEW_APP">%s</xliff:g>ஐ இயல்புநிலை டயலர் பயன்பாடாகப் பயன்படுத்தவா?"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"தடுக்கப்பட்ட எண்கள்"</string>
-    <string name="blocked_numbers_msg" msgid="8210089024274925462">"இந்தப் பட்டியலில் உள்ள எண்களின் அழைப்புகளும் உரைச்செய்திகளும் தடுக்கப்படும்."</string>
+    <!-- no translation found for blocked_numbers_msg (1045015186124965643) -->
+    <skip />
     <string name="block_number" msgid="1101252256321306179">"எண்ணைச் சேர்"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>ஐ அனுமதிக்கவா?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"அனுமதி"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"இந்த எண்ணிலிருந்து வரும் அழைப்புகளையும் உரைச்செய்திகளையும் தடு:"</string>
-    <string name="add_blocked_number_hint" msgid="1601214698916175149">"எண் அல்லது மின்னஞ்சல்"</string>
+    <!-- no translation found for add_blocked_number_hint (6847675097085433553) -->
+    <skip />
     <string name="block_button" msgid="8822290682524373357">"தடு"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"சாதன உரிமையாளர் மட்டுமே தடுக்கப்பட்ட எண்களைப் பார்க்கவும் நிர்வகிக்கவும் முடியும்."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"அனுமதிக்க, தட்டவும்"</string>
+    <!-- no translation found for blocked_numbers_butter_bar_title (438170866438793182) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_butter_bar_body (2223244484319442431) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_butter_bar_button (2197943354922010696) -->
+    <skip />
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"தனிப்பட்ட டயலரைப் பயன்படுத்தி அழைக்கவும்"</string>
 </resources>

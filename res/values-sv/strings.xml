@@ -49,14 +49,17 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"Vill du använda <xliff:g id="NEW_APP">%1$s</xliff:g> i stället för <xliff:g id="CURRENT_APP">%2$s</xliff:g> som standardapp för uppringning?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"Vill du använda <xliff:g id="NEW_APP">%s</xliff:g> som standardapp för uppringning?"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Blockerade nummer"</string>
-    <string name="blocked_numbers_msg" msgid="8210089024274925462">"Samtal och sms från telefonnummer i den här listan blockeras."</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"Du kommer inte ta emot samtal eller sms från blockerade nummer."</string>
     <string name="block_number" msgid="1101252256321306179">"Lägg till ett telefonnummer"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Vill du häva blockeringen av <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Häv blockering"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Blockera samtal och sms från"</string>
-    <string name="add_blocked_number_hint" msgid="1601214698916175149">"Telefonnummer eller e-postadress"</string>
+    <string name="add_blocked_number_hint" msgid="6847675097085433553">"Telefonnummer"</string>
     <string name="block_button" msgid="8822290682524373357">"Blockera"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Bara enhetens ägare kan se och hantera blockerade nummer."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Tryck här om du vill häva blockeringen"</string>
+    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Blockeringen har inaktiverats tillfälligt"</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"När du ringer eller sms:ar ett nödnummer inaktiveras blockering för att säkerställa att räddningstjänsten kan kontakta dig."</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Återaktivera nu"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Ringer med den egna uppringningsfunktionen"</string>
 </resources>

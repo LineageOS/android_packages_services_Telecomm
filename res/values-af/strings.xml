@@ -49,14 +49,22 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"Gebruik <xliff:g id="NEW_APP">%1$s</xliff:g> eerder as <xliff:g id="CURRENT_APP">%2$s</xliff:g> as jou verstekbellerprogram?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"Gebruik <xliff:g id="NEW_APP">%s</xliff:g> as jou verstekbellerprogram?"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Geblokkeerde nommers"</string>
-    <string name="blocked_numbers_msg" msgid="8210089024274925462">"Oproepe en SMS\'e vanaf nommers op hierdie lys word geblokkeer."</string>
+    <!-- no translation found for blocked_numbers_msg (1045015186124965643) -->
+    <skip />
     <string name="block_number" msgid="1101252256321306179">"Voeg \'n nommer by"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Deblokkeer <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Deblokkeer"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Blokkeer oproepe en SMS\'e vanaf"</string>
-    <string name="add_blocked_number_hint" msgid="1601214698916175149">"Nommer of e-posadres"</string>
+    <!-- no translation found for add_blocked_number_hint (6847675097085433553) -->
+    <skip />
     <string name="block_button" msgid="8822290682524373357">"Blokkeer"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Net die toesteleienaar kan geblokkeerde nommers bekyk en bestuur."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Oortjie om te deblokkeer"</string>
+    <!-- no translation found for blocked_numbers_butter_bar_title (438170866438793182) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_butter_bar_body (2223244484319442431) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_butter_bar_button (2197943354922010696) -->
+    <skip />
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Gebruik tans die persoonlike beller om die oproep te maak"</string>
 </resources>

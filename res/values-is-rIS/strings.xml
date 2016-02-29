@@ -49,14 +49,17 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"Nota <xliff:g id="NEW_APP">%1$s</xliff:g> í stað <xliff:g id="CURRENT_APP">%2$s</xliff:g> sem sjálfgefið hringiforrit?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"Nota <xliff:g id="NEW_APP">%s</xliff:g> sem sjálfgefið hringiforrit?"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Númer á bannlista"</string>
-    <string name="blocked_numbers_msg" msgid="8210089024274925462">"Lokað er fyrir símtöl og textaskilaboð úr númerum á þessum lista."</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"Þú færð ekki símtöl eða skilaboð frá númerum á bannlista."</string>
     <string name="block_number" msgid="1101252256321306179">"Bæta við númeri"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Taka <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> af bannlista?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Taka af bannlista"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Loka fyrir símtöl og skilaboð frá"</string>
-    <string name="add_blocked_number_hint" msgid="1601214698916175149">"Númer eða netfang"</string>
+    <string name="add_blocked_number_hint" msgid="6847675097085433553">"Símanúmer"</string>
     <string name="block_button" msgid="8822290682524373357">"Setja á bannlista"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Aðeins eigandi tækisins getur skoðað og stjórnað númerum á bannlista."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Flipi til að taka númer af bannlista"</string>
+    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Slökkt tímabundið á lokun símtala"</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Eftir að þú hefur hringt eða sent skilaboð í neyðarnúmer verður slökkt á lokun símtala til að tryggja að neyðarþjónusta geti haft samband við þig."</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Kveikja aftur núna"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Notar eigin símaforrit til að hringja"</string>
 </resources>

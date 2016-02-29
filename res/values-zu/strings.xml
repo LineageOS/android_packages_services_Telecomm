@@ -49,14 +49,17 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"Sebenzisa i-<xliff:g id="NEW_APP">%1$s</xliff:g> esikhundleni se-<xliff:g id="CURRENT_APP">%2$s</xliff:g> njengohlelo lwakho lokusebenza oluzenzakalelayo lokokudayela?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"Sebenzisa i-<xliff:g id="NEW_APP">%s</xliff:g> njengohlelo lwakho lokusebenza oluzenzakalelayo lokokudayela?"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Izinombolo ezivinjiwe"</string>
-    <string name="blocked_numbers_msg" msgid="8210089024274925462">"Amakholi nemibhalo evela kuzinombolo ezikulo luhlu kuvinjelwe."</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"Ngeke uthole amakholi noma imibhalo kusuka kuzinombolo ezivinjelwe."</string>
     <string name="block_number" msgid="1101252256321306179">"Engeza inombolo"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Vulela i-<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Vulela"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Vimba amakholi nemibhalo kusukela ku-"</string>
-    <string name="add_blocked_number_hint" msgid="1601214698916175149">"Inombolo noma i-imeyili"</string>
+    <string name="add_blocked_number_hint" msgid="6847675097085433553">"Inombolo yefoni"</string>
     <string name="block_button" msgid="8822290682524373357">"Vimba"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Umnikazi wedivayisi kuphela ongabuka aphinde aphathe izinombolo ezivinjelwe."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Ithebhu lokuvulela"</string>
+    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Ukuvimble kuvaliwe okwesikhashana"</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Ngemuva kokudayela noma ubhalele inombolo yesimo esiphuthumayo, ukuvimbela kuvaliwe ukuqinisekisa amasevisi esimo esiphuthumayo angakwazi ukuxhumana nawe."</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Nika amandla manje"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Ukusebenzisa okokudayila komuntu siqu ukwenza ikholi"</string>
 </resources>

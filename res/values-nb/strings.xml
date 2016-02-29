@@ -49,14 +49,17 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"Vil du bruke <xliff:g id="NEW_APP">%1$s</xliff:g> i stedet for <xliff:g id="CURRENT_APP">%2$s</xliff:g> som standard telefonapp?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"Vil du bruke <xliff:g id="NEW_APP">%s</xliff:g> som standard telefonapp?"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Blokkerte numre"</string>
-    <string name="blocked_numbers_msg" msgid="8210089024274925462">"Anrop og meldinger fra numrene på denne listen er blokkerte."</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"Du mottar ingen anrop eller tekstmeldinger fra blokkerte numre."</string>
     <string name="block_number" msgid="1101252256321306179">"Legg til et nummer"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Vil du oppheve blokkeringen av <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Opphev blokkering"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Blokkér anrop og meldinger fra"</string>
-    <string name="add_blocked_number_hint" msgid="1601214698916175149">"Nummer eller e-post"</string>
+    <string name="add_blocked_number_hint" msgid="6847675097085433553">"Telefonnummer"</string>
     <string name="block_button" msgid="8822290682524373357">"Blokkér"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Bare enhetseieren kan se og administrere blokkerte numre."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Trykk for å oppheve blokkeringen"</string>
+    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Blokkeringen er midlertidig slått av"</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Når du har ringt eller sendt tekstmelding til et nødnummer, blir blokkeringen slått av, sånn at nødtjenesten har mulighet til å kontakte deg."</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Slå på igjen nå"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Ring via den personlige ringeappen"</string>
 </resources>

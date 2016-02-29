@@ -49,14 +49,17 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"ਕੀ <xliff:g id="CURRENT_APP">%2$s</xliff:g> ਦੀ ਬਜਾਏ <xliff:g id="NEW_APP">%1$s</xliff:g> ਨੂੰ ਆਪਣੀ ਡਿਫ਼ੌਲਟ ਡਾਇਲਰ ਐਪ ਦਾ ਉਪਯੋਗ ਕਰਨਾ ਹੈ?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"ਕੀ <xliff:g id="NEW_APP">%s</xliff:g> ਨੂੰ ਆਪਣੀ ਡਿਫ਼ੌਲਟ ਡਾਇਲਰ ਐਪ ਦਾ ਉਪਯੋਗ ਕਰਨਾ ਹੈ?"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"ਬਲੌਕ ਕੀਤੇ ਗਏ ਨੰਬਰ"</string>
-    <string name="blocked_numbers_msg" msgid="8210089024274925462">"ਇਸ ਸੂਚੀ ਵਿੱਚ ਦਿੱਤੇ ਨੰਬਰਾਂ ਤੋਂ ਕਾਲਾਂ ਅਤੇ ਟੈਕਸਟ ਬਲੌਕ ਕੀਤੇ ਗਏ ਹਨ।"</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"ਤੁਹਾਨੂੰ ਬਲੌਕ ਕੀਤੇ ਨੰਬਰਾਂ ਤੋਂ ਕਾਲਾਂ ਜਾਂ ਲਿਖਤ ਸੁਨੇਹੇ ਪ੍ਰਾਪਤ ਨਹੀਂ ਹੋਣਗੇ।"</string>
     <string name="block_number" msgid="1101252256321306179">"ਇੱਕ ਨੰਬਰ ਸ਼ਾਮਲ ਕਰੋ"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"ਕੀ <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ਨੂੰ ਅਣਬਲੌਕ ਕਰਨਾ ਹੈ?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"ਅਣਬਲੌਕ ਕਰੋ"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"ਇਸ ਨੰਬਰ ਤੋਂ ਕਾਲਾਂ ਅਤੇ ਟੈਕਸਟ ਨੂੰ ਬਲੌਕ ਕਰੋ"</string>
-    <string name="add_blocked_number_hint" msgid="1601214698916175149">"ਨੰਬਰ ਜਾਂ ਈਮੇਲ"</string>
+    <string name="add_blocked_number_hint" msgid="6847675097085433553">"ਫੋਨ ਨੰਬਰ"</string>
     <string name="block_button" msgid="8822290682524373357">"ਬਲੌਕ ਕਰੋ"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"ਸਿਰਫ਼ ਡੀਵਾਈਸ ਮਾਲਕ ਹੀ ਬਲੌਕ ਕੀਤੇ ਗਏ ਨੰਬਰਾਂ ਨੂੰ ਵੇਖ ਅਤੇ ਪ੍ਰਬੰਧਿਤ ਕਰ ਸਕਦਾ ਹੈ।"</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"ਅਣਬਲੌਕ ਕਰਨ ਲਈ ਟੈਪ ਕਰੋ"</string>
+    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"ਬਲੌਕਿੰਗ ਆਰਜ਼ੀ ਤੌਰ \'ਤੇ ਬੰਦ ਹੈ"</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"ਤੁਹਾਡੇ ਵੱਲੋਂ ਇੱਕ ਐਮਰਜੈਂਸੀ ਨੰਬਰ ਨੂੰ ਡਾਇਲ ਕੀਤੇ ਜਾਣ ਜਾਂ ਲਿਖਤ ਸੁਨੇਹਾ ਭੇਜੇ ਜਾਣ ਤੋਂ ਬਾਅਦ, ਇਹ ਯਕੀਨੀ ਬਣਾਉਣ ਲਈ ਬਲੌਕਿੰਗ ਨੂੰ ਬੰਦ ਕੀਤਾ ਜਾਂਦਾ ਹੈ ਕਿ ਐਮਰਜੈਂਸੀ ਸੇਵਾਵਾਂ ਤੁਹਾਨੂੰ ਸੰਪਰਕ ਕਰ ਸਕਣ।"</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"ਹੁਣੇ ਦੁਬਾਰਾ ਯੋਗ ਬਣਾਓ"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"ਕਾਲ ਕਰਨ ਲਈ ਨਿੱਜੀ ਡਾਇਲਰ ਦੀ ਵਰਤੋਂ ਕਰਨੀ"</string>
 </resources>

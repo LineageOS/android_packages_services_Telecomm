@@ -49,14 +49,17 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"Folosiți <xliff:g id="NEW_APP">%1$s</xliff:g> și nu <xliff:g id="CURRENT_APP">%2$s</xliff:g> ca aplicație de telefonie prestabilită?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"Folosiți <xliff:g id="NEW_APP">%s</xliff:g> ca aplicație de telefonie prestabilită?"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Numere blocate"</string>
-    <string name="blocked_numbers_msg" msgid="8210089024274925462">"Apelurile și mesajele text de la numerele din această listă sunt blocate."</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"Nu veți primi apeluri sau mesaje text de la numerele blocate."</string>
     <string name="block_number" msgid="1101252256321306179">"Adăugați un număr"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Deblocați <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Deblocați"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Blocați apelurile și mesajele text de la"</string>
-    <string name="add_blocked_number_hint" msgid="1601214698916175149">"Număr sau adresă de e-mail"</string>
+    <string name="add_blocked_number_hint" msgid="6847675097085433553">"Număr de telefon"</string>
     <string name="block_button" msgid="8822290682524373357">"Blocați"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Numai proprietarul dispozitivului poate vedea și gestiona numerele blocate."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Atingeți pentru a debloca"</string>
+    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Blocarea este dezactivată temporar"</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"După ce formați un număr de urgență sau trimiteți un mesaj la acesta, blocarea este dezactivată pentru ca serviciile de urgență să vă poată contacta."</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Reactivați acum"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Utilizarea telefonului personal pentru a apela"</string>
 </resources>

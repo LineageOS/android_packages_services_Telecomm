@@ -49,14 +49,17 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"האם להשתמש ב-<xliff:g id="NEW_APP">%1$s</xliff:g> במקום ב-<xliff:g id="CURRENT_APP">%2$s</xliff:g> כאפליקציית החייגן שבברירת מחדל?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"האם להשתמש ב-<xliff:g id="NEW_APP">%s</xliff:g> כאפליקציית החייגן שבברירת מחדל?"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"מספרים חסומים"</string>
-    <string name="blocked_numbers_msg" msgid="8210089024274925462">"שיחות והודעות טקסט ממספרים ברשימה זו חסומות."</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"לא תקבל שיחות או הודעות טקסט מהמספרים החסומים."</string>
     <string name="block_number" msgid="1101252256321306179">"הוסף מספר"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"האם לבטל את חסימת המספר <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"בטל חסימה"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"חסום שיחות והודעות טקסט מ-"</string>
-    <string name="add_blocked_number_hint" msgid="1601214698916175149">"מספר טלפון או אימייל"</string>
+    <string name="add_blocked_number_hint" msgid="6847675097085433553">"מספר טלפון"</string>
     <string name="block_button" msgid="8822290682524373357">"חסום"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"רק בעל המכשיר יכול להציג ולנהל מספרים חסומים."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"הקש כדי לבטל את החסימה"</string>
+    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"החסימה הושבתה זמנית"</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"לאחר חיוג או שליחת הודעה למספר חירום, החסימה תושבת כדי ששירותי החירום יוכלו ליצור איתך קשר."</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"הפעל מחדש כעת"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"משתמש בחייגן האישי כדי להתקשר"</string>
 </resources>

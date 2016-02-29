@@ -49,14 +49,17 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"Use <xliff:g id="NEW_APP">%1$s</xliff:g> instead of <xliff:g id="CURRENT_APP">%2$s</xliff:g> as your default dialler app?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"Use <xliff:g id="NEW_APP">%s</xliff:g> as your default dialler app?"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Blocked numbers"</string>
-    <string name="blocked_numbers_msg" msgid="8210089024274925462">"Calls and texts from numbers on this list are blocked."</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"You won\'t receive calls or texts from blocked numbers."</string>
     <string name="block_number" msgid="1101252256321306179">"Add a number"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Unblock <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Unblock"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Block calls and texts from"</string>
-    <string name="add_blocked_number_hint" msgid="1601214698916175149">"Number or email"</string>
+    <string name="add_blocked_number_hint" msgid="6847675097085433553">"Telephone number"</string>
     <string name="block_button" msgid="8822290682524373357">"Block"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Only the device owner can view and manage blocked numbers."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Tab to unblock"</string>
+    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Blocking temporarily off"</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"When you dial or text an emergency number, blocking is turned off to ensure that emergency services can contact you."</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Re-enable now"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Using the personal dialler to make the call"</string>
 </resources>

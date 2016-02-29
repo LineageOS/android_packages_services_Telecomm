@@ -49,14 +49,17 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"ប្រើ <xliff:g id="NEW_APP">%1$s</xliff:g> ជំនួសឲ្យ <xliff:g id="CURRENT_APP">%2$s</xliff:g> ជាកម្មវិធីហៅទូរស័ព្ទលំនាំដើមរបស់អ្នក?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"ប្រើ <xliff:g id="NEW_APP">%s</xliff:g> ជាកម្មវិធីហៅទូរស័ព្ទលំនាំដើមរបស់អ្នក?"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"លេខបានរារាំង"</string>
-    <string name="blocked_numbers_msg" msgid="8210089024274925462">"ការហៅ និងការផ្ញើសារពីលេខនៅក្នុងបញ្ជីនេះត្រូវបានរារាំង"</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"អ្នក​នឹង​មិន​ទទួល​បាន​ការ​ហៅ ឬ​សារ​ជា​អត្ថបទ​ពី​លេខ​ដែល​បាន​​ទប់ស្កាត់​​ឡើយ។"</string>
     <string name="block_number" msgid="1101252256321306179">"បន្ថែមលេខ"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"ឈប់រារាំង <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ឬ?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"ឈប់រារាំង"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"រារាំងការហៅ និងការផ្ញើសារពី"</string>
-    <string name="add_blocked_number_hint" msgid="1601214698916175149">"លេខ ឬអ៊ីមែល"</string>
+    <string name="add_blocked_number_hint" msgid="6847675097085433553">"លេខទូរសព្ទ"</string>
     <string name="block_button" msgid="8822290682524373357">"រារាំង"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"មានតែម្ចាស់ឧបករណ៍តែប៉ុណ្ណោះដែលអាចមើល និងគ្រប់គ្រងបញ្ជីរារាំងបាន"</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"ផ្ទាំងដែលត្រូវឈប់រារាំង"</string>
+    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"បាន​បិទ​ការ​ទប់ស្កាត់​​​ជា​បណ្ដោះអាសន្ន"</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"បន្ទាប់​ពី​អ្នក​ចុច​ហៅ ឬ​ផ្ញើ​សារ​លេខ​​អាសន្ន ការ​ទប់ស្កាត់​​ត្រូវ​បាន​បិទ​​ដើម្បី​​ប្រាកដ​ថា​សេវាកម្ម​អាសន្ន​អាច​ទាក់ទង​អ្នក​បាន។"</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"បើក​ដំណើរការ​ឡើងវិញ​ឥឡូវនេះ"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"កំពុងប្រើកម្មវិធីហៅផ្ទាល់ខ្លួនដើម្បីធ្វើការហៅទូរស័ព្ទ"</string>
 </resources>

@@ -49,14 +49,22 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"<xliff:g id="CURRENT_APP">%2$s</xliff:g> എന്നതിനുപകരം <xliff:g id="NEW_APP">%1$s</xliff:g> എന്നതിനെ നിങ്ങളുടെ സ്ഥിര ഡയലർ ആപ്പ് ആയി ഉപയോഗിക്കണോ?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"<xliff:g id="NEW_APP">%s</xliff:g> എന്നതിനെ നിങ്ങളുടെ സ്ഥിര ഡയലർ ആപ്പ് ആയി ഉപയോഗിക്കണോ?"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"ബ്ലോക്കുചെയ്ത നമ്പറുകൾ"</string>
-    <string name="blocked_numbers_msg" msgid="8210089024274925462">"ഈ ലിസ്റ്റിലെ നമ്പറുകളിൽ നിന്നുള്ള കോളുകളും ടെക്സ്റ്റുകളും ബ്ലോക്കുചെയ്തു."</string>
+    <!-- no translation found for blocked_numbers_msg (1045015186124965643) -->
+    <skip />
     <string name="block_number" msgid="1101252256321306179">"ഒരു നമ്പർ ചേർക്കുക"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> അൺബ്ലോക്കുചെയ്യണോ?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"അൺബ്ലോക്കുചെയ്യുക"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"ഇനിപ്പറയുന്നതിൽ നിന്നുള്ള കോളുകളും ടെക്സ്റ്റുകളും ബ്ലോക്കുചെയ്യുക"</string>
-    <string name="add_blocked_number_hint" msgid="1601214698916175149">"നമ്പർ അല്ലെങ്കിൽ ഇമെയിൽ"</string>
+    <!-- no translation found for add_blocked_number_hint (6847675097085433553) -->
+    <skip />
     <string name="block_button" msgid="8822290682524373357">"ബ്ലോക്കുചെയ്യുക"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"ബ്ലോക്കുചെയ്ത നമ്പറുകൾ ഉപകരണ ഉടമയ്ക്ക് മാത്രമേ കാണാനും മാനേജുചെയ്യാനും കഴിയൂ."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"അൺബ്ലോക്കുചെയ്യുന്നതിനുള്ള ടാബ്"</string>
+    <!-- no translation found for blocked_numbers_butter_bar_title (438170866438793182) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_butter_bar_body (2223244484319442431) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_butter_bar_button (2197943354922010696) -->
+    <skip />
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"കോൾ ചെയ്യുന്നതിന് സ്വകാര്യ ഡയലർ ഉപയോഗിക്കുന്നു"</string>
 </resources>

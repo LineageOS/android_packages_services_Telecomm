@@ -49,14 +49,17 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"Legyen a(z) <xliff:g id="NEW_APP">%1$s</xliff:g> az alapértelmezett tárcsázó alkalmazás a(z) <xliff:g id="CURRENT_APP">%2$s</xliff:g> helyett?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"Legyen a(z) <xliff:g id="NEW_APP">%s</xliff:g> az alapértelmezett tárcsázó alkalmazás?"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Letiltott számok"</string>
-    <string name="blocked_numbers_msg" msgid="8210089024274925462">"A listán szereplő számokról érkező hívások és SMS-ek le vannak tiltva."</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"A jövőben nem kap hívásokat vagy SMS-eket a letiltott számokról."</string>
     <string name="block_number" msgid="1101252256321306179">"Szám hozzáadása"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Feloldja a következő szám letiltását: <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Letiltás feloldása"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"A következő számról érkező hívások és SMS-ek letiltása:"</string>
-    <string name="add_blocked_number_hint" msgid="1601214698916175149">"Szám vagy e-mail-cím"</string>
+    <string name="add_blocked_number_hint" msgid="6847675097085433553">"Telefonszám"</string>
     <string name="block_button" msgid="8822290682524373357">"Letiltás"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Csak az eszköz tulajdonosa nézheti meg és kezelheti a letiltott számokat."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Koppintson a letiltás feloldásához"</string>
+    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"A tiltás átmenetileg felfüggesztve"</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Ha tárcsáz egy segélyhívószámot, vagy SMS-t küld segélyhívószámra, a rendszer feloldja a tiltást, hogy a sürgősségi szolgáltatások felvehessék Önnel a kapcsolatot."</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Újbóli engedélyezés most"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Hívás indítása a személyes tárcsázóval"</string>
 </resources>
