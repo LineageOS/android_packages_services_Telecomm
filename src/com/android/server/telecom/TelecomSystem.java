@@ -165,7 +165,8 @@ public final class TelecomSystem {
                         return context.getContentResolver().openInputStream(uri);
                     }
                 });
-        BluetoothManager bluetoothManager = new BluetoothManager(mContext);
+        BluetoothManager bluetoothManager = new BluetoothManager(mContext,
+                new BluetoothAdapterProxy());
         WiredHeadsetManager wiredHeadsetManager = new WiredHeadsetManager(mContext);
         SystemStateProvider systemStateProvider = new SystemStateProvider(mContext);
 

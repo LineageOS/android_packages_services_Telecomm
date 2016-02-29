@@ -16,7 +16,10 @@
 
 package com.android.server.telecom;
 
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
+
+import java.util.List;
 
 /**
  * A proxy class that facilitates testing of the BluetoothPhoneServiceImpl class.
@@ -43,5 +46,25 @@ public class BluetoothHeadsetProxy {
             int type) {
 
         mBluetoothHeadset.phoneStateChanged(numActive, numHeld, callState, number, type);
+    }
+
+    public List<BluetoothDevice> getConnectedDevices() {
+        return mBluetoothHeadset.getConnectedDevices();
+    }
+
+    public int getConnectionState(BluetoothDevice device) {
+        return mBluetoothHeadset.getConnectionState(device);
+    }
+
+    public boolean isAudioConnected(BluetoothDevice device) {
+        return mBluetoothHeadset.isAudioConnected(device);
+    }
+
+    public boolean connectAudio() {
+        return mBluetoothHeadset.connectAudio();
+    }
+
+    public boolean disconnectAudio() {
+        return mBluetoothHeadset.disconnectAudio();
     }
 }
