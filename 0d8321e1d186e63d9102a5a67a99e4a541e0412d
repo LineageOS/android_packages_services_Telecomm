@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ffb9cba7_9b278a13",
+        "filename": "res/values/colors.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 10631
+      },
+      "writtenOn": "2016-03-02T01:51:46Z",
+      "side": 1,
+      "message": "No, this is wrong, I need to revert this file.  I changed the wrong one.  Thanks for commenting on this :) DONE",
+      "parentUuid": "ffb9cba7_8e9bc970",
+      "revId": "0d8321e1d186e63d9102a5a67a99e4a541e0412d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ffb9cba7_299bb7c9",
         "filename": "src/com/android/server/telecom/CallsManager.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-03-02T01:25:55Z",
       "side": 1,
       "message": "is it Ok to silently drop the held call? Do we possibly want to ask the user if that\u0027s his intention?",
+      "revId": "0d8321e1d186e63d9102a5a67a99e4a541e0412d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ffb9cba7_bb24ce0e",
+        "filename": "src/com/android/server/telecom/CallsManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2445,
+      "author": {
+        "id": 10631
+      },
+      "writtenOn": "2016-03-02T01:51:46Z",
+      "side": 1,
+      "message": "This is the current logic.  In order to hit this situation you will need to be on a call, receive a call, answer call, then choose \"hold current call\" then receive another call, then choose \"hold current call\".\n\nI\u0027m believe we can infer by the user actions it is their intention.  Also, does the underlying framework support multiple held calls?  That is something I am unsure about.  Then we would need a management interface, etc..  I think it\u0027d be too complex",
+      "parentUuid": "ffb9cba7_299bb7c9",
       "revId": "0d8321e1d186e63d9102a5a67a99e4a541e0412d",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "ffb9cba7_1b795afb",
+        "filename": "src/com/android/server/telecom/CallsManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2461,
+      "author": {
+        "id": 10631
+      },
+      "writtenOn": "2016-03-02T01:51:46Z",
+      "side": 1,
+      "message": "Right, or alternatively we could receive a call, then receive another, place current on hold, then receive another, but want to end that one, talk, then hang up and go back to held call.  The existing logic covers this use case so I stuck with that.",
+      "parentUuid": "ffb9cba7_8960a3d0",
+      "revId": "0d8321e1d186e63d9102a5a67a99e4a541e0412d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ffb9cba7_49a06bf5",
         "filename": "src/com/android/server/telecom/CallsManager.java",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2016-03-02T01:25:55Z",
       "side": 1,
       "message": "should these calls be changed in order? first set the speakerphone state to on, if enabled, and then answer the call?",
+      "revId": "0d8321e1d186e63d9102a5a67a99e4a541e0412d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ffb9cba7_bb692e26",
+        "filename": "src/com/android/server/telecom/CallsManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2484,
+      "author": {
+        "id": 10631
+      },
+      "writtenOn": "2016-03-02T01:51:46Z",
+      "side": 1,
+      "message": "Again, this is how it was ordered already.  One answers, and the other updates UI states so we need to listen to answer, then set the ui state (see comment above answer)",
+      "parentUuid": "ffb9cba7_49a06bf5",
       "revId": "0d8321e1d186e63d9102a5a67a99e4a541e0412d",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
