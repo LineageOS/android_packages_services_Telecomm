@@ -55,6 +55,7 @@ public class CallScreening {
     private final Listener mListener;
     private final TelecomSystem.SyncRoot mLock;
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
+    private final CallsManager mCallsManager;
     private final Handler mHandler = new Handler();
     private Call mCall;
     private ICallScreeningService mService;
@@ -62,12 +63,13 @@ public class CallScreening {
 
     public CallScreening(
             Context context,
-            Listener listener,
+            CallsManager callsManager,
             TelecomSystem.SyncRoot lock,
             PhoneAccountRegistrar phoneAccountRegistrar,
             Call call) {
         mContext = context;
-        mListener = listener;
+        mCallsManager = callsManager;
+        mListener = callsManager;
         mLock = lock;
         mPhoneAccountRegistrar = phoneAccountRegistrar;
         mCall = call;
@@ -113,7 +115,8 @@ public class CallScreening {
 
         Intent intent = new Intent(CallScreeningService.SERVICE_INTERFACE)
             .setPackage(dialerPackage);
-        List<ResolveInfo> entries = mContext.getPackageManager().queryIntentServices(intent, 0);
+        List<ResolveInfo> entries = mContext.getPackageManager().queryIntentServicesAsUser(
+                intent, 0, mCallsManager.getCurrentUserHandle().getIdentifier());
         if (entries.isEmpty()) {
             return false;
         }
