@@ -32,6 +32,9 @@ public class BluetoothAdapterProxy {
 
     public boolean getProfileProxy(Context context, BluetoothProfile.ServiceListener listener,
             int profile) {
+        if (mBluetoothAdapter == null) {
+            return false;
+        }
         return mBluetoothAdapter.getProfileProxy(context, listener, profile);
     }
 }
