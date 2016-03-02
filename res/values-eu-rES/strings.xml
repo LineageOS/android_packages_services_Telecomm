@@ -49,7 +49,7 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"<xliff:g id="CURRENT_APP">%2$s</xliff:g> aplikazioaren ordez <xliff:g id="NEW_APP">%1$s</xliff:g> erabili nahi duzu telefono-aplikazio lehenetsi gisa?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"<xliff:g id="NEW_APP">%s</xliff:g> telefono-aplikazio lehenetsi gisa erabili nahi duzu?"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Blokeatutako zenbakiak"</string>
-    <string name="blocked_numbers_msg" msgid="1045015186124965643">"Ez duzu deirik edo testu-mezurik jasoko blokeatutako zenbakietatik."</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"Ez duzu jasoko deirik edo testu-mezurik blokeatutako zenbakietatik."</string>
     <string name="block_number" msgid="1101252256321306179">"Gehitu zenbakia"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Desblokeatu egin nahi duzu <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Desblokeatu"</string>
@@ -59,7 +59,7 @@
     <string name="non_primary_user" msgid="5180129233352533459">"Gailuaren jabeak soilik ikus eta kudea ditzake blokeatutako zenbakiak."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Sakatu desblokeatzeko"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Aldi baterako desgaitu da blokeatzeko aukera"</string>
-    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Larrialdietarako zenbakia markatu ondoren, edo zenbait horretara testu-mezua bidali ondoren, desaktibatu egingo da blokeatzeko aukera, larrialdietako zerbitzuak zurekin harremanetan jarriko direla ziurtatzeko."</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Larrialdietarako zenbakia markatu ondoren, edo zenbait horretara testu-mezua bidali ondoren, desaktibatu egingo da blokeatzeko aukera, larrialdi-zerbitzuak zurekin harremanetan jarriko direla ziurtatzeko."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Gaitu berriro"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Telefono pertsonala erabiltzen ari zara deia egiteko"</string>
 </resources>

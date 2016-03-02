@@ -59,7 +59,7 @@
     <string name="non_primary_user" msgid="5180129233352533459">"Просматривать и изменять список заблокированных номеров может только владелец устройства."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Нажмите, чтобы разблокировать"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Блокировка временно снята"</string>
-    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"После набора номера экстренной службы или отправки сообщения на этот номер, блокировка устройства будет выключена."</string>
-    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Заблокировать"</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"После набора или отправки сообщения на номер экстренной службы блокировка будет выключена, чтобы специалисты могли связаться с вами."</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Включить блокировку"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Набор номера с помощью персонализированной панели"</string>
 </resources>

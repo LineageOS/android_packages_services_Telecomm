@@ -49,22 +49,17 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"আপনার ডিফল্ট ডায়লার অ্যাপ হিসেবে <xliff:g id="CURRENT_APP">%2$s</xliff:g> পরিবর্তে <xliff:g id="NEW_APP">%1$s</xliff:g> ব্যবহার করবেন?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"আপনার ডিফল্ট ডায়লার অ্যাপ হিসেবে <xliff:g id="NEW_APP">%s</xliff:g> ব্যবহার করবেন?"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"অবরুদ্ধ নম্বরগুলি"</string>
-    <!-- no translation found for blocked_numbers_msg (1045015186124965643) -->
-    <skip />
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"অবরুদ্ধ নম্বরগুলি থেকে আপনি কল বা এসএমএসগুলি পাবেন না।"</string>
     <string name="block_number" msgid="1101252256321306179">"একটি নম্বর যোগ করুন"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> অবরোধ মুক্ত করবেন?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"অবরোধ মুক্ত করুন"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"এর থেকে কল এবং পাঠ্যগুলিকে অবরোধ করুন"</string>
-    <!-- no translation found for add_blocked_number_hint (6847675097085433553) -->
-    <skip />
+    <string name="add_blocked_number_hint" msgid="6847675097085433553">"ফোন নম্বর"</string>
     <string name="block_button" msgid="8822290682524373357">"অবরোধ করুন"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"শুধুমাত্র ডিভাইসের মালিক এই অবরুদ্ধ নম্বরগুলিকে দেখতে এবং পরিচালনা করতে পারেন৷"</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"অবরোধ মুক্ত করতে আলতো চাপ দিন"</string>
-    <!-- no translation found for blocked_numbers_butter_bar_title (438170866438793182) -->
-    <skip />
-    <!-- no translation found for blocked_numbers_butter_bar_body (2223244484319442431) -->
-    <skip />
-    <!-- no translation found for blocked_numbers_butter_bar_button (2197943354922010696) -->
-    <skip />
+    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"অবরুদ্ধ করা সাময়িকভাবে বন্ধ আছে"</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"আপনি কোনো জরুরি নম্বরে ডায়াল করার বা এসএমএস পাঠানোর পরে, জরুরি পরিষেবাগুলি যাতে আপনাকে কল করতে পারে সেই বিষয়টি নিশ্চিত করতে অবরুদ্ধ করার ব্যবস্থাটিকে বন্ধ করা হয়৷"</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"এখনই পুনরায় সক্ষম করুন"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"কল করার জন্য ব্যক্তিগত ডায়ালার ব্যবহার করা হচ্ছে"</string>
 </resources>

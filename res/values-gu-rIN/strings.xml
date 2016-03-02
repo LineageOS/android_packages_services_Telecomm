@@ -49,22 +49,17 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"તમારી ડિફોલ્ટ ડાયલર એપ્લિકેશન તરીકે <xliff:g id="CURRENT_APP">%2$s</xliff:g> ને બદલે <xliff:g id="NEW_APP">%1$s</xliff:g> નો ઉપયોગ કરીએ?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"તમારી ડિફોલ્ટ ડાયલર એપ્લિકેશન તરીકે <xliff:g id="NEW_APP">%s</xliff:g> નો ઉપયોગ કરીએ?"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"અવરોધિત નંબરો"</string>
-    <!-- no translation found for blocked_numbers_msg (1045015186124965643) -->
-    <skip />
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"તમે અવરોધિત નંબરોથી કૉલ્સ અથવા ટેક્સ્ટ પ્રાપ્ત કરશો નહીં."</string>
     <string name="block_number" msgid="1101252256321306179">"એક નંબર ઉમેરો"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ને અનાવરોધિત કરીએ?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"અનાવરોધિત કરો"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"આ નંબરના કૉલ્સ અને ટેક્સ્ટને અવરોધિત કરો"</string>
-    <!-- no translation found for add_blocked_number_hint (6847675097085433553) -->
-    <skip />
+    <string name="add_blocked_number_hint" msgid="6847675097085433553">"ફોન નંબર"</string>
     <string name="block_button" msgid="8822290682524373357">"અવરોધિત કરો"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"ફક્ત ઉપકરણના માલિક અવરોધિત નંબરોને જોઈ અને સંચાલિત કરી શકે છે."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"અનાવરોધિત કરવા માટે ટૅબ કરો"</string>
-    <!-- no translation found for blocked_numbers_butter_bar_title (438170866438793182) -->
-    <skip />
-    <!-- no translation found for blocked_numbers_butter_bar_body (2223244484319442431) -->
-    <skip />
-    <!-- no translation found for blocked_numbers_butter_bar_button (2197943354922010696) -->
-    <skip />
+    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"અવરોધિત કરવાનું અસ્થાયીરૂપે બંધ છે"</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"તમે કોઈ કટોકટીનો નંબર ડાયલ કરો કે ટેક્સ્ટ કરો તે પછી, કટોકટીની સેવાઓ તમારો સંપર્ક કરી શકે તેની ખાતરી કરવા માટે અવરોધિત કરવું બંધ કરવામાં આવે છે."</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"હવે ફરીથી સક્ષમ કરો"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"કૉલ કરવા માટે વ્યક્તિગત ડાયલરનો ઉપયોગ કરી રહ્યાં છે"</string>
 </resources>

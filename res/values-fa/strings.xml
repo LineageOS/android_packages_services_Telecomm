@@ -58,8 +58,8 @@
     <string name="block_button" msgid="8822290682524373357">"مسدود کردن"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"فقط مالک دستگاه می‌تواند شماره‌های مسدودشده را مدیریت کند."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"ضربه برای گشودن"</string>
-    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"موقتاً نمی‌توانید مسدود کنید"</string>
-    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"بعد از گرفتن شماره اضطراری یا ارسال پیام نوشتاری به آن شماره، برای اطمینان از اینکه سرویس‌های اضطراری می‌توانند با شما تماس بگیرند، امکان مسدود کردن وجود ندارد."</string>
+    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"امکان مسدود کردن موقتاً خاموش شده است."</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"بعد از گرفتن شماره اضطراری یا ارسال پیام نوشتاری به آن شماره، برای اطمینان از اینکه سرویس‌های اضطراری با شما تماس بگیرند، امکان مسدود کردن خاموش شده است."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"اکنون دوباره فعال شود"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"استفاده از شماره‌گیر شخصی برای گرفتن تماس"</string>
 </resources>

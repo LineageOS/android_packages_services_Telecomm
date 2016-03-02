@@ -60,6 +60,6 @@
     <string name="delete_icon_description" msgid="1828583824185681368">"הקש כדי לבטל את החסימה"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"החסימה הושבתה זמנית"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"לאחר חיוג או שליחת הודעה למספר חירום, החסימה תושבת כדי ששירותי החירום יוכלו ליצור איתך קשר."</string>
-    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"הפעל מחדש כעת"</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"הפעל מחדש עכשיו"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"משתמש בחייגן האישי כדי להתקשר"</string>
 </resources>

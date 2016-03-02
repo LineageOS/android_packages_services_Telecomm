@@ -49,22 +49,17 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"Želite <xliff:g id="NEW_APP">%1$s</xliff:g> uporabljati kot privzeto aplikacijo za klicanje namesto <xliff:g id="CURRENT_APP">%2$s</xliff:g>?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"Želite <xliff:g id="NEW_APP">%s</xliff:g> uporabljati kot privzeto aplikacijo za klicanje?"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Blokirane številke"</string>
-    <!-- no translation found for blocked_numbers_msg (1045015186124965643) -->
-    <skip />
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"Z blokiranih številk ne boste prejemali klicev ali sporočil SMS."</string>
     <string name="block_number" msgid="1101252256321306179">"Dodaj številko"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Želite odblokirati številko <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Odblokiraj"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Blokiranje klicev in SMS-jev s številke"</string>
-    <!-- no translation found for add_blocked_number_hint (6847675097085433553) -->
-    <skip />
+    <string name="add_blocked_number_hint" msgid="6847675097085433553">"Telefonska številka"</string>
     <string name="block_button" msgid="8822290682524373357">"Blokiraj"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Samo lastnik naprave si lahko ogleda blokirane številke in jih upravlja."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Dotaknite se, če želite odblokirati številko"</string>
-    <!-- no translation found for blocked_numbers_butter_bar_title (438170866438793182) -->
-    <skip />
-    <!-- no translation found for blocked_numbers_butter_bar_body (2223244484319442431) -->
-    <skip />
-    <!-- no translation found for blocked_numbers_butter_bar_button (2197943354922010696) -->
-    <skip />
+    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Blokiranje je začasno izklopljeno"</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Ko izberete številko za klic v sili ali nanjo pošljete sporočilo SMS, se blokiranje izklopi, s čimer se zagotovi, da vas lahko pokličejo iz služb za pomoč v sili."</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Znova omogoči"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Uporaba osebnega klicalnika za klic"</string>
 </resources>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2013 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- no translation found for telecommAppLabel (9166784827254469057) -->
+    <skip />
+    <!-- no translation found for userCallActivityLabel (5415173590855187131) -->
+    <skip />
+    <!-- no translation found for unknown (6878797917991465859) -->
+    <skip />
+    <!-- no translation found for notification_missedCallTitle (7554385905572364535) -->
+    <skip />
+    <!-- no translation found for notification_missedWorkCallTitle (6242489980390803090) -->
+    <skip />
+    <!-- no translation found for notification_missedCallsTitle (1361677948941502522) -->
+    <skip />
+    <!-- no translation found for notification_missedCallsMsg (4575787816055205600) -->
+    <skip />
+    <!-- no translation found for notification_missedCallTicker (504686252427747209) -->
+    <skip />
+    <!-- no translation found for notification_missedCall_call_back (2684890353590890187) -->
+    <skip />
+    <!-- no translation found for notification_missedCall_message (3049928912736917988) -->
+    <skip />
+    <!-- no translation found for accessibility_call_muted (2776111226185342220) -->
+    <skip />
+    <!-- no translation found for accessibility_speakerphone_enabled (1988512040421036359) -->
+    <skip />
+    <!-- no translation found for respond_via_sms_canned_response_1 (2461606462788380215) -->
+    <skip />
+    <!-- no translation found for respond_via_sms_canned_response_2 (4074450431532859214) -->
+    <skip />
+    <!-- no translation found for respond_via_sms_canned_response_3 (3496079065723960450) -->
+    <skip />
+    <!-- no translation found for respond_via_sms_canned_response_4 (1698989243040062190) -->
+    <skip />
+    <!-- no translation found for respond_via_sms_setting_title (3754000371039709383) -->
+    <skip />
+    <!-- no translation found for respond_via_sms_setting_title_2 (6104662227299493906) -->
+    <skip />
+    <string name="respond_via_sms_setting_summary" msgid="9150281183930613065"></string>
+    <!-- no translation found for respond_via_sms_edittext_dialog_title (20379890418289778) -->
+    <skip />
+    <!-- no translation found for respond_via_sms_confirmation_format (7229149977515784269) -->
+    <skip />
+    <!-- no translation found for enable_account_preference_title (2021848090086481720) -->
+    <skip />
+    <!-- no translation found for outgoing_call_not_allowed_user_restriction (6872406278300131364) -->
+    <skip />
+    <!-- no translation found for outgoing_call_not_allowed_no_permission (1996571596464271228) -->
+    <skip />
+    <!-- no translation found for outgoing_call_error_no_phone_number_supplied (1940125199802007505) -->
+    <skip />
+    <!-- no translation found for duplicate_video_call_not_allowed (3749211605014548386) -->
+    <skip />
+    <!-- no translation found for no_vm_number (4164780423805688336) -->
+    <skip />
+    <!-- no translation found for no_vm_number_msg (1300729501030053828) -->
+    <skip />
+    <!-- no translation found for add_vm_number_str (4676479471644687453) -->
+    <skip />
+    <!-- no translation found for change_default_dialer_dialog_title (4430590714918044425) -->
+    <skip />
+    <!-- no translation found for change_default_dialer_with_previous_app_set_text (3213396537499337949) -->
+    <skip />
+    <!-- no translation found for change_default_dialer_no_previous_app_set_text (7608426684114545221) -->
+    <skip />
+    <!-- no translation found for blocked_numbers (2751843139572970579) -->
+    <skip />
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"Nećete primati pozive i poruke od blokiranih brojeva."</string>
+    <!-- no translation found for block_number (1101252256321306179) -->
+    <skip />
+    <!-- no translation found for unblock_dialog_body (1614238499771862793) -->
+    <skip />
+    <!-- no translation found for unblock_button (3078048901972674170) -->
+    <skip />
+    <!-- no translation found for add_blocked_dialog_body (9030243212265516828) -->
+    <skip />
+    <string name="add_blocked_number_hint" msgid="6847675097085433553">"Telefonski broj"</string>
+    <!-- no translation found for block_button (8822290682524373357) -->
+    <skip />
+    <!-- no translation found for non_primary_user (5180129233352533459) -->
+    <skip />
+    <!-- no translation found for delete_icon_description (1828583824185681368) -->
+    <skip />
+    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Blokiranje je privremeno isključeno"</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Nakon što pozovete ili pošaljete poruku na broj za hitne slučajeve, blokiranje se isključuje da bi vas hitna služba mogla kontaktirati."</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Ponovo omogući sada"</string>
+    <!-- no translation found for toast_personal_call_msg (5115361633476779723) -->
+    <skip />
+</resources>

@@ -49,22 +49,17 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"Ungependa kutumia <xliff:g id="NEW_APP">%1$s</xliff:g> badala ya <xliff:g id="CURRENT_APP">%2$s</xliff:g> kama programu ya chaguo-msingi ya kupigia simu?"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"Ungependa kutumia <xliff:g id="NEW_APP">%s</xliff:g> kama programu ya chaguo-msingi ya kupigia simu?"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Nambari zilizozuiwa"</string>
-    <!-- no translation found for blocked_numbers_msg (1045015186124965643) -->
-    <skip />
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"Hutapokea simu au SMS kutoka kwa nambari zilizozuiwa."</string>
     <string name="block_number" msgid="1101252256321306179">"Ongeza nambari"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Ungependa kuondoa kizuizi kwenye <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Ondoa kizuizi"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Zuia simu na SMS kutoka kwa"</string>
-    <!-- no translation found for add_blocked_number_hint (6847675097085433553) -->
-    <skip />
+    <string name="add_blocked_number_hint" msgid="6847675097085433553">"Nambari ya simu"</string>
     <string name="block_button" msgid="8822290682524373357">"Zuia"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Ni mmiliki wa kifaa pekee anayeweza kuangalia na kuthibiti nambari zilizozuiwa."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Kichupo cha kuondoa kizuizi"</string>
-    <!-- no translation found for blocked_numbers_butter_bar_title (438170866438793182) -->
-    <skip />
-    <!-- no translation found for blocked_numbers_butter_bar_body (2223244484319442431) -->
-    <skip />
-    <!-- no translation found for blocked_numbers_butter_bar_button (2197943354922010696) -->
-    <skip />
+    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Kipengele cha kuzuia kimezimwa kwa muda"</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Ukishapiga au kutuma ujumbe kwa nambari ya dharura, kipengele cha kuzuia anwani huzimwa ili watoa huduma za dharura waweze kuwasiliana nawe."</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Kiwashe tena sasa"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Kupiga simu kwa kutumia kipiga simu cha binafsi"</string>
 </resources>

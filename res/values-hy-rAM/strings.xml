@@ -49,7 +49,7 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"Օգտագործե՞լ <xliff:g id="NEW_APP">%1$s</xliff:g> հավելվածը <xliff:g id="CURRENT_APP">%2$s</xliff:g>-ի փոխարեն որպես համարհավաքի կանխադրված հավելված:"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"Դարձնե՞լ <xliff:g id="NEW_APP">%s</xliff:g> հավելվածը համարհավաքի կանխադրված հավելված:"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Արգելափակված համարներ"</string>
-    <string name="blocked_numbers_msg" msgid="1045015186124965643">"Արգելափակված համարներից զանգեր կամ տեքստային հաղորդագրություններ դուք չեք ստանա:"</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"Արգելափակված համարներից զանգեր կամ SMS–ներ չեք ստանա:"</string>
     <string name="block_number" msgid="1101252256321306179">"Ավելացնել համար"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Արգելաբացե՞լ <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> համարը:"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Արգելաբացել"</string>

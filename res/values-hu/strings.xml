@@ -59,7 +59,7 @@
     <string name="non_primary_user" msgid="5180129233352533459">"Csak az eszköz tulajdonosa nézheti meg és kezelheti a letiltott számokat."</string>
     <string name="delete_icon_description" msgid="1828583824185681368">"Koppintson a letiltás feloldásához"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"A tiltás átmenetileg felfüggesztve"</string>
-    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Ha tárcsáz egy segélyhívószámot, vagy SMS-t küld segélyhívószámra, a rendszer feloldja a tiltást, hogy a sürgősségi szolgáltatások felvehessék Önnel a kapcsolatot."</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Ha segélyhívószámot tárcsáz, vagy segélyhívószámra küld SMS-t, a rendszer feloldja a tiltást, hogy a sürgősségi szolgáltatások felvehessék Önnel a kapcsolatot."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Újbóli engedélyezés most"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Hívás indítása a személyes tárcsázóval"</string>
 </resources>
