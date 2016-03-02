@@ -39,6 +39,7 @@ import android.telecom.TelecomManager;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 
+import com.android.internal.annotations.VisibleForTesting;
 // TODO: Needed for move to system service: import com.android.internal.R;
 import com.android.internal.telecom.IInCallService;
 import com.android.internal.util.IndentingPrintWriter;
@@ -345,7 +346,8 @@ public final class InCallController extends CallsManagerListenerBase {
      *
      * @param call The newly added call that triggered the binding to the in-call services.
      */
-    private void bindToServices(Call call) {
+    @VisibleForTesting
+    public void bindToServices(Call call) {
         ComponentName inCallUIService = null;
         ComponentName carModeInCallUIService = null;
         List<ComponentName> nonUIInCallServices = new LinkedList<>();
@@ -353,12 +355,16 @@ public final class InCallController extends CallsManagerListenerBase {
         // Loop through all the InCallService implementations that exist in the devices;
         PackageManager packageManager = mContext.getPackageManager();
         Intent serviceIntent = new Intent(InCallService.SERVICE_INTERFACE);
-        for (ResolveInfo entry :
-                packageManager.queryIntentServices(serviceIntent, PackageManager.GET_META_DATA)) {
+        for (ResolveInfo entry : packageManager.queryIntentServicesAsUser(
+                serviceIntent,
+                PackageManager.GET_META_DATA,
+                mCallsManager.getCurrentUserHandle().getIdentifier())) {
             ServiceInfo serviceInfo = entry.serviceInfo;
+
             if (serviceInfo != null) {
                 ComponentName componentName =
                         new ComponentName(serviceInfo.packageName, serviceInfo.name);
+                Log.v(this, "ICS: " + componentName + ", user: " + entry.targetUserId);
 
                 switch (getInCallServiceType(entry.serviceInfo, packageManager)) {
                     case IN_CALL_SERVICE_TYPE_DIALER_UI:
@@ -500,7 +506,8 @@ public final class InCallController extends CallsManagerListenerBase {
 
         // Check to see that it is the default dialer package
         boolean isDefaultDialerPackage = Objects.equals(serviceInfo.packageName,
-                DefaultDialerManager.getDefaultDialerApplication(mContext));
+                DefaultDialerManager.getDefaultDialerApplication(
+                    mContext, mCallsManager.getCurrentUserHandle().getIdentifier()));
         boolean isUIService = serviceInfo.metaData != null &&
                 serviceInfo.metaData.getBoolean(
                         TelecomManager.METADATA_IN_CALL_SERVICE_UI, false);
@@ -706,17 +713,26 @@ public final class InCallController extends CallsManagerListenerBase {
         pw.decreaseIndent();
     }
 
-    static boolean doesDefaultDialerSupportRinging(Context context) {
-        String dialerPackage = DefaultDialerManager
-                .getDefaultDialerApplication(context, UserHandle.USER_CURRENT);
-        if (TextUtils.isEmpty(dialerPackage)) {
+    public boolean doesConnectedDialerSupportRinging() {
+        String ringingPackage =  null;
+        if (mInCallUIComponentName != null) {
+            ringingPackage = mInCallUIComponentName.getPackageName().trim();
+        }
+
+        if (TextUtils.isEmpty(ringingPackage)) {
+            // The current in-call UI returned nothing, so lets use the default dialer.
+            ringingPackage = DefaultDialerManager.getDefaultDialerApplication(
+                    mContext, UserHandle.USER_CURRENT);
+        }
+        if (TextUtils.isEmpty(ringingPackage)) {
             return false;
         }
 
         Intent intent = new Intent(InCallService.SERVICE_INTERFACE)
-            .setPackage(dialerPackage);
-        List<ResolveInfo> entries = context.getPackageManager()
-                .queryIntentServices(intent, PackageManager.GET_META_DATA);
+            .setPackage(ringingPackage);
+        List<ResolveInfo> entries = mContext.getPackageManager().queryIntentServicesAsUser(
+                intent, PackageManager.GET_META_DATA,
+                mCallsManager.getCurrentUserHandle().getIdentifier());
         if (entries.isEmpty()) {
             return false;
         }

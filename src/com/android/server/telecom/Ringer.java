@@ -56,6 +56,7 @@ public final class Ringer {
     private final AsyncRingtonePlayer mRingtonePlayer;
     private final Context mContext;
     private final Vibrator mVibrator;
+    private final InCallController mInCallController;
 
     private InCallTonePlayer mCallWaitingPlayer;
     private RingtoneFactory mRingtoneFactory;
@@ -79,7 +80,8 @@ public final class Ringer {
             SystemSettingsUtil systemSettingsUtil,
             AsyncRingtonePlayer asyncRingtonePlayer,
             RingtoneFactory ringtoneFactory,
-            Vibrator vibrator) {
+            Vibrator vibrator,
+            InCallController inCallController) {
 
         mSystemSettingsUtil = systemSettingsUtil;
         mPlayerFactory = playerFactory;
@@ -89,6 +91,7 @@ public final class Ringer {
         mVibrator = vibrator;
         mRingtonePlayer = asyncRingtonePlayer;
         mRingtoneFactory = ringtoneFactory;
+        mInCallController = inCallController;
     }
 
     public void startRinging(Call foregroundCall) {
@@ -101,7 +104,7 @@ public final class Ringer {
             return;
         }
 
-        if (InCallController.doesDefaultDialerSupportRinging(mContext)) {
+        if (mInCallController.doesConnectedDialerSupportRinging()) {
             Log.event(foregroundCall, Log.Events.SKIP_RINGING);
             return;
         }
@@ -138,7 +141,7 @@ public final class Ringer {
             return;
         }
 
-        if (InCallController.doesDefaultDialerSupportRinging(mContext)) {
+        if (mInCallController.doesConnectedDialerSupportRinging()) {
             Log.event(call, Log.Events.SKIP_RINGING);
             return;
         }

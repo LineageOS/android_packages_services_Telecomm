@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.Intent;
@@ -109,7 +110,8 @@ public class CallsManager extends Call.ListenerBase
             {CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING};
 
     private static final int[] LIVE_CALL_STATES =
-            {CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING, CallState.ACTIVE};
+            {CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING,
+                CallState.ACTIVE};
     public static final String TELECOM_CALL_ID_PREFIX = "TC@";
 
     // Maps call technologies in PhoneConstants to those in Analytics.
@@ -141,6 +143,11 @@ public class CallsManager extends Call.ListenerBase
      * {@link #mLock} sync root.
      */
     private int mCallId = 0;
+
+    /**
+     * Stores the current foreground user.
+     */
+    private UserHandle mCurrentUserHandle = UserHandle.of(ActivityManager.getCurrentUser());
 
     private final ConnectionServiceRepository mConnectionServiceRepository;
     private final DtmfLocalTonePlayer mDtmfLocalTonePlayer;
@@ -230,8 +237,9 @@ public class CallsManager extends Call.ListenerBase
         RingtoneFactory ringtoneFactory = new RingtoneFactory(context);
         SystemVibrator systemVibrator = new SystemVibrator(context);
         AsyncRingtonePlayer asyncRingtonePlayer = new AsyncRingtonePlayer();
+        mInCallController = new InCallController(context, mLock, this, systemStateProvider);
         mRinger = new Ringer(playerFactory, context, systemSettingsUtil, asyncRingtonePlayer,
-                ringtoneFactory, systemVibrator);
+                ringtoneFactory, systemVibrator, mInCallController);
 
         mCallAudioManager = new CallAudioManager(callAudioRouteStateMachine,
                 this,new CallAudioModeStateMachine((AudioManager)
@@ -243,7 +251,6 @@ public class CallsManager extends Call.ListenerBase
         mProximitySensorManager = proximitySensorManagerFactory.create(context, this);
         mPhoneStateBroadcaster = new PhoneStateBroadcaster(this);
         mCallLogManager = new CallLogManager(context, phoneAccountRegistrar);
-        mInCallController = new InCallController(context, mLock, this, systemStateProvider);
         mConnectionServiceRepository =
                 new ConnectionServiceRepository(mPhoneAccountRegistrar, mContext, mLock, this);
         mInCallWakeLockController = inCallWakeLockControllerFactory.create(context, this);
@@ -553,6 +560,10 @@ public class CallsManager extends Call.ListenerBase
         return mCallAudioManager.getForegroundCall();
     }
 
+    public UserHandle getCurrentUserHandle() {
+        return mCurrentUserHandle;
+    }
+
     CallAudioManager getCallAudioManager() {
         return mCallAudioManager;
     }
@@ -561,7 +572,8 @@ public class CallsManager extends Call.ListenerBase
         return mInCallController;
     }
 
-    boolean hasEmergencyCall() {
+    @VisibleForTesting
+    public boolean hasEmergencyCall() {
         for (Call call : mCalls) {
             if (call.isEmergencyCall()) {
                 return true;
@@ -1848,6 +1860,7 @@ public class CallsManager extends Call.ListenerBase
      * including the user itself. There may be chances that profiles are not started yet.
      */
     void onUserSwitch(UserHandle userHandle) {
+        mCurrentUserHandle = userHandle;
         mMissedCallNotifier.setCurrentUserHandle(userHandle);
         final UserManager userManager = UserManager.get(mContext);
         List<UserInfo> profiles = userManager.getEnabledProfiles(userHandle.getIdentifier());
