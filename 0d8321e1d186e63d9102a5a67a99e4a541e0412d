@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ffb9cba7_8e9bc970",
+        "filename": "res/values/colors.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 14113
+      },
+      "writtenOn": "2016-03-02T01:25:55Z",
+      "side": 1,
+      "message": "2016 :)",
+      "revId": "0d8321e1d186e63d9102a5a67a99e4a541e0412d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ffb9cba7_299bb7c9",
+        "filename": "src/com/android/server/telecom/CallsManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2445,
+      "author": {
+        "id": 14113
+      },
+      "writtenOn": "2016-03-02T01:25:55Z",
+      "side": 1,
+      "message": "is it Ok to silently drop the held call? Do we possibly want to ask the user if that\u0027s his intention?",
+      "revId": "0d8321e1d186e63d9102a5a67a99e4a541e0412d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ffb9cba7_8960a3d0",
+        "filename": "src/com/android/server/telecom/CallsManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2461,
+      "author": {
+        "id": 14113
+      },
+      "writtenOn": "2016-03-02T01:25:55Z",
+      "side": 1,
+      "message": "do we possibly want to check if there is a call already being held and drop it as well? there user probably will not remember that he had a call held, was currently  talking and now dropping the current call and switching to a new one.",
+      "revId": "0d8321e1d186e63d9102a5a67a99e4a541e0412d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ffb9cba7_49a06bf5",
+        "filename": "src/com/android/server/telecom/CallsManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2484,
+      "author": {
+        "id": 14113
+      },
+      "writtenOn": "2016-03-02T01:25:55Z",
+      "side": 1,
+      "message": "should these calls be changed in order? first set the speakerphone state to on, if enabled, and then answer the call?",
+      "revId": "0d8321e1d186e63d9102a5a67a99e4a541e0412d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
