@@ -1190,11 +1190,12 @@ public class TelecomServiceImpl {
             BlockedNumbersActivity.start(mContext);
         }
 
-        // TODO: Add a link to TelecomManager#createManageBlockedNumbersIntent
+        /**
+         * @see android.telecom.TelecomManager#createManageBlockedNumbersIntent
+         */
         @Override
         public Intent createManageBlockedNumbersIntent() {
-            // TODO: Implement this.
-            return null;
+            return BlockedNumbersActivity.getIntentForStartingActivity();
         }
     };
 

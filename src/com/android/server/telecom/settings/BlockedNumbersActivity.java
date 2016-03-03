@@ -24,7 +24,6 @@ import android.app.LoaderManager;
 import android.content.*;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Process;
 import android.os.UserManager;
 import android.provider.BlockedNumberContract;
 import android.text.Editable;
@@ -33,7 +32,6 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.android.server.telecom.R;
@@ -43,6 +41,9 @@ import com.android.server.telecom.R;
  */
 public class BlockedNumbersActivity extends ListActivity
         implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener, TextWatcher {
+    private static final String ACTION_MANAGE_BLOCKED_NUMBERS =
+            "android.telecom.action.MANAGE_BLOCKED_NUMBERS";
+    private static final String TELECOM_PACKAGE = "com.android.server.telecom";
     private static final String[] PROJECTION = new String[] {
             BlockedNumberContract.BlockedNumbers.COLUMN_ID,
             BlockedNumberContract.BlockedNumbers.COLUMN_ORIGINAL_NUMBER
@@ -65,6 +66,12 @@ public class BlockedNumbersActivity extends ListActivity
         Intent intent = new Intent(context, BlockedNumbersActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
+    }
+
+    public static Intent getIntentForStartingActivity() {
+        Intent intent = new Intent(ACTION_MANAGE_BLOCKED_NUMBERS);
+        intent.setPackage(TELECOM_PACKAGE);
+        return intent;
     }
 
     @Override
