@@ -49,6 +49,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.telephony.AsyncEmergencyContactNotifier;
 import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.telephony.TelephonyProperties;
 import com.android.internal.util.IndentingPrintWriter;
@@ -900,6 +901,7 @@ public class CallsManager extends Call.ListenerBase
         if (call.isEmergencyCall()) {
             // Emergency -- CreateConnectionProcessor will choose accounts automatically
             call.setTargetPhoneAccount(null);
+            new AsyncEmergencyContactNotifier(mContext).execute();
         }
 
         final boolean requireCallCapableAccountByHandle = mContext.getResources().getBoolean(
