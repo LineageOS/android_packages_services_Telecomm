@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "ffb9cba7_7b4c16c7",
+        "filename": "res/layout/call_waiting_dialog.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 11035
+      },
+      "writtenOn": "2016-03-03T02:29:37Z",
+      "side": 1,
+      "message": "fill_parent is deprecated use match_parent",
+      "range": {
+        "startLine": 27,
+        "startChar": 30,
+        "endLine": 28,
+        "endChar": 43
+      },
+      "revId": "bc58f9d92242385d192bf721c8729bc884c8b864",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ffb9cba7_5177b13b",
         "filename": "res/values/cm_colors.xml",
         "patchSetId": 2
@@ -30,6 +53,29 @@
       "writtenOn": "2016-03-03T02:09:08Z",
       "side": 1,
       "message": "nit: link needs extra indentation, like in CallsManager",
+      "revId": "bc58f9d92242385d192bf721c8729bc884c8b864",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ffb9cba7_51c5713b",
+        "filename": "src/com/android/server/telecom/ui/CallWaitingButtonAdapter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 11035
+      },
+      "writtenOn": "2016-03-03T02:29:37Z",
+      "side": 1,
+      "message": "remove the javadoc boilerplate if it isn\u0027t adding anything ?",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 3
+      },
       "revId": "bc58f9d92242385d192bf721c8729bc884c8b864",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
