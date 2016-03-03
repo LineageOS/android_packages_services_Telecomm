@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ffb9cba7_5177b13b",
+        "filename": "res/values/cm_colors.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9199
+      },
+      "writtenOn": "2016-03-03T02:09:08Z",
+      "side": 1,
+      "message": "missing \u003c?xml version\u003d\"1.0\" encoding\u003d\"utf-8\"?\u003e",
+      "revId": "bc58f9d92242385d192bf721c8729bc884c8b864",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ffb9cba7_f19d8559",
+        "filename": "src/com/android/server/telecom/ui/CallWaitingButtonAdapter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 9199
+      },
+      "writtenOn": "2016-03-03T02:09:08Z",
+      "side": 1,
+      "message": "nit: link needs extra indentation, like in CallsManager",
+      "revId": "bc58f9d92242385d192bf721c8729bc884c8b864",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ffb9cba7_91a2099a",
+        "filename": "src/com/android/server/telecom/ui/CallWaitingDialog.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 9199
+      },
+      "writtenOn": "2016-03-03T02:09:08Z",
+      "side": 1,
+      "message": "nit: link needs extra indentation",
+      "revId": "bc58f9d92242385d192bf721c8729bc884c8b864",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ffb9cba7_b19f0d4f",
+        "filename": "src/com/android/server/telecom/ui/CallWaitingDialogButton.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 9199
+      },
+      "writtenOn": "2016-03-03T02:09:08Z",
+      "side": 1,
+      "message": "nit: link needs extra indentation",
+      "revId": "bc58f9d92242385d192bf721c8729bc884c8b864",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
