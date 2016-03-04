@@ -123,6 +123,10 @@ public class CallIntentProcessor {
             clientExtras.putString(TelecomManager.EXTRA_CALL_SUBJECT, callsubject);
         }
 
+        final int videoState = intent.getIntExtra( TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
+                VideoProfile.STATE_AUDIO_ONLY);
+        clientExtras.putInt(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE, videoState);
+
         final boolean isPrivilegedDialer = intent.getBooleanExtra(KEY_IS_PRIVILEGED_DIALER, false);
 
         boolean fixedInitiatingUser = fixInitiatingUserIfNecessary(context, intent);
