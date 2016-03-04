@@ -154,7 +154,8 @@ public class BlockedNumbersActivity extends ListActivity
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(this, BlockedNumberContract.BlockedNumbers.CONTENT_URI,
-                PROJECTION, SELECTION, null, null);
+                PROJECTION, SELECTION, null,
+                BlockedNumberContract.BlockedNumbers.COLUMN_ID + " DESC");
     }
 
     @Override
