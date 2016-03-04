@@ -763,6 +763,13 @@ public class CallsManager extends Call.ListenerBase
             isReusedCall = false;
         }
 
+        // Set the video state on the call early so that when it is added to the InCall UI the UI
+        // knows to configure itself as a video call immediately.
+        if (extras != null) {
+            call.setVideoState(extras.getInt(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
+                    VideoProfile.STATE_AUDIO_ONLY));
+        }
+
         List<PhoneAccountHandle> accounts =
                 mPhoneAccountRegistrar.getCallCapablePhoneAccounts(handle.getScheme(), false,
                         initiatingUser);
