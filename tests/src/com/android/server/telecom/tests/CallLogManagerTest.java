@@ -89,7 +89,8 @@ public class CallLogManagerTest extends TelecomTestCase {
         super.setUp();
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
         mCallLogManager = new CallLogManager(mContext, mMockPhoneAccountRegistrar);
-        mContentProvider = mContext.getContentResolver().acquireProvider("test");
+        mContentProvider =
+                mContext.getContentResolver().acquireProvider("0@call_log");
         mDefaultAccountHandle = new PhoneAccountHandle(
                 new ComponentName("com.android.server.telecom.tests", "CallLogManagerTest"),
                 TEST_PHONE_ACCOUNT_ID,
@@ -111,7 +112,7 @@ public class CallLogManagerTest extends TelecomTestCase {
         UserManager userManager = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
         UserInfo userInfo = new UserInfo(CURRENT_USER_ID, "test", 0);
         UserInfo otherUserInfo = new UserInfo(OTHER_USER_ID, "test2", 0);
-        UserInfo managedProfileUserInfo = new UserInfo(OTHER_USER_ID, "test3",
+        UserInfo managedProfileUserInfo = new UserInfo(MANAGED_USER_ID, "test3",
                 UserInfo.FLAG_MANAGED_PROFILE);
 
         doAnswer(new Answer<Uri>() {
@@ -567,8 +568,8 @@ public class CallLogManagerTest extends TelecomTestCase {
     private void verifyNoInsertionInUser(int userId) {
         try {
             Uri uri = ContentProvider.maybeAddUserId(CallLog.Calls.CONTENT_URI, userId);
-            verify(mContentProvider, timeout(TEST_TIMEOUT_MILLIS).never()).insert(any(String.class),
-                    eq(uri), any(ContentValues.class));
+            verify(getContentProviderForUser(userId), timeout(TEST_TIMEOUT_MILLIS).never())
+                    .insert(any(String.class), eq(uri), any(ContentValues.class));
         } catch (android.os.RemoteException e) {
             fail("Remote exception occurred during test execution");
         }
@@ -578,13 +579,17 @@ public class CallLogManagerTest extends TelecomTestCase {
         ArgumentCaptor<ContentValues> captor = ArgumentCaptor.forClass(ContentValues.class);
         try {
             Uri uri = ContentProvider.maybeAddUserId(CallLog.Calls.CONTENT_URI, userId);
-            verify(mContentProvider, timeout(TEST_TIMEOUT_MILLIS).atLeastOnce())
+            verify(getContentProviderForUser(userId), timeout(TEST_TIMEOUT_MILLIS).atLeastOnce())
                     .insert(any(String.class), eq(uri), captor.capture());
         } catch (android.os.RemoteException e) {
             fail("Remote exception occurred during test execution");
         }
 
         return captor.getValue();
+    }
+
+    private IContentProvider getContentProviderForUser(int userId) {
+        return mContext.getContentResolver().acquireProvider(userId + "@call_log");
     }
 
     private Call makeFakeCall(int disconnectCauseCode, boolean isConference, boolean isIncoming,

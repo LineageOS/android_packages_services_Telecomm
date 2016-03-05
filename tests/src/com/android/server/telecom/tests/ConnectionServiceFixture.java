@@ -44,6 +44,8 @@ import android.telecom.PhoneAccountHandle;
 import android.telecom.StatusHints;
 import android.telecom.TelecomManager;
 
+import com.google.android.collect.Lists;
+
 import java.lang.Override;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -130,6 +132,7 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
     }
 
     public class FakeConnectionService extends IConnectionService.Stub {
+        List<String> rejectedCallIds = Lists.newArrayList();
 
         @Override
         public void addConnectionServiceAdapter(IConnectionServiceAdapter adapter)
@@ -185,7 +188,9 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         public void answer(String callId) throws RemoteException { }
 
         @Override
-        public void reject(String callId) throws RemoteException { }
+        public void reject(String callId) throws RemoteException {
+            rejectedCallIds.add(callId);
+        }
 
         @Override
         public void rejectWithMessage(String callId, String message) throws RemoteException { }
@@ -245,7 +250,7 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
     private IConnectionService mConnectionServiceDelegateAdapter =
             IConnectionService.Stub.asInterface(mConnectionServiceDelegate.onBind(null));
 
-    private IConnectionService.Stub mConnectionService = new FakeConnectionService();
+    FakeConnectionService mConnectionService = new FakeConnectionService();
     private IConnectionService.Stub mConnectionServiceSpy = Mockito.spy(mConnectionService);
 
     public class ConnectionInfo {
