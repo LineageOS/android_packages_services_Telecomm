@@ -22,6 +22,7 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -34,6 +35,7 @@ import static org.mockito.Mockito.verify;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.IContentProvider;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.IAudioService;
@@ -42,6 +44,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Process;
 import android.os.UserHandle;
+import android.provider.BlockedNumberContract;
 import android.telecom.Call;
 import android.telecom.ConnectionRequest;
 import android.telecom.ParcelableCall;
@@ -76,6 +79,9 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Implements mocks and functionality required to implement telecom system tests.
  */
@@ -108,6 +114,8 @@ public class TelecomSystemTest extends TelecomTestCase {
 
     public static class MissedCallNotifierFakeImpl extends CallsManagerListenerBase
             implements MissedCallNotifier {
+        List<com.android.server.telecom.Call> missedCallsNotified = new ArrayList<>();
+
         @Override
         public void clearMissedCalls(UserHandle userHandle) {
 
@@ -115,7 +123,7 @@ public class TelecomSystemTest extends TelecomTestCase {
 
         @Override
         public void showMissedCallNotification(com.android.server.telecom.Call call) {
-
+            missedCallsNotified.add(call);
         }
 
         @Override
@@ -131,7 +139,7 @@ public class TelecomSystemTest extends TelecomTestCase {
         }
     }
 
-    MissedCallNotifier mMissedCallNotifier = new MissedCallNotifierFakeImpl();
+    MissedCallNotifierFakeImpl mMissedCallNotifier = new MissedCallNotifierFakeImpl();
     @Mock HeadsetMediaButton mHeadsetMediaButton;
     @Mock ProximitySensorManager mProximitySensorManager;
     @Mock InCallWakeLockController mInCallWakeLockController;
@@ -498,12 +506,18 @@ public class TelecomSystemTest extends TelecomTestCase {
                 .createConnection(any(PhoneAccountHandle.class), anyString(),
                         any(ConnectionRequest.class), eq(true), eq(false));
 
-        connectionServiceFixture.sendSetRinging(connectionServiceFixture.mLatestConnectionId);
-
         for (CallerInfoAsyncQueryFactoryFixture.Request request :
                 mCallerInfoAsyncQueryFactoryFixture.mRequests) {
             request.reply();
         }
+
+        IContentProvider blockedNumberProvider =
+                mSpyContext.getContentResolver().acquireProvider(BlockedNumberContract.AUTHORITY);
+        verify(blockedNumberProvider, timeout(TEST_TIMEOUT)).call(
+                anyString(),
+                eq(BlockedNumberContract.SystemContract.METHOD_SHOULD_SYSTEM_BLOCK_NUMBER),
+                eq(number),
+                isNull(Bundle.class));
 
         // For the case of incoming calls, Telecom connecting the InCall services and adding the
         // Call is triggered by the async completion of the CallerInfoAsyncQuery. Once the Call

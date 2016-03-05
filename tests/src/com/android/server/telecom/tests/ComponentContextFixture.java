@@ -210,7 +210,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
                 @Override
                 protected IContentProvider acquireProvider(Context c, String name) {
                     Log.i(this, "acquireProvider %s", name);
-                    return mContentProvider;
+                    return getOrCreateProvider(name);
                 }
 
                 @Override
@@ -221,7 +221,14 @@ public class ComponentContextFixture implements TestFixture<Context> {
                 @Override
                 protected IContentProvider acquireUnstableProvider(Context c, String name) {
                     Log.i(this, "acquireUnstableProvider %s", name);
-                    return mContentProvider;
+                    return getOrCreateProvider(name);
+                }
+
+                private IContentProvider getOrCreateProvider(String name) {
+                    if (!mIContentProviderByUri.containsKey(name)) {
+                        mIContentProviderByUri.put(name, mock(IContentProvider.class));
+                    }
+                    return mIContentProviderByUri.get(name);
                 }
 
                 @Override
@@ -397,7 +404,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
     private final StatusBarManager mStatusBarManager = mock(StatusBarManager.class);
     private final SubscriptionManager mSubscriptionManager = mock(SubscriptionManager.class);
     private final CarrierConfigManager mCarrierConfigManager = mock(CarrierConfigManager.class);
-    private final IContentProvider mContentProvider = mock(IContentProvider.class);
+    private final Map<String, IContentProvider> mIContentProviderByUri = new HashMap<>();
     private final Configuration mResourceConfiguration = new Configuration();
 
     private TelecomManager mTelecomManager = null;

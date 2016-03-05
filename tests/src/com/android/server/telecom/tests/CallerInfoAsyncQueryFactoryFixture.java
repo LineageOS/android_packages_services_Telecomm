@@ -23,6 +23,8 @@ import com.android.server.telecom.Log;
 
 import android.content.Context;
 
+import org.mockito.Mockito;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,7 +41,11 @@ public class CallerInfoAsyncQueryFactoryFixture implements
         Object mCookie;
         CallerInfoAsyncQuery.OnQueryCompleteListener mListener;
         void reply() {
-            mListener.onQueryComplete(mToken, mCookie, new CallerInfo());
+            replyWithCallerInfo(new CallerInfo());
+        }
+
+        void replyWithCallerInfo(CallerInfo callerInfo) {
+            mListener.onQueryComplete(mToken, mCookie, callerInfo);
         }
     }
 
@@ -52,7 +58,7 @@ public class CallerInfoAsyncQueryFactoryFixture implements
             r.mCookie = cookie;
             r.mListener = listener;
             mRequests.add(r);
-            return null;
+            return Mockito.mock(CallerInfoAsyncQuery.class);
         }
     };
 

@@ -16,19 +16,33 @@
 
 package com.android.server.telecom.tests;
 
-import com.android.internal.util.IndentingPrintWriter;
-import com.android.server.telecom.Analytics;
-import com.android.server.telecom.Log;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 import android.content.Context;
+import android.content.IContentProvider;
 import android.media.AudioManager;
+import android.net.Uri;
+import android.os.Bundle;
 import android.os.Process;
+import android.provider.BlockedNumberContract;
 import android.telecom.Call;
 import android.telecom.CallAudioState;
 import android.telecom.Connection;
+import android.telecom.ConnectionRequest;
 import android.telecom.DisconnectCause;
 import android.telecom.ParcelableCall;
 import android.telecom.ParcelableCallAnalytics;
+import android.telecom.PhoneAccount;
+import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.test.suitebuilder.annotation.LargeTest;
@@ -36,6 +50,15 @@ import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.internal.telecom.IInCallAdapter;
+import com.android.internal.telephony.CallerInfo;
+import com.android.internal.util.IndentingPrintWriter;
+import com.android.server.telecom.Analytics;
+import com.android.server.telecom.Log;
+
+import com.google.common.base.Predicate;
+
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.io.StringWriter;
 import java.util.List;
@@ -43,12 +66,7 @@ import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Performs various basic call tests in Telecom.
@@ -68,6 +86,7 @@ public class BasicCallTests extends TelecomSystemTest {
                 mInCallServiceFixtureX.getCall(ids.mCallId).getState());
         assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureY.getCall(ids.mCallId).getState());
+        verifyNoBlockChecks();
     }
 
     @LargeTest
@@ -80,6 +99,7 @@ public class BasicCallTests extends TelecomSystemTest {
                 mInCallServiceFixtureX.getCall(ids.mCallId).getState());
         assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureY.getCall(ids.mCallId).getState());
+        verifyNoBlockChecks();
     }
 
     /**
@@ -215,6 +235,141 @@ public class BasicCallTests extends TelecomSystemTest {
                 mInCallServiceFixtureX.getCall(ids.mCallId).getState());
         assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureY.getCall(ids.mCallId).getState());
+    }
+
+    @LargeTest
+    public void testIncomingCallFromContactWithSendToVoicemailIsRejected() throws Exception {
+        Bundle extras = new Bundle();
+        extras.putParcelable(
+                TelecomManager.EXTRA_INCOMING_CALL_ADDRESS,
+                Uri.fromParts(PhoneAccount.SCHEME_TEL, "650-555-1212", null));
+        mTelecomSystem.getTelecomServiceImpl().getBinder()
+                .addNewIncomingCall(mPhoneAccountA0.getAccountHandle(), extras);
+
+        verify(mConnectionServiceFixtureA.getTestDouble())
+                .createConnection(any(PhoneAccountHandle.class), anyString(),
+                        any(ConnectionRequest.class), eq(true), eq(false));
+
+        assertEquals(1, mCallerInfoAsyncQueryFactoryFixture.mRequests.size());
+        for (CallerInfoAsyncQueryFactoryFixture.Request request :
+                mCallerInfoAsyncQueryFactoryFixture.mRequests) {
+            CallerInfo sendToVoicemailCallerInfo = new CallerInfo();
+            sendToVoicemailCallerInfo.shouldSendToVoicemail = true;
+            request.replyWithCallerInfo(sendToVoicemailCallerInfo);
+        }
+
+        assertTrueWithTimeout(new Predicate<Void>() {
+            @Override
+            public boolean apply(Void aVoid) {
+                return mConnectionServiceFixtureA.mConnectionService.rejectedCallIds.size() == 1;
+            }
+        });
+        assertTrueWithTimeout(new Predicate<Void>() {
+            @Override
+            public boolean apply(Void aVoid) {
+                return mMissedCallNotifier.missedCallsNotified.size() == 1;
+            }
+        });
+
+        verify(mInCallServiceFixtureX.getTestDouble(), never())
+                .setInCallAdapter(any(IInCallAdapter.class));
+        verify(mInCallServiceFixtureY.getTestDouble(), never())
+                .setInCallAdapter(any(IInCallAdapter.class));
+    }
+
+    @LargeTest
+    public void testIncomingCallCallerInfoLookupTimesOutIsAllowed() throws Exception {
+        Bundle extras = new Bundle();
+        extras.putParcelable(
+                TelecomManager.EXTRA_INCOMING_CALL_ADDRESS,
+                Uri.fromParts(PhoneAccount.SCHEME_TEL, "650-555-1212", null));
+        mTelecomSystem.getTelecomServiceImpl().getBinder()
+                .addNewIncomingCall(mPhoneAccountA0.getAccountHandle(), extras);
+
+        verify(mConnectionServiceFixtureA.getTestDouble())
+                .createConnection(any(PhoneAccountHandle.class), anyString(),
+                        any(ConnectionRequest.class), eq(true), eq(false));
+
+        // Never reply to the caller info lookup.
+        assertEquals(1, mCallerInfoAsyncQueryFactoryFixture.mRequests.size());
+
+        verify(mInCallServiceFixtureX.getTestDouble(), timeout(TEST_TIMEOUT))
+                .setInCallAdapter(any(IInCallAdapter.class));
+
+        assertEquals(0, mConnectionServiceFixtureA.mConnectionService.rejectedCallIds.size());
+        assertEquals(0, mMissedCallNotifier.missedCallsNotified.size());
+
+        assertTrueWithTimeout(new Predicate<Void>() {
+            @Override
+            public boolean apply(Void v) {
+                return mInCallServiceFixtureX.mInCallAdapter != null;
+            }
+        });
+
+        verify(mInCallServiceFixtureX.getTestDouble(), timeout(TEST_TIMEOUT))
+                .addCall(any(ParcelableCall.class));
+
+        disconnectCall(mInCallServiceFixtureX.mLatestCallId,
+                mConnectionServiceFixtureA.mLatestConnectionId);
+    }
+
+    @LargeTest
+    public void testIncomingCallFromBlockedNumberIsRejected() throws Exception {
+        String phoneNumber = "650-555-1212";
+        blockNumber(phoneNumber);
+
+        Bundle extras = new Bundle();
+        extras.putParcelable(
+                TelecomManager.EXTRA_INCOMING_CALL_ADDRESS,
+                Uri.fromParts(PhoneAccount.SCHEME_TEL, phoneNumber, null));
+        mTelecomSystem.getTelecomServiceImpl().getBinder()
+                .addNewIncomingCall(mPhoneAccountA0.getAccountHandle(), extras);
+
+        verify(mConnectionServiceFixtureA.getTestDouble())
+                .createConnection(any(PhoneAccountHandle.class), anyString(),
+                        any(ConnectionRequest.class), eq(true), eq(false));
+
+        assertEquals(1, mCallerInfoAsyncQueryFactoryFixture.mRequests.size());
+        for (CallerInfoAsyncQueryFactoryFixture.Request request :
+                mCallerInfoAsyncQueryFactoryFixture.mRequests) {
+            request.reply();
+        }
+
+        assertTrueWithTimeout(new Predicate<Void>() {
+            @Override
+            public boolean apply(Void aVoid) {
+                return mConnectionServiceFixtureA.mConnectionService.rejectedCallIds.size() == 1;
+            }
+        });
+        assertEquals(0, mMissedCallNotifier.missedCallsNotified.size());
+
+        verify(mInCallServiceFixtureX.getTestDouble(), never())
+                .setInCallAdapter(any(IInCallAdapter.class));
+        verify(mInCallServiceFixtureY.getTestDouble(), never())
+                .setInCallAdapter(any(IInCallAdapter.class));
+    }
+
+    @LargeTest
+    public void testIncomingCallBlockCheckTimesoutIsAllowed() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
+        String phoneNumber = "650-555-1212";
+        blockNumberWithAnswer(phoneNumber, new Answer<Bundle>() {
+            @Override
+            public Bundle answer(InvocationOnMock invocation) throws Throwable {
+                latch.await(TEST_TIMEOUT * 2, TimeUnit.MILLISECONDS);
+                Bundle bundle = new Bundle();
+                bundle.putBoolean(BlockedNumberContract.RES_NUMBER_IS_BLOCKED, true);
+                return bundle;
+            }
+        });
+
+        IdPair ids = startAndMakeActiveIncomingCall(
+                phoneNumber, mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
+        latch.countDown();
+
+        assertEquals(0, mConnectionServiceFixtureA.mConnectionService.rejectedCallIds.size());
+        assertEquals(0, mMissedCallNotifier.missedCallsNotified.size());
+        disconnectCall(ids.mCallId, ids.mConnectionId);
     }
 
     public void do_testDeadlockOnOutgoingCall() throws Exception {
@@ -536,5 +691,38 @@ public class BasicCallTests extends TelecomSystemTest {
         assertNotNull(callAnalytics2.callTerminationReason);
         assertEquals(DisconnectCause.ERROR, callAnalytics1.callTerminationReason.getCode());
         assertEquals(DisconnectCause.REMOTE, callAnalytics2.callTerminationReason.getCode());
+    }
+
+    private void blockNumber(String phoneNumber) throws Exception {
+        blockNumberWithAnswer(phoneNumber, new Answer<Bundle>() {
+            @Override
+            public Bundle answer(InvocationOnMock invocation) throws Throwable {
+                Bundle bundle = new Bundle();
+                bundle.putBoolean(BlockedNumberContract.RES_NUMBER_IS_BLOCKED, true);
+                return bundle;
+            }
+        });
+    }
+
+    private void blockNumberWithAnswer(String phoneNumber, Answer answer) throws Exception {
+        when(getBlockedNumberProvider().call(
+                anyString(),
+                eq(BlockedNumberContract.SystemContract.METHOD_SHOULD_SYSTEM_BLOCK_NUMBER),
+                eq(phoneNumber),
+                isNull(Bundle.class))).thenAnswer(answer);
+    }
+
+    private void verifyNoBlockChecks() {
+        verifyZeroInteractions(getBlockedNumberProvider());
+    }
+
+    private IContentProvider getBlockedNumberProvider() {
+        return mSpyContext.getContentResolver().acquireProvider(BlockedNumberContract.AUTHORITY);
+    }
+
+    private void disconnectCall(String callId, String connectionId) throws Exception {
+        mConnectionServiceFixtureA.sendSetDisconnected(connectionId, DisconnectCause.LOCAL);
+        assertEquals(Call.STATE_DISCONNECTED, mInCallServiceFixtureX.getCall(callId).getState());
+        assertEquals(Call.STATE_DISCONNECTED, mInCallServiceFixtureY.getCall(callId).getState());
     }
 }
