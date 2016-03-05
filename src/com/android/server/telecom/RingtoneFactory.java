@@ -16,11 +16,14 @@
 
 package com.android.server.telecom;
 
+import android.app.ActivityManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.media.Ringtone;
 import android.net.Uri;
+import android.os.UserHandle;
 import android.provider.Settings;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -39,11 +42,23 @@ public class RingtoneFactory {
     }
 
     public Ringtone getRingtone(Uri ringtoneUri) {
+        UserHandle userHandle = UserHandle.of(ActivityManager.getCurrentUser());
+        Context userContext = mContext;
+        try {
+            userContext = mContext.createPackageContextAsUser(mContext.getPackageName(), 0,
+                    userHandle);
+
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.w("RingtoneFactory", "Package name not found: " + e.getMessage());
+        }
         if (ringtoneUri == null) {
-            ringtoneUri = Settings.System.DEFAULT_RINGTONE_URI;
+            String userRingtoneChoice = Settings.System.getStringForUser(
+                    userContext.getContentResolver(), Settings.System.RINGTONE,
+                    userHandle.getIdentifier());
+            ringtoneUri = (userRingtoneChoice == null) ? null : Uri.parse(userRingtoneChoice);
         }
 
-        Ringtone ringtone = RingtoneManager.getRingtone(mContext, ringtoneUri);
+        Ringtone ringtone = RingtoneManager.getRingtone(userContext, ringtoneUri);
         if (ringtone != null) {
             ringtone.setStreamType(AudioManager.STREAM_RING);
         }
