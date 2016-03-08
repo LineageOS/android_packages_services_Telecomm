@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ffb9cba7_a7dd8015",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2016-03-08T06:40:20Z",
+      "side": 1,
+      "message": "I can\u0027t help but feel we should be updating onCallAudioStateChanged without special casing it here.",
+      "revId": "28c83603d3a0cef5c9441ced64fcc3be80e45b46",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ffb9cba7_e7da9815",
+        "filename": "src/com/android/server/telecom/CallAudioManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2016-03-08T06:40:20Z",
+      "side": 1,
+      "message": "Actually, the call chain for onCallUpdated looks like this: onCallUpdated -\u003e updateAudioStreamAndMode -\u003e setInitialAudioState -\u003e setSystemAudioState -\u003e mCallsManager -\u003e onCallAudioStateChanged. Maybe there\u0027s a condition inside the chain somewhere that needs to be adjusted to account for this?",
+      "range": {
+        "startLine": 231,
+        "startChar": 8,
+        "endLine": 231,
+        "endChar": 21
+      },
+      "revId": "28c83603d3a0cef5c9441ced64fcc3be80e45b46",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
