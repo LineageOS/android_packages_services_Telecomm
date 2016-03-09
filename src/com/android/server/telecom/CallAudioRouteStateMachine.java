@@ -216,6 +216,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     CallAudioState initState = getInitialAudioState();
                     mAvailableRoutes = initState.getSupportedRouteMask();
                     mIsMuted = initState.isMuted();
+                    setMuteOn(mIsMuted);
                     mWasOnSpeaker = initState.getRoute() == ROUTE_SPEAKER;
                     mHasUserExplicitlyLeftBluetooth = false;
                     transitionTo(mRouteCodeToQuiescentState.get(initState.getRoute()));
