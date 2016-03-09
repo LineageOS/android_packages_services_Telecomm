@@ -109,6 +109,15 @@ public final class Timeouts {
     }
 
     /**
+     * Returns the amount of time to wait before retrying the connectAudio call. This is
+     * necessary to account for the HeadsetStateMachine sometimes not being ready when we want to
+     * connect to bluetooth audio immediately after a device connects.
+     */
+    public static long getRetryBluetoothConnectAudioBackoffMillis(ContentResolver contentResolver) {
+        return get(contentResolver, "retry_bluetooth_connect_audio_backoff_millis", 500L);
+    }
+
+    /**
      * Returns the amount of time after a Logging session has been started that Telecom is set to
      * perform a sweep to check and make sure that the session is still not incomplete (stale).
      */
