@@ -258,9 +258,9 @@ public class Log {
     @VisibleForTesting
     public static Handler sSessionCleanupHandler = new Handler(Looper.getMainLooper());
     @VisibleForTesting
-    public static Runnable sCleanStaleSessions = new Runnable("L.cSS") {
+    public static java.lang.Runnable sCleanStaleSessions = new java.lang.Runnable() {
         @Override
-        public void loggedRun() {
+        public void run() {
             cleanupStaleSessions(getSessionCleanupTimeoutMs());
         }
     };
@@ -375,8 +375,7 @@ public class Log {
         sSessionCleanupHandler.removeCallbacksAndMessages(null);
         // Will be null in Log Testing
         if (sCleanStaleSessions != null) {
-            sSessionCleanupHandler.postDelayed(sCleanStaleSessions.prepare(),
-                    getSessionCleanupTimeoutMs());
+            sSessionCleanupHandler.postDelayed(sCleanStaleSessions, getSessionCleanupTimeoutMs());
         }
     }
 
@@ -593,7 +592,7 @@ public class Log {
     }
 
     @VisibleForTesting
-    public static void cleanupStaleSessions(long timeoutMs) {
+    public static synchronized void cleanupStaleSessions(long timeoutMs) {
         String logMessage = "Stale Sessions Cleaned:\n";
         boolean isSessionsStale = false;
         long currentTimeMs = System.currentTimeMillis();
