@@ -24,7 +24,7 @@ public abstract class Runnable {
 
     private Session mSubsession;
     private final String mSubsessionName;
-    private Object mLock = new Object();
+    private final Object mLock = new Object();
     private final java.lang.Runnable mRunnable = new java.lang.Runnable() {
             @Override
             public void run() {
