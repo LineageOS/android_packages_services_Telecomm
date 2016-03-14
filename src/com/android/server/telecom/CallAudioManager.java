@@ -39,7 +39,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     private final String LOG_TAG = CallAudioManager.class.getSimpleName();
 
-    private final LinkedHashSet<Call> mActiveOrDialingCalls;
+    private final LinkedHashSet<Call> mActiveDialingOrConnectingCalls;
     private final LinkedHashSet<Call> mRingingCalls;
     private final LinkedHashSet<Call> mHoldingCalls;
     private final Set<Call> mCalls;
@@ -64,13 +64,14 @@ public class CallAudioManager extends CallsManagerListenerBase {
             Ringer ringer,
             RingbackPlayer ringbackPlayer,
             DtmfLocalTonePlayer dtmfLocalTonePlayer) {
-        mActiveOrDialingCalls = new LinkedHashSet<>();
+        mActiveDialingOrConnectingCalls = new LinkedHashSet<>();
         mRingingCalls = new LinkedHashSet<>();
         mHoldingCalls = new LinkedHashSet<>();
         mCalls = new HashSet<>();
         mCallStateToCalls = new SparseArray<LinkedHashSet<Call>>() {{
-            put(CallState.ACTIVE, mActiveOrDialingCalls);
-            put(CallState.DIALING, mActiveOrDialingCalls);
+            put(CallState.CONNECTING, mActiveDialingOrConnectingCalls);
+            put(CallState.ACTIVE, mActiveDialingOrConnectingCalls);
+            put(CallState.DIALING, mActiveDialingOrConnectingCalls);
             put(CallState.RINGING, mRingingCalls);
             put(CallState.ON_HOLD, mHoldingCalls);
         }};
@@ -177,7 +178,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
                 if (mCallStateToCalls.get(call.getState()) != null) {
                     mCallStateToCalls.get(call.getState()).remove(call);
                 }
-                mActiveOrDialingCalls.add(call);
+                mActiveDialingOrConnectingCalls.add(call);
                 mCallAudioModeStateMachine.sendMessage(
                         CallAudioModeStateMachine.MT_AUDIO_SPEEDUP_FOR_RINGING_CALL,
                         makeArgsForModeStateMachine());
@@ -383,9 +384,9 @@ public class CallAudioManager extends CallsManagerListenerBase {
     }
 
     void dump(IndentingPrintWriter pw) {
-        pw.println("Active or dialing calls:");
+        pw.println("Active dialing, or connecting calls:");
         pw.increaseIndent();
-        dumpCallsInCollection(pw, mActiveOrDialingCalls);
+        dumpCallsInCollection(pw, mActiveDialingOrConnectingCalls);
         pw.decreaseIndent();
 
         pw.println("Ringing calls:");
@@ -414,7 +415,8 @@ public class CallAudioManager extends CallsManagerListenerBase {
     private void onCallLeavingState(Call call, int state) {
         switch (state) {
             case CallState.ACTIVE:
-                onCallLeavingActiveOrDialing();
+            case CallState.CONNECTING:
+                onCallLeavingActiveDialingOrConnecting();
                 break;
             case CallState.RINGING:
                 onCallLeavingRinging();
@@ -424,14 +426,15 @@ public class CallAudioManager extends CallsManagerListenerBase {
                 break;
             case CallState.DIALING:
                 stopRingbackForCall(call);
-                onCallLeavingActiveOrDialing();
+                onCallLeavingActiveDialingOrConnecting();
         }
     }
 
     private void onCallEnteringState(Call call, int state) {
         switch (state) {
             case CallState.ACTIVE:
-                onCallEnteringActiveOrDialing();
+            case CallState.CONNECTING:
+                onCallEnteringActiveDialingOrConnecting();
                 break;
             case CallState.RINGING:
                 onCallEnteringRinging();
@@ -440,14 +443,14 @@ public class CallAudioManager extends CallsManagerListenerBase {
                 onCallEnteringHold();
                 break;
             case CallState.DIALING:
-                onCallEnteringActiveOrDialing();
+                onCallEnteringActiveDialingOrConnecting();
                 playRingbackForCall(call);
                 break;
         }
     }
 
-    private void onCallLeavingActiveOrDialing() {
-        if (mActiveOrDialingCalls.size() == 0) {
+    private void onCallLeavingActiveDialingOrConnecting() {
+        if (mActiveDialingOrConnectingCalls.size() == 0) {
             mCallAudioModeStateMachine.sendMessage(
                     CallAudioModeStateMachine.NO_MORE_ACTIVE_OR_DIALING_CALLS,
                     makeArgsForModeStateMachine());
@@ -468,8 +471,8 @@ public class CallAudioManager extends CallsManagerListenerBase {
         }
     }
 
-    private void onCallEnteringActiveOrDialing() {
-        if (mActiveOrDialingCalls.size() == 1) {
+    private void onCallEnteringActiveDialingOrConnecting() {
+        if (mActiveDialingOrConnectingCalls.size() == 1) {
             mCallAudioModeStateMachine.sendMessage(
                     CallAudioModeStateMachine.NEW_ACTIVE_OR_DIALING_CALL,
                     makeArgsForModeStateMachine());
@@ -492,8 +495,16 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     private void updateForegroundCall() {
         Call oldForegroundCall = mForegroundCall;
-        if (mActiveOrDialingCalls.size() > 0) {
-            mForegroundCall = mActiveOrDialingCalls.iterator().next();
+        if (mActiveDialingOrConnectingCalls.size() > 0) {
+            // Give preference for connecting calls over active/dialing for foreground-ness.
+            Call possibleConnectingCall = null;
+            for (Call call : mActiveDialingOrConnectingCalls) {
+                if (call.getState() == CallState.CONNECTING) {
+                    possibleConnectingCall = call;
+                }
+            }
+            mForegroundCall = possibleConnectingCall == null ?
+                    mActiveDialingOrConnectingCalls.iterator().next() : possibleConnectingCall;
         } else if (mRingingCalls.size() > 0) {
             mForegroundCall = mRingingCalls.iterator().next();
         } else if (mHoldingCalls.size() > 0) {
@@ -511,7 +522,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
     @NonNull
     private CallAudioModeStateMachine.MessageArgs makeArgsForModeStateMachine() {
         return new CallAudioModeStateMachine.MessageArgs(
-                mActiveOrDialingCalls.size() > 0,
+                mActiveDialingOrConnectingCalls.size() > 0,
                 mRingingCalls.size() > 0,
                 mHoldingCalls.size() > 0,
                 mIsTonePlaying,
