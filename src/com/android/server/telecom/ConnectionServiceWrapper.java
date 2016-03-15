@@ -812,7 +812,7 @@ public class ConnectionServiceWrapper extends ServiceBinder {
                 logOutgoing("reject %s", callId);
 
                 if (rejectWithMessage && call.can(
-                        android.telecom.Call.Details.CAPABILITY_CAN_SEND_RESPONSE_VIA_CONNECTION)) {
+                        Connection.CAPABILITY_CAN_SEND_RESPONSE_VIA_CONNECTION)) {
                     mServiceInterface.rejectWithMessage(callId, message);
                 } else {
                     mServiceInterface.reject(callId);
