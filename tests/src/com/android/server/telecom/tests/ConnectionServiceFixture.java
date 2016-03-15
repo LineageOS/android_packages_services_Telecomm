@@ -60,6 +60,7 @@ import java.util.Set;
  */
 public class ConnectionServiceFixture implements TestFixture<IConnectionService> {
     static int INVALID_VIDEO_STATE = -1;
+    static int CAPABILITIES_NOT_SPECIFIED = 0;
 
     /**
      * Implementation of ConnectionService that performs no-ops for tasks normally meant for
@@ -67,6 +68,7 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
      */
     public class FakeConnectionServiceDelegate extends ConnectionService {
         int mVideoState = INVALID_VIDEO_STATE;
+        int mCapabilities = CAPABILITIES_NOT_SPECIFIED;
 
         @Override
         public Connection onCreateUnknownConnection(
@@ -77,9 +79,14 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         @Override
         public Connection onCreateIncomingConnection(
                 PhoneAccountHandle connectionManagerPhoneAccount, ConnectionRequest request) {
-            return new FakeConnection(
+            FakeConnection fakeConnection =  new FakeConnection(
                     mVideoState == INVALID_VIDEO_STATE ? request.getVideoState() : mVideoState,
                     request.getAddress());
+            if (mCapabilities != CAPABILITIES_NOT_SPECIFIED) {
+                fakeConnection.setConnectionCapabilities(mCapabilities);
+            }
+
+            return fakeConnection;
         }
 
         @Override
@@ -233,6 +240,13 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
 
         @Override
         public void onPostDialContinue(String callId, boolean proceed) throws RemoteException { }
+
+        @Override
+        public void pullExternalCall(String callId) throws RemoteException { }
+
+        @Override
+        public void sendCallEvent(String callId, String event, Bundle extras) throws RemoteException
+        {}
 
         @Override
         public IBinder asBinder() {
@@ -468,6 +482,12 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
     public void sendAddExistingConnection(String id) throws Exception {
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
             a.addExistingConnection(id, parcelable(mConnectionById.get(id)));
+        }
+    }
+
+    public void sendConnectionEvent(String id, String event, Bundle extras) throws Exception {
+        for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
+            a.onConnectionEvent(id, event, extras);
         }
     }
 

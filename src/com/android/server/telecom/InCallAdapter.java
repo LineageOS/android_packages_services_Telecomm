@@ -17,6 +17,7 @@
 package com.android.server.telecom;
 
 import android.os.Binder;
+import android.os.Bundle;
 import android.telecom.PhoneAccountHandle;
 
 import com.android.internal.telecom.IInCallAdapter;
@@ -359,6 +360,50 @@ class InCallAdapter extends IInCallAdapter.Stub {
                         call.swapConference();
                     } else {
                         Log.w(this, "swapConference, unknown call id: %s", callId);
+                    }
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+        } finally {
+            Log.endSession();
+        }
+    }
+
+    @Override
+    public void pullExternalCall(String callId) {
+        try {
+            Log.startSession("ICA.pEC", mOwnerComponentName);
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        call.pullExternalCall();
+                    } else {
+                        Log.w(this, "pullExternalCall, unknown call id: %s", callId);
+                    }
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+        } finally {
+            Log.endSession();
+        }
+    }
+
+    @Override
+    public void sendCallEvent(String callId, String event, Bundle extras) {
+        try {
+            Log.startSession("ICA.sCE", mOwnerComponentName);
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        call.sendCallEvent(event, extras);
+                    } else {
+                        Log.w(this, "sendCallEvent, unknown call id: %s", callId);
                     }
                 }
             } finally {

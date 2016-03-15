@@ -105,6 +105,7 @@ public class Call implements CreateConnectionResponse {
         void onConferenceableCallsChanged(Call call);
         boolean onCanceledViaNewOutgoingCallBroadcast(Call call);
         void onHoldToneRequested(Call call);
+        void onConnectionEvent(Call call, String event, Bundle extras);
     }
 
     public abstract static class ListenerBase implements Listener {
@@ -165,6 +166,8 @@ public class Call implements CreateConnectionResponse {
 
         @Override
         public void onHoldToneRequested(Call call) {}
+        @Override
+        public void onConnectionEvent(Call call, String event, Bundle extras) {}
     }
 
     private final OnQueryCompleteListener mCallerInfoQueryListener =
@@ -1424,6 +1427,55 @@ public class Call implements CreateConnectionResponse {
         }
     }
 
+    /**
+     * Initiates a request to the connection service to pull this call.
+     * <p>
+     * This method can only be used for calls that have the
+     * {@link android.telecom.Connection#CAPABILITY_CAN_PULL_CALL} and
+     * {@link android.telecom.Connection#CAPABILITY_IS_EXTERNAL_CALL} capabilities set.
+     * <p>
+     * An external call is a representation of a call which is taking place on another device
+     * associated with a PhoneAccount on this device.  Issuing a request to pull the external call 
+     * tells the {@link android.telecom.ConnectionService} that it should move the call from the
+     * other device to this one.  An example of this is the IMS multi-endpoint functionality.  A
+     * user may have two phones with the same phone number.  If the user is engaged in an active
+     * call on their first device, the network will inform the second device of that ongoing call in
+     * the form of an external call.  The user may wish to continue their conversation on the second
+     * device, so will issue a request to pull the call to the second device.
+     * <p>
+     * Requests to pull a call which is not external, or a call which is not pullable are ignored.
+     */
+    public void pullExternalCall() {
+        if (mConnectionService == null) {
+            Log.w(this, "pulling a call without a connection service.");
+        }
+
+        if (!can(Connection.CAPABILITY_IS_EXTERNAL_CALL)) {
+            Log.w(this, "pullExternalCall - call %s is not an external call.", mId);
+            return;
+        }
+
+        if (!can(Connection.CAPABILITY_CAN_PULL_CALL)) {
+            Log.w(this, "pullExternalCall - call %s is external but cannot be pulled.", mId);
+            return;
+        }
+
+        Log.event(this, Log.Events.PULL);
+        mConnectionService.pullExternalCall(this);
+    }
+
+    /**
+     * Sends a call event to the {@link ConnectionService} for this call.
+     *
+     * See {@link Call#sendCallEvent(String, Bundle)}.
+     *
+     * @param event The call event.
+     * @param extras Associated extras.
+     */
+    public void sendCallEvent(String event, Bundle extras) {
+        mConnectionService.sendCallEvent(this, event, extras);
+    }
+
     void setParentCall(Call parentCall) {
         if (parentCall == this) {
             Log.e(this, new Exception(), "setting the parent to self");
@@ -1948,8 +2000,9 @@ public class Call implements CreateConnectionResponse {
      * Handles Connection events received from a {@link ConnectionService}.
      *
      * @param event The event.
+     * @param extras The extras.
      */
-    public void onConnectionEvent(String event) {
+    public void onConnectionEvent(String event, Bundle extras) {
         if (Connection.EVENT_ON_HOLD_TONE_START.equals(event)) {
             mIsRemotelyHeld = true;
             Log.event(this, Log.Events.REMOTELY_HELD);
@@ -1963,6 +2016,10 @@ public class Call implements CreateConnectionResponse {
             Log.event(this, Log.Events.REMOTELY_UNHELD);
             for (Listener l : mListeners) {
                 l.onHoldToneRequested(this);
+            }
+        } else {
+            for (Listener l : mListeners) {
+                l.onConnectionEvent(this, event, extras);
             }
         }
     }

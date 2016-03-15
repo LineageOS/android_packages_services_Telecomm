@@ -68,10 +68,22 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 
+import org.mockito.ArgumentCaptor;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+
 /**
  * Performs various basic call tests in Telecom.
  */
 public class BasicCallTests extends TelecomSystemTest {
+    private static final String TEST_BUNDLE_KEY = "android.telecom.extra.TEST";
+    private static final String TEST_EVENT = "android.telecom.event.TEST";
+
     @LargeTest
     public void testSingleOutgoingCallLocalDisconnect() throws Exception {
         IdPair ids = startAndMakeActiveOutgoingCall("650-555-1212",
@@ -568,6 +580,101 @@ public class BasicCallTests extends TelecomSystemTest {
         return conferenceCall;
     }
 
+    /**
+     * Tests the {@link Call#pullExternalCall()} API.  Verifies that if a call is not an external
+     * call, no pull call request is made to the connection service.
+     *
+     * @throws Exception
+     */
+    @MediumTest
+    public void testPullNonExternalCall() throws Exception {
+        // TODO: Revisit this unit test once telecom support for filtering external calls from
+        // InCall services is implemented.
+        IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
+                mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
+        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+
+        // Attempt to pull the call and verify the API call makes it through
+        mInCallServiceFixtureX.mInCallAdapter.pullExternalCall(ids.mCallId);
+        verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT).never())
+                .pullExternalCall(ids.mCallId);
+    }
+
+    /**
+     * Tests the {@link Connection#sendConnectionEvent(String)} API.
+     *
+     * @throws Exception
+     */
+    @MediumTest
+    public void testSendConnectionEventNull() throws Exception {
+        IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
+                mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
+        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+        mConnectionServiceFixtureA.sendConnectionEvent(ids.mConnectionId, TEST_EVENT, null);
+        verify(mInCallServiceFixtureX.getTestDouble(), timeout(TEST_TIMEOUT))
+                .onConnectionEvent(ids.mCallId, TEST_EVENT, null);
+    }
+
+    /**
+     * Tests the {@link Connection#sendConnectionEvent(String)} API.
+     *
+     * @throws Exception
+     */
+    @MediumTest
+    public void testSendConnectionEventNotNull() throws Exception {
+        IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
+                mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
+        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+
+        Bundle testBundle = new Bundle();
+        testBundle.putString(TEST_BUNDLE_KEY, "TEST");
+
+        ArgumentCaptor<Bundle> bundleArgumentCaptor = ArgumentCaptor.forClass(Bundle.class);
+        mConnectionServiceFixtureA.sendConnectionEvent(ids.mConnectionId, TEST_EVENT, testBundle);
+        verify(mInCallServiceFixtureX.getTestDouble(), timeout(TEST_TIMEOUT))
+                .onConnectionEvent(eq(ids.mCallId), eq(TEST_EVENT), bundleArgumentCaptor.capture());
+        assert (bundleArgumentCaptor.getValue().containsKey(TEST_BUNDLE_KEY));
+    }
+
+    /**
+     * Tests the {@link Call#sendCallEvent(String, Bundle)} API.
+     *
+     * @throws Exception
+     */
+    @MediumTest
+    public void testSendCallEventNull() throws Exception {
+        IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
+                mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
+        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+
+        mInCallServiceFixtureX.mInCallAdapter.sendCallEvent(ids.mCallId, TEST_EVENT, null);
+        verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
+                .sendCallEvent(ids.mCallId, TEST_EVENT, null);
+    }
+
+    /**
+     * Tests the {@link Call#sendCallEvent(String, Bundle)} API.
+     *
+     * @throws Exception
+     */
+    @MediumTest
+    public void testSendCallEventNonNull() throws Exception {
+        IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
+                mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
+        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+
+        Bundle testBundle = new Bundle();
+        testBundle.putString(TEST_BUNDLE_KEY, "TEST");
+
+        ArgumentCaptor<Bundle> bundleArgumentCaptor = ArgumentCaptor.forClass(Bundle.class);
+        mInCallServiceFixtureX.mInCallAdapter.sendCallEvent(ids.mCallId, TEST_EVENT,
+                testBundle);
+        verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
+                .sendCallEvent(eq(ids.mCallId), eq(TEST_EVENT),
+                        bundleArgumentCaptor.capture());
+        assert (bundleArgumentCaptor.getValue().containsKey(TEST_BUNDLE_KEY));
+    }
+
     @MediumTest
     public void testAnalyticsSingleCall() throws Exception {
         IdPair testCall = startAndMakeActiveIncomingCall(
@@ -724,5 +831,52 @@ public class BasicCallTests extends TelecomSystemTest {
         mConnectionServiceFixtureA.sendSetDisconnected(connectionId, DisconnectCause.LOCAL);
         assertEquals(Call.STATE_DISCONNECTED, mInCallServiceFixtureX.getCall(callId).getState());
         assertEquals(Call.STATE_DISCONNECTED, mInCallServiceFixtureY.getCall(callId).getState());
+    }
+
+    /**
+     * Tests the {@link Call#pullExternalCall()} API.  Ensures that an external call which is
+     * pullable can be pulled.
+     *
+     * @throws Exception
+     */
+    @LargeTest
+    public void testPullExternalCall() throws Exception {
+        // TODO: Revisit this unit test once telecom support for filtering external calls from
+        // InCall services is implemented.
+        mConnectionServiceFixtureA.mConnectionServiceDelegate.mCapabilities =
+                Connection.CAPABILITY_IS_EXTERNAL_CALL | Connection.CAPABILITY_CAN_PULL_CALL;
+
+        IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
+                mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
+        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+
+        // Attempt to pull the call and verify the API call makes it through
+        mInCallServiceFixtureX.mInCallAdapter.pullExternalCall(ids.mCallId);
+        verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
+                .pullExternalCall(ids.mCallId);
+    }
+
+    /**
+     * Tests the {@link Call#pullExternalCall()} API.  Verifies that if an external call is not
+     * marked as pullable that the connection service does not get an API call to pull the external
+     * call.
+     *
+     * @throws Exception
+     */
+    @LargeTest
+    public void testPullNonPullableExternalCall() throws Exception {
+        // TODO: Revisit this unit test once telecom support for filtering external calls from
+        // InCall services is implemented.
+        mConnectionServiceFixtureA.mConnectionServiceDelegate.mCapabilities =
+                Connection.CAPABILITY_IS_EXTERNAL_CALL;
+
+        IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
+                mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
+        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+
+        // Attempt to pull the call and verify the API call makes it through
+        mInCallServiceFixtureX.mInCallAdapter.pullExternalCall(ids.mCallId);
+        verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT).never())
+                .pullExternalCall(ids.mCallId);
     }
 }

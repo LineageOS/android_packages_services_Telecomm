@@ -103,6 +103,7 @@ public class Log {
         public static final String BLOCK_CHECK_FINISHED = "BLOCK_CHECK_FINISHED";
         public static final String REMOTELY_HELD = "REMOTELY_HELD";
         public static final String REMOTELY_UNHELD = "REMOTELY_UNHELD";
+        public static final String PULL = "PULL";
 
         /**
          * Maps from a request to a response.  The same event could be listed as the
