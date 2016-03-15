@@ -231,7 +231,10 @@ public class ParcelableCallUtils {
         android.telecom.Call.Details.CAPABILITY_CAN_SEND_RESPONSE_VIA_CONNECTION,
 
         Connection.CAPABILITY_CANNOT_DOWNGRADE_VIDEO_TO_AUDIO,
-        android.telecom.Call.Details.CAPABILITY_CANNOT_DOWNGRADE_VIDEO_TO_AUDIO
+        android.telecom.Call.Details.CAPABILITY_CANNOT_DOWNGRADE_VIDEO_TO_AUDIO,
+
+        Connection.CAPABILITY_CAN_PULL_CALL,
+        android.telecom.Call.Details.CAPABILITY_CAN_PULL_CALL
     };
 
     private static int convertConnectionToCallCapabilities(int connectionCapabilities) {
@@ -257,7 +260,10 @@ public class ParcelableCallUtils {
         android.telecom.Call.Details.PROPERTY_GENERIC_CONFERENCE,
 
         Connection.CAPABILITY_SHOW_CALLBACK_NUMBER,
-        android.telecom.Call.Details.PROPERTY_EMERGENCY_CALLBACK_MODE
+        android.telecom.Call.Details.PROPERTY_EMERGENCY_CALLBACK_MODE,
+
+        Connection.CAPABILITY_IS_EXTERNAL_CALL,
+        android.telecom.Call.Details.PROPERTY_IS_EXTERNAL_CALL
     };
 
     private static int convertConnectionToCallProperties(int connectionCapabilities) {

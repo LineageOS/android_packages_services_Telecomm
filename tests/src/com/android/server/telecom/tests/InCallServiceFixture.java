@@ -21,6 +21,7 @@ import com.android.internal.telecom.IInCallService;
 
 import org.mockito.Mockito;
 
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.IInterface;
 import android.os.RemoteException;
@@ -108,6 +109,11 @@ public class InCallServiceFixture implements TestFixture<IInCallService> {
         @Override
         public void silenceRinger() throws RemoteException {
             mSilenceRinger = true;
+        }
+
+        @Override
+        public void onConnectionEvent(String callId, String event, Bundle extras)
+                throws RemoteException {
         }
 
         @Override

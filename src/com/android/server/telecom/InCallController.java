@@ -25,6 +25,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -131,6 +132,11 @@ public final class InCallController extends CallsManagerListenerBase {
         @Override
         public void onConferenceableCallsChanged(Call call) {
             updateCall(call);
+        }
+
+        @Override
+        public void onConnectionEvent(Call call, String event, Bundle extras) {
+            notifyConnectionEvent(call, event, extras);
         }
     };
 
@@ -315,6 +321,17 @@ public final class InCallController extends CallsManagerListenerBase {
             for (IInCallService inCallService : mInCallServices.values()) {
                 try {
                     inCallService.silenceRinger();
+                } catch (RemoteException ignored) {
+                }
+            }
+        }
+    }
+
+    private void notifyConnectionEvent(Call call, String event, Bundle extras) {
+        if (!mInCallServices.isEmpty()) {
+            for (IInCallService inCallService : mInCallServices.values()) {
+                try {
+                    inCallService.onConnectionEvent(mCallIdMapper.getCallId(call), event, extras);
                 } catch (RemoteException ignored) {
                 }
             }

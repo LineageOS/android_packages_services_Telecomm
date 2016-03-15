@@ -589,14 +589,14 @@ public class ConnectionServiceWrapper extends ServiceBinder {
         }
 
         @Override
-        public void onConnectionEvent(String callId, String event) {
+        public void onConnectionEvent(String callId, String event, Bundle extras) {
             Log.startSession("CSW.oCE");
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
                     Call call = mCallIdMapper.getCall(callId);
                     if (call != null) {
-                        call.onConnectionEvent(event);
+                        call.onConnectionEvent(event, extras);
                     }
                 }
             } finally {
@@ -933,6 +933,28 @@ public class ConnectionServiceWrapper extends ServiceBinder {
             try {
                 logOutgoing("swapConference %s", callId);
                 mServiceInterface.swapConference(callId);
+            } catch (RemoteException ignored) {
+            }
+        }
+    }
+
+    void pullExternalCall(Call call) {
+        final String callId = mCallIdMapper.getCallId(call);
+        if (callId != null && isServiceValid("pullExternalCall")) {
+            try {
+                logOutgoing("pullExternalCall %s", callId);
+                mServiceInterface.pullExternalCall(callId);
+            } catch (RemoteException ignored) {
+            }
+        }
+    }
+
+    void sendCallEvent(Call call, String event, Bundle extras) {
+        final String callId = mCallIdMapper.getCallId(call);
+        if (callId != null && isServiceValid("sendCallEvent")) {
+            try {
+                logOutgoing("sendCallEvent %s %s", callId, event);
+                mServiceInterface.sendCallEvent(callId, event, extras);
             } catch (RemoteException ignored) {
             }
         }
