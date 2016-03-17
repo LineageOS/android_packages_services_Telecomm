@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7faddb67_89e53d3b",
+        "filename": "src/com/android/server/telecom/CallsManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 12941
+      },
+      "writtenOn": "2016-03-17T00:34:57Z",
+      "side": 1,
+      "message": "indent",
+      "revId": "70820b009daee10cb8814f6170617d3e184141e5",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
