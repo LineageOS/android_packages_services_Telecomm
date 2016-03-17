@@ -70,8 +70,8 @@
             android:supportsRtl="true"
             android:process="system"
             android:usesCleartextTraffic="false"
-            android:forceDeviceEncrypted="true"
-            android:encryptionAware="true">
+            android:defaultToDeviceProtectedStorage="true"
+            android:directBootAware="true">
 
         <!-- CALL vs CALL_PRIVILEGED vs CALL_EMERGENCY
              We have three different intents through which a call can be initiated each with its
