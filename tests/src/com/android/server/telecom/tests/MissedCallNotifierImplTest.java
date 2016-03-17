@@ -30,6 +30,7 @@ import android.telecom.PhoneAccount.Builder;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.telephony.TelephonyManager;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.Call;
 import com.android.server.telecom.Constants;
@@ -112,10 +113,12 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         mComponentContextFixture.setTelecomManager(mTelecomManager);
     }
 
+    @SmallTest
     public void testCancelNotificationInPrimaryUser() {
         cancelNotificationTestInternal(PRIMARY_USER);
     }
 
+    @SmallTest
     public void testCancelNotificationInSecondaryUser() {
         cancelNotificationTestInternal(SECONARY_USER);
     }
@@ -147,6 +150,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         verify(builder2).setContentText(CALLER_NAME);
     }
 
+    @SmallTest
     public void testNotifyMultipleMissedCalls() {
         Notification.Builder[] builders = new Notification.Builder[4];
 
@@ -209,27 +213,32 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         }
     }
 
+    @SmallTest
     public void testNotifySingleCallInPrimaryUser() {
         PhoneAccount phoneAccount = makePhoneAccount(PRIMARY_USER, NO_CAPABILITY);
         notifySingleCallTestInternal(phoneAccount, PRIMARY_USER);
     }
 
+    @SmallTest
     public void testNotifySingleCallInSecondaryUser() {
         PhoneAccount phoneAccount = makePhoneAccount(SECONARY_USER, NO_CAPABILITY);
         notifySingleCallTestInternal(phoneAccount, PRIMARY_USER);
     }
 
+    @SmallTest
     public void testNotifySingleCallInSecondaryUserWithMultiUserCapability() {
         PhoneAccount phoneAccount = makePhoneAccount(PRIMARY_USER,
                 PhoneAccount.CAPABILITY_MULTI_USER);
         notifySingleCallTestInternal(phoneAccount, PRIMARY_USER);
     }
 
+    @SmallTest
     public void testNotifySingleCallWhenCurrentUserIsSecondaryUser() {
         PhoneAccount phoneAccount = makePhoneAccount(PRIMARY_USER, NO_CAPABILITY);
         notifySingleCallTestInternal(phoneAccount, SECONARY_USER);
     }
 
+    @SmallTest
     public void testNotifySingleCall() {
         PhoneAccount phoneAccount = makePhoneAccount(PRIMARY_USER, NO_CAPABILITY);
         notifySingleCallTestInternal(phoneAccount, PRIMARY_USER);
@@ -299,6 +308,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                 smsIntent, PendingIntent.FLAG_NO_CREATE));
     }
 
+    @SmallTest
     public void testNoSmsBackAfterMissedSipCall() {
         Notification.Builder builder1 = makeNotificationBuilder("builder1");
         MissedCallNotifierImpl.NotificationBuilderFactory fakeBuilderFactory =

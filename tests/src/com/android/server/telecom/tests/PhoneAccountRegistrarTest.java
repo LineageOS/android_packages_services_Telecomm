@@ -29,6 +29,7 @@ import android.os.UserHandle;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Xml;
 
 import com.android.internal.telecom.IConnectionService;
@@ -83,6 +84,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         super.tearDown();
     }
 
+    @MediumTest
     public void testPhoneAccountHandle() throws Exception {
         PhoneAccountHandle input = new PhoneAccountHandle(new ComponentName("pkg0", "cls0"), "id0");
         PhoneAccountHandle result = roundTripXml(this, input,
@@ -96,6 +98,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         assertPhoneAccountHandleEquals(inputN, resultN);
     }
 
+    @MediumTest
     public void testPhoneAccount() throws Exception {
         Bundle testBundle = new Bundle();
         testBundle.putInt("EXTRA_INT_1", 1);
@@ -118,9 +121,10 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
     }
 
     /**
-     * Test to ensure non-supported balues
+     * Test to ensure non-supported values
      * @throws Exception
      */
+    @MediumTest
     public void testPhoneAccountExtrasEdge() throws Exception {
         Bundle testBundle = new Bundle();
         // Ensure null values for string are not persisted.
@@ -149,6 +153,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         assertFalse(extras.keySet().contains("EXTRA_PARC"));
     }
 
+    @MediumTest
     public void testState() throws Exception {
         PhoneAccountRegistrar.State input = makeQuickState();
         PhoneAccountRegistrar.State result = roundTripXml(this, input,
@@ -162,6 +167,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         mRegistrar.enablePhoneAccount(account.getAccountHandle(), true);
     }
 
+    @MediumTest
     public void testAccounts() throws Exception {
         int i = 0;
 
@@ -192,10 +198,12 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
                 PhoneAccount.SCHEME_TEL));
     }
 
+    @MediumTest
     public void testSimCallManager() throws Exception {
         // TODO
     }
 
+    @MediumTest
     public void testDefaultOutgoing() throws Exception {
         mComponentContextFixture.addConnectionService(
                 makeQuickConnectionServiceComponentName(),
@@ -244,6 +252,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
                 mRegistrar.getOutgoingPhoneAccountForSchemeOfCurrentUser(PhoneAccount.SCHEME_TEL));
     }
 
+    @MediumTest
     public void testPhoneAccountParceling() throws Exception {
         PhoneAccountHandle handle = makeQuickAccountHandle("foo");
         roundTripPhoneAccount(new PhoneAccount.Builder(handle, null).build());

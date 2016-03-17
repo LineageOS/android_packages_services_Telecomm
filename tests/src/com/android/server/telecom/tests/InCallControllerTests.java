@@ -30,6 +30,7 @@ import android.telecom.InCallService;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.test.mock.MockContext;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import com.android.server.telecom.BluetoothHeadsetProxy;
 import com.android.server.telecom.Call;
@@ -98,6 +99,7 @@ public class InCallControllerTests extends TelecomTestCase {
         super.tearDown();
     }
 
+    @MediumTest
     public void testBindToService_NoServicesFound_IncomingCall() throws Exception {
         when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
@@ -124,6 +126,7 @@ public class InCallControllerTests extends TelecomTestCase {
         assertNull(bindIntent.getExtras());
     }
 
+    @MediumTest
     public void testBindToService_NoServicesFound_OutgoingCall() throws Exception {
         Bundle callExtras = new Bundle();
         callExtras.putBoolean("whatever", true);
