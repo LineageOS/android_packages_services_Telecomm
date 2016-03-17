@@ -21,6 +21,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import com.android.internal.os.SomeArgs;
 import com.android.server.telecom.Runnable;
@@ -237,6 +238,7 @@ public class LogTest extends TelecomTestCase{
         super.tearDown();
     }
 
+    @MediumTest
     public void testSingleThreadSession() throws Exception {
         String sessionName = "LT.sTS";
         Log.startSession(sessionName);
@@ -252,6 +254,7 @@ public class LogTest extends TelecomTestCase{
         assertEquals(true, mTestSystemLogger.isMessagesEmpty());
     }
 
+    @MediumTest
     public void testSingleHandlerThreadSession() throws Exception {
         String sessionName = "LT.tSHTS";
         Log.startSession(sessionName);
@@ -275,6 +278,7 @@ public class LogTest extends TelecomTestCase{
         assertEquals(true, mTestSystemLogger.isMessagesEmpty());
     }
 
+    @MediumTest
     public void testSpawnMultipleThreadSessions() throws Exception {
         final String sessionName = "LT.lTR";
         mCompleteCount = new AtomicInteger(0);
@@ -302,6 +306,7 @@ public class LogTest extends TelecomTestCase{
         assertEquals(true, mTestSystemLogger.isMessagesEmpty());
     }
 
+    @MediumTest
     public void testSpawnMultipleThreadMultipleHandlerSession() throws Exception {
         String sessionName = "LT.tSMTMHS";
         Log.startSession(sessionName);
@@ -334,6 +339,7 @@ public class LogTest extends TelecomTestCase{
         assertEquals(true, mTestSystemLogger.isMessagesEmpty());
     }
 
+    @MediumTest
     public void testSpawnMultipleThreadMultipleHandlerSessions() throws Exception {
         String sessionName = "LT.tSMTMHSs";
         isHandlerCompleteWithEvents = false;
@@ -375,6 +381,7 @@ public class LogTest extends TelecomTestCase{
         assertEquals(true, mTestSystemLogger.isMessagesEmpty());
     }
 
+    @MediumTest
     public void testCancelSubsession() throws Exception {
         String sessionName = "LT.tCS";
         Log.startSession(sessionName);
@@ -391,6 +398,7 @@ public class LogTest extends TelecomTestCase{
         assertEquals(true, mTestSystemLogger.isMessagesEmpty());
     }
 
+    @MediumTest
     public void testInternalExternalCallToMethod() throws Exception {
         String sessionName = "LT.tIECTM";
         Log.startSession(sessionName);
@@ -409,6 +417,7 @@ public class LogTest extends TelecomTestCase{
         assertEquals(true, mTestSystemLogger.isMessagesEmpty());
     }
 
+    @MediumTest
     public void testGarbageCollectionWithTimeout() throws Exception {
         String sessionName = "LT.tGCWT";
 

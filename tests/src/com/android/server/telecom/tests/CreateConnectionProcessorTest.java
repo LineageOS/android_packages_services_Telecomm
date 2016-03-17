@@ -24,6 +24,7 @@ import android.os.Debug;
 import android.telecom.DisconnectCause;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallIdMapper;
@@ -83,6 +84,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         super.tearDown();
     }
 
+    @SmallTest
     public void testSimPhoneAccountSuccess() throws Exception {
         PhoneAccountHandle pAHandle = getNewTargetPhoneAccountHandle("tel_acct");
         when(mMockCall.isEmergencyCall()).thenReturn(false);
@@ -102,6 +104,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         verify(mMockCreateConnectionResponse).handleCreateConnectionSuccess(mockCallIdMapper, null);
     }
 
+    @SmallTest
     public void testbadPhoneAccount() throws Exception {
         PhoneAccountHandle pAHandle = null;
         when(mMockCall.isEmergencyCall()).thenReturn(false);
@@ -119,6 +122,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
                 eq(new DisconnectCause(DisconnectCause.ERROR)));
     }
 
+    @SmallTest
     public void testConnectionManagerSuccess() throws Exception {
         PhoneAccountHandle pAHandle = getNewTargetPhoneAccountHandle("tel_acct");
         when(mMockCall.isEmergencyCall()).thenReturn(false);
@@ -143,6 +147,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         verify(mMockCreateConnectionResponse).handleCreateConnectionSuccess(mockCallIdMapper, null);
     }
 
+    @SmallTest
     public void testConnectionManagerFailedFallToSim() throws Exception {
         PhoneAccountHandle pAHandle = getNewTargetPhoneAccountHandle("tel_acct");
         when(mMockCall.isEmergencyCall()).thenReturn(false);
@@ -177,6 +182,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         verify(mMockCreateConnectionResponse).handleCreateConnectionSuccess(mockCallIdMapper, null);
     }
 
+    @SmallTest
     public void testConnectionManagerFailedDoNotFallToSim() throws Exception {
         PhoneAccountHandle pAHandle = getNewTargetPhoneAccountHandle("tel_acct");
         when(mMockCall.isEmergencyCall()).thenReturn(false);
@@ -206,6 +212,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
                 new DisconnectCause(DisconnectCause.OTHER));
     }
 
+    @SmallTest
     public void testEmergencyCallToSim() throws Exception {
         when(mMockCall.isEmergencyCall()).thenReturn(true);
         // Put in a regular phone account to be sure it doesn't call that
@@ -228,6 +235,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         verify(mMockCreateConnectionResponse).handleCreateConnectionSuccess(mockCallIdMapper, null);
     }
 
+    @SmallTest
     public void testEmergencyCallSimFailToConnectionManager() throws Exception {
         when(mMockCall.isEmergencyCall()).thenReturn(true);
         when(mMockCall.getHandle()).thenReturn(Uri.parse(""));

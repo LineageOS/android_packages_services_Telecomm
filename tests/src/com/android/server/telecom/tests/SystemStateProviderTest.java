@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.SystemStateProvider;
 import com.android.server.telecom.SystemStateProvider.SystemStateListener;
@@ -58,6 +59,7 @@ public class SystemStateProviderTest extends TelecomTestCase {
         super.tearDown();
     }
 
+    @SmallTest
     public void testListeners() throws Exception {
         SystemStateProvider systemStateProvider = new SystemStateProvider(mContext);
 
@@ -67,18 +69,21 @@ public class SystemStateProviderTest extends TelecomTestCase {
         assertFalse(systemStateProvider.removeListener(mSystemStateListener));
     }
 
+    @SmallTest
     public void testQuerySystemForCarMode_True() {
         when(mContext.getSystemService(Context.UI_MODE_SERVICE)).thenReturn(mUiModeManager);
         when(mUiModeManager.getCurrentModeType()).thenReturn(Configuration.UI_MODE_TYPE_CAR);
         assertTrue(new SystemStateProvider(mContext).isCarMode());
     }
 
+    @SmallTest
     public void testQuerySystemForCarMode_False() {
         when(mContext.getSystemService(Context.UI_MODE_SERVICE)).thenReturn(mUiModeManager);
         when(mUiModeManager.getCurrentModeType()).thenReturn(Configuration.UI_MODE_TYPE_NORMAL);
         assertFalse(new SystemStateProvider(mContext).isCarMode());
     }
 
+    @SmallTest
     public void testReceiverAndIntentFilter() {
         ArgumentCaptor<IntentFilter> intentFilter = ArgumentCaptor.forClass(IntentFilter.class);
         new SystemStateProvider(mContext);
@@ -89,6 +94,7 @@ public class SystemStateProviderTest extends TelecomTestCase {
         assertEquals(UiModeManager.ACTION_EXIT_CAR_MODE, intentFilter.getValue().getAction(1));
     }
 
+    @SmallTest
     public void testOnEnterExitCarMode() {
         ArgumentCaptor<BroadcastReceiver> receiver =
                 ArgumentCaptor.forClass(BroadcastReceiver.class);

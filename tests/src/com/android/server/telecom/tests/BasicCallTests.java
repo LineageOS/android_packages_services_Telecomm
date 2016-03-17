@@ -455,6 +455,7 @@ public class BasicCallTests extends TelecomSystemTest {
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(outgoing.mCallId);
     }
 
+    @LargeTest
     public void testAudioManagerOperations() throws Exception {
         AudioManager audioManager = (AudioManager) mComponentContextFixture.getTestDouble()
                 .getApplicationContext().getSystemService(Context.AUDIO_SERVICE);

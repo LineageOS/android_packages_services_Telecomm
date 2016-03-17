@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.never;
 
 import android.os.PowerManager;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallState;
@@ -54,6 +55,7 @@ public class InCallWakeLockControllerTest extends TelecomTestCase {
         super.tearDown();
     }
 
+    @SmallTest
     public void testRingingCallAdded() throws Exception {
         when(mCallsManager.getRingingCall()).thenReturn(mCall);
         when(mWakeLockAdapter.isHeld()).thenReturn(false);
@@ -63,6 +65,7 @@ public class InCallWakeLockControllerTest extends TelecomTestCase {
         verify(mWakeLockAdapter).acquire();
     }
 
+    @SmallTest
     public void testNonRingingCallAdded() throws Exception {
         when(mCallsManager.getRingingCall()).thenReturn(null);
         when(mWakeLockAdapter.isHeld()).thenReturn(false);
@@ -72,6 +75,7 @@ public class InCallWakeLockControllerTest extends TelecomTestCase {
         verify(mWakeLockAdapter, never()).acquire();
     }
 
+    @SmallTest
     public void testRingingCallTransition() throws Exception {
         when(mCallsManager.getRingingCall()).thenReturn(mCall);
         when(mWakeLockAdapter.isHeld()).thenReturn(false);
@@ -81,6 +85,7 @@ public class InCallWakeLockControllerTest extends TelecomTestCase {
         verify(mWakeLockAdapter).acquire();
     }
 
+    @SmallTest
     public void testRingingCallRemoved() throws Exception {
         when(mCallsManager.getRingingCall()).thenReturn(null);
         when(mWakeLockAdapter.isHeld()).thenReturn(false);
@@ -90,6 +95,7 @@ public class InCallWakeLockControllerTest extends TelecomTestCase {
         verify(mWakeLockAdapter, never()).acquire();
     }
 
+    @SmallTest
     public void testWakeLockReleased() throws Exception {
         when(mCallsManager.getRingingCall()).thenReturn(null);
         when(mWakeLockAdapter.isHeld()).thenReturn(true);
@@ -99,6 +105,7 @@ public class InCallWakeLockControllerTest extends TelecomTestCase {
         verify(mWakeLockAdapter).release(0);
     }
 
+    @SmallTest
     public void testAcquireWakeLockWhenHeld() throws Exception {
         when(mCallsManager.getRingingCall()).thenReturn(mCall);
         when(mWakeLockAdapter.isHeld()).thenReturn(true);

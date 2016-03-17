@@ -16,9 +16,7 @@
 
 package com.android.server.telecom.tests;
 
-import android.content.Context;
 import android.media.AudioManager;
-import android.telecom.CallAudioState;
 import android.test.suitebuilder.annotation.LargeTest;
 
 import com.android.server.telecom.CallAudioManager;

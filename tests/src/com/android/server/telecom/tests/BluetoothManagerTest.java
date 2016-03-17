@@ -23,6 +23,7 @@ import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Parcel;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.BluetoothAdapterProxy;
 import com.android.server.telecom.BluetoothHeadsetProxy;
@@ -72,24 +73,28 @@ public class BluetoothManagerTest extends TelecomTestCase {
         mBluetoothManager.setBluetoothHeadsetForTesting(mHeadsetProxy);
     }
 
+    @SmallTest
     public void testIsBluetoothAvailableWithNoDevices() {
         when(mHeadsetProxy.getConnectedDevices()).thenReturn(
                 Collections.<BluetoothDevice>emptyList());
         assertFalse(mBluetoothManager.isBluetoothAvailable());
     }
 
+    @SmallTest
     public void testIsBluetoothAvailable() {
         when(mHeadsetProxy.getConnectedDevices()).thenReturn(
                 Collections.singletonList(device1));
         assertTrue(mBluetoothManager.isBluetoothAvailable());
     }
 
+    @SmallTest
     public void testIsAudioConnectedWithNoDevices() {
         when(mHeadsetProxy.getConnectedDevices()).thenReturn(
                 Collections.<BluetoothDevice>emptyList());
         assertFalse(mBluetoothManager.isBluetoothAudioConnected());
     }
 
+    @SmallTest
     public void testIsAudioConnectedWhenAudioNotOn() {
         when(mHeadsetProxy.getConnectedDevices()).thenReturn(
                 Collections.singletonList(device1));
@@ -97,6 +102,7 @@ public class BluetoothManagerTest extends TelecomTestCase {
         assertFalse(mBluetoothManager.isBluetoothAudioConnected());
     }
 
+    @SmallTest
     public void testIsAudioConnectedWhenAudioOn() {
         when(mHeadsetProxy.getConnectedDevices()).thenReturn(
                 Collections.singletonList(device1));
@@ -104,6 +110,7 @@ public class BluetoothManagerTest extends TelecomTestCase {
         assertTrue(mBluetoothManager.isBluetoothAudioConnected());
     }
 
+    @SmallTest
     public void testShouldBePendingAfterConnectAudio() {
         when(mHeadsetProxy.getConnectedDevices()).thenReturn(
                 Collections.singletonList(device1));
@@ -114,17 +121,20 @@ public class BluetoothManagerTest extends TelecomTestCase {
         assertTrue(mBluetoothManager.isBluetoothAudioConnectedOrPending());
     }
 
+    @SmallTest
     public void testDisconnectAudioWhenHeadsetServiceConnected() {
         mBluetoothManager.disconnectBluetoothAudio();
         verify(mHeadsetProxy).disconnectAudio();
     }
 
+    @SmallTest
     public void testDisconnectAudioWithNoHeadsetService() {
         mBluetoothManager.setBluetoothHeadsetForTesting(null);
         mBluetoothManager.disconnectBluetoothAudio();
         verify(mHeadsetProxy, never()).disconnectAudio();
     }
 
+    @SmallTest
     public void testConnectServiceWhenUninitialized1() {
         when(mHeadsetProxy.getConnectedDevices()).thenReturn(
                 Collections.<BluetoothDevice>emptyList());
@@ -133,6 +143,7 @@ public class BluetoothManagerTest extends TelecomTestCase {
                 BluetoothManager.BLUETOOTH_DISCONNECTED);
     }
 
+    @SmallTest
     public void testConnectServiceWhenUninitialized2() {
         when(mHeadsetProxy.getConnectedDevices()).thenReturn(
                 Collections.singletonList(device1));
@@ -142,6 +153,7 @@ public class BluetoothManagerTest extends TelecomTestCase {
                 BluetoothManager.BLUETOOTH_DEVICE_CONNECTED);
     }
 
+    @SmallTest
     public void testConnectServiceWhenUninitialized3() {
         when(mHeadsetProxy.getConnectedDevices()).thenReturn(
                 Collections.singletonList(device1));
@@ -151,6 +163,7 @@ public class BluetoothManagerTest extends TelecomTestCase {
                 BluetoothManager.BLUETOOTH_AUDIO_CONNECTED);
     }
 
+    @SmallTest
     public void testReceiveAudioDisconnectWhenConnected() {
         mBluetoothManager.setInternalBluetoothState(BluetoothManager.BLUETOOTH_AUDIO_CONNECTED);
         when(mHeadsetProxy.getConnectedDevices()).thenReturn(
@@ -162,6 +175,7 @@ public class BluetoothManagerTest extends TelecomTestCase {
                 BluetoothManager.BLUETOOTH_DEVICE_CONNECTED);
     }
 
+    @SmallTest
     public void testReceiveAudioConnectWhenDisconnected() {
         mBluetoothManager.setInternalBluetoothState(BluetoothManager.BLUETOOTH_DEVICE_CONNECTED);
         when(mHeadsetProxy.getConnectedDevices()).thenReturn(
@@ -173,6 +187,7 @@ public class BluetoothManagerTest extends TelecomTestCase {
                 BluetoothManager.BLUETOOTH_AUDIO_CONNECTED);
     }
 
+    @SmallTest
     public void testReceiveAudioConnectWhenPending() {
         mBluetoothManager.setInternalBluetoothState(BluetoothManager.BLUETOOTH_AUDIO_PENDING);
         when(mHeadsetProxy.getConnectedDevices()).thenReturn(
@@ -184,6 +199,7 @@ public class BluetoothManagerTest extends TelecomTestCase {
                 BluetoothManager.BLUETOOTH_AUDIO_CONNECTED);
     }
 
+    @SmallTest
     public void testReceiveAudioDisconnectWhenPending() {
         mBluetoothManager.setInternalBluetoothState(BluetoothManager.BLUETOOTH_AUDIO_PENDING);
         when(mHeadsetProxy.getConnectedDevices()).thenReturn(
@@ -195,6 +211,7 @@ public class BluetoothManagerTest extends TelecomTestCase {
                 BluetoothManager.BLUETOOTH_DEVICE_CONNECTED);
     }
 
+    @SmallTest
     public void testReceiveAudioConnectingWhenPending() {
         mBluetoothManager.setInternalBluetoothState(BluetoothManager.BLUETOOTH_AUDIO_PENDING);
         when(mHeadsetProxy.getConnectedDevices()).thenReturn(
