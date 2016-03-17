@@ -250,6 +250,33 @@ public class BasicCallTests extends TelecomSystemTest {
     }
 
     @LargeTest
+    public void testOutgoingCallAndSelectPhoneAccount() throws Exception {
+        // Remove default PhoneAccount so that the Call moves into the correct
+        // SELECT_PHONE_ACCOUNT state.
+        mTelecomSystem.getPhoneAccountRegistrar().setUserSelectedOutgoingPhoneAccount(
+                null, Process.myUserHandle());
+        int startingNumConnections = mConnectionServiceFixtureA.mConnectionById.size();
+        int startingNumCalls = mInCallServiceFixtureX.mCallById.size();
+        String callId = startOutgoingPhoneCallWithNoPhoneAccount("650-555-1212",
+                mConnectionServiceFixtureA);
+        assertEquals(Call.STATE_SELECT_PHONE_ACCOUNT,
+                mInCallServiceFixtureX.getCall(callId).getState());
+        assertEquals(Call.STATE_SELECT_PHONE_ACCOUNT,
+                mInCallServiceFixtureY.getCall(callId).getState());
+        mInCallServiceFixtureX.mInCallAdapter.phoneAccountSelected(callId,
+                mPhoneAccountA0.getAccountHandle(), false);
+
+        IdPair ids = outgoingCallPhoneAccountSelected(mPhoneAccountA0.getAccountHandle(),
+                startingNumConnections, startingNumCalls, mConnectionServiceFixtureA);
+
+        mConnectionServiceFixtureA.sendSetDisconnected(ids.mConnectionId, DisconnectCause.LOCAL);
+        assertEquals(Call.STATE_DISCONNECTED,
+                mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+        assertEquals(Call.STATE_DISCONNECTED,
+                mInCallServiceFixtureY.getCall(ids.mCallId).getState());
+    }
+
+    @LargeTest
     public void testIncomingCallFromContactWithSendToVoicemailIsRejected() throws Exception {
         Bundle extras = new Bundle();
         extras.putParcelable(

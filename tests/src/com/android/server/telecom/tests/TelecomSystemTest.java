@@ -371,14 +371,57 @@ public class TelecomSystemTest extends TelecomTestCase {
         return audioService;
     }
 
+    protected String startOutgoingPhoneCallWithNoPhoneAccount(String number,
+            ConnectionServiceFixture connectionServiceFixture)
+            throws Exception {
+
+        return startOutgoingPhoneCallPendingCreateConnection(number, null,
+                connectionServiceFixture, Process.myUserHandle(), VideoProfile.STATE_AUDIO_ONLY);
+    }
+
+    protected IdPair outgoingCallPhoneAccountSelected(PhoneAccountHandle phoneAccountHandle,
+            int startingNumConnections, int startingNumCalls,
+            ConnectionServiceFixture connectionServiceFixture) throws Exception {
+
+        IdPair ids = outgoingCallCreateConnectionComplete(startingNumConnections, startingNumCalls,
+                phoneAccountHandle, connectionServiceFixture);
+
+        connectionServiceFixture.sendSetDialing(ids.mConnectionId);
+        assertEquals(Call.STATE_DIALING, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+        assertEquals(Call.STATE_DIALING, mInCallServiceFixtureY.getCall(ids.mCallId).getState());
+
+        connectionServiceFixture.sendSetVideoState(ids.mConnectionId);
+
+        connectionServiceFixture.sendSetActive(ids.mConnectionId);
+        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureY.getCall(ids.mCallId).getState());
+
+        return ids;
+    }
+
     protected IdPair startOutgoingPhoneCall(String number, PhoneAccountHandle phoneAccountHandle,
             ConnectionServiceFixture connectionServiceFixture, UserHandle initiatingUser)
             throws Exception {
+
         return startOutgoingPhoneCall(number, phoneAccountHandle, connectionServiceFixture,
                 initiatingUser, VideoProfile.STATE_AUDIO_ONLY);
     }
 
     protected IdPair startOutgoingPhoneCall(String number, PhoneAccountHandle phoneAccountHandle,
+            ConnectionServiceFixture connectionServiceFixture, UserHandle initiatingUser,
+            int videoState) throws Exception {
+        int startingNumConnections = connectionServiceFixture.mConnectionById.size();
+        int startingNumCalls = mInCallServiceFixtureX.mCallById.size();
+
+        startOutgoingPhoneCallPendingCreateConnection(number, phoneAccountHandle,
+                connectionServiceFixture, initiatingUser, videoState);
+
+        return outgoingCallCreateConnectionComplete(startingNumConnections, startingNumCalls,
+                phoneAccountHandle, connectionServiceFixture);
+    }
+
+    protected String startOutgoingPhoneCallPendingCreateConnection(String number,
+            PhoneAccountHandle phoneAccountHandle,
             ConnectionServiceFixture connectionServiceFixture, UserHandle initiatingUser,
             int videoState) throws Exception {
         reset(connectionServiceFixture.getTestDouble(), mInCallServiceFixtureX.getTestDouble(),
@@ -390,8 +433,7 @@ public class TelecomSystemTest extends TelecomTestCase {
                 (mInCallServiceFixtureY.mInCallAdapter != null));
 
         mNumOutgoingCallsMade++;
-        int startingNumConnections = connectionServiceFixture.mConnectionById.size();
-        int startingNumCalls = mInCallServiceFixtureX.mCallById.size();
+
         boolean hasInCallAdapter = mInCallServiceFixtureX.mInCallAdapter != null;
 
         Intent actionCallIntent = new Intent();
@@ -452,6 +494,13 @@ public class TelecomSystemTest extends TelecomTestCase {
                 newOutgoingCallIntent.getValue().getStringExtra(Intent.EXTRA_PHONE_NUMBER));
         newOutgoingCallReceiver.getValue().onReceive(mComponentContextFixture.getTestDouble(),
                 newOutgoingCallIntent.getValue());
+
+        return mInCallServiceFixtureX.mLatestCallId;
+    }
+
+    protected IdPair outgoingCallCreateConnectionComplete(int startingNumConnections,
+            int startingNumCalls, PhoneAccountHandle phoneAccountHandle,
+            ConnectionServiceFixture connectionServiceFixture) throws Exception {
 
         assertEquals(startingNumConnections + 1, connectionServiceFixture.mConnectionById.size());
 
