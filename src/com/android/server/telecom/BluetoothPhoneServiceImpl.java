@@ -401,7 +401,7 @@ public class BluetoothPhoneServiceImpl {
         }
     };
 
-    private BluetoothAdapter mBluetoothAdapter;
+    private BluetoothAdapterProxy mBluetoothAdapter;
     private BluetoothHeadsetProxy mBluetoothHeadset;
 
     // A map from Calls to indexes used to identify calls for CLCC (C* List Current Calls).
@@ -422,6 +422,7 @@ public class BluetoothPhoneServiceImpl {
             Context context,
             TelecomSystem.SyncRoot lock,
             CallsManager callsManager,
+            BluetoothAdapterProxy bluetoothAdapter,
             PhoneAccountRegistrar phoneAccountRegistrar) {
         Log.d(this, "onCreate");
 
@@ -430,7 +431,7 @@ public class BluetoothPhoneServiceImpl {
         mCallsManager = callsManager;
         mPhoneAccountRegistrar = phoneAccountRegistrar;
 
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mBluetoothAdapter = bluetoothAdapter;
         if (mBluetoothAdapter == null) {
             Log.d(this, "BluetoothPhoneService shutting down, no BT Adapter found.");
             return;
