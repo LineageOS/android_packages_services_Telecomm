@@ -492,6 +492,7 @@ public class ConnectionServiceWrapper extends ServiceBinder {
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
+                    Bundle.setDefusable(extras, true);
                     logIncoming("setExtras %s %s", callId, extras);
                     Call call = mCallIdMapper.getCall(callId);
                     if (call != null) {
@@ -594,6 +595,7 @@ public class ConnectionServiceWrapper extends ServiceBinder {
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
+                    Bundle.setDefusable(extras, true);
                     Call call = mCallIdMapper.getCall(callId);
                     if (call != null) {
                         call.onConnectionEvent(event, extras);
