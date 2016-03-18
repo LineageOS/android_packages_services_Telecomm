@@ -977,6 +977,7 @@ public class TelecomServiceImpl {
                                     phoneAccountHandle);
                             intent.putExtra(CallIntentProcessor.KEY_IS_INCOMING_CALL, true);
                             if (extras != null) {
+                                extras.setDefusable(true);
                                 intent.putExtra(TelecomManager.EXTRA_INCOMING_CALL_EXTRAS, extras);
                             }
                             mCallIntentProcessorAdapter.processIncomingCallIntent(
@@ -1016,7 +1017,10 @@ public class TelecomServiceImpl {
 
                         try {
                             Intent intent = new Intent(TelecomManager.ACTION_NEW_UNKNOWN_CALL);
-                            intent.putExtras(extras);
+                            if (extras != null) {
+                                extras.setDefusable(true);
+                                intent.putExtras(extras);
+                            }
                             intent.putExtra(CallIntentProcessor.KEY_IS_UNKNOWN_CALL, true);
                             intent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE,
                                     phoneAccountHandle);
@@ -1066,7 +1070,10 @@ public class TelecomServiceImpl {
                     long token = Binder.clearCallingIdentity();
                     try {
                         final Intent intent = new Intent(Intent.ACTION_CALL, handle);
-                        intent.putExtras(extras);
+                        if (extras != null) {
+                            extras.setDefusable(true);
+                            intent.putExtras(extras);
+                        }
                         mUserCallIntentProcessorFactory.create(mContext, userHandle)
                                 .processIntent(
                                         intent, callingPackage, hasCallAppOp && hasCallPermission);
