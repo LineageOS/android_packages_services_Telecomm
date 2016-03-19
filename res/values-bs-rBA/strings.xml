@@ -22,13 +22,13 @@
     <string name="notification_missedCallTitle" msgid="7554385905572364535">"Propušteni poziv"</string>
     <string name="notification_missedWorkCallTitle" msgid="6242489980390803090">"Propušteni poslovni poziv"</string>
     <string name="notification_missedCallsTitle" msgid="1361677948941502522">"Propušteni pozivi"</string>
-    <string name="notification_missedCallsMsg" msgid="4575787816055205600">"Propušeni pozivi: <xliff:g id="NUM_MISSED_CALLS">%s</xliff:g>"</string>
+    <string name="notification_missedCallsMsg" msgid="4575787816055205600">"Propušteni pozivi: <xliff:g id="NUM_MISSED_CALLS">%s</xliff:g>"</string>
     <string name="notification_missedCallTicker" msgid="504686252427747209">"Propušteni poziv od kontakta <xliff:g id="MISSED_CALL_FROM">%s</xliff:g>"</string>
     <string name="notification_missedCall_call_back" msgid="2684890353590890187">"Povr. poziv"</string>
     <string name="notification_missedCall_message" msgid="3049928912736917988">"Poruka"</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"Zvuk poziva je isključen."</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"Zvučnik je omogućen."</string>
-    <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"Ne mogu sada razgovarati. Šta ima?"</string>
+    <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"Ne mogu sada pričati. Šta ima?"</string>
     <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"Nazvat ću te uskoro."</string>
     <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"Nazvat ću te kasnije."</string>
     <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"Ne mogu pričati. Nazovi kasnije?"</string>
@@ -40,7 +40,7 @@
     <string name="enable_account_preference_title" msgid="2021848090086481720">"Računi za pozivanje"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="6872406278300131364">"Dozvoljeni su samo hitni pozivi."</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="1996571596464271228">"Ova aplikacija ne može upućivati odlazne pozive bez dozvole za Telefon."</string>
-    <string name="outgoing_call_error_no_phone_number_supplied" msgid="1940125199802007505">"Da biste uputili poziv, upišite važeći broj."</string>
+    <string name="outgoing_call_error_no_phone_number_supplied" msgid="1940125199802007505">"Da uputite poziv, upišite važeći broj."</string>
     <string name="duplicate_video_call_not_allowed" msgid="3749211605014548386">"Trenutno nije moguće dodati poziv."</string>
     <string name="no_vm_number" msgid="4164780423805688336">"Nedostaje broj govorne pošte"</string>
     <string name="no_vm_number_msg" msgid="1300729501030053828">"Broj govorne pošte nije pohranjen na SIM kartici."</string>
