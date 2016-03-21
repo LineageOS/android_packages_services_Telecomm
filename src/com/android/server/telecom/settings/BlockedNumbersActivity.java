@@ -26,6 +26,8 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.UserManager;
 import android.provider.BlockedNumberContract;
+import android.telephony.PhoneNumberFormattingTextWatcher;
+import android.telephony.PhoneNumberUtils;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -84,8 +86,7 @@ public class BlockedNumbersActivity extends ListActivity
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        UserManager userManager = (UserManager) getSystemService(Context.USER_SERVICE);
-        if (!userManager.isPrimaryUser()) {
+        if (!BlockedNumberContract.canCurrentUserBlockNumbers(this)) {
             TextView nonPrimaryUserText = (TextView) findViewById(R.id.non_primary_user);
             nonPrimaryUserText.setVisibility(View.VISIBLE);
 
@@ -186,12 +187,14 @@ public class BlockedNumbersActivity extends ListActivity
         LayoutInflater inflater = this.getLayoutInflater();
         View dialogView = inflater.inflate(R.xml.add_blocked_number_dialog, null);
         final EditText editText = (EditText) dialogView.findViewById(R.id.add_blocked_number);
+        editText.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
         editText.addTextChangedListener(this);
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(dialogView)
                 .setPositiveButton(R.string.block_button, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        addBlockedNumber(editText.getText().toString());
+                        addBlockedNumber(PhoneNumberUtils.stripSeparators(
+                                editText.getText().toString()));
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {

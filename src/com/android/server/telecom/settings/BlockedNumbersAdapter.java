@@ -23,6 +23,8 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.provider.BlockedNumberContract;
 import android.telephony.PhoneNumberUtils;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.view.View;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -46,7 +48,9 @@ public class BlockedNumbersAdapter extends SimpleCursorAdapter {
         final String finalFormattedNumber = formattedNumber == null ? rawNumber : formattedNumber;
 
         TextView numberView = (TextView) view.findViewById(R.id.blocked_number);
-        numberView.setText(finalFormattedNumber);
+        Spannable numberSpannable = new SpannableString(finalFormattedNumber);
+        PhoneNumberUtils.addTtsSpan(numberSpannable, 0, numberSpannable.length());
+        numberView.setText(numberSpannable);
 
         View deleteButton = view.findViewById(R.id.delete_blocked_number);
         deleteButton.setOnClickListener(new View.OnClickListener() {
@@ -67,8 +71,13 @@ public class BlockedNumbersAdapter extends SimpleCursorAdapter {
 
     private void showDeleteBlockedNumberDialog(final Context context, final String rawNumber,
             final String formattedNumber) {
+        String message = context.getString(R.string.unblock_dialog_body, formattedNumber);
+        int startingPosition = message.indexOf(formattedNumber);
+        Spannable messageSpannable = new SpannableString(message);
+        PhoneNumberUtils.addTtsSpan(messageSpannable, startingPosition,
+                startingPosition + formattedNumber.length());
         new AlertDialog.Builder(context)
-                .setMessage(context.getString(R.string.unblock_dialog_body, formattedNumber))
+                .setMessage(messageSpannable)
                 .setPositiveButton(R.string.unblock_button,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
