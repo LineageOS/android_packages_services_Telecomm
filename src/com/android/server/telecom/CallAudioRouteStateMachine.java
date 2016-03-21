@@ -92,8 +92,6 @@ public class CallAudioRouteStateMachine extends StateMachine {
     public static final int USER_SWITCH_SPEAKER = 1104;
     public static final int USER_SWITCH_BASELINE_ROUTE = 1105;
 
-    public static final int REINITIALIZE = 2001;
-
     public static final int MUTE_ON = 3001;
     public static final int MUTE_OFF = 3002;
     public static final int TOGGLE_MUTE = 3003;
@@ -127,8 +125,6 @@ public class CallAudioRouteStateMachine extends StateMachine {
         put(USER_SWITCH_HEADSET, "USER_SWITCH_HEADSET");
         put(USER_SWITCH_SPEAKER, "USER_SWITCH_SPEAKER");
         put(USER_SWITCH_BASELINE_ROUTE, "USER_SWITCH_BASELINE_ROUTE");
-
-        put(REINITIALIZE, "REINITIALIZE");
 
         put(MUTE_ON, "MUTE_ON");
         put(MUTE_OFF, "MUTE_OFF");
@@ -212,15 +208,6 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 case USER_SWITCH_BASELINE_ROUTE:
                     sendInternalMessage(calculateBaselineRouteMessage(true));
                     return HANDLED;
-                case REINITIALIZE:
-                    CallAudioState initState = getInitialAudioState();
-                    mAvailableRoutes = initState.getSupportedRouteMask();
-                    mIsMuted = initState.isMuted();
-                    setMuteOn(mIsMuted);
-                    mWasOnSpeaker = initState.getRoute() == ROUTE_SPEAKER;
-                    mHasUserExplicitlyLeftBluetooth = false;
-                    transitionTo(mRouteCodeToQuiescentState.get(initState.getRoute()));
-                    return HANDLED;
                 default:
                     return NOT_HANDLED;
             }
@@ -291,7 +278,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     return HANDLED;
                 case SWITCH_FOCUS:
                     if (msg.arg1 == NO_FOCUS) {
-                        transitionTo(mQuiescentEarpieceRoute);
+                        reinitialize();
                     }
                     return HANDLED;
                 default:
@@ -464,7 +451,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     return HANDLED;
                 case SWITCH_FOCUS:
                     if (msg.arg1 == NO_FOCUS) {
-                        transitionTo(mQuiescentHeadsetRoute);
+                        reinitialize();
                     }
                     return HANDLED;
                 default:
@@ -647,7 +634,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     return HANDLED;
                 case SWITCH_FOCUS:
                     if (msg.arg1 == NO_FOCUS) {
-                        transitionTo(mQuiescentBluetoothRoute);
+                        reinitialize();
                     }
                     return HANDLED;
                 default:
@@ -819,7 +806,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     return HANDLED;
                 case SWITCH_FOCUS:
                     if (msg.arg1 == NO_FOCUS) {
-                        transitionTo(mQuiescentSpeakerRoute);
+                        reinitialize();
                     }
                     return HANDLED;
                 default:
@@ -1029,7 +1016,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
         mLastKnownCallAudioState = initState;
         mAvailableRoutes = initState.getSupportedRouteMask();
         mIsMuted = initState.isMuted();
-        mWasOnSpeaker = initState.getRoute() == ROUTE_SPEAKER;
+        mWasOnSpeaker = false;
 
         mStatusBarNotifier.notifyMute(initState.isMuted());
         mStatusBarNotifier.notifySpeakerphone(initState.getRoute() == CallAudioState.ROUTE_SPEAKER);
@@ -1282,5 +1269,15 @@ public class CallAudioRouteStateMachine extends StateMachine {
                             "earpiece on the device. Defaulting to earpiece.");
             return isExplicitUserRequest ? USER_SWITCH_EARPIECE : SWITCH_EARPIECE;
         }
+    }
+
+    private void reinitialize() {
+        CallAudioState initState = getInitialAudioState();
+        mAvailableRoutes = initState.getSupportedRouteMask();
+        mIsMuted = initState.isMuted();
+        setMuteOn(mIsMuted);
+        mWasOnSpeaker = false;
+        mHasUserExplicitlyLeftBluetooth = false;
+        transitionTo(mRouteCodeToQuiescentState.get(initState.getRoute()));
     }
 }
