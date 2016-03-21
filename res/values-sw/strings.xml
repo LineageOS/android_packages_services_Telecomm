@@ -19,11 +19,11 @@
     <string name="telecommAppLabel" product="default" msgid="9166784827254469057">"Usimamizi wa Mazunguzo ya Simu"</string>
     <string name="userCallActivityLabel" product="default" msgid="5415173590855187131">"Simu"</string>
     <string name="unknown" msgid="6878797917991465859">"Haijulikani"</string>
-    <string name="notification_missedCallTitle" msgid="7554385905572364535">"Simu isiyojibiwa"</string>
+    <string name="notification_missedCallTitle" msgid="7554385905572364535">"Simu uliyokosa"</string>
     <string name="notification_missedWorkCallTitle" msgid="6242489980390803090">"Simu ya kazini ambayo hukujibu"</string>
     <string name="notification_missedCallsTitle" msgid="1361677948941502522">"Simu zisizojibiwa"</string>
     <string name="notification_missedCallsMsg" msgid="4575787816055205600">"<xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> simu ambazo hazijajibiwa"</string>
-    <string name="notification_missedCallTicker" msgid="504686252427747209">"Simu isiyojibiwa kutoka <xliff:g id="MISSED_CALL_FROM">%s</xliff:g>"</string>
+    <string name="notification_missedCallTicker" msgid="504686252427747209">"Ulikosa simu kutoka kwa <xliff:g id="MISSED_CALL_FROM">%s</xliff:g>"</string>
     <string name="notification_missedCall_call_back" msgid="2684890353590890187">"Mpigie"</string>
     <string name="notification_missedCall_message" msgid="3049928912736917988">"Ujumbe"</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"Simu imezimwa."</string>
