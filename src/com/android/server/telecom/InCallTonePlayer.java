@@ -105,6 +105,9 @@ public class InCallTonePlayer extends Thread {
     /** Telecom lock object. */
     private final TelecomSystem.SyncRoot mLock;
 
+    private Session mSession;
+    private final Object mSessionLock = new Object();
+
     /**
      * Initializes the tone player. Private; use the {@link Factory} to create tone players.
      *
@@ -127,6 +130,12 @@ public class InCallTonePlayer extends Thread {
     public void run() {
         ToneGenerator toneGenerator = null;
         try {
+            synchronized (mSessionLock) {
+                if (mSession != null) {
+                    Log.continueSession(mSession, "ICTP.r");
+                    mSession = null;
+                }
+            }
             Log.d(this, "run(toneId = %s)", mToneId);
 
             final int toneType;  // Passed to ToneGenerator.startTone.
@@ -254,6 +263,13 @@ public class InCallTonePlayer extends Thread {
         sTonesPlaying++;
         if (sTonesPlaying == 1) {
             mCallAudioManager.setIsTonePlaying(true);
+        }
+
+        synchronized (mSessionLock) {
+            if (mSession != null) {
+                Log.cancelSubsession(mSession);
+            }
+            mSession = Log.createSubsession();
         }
 
         start();

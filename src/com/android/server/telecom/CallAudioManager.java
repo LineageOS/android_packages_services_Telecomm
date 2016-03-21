@@ -157,12 +157,6 @@ public class CallAudioManager extends CallsManagerListenerBase {
         mCalls.remove(call);
 
         onCallLeavingState(call, call.getState());
-
-        if (mCallsManager.getCalls().isEmpty()) {
-            Log.v(this, "all calls removed, resetting system audio to default state");
-            mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
-                    CallAudioRouteStateMachine.REINITIALIZE);
-        }
     }
 
     @Override
