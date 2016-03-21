@@ -235,7 +235,7 @@ public class CallsManager extends Call.ListenerBase
                 callAudioRoutePeripheralAdapter, lock);
 
         SystemSettingsUtil systemSettingsUtil = new SystemSettingsUtil();
-        RingtoneFactory ringtoneFactory = new RingtoneFactory(context);
+        RingtoneFactory ringtoneFactory = new RingtoneFactory(this, context);
         SystemVibrator systemVibrator = new SystemVibrator(context);
         AsyncRingtonePlayer asyncRingtonePlayer = new AsyncRingtonePlayer();
         mInCallController = new InCallController(context, mLock, this, systemStateProvider);
