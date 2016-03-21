@@ -47,11 +47,11 @@ public class AsyncRingtonePlayer {
     private Ringtone mRingtone;
 
     /** Plays the ringtone. */
-    public void play(RingtoneFactory factory, Uri ringtoneUri) {
+    public void play(RingtoneFactory factory, Call incomingCall) {
         Log.d(this, "Posting play.");
         SomeArgs args = SomeArgs.obtain();
         args.arg1 = factory;
-        args.arg2 = ringtoneUri;
+        args.arg2 = incomingCall;
         postMessage(EVENT_PLAY, true /* shouldCreateHandler */, args);
     }
 
@@ -114,7 +114,7 @@ public class AsyncRingtonePlayer {
      */
     private void handlePlay(SomeArgs args) {
         RingtoneFactory factory = (RingtoneFactory) args.arg1;
-        Uri ringtoneUri = (Uri) args.arg2;
+        Call incomingCall = (Call) args.arg2;
         args.recycle();
         // don't bother with any of this if there is an EVENT_STOP waiting.
         if (mHandler.hasMessages(EVENT_STOP)) {
@@ -125,10 +125,13 @@ public class AsyncRingtonePlayer {
         Log.i(this, "Play ringtone.");
 
         if (mRingtone == null) {
-            mRingtone = factory.getRingtone(ringtoneUri);
+            mRingtone = factory.getRingtone(incomingCall);
             if (mRingtone == null) {
+                Uri ringtoneUri = incomingCall.getRingtone();
+                String ringtoneUriString = (ringtoneUri == null) ? "null" :
+                        ringtoneUri.toSafeString();
                 Log.event(null, Log.Events.ERROR_LOG, "Failed to get ringtone from factory. " +
-                        "Skipping ringing. Uri was: " + ringtoneUri.toSafeString());
+                        "Skipping ringing. Uri was: " + ringtoneUriString);
                 return;
             }
         }
