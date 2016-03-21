@@ -30,12 +30,13 @@
         android:paddingBottom="@dimen/blocked_numbers_extra_large_padding"
         android:layout_toLeftOf="@+id/delete" />
 
-    <ImageButton
-        android:id="@+id/delete_blocked_number"
-        android:layout_width="@dimen/blocked_numbers_delete_icon_size"
-        android:layout_height="@dimen/blocked_numbers_delete_icon_size"
-        android:src="@drawable/ic_close_grey_24dp"
-        android:layout_alignParentRight="true"
-        android:contentDescription="@string/delete_icon_description"
-        android:background="?android:attr/selectableItemBackgroundBorderless" />
+    <ImageView
+            android:id="@+id/delete_blocked_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/blocked_numbers_delete_icon_padding"
+            android:src="@drawable/ic_close_grey_24dp"
+            android:layout_alignParentRight="true"
+            android:contentDescription="@string/delete_icon_description"
+            android:background="?android:attr/selectableItemBackgroundBorderless" />
 </RelativeLayout>

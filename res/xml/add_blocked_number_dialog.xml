@@ -20,21 +20,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingLeft="@dimen/blocked_numbers_extra_large_padding"
-        android:paddingRight="@dimen/blocked_numbers_extra_large_padding">
+        android:padding="@dimen/blocked_numbers_dialog_padding">
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/add_blocked_dialog_body"
             android:paddingTop="@dimen/blocked_numbers_large_padding"
             android:paddingBottom="@dimen/blocked_numbers_large_padding"
-            style="@style/BlockedNumbersText" />
+            style="@style/BlockedNumbersTitleText" />
     <EditText
             android:id="@+id/add_blocked_number"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/blocked_numbers_large_padding"
-            android:paddingBottom="@dimen/blocked_numbers_large_padding"
             android:hint="@string/add_blocked_number_hint"
             android:inputType="phone" />
 </LinearLayout>
