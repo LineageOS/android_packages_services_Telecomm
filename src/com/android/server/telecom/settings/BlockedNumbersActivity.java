@@ -128,7 +128,9 @@ public class BlockedNumbersActivity extends ListActivity
 
     @Override
     protected void onDestroy() {
-        unregisterReceiver(mBlockingStatusReceiver);
+        if (mBlockingStatusReceiver != null) {
+            unregisterReceiver(mBlockingStatusReceiver);
+        }
         super.onDestroy();
     }
 

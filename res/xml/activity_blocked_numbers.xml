@@ -28,6 +28,7 @@
 
         <include
                 android:id="@+id/butter_bar"
+                android:visibility="gone"
                 layout="@xml/blocking_suppressed_butterbar" />
 
         <FrameLayout
