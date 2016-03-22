@@ -19,12 +19,18 @@ package com.android.server.telecom.settings;
 import android.annotation.Nullable;
 import android.app.ActionBar;
 import android.app.AlertDialog;
+import android.app.FragmentManager;
 import android.app.ListActivity;
 import android.app.LoaderManager;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.CursorLoader;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.UserManager;
 import android.provider.BlockedNumberContract;
 import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.telephony.PhoneNumberUtils;
@@ -35,16 +41,25 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 import com.android.server.telecom.R;
 
 /**
  * Activity to manage blocked numbers using {@link BlockedNumberContract}.
  */
 public class BlockedNumbersActivity extends ListActivity
-        implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener, TextWatcher {
+        implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener, TextWatcher,
+        BlockNumberTaskFragment.Listener {
     private static final String ACTION_MANAGE_BLOCKED_NUMBERS =
             "android.telecom.action.MANAGE_BLOCKED_NUMBERS";
+    private static final String TAG_BLOCK_NUMBER_TASK_FRAGMENT = "block_number_task_fragment";
     private static final String TELECOM_PACKAGE = "com.android.server.telecom";
     private static final String[] PROJECTION = new String[] {
             BlockedNumberContract.BlockedNumbers.COLUMN_ID,
@@ -55,6 +70,7 @@ public class BlockedNumbersActivity extends ListActivity
             BlockedNumberContract.BlockedNumbers.COLUMN_ORIGINAL_NUMBER + " NOTNULL) AND (" +
             BlockedNumberContract.BlockedNumbers.COLUMN_ORIGINAL_NUMBER + " != '' ))";
 
+    private BlockNumberTaskFragment mBlockNumberTaskFragment;
     private BlockedNumbersAdapter mAdapter;
     private TextView mAddButton;
     private ProgressBar mProgressBar;
@@ -95,6 +111,17 @@ public class BlockedNumbersActivity extends ListActivity
             manageBlockedNumbersUi.setVisibility(View.GONE);
             return;
         }
+
+        FragmentManager fm = getFragmentManager();
+        mBlockNumberTaskFragment =
+                (BlockNumberTaskFragment) fm.findFragmentByTag(TAG_BLOCK_NUMBER_TASK_FRAGMENT);
+
+        if (mBlockNumberTaskFragment == null) {
+            mBlockNumberTaskFragment = new BlockNumberTaskFragment();
+            fm.beginTransaction()
+                    .add(mBlockNumberTaskFragment, TAG_BLOCK_NUMBER_TASK_FRAGMENT).commit();
+        }
+
         mAddButton = (TextView) findViewById(R.id.add_blocked);
         mAddButton.setOnClickListener(this);
 
@@ -224,17 +251,16 @@ public class BlockedNumbersActivity extends ListActivity
      * Add blocked number if it does not exist.
      */
     private void addBlockedNumber(String number) {
-        ContentResolver contentResolver = getContentResolver();
-        Cursor cursor = contentResolver.query(
-                BlockedNumberContract.BlockedNumbers.CONTENT_URI,
-                PROJECTION,
-                BlockedNumberContract.BlockedNumbers.COLUMN_ORIGINAL_NUMBER + "=?",
-                new String[] {number},
-                null);
-        if (cursor == null || cursor.getCount() == 0) {
-            ContentValues newValues = new ContentValues();
-            newValues.put(BlockedNumberContract.BlockedNumbers.COLUMN_ORIGINAL_NUMBER, number);
-            contentResolver.insert(BlockedNumberContract.BlockedNumbers.CONTENT_URI, newValues);
+        if (PhoneNumberUtils.isEmergencyNumber(number)) {
+            Toast.makeText(
+                    this,
+                    getString(R.string.blocked_numbers_block_emergency_number_message),
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            // We disable the add button, to prevent the user from adding other numbers until the
+            // current number is added.
+            mAddButton.setEnabled(false);
+            mBlockNumberTaskFragment.blockIfNotAlreadyBlocked(number, this);
         }
     }
 
@@ -253,5 +279,17 @@ public class BlockedNumbersActivity extends ListActivity
     @Override
     public void afterTextChanged(Editable s) {
         // no-op
+    }
+
+    @Override
+    public void onBlocked(String number, boolean alreadyBlocked) {
+        if (alreadyBlocked) {
+            BlockedNumbersUtil.showToastWithFormattedNumber(this,
+                    R.string.blocked_numbers_number_already_blocked_message, number);
+        } else {
+            BlockedNumbersUtil.showToastWithFormattedNumber(this,
+                    R.string.blocked_numbers_number_blocked_message, number);
+        }
+        mAddButton.setEnabled(true);
     }
 }

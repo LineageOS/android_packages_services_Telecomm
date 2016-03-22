@@ -143,7 +143,14 @@
     <string name="blocked_numbers_butter_bar_body">After you dial or text an emergency number, blocking is turned off to ensure that emergency services can contact you.</string>
     <!-- Button to re-enable blocking shown in butter bar shown when call blocking is disabled. -->
     <string name="blocked_numbers_butter_bar_button">Re-enable now</string>
-
+    <!-- Message to show when a number is blocked. -->
+    <string name="blocked_numbers_number_blocked_message"><xliff:g id="blocked_number">%1$s</xliff:g> blocked</string>
+    <!-- Message to show when a number is unblocked. -->
+    <string name="blocked_numbers_number_unblocked_message"><xliff:g id="unblocked_number">%1$s</xliff:g> unblocked</string>
+    <!-- Message to show when a number cannot be blocked because it is associated with emergency services.. -->
+    <string name="blocked_numbers_block_emergency_number_message">Unable to block emergency number.</string>
+    <!-- Message to show when a number is already blocked. -->
+    <string name="blocked_numbers_number_already_blocked_message"><xliff:g id="blocked_number">%1$s</xliff:g> is already blocked.</string>
 
     <!-- DO NOT TRANSLATE. Label for test Subscription 0. -->
     <string name="test_account_0_label">Q Mobile</string>
