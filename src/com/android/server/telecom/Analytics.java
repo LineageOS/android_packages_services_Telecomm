@@ -182,7 +182,7 @@ public class Analytics {
 
         public ParcelableCallAnalytics toParcelableAnalytics() {
             // Rounds up to the nearest second.
-            long callDuration = endTime == 0 ? 0 : endTime - startTime;
+            long callDuration = (endTime == 0 || startTime == 0) ? 0 : endTime - startTime;
             callDuration += (callDuration % MILLIS_IN_1_SECOND == 0) ?
                     0 : (MILLIS_IN_1_SECOND - callDuration % MILLIS_IN_1_SECOND);
             return new ParcelableCallAnalytics(
