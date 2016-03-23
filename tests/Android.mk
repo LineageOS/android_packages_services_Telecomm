@@ -46,4 +46,6 @@ LOCAL_CERTIFICATE := platform
 
 LOCAL_MODULE_TAGS := tests
 
+include frameworks/base/packages/SettingsLib/common.mk
+
 include $(BUILD_PACKAGE)
