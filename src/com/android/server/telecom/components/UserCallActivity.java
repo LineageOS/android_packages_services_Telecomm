@@ -62,7 +62,10 @@ public class UserCallActivity extends Activity implements TelecomSystem.Componen
         // accurately determine whether the calling package has the CALL_PHONE runtime permission.
         // At this point in time we trust that the ActivityManager has already performed this
         // validation before starting this activity.
-        new UserCallIntentProcessor(this, userHandle).processIntent(getIntent(),
+        // Create a new instance of intent to avoid modifying the
+        // ActivityThread.ActivityClientRecord#intent directly.
+        // Modifying directly may be a potential risk when relaunching this activity.
+        new UserCallIntentProcessor(this, userHandle).processIntent(new Intent(intent),
                 getCallingPackage(), true /* hasCallAppOp*/);
         finish();
     }
