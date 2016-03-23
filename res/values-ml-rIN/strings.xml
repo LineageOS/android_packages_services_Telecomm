@@ -61,5 +61,13 @@
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"ബ്ലോക്കുചെയ്യൽ താൽക്കാലികമായി ഓഫാണ്"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"നിങ്ങൾ ഒരു എമർജൻസി നമ്പർ ഡയൽ ചെയ്‌ത് കഴിയുമ്പോഴോ അതിലേക്ക് സന്ദേശമയച്ചുകഴിയുമ്പോഴോ, എമർജൻസി സേവനങ്ങൾ നിങ്ങളിലേക്ക് എത്തുമെന്ന് ഉറപ്പാക്കാൻ കോൾ ബ്ലോക്കിംഗ് ഓഫാക്കും."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"ഇപ്പോൾ വീണ്ടും പ്രവർത്തനക്ഷമമാക്കുക"</string>
+    <!-- no translation found for blocked_numbers_number_blocked_message (7678509606805029540) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_number_unblocked_message (977894647366750418) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_block_emergency_number_message (917851876780698387) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_number_already_blocked_message (4392247814500811798) -->
+    <skip />
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"കോൾ ചെയ്യുന്നതിന് സ്വകാര്യ ഡയലർ ഉപയോഗിക്കുന്നു"</string>
 </resources>

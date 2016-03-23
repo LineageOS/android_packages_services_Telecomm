@@ -61,5 +61,13 @@
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"차단 기능이 일시적으로 중지됨"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"긴급 전화번호로 전화를 걸거나 문자를 보내면 긴급 서비스를 사용할 수 있도록 차단 기능이 중지됩니다."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"지금 다시 사용 설정"</string>
+    <!-- no translation found for blocked_numbers_number_blocked_message (7678509606805029540) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_number_unblocked_message (977894647366750418) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_block_emergency_number_message (917851876780698387) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_number_already_blocked_message (4392247814500811798) -->
+    <skip />
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"전화를 걸 때 개인 다이얼러 사용"</string>
 </resources>

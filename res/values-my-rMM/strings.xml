@@ -61,5 +61,13 @@
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"ဘလော့ခ်လုပ်ခြင်းကို ပိတ်ထားပါသည်"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"သင် အရေးပေါ်နံပါတ်တစ်ခုကို ဖုန်းခေါ် (သို့) စာသားပို့ပြီးနောက် အရေးပေါ်ဝန်ဆောင်မှုများက သင့်ကို ဆက်သွယ်နိုင်ကြောင်း သေချာစေရန် ဘလော့ခ်လုပ်ခြင်းကို ပိတ်ထားပါသည်။"</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"ယခု ပြန်ဖွင့်လိုက်ပါ"</string>
+    <!-- no translation found for blocked_numbers_number_blocked_message (7678509606805029540) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_number_unblocked_message (977894647366750418) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_block_emergency_number_message (917851876780698387) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_number_already_blocked_message (4392247814500811798) -->
+    <skip />
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"ဖုန်းခေါ်ဆိုမှုပြုလုပ်ရန် ကိုယ်ရေးကိုယ်တာ ဖုန်းခေါ်ဆိုမှုစနစ်ကို အသုံးပြုခြင်း"</string>
 </resources>

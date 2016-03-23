@@ -61,5 +61,13 @@
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Bllokimi përkohësisht joaktiv"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Pasi shtypet ose dërgohet mesazh me tekst te një numër i urgjencës, bllokimi është çaktivizuar për të siguruar që shërbimet e emergjencës të mund të të kontaktojnë."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Riaktivizo tani"</string>
+    <!-- no translation found for blocked_numbers_number_blocked_message (7678509606805029540) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_number_unblocked_message (977894647366750418) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_block_emergency_number_message (917851876780698387) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_number_already_blocked_message (4392247814500811798) -->
+    <skip />
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Po përdor formuesin personal të numrave për të kryer telefonatën"</string>
 </resources>

@@ -61,5 +61,13 @@
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"暫時關閉封鎖功能"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"在您撥打或發短訊至緊急號碼後，封鎖功能會停用，以確保緊急服務可與您聯絡。"</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"立即重新啟用"</string>
+    <!-- no translation found for blocked_numbers_number_blocked_message (7678509606805029540) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_number_unblocked_message (977894647366750418) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_block_emergency_number_message (917851876780698387) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_number_already_blocked_message (4392247814500811798) -->
+    <skip />
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"使用個人撥號器撥打電話"</string>
 </resources>

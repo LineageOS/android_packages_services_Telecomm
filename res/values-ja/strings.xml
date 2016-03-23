@@ -61,5 +61,13 @@
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"ブロックが一時的に OFF になっています"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"緊急通報番号に電話をかけたり、テキスト メッセージを送信したりすると、ブロックが OFF になり、緊急通報受理機関からの通話を着信できるようになります。"</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"再度有効にする"</string>
+    <!-- no translation found for blocked_numbers_number_blocked_message (7678509606805029540) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_number_unblocked_message (977894647366750418) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_block_emergency_number_message (917851876780698387) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_number_already_blocked_message (4392247814500811798) -->
+    <skip />
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"個人用の電話アプリで電話する"</string>
 </resources>

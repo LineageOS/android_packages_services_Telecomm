@@ -61,5 +61,9 @@
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"A tiltás átmenetileg felfüggesztve"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Ha segélyhívószámot tárcsáz, vagy segélyhívószámra küld SMS-t, a rendszer feloldja a tiltást, hogy a sürgősségi szolgáltatások felvehessék Önnel a kapcsolatot."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Újbóli engedélyezés most"</string>
+    <string name="blocked_numbers_number_blocked_message" msgid="7678509606805029540">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> letiltva"</string>
+    <string name="blocked_numbers_number_unblocked_message" msgid="977894647366750418">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> letiltása feloldva"</string>
+    <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"Nem sikerült letiltani a segélyhívószámot."</string>
+    <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"A következő szám már le van tiltva: <xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g>."</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Hívás indítása a személyes tárcsázóval"</string>
 </resources>

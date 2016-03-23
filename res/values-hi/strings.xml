@@ -61,5 +61,13 @@
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"अवरोधन अस्थायी रूप से बंद है"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"आपातकालीन नंबर डायल करने या उस पर लेख संदेश भेजने के बाद, अवरोधन बंद हो जाता है ताकि आपातकालीन सेवाएं आपसे संपर्क कर सकें."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"अभी पुन: सक्षम करें"</string>
+    <!-- no translation found for blocked_numbers_number_blocked_message (7678509606805029540) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_number_unblocked_message (977894647366750418) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_block_emergency_number_message (917851876780698387) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_number_already_blocked_message (4392247814500811798) -->
+    <skip />
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"कॉल करने के लिए व्यक्तिगत डायलर का उपयोग करना"</string>
 </resources>

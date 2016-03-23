@@ -61,5 +61,13 @@
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Blokavimo funkcija laikinai išjungta"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Surinkus pagalbos numerį ar išsiuntus juo pranešimą blokavimo funkcija išjungiama, siekiant užtikrinti, kad pagalbos tarnybos galėtų su jumis susisiekti."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Dabar įgalinti iš naujo"</string>
+    <!-- no translation found for blocked_numbers_number_blocked_message (7678509606805029540) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_number_unblocked_message (977894647366750418) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_block_emergency_number_message (917851876780698387) -->
+    <skip />
+    <!-- no translation found for blocked_numbers_number_already_blocked_message (4392247814500811798) -->
+    <skip />
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Asmeninio numerio rinkiklio naudojimas skambinant"</string>
 </resources>

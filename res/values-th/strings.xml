@@ -61,5 +61,9 @@
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"ปิดการบล็อกไว้ชั่วคราว"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"หลังจากส่งข้อความถึงหรือกดหมายเลขโทรศัพท์ฉุกเฉิน ระบบจะปิดการบล็อกเพื่อให้บริการฉุกเฉินติดต่อคุณได้"</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"เปิดใช้งานอีกครั้งเลย"</string>
+    <string name="blocked_numbers_number_blocked_message" msgid="7678509606805029540">"บล็อก <xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> แล้ว"</string>
+    <string name="blocked_numbers_number_unblocked_message" msgid="977894647366750418">"เลิกบล็อก <xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> แล้ว"</string>
+    <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"ไม่สามารถบล็อกหมายเลขฉุกเฉินได้"</string>
+    <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> ถูกบล็อกอยู่แล้ว"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"การใช้โทรศัพท์ส่วนตัวเพื่อทำการโทร"</string>
 </resources>
