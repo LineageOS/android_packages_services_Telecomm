@@ -33,6 +33,7 @@ import android.os.RemoteException;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.telecom.CallAudioState;
+import android.telecom.ConnectionService;
 import android.telecom.DefaultDialerManager;
 import android.telecom.InCallService;
 import android.telecom.ParcelableCall;
@@ -104,8 +105,44 @@ public final class InCallController extends CallsManagerListenerBase {
             updateCall(call);
         }
 
+        /**
+         * Listens for changes to extras reported by a Telecom {@link Call}.
+         *
+         * Extras changes can originate from a {@link ConnectionService} or an {@link InCallService}
+         * so we will only trigger an update of the call information if the source of the extras
+         * change was a {@link ConnectionService}.
+         *
+         * @param call The call.
+         * @param source The source of the extras change ({@link Call#SOURCE_CONNECTION_SERVICE} or
+         *               {@link Call#SOURCE_INCALL_SERVICE}).
+         * @param extras The extras.
+         */
         @Override
-        public void onExtrasChanged(Call call) {
+        public void onExtrasChanged(Call call, int source, Bundle extras) {
+            // Do not inform InCallServices of changes which originated there.
+            if (source == Call.SOURCE_INCALL_SERVICE) {
+                return;
+            }
+            updateCall(call);
+        }
+
+        /**
+         * Listens for changes to extras reported by a Telecom {@link Call}.
+         *
+         * Extras changes can originate from a {@link ConnectionService} or an {@link InCallService}
+         * so we will only trigger an update of the call information if the source of the extras
+         * change was a {@link ConnectionService}.
+         *  @param call The call.
+         * @param source The source of the extras change ({@link Call#SOURCE_CONNECTION_SERVICE} or
+         *               {@link Call#SOURCE_INCALL_SERVICE}).
+         * @param keys The extra key removed
+         */
+        @Override
+        public void onExtrasRemoved(Call call, int source, List<String> keys) {
+            // Do not inform InCallServices of changes which originated there.
+            if (source == Call.SOURCE_INCALL_SERVICE) {
+                return;
+            }
             updateCall(call);
         }
 

@@ -487,16 +487,33 @@ public class ConnectionServiceWrapper extends ServiceBinder {
         }
 
         @Override
-        public void setExtras(String callId, Bundle extras) {
-            Log.startSession("CSW.sE");
+        public void putExtras(String callId, Bundle extras) {
+            Log.startSession("CSW.pE");
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
                     Bundle.setDefusable(extras, true);
-                    logIncoming("setExtras %s %s", callId, extras);
                     Call call = mCallIdMapper.getCall(callId);
                     if (call != null) {
-                        call.setExtras(extras);
+                        call.putExtras(Call.SOURCE_CONNECTION_SERVICE, extras);
+                    }
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+                Log.endSession();
+            }
+        }
+
+        @Override
+        public void removeExtras(String callId, List<String> keys) {
+            Log.startSession("CSW.rE");
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    logIncoming("removeExtra %s %s", callId, keys);
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        call.removeExtras(Call.SOURCE_CONNECTION_SERVICE, keys);
                     }
                 }
             } finally {
@@ -957,6 +974,17 @@ public class ConnectionServiceWrapper extends ServiceBinder {
             try {
                 logOutgoing("sendCallEvent %s %s", callId, event);
                 mServiceInterface.sendCallEvent(callId, event, extras);
+            } catch (RemoteException ignored) {
+            }
+        }
+    }
+
+    void onExtrasChanged(Call call, Bundle extras) {
+        final String callId = mCallIdMapper.getCallId(call);
+        if (callId != null && isServiceValid("onExtrasChanged")) {
+            try {
+                logOutgoing("onExtrasChanged %s %s", callId, extras);
+                mServiceInterface.onExtrasChanged(callId, extras);
             } catch (RemoteException ignored) {
             }
         }

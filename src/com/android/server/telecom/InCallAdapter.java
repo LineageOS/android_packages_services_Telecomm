@@ -22,6 +22,8 @@ import android.telecom.PhoneAccountHandle;
 
 import com.android.internal.telecom.IInCallAdapter;
 
+import java.util.List;
+
 /**
  * Receives call commands and updates from in-call app and passes them through to CallsManager.
  * {@link InCallController} creates an instance of this class and passes it to the in-call app after
@@ -404,6 +406,50 @@ class InCallAdapter extends IInCallAdapter.Stub {
                         call.sendCallEvent(event, extras);
                     } else {
                         Log.w(this, "sendCallEvent, unknown call id: %s", callId);
+                    }
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+        } finally {
+            Log.endSession();
+        }
+    }
+
+    @Override
+    public void putExtras(String callId, Bundle extras) {
+        try {
+            Log.startSession("ICA.pE", mOwnerComponentName);
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        call.putExtras(Call.SOURCE_INCALL_SERVICE, extras);
+                    } else {
+                        Log.w(this, "putExtras, unknown call id: %s", callId);
+                    }
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+        } finally {
+            Log.endSession();
+        }
+    }
+
+    @Override
+    public void removeExtras(String callId, List<String> keys) {
+        try {
+            Log.startSession("ICA.rE", mOwnerComponentName);
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        call.removeExtras(Call.SOURCE_INCALL_SERVICE, keys);
+                    } else {
+                        Log.w(this, "removeExtra, unknown call id: %s", callId);
                     }
                 }
             } finally {

@@ -48,11 +48,14 @@ import com.google.android.collect.Lists;
 
 import java.lang.Override;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Controls a test {@link IConnectionService} as would be provided by a source of connectivity
@@ -61,6 +64,7 @@ import java.util.Set;
 public class ConnectionServiceFixture implements TestFixture<IConnectionService> {
     static int INVALID_VIDEO_STATE = -1;
     static int CAPABILITIES_NOT_SPECIFIED = 0;
+    public CountDownLatch mExtrasLock = new CountDownLatch(1);
 
     /**
      * Implementation of ConnectionService that performs no-ops for tasks normally meant for
@@ -73,7 +77,8 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         @Override
         public Connection onCreateUnknownConnection(
                 PhoneAccountHandle connectionManagerPhoneAccount, ConnectionRequest request) {
-            return new FakeConnection(request.getVideoState(), request.getAddress());
+            mLatestConnection = new FakeConnection(request.getVideoState(), request.getAddress());
+            return mLatestConnection;
         }
 
         @Override
@@ -82,6 +87,7 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
             FakeConnection fakeConnection =  new FakeConnection(
                     mVideoState == INVALID_VIDEO_STATE ? request.getVideoState() : mVideoState,
                     request.getAddress());
+            mLatestConnection = fakeConnection;
             if (mCapabilities != CAPABILITIES_NOT_SPECIFIED) {
                 fakeConnection.setConnectionCapabilities(mCapabilities);
             }
@@ -92,7 +98,8 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         @Override
         public Connection onCreateOutgoingConnection(
                 PhoneAccountHandle connectionManagerPhoneAccount, ConnectionRequest request) {
-            return new FakeConnection(request.getVideoState(), request.getAddress());
+            mLatestConnection = new FakeConnection(request.getVideoState(), request.getAddress());
+            return mLatestConnection;
         }
 
         @Override
@@ -103,6 +110,7 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
             Conference fakeConference = new FakeConference();
             fakeConference.addConnection(cxn1);
             fakeConference.addConnection(cxn2);
+            mLatestConference = fakeConference;
             addConference(fakeConference);
         }
     }
@@ -118,6 +126,11 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
             setConnectionCapabilities(capabilities);
             setActive();
             setAddress(address, TelecomManager.PRESENTATION_ALLOWED);
+        }
+
+        @Override
+        public void onExtrasChanged(Bundle extras) {
+            mExtrasLock.countDown();
         }
     }
 
@@ -135,6 +148,12 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         public void onMerge(Connection connection) {
             // Do nothing besides inform the connection that it was merged into this conference.
             connection.setConference(this);
+        }
+
+        @Override
+        public void onExtrasChanged(Bundle extras) {
+            Log.w(this, "FakeConference onExtrasChanged");
+            mExtrasLock.countDown();
         }
     }
 
@@ -248,6 +267,10 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         public void sendCallEvent(String callId, String event, Bundle extras) throws RemoteException
         {}
 
+        public void onExtrasChanged(String callId, Bundle extras) throws RemoteException {
+            mConnectionServiceDelegateAdapter.onExtrasChanged(callId, extras);
+        }
+
         @Override
         public IBinder asBinder() {
             return this;
@@ -304,6 +327,8 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
     }
 
     public String mLatestConnectionId;
+    public Connection mLatestConnection;
+    public Conference mLatestConference;
     public final Set<IConnectionServiceAdapter> mConnectionServiceAdapters = new HashSet<>();
     public final Map<String, ConnectionInfo> mConnectionById = new HashMap<>();
     public final Map<String, ConferenceInfo> mConferenceById = new HashMap<>();
@@ -489,6 +514,18 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
             a.onConnectionEvent(id, event, extras);
         }
+    }
+
+    /**
+     * Waits until the {@link Connection#onExtrasChanged(Bundle)} API has been called on a
+     * {@link Connection} or {@link Conference}.
+     */
+    public void waitForExtras() {
+        try {
+            mExtrasLock.await(TelecomSystemTest.TEST_TIMEOUT, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException ie) {
+        }
+        mExtrasLock = new CountDownLatch(1);
     }
 
     private ParcelableConference parcelable(ConferenceInfo c) {

@@ -374,7 +374,7 @@ public class TestConnectionService extends ConnectionService {
                 connectionExtras.putString(Connection.EXTRA_CALL_SUBJECT,
                         "This is a test of call subject lines.");
             }
-            connection.setExtras(connectionExtras);
+            connection.putExtras(connectionExtras);
 
             setAddress(connection, address);
 

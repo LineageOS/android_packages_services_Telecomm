@@ -31,6 +31,8 @@ import android.telecom.ParcelableCall;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Controls a test {@link IInCallService} as would be provided by an InCall UI on a system.
@@ -47,6 +49,7 @@ public class InCallServiceFixture implements TestFixture<IInCallService> {
     public boolean mShowDialpad;
     public boolean mCanAddCall;
     public boolean mSilenceRinger;
+    public CountDownLatch mLock = new CountDownLatch(1);
 
     public class FakeInCallService extends IInCallService.Stub {
         @Override
@@ -76,6 +79,7 @@ public class InCallServiceFixture implements TestFixture<IInCallService> {
             }
             mCallById.put(call.getId(), call);
             mLatestCallId = call.getId();
+            mLock.countDown();
         }
 
         @Override
@@ -143,5 +147,14 @@ public class InCallServiceFixture implements TestFixture<IInCallService> {
 
     public IInCallAdapter getInCallAdapter() {
         return mInCallAdapter;
+    }
+
+    public void waitForUpdate() {
+        try {
+            mLock.await(5000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException ie) {
+            return;
+        }
+        mLock = new CountDownLatch(1);
     }
 }

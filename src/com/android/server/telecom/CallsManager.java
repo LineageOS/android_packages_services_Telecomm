@@ -1144,7 +1144,14 @@ public class CallsManager extends Call.ListenerBase
     }
 
     @Override
-    public void onExtrasChanged(Call call) {
+    public void onExtrasChanged(Call c, int source, Bundle extras) {
+        if (source != Call.SOURCE_CONNECTION_SERVICE) {
+            return;
+        }
+        handleCallTechnologyChange(c);
+    }
+
+    private void handleCallTechnologyChange(Call call) {
         if (call.getExtras() != null
                 && call.getExtras().containsKey(TelecomManager.EXTRA_CALL_TECHNOLOGY_TYPE)) {
 
@@ -1461,7 +1468,7 @@ public class CallsManager extends Call.ListenerBase
         call.setVideoState(parcelableConference.getVideoState());
         call.setVideoProvider(parcelableConference.getVideoProvider());
         call.setStatusHints(parcelableConference.getStatusHints());
-        call.setExtras(parcelableConference.getExtras());
+        call.putExtras(Call.SOURCE_CONNECTION_SERVICE, parcelableConference.getExtras());
 
         // TODO: Move this to be a part of addCall()
         call.addListener(this);
