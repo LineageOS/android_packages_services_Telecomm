@@ -585,33 +585,6 @@ public class BasicCallTests extends TelecomSystemTest {
         assertTrue(updatedConference.getChildCallIds().contains(callId3.mCallId));
     }
 
-    private ParcelableCall makeConferenceCall() throws Exception {
-        IdPair callId1 = startAndMakeActiveOutgoingCall("650-555-1212",
-                mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
-
-        IdPair callId2 = startAndMakeActiveOutgoingCall("650-555-1213",
-                mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
-
-        IInCallAdapter inCallAdapter = mInCallServiceFixtureX.getInCallAdapter();
-        inCallAdapter.conference(callId1.mCallId, callId2.mCallId);
-        // Wait for wacky non-deterministic behavior
-        Thread.sleep(200);
-        ParcelableCall call1 = mInCallServiceFixtureX.getCall(callId1.mCallId);
-        ParcelableCall call2 = mInCallServiceFixtureX.getCall(callId2.mCallId);
-        // Check that the two calls end up with a parent in the end
-        assertNotNull(call1.getParentCallId());
-        assertNotNull(call2.getParentCallId());
-        assertEquals(call1.getParentCallId(), call2.getParentCallId());
-
-        // Check to make sure that the parent call made it to the in-call service
-        String parentCallId = call1.getParentCallId();
-        ParcelableCall conferenceCall = mInCallServiceFixtureX.getCall(parentCallId);
-        assertEquals(2, conferenceCall.getChildCallIds().size());
-        assertTrue(conferenceCall.getChildCallIds().contains(callId1.mCallId));
-        assertTrue(conferenceCall.getChildCallIds().contains(callId2.mCallId));
-        return conferenceCall;
-    }
-
     /**
      * Tests the {@link Call#pullExternalCall()} API.  Verifies that if a call is not an external
      * call, no pull call request is made to the connection service.

@@ -74,6 +74,11 @@ public class Call implements CreateConnectionResponse {
     public static final int CALL_DIRECTION_INCOMING = 2;
     public static final int CALL_DIRECTION_UNKNOWN = 3;
 
+    /** Identifies extras changes which originated from a connection service. */
+    public static final int SOURCE_CONNECTION_SERVICE = 1;
+    /** Identifies extras changes which originated from an incall service. */
+    public static final int SOURCE_INCALL_SERVICE = 2;
+
     /**
      * Listener for events on the call.
      */
@@ -95,7 +100,8 @@ public class Call implements CreateConnectionResponse {
         void onCallerInfoChanged(Call call);
         void onIsVoipAudioModeChanged(Call call);
         void onStatusHintsChanged(Call call);
-        void onExtrasChanged(Call call);
+        void onExtrasChanged(Call c, int source, Bundle extras);
+        void onExtrasRemoved(Call c, int source, List<String> keys);
         void onHandleChanged(Call call);
         void onCallerDisplayNameChanged(Call call);
         void onVideoStateChanged(Call call);
@@ -144,7 +150,9 @@ public class Call implements CreateConnectionResponse {
         @Override
         public void onStatusHintsChanged(Call call) {}
         @Override
-        public void onExtrasChanged(Call call) {}
+        public void onExtrasChanged(Call c, int source, Bundle extras) {}
+        @Override
+        public void onExtrasRemoved(Call c, int source, List<String> keys) {}
         @Override
         public void onHandleChanged(Call call) {}
         @Override
@@ -1069,7 +1077,7 @@ public class Call implements CreateConnectionResponse {
         setRingbackRequested(connection.isRingbackRequested());
         setIsVoipAudioMode(connection.getIsVoipAudioMode());
         setStatusHints(connection.getStatusHints());
-        setExtras(connection.getExtras());
+        putExtras(SOURCE_CONNECTION_SERVICE, connection.getExtras());
 
         mConferenceableCalls.clear();
         for (String id : connection.getConferenceableConnectionIds()) {
@@ -1327,10 +1335,64 @@ public class Call implements CreateConnectionResponse {
         return mExtras;
     }
 
-    void setExtras(Bundle extras) {
-        mExtras = extras;
+    /**
+     * Adds extras to the extras bundle associated with this {@link Call}.
+     *
+     * Note: this method needs to know the source of the extras change (see
+     * {@link #SOURCE_CONNECTION_SERVICE}, {@link #SOURCE_INCALL_SERVICE}).  Extras changes which
+     * originate from a connection service will only be notified to incall services.  Likewise,
+     * changes originating from the incall services will only notify the connection service of the
+     * change.
+     *
+     * @param source The source of the extras addition.
+     * @param extras The extras.
+     */
+    void putExtras(int source, Bundle extras) {
+        if (extras == null) {
+            return;
+        }
+        if (mExtras == null) {
+            mExtras = new Bundle();
+        }
+        mExtras.putAll(extras);
+
         for (Listener l : mListeners) {
-            l.onExtrasChanged(this);
+            l.onExtrasChanged(this, source, extras);
+        }
+
+        // If the change originated from an InCallService, notify the connection service.
+        if (source == SOURCE_INCALL_SERVICE) {
+            mConnectionService.onExtrasChanged(this, mExtras);
+        }
+    }
+
+    /**
+     * Removes extras from the extras bundle associated with this {@link Call}.
+     *
+     * Note: this method needs to know the source of the extras change (see
+     * {@link #SOURCE_CONNECTION_SERVICE}, {@link #SOURCE_INCALL_SERVICE}).  Extras changes which
+     * originate from a connection service will only be notified to incall services.  Likewise,
+     * changes originating from the incall services will only notify the connection service of the
+     * change.
+     *
+     * @param source The source of the extras removal.
+     * @param keys The extra keys to remove.
+     */
+    void removeExtras(int source, List<String> keys) {
+        if (mExtras == null) {
+            return;
+        }
+        for (String key : keys) {
+            mExtras.remove(key);
+        }
+
+        for (Listener l : mListeners) {
+            l.onExtrasRemoved(this, source, keys);
+        }
+
+        // If the change originated from an InCallService, notify the connection service.
+        if (source == SOURCE_INCALL_SERVICE) {
+            mConnectionService.onExtrasChanged(this, mExtras);
         }
     }
 
