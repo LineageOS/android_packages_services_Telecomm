@@ -45,7 +45,7 @@ public class ParcelableCallUtils {
             PhoneAccountRegistrar phoneAccountRegistrar) {
         int state = getParcelableState(call);
         int capabilities = convertConnectionToCallCapabilities(call.getConnectionCapabilities());
-        int properties = convertConnectionToCallProperties(call.getConnectionCapabilities());
+        int properties = convertConnectionToCallProperties(call.getConnectionProperties());
         if (call.isConference()) {
             properties |= android.telecom.Call.Details.PROPERTY_CONFERENCE;
         }
@@ -250,26 +250,26 @@ public class ParcelableCallUtils {
     }
 
     private static final int[] CONNECTION_TO_CALL_PROPERTIES = new int[] {
-        Connection.CAPABILITY_HIGH_DEF_AUDIO,
+        Connection.PROPERTY_HIGH_DEF_AUDIO,
         android.telecom.Call.Details.PROPERTY_HIGH_DEF_AUDIO,
 
-        Connection.CAPABILITY_WIFI,
+        Connection.PROPERTY_WIFI,
         android.telecom.Call.Details.PROPERTY_WIFI,
 
-        Connection.CAPABILITY_GENERIC_CONFERENCE,
+        Connection.PROPERTY_GENERIC_CONFERENCE,
         android.telecom.Call.Details.PROPERTY_GENERIC_CONFERENCE,
 
-        Connection.CAPABILITY_SHOW_CALLBACK_NUMBER,
+        Connection.PROPERTY_SHOW_CALLBACK_NUMBER,
         android.telecom.Call.Details.PROPERTY_EMERGENCY_CALLBACK_MODE,
 
-        Connection.CAPABILITY_IS_EXTERNAL_CALL,
+        Connection.PROPERTY_IS_EXTERNAL_CALL,
         android.telecom.Call.Details.PROPERTY_IS_EXTERNAL_CALL
     };
 
-    private static int convertConnectionToCallProperties(int connectionCapabilities) {
+    private static int convertConnectionToCallProperties(int connectionProperties) {
         int callProperties = 0;
         for (int i = 0; i < CONNECTION_TO_CALL_PROPERTIES.length; i += 2) {
-            if ((CONNECTION_TO_CALL_PROPERTIES[i] & connectionCapabilities) ==
+            if ((CONNECTION_TO_CALL_PROPERTIES[i] & connectionProperties) ==
                     CONNECTION_TO_CALL_PROPERTIES[i]) {
 
                 callProperties |= CONNECTION_TO_CALL_PROPERTIES[i + 1];

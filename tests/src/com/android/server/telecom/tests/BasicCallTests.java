@@ -849,7 +849,9 @@ public class BasicCallTests extends TelecomSystemTest {
         // TODO: Revisit this unit test once telecom support for filtering external calls from
         // InCall services is implemented.
         mConnectionServiceFixtureA.mConnectionServiceDelegate.mCapabilities =
-                Connection.CAPABILITY_IS_EXTERNAL_CALL | Connection.CAPABILITY_CAN_PULL_CALL;
+                Connection.CAPABILITY_CAN_PULL_CALL;
+        mConnectionServiceFixtureA.mConnectionServiceDelegate.mProperties =
+                Connection.PROPERTY_IS_EXTERNAL_CALL;
 
         IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
@@ -872,8 +874,8 @@ public class BasicCallTests extends TelecomSystemTest {
     public void testPullNonPullableExternalCall() throws Exception {
         // TODO: Revisit this unit test once telecom support for filtering external calls from
         // InCall services is implemented.
-        mConnectionServiceFixtureA.mConnectionServiceDelegate.mCapabilities =
-                Connection.CAPABILITY_IS_EXTERNAL_CALL;
+        mConnectionServiceFixtureA.mConnectionServiceDelegate.mProperties =
+                Connection.PROPERTY_IS_EXTERNAL_CALL;
 
         IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);

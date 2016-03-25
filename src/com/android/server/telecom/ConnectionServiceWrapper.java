@@ -264,6 +264,24 @@ public class ConnectionServiceWrapper extends ServiceBinder {
         }
 
         @Override
+        public void setConnectionProperties(String callId, int connectionProperties) {
+            Log.startSession("CSW.sCP");
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    logIncoming("setConnectionProperties %s %d", callId, connectionProperties);
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        call.setConnectionProperties(connectionProperties);
+                    }
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+                Log.endSession();
+            }
+        }
+
+        @Override
         public void setIsConferenced(String callId, String conferenceCallId) {
             Log.startSession("CSW.sIC");
             long token = Binder.clearCallingIdentity();
