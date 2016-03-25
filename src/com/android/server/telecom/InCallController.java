@@ -91,6 +91,11 @@ public final class InCallController extends CallsManagerListenerBase {
         }
 
         @Override
+        public void onConnectionPropertiesChanged(Call call) {
+            updateCall(call);
+        }
+
+        @Override
         public void onCannedSmsResponsesLoaded(Call call) {
             updateCall(call);
         }

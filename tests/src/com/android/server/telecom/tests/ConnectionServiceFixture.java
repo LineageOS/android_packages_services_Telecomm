@@ -63,8 +63,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class ConnectionServiceFixture implements TestFixture<IConnectionService> {
     static int INVALID_VIDEO_STATE = -1;
-    static int CAPABILITIES_NOT_SPECIFIED = 0;
     public CountDownLatch mExtrasLock = new CountDownLatch(1);
+    static int NOT_SPECIFIED = 0;
 
     /**
      * Implementation of ConnectionService that performs no-ops for tasks normally meant for
@@ -72,7 +72,8 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
      */
     public class FakeConnectionServiceDelegate extends ConnectionService {
         int mVideoState = INVALID_VIDEO_STATE;
-        int mCapabilities = CAPABILITIES_NOT_SPECIFIED;
+        int mCapabilities = NOT_SPECIFIED;
+        int mProperties = NOT_SPECIFIED;
 
         @Override
         public Connection onCreateUnknownConnection(
@@ -88,8 +89,11 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
                     mVideoState == INVALID_VIDEO_STATE ? request.getVideoState() : mVideoState,
                     request.getAddress());
             mLatestConnection = fakeConnection;
-            if (mCapabilities != CAPABILITIES_NOT_SPECIFIED) {
+            if (mCapabilities != NOT_SPECIFIED) {
                 fakeConnection.setConnectionCapabilities(mCapabilities);
+            }
+            if (mProperties != NOT_SPECIFIED) {
+                fakeConnection.setConnectionProperties(mProperties);
             }
 
             return fakeConnection;
@@ -300,6 +304,7 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         int state;
         int addressPresentation;
         int capabilities;
+        int properties;
         StatusHints statusHints;
         DisconnectCause disconnectCause;
         String conferenceId;
@@ -318,6 +323,7 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         PhoneAccountHandle phoneAccount;
         int state;
         int capabilities;
+        int properties;
         final List<String> connectionIds = new ArrayList<>();
         IVideoProvider videoProvider;
         int videoState;
@@ -533,6 +539,7 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
                 c.phoneAccount,
                 c.state,
                 c.capabilities,
+                c.properties,
                 c.connectionIds,
                 c.videoProvider,
                 c.videoState,
@@ -546,6 +553,7 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
                 c.request.getAccountHandle(),
                 c.state,
                 c.capabilities,
+                c.properties,
                 c.request.getAddress(),
                 c.addressPresentation,
                 c.callerDisplayName,

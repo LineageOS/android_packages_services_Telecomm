@@ -93,6 +93,7 @@ public class Call implements CreateConnectionResponse {
         void onPostDialWait(Call call, String remaining);
         void onPostDialChar(Call call, char nextChar);
         void onConnectionCapabilitiesChanged(Call call);
+        void onConnectionPropertiesChanged(Call call);
         void onParentChanged(Call call);
         void onChildrenChanged(Call call);
         void onCannedSmsResponsesLoaded(Call call);
@@ -135,6 +136,8 @@ public class Call implements CreateConnectionResponse {
         public void onPostDialChar(Call call, char nextChar) {}
         @Override
         public void onConnectionCapabilitiesChanged(Call call) {}
+        @Override
+        public void onConnectionPropertiesChanged(Call call) {}
         @Override
         public void onParentChanged(Call call) {}
         @Override
@@ -330,6 +333,8 @@ public class Call implements CreateConnectionResponse {
     private boolean mDirectToVoicemailQueryPending;
 
     private int mConnectionCapabilities;
+
+    private int mConnectionProperties;
 
     private boolean mIsConference = false;
 
@@ -530,9 +535,7 @@ public class Call implements CreateConnectionResponse {
             component = mConnectionService.getComponentName().flattenToShortString();
         }
 
-
-
-        return String.format(Locale.US, "[%s, %s, %s, %s, %s, childs(%d), has_parent(%b), [%s]]",
+        return String.format(Locale.US, "[%s, %s, %s, %s, %s, childs(%d), has_parent(%b), %s, %s]",
                 mId,
                 CallState.toString(mState),
                 component,
@@ -540,7 +543,8 @@ public class Call implements CreateConnectionResponse {
                 getVideoStateDescription(getVideoState()),
                 getChildCalls().size(),
                 getParentCall() != null,
-                Connection.capabilitiesToString(getConnectionCapabilities()));
+                Connection.capabilitiesToString(getConnectionCapabilities()),
+                Connection.propertiesToString(getConnectionProperties()));
     }
 
     /**
@@ -941,6 +945,10 @@ public class Call implements CreateConnectionResponse {
         return mConnectionCapabilities;
     }
 
+    int getConnectionProperties() {
+        return mConnectionProperties;
+    }
+
     void setConnectionCapabilities(int connectionCapabilities) {
         setConnectionCapabilities(connectionCapabilities, false /* forceUpdate */);
     }
@@ -952,6 +960,17 @@ public class Call implements CreateConnectionResponse {
            mConnectionCapabilities = connectionCapabilities;
             for (Listener l : mListeners) {
                 l.onConnectionCapabilitiesChanged(this);
+            }
+        }
+    }
+
+    void setConnectionProperties(int connectionProperties) {
+        Log.v(this, "setConnectionProperties: %s", Connection.propertiesToString(
+                connectionProperties));
+        if (mConnectionProperties != connectionProperties) {
+            mConnectionProperties = connectionProperties;
+            for (Listener l : mListeners) {
+                l.onConnectionPropertiesChanged(this);
             }
         }
     }
@@ -1072,6 +1091,7 @@ public class Call implements CreateConnectionResponse {
         setCallerDisplayName(
                 connection.getCallerDisplayName(), connection.getCallerDisplayNamePresentation());
         setConnectionCapabilities(connection.getConnectionCapabilities());
+        setConnectionProperties(connection.getConnectionProperties());
         setVideoProvider(connection.getVideoProvider());
         setVideoState(connection.getVideoState());
         setRingbackRequested(connection.isRingbackRequested());
@@ -1493,8 +1513,8 @@ public class Call implements CreateConnectionResponse {
      * Initiates a request to the connection service to pull this call.
      * <p>
      * This method can only be used for calls that have the
-     * {@link android.telecom.Connection#CAPABILITY_CAN_PULL_CALL} and
-     * {@link android.telecom.Connection#CAPABILITY_IS_EXTERNAL_CALL} capabilities set.
+     * {@link android.telecom.Connection#CAPABILITY_CAN_PULL_CALL} capability and
+     * {@link android.telecom.Connection#PROPERTY_IS_EXTERNAL_CALL} property set.
      * <p>
      * An external call is a representation of a call which is taking place on another device
      * associated with a PhoneAccount on this device.  Issuing a request to pull the external call 
@@ -1512,7 +1532,7 @@ public class Call implements CreateConnectionResponse {
             Log.w(this, "pulling a call without a connection service.");
         }
 
-        if (!can(Connection.CAPABILITY_IS_EXTERNAL_CALL)) {
+        if (!hasProperty(Connection.PROPERTY_IS_EXTERNAL_CALL)) {
             Log.w(this, "pullExternalCall - call %s is not an external call.", mId);
             return;
         }
@@ -1581,6 +1601,11 @@ public class Call implements CreateConnectionResponse {
     @VisibleForTesting
     public boolean can(int capability) {
         return (mConnectionCapabilities & capability) == capability;
+    }
+
+    @VisibleForTesting
+    public boolean hasProperty(int property) {
+        return (mConnectionProperties & property) == property;
     }
 
     private void addChildCall(Call call) {
