@@ -61,13 +61,9 @@
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"已暂时关闭来电拦截功能"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"您拨打紧急服务电话或向其发送短信后，系统会关闭来电拦截功能，以确保紧急服务人员能与您联系。"</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"立即重新启用"</string>
-    <!-- no translation found for blocked_numbers_number_blocked_message (7678509606805029540) -->
-    <skip />
-    <!-- no translation found for blocked_numbers_number_unblocked_message (977894647366750418) -->
-    <skip />
-    <!-- no translation found for blocked_numbers_block_emergency_number_message (917851876780698387) -->
-    <skip />
-    <!-- no translation found for blocked_numbers_number_already_blocked_message (4392247814500811798) -->
-    <skip />
+    <string name="blocked_numbers_number_blocked_message" msgid="7678509606805029540">"已屏蔽 <xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g>"</string>
+    <string name="blocked_numbers_number_unblocked_message" msgid="977894647366750418">"已取消屏蔽 <xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g>"</string>
+    <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"无法屏蔽紧急服务号码。"</string>
+    <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> 已被屏蔽。"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"使用个人拨号器拨打电话"</string>
 </resources>

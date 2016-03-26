@@ -61,13 +61,9 @@
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"បាន​បិទ​ការ​ទប់ស្កាត់​​​ជា​បណ្ដោះអាសន្ន"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"បន្ទាប់​ពី​អ្នក​ចុច​ហៅ ឬ​ផ្ញើ​សារ​លេខ​​អាសន្ន ការ​ទប់ស្កាត់​​ត្រូវ​បាន​បិទ​​ដើម្បី​​ប្រាកដ​ថា​សេវាកម្ម​អាសន្ន​អាច​ទាក់ទង​អ្នក​បាន។"</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"បើក​ដំណើរការ​ឡើងវិញ​ឥឡូវនេះ"</string>
-    <!-- no translation found for blocked_numbers_number_blocked_message (7678509606805029540) -->
-    <skip />
-    <!-- no translation found for blocked_numbers_number_unblocked_message (977894647366750418) -->
-    <skip />
-    <!-- no translation found for blocked_numbers_block_emergency_number_message (917851876780698387) -->
-    <skip />
-    <!-- no translation found for blocked_numbers_number_already_blocked_message (4392247814500811798) -->
-    <skip />
+    <string name="blocked_numbers_number_blocked_message" msgid="7678509606805029540">"បាន​ទប់ស្កាត់ <xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g>"</string>
+    <string name="blocked_numbers_number_unblocked_message" msgid="977894647366750418">"បាន​អនុញ្ញាត <xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g>"</string>
+    <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"មិន​អាច​​​ទប់ស្កាត់​លេខ​បន្ទាន់​បាន​ទេ។"</string>
+    <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> ត្រូវ​បាន​ទប់ស្កាត់​រួច​ហើយ។"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"កំពុងប្រើកម្មវិធីហៅផ្ទាល់ខ្លួនដើម្បីធ្វើការហៅទូរស័ព្ទ"</string>
 </resources>

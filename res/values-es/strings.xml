@@ -61,13 +61,9 @@
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Bloqueo desactivado temporalmente"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Después de llamar o enviar un SMS a un número de emergencias, el bloqueo se desactiva para que los servicios de emergencias puedan contactarte."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Volver a habilitarlo ahora"</string>
-    <!-- no translation found for blocked_numbers_number_blocked_message (7678509606805029540) -->
-    <skip />
-    <!-- no translation found for blocked_numbers_number_unblocked_message (977894647366750418) -->
-    <skip />
-    <!-- no translation found for blocked_numbers_block_emergency_number_message (917851876780698387) -->
-    <skip />
-    <!-- no translation found for blocked_numbers_number_already_blocked_message (4392247814500811798) -->
-    <skip />
+    <string name="blocked_numbers_number_blocked_message" msgid="7678509606805029540">"Se ha bloqueado el <xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g>"</string>
+    <string name="blocked_numbers_number_unblocked_message" msgid="977894647366750418">"Se ha desbloqueado el <xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g>"</string>
+    <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"No se puede bloquear el número de emergencias."</string>
+    <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"El <xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> ya está bloqueado."</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Utilizando teléfono personal para llamar"</string>
 </resources>
