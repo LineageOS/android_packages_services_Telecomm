@@ -73,6 +73,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     private static final int NO_VIDEO_STATE = VideoProfile.STATE_AUDIO_ONLY;
     private static final int BIDIRECTIONAL_VIDEO_STATE = VideoProfile.STATE_BIDIRECTIONAL;
     private static final String POST_DIAL_STRING = ";12345";
+    private static final String VIA_NUMBER_STRING = "5555555678";
     private static final String TEST_PHONE_ACCOUNT_ID= "testPhoneAccountId";
 
     private static final int TEST_TIMEOUT_MILLIS = 200;
@@ -144,7 +145,8 @@ public class CallLogManagerTest extends TelecomTestCase {
                 TEL_PHONEHANDLE, // callHandle
                 mDefaultAccountHandle, // phoneAccountHandle
                 NO_VIDEO_STATE, // callVideoState
-                POST_DIAL_STRING, // postDialDigits,
+                POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
                 UserHandle.of(CURRENT_USER_ID)
         );
         mCallLogManager.onCallStateChanged(fakeCall, CallState.DIALING, CallState.DISCONNECTED);
@@ -167,6 +169,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 mDefaultAccountHandle, // phoneAccountHandle
                 NO_VIDEO_STATE, // callVideoState
                 POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
                 UserHandle.of(CURRENT_USER_ID)
         );
         mCallLogManager.onCallStateChanged(fakeCall, CallState.SELECT_PHONE_ACCOUNT,
@@ -189,7 +192,8 @@ public class CallLogManagerTest extends TelecomTestCase {
                 TEL_PHONEHANDLE, // callHandle
                 EMERGENCY_ACCT_HANDLE, // phoneAccountHandle
                 NO_VIDEO_STATE, // callVideoState
-                POST_DIAL_STRING, // postDialDigits,
+                POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
                 UserHandle.of(CURRENT_USER_ID)
         );
         mCallLogManager.onCallStateChanged(fakeCall, CallState.ACTIVE, CallState.DISCONNECTED);
@@ -210,6 +214,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 mDefaultAccountHandle, // phoneAccountHandle
                 NO_VIDEO_STATE, // callVideoState
                 POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
                 UserHandle.of(CURRENT_USER_ID)
         );
         mCallLogManager.onCallStateChanged(fakeOutgoingCall, CallState.ACTIVE,
@@ -233,6 +238,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 mDefaultAccountHandle, // phoneAccountHandle
                 NO_VIDEO_STATE, // callVideoState
                 POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
                 null
         );
         mCallLogManager.onCallStateChanged(fakeIncomingCall, CallState.ACTIVE,
@@ -256,6 +262,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 mDefaultAccountHandle, // phoneAccountHandle
                 NO_VIDEO_STATE, // callVideoState
                 POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
                 null
         );
 
@@ -282,6 +289,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 mDefaultAccountHandle, // phoneAccountHandle
                 NO_VIDEO_STATE, // callVideoState
                 POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
                 UserHandle.of(CURRENT_USER_ID)
         );
         mCallLogManager.onCallStateChanged(fakeCall, CallState.ACTIVE, CallState.DISCONNECTED);
@@ -306,6 +314,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 mDefaultAccountHandle, // phoneAccountHandle
                 NO_VIDEO_STATE, // callVideoState
                 POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
                 UserHandle.of(CURRENT_USER_ID)
         );
         mCallLogManager.onCallStateChanged(fakeCall, CallState.ACTIVE, CallState.DISCONNECTED);
@@ -328,6 +337,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 mDefaultAccountHandle, // phoneAccountHandle
                 NO_VIDEO_STATE, // callVideoState
                 POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
                 UserHandle.of(CURRENT_USER_ID)
         );
         mCallLogManager.onCallStateChanged(fakeCall, CallState.ACTIVE, CallState.DISCONNECTED);
@@ -335,6 +345,7 @@ public class CallLogManagerTest extends TelecomTestCase {
         assertEquals(insertedValues.getAsString(CallLog.Calls.NUMBER),
                 TEL_PHONEHANDLE.getSchemeSpecificPart());
         assertEquals(insertedValues.getAsString(CallLog.Calls.POST_DIAL_DIGITS), POST_DIAL_STRING);
+        assertEquals(insertedValues.getAsString(Calls.VIA_NUMBER), VIA_NUMBER_STRING);
     }
 
     @MediumTest
@@ -351,6 +362,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 mDefaultAccountHandle, // phoneAccountHandle
                 BIDIRECTIONAL_VIDEO_STATE, // callVideoState
                 POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
                 UserHandle.of(CURRENT_USER_ID)
         );
         mCallLogManager.onCallStateChanged(fakeVideoCall, CallState.ACTIVE, CallState.DISCONNECTED);
@@ -374,6 +386,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 mDefaultAccountHandle, // phoneAccountHandle
                 NO_VIDEO_STATE, // callVideoState
                 POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
                 UserHandle.of(CURRENT_USER_ID)
         );
         mCallLogManager.onCallStateChanged(fakeOutgoingCall, CallState.ACTIVE,
@@ -405,6 +418,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 mDefaultAccountHandle, // phoneAccountHandle
                 NO_VIDEO_STATE, // callVideoState
                 POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
                 null
         );
         mCallLogManager.onCallStateChanged(fakeIncomingCall, CallState.ACTIVE,
@@ -436,6 +450,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 mManagedProfileAccountHandle, // phoneAccountHandle
                 NO_VIDEO_STATE, // callVideoState
                 POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
                 UserHandle.of(MANAGED_USER_ID)
         );
         mCallLogManager.onCallStateChanged(fakeOutgoingCall, CallState.ACTIVE,
@@ -463,6 +478,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 mManagedProfileAccountHandle, // phoneAccountHandle
                 NO_VIDEO_STATE, // callVideoState
                 POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
                 UserHandle.of(MANAGED_USER_ID)
         );
         mCallLogManager.onCallStateChanged(fakeOutgoingCall, CallState.ACTIVE,
@@ -491,6 +507,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 mManagedProfileAccountHandle, // phoneAccountHandle
                 NO_VIDEO_STATE, // callVideoState
                 POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
                 null
         );
         mCallLogManager.onCallStateChanged(fakeOutgoingCall, CallState.ACTIVE,
@@ -522,6 +539,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 mDefaultAccountHandle, // phoneAccountHandle
                 BIDIRECTIONAL_VIDEO_STATE, // callVideoState
                 POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
                 UserHandle.of(CURRENT_USER_ID), // initiatingUser
                 1000 // callDataUsage
         );
@@ -547,6 +565,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 mDefaultAccountHandle, // phoneAccountHandle
                 BIDIRECTIONAL_VIDEO_STATE, // callVideoState
                 POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
                 UserHandle.of(CURRENT_USER_ID), // initiatingUser
                 Call.DATA_USAGE_NOT_SET // callDataUsage
         );
@@ -595,17 +614,17 @@ public class CallLogManagerTest extends TelecomTestCase {
     private Call makeFakeCall(int disconnectCauseCode, boolean isConference, boolean isIncoming,
             long creationTimeMillis, long ageMillis, Uri callHandle,
             PhoneAccountHandle phoneAccountHandle, int callVideoState,
-            String postDialDigits, UserHandle initiatingUser) {
+            String postDialDigits, String viaNumber, UserHandle initiatingUser) {
         return makeFakeCall(disconnectCauseCode, isConference, isIncoming, creationTimeMillis,
-                ageMillis,
-                callHandle, phoneAccountHandle, callVideoState, postDialDigits, initiatingUser,
-                Call.DATA_USAGE_NOT_SET);
+                ageMillis, callHandle, phoneAccountHandle, callVideoState, postDialDigits,
+                viaNumber, initiatingUser, Call.DATA_USAGE_NOT_SET);
     }
 
     private Call makeFakeCall(int disconnectCauseCode, boolean isConference, boolean isIncoming,
             long creationTimeMillis, long ageMillis, Uri callHandle,
             PhoneAccountHandle phoneAccountHandle, int callVideoState,
-            String postDialDigits, UserHandle initiatingUser, long callDataUsage) {
+            String postDialDigits, String viaNumber, UserHandle initiatingUser,
+            long callDataUsage) {
         Call fakeCall = mock(Call.class);
         when(fakeCall.getDisconnectCause()).thenReturn(
                 new DisconnectCause(disconnectCauseCode));
@@ -617,6 +636,7 @@ public class CallLogManagerTest extends TelecomTestCase {
         when(fakeCall.getTargetPhoneAccount()).thenReturn(phoneAccountHandle);
         when(fakeCall.getVideoStateHistory()).thenReturn(callVideoState);
         when(fakeCall.getPostDialDigits()).thenReturn(postDialDigits);
+        when(fakeCall.getViaNumber()).thenReturn(viaNumber);
         when(fakeCall.getInitiatingUser()).thenReturn(initiatingUser);
         when(fakeCall.getCallDataUsage()).thenReturn(callDataUsage);
         return fakeCall;

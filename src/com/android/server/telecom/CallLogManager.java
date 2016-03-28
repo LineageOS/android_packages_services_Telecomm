@@ -57,14 +57,15 @@ public final class CallLogManager extends CallsManagerListenerBase {
          * @param durationInMillis Duration of the call (milliseconds).
          * @param dataUsage Data usage in bytes, or null if not applicable.
          */
-        public AddCallArgs(Context context, CallerInfo callerInfo, String number, String postDialDigits,
-                int presentation, int callType, int features, PhoneAccountHandle accountHandle,
-                long creationDate, long durationInMillis, Long dataUsage,
-                UserHandle initiatingUser) {
+        public AddCallArgs(Context context, CallerInfo callerInfo, String number,
+                String postDialDigits, String viaNumber, int presentation, int callType,
+                int features, PhoneAccountHandle accountHandle, long creationDate,
+                long durationInMillis, Long dataUsage, UserHandle initiatingUser) {
             this.context = context;
             this.callerInfo = callerInfo;
             this.number = number;
             this.postDialDigits = postDialDigits;
+            this.viaNumber = viaNumber;
             this.presentation = presentation;
             this.callType = callType;
             this.features = features;
@@ -80,6 +81,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
         public final CallerInfo callerInfo;
         public final String number;
         public final String postDialDigits;
+        public final String viaNumber;
         public final int presentation;
         public final int callType;
         public final int features;
@@ -162,7 +164,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
                 call.getCallDataUsage();
 
         int callFeatures = getCallFeatures(call.getVideoStateHistory());
-        logCall(call.getCallerInfo(), logNumber, call.getPostDialDigits(),
+        logCall(call.getCallerInfo(), logNumber, call.getPostDialDigits(), call.getViaNumber(),
                 call.getHandlePresentation(), callLogType, callFeatures, accountHandle,
                 creationTime, age, callDataUsage, call.isEmergencyCall(), call.getInitiatingUser());
     }
@@ -186,6 +188,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
             CallerInfo callerInfo,
             String number,
             String postDialDigits,
+            String viaNumber,
             int presentation,
             int callType,
             int features,
@@ -218,8 +221,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
                     + Log.pii(number) + "," + presentation + ", " + callType
                     + ", " + start + ", " + duration);
             AddCallArgs args = new AddCallArgs(mContext, callerInfo, number, postDialDigits,
-                    presentation, callType, features, accountHandle, start, duration, dataUsage,
-                    initiatingUser);
+                    viaNumber, presentation, callType, features, accountHandle, start, duration,
+                    dataUsage, initiatingUser);
             logCallAsync(args);
         } else {
           Log.d(TAG, "Not adding emergency call to call log.");
@@ -323,7 +326,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
          *                         if insert to all users except managed profile.
          */
         private Uri addCall(AddCallArgs c, UserHandle userToBeInserted) {
-            return Calls.addCall(c.callerInfo, c.context, c.number, c.postDialDigits,
+            return Calls.addCall(c.callerInfo, c.context, c.number, c.postDialDigits, c.viaNumber,
                     c.presentation, c.callType, c.features, c.accountHandle, c.timestamp,
                     c.durationInSec, c.dataUsage, userToBeInserted == null,
                     userToBeInserted);

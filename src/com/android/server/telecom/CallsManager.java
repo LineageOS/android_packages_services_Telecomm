@@ -1149,6 +1149,7 @@ public class CallsManager extends Call.ListenerBase
             return;
         }
         handleCallTechnologyChange(c);
+        handleChildAddressChange(c);
     }
 
     private void handleCallTechnologyChange(Call call) {
@@ -1161,6 +1162,15 @@ public class CallsManager extends Call.ListenerBase
                 analyticsCallTechnology = Analytics.THIRD_PARTY_PHONE;
             }
             call.getAnalytics().addCallTechnology(analyticsCallTechnology);
+        }
+    }
+
+    public void handleChildAddressChange(Call call) {
+        if (call.getExtras() != null
+                && call.getExtras().containsKey(Connection.EXTRA_CHILD_ADDRESS)) {
+
+            String viaNumber = call.getExtras().getString(Connection.EXTRA_CHILD_ADDRESS);
+            call.setViaNumber(viaNumber);
         }
     }
 
