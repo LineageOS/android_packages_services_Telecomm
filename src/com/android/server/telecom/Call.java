@@ -235,6 +235,12 @@ public class Call implements CreateConnectionResponse {
     private final String mPostDialDigits;
 
     /**
+     * The secondary line number that an incoming call has been received on if the SIM subscription
+     * has multiple associated numbers.
+     */
+    private String mViaNumber = "";
+
+    /**
      * The time this call was created. Beyond logging and such, may also be used for bookkeeping
      * and specifically for marking certain call attempts as failed attempts.
      */
@@ -722,6 +728,17 @@ public class Call implements CreateConnectionResponse {
 
     public String getPostDialDigits() {
         return mPostDialDigits;
+    }
+
+    public String getViaNumber() {
+        return mViaNumber;
+    }
+
+    public void setViaNumber(String viaNumber) {
+        // If at any point the via number is not empty throughout the call, save that via number.
+        if (!TextUtils.isEmpty(viaNumber)) {
+            mViaNumber = viaNumber;
+        }
     }
 
     int getHandlePresentation() {
