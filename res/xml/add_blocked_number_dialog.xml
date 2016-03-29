@@ -25,7 +25,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/add_blocked_dialog_body"
-            android:paddingTop="@dimen/blocked_numbers_large_padding"
             android:paddingBottom="@dimen/blocked_numbers_large_padding"
             style="@style/BlockedNumbersTitleText" />
     <EditText

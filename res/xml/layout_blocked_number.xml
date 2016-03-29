@@ -20,14 +20,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:focusable="true"
-    style="@style/BlockedNumbersText" >
+    style="@style/BlockedNumbersText"
+    android:gravity="start">
 
     <TextView
         android:id="@+id/blocked_number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:paddingBottom="@dimen/blocked_numbers_extra_large_padding"
+        android:paddingTop="@dimen/blocked_numbers_delete_icon_padding"
         android:layout_toLeftOf="@+id/delete" />
 
     <ImageView
