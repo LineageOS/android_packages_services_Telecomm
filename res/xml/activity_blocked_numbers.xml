@@ -65,7 +65,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/block_number"
-                        android:paddingBottom="@dimen/blocked_numbers_extra_large_padding"
+                        android:layout_marginBottom="@dimen/blocked_numbers_button_bottom_margin"
                         style="@style/BlockedNumbersButton"
                         android:background="?android:attr/selectableItemBackgroundBorderless" />
 

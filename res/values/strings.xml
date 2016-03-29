@@ -136,7 +136,7 @@
         device. -->
     <string name="non_primary_user">Only the device owner can view and manage blocked numbers.</string>
     <!-- Description of icon to delete blocked number. -->
-    <string name="delete_icon_description">Tab to unblock</string>
+    <string name="delete_icon_description">Unblock</string>
     <!-- Title for butter bar shown when call blocking is disabled. -->
     <string name="blocked_numbers_butter_bar_title">Blocking temporarily off</string>
     <!-- Explanation for butter bar shown when call blocking is disabled. -->
