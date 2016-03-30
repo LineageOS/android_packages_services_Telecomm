@@ -57,7 +57,8 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Telefon numarası"</string>
     <string name="block_button" msgid="8822290682524373357">"Engelle"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Yalnızca cihaz sahibi engellenen numaraları görüntüleyebilir ve yönetebilir."</string>
-    <string name="delete_icon_description" msgid="1828583824185681368">"Engellemeyi kaldırmak için hafifçe dokunun"</string>
+    <!-- no translation found for delete_icon_description (8903995728252556724) -->
+    <skip />
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Engelleme geçici olarak kapalı"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Bir acil durum numarasını çevirmenizin veya acil durum numarasına kısa mesaj göndermenizin ardından acil durum hizmetlerinin size ulaşabilmesi için engelleme kapatılır."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Şimdi yeniden etkinleştir"</string>

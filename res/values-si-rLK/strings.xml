@@ -57,7 +57,8 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"දුරකථන අංකය"</string>
     <string name="block_button" msgid="8822290682524373357">"අවහිර කරන්න"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"උපාංගය හිමිකරුට පමණක් අවහිර අංක බැලීමට සහ කළමනාකරණය කිරීමට හැකිය."</string>
-    <string name="delete_icon_description" msgid="1828583824185681368">"අවහිර නොකිරීමේ කිරීමේ ටැබය"</string>
+    <!-- no translation found for delete_icon_description (8903995728252556724) -->
+    <skip />
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"අවහිර කිරීම තාවකාලිකව අක්‍රියයි"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"ඔබ හදිසි ඇමතුම් අංකයක් ඩයල් කිරීමෙන් හෝ පෙළ පණිවිඩයක් යැවීමෙන් පසු, හදිසි අවස්ථා සේවාවලට ඔබට ඇමතිය හැකි බව තහවුරු කිරීමට අවහිර කිරීම අක්‍රිය කරයි."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"දැන් නැවත-සබල කරන්න"</string>

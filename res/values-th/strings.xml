@@ -57,7 +57,8 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"หมายเลขโทรศัพท์"</string>
     <string name="block_button" msgid="8822290682524373357">"บล็อก"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"มีเพียงเจ้าของอุปกรณ์เท่านั้นที่สามารถดูและจัดการหมายเลขที่ถูกบล็อก"</string>
-    <string name="delete_icon_description" msgid="1828583824185681368">"แตะเพื่อเลิกบล็อก"</string>
+    <!-- no translation found for delete_icon_description (8903995728252556724) -->
+    <skip />
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"ปิดการบล็อกไว้ชั่วคราว"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"หลังจากส่งข้อความถึงหรือกดหมายเลขโทรศัพท์ฉุกเฉิน ระบบจะปิดการบล็อกเพื่อให้บริการฉุกเฉินติดต่อคุณได้"</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"เปิดใช้งานอีกครั้งเลย"</string>

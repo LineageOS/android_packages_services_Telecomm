@@ -57,7 +57,8 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"电话号码"</string>
     <string name="block_button" msgid="8822290682524373357">"屏蔽"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"只有机主才能查看和管理已屏蔽的号码。"</string>
-    <string name="delete_icon_description" msgid="1828583824185681368">"点按即可取消屏蔽"</string>
+    <!-- no translation found for delete_icon_description (8903995728252556724) -->
+    <skip />
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"已暂时关闭来电拦截功能"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"您拨打紧急服务电话或向其发送短信后，系统会关闭来电拦截功能，以确保紧急服务人员能与您联系。"</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"立即重新启用"</string>

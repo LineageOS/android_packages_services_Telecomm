@@ -57,7 +57,8 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Nombor telefon"</string>
     <string name="block_button" msgid="8822290682524373357">"Sekat"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Hanya pemilik peranti boleh melihat dan menguruskan nombor yang disekat."</string>
-    <string name="delete_icon_description" msgid="1828583824185681368">"Tab untuk nyahsekat"</string>
+    <!-- no translation found for delete_icon_description (8903995728252556724) -->
+    <skip />
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Sekatan dimatikan untuk sementara waktu"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Sekatan dimatikan selepas anda mendail atau menghantar teks kepada nombor kecemasan untuk memastikan perkhidmatan kecemasan dapat menghubungi anda."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Dayakan semula sekarang"</string>

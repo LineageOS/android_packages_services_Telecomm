@@ -57,7 +57,8 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"மொபைல் எண்"</string>
     <string name="block_button" msgid="8822290682524373357">"தடு"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"சாதன உரிமையாளர் மட்டுமே தடுக்கப்பட்ட எண்களைப் பார்க்கவும் நிர்வகிக்கவும் முடியும்."</string>
-    <string name="delete_icon_description" msgid="1828583824185681368">"அனுமதிக்க, தட்டவும்"</string>
+    <!-- no translation found for delete_icon_description (8903995728252556724) -->
+    <skip />
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"அழைப்புத் தடுப்பு அம்சம் தற்காலிகமாக முடக்கப்பட்டுள்ளது"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"அவசர அழைப்பு எண்ணை அழைத்த பிறகு அல்லது அதற்கு உரைச் செய்தியை அனுப்பிய பிறகு, அவசர அழைப்புச் சேவைகள் உங்களைத் தொடர்புகொள்வதற்காக அழைப்புத் தடுப்பு அம்சம் முடக்கப்படுகிறது."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"இப்போதே மீண்டும் இயக்கு"</string>
