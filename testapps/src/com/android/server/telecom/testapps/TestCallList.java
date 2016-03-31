@@ -148,7 +148,10 @@ public class TestCallList extends Call.Listener {
     }
 
     public void clearCalls() {
-        mCalls.clear();
+        for (Call call : new LinkedList<Call>(mCalls)) {
+            removeCall(call);
+        }
+
         for (Call call : mVideoCallListeners.keySet()) {
             if (call.getVideoCall() != null) {
                 call.getVideoCall().destroy();

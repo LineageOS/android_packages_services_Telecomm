@@ -104,6 +104,11 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         }
 
         @Override
+        public String getDefaultDialerApplication(Context context, int userId) {
+            return null;
+        }
+
+        @Override
         public boolean setDefaultDialerApplication(Context context, String packageName) {
             return false;
         }

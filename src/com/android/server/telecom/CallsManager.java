@@ -53,6 +53,7 @@ import com.android.internal.telephony.AsyncEmergencyContactNotifier;
 import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.telephony.TelephonyProperties;
 import com.android.internal.util.IndentingPrintWriter;
+import com.android.server.telecom.TelecomServiceImpl.DefaultDialerManagerAdapter;
 import com.android.server.telecom.components.ErrorDialogActivity;
 
 import java.util.Collection;
@@ -200,7 +201,8 @@ public class CallsManager extends Call.ListenerBase
             CallAudioManager.AudioServiceFactory audioServiceFactory,
             BluetoothManager bluetoothManager,
             WiredHeadsetManager wiredHeadsetManager,
-            SystemStateProvider systemStateProvider) {
+            SystemStateProvider systemStateProvider,
+            DefaultDialerManagerAdapter defaultDialerAdapter) {
         mContext = context;
         mLock = lock;
         mContactsAsyncHelper = contactsAsyncHelper;
@@ -238,7 +240,8 @@ public class CallsManager extends Call.ListenerBase
         RingtoneFactory ringtoneFactory = new RingtoneFactory(this, context);
         SystemVibrator systemVibrator = new SystemVibrator(context);
         AsyncRingtonePlayer asyncRingtonePlayer = new AsyncRingtonePlayer();
-        mInCallController = new InCallController(context, mLock, this, systemStateProvider);
+        mInCallController = new InCallController(
+                context, mLock, this, systemStateProvider, defaultDialerAdapter);
         mRinger = new Ringer(playerFactory, context, systemSettingsUtil, asyncRingtonePlayer,
                 ringtoneFactory, systemVibrator, mInCallController);
 
