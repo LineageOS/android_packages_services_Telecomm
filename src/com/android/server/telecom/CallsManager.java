@@ -343,7 +343,7 @@ public class CallsManager extends Call.ListenerBase
         if (incomingCall.getState() != CallState.DISCONNECTED &&
                 incomingCall.getState() != CallState.DISCONNECTING) {
             setCallState(incomingCall, CallState.RINGING,
-                    shouldAllowCall ? "blocking call" : "successful incoming call");
+                    shouldAllowCall ? "successful incoming call" : "blocking call");
         } else {
             Log.i(this, "onCallScreeningCompleted: call already disconnected.");
         }
