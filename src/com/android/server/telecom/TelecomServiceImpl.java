@@ -67,6 +67,7 @@ import java.util.List;
 public class TelecomServiceImpl {
     public interface DefaultDialerManagerAdapter {
         String getDefaultDialerApplication(Context context);
+        String getDefaultDialerApplication(Context context, int userId);
         boolean setDefaultDialerApplication(Context context, String packageName);
         boolean isDefaultOrSystemDialer(Context context, String packageName);
     }
@@ -75,6 +76,11 @@ public class TelecomServiceImpl {
         @Override
         public String getDefaultDialerApplication(Context context) {
             return DefaultDialerManager.getDefaultDialerApplication(context);
+        }
+
+        @Override
+        public String getDefaultDialerApplication(Context context, int userId) {
+            return DefaultDialerManager.getDefaultDialerApplication(context, userId);
         }
 
         @Override

@@ -104,6 +104,7 @@ public class Log {
         public static final String REMOTELY_HELD = "REMOTELY_HELD";
         public static final String REMOTELY_UNHELD = "REMOTELY_UNHELD";
         public static final String PULL = "PULL";
+        public static final String INFO = "INFO";
 
         /**
          * Maps from a request to a response.  The same event could be listed as the

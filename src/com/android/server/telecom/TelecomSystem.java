@@ -22,6 +22,7 @@ import com.android.server.telecom.components.UserCallIntentProcessorFactory;
 import com.android.server.telecom.ui.MissedCallNotifierImpl.MissedCallNotifierImplFactory;
 import com.android.server.telecom.BluetoothPhoneServiceImpl.BluetoothPhoneServiceImplFactory;
 import com.android.server.telecom.CallAudioManager.AudioServiceFactory;
+import com.android.server.telecom.TelecomServiceImpl.DefaultDialerManagerAdapter;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -173,6 +174,9 @@ public final class TelecomSystem {
         mMissedCallNotifier = missedCallNotifierImplFactory
                 .makeMissedCallNotifierImpl(mContext, mPhoneAccountRegistrar);
 
+        DefaultDialerManagerAdapter defaultDialerAdapter =
+                new TelecomServiceImpl.DefaultDialerManagerAdapterImpl();
+
         mCallsManager = new CallsManager(
                 mContext,
                 mLock,
@@ -186,7 +190,8 @@ public final class TelecomSystem {
                 audioServiceFactory,
                 bluetoothManager,
                 wiredHeadsetManager,
-                systemStateProvider);
+                systemStateProvider,
+                defaultDialerAdapter);
 
         mRespondViaSmsManager = new RespondViaSmsManager(mCallsManager, mLock);
         mCallsManager.setRespondViaSmsManager(mRespondViaSmsManager);
@@ -214,7 +219,7 @@ public final class TelecomSystem {
                         return new UserCallIntentProcessor(context, userHandle);
                     }
                 },
-                new TelecomServiceImpl.DefaultDialerManagerAdapterImpl(),
+                defaultDialerAdapter,
                 new TelecomServiceImpl.SubscriptionManagerAdapterImpl(),
                 mLock);
     }

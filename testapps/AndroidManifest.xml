@@ -54,7 +54,7 @@
         <service android:name="com.android.server.telecom.testapps.TestInCallServiceImpl"
                  android:process="com.android.server.telecom.testapps.TestInCallService"
                  android:permission="android.permission.BIND_INCALL_SERVICE" >
-            <meta-data android:name="android.telecom.IN_CALL_SERVICE_CAR_MODE_UI" android:value="true"/>
+            <meta-data android:name="android.telecom.IN_CALL_SERVICE_UI" android:value="true"/>
             <intent-filter>
                 <action android:name="android.telecom.InCallService"/>
             </intent-filter>
