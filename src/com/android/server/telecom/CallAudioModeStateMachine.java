@@ -434,10 +434,7 @@ public class CallAudioModeStateMachine extends StateMachine {
                     mCallAudioManager.stopCallWaiting();
                     return HANDLED;
                 case TONE_STOPPED_PLAYING:
-                    if (!args.hasActiveOrDialingCalls && !args.hasRingingCalls
-                            && !args.hasHoldingCalls && !args.isTonePlaying) {
-                        transitionTo(mUnfocusedState);
-                    }
+                    transitionTo(destinationStateAfterNoMoreActiveCalls(args));
                 default:
                     return NOT_HANDLED;
             }
@@ -503,12 +500,14 @@ public class CallAudioModeStateMachine extends StateMachine {
     }
 
     private BaseState destinationStateAfterNoMoreActiveCalls(MessageArgs args) {
-        if (args.hasRingingCalls) {
-             return mRingingFocusState;
-        } else if (args.hasHoldingCalls || args.isTonePlaying) {
-             return mOtherFocusState;
+        if (args.hasHoldingCalls) {
+            return mOtherFocusState;
+        } else if (args.hasRingingCalls) {
+            return mRingingFocusState;
+        } else if (args.isTonePlaying) {
+            return mOtherFocusState;
         } else {
-             return mUnfocusedState;
+            return mUnfocusedState;
         }
     }
 }
