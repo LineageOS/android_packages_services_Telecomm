@@ -769,8 +769,27 @@ public class CallsManager extends Call.ListenerBase
         // Set the video state on the call early so that when it is added to the InCall UI the UI
         // knows to configure itself as a video call immediately.
         if (extras != null) {
-            call.setVideoState(extras.getInt(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
-                    VideoProfile.STATE_AUDIO_ONLY));
+            int videoState = extras.getInt(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
+                    VideoProfile.STATE_AUDIO_ONLY);
+
+            // If this is an emergency video call, we need to check if the phone account supports
+            // emergency video calling.
+            if (call.isEmergencyCall() && VideoProfile.isVideo(videoState)) {
+                PhoneAccount account =
+                        mPhoneAccountRegistrar.getPhoneAccount(phoneAccountHandle, initiatingUser);
+
+                if (account != null &&
+                        !account.hasCapabilities(PhoneAccount.CAPABILITY_EMERGENCY_VIDEO_CALLING)) {
+                    // Phone account doesn't support emergency video calling, so fallback to
+                    // audio-only now to prevent the InCall UI from setting up video surfaces
+                    // needlessly.
+                    Log.i(this, "startOutgoingCall - emergency video calls not supported; " +
+                            "falling back to audio-only");
+                    videoState = VideoProfile.STATE_AUDIO_ONLY;
+                }
+            }
+
+            call.setVideoState(videoState);
         }
 
         List<PhoneAccountHandle> accounts =
