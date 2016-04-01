@@ -255,6 +255,7 @@ public class InCallTonePlayer extends Thread {
                 toneGenerator.release();
             }
             cleanUpTonePlayer();
+            Log.endSession();
         }
     }
     
