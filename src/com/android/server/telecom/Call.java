@@ -44,7 +44,6 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telecom.IVideoProvider;
 import com.android.internal.telephony.CallerInfo;
 import com.android.internal.telephony.CallerInfoAsyncQuery;
-import com.android.internal.telephony.CallerInfoAsyncQuery.OnQueryCompleteListener;
 import com.android.internal.telephony.SmsApplication;
 import com.android.server.telecom.ContactsAsyncHelper.OnImageLoadCompleteListener;
 import com.android.internal.util.Preconditions;
@@ -82,7 +81,8 @@ public class Call implements CreateConnectionResponse {
     /**
      * Listener for events on the call.
      */
-    interface Listener {
+    @VisibleForTesting
+    public interface Listener {
         void onSuccessfulOutgoingCall(Call call, int callState);
         void onFailedOutgoingCall(Call call, DisconnectCause disconnectCause);
         void onSuccessfulIncomingCall(Call call, boolean shouldSendToVoicemail);
@@ -181,48 +181,23 @@ public class Call implements CreateConnectionResponse {
         public void onConnectionEvent(Call call, String event, Bundle extras) {}
     }
 
-    private final OnQueryCompleteListener mCallerInfoQueryListener =
-            new OnQueryCompleteListener() {
+    private final CallerInfoLookupHelper.OnQueryCompleteListener mCallerInfoQueryListener =
+            new CallerInfoLookupHelper.OnQueryCompleteListener() {
                 /** ${inheritDoc} */
                 @Override
-                public void onQueryComplete(int token, Object cookie, CallerInfo callerInfo) {
+                public void onCallerInfoQueryComplete(Uri handle, CallerInfo callerInfo) {
                     synchronized (mLock) {
-                        if (cookie != null) {
-                            CallSessionCookie callSession = (CallSessionCookie) cookie;
-                            Log.continueSession(callSession.mSession, "OQCL.oQC");
-                            callSession.mSessionCall.setCallerInfo(callerInfo, token);
-                            Log.endSession();
-                        }
+                        Call.this.setCallerInfo(handle, callerInfo);
+                    }
+                }
+
+                @Override
+                public void onContactPhotoQueryComplete(Uri handle, CallerInfo callerInfo) {
+                    synchronized (mLock) {
+                        Call.this.setCallerInfo(handle, callerInfo);
                     }
                 }
             };
-
-    private final OnImageLoadCompleteListener mPhotoLoadListener =
-            new OnImageLoadCompleteListener() {
-                /** ${inheritDoc} */
-                @Override
-                public void onImageLoadComplete(
-                        int token, Drawable photo, Bitmap photoIcon, Object cookie) {
-                    synchronized (mLock) {
-                        if (cookie != null) {
-                            CallSessionCookie callSession = (CallSessionCookie) cookie;
-                            Log.continueSession(callSession.mSession, "OCLCL.oILC");
-                            callSession.mSessionCall.setPhoto(photo, photoIcon, token);
-                            Log.endSession();
-                        }
-                    }
-                }
-            };
-
-    private class CallSessionCookie {
-        Call mSessionCall;
-        Session mSession;
-
-        public CallSessionCookie(Call call, Session session) {
-            mSessionCall = call;
-            mSession = session;
-        }
-    }
 
     /**
      * One of CALL_DIRECTION_INCOMING, CALL_DIRECTION_OUTGOING, or CALL_DIRECTION_UNKNOWN
@@ -363,11 +338,9 @@ public class Call implements CreateConnectionResponse {
     private StatusHints mStatusHints;
     private Bundle mExtras;
     private final ConnectionServiceRepository mRepository;
-    private final ContactsAsyncHelper mContactsAsyncHelper;
     private final Context mContext;
     private final CallsManager mCallsManager;
     private final TelecomSystem.SyncRoot mLock;
-    private final CallerInfoAsyncQueryFactory mCallerInfoAsyncQueryFactory;
     private final String mId;
     private Analytics.CallInfo mAnalytics;
 
@@ -437,8 +410,6 @@ public class Call implements CreateConnectionResponse {
         mCallsManager = callsManager;
         mLock = lock;
         mRepository = repository;
-        mContactsAsyncHelper = contactsAsyncHelper;
-        mCallerInfoAsyncQueryFactory = callerInfoAsyncQueryFactory;
         setHandle(handle);
         mPostDialDigits = handle != null
                 ? PhoneNumberUtils.extractPostDialPortion(handle.getSchemeSpecificPart()) : "";
@@ -1742,34 +1713,8 @@ public class Call implements CreateConnectionResponse {
      * Looks up contact information based on the current handle.
      */
     private void startCallerInfoLookup() {
-        final String number = mHandle == null ? null : mHandle.getSchemeSpecificPart();
-
-        mQueryToken++;  // Updated so that previous queries can no longer set the information.
         mCallerInfo = null;
-        if (!TextUtils.isEmpty(number)) {
-            Log.v(this, "Looking up information for: %s.", Log.piiHandle(number));
-            mHandler.post(new Runnable("C.sCIL") {
-                @Override
-                public void loggedRun() {
-                    Session subsubsession = null;
-                    try {
-                        subsubsession = Log.createSubsession();
-                        CallerInfoAsyncQuery value = mCallerInfoAsyncQueryFactory.startQuery(
-                                mQueryToken, mContext, number, mCallerInfoQueryListener,
-                                new CallSessionCookie(Call.this, subsubsession));
-                        // If there is an exception in startQuery, then this assignment will never
-                        // occur.
-                        if (value != null) {
-                            subsubsession = null;
-                        }
-                    } finally {
-                        if (subsubsession != null) {
-                            Log.cancelSubsession(subsubsession);
-                        }
-                    }
-                }
-            }.prepare());
-        }
+        mCallsManager.getCallerInfoLookupHelper().startLookup(mHandle, mCallerInfoQueryListener);
     }
 
     /**
@@ -1777,67 +1722,32 @@ public class Call implements CreateConnectionResponse {
      * that was made.
      *
      * @param callerInfo The new caller information to set.
-     * @param token The token used with this query.
      */
-    private void setCallerInfo(CallerInfo callerInfo, int token) {
+    private void setCallerInfo(Uri handle, CallerInfo callerInfo) {
         Trace.beginSection("setCallerInfo");
         Preconditions.checkNotNull(callerInfo);
 
-        if (mQueryToken == token) {
-            mCallerInfo = callerInfo;
-            Log.i(this, "CallerInfo received for %s: %s", Log.piiHandle(mHandle), callerInfo);
-
-            if (mCallerInfo.contactDisplayPhotoUri != null) {
-                Session subsession = null;
-                try {
-                    subsession = Log.createSubsession();
-                    Log.d(this, "Searching person uri %s for call %s",
-                            mCallerInfo.contactDisplayPhotoUri, this);
-                    mContactsAsyncHelper.startObtainPhotoAsync(
-                            token,
-                            mContext,
-                            mCallerInfo.contactDisplayPhotoUri,
-                            mPhotoLoadListener,
-                            new CallSessionCookie(this, subsession));
-                    // If there is an exception, then this assignment will never occur.
-                    subsession = null;
-                    // Do not call onCallerInfoChanged yet in this case.  We call it in setPhoto().
-                } finally {
-                    if(subsession != null) {
-                        Log.cancelSubsession(subsession);
-                    }
-                }
-            } else {
-                for (Listener l : mListeners) {
-                    l.onCallerInfoChanged(this);
-                }
-            }
-
-            processDirectToVoicemail();
+        if (!handle.equals(mHandle)) {
+            Log.i(this, "setCallerInfo received stale caller info for an old handle. Ignoring.");
+            return;
         }
+
+        mCallerInfo = callerInfo;
+        Log.i(this, "CallerInfo received for %s: %s", Log.piiHandle(mHandle), callerInfo);
+
+        if (mCallerInfo.contactDisplayPhotoUri == null ||
+                mCallerInfo.cachedPhotoIcon != null || mCallerInfo.cachedPhoto != null) {
+            for (Listener l : mListeners) {
+                l.onCallerInfoChanged(this);
+            }
+        }
+
+        processDirectToVoicemail();
         Trace.endSection();
     }
 
     public CallerInfo getCallerInfo() {
         return mCallerInfo;
-    }
-
-    /**
-     * Saves the specified photo information if the specified token matches that of the last query.
-     *
-     * @param photo The photo as a drawable.
-     * @param photoIcon The photo as a small icon.
-     * @param token The token used with this query.
-     */
-    private void setPhoto(Drawable photo, Bitmap photoIcon, int token) {
-        if (mQueryToken == token) {
-            mCallerInfo.cachedPhoto = photo;
-            mCallerInfo.cachedPhotoIcon = photoIcon;
-
-            for (Listener l : mListeners) {
-                l.onCallerInfoChanged(this);
-            }
-        }
     }
 
     private void maybeLoadCannedSmsResponses() {

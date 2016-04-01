@@ -36,7 +36,7 @@ import java.io.InputStream;
 /**
  * Helper class for loading contacts photo asynchronously.
  */
-public final class ContactsAsyncHelper {
+public class ContactsAsyncHelper {
     private static final String LOG_TAG = ContactsAsyncHelper.class.getSimpleName();
 
     /**
@@ -199,7 +199,7 @@ public final class ContactsAsyncHelper {
      * fourth argument of {@link OnImageLoadCompleteListener#onImageLoadComplete(int, Drawable,
      * Bitmap, Object)}. Can be null, at which the callback will also has null for the argument.
      */
-    public final void startObtainPhotoAsync(int token, Context context, Uri displayPhotoUri,
+    public void startObtainPhotoAsync(int token, Context context, Uri displayPhotoUri,
             OnImageLoadCompleteListener listener, Object cookie) {
         ensureAsyncHandlerStarted();
 
