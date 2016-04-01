@@ -90,8 +90,8 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     @Override
     public void onCallStateChanged(Call call, int oldState, int newState) {
-        if (call.getParentCall() != null) {
-            // No audio management for calls in a conference.
+        if (shouldIgnoreCallForAudio(call)) {
+            // No audio management for calls in a conference, or external calls.
             return;
         }
         Log.d(LOG_TAG, "Call state changed for TC@%s: %s -> %s", call.getId(),
@@ -115,8 +115,8 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     @Override
     public void onCallAdded(Call call) {
-        if (call.getParentCall() != null) {
-            return; // Don't do audio handling for calls in a conference.
+        if (shouldIgnoreCallForAudio(call)) {
+            return; // Don't do audio handling for calls in a conference, or external calls.
         }
 
         if (mCalls.contains(call)) {
@@ -138,8 +138,8 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     @Override
     public void onCallRemoved(Call call) {
-        if (call.getParentCall() != null) {
-            return; // Don't do audio handling for calls in a conference.
+        if (shouldIgnoreCallForAudio(call)) {
+            return; // Don't do audio handling for calls in a conference, or external calls.
         }
 
         if (!mCalls.contains(call)) {
@@ -157,6 +157,18 @@ public class CallAudioManager extends CallsManagerListenerBase {
         mCalls.remove(call);
 
         onCallLeavingState(call, call.getState());
+    }
+
+    /**
+     * Determines if {@link CallAudioManager} should do any audio routing operations for a call.
+     * We ignore child calls of a conference and external calls for audio routing purposes.
+     *
+     * @param call The call to check.
+     * @return {@code true} if the call should be ignored for audio routing, {@code false}
+     * otherwise
+     */
+    private boolean shouldIgnoreCallForAudio(Call call) {
+        return call.getParentCall() != null || call.isExternalCall();
     }
 
     @Override
