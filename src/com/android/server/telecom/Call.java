@@ -862,6 +862,11 @@ public class Call implements CreateConnectionResponse {
         return mCallDirection == CALL_DIRECTION_INCOMING;
     }
 
+    public boolean isExternalCall() {
+        return (getConnectionProperties() & Connection.PROPERTY_IS_EXTERNAL_CALL) ==
+                Connection.PROPERTY_IS_EXTERNAL_CALL;
+    }
+
     public boolean isWorkCall() {
         return mIsWorkCall;
     }

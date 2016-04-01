@@ -128,7 +128,7 @@ public final class InCallController extends CallsManagerListenerBase {
 
             Intent intent = new Intent(InCallService.SERVICE_INTERFACE);
             intent.setComponent(mComponentName);
-            if (call != null && !call.isIncoming()){
+            if (call != null && !call.isIncoming() && !call.isExternalCall()){
                 intent.putExtra(TelecomManager.EXTRA_OUTGOING_CALL_EXTRAS,
                         call.getIntentExtras());
                 intent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE,
@@ -795,7 +795,6 @@ public final class InCallController extends CallsManagerListenerBase {
         if (packageName != null) {
             serviceIntent.setPackage(packageName);
         }
-
 
         PackageManager packageManager = mContext.getPackageManager();
         for (ResolveInfo entry : packageManager.queryIntentServicesAsUser(
