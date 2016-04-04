@@ -57,8 +57,7 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Telefonnummer"</string>
     <string name="block_button" msgid="8822290682524373357">"Blokkér"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Bare enhetseieren kan se og administrere blokkerte numre."</string>
-    <!-- no translation found for delete_icon_description (8903995728252556724) -->
-    <skip />
+    <string name="delete_icon_description" msgid="8903995728252556724">"Opphev blokkeringen"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Blokkeringen er midlertidig slått av"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Når du har ringt eller sendt tekstmelding til et nødnummer, blir blokkeringen slått av, sånn at nødtjenesten har mulighet til å kontakte deg."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Slå på igjen nå"</string>

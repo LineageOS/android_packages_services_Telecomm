@@ -57,8 +57,7 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"የስልክ ቁጥር"</string>
     <string name="block_button" msgid="8822290682524373357">"አግድ"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"የመሣሪያው ባለቤት ብቻ ነው የታገዱ ቁጥሮችን ማየት እና ማስተዳደር የሚችለው።"</string>
-    <!-- no translation found for delete_icon_description (8903995728252556724) -->
-    <skip />
+    <string name="delete_icon_description" msgid="8903995728252556724">"እገዳውን አንሳ"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"ማገድ ለጊዜው ጠፍቷል"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"የድንገተኛ አደጋ ቁጥር ከደወሉ ወይ ከጻፉ በኋላ፣ የድንገተኛ አደጋ አገልግሎቶች እርስዎን መገናኘት እንዲሚችል ለማረጋገጥ ማገጃ ጠፍቷል።"</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"አሁን እንደገና-ያንቁ"</string>

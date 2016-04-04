@@ -57,8 +57,7 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"फ़ोन नंबर"</string>
     <string name="block_button" msgid="8822290682524373357">"अवरुद्ध करें"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"केवल डिवाइस स्वामी अवरुद्ध किए गए नंबर देख और प्रबंधित कर सकते हैं."</string>
-    <!-- no translation found for delete_icon_description (8903995728252556724) -->
-    <skip />
+    <string name="delete_icon_description" msgid="8903995728252556724">"अनवरोधित करें"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"अवरोधन अस्थायी रूप से बंद है"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"आपातकालीन नंबर डायल करने या उस पर लेख संदेश भेजने के बाद, अवरोधन बंद हो जाता है ताकि आपातकालीन सेवाएं आपसे संपर्क कर सकें."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"अभी पुन: सक्षम करें"</string>

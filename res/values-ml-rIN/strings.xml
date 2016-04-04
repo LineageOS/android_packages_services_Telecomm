@@ -57,8 +57,7 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"ഫോൺ നമ്പർ"</string>
     <string name="block_button" msgid="8822290682524373357">"ബ്ലോക്കുചെയ്യുക"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"ബ്ലോക്കുചെയ്ത നമ്പറുകൾ ഉപകരണ ഉടമയ്ക്ക് മാത്രമേ കാണാനും മാനേജുചെയ്യാനും കഴിയൂ."</string>
-    <!-- no translation found for delete_icon_description (8903995728252556724) -->
-    <skip />
+    <string name="delete_icon_description" msgid="8903995728252556724">"അൺബ്ലോക്കുചെയ്യുക"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"ബ്ലോക്കുചെയ്യൽ താൽക്കാലികമായി ഓഫാണ്"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"നിങ്ങൾ ഒരു എമർജൻസി നമ്പർ ഡയൽ ചെയ്‌ത് കഴിയുമ്പോഴോ അതിലേക്ക് സന്ദേശമയച്ചുകഴിയുമ്പോഴോ, എമർജൻസി സേവനങ്ങൾ നിങ്ങളിലേക്ക് എത്തുമെന്ന് ഉറപ്പാക്കാൻ കോൾ ബ്ലോക്കിംഗ് ഓഫാക്കും."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"ഇപ്പോൾ വീണ്ടും പ്രവർത്തനക്ഷമമാക്കുക"</string>

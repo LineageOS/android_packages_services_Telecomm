@@ -57,8 +57,7 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"ফোন নম্বর"</string>
     <string name="block_button" msgid="8822290682524373357">"অবরোধ করুন"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"শুধুমাত্র ডিভাইসের মালিক এই অবরুদ্ধ নম্বরগুলিকে দেখতে এবং পরিচালনা করতে পারেন৷"</string>
-    <!-- no translation found for delete_icon_description (8903995728252556724) -->
-    <skip />
+    <string name="delete_icon_description" msgid="8903995728252556724">"অবরোধ মুক্ত করুন"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"অবরুদ্ধ করা সাময়িকভাবে বন্ধ আছে"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"আপনি কোনো জরুরি নম্বরে ডায়াল করার বা এসএমএস পাঠানোর পরে, জরুরি পরিষেবাগুলি যাতে আপনাকে কল করতে পারে সেই বিষয়টি নিশ্চিত করতে অবরুদ্ধ করার ব্যবস্থাটিকে বন্ধ করা হয়৷"</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"এখনই পুনরায় সক্ষম করুন"</string>

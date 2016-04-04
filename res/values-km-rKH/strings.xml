@@ -57,8 +57,7 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"លេខទូរសព្ទ"</string>
     <string name="block_button" msgid="8822290682524373357">"រារាំង"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"មានតែម្ចាស់ឧបករណ៍តែប៉ុណ្ណោះដែលអាចមើល និងគ្រប់គ្រងបញ្ជីរារាំងបាន"</string>
-    <!-- no translation found for delete_icon_description (8903995728252556724) -->
-    <skip />
+    <string name="delete_icon_description" msgid="8903995728252556724">"ឈប់​ទប់ស្កាត់"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"បាន​បិទ​ការ​ទប់ស្កាត់​​​ជា​បណ្ដោះអាសន្ន"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"បន្ទាប់​ពី​អ្នក​ចុច​ហៅ ឬ​ផ្ញើ​សារ​លេខ​​អាសន្ន ការ​ទប់ស្កាត់​​ត្រូវ​បាន​បិទ​​ដើម្បី​​ប្រាកដ​ថា​សេវាកម្ម​អាសន្ន​អាច​ទាក់ទង​អ្នក​បាន។"</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"បើក​ដំណើរការ​ឡើងវិញ​ឥឡូវនេះ"</string>

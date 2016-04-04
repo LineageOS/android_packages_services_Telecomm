@@ -57,8 +57,7 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"電話號碼"</string>
     <string name="block_button" msgid="8822290682524373357">"封鎖"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"只有裝置擁有者能夠查看及管理已封鎖的號碼。"</string>
-    <!-- no translation found for delete_icon_description (8903995728252556724) -->
-    <skip />
+    <string name="delete_icon_description" msgid="8903995728252556724">"解除封鎖"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"已暫時停用來電封鎖功能"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"當您撥打或傳送簡訊到緊急服務電話後，系統就會停用來電封鎖功能，以確保緊急服務人員能夠與您聯絡。"</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"立即重新啟用"</string>

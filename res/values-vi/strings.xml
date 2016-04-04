@@ -57,8 +57,7 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Số điện thoại"</string>
     <string name="block_button" msgid="8822290682524373357">"Chặn"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Chỉ chủ sở hữu thiết bị mới có thể xem và quản lý các số bị chặn."</string>
-    <!-- no translation found for delete_icon_description (8903995728252556724) -->
-    <skip />
+    <string name="delete_icon_description" msgid="8903995728252556724">"Bỏ chặn"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Chế độ chặn tạm thời tắt"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Sau khi bạn quay số hoặc gửi tin nhắn tới số khẩn cấp, chế độ chặn sẽ bị tắt để đảm bảo dịch vụ khẩn cấp có thể liên hệ với bạn."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Bật lại ngay bây giờ"</string>

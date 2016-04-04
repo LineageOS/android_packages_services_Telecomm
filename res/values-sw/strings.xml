@@ -57,8 +57,7 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Nambari ya simu"</string>
     <string name="block_button" msgid="8822290682524373357">"Zuia"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Ni mmiliki wa kifaa pekee anayeweza kuangalia na kuthibiti nambari zilizozuiwa."</string>
-    <!-- no translation found for delete_icon_description (8903995728252556724) -->
-    <skip />
+    <string name="delete_icon_description" msgid="8903995728252556724">"Ondoa kizuizi"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Kipengele cha kuzuia kimezimwa kwa muda"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Ukishapiga au kutuma ujumbe kwa nambari ya dharura, kipengele cha kuzuia anwani huzimwa ili watoa huduma za dharura waweze kuwasiliana nawe."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Kiwashe tena sasa"</string>

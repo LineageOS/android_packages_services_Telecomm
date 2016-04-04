@@ -57,8 +57,7 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Puhelinnumero"</string>
     <string name="block_button" msgid="8822290682524373357">"Estä"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Vain laitteen omistaja voi katsella ja hallinnoida estettyjä numeroita."</string>
-    <!-- no translation found for delete_icon_description (8903995728252556724) -->
-    <skip />
+    <string name="delete_icon_description" msgid="8903995728252556724">"Kumoa esto"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Esto on väliaikaisesti pois käytöstä"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Hätänumeroon soittamisen tai tekstiviestin lähettämisen jälkeen esto poistetaan käytöstä, jotta hätäviranomaiset voivat olla yhteydessä sinuun."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Ota nyt uudelleen käyttöön"</string>
