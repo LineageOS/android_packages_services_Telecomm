@@ -57,8 +57,7 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"ફોન નંબર"</string>
     <string name="block_button" msgid="8822290682524373357">"અવરોધિત કરો"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"ફક્ત ઉપકરણના માલિક અવરોધિત નંબરોને જોઈ અને સંચાલિત કરી શકે છે."</string>
-    <!-- no translation found for delete_icon_description (8903995728252556724) -->
-    <skip />
+    <string name="delete_icon_description" msgid="8903995728252556724">"અનાવરોધિત કરો"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"અવરોધિત કરવાનું અસ્થાયીરૂપે બંધ છે"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"તમે કોઈ કટોકટીનો નંબર ડાયલ કરો કે ટેક્સ્ટ કરો તે પછી, કટોકટીની સેવાઓ તમારો સંપર્ક કરી શકે તેની ખાતરી કરવા માટે અવરોધિત કરવું બંધ કરવામાં આવે છે."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"હવે ફરીથી સક્ષમ કરો"</string>

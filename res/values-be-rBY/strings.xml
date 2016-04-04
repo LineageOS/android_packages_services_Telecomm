@@ -57,8 +57,7 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Нумар тэлефона"</string>
     <string name="block_button" msgid="8822290682524373357">"Заблакiраваць"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Толькі ўладальнік прылады можа праглядаць блакіраваныя нумары і кіраваць імі."</string>
-    <!-- no translation found for delete_icon_description (8903995728252556724) -->
-    <skip />
+    <string name="delete_icon_description" msgid="8903995728252556724">"Разблакiраваць"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Блакіроўка часова адключана"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Пасля тэлефанавання або адпраўкі SMS на экстранны нумар блакіроўка адключаецца, каб аварыйныя службы маглі звязацца з вамі."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Паўторна ўключыць зараз"</string>

@@ -57,8 +57,7 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Número de telefone"</string>
     <string name="block_button" msgid="8822290682524373357">"Bloquear"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Apenas o proprietário do dispositivo pode ver e gerir os números bloqueados."</string>
-    <!-- no translation found for delete_icon_description (8903995728252556724) -->
-    <skip />
+    <string name="delete_icon_description" msgid="8903995728252556724">"Desbloquear"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Bloqueio temporariamente desativado"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Após marcar ou enviar uma mensagem de texto para um número de emergência, o bloqueio é desativado para garantir que os serviços de emergência conseguem contactá-lo."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Reativar agora"</string>

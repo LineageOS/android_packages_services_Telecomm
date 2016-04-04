@@ -57,8 +57,7 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"ဖုန်းနံပါတ်"</string>
     <string name="block_button" msgid="8822290682524373357">"ပိတ်ဆို့ပါ"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"ပိတ်ဆို့ထားသည့် နံပါတ်များကို စက်ပစ္စည်းပိုင်ရှင်သာလျှင် ကြည့်ရှု၍ စီမံခန့်ခွဲနိုင်ပါသည်။"</string>
-    <!-- no translation found for delete_icon_description (8903995728252556724) -->
-    <skip />
+    <string name="delete_icon_description" msgid="8903995728252556724">"မပိတ်ဆို့တော့ပါ"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"ဘလော့ခ်လုပ်ခြင်းကို ပိတ်ထားပါသည်"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"သင် အရေးပေါ်နံပါတ်တစ်ခုကို ဖုန်းခေါ် (သို့) စာသားပို့ပြီးနောက် အရေးပေါ်ဝန်ဆောင်မှုများက သင့်ကို ဆက်သွယ်နိုင်ကြောင်း သေချာစေရန် ဘလော့ခ်လုပ်ခြင်းကို ပိတ်ထားပါသည်။"</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"ယခု ပြန်ဖွင့်လိုက်ပါ"</string>

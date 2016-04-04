@@ -57,8 +57,7 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Telefon nömrəsi"</string>
     <string name="block_button" msgid="8822290682524373357">"Blok edin"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Yalnız cihaz sahibi blok edilmiş nömrələrə baxa və idarə edə bilər."</string>
-    <!-- no translation found for delete_icon_description (8903995728252556724) -->
-    <skip />
+    <string name="delete_icon_description" msgid="8903995728252556724">"Blokdan çıxarın"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Bloklama müvəqqəti olaraq deaktiv edildi"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Fövqəladə nömrəyə zəng etdikdən və ya mesaj yazdıqdan sonra, fövqəladə xidmətlərin Sizinlə əlaqə yarada biləcəyinə əmin olmaq üçün bloklama deaktiv edildi."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"İndi yenidən aktiv edin"</string>

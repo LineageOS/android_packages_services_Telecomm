@@ -57,8 +57,7 @@
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"ఫోన్ నంబర్"</string>
     <string name="block_button" msgid="8822290682524373357">"బ్లాక్ చేయి"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"కేవలం పరికర యజమాని మాత్రమే బ్లాక్ చేసిన నంబర్‌లను వీక్షించగలరు మరియు నిర్వహించగలరు."</string>
-    <!-- no translation found for delete_icon_description (8903995728252556724) -->
-    <skip />
+    <string name="delete_icon_description" msgid="8903995728252556724">"అన్‌బ్లాక్ చేస్తుంది"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"బ్లాకింగ్ తాత్కాలికంగా ఆఫ్ చేయబడింది"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"మీరు అత్యవసర నంబర్‌కి డయల్ చేసాక లేదా వచన సందేశం పంపాక, అత్యవసర సేవలు తిరిగి మిమ్మల్ని సంప్రదించగలిగేలా చేయడానికి బ్లాకింగ్ ఆఫ్ చేయబడుతుంది."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"ఇప్పుడే మళ్లీ ప్రారంభించు"</string>
