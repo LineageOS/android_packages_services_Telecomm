@@ -157,6 +157,7 @@ public final class TelecomSystem {
         Log.setContext(mContext);
         Log.initMd5Sum();
 
+        Log.startSession("TS.init");
         mPhoneAccountRegistrar = new PhoneAccountRegistrar(mContext);
         mContactsAsyncHelper = new ContactsAsyncHelper(
                 new ContactsAsyncHelper.ContentResolverAdapter() {
@@ -222,6 +223,7 @@ public final class TelecomSystem {
                 defaultDialerAdapter,
                 new TelecomServiceImpl.SubscriptionManagerAdapterImpl(),
                 mLock);
+        Log.endSession();
     }
 
     @VisibleForTesting

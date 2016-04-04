@@ -33,8 +33,10 @@ public abstract class Runnable {
                         Log.continueSession(mSubsession, mSubsessionName);
                         loggedRun();
                     } finally {
-                        Log.endSession();
-                        mSubsession = null;
+                        if (mSubsession != null) {
+                            Log.endSession();
+                            mSubsession = null;
+                        }
                     }
                 }
             }
