@@ -44,6 +44,10 @@ public class CallAudioModeStateMachine extends StateMachine {
             this.session = session;
         }
 
+        public MessageArgs() {
+            this.session = Log.createSubsession();
+        }
+
         @Override
         public String toString() {
             return "MessageArgs{" +
@@ -467,7 +471,7 @@ public class CallAudioModeStateMachine extends StateMachine {
         addState(mOtherFocusState);
         setInitialState(mUnfocusedState);
         start();
-        sendMessage(INITIALIZE);
+        sendMessage(INITIALIZE, new MessageArgs());
     }
 
     public void setCallAudioManager(CallAudioManager callAudioManager) {
