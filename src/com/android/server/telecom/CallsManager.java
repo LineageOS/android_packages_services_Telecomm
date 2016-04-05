@@ -215,7 +215,7 @@ public class CallsManager extends Call.ListenerBase
         mBluetoothManager = bluetoothManager;
         mDockManager = new DockManager(context);
         mCallerInfoLookupHelper = new CallerInfoLookupHelper(context, mCallerInfoAsyncQueryFactory,
-                mContactsAsyncHelper);
+                mContactsAsyncHelper, mLock);
 
         mDtmfLocalTonePlayer = new DtmfLocalTonePlayer();
         CallAudioRouteStateMachine callAudioRouteStateMachine = new CallAudioRouteStateMachine(
