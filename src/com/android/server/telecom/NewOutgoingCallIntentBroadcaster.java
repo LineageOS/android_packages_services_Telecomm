@@ -196,6 +196,10 @@ public class NewOutgoingCallIntentBroadcaster {
                 Log.i(this, "Placing call immediately instead of waiting for "
                         + " OutgoingCallBroadcastReceiver: %s", intent);
 
+                // Since we are not going to go through "Outgoing call broadcast", make sure
+                // we mark it as ready.
+                mCall.setNewOutgoingCallIntentBroadcastIsDone();
+
                 boolean speakerphoneOn = mIntent.getBooleanExtra(
                         TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE, false);
                 mCallsManager.placeOutgoingCall(mCall, handle, null, speakerphoneOn,
