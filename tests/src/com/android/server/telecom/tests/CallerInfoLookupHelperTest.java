@@ -29,6 +29,7 @@ import com.android.server.telecom.CallerInfoAsyncQueryFactory;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.ContactsAsyncHelper;
 import com.android.server.telecom.Session;
+import com.android.server.telecom.TelecomSystem;
 
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -72,7 +73,7 @@ public class CallerInfoLookupHelperTest extends TelecomTestCase {
     public void setUp() throws Exception {
         super.setUp();
         mCallerInfoLookupHelper = new CallerInfoLookupHelper(mContext,
-                mFactory, mContactsAsyncHelper);
+                mFactory, mContactsAsyncHelper, new TelecomSystem.SyncRoot() { });
         when(mFactory.startQuery(anyInt(), eq(mContext), anyString(),
                 any(CallerInfoAsyncQuery.OnQueryCompleteListener.class), any()))
                 .thenReturn(mock(CallerInfoAsyncQuery.class));

@@ -59,15 +59,17 @@ public class CallerInfoLookupHelper {
     private final CallerInfoAsyncQueryFactory mCallerInfoAsyncQueryFactory;
     private final ContactsAsyncHelper mContactsAsyncHelper;
     private final Context mContext;
-    private final Object mLock = new Object();
+    private final TelecomSystem.SyncRoot mLock;
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     public CallerInfoLookupHelper(Context context,
             CallerInfoAsyncQueryFactory callerInfoAsyncQueryFactory,
-            ContactsAsyncHelper contactsAsyncHelper) {
+            ContactsAsyncHelper contactsAsyncHelper,
+            TelecomSystem.SyncRoot lock) {
         mCallerInfoAsyncQueryFactory = callerInfoAsyncQueryFactory;
         mContactsAsyncHelper = contactsAsyncHelper;
         mContext = context;
+        mLock = lock;
     }
 
     public void startLookup(final Uri handle, OnQueryCompleteListener listener) {
