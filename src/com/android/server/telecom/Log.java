@@ -141,6 +141,8 @@ public class Log {
     }
 
     public static class CallEventRecord {
+        private static final DateFormat sLongDateFormat = new SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss.SSS");
         private static final DateFormat sDateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
         private static int sNextId = 1;
         private final List<CallEvent> mEvents = new LinkedList<>();
@@ -165,7 +167,7 @@ public class Log {
             pw.print("Call ");
             pw.print(mCall.getId());
             pw.print(" [");
-            pw.print(sDateFormat.format(new Date(mCall.getCreationTimeMillis())));
+            pw.print(sLongDateFormat.format(new Date(mCall.getCreationTimeMillis())));
             pw.print("]");
             pw.println(mCall.isIncoming() ? "(MT - incoming)" : "(MO - outgoing)");
 
