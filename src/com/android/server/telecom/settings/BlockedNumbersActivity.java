@@ -49,6 +49,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.android.server.telecom.R;
 
 /**
@@ -79,12 +80,6 @@ public class BlockedNumbersActivity extends ListActivity
     private TextView mReEnableButton;
 
     private BroadcastReceiver mBlockingStatusReceiver;
-
-    public static void start(Context context) {
-        Intent intent = new Intent(context, BlockedNumbersActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
-    }
 
     public static Intent getIntentForStartingActivity() {
         Intent intent = new Intent(ACTION_MANAGE_BLOCKED_NUMBERS);
