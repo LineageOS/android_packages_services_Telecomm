@@ -31,10 +31,6 @@ import java.util.concurrent.ConcurrentHashMap;
 /** Listens for and caches headset state. */
 @VisibleForTesting
 public class WiredHeadsetManager {
-    private static final int VALID_WIRED_DEVICES = AudioManager.DEVICE_OUT_WIRED_HEADSET |
-            AudioManager.DEVICE_OUT_WIRED_HEADPHONE |
-            AudioManager.DEVICE_OUT_USB_DEVICE;
-
     @VisibleForTesting
     public interface Listener {
         void onWiredHeadsetPluggedInChanged(boolean oldIsPluggedIn, boolean newIsPluggedIn);
@@ -63,11 +59,19 @@ public class WiredHeadsetManager {
         }
 
         private void updateHeadsetStatus() {
-            int devices = mAudioManager.getDevicesForStream(AudioManager.STREAM_VOICE_CALL);
+            AudioDeviceInfo[] devices = mAudioManager.getDevices(AudioManager.GET_DEVICES_ALL);
+            boolean isPluggedIn = false;
+            for (AudioDeviceInfo device : devices) {
+                switch (device.getType()) {
+                    case AudioDeviceInfo.TYPE_WIRED_HEADPHONES:
+                    case AudioDeviceInfo.TYPE_WIRED_HEADSET:
+                    case AudioDeviceInfo.TYPE_USB_DEVICE:
+                        isPluggedIn = true;
+                }
+            }
 
-            boolean isPluggedIn = (devices & VALID_WIRED_DEVICES) != 0;
-            Log.i(WiredHeadsetManager.this, "ACTION_HEADSET_PLUG event, plugged in: %b, " +
-                    "devices: %s", isPluggedIn, Integer.toHexString(devices));
+            Log.i(WiredHeadsetManager.this, "ACTION_HEADSET_PLUG event, plugged in: %b, ",
+                    isPluggedIn);
             onHeadsetPluggedInChanged(isPluggedIn);
         }
     }
