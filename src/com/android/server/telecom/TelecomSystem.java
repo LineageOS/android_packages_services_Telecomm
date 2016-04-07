@@ -152,7 +152,8 @@ public final class TelecomSystem {
             InCallWakeLockControllerFactory inCallWakeLockControllerFactory,
             AudioServiceFactory audioServiceFactory,
             BluetoothPhoneServiceImplFactory
-                    bluetoothPhoneServiceImplFactory) {
+                    bluetoothPhoneServiceImplFactory,
+            AsyncRingtonePlayer asyncRingtonePlayer) {
         mContext = context.getApplicationContext();
         Log.setContext(mContext);
         Log.initMd5Sum();
@@ -192,7 +193,8 @@ public final class TelecomSystem {
                 bluetoothManager,
                 wiredHeadsetManager,
                 systemStateProvider,
-                defaultDialerAdapter);
+                defaultDialerAdapter,
+                asyncRingtonePlayer);
 
         mRespondViaSmsManager = new RespondViaSmsManager(mCallsManager, mLock);
         mCallsManager.setRespondViaSmsManager(mRespondViaSmsManager);

@@ -54,6 +54,7 @@ import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 
 import com.android.internal.telecom.IInCallAdapter;
+import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.BluetoothPhoneServiceImpl;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallerInfoAsyncQueryFactory;
@@ -144,6 +145,7 @@ public class TelecomSystemTest extends TelecomTestCase {
     @Mock ProximitySensorManager mProximitySensorManager;
     @Mock InCallWakeLockController mInCallWakeLockController;
     @Mock BluetoothPhoneServiceImpl mBluetoothPhoneServiceImpl;
+    @Mock AsyncRingtonePlayer mAsyncRingtonePlayer;
 
     final ComponentName mInCallServiceComponentNameX =
             new ComponentName(
@@ -314,7 +316,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                             PhoneAccountRegistrar phoneAccountRegistrar) {
                         return mBluetoothPhoneServiceImpl;
                     }
-                });
+                },
+                mAsyncRingtonePlayer);
 
         mComponentContextFixture.setTelecomManager(new TelecomManager(
                 mComponentContextFixture.getTestDouble(),

@@ -203,7 +203,8 @@ public class CallsManager extends Call.ListenerBase
             BluetoothManager bluetoothManager,
             WiredHeadsetManager wiredHeadsetManager,
             SystemStateProvider systemStateProvider,
-            DefaultDialerManagerAdapter defaultDialerAdapter) {
+            DefaultDialerManagerAdapter defaultDialerAdapter,
+            AsyncRingtonePlayer asyncRingtonePlayer) {
         mContext = context;
         mLock = lock;
         mContactsAsyncHelper = contactsAsyncHelper;
@@ -242,7 +243,6 @@ public class CallsManager extends Call.ListenerBase
         SystemSettingsUtil systemSettingsUtil = new SystemSettingsUtil();
         RingtoneFactory ringtoneFactory = new RingtoneFactory(this, context);
         SystemVibrator systemVibrator = new SystemVibrator(context);
-        AsyncRingtonePlayer asyncRingtonePlayer = new AsyncRingtonePlayer();
         mInCallController = new InCallController(
                 context, mLock, this, systemStateProvider, defaultDialerAdapter);
         mRinger = new Ringer(playerFactory, context, systemSettingsUtil, asyncRingtonePlayer,

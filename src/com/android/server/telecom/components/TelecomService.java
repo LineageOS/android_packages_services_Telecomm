@@ -26,6 +26,7 @@ import android.os.PowerManager;
 import android.os.ServiceManager;
 
 import com.android.internal.telephony.CallerInfoAsyncQuery;
+import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.BluetoothAdapterProxy;
 import com.android.server.telecom.BluetoothPhoneServiceImpl;
 import com.android.server.telecom.CallerInfoAsyncQueryFactory;
@@ -144,7 +145,8 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                             callsManager, new BluetoothAdapterProxy(),
                                             phoneAccountRegistrar);
                                 }
-                            }
+                            },
+                            new AsyncRingtonePlayer()
                     ));
         }
         if (BluetoothAdapter.getDefaultAdapter() != null) {
