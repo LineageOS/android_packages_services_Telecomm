@@ -38,7 +38,7 @@ class AsyncBlockCheckTask extends AsyncTask<String, Void, Boolean> {
     private final Object mCallScreeningListenerLock = new Object();
 
     private Session mLogSubsession;
-    private Runnable mBlockCheckTimeoutRunnable = new Runnable("ABCT.oPE") {
+    private Runnable mBlockCheckTimeoutRunnable = new Runnable("ABCT.bCTR") {
         @Override
         public void loggedRun() {
             synchronized (mCallScreeningListenerLock) {
@@ -63,6 +63,9 @@ class AsyncBlockCheckTask extends AsyncTask<String, Void, Boolean> {
 
     @Override
     protected void onPreExecute() {
+        // This Task will run onPostExecute after the containing session has ended. Add an invisible
+        // subsession to keep track of this.
+        Log.startSession("ABCT.oPE");
         mLogSubsession = Log.createSubsession();
         mHandler.postDelayed(mBlockCheckTimeoutRunnable.prepare(),
                 Timeouts.getBlockCheckTimeoutMillis(mContext.getContentResolver()));
@@ -99,6 +102,8 @@ class AsyncBlockCheckTask extends AsyncTask<String, Void, Boolean> {
                 mCallScreeningListener = null;
             }
         }
+        // End invisible subsession started in onPreExecute
+        Log.endSession();
     }
 
     private void processIsBlockedLocked(boolean isBlocked) {
