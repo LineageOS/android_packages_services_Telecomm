@@ -1977,6 +1977,15 @@ public class Call implements CreateConnectionResponse {
     }
 
     /**
+     * Determines if this call has just been created and has not been configured properly yet.
+     *
+     * @return {@code true} if this call is new.
+     */
+    public boolean isNew() {
+        return getState() == CallState.NEW;
+    }
+
+    /**
      * Sets the call data usage for the call.
      *
      * @param callDataUsage The new call data usage (in bytes).
