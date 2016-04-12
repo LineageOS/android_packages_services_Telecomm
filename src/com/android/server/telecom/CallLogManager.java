@@ -307,7 +307,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
         private Uri addCall(AddCallArgs c) {
             PhoneAccount phoneAccount = mPhoneAccountRegistrar
                     .getPhoneAccountUnchecked(c.accountHandle);
-            if (phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_MULTI_USER)) {
+            if (phoneAccount != null &&
+                    phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_MULTI_USER)) {
                 if (c.initiatingUser != null &&
                         UserUtil.isManagedProfile(mContext, c.initiatingUser)) {
                     return addCall(c, c.initiatingUser);
@@ -315,7 +316,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
                     return addCall(c, null);
                 }
             } else {
-                return addCall(c, c.accountHandle.getUserHandle());
+                return addCall(c, c.accountHandle == null ? null : c.accountHandle.getUserHandle());
             }
         }
 
