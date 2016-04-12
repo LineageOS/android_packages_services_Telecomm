@@ -23,7 +23,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.IContentProvider;
 import android.content.pm.UserInfo;
+import android.location.Country;
+import android.location.CountryDetector;
+import android.location.CountryListener;
 import android.net.Uri;
+import android.os.Looper;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.CallLog;
@@ -32,7 +36,9 @@ import android.telecom.DisconnectCause;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.VideoProfile;
+import android.telephony.PhoneNumberUtils;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallLogManager;
@@ -55,6 +61,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 public class CallLogManagerTest extends TelecomTestCase {
 
@@ -81,8 +88,10 @@ public class CallLogManagerTest extends TelecomTestCase {
     private static final int OTHER_USER_ID = 10;
     private static final int MANAGED_USER_ID = 11;
 
-    @Mock
-    PhoneAccountRegistrar mMockPhoneAccountRegistrar;
+    private static final String TEST_ISO = "KR";
+    private static final String TEST_ISO_2 = "JP";
+
+    @Mock PhoneAccountRegistrar mMockPhoneAccountRegistrar;
 
 
     @Override
@@ -345,7 +354,8 @@ public class CallLogManagerTest extends TelecomTestCase {
         assertEquals(insertedValues.getAsString(CallLog.Calls.NUMBER),
                 TEL_PHONEHANDLE.getSchemeSpecificPart());
         assertEquals(insertedValues.getAsString(CallLog.Calls.POST_DIAL_DIGITS), POST_DIAL_STRING);
-        assertEquals(insertedValues.getAsString(Calls.VIA_NUMBER), VIA_NUMBER_STRING);
+        String expectedNumber = PhoneNumberUtils.formatNumber(VIA_NUMBER_STRING, "US");
+        assertEquals(insertedValues.getAsString(Calls.VIA_NUMBER), expectedNumber);
     }
 
     @MediumTest
@@ -572,6 +582,45 @@ public class CallLogManagerTest extends TelecomTestCase {
         mCallLogManager.onCallStateChanged(fakeVideoCall, CallState.ACTIVE, CallState.DISCONNECTED);
         ContentValues insertedValues = verifyInsertionWithCapture(CURRENT_USER_ID);
         assertNull(insertedValues.getAsLong(CallLog.Calls.DATA_USAGE));
+    }
+
+    @SmallTest
+    public void testCountryIso_setCache() {
+        Country testCountry = new Country(TEST_ISO, Country.COUNTRY_SOURCE_LOCALE);
+        CountryDetector mockDetector = (CountryDetector) mContext.getSystemService(
+                Context.COUNTRY_DETECTOR);
+        when(mockDetector.detectCountry()).thenReturn(testCountry);
+
+        String resultIso = mCallLogManager.getCountryIso();
+
+        verifyCountryIso(mockDetector, resultIso);
+    }
+
+    @SmallTest
+    public void testCountryIso_newCountryDetected() {
+        Country testCountry = new Country(TEST_ISO, Country.COUNTRY_SOURCE_LOCALE);
+        Country testCountry2 = new Country(TEST_ISO_2, Country.COUNTRY_SOURCE_LOCALE);
+        CountryDetector mockDetector = (CountryDetector) mContext.getSystemService(
+                Context.COUNTRY_DETECTOR);
+        when(mockDetector.detectCountry()).thenReturn(testCountry);
+        // Put TEST_ISO in the Cache
+        String resultIso = mCallLogManager.getCountryIso();
+        ArgumentCaptor<CountryListener> captor = verifyCountryIso(mockDetector, resultIso);
+
+        // Change ISO to TEST_ISO_2
+        CountryListener listener = captor.getValue();
+        listener.onCountryDetected(testCountry2);
+
+        String resultIso2 = mCallLogManager.getCountryIso();
+        assertEquals(TEST_ISO_2, resultIso2);
+    }
+
+    private ArgumentCaptor<CountryListener> verifyCountryIso(CountryDetector mockDetector,
+            String resultIso) {
+        ArgumentCaptor<CountryListener> captor = ArgumentCaptor.forClass(CountryListener.class);
+        verify(mockDetector).addCountryListener(captor.capture(), any(Looper.class));
+        assertEquals(TEST_ISO, resultIso);
+        return captor;
     }
 
     private void verifyNoInsertion() {

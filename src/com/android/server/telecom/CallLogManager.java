@@ -18,8 +18,12 @@ package com.android.server.telecom;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.Country;
+import android.location.CountryDetector;
+import android.location.CountryListener;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Looper;
 import android.os.UserHandle;
 import android.os.PersistableBundle;
 import android.provider.CallLog.Calls;
@@ -33,6 +37,8 @@ import android.telephony.PhoneNumberUtils;
 // TODO: Needed for move to system service: import com.android.internal.R;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telephony.CallerInfo;
+
+import java.util.Locale;
 
 /**
  * Helper class that provides functionality to write information about calls and their associated
@@ -103,9 +109,13 @@ public final class CallLogManager extends CallsManagerListenerBase {
     private static final String CALL_TYPE = "callType";
     private static final String CALL_DURATION = "duration";
 
+    private Object mLock;
+    private String mCurrentCountryIso;
+
     public CallLogManager(Context context, PhoneAccountRegistrar phoneAccountRegistrar) {
         mContext = context;
         mPhoneAccountRegistrar = phoneAccountRegistrar;
+        mLock = new Object();
     }
 
     @Override
@@ -155,6 +165,11 @@ public final class CallLogManager extends CallsManagerListenerBase {
         final PhoneAccountHandle emergencyAccountHandle =
                 TelephonyUtil.getDefaultEmergencyPhoneAccount().getAccountHandle();
 
+        String formattedViaNumber = PhoneNumberUtils.formatNumber(call.getViaNumber(),
+                getCountryIso());
+        formattedViaNumber = (formattedViaNumber != null) ?
+                formattedViaNumber : call.getViaNumber();
+
         PhoneAccountHandle accountHandle = call.getTargetPhoneAccount();
         if (emergencyAccountHandle.equals(accountHandle)) {
             accountHandle = null;
@@ -164,7 +179,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
                 call.getCallDataUsage();
 
         int callFeatures = getCallFeatures(call.getVideoStateHistory());
-        logCall(call.getCallerInfo(), logNumber, call.getPostDialDigits(), call.getViaNumber(),
+        logCall(call.getCallerInfo(), logNumber, call.getPostDialDigits(), formattedViaNumber,
                 call.getHandlePresentation(), callLogType, callFeatures, accountHandle,
                 creationTime, age, callDataUsage, call.isEmergencyCall(), call.getInitiatingUser());
     }
@@ -352,5 +367,48 @@ public final class CallLogManager extends CallsManagerListenerBase {
         callAddIntent.putExtra(CALL_TYPE, callType);
         callAddIntent.putExtra(CALL_DURATION, duration);
         mContext.sendBroadcast(callAddIntent, PERMISSION_PROCESS_CALLLOG_INFO);
+    }
+
+    private String getCountryIsoFromCountry(Country country) {
+        if(country == null) {
+            // Fallback to Locale if there are issues with CountryDetector
+            Log.w(TAG, "Value for country was null. Falling back to Locale.");
+            return Locale.getDefault().getCountry();
+        }
+
+        return country.getCountryIso();
+    }
+
+    /**
+     * Get the current country code
+     *
+     * @return the ISO 3166-1 two letters country code of current country.
+     */
+    public String getCountryIso() {
+        synchronized (mLock) {
+            if (mCurrentCountryIso == null) {
+                Log.i(TAG, "Country cache is null. Detecting Country and Setting Cache...");
+                final CountryDetector countryDetector =
+                        (CountryDetector) mContext.getSystemService(Context.COUNTRY_DETECTOR);
+                Country country = null;
+                if (countryDetector != null) {
+                    country = countryDetector.detectCountry();
+
+                    countryDetector.addCountryListener((newCountry) -> {
+                        Log.startSession("CLM.oCD");
+                        try {
+                            synchronized (mLock) {
+                                Log.i(TAG, "Country ISO changed. Retrieving new ISO...");
+                                mCurrentCountryIso = getCountryIsoFromCountry(newCountry);
+                            }
+                        } finally {
+                            Log.endSession();
+                        }
+                    }, Looper.getMainLooper());
+                }
+                mCurrentCountryIso = getCountryIsoFromCountry(country);
+            }
+            return mCurrentCountryIso;
+        }
     }
 }
