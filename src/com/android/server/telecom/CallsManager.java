@@ -184,6 +184,8 @@ public class CallsManager extends Call.ListenerBase
 
     private boolean mCanAddCall = true;
 
+    private TelephonyManager.MultiSimVariants mRadioSimVariants = null;
+
     private Runnable mStopTone;
 
     /**
@@ -799,25 +801,8 @@ public class CallsManager extends Call.ListenerBase
             call.setVideoState(videoState);
         }
 
-        List<PhoneAccountHandle> accounts =
-                mPhoneAccountRegistrar.getCallCapablePhoneAccounts(handle.getScheme(), false,
-                        initiatingUser);
+        List<PhoneAccountHandle> accounts = constructPossiblePhoneAccounts(handle, initiatingUser);
         Log.v(this, "startOutgoingCall found accounts = " + accounts);
-
-        if (getForegroundCall() != null) {
-            Call ongoingCall = getForegroundCall();
-            // If there is an ongoing call, use the same phone account to place this new call.
-            // If the ongoing call is a conference call, we fetch the phone account from the
-            // child calls because we don't have targetPhoneAccount set on Conference calls.
-            // TODO: Set targetPhoneAccount for all conference calls (b/23035408).
-            if (ongoingCall.getTargetPhoneAccount() == null &&
-                    !ongoingCall.getChildCalls().isEmpty()) {
-                ongoingCall = ongoingCall.getChildCalls().get(0);
-            }
-            if (ongoingCall.getTargetPhoneAccount() != null) {
-                phoneAccountHandle = ongoingCall.getTargetPhoneAccount();
-            }
-        }
 
         // Only dial with the requested phoneAccount if it is still valid. Otherwise treat this call
         // as if a phoneAccount was not specified (does the default behavior instead).
@@ -828,12 +813,22 @@ public class CallsManager extends Call.ListenerBase
             }
         }
 
-        if (phoneAccountHandle == null) {
+        if (phoneAccountHandle == null && accounts.size() > 0 && !call.isEmergencyCall()) {
             // No preset account, check if default exists that supports the URI scheme for the
-            // handle.
-            phoneAccountHandle =
-                    mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(handle.getScheme(),
-                            initiatingUser);
+            // handle and verify it can be used.
+            if(accounts.size() > 1) {
+                PhoneAccountHandle defaultPhoneAccountHandle =
+                        mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(handle.getScheme(),
+                                initiatingUser);
+                if (defaultPhoneAccountHandle != null &&
+                        accounts.contains(defaultPhoneAccountHandle)) {
+                    phoneAccountHandle = defaultPhoneAccountHandle;
+                }
+            } else {
+                // Use the only PhoneAccount that is available
+                phoneAccountHandle = accounts.get(0);
+            }
+
         }
 
         call.setTargetPhoneAccount(phoneAccountHandle);
@@ -1179,6 +1174,44 @@ public class CallsManager extends Call.ListenerBase
         }
         handleCallTechnologyChange(c);
         handleChildAddressChange(c);
+    }
+
+    // Construct the list of possible PhoneAccounts that the outgoing call can use based on the
+    // active calls in CallsManager. If any of the active calls are on a SIM based PhoneAccount,
+    // then include only that SIM based PhoneAccount and any non-SIM PhoneAccounts, such as SIP.
+    private List<PhoneAccountHandle> constructPossiblePhoneAccounts(Uri handle, UserHandle user) {
+        if (handle == null) {
+            return Collections.emptyList();
+        }
+        List<PhoneAccountHandle> allAccounts =
+                mPhoneAccountRegistrar.getCallCapablePhoneAccounts(handle.getScheme(), false, user);
+        // First check the Radio SIM Technology
+        if(mRadioSimVariants == null) {
+            TelephonyManager tm = (TelephonyManager) mContext.getSystemService(
+                    Context.TELEPHONY_SERVICE);
+            // Cache Sim Variants
+            mRadioSimVariants = tm.getMultiSimConfiguration();
+        }
+        // Only one SIM PhoneAccount can be active at one time for DSDS. Only that SIM PhoneAccount
+        // Should be available if a call is already active on the SIM account.
+        if(mRadioSimVariants != TelephonyManager.MultiSimVariants.DSDA) {
+            List<PhoneAccountHandle> simAccounts =
+                    mPhoneAccountRegistrar.getSimPhoneAccountsOfCurrentUser();
+            PhoneAccountHandle ongoingCallAccount = null;
+            for (Call c : mCalls) {
+                if (!c.isDisconnected() && !c.isNew() && simAccounts.contains(
+                        c.getTargetPhoneAccount())) {
+                    ongoingCallAccount = c.getTargetPhoneAccount();
+                    break;
+                }
+            }
+            if (ongoingCallAccount != null) {
+                // Remove all SIM accounts that are not the active SIM from the list.
+                simAccounts.remove(ongoingCallAccount);
+                allAccounts.removeAll(simAccounts);
+            }
+        }
+        return allAccounts;
     }
 
     private void handleCallTechnologyChange(Call call) {
