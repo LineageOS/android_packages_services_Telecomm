@@ -43,6 +43,8 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.location.Country;
+import android.location.CountryDetector;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -176,6 +178,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
                     return mTelecomManager;
                 case Context.CARRIER_CONFIG_SERVICE:
                     return mCarrierConfigManager;
+                case Context.COUNTRY_DETECTOR:
+                    return mCountryDetector;
                 default:
                     return null;
             }
@@ -404,6 +408,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
     private final StatusBarManager mStatusBarManager = mock(StatusBarManager.class);
     private final SubscriptionManager mSubscriptionManager = mock(SubscriptionManager.class);
     private final CarrierConfigManager mCarrierConfigManager = mock(CarrierConfigManager.class);
+    private final CountryDetector mCountryDetector = mock(CountryDetector.class);
     private final Map<String, IContentProvider> mIContentProviderByUri = new HashMap<>();
     private final Configuration mResourceConfiguration = new Configuration();
 
