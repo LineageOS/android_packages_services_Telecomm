@@ -97,6 +97,7 @@ public class CallsManager extends Call.ListenerBase
         void onCanAddCallChanged(boolean canAddCall);
         void onSessionModifyRequestReceived(Call call, VideoProfile videoProfile);
         void onHoldToneRequested(Call call);
+        void onExternalCallChanged(Call call, boolean isExternalCall);
     }
 
     private static final String TAG = "CallsManager";
@@ -1214,6 +1215,21 @@ public class CallsManager extends Call.ListenerBase
         return allAccounts;
     }
 
+    /**
+     * Informs listeners (notably {@link CallAudioManager} of a change to the call's external
+     * property.
+     * .
+     * @param call The call whose external property changed.
+     * @param isExternalCall {@code True} if the call is now external, {@code false} otherwise.
+     */
+    @Override
+    public void onExternalCallChanged(Call call, boolean isExternalCall) {
+        Log.v(this, "onConnectionPropertiesChanged: %b", isExternalCall);
+        for (CallsManagerListener listener : mListeners) {
+            listener.onExternalCallChanged(call, isExternalCall);
+        }
+    }
+
     private void handleCallTechnologyChange(Call call) {
         if (call.getExtras() != null
                 && call.getExtras().containsKey(TelecomManager.EXTRA_CALL_TECHNOLOGY_TYPE)) {
@@ -1360,8 +1376,22 @@ public class CallsManager extends Call.ListenerBase
         }
     }
 
+    /**
+     * Determines if the {@link CallsManager} has any non-external calls.
+     *
+     * @return {@code True} if there are any non-external calls, {@code false} otherwise.
+     */
     boolean hasAnyCalls() {
-        return !mCalls.isEmpty();
+        if (mCalls.isEmpty()) {
+            return false;
+        }
+
+        for (Call call : mCalls) {
+            if (!call.isExternalCall()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     boolean hasActiveOrHoldingCall() {

@@ -43,9 +43,7 @@ import android.os.UserHandle;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telecom.IVideoProvider;
 import com.android.internal.telephony.CallerInfo;
-import com.android.internal.telephony.CallerInfoAsyncQuery;
 import com.android.internal.telephony.SmsApplication;
-import com.android.server.telecom.ContactsAsyncHelper.OnImageLoadCompleteListener;
 import com.android.internal.util.Preconditions;
 
 import java.lang.String;
@@ -113,6 +111,7 @@ public class Call implements CreateConnectionResponse {
         boolean onCanceledViaNewOutgoingCallBroadcast(Call call);
         void onHoldToneRequested(Call call);
         void onConnectionEvent(Call call, String event, Bundle extras);
+        void onExternalCallChanged(Call call, boolean isExternalCall);
     }
 
     public abstract static class ListenerBase implements Listener {
@@ -179,6 +178,8 @@ public class Call implements CreateConnectionResponse {
         public void onHoldToneRequested(Call call) {}
         @Override
         public void onConnectionEvent(Call call, String event, Bundle extras) {}
+        @Override
+        public void onExternalCallChanged(Call call, boolean isExternalCall) {}
     }
 
     private final CallerInfoLookupHelper.OnQueryCompleteListener mCallerInfoQueryListener =
@@ -961,9 +962,24 @@ public class Call implements CreateConnectionResponse {
         Log.v(this, "setConnectionProperties: %s", Connection.propertiesToString(
                 connectionProperties));
         if (mConnectionProperties != connectionProperties) {
+            int previousProperties = mConnectionProperties;
             mConnectionProperties = connectionProperties;
             for (Listener l : mListeners) {
                 l.onConnectionPropertiesChanged(this);
+            }
+
+            boolean wasExternal = (previousProperties & Connection.PROPERTY_IS_EXTERNAL_CALL)
+                    == Connection.PROPERTY_IS_EXTERNAL_CALL;
+            boolean isExternal = (connectionProperties & Connection.PROPERTY_IS_EXTERNAL_CALL)
+                    == Connection.PROPERTY_IS_EXTERNAL_CALL;
+            if (wasExternal != isExternal) {
+                Log.v(this, "setConnectionProperties: external call changed isExternal = %b",
+                        isExternal);
+
+                for (Listener l : mListeners) {
+                    l.onExternalCallChanged(this, isExternal);
+                }
+
             }
         }
     }

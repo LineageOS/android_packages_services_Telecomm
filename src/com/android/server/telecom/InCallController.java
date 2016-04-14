@@ -50,12 +50,10 @@ import com.android.server.telecom.TelecomServiceImpl.DefaultDialerManagerAdapter
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Binds to {@link IInCallService} and provides the service to {@link CallsManager} through which it
@@ -616,6 +614,13 @@ public final class InCallController extends CallsManagerListenerBase {
         }
         call.removeListener(mCallListener);
         mCallIdMapper.removeCall(call);
+    }
+
+    @Override
+    public void onExternalCallChanged(Call call, boolean isExternalCall) {
+        Log.i(this, "onExternalCallChanged: %s -> %b", call, isExternalCall);
+        // TODO: Need to add logic which ensures changes to a call's external state adds or removes
+        // the call from the InCallServices depending on whether they support external calls.
     }
 
     @Override

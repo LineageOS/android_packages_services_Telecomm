@@ -300,6 +300,22 @@ public class BluetoothPhoneServiceImpl {
             updateHeadsetWithCallState(false /* force */);
         }
 
+        /**
+         * Where a call which was external becomes a regular call, or a regular call becomes
+         * external, treat as an add or remove, respectively.
+         *
+         * @param call The call.
+         * @param isExternalCall {@code True} if the call became external, {@code false} otherwise.
+         */
+        @Override
+        public void onExternalCallChanged(Call call, boolean isExternalCall) {
+            if (isExternalCall) {
+                onCallRemoved(call);
+            } else {
+                onCallAdded(call);
+            }
+        }
+
         @Override
         public void onCallStateChanged(Call call, int oldState, int newState) {
             // If a call is being put on hold because of a new connecting call, ignore the

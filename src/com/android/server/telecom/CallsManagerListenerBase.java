@@ -84,4 +84,8 @@ public class CallsManagerListenerBase implements CallsManager.CallsManagerListen
     @Override
     public void onHoldToneRequested(Call call) {
     }
+
+    @Override
+    public void onExternalCallChanged(Call call, boolean isExternalCall) {
+    }
 }
