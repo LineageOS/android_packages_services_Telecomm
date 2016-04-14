@@ -164,7 +164,7 @@ public class BluetoothPhoneServiceImpl {
                 try {
                     Log.i(TAG, "getNetworkOperator");
                     PhoneAccount account = getBestPhoneAccount();
-                    if (account != null) {
+                    if (account != null && account.getLabel() != null) {
                         return account.getLabel().toString();
                     } else {
                         // Finally, just get the network name from telephony.
