@@ -48,17 +48,38 @@ final class PhoneStateBroadcaster extends CallsManagerListenerBase {
 
     @Override
     public void onCallAdded(Call call) {
+        if (call.isExternalCall()) {
+            return;
+        }
         updateStates(call);
     }
 
     @Override
     public void onCallRemoved(Call call) {
+        if (call.isExternalCall()) {
+            return;
+        }
+        updateStates(call);
+    }
+
+    /**
+     * Handles changes to a call's external property.  If the call becomes external, we end up
+     * updating the call state to idle.  If the call becomes non-external, then the call state can
+     * update to off hook.
+     *
+     * @param call The call.
+     * @param isExternalCall {@code True} if the call is external, {@code false} otherwise.
+     */
+    @Override
+    public void onExternalCallChanged(Call call, boolean isExternalCall) {
         updateStates(call);
     }
 
     private void updateStates(Call call) {
         // Recalculate the current phone state based on the consolidated state of the remaining
         // calls in the call list.
+        // Note: CallsManager#hasRingingCall() and CallsManager#getFirstCallWithState(..) do not
+        // consider external calls, so an external call is going to cause the state to be idle.
         int callState = TelephonyManager.CALL_STATE_IDLE;
         if (mCallsManager.hasRingingCall()) {
             callState = TelephonyManager.CALL_STATE_RINGING;

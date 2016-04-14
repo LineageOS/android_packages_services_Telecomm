@@ -119,6 +119,19 @@ public class CallAudioManager extends CallsManagerListenerBase {
             return; // Don't do audio handling for calls in a conference, or external calls.
         }
 
+        addCall(call);
+    }
+
+    @Override
+    public void onCallRemoved(Call call) {
+        if (shouldIgnoreCallForAudio(call)) {
+            return; // Don't do audio handling for calls in a conference, or external calls.
+        }
+
+        removeCall(call);
+    }
+
+    private void addCall(Call call) {
         if (mCalls.contains(call)) {
             Log.w(LOG_TAG, "Call TC@%s is being added twice.", call.getId());
             return; // No guarantees that the same call won't get added twice.
@@ -136,12 +149,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
         onCallEnteringState(call, call.getState());
     }
 
-    @Override
-    public void onCallRemoved(Call call) {
-        if (shouldIgnoreCallForAudio(call)) {
-            return; // Don't do audio handling for calls in a conference, or external calls.
-        }
-
+    private void removeCall(Call call) {
         if (!mCalls.contains(call)) {
             return; // No guarantees that the same call won't get removed twice.
         }
@@ -157,6 +165,25 @@ public class CallAudioManager extends CallsManagerListenerBase {
         mCalls.remove(call);
 
         onCallLeavingState(call, call.getState());
+    }
+
+    /**
+     * Handles changes to the external state of a call.  External calls which become regular calls
+     * should be tracked, and regular calls which become external should no longer be tracked.
+     *
+     * @param call The call.
+     * @param isExternalCall {@code True} if the call is now external, {@code false} if it is now
+     *      a regular call.
+     */
+    @Override
+    public void onExternalCallChanged(Call call, boolean isExternalCall) {
+       if (isExternalCall) {
+            Log.d(LOG_TAG, "Removing call which became external ID %s", call.getId());
+            removeCall(call);
+        } else if (!isExternalCall) {
+            Log.d(LOG_TAG, "Adding external call which was pulled with ID %s", call.getId());
+            addCall(call);
+        }
     }
 
     /**
