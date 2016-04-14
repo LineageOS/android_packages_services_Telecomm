@@ -92,6 +92,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
     public static final int USER_SWITCH_SPEAKER = 1104;
     public static final int USER_SWITCH_BASELINE_ROUTE = 1105;
 
+    public static final int UPDATE_SYSTEM_AUDIO_ROUTE = 1201;
+
     public static final int MUTE_ON = 3001;
     public static final int MUTE_OFF = 3002;
     public static final int TOGGLE_MUTE = 3003;
@@ -1071,6 +1073,9 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     sendInternalMessage(MUTE_ON);
                 }
                 return;
+            case UPDATE_SYSTEM_AUDIO_ROUTE:
+                resendSystemAudioState();
+                return;
             case RUN_RUNNABLE:
                 java.lang.Runnable r = (java.lang.Runnable) msg.obj;
                 r.run();
@@ -1151,12 +1156,20 @@ public class CallAudioRouteStateMachine extends StateMachine {
     }
 
     private void setSystemAudioState(CallAudioState newCallAudioState) {
+        setSystemAudioState(newCallAudioState, false);
+    }
+
+    private void resendSystemAudioState() {
+        setSystemAudioState(mLastKnownCallAudioState, true);
+    }
+
+    private void setSystemAudioState(CallAudioState newCallAudioState, boolean force) {
         Log.i(this, "setSystemAudioState: changing from %s to %s", mLastKnownCallAudioState,
                 newCallAudioState);
         Log.event(mCallsManager.getForegroundCall(), Log.Events.AUDIO_ROUTE,
                 CallAudioState.audioRouteToString(newCallAudioState.getRoute()));
 
-        if (!newCallAudioState.equals(mLastKnownCallAudioState)) {
+        if (force || !newCallAudioState.equals(mLastKnownCallAudioState)) {
             mCallsManager.onCallAudioStateChanged(mLastKnownCallAudioState, newCallAudioState);
             updateAudioForForegroundCall(newCallAudioState);
             mLastKnownCallAudioState = newCallAudioState;

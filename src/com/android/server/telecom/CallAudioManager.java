@@ -173,6 +173,10 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     @Override
     public void onIncomingCallAnswered(Call call) {
+        if (!mCalls.contains(call)) {
+            return;
+        }
+
         // This is called after the UI answers the call, but before the connection service
         // sets the call to active. Only thing to handle for mode here is the audio speedup thing.
 
@@ -381,6 +385,11 @@ public class CallAudioManager extends CallsManagerListenerBase {
     }
 
     void dump(IndentingPrintWriter pw) {
+        pw.println("All calls:");
+        pw.increaseIndent();
+        dumpCallsInCollection(pw, mCalls);
+        pw.decreaseIndent();
+
         pw.println("Active dialing, or connecting calls:");
         pw.increaseIndent();
         dumpCallsInCollection(pw, mActiveDialingOrConnectingCalls);
@@ -511,6 +520,8 @@ public class CallAudioManager extends CallsManagerListenerBase {
         }
 
         if (mForegroundCall != oldForegroundCall) {
+            mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+                    CallAudioRouteStateMachine.UPDATE_SYSTEM_AUDIO_ROUTE);
             mDtmfLocalTonePlayer.onForegroundCallChanged(oldForegroundCall, mForegroundCall);
             maybePlayHoldTone();
         }
