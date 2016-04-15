@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import android.annotation.Nullable;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Country;
@@ -47,6 +48,11 @@ import java.util.Locale;
  */
 @VisibleForTesting
 public final class CallLogManager extends CallsManagerListenerBase {
+
+    public interface LogCallCompletedListener {
+        void onLogCompleted(@Nullable Uri uri);
+    }
+
     /**
      * Parameter object to hold the arguments to add a call in the call log DB.
      */
@@ -62,11 +68,13 @@ public final class CallLogManager extends CallsManagerListenerBase {
          * @param creationDate Time when the call was created (milliseconds since epoch).
          * @param durationInMillis Duration of the call (milliseconds).
          * @param dataUsage Data usage in bytes, or null if not applicable.
+         * @param logCallCompletedListener optional callback called after the call is logged.
          */
         public AddCallArgs(Context context, CallerInfo callerInfo, String number,
                 String postDialDigits, String viaNumber, int presentation, int callType,
                 int features, PhoneAccountHandle accountHandle, long creationDate,
-                long durationInMillis, Long dataUsage, UserHandle initiatingUser) {
+                long durationInMillis, Long dataUsage, UserHandle initiatingUser,
+                @Nullable LogCallCompletedListener logCallCompletedListener) {
             this.context = context;
             this.callerInfo = callerInfo;
             this.number = number;
@@ -80,6 +88,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
             this.durationInSec = (int)(durationInMillis / 1000);
             this.dataUsage = dataUsage;
             this.initiatingUser = initiatingUser;
+            this.logCallCompletedListener = logCallCompletedListener;
         }
         // Since the members are accessed directly, we don't use the
         // mXxxx notation.
@@ -96,12 +105,16 @@ public final class CallLogManager extends CallsManagerListenerBase {
         public final int durationInSec;
         public final Long dataUsage;
         public final UserHandle initiatingUser;
+
+        @Nullable
+        public final LogCallCompletedListener logCallCompletedListener;
     }
 
     private static final String TAG = CallLogManager.class.getSimpleName();
 
     private final Context mContext;
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
+    private final MissedCallNotifier mMissedCallNotifier;
     private static final String ACTION_CALLS_TABLE_ADD_ENTRY =
                 "com.android.server.telecom.intent.action.CALLS_ADD_ENTRY";
     private static final String PERMISSION_PROCESS_CALLLOG_INFO =
@@ -112,9 +125,11 @@ public final class CallLogManager extends CallsManagerListenerBase {
     private Object mLock;
     private String mCurrentCountryIso;
 
-    public CallLogManager(Context context, PhoneAccountRegistrar phoneAccountRegistrar) {
+    public CallLogManager(Context context, PhoneAccountRegistrar phoneAccountRegistrar,
+            MissedCallNotifier missedCallNotifier) {
         mContext = context;
         mPhoneAccountRegistrar = phoneAccountRegistrar;
+        mMissedCallNotifier = missedCallNotifier;
         mLock = new Object();
     }
 
@@ -141,7 +156,21 @@ public final class CallLogManager extends CallsManagerListenerBase {
             } else {
                 type = Calls.INCOMING_TYPE;
             }
-            logCall(call, type);
+            logCall(call, type, true /*showNotificationForMissedCall*/);
+        }
+    }
+
+    void logCall(Call call, int type, boolean showNotificationForMissedCall) {
+        if (type == Calls.MISSED_TYPE && showNotificationForMissedCall) {
+            logCall(call, Calls.MISSED_TYPE,
+                    new LogCallCompletedListener() {
+                        @Override
+                        public void onLogCompleted(@Nullable Uri uri) {
+                            mMissedCallNotifier.showMissedCallNotification(call);
+                        }
+                    });
+        } else {
+            logCall(call, type, null);
         }
     }
 
@@ -153,8 +182,10 @@ public final class CallLogManager extends CallsManagerListenerBase {
      *     {@link android.provider.CallLog.Calls#INCOMING_TYPE}
      *     {@link android.provider.CallLog.Calls#OUTGOING_TYPE}
      *     {@link android.provider.CallLog.Calls#MISSED_TYPE}
+     * @param logCallCompletedListener optional callback called after the call is logged.
      */
-    void logCall(Call call, int callLogType) {
+    void logCall(Call call, int callLogType,
+        @Nullable LogCallCompletedListener logCallCompletedListener) {
         final long creationTime = call.getCreationTimeMillis();
         final long age = call.getAgeMillis();
 
@@ -181,7 +212,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
         int callFeatures = getCallFeatures(call.getVideoStateHistory());
         logCall(call.getCallerInfo(), logNumber, call.getPostDialDigits(), formattedViaNumber,
                 call.getHandlePresentation(), callLogType, callFeatures, accountHandle,
-                creationTime, age, callDataUsage, call.isEmergencyCall(), call.getInitiatingUser());
+                creationTime, age, callDataUsage, call.isEmergencyCall(), call.getInitiatingUser(),
+                logCallCompletedListener);
     }
 
     /**
@@ -198,6 +230,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
      * @param duration The duration of the call, in milliseconds.
      * @param dataUsage The data usage for the call, null if not applicable.
      * @param isEmergency {@code true} if this is an emergency call, {@code false} otherwise.
+     * @param logCallCompletedListener optional callback called after the call is logged.
      */
     private void logCall(
             CallerInfo callerInfo,
@@ -212,7 +245,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
             long duration,
             Long dataUsage,
             boolean isEmergency,
-            UserHandle initiatingUser) {
+            UserHandle initiatingUser,
+            @Nullable LogCallCompletedListener logCallCompletedListener) {
 
         // On some devices, to avoid accidental redialing of emergency numbers, we *never* log
         // emergency calls to the Call Log.  (This behavior is set on a per-product basis, based
@@ -237,7 +271,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
                     + ", " + start + ", " + duration);
             AddCallArgs args = new AddCallArgs(mContext, callerInfo, number, postDialDigits,
                     viaNumber, presentation, callType, features, accountHandle, start, duration,
-                    dataUsage, initiatingUser);
+                    dataUsage, initiatingUser, logCallCompletedListener);
             logCallAsync(args);
         } else {
           Log.d(TAG, "Not adding emergency call to call log.");
@@ -295,12 +329,17 @@ public final class CallLogManager extends CallsManagerListenerBase {
      * its own thread pool.
      */
     private class LogCallAsyncTask extends AsyncTask<AddCallArgs, Void, Uri[]> {
+
+        private LogCallCompletedListener[] mListeners;
+
         @Override
         protected Uri[] doInBackground(AddCallArgs... callList) {
             int count = callList.length;
             Uri[] result = new Uri[count];
+            mListeners = new LogCallCompletedListener[count];
             for (int i = 0; i < count; i++) {
                 AddCallArgs c = callList[i];
+                mListeners[i] = c.logCallCompletedListener;
                 try {
                     // May block.
                     result[i] = addCall(c);
@@ -348,15 +387,21 @@ public final class CallLogManager extends CallsManagerListenerBase {
                     userToBeInserted);
         }
 
-        /**
-         * Performs a simple sanity check to make sure the call was written in the database.
-         * Typically there is only one result per call so it is easy to identify which one failed.
-         */
+
         @Override
         protected void onPostExecute(Uri[] result) {
-            for (Uri uri : result) {
+            for (int i = 0; i < result.length; i++) {
+                Uri uri = result[i];
+                /*
+                 Performs a simple sanity check to make sure the call was written in the database.
+                 Typically there is only one result per call so it is easy to identify which one
+                 failed.
+                 */
                 if (uri == null) {
                     Log.w(TAG, "Failed to write call to the log.");
+                }
+                if (mListeners[i] != null) {
+                    mListeners[i].onLogCompleted(uri);
                 }
             }
         }
