@@ -20,7 +20,11 @@ import com.android.server.telecom.Log;
 
 import org.mockito.MockitoAnnotations;
 
+import android.os.Handler;
 import android.test.AndroidTestCase;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public abstract class TelecomTestCase extends AndroidTestCase {
     protected static final String TESTING_TAG = "Telecom-TEST";
@@ -43,5 +47,17 @@ public abstract class TelecomTestCase extends AndroidTestCase {
         mComponentContextFixture = null;
         mMockitoHelper.tearDown();
         Log.setTag(com.android.server.telecom.Log.TAG);
+    }
+
+    protected final void waitForHandlerAction(Handler h, long timeoutMillis) {
+        final CountDownLatch lock = new CountDownLatch(1);
+        h.post(lock::countDown);
+        while (lock.getCount() > 0) {
+            try {
+                lock.await(timeoutMillis, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                // do nothing
+            }
+        }
     }
 }

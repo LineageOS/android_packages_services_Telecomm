@@ -582,7 +582,7 @@ public class CallsManager extends Call.ListenerBase
         return mCurrentUserHandle;
     }
 
-    CallAudioManager getCallAudioManager() {
+    public CallAudioManager getCallAudioManager() {
         return mCallAudioManager;
     }
 

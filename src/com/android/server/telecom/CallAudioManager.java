@@ -411,6 +411,11 @@ public class CallAudioManager extends CallsManagerListenerBase {
                 CallAudioRouteStateMachine.SWITCH_FOCUS, focusState);
     }
 
+    @VisibleForTesting
+    public CallAudioRouteStateMachine getCallAudioRouteStateMachine() {
+        return mCallAudioRouteStateMachine;
+    }
+
     void dump(IndentingPrintWriter pw) {
         pw.println("All calls:");
         pw.increaseIndent();
