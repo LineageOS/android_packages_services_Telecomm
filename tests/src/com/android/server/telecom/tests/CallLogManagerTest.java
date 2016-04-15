@@ -43,7 +43,9 @@ import android.test.suitebuilder.annotation.SmallTest;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallLogManager;
 import com.android.server.telecom.CallState;
+import com.android.server.telecom.MissedCallNotifier;
 import com.android.server.telecom.PhoneAccountRegistrar;
+import com.android.server.telecom.R;
 import com.android.server.telecom.TelephonyUtil;
 
 import static org.mockito.Matchers.any;
@@ -93,12 +95,15 @@ public class CallLogManagerTest extends TelecomTestCase {
 
     @Mock PhoneAccountRegistrar mMockPhoneAccountRegistrar;
 
+    @Mock
+    MissedCallNotifier mMissedCallNotifier;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
-        mCallLogManager = new CallLogManager(mContext, mMockPhoneAccountRegistrar);
+        mCallLogManager = new CallLogManager(mContext, mMockPhoneAccountRegistrar,
+                mMissedCallNotifier);
         mContentProvider =
                 mContext.getContentResolver().acquireProvider("0@call_log");
         mDefaultAccountHandle = new PhoneAccountHandle(
@@ -280,6 +285,7 @@ public class CallLogManagerTest extends TelecomTestCase {
         ContentValues insertedValues = verifyInsertionWithCapture(CURRENT_USER_ID);
         assertEquals(insertedValues.getAsInteger(CallLog.Calls.TYPE),
                 Integer.valueOf(CallLog.Calls.MISSED_TYPE));
+        verify(mMissedCallNotifier).showMissedCallNotification(fakeMissedCall);
     }
 
     @MediumTest

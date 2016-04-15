@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.UserInfo;
@@ -53,6 +54,7 @@ import com.android.internal.telephony.AsyncEmergencyContactNotifier;
 import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.telephony.TelephonyProperties;
 import com.android.internal.util.IndentingPrintWriter;
+import com.android.server.telecom.CallLogManager.LogCallCompletedListener;
 import com.android.server.telecom.TelecomServiceImpl.DefaultDialerManagerAdapter;
 import com.android.server.telecom.components.ErrorDialogActivity;
 
@@ -260,7 +262,7 @@ public class CallsManager extends Call.ListenerBase
         mTtyManager = new TtyManager(context, mWiredHeadsetManager);
         mProximitySensorManager = proximitySensorManagerFactory.create(context, this);
         mPhoneStateBroadcaster = new PhoneStateBroadcaster(this);
-        mCallLogManager = new CallLogManager(context, phoneAccountRegistrar);
+        mCallLogManager = new CallLogManager(context, phoneAccountRegistrar, mMissedCallNotifier);
         mConnectionServiceRepository =
                 new ConnectionServiceRepository(mPhoneAccountRegistrar, mContext, mLock, this);
         mInCallWakeLockController = inCallWakeLockControllerFactory.create(context, this);
@@ -377,9 +379,11 @@ public class CallsManager extends Call.ListenerBase
             }
             if (shouldAddToCallLog) {
                 Log.i(this, "onCallScreeningCompleted: blocked call, adding to call log.");
-                mCallLogManager.logCall(incomingCall, Calls.MISSED_TYPE);
-            }
-            if (shouldShowNotification) {
+                if (shouldShowNotification) {
+                    Log.w(this, "onCallScreeningCompleted: blocked call, showing notification.");
+                }
+                mCallLogManager.logCall(incomingCall, Calls.MISSED_TYPE, shouldShowNotification);
+            } else if (shouldShowNotification) {
                 Log.i(this, "onCallScreeningCompleted: blocked call, showing notification.");
                 mMissedCallNotifier.showMissedCallNotification(incomingCall);
             }
@@ -1612,8 +1616,8 @@ public class CallsManager extends Call.ListenerBase
         // Since the call was not added to the list of calls, we have to call the missed
         // call notifier and the call logger manually.
         // Do we need missed call notification for direct to Voicemail calls?
-        mMissedCallNotifier.showMissedCallNotification(incomingCall);
-        mCallLogManager.logCall(incomingCall, Calls.MISSED_TYPE);
+        mCallLogManager.logCall(incomingCall, Calls.MISSED_TYPE,
+                true /*showNotificationForMissedCall*/);
     }
 
     /**

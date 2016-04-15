@@ -156,15 +156,6 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
         mMissedCallCounts = new ConcurrentHashMap<>();
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public void onCallStateChanged(Call call, int oldState, int newState) {
-        if (oldState == CallState.RINGING && newState == CallState.DISCONNECTED &&
-                call.getDisconnectCause().getCode() == DisconnectCause.MISSED) {
-            showMissedCallNotification(call);
-        }
-    }
-
     /** Clears missed call notification and marks the call log's missed calls as read. */
     @Override
     public void clearMissedCalls(UserHandle userHandle) {
