@@ -233,6 +233,11 @@ public final class TelecomSystem {
         return mPhoneAccountRegistrar;
     }
 
+    @VisibleForTesting
+    public CallsManager getCallsManager() {
+        return mCallsManager;
+    }
+
     public BluetoothPhoneServiceImpl getBluetoothPhoneServiceImpl() {
         return mBluetoothPhoneServiceImpl;
     }

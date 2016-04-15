@@ -16,13 +16,13 @@
 
 package com.android.server.telecom.tests;
 
+import android.content.ContentResolver;
 import android.content.IContentProvider;
 import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.Call;
+import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.callfiltering.CallFilterResultCallback;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
 import com.android.server.telecom.callfiltering.IncomingCallFilter;
@@ -33,19 +33,15 @@ import org.mockito.Mock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class IncomingCallFilterTest extends TelecomTestCase {
-    private IContentProvider mSettingsContentProvider;
     @Mock private CallFilterResultCallback mResultCallback;
     @Mock private Call mCall;
     private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() {};
@@ -54,11 +50,11 @@ public class IncomingCallFilterTest extends TelecomTestCase {
     @Mock private IncomingCallFilter.CallFilter mFilter2;
     @Mock private IncomingCallFilter.CallFilter mFilter3;
 
+    @Mock private Timeouts.Adapter mTimeoutsAdapter;
+
     private static final Uri TEST_HANDLE = Uri.parse("tel:1235551234");
-    private static final int LONG_TIMEOUT = 1000000;
-    private static final int SHORT_TIMEOUT = 100;
-    private static final String PACKAGE_NAME = "com.android.server.telecom.tests";
-    private static final String TIMEOUT_NAME = "telecom.call_screening_timeout";
+    private static final long LONG_TIMEOUT = 1000000;
+    private static final long SHORT_TIMEOUT = 100;
 
     private static final CallFilteringResult RESULT1 =
             new CallFilteringResult(
@@ -90,19 +86,18 @@ public class IncomingCallFilterTest extends TelecomTestCase {
         super.setUp();
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
         when(mCall.getHandle()).thenReturn(TEST_HANDLE);
-        mSettingsContentProvider = mContext.getContentResolver().acquireProvider("settings");
         setTimeoutLength(LONG_TIMEOUT);
     }
 
     @SmallTest
     public void testSingleFilter() {
         IncomingCallFilter testFilter = new IncomingCallFilter(mContext, mResultCallback, mCall,
-                mLock, Collections.singletonList(mFilter1));
+                mLock, mTimeoutsAdapter, Collections.singletonList(mFilter1));
         testFilter.performFiltering();
         verify(mFilter1).startFilterLookup(mCall, testFilter);
 
         testFilter.onCallFilteringComplete(mCall, RESULT1);
-        waitForHandlerAction(testFilter.getHandler());
+        waitForHandlerAction(testFilter.getHandler(), SHORT_TIMEOUT * 2);
         verify(mResultCallback).onCallFilteringComplete(eq(mCall), eq(RESULT1));
     }
 
@@ -115,7 +110,7 @@ public class IncomingCallFilterTest extends TelecomTestCase {
                     add(mFilter3);
                 }};
         IncomingCallFilter testFilter = new IncomingCallFilter(mContext, mResultCallback, mCall,
-                mLock, filters);
+                mLock, mTimeoutsAdapter, filters);
         testFilter.performFiltering();
         verify(mFilter1).startFilterLookup(mCall, testFilter);
         verify(mFilter2).startFilterLookup(mCall, testFilter);
@@ -124,7 +119,7 @@ public class IncomingCallFilterTest extends TelecomTestCase {
         testFilter.onCallFilteringComplete(mCall, RESULT1);
         testFilter.onCallFilteringComplete(mCall, RESULT2);
         testFilter.onCallFilteringComplete(mCall, RESULT3);
-        waitForHandlerAction(testFilter.getHandler());
+        waitForHandlerAction(testFilter.getHandler(), SHORT_TIMEOUT * 2);
         verify(mResultCallback).onCallFilteringComplete(eq(mCall), eq(
                 new CallFilteringResult(
                         false, // shouldAllowCall
@@ -138,12 +133,12 @@ public class IncomingCallFilterTest extends TelecomTestCase {
     public void testFilterTimeout() throws Exception {
         setTimeoutLength(SHORT_TIMEOUT);
         IncomingCallFilter testFilter = new IncomingCallFilter(mContext, mResultCallback, mCall,
-                mLock, Collections.singletonList(mFilter1));
+                mLock, mTimeoutsAdapter, Collections.singletonList(mFilter1));
         testFilter.performFiltering();
-        verify(mResultCallback, timeout(SHORT_TIMEOUT * 2)).onCallFilteringComplete(eq(mCall),
+        verify(mResultCallback, timeout((int) SHORT_TIMEOUT * 2)).onCallFilteringComplete(eq(mCall),
                 eq(DEFAULT_RESULT));
         testFilter.onCallFilteringComplete(mCall, RESULT1);
-        waitForHandlerAction(testFilter.getHandler());
+        waitForHandlerAction(testFilter.getHandler(), SHORT_TIMEOUT * 2);
         // verify that we don't report back again with the result
         verify(mResultCallback, atMost(1)).onCallFilteringComplete(any(Call.class),
                 any(CallFilteringResult.class));
@@ -153,31 +148,17 @@ public class IncomingCallFilterTest extends TelecomTestCase {
     public void testFilterTimeoutDoesntTrip() throws Exception {
         setTimeoutLength(SHORT_TIMEOUT);
         IncomingCallFilter testFilter = new IncomingCallFilter(mContext, mResultCallback, mCall,
-                mLock, Collections.singletonList(mFilter1));
+                mLock, mTimeoutsAdapter, Collections.singletonList(mFilter1));
         testFilter.performFiltering();
         testFilter.onCallFilteringComplete(mCall, RESULT1);
-        waitForHandlerAction(testFilter.getHandler());
+        waitForHandlerAction(testFilter.getHandler(), SHORT_TIMEOUT * 2);
         Thread.sleep(SHORT_TIMEOUT);
         verify(mResultCallback, atMost(1)).onCallFilteringComplete(any(Call.class),
                 any(CallFilteringResult.class));
     }
 
-    private void setTimeoutLength(int length) throws Exception {
-        Bundle result = new Bundle();
-        result.putString(TIMEOUT_NAME, String.valueOf(length));
-        when(mSettingsContentProvider.call(eq(PACKAGE_NAME), anyString(), eq(TIMEOUT_NAME),
-                any(Bundle.class))).thenReturn(result);
-    }
-
-    protected final void waitForHandlerAction(Handler h) {
-        final CountDownLatch lock = new CountDownLatch(1);
-        h.post(lock::countDown);
-        while (lock.getCount() > 0) {
-            try {
-                lock.await();
-            } catch (InterruptedException e) {
-                // do nothing
-            }
-        }
+    private void setTimeoutLength(long length) throws Exception {
+        when(mTimeoutsAdapter.getCallScreeningTimeoutMillis(any(ContentResolver.class)))
+                .thenReturn(length);
     }
 }

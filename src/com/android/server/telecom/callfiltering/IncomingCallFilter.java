@@ -41,6 +41,7 @@ public class IncomingCallFilter implements CallFilterResultCallback {
     private final List<CallFilter> mFilters;
     private final Call mCall;
     private final CallFilterResultCallback mListener;
+    private final Timeouts.Adapter mTimeoutsAdapter;
 
     private CallFilteringResult mResult = new CallFilteringResult(
             true, // shouldAllowCall
@@ -53,13 +54,15 @@ public class IncomingCallFilter implements CallFilterResultCallback {
     private int mNumPendingFilters;
 
     public IncomingCallFilter(Context context, CallFilterResultCallback listener, Call call,
-            TelecomSystem.SyncRoot lock, List<CallFilter> filters) {
+            TelecomSystem.SyncRoot lock, Timeouts.Adapter timeoutsAdapter,
+            List<CallFilter> filters) {
         mContext = context;
         mListener = listener;
         mCall = call;
         mLock = lock;
         mFilters = filters;
         mNumPendingFilters = filters.size();
+        mTimeoutsAdapter = timeoutsAdapter;
     }
 
     public void performFiltering() {
@@ -77,7 +80,7 @@ public class IncomingCallFilter implements CallFilterResultCallback {
                     }
                 }
             }
-        }.prepare(), Timeouts.getCallScreeningTimeoutMillis(mContext.getContentResolver()));
+        }.prepare(), mTimeoutsAdapter.getCallScreeningTimeoutMillis(mContext.getContentResolver()));
     }
 
     public void onCallFilteringComplete(Call call, CallFilteringResult result) {
