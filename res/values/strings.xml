@@ -18,7 +18,7 @@
     <!-- Official label of the Telecomm/Phone app, as seen in "Manage Applications"
          and other settings UIs. This is the "app name" used in notification, recents,
          and app info screens. -->
-    <string name="telecommAppLabel" product="default">Phone Call Management</string>
+    <string name="telecommAppLabel" product="default">Call Management</string>
 
     <!-- Title used for the activity for placing a call. This name appears
          in activity disambig dialogs -->
