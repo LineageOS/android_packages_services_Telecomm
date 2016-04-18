@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
+import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.SystemVibrator;
 import android.os.Trace;
@@ -676,7 +677,7 @@ public class CallsManager extends Call.ListenerBase
             call.getAnalytics().setCallIsAdditional(true);
         }
 
-        call.setIntentExtras(extras);
+        setIntentExtrasAndStartTime(call, extras);
         // TODO: Move this to be a part of addCall()
         call.addListener(this);
         call.startCreateConnection(mPhoneAccountRegistrar);
@@ -705,7 +706,7 @@ public class CallsManager extends Call.ListenerBase
         );
         call.initAnalytics();
 
-        call.setIntentExtras(extras);
+        setIntentExtrasAndStartTime(call, extras);
         call.addListener(this);
         call.startCreateConnection(mPhoneAccountRegistrar);
     }
@@ -871,7 +872,7 @@ public class CallsManager extends Call.ListenerBase
                     phoneAccountHandle == null ? "no-handle" : phoneAccountHandle.toString());
         }
 
-        call.setIntentExtras(extras);
+        setIntentExtrasAndStartTime(call, extras);
 
         // Do not add the call if it is a potential MMI code.
         if ((isPotentialMMICode(handle) || isPotentialInCallMMICode) && !needsAccountSelection) {
@@ -1631,6 +1632,12 @@ public class CallsManager extends Call.ListenerBase
         call.addListener(this);
         mCalls.add(call);
 
+        // Specifies the time telecom finished routing the call. This is used by the dialer for
+        // analytics.
+        Bundle extras = call.getIntentExtras();
+        extras.putLong(TelecomManager.EXTRA_CALL_TELECOM_ROUTING_END_TIME_MILLIS,
+                SystemClock.elapsedRealtime());
+
         updateCallsManagerState();
         // onCallAdded for calls which immediately take the foreground (like the first call).
         for (CallsManagerListener listener : mListeners) {
@@ -2071,5 +2078,17 @@ public class CallsManager extends Call.ListenerBase
                 mContext.startActivityAsUser(errorIntent, UserHandle.CURRENT);
             }
         }
+    }
+
+    private void setIntentExtrasAndStartTime(Call call, Bundle extras) {
+      // Create our own instance to modify (since extras may be Bundle.EMPTY)
+      extras = new Bundle(extras);
+
+      // Specifies the time telecom began routing the call. This is used by the dialer for
+      // analytics.
+      extras.putLong(TelecomManager.EXTRA_CALL_TELECOM_ROUTING_START_TIME_MILLIS,
+              SystemClock.elapsedRealtime());
+
+      call.setIntentExtras(extras);
     }
 }
