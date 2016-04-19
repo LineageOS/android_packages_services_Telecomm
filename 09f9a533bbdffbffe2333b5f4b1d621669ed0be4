@@ -16,6 +16,24 @@
       "revId": "09f9a533bbdffbffe2333b5f4b1d621669ed0be4",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7faddb67_64a8e91e",
+        "filename": "src/com/android/server/telecom/ConnectionServiceRepository.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 9442
+      },
+      "writtenOn": "2016-04-19T08:01:14Z",
+      "side": 1,
+      "message": "Both ComponentName and UserHandle provide consistent hashcode and override equals method accordingly.",
+      "parentUuid": "7faddb67_b8212cb7",
+      "revId": "09f9a533bbdffbffe2333b5f4b1d621669ed0be4",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
