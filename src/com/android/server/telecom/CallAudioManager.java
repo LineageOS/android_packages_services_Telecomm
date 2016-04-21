@@ -307,6 +307,13 @@ public class CallAudioManager extends CallsManagerListenerBase {
         }
     }
 
+    @Override
+    public void onConnectionServiceChanged(Call call, ConnectionServiceWrapper oldCs,
+            ConnectionServiceWrapper newCs) {
+        mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+                CallAudioRouteStateMachine.UPDATE_SYSTEM_AUDIO_ROUTE);
+    }
+
     public CallAudioState getCallAudioState() {
         return mCallAudioRouteStateMachine.getCurrentCallAudioState();
     }
