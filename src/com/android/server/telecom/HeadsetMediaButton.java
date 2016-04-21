@@ -93,6 +93,7 @@ public class HeadsetMediaButton extends CallsManagerListenerBase {
     private final CallsManager mCallsManager;
     private final TelecomSystem.SyncRoot mLock;
     private MediaSession mSession;
+    private KeyEvent mLastHookEvent;
 
     public HeadsetMediaButton(
             Context context,
@@ -115,10 +116,24 @@ public class HeadsetMediaButton extends CallsManagerListenerBase {
     private boolean handleHeadsetHook(KeyEvent event) {
         Log.d(this, "handleHeadsetHook()...%s %s", event.getAction(), event.getRepeatCount());
 
+        // Save ACTION_DOWN Event temporarily.
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            mLastHookEvent = event;
+        }
+
         if (event.isLongPress()) {
             return mCallsManager.onMediaButton(LONG_PRESS);
-        } else if (event.getAction() == KeyEvent.ACTION_UP && event.getRepeatCount() == 0) {
-            return mCallsManager.onMediaButton(SHORT_PRESS);
+        } else if (event.getAction() == KeyEvent.ACTION_UP) {
+            // We should not judge SHORT_PRESS by ACTION_UP event repeatCount, because it always
+            // return 0.
+            // Actually ACTION_DOWN event repeatCount only increases when LONG_PRESS performed.
+            if (mLastHookEvent != null && mLastHookEvent.getRepeatCount() == 0) {
+                return mCallsManager.onMediaButton(SHORT_PRESS);
+            }
+        }
+
+        if (event.getAction() != KeyEvent.ACTION_DOWN) {
+            mLastHookEvent = null;
         }
 
         return true;
