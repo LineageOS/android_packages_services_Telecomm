@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="telecommAppLabel" product="default" msgid="9166784827254469057">"Керування дзвінками"</string>
+    <string name="telecommAppLabel" product="default" msgid="382363169988504520">"Керування дзвінками"</string>
     <string name="userCallActivityLabel" product="default" msgid="5415173590855187131">"Телефон"</string>
     <string name="unknown" msgid="6878797917991465859">"Невідомий"</string>
     <string name="notification_missedCallTitle" msgid="7554385905572364535">"Пропущений виклик"</string>
