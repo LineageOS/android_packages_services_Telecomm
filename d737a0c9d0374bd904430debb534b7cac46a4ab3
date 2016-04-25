@@ -16,6 +16,24 @@
       "revId": "d737a0c9d0374bd904430debb534b7cac46a4ab3",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5faad753_ff6c8c9d",
+        "filename": "src/com/android/server/telecom/CallsManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 938,
+      "author": {
+        "id": 14463
+      },
+      "writtenOn": "2016-04-25T22:46:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5faad753_4db17be1",
+      "revId": "d737a0c9d0374bd904430debb534b7cac46a4ab3",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
