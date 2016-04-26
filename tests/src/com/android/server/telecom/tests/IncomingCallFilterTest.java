@@ -157,6 +157,13 @@ public class IncomingCallFilterTest extends TelecomTestCase {
                 any(CallFilteringResult.class));
     }
 
+    @SmallTest
+    public void testToString() {
+        assertEquals("[Allow, logged, notified]", RESULT1.toString());
+        assertEquals("[Reject, notified]", RESULT2.toString());
+        assertEquals("[Reject, logged]", RESULT3.toString());
+    }
+
     private void setTimeoutLength(long length) throws Exception {
         when(mTimeoutsAdapter.getCallScreeningTimeoutMillis(any(ContentResolver.class)))
                 .thenReturn(length);

@@ -83,7 +83,7 @@ public class Call implements CreateConnectionResponse {
     public interface Listener {
         void onSuccessfulOutgoingCall(Call call, int callState);
         void onFailedOutgoingCall(Call call, DisconnectCause disconnectCause);
-        void onSuccessfulIncomingCall(Call call, boolean shouldSendToVoicemail);
+        void onSuccessfulIncomingCall(Call call);
         void onFailedIncomingCall(Call call);
         void onSuccessfulUnknownCall(Call call, int callState);
         void onFailedUnknownCall(Call call);
@@ -120,7 +120,7 @@ public class Call implements CreateConnectionResponse {
         @Override
         public void onFailedOutgoingCall(Call call, DisconnectCause disconnectCause) {}
         @Override
-        public void onSuccessfulIncomingCall(Call call, boolean shouldSendToVoicemail) {}
+        public void onSuccessfulIncomingCall(Call call) {}
         @Override
         public void onFailedIncomingCall(Call call) {}
         @Override
@@ -1049,28 +1049,6 @@ public class Call implements CreateConnectionResponse {
         }
     }
 
-    private void processDirectToVoicemail() {
-        if (mDirectToVoicemailQueryPending) {
-            boolean shouldSendToVoicemail;
-            if (mCallerInfo != null && mCallerInfo.shouldSendToVoicemail) {
-                Log.i(this, "Directing call to voicemail: %s.", this);
-                // TODO: Once we move State handling from CallsManager to Call, we
-                // will not need to set STATE_RINGING state prior to calling reject.
-                shouldSendToVoicemail = true;
-            } else {
-                shouldSendToVoicemail = false;
-            }
-            // TODO: Make this class (not CallsManager) responsible for changing
-            // the call state to STATE_RINGING.
-            // TODO: Replace this with state transition to STATE_RINGING.
-            for (Listener l : mListeners) {
-                l.onSuccessfulIncomingCall(this, shouldSendToVoicemail);
-            }
-
-            mDirectToVoicemailQueryPending = false;
-        }
-    }
-
     /**
      * Starts the create connection sequence. Upon completion, there should exist an active
      * connection through a connection service (or the call will have failed).
@@ -1115,22 +1093,11 @@ public class Call implements CreateConnectionResponse {
 
         switch (mCallDirection) {
             case CALL_DIRECTION_INCOMING:
-                // We do not handle incoming calls immediately when they are verified by the
-                // connection service. We allow the caller-info-query code to execute first so
-                // that we can read the direct-to-voicemail property before deciding if we want
-                // to show the incoming call to the user or if we want to reject the call.
-                mDirectToVoicemailQueryPending = true;
-
-                // Timeout the direct-to-voicemail lookup execution so that we dont wait too long
-                // before showing the user the incoming call screen.
-                mHandler.postDelayed(new Runnable("C.hCCS") {
-                    @Override
-                    public void loggedRun() {
-                         synchronized (mLock) {
-                             processDirectToVoicemail();
-                         }
-                    }
-                }.prepare(), Timeouts.getDirectToVoicemailMillis(mContext.getContentResolver()));
+                // Listeners (just CallsManager for now) will be responsible for checking whether
+                // the call should be blocked.
+                for (Listener l : mListeners) {
+                    l.onSuccessfulIncomingCall(this);
+                }
                 break;
             case CALL_DIRECTION_OUTGOING:
                 for (Listener l : mListeners) {
@@ -1763,7 +1730,6 @@ public class Call implements CreateConnectionResponse {
             }
         }
 
-        processDirectToVoicemail();
         Trace.endSection();
     }
 

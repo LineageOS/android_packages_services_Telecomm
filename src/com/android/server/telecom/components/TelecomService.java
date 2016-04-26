@@ -42,6 +42,7 @@ import com.android.server.telecom.Log;
 import com.android.server.telecom.ProximitySensorManager;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.TelecomWakeLock;
+import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.ui.MissedCallNotifierImpl;
 
 /**
@@ -146,6 +147,7 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                             phoneAccountRegistrar);
                                 }
                             },
+                            new Timeouts.Adapter(),
                             new AsyncRingtonePlayer()
                     ));
         }

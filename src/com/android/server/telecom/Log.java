@@ -97,10 +97,14 @@ public class Log {
         public static final String BIND_SCREENING = "BIND_SCREENING";
         public static final String SCREENING_BOUND = "SCREENING_BOUND";
         public static final String SCREENING_SENT = "SCREENING_SENT";
-        public static final String SCREENING_TIMED_OUT = "SCREENING_TIMED_OUT";
+        public static final String SCREENING_COMPLETED = "SCREENING_COMPLETED";
         public static final String BLOCK_CHECK_INITIATED = "BLOCK_CHECK_INITIATED";
-        public static final String BLOCK_CHECK_TIMED_OUT = "BLOCK_CHECK_TIMED_OUT";
         public static final String BLOCK_CHECK_FINISHED = "BLOCK_CHECK_FINISHED";
+        public static final String DIRECT_TO_VM_INITIATED = "DIRECT_TO_VM_INITIATED";
+        public static final String DIRECT_TO_VM_FINISHED = "DIRECT_TO_VM_FINISHED";
+        public static final String FILTERING_INITIATED = "FILTERING_INITIATED";
+        public static final String FILTERING_COMPLETED = "FILTERING_COMPLETED";
+        public static final String FILTERING_TIMED_OUT = "FILTERING_TIMED_OUT";
         public static final String REMOTELY_HELD = "REMOTELY_HELD";
         public static final String REMOTELY_UNHELD = "REMOTELY_UNHELD";
         public static final String PULL = "PULL";
@@ -121,8 +125,10 @@ public class Log {
                     put(REQUEST_UNHOLD, SET_ACTIVE);
                     put(START_CONNECTION, SET_DIALING);
                     put(BIND_CS, CS_BOUND);
-                    put(SCREENING_SENT, SCREENING_TIMED_OUT);
-                    put(BLOCK_CHECK_INITIATED, BLOCK_CHECK_TIMED_OUT);
+                    put(SCREENING_SENT, SCREENING_COMPLETED);
+                    put(BLOCK_CHECK_INITIATED, BLOCK_CHECK_FINISHED);
+                    put(DIRECT_TO_VM_INITIATED, DIRECT_TO_VM_FINISHED);
+                    put(FILTERING_INITIATED, FILTERING_COMPLETED);
                 }};
     }
 

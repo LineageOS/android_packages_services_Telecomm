@@ -32,29 +32,31 @@ public class DirectToVoicemailCallFilter implements IncomingCallFilter.CallFilte
 
     @Override
     public void startFilterLookup(final Call call, CallFilterResultCallback callback) {
+        Log.event(call, Log.Events.DIRECT_TO_VM_INITIATED);
         final Uri callHandle = call.getHandle();
         mCallerInfoLookupHelper.startLookup(callHandle,
                 new CallerInfoLookupHelper.OnQueryCompleteListener() {
                     @Override
                     public void onCallerInfoQueryComplete(Uri handle, CallerInfo info) {
+                        CallFilteringResult result;
                         if (callHandle.equals(handle)) {
                             if (info.shouldSendToVoicemail) {
-                                callback.onCallFilteringComplete(call,
-                                        new CallFilteringResult(
-                                                false, // shouldAllowCall
-                                                true, // shouldReject
-                                                true, // shouldAddToCallLog
-                                                true // shouldShowNotification
-                                        ));
+                                result = new CallFilteringResult(
+                                        false, // shouldAllowCall
+                                        true, // shouldReject
+                                        true, // shouldAddToCallLog
+                                        true // shouldShowNotification
+                                );
                             } else {
-                                callback.onCallFilteringComplete(call,
-                                        new CallFilteringResult(
-                                                true, // shouldAllowCall
-                                                false, // shouldReject
-                                                true, // shouldAddToCallLog
-                                                true // shouldShowNotification
-                                        ));
+                                result = new CallFilteringResult(
+                                        true, // shouldAllowCall
+                                        false, // shouldReject
+                                        true, // shouldAddToCallLog
+                                        true // shouldShowNotification
+                                );
                             }
+                            Log.event(call, Log.Events.DIRECT_TO_VM_FINISHED, result);
+                            callback.onCallFilteringComplete(call, result);
                         } else {
                             Log.w(this, "CallerInfo lookup returned with a different handle than " +
                                     "what was passed in. Was %s, should be %s", handle, callHandle);

@@ -31,9 +31,11 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.IContentProvider;
 import android.content.Intent;
@@ -70,6 +72,7 @@ import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.ProximitySensorManager;
 import com.android.server.telecom.ProximitySensorManagerFactory;
 import com.android.server.telecom.TelecomSystem;
+import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.ui.MissedCallNotifierImpl.MissedCallNotifierImplFactory;
 
@@ -204,6 +207,7 @@ public class TelecomSystemTest extends TelecomTestCase {
 
     ConnectionServiceFixture mConnectionServiceFixtureA;
     ConnectionServiceFixture mConnectionServiceFixtureB;
+    Timeouts.Adapter mTimeoutsAdapter;
 
     CallerInfoAsyncQueryFactoryFixture mCallerInfoAsyncQueryFactoryFixture;
 
@@ -290,6 +294,10 @@ public class TelecomSystemTest extends TelecomTestCase {
 
         mCallerInfoAsyncQueryFactoryFixture = new CallerInfoAsyncQueryFactoryFixture();
 
+        mTimeoutsAdapter = mock(Timeouts.Adapter.class);
+        when(mTimeoutsAdapter.getCallScreeningTimeoutMillis(any(ContentResolver.class)))
+                .thenReturn(TEST_TIMEOUT / 10L);
+
         mTelecomSystem = new TelecomSystem(
                 mComponentContextFixture.getTestDouble(),
                 new MissedCallNotifierImplFactory() {
@@ -317,6 +325,7 @@ public class TelecomSystemTest extends TelecomTestCase {
                         return mBluetoothPhoneServiceImpl;
                     }
                 },
+                mTimeoutsAdapter,
                 mAsyncRingtonePlayer);
 
         mComponentContextFixture.setTelecomManager(new TelecomManager(

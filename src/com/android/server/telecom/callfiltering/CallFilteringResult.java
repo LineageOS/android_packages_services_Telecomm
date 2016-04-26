@@ -67,4 +67,28 @@ public class CallFilteringResult {
         result = 31 * result + (shouldShowNotification ? 1 : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        if (shouldAllowCall) {
+            sb.append("Allow");
+        } else if (shouldReject) {
+            sb.append("Reject");
+        } else {
+            sb.append("Ignore");
+        }
+
+        if (shouldAddToCallLog) {
+            sb.append(", logged");
+        }
+
+        if (shouldShowNotification) {
+            sb.append(", notified");
+        }
+        sb.append("]");
+
+        return sb.toString();
+    }
 }

@@ -35,7 +35,7 @@ public class IncomingCallFilter implements CallFilterResultCallback {
         void startFilterLookup(Call call, CallFilterResultCallback listener);
     }
 
-    private final TelecomSystem.SyncRoot mLock;
+    private final TelecomSystem.SyncRoot mTelecomLock;
     private final Context mContext;
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final List<CallFilter> mFilters;
@@ -59,22 +59,25 @@ public class IncomingCallFilter implements CallFilterResultCallback {
         mContext = context;
         mListener = listener;
         mCall = call;
-        mLock = lock;
+        mTelecomLock = lock;
         mFilters = filters;
         mNumPendingFilters = filters.size();
         mTimeoutsAdapter = timeoutsAdapter;
     }
 
     public void performFiltering() {
+        Log.event(mCall, Log.Events.FILTERING_INITIATED);
         for (CallFilter filter : mFilters) {
             filter.startFilterLookup(mCall, this);
         }
         mHandler.postDelayed(new Runnable("ICF.pFTO") { // performFiltering time-out
             @Override
             public void loggedRun() {
-                synchronized (mLock) { // synchronized to prevent a race on mResult
+                // synchronized to prevent a race on mResult and to enter into Telecom.
+                synchronized (mTelecomLock) {
                     if (mIsPending) {
                         Log.i(IncomingCallFilter.this, "Call filtering has timed out.");
+                        Log.event(mCall, Log.Events.FILTERING_TIMED_OUT);
                         mListener.onCallFilteringComplete(mCall, mResult);
                         mIsPending = false;
                     }
@@ -84,16 +87,20 @@ public class IncomingCallFilter implements CallFilterResultCallback {
     }
 
     public void onCallFilteringComplete(Call call, CallFilteringResult result) {
-        synchronized (mLock) {
+        synchronized (mTelecomLock) { // synchronizing to prevent race on mResult
             mNumPendingFilters--;
             mResult = result.combine(mResult);
             if (mNumPendingFilters == 0) {
                 mHandler.post(new Runnable("ICF.oCFC") {
                     @Override
                     public void loggedRun() {
-                        if (mIsPending) {
-                            mListener.onCallFilteringComplete(mCall, mResult);
-                            mIsPending = false;
+                        // synchronized to enter into Telecom.
+                        synchronized (mTelecomLock) {
+                            if (mIsPending) {
+                                Log.event(mCall, Log.Events.FILTERING_COMPLETED, mResult);
+                                mListener.onCallFilteringComplete(mCall, mResult);
+                                mIsPending = false;
+                            }
                         }
                     }
                 }.prepare());
