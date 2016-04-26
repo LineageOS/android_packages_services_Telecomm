@@ -16,7 +16,6 @@
 
 package com.android.server.telecom;
 
-import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.UserInfo;
@@ -55,10 +54,17 @@ import com.android.internal.telephony.AsyncEmergencyContactNotifier;
 import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.telephony.TelephonyProperties;
 import com.android.internal.util.IndentingPrintWriter;
-import com.android.server.telecom.CallLogManager.LogCallCompletedListener;
 import com.android.server.telecom.TelecomServiceImpl.DefaultDialerManagerAdapter;
+import com.android.server.telecom.callfiltering.AsyncBlockCheckFilter;
+import com.android.server.telecom.callfiltering.BlockCheckerAdapter;
+import com.android.server.telecom.callfiltering.CallFilterResultCallback;
+import com.android.server.telecom.callfiltering.CallFilteringResult;
+import com.android.server.telecom.callfiltering.CallScreeningServiceFilter;
+import com.android.server.telecom.callfiltering.DirectToVoicemailCallFilter;
+import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.components.ErrorDialogActivity;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -78,7 +84,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @VisibleForTesting
 public class CallsManager extends Call.ListenerBase
-        implements VideoProviderProxy.Listener, CallScreening.Listener {
+        implements VideoProviderProxy.Listener, CallFilterResultCallback {
 
     // TODO: Consider renaming this CallsManagerPlugin.
     @VisibleForTesting
@@ -181,6 +187,8 @@ public class CallsManager extends Call.ListenerBase
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
     private final MissedCallNotifier mMissedCallNotifier;
     private final CallerInfoLookupHelper mCallerInfoLookupHelper;
+    private final DefaultDialerManagerAdapter mDefaultDialerManagerAdapter;
+    private final Timeouts.Adapter mTimeoutsAdapter;
     private final Set<Call> mLocallyDisconnectingCalls = new HashSet<>();
     private final Set<Call> mPendingCallsToDisconnect = new HashSet<>();
     /* Handler tied to thread in which CallManager was initialized. */
@@ -210,6 +218,7 @@ public class CallsManager extends Call.ListenerBase
             WiredHeadsetManager wiredHeadsetManager,
             SystemStateProvider systemStateProvider,
             DefaultDialerManagerAdapter defaultDialerAdapter,
+            Timeouts.Adapter timeoutsAdapter,
             AsyncRingtonePlayer asyncRingtonePlayer) {
         mContext = context;
         mLock = lock;
@@ -220,7 +229,9 @@ public class CallsManager extends Call.ListenerBase
         StatusBarNotifier statusBarNotifier = new StatusBarNotifier(context, this);
         mWiredHeadsetManager = wiredHeadsetManager;
         mBluetoothManager = bluetoothManager;
+        mDefaultDialerManagerAdapter = defaultDialerAdapter;
         mDockManager = new DockManager(context);
+        mTimeoutsAdapter = timeoutsAdapter;
         mCallerInfoLookupHelper = new CallerInfoLookupHelper(context, mCallerInfoAsyncQueryFactory,
                 mContactsAsyncHelper, mLock);
 
@@ -329,62 +340,56 @@ public class CallsManager extends Call.ListenerBase
     }
 
     @Override
-    public void onSuccessfulIncomingCall(Call incomingCall, boolean shouldSendToVoicemail) {
+    public void onSuccessfulIncomingCall(Call incomingCall) {
         Log.d(this, "onSuccessfulIncomingCall");
-
-        // TODO: Parallelize Call screening, block check, and send to voicemail.
-        final String number = incomingCall.getHandle() == null ? null : incomingCall.getHandle()
-                .getSchemeSpecificPart();
-        Log.v(this, "Looking up information for: %s.", Log.piiHandle(number));
-
-        new AsyncBlockCheckTask(mContext, incomingCall,
-                new CallScreening(mContext, CallsManager.this, mLock,
-                        mPhoneAccountRegistrar, incomingCall), this, shouldSendToVoicemail)
-                .execute(number);
+        List<IncomingCallFilter.CallFilter> filters = new ArrayList<>();
+        filters.add(new DirectToVoicemailCallFilter(mCallerInfoLookupHelper));
+        filters.add(new AsyncBlockCheckFilter(mContext, new BlockCheckerAdapter()));
+        filters.add(new CallScreeningServiceFilter(mContext, this, mPhoneAccountRegistrar,
+                mDefaultDialerManagerAdapter,
+                new ParcelableCallUtils.Converter(), mLock));
+        new IncomingCallFilter(mContext, this, incomingCall, mLock,
+                mTimeoutsAdapter, filters).performFiltering();
     }
 
     @Override
-    public void onCallScreeningCompleted(
-                Call incomingCall,
-                boolean shouldAllowCall,
-                boolean shouldReject,
-                boolean shouldAddToCallLog,
-                boolean shouldShowNotification) {
+    public void onCallFilteringComplete(Call incomingCall, CallFilteringResult result) {
         // Only set the incoming call as ringing if it isn't already disconnected. It is possible
         // that the connection service disconnected the call before it was even added to Telecom, in
         // which case it makes no sense to set it back to a ringing state.
         if (incomingCall.getState() != CallState.DISCONNECTED &&
                 incomingCall.getState() != CallState.DISCONNECTING) {
             setCallState(incomingCall, CallState.RINGING,
-                    shouldAllowCall ? "successful incoming call" : "blocking call");
+                    result.shouldAllowCall ? "successful incoming call" : "blocking call");
         } else {
-            Log.i(this, "onCallScreeningCompleted: call already disconnected.");
+            Log.i(this, "onCallFilteringCompleted: call already disconnected.");
         }
 
-        if (shouldAllowCall) {
+        if (result.shouldAllowCall) {
             if (hasMaximumRingingCalls()) {
-                Log.i(this, "onCallScreeningCompleted: Call rejected! Exceeds maximum number of " +
+                Log.i(this, "onCallFilteringCompleted: Call rejected! Exceeds maximum number of " +
                         "ringing calls.");
                 rejectCallAndLog(incomingCall);
             } else if (hasMaximumDialingCalls()) {
-                Log.i(this, "onCallScreeningCompleted: Call rejected! Exceeds maximum number of " +
+                Log.i(this, "onCallFilteringCompleted: Call rejected! Exceeds maximum number of " +
                         "dialing calls.");
                 rejectCallAndLog(incomingCall);
             } else {
                 addCall(incomingCall);
             }
         } else {
-            if (shouldReject) {
-                Log.i(this, "onCallScreeningCompleted: blocked call, rejecting.");
+            if (result.shouldReject) {
+                Log.i(this, "onCallFilteringCompleted: blocked call, rejecting.");
                 incomingCall.reject(false, null);
             }
-            if (shouldAddToCallLog) {
+            if (result.shouldAddToCallLog) {
                 Log.i(this, "onCallScreeningCompleted: blocked call, adding to call log.");
-                if (shouldShowNotification) {
+                if (result.shouldShowNotification) {
                     Log.w(this, "onCallScreeningCompleted: blocked call, showing notification.");
                 }
-                mCallLogManager.logCall(incomingCall, Calls.MISSED_TYPE, shouldShowNotification);
-            } else if (shouldShowNotification) {
+                mCallLogManager.logCall(incomingCall, Calls.MISSED_TYPE,
+                        result.shouldShowNotification);
+            } else if (result.shouldShowNotification) {
                 Log.i(this, "onCallScreeningCompleted: blocked call, showing notification.");
                 mMissedCallNotifier.showMissedCallNotification(incomingCall);
             }

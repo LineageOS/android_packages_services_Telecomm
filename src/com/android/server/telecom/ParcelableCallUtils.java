@@ -28,6 +28,14 @@ import java.util.List;
  * Utilities dealing with {@link ParcelableCall}.
  */
 public class ParcelableCallUtils {
+    public static class Converter {
+        public ParcelableCall toParcelableCall(Call call, boolean includeVideoProvider,
+                PhoneAccountRegistrar phoneAccountRegistrar) {
+            return ParcelableCallUtils.toParcelableCall(
+                    call, includeVideoProvider, phoneAccountRegistrar);
+        }
+    }
+
     /**
      * Parcels all information for a {@link Call} into a new {@link ParcelableCall} instance.
      *

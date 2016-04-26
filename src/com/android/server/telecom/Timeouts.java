@@ -26,7 +26,7 @@ import android.provider.Settings;
  * These methods are safe to call from any thread, including the UI thread.
  */
 public final class Timeouts {
-    public class Adapter {
+    public static class Adapter {
         public Adapter() { }
 
         public long getCallScreeningTimeoutMillis(ContentResolver cr) {
