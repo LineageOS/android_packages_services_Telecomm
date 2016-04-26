@@ -153,6 +153,7 @@ public final class TelecomSystem {
             AudioServiceFactory audioServiceFactory,
             BluetoothPhoneServiceImplFactory
                     bluetoothPhoneServiceImplFactory,
+            Timeouts.Adapter timeoutsAdapter,
             AsyncRingtonePlayer asyncRingtonePlayer) {
         mContext = context.getApplicationContext();
         Log.setContext(mContext);
@@ -194,6 +195,7 @@ public final class TelecomSystem {
                 wiredHeadsetManager,
                 systemStateProvider,
                 defaultDialerAdapter,
+                timeoutsAdapter,
                 asyncRingtonePlayer);
 
         mRespondViaSmsManager = new RespondViaSmsManager(mCallsManager, mLock);

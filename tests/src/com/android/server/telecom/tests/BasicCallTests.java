@@ -27,11 +27,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.IContentProvider;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Process;
 import android.provider.BlockedNumberContract;
 import android.telecom.Call;
@@ -285,6 +288,7 @@ public class BasicCallTests extends TelecomSystemTest {
         mTelecomSystem.getTelecomServiceImpl().getBinder()
                 .addNewIncomingCall(mPhoneAccountA0.getAccountHandle(), extras);
 
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         verify(mConnectionServiceFixtureA.getTestDouble())
                 .createConnection(any(PhoneAccountHandle.class), anyString(),
                         any(ConnectionRequest.class), eq(true), eq(false));
