@@ -97,8 +97,8 @@ public class CallAudioManager extends CallsManagerListenerBase {
         Log.d(LOG_TAG, "Call state changed for TC@%s: %s -> %s", call.getId(),
                 CallState.toString(oldState), CallState.toString(newState));
 
-        if (mCallStateToCalls.get(oldState) != null) {
-            mCallStateToCalls.get(oldState).remove(call);
+        for (int i = 0; i < mCallStateToCalls.size(); i++) {
+            mCallStateToCalls.valueAt(i).remove(call);
         }
         if (mCallStateToCalls.get(newState) != null) {
             mCallStateToCalls.get(newState).add(call);
@@ -157,8 +157,8 @@ public class CallAudioManager extends CallsManagerListenerBase {
         Log.d(LOG_TAG, "Call removed with id TC@%s in state %s", call.getId(),
                 CallState.toString(call.getState()));
 
-        if (mCallStateToCalls.get(call.getState()) != null) {
-            mCallStateToCalls.get(call.getState()).remove(call);
+        for (int i = 0; i < mCallStateToCalls.size(); i++) {
+            mCallStateToCalls.valueAt(i).remove(call);
         }
 
         updateForegroundCall();
@@ -216,7 +216,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
                     mCallStateToCalls.get(call.getState()).remove(call);
                 }
                 mActiveDialingOrConnectingCalls.add(call);
-                mCallAudioModeStateMachine.sendMessage(
+                mCallAudioModeStateMachine.sendMessageWithArgs(
                         CallAudioModeStateMachine.MT_AUDIO_SPEEDUP_FOR_RINGING_CALL,
                         makeArgsForModeStateMachine());
             }
@@ -267,7 +267,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
         if (call != mForegroundCall) {
             return;
         }
-        mCallAudioModeStateMachine.sendMessage(
+        mCallAudioModeStateMachine.sendMessageWithArgs(
                 CallAudioModeStateMachine.FOREGROUND_VOIP_MODE_CHANGE,
                 makeArgsForModeStateMachine());
     }
@@ -388,7 +388,8 @@ public class CallAudioManager extends CallsManagerListenerBase {
         mRingingCalls.clear();
         mRinger.stopRinging();
         mRinger.stopCallWaiting();
-        mCallAudioModeStateMachine.sendMessage(CallAudioModeStateMachine.NO_MORE_RINGING_CALLS,
+        mCallAudioModeStateMachine.sendMessageWithArgs(
+                CallAudioModeStateMachine.NO_MORE_RINGING_CALLS,
                 makeArgsForModeStateMachine());
     }
 
@@ -451,7 +452,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
     @VisibleForTesting
     public void setIsTonePlaying(boolean isTonePlaying) {
         mIsTonePlaying = isTonePlaying;
-        mCallAudioModeStateMachine.sendMessage(
+        mCallAudioModeStateMachine.sendMessageWithArgs(
                 isTonePlaying ? CallAudioModeStateMachine.TONE_STARTED_PLAYING
                         : CallAudioModeStateMachine.TONE_STOPPED_PLAYING,
                 makeArgsForModeStateMachine());
@@ -496,7 +497,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     private void onCallLeavingActiveDialingOrConnecting() {
         if (mActiveDialingOrConnectingCalls.size() == 0) {
-            mCallAudioModeStateMachine.sendMessage(
+            mCallAudioModeStateMachine.sendMessageWithArgs(
                     CallAudioModeStateMachine.NO_MORE_ACTIVE_OR_DIALING_CALLS,
                     makeArgsForModeStateMachine());
         }
@@ -504,21 +505,23 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     private void onCallLeavingRinging() {
         if (mRingingCalls.size() == 0) {
-            mCallAudioModeStateMachine.sendMessage(CallAudioModeStateMachine.NO_MORE_RINGING_CALLS,
+            mCallAudioModeStateMachine.sendMessageWithArgs(
+                    CallAudioModeStateMachine.NO_MORE_RINGING_CALLS,
                     makeArgsForModeStateMachine());
         }
     }
 
     private void onCallLeavingHold() {
         if (mHoldingCalls.size() == 0) {
-            mCallAudioModeStateMachine.sendMessage(CallAudioModeStateMachine.NO_MORE_HOLDING_CALLS,
+            mCallAudioModeStateMachine.sendMessageWithArgs(
+                    CallAudioModeStateMachine.NO_MORE_HOLDING_CALLS,
                     makeArgsForModeStateMachine());
         }
     }
 
     private void onCallEnteringActiveDialingOrConnecting() {
         if (mActiveDialingOrConnectingCalls.size() == 1) {
-            mCallAudioModeStateMachine.sendMessage(
+            mCallAudioModeStateMachine.sendMessageWithArgs(
                     CallAudioModeStateMachine.NEW_ACTIVE_OR_DIALING_CALL,
                     makeArgsForModeStateMachine());
         }
@@ -526,14 +529,16 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     private void onCallEnteringRinging() {
         if (mRingingCalls.size() == 1) {
-            mCallAudioModeStateMachine.sendMessage(CallAudioModeStateMachine.NEW_RINGING_CALL,
+            mCallAudioModeStateMachine.sendMessageWithArgs(
+                    CallAudioModeStateMachine.NEW_RINGING_CALL,
                     makeArgsForModeStateMachine());
         }
     }
 
     private void onCallEnteringHold() {
         if (mHoldingCalls.size() == 1) {
-            mCallAudioModeStateMachine.sendMessage(CallAudioModeStateMachine.NEW_HOLDING_CALL,
+            mCallAudioModeStateMachine.sendMessageWithArgs(
+                    CallAudioModeStateMachine.NEW_HOLDING_CALL,
                     makeArgsForModeStateMachine());
         }
     }
@@ -690,5 +695,15 @@ public class CallAudioManager extends CallsManagerListenerBase {
             mRinger.stopRinging();
             mRinger.stopCallWaiting();
         }
+    }
+
+    @VisibleForTesting
+    public Set<Call> getTrackedCalls() {
+        return mCalls;
+    }
+
+    @VisibleForTesting
+    public SparseArray<LinkedHashSet<Call>> getCallStateToCalls() {
+        return mCallStateToCalls;
     }
 }

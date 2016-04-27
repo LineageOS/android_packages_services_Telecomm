@@ -24,7 +24,7 @@ import com.android.internal.util.Preconditions;
  * able to turn off and on as the user switches between calls. This is why it is implemented as its
  * own class.
  */
-class RingbackPlayer {
+public class RingbackPlayer {
 
     private final InCallTonePlayer.Factory mPlayerFactory;
 

@@ -31,7 +31,7 @@ import com.android.internal.annotations.VisibleForTesting;
  * Controls the ringtone player.
  */
 @VisibleForTesting
-public final class Ringer {
+public class Ringer {
     private static final long[] VIBRATION_PATTERN = new long[] {
         0, // No delay before starting
         1000, // How long to vibrate

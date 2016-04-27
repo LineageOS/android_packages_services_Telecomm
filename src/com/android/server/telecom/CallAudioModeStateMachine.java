@@ -308,6 +308,13 @@ public class CallAudioModeStateMachine extends StateMachine {
                     if (args.isTonePlaying) {
                         mCallAudioManager.stopCallWaiting();
                     }
+                    // If a MT-audio-speedup call gets disconnected by the connection service
+                    // concurrently with the user answering it, we may get this message
+                    // indicating that a ringing call has disconnected while this state machine
+                    // is in the SimCallFocusState.
+                    if (!args.hasActiveOrDialingCalls) {
+                        transitionTo(destinationStateAfterNoMoreActiveCalls(args));
+                    }
                     return HANDLED;
                 case NO_MORE_HOLDING_CALLS:
                     // Do nothing.
@@ -481,6 +488,10 @@ public class CallAudioModeStateMachine extends StateMachine {
     public String getCurrentStateName() {
         IState currentState = getCurrentState();
         return currentState == null ? "no state" : currentState.getName();
+    }
+
+    public void sendMessageWithArgs(int messageCode, MessageArgs args) {
+        sendMessage(messageCode, args);
     }
 
     @Override
