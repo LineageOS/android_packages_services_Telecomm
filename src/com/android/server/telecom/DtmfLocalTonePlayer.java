@@ -34,7 +34,7 @@ import com.android.internal.util.Preconditions;
  * class employs a concept of a call "session" that starts and stops when the foreground call
  * changes.
  */
-class DtmfLocalTonePlayer {
+public class DtmfLocalTonePlayer {
     /** Generator used to actually play the tone. */
     private ToneGenerator mToneGenerator;
 
