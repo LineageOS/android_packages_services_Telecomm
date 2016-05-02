@@ -374,6 +374,12 @@ public class Call implements CreateConnectionResponse {
     private boolean mIsRemotelyHeld = false;
 
     /**
+     * Indicates whether the {@link PhoneAccount} associated with this call supports video calling.
+     * {@code True} if the phone account supports video calling, {@code false} otherwise.
+     */
+    private boolean mIsVideoCallingSupported = false;
+
+    /**
      * Persists the specified parameters and initializes the new instance.
      *
      * @param context The context.
@@ -855,6 +861,7 @@ public class Call implements CreateConnectionResponse {
                 l.onTargetPhoneAccountChanged(this);
             }
             configureIsWorkCall();
+            checkIfVideoCapable();
         }
     }
 
@@ -870,6 +877,10 @@ public class Call implements CreateConnectionResponse {
 
     public boolean isWorkCall() {
         return mIsWorkCall;
+    }
+
+    public boolean isVideoCallingSupported() {
+        return mIsVideoCallingSupported;
     }
 
     private void configureIsWorkCall() {
@@ -889,6 +900,18 @@ public class Call implements CreateConnectionResponse {
             }
         }
         mIsWorkCall = isWorkCall;
+    }
+
+    /**
+     * Caches the state of the {@link PhoneAccount#CAPABILITY_VIDEO_CALLING} {@link PhoneAccount}
+     * capability.
+     */
+    private void checkIfVideoCapable() {
+        PhoneAccountRegistrar phoneAccountRegistrar = mCallsManager.getPhoneAccountRegistrar();
+        PhoneAccount phoneAccount =
+                phoneAccountRegistrar.getPhoneAccountUnchecked(mTargetPhoneAccountHandle);
+        mIsVideoCallingSupported = phoneAccount != null && phoneAccount.hasCapabilities(
+                    PhoneAccount.CAPABILITY_VIDEO_CALLING);
     }
 
     boolean shouldAttachToExistingConnection() {
@@ -951,7 +974,15 @@ public class Call implements CreateConnectionResponse {
         Log.v(this, "setConnectionCapabilities: %s", Connection.capabilitiesToString(
                 connectionCapabilities));
         if (forceUpdate || mConnectionCapabilities != connectionCapabilities) {
-           mConnectionCapabilities = connectionCapabilities;
+            // If the phone account does not support video calling, and the connection capabilities
+            // passed in indicate that the call supports video, remove those video capabilities.
+            if (!isVideoCallingSupported() && doesCallSupportVideo(connectionCapabilities)) {
+                Log.w(this, "setConnectionCapabilities: attempt to set connection as video " +
+                        "capable when not supported by the phone account.");
+                connectionCapabilities = removeVideoCapabilities(connectionCapabilities);
+            }
+
+            mConnectionCapabilities = connectionCapabilities;
             for (Listener l : mListeners) {
                 l.onConnectionCapabilitiesChanged(this);
             }
@@ -1077,6 +1108,7 @@ public class Call implements CreateConnectionResponse {
         setHandle(connection.getHandle(), connection.getHandlePresentation());
         setCallerDisplayName(
                 connection.getCallerDisplayName(), connection.getCallerDisplayNamePresentation());
+
         setConnectionCapabilities(connection.getConnectionCapabilities());
         setConnectionProperties(connection.getConnectionProperties());
         setVideoProvider(connection.getVideoProvider());
@@ -2032,5 +2064,28 @@ public class Call implements CreateConnectionResponse {
                 l.onConnectionEvent(this, event, extras);
             }
         }
+    }
+
+    /**
+     * Determines if a {@link Call}'s capabilities bitmask indicates that video is supported either
+     * remotely or locally.
+     *
+     * @param capabilities The {@link Connection} capabilities for the call.
+     * @return {@code true} if video is supported, {@code false} otherwise.
+     */
+    private boolean doesCallSupportVideo(int capabilities) {
+        return (capabilities & Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL) != 0 ||
+                (capabilities & Connection.CAPABILITY_SUPPORTS_VT_REMOTE_BIDIRECTIONAL) != 0;
+    }
+
+    /**
+     * Remove any video capabilities set on a {@link Connection} capabilities bitmask.
+     *
+     * @param capabilities The capabilities.
+     * @return The bitmask with video capabilities removed.
+     */
+    private int removeVideoCapabilities(int capabilities) {
+        return capabilities & ~(Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL |
+                Connection.CAPABILITY_SUPPORTS_VT_REMOTE_BIDIRECTIONAL);
     }
 }
