@@ -267,7 +267,8 @@ public class BlockedNumbersActivity extends ListActivity
     @Override
     public void onTextChanged(CharSequence text, int start, int before, int count) {
         if (mBlockButton != null) {
-            mBlockButton.setEnabled(!TextUtils.isEmpty(text.toString().trim()));
+            mBlockButton.setEnabled(
+                    !TextUtils.isEmpty(PhoneNumberUtils.stripSeparators(text.toString())));
         }
     }
 
