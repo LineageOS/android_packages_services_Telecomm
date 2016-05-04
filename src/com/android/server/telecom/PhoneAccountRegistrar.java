@@ -260,6 +260,10 @@ public class PhoneAccountRegistrar {
         for (int i = 0; i < mState.accounts.size(); i++) {
             String id = mState.accounts.get(i).getAccountHandle().getId();
 
+            if (id == null || id.equals("null") || TextUtils.isEmpty(id)) {
+                continue;
+            }
+
             // emergency account present return it
             if (id.equals("E")) {
                 Log.i(this, "getUserSelVoicePhoneAccount, emergency account ");
