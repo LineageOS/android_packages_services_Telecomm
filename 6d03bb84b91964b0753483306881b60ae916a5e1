@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5faad753_9688c3c6",
+        "filename": "src/com/android/server/telecom/CallsManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 950,
+      "author": {
+        "id": 9813
+      },
+      "writtenOn": "2016-05-05T18:33:36Z",
+      "side": 1,
+      "message": "this doesn\u0027t need to be within a runnable anymore, this can and should be synchronous in nature.",
+      "range": {
+        "startLine": 941,
+        "startChar": 0,
+        "endLine": 950,
+        "endChar": 42
+      },
+      "revId": "6d03bb84b91964b0753483306881b60ae916a5e1",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
