@@ -321,9 +321,11 @@ public class CallAudioRouteStateMachine extends StateMachine {
             }
             switch (msg.what) {
                 case SWITCH_EARPIECE:
+                case USER_SWITCH_EARPIECE:
                     // Nothing to do here
                     return HANDLED;
                 case SWITCH_BLUETOOTH:
+                case USER_SWITCH_BLUETOOTH:
                     if ((mAvailableRoutes & ROUTE_BLUETOOTH) != 0) {
                         transitionTo(mQuiescentBluetoothRoute);
                     } else {
@@ -331,6 +333,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case SWITCH_HEADSET:
+                case USER_SWITCH_HEADSET:
                     if ((mAvailableRoutes & ROUTE_WIRED_HEADSET) != 0) {
                         transitionTo(mQuiescentHeadsetRoute);
                     } else {
@@ -338,6 +341,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case SWITCH_SPEAKER:
+                case USER_SWITCH_SPEAKER:
                     transitionTo(mQuiescentSpeakerRoute);
                     return HANDLED;
                 case SWITCH_FOCUS:
@@ -494,6 +498,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
             }
             switch (msg.what) {
                 case SWITCH_EARPIECE:
+                case USER_SWITCH_EARPIECE:
                     if ((mAvailableRoutes & ROUTE_EARPIECE) != 0) {
                         transitionTo(mQuiescentEarpieceRoute);
                     } else {
@@ -501,6 +506,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case SWITCH_BLUETOOTH:
+                case USER_SWITCH_BLUETOOTH:
                     if ((mAvailableRoutes & ROUTE_BLUETOOTH) != 0) {
                         transitionTo(mQuiescentBluetoothRoute);
                     } else {
@@ -508,9 +514,11 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case SWITCH_HEADSET:
+                case USER_SWITCH_HEADSET:
                     // Nothing to do
                     return HANDLED;
                 case SWITCH_SPEAKER:
+                case USER_SWITCH_SPEAKER:
                     transitionTo(mQuiescentSpeakerRoute);
                     return HANDLED;
                 case SWITCH_FOCUS:
@@ -680,6 +688,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
             }
             switch (msg.what) {
                 case SWITCH_EARPIECE:
+                case USER_SWITCH_EARPIECE:
                     if ((mAvailableRoutes & ROUTE_EARPIECE) != 0) {
                         transitionTo(mQuiescentEarpieceRoute);
                     } else {
@@ -687,9 +696,11 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case SWITCH_BLUETOOTH:
+                case USER_SWITCH_BLUETOOTH:
                     // Nothing to do
                     return HANDLED;
                 case SWITCH_HEADSET:
+                case USER_SWITCH_HEADSET:
                     if ((mAvailableRoutes & ROUTE_WIRED_HEADSET) != 0) {
                         transitionTo(mQuiescentHeadsetRoute);
                     } else {
@@ -697,6 +708,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case SWITCH_SPEAKER:
+                case USER_SWITCH_SPEAKER:
                     transitionTo(mQuiescentSpeakerRoute);
                     return HANDLED;
                 case SWITCH_FOCUS:
@@ -861,6 +873,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
             }
             switch(msg.what) {
                 case SWITCH_EARPIECE:
+                case USER_SWITCH_EARPIECE:
                     if ((mAvailableRoutes & ROUTE_EARPIECE) != 0) {
                         transitionTo(mQuiescentEarpieceRoute);
                     } else {
@@ -868,6 +881,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case SWITCH_BLUETOOTH:
+                case USER_SWITCH_BLUETOOTH:
                     if ((mAvailableRoutes & ROUTE_BLUETOOTH) != 0) {
                         transitionTo(mQuiescentBluetoothRoute);
                     } else {
@@ -875,6 +889,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case SWITCH_HEADSET:
+                case USER_SWITCH_HEADSET:
                     if ((mAvailableRoutes & ROUTE_WIRED_HEADSET) != 0) {
                         transitionTo(mQuiescentHeadsetRoute);
                     } else {
@@ -882,6 +897,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case SWITCH_SPEAKER:
+                case USER_SWITCH_SPEAKER:
                     // Nothing to do
                     return HANDLED;
                 case SWITCH_FOCUS:
