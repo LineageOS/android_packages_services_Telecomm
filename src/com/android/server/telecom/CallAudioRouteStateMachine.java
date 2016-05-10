@@ -782,24 +782,30 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 return HANDLED;
             }
             switch(msg.what) {
-                case SWITCH_EARPIECE:
                 case USER_SWITCH_EARPIECE:
+                    mWasOnSpeaker = false;
+                    // fall through
+                case SWITCH_EARPIECE:
                     if ((mAvailableRoutes & ROUTE_EARPIECE) != 0) {
                         transitionTo(mActiveEarpieceRoute);
                     } else {
                         Log.w(this, "Ignoring switch to earpiece command. Not available.");
                     }
                     return HANDLED;
-                case SWITCH_BLUETOOTH:
                 case USER_SWITCH_BLUETOOTH:
+                    mWasOnSpeaker = false;
+                    // fall through
+                case SWITCH_BLUETOOTH:
                     if ((mAvailableRoutes & ROUTE_BLUETOOTH) != 0) {
                         transitionTo(mActiveBluetoothRoute);
                     } else {
                         Log.w(this, "Ignoring switch to bluetooth command. Not available.");
                     }
                     return HANDLED;
-                case SWITCH_HEADSET:
                 case USER_SWITCH_HEADSET:
+                    mWasOnSpeaker = false;
+                    // fall through
+                case SWITCH_HEADSET:
                     if ((mAvailableRoutes & ROUTE_WIRED_HEADSET) != 0) {
                         transitionTo(mActiveHeadsetRoute);
                     } else {
