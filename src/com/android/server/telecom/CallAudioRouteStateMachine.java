@@ -639,6 +639,9 @@ public class CallAudioRouteStateMachine extends StateMachine {
                         reinitialize();
                     }
                     return HANDLED;
+                case BT_AUDIO_DISCONNECT:
+                    sendInternalMessage(SWITCH_BASELINE_ROUTE);
+                    return HANDLED;
                 default:
                     return NOT_HANDLED;
             }
@@ -699,6 +702,10 @@ public class CallAudioRouteStateMachine extends StateMachine {
                         transitionTo(mActiveBluetoothRoute);
                     }
                     return HANDLED;
+                case BT_AUDIO_DISCONNECT:
+                    // Ignore this -- audio disconnecting while quiescent should not cause a
+                    // route switch, since the device is still connected.
+                    return HANDLED;
                 default:
                     return NOT_HANDLED;
             }
@@ -723,9 +730,6 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 case DISCONNECT_BLUETOOTH:
                     sendInternalMessage(SWITCH_BASELINE_ROUTE);
                     mWasOnSpeaker = false;
-                    return HANDLED;
-                case BT_AUDIO_DISCONNECT:
-                    sendInternalMessage(SWITCH_BASELINE_ROUTE);
                     return HANDLED;
                 case DISCONNECT_WIRED_HEADSET:
                     updateSystemAudioState();
