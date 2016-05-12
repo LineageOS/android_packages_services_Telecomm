@@ -824,7 +824,7 @@ public class CallsManager extends Call.ListenerBase
             }
         }
 
-        if (phoneAccountHandle == null && accounts.size() > 0 && !call.isEmergencyCall()) {
+        if (phoneAccountHandle == null && accounts.size() > 0) {
             // No preset account, check if default exists that supports the URI scheme for the
             // handle and verify it can be used.
             if(accounts.size() > 1) {
@@ -941,8 +941,6 @@ public class CallsManager extends Call.ListenerBase
         }
 
         if (call.isEmergencyCall()) {
-            // Emergency -- CreateConnectionProcessor will choose accounts automatically
-            call.setTargetPhoneAccount(null);
             new AsyncEmergencyContactNotifier(mContext).execute();
         }
 
