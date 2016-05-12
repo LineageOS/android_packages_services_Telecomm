@@ -127,7 +127,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
                     mCall.getTargetPhoneAccount(), mCall.getTargetPhoneAccount()));
         }
         adjustAttemptsForConnectionManager();
-        adjustAttemptsForEmergency();
+        adjustAttemptsForEmergency(mCall.getTargetPhoneAccount());
         mAttemptRecordIterator = mAttemptRecords.iterator();
         attemptNextPhoneAccount();
     }
@@ -288,7 +288,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
 
     // If we are possibly attempting to call a local emergency number, ensure that the
     // plain PSTN connection services are listed, and nothing else.
-    private void adjustAttemptsForEmergency() {
+    private void adjustAttemptsForEmergency(PhoneAccountHandle preferredPAH) {
         if (mCall.isEmergencyCall()) {
             Log.i(this, "Emergency number detected");
             mAttemptRecords.clear();
@@ -307,16 +307,29 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
                 allAccounts.add(TelephonyUtil.getDefaultEmergencyPhoneAccount());
             }
 
-            // First, add SIM phone accounts which can place emergency calls.
+            // First, possibly add the SIM phone account that the user prefers
+            PhoneAccount preferredPA = mPhoneAccountRegistrar.getPhoneAccountUnchecked(
+                    preferredPAH);
+            if (preferredPA != null &&
+                    preferredPA.hasCapabilities(PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS) &&
+                    preferredPA.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
+                Log.i(this, "Will try PSTN account %s for emergency",
+                        preferredPA.getAccountHandle());
+                mAttemptRecords.add(new CallAttemptRecord(preferredPAH, preferredPAH));
+            }
+
+            // Next, add all SIM phone accounts which can place emergency calls.
+            TelephonyUtil.sortSimPhoneAccounts(mContext, allAccounts);
             for (PhoneAccount phoneAccount : allAccounts) {
                 if (phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS) &&
                         phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
-                    Log.i(this, "Will try PSTN account %s for emergency",
-                            phoneAccount.getAccountHandle());
-                    mAttemptRecords.add(
-                            new CallAttemptRecord(
-                                    phoneAccount.getAccountHandle(),
-                                    phoneAccount.getAccountHandle()));
+                    PhoneAccountHandle phoneAccountHandle = phoneAccount.getAccountHandle();
+                    // Don't add the preferred account since it has already been added previously.
+                    if (!phoneAccountHandle.equals(preferredPAH)) {
+                        Log.i(this, "Will try PSTN account %s for emergency", phoneAccountHandle);
+                        mAttemptRecords.add(new CallAttemptRecord(phoneAccountHandle,
+                                phoneAccountHandle));
+                    }
                 }
             }
 
@@ -419,7 +432,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
     public void handleCreateConnectionFailure(DisconnectCause errorDisconnectCause) {
         // Failure of some sort; record the reasons for failure and try again if possible
         Log.d(CreateConnectionProcessor.this, "Connection failed: (%s)", errorDisconnectCause);
-        if(shouldFailCallIfConnectionManagerFails(errorDisconnectCause)){
+        if (shouldFailCallIfConnectionManagerFails(errorDisconnectCause)) {
             notifyCallConnectionFailure(errorDisconnectCause);
             return;
         }
