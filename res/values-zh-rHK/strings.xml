@@ -29,7 +29,7 @@
     <string name="accessibility_call_muted" msgid="2776111226185342220">"通話已靜音。"</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"擴音器已啟用"</string>
     <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"我現在不方便通話，有什麼事？"</string>
-    <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"我待會就打電話給你。"</string>
+    <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"我很快會回電給你。"</string>
     <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"我晚點打電話給你。"</string>
     <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"我現在不方便通話，晚點再打來好嗎？"</string>
     <string name="respond_via_sms_setting_title" msgid="3754000371039709383">"快速回應"</string>
@@ -49,7 +49,7 @@
     <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"使用 <xliff:g id="NEW_APP">%1$s</xliff:g> 取代 <xliff:g id="CURRENT_APP">%2$s</xliff:g> 作為預設撥號器應用程式？"</string>
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"使用 <xliff:g id="NEW_APP">%s</xliff:g> 為預設撥號器應用程式？"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"已封鎖的號碼"</string>
-    <string name="blocked_numbers_msg" msgid="1045015186124965643">"您不會收到來自封鎖號碼的電話或短訊。"</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"您不會收到已封鎖號碼的來電或短訊。"</string>
     <string name="block_number" msgid="1101252256321306179">"新增號碼"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"要解除封鎖 <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> 嗎？"</string>
     <string name="unblock_button" msgid="3078048901972674170">"解除封鎖"</string>

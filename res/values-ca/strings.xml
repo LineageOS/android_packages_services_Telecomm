@@ -53,7 +53,7 @@
     <string name="block_number" msgid="1101252256321306179">"Afegeix un número"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Vols desbloquejar el número <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Desbloqueja"</string>
-    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Bloqueja les trucades i els missatges de text de"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Bloqueja trucades i missatges de text de"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Número de telèfon"</string>
     <string name="block_button" msgid="8822290682524373357">"Bloqueja"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Només el propietari del dispositiu pot consultar i gestionar els números bloquejats."</string>

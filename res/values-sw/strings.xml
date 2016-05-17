@@ -29,7 +29,7 @@
     <string name="accessibility_call_muted" msgid="2776111226185342220">"Simu imezimwa."</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"Spika za simu zimewezeshwa"</string>
     <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"Siwezi kuongea sasa. Kuna nini?"</string>
-    <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"Nitakupigia sasa hivi."</string>
+    <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"Nitakupigia baada ya dakika chache."</string>
     <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"Nitakupigia baadaye."</string>
     <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"Siwezi kuongea sasa. Nipigie baadaye"</string>
     <string name="respond_via_sms_setting_title" msgid="3754000371039709383">"Majibu ya haraka"</string>
@@ -51,18 +51,18 @@
     <string name="blocked_numbers" msgid="2751843139572970579">"Nambari zilizozuiwa"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Hutapokea simu au SMS kutoka kwa nambari zilizozuiwa."</string>
     <string name="block_number" msgid="1101252256321306179">"Ongeza nambari"</string>
-    <string name="unblock_dialog_body" msgid="1614238499771862793">"Ungependa kuondoa kizuizi kwenye <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
-    <string name="unblock_button" msgid="3078048901972674170">"Ondoa kizuizi"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"Ungependa kuacha kuzuia <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"Acha kuzuia"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Zuia simu na SMS kutoka kwa"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Nambari ya simu"</string>
     <string name="block_button" msgid="8822290682524373357">"Zuia"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Ni mmiliki wa kifaa pekee anayeweza kuangalia na kuthibiti nambari zilizozuiwa."</string>
-    <string name="delete_icon_description" msgid="8903995728252556724">"Ondoa kizuizi"</string>
+    <string name="delete_icon_description" msgid="8903995728252556724">"Acha kuzuia"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Kipengele cha kuzuia kimezimwa kwa muda"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Ukishapiga au kutuma ujumbe kwa nambari ya dharura, kipengele cha kuzuia anwani huzimwa ili watoa huduma za dharura waweze kuwasiliana nawe."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Kiwashe tena sasa"</string>
     <string name="blocked_numbers_number_blocked_message" msgid="7678509606805029540">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> imezuiwa"</string>
-    <string name="blocked_numbers_number_unblocked_message" msgid="977894647366750418">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> imeondolewa kizuizi"</string>
+    <string name="blocked_numbers_number_unblocked_message" msgid="977894647366750418">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> imeacha kuzuiwa"</string>
     <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"Huwezi kuzuia nambari ya dharura."</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> tayari imezuiwa."</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Kupiga simu kwa kutumia kipiga simu cha binafsi"</string>

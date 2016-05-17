@@ -28,7 +28,7 @@
     <string name="notification_missedCall_message" msgid="3049928912736917988">"Viesti"</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"Puhelu mykistetty."</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"Kaiutin käytössä."</string>
-    <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"En voi vastata - mitä asiaa?"</string>
+    <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"En voi vastata. Mitä asiaa?"</string>
     <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"Soitan sinulle pian."</string>
     <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"Soitan sinulle myöhemmin."</string>
     <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"En voi vastata. Soitatko myöhemmin?"</string>

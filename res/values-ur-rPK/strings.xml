@@ -50,10 +50,10 @@
     <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"<xliff:g id="NEW_APP">%s</xliff:g> کو بطور اپنی ڈیفالٹ ڈائلر ایپ استعمال کریں؟"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"مسدود کردہ نمبرز"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"آپ مسدود کردہ نمبروں سے کالیں یا متنی پیغامات وصول نہیں کریں گے۔"</string>
-    <string name="block_number" msgid="1101252256321306179">"ایک نمبر کا اضافہ کریں"</string>
+    <string name="block_number" msgid="1101252256321306179">"ایک نمبر شامل کریں"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> غیر مسدود کریں؟"</string>
     <string name="unblock_button" msgid="3078048901972674170">"غیر مسدود کریں"</string>
-    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"ان کی کالز اور پیغامات مدسود کریں"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"اس نمبر سے کالز اور پیغامات مسدود کریں"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"فون نمبر"</string>
     <string name="block_button" msgid="8822290682524373357">"مسدود کریں"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"صرف آلہ کا مالک مسدود کردہ نمبرز کو دیکھ سکتا ہے اور ان کا نظم کر سکتا ہے۔"</string>
