@@ -483,15 +483,17 @@ public class BluetoothPhoneServiceImpl {
                 return true;
             }
         } else if (chld == CHLD_TYPE_RELEASEACTIVE_ACCEPTHELD) {
+            if (activeCall == null && ringingCall == null && heldCall == null)
+                return false;
             if (activeCall != null) {
                 mCallsManager.disconnectCall(activeCall);
-                if (ringingCall != null) {
-                    mCallsManager.answerCall(ringingCall, ringingCall.getVideoState());
-                } else if (heldCall != null) {
-                    mCallsManager.unholdCall(heldCall);
-                }
-                return true;
             }
+            if (ringingCall != null) {
+                mCallsManager.answerCall(ringingCall, ringingCall.getVideoState());
+            } else if (heldCall != null) {
+                mCallsManager.unholdCall(heldCall);
+            }
+            return true;
         } else if (chld == CHLD_TYPE_HOLDACTIVE_ACCEPTHELD) {
             if (activeCall != null && activeCall.can(Connection.CAPABILITY_SWAP_CONFERENCE)) {
                 activeCall.swapConference();
