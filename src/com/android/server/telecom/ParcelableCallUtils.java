@@ -59,7 +59,7 @@ public class ParcelableCallUtils {
         }
 
         if (call.isWorkCall()) {
-            properties |= android.telecom.Call.Details.PROPERTY_WORK_CALL;
+            properties |= android.telecom.Call.Details.PROPERTY_ENTERPRISE_CALL;
         }
 
         // If this is a single-SIM device, the "default SIM" will always be the only SIM.
