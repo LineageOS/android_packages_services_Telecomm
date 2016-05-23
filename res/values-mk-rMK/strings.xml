@@ -51,13 +51,13 @@
     <string name="blocked_numbers" msgid="2751843139572970579">"Блокирани броеви"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Нема да добивате повици или SMS од блокирани броеви."</string>
     <string name="block_number" msgid="1101252256321306179">"Додај број"</string>
-    <string name="unblock_dialog_body" msgid="1614238499771862793">"Деблокирајте го <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
-    <string name="unblock_button" msgid="3078048901972674170">"Деблокирај"</string>
-    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Блокирај повици и текстови од"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"Одблокирајте го <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"Одблокирај"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Блокирај повици и пораки од"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Телефонски број"</string>
     <string name="block_button" msgid="8822290682524373357">"Блокирај"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Само сопственикот на уредот може да ги прикаже и да управува со блокираните броеви."</string>
-    <string name="delete_icon_description" msgid="8903995728252556724">"Деблокирајте"</string>
+    <string name="delete_icon_description" msgid="8903995728252556724">"Одблокирај"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Блокирањето е привремено исклучено"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Откако ќе повикате или ќе испратите SMS на број за итни случаи, блокирањето се исклучува за да може да ве контактираат службите за итни случаи."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Овозможи сега повторно"</string>
