@@ -121,6 +121,13 @@ public class AsyncRingtonePlayer {
             return;
         }
 
+        // If the Ringtone Uri is EMPTY, then the "None" Ringtone has been selected. Do not play
+        // anything.
+        if(Uri.EMPTY.equals(incomingCall.getRingtone())) {
+            mRingtone = null;
+            return;
+        }
+
         ThreadUtil.checkNotOnMainThread();
         Log.i(this, "Play ringtone.");
 
