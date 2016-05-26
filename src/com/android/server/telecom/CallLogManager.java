@@ -144,10 +144,12 @@ public final class CallLogManager extends CallsManagerListenerBase {
         // 1) It was not in the "choose account" phase when disconnected
         // 2) It is a conference call
         // 3) Call was not explicitly canceled
+        // 4) Call is not an external call
         if (isNewlyDisconnected &&
                 (oldState != CallState.SELECT_PHONE_ACCOUNT &&
                  !call.isConference() &&
-                 !isCallCanceled)) {
+                 !isCallCanceled) &&
+                !call.isExternalCall()) {
             int type;
             if (!call.isIncoming()) {
                 type = Calls.OUTGOING_TYPE;
