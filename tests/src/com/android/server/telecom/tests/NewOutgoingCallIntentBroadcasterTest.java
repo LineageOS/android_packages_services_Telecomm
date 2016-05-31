@@ -127,6 +127,20 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
     }
 
     @SmallTest
+    public void testAlreadyDisconnectedCall() {
+        Uri handle = Uri.parse("tel:6505551234");
+        doReturn(true).when(mCall).isDisconnected();
+        Intent callIntent = buildIntent(handle, Intent.ACTION_CALL, null);
+        ReceiverIntentPair result = regularCallTestHelper(callIntent, null);
+
+        result.receiver.setResultData(
+                result.intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER));
+
+        result.receiver.onReceive(mContext, result.intent);
+        verifyNoCallPlaced();
+    }
+
+    @SmallTest
     public void testNoNumberSupplied() {
         Uri handle = Uri.parse("tel:");
         Intent intent = new Intent(Intent.ACTION_CALL, handle);
