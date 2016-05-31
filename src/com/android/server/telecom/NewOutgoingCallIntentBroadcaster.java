@@ -131,6 +131,13 @@ public class NewOutgoingCallIntentBroadcaster {
                     return;
                 }
 
+                // If this call is already disconnected then we have nothing more to do.
+                if (mCall.isDisconnected()) {
+                    Log.w(this,
+                        "Call has already been disconnected, ignore the broadcast Call %s", mCall);
+                    return;
+                }
+
                 Uri resultHandleUri = Uri.fromParts(
                         mPhoneNumberUtilsAdapter.isUriNumber(resultNumber) ?
                                 PhoneAccount.SCHEME_SIP : PhoneAccount.SCHEME_TEL,
