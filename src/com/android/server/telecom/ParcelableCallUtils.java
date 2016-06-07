@@ -271,7 +271,10 @@ public class ParcelableCallUtils {
         android.telecom.Call.Details.PROPERTY_EMERGENCY_CALLBACK_MODE,
 
         Connection.PROPERTY_IS_EXTERNAL_CALL,
-        android.telecom.Call.Details.PROPERTY_IS_EXTERNAL_CALL
+        android.telecom.Call.Details.PROPERTY_IS_EXTERNAL_CALL,
+
+        Connection.PROPERTY_HAS_CDMA_VOICE_PRIVACY,
+        android.telecom.Call.Details.PROPERTY_HAS_CDMA_VOICE_PRIVACY
     };
 
     private static int convertConnectionToCallProperties(int connectionProperties) {

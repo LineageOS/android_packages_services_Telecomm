@@ -102,8 +102,16 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         @Override
         public Connection onCreateOutgoingConnection(
                 PhoneAccountHandle connectionManagerPhoneAccount, ConnectionRequest request) {
-            mLatestConnection = new FakeConnection(request.getVideoState(), request.getAddress());
-            return mLatestConnection;
+            FakeConnection fakeConnection = new FakeConnection(request.getVideoState(),
+                    request.getAddress());
+            mLatestConnection = fakeConnection;
+            if (mCapabilities != NOT_SPECIFIED) {
+                fakeConnection.setConnectionCapabilities(mCapabilities);
+            }
+            if (mProperties != NOT_SPECIFIED) {
+                fakeConnection.setConnectionProperties(mProperties);
+            }
+            return fakeConnection;
         }
 
         @Override
