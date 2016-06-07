@@ -44,6 +44,7 @@ import android.media.IAudioService;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Process;
 import android.os.UserHandle;
 import android.provider.BlockedNumberContract;
@@ -545,9 +546,9 @@ public class TelecomSystemTest extends TelecomTestCase {
 
         verify(connectionServiceFixture.getTestDouble())
                 .createConnection(eq(phoneAccountHandle), anyString(), any(ConnectionRequest.class),
-                        anyBoolean(), anyBoolean());
-        connectionServiceFixture.sendHandleCreateConnectionComplete(
-                connectionServiceFixture.mLatestConnectionId);
+                        eq(false)/*isIncoming*/, anyBoolean());
+        // Wait for handleCreateConnectionComplete
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
 
         assertEquals(startingNumCalls + 1, mInCallServiceFixtureX.mCallById.size());
         assertEquals(startingNumCalls + 1, mInCallServiceFixtureY.mCallById.size());

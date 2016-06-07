@@ -843,6 +843,44 @@ public class BasicCallTests extends TelecomSystemTest {
     }
 
     /**
+     * Tests to make sure that the Call.Details.PROPERTY_HAS_CDMA_VOICE_PRIVACY property is set on a
+     * Call that is based on a Connection with the Connection.PROPERTY_HAS_CDMA_VOICE_PRIVACY
+     * property set.
+     */
+    @MediumTest
+    public void testCdmaEnhancedPrivacyVoiceCall() throws Exception {
+        mConnectionServiceFixtureA.mConnectionServiceDelegate.mProperties =
+                Connection.PROPERTY_HAS_CDMA_VOICE_PRIVACY;
+
+        IdPair ids = startAndMakeActiveOutgoingCall("650-555-1212",
+                mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
+        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+
+        assertTrue(Call.Details.hasProperty(
+                mInCallServiceFixtureX.getCall(ids.mCallId).getProperties(),
+                Call.Details.PROPERTY_HAS_CDMA_VOICE_PRIVACY));
+    }
+
+    /**
+     * Tests to make sure that Call.Details.PROPERTY_HAS_CDMA_VOICE_PRIVACY is dropped
+     * when the Connection.PROPERTY_HAS_CDMA_VOICE_PRIVACY property is removed from the Connection.
+     */
+    @MediumTest
+    public void testDropCdmaEnhancedPrivacyVoiceCall() throws Exception {
+        mConnectionServiceFixtureA.mConnectionServiceDelegate.mProperties =
+                Connection.PROPERTY_HAS_CDMA_VOICE_PRIVACY;
+
+        IdPair ids = startAndMakeActiveOutgoingCall("650-555-1212",
+                mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
+        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+        mConnectionServiceFixtureA.mLatestConnection.setConnectionProperties(0);
+
+        assertFalse(Call.Details.hasProperty(
+                mInCallServiceFixtureX.getCall(ids.mCallId).getProperties(),
+                Call.Details.PROPERTY_HAS_CDMA_VOICE_PRIVACY));
+    }
+
+    /**
      * Tests the {@link Call#pullExternalCall()} API.  Ensures that an external call which is
      * pullable can be pulled.
      *
