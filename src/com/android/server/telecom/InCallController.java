@@ -711,6 +711,10 @@ public final class InCallController extends CallsManagerListenerBase {
         if (!mInCallServices.isEmpty()) {
             for (IInCallService inCallService : mInCallServices.values()) {
                 try {
+                    Log.i(this, "notifyConnectionEvent {Call: %s, Event: %s, Extras:[%s]}",
+                            (call != null ? call.toString() :"null"),
+                            (event != null ? event : "null") ,
+                            (extras != null ? extras.toString() : "null"));
                     inCallService.onConnectionEvent(mCallIdMapper.getCallId(call), event, extras);
                 } catch (RemoteException ignored) {
                 }
