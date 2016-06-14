@@ -1535,6 +1535,10 @@ public class CallsManager extends Call.ListenerBase
                     continue;
                 }
 
+                if (call.isExternalCall()) {
+                    continue;
+                }
+
                 if (currentState == call.getState()) {
                     return call;
                 }
@@ -1784,7 +1788,9 @@ public class CallsManager extends Call.ListenerBase
         int count = 0;
         for (int state : states) {
             for (Call call : mCalls) {
-                if (call.getParentCall() == null && call.getState() == state) {
+                if (call.getParentCall() == null && call.getState() == state &&
+                        !call.isExternalCall()) {
+
                     count++;
                 }
             }

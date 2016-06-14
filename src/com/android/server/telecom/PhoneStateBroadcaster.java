@@ -43,6 +43,9 @@ final class PhoneStateBroadcaster extends CallsManagerListenerBase {
 
     @Override
     public void onCallStateChanged(Call call, int oldState, int newState) {
+        if (call.isExternalCall()) {
+            return;
+        }
         updateStates(call);
     }
 
