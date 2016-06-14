@@ -291,11 +291,17 @@ public class BluetoothPhoneServiceImpl {
     public CallsManagerListener mCallsManagerListener = new CallsManagerListenerBase() {
         @Override
         public void onCallAdded(Call call) {
+            if (call.isExternalCall()) {
+                return;
+            }
             updateHeadsetWithCallState(false /* force */);
         }
 
         @Override
         public void onCallRemoved(Call call) {
+            if (call.isExternalCall()) {
+                return;
+            }
             mClccIndexMap.remove(call);
             updateHeadsetWithCallState(false /* force */);
         }
@@ -318,6 +324,9 @@ public class BluetoothPhoneServiceImpl {
 
         @Override
         public void onCallStateChanged(Call call, int oldState, int newState) {
+            if (call.isExternalCall()) {
+                return;
+            }
             // If a call is being put on hold because of a new connecting call, ignore the
             // CONNECTING since the BT state update needs to send out the numHeld = 1 + dialing
             // state atomically.
@@ -343,6 +352,9 @@ public class BluetoothPhoneServiceImpl {
 
         @Override
         public void onIsConferencedChanged(Call call) {
+            if (call.isExternalCall()) {
+                return;
+            }
             /*
              * Filter certain onIsConferencedChanged callbacks. Unfortunately this needs to be done
              * because conference change events are not atomic and multiple callbacks get fired
