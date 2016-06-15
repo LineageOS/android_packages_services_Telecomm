@@ -779,9 +779,9 @@ public class CallsManager extends Call.ListenerBase
                     false /* forceAttachToExistingConnection */,
                     false /* isConference */
             );
-            call.setInitiatingUser(initiatingUser);
-
             call.initAnalytics();
+
+            call.setInitiatingUser(initiatingUser);
 
             isReusedCall = false;
         }
@@ -1165,12 +1165,18 @@ public class CallsManager extends Call.ListenerBase
         if (!mCalls.contains(call)) {
             Log.w(this, "Unknown call (%s) asked to be removed from hold", call);
         } else {
+            boolean otherCallHeld = false;
             Log.d(this, "unholding call: (%s)", call);
             for (Call c : mCalls) {
                 // Only attempt to hold parent calls and not the individual children.
                 if (c != null && c.isAlive() && c != call && c.getParentCall() == null) {
+                    otherCallHeld = true;
+                    Log.event(c, Log.Events.SWAP);
                     c.hold();
                 }
+            }
+            if (otherCallHeld) {
+                Log.event(call, Log.Events.SWAP);
             }
             call.unhold();
         }
