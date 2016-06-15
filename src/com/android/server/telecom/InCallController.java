@@ -84,27 +84,31 @@ public final class InCallController extends CallsManagerListenerBase {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 Log.startSession("ICSBC.oSC");
-                try {
-                    Log.d(this, "onServiceConnected: %s %b %b", name, mIsBound, mIsConnected);
-                    mIsBound = true;
-                    if (mIsConnected) {
-                        // Only proceed if we are supposed to be connected.
-                        onConnected(service);
+                synchronized (mLock) {
+                    try {
+                        Log.d(this, "onServiceConnected: %s %b %b", name, mIsBound, mIsConnected);
+                        mIsBound = true;
+                        if (mIsConnected) {
+                            // Only proceed if we are supposed to be connected.
+                            onConnected(service);
+                        }
+                    } finally {
+                        Log.endSession();
                     }
-                } finally {
-                    Log.endSession();
                 }
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
                 Log.startSession("ICSBC.oSD");
-                try {
-                    Log.d(this, "onDisconnected: %s", name);
-                    mIsBound = false;
-                    onDisconnected();
-                } finally {
-                    Log.endSession();
+                synchronized (mLock) {
+                    try {
+                        Log.d(this, "onDisconnected: %s", name);
+                        mIsBound = false;
+                        onDisconnected();
+                    } finally {
+                        Log.endSession();
+                    }
                 }
             }
         };
