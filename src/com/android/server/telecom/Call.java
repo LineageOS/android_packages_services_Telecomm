@@ -430,7 +430,6 @@ public class Call implements CreateConnectionResponse {
         maybeLoadCannedSmsResponses();
         mAnalytics = new Analytics.CallInfo();
 
-        Log.event(this, Log.Events.CREATED);
     }
 
     /**
@@ -501,6 +500,7 @@ public class Call implements CreateConnectionResponse {
                 analyticsDirection = Analytics.UNKNOWN_DIRECTION;
         }
         mAnalytics = Analytics.initiateCallAnalytics(mId, analyticsDirection);
+        Log.event(this, Log.Events.CREATED);
     }
 
     public Analytics.CallInfo getAnalytics() {
@@ -1477,7 +1477,7 @@ public class Call implements CreateConnectionResponse {
         if (mConnectionService == null) {
             Log.w(this, "splitting from conference call without a connection service");
         } else {
-            Log.event(this, Log.Events.SPLIT_CONFERENCE);
+            Log.event(this, Log.Events.SPLIT_FROM_CONFERENCE);
             mConnectionService.splitFromConference(this);
         }
     }
@@ -1550,7 +1550,7 @@ public class Call implements CreateConnectionResponse {
             return;
         }
 
-        Log.event(this, Log.Events.PULL);
+        Log.event(this, Log.Events.REQUEST_PULL);
         mConnectionService.pullExternalCall(this);
     }
 

@@ -66,7 +66,7 @@ public class ConnectionServiceWrapper extends ServiceBinder {
         @Override
         public void handleCreateConnectionComplete(String callId, ConnectionRequest request,
                 ParcelableConnection connection) {
-            Log.startSession("CSW.hCCC");
+            Log.startSession(Log.Sessions.CSW_HANDLE_CREATE_CONNECTION_COMPLETE);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -82,7 +82,7 @@ public class ConnectionServiceWrapper extends ServiceBinder {
 
         @Override
         public void setActive(String callId) {
-            Log.startSession("CSW.sA");
+            Log.startSession(Log.Sessions.CSW_SET_ACTIVE);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -102,7 +102,7 @@ public class ConnectionServiceWrapper extends ServiceBinder {
 
         @Override
         public void setRinging(String callId) {
-            Log.startSession("CSW.sR");
+            Log.startSession(Log.Sessions.CSW_SET_RINGING);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -140,7 +140,7 @@ public class ConnectionServiceWrapper extends ServiceBinder {
 
         @Override
         public void setDialing(String callId) {
-            Log.startSession("CSW.sD");
+            Log.startSession(Log.Sessions.CSW_SET_DIALING);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -160,7 +160,7 @@ public class ConnectionServiceWrapper extends ServiceBinder {
 
         @Override
         public void setDisconnected(String callId, DisconnectCause disconnectCause) {
-            Log.startSession("CSW.sD");
+            Log.startSession(Log.Sessions.CSW_SET_DISCONNECTED);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -181,7 +181,7 @@ public class ConnectionServiceWrapper extends ServiceBinder {
 
         @Override
         public void setOnHold(String callId) {
-            Log.startSession("CSW.sOH");
+            Log.startSession(Log.Sessions.CSW_SET_ON_HOLD);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -221,7 +221,7 @@ public class ConnectionServiceWrapper extends ServiceBinder {
 
         @Override
         public void removeCall(String callId) {
-            Log.startSession("CSW.rC");
+            Log.startSession(Log.Sessions.CSW_REMOVE_CALL);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -283,7 +283,7 @@ public class ConnectionServiceWrapper extends ServiceBinder {
 
         @Override
         public void setIsConferenced(String callId, String conferenceCallId) {
-            Log.startSession("CSW.sIC");
+            Log.startSession(Log.Sessions.CSW_SET_IS_CONFERENCED);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -332,7 +332,7 @@ public class ConnectionServiceWrapper extends ServiceBinder {
 
         @Override
         public void addConferenceCall(String callId, ParcelableConference parcelableConference) {
-            Log.startSession("CSW.aCC");
+            Log.startSession(Log.Sessions.CSW_ADD_CONFERENCE_CALL);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
