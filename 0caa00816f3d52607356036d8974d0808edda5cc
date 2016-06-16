@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5faad753_4586a115",
+        "filename": "src/com/android/server/telecom/PhoneAccountRegistrar.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 13513
+      },
+      "writtenOn": "2016-06-16T00:32:35Z",
+      "side": 1,
+      "message": "Best to print an error log here, helps in case we run into any issues with this down the road.",
+      "revId": "0caa00816f3d52607356036d8974d0808edda5cc",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
