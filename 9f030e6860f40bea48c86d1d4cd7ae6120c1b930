@@ -16,6 +16,24 @@
       "revId": "9f030e6860f40bea48c86d1d4cd7ae6120c1b930",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5faad753_1602213e",
+        "filename": "src/com/android/server/telecom/PhoneAccountRegistrar.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 13513
+      },
+      "writtenOn": "2016-06-17T01:54:23Z",
+      "side": 1,
+      "message": "No, it eventually stacks back to getOutgoingPhoneAccountForScheme() and userSelected will be NULL and there is a NULL check there already.",
+      "parentUuid": "5faad753_bbed36b8",
+      "revId": "9f030e6860f40bea48c86d1d4cd7ae6120c1b930",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
