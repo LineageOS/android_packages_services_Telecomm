@@ -128,7 +128,7 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
             capabilities |= CAPABILITY_HOLD;
             setVideoState(videoState);
             setConnectionCapabilities(capabilities);
-            setActive();
+            setDialing();
             setAddress(address, TelecomManager.PRESENTATION_ALLOWED);
         }
 

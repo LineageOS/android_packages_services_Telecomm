@@ -645,7 +645,7 @@ public class ConnectionServiceWrapper extends ServiceBinder {
     }
 
     private final Adapter mAdapter = new Adapter();
-    private final CallIdMapper mCallIdMapper = new CallIdMapper();
+    private final CallIdMapper mCallIdMapper = new CallIdMapper(Call::getConnectionId);
     private final Map<String, CreateConnectionResponse> mPendingResponses = new HashMap<>();
 
     private Binder2 mBinder = new Binder2();
@@ -688,6 +688,17 @@ public class ConnectionServiceWrapper extends ServiceBinder {
             try {
                 logOutgoing("addConnectionServiceAdapter %s", adapter);
                 mServiceInterface.addConnectionServiceAdapter(adapter);
+            } catch (RemoteException e) {
+            }
+        }
+    }
+
+    /** See {@link IConnectionService#removeConnectionServiceAdapter}. */
+    private void removeConnectionServiceAdapter(IConnectionServiceAdapter adapter) {
+        if (isServiceValid("removeConnectionServiceAdapter")) {
+            try {
+                logOutgoing("removeConnectionServiceAdapter %s", adapter);
+                mServiceInterface.removeConnectionServiceAdapter(adapter);
             } catch (RemoteException e) {
             }
         }
@@ -1012,18 +1023,23 @@ public class ConnectionServiceWrapper extends ServiceBinder {
     /** {@inheritDoc} */
     @Override
     protected void setServiceInterface(IBinder binder) {
-        if (binder == null) {
-            // We have lost our service connection. Notify the world that this service is done.
-            // We must notify the adapter before CallsManager. The adapter will force any pending
-            // outgoing calls to try the next service. This needs to happen before CallsManager
-            // tries to clean up any calls still associated with this service.
-            handleConnectionServiceDeath();
-            mCallsManager.handleConnectionServiceDeath(this);
-            mServiceInterface = null;
-        } else {
-            mServiceInterface = IConnectionService.Stub.asInterface(binder);
-            addConnectionServiceAdapter(mAdapter);
-        }
+        mServiceInterface = IConnectionService.Stub.asInterface(binder);
+        Log.v(this, "Adding Connection Service Adapter.");
+        addConnectionServiceAdapter(mAdapter);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected void removeServiceInterface() {
+        Log.v(this, "Removing Connection Service Adapter.");
+        removeConnectionServiceAdapter(mAdapter);
+        // We have lost our service connection. Notify the world that this service is done.
+        // We must notify the adapter before CallsManager. The adapter will force any pending
+        // outgoing calls to try the next service. This needs to happen before CallsManager
+        // tries to clean up any calls still associated with this service.
+        handleConnectionServiceDeath();
+        mCallsManager.handleConnectionServiceDeath(this);
+        mServiceInterface = null;
     }
 
     private void handleCreateConnectionComplete(

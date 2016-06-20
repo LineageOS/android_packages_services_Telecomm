@@ -347,6 +347,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
     private final CallsManager mCallsManager;
     private final TelecomSystem.SyncRoot mLock;
     private final String mId;
+    private String mConnectionId;
     private Analytics.CallInfo mAnalytics;
 
     private boolean mWasConferencePreviouslyMerged = false;
@@ -383,6 +384,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
      */
     private boolean mIsVideoCallingSupported = false;
 
+    private PhoneNumberUtilsAdapter mPhoneNumberUtilsAdapter;
+
     /**
      * Persists the specified parameters and initializes the new instance.
      *
@@ -408,6 +411,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
             ConnectionServiceRepository repository,
             ContactsAsyncHelper contactsAsyncHelper,
             CallerInfoAsyncQueryFactory callerInfoAsyncQueryFactory,
+            PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
             Uri handle,
             GatewayInfo gatewayInfo,
             PhoneAccountHandle connectionManagerPhoneAccountHandle,
@@ -416,11 +420,13 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
             boolean shouldAttachToExistingConnection,
             boolean isConference) {
         mId = callId;
+        mConnectionId = callId;
         mState = isConference ? CallState.ACTIVE : CallState.NEW;
         mContext = context;
         mCallsManager = callsManager;
         mLock = lock;
         mRepository = repository;
+        mPhoneNumberUtilsAdapter = phoneNumberUtilsAdapter;
         setHandle(handle);
         mPostDialDigits = handle != null
                 ? PhoneNumberUtils.extractPostDialPortion(handle.getSchemeSpecificPart()) : "";
@@ -463,6 +469,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
             ConnectionServiceRepository repository,
             ContactsAsyncHelper contactsAsyncHelper,
             CallerInfoAsyncQueryFactory callerInfoAsyncQueryFactory,
+            PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
             Uri handle,
             GatewayInfo gatewayInfo,
             PhoneAccountHandle connectionManagerPhoneAccountHandle,
@@ -472,7 +479,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
             boolean isConference,
             long connectTimeMillis) {
         this(callId, context, callsManager, lock, repository, contactsAsyncHelper,
-                callerInfoAsyncQueryFactory, handle, gatewayInfo,
+                callerInfoAsyncQueryFactory, phoneNumberUtilsAdapter, handle, gatewayInfo,
                 connectionManagerPhoneAccountHandle, targetPhoneAccountHandle, callDirection,
                 shouldAttachToExistingConnection, isConference);
 
@@ -610,6 +617,21 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
      */
     public String getId() {
         return mId;
+    }
+
+    /**
+     * Returns the unique ID for this call (see {@link #getId}) along with an attempt indicator that
+     * iterates based on attempts to establish a {@link Connection} using createConnectionProcessor.
+     * @return The call ID with an appended attempt id.
+     */
+    public String getConnectionId() {
+        if(mCreateConnectionProcessor != null) {
+            mConnectionId = mId + "_" +
+                    String.valueOf(mCreateConnectionProcessor.getConnectionAttempt());
+            return mConnectionId;
+        } else {
+            return mConnectionId;
+        }
     }
 
     /**
@@ -765,8 +787,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
             // Let's not allow resetting of the emergency flag. Once a call becomes an emergency
             // call, it will remain so for the rest of it's lifetime.
             if (!mIsEmergencyCall) {
-                mIsEmergencyCall = mHandle != null && PhoneNumberUtils.isLocalEmergencyNumber(
-                        mContext, mHandle.getSchemeSpecificPart());
+                mIsEmergencyCall = mHandle != null &&
+                        mPhoneNumberUtilsAdapter.isLocalEmergencyNumber(mContext,
+                                mHandle.getSchemeSpecificPart());
             }
             startCallerInfoLookup();
             for (Listener l : mListeners) {
@@ -1689,7 +1712,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
             return false;
         }
 
-        if (PhoneNumberUtils.isUriNumber(getHandle().toString())) {
+        if (mPhoneNumberUtilsAdapter.isUriNumber(getHandle().toString())) {
             // The incoming number is actually a URI (i.e. a SIP address),
             // not a regular PSTN phone number, and we can't send SMSes to
             // SIP addresses.

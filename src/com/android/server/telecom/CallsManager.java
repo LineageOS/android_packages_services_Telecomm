@@ -191,6 +191,7 @@ public class CallsManager extends Call.ListenerBase
     private final CallerInfoLookupHelper mCallerInfoLookupHelper;
     private final DefaultDialerManagerAdapter mDefaultDialerManagerAdapter;
     private final Timeouts.Adapter mTimeoutsAdapter;
+    private final PhoneNumberUtilsAdapter mPhoneNumberUtilsAdapter;
     private final Set<Call> mLocallyDisconnectingCalls = new HashSet<>();
     private final Set<Call> mPendingCallsToDisconnect = new HashSet<>();
     /* Handler tied to thread in which CallManager was initialized. */
@@ -221,9 +222,11 @@ public class CallsManager extends Call.ListenerBase
             SystemStateProvider systemStateProvider,
             DefaultDialerManagerAdapter defaultDialerAdapter,
             Timeouts.Adapter timeoutsAdapter,
-            AsyncRingtonePlayer asyncRingtonePlayer) {
+            AsyncRingtonePlayer asyncRingtonePlayer,
+            PhoneNumberUtilsAdapter phoneNumberUtilsAdapter) {
         mContext = context;
         mLock = lock;
+        mPhoneNumberUtilsAdapter = phoneNumberUtilsAdapter;
         mContactsAsyncHelper = contactsAsyncHelper;
         mCallerInfoAsyncQueryFactory = callerInfoAsyncQueryFactory;
         mPhoneAccountRegistrar = phoneAccountRegistrar;
@@ -670,6 +673,7 @@ public class CallsManager extends Call.ListenerBase
                 mConnectionServiceRepository,
                 mContactsAsyncHelper,
                 mCallerInfoAsyncQueryFactory,
+                mPhoneNumberUtilsAdapter,
                 handle,
                 null /* gatewayInfo */,
                 null /* connectionManagerPhoneAccount */,
@@ -702,6 +706,7 @@ public class CallsManager extends Call.ListenerBase
                 mConnectionServiceRepository,
                 mContactsAsyncHelper,
                 mCallerInfoAsyncQueryFactory,
+                mPhoneNumberUtilsAdapter,
                 handle,
                 null /* gatewayInfo */,
                 null /* connectionManagerPhoneAccount */,
@@ -774,6 +779,7 @@ public class CallsManager extends Call.ListenerBase
                     mConnectionServiceRepository,
                     mContactsAsyncHelper,
                     mCallerInfoAsyncQueryFactory,
+                    mPhoneNumberUtilsAdapter,
                     handle,
                     null /* gatewayInfo */,
                     null /* connectionManagerPhoneAccount */,
@@ -1515,6 +1521,11 @@ public class CallsManager extends Call.ListenerBase
         return getFirstCallWithState(null, states);
     }
 
+    @VisibleForTesting
+    public PhoneNumberUtilsAdapter getPhoneNumberUtilsAdapter() {
+        return mPhoneNumberUtilsAdapter;
+    }
+
     /**
      * Returns the first call that it finds with the given states. The states are treated as having
      * priority order so that any call with the first state will be returned before any call with
@@ -1568,6 +1579,7 @@ public class CallsManager extends Call.ListenerBase
                 mConnectionServiceRepository,
                 mContactsAsyncHelper,
                 mCallerInfoAsyncQueryFactory,
+                mPhoneNumberUtilsAdapter,
                 null /* handle */,
                 null /* gatewayInfo */,
                 null /* connectionManagerPhoneAccount */,
@@ -1960,6 +1972,7 @@ public class CallsManager extends Call.ListenerBase
                 mConnectionServiceRepository,
                 mContactsAsyncHelper,
                 mCallerInfoAsyncQueryFactory,
+                mPhoneNumberUtilsAdapter,
                 connection.getHandle() /* handle */,
                 null /* gatewayInfo */,
                 null /* connectionManagerPhoneAccount */,

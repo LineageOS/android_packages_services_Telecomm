@@ -34,6 +34,7 @@ import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.test.mock.MockContext;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.text.TextUtils;
 
 import com.android.internal.telecom.IInCallAdapter;
 import com.android.internal.telecom.IInCallService;
@@ -50,6 +51,8 @@ import com.android.server.telecom.TelecomSystem;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.util.LinkedList;
 
@@ -62,6 +65,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -90,7 +94,7 @@ public class InCallControllerTests extends TelecomTestCase {
 
     private UserHandle mUserHandle = UserHandle.of(CURRENT_USER_ID);
     private InCallController mInCallController;
-    private TelecomSystem.SyncRoot mLock;
+    private TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() {};
 
     @Override
     public void setUp() throws Exception {
