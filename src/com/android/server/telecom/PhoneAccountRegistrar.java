@@ -73,6 +73,7 @@ import java.lang.SecurityException;
 import java.lang.String;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -691,6 +692,36 @@ public class PhoneAccountRegistrar {
         }
 
         mState.accounts.add(account);
+        if (mState.accounts.size() > 1) {
+            mState.accounts.sort(new Comparator<PhoneAccount>() {
+                public int compare(PhoneAccount phoneaccount1, PhoneAccount phoneaccount2) {
+                    if (phoneaccount1.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
+                            && phoneaccount2
+                                    .hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
+                        int slotId1 = phoneaccount1.getExtras()
+                                .getInt(PhoneAccount.EXTRA_SORT_ORDER);
+                        int slotId2 = phoneaccount2.getExtras()
+                                .getInt(PhoneAccount.EXTRA_SORT_ORDER);
+                        return (slotId1 < slotId2 ? -1 : (slotId1 == slotId2 ? 0 : 1));
+                    } else if (phoneaccount1
+                            .hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
+                            && !phoneaccount2
+                                    .hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
+                        return -1;
+                    } else if (!phoneaccount1
+                            .hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
+                            && phoneaccount2
+                                    .hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
+                        return 1;
+                    } else {
+                        return nullToEmpty(phoneaccount1.getLabel().toString())
+                                .compareToIgnoreCase(
+                                        nullToEmpty(phoneaccount2.getLabel().toString()));
+                    }
+                }
+            });
+        }
+
         // Set defaults and replace based on the group Id.
         maybeReplaceOldAccount(account);
         // Reset enabled state to whatever the value was if the account was already registered,
@@ -1870,4 +1901,8 @@ public class PhoneAccountRegistrar {
             return null;
         }
     };
+
+    private String nullToEmpty(String str) {
+        return str == null ? "" : str;
+    }
 }
