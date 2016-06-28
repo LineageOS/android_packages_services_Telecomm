@@ -470,7 +470,7 @@ public class CallsManager extends Call.ListenerBase
     @Override
     public void onParentChanged(Call call) {
         // parent-child relationship affects which call should be foreground, so do an update.
-        updateCallsManagerState();
+        updateCanAddCall();
         for (CallsManagerListener listener : mListeners) {
             listener.onIsConferencedChanged(call);
         }
@@ -479,7 +479,7 @@ public class CallsManager extends Call.ListenerBase
     @Override
     public void onChildrenChanged(Call call) {
         // parent-child relationship affects which call should be foreground, so do an update.
-        updateCallsManagerState();
+        updateCanAddCall();
         for (CallsManagerListener listener : mListeners) {
             listener.onIsConferencedChanged(call);
         }
@@ -1189,6 +1189,7 @@ public class CallsManager extends Call.ListenerBase
         }
         handleCallTechnologyChange(c);
         handleChildAddressChange(c);
+        updateCanAddCall();
     }
 
     // Construct the list of possible PhoneAccounts that the outgoing call can use based on the
@@ -1456,12 +1457,20 @@ public class CallsManager extends Call.ListenerBase
         }
 
         int count = 0;
+        boolean hasVideoCall = false;
+        boolean disableAddCallDuringVideoCall = false;
         for (Call call : mCalls) {
             if (call.isEmergencyCall()) {
                 // We never support add call if one of the calls is an emergency call.
                 return false;
             } else if (call.getParentCall() == null) {
                 count++;
+            }
+            hasVideoCall |= call.getVideoState() != VideoProfile.STATE_AUDIO_ONLY;
+            Bundle extras = call.getExtras();
+            if (extras != null) {
+                disableAddCallDuringVideoCall |= extras.getBoolean(
+                        Connection.EXTRA_DISABLE_ADD_CALL_DURING_VIDEO_CALL, false);
             }
 
             // We do not check states for canAddCall. We treat disconnected calls the same
@@ -1473,6 +1482,11 @@ public class CallsManager extends Call.ListenerBase
                 return false;
             }
         }
+
+        if (hasVideoCall && disableAddCallDuringVideoCall) {
+            return false;
+        }
+
         return true;
     }
 
@@ -1651,7 +1665,7 @@ public class CallsManager extends Call.ListenerBase
         extras.putLong(TelecomManager.EXTRA_CALL_TELECOM_ROUTING_END_TIME_MILLIS,
                 SystemClock.elapsedRealtime());
 
-        updateCallsManagerState();
+        updateCanAddCall();
         // onCallAdded for calls which immediately take the foreground (like the first call).
         for (CallsManagerListener listener : mListeners) {
             if (Log.SYSTRACE_DEBUG) {
@@ -1683,7 +1697,7 @@ public class CallsManager extends Call.ListenerBase
 
         // Only broadcast changes for calls that are being tracked.
         if (shouldNotify) {
-            updateCallsManagerState();
+            updateCanAddCall();
             for (CallsManagerListener listener : mListeners) {
                 if (Log.SYSTRACE_DEBUG) {
                     Trace.beginSection(listener.getClass().toString() + " onCallRemoved");
@@ -1724,7 +1738,7 @@ public class CallsManager extends Call.ListenerBase
             Trace.beginSection("onCallStateChanged");
             // Only broadcast state change for calls that are being tracked.
             if (mCalls.contains(call)) {
-                updateCallsManagerState();
+                updateCanAddCall();
                 for (CallsManagerListener listener : mListeners) {
                     if (Log.SYSTRACE_DEBUG) {
                         Trace.beginSection(listener.getClass().toString() + " onCallStateChanged");
@@ -1753,10 +1767,6 @@ public class CallsManager extends Call.ListenerBase
                 }
             }
         }
-    }
-
-    private void updateCallsManagerState() {
-        updateCanAddCall();
     }
 
     private boolean isPotentialMMICode(Uri handle) {
