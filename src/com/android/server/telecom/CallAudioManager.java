@@ -643,7 +643,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
         if (shouldPlayHoldTone()) {
             if (mHoldTonePlayer == null) {
                 mHoldTonePlayer = mPlayerFactory.createPlayer(InCallTonePlayer.TONE_CALL_WAITING);
-                mHoldTonePlayer.start();
+                mHoldTonePlayer.startTone();
             }
         } else {
             if (mHoldTonePlayer != null) {

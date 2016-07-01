@@ -273,7 +273,12 @@ public class InCallTonePlayer extends Thread {
             mSession = Log.createSubsession();
         }
 
-        start();
+        super.start();
+    }
+
+    @Override
+    public void start() {
+        Log.w(this, "Do not call the start method directly; use startTone instead.");
     }
 
     /**
