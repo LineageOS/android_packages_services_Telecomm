@@ -1895,6 +1895,8 @@ public class Call implements CreateConnectionResponse {
             mVideoStateHistory = mVideoStateHistory | videoState;
         }
 
+        Log.event(this, Log.Events.VIDEO_STATE_CHANGED,
+                VideoProfile.videoStateToString(videoState));
         mVideoState = videoState;
         for (Listener l : mListeners) {
             l.onVideoStateChanged(this);
