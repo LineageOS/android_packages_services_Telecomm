@@ -160,6 +160,11 @@ public class Log {
         public static final String REMOTELY_UNHELD = "REMOTELY_UNHELD";
         public static final String REQUEST_PULL = "PULL";
         public static final String INFO = "INFO";
+        public static final String VIDEO_STATE_CHANGED = "VIDEO_STATE_CHANGED";
+        public static final String RECEIVE_VIDEO_REQUEST = "RECEIVE_VIDEO_REQUEST";
+        public static final String RECEIVE_VIDEO_RESPONSE = "RECEIVE_VIDEO_RESPONSE";
+        public static final String SEND_VIDEO_REQUEST = "SEND_VIDEO_REQUEST";
+        public static final String SEND_VIDEO_RESPONSE = "SEND_VIDEO_RESPONSE";
 
         public static class Timings {
             public static final String ACCEPT_TIMING = "accept";

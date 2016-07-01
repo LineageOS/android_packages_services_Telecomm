@@ -130,6 +130,8 @@ public class VideoProviderProxy extends Connection.VideoProvider {
                 Log.startSession("VPP.rSMR");
                 synchronized (mLock) {
                     logFromVideoProvider("receiveSessionModifyRequest: " + videoProfile);
+                    Log.event(mCall, Log.Events.RECEIVE_VIDEO_REQUEST,
+                            VideoProfile.videoStateToString(videoProfile.getVideoState()));
 
                     // Inform other Telecom components of the session modification request.
                     for (Listener listener : mListeners) {
@@ -158,6 +160,8 @@ public class VideoProviderProxy extends Connection.VideoProvider {
                 logFromVideoProvider("receiveSessionModifyResponse: status=" + status +
                         " requestProfile=" + requestProfile + " responseProfile=" +
                         responseProfile);
+                Log.event(mCall, Log.Events.RECEIVE_VIDEO_RESPONSE,
+                        VideoProfile.videoStateToString(responseProfile.getVideoState()));
                 VideoProviderProxy.this.receiveSessionModifyResponse(status, requestProfile,
                         responseProfile);
             }
@@ -337,6 +341,8 @@ public class VideoProviderProxy extends Connection.VideoProvider {
     public void onSendSessionModifyRequest(VideoProfile fromProfile, VideoProfile toProfile) {
         synchronized (mLock) {
             logFromInCall("sendSessionModifyRequest: from=" + fromProfile + " to=" + toProfile);
+            Log.event(mCall, Log.Events.SEND_VIDEO_REQUEST,
+                    VideoProfile.videoStateToString(toProfile.getVideoState()));
             try {
                 mConectionServiceVideoProvider.sendSessionModifyRequest(fromProfile, toProfile);
             } catch (RemoteException e) {
@@ -354,6 +360,8 @@ public class VideoProviderProxy extends Connection.VideoProvider {
     public void onSendSessionModifyResponse(VideoProfile responseProfile) {
         synchronized (mLock) {
             logFromInCall("sendSessionModifyResponse: " + responseProfile);
+            Log.event(mCall, Log.Events.SEND_VIDEO_RESPONSE,
+                    VideoProfile.videoStateToString(responseProfile.getVideoState()));
             try {
                 mConectionServiceVideoProvider.sendSessionModifyResponse(responseProfile);
             } catch (RemoteException e) {
