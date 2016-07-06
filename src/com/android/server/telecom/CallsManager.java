@@ -923,18 +923,18 @@ public class CallsManager extends Call.ListenerBase
 
         final boolean useSpeakerWhenDocked = mContext.getResources().getBoolean(
                 R.bool.use_speaker_when_docked);
-        final boolean isDocked = mDockManager.isDocked();
+        final boolean useSpeakerForDock = isSpeakerphoneEnabledForDock();
         final boolean useSpeakerForVideoCall = isSpeakerphoneAutoEnabled(videoState);
 
         // Auto-enable speakerphone if the originating intent specified to do so, if the call
         // is a video call, of if using speaker when docked
         call.setStartWithSpeakerphoneOn(speakerphoneOn || useSpeakerForVideoCall
-                || (useSpeakerWhenDocked && isDocked));
+                || (useSpeakerWhenDocked && useSpeakerForDock));
         call.setVideoState(videoState);
 
         if (speakerphoneOn) {
             Log.i(this, "%s Starting with speakerphone as requested", call);
-        } else if (useSpeakerWhenDocked && useSpeakerWhenDocked) {
+        } else if (useSpeakerWhenDocked && useSpeakerForDock) {
             Log.i(this, "%s Starting with speakerphone because car is docked.", call);
         } else if (useSpeakerForVideoCall) {
             Log.i(this, "%s Starting with speakerphone because its a video call.", call);
@@ -1042,6 +1042,19 @@ public class CallsManager extends Call.ListenerBase
             !mWiredHeadsetManager.isPluggedIn() &&
             !mBluetoothManager.isBluetoothAvailable() &&
             isSpeakerEnabledForVideoCalls();
+    }
+
+    /**
+     * Determines if the speakerphone should be enabled for when docked.  Speakerphone
+     * should be enabled if the device is docked and bluetooth or the wired headset are
+     * not in use.
+     *
+     * @return {@code true} if the speakerphone should be enabled for the dock.
+     */
+    private boolean isSpeakerphoneEnabledForDock() {
+        return mDockManager.isDocked() &&
+            !mWiredHeadsetManager.isPluggedIn() &&
+            !mBluetoothManager.isBluetoothAvailable();
     }
 
     /**
