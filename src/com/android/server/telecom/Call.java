@@ -1901,6 +1901,10 @@ public class Call implements CreateConnectionResponse {
         for (Listener l : mListeners) {
             l.onVideoStateChanged(this);
         }
+
+        if (VideoProfile.isVideo(videoState)) {
+            mAnalytics.setCallIsVideo(true);
+        }
     }
 
     public boolean getIsVoipAudioMode() {

@@ -19,7 +19,6 @@ package com.android.server.telecom;
 import android.telecom.DisconnectCause;
 import android.telecom.ParcelableCallAnalytics;
 import android.telecom.TelecomAnalytics;
-import android.util.SparseArray;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.IndentingPrintWriter;
@@ -165,6 +164,12 @@ public class Analytics {
 
         public void setCallEvents(Log.CallEventRecord records) {
         }
+
+        public void setCallIsVideo(boolean isVideo) {
+        }
+
+        public void addVideoEvent(int eventId, int videoState) {
+        }
     }
 
     /**
@@ -194,6 +199,10 @@ public class Analytics {
 
         public Log.CallEventRecord callEvents;
 
+        public boolean isVideo = false;
+        public List<ParcelableCallAnalytics.VideoEvent> videoEvents;
+        private long mTimeOfLastVideoEvent = -1;
+
         CallInfoImpl(String callId, int callDirection) {
             this.callId = callId;
             startTime = 0;
@@ -201,6 +210,7 @@ public class Analytics {
             this.callDirection = callDirection;
             callTechnologies = 0;
             connectionService = "";
+            videoEvents = new LinkedList<>();
         }
 
         CallInfoImpl(CallInfoImpl other) {
@@ -215,6 +225,8 @@ public class Analytics {
             this.connectionService = other.connectionService;
             this.isEmergency = other.isEmergency;
             this.callEvents = other.callEvents;
+            this.isVideo = other.isVideo;
+            this.videoEvents = other.videoEvents;
 
             if (other.callTerminationReason != null) {
                 this.callTerminationReason = new DisconnectCause(
@@ -284,6 +296,26 @@ public class Analytics {
         }
 
         @Override
+        public void setCallIsVideo(boolean isVideo) {
+            this.isVideo = isVideo;
+        }
+
+        @Override
+        public void addVideoEvent(int eventId, int videoState) {
+            long timeSinceLastEvent;
+            long currentTime = System.currentTimeMillis();
+            if (mTimeOfLastVideoEvent < 0) {
+                timeSinceLastEvent = -1;
+            } else {
+                timeSinceLastEvent = roundToOneSigFig(currentTime - mTimeOfLastVideoEvent);
+            }
+            mTimeOfLastVideoEvent = currentTime;
+
+            videoEvents.add(new ParcelableCallAnalytics.VideoEvent(
+                    eventId, timeSinceLastEvent, videoState));
+        }
+
+        @Override
         public String toString() {
             return "{\n"
                     + "    startTime: " + startTime + '\n'
@@ -294,6 +326,7 @@ public class Analytics {
                     + "    callTechnologies: " + getCallTechnologiesAsString() + '\n'
                     + "    callTerminationReason: " + getCallDisconnectReasonString() + '\n'
                     + "    connectionService: " + connectionService + '\n'
+                    + "    isVideoCall: " + isVideo + '\n'
                     + "}\n";
         }
 
@@ -314,7 +347,7 @@ public class Analytics {
                 events = Collections.emptyList();
                 timings = Collections.emptyList();
             }
-            return new ParcelableCallAnalytics(
+            ParcelableCallAnalytics result = new ParcelableCallAnalytics(
                     // rounds down to nearest 5 minute mark
                     startTime - startTime % ParcelableCallAnalytics.MILLIS_IN_5_MINUTES,
                     callDuration,
@@ -330,6 +363,9 @@ public class Analytics {
                     createdFromExistingConnection,
                     events,
                     timings);
+            result.setIsVideoCall(isVideo);
+            result.setVideoEvents(videoEvents);
+            return result;
         }
 
         private String getCallDirectionString() {
@@ -378,6 +414,16 @@ public class Analytics {
     public static final int IMS_PHONE = ParcelableCallAnalytics.IMS_PHONE;
     public static final int SIP_PHONE = ParcelableCallAnalytics.SIP_PHONE;
     public static final int THIRD_PARTY_PHONE = ParcelableCallAnalytics.THIRD_PARTY_PHONE;
+
+    // Constants for video events
+    public static final int SEND_LOCAL_SESSION_MODIFY_REQUEST =
+            ParcelableCallAnalytics.VideoEvent.SEND_LOCAL_SESSION_MODIFY_REQUEST;
+    public static final int SEND_LOCAL_SESSION_MODIFY_RESPONSE =
+            ParcelableCallAnalytics.VideoEvent.SEND_LOCAL_SESSION_MODIFY_RESPONSE;
+    public static final int RECEIVE_REMOTE_SESSION_MODIFY_REQUEST =
+            ParcelableCallAnalytics.VideoEvent.RECEIVE_REMOTE_SESSION_MODIFY_REQUEST;
+    public static final int RECEIVE_REMOTE_SESSION_MODIFY_RESPONSE =
+            ParcelableCallAnalytics.VideoEvent.RECEIVE_REMOTE_SESSION_MODIFY_RESPONSE;
 
     public static final long MILLIS_IN_1_SECOND = ParcelableCallAnalytics.MILLIS_IN_1_SECOND;
 
