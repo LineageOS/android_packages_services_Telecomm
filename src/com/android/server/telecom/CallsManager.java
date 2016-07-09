@@ -1470,8 +1470,6 @@ public class CallsManager extends Call.ListenerBase
         }
 
         int count = 0;
-        boolean hasVideoCall = false;
-        boolean disableAddCallDuringVideoCall = false;
         for (Call call : mCalls) {
             if (call.isEmergencyCall()) {
                 // We never support add call if one of the calls is an emergency call.
@@ -1479,11 +1477,11 @@ public class CallsManager extends Call.ListenerBase
             } else if (call.getParentCall() == null) {
                 count++;
             }
-            hasVideoCall |= call.getVideoState() != VideoProfile.STATE_AUDIO_ONLY;
             Bundle extras = call.getExtras();
             if (extras != null) {
-                disableAddCallDuringVideoCall |= extras.getBoolean(
-                        Connection.EXTRA_DISABLE_ADD_CALL_DURING_VIDEO_CALL, false);
+                if (extras.getBoolean(Connection.EXTRA_DISABLE_ADD_CALL, false)) {
+                    return false;
+                }
             }
 
             // We do not check states for canAddCall. We treat disconnected calls the same
@@ -1494,10 +1492,6 @@ public class CallsManager extends Call.ListenerBase
             if (count >= MAXIMUM_TOP_LEVEL_CALLS) {
                 return false;
             }
-        }
-
-        if (hasVideoCall && disableAddCallDuringVideoCall) {
-            return false;
         }
 
         return true;
