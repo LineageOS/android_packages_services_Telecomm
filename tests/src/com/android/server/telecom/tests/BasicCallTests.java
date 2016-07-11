@@ -122,7 +122,7 @@ public class BasicCallTests extends TelecomSystemTest {
         telecomManager.acceptRingingCall();
 
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
-                .answer(ids.mCallId);
+                .answer(ids.mConnectionId);
         mConnectionServiceFixtureA.sendSetActive(ids.mConnectionId);
 
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(ids.mCallId);
@@ -150,7 +150,7 @@ public class BasicCallTests extends TelecomSystemTest {
 
         // Answer video API should be called
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
-                .answerVideo(eq(ids.mCallId), eq(VideoProfile.STATE_BIDIRECTIONAL));
+                .answerVideo(eq(ids.mConnectionId), eq(VideoProfile.STATE_BIDIRECTIONAL));
         mConnectionServiceFixtureA.sendSetActive(ids.mConnectionId);
 
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(ids.mCallId);
@@ -177,7 +177,7 @@ public class BasicCallTests extends TelecomSystemTest {
 
         // The generic answer method on the ConnectionService is used to answer audio-only calls.
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
-                .answer(eq(ids.mCallId));
+                .answer(eq(ids.mConnectionId));
         mConnectionServiceFixtureA.sendSetActive(ids.mConnectionId);
 
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(ids.mCallId);
@@ -205,7 +205,7 @@ public class BasicCallTests extends TelecomSystemTest {
 
         // Answer video API should be called
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
-                .answerVideo(eq(ids.mCallId), eq(VideoProfile.STATE_BIDIRECTIONAL));
+                .answerVideo(eq(ids.mConnectionId), eq(VideoProfile.STATE_BIDIRECTIONAL));
         mConnectionServiceFixtureA.sendSetActive(ids.mConnectionId);
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(ids.mCallId);
     }
@@ -643,7 +643,7 @@ public class BasicCallTests extends TelecomSystemTest {
 
         mInCallServiceFixtureX.mInCallAdapter.sendCallEvent(ids.mCallId, TEST_EVENT, null);
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
-                .sendCallEvent(ids.mCallId, TEST_EVENT, null);
+                .sendCallEvent(ids.mConnectionId, TEST_EVENT, null);
     }
 
     /**
@@ -664,7 +664,7 @@ public class BasicCallTests extends TelecomSystemTest {
         mInCallServiceFixtureX.mInCallAdapter.sendCallEvent(ids.mCallId, TEST_EVENT,
                 testBundle);
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
-                .sendCallEvent(eq(ids.mCallId), eq(TEST_EVENT),
+                .sendCallEvent(eq(ids.mConnectionId), eq(TEST_EVENT),
                         bundleArgumentCaptor.capture());
         assert (bundleArgumentCaptor.getValue().containsKey(TEST_BUNDLE_KEY));
     }
@@ -762,7 +762,7 @@ public class BasicCallTests extends TelecomSystemTest {
         // Attempt to pull the call and verify the API call makes it through
         mInCallServiceFixtureX.mInCallAdapter.pullExternalCall(ids.mCallId);
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
-                .pullExternalCall(ids.mCallId);
+                .pullExternalCall(ids.mConnectionId);
     }
 
     /**
@@ -786,7 +786,7 @@ public class BasicCallTests extends TelecomSystemTest {
         // Attempt to pull the call and verify the API call makes it through
         mInCallServiceFixtureX.mInCallAdapter.pullExternalCall(ids.mCallId);
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT).never())
-                .pullExternalCall(ids.mCallId);
+                .pullExternalCall(ids.mConnectionId);
     }
 
     public void testMergeFailedAndNotifyInCallUi() throws Exception {
@@ -817,5 +817,25 @@ public class BasicCallTests extends TelecomSystemTest {
                 eq(testCall2.mCallId), eq(Connection.EVENT_CALL_MERGE_FAILED), any(Bundle.class));
         verify(mInCallServiceFixtureY.getTestDouble(), timeout(TEST_TIMEOUT)).onConnectionEvent(
                 eq(testCall2.mCallId), eq(Connection.EVENT_CALL_MERGE_FAILED), any(Bundle.class));
+    }
+
+    @LargeTest
+    public void testEmergencyCallFailMoveToSecondSim() throws Exception {
+        IdPair ids = startAndMakeDialingEmergencyCall("650-555-1212",
+                mPhoneAccountE0.getAccountHandle(), mConnectionServiceFixtureA);
+        assertEquals(Call.STATE_DIALING, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+        assertEquals(Call.STATE_DIALING, mInCallServiceFixtureY.getCall(ids.mCallId).getState());
+
+        // The Emergency Call has failed on the default SIM with an ERROR Disconnect Cause. Retry
+        // with the other SIM PhoneAccount
+        IdPair newIds = triggerEmergencyRedial(mPhoneAccountE1.getAccountHandle(),
+                mConnectionServiceFixtureA, ids);
+
+        // Call should be active on the E1 PhoneAccount
+        mConnectionServiceFixtureA.sendSetActive(newIds.mConnectionId);
+        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(newIds.mCallId).getState());
+        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureY.getCall(newIds.mCallId).getState());
+        assertEquals(mInCallServiceFixtureX.getCall(ids.mCallId).getAccountHandle(),
+                mPhoneAccountE1.getAccountHandle());
     }
 }

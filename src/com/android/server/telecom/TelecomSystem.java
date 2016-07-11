@@ -154,7 +154,8 @@ public final class TelecomSystem {
             BluetoothPhoneServiceImplFactory
                     bluetoothPhoneServiceImplFactory,
             Timeouts.Adapter timeoutsAdapter,
-            AsyncRingtonePlayer asyncRingtonePlayer) {
+            AsyncRingtonePlayer asyncRingtonePlayer,
+            PhoneNumberUtilsAdapter phoneNumberUtilsAdapter) {
         mContext = context.getApplicationContext();
         Log.setContext(mContext);
         Log.initMd5Sum();
@@ -196,7 +197,8 @@ public final class TelecomSystem {
                 systemStateProvider,
                 defaultDialerAdapter,
                 timeoutsAdapter,
-                asyncRingtonePlayer);
+                asyncRingtonePlayer,
+                phoneNumberUtilsAdapter);
 
         mRespondViaSmsManager = new RespondViaSmsManager(mCallsManager, mLock);
         mCallsManager.setRespondViaSmsManager(mRespondViaSmsManager);

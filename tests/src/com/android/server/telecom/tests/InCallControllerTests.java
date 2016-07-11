@@ -90,7 +90,7 @@ public class InCallControllerTests extends TelecomTestCase {
 
     private UserHandle mUserHandle = UserHandle.of(CURRENT_USER_ID);
     private InCallController mInCallController;
-    private TelecomSystem.SyncRoot mLock;
+    private TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() {};
 
     @Override
     public void setUp() throws Exception {
@@ -384,36 +384,6 @@ public class InCallControllerTests extends TelecomTestCase {
         assertEquals(InCallService.SERVICE_INTERFACE, bindIntent.getAction());
         assertEquals(DEF_PKG, bindIntent.getComponent().getPackageName());
         assertEquals(DEF_CLASS, bindIntent.getComponent().getClassName());
-    }
-
-    /**
-     * Ensures that the {@link InCallController} will not bind to an incall service for an external
-     * call if the incall service does not support it.
-     */
-    @MediumTest
-    public void testBindToService_ExcludeExternal() throws Exception {
-        setupMocks(true /* isExternalCall */);
-        setupMockPackageManager(true /* default */, true /* system */, false /* external calls */);
-        mInCallController.bindToServices(mMockCall);
-
-        // Query for the different InCallServices
-        ArgumentCaptor<Intent> queryIntentCaptor = ArgumentCaptor.forClass(Intent.class);
-        verify(mMockPackageManager, times(4)).queryIntentServicesAsUser(
-                queryIntentCaptor.capture(),
-                eq(PackageManager.GET_META_DATA), eq(CURRENT_USER_ID));
-
-        // Verify call for default dialer InCallService
-        assertEquals(DEF_PKG, queryIntentCaptor.getAllValues().get(0).getPackage());
-        // Verify call for car-mode InCallService
-        assertEquals(null, queryIntentCaptor.getAllValues().get(1).getPackage());
-        // Verify call for non-UI InCallServices
-        assertEquals(null, queryIntentCaptor.getAllValues().get(2).getPackage());
-
-        verify(mMockContext, never()).bindServiceAsUser(
-                any(Intent.class),
-                any(ServiceConnection.class),
-                eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE),
-                eq(UserHandle.CURRENT));
     }
 
     private void setupMocks(boolean isExternalCall) {

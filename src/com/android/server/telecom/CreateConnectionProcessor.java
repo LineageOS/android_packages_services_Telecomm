@@ -96,6 +96,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
     private final Context mContext;
     private CreateConnectionTimeout mTimeout;
     private ConnectionServiceWrapper mService;
+    private int mConnectionAttempt;
 
     @VisibleForTesting
     public CreateConnectionProcessor(
@@ -107,6 +108,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
         mCallResponse = response;
         mPhoneAccountRegistrar = phoneAccountRegistrar;
         mContext = context;
+        mConnectionAttempt = 0;
     }
 
     boolean isProcessingComplete() {
@@ -115,6 +117,10 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
 
     boolean isCallTimedOut() {
         return mTimeout != null && mTimeout.isCallTimedOut();
+    }
+
+    public int getConnectionAttempt() {
+        return mConnectionAttempt;
     }
 
     @VisibleForTesting
@@ -200,6 +206,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
                 Log.i(this, "Found no connection service for attempt %s", attempt);
                 attemptNextPhoneAccount();
             } else {
+                mConnectionAttempt++;
                 mCall.setConnectionManagerPhoneAccount(attempt.connectionManagerPhoneAccount);
                 mCall.setTargetPhoneAccount(attempt.targetPhoneAccount);
                 mCall.setConnectionService(mService);
