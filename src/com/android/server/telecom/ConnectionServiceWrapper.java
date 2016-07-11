@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import android.app.AppOpsManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.net.Uri;
@@ -32,6 +33,7 @@ import android.telecom.DisconnectCause;
 import android.telecom.GatewayInfo;
 import android.telecom.ParcelableConference;
 import android.telecom.ParcelableConnection;
+import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.StatusHints;
 import android.telecom.TelecomManager;
@@ -601,14 +603,39 @@ public class ConnectionServiceWrapper extends ServiceBinder {
         @Override
         public void addExistingConnection(String callId, ParcelableConnection connection) {
             Log.startSession("CSW.aEC");
+            UserHandle userHandle = Binder.getCallingUserHandle();
+            // Check that the Calling Package matches PhoneAccountHandle's Component Package
+            PhoneAccountHandle callingPhoneAccountHandle = connection.getPhoneAccount();
+            if (callingPhoneAccountHandle != null) {
+                mAppOpsManager.checkPackage(Binder.getCallingUid(),
+                        callingPhoneAccountHandle.getComponentName().getPackageName());
+            }
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
-                    logIncoming("addExistingConnection  %s %s", callId, connection);
-                    Call existingCall = mCallsManager
-                            .createCallForExistingConnection(callId, connection);
-                    mCallIdMapper.addCall(existingCall, callId);
-                    existingCall.setConnectionService(ConnectionServiceWrapper.this);
+                    // Make sure that the PhoneAccount associated with the incoming
+                    // ParcelableConnection is in fact registered to Telecom and is being called
+                    // from the correct user.
+                    List<PhoneAccountHandle> accountHandles =
+                            mPhoneAccountRegistrar.getCallCapablePhoneAccounts(null /*uriScheme*/,
+                                    false /*includeDisabledAccounts*/, userHandle);
+                    PhoneAccountHandle phoneAccountHandle = null;
+                    for (PhoneAccountHandle accountHandle : accountHandles) {
+                        if(accountHandle.equals(callingPhoneAccountHandle)) {
+                            phoneAccountHandle = accountHandle;
+                        }
+                    }
+                    if (phoneAccountHandle != null) {
+                        logIncoming("addExistingConnection  %s %s", callId, connection);
+                        Call existingCall = mCallsManager
+                                .createCallForExistingConnection(callId, connection);
+                        mCallIdMapper.addCall(existingCall, callId);
+                        existingCall.setConnectionService(ConnectionServiceWrapper.this);
+                    } else {
+                        Log.e(this, new RemoteException("The PhoneAccount being used is not " +
+                                "currently registered with Telecom."), "Unable to " +
+                                "addExistingConnection.");
+                    }
                 }
             } finally {
                 Binder.restoreCallingIdentity(token);
@@ -644,6 +671,7 @@ public class ConnectionServiceWrapper extends ServiceBinder {
     private final ConnectionServiceRepository mConnectionServiceRepository;
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
     private final CallsManager mCallsManager;
+    private final AppOpsManager mAppOpsManager;
 
     /**
      * Creates a connection service.
@@ -671,6 +699,7 @@ public class ConnectionServiceWrapper extends ServiceBinder {
         });
         mPhoneAccountRegistrar = phoneAccountRegistrar;
         mCallsManager = callsManager;
+        mAppOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
     }
 
     /** See {@link IConnectionService#addConnectionServiceAdapter}. */
