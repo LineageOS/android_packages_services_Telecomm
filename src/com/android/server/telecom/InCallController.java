@@ -546,7 +546,7 @@ public final class InCallController extends CallsManagerListenerBase {
         }
 
         @Override
-        public void onVideoStateChanged(Call call) {
+        public void onVideoStateChanged(Call call, int previousVideoState, int newVideoState) {
             updateCall(call);
         }
 
