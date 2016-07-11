@@ -677,6 +677,9 @@ public class Call implements CreateConnectionResponse {
                 case CallState.DIALING:
                     event = Log.Events.SET_DIALING;
                     break;
+                case CallState.PULLING:
+                    event = Log.Events.SET_PULLING;
+                    break;
                 case CallState.DISCONNECTED:
                     event = Log.Events.SET_DISCONNECTED;
                     data = getDisconnectCause();
@@ -2001,6 +2004,8 @@ public class Call implements CreateConnectionResponse {
                 return CallState.ACTIVE;
             case Connection.STATE_DIALING:
                 return CallState.DIALING;
+            case Connection.STATE_PULLING_CALL:
+                return CallState.PULLING;
             case Connection.STATE_DISCONNECTED:
                 return CallState.DISCONNECTED;
             case Connection.STATE_HOLDING:

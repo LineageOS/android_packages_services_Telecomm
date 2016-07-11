@@ -72,6 +72,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
             put(CallState.CONNECTING, mActiveDialingOrConnectingCalls);
             put(CallState.ACTIVE, mActiveDialingOrConnectingCalls);
             put(CallState.DIALING, mActiveDialingOrConnectingCalls);
+            put(CallState.PULLING, mActiveDialingOrConnectingCalls);
             put(CallState.RINGING, mRingingCalls);
             put(CallState.ON_HOLD, mHoldingCalls);
         }};
@@ -489,9 +490,13 @@ public class CallAudioManager extends CallsManagerListenerBase {
             case CallState.ON_HOLD:
                 onCallLeavingHold();
                 break;
+            case CallState.PULLING:
+                onCallLeavingActiveDialingOrConnecting();
+                break;
             case CallState.DIALING:
                 stopRingbackForCall(call);
                 onCallLeavingActiveDialingOrConnecting();
+                break;
         }
     }
 
@@ -506,6 +511,9 @@ public class CallAudioManager extends CallsManagerListenerBase {
                 break;
             case CallState.ON_HOLD:
                 onCallEnteringHold();
+                break;
+            case CallState.PULLING:
+                onCallEnteringActiveDialingOrConnecting();
                 break;
             case CallState.DIALING:
                 onCallEnteringActiveDialingOrConnecting();

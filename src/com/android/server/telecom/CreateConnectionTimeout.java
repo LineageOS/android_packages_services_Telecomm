@@ -114,7 +114,8 @@ final class CreateConnectionTimeout extends Runnable {
         int state = call.getState();
         return state == CallState.NEW
             || state == CallState.CONNECTING
-            || state == CallState.DIALING;
+            || state == CallState.DIALING
+            || state == CallState.PULLING;
     }
 
     private long getTimeoutLengthMillis() {

@@ -68,6 +68,7 @@ public class Log {
         public static final String CSW_SET_ACTIVE = "CSW.sA";
         public static final String CSW_SET_RINGING = "CSW.sR";
         public static final String CSW_SET_DIALING = "CSW.sD";
+        public static final String CSW_SET_PULLING = "CSW.sP";
         public static final String CSW_SET_DISCONNECTED = "CSW.sDc";
         public static final String CSW_SET_ON_HOLD = "CSW.sOH";
         public static final String CSW_REMOVE_CALL = "CSW.rC";
@@ -108,6 +109,7 @@ public class Log {
         public static final String DESTROYED = "DESTROYED";
         public static final String SET_CONNECTING = "SET_CONNECTING";
         public static final String SET_DIALING = "SET_DIALING";
+        public static final String SET_PULLING = "SET_PULLING";
         public static final String SET_ACTIVE = "SET_ACTIVE";
         public static final String SET_HOLD = "SET_HOLD";
         public static final String SET_RINGING = "SET_RINGING";

@@ -161,6 +161,24 @@ public class ConnectionServiceWrapper extends ServiceBinder {
         }
 
         @Override
+        public void setPulling(String callId) {
+            Log.startSession(Log.Sessions.CSW_SET_PULLING);
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    logIncoming("setPulling %s", callId);
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        mCallsManager.markCallAsPulling(call);
+                    }
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+                Log.endSession();
+            }
+        }
+
+        @Override
         public void setDisconnected(String callId, DisconnectCause disconnectCause) {
             Log.startSession(Log.Sessions.CSW_SET_DISCONNECTED);
             long token = Binder.clearCallingIdentity();
