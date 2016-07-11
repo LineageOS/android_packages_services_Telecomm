@@ -102,7 +102,7 @@ public class CallsManager extends Call.ListenerBase
         void onRingbackRequested(Call call, boolean ringback);
         void onIsConferencedChanged(Call call);
         void onIsVoipAudioModeChanged(Call call);
-        void onVideoStateChanged(Call call);
+        void onVideoStateChanged(Call call, int previousVideoState, int newVideoState);
         void onCanAddCallChanged(boolean canAddCall);
         void onSessionModifyRequestReceived(Call call, VideoProfile videoProfile);
         void onHoldToneRequested(Call call);
@@ -493,9 +493,9 @@ public class CallsManager extends Call.ListenerBase
     }
 
     @Override
-    public void onVideoStateChanged(Call call) {
+    public void onVideoStateChanged(Call call, int previousVideoState, int newVideoState) {
         for (CallsManagerListener listener : mListeners) {
-            listener.onVideoStateChanged(call);
+            listener.onVideoStateChanged(call, previousVideoState, newVideoState);
         }
     }
 
@@ -924,7 +924,7 @@ public class CallsManager extends Call.ListenerBase
         final boolean useSpeakerWhenDocked = mContext.getResources().getBoolean(
                 R.bool.use_speaker_when_docked);
         final boolean useSpeakerForDock = isSpeakerphoneEnabledForDock();
-        final boolean useSpeakerForVideoCall = isSpeakerphoneAutoEnabled(videoState);
+        final boolean useSpeakerForVideoCall = isSpeakerphoneAutoEnabledForVideoCalls(videoState);
 
         // Auto-enable speakerphone if the originating intent specified to do so, if the call
         // is a video call, of if using speaker when docked
@@ -1023,7 +1023,7 @@ public class CallsManager extends Call.ListenerBase
             // We do not update the UI until we get confirmation of the answer() through
             // {@link #markCallAsActive}.
             call.answer(videoState);
-            if (isSpeakerphoneAutoEnabled(videoState)) {
+            if (isSpeakerphoneAutoEnabledForVideoCalls(videoState)) {
                 call.setStartWithSpeakerphoneOn(true);
             }
         }
@@ -1037,7 +1037,7 @@ public class CallsManager extends Call.ListenerBase
      * @param videoState The video state of the call.
      * @return {@code true} if the speakerphone should be enabled.
      */
-    private boolean isSpeakerphoneAutoEnabled(int videoState) {
+    public boolean isSpeakerphoneAutoEnabledForVideoCalls(int videoState) {
         return VideoProfile.isVideo(videoState) &&
             !mWiredHeadsetManager.isPluggedIn() &&
             !mBluetoothManager.isBluetoothAvailable() &&

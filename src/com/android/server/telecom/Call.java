@@ -103,7 +103,7 @@ public class Call implements CreateConnectionResponse {
         void onExtrasRemoved(Call c, int source, List<String> keys);
         void onHandleChanged(Call call);
         void onCallerDisplayNameChanged(Call call);
-        void onVideoStateChanged(Call call);
+        void onVideoStateChanged(Call call, int previousVideoState, int newVideoState);
         void onTargetPhoneAccountChanged(Call call);
         void onConnectionManagerPhoneAccountChanged(Call call);
         void onPhoneAccountChanged(Call call);
@@ -160,7 +160,7 @@ public class Call implements CreateConnectionResponse {
         @Override
         public void onCallerDisplayNameChanged(Call call) {}
         @Override
-        public void onVideoStateChanged(Call call) {}
+        public void onVideoStateChanged(Call call, int previousVideoState, int newVideoState) {}
         @Override
         public void onTargetPhoneAccountChanged(Call call) {}
         @Override
@@ -1895,11 +1895,14 @@ public class Call implements CreateConnectionResponse {
             mVideoStateHistory = mVideoStateHistory | videoState;
         }
 
-        Log.event(this, Log.Events.VIDEO_STATE_CHANGED,
-                VideoProfile.videoStateToString(videoState));
+        int previousVideoState = mVideoState;
         mVideoState = videoState;
-        for (Listener l : mListeners) {
-            l.onVideoStateChanged(this);
+        if (mVideoState != previousVideoState) {
+            Log.event(this, Log.Events.VIDEO_STATE_CHANGED,
+                    VideoProfile.videoStateToString(videoState));
+            for (Listener l : mListeners) {
+                l.onVideoStateChanged(this, previousVideoState, mVideoState);
+            }
         }
 
         if (VideoProfile.isVideo(videoState)) {

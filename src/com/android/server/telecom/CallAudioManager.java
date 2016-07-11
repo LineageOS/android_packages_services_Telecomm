@@ -314,6 +314,25 @@ public class CallAudioManager extends CallsManagerListenerBase {
                 CallAudioRouteStateMachine.UPDATE_SYSTEM_AUDIO_ROUTE);
     }
 
+    @Override
+    public void onVideoStateChanged(Call call, int previousVideoState, int newVideoState) {
+        if (call != getForegroundCall()) {
+            Log.d(LOG_TAG, "Ignoring video state change from %s to %s for call %s -- not " +
+                    "foreground.", VideoProfile.videoStateToString(previousVideoState),
+                    VideoProfile.videoStateToString(newVideoState), call.getId());
+            return;
+        }
+
+        if (!VideoProfile.isVideo(previousVideoState) &&
+                mCallsManager.isSpeakerphoneAutoEnabledForVideoCalls(newVideoState)) {
+            Log.d(LOG_TAG, "Switching to speaker because call %s transitioned video state from %s" +
+                    " to %s", call.getId(), VideoProfile.videoStateToString(previousVideoState),
+                    VideoProfile.videoStateToString(newVideoState));
+            mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+                    CallAudioRouteStateMachine.SWITCH_SPEAKER);
+        }
+    }
+
     public CallAudioState getCallAudioState() {
         return mCallAudioRouteStateMachine.getCurrentCallAudioState();
     }
