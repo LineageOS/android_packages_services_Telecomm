@@ -36,6 +36,7 @@ import com.android.server.telecom.HeadsetMediaButtonFactory;
 import com.android.server.telecom.InCallWakeLockControllerFactory;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.PhoneAccountRegistrar;
+import com.android.server.telecom.PhoneNumberUtilsAdapterImpl;
 import com.android.server.telecom.ProximitySensorManagerFactory;
 import com.android.server.telecom.InCallWakeLockController;
 import com.android.server.telecom.Log;
@@ -148,7 +149,8 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                 }
                             },
                             new Timeouts.Adapter(),
-                            new AsyncRingtonePlayer()
+                            new AsyncRingtonePlayer(),
+                            new PhoneNumberUtilsAdapterImpl()
                     ));
         }
         if (BluetoothAdapter.getDefaultAdapter() != null) {
