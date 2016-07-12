@@ -178,12 +178,20 @@ public class CallAudioManager extends CallsManagerListenerBase {
      */
     @Override
     public void onExternalCallChanged(Call call, boolean isExternalCall) {
-       if (isExternalCall) {
+        if (isExternalCall) {
             Log.d(LOG_TAG, "Removing call which became external ID %s", call.getId());
             removeCall(call);
         } else if (!isExternalCall) {
             Log.d(LOG_TAG, "Adding external call which was pulled with ID %s", call.getId());
             addCall(call);
+
+            if (mCallsManager.isSpeakerphoneAutoEnabledForVideoCalls(call.getVideoState())) {
+                // When pulling a video call, automatically enable the speakerphone.
+                Log.d(LOG_TAG, "Switching to speaker because external video call %s was pulled." +
+                        call.getId());
+                mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+                        CallAudioRouteStateMachine.SWITCH_SPEAKER);
+            }
         }
     }
 
