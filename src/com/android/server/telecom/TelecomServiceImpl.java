@@ -1294,6 +1294,7 @@ public class TelecomServiceImpl {
             call = mCallsManager.getFirstCallWithState(
                     CallState.ACTIVE,
                     CallState.DIALING,
+                    CallState.PULLING,
                     CallState.RINGING,
                     CallState.ON_HOLD);
         }

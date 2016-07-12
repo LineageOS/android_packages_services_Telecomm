@@ -344,7 +344,8 @@ public class BluetoothPhoneServiceImpl {
             // state. We can assume that the active call will be automatically held which will
             // send another update at which point we will be in the right state.
             if (mCallsManager.getActiveCall() != null
-                    && oldState == CallState.CONNECTING && newState == CallState.DIALING) {
+                    && oldState == CallState.CONNECTING &&
+                    (newState == CallState.DIALING || newState == CallState.PULLING)) {
                 return;
             }
             updateHeadsetWithCallState(false /* force */);
@@ -823,6 +824,7 @@ public class BluetoothPhoneServiceImpl {
             case CallState.CONNECTING:
             case CallState.SELECT_PHONE_ACCOUNT:
             case CallState.DIALING:
+            case CallState.PULLING:
                 // Yes, this is correctly returning ALERTING.
                 // "Dialing" for BT means that we have sent information to the service provider
                 // to place the call but there is no confirmation that the call is going through.

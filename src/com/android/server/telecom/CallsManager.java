@@ -119,11 +119,13 @@ public class CallsManager extends Call.ListenerBase
     private static final int MAXIMUM_TOP_LEVEL_CALLS = 2;
 
     private static final int[] OUTGOING_CALL_STATES =
-            {CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING};
+            {CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING,
+                    CallState.PULLING};
 
     private static final int[] LIVE_CALL_STATES =
             {CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING,
-                CallState.ACTIVE};
+                    CallState.PULLING, CallState.ACTIVE};
+
     public static final String TELECOM_CALL_ID_PREFIX = "TC@";
 
     // Maps call technologies in PhoneConstants to those in Analytics.
@@ -996,7 +998,8 @@ public class CallsManager extends Call.ListenerBase
             // STATE_DIALING, put it on hold before answering the call.
             if (foregroundCall != null && foregroundCall != call &&
                     (foregroundCall.isActive() ||
-                     foregroundCall.getState() == CallState.DIALING)) {
+                     foregroundCall.getState() == CallState.DIALING ||
+                     foregroundCall.getState() == CallState.PULLING)) {
                 if (0 == (foregroundCall.getConnectionCapabilities()
                         & Connection.CAPABILITY_HOLD)) {
                     // This call does not support hold.  If it is from a different connection
@@ -1357,6 +1360,11 @@ public class CallsManager extends Call.ListenerBase
         maybeMoveToSpeakerPhone(call);
     }
 
+    void markCallAsPulling(Call call) {
+        setCallState(call, CallState.PULLING, "pulling set explicitly");
+        maybeMoveToSpeakerPhone(call);
+    }
+
     void markCallAsActive(Call call) {
         setCallState(call, CallState.ACTIVE, "active set explicitly");
         maybeMoveToSpeakerPhone(call);
@@ -1450,7 +1458,8 @@ public class CallsManager extends Call.ListenerBase
             } else if (HeadsetMediaButton.LONG_PRESS == type) {
                 Log.d(this, "handleHeadsetHook: longpress -> hangup");
                 Call callToHangup = getFirstCallWithState(
-                        CallState.RINGING, CallState.DIALING, CallState.ACTIVE, CallState.ON_HOLD);
+                        CallState.RINGING, CallState.DIALING, CallState.PULLING, CallState.ACTIVE,
+                        CallState.ON_HOLD);
                 if (callToHangup != null) {
                     callToHangup.disconnect();
                     return true;
@@ -1480,6 +1489,9 @@ public class CallsManager extends Call.ListenerBase
             if (call.isEmergencyCall()) {
                 // We never support add call if one of the calls is an emergency call.
                 return false;
+            } else if (call.isExternalCall()) {
+                // External calls don't count.
+                continue;
             } else if (call.getParentCall() == null) {
                 count++;
             }
@@ -1850,7 +1862,7 @@ public class CallsManager extends Call.ListenerBase
     }
 
     private boolean hasMaximumDialingCalls() {
-        return MAXIMUM_DIALING_CALLS <= getNumCallsWithState(CallState.DIALING);
+        return MAXIMUM_DIALING_CALLS <= getNumCallsWithState(CallState.DIALING, CallState.PULLING);
     }
 
     private boolean makeRoomForOutgoingCall(Call call, boolean isEmergency) {

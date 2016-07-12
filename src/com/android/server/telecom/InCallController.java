@@ -630,6 +630,7 @@ public final class InCallController extends CallsManagerListenerBase {
             // Track the call if we don't already know about it.
             addCall(call);
 
+            List<ComponentName> componentsUpdated = new ArrayList<>();
             for (Map.Entry<InCallServiceInfo, IInCallService> entry : mInCallServices.entrySet()) {
                 InCallServiceInfo info = entry.getKey();
 
@@ -637,15 +638,18 @@ public final class InCallController extends CallsManagerListenerBase {
                     continue;
                 }
 
+                componentsUpdated.add(info.getComponentName());
                 IInCallService inCallService = entry.getValue();
 
                 ParcelableCall parcelableCall = ParcelableCallUtils.toParcelableCall(call,
-                        true /* includeVideoProvider */, mCallsManager.getPhoneAccountRegistrar());
+                        true /* includeVideoProvider */, mCallsManager.getPhoneAccountRegistrar(),
+                        info.isExternalCallsSupported());
                 try {
                     inCallService.addCall(parcelableCall);
                 } catch (RemoteException ignored) {
                 }
             }
+            Log.i(this, "Call added to components: %s", componentsUpdated);
         }
     }
 
@@ -677,8 +681,62 @@ public final class InCallController extends CallsManagerListenerBase {
     @Override
     public void onExternalCallChanged(Call call, boolean isExternalCall) {
         Log.i(this, "onExternalCallChanged: %s -> %b", call, isExternalCall);
-        // TODO: Need to add logic which ensures changes to a call's external state adds or removes
-        // the call from the InCallServices depending on whether they support external calls.
+
+        List<ComponentName> componentsUpdated = new ArrayList<>();
+        if (!isExternalCall) {
+            // The call was external but it is no longer external.  We must now add it to any
+            // InCallServices which do not support external calls.
+            for (Map.Entry<InCallServiceInfo, IInCallService> entry : mInCallServices.entrySet()) {
+                InCallServiceInfo info = entry.getKey();
+
+                if (info.isExternalCallsSupported()) {
+                    // For InCallServices which support external calls, the call will have already
+                    // been added to the connection service, so we do not need to add it again.
+                    continue;
+                }
+
+                componentsUpdated.add(info.getComponentName());
+                IInCallService inCallService = entry.getValue();
+
+                ParcelableCall parcelableCall = ParcelableCallUtils.toParcelableCall(call,
+                        true /* includeVideoProvider */, mCallsManager.getPhoneAccountRegistrar(),
+                        info.isExternalCallsSupported());
+                try {
+                    inCallService.addCall(parcelableCall);
+                } catch (RemoteException ignored) {
+                }
+            }
+            Log.i(this, "Previously external call added to components: %s", componentsUpdated);
+        } else {
+            // The call was regular but it is now external.  We must now remove it from any
+            // InCallServices which do not support external calls.
+            // Remove the call by sending a call update indicating the call was disconnected.
+            ParcelableCall parcelableCall = ParcelableCallUtils.toParcelableCall(
+                    call,
+                    false /* includeVideoProvider */,
+                    mCallsManager.getPhoneAccountRegistrar(),
+                    false /* supportsExternalCalls */,
+                    android.telecom.Call.STATE_DISCONNECTED /* overrideState */);
+
+            Log.i(this, "Removing external call %s ==> %s", call, parcelableCall);
+            for (Map.Entry<InCallServiceInfo, IInCallService> entry : mInCallServices.entrySet()) {
+                InCallServiceInfo info = entry.getKey();
+                if (info.isExternalCallsSupported()) {
+                    // For InCallServices which support external calls, we do not need to remove
+                    // the call.
+                    continue;
+                }
+
+                componentsUpdated.add(info.getComponentName());
+                IInCallService inCallService = entry.getValue();
+
+                try {
+                    inCallService.updateCall(parcelableCall);
+                } catch (RemoteException ignored) {
+                }
+            }
+            Log.i(this, "External call removed from components: %s", componentsUpdated);
+        }
     }
 
     @Override
@@ -1032,7 +1090,8 @@ public final class InCallController extends CallsManagerListenerBase {
                     inCallService.addCall(ParcelableCallUtils.toParcelableCall(
                             call,
                             true /* includeVideoProvider */,
-                            mCallsManager.getPhoneAccountRegistrar()));
+                            mCallsManager.getPhoneAccountRegistrar(),
+                            info.isExternalCallsSupported()));
                 } catch (RemoteException ignored) {
                 }
             }
@@ -1077,11 +1136,7 @@ public final class InCallController extends CallsManagerListenerBase {
      */
     private void updateCall(Call call, boolean videoProviderChanged) {
         if (!mInCallServices.isEmpty()) {
-            ParcelableCall parcelableCall = ParcelableCallUtils.toParcelableCall(
-                    call,
-                    videoProviderChanged /* includeVideoProvider */,
-                    mCallsManager.getPhoneAccountRegistrar());
-            Log.i(this, "Sending updateCall %s ==> %s", call, parcelableCall);
+            Log.i(this, "Sending updateCall %s", call);
             List<ComponentName> componentsUpdated = new ArrayList<>();
             for (Map.Entry<InCallServiceInfo, IInCallService> entry : mInCallServices.entrySet()) {
                 InCallServiceInfo info = entry.getKey();
@@ -1089,6 +1144,11 @@ public final class InCallController extends CallsManagerListenerBase {
                     continue;
                 }
 
+                ParcelableCall parcelableCall = ParcelableCallUtils.toParcelableCall(
+                        call,
+                        videoProviderChanged /* includeVideoProvider */,
+                        mCallsManager.getPhoneAccountRegistrar(),
+                        info.isExternalCallsSupported());
                 ComponentName componentName = info.getComponentName();
                 IInCallService inCallService = entry.getValue();
                 componentsUpdated.add(componentName);
