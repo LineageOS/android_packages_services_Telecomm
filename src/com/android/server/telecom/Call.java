@@ -577,6 +577,11 @@ public class Call implements CreateConnectionResponse {
             return false;
         }
 
+        // Only Redial a Call in the case of it being an Emergency Call.
+        if(!isEmergencyCall()) {
+            return false;
+        }
+
         // Make sure that there are additional connection services to process.
         if (mCreateConnectionProcessor == null
             || !mCreateConnectionProcessor.isProcessingComplete()

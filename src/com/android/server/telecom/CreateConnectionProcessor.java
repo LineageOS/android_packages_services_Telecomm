@@ -287,6 +287,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
                     mPhoneAccountRegistrar.getSimCallManagerFromCall(mCall),
                     mAttemptRecords.get(0).targetPhoneAccount);
             Log.v(this, "setConnectionManager, changing %s -> %s", mAttemptRecords.get(0), record);
+            mAttemptRecords.clear();
             mAttemptRecords.add(0, record);
         } else {
             Log.v(this, "setConnectionManager, not changing");
