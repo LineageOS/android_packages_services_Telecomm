@@ -158,15 +158,17 @@ public class VideoProviderProxy extends Connection.VideoProvider {
         @Override
         public void receiveSessionModifyResponse(int status, VideoProfile requestProfile,
                 VideoProfile responseProfile) {
+            logFromVideoProvider("receiveSessionModifyResponse: status=" + status +
+                    " requestProfile=" + requestProfile + " responseProfile=" + responseProfile);
+            String eventMessage = "Status Code : " + status + " Video State: " +
+                    (responseProfile != null ? responseProfile.getVideoState() : "null");
+            Log.event(mCall, Log.Events.RECEIVE_VIDEO_RESPONSE, eventMessage);
             synchronized (mLock) {
-                mCall.getAnalytics().addVideoEvent(
-                        Analytics.RECEIVE_REMOTE_SESSION_MODIFY_RESPONSE,
-                        requestProfile.getVideoState());
-                logFromVideoProvider("receiveSessionModifyResponse: status=" + status +
-                        " requestProfile=" + requestProfile + " responseProfile=" +
-                        responseProfile);
-                Log.event(mCall, Log.Events.RECEIVE_VIDEO_RESPONSE,
-                        VideoProfile.videoStateToString(responseProfile.getVideoState()));
+                if (status == Connection.VideoProvider.SESSION_MODIFY_REQUEST_SUCCESS) {
+                    mCall.getAnalytics().addVideoEvent(
+                            Analytics.RECEIVE_REMOTE_SESSION_MODIFY_RESPONSE,
+                            requestProfile.getVideoState());
+                }
                 VideoProviderProxy.this.receiveSessionModifyResponse(status, requestProfile,
                         responseProfile);
             }
