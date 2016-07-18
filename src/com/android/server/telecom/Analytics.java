@@ -468,16 +468,25 @@ public class Analytics {
             int prefixLength = CallsManager.TELECOM_CALL_ID_PREFIX.length();
             List<String> callIds = new ArrayList<>(sCallIdToInfo.keySet());
             // Sort the analytics in increasing order of call IDs
-            Collections.sort(callIds, (id1, id2) -> {
-                int i1, i2;
-                try {
-                    i1 = Integer.valueOf(id1.substring(prefixLength));
-                    i2 = Integer.valueOf(id2.substring(prefixLength));
-                } catch (NumberFormatException e) {
-                    return 0;
-                }
-                return i1 - i2;
-            });
+            try {
+                Collections.sort(callIds, (id1, id2) -> {
+                    int i1, i2;
+                    try {
+                        i1 = Integer.valueOf(id1.substring(prefixLength));
+                    } catch (NumberFormatException e) {
+                        i1 = Integer.MAX_VALUE;
+                    }
+
+                    try {
+                        i2 = Integer.valueOf(id2.substring(prefixLength));
+                    } catch (NumberFormatException e) {
+                        i2 = Integer.MAX_VALUE;
+                    }
+                    return i1 - i2;
+                });
+            } catch (IllegalArgumentException e) {
+                // do nothing, leave the list in a partially sorted state.
+            }
 
             for (String callId : callIds) {
                 writer.printf("Call %s: ", callId);
