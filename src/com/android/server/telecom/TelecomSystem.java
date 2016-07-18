@@ -176,7 +176,8 @@ public final class TelecomSystem {
         SystemStateProvider systemStateProvider = new SystemStateProvider(mContext);
 
         mMissedCallNotifier = missedCallNotifierImplFactory
-                .makeMissedCallNotifierImpl(mContext, mPhoneAccountRegistrar);
+                .makeMissedCallNotifierImpl(mContext, mPhoneAccountRegistrar,
+                        phoneNumberUtilsAdapter);
 
         DefaultDialerManagerAdapter defaultDialerAdapter =
                 new TelecomServiceImpl.DefaultDialerManagerAdapterImpl();

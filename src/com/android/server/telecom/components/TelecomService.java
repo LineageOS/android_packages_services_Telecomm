@@ -36,6 +36,7 @@ import com.android.server.telecom.HeadsetMediaButtonFactory;
 import com.android.server.telecom.InCallWakeLockControllerFactory;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.PhoneAccountRegistrar;
+import com.android.server.telecom.PhoneNumberUtilsAdapter;
 import com.android.server.telecom.PhoneNumberUtilsAdapterImpl;
 import com.android.server.telecom.ProximitySensorManagerFactory;
 import com.android.server.telecom.InCallWakeLockController;
@@ -79,9 +80,10 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                 @Override
                                 public MissedCallNotifierImpl makeMissedCallNotifierImpl(
                                         Context context,
-                                        PhoneAccountRegistrar phoneAccountRegistrar) {
+                                        PhoneAccountRegistrar phoneAccountRegistrar,
+                                        PhoneNumberUtilsAdapter phoneNumberUtilsAdapter) {
                                     return new MissedCallNotifierImpl(context,
-                                            phoneAccountRegistrar);
+                                            phoneAccountRegistrar, phoneNumberUtilsAdapter);
                                 }
                             },
                             new CallerInfoAsyncQueryFactory() {

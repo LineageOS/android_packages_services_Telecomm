@@ -349,7 +349,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                 new MissedCallNotifierImplFactory() {
                     @Override
                     public MissedCallNotifier makeMissedCallNotifierImpl(Context context,
-                            PhoneAccountRegistrar phoneAccountRegistrar) {
+                            PhoneAccountRegistrar phoneAccountRegistrar,
+                            PhoneNumberUtilsAdapter phoneNumberUtilsAdapter) {
                         return mMissedCallNotifier;
                     }
                 },
