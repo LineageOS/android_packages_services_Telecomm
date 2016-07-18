@@ -670,6 +670,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                         eq(false)/*isIncoming*/, anyBoolean());
         // Wait for handleCreateConnectionComplete
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
+        // Wait for the callback in ConnectionService#onAdapterAttached to execute.
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
 
         assertEquals(startingNumCalls + 1, mInCallServiceFixtureX.mCallById.size());
         assertEquals(startingNumCalls + 1, mInCallServiceFixtureY.mCallById.size());
