@@ -2000,6 +2000,8 @@ public class CallsManager extends Call.ListenerBase
      * @return The new call.
      */
     Call createCallForExistingConnection(String callId, ParcelableConnection connection) {
+        boolean isDowngradedConference = (connection.getConnectionProperties()
+                & Connection.PROPERTY_IS_DOWNGRADED_CONFERENCE) != 0;
         Call call = new Call(
                 callId,
                 mContext,
@@ -2015,7 +2017,7 @@ public class CallsManager extends Call.ListenerBase
                 connection.getPhoneAccount(), /* targetPhoneAccountHandle */
                 Call.CALL_DIRECTION_UNDEFINED /* callDirection */,
                 false /* forceAttachToExistingConnection */,
-                false /* isConference */,
+                isDowngradedConference /* isConference */,
                 connection.getConnectTimeMillis() /* connectTimeMillis */);
 
         call.initAnalytics();
