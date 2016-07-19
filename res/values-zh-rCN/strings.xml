@@ -45,9 +45,10 @@
     <string name="no_vm_number" msgid="4164780423805688336">"缺少语音信箱号码"</string>
     <string name="no_vm_number_msg" msgid="1300729501030053828">"SIM卡上未存储语音信箱号码。"</string>
     <string name="add_vm_number_str" msgid="4676479471644687453">"添加号码"</string>
-    <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"要更改默认拨号器应用吗？"</string>
-    <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"要使用<xliff:g id="NEW_APP">%1$s</xliff:g>（而非<xliff:g id="CURRENT_APP">%2$s</xliff:g>）作为您的默认拨号器应用吗？"</string>
-    <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"要使用<xliff:g id="NEW_APP">%s</xliff:g>作为您的默认拨号器应用吗？"</string>
+    <string name="change_default_dialer_dialog_title" msgid="9101655962941740507">"要将 <xliff:g id="NEW_APP">%s</xliff:g> 设为默认电话应用吗？"</string>
+    <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"设为默认电话应用"</string>
+    <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"取消"</string>
+    <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> 将可用于拨打电话和全面管理通话。请务必仅将您信任的应用设为默认电话应用。"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"已屏蔽的号码"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"您不会收到来自已屏蔽的号码的来电或短信。"</string>
     <string name="block_number" msgid="1101252256321306179">"添加电话号码"</string>

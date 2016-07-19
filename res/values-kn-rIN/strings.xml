@@ -45,9 +45,10 @@
     <string name="no_vm_number" msgid="4164780423805688336">"ಧ್ವನಿಮೇಲ್‌ ಸಂಖ್ಯೆಯು ಕಾಣೆಯಾಗಿದೆ"</string>
     <string name="no_vm_number_msg" msgid="1300729501030053828">"ಸಿಮ್‌ ಕಾರ್ಡ್‌ನಲ್ಲಿ ಯಾವುದೇ ಧ್ವನಿಮೇಲ್‌ ಸಂಖ್ಯೆಯನ್ನು ಸಂಗ್ರಹಿಸಿಲ್ಲ."</string>
     <string name="add_vm_number_str" msgid="4676479471644687453">"ಸಂಖ್ಯೆಯನ್ನು ಸೇರಿಸಿ"</string>
-    <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"ಡೀಫಾಲ್ಟ್ ಡಯಲರ್ ಅಪ್ಲಿಕೇಶನ್ ಬದಲಾಯಿಸುವುದೇ?"</string>
-    <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"<xliff:g id="CURRENT_APP">%2$s</xliff:g> ಬದಲಿಗೆ <xliff:g id="NEW_APP">%1$s</xliff:g> ಅನ್ನು ನಿಮ್ಮ ಡೀಫಾಲ್ಟ್ ಡಯಲರ್ ಅಪ್ಲಿಕೇಶನ್ ಆಗಿ ಬಳಸುವುದೇ?"</string>
-    <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"<xliff:g id="NEW_APP">%s</xliff:g> ಅನ್ನು ನಿಮ್ಮ ಡೀಫಾಲ್ಟ್ ಡಯಲರ್ ಅಪ್ಲಿಕೇಶನ್ ಆಗಿ ಬಳಸುವುದೇ?"</string>
+    <string name="change_default_dialer_dialog_title" msgid="9101655962941740507">"<xliff:g id="NEW_APP">%s</xliff:g> ಅನ್ನು ನಿಮ್ಮ ಡಿಫಾಲ್ಟ್ ಫೋನ್ ಅಪ್ಲಿಕೇಶನ್ ಆಗಿ ಮಾಡುವುದೇ?"</string>
+    <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"ಡಿಫಾಲ್ಟ್ ಹೊಂದಿಸಿ"</string>
+    <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"ರದ್ದುಮಾಡು"</string>
+    <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> ಗೆ ನಿಮ್ಮ ಕರೆಗಳ ಎಲ್ಲಾ ಅಂಶಗಳನ್ನು ನಿಯಂತ್ರಿಸಲು ಮತ್ತು ಕರೆಗಳನ್ನು ಮಾಡಲು ಸಾಧ್ಯವಾಗುತ್ತದೆ. ನೀವು ವಿಶ್ವಾಸವಿರಿಸಿರುವಂತಹ ಅಪ್ಲಿಕೇಶನ್‌ಗಳನ್ನು ಮಾತ್ರ ನಿಮ್ಮ ಡಿಫಾಲ್ಟ್ ಅಪ್ಲಿಕೇಶನ್ ಆಗಿ ಹೊಂದಿಸಬೇಕು."</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"ನಿರ್ಬಂಧಿಸಲಾದ ಸಂಖ್ಯೆಗಳು"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"ನಿರ್ಬಂಧಿಸಲಾದ ಸಂಖ್ಯೆಗಳಿಂದ ಕರೆಗಳು ಅಥವಾ ಪಠ್ಯ ಸಂದೇಶಗಳನ್ನು ನೀವು ಸ್ವೀಕರಿಸುವುದಿಲ್ಲ."</string>
     <string name="block_number" msgid="1101252256321306179">"ಸಂಖ್ಯೆ ಸೇರಿಸಿ"</string>
