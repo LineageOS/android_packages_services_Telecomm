@@ -912,8 +912,12 @@ public final class InCallController extends CallsManagerListenerBase {
         List<InCallServiceInfo> list = getInCallServiceComponents(componentName, type);
         if (list != null && !list.isEmpty()) {
             return list.get(0);
+        } else {
+            // Last Resort: Try to bind to the ComponentName given directly.
+            Log.e(this, new Exception(), "Package Manager could not find ComponentName: "
+                    + componentName +". Trying to bind anyway.");
+            return new InCallServiceInfo(componentName, false);
         }
-        return null;
     }
 
     private InCallServiceInfo getInCallServiceComponent(String packageName, int type) {
