@@ -1037,7 +1037,7 @@ public class Call implements CreateConnectionResponse {
             if (wasExternal != isExternal) {
                 Log.v(this, "setConnectionProperties: external call changed isExternal = %b",
                         isExternal);
-
+                Log.event(this, Log.Events.IS_EXTERNAL, isExternal);
                 for (Listener l : mListeners) {
                     l.onExternalCallChanged(this, isExternal);
                 }

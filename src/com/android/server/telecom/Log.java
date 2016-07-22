@@ -167,6 +167,7 @@ public class Log {
         public static final String RECEIVE_VIDEO_RESPONSE = "RECEIVE_VIDEO_RESPONSE";
         public static final String SEND_VIDEO_REQUEST = "SEND_VIDEO_REQUEST";
         public static final String SEND_VIDEO_RESPONSE = "SEND_VIDEO_RESPONSE";
+        public static final String IS_EXTERNAL = "IS_EXTERNAL";
 
         public static class Timings {
             public static final String ACCEPT_TIMING = "accept";
