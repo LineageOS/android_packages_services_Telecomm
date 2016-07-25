@@ -48,7 +48,7 @@
     <string name="change_default_dialer_dialog_title" msgid="9101655962941740507">"Vil du bruke <xliff:g id="NEW_APP">%s</xliff:g> som standard telefonapp?"</string>
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Angi som standard"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Avbryt"</string>
-    <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> vil håndtere alle sider ved telefonanrop på enheten din. Vær sikker på at du kun bytter til apper og utviklere du stoler på."</string>
+    <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> kan håndtere alt som har med telefonanrop å gjøre. Bruk bare apper du stoler på som standard telefonapp."</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Blokkerte numre"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Du mottar ingen anrop eller tekstmeldinger fra blokkerte numre."</string>
     <string name="block_number" msgid="1101252256321306179">"Legg til et nummer"</string>

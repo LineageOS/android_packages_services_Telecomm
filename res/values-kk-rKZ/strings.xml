@@ -45,7 +45,7 @@
     <string name="no_vm_number" msgid="4164780423805688336">"Дауыс хабарының нөмірі жоқ"</string>
     <string name="no_vm_number_msg" msgid="1300729501030053828">"SIM картасында ешқандай дауыс хабарының нөмірі сақталмаған."</string>
     <string name="add_vm_number_str" msgid="4676479471644687453">"Нөмір қосу"</string>
-    <string name="change_default_dialer_dialog_title" msgid="9101655962941740507">"<xliff:g id="NEW_APP">%s</xliff:g> қолданбасын телефондағы әдепкі ретінде сақтайсыз ба ?"</string>
+    <string name="change_default_dialer_dialog_title" msgid="9101655962941740507">"<xliff:g id="NEW_APP">%s</xliff:g> қолданбасын әдепкі Телефон қолданбасы ретінде сақтайсыз ба?"</string>
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Әдепкі ретінде орнату"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Тоқтату"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> қоңыраулардың барлық аспектілерін бақылайтын болады. Тек қана өзіңіз сенетін қолданбаларды ғана әдепкі ретінде орнатқан дұрыс."</string>
