@@ -1461,7 +1461,7 @@ public class CallsManager extends Call.ListenerBase
                     mCallAudioManager.toggleMute();
                     return true;
                 } else {
-                    ringingCall.answer(ringingCall.getVideoState());
+                    ringingCall.answer(VideoProfile.STATE_AUDIO_ONLY);
                     return true;
                 }
             } else if (HeadsetMediaButton.LONG_PRESS == type) {
