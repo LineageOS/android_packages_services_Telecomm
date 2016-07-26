@@ -1390,12 +1390,21 @@ public class CallsManager extends Call.ListenerBase
      */
     void markCallAsRemoved(Call call) {
         removeCall(call);
+        Call foregroundCall = mCallAudioManager.getPossiblyHeldForegroundCall();
         if (mLocallyDisconnectingCalls.contains(call)) {
             mLocallyDisconnectingCalls.remove(call);
-            Call foregroundCall = mCallAudioManager.getPossiblyHeldForegroundCall();
             if (foregroundCall != null && foregroundCall.getState() == CallState.ON_HOLD) {
                 foregroundCall.unhold();
             }
+        } else if (foregroundCall != null &&
+                !foregroundCall.can(Connection.CAPABILITY_SUPPORT_HOLD)  &&
+                foregroundCall.getState() == CallState.ON_HOLD) {
+
+            // The new foreground call is on hold, however the carrier does not display the hold
+            // button in the UI.  Therefore, we need to auto unhold the held call since the user has
+            // no means of unholding it themselves.
+            Log.i(this, "Auto-unholding held foreground call (call doesn't support hold)");
+            foregroundCall.unhold();
         }
     }
 
