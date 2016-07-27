@@ -168,6 +168,8 @@ public class Log {
         public static final String SEND_VIDEO_REQUEST = "SEND_VIDEO_REQUEST";
         public static final String SEND_VIDEO_RESPONSE = "SEND_VIDEO_RESPONSE";
         public static final String IS_EXTERNAL = "IS_EXTERNAL";
+        public static final String PROPERTY_CHANGE = "PROPERTY_CHANGE";
+        public static final String CAPABILITY_CHANGE = "CAPABILITY_CHANGE";
 
         public static class Timings {
             public static final String ACCEPT_TIMING = "accept";
@@ -373,7 +375,7 @@ public class Log {
         }
     }
 
-    public static final int MAX_CALLS_TO_CACHE = 5;  // Arbitrarily chosen.
+    public static final int MAX_CALLS_TO_CACHE = 10;  // Arbitrarily chosen.
     public static final int MAX_CALLS_TO_CACHE_DEBUG = 20;  // Arbitrarily chosen.
     private static final long EXTENDED_LOGGING_DURATION_MILLIS = 60000 * 30; // 30 minutes
 
@@ -740,6 +742,20 @@ public class Log {
             CallEventRecord record = mCallEventRecordMap.get(call);
             record.addEvent(event, currentSessionID, data);
         }
+    }
+
+    public static void event(Call call, String event, String format, Object... args) {
+        String msg;
+        try {
+            msg = (args == null || args.length == 0) ? format
+                    : String.format(Locale.US, format, args);
+        } catch (IllegalFormatException ife) {
+            e("Log", ife, "IllegalFormatException: formatString='%s' numArgs=%d", format,
+                    args.length);
+            msg = format + " (An error occurred while formatting the message.)";
+        }
+
+        event(call, event, msg);
     }
 
     @VisibleForTesting
