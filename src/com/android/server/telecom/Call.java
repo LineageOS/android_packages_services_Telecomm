@@ -1143,7 +1143,8 @@ public class Call implements CreateConnectionResponse {
         setConnectionCapabilities(connection.getConnectionCapabilities());
         setConnectionProperties(connection.getConnectionProperties());
         setVideoProvider(connection.getVideoProvider());
-        setVideoState(connection.getVideoState());
+        setVideoState(mCallsManager.getCheckedVideoState(connection.getVideoState(),
+                connection.getPhoneAccount()));
         setRingbackRequested(connection.isRingbackRequested());
         setIsVoipAudioMode(connection.getIsVoipAudioMode());
         setStatusHints(connection.getStatusHints());
