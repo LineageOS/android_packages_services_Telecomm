@@ -1013,10 +1013,18 @@ public class Call implements CreateConnectionResponse {
                 connectionCapabilities = removeVideoCapabilities(connectionCapabilities);
             }
 
+            int previousCapabilities = mConnectionCapabilities;
             mConnectionCapabilities = connectionCapabilities;
             for (Listener l : mListeners) {
                 l.onConnectionCapabilitiesChanged(this);
             }
+
+            int xorCaps = previousCapabilities ^ mConnectionCapabilities;
+            Log.event(this, Log.Events.CAPABILITY_CHANGE,
+                    "Current: [%s], Removed [%s], Added [%s]",
+                    Connection.capabilitiesToStringShort(mConnectionCapabilities),
+                    Connection.capabilitiesToStringShort(previousCapabilities & xorCaps),
+                    Connection.capabilitiesToStringShort(mConnectionCapabilities & xorCaps));
         }
     }
 
@@ -1043,6 +1051,13 @@ public class Call implements CreateConnectionResponse {
                 }
 
             }
+
+            int xorProps = previousProperties ^ mConnectionProperties;
+            Log.event(this, Log.Events.PROPERTY_CHANGE,
+                    "Current: [%s], Removed [%s], Added [%s]",
+                    Connection.propertiesToStringShort(mConnectionProperties),
+                    Connection.propertiesToStringShort(previousProperties & xorProps),
+                    Connection.propertiesToStringShort(mConnectionProperties & xorProps));
         }
     }
 
@@ -1557,7 +1572,7 @@ public class Call implements CreateConnectionResponse {
      * {@link android.telecom.Connection#PROPERTY_IS_EXTERNAL_CALL} property set.
      * <p>
      * An external call is a representation of a call which is taking place on another device
-     * associated with a PhoneAccount on this device.  Issuing a request to pull the external call 
+     * associated with a PhoneAccount on this device.  Issuing a request to pull the external call
      * tells the {@link android.telecom.ConnectionService} that it should move the call from the
      * other device to this one.  An example of this is the IMS multi-endpoint functionality.  A
      * user may have two phones with the same phone number.  If the user is engaged in an active
