@@ -154,6 +154,10 @@ public final class CallLogManager extends CallsManagerListenerBase {
                 type = Calls.OUTGOING_TYPE;
             } else if (disconnectCause == DisconnectCause.MISSED) {
                 type = Calls.MISSED_TYPE;
+            } else if (disconnectCause == DisconnectCause.ANSWERED_ELSEWHERE) {
+                type = Calls.ANSWERED_EXTERNALLY_TYPE;
+            } else if (disconnectCause == DisconnectCause.REJECTED) {
+                type = Calls.REJECTED_TYPE;
             } else {
                 type = Calls.INCOMING_TYPE;
             }
