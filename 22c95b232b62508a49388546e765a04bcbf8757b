@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3fa7e38b_87095d2d",
+        "filename": "src/com/android/server/telecom/ProximitySensorManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 13028
+      },
+      "writtenOn": "2016-07-30T09:24:34Z",
+      "side": 1,
+      "message": "Line length",
+      "revId": "22c95b232b62508a49388546e765a04bcbf8757b",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3fa7e38b_a70c993b",
+        "filename": "src/com/android/server/telecom/ProximitySensorManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 13028
+      },
+      "writtenOn": "2016-07-30T09:24:34Z",
+      "side": 1,
+      "message": "more generic text, do not express your hopes and feelings in code",
+      "revId": "22c95b232b62508a49388546e765a04bcbf8757b",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
