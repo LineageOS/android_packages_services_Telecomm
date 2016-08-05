@@ -1648,8 +1648,7 @@ public class CallsManager extends Call.ListenerBase
                 "new conference call");
         call.setConnectionCapabilities(parcelableConference.getConnectionCapabilities());
         call.setConnectionProperties(parcelableConference.getConnectionProperties());
-        call.setVideoState(
-                getCheckedVideoState(parcelableConference.getVideoState(), phoneAccount));
+        call.setVideoState(parcelableConference.getVideoState());
         call.setVideoProvider(parcelableConference.getVideoProvider());
         call.setStatusHints(parcelableConference.getStatusHints());
         call.putExtras(Call.SOURCE_CONNECTION_SERVICE, parcelableConference.getExtras());
@@ -2171,28 +2170,5 @@ public class CallsManager extends Call.ListenerBase
               SystemClock.elapsedRealtime());
 
       call.setIntentExtras(extras);
-    }
-
-    /**
-     * Given a video state and phone account handle, converts the passed video state to
-     * {@link VideoProfile#STATE_AUDIO_ONLY} if the phone account does not support video calling.
-     *
-     * Used to ensure that calls added by a connection service don't try to use video calling if
-     * they have not advertised that they can.
-     *
-     * @param videoState The video state.
-     * @param phoneAccountHandle The phone account handle.
-     * @return {@link VideoProfile#STATE_AUDIO_ONLY} if the phone account does not support video,
-     *      or the original videoState otherwise.
-     */
-    public int getCheckedVideoState(int videoState, PhoneAccountHandle phoneAccountHandle) {
-        if (VideoProfile.isVideo(videoState) && phoneAccountHandle != null) {
-            PhoneAccount account = mPhoneAccountRegistrar.getPhoneAccountUnchecked(
-                    phoneAccountHandle);
-            if (!account.hasCapabilities(PhoneAccount.CAPABILITY_VIDEO_CALLING)) {
-                return VideoProfile.STATE_AUDIO_ONLY;
-            }
-        }
-        return videoState;
     }
 }

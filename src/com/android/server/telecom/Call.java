@@ -1158,8 +1158,7 @@ public class Call implements CreateConnectionResponse {
         setConnectionCapabilities(connection.getConnectionCapabilities());
         setConnectionProperties(connection.getConnectionProperties());
         setVideoProvider(connection.getVideoProvider());
-        setVideoState(mCallsManager.getCheckedVideoState(connection.getVideoState(),
-                connection.getPhoneAccount()));
+        setVideoState(connection.getVideoState());
         setRingbackRequested(connection.isRingbackRequested());
         setIsVoipAudioMode(connection.getIsVoipAudioMode());
         setStatusHints(connection.getStatusHints());
@@ -1334,6 +1333,11 @@ public class Call implements CreateConnectionResponse {
         // Check to verify that the call is still in the ringing state. A call can change states
         // between the time the user hits 'answer' and Telecom receives the command.
         if (isRinging("answer")) {
+            if (!isVideoCallingSupported() && VideoProfile.isVideo(videoState)) {
+                // Video calling is not supported, yet the InCallService is attempting to answer as
+                // video.  We will simply answer as audio-only.
+                videoState = VideoProfile.STATE_AUDIO_ONLY;
+            }
             // At this point, we are asking the connection service to answer but we don't assume
             // that it will work. Instead, we wait until confirmation from the connectino service
             // that the call is in a non-STATE_RINGING state before changing the UI. See
@@ -1931,6 +1935,12 @@ public class Call implements CreateConnectionResponse {
      * @param videoState The video state for the call.
      */
     public void setVideoState(int videoState) {
+        // If the phone account associated with this call does not support video calling, then we
+        // will automatically set the video state to audio-only.
+        if (!isVideoCallingSupported()) {
+            videoState = VideoProfile.STATE_AUDIO_ONLY;
+        }
+
         // Track which video states were applicable over the duration of the call.
         // Only track the call state when the call is active or disconnected.  This ensures we do
         // not include the video state when:
