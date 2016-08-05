@@ -135,6 +135,26 @@ public class VideoProviderProxy extends Connection.VideoProvider {
                     mCall.getAnalytics().addVideoEvent(
                             Analytics.RECEIVE_REMOTE_SESSION_MODIFY_REQUEST,
                             videoProfile.getVideoState());
+
+                    if (!mCall.isVideoCallingSupported() &&
+                            VideoProfile.isVideo(videoProfile.getVideoState())) {
+                        // If video calling is not supported by the phone account, and we receive
+                        // a request to upgrade to video, automatically reject it without informing
+                        // the InCallService.
+
+                        Log.event(mCall, Log.Events.SEND_VIDEO_RESPONSE, "video not supported");
+                        VideoProfile responseProfile = new VideoProfile(
+                                VideoProfile.STATE_AUDIO_ONLY);
+                        try {
+                            mConectionServiceVideoProvider.sendSessionModifyResponse(
+                                    responseProfile);
+                        } catch (RemoteException e) {
+                        }
+
+                        // Don't want to inform listeners of the request as we've just rejected it.
+                        return;
+                    }
+
                     // Inform other Telecom components of the session modification request.
                     for (Listener listener : mListeners) {
                         listener.onSessionModifyRequestReceived(mCall, videoProfile);
