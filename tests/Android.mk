@@ -25,7 +25,12 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
 
 LOCAL_SRC_FILES := \
         $(call all-java-files-under, src) \
-        $(call all-java-files-under, ../src)
+        $(call all-java-files-under, ../src) \
+        $(call all-proto-files-under, ../proto)
+
+LOCAL_PROTOC_OPTIMIZE_TYPE := nano
+LOCAL_PROTOC_FLAGS := --proto_path=$(LOCAL_PATH)/../proto/
+LOCAL_PROTO_JAVA_OUTPUT_PARAMS := optional_field_style=accessors
 
 LOCAL_RESOURCE_DIR := \
     $(LOCAL_PATH)/res \

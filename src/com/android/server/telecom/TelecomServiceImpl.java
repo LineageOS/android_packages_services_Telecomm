@@ -39,7 +39,6 @@ import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.telecom.DefaultDialerManager;
-import android.telecom.ParcelableCallAnalytics;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomAnalytics;
@@ -57,8 +56,6 @@ import com.android.server.telecom.settings.BlockedNumbersActivity;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -1171,6 +1168,11 @@ public class TelecomServiceImpl {
                 writer.println("Permission Denial: can't dump TelecomService " +
                         "from from pid=" + Binder.getCallingPid() + ", uid=" +
                         Binder.getCallingUid());
+                return;
+            }
+
+            if (args.length > 0 && Analytics.ANALYTICS_DUMPSYS_ARG.equals(args[0])) {
+                Analytics.dumpToEncodedProto(writer, args);
                 return;
             }
 
