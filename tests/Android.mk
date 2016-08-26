@@ -51,6 +51,9 @@ LOCAL_CERTIFICATE := platform
 
 LOCAL_MODULE_TAGS := tests
 
+LOCAL_JACK_COVERAGE_INCLUDE_FILTER := com.android.server.telecom.*
+LOCAL_JACK_COVERAGE_EXCLUDE_FILTER := com.android.server.telecom.tests.*
+
 include frameworks/base/packages/SettingsLib/common.mk
 
 include $(BUILD_PACKAGE)
