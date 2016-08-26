@@ -19,11 +19,14 @@ package com.android.server.telecom;
 import android.telecom.DisconnectCause;
 import android.telecom.ParcelableCallAnalytics;
 import android.telecom.TelecomAnalytics;
+import android.util.Base64;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.IndentingPrintWriter;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -39,6 +42,9 @@ import static android.telecom.TelecomAnalytics.SessionTiming;
  * aggregate these into useful statistics.
  */
 public class Analytics {
+    public static final String ANALYTICS_DUMPSYS_ARG = "analytics";
+    private static final String CLEAR_ANALYTICS_ARG = "clear";
+
     public static final Map<String, Integer> sLogEventToAnalyticsEvent =
             new HashMap<String, Integer>() {{
                 put(Log.Events.SET_SELECT_PHONE_ACCOUNT, AnalyticsEvent.SET_SELECT_PHONE_ACCOUNT);
@@ -200,7 +206,7 @@ public class Analytics {
         public Log.CallEventRecord callEvents;
 
         public boolean isVideo = false;
-        public List<ParcelableCallAnalytics.VideoEvent> videoEvents;
+        public List<TelecomLogClass.VideoEvent> videoEvents;
         private long mTimeOfLastVideoEvent = -1;
 
         CallInfoImpl(String callId, int callDirection) {
@@ -311,8 +317,10 @@ public class Analytics {
             }
             mTimeOfLastVideoEvent = currentTime;
 
-            videoEvents.add(new ParcelableCallAnalytics.VideoEvent(
-                    eventId, timeSinceLastEvent, videoState));
+            videoEvents.add(new TelecomLogClass.VideoEvent()
+                    .setEventName(eventId)
+                    .setTimeSinceLastEventMillis(timeSinceLastEvent)
+                    .setVideoState(videoState));
         }
 
         @Override
@@ -331,40 +339,80 @@ public class Analytics {
         }
 
         public ParcelableCallAnalytics toParcelableAnalytics() {
+            TelecomLogClass.CallLog analyticsProto = toProto();
+            List<ParcelableCallAnalytics.AnalyticsEvent> events =
+                    Arrays.stream(analyticsProto.callEvents)
+                    .map(callEventProto -> new ParcelableCallAnalytics.AnalyticsEvent(
+                                callEventProto.getEventName(),
+                                callEventProto.getTimeSinceLastEventMillis())
+                    ).collect(Collectors.toList());
+
+            List<ParcelableCallAnalytics.EventTiming> timings =
+                    Arrays.stream(analyticsProto.callTimings)
+                    .map(callTimingProto -> new ParcelableCallAnalytics.EventTiming(
+                            callTimingProto.getTimingName(),
+                            callTimingProto.getTimeMillis())
+                    ).collect(Collectors.toList());
+
+            ParcelableCallAnalytics result = new ParcelableCallAnalytics(
+                    // rounds down to nearest 5 minute mark
+                    analyticsProto.getStartTime5Min(),
+                    analyticsProto.getCallDurationMillis(),
+                    analyticsProto.getType(),
+                    analyticsProto.getIsAdditionalCall(),
+                    analyticsProto.getIsInterrupted(),
+                    analyticsProto.getCallTechnologies(),
+                    analyticsProto.getCallTerminationCode(),
+                    analyticsProto.getIsEmergencyCall(),
+                    analyticsProto.connectionService[0],
+                    analyticsProto.getIsCreatedFromExistingConnection(),
+                    events,
+                    timings);
+
+            result.setIsVideoCall(analyticsProto.getIsVideoCall());
+            result.setVideoEvents(Arrays.stream(analyticsProto.videoEvents)
+                    .map(videoEventProto -> new ParcelableCallAnalytics.VideoEvent(
+                            videoEventProto.getEventName(),
+                            videoEventProto.getTimeSinceLastEventMillis(),
+                            videoEventProto.getVideoState())
+                    ).collect(Collectors.toList()));
+
+            return result;
+        }
+
+        public TelecomLogClass.CallLog toProto() {
+            TelecomLogClass.CallLog result = new TelecomLogClass.CallLog();
+            result.setStartTime5Min(
+                    startTime - startTime % ParcelableCallAnalytics.MILLIS_IN_5_MINUTES);
+
             // Rounds up to the nearest second.
             long callDuration = (endTime == 0 || startTime == 0) ? 0 : endTime - startTime;
             callDuration += (callDuration % MILLIS_IN_1_SECOND == 0) ?
                     0 : (MILLIS_IN_1_SECOND - callDuration % MILLIS_IN_1_SECOND);
+            result.setCallDurationMillis(callDuration);
 
-            List<AnalyticsEvent> events;
-            List<ParcelableCallAnalytics.EventTiming> timings;
+            result.setType(callDirection)
+                    .setIsAdditionalCall(isAdditionalCall)
+                    .setIsInterrupted(isInterrupted)
+                    .setCallTechnologies(callTechnologies)
+                    .setCallTerminationCode(
+                            callTerminationReason == null ?
+                                    ParcelableCallAnalytics.STILL_CONNECTED :
+                                    callTerminationReason.getCode())
+                    .setIsEmergencyCall(isEmergency)
+                    .setIsCreatedFromExistingConnection(createdFromExistingConnection)
+                    .setIsEmergencyCall(isEmergency)
+                    .setIsVideoCall(isVideo);
+
+            result.connectionService = new String[] {connectionService};
             if (callEvents != null) {
-                events = convertLogEventsToAnalyticsEvents(callEvents.getEvents());
-                timings = callEvents.extractEventTimings().stream()
-                        .map(Analytics::logEventTimingToAnalyticsEventTiming)
-                        .collect(Collectors.toList());
-            } else {
-                events = Collections.emptyList();
-                timings = Collections.emptyList();
+                result.callEvents = convertLogEventsToProtoEvents(callEvents.getEvents());
+                result.callTimings = callEvents.extractEventTimings().stream()
+                        .map(Analytics::logEventTimingToProtoEventTiming)
+                        .toArray(TelecomLogClass.EventTimingEntry[]::new);
             }
-            ParcelableCallAnalytics result = new ParcelableCallAnalytics(
-                    // rounds down to nearest 5 minute mark
-                    startTime - startTime % ParcelableCallAnalytics.MILLIS_IN_5_MINUTES,
-                    callDuration,
-                    callDirection,
-                    isAdditionalCall,
-                    isInterrupted,
-                    callTechnologies,
-                    callTerminationReason == null ?
-                            ParcelableCallAnalytics.STILL_CONNECTED :
-                            callTerminationReason.getCode(),
-                    isEmergency,
-                    connectionService,
-                    createdFromExistingConnection,
-                    events,
-                    timings);
-            result.setIsVideoCall(isVideo);
-            result.setVideoEvents(videoEvents);
+            result.videoEvents =
+                    videoEvents.toArray(new TelecomLogClass.VideoEvent[videoEvents.size()]);
             return result;
         }
 
@@ -463,6 +511,28 @@ public class Analytics {
         return new TelecomAnalytics(sessionTimings, calls);
     }
 
+    public static void dumpToEncodedProto(PrintWriter pw, String[] args) {
+        TelecomLogClass.TelecomLog result = new TelecomLogClass.TelecomLog();
+
+        synchronized (sLock) {
+            result.callLogs = sCallIdToInfo.values().stream()
+                    .map(CallInfoImpl::toProto)
+                    .toArray(TelecomLogClass.CallLog[]::new);
+            result.sessionTimings = sSessionTimings.stream()
+                    .map(timing -> new TelecomLogClass.LogSessionTiming()
+                            .setSessionEntryPoint(timing.getKey())
+                            .setTimeMillis(timing.getTime()))
+                    .toArray(TelecomLogClass.LogSessionTiming[]::new);
+            if (args.length > 1 && CLEAR_ANALYTICS_ARG.equals(args[1])) {
+                sCallIdToInfo.clear();
+                sSessionTimings.clear();
+            }
+        }
+        String encodedProto = Base64.encodeToString(
+                TelecomLogClass.TelecomLog.toByteArray(result), Base64.DEFAULT);
+        pw.write(encodedProto);
+    }
+
     public static void dump(IndentingPrintWriter writer) {
         synchronized (sLock) {
             int prefixLength = CallsManager.TELECOM_CALL_ID_PREFIX.length();
@@ -521,33 +591,32 @@ public class Analytics {
         }
     }
 
-    private static List<AnalyticsEvent> convertLogEventsToAnalyticsEvents(
+    private static TelecomLogClass.Event[] convertLogEventsToProtoEvents(
             List<Log.CallEvent> logEvents) {
         long timeOfLastEvent = -1;
-        ArrayList<AnalyticsEvent> events = new ArrayList<>(logEvents.size());
+        ArrayList<TelecomLogClass.Event> events = new ArrayList<>(logEvents.size());
         for (Log.CallEvent logEvent : logEvents) {
             if (sLogEventToAnalyticsEvent.containsKey(logEvent.eventId)) {
-                int analyticsEventId = sLogEventToAnalyticsEvent.get(logEvent.eventId);
-                long timeSinceLastEvent =
-                        timeOfLastEvent < 0 ? -1 : logEvent.time - timeOfLastEvent;
-                events.add(new AnalyticsEvent(
-                        analyticsEventId,
-                        roundToOneSigFig(timeSinceLastEvent)
-                ));
+                TelecomLogClass.Event event = new TelecomLogClass.Event();
+                event.setEventName(sLogEventToAnalyticsEvent.get(logEvent.eventId));
+                event.setTimeSinceLastEventMillis(roundToOneSigFig(
+                        timeOfLastEvent < 0 ? -1 : logEvent.time - timeOfLastEvent));
+                events.add(event);
                 timeOfLastEvent = logEvent.time;
             }
         }
-        return events;
+        return events.toArray(new TelecomLogClass.Event[events.size()]);
     }
 
-    private static ParcelableCallAnalytics.EventTiming logEventTimingToAnalyticsEventTiming(
+    private static TelecomLogClass.EventTimingEntry logEventTimingToProtoEventTiming(
             Log.CallEventRecord.EventTiming logEventTiming) {
         int analyticsEventTimingName =
                 sLogEventTimingToAnalyticsEventTiming.containsKey(logEventTiming.name) ?
                         sLogEventTimingToAnalyticsEventTiming.get(logEventTiming.name) :
                         ParcelableCallAnalytics.EventTiming.INVALID;
-        return new ParcelableCallAnalytics.EventTiming(analyticsEventTimingName,
-                (long) logEventTiming.time);
+        return new TelecomLogClass.EventTimingEntry()
+                .setTimingName(analyticsEventTimingName)
+                .setTimeMillis(logEventTiming.time);
     }
 
     @VisibleForTesting

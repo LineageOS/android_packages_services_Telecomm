@@ -187,7 +187,9 @@ public class VideoProviderProxy extends Connection.VideoProvider {
                 if (status == Connection.VideoProvider.SESSION_MODIFY_REQUEST_SUCCESS) {
                     mCall.getAnalytics().addVideoEvent(
                             Analytics.RECEIVE_REMOTE_SESSION_MODIFY_RESPONSE,
-                            requestProfile.getVideoState());
+                            responseProfile == null ?
+                                    VideoProfile.STATE_AUDIO_ONLY :
+                                    responseProfile.getVideoState());
                 }
                 VideoProviderProxy.this.receiveSessionModifyResponse(status, requestProfile,
                         responseProfile);
