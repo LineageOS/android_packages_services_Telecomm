@@ -445,15 +445,12 @@ public class CallsManager extends Call.ListenerBase
 
             mDtmfLocalTonePlayer.playTone(call, nextChar);
 
-            // TODO: Create a LockedRunnable class that does the synchronization automatically.
-            mStopTone = new Runnable("CM.oPDC") {
+            mStopTone = new Runnable("CM.oPDC", mLock) {
                 @Override
                 public void loggedRun() {
-                    synchronized (mLock) {
-                        // Set a timeout to stop the tone in case there isn't another tone to
-                        // follow.
-                        mDtmfLocalTonePlayer.stopTone(call);
-                    }
+                    // Set a timeout to stop the tone in case there isn't another tone to
+                    // follow.
+                    mDtmfLocalTonePlayer.stopTone(call);
                 }
             };
             mHandler.postDelayed(mStopTone.prepare(),
@@ -507,14 +504,12 @@ public class CallsManager extends Call.ListenerBase
     @Override
     public boolean onCanceledViaNewOutgoingCallBroadcast(final Call call) {
         mPendingCallsToDisconnect.add(call);
-        mHandler.postDelayed(new Runnable("CM.oCVNOCB") {
+        mHandler.postDelayed(new Runnable("CM.oCVNOCB", mLock) {
             @Override
             public void loggedRun() {
-                synchronized (mLock) {
-                    if (mPendingCallsToDisconnect.remove(call)) {
-                        Log.i(this, "Delayed disconnection of call: %s", call);
-                        call.disconnect();
-                    }
+                if (mPendingCallsToDisconnect.remove(call)) {
+                    Log.i(this, "Delayed disconnection of call: %s", call);
+                    call.disconnect();
                 }
             }
         }.prepare(), Timeouts.getNewOutgoingCallCancelMillis(mContext.getContentResolver()));
