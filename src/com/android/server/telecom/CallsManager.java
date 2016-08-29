@@ -266,7 +266,7 @@ public class CallsManager extends Call.ListenerBase
         RingtoneFactory ringtoneFactory = new RingtoneFactory(this, context);
         SystemVibrator systemVibrator = new SystemVibrator(context);
         mInCallController = new InCallController(
-                context, mLock, this, systemStateProvider, defaultDialerAdapter);
+                context, mLock, this, systemStateProvider, defaultDialerAdapter, mTimeoutsAdapter);
         mRinger = new Ringer(playerFactory, context, systemSettingsUtil, asyncRingtonePlayer,
                 ringtoneFactory, systemVibrator, mInCallController);
 
@@ -629,7 +629,8 @@ public class CallsManager extends Call.ListenerBase
         return false;
     }
 
-    CallAudioState getAudioState() {
+    @VisibleForTesting
+    public CallAudioState getAudioState() {
         return mCallAudioManager.getCallAudioState();
     }
 
@@ -1489,7 +1490,8 @@ public class CallsManager extends Call.ListenerBase
     /**
      * Returns true if telecom supports adding another top-level call.
      */
-    boolean canAddCall() {
+    @VisibleForTesting
+    public boolean canAddCall() {
         boolean isDeviceProvisioned = Settings.Global.getInt(mContext.getContentResolver(),
                 Settings.Global.DEVICE_PROVISIONED, 0) != 0;
         if (!isDeviceProvisioned) {

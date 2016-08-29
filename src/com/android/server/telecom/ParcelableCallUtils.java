@@ -97,7 +97,7 @@ public class ParcelableCallUtils {
         }
 
         // If this is a single-SIM device, the "default SIM" will always be the only SIM.
-        boolean isDefaultSmsAccount =
+        boolean isDefaultSmsAccount = phoneAccountRegistrar != null &&
                 phoneAccountRegistrar.isUserSelectedSmsPhoneAccount(call.getTargetPhoneAccount());
         if (call.isRespondViaSmsCapable() && isDefaultSmsAccount) {
             capabilities |= android.telecom.Call.Details.CAPABILITY_RESPOND_VIA_TEXT;

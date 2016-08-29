@@ -32,6 +32,10 @@ public final class Timeouts {
         public long getCallScreeningTimeoutMillis(ContentResolver cr) {
             return Timeouts.getCallScreeningTimeoutMillis(cr);
         }
+
+        public long getCallRemoveUnbindInCallServicesDelay(ContentResolver cr) {
+            return Timeouts.getCallRemoveUnbindInCallServicesDelay(cr);
+        }
     }
 
     /** A prefix to use for all keys so to not clobber the global namespace. */
@@ -50,15 +54,6 @@ public final class Timeouts {
      */
     private static long get(ContentResolver contentResolver, String key, long defaultValue) {
         return Settings.Secure.getLong(contentResolver, PREFIX + key, defaultValue);
-    }
-
-    /**
-     * Returns the longest period, in milliseconds, to wait for the query for direct-to-voicemail
-     * to complete. If the query goes beyond this timeout, the incoming call screen is shown to the
-     * user.
-     */
-    public static long getDirectToVoicemailMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "direct_to_voicemail_ms", 500L);
     }
 
     /**
@@ -140,12 +135,5 @@ public final class Timeouts {
      */
     public static long getCallScreeningTimeoutMillis(ContentResolver contentResolver) {
         return get(contentResolver, "call_screening_timeout", 5000L /* 5 seconds */);
-    }
-
-    /**
-     * Returns the amount of time to wait for the block checker to allow or disallow a call.
-     */
-    public static long getBlockCheckTimeoutMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "block_check_timeout_millis", 500L);
     }
 }
