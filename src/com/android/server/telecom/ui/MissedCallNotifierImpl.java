@@ -175,7 +175,7 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
     }
 
     private void markMissedCallsAsRead(final UserHandle userHandle) {
-        AsyncTask.execute(new Runnable("MCNI.mMCAR") {
+        AsyncTask.execute(new Runnable("MCNI.mMCAR", null /*lock*/) {
             @Override
             public void loggedRun() {
                 // Clear the list of new missed calls from the call log.
