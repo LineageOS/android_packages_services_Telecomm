@@ -1461,24 +1461,30 @@ public class CallsManager extends Call.ListenerBase
 
     boolean onMediaButton(int type) {
         if (hasAnyCalls()) {
+            Call ringingCall = getFirstCallWithState(CallState.RINGING);
             if (HeadsetMediaButton.SHORT_PRESS == type) {
-                Call ringingCall = getFirstCallWithState(CallState.RINGING);
                 if (ringingCall == null) {
-                    mCallAudioManager.toggleMute();
-                    return true;
+                    Call callToHangup = getFirstCallWithState(CallState.RINGING, CallState.DIALING,
+                            CallState.PULLING, CallState.ACTIVE, CallState.ON_HOLD);
+                    Log.event(callToHangup, Log.Events.INFO, "media btn short press - end call.");
+                    if (callToHangup != null) {
+                        callToHangup.disconnect();
+                        return true;
+                    }
                 } else {
                     ringingCall.answer(VideoProfile.STATE_AUDIO_ONLY);
                     return true;
                 }
             } else if (HeadsetMediaButton.LONG_PRESS == type) {
-                Log.d(this, "handleHeadsetHook: longpress -> hangup");
-                Call callToHangup = getFirstCallWithState(
-                        CallState.RINGING, CallState.DIALING, CallState.PULLING, CallState.ACTIVE,
-                        CallState.ON_HOLD);
-                if (callToHangup != null) {
-                    callToHangup.disconnect();
-                    return true;
+                if (ringingCall != null) {
+                    Log.event(
+                            getForegroundCall(), Log.Events.INFO, "media btn long press - reject");
+                    ringingCall.reject(false, null);
+                } else {
+                    Log.event(getForegroundCall(), Log.Events.INFO, "media btn long press - mute");
+                    mCallAudioManager.toggleMute();
                 }
+                return true;
             }
         }
         return false;
