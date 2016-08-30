@@ -69,6 +69,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -737,9 +738,10 @@ public class CallsManager extends Call.ListenerBase
         // Check to see if we can reuse any of the calls that are waiting to disconnect.
         // See {@link Call#abort} and {@link #onCanceledViaNewOutgoingCall} for more information.
         Call reusedCall = null;
-        for (Call pendingCall : mPendingCallsToDisconnect) {
+        for (Iterator<Call> callIter = mPendingCallsToDisconnect.iterator(); callIter.hasNext();) {
+            Call pendingCall = callIter.next();
             if (reusedCall == null && areHandlesEqual(pendingCall.getHandle(), handle)) {
-                mPendingCallsToDisconnect.remove(pendingCall);
+                callIter.remove();
                 Log.i(this, "Reusing disconnected call %s", pendingCall);
                 reusedCall = pendingCall;
             } else {
