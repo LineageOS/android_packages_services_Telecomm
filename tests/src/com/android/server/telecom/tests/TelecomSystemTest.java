@@ -59,11 +59,9 @@ import com.android.internal.telecom.IInCallAdapter;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.BluetoothPhoneServiceImpl;
 import com.android.server.telecom.CallAudioManager;
-import com.android.server.telecom.CallerInfoAsyncQueryFactory;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.CallsManagerListenerBase;
-import com.android.server.telecom.ContactsAsyncHelper;
 import com.android.server.telecom.HeadsetMediaButton;
 import com.android.server.telecom.HeadsetMediaButtonFactory;
 import com.android.server.telecom.InCallWakeLockController;
@@ -182,7 +180,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                     .addSupportedUriScheme("tel")
                     .setCapabilities(
                             PhoneAccount.CAPABILITY_CALL_PROVIDER |
-                            PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
+                                    PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION |
+                                    PhoneAccount.CAPABILITY_VIDEO_CALLING)
                     .build();
     final PhoneAccount mPhoneAccountA1 =
             PhoneAccount.builder(
@@ -298,7 +297,7 @@ public class TelecomSystemTest extends TelecomTestCase {
 
         mTimeoutsAdapter = mock(Timeouts.Adapter.class);
         when(mTimeoutsAdapter.getCallScreeningTimeoutMillis(any(ContentResolver.class)))
-                .thenReturn(TEST_TIMEOUT / 10L);
+                .thenReturn(TEST_TIMEOUT / 5L);
 
         mTelecomSystem = new TelecomSystem(
                 mComponentContextFixture.getTestDouble(),

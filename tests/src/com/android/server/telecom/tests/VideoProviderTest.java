@@ -25,6 +25,8 @@ import org.mockito.stubbing.Answer;
 
 import android.graphics.SurfaceTexture;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.telecom.Connection.VideoProvider;
 import android.telecom.InCallService;
 import android.telecom.InCallService.VideoCall;
@@ -99,6 +101,7 @@ public class VideoProviderTest extends TelecomSystemTest {
 
         mConnectionInfo = mConnectionServiceFixtureA.mConnectionById.get(mCallIds.mConnectionId);
         mVerificationLock = new CountDownLatch(1);
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
     }
 
     @Override

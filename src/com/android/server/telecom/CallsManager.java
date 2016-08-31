@@ -2018,6 +2018,10 @@ public class CallsManager extends Call.ListenerBase
         }
     }
 
+    public TelecomSystem.SyncRoot getLock() {
+        return mLock;
+    }
+
     private void reloadMissedCallsOfUser(UserHandle userHandle) {
         mMissedCallNotifier.reloadFromDatabase(mCallerInfoLookupHelper,
                 new MissedCallNotifier.CallInfoFactory(), userHandle);

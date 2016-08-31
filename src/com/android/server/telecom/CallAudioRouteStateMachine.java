@@ -962,6 +962,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
     private final StatusBarNotifier mStatusBarNotifier;
     private final CallAudioManager.AudioServiceFactory mAudioServiceFactory;
     private final boolean mDoesDeviceSupportEarpieceRoute;
+    private final TelecomSystem.SyncRoot mLock;
     private boolean mHasUserExplicitlyLeftBluetooth = false;
 
     private HashMap<String, Integer> mStateNameToRouteCode;
@@ -998,6 +999,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
         mStatusBarNotifier = statusBarNotifier;
         mAudioServiceFactory = audioServiceFactory;
         mDoesDeviceSupportEarpieceRoute = doesDeviceSupportEarpieceRoute;
+        mLock = callsManager.getLock();
 
         mStateNameToRouteCode = new HashMap<>(8);
         mStateNameToRouteCode.put(mQuiescentEarpieceRoute.getName(), ROUTE_EARPIECE);
@@ -1176,15 +1178,19 @@ public class CallAudioRouteStateMachine extends StateMachine {
     }
 
     private void setSystemAudioState(CallAudioState newCallAudioState, boolean force) {
-        Log.i(this, "setSystemAudioState: changing from %s to %s", mLastKnownCallAudioState,
-                newCallAudioState);
-        Log.addEvent(mCallsManager.getForegroundCall(), LogUtils.Events.AUDIO_ROUTE,
-                CallAudioState.audioRouteToString(newCallAudioState.getRoute()));
+        synchronized (mLock) {
+            Log.i(this, "setSystemAudioState: changing from %s to %s", mLastKnownCallAudioState,
+                    newCallAudioState);
+            if (force || !newCallAudioState.equals(mLastKnownCallAudioState)) {
+                if (newCallAudioState.getRoute() != mLastKnownCallAudioState.getRoute()) {
+                    Log.addEvent(mCallsManager.getForegroundCall(), LogUtils.Events.AUDIO_ROUTE,
+                            CallAudioState.audioRouteToString(newCallAudioState.getRoute()));
+                }
 
-        if (force || !newCallAudioState.equals(mLastKnownCallAudioState)) {
-            mCallsManager.onCallAudioStateChanged(mLastKnownCallAudioState, newCallAudioState);
-            updateAudioForForegroundCall(newCallAudioState);
-            mLastKnownCallAudioState = newCallAudioState;
+                mCallsManager.onCallAudioStateChanged(mLastKnownCallAudioState, newCallAudioState);
+                updateAudioForForegroundCall(newCallAudioState);
+                mLastKnownCallAudioState = newCallAudioState;
+            }
         }
     }
 
