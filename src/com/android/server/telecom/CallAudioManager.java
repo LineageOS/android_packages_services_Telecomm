@@ -452,6 +452,11 @@ public class CallAudioManager extends CallsManagerListenerBase {
         return mCallAudioRouteStateMachine;
     }
 
+    @VisibleForTesting
+    public CallAudioModeStateMachine getCallAudioModeStateMachine() {
+        return mCallAudioModeStateMachine;
+    }
+
     void dump(IndentingPrintWriter pw) {
         pw.println("All calls:");
         pw.increaseIndent();

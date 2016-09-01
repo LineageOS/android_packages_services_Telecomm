@@ -32,6 +32,7 @@ import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.ConnectionServiceWrapper;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.StatusBarNotifier;
+import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.WiredHeadsetManager;
 
 import org.mockito.ArgumentCaptor;
@@ -117,6 +118,7 @@ public class CallAudioRouteStateMachineTest
     private CallAudioManager.AudioServiceFactory mAudioServiceFactory;
     private static final int TEST_TIMEOUT = 500;
     private AudioManager mockAudioManager;
+    private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
 
     @Override
     public void setUp() throws Exception {
@@ -133,6 +135,7 @@ public class CallAudioRouteStateMachineTest
         };
 
         when(mockCallsManager.getForegroundCall()).thenReturn(fakeCall);
+        when(mockCallsManager.getLock()).thenReturn(mLock);
         when(fakeCall.getConnectionService()).thenReturn(mockConnectionServiceWrapper);
         when(fakeCall.isAlive()).thenReturn(true);
         doNothing().when(mockConnectionServiceWrapper).onCallAudioStateChanged(any(Call.class),
@@ -856,6 +859,7 @@ public class CallAudioRouteStateMachineTest
         reset(mockAudioManager, mockBluetoothManager, mockCallsManager,
                 mockConnectionServiceWrapper);
         when(mockCallsManager.getForegroundCall()).thenReturn(fakeCall);
+        when(mockCallsManager.getLock()).thenReturn(mLock);
         doNothing().when(mockConnectionServiceWrapper).onCallAudioStateChanged(any(Call.class),
                 any(CallAudioState.class));
     }
