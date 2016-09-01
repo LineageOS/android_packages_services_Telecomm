@@ -348,6 +348,12 @@ public class CallsManager extends Call.ListenerBase
     @Override
     public void onSuccessfulIncomingCall(Call incomingCall) {
         Log.d(this, "onSuccessfulIncomingCall");
+        if (incomingCall.hasProperty(Connection.PROPERTY_EMERGENCY_CALLBACK_MODE)) {
+            Log.i(this, "Skipping call filtering due to ECBM");
+            onCallFilteringComplete(incomingCall, new CallFilteringResult(true, false, true, true));
+            return;
+        }
+
         List<IncomingCallFilter.CallFilter> filters = new ArrayList<>();
         filters.add(new DirectToVoicemailCallFilter(mCallerInfoLookupHelper));
         filters.add(new AsyncBlockCheckFilter(mContext, new BlockCheckerAdapter()));
