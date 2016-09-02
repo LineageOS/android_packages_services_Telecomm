@@ -250,7 +250,7 @@ public class AnalyticsTests extends TelecomSystemTest {
         sessions.stream()
                 .filter(s -> Log.Sessions.CSW_ADD_CONFERENCE_CALL.equals(
                         Analytics.sSessionIdToLogSession.get(s.getKey())))
-                .forEach(s -> assertTrue(s.getTime() > minTime));
+                .forEach(s -> assertTrue(s.getTime() >= minTime));
     }
 
     @MediumTest

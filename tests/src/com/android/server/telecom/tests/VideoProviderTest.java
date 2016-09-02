@@ -113,6 +113,7 @@ public class VideoProviderTest extends TelecomSystemTest {
 
         mConnectionInfo = mConnectionServiceFixtureA.mConnectionById.get(mCallIds.mConnectionId);
         mVerificationLock = new CountDownLatch(1);
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
     }
 
     @Override

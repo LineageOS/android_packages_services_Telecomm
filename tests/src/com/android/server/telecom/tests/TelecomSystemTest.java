@@ -61,6 +61,7 @@ import com.android.internal.telecom.IInCallAdapter;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.BluetoothPhoneServiceImpl;
 import com.android.server.telecom.CallAudioManager;
+import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.CallerInfoAsyncQueryFactory;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.CallsManagerListenerBase;
@@ -75,8 +76,10 @@ import com.android.server.telecom.PhoneNumberUtilsAdapter;
 import com.android.server.telecom.PhoneNumberUtilsAdapterImpl;
 import com.android.server.telecom.ProximitySensorManager;
 import com.android.server.telecom.ProximitySensorManagerFactory;
+import com.android.server.telecom.Runnable;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
+import com.android.server.telecom.callfiltering.AsyncBlockCheckFilter;
 import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.ui.MissedCallNotifierImpl.MissedCallNotifierImplFactory;
 
@@ -89,6 +92,8 @@ import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Implements mocks and functionality required to implement telecom system tests.
@@ -197,7 +202,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                     .addSupportedUriScheme("tel")
                     .setCapabilities(
                             PhoneAccount.CAPABILITY_CALL_PROVIDER |
-                            PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
+                                    PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION |
+                                    PhoneAccount.CAPABILITY_VIDEO_CALLING)
                     .build();
     final PhoneAccount mPhoneAccountA1 =
             PhoneAccount.builder(
@@ -342,7 +348,7 @@ public class TelecomSystemTest extends TelecomTestCase {
 
         mTimeoutsAdapter = mock(Timeouts.Adapter.class);
         when(mTimeoutsAdapter.getCallScreeningTimeoutMillis(any(ContentResolver.class)))
-                .thenReturn(TEST_TIMEOUT / 10L);
+                .thenReturn(TEST_TIMEOUT / 5L);
 
         mTelecomSystem = new TelecomSystem(
                 mComponentContextFixture.getTestDouble(),

@@ -278,6 +278,7 @@ public class BasicCallTests extends TelecomSystemTest {
                 .createConnection(any(PhoneAccountHandle.class), anyString(),
                         any(ConnectionRequest.class), eq(true), eq(false));
 
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         assertEquals(1, mCallerInfoAsyncQueryFactoryFixture.mRequests.size());
         for (CallerInfoAsyncQueryFactoryFixture.Request request :
                 mCallerInfoAsyncQueryFactoryFixture.mRequests) {
@@ -314,10 +315,12 @@ public class BasicCallTests extends TelecomSystemTest {
         mTelecomSystem.getTelecomServiceImpl().getBinder()
                 .addNewIncomingCall(mPhoneAccountA0.getAccountHandle(), extras);
 
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         verify(mConnectionServiceFixtureA.getTestDouble())
                 .createConnection(any(PhoneAccountHandle.class), anyString(),
                         any(ConnectionRequest.class), eq(true), eq(false));
 
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         // Never reply to the caller info lookup.
         assertEquals(1, mCallerInfoAsyncQueryFactoryFixture.mRequests.size());
 
@@ -357,10 +360,12 @@ public class BasicCallTests extends TelecomSystemTest {
         mTelecomSystem.getTelecomServiceImpl().getBinder()
                 .addNewIncomingCall(mPhoneAccountA0.getAccountHandle(), extras);
 
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         verify(mConnectionServiceFixtureA.getTestDouble())
                 .createConnection(any(PhoneAccountHandle.class), anyString(),
                         any(ConnectionRequest.class), eq(true), eq(false));
 
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         assertEquals(1, mCallerInfoAsyncQueryFactoryFixture.mRequests.size());
         for (CallerInfoAsyncQueryFactoryFixture.Request request :
                 mCallerInfoAsyncQueryFactoryFixture.mRequests) {
