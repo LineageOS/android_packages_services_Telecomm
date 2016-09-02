@@ -79,12 +79,16 @@ public final class InCallController extends CallsManagerListenerBase {
     }
 
     private class InCallServiceInfo {
-        private ComponentName mComponentName;
+        private final ComponentName mComponentName;
         private boolean mIsExternalCallsSupported;
+        private final int mType;
 
-        public InCallServiceInfo(ComponentName componentName, boolean isExternalCallsSupported) {
+        public InCallServiceInfo(ComponentName componentName,
+                boolean isExternalCallsSupported,
+                int type) {
             mComponentName = componentName;
             mIsExternalCallsSupported = isExternalCallsSupported;
+            mType = type;
         }
 
         public ComponentName getComponentName() {
@@ -93,6 +97,10 @@ public final class InCallController extends CallsManagerListenerBase {
 
         public boolean isExternalCallsSupported() {
             return mIsExternalCallsSupported;
+        }
+
+        public int getType() {
+            return mType;
         }
 
         @Override
@@ -190,6 +198,12 @@ public final class InCallController extends CallsManagerListenerBase {
                         UserHandle.CURRENT)) {
                 Log.w(this, "Failed to connect.");
                 mIsConnected = false;
+            }
+
+            if (call != null && mIsConnected) {
+                call.getAnalytics().addInCallService(
+                        mInCallServiceInfo.getComponentName().flattenToShortString(),
+                        mInCallServiceInfo.getType());
             }
 
             return mIsConnected;
@@ -920,7 +934,7 @@ public final class InCallController extends CallsManagerListenerBase {
             // Last Resort: Try to bind to the ComponentName given directly.
             Log.e(this, new Exception(), "Package Manager could not find ComponentName: "
                     + componentName +". Trying to bind anyway.");
-            return new InCallServiceInfo(componentName, false);
+            return new InCallServiceInfo(componentName, false, type);
         }
     }
 
@@ -974,7 +988,7 @@ public final class InCallController extends CallsManagerListenerBase {
 
                     retval.add(new InCallServiceInfo(
                             new ComponentName(serviceInfo.packageName, serviceInfo.name),
-                            isExternalCallsSupported));
+                            isExternalCallsSupported, requestedType));
                 }
             }
         }
