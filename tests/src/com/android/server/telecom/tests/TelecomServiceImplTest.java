@@ -53,7 +53,9 @@ import com.android.server.telecom.components.UserCallIntentProcessorFactory;
 
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
+import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.internal.matchers.VarargMatcher;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -136,6 +138,13 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         @Override
         public boolean matches(Object string) {
             return mStrings.contains(string);
+        }
+    }
+
+    private static class IntVarArgMatcher extends ArgumentMatcher<int[]> implements VarargMatcher {
+        @Override
+        public boolean matches(Object argument) {
+            return true;
         }
     }
 
@@ -859,7 +868,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     public void testEndCallWithNoForegroundCall() throws Exception {
         Call call = mock(Call.class);
         when(call.getState()).thenReturn(CallState.ACTIVE);
-        when(mFakeCallsManager.getFirstCallWithState(anyInt(), anyInt(), anyInt(), anyInt()))
+        when(mFakeCallsManager.getFirstCallWithState(argThat(new IntVarArgMatcher())))
                 .thenReturn(call);
         assertTrue(mTSIBinder.endCall());
         verify(call).disconnect();
