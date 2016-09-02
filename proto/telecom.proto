@@ -149,6 +149,23 @@ message EventTimingEntry {
   optional int64 time_millis = 2;
 }
 
+message InCallServiceInfo {
+  // Keep this up-to-date with com.android.server.telecom.InCallController.
+  enum InCallServiceType {
+    IN_CALL_SERVICE_TYPE_INVALID = 0;
+    IN_CALL_SERVICE_TYPE_DIALER_UI = 1;
+    IN_CALL_SERVICE_TYPE_SYSTEM_UI = 2;
+    IN_CALL_SERVICE_TYPE_CAR_MODE_UI = 3;
+    IN_CALL_SERVICE_TYPE_NON_UI = 4;
+  }
+
+  // The shortened component name of the in-call service.
+  optional string in_call_service_name = 1;
+
+  // The type of the in-call service
+  optional InCallServiceType in_call_service_type = 2;
+}
+
 // Information about each call.
 message CallLog {
 
@@ -227,7 +244,7 @@ message CallLog {
   // A bitmask with bits corresponding to call technologies that were used
   // during the call. The ones that we will record are CDMA, GSM, IMS, SIP,
   // and third-party.
-  // https://googleplex-android-review.git.corp.google.com/#/c/816516/6/src/com/android/server/telecom/Analytics.java
+  // See the com.android.server.telecom.Analytics.*_PHONE constants.
   optional int32 call_technologies = 6;
 
   // Indicates the call termination code.
@@ -253,4 +270,7 @@ message CallLog {
 
   // A list of the video events during the call.
   repeated VideoEvent video_events = 15;
+
+  // A list of the in-call services bound during the call.
+  repeated InCallServiceInfo in_call_services = 16;
 }
