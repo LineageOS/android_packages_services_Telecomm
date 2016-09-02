@@ -176,6 +176,9 @@ public class Analytics {
 
         public void addVideoEvent(int eventId, int videoState) {
         }
+
+        public void addInCallService(String serviceName, int type) {
+        }
     }
 
     /**
@@ -207,6 +210,7 @@ public class Analytics {
 
         public boolean isVideo = false;
         public List<TelecomLogClass.VideoEvent> videoEvents;
+        public List<TelecomLogClass.InCallServiceInfo> inCallServiceInfos;
         private long mTimeOfLastVideoEvent = -1;
 
         CallInfoImpl(String callId, int callDirection) {
@@ -217,6 +221,7 @@ public class Analytics {
             callTechnologies = 0;
             connectionService = "";
             videoEvents = new LinkedList<>();
+            inCallServiceInfos = new LinkedList<>();
         }
 
         CallInfoImpl(CallInfoImpl other) {
@@ -324,6 +329,13 @@ public class Analytics {
         }
 
         @Override
+        public void addInCallService(String serviceName, int type) {
+            inCallServiceInfos.add(new TelecomLogClass.InCallServiceInfo()
+                    .setInCallServiceName(serviceName)
+                    .setInCallServiceType(type));
+        }
+
+        @Override
         public String toString() {
             return "{\n"
                     + "    startTime: " + startTime + '\n'
@@ -335,6 +347,7 @@ public class Analytics {
                     + "    callTerminationReason: " + getCallDisconnectReasonString() + '\n'
                     + "    connectionService: " + connectionService + '\n'
                     + "    isVideoCall: " + isVideo + '\n'
+                    + "    inCallServices: " + getInCallServicesString() + '\n'
                     + "}\n";
         }
 
@@ -413,6 +426,9 @@ public class Analytics {
             }
             result.videoEvents =
                     videoEvents.toArray(new TelecomLogClass.VideoEvent[videoEvents.size()]);
+            result.inCallServices = inCallServiceInfos.toArray(
+                    new TelecomLogClass.InCallServiceInfo[inCallServiceInfos.size()]);
+
             return result;
         }
 
@@ -447,6 +463,21 @@ public class Analytics {
             } else {
                 return "NOT SET";
             }
+        }
+
+        private String getInCallServicesString() {
+            StringBuilder s = new StringBuilder();
+            s.append("[\n");
+            for (TelecomLogClass.InCallServiceInfo service : inCallServiceInfos) {
+                s.append("    ");
+                s.append("name: ");
+                s.append(service.getInCallServiceName());
+                s.append(" type: ");
+                s.append(service.getInCallServiceType());
+                s.append("\n");
+            }
+            s.append("]");
+            return s.toString();
         }
     }
     public static final String TAG = "TelecomAnalytics";
