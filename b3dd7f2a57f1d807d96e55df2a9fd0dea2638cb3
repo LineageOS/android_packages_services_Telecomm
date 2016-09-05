@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1fa4df85_eb4a69aa",
+        "filename": "src/com/android/server/telecom/ProximitySensorManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 7880
+      },
+      "writtenOn": "2016-09-05T08:03:57Z",
+      "side": 1,
+      "message": "you can probably use the MTK_HARDWARE flag instead https://github.com/CyanogenMod/android_build/blob/cm-13.0/core/mtk_target.mk#L2",
+      "revId": "b3dd7f2a57f1d807d96e55df2a9fd0dea2638cb3",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
