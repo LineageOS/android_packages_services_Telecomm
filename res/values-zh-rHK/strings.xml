@@ -67,6 +67,4 @@
     <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"無法封鎖緊急電話號碼。"</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"已封鎖 <xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g>。"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"使用個人撥號器撥打電話"</string>
-    <string name="headset_plugin_view_text">耳機已插入到手機</string>
-    <string name="headset_plugin_view_title">耳機插入</string>
 </resources>

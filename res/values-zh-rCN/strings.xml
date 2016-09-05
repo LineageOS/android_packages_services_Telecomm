@@ -67,6 +67,4 @@
     <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"无法屏蔽紧急服务号码。"</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> 已被屏蔽。"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"使用个人拨号器拨打电话"</string>
-    <string name="headset_plugin_view_text">耳机已插入到手机。</string>
-    <string name="headset_plugin_view_title">耳机插入</string>
 </resources>

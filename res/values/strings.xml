@@ -176,7 +176,4 @@
 
     <string name="toast_personal_call_msg">Using the personal dialer to make the call</string>
     <string name="toast_make_video_call_failed">Can not make video call, incorrect number format</string>
-
-    <string name="headset_plugin_view_text">Headset is plugged in.</string>
-    <string name="headset_plugin_view_title">Headset</string>
 </resources>
