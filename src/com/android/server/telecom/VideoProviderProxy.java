@@ -205,7 +205,8 @@ public class VideoProviderProxy extends Connection.VideoProvider {
         @Override
         public void handleCallSessionEvent(int event) {
             synchronized (mLock) {
-                logFromVideoProvider("handleCallSessionEvent: " + event);
+                logFromVideoProvider("handleCallSessionEvent: " +
+                        Connection.VideoProvider.sessionEventToString(event));
                 VideoProviderProxy.this.handleCallSessionEvent(event);
             }
         }
@@ -477,7 +478,7 @@ public class VideoProviderProxy extends Connection.VideoProvider {
      * @param toLog The message to log.
      */
     private void logFromInCall(String toLog) {
-        Log.v(this, "IC->VP: " + toLog);
+        Log.i(this, "IC->VP (callId=" + (mCall == null ? "?" : mCall.getId()) + "): " + toLog);
     }
 
     /**
@@ -487,6 +488,6 @@ public class VideoProviderProxy extends Connection.VideoProvider {
      * @param toLog The message to log.
      */
     private void logFromVideoProvider(String toLog) {
-        Log.v(this, "VP->IC: " + toLog);
+        Log.i(this, "VP->IC (callId=" + (mCall == null ? "?" : mCall.getId()) + "): " + toLog);
     }
 }

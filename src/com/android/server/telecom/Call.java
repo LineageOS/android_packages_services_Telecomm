@@ -2113,6 +2113,7 @@ public class Call implements CreateConnectionResponse {
      * @param extras The extras.
      */
     public void onConnectionEvent(String event, Bundle extras) {
+        Log.event(this, Log.Events.CONNECTION_EVENT, event);
         if (Connection.EVENT_ON_HOLD_TONE_START.equals(event)) {
             mIsRemotelyHeld = true;
             Log.event(this, Log.Events.REMOTELY_HELD);
