@@ -114,8 +114,8 @@ public class RingtoneFactory {
         if(userContext == null) {
             return false;
         }
-        return !TextUtils.isEmpty(Settings.System.getString(userContext.getContentResolver(),
-                Settings.System.RINGTONE));
+        return !TextUtils.isEmpty(Settings.System.getStringForUser(userContext.getContentResolver(),
+                Settings.System.RINGTONE, userContext.getUserId()));
     }
 
     private boolean isWorkContact(Call incomingCall) {
