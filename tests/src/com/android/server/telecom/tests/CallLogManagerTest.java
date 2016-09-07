@@ -31,6 +31,7 @@ import android.os.Looper;
 import android.os.PersistableBundle;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.platform.test.annotations.Postsubmit;
 import android.provider.CallLog;
 import android.provider.CallLog.Calls;
 import android.telecom.DisconnectCause;
@@ -423,6 +424,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Postsubmit
     public void testLogCallDirectionOutgoingWithMultiUserCapability() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(mOtherUserAccountHandle,
@@ -516,6 +518,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Postsubmit
     public void testLogCallDirectionOutgoingFromManagedProfile() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(mManagedProfileAccountHandle, 0));

@@ -39,6 +39,7 @@ import android.text.TextUtils;
 
 import com.android.internal.telecom.IInCallAdapter;
 import com.android.internal.telecom.IInCallService;
+import com.android.server.telecom.Analytics;
 import com.android.server.telecom.BluetoothHeadsetProxy;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallsManager;
@@ -101,6 +102,7 @@ public class InCallControllerTests extends TelecomTestCase {
     public void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
+        when(mMockCall.getAnalytics()).thenReturn(new Analytics.CallInfo());
         doReturn(mMockResources).when(mMockContext).getResources();
         doReturn(SYS_PKG).when(mMockResources).getString(R.string.ui_default_package);
         doReturn(SYS_CLASS).when(mMockResources).getString(R.string.incall_default_class);
@@ -121,7 +123,6 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.isIncoming()).thenReturn(true);
         when(mMockCall.isExternalCall()).thenReturn(false);
 
-        Intent queryIntent = new Intent(InCallService.SERVICE_INTERFACE);
         setupMockPackageManager(false /* default */, true /* system */, false /* external calls */);
         mInCallController.bindToServices(mMockCall);
 
