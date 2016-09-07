@@ -150,7 +150,7 @@ public class CallerInfoLookupHelper {
                         }
                     } else {
                         Log.i(CallerInfoLookupHelper.this, "CI query for handle %s has completed," +
-                                " but there are no listeners left.", handle);
+                                " but there are no listeners left.", Log.piiHandle(handle));
                     }
                 } finally {
                     Log.endSession();
@@ -197,7 +197,8 @@ public class CallerInfoLookupHelper {
                         mQueryEntries.remove(handle);
                     } else {
                         Log.i(CallerInfoLookupHelper.this, "Photo query for handle %s has" +
-                                " completed, but there are no listeners left.", handle);
+                                " completed, but there are no listeners left.",
+                                Log.piiHandle(handle));
                     }
                 } finally {
                     Log.endSession();
