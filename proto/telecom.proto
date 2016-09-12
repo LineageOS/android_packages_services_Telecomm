@@ -273,4 +273,8 @@ message CallLog {
 
   // A list of the in-call services bound during the call.
   repeated InCallServiceInfo in_call_services = 16;
+
+  // A bitmask of the properties that were set at any point during the call.
+  // Bits are defined by android.telecom.Connection.PROPERTY_* constants.
+  optional int32 connection_properties = 17;
 }

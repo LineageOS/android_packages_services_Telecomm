@@ -1052,6 +1052,8 @@ public class Call implements CreateConnectionResponse {
 
             }
 
+            mAnalytics.addCallProperties(mConnectionProperties);
+
             int xorProps = previousProperties ^ mConnectionProperties;
             Log.event(this, Log.Events.PROPERTY_CHANGE,
                     "Current: [%s], Removed [%s], Added [%s]",
