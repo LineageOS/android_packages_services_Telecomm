@@ -17,6 +17,7 @@
 package com.android.server.telecom.tests;
 
 import android.content.Context;
+import android.telecom.Connection;
 import android.telecom.DisconnectCause;
 import android.telecom.InCallService;
 import android.telecom.ParcelableCallAnalytics;
@@ -54,6 +55,7 @@ public class AnalyticsTests extends TelecomSystemTest {
                 "650-555-1212",
                 mPhoneAccountA0.getAccountHandle(),
                 mConnectionServiceFixtureA);
+
         Map<String, Analytics.CallInfoImpl> analyticsMap = Analytics.cloneData();
 
         assertTrue(analyticsMap.containsKey(testCall.mCallId));
@@ -298,6 +300,41 @@ public class AnalyticsTests extends TelecomSystemTest {
         assertTrue(capturedEvents.contains(ParcelableCallAnalytics.AnalyticsEvent.SET_ACTIVE));
         assertTrue(capturedEvents.contains(
                 ParcelableCallAnalytics.AnalyticsEvent.FILTERING_INITIATED));
+    }
+
+    @MediumTest
+    public void testAnalyticsConnectionProperties() throws Exception {
+        Analytics.reset();
+        IdPair testCall = startAndMakeActiveIncomingCall(
+                "650-555-1212",
+                mPhoneAccountA0.getAccountHandle(),
+                mConnectionServiceFixtureA);
+
+        int properties1 = Connection.PROPERTY_IS_DOWNGRADED_CONFERENCE
+                | Connection.PROPERTY_WIFI
+                | Connection.PROPERTY_EMERGENCY_CALLBACK_MODE;
+        int properties2 = Connection.PROPERTY_HIGH_DEF_AUDIO
+                | Connection.PROPERTY_WIFI;
+        int expectedProperties = properties1 | properties2;
+
+        mConnectionServiceFixtureA.mConnectionById.get(testCall.mConnectionId).properties =
+                properties1;
+        mConnectionServiceFixtureA.sendSetConnectionProperties(testCall.mConnectionId);
+        mConnectionServiceFixtureA.mConnectionById.get(testCall.mConnectionId).properties =
+                properties2;
+        mConnectionServiceFixtureA.sendSetConnectionProperties(testCall.mConnectionId);
+
+        mConnectionServiceFixtureA.
+                sendSetDisconnected(testCall.mConnectionId, DisconnectCause.ERROR);
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        Analytics.dumpToEncodedProto(pw, new String[]{});
+        TelecomLogClass.TelecomLog analyticsProto =
+                TelecomLogClass.TelecomLog.parseFrom(Base64.decode(sw.toString(), Base64.DEFAULT));
+
+        assertEquals(expectedProperties,
+                analyticsProto.callLogs[0].getConnectionProperties() & expectedProperties);
     }
 
     private void assertIsRoundedToOneSigFig(long x) {
