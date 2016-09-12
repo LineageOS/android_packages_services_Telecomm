@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import android.telecom.Connection;
 import android.telecom.DisconnectCause;
 import android.telecom.ParcelableCallAnalytics;
 import android.telecom.TelecomAnalytics;
@@ -179,6 +180,9 @@ public class Analytics {
 
         public void addInCallService(String serviceName, int type) {
         }
+
+        public void addCallProperties(int properties) {
+        }
     }
 
     /**
@@ -211,6 +215,8 @@ public class Analytics {
         public boolean isVideo = false;
         public List<TelecomLogClass.VideoEvent> videoEvents;
         public List<TelecomLogClass.InCallServiceInfo> inCallServiceInfos;
+        public int callProperties = 0;
+
         private long mTimeOfLastVideoEvent = -1;
 
         CallInfoImpl(String callId, int callDirection) {
@@ -238,6 +244,7 @@ public class Analytics {
             this.callEvents = other.callEvents;
             this.isVideo = other.isVideo;
             this.videoEvents = other.videoEvents;
+            this.callProperties = other.callProperties;
 
             if (other.callTerminationReason != null) {
                 this.callTerminationReason = new DisconnectCause(
@@ -336,6 +343,11 @@ public class Analytics {
         }
 
         @Override
+        public void addCallProperties(int properties) {
+            this.callProperties |= properties;
+        }
+
+        @Override
         public String toString() {
             return "{\n"
                     + "    startTime: " + startTime + '\n'
@@ -348,6 +360,8 @@ public class Analytics {
                     + "    connectionService: " + connectionService + '\n'
                     + "    isVideoCall: " + isVideo + '\n'
                     + "    inCallServices: " + getInCallServicesString() + '\n'
+                    + "    callProperties: " + Connection.propertiesToStringShort(callProperties)
+                    + '\n'
                     + "}\n";
         }
 
@@ -415,7 +429,8 @@ public class Analytics {
                     .setIsEmergencyCall(isEmergency)
                     .setIsCreatedFromExistingConnection(createdFromExistingConnection)
                     .setIsEmergencyCall(isEmergency)
-                    .setIsVideoCall(isVideo);
+                    .setIsVideoCall(isVideo)
+                    .setConnectionProperties(callProperties);
 
             result.connectionService = new String[] {connectionService};
             if (callEvents != null) {
