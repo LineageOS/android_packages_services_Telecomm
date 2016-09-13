@@ -1699,7 +1699,16 @@ public class CallsManager extends Call.ListenerBase
      * @param incomingCall Incoming call that has been rejected
      */
     private void rejectCallAndLog(Call incomingCall) {
-        incomingCall.reject(false, null);
+        if (incomingCall.getConnectionService() != null) {
+            // Only reject the call if it has not already been destroyed.  If a call ends while
+            // incoming call filtering is taking place, it is possible that the call has already
+            // been destroyed, and as such it will be impossible to send the reject to the
+            // associated ConnectionService.
+            incomingCall.reject(false, null);
+        } else {
+            Log.i(this, "rejectCallAndLog - call already destroyed.");
+        }
+
         // Since the call was not added to the list of calls, we have to call the missed
         // call notifier and the call logger manually.
         // Do we need missed call notification for direct to Voicemail calls?

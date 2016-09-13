@@ -1330,8 +1330,6 @@ public class Call implements CreateConnectionResponse {
      */
     @VisibleForTesting
     public void answer(int videoState) {
-        Preconditions.checkNotNull(mConnectionService);
-
         // Check to verify that the call is still in the ringing state. A call can change states
         // between the time the user hits 'answer' and Telecom receives the command.
         if (isRinging("answer")) {
@@ -1344,7 +1342,12 @@ public class Call implements CreateConnectionResponse {
             // that it will work. Instead, we wait until confirmation from the connectino service
             // that the call is in a non-STATE_RINGING state before changing the UI. See
             // {@link ConnectionServiceAdapter#setActive} and other set* methods.
-            mConnectionService.answer(this, videoState);
+            if (mConnectionService != null) {
+                mConnectionService.answer(this, videoState);
+            } else {
+                Log.e(this, new NullPointerException(),
+                        "answer call failed due to null CS callId=%s", getId());
+            }
             Log.event(this, Log.Events.REQUEST_ACCEPT);
         }
     }
@@ -1357,16 +1360,20 @@ public class Call implements CreateConnectionResponse {
      */
     @VisibleForTesting
     public void reject(boolean rejectWithMessage, String textMessage) {
-        Preconditions.checkNotNull(mConnectionService);
-
         // Check to verify that the call is still in the ringing state. A call can change states
         // between the time the user hits 'reject' and Telecomm receives the command.
         if (isRinging("reject")) {
             // Ensure video state history tracks video state at time of rejection.
             mVideoStateHistory |= mVideoState;
 
-            mConnectionService.reject(this, rejectWithMessage, textMessage);
+            if (mConnectionService != null) {
+                mConnectionService.reject(this, rejectWithMessage, textMessage);
+            } else {
+                Log.e(this, new NullPointerException(),
+                        "reject call failed due to null CS callId=%s", getId());
+            }
             Log.event(this, Log.Events.REQUEST_REJECT);
+
         }
     }
 
@@ -1374,10 +1381,13 @@ public class Call implements CreateConnectionResponse {
      * Puts the call on hold if it is currently active.
      */
     void hold() {
-        Preconditions.checkNotNull(mConnectionService);
-
         if (mState == CallState.ACTIVE) {
-            mConnectionService.hold(this);
+            if (mConnectionService != null) {
+                mConnectionService.hold(this);
+            } else {
+                Log.e(this, new NullPointerException(),
+                        "hold call failed due to null CS callId=%s", getId());
+            }
             Log.event(this, Log.Events.REQUEST_HOLD);
         }
     }
@@ -1386,10 +1396,13 @@ public class Call implements CreateConnectionResponse {
      * Releases the call from hold if it is currently active.
      */
     void unhold() {
-        Preconditions.checkNotNull(mConnectionService);
-
         if (mState == CallState.ON_HOLD) {
-            mConnectionService.unhold(this);
+            if (mConnectionService != null) {
+                mConnectionService.unhold(this);
+            } else {
+                Log.e(this, new NullPointerException(),
+                        "unhold call failed due to null CS callId=%s", getId());
+            }
             Log.event(this, Log.Events.REQUEST_UNHOLD);
         }
     }
@@ -1443,7 +1456,12 @@ public class Call implements CreateConnectionResponse {
 
         // If the change originated from an InCallService, notify the connection service.
         if (source == SOURCE_INCALL_SERVICE) {
-            mConnectionService.onExtrasChanged(this, mExtras);
+            if (mConnectionService != null) {
+                mConnectionService.onExtrasChanged(this, mExtras);
+            } else {
+                Log.e(this, new NullPointerException(),
+                        "putExtras failed due to null CS callId=%s", getId());
+            }
         }
     }
 
@@ -1473,7 +1491,12 @@ public class Call implements CreateConnectionResponse {
 
         // If the change originated from an InCallService, notify the connection service.
         if (source == SOURCE_INCALL_SERVICE) {
-            mConnectionService.onExtrasChanged(this, mExtras);
+            if (mConnectionService != null) {
+                mConnectionService.onExtrasChanged(this, mExtras);
+            } else {
+                Log.e(this, new NullPointerException(),
+                        "removeExtras failed due to null CS callId=%s", getId());
+            }
         }
     }
 
@@ -1514,7 +1537,12 @@ public class Call implements CreateConnectionResponse {
     }
 
     void postDialContinue(boolean proceed) {
-        mConnectionService.onPostDialContinue(this, proceed);
+        if (mConnectionService != null) {
+            mConnectionService.onPostDialContinue(this, proceed);
+        } else {
+            Log.e(this, new NullPointerException(),
+                    "postDialContinue failed due to null CS callId=%s", getId());
+        }
     }
 
     void conferenceWith(Call otherCall) {
@@ -1616,7 +1644,12 @@ public class Call implements CreateConnectionResponse {
      * @param extras Associated extras.
      */
     public void sendCallEvent(String event, Bundle extras) {
-        mConnectionService.sendCallEvent(this, event, extras);
+        if (mConnectionService != null) {
+            mConnectionService.sendCallEvent(this, event, extras);
+        } else {
+            Log.e(this, new NullPointerException(),
+                    "sendCallEvent failed due to null CS callId=%s", getId());
+        }
     }
 
     void setParentCall(Call parentCall) {
