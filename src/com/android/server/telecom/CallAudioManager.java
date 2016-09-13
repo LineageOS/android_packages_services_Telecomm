@@ -422,8 +422,8 @@ public class CallAudioManager extends CallsManagerListenerBase {
     }
 
     @VisibleForTesting
-    public void startRinging() {
-        mRinger.startRinging(mForegroundCall);
+    public boolean startRinging() {
+        return mRinger.startRinging(mForegroundCall);
     }
 
     @VisibleForTesting
