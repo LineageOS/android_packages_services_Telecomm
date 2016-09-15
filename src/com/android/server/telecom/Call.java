@@ -796,7 +796,7 @@ public class Call implements CreateConnectionResponse {
             // call, it will remain so for the rest of it's lifetime.
             if (!mIsEmergencyCall) {
                 mIsEmergencyCall = mHandle != null && TelephonyUtil.isLocalEmergencyNumber(
-                        mHandle.getSchemeSpecificPart());
+                        mContext, mHandle.getSchemeSpecificPart());
             }
             startCallerInfoLookup();
             for (Listener l : mListeners) {
