@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1fa4df85_0138d89d",
+        "filename": "src/com/android/server/telecom/TelephonyUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 32
+      },
+      "writtenOn": "2016-09-19T01:11:10Z",
+      "side": 1,
+      "message": "Use Java 7 syntax or do a null check.",
+      "revId": "e0f7cfaf847334365f85cb3f31ca6af58548cfe7",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
