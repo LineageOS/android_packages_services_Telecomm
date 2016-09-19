@@ -33,6 +33,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -70,6 +71,7 @@ import com.android.server.telecom.HeadsetMediaButton;
 import com.android.server.telecom.HeadsetMediaButtonFactory;
 import com.android.server.telecom.InCallWakeLockController;
 import com.android.server.telecom.InCallWakeLockControllerFactory;
+import com.android.server.telecom.InterruptionFilterProxy;
 import com.android.server.telecom.MissedCallNotifier;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.PhoneNumberUtilsAdapter;
@@ -166,11 +168,26 @@ public class TelecomSystemTest extends TelecomTestCase {
         }
     }
     PhoneNumberUtilsAdapter mPhoneNumberUtilsAdapter = new EmergencyNumberUtilsAdapter();
+
+    public static class MockInterruptionFilterProxy implements InterruptionFilterProxy {
+        private int mInterruptionFilter = NotificationManager.INTERRUPTION_FILTER_ALL;
+        @Override
+        public void setInterruptionFilter(int interruptionFilter) {
+            mInterruptionFilter = interruptionFilter;
+        }
+
+        @Override
+        public int getCurrentInterruptionFilter() {
+            return mInterruptionFilter;
+        }
+    }
+
     @Mock HeadsetMediaButton mHeadsetMediaButton;
     @Mock ProximitySensorManager mProximitySensorManager;
     @Mock InCallWakeLockController mInCallWakeLockController;
     @Mock BluetoothPhoneServiceImpl mBluetoothPhoneServiceImpl;
     @Mock AsyncRingtonePlayer mAsyncRingtonePlayer;
+    @Mock InterruptionFilterProxy mInterruptionFilterProxy;
 
     final ComponentName mInCallServiceComponentNameX =
             new ComponentName(
@@ -214,7 +231,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                     .addSupportedUriScheme("tel")
                     .setCapabilities(
                             PhoneAccount.CAPABILITY_CALL_PROVIDER |
-                            PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
+                                    PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION |
+                                    PhoneAccount.CAPABILITY_VIDEO_CALLING)
                     .build();
     final PhoneAccount mPhoneAccountB0 =
             PhoneAccount.builder(
@@ -225,7 +243,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                     .addSupportedUriScheme("tel")
                     .setCapabilities(
                             PhoneAccount.CAPABILITY_CALL_PROVIDER |
-                            PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
+                                    PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION |
+                                    PhoneAccount.CAPABILITY_VIDEO_CALLING)
                     .build();
     final PhoneAccount mPhoneAccountE0 =
             PhoneAccount.builder(
@@ -237,7 +256,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                     .setCapabilities(
                             PhoneAccount.CAPABILITY_CALL_PROVIDER |
                                     PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION |
-                                    PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS)
+                                    PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS |
+                                    PhoneAccount.CAPABILITY_VIDEO_CALLING)
                     .build();
 
     final PhoneAccount mPhoneAccountE1 =
@@ -250,7 +270,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                     .setCapabilities(
                             PhoneAccount.CAPABILITY_CALL_PROVIDER |
                                     PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION |
-                                    PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS)
+                                    PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS |
+                                    PhoneAccount.CAPABILITY_VIDEO_CALLING)
                     .build();
 
     ConnectionServiceFixture mConnectionServiceFixtureA;
@@ -380,7 +401,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                 },
                 mTimeoutsAdapter,
                 mAsyncRingtonePlayer,
-                mPhoneNumberUtilsAdapter);
+                mPhoneNumberUtilsAdapter,
+                mInterruptionFilterProxy);
 
         mComponentContextFixture.setTelecomManager(new TelecomManager(
                 mComponentContextFixture.getTestDouble(),

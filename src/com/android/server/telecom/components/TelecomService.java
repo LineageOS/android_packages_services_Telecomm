@@ -16,6 +16,8 @@
 
 package com.android.server.telecom.components;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
@@ -35,6 +37,7 @@ import com.android.server.telecom.HeadsetMediaButton;
 import com.android.server.telecom.HeadsetMediaButtonFactory;
 import com.android.server.telecom.InCallWakeLockControllerFactory;
 import com.android.server.telecom.CallAudioManager;
+import com.android.server.telecom.InterruptionFilterProxy;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.PhoneNumberUtilsAdapter;
 import com.android.server.telecom.PhoneNumberUtilsAdapterImpl;
@@ -73,6 +76,9 @@ public class TelecomService extends Service implements TelecomSystem.Component {
      */
     static void initializeTelecomSystem(Context context) {
         if (TelecomSystem.getInstance() == null) {
+            final NotificationManager notificationManager =
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
             TelecomSystem.setInstance(
                     new TelecomSystem(
                             context,
@@ -152,7 +158,18 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                             },
                             new Timeouts.Adapter(),
                             new AsyncRingtonePlayer(),
-                            new PhoneNumberUtilsAdapterImpl()
+                            new PhoneNumberUtilsAdapterImpl(),
+                            new InterruptionFilterProxy() {
+                                @Override
+                                public void setInterruptionFilter(int interruptionFilter) {
+                                    notificationManager.setInterruptionFilter(interruptionFilter);
+                                }
+
+                                @Override
+                                public int getCurrentInterruptionFilter() {
+                                    return notificationManager.getCurrentInterruptionFilter();
+                                }
+                            }
                     ));
         }
         if (BluetoothAdapter.getDefaultAdapter() != null) {
