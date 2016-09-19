@@ -381,6 +381,7 @@ public class CallsManager extends Call.ListenerBase
                     result.shouldAllowCall ? "successful incoming call" : "blocking call");
         } else {
             Log.i(this, "onCallFilteringCompleted: call already disconnected.");
+            return;
         }
 
         if (result.shouldAllowCall) {
