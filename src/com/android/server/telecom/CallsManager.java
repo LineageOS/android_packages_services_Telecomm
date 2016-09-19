@@ -17,6 +17,7 @@
 package com.android.server.telecom;
 
 import android.app.ActivityManager;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.Intent;
@@ -193,6 +194,7 @@ public class CallsManager extends Call.ListenerBase
     private final DefaultDialerManagerAdapter mDefaultDialerManagerAdapter;
     private final Timeouts.Adapter mTimeoutsAdapter;
     private final PhoneNumberUtilsAdapter mPhoneNumberUtilsAdapter;
+    private final NotificationManager mNotificationManager;
     private final Set<Call> mLocallyDisconnectingCalls = new HashSet<>();
     private final Set<Call> mPendingCallsToDisconnect = new HashSet<>();
     /* Handler tied to thread in which CallManager was initialized. */
@@ -224,7 +226,8 @@ public class CallsManager extends Call.ListenerBase
             DefaultDialerManagerAdapter defaultDialerAdapter,
             Timeouts.Adapter timeoutsAdapter,
             AsyncRingtonePlayer asyncRingtonePlayer,
-            PhoneNumberUtilsAdapter phoneNumberUtilsAdapter) {
+            PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
+            InterruptionFilterProxy interruptionFilterProxy) {
         mContext = context;
         mLock = lock;
         mPhoneNumberUtilsAdapter = phoneNumberUtilsAdapter;
@@ -242,6 +245,8 @@ public class CallsManager extends Call.ListenerBase
                 mContactsAsyncHelper, mLock);
 
         mDtmfLocalTonePlayer = new DtmfLocalTonePlayer();
+        mNotificationManager = (NotificationManager) context.getSystemService(
+                Context.NOTIFICATION_SERVICE);
         CallAudioRouteStateMachine callAudioRouteStateMachine = new CallAudioRouteStateMachine(
                 context,
                 this,
@@ -249,6 +254,7 @@ public class CallsManager extends Call.ListenerBase
                 wiredHeadsetManager,
                 statusBarNotifier,
                 audioServiceFactory,
+                interruptionFilterProxy,
                 CallAudioRouteStateMachine.doesDeviceSupportEarpieceRoute()
         );
         callAudioRouteStateMachine.initialize();
