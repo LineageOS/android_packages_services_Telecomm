@@ -69,6 +69,7 @@ import java.io.InputStream;
 import java.lang.Integer;
 import java.lang.SecurityException;
 import java.lang.String;
+import java.lang.IllegalArgumentException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -235,6 +236,10 @@ public class PhoneAccountRegistrar {
         DefaultPhoneAccountHandle defaultPhoneAccountHandle = mState.defaultOutgoingAccountHandles
                 .get(userHandle);
         if (defaultPhoneAccountHandle == null) {
+            if (TelephonyManager.getDefault().getPhoneCount() > 1 &&
+                       getAllPhoneAccounts(userHandle).size() == 1) {
+                return getUserSelectedVoicePhoneAccount();
+            }
             return null;
         }
         // Make sure the account is still registered and owned by the user.
@@ -245,6 +250,36 @@ public class PhoneAccountRegistrar {
             return defaultPhoneAccountHandle.phoneAccountHandle;
         }
         return null;
+    }
+
+    PhoneAccountHandle getUserSelectedVoicePhoneAccount() {
+        long voiceSubId = SubscriptionManager.getDefaultVoiceSubscriptionId();
+        PhoneAccountHandle prefPhoneAccount = null;
+
+        Log.i(this, "getUserSelVoicePhoneAccount, voice subId = " + voiceSubId);
+        for (int i = 0; i < mState.accounts.size(); i++) {
+            String id = mState.accounts.get(i).getAccountHandle().getId();
+
+            // emergency account present return it
+            if (id.equals("E")) {
+                Log.i(this, "getUserSelVoicePhoneAccount, emergency account ");
+                return mState.accounts.get(i).getAccountHandle();
+            }
+
+            try {
+                long subId = Long.parseLong(id);
+                Log.i(this, "getUserSelectedVoicePhoneAccount, voice subId = "
+                             + voiceSubId + " subId = " + subId + " mId = " + id);
+                if (subId == voiceSubId) {
+                    prefPhoneAccount = mState.accounts.get(i).getAccountHandle();
+                    break;
+                }
+            } catch (IllegalArgumentException e) {
+                Log.w(this, "getUserSelectedVoicePhoneAccount, accountHandle ID = " + id);
+            }
+        }
+
+        return prefPhoneAccount;
     }
 
     /**
