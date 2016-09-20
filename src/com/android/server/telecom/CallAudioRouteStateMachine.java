@@ -282,7 +282,9 @@ public class CallAudioRouteStateMachine extends StateMachine {
             super.enter();
             setSpeakerphoneOn(false);
             setBluetoothOn(false);
-            setNotificationsSuppressed(true);
+            if (mAudioFocusType == ACTIVE_FOCUS) {
+                setNotificationsSuppressed(true);
+            }
             CallAudioState newState = new CallAudioState(mIsMuted, ROUTE_EARPIECE,
                     mAvailableRoutes);
             setSystemAudioState(newState);
@@ -333,6 +335,10 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     transitionTo(mActiveSpeakerRoute);
                     return HANDLED;
                 case SWITCH_FOCUS:
+                    if (msg.arg1 == ACTIVE_FOCUS) {
+                        setNotificationsSuppressed(true);
+                    }
+
                     if (msg.arg1 == NO_FOCUS) {
                         reinitialize();
                     }
@@ -1284,19 +1290,23 @@ public class CallAudioRouteStateMachine extends StateMachine {
             return;
         }
 
+        Log.i(this, "setNotificationsSuppressed: on=%s; suppressed=%s", (on ? "yes" : "no"),
+                (mAreNotificationSuppressed ? "yes" : "no"));
         if (on) {
-            // Enabling suppression of notifications.
-            int interruptionFilter = mInterruptionFilterProxy.getCurrentInterruptionFilter();
-            if (interruptionFilter == NotificationManager.INTERRUPTION_FILTER_ALL) {
-                // No interruption filter is specified, so suppress notifications by setting the
-                // current filter to alarms-only.
-                mAreNotificationSuppressed = true;
-                mInterruptionFilterProxy.setInterruptionFilter(
-                        NotificationManager.INTERRUPTION_FILTER_ALARMS);
-            } else {
-                // Interruption filter is already chosen by the user, so do not attempt to change
-                // it.
-                mAreNotificationSuppressed = false;
+            if (!mAreNotificationSuppressed) {
+                // Enabling suppression of notifications.
+                int interruptionFilter = mInterruptionFilterProxy.getCurrentInterruptionFilter();
+                if (interruptionFilter == NotificationManager.INTERRUPTION_FILTER_ALL) {
+                    // No interruption filter is specified, so suppress notifications by setting the
+                    // current filter to alarms-only.
+                    mAreNotificationSuppressed = true;
+                    mInterruptionFilterProxy.setInterruptionFilter(
+                            NotificationManager.INTERRUPTION_FILTER_ALARMS);
+                } else {
+                    // Interruption filter is already chosen by the user, so do not attempt to change
+                    // it.
+                    mAreNotificationSuppressed = false;
+                }
             }
         } else {
             // Disabling suppression of notifications.
