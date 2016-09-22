@@ -285,7 +285,34 @@ public class CallLogManagerTest extends TelecomTestCase {
         ContentValues insertedValues = verifyInsertionWithCapture(CURRENT_USER_ID);
         assertEquals(insertedValues.getAsInteger(CallLog.Calls.TYPE),
                 Integer.valueOf(CallLog.Calls.MISSED_TYPE));
-        verify(mMissedCallNotifier).showMissedCallNotification(fakeMissedCall);
+        // Timeout needed because showMissedCallNotification is called from onPostExecute.
+        verify(mMissedCallNotifier, timeout(TEST_TIMEOUT_MILLIS))
+                .showMissedCallNotification(any(MissedCallNotifier.CallInfo.class));
+    }
+
+    @MediumTest
+    public void testLogCallDirectionRejected() {
+        when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
+                .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, CURRENT_USER_ID));
+        Call fakeMissedCall = makeFakeCall(
+                DisconnectCause.REJECTED, // disconnectCauseCode
+                false, // isConference
+                true, // isIncoming
+                1L, // creationTimeMillis
+                1000L, // ageMillis
+                TEL_PHONEHANDLE, // callHandle
+                mDefaultAccountHandle, // phoneAccountHandle
+                NO_VIDEO_STATE, // callVideoState
+                POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
+                null
+        );
+
+        mCallLogManager.onCallStateChanged(fakeMissedCall, CallState.ACTIVE,
+                CallState.DISCONNECTED);
+        ContentValues insertedValues = verifyInsertionWithCapture(CURRENT_USER_ID);
+        assertEquals(insertedValues.getAsInteger(CallLog.Calls.TYPE),
+                Integer.valueOf(Calls.REJECTED_TYPE));
     }
 
     @MediumTest

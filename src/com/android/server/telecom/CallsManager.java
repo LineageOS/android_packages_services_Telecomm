@@ -391,7 +391,8 @@ public class CallsManager extends Call.ListenerBase
                         result.shouldShowNotification);
             } else if (result.shouldShowNotification) {
                 Log.i(this, "onCallScreeningCompleted: blocked call, showing notification.");
-                mMissedCallNotifier.showMissedCallNotification(incomingCall);
+                mMissedCallNotifier.showMissedCallNotification(
+                        new MissedCallNotifier.CallInfo(incomingCall));
             }
         }
     }
@@ -2016,8 +2017,13 @@ public class CallsManager extends Call.ListenerBase
     }
 
     private void reloadMissedCallsOfUser(UserHandle userHandle) {
-        mMissedCallNotifier.reloadFromDatabase(
-                mLock, this, mContactsAsyncHelper, mCallerInfoAsyncQueryFactory, userHandle);
+        mMissedCallNotifier.reloadFromDatabase(mCallerInfoLookupHelper,
+                new MissedCallNotifier.CallInfoFactory(), userHandle);
+    }
+
+    public void onBootCompleted() {
+        mMissedCallNotifier.reloadAfterBootComplete(mCallerInfoLookupHelper,
+                new MissedCallNotifier.CallInfoFactory());
     }
 
     /**

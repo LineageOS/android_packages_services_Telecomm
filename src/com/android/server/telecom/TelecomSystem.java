@@ -38,7 +38,7 @@ import java.io.InputStream;
 /**
  * Top-level Application class for Telecom.
  */
-public final class TelecomSystem {
+public class TelecomSystem {
 
     /**
      * This interface is implemented by system-instantiated components (e.g., Services and
@@ -67,6 +67,9 @@ public final class TelecomSystem {
 
     private static final IntentFilter USER_STARTING_FILTER =
             new IntentFilter(Intent.ACTION_USER_STARTING);
+
+    private static final IntentFilter BOOT_COMPLETE_FILTER =
+            new IntentFilter(Intent.ACTION_BOOT_COMPLETED);
 
     /** Intent filter for dialer secret codes. */
     private static final IntentFilter DIALER_SECRET_CODE_FILTER;
@@ -102,15 +105,19 @@ public final class TelecomSystem {
     private final ContactsAsyncHelper mContactsAsyncHelper;
     private final DialerCodeReceiver mDialerCodeReceiver;
 
+    private boolean mIsBootComplete = false;
+
     private final BroadcastReceiver mUserSwitchedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.startSession("TSSwR.oR");
             try {
-                int userHandleId = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, 0);
-                UserHandle currentUserHandle = new UserHandle(userHandleId);
-                mPhoneAccountRegistrar.setCurrentUserHandle(currentUserHandle);
-                mCallsManager.onUserSwitch(currentUserHandle);
+                synchronized (mLock) {
+                    int userHandleId = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, 0);
+                    UserHandle currentUserHandle = new UserHandle(userHandleId);
+                    mPhoneAccountRegistrar.setCurrentUserHandle(currentUserHandle);
+                    mCallsManager.onUserSwitch(currentUserHandle);
+                }
             } finally {
                 Log.endSession();
             }
@@ -122,9 +129,26 @@ public final class TelecomSystem {
         public void onReceive(Context context, Intent intent) {
             Log.startSession("TSStR.oR");
             try {
-                int userHandleId = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, 0);
-                UserHandle addingUserHandle = new UserHandle(userHandleId);
-                mCallsManager.onUserStarting(addingUserHandle);
+                synchronized (mLock) {
+                    int userHandleId = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, 0);
+                    UserHandle addingUserHandle = new UserHandle(userHandleId);
+                    mCallsManager.onUserStarting(addingUserHandle);
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+    };
+
+    private final BroadcastReceiver mBootCompletedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.startSession("TSBCR.oR");
+            try {
+                synchronized (mLock) {
+                    mIsBootComplete = true;
+                    mCallsManager.onBootCompleted();
+                }
             } finally {
                 Log.endSession();
             }
@@ -137,7 +161,7 @@ public final class TelecomSystem {
 
     public static void setInstance(TelecomSystem instance) {
         if (INSTANCE != null) {
-            throw new RuntimeException("Attempt to set TelecomSystem.INSTANCE twice");
+            Log.w("TelecomSystem", "Attempt to set TelecomSystem.INSTANCE twice");
         }
         Log.i(TelecomSystem.class, "TelecomSystem.INSTANCE being set");
         INSTANCE = instance;
@@ -203,6 +227,7 @@ public final class TelecomSystem {
 
         mContext.registerReceiver(mUserSwitchedReceiver, USER_SWITCHED_FILTER);
         mContext.registerReceiver(mUserStartingReceiver, USER_STARTING_FILTER);
+        mContext.registerReceiver(mBootCompletedReceiver, BOOT_COMPLETE_FILTER);
 
         mBluetoothPhoneServiceImpl = bluetoothPhoneServiceImplFactory.makeBluetoothPhoneServiceImpl(
                 mContext, mLock, mCallsManager, mPhoneAccountRegistrar);
@@ -258,5 +283,9 @@ public final class TelecomSystem {
 
     public Object getLock() {
         return mLock;
+    }
+
+    public boolean isBootComplete() {
+        return mIsBootComplete;
     }
 }
