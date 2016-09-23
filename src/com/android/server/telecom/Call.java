@@ -1831,7 +1831,10 @@ public class Call implements CreateConnectionResponse {
      */
     private void setCallerInfo(Uri handle, CallerInfo callerInfo) {
         Trace.beginSection("setCallerInfo");
-        Preconditions.checkNotNull(callerInfo);
+        if (callerInfo == null) {
+            Log.i(this, "CallerInfo lookup returned null, skipping update");
+            return;
+        }
 
         if (!handle.equals(mHandle)) {
             Log.i(this, "setCallerInfo received stale caller info for an old handle. Ignoring.");

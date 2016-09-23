@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import android.annotation.Nullable;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -41,7 +42,7 @@ public class CallerInfoLookupHelper {
          * @param info
          * @return true if the value should be cached, false otherwise.
          */
-        void onCallerInfoQueryComplete(Uri handle, CallerInfo info);
+        void onCallerInfoQueryComplete(Uri handle, @Nullable CallerInfo info);
         void onContactPhotoQueryComplete(Uri handle, CallerInfo info);
     }
 
@@ -54,6 +55,7 @@ public class CallerInfoLookupHelper {
             listeners = new LinkedList<>();
         }
     }
+
     private final Map<Uri, CallerInfoQueryInfo> mQueryEntries = new HashMap<>();
 
     private final CallerInfoAsyncQueryFactory mCallerInfoAsyncQueryFactory;
@@ -74,11 +76,13 @@ public class CallerInfoLookupHelper {
 
     public void startLookup(final Uri handle, OnQueryCompleteListener listener) {
         if (handle == null) {
+            listener.onCallerInfoQueryComplete(handle, null);
             return;
         }
 
         final String number = handle.getSchemeSpecificPart();
         if (TextUtils.isEmpty(number)) {
+            listener.onCallerInfoQueryComplete(handle, null);
             return;
         }
 
