@@ -892,8 +892,8 @@ public class Call implements CreateConnectionResponse {
                 l.onTargetPhoneAccountChanged(this);
             }
             configureIsWorkCall();
-            checkIfVideoCapable();
         }
+        checkIfVideoCapable();
     }
 
     @VisibleForTesting
@@ -935,14 +935,29 @@ public class Call implements CreateConnectionResponse {
 
     /**
      * Caches the state of the {@link PhoneAccount#CAPABILITY_VIDEO_CALLING} {@link PhoneAccount}
-     * capability.
+     * capability and ensures that the video state is updated if the phone account does not support
+     * video calling.
      */
     private void checkIfVideoCapable() {
         PhoneAccountRegistrar phoneAccountRegistrar = mCallsManager.getPhoneAccountRegistrar();
+        if (mTargetPhoneAccountHandle == null) {
+            // If no target phone account handle is specified, assume we can potentially perform a
+            // video call; once the phone account is set, we can confirm that it is video capable.
+            mIsVideoCallingSupported = true;
+            Log.d(this, "checkIfVideoCapable: no phone account selected; assume video capable.");
+            return;
+        }
         PhoneAccount phoneAccount =
                 phoneAccountRegistrar.getPhoneAccountUnchecked(mTargetPhoneAccountHandle);
         mIsVideoCallingSupported = phoneAccount != null && phoneAccount.hasCapabilities(
                     PhoneAccount.CAPABILITY_VIDEO_CALLING);
+
+        if (!mIsVideoCallingSupported && VideoProfile.isVideo(getVideoState())) {
+            // The PhoneAccount for the Call was set to one which does not support video calling,
+            // and the current call is configured to be a video call; downgrade to audio-only.
+            setVideoState(VideoProfile.STATE_AUDIO_ONLY);
+            Log.d(this, "checkIfVideoCapable: selected phone account doesn't support video.");
+        }
     }
 
     boolean shouldAttachToExistingConnection() {
@@ -1976,6 +1991,8 @@ public class Call implements CreateConnectionResponse {
         // If the phone account associated with this call does not support video calling, then we
         // will automatically set the video state to audio-only.
         if (!isVideoCallingSupported()) {
+            Log.d(this, "setVideoState: videoState=%s defaulted to audio (video not supported)",
+                    VideoProfile.videoStateToString(videoState));
             videoState = VideoProfile.STATE_AUDIO_ONLY;
         }
 
