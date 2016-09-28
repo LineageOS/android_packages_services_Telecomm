@@ -18,7 +18,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="telecommAppLabel" product="default" msgid="382363169988504520">"ಕರೆ ನಿರ್ವಹಣೆ"</string>
     <string name="userCallActivityLabel" product="default" msgid="5415173590855187131">"ಫೋನ್"</string>
-    <string name="unknown" msgid="6878797917991465859">"ಅಜ್ಞಾತ"</string>
+    <string name="unknown" msgid="6878797917991465859">"ಅಪರಿಚಿತ"</string>
     <string name="notification_missedCallTitle" msgid="7554385905572364535">"ಮಿಸ್ಡ್‌ ಕಾಲ್‌"</string>
     <string name="notification_missedWorkCallTitle" msgid="6242489980390803090">"ಮಿಸ್ಡ್‌ ಕೆಲಸದ ಕರೆ"</string>
     <string name="notification_missedCallsTitle" msgid="1361677948941502522">"ತಪ್ಪಿದ ಕರೆಗಳು"</string>
