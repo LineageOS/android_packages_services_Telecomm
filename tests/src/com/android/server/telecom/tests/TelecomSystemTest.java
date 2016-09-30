@@ -234,6 +234,17 @@ public class TelecomSystemTest extends TelecomTestCase {
                                     PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION |
                                     PhoneAccount.CAPABILITY_VIDEO_CALLING)
                     .build();
+    final PhoneAccount mPhoneAccountA2 =
+            PhoneAccount.builder(
+                    new PhoneAccountHandle(
+                            mConnectionServiceComponentNameA,
+                            "id A 2"),
+                    "Phone account service A ID 2")
+                    .addSupportedUriScheme("tel")
+                    .setCapabilities(
+                            PhoneAccount.CAPABILITY_CALL_PROVIDER |
+                                    PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
+                    .build();
     final PhoneAccount mPhoneAccountB0 =
             PhoneAccount.builder(
                     new PhoneAccountHandle(
@@ -431,6 +442,7 @@ public class TelecomSystemTest extends TelecomTestCase {
 
         mTelecomSystem.getPhoneAccountRegistrar().registerPhoneAccount(mPhoneAccountA0);
         mTelecomSystem.getPhoneAccountRegistrar().registerPhoneAccount(mPhoneAccountA1);
+        mTelecomSystem.getPhoneAccountRegistrar().registerPhoneAccount(mPhoneAccountA2);
         mTelecomSystem.getPhoneAccountRegistrar().registerPhoneAccount(mPhoneAccountB0);
         mTelecomSystem.getPhoneAccountRegistrar().registerPhoneAccount(mPhoneAccountE0);
         mTelecomSystem.getPhoneAccountRegistrar().registerPhoneAccount(mPhoneAccountE1);
