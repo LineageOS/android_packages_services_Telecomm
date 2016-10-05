@@ -18,6 +18,7 @@ package com.android.server.telecom;
 
 import android.os.Binder;
 import android.os.Bundle;
+import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
 
 import com.android.internal.telecom.IInCallAdapter;

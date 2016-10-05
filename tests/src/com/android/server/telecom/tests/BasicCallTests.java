@@ -42,6 +42,7 @@ import android.telecom.CallAudioState;
 import android.telecom.Connection;
 import android.telecom.ConnectionRequest;
 import android.telecom.DisconnectCause;
+import android.telecom.Log;
 import android.telecom.ParcelableCall;
 import android.telecom.ParcelableCallAnalytics;
 import android.telecom.PhoneAccount;
@@ -56,7 +57,6 @@ import com.android.internal.telecom.IInCallAdapter;
 import com.android.internal.telephony.CallerInfo;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.Analytics;
-import com.android.server.telecom.Log;
 
 import com.google.common.base.Predicate;
 

@@ -30,6 +30,7 @@ import android.telecom.ConnectionRequest;
 import android.telecom.ConnectionService;
 import android.telecom.DisconnectCause;
 import android.telecom.GatewayInfo;
+import android.telecom.Log;
 import android.telecom.ParcelableConference;
 import android.telecom.ParcelableConnection;
 import android.telecom.PhoneAccountHandle;
@@ -717,7 +718,7 @@ public class ConnectionServiceWrapper extends ServiceBinder {
                             gatewayInfo.getOriginalAddress());
                 }
 
-                Log.event(call, Log.Events.START_CONNECTION, Log.piiHandle(call.getHandle()));
+                Log.addEvent(call, LogUtils.Events.START_CONNECTION, Log.piiHandle(call.getHandle()));
                 try {
                     mServiceInterface.createConnection(
                             call.getConnectionManagerPhoneAccount(),

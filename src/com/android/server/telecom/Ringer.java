@@ -19,6 +19,7 @@ package com.android.server.telecom;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.telecom.Log;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -105,7 +106,7 @@ public class Ringer {
         }
 
         if (mInCallController.doesConnectedDialerSupportRinging()) {
-            Log.event(foregroundCall, Log.Events.SKIP_RINGING);
+            Log.addEvent(foregroundCall, LogUtils.Events.SKIP_RINGING);
             return;
         }
 
@@ -119,7 +120,7 @@ public class Ringer {
                 (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         if (audioManager.getStreamVolume(AudioManager.STREAM_RING) > 0) {
             mRingingCall = foregroundCall;
-            Log.event(foregroundCall, Log.Events.START_RINGER);
+            Log.addEvent(foregroundCall, LogUtils.Events.START_RINGER);
             // Because we wait until a contact info query to complete before processing a
             // call (for the purposes of direct-to-voicemail), the information about custom
             // ringtones should be available by the time this code executes. We can safely
@@ -142,7 +143,7 @@ public class Ringer {
         }
 
         if (mInCallController.doesConnectedDialerSupportRinging()) {
-            Log.event(call, Log.Events.SKIP_RINGING);
+            Log.addEvent(call, LogUtils.Events.SKIP_RINGING);
             return;
         }
 
@@ -151,7 +152,7 @@ public class Ringer {
         stopRinging();
 
         if (mCallWaitingPlayer == null) {
-            Log.event(call, Log.Events.START_CALL_WAITING_TONE);
+            Log.addEvent(call, LogUtils.Events.START_CALL_WAITING_TONE);
             mCallWaitingCall = call;
             mCallWaitingPlayer =
                     mPlayerFactory.createPlayer(InCallTonePlayer.TONE_CALL_WAITING);
@@ -161,7 +162,7 @@ public class Ringer {
 
     public void stopRinging() {
         if (mRingingCall != null) {
-            Log.event(mRingingCall, Log.Events.STOP_RINGER);
+            Log.addEvent(mRingingCall, LogUtils.Events.STOP_RINGER);
             mRingingCall = null;
         }
 
@@ -177,7 +178,7 @@ public class Ringer {
         Log.v(this, "stop call waiting.");
         if (mCallWaitingPlayer != null) {
             if (mCallWaitingCall != null) {
-                Log.event(mCallWaitingCall, Log.Events.STOP_CALL_WAITING_TONE);
+                Log.addEvent(mCallWaitingCall, LogUtils.Events.STOP_CALL_WAITING_TONE);
                 mCallWaitingCall = null;
             }
 

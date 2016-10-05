@@ -16,12 +16,11 @@
 
 package com.android.server.telecom;
 
-import android.os.Parcelable;
 import android.telecom.ParcelableCallAnalytics;
 import android.telecom.DisconnectCause;
+import android.telecom.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.telephony.CallerInfo;
 import com.android.internal.util.IndentingPrintWriter;
 
 import java.util.HashMap;
