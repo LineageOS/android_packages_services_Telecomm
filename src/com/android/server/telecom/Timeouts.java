@@ -121,15 +121,6 @@ public final class Timeouts {
     }
 
     /**
-     * Returns the amount of time after a Logging session has been started that Telecom is set to
-     * perform a sweep to check and make sure that the session is still not incomplete (stale).
-     */
-    public static long getStaleSessionCleanupTimeoutMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "stale_session_cleanup_timeout_millis",
-                Log.DEFAULT_SESSION_TIMEOUT_MS);
-    }
-
-    /**
      * Returns the amount of time to wait for the call screening service to allow or disallow a
      * call.
      */

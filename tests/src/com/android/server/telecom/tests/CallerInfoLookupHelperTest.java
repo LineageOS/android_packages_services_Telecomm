@@ -22,6 +22,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.telecom.Logging.Session;
 
 import com.android.internal.telephony.CallerInfo;
 import com.android.internal.telephony.CallerInfoAsyncQuery;
@@ -29,7 +30,6 @@ import com.android.server.telecom.Call;
 import com.android.server.telecom.CallerInfoAsyncQueryFactory;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.ContactsAsyncHelper;
-import com.android.server.telecom.Session;
 import com.android.server.telecom.TelecomSystem;
 
 import org.mockito.ArgumentCaptor;

@@ -18,6 +18,7 @@ package com.android.server.telecom;
 
 import android.os.Binder;
 import android.os.Bundle;
+import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
 
 import com.android.internal.telecom.IInCallAdapter;
@@ -47,7 +48,7 @@ class InCallAdapter extends IInCallAdapter.Stub {
     @Override
     public void answerCall(String callId, int videoState) {
         try {
-            Log.startSession(Log.Sessions.ICA_ANSWER_CALL, mOwnerComponentName);
+            Log.startSession(LogUtils.Sessions.ICA_ANSWER_CALL, mOwnerComponentName);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -70,7 +71,7 @@ class InCallAdapter extends IInCallAdapter.Stub {
     @Override
     public void rejectCall(String callId, boolean rejectWithMessage, String textMessage) {
         try {
-            Log.startSession(Log.Sessions.ICA_REJECT_CALL, mOwnerComponentName);
+            Log.startSession(LogUtils.Sessions.ICA_REJECT_CALL, mOwnerComponentName);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -162,7 +163,7 @@ class InCallAdapter extends IInCallAdapter.Stub {
     @Override
     public void disconnectCall(String callId) {
         try {
-            Log.startSession(Log.Sessions.ICA_DISCONNECT_CALL, mOwnerComponentName);
+            Log.startSession(LogUtils.Sessions.ICA_DISCONNECT_CALL, mOwnerComponentName);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -185,7 +186,7 @@ class InCallAdapter extends IInCallAdapter.Stub {
     @Override
     public void holdCall(String callId) {
         try {
-            Log.startSession(Log.Sessions.ICA_HOLD_CALL, mOwnerComponentName);
+            Log.startSession(LogUtils.Sessions.ICA_HOLD_CALL, mOwnerComponentName);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -207,7 +208,7 @@ class InCallAdapter extends IInCallAdapter.Stub {
     @Override
     public void unholdCall(String callId) {
         try {
-            Log.startSession(Log.Sessions.ICA_UNHOLD_CALL, mOwnerComponentName);
+            Log.startSession(LogUtils.Sessions.ICA_UNHOLD_CALL, mOwnerComponentName);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -252,7 +253,7 @@ class InCallAdapter extends IInCallAdapter.Stub {
     @Override
     public void mute(boolean shouldMute) {
         try {
-            Log.startSession(Log.Sessions.ICA_MUTE, mOwnerComponentName);
+            Log.startSession(LogUtils.Sessions.ICA_MUTE, mOwnerComponentName);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -269,7 +270,7 @@ class InCallAdapter extends IInCallAdapter.Stub {
     @Override
     public void setAudioRoute(int route) {
         try {
-            Log.startSession(Log.Sessions.ICA_SET_AUDIO_ROUTE, mOwnerComponentName);
+            Log.startSession(LogUtils.Sessions.ICA_SET_AUDIO_ROUTE, mOwnerComponentName);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -286,7 +287,7 @@ class InCallAdapter extends IInCallAdapter.Stub {
     @Override
     public void conference(String callId, String otherCallId) {
         try {
-            Log.startSession(Log.Sessions.ICA_CONFERENCE, mOwnerComponentName);
+            Log.startSession(LogUtils.Sessions.ICA_CONFERENCE, mOwnerComponentName);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {

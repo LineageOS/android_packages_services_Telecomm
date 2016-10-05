@@ -40,10 +40,12 @@ import android.telecom.Conference;
 import android.telecom.Connection;
 import android.telecom.DisconnectCause;
 import android.telecom.GatewayInfo;
+import android.telecom.Log;
 import android.telecom.ParcelableConference;
 import android.telecom.ParcelableConnection;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
+import android.telecom.Logging.Runnable;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.telephony.PhoneNumberUtils;
@@ -1248,12 +1250,12 @@ public class CallsManager extends Call.ListenerBase
                 // Only attempt to hold parent calls and not the individual children.
                 if (c != null && c.isAlive() && c != call && c.getParentCall() == null) {
                     otherCallHeld = true;
-                    Log.event(c, Log.Events.SWAP);
+                    Log.addEvent(c, LogUtils.Events.SWAP);
                     c.hold();
                 }
             }
             if (otherCallHeld) {
-                Log.event(call, Log.Events.SWAP);
+                Log.addEvent(call, LogUtils.Events.SWAP);
             }
             call.unhold();
         }
@@ -1515,7 +1517,8 @@ public class CallsManager extends Call.ListenerBase
                 if (ringingCall == null) {
                     Call callToHangup = getFirstCallWithState(CallState.RINGING, CallState.DIALING,
                             CallState.PULLING, CallState.ACTIVE, CallState.ON_HOLD);
-                    Log.event(callToHangup, Log.Events.INFO, "media btn short press - end call.");
+                    Log.addEvent(callToHangup, LogUtils.Events.INFO,
+                            "media btn short press - end call.");
                     if (callToHangup != null) {
                         callToHangup.disconnect();
                         return true;
@@ -1526,11 +1529,12 @@ public class CallsManager extends Call.ListenerBase
                 }
             } else if (HeadsetMediaButton.LONG_PRESS == type) {
                 if (ringingCall != null) {
-                    Log.event(
-                            getForegroundCall(), Log.Events.INFO, "media btn long press - reject");
+                    Log.addEvent(getForegroundCall(),
+                            LogUtils.Events.INFO, "media btn long press - reject");
                     ringingCall.reject(false, null);
                 } else {
-                    Log.event(getForegroundCall(), Log.Events.INFO, "media btn long press - mute");
+                    Log.addEvent(getForegroundCall(), LogUtils.Events.INFO,
+                            "media btn long press - mute");
                     mCallAudioManager.toggleMute();
                 }
                 return true;
@@ -1779,11 +1783,11 @@ public class CallsManager extends Call.ListenerBase
         updateCanAddCall();
         // onCallAdded for calls which immediately take the foreground (like the first call).
         for (CallsManagerListener listener : mListeners) {
-            if (Log.SYSTRACE_DEBUG) {
+            if (LogUtils.SYSTRACE_DEBUG) {
                 Trace.beginSection(listener.getClass().toString() + " addCall");
             }
             listener.onCallAdded(call);
-            if (Log.SYSTRACE_DEBUG) {
+            if (LogUtils.SYSTRACE_DEBUG) {
                 Trace.endSection();
             }
         }
@@ -1810,11 +1814,11 @@ public class CallsManager extends Call.ListenerBase
         if (shouldNotify) {
             updateCanAddCall();
             for (CallsManagerListener listener : mListeners) {
-                if (Log.SYSTRACE_DEBUG) {
+                if (LogUtils.SYSTRACE_DEBUG) {
                     Trace.beginSection(listener.getClass().toString() + " onCallRemoved");
                 }
                 listener.onCallRemoved(call);
-                if (Log.SYSTRACE_DEBUG) {
+                if (LogUtils.SYSTRACE_DEBUG) {
                     Trace.endSection();
                 }
             }
@@ -1851,11 +1855,11 @@ public class CallsManager extends Call.ListenerBase
             if (mCalls.contains(call)) {
                 updateCanAddCall();
                 for (CallsManagerListener listener : mListeners) {
-                    if (Log.SYSTRACE_DEBUG) {
+                    if (LogUtils.SYSTRACE_DEBUG) {
                         Trace.beginSection(listener.getClass().toString() + " onCallStateChanged");
                     }
                     listener.onCallStateChanged(call, oldState, newState);
-                    if (Log.SYSTRACE_DEBUG) {
+                    if (LogUtils.SYSTRACE_DEBUG) {
                         Trace.endSection();
                     }
                 }
@@ -1869,11 +1873,11 @@ public class CallsManager extends Call.ListenerBase
         if (newCanAddCall != mCanAddCall) {
             mCanAddCall = newCanAddCall;
             for (CallsManagerListener listener : mListeners) {
-                if (Log.SYSTRACE_DEBUG) {
+                if (LogUtils.SYSTRACE_DEBUG) {
                     Trace.beginSection(listener.getClass().toString() + " updateCanAddCall");
                 }
                 listener.onCanAddCallChanged(mCanAddCall);
-                if (Log.SYSTRACE_DEBUG) {
+                if (LogUtils.SYSTRACE_DEBUG) {
                     Trace.endSection();
                 }
             }
