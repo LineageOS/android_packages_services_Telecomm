@@ -595,7 +595,8 @@ public class BasicCallTests extends TelecomSystemTest {
 
         // Attempt to pull the call and verify the API call makes it through
         mInCallServiceFixtureX.mInCallAdapter.pullExternalCall(ids.mCallId);
-        verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT).never())
+        Thread.sleep(TEST_TIMEOUT);
+        verify(mConnectionServiceFixtureA.getTestDouble(), never())
                 .pullExternalCall(ids.mCallId);
     }
 
@@ -790,7 +791,8 @@ public class BasicCallTests extends TelecomSystemTest {
 
         // Attempt to pull the call and verify the API call makes it through
         mInCallServiceFixtureX.mInCallAdapter.pullExternalCall(ids.mCallId);
-        verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT).never())
+        Thread.sleep(TEST_TIMEOUT);
+        verify(mConnectionServiceFixtureA.getTestDouble(), never())
                 .pullExternalCall(ids.mConnectionId);
     }
 

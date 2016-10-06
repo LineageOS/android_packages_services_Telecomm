@@ -477,7 +477,7 @@ public class LogTest extends TelecomTestCase{
                 captor.getValue().extractEventTimings();
         eventTimings.stream()
                 .filter(timing -> timing.name.equals("accept"))
-                .forEach(timing -> assertTrue(timing.time > minWaitTime));
+                .forEach(timing -> assertTrue(timing.time >= minWaitTime));
     }
 
     private void verifyMethodCall(String parentSessionName, String methodName, int sessionId,
