@@ -97,7 +97,7 @@ public class CallerInfoLookupHelper {
                             info.callerInfo.cachedPhotoIcon != null)) {
                         listener.onContactPhotoQueryComplete(handle, info.callerInfo);
                     } else if (info.imageQueryPending) {
-                        Log.i(this, "There is a previously incomplete query for handle %s. " +
+                        Log.i(this, "There is a pending photo query for handle %s. " +
                                 "Adding to listeners for this query.", Log.piiHandle(handle));
                         info.listeners.add(listener);
                     }
@@ -141,11 +141,15 @@ public class CallerInfoLookupHelper {
                 Log.continueSession((Session) cookie, "CILH.oQC");
                 try {
                     if (mQueryEntries.containsKey(handle)) {
+                        Log.i(CallerInfoLookupHelper.this, "CI query for handle %s has completed;" +
+                                " notifying all listeners.", Log.piiHandle(handle));
                         CallerInfoQueryInfo info = mQueryEntries.get(handle);
                         for (OnQueryCompleteListener l : info.listeners) {
                             l.onCallerInfoQueryComplete(handle, ci);
                         }
                         if (ci.contactDisplayPhotoUri == null) {
+                            Log.i(CallerInfoLookupHelper.this, "There is no photo for this " +
+                                    "contact, skipping photo query");
                             mQueryEntries.remove(handle);
                         } else {
                             info.callerInfo = ci;
@@ -191,6 +195,7 @@ public class CallerInfoLookupHelper {
                         if (info.callerInfo == null) {
                             Log.w(CallerInfoLookupHelper.this, "Photo query finished, but the " +
                                     "CallerInfo object previously looked up was not cached.");
+                            mQueryEntries.remove(handle);
                             return;
                         }
                         info.callerInfo.cachedPhoto = photo;
