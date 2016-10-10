@@ -86,10 +86,9 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                 @Override
                                 public MissedCallNotifierImpl makeMissedCallNotifierImpl(
                                         Context context,
-                                        PhoneAccountRegistrar phoneAccountRegistrar,
-                                        PhoneNumberUtilsAdapter phoneNumberUtilsAdapter) {
+                                        PhoneAccountRegistrar phoneAccountRegistrar) {
                                     return new MissedCallNotifierImpl(context,
-                                            phoneAccountRegistrar, phoneNumberUtilsAdapter);
+                                            phoneAccountRegistrar);
                                 }
                             },
                             new CallerInfoAsyncQueryFactory() {

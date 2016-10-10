@@ -296,7 +296,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 Integer.valueOf(CallLog.Calls.MISSED_TYPE));
         // Timeout needed because showMissedCallNotification is called from onPostExecute.
         verify(mMissedCallNotifier, timeout(TEST_TIMEOUT_MILLIS))
-                .showMissedCallNotification(fakeMissedCall);
+                .showMissedCallNotification(any(MissedCallNotifier.CallInfo.class));
     }
 
     @MediumTest
