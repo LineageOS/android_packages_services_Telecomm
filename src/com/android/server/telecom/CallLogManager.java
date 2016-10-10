@@ -166,7 +166,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
                     new LogCallCompletedListener() {
                         @Override
                         public void onLogCompleted(@Nullable Uri uri) {
-                            mMissedCallNotifier.showMissedCallNotification(call);
+                            mMissedCallNotifier.showMissedCallNotification(
+                                    new MissedCallNotifier.CallInfo(call));
                         }
                     });
         } else {

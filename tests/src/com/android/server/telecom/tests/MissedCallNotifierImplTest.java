@@ -20,23 +20,31 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
+import android.content.ContentProvider;
 import android.content.Context;
+import android.content.IContentProvider;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.ICancellationSignal;
+import android.os.Looper;
 import android.os.UserHandle;
+import android.provider.CallLog;
 import android.telecom.PhoneAccount;
-import android.telecom.PhoneAccount.Builder;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.telephony.TelephonyManager;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import com.android.server.telecom.Call;
+import com.android.internal.telephony.CallerInfo;
+import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.Constants;
 import com.android.server.telecom.MissedCallNotifier;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.TelecomBroadcastIntentProcessor;
+import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.components.TelecomBroadcastReceiver;
 import com.android.server.telecom.ui.MissedCallNotifierImpl;
 import com.android.server.telecom.ui.MissedCallNotifierImpl.NotificationBuilderFactory;
@@ -47,19 +55,64 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class MissedCallNotifierImplTest extends TelecomTestCase {
+
+    private static class MockMissedCallCursorBuilder {
+        private class CallLogRow {
+            String number;
+            int presentation;
+            long date;
+
+            public CallLogRow(String number, int presentation, long date) {
+                this.number = number;
+                this.presentation = presentation;
+                this.date = date;
+            }
+        }
+
+        private List<CallLogRow> mRows;
+
+        MockMissedCallCursorBuilder() {
+            mRows = new LinkedList<>();
+            mRows.add(null);
+        }
+
+        public MockMissedCallCursorBuilder addEntry(String number, int presentation, long date) {
+            mRows.add(new CallLogRow(number, presentation, date));
+            return this;
+        }
+
+        public Cursor build() {
+            Cursor c = mock(Cursor.class);
+            when(c.moveToNext()).thenAnswer(unused -> {
+                mRows.remove(0);
+                return mRows.size() > 0;
+            });
+            when(c.getString(MissedCallNotifierImpl.CALL_LOG_COLUMN_NUMBER))
+                    .thenAnswer(unused -> mRows.get(0).number);
+            when(c.getInt(MissedCallNotifierImpl.CALL_LOG_COLUMN_NUMBER_PRESENTATION))
+                    .thenAnswer(unused -> mRows.get(0).presentation);
+            when(c.getLong(MissedCallNotifierImpl.CALL_LOG_COLUMN_DATE))
+                    .thenAnswer(unused -> mRows.get(0).date);
+            return c;
+        }
+    }
 
     private static final Uri TEL_CALL_HANDLE = Uri.parse("tel:+11915552620");
     private static final Uri SIP_CALL_HANDLE = Uri.parse("sip:testaddress@testdomain.com");
@@ -78,6 +131,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
     private static final UserHandle PRIMARY_USER = UserHandle.of(0);
     private static final UserHandle SECONARY_USER = UserHandle.of(12);
     private static final int NO_CAPABILITY = 0;
+    private static final int TEST_TIMEOUT = 1000;
 
     @Mock
     private NotificationManager mNotificationManager;
@@ -87,6 +141,8 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
 
     @Mock
     private TelecomManager mTelecomManager;
+
+    @Mock TelecomSystem mTelecomSystem;
 
     @Override
     public void setUp() throws Exception {
@@ -113,6 +169,12 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         mComponentContextFixture.setTelecomManager(mTelecomManager);
     }
 
+    @Override
+    public void tearDown() throws Exception {
+        TelecomSystem.setInstance(null);
+        when(mTelecomSystem.isBootComplete()).thenReturn(false);
+    }
+
     @SmallTest
     public void testCancelNotificationInPrimaryUser() {
         cancelNotificationTestInternal(PRIMARY_USER);
@@ -132,8 +194,8 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         MissedCallNotifier missedCallNotifier = makeMissedCallNotifier(fakeBuilderFactory,
                 PRIMARY_USER);
         PhoneAccount phoneAccount = makePhoneAccount(userHandle, NO_CAPABILITY);
-        Call fakeCall = makeFakeCall(TEL_CALL_HANDLE, CALLER_NAME, CALL_TIMESTAMP,
-                phoneAccount.getAccountHandle());
+        MissedCallNotifier.CallInfo fakeCall = makeFakeCallInfo(TEL_CALL_HANDLE, CALLER_NAME,
+                CALL_TIMESTAMP, phoneAccount.getAccountHandle());
 
         missedCallNotifier.showMissedCallNotification(fakeCall);
         missedCallNotifier.clearMissedCalls(userHandle);
@@ -159,8 +221,8 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         }
 
         PhoneAccount phoneAccount = makePhoneAccount(PRIMARY_USER, NO_CAPABILITY);
-        Call fakeCall = makeFakeCall(TEL_CALL_HANDLE, CALLER_NAME, CALL_TIMESTAMP,
-                phoneAccount.getAccountHandle());
+        MissedCallNotifier.CallInfo fakeCall = makeFakeCallInfo(TEL_CALL_HANDLE, CALLER_NAME,
+                CALL_TIMESTAMP, phoneAccount.getAccountHandle());
 
         MissedCallNotifierImpl.NotificationBuilderFactory fakeBuilderFactory =
                 makeNotificationBuilderFactory(builders);
@@ -253,8 +315,8 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         MissedCallNotifier missedCallNotifier = makeMissedCallNotifier(fakeBuilderFactory,
                 currentUser);
 
-        Call fakeCall = makeFakeCall(TEL_CALL_HANDLE, CALLER_NAME, CALL_TIMESTAMP,
-                phoneAccount.getAccountHandle());
+        MissedCallNotifier.CallInfo fakeCall = makeFakeCallInfo(TEL_CALL_HANDLE, CALLER_NAME,
+                CALL_TIMESTAMP, phoneAccount.getAccountHandle());
         missedCallNotifier.showMissedCallNotification(fakeCall);
 
         ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(
@@ -318,8 +380,8 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                 mPhoneAccountRegistrar, fakeBuilderFactory);
         PhoneAccount phoneAccount = makePhoneAccount(PRIMARY_USER, NO_CAPABILITY);
 
-        Call fakeCall =
-                makeFakeCall(SIP_CALL_HANDLE, CALLER_NAME, CALL_TIMESTAMP,
+        MissedCallNotifier.CallInfo fakeCall =
+                makeFakeCallInfo(SIP_CALL_HANDLE, CALLER_NAME, CALL_TIMESTAMP,
                 phoneAccount.getAccountHandle());
         missedCallNotifier.showMissedCallNotification(fakeCall);
 
@@ -343,6 +405,135 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                 smsIntent, PendingIntent.FLAG_NO_CREATE));
     }
 
+    @SmallTest
+    public void testLoadOneCallFromDb() throws Exception {
+        CallerInfoLookupHelper mockCallerInfoLookupHelper = mock(CallerInfoLookupHelper.class);
+        MissedCallNotifier.CallInfoFactory mockCallInfoFactory =
+                mock(MissedCallNotifier.CallInfoFactory.class);
+
+        Uri queryUri = ContentProvider.maybeAddUserId(CallLog.Calls.CONTENT_URI,
+                PRIMARY_USER.getIdentifier());
+        IContentProvider cp = getContentProviderForUser(PRIMARY_USER.getIdentifier());
+
+        Cursor mockMissedCallsCursor = new MockMissedCallCursorBuilder()
+                .addEntry(TEL_CALL_HANDLE.getSchemeSpecificPart(),
+                        CallLog.Calls.PRESENTATION_ALLOWED, CALL_TIMESTAMP)
+                .build();
+
+        when(cp.query(anyString(), eq(queryUri), any(String[].class), anyString(), any
+                (String[].class), anyString(), any(ICancellationSignal.class)))
+                .thenReturn(mockMissedCallsCursor);
+
+        PhoneAccount phoneAccount = makePhoneAccount(PRIMARY_USER, NO_CAPABILITY);
+        MissedCallNotifier.CallInfo fakeCallInfo = makeFakeCallInfo(TEL_CALL_HANDLE,
+                CALLER_NAME, CALL_TIMESTAMP, phoneAccount.getAccountHandle());
+        when(mockCallInfoFactory.makeCallInfo(any(CallerInfo.class),
+                any(PhoneAccountHandle.class), any(Uri.class), eq(CALL_TIMESTAMP)))
+                .thenReturn(fakeCallInfo);
+
+        Notification.Builder builder1 = makeNotificationBuilder("builder1");
+        MissedCallNotifierImpl.NotificationBuilderFactory fakeBuilderFactory =
+                makeNotificationBuilderFactory(builder1);
+
+        MissedCallNotifier missedCallNotifier = new MissedCallNotifierImpl(mContext,
+                mPhoneAccountRegistrar, fakeBuilderFactory);
+
+        // AsyncQueryHandler used in reloadFromDatabase interacts poorly with the below
+        // timeout-verify, so run this in a new handler to mitigate that.
+        Handler h = new Handler(Looper.getMainLooper());
+        h.post(() -> missedCallNotifier.reloadFromDatabase(
+                mockCallerInfoLookupHelper, mockCallInfoFactory, PRIMARY_USER));
+        waitForHandlerAction(h, TEST_TIMEOUT);
+
+        // TelecomSystem.getInstance returns null in this test, so we expect that nothing will
+        // happen.
+        verify(mockCallerInfoLookupHelper, never()).startLookup(any(Uri.class),
+                any(CallerInfoLookupHelper.OnQueryCompleteListener.class));
+        // Simulate a boot-complete
+        TelecomSystem.setInstance(mTelecomSystem);
+        when(mTelecomSystem.isBootComplete()).thenReturn(true);
+        h.post(() -> missedCallNotifier.reloadAfterBootComplete(mockCallerInfoLookupHelper,
+                mockCallInfoFactory));
+        waitForHandlerAction(h, TEST_TIMEOUT);
+
+        Uri escapedHandle = Uri.fromParts(PhoneAccount.SCHEME_TEL,
+                TEL_CALL_HANDLE.getSchemeSpecificPart(), null);
+        ArgumentCaptor<CallerInfoLookupHelper.OnQueryCompleteListener> listenerCaptor =
+                ArgumentCaptor.forClass(CallerInfoLookupHelper.OnQueryCompleteListener.class);
+        verify(mockCallerInfoLookupHelper, timeout(TEST_TIMEOUT)).startLookup(eq(escapedHandle),
+                listenerCaptor.capture());
+
+        CallerInfo ci = new CallerInfo();
+        listenerCaptor.getValue().onCallerInfoQueryComplete(escapedHandle, ci);
+        verify(mockCallInfoFactory).makeCallInfo(eq(ci), isNull(PhoneAccountHandle.class),
+                eq(escapedHandle), eq(CALL_TIMESTAMP));
+    }
+
+    @SmallTest
+    public void testLoadTwoCallsFromDb() throws Exception {
+        TelecomSystem.setInstance(mTelecomSystem);
+        when(mTelecomSystem.isBootComplete()).thenReturn(true);
+        CallerInfoLookupHelper mockCallerInfoLookupHelper = mock(CallerInfoLookupHelper.class);
+        MissedCallNotifier.CallInfoFactory mockCallInfoFactory =
+                mock(MissedCallNotifier.CallInfoFactory.class);
+
+        Cursor mockMissedCallsCursor = new MockMissedCallCursorBuilder()
+                .addEntry(TEL_CALL_HANDLE.getSchemeSpecificPart(),
+                        CallLog.Calls.PRESENTATION_ALLOWED, CALL_TIMESTAMP)
+                .addEntry(SIP_CALL_HANDLE.getSchemeSpecificPart(),
+                        CallLog.Calls.PRESENTATION_ALLOWED, CALL_TIMESTAMP)
+                .build();
+
+        Uri queryUri = ContentProvider.maybeAddUserId(CallLog.Calls.CONTENT_URI,
+                PRIMARY_USER.getIdentifier());
+        IContentProvider cp = getContentProviderForUser(PRIMARY_USER.getIdentifier());
+
+        when(cp.query(anyString(), eq(queryUri), any(String[].class), anyString(), any
+                (String[].class), anyString(), any(ICancellationSignal.class)))
+                .thenReturn(mockMissedCallsCursor);
+
+        PhoneAccount phoneAccount = makePhoneAccount(PRIMARY_USER, NO_CAPABILITY);
+        MissedCallNotifier.CallInfo fakeCallInfo = makeFakeCallInfo(TEL_CALL_HANDLE,
+                CALLER_NAME, CALL_TIMESTAMP, phoneAccount.getAccountHandle());
+        when(mockCallInfoFactory.makeCallInfo(any(CallerInfo.class),
+                any(PhoneAccountHandle.class), any(Uri.class), eq(CALL_TIMESTAMP)))
+                .thenReturn(fakeCallInfo);
+
+        Notification.Builder builder1 = makeNotificationBuilder("builder1");
+        MissedCallNotifierImpl.NotificationBuilderFactory fakeBuilderFactory =
+                makeNotificationBuilderFactory(builder1);
+
+        MissedCallNotifier missedCallNotifier = new MissedCallNotifierImpl(mContext,
+                mPhoneAccountRegistrar, fakeBuilderFactory);
+
+        // AsyncQueryHandler used in reloadFromDatabase interacts poorly with the below
+        // timeout-verify, so run this in a new handler to mitigate that.
+        Handler h = new Handler(Looper.getMainLooper());
+        h.post(() -> missedCallNotifier.reloadFromDatabase(
+                mockCallerInfoLookupHelper, mockCallInfoFactory, PRIMARY_USER));
+        waitForHandlerAction(h, TEST_TIMEOUT);
+
+        Uri escapedTelHandle = Uri.fromParts(PhoneAccount.SCHEME_TEL,
+                TEL_CALL_HANDLE.getSchemeSpecificPart(), null);
+        Uri escapedSipHandle = Uri.fromParts(PhoneAccount.SCHEME_SIP,
+                SIP_CALL_HANDLE.getSchemeSpecificPart(), null);
+
+        ArgumentCaptor<CallerInfoLookupHelper.OnQueryCompleteListener> listenerCaptor =
+                ArgumentCaptor.forClass(CallerInfoLookupHelper.OnQueryCompleteListener.class);
+        verify(mockCallerInfoLookupHelper, timeout(TEST_TIMEOUT)).startLookup(eq(escapedTelHandle),
+                listenerCaptor.capture());
+        verify(mockCallerInfoLookupHelper, timeout(TEST_TIMEOUT)).startLookup(eq(escapedSipHandle),
+                listenerCaptor.capture());
+
+        CallerInfo ci = new CallerInfo();
+        listenerCaptor.getAllValues().get(0).onCallerInfoQueryComplete(escapedTelHandle, ci);
+        listenerCaptor.getAllValues().get(1).onCallerInfoQueryComplete(escapedSipHandle, ci);
+
+        // Verify that two notifications were generated, both with the same id.
+        verify(mNotificationManager, times(2)).notifyAsUser(isNull(String.class), eq(1),
+                any(Notification.class), eq(PRIMARY_USER));
+    }
+
     private Notification.Builder makeNotificationBuilder(String label) {
         Notification.Builder builder = spy(new Notification.Builder(mContext));
         Notification notification = mock(Notification.class);
@@ -352,13 +543,14 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         return builder;
     }
 
-    private Call makeFakeCall(Uri handle, String name, long timestamp,
+    private MissedCallNotifier.CallInfo makeFakeCallInfo(Uri handle, String name, long timestamp,
             PhoneAccountHandle phoneAccountHandle) {
-        Call fakeCall = mock(Call.class);
+        MissedCallNotifier.CallInfo fakeCall = mock(MissedCallNotifier.CallInfo.class);
         when(fakeCall.getHandle()).thenReturn(handle);
+        when(fakeCall.getHandleSchemeSpecificPart()).thenReturn(handle.getSchemeSpecificPart());
         when(fakeCall.getName()).thenReturn(name);
         when(fakeCall.getCreationTimeMillis()).thenReturn(timestamp);
-        when(fakeCall.getTargetPhoneAccount()).thenReturn(phoneAccountHandle);
+        when(fakeCall.getPhoneAccountHandle()).thenReturn(phoneAccountHandle);
         return fakeCall;
     }
 
@@ -390,4 +582,9 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                 .thenReturn(phoneAccount);
         return phoneAccount;
     }
+
+    private IContentProvider getContentProviderForUser(int userId) {
+        return mContext.getContentResolver().acquireProvider(userId + "@call_log");
+    }
+
 }
