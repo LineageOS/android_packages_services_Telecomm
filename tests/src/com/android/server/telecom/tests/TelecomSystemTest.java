@@ -60,6 +60,7 @@ import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.BluetoothPhoneServiceImpl;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallerInfoAsyncQueryFactory;
+import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.CallsManagerListenerBase;
 import com.android.server.telecom.ContactsAsyncHelper;
@@ -118,7 +119,7 @@ public class TelecomSystemTest extends TelecomTestCase {
 
     public static class MissedCallNotifierFakeImpl extends CallsManagerListenerBase
             implements MissedCallNotifier {
-        List<com.android.server.telecom.Call> missedCallsNotified = new ArrayList<>();
+        List<CallInfo> missedCallsNotified = new ArrayList<>();
 
         @Override
         public void clearMissedCalls(UserHandle userHandle) {
@@ -126,16 +127,17 @@ public class TelecomSystemTest extends TelecomTestCase {
         }
 
         @Override
-        public void showMissedCallNotification(com.android.server.telecom.Call call) {
+        public void showMissedCallNotification(CallInfo call) {
             missedCallsNotified.add(call);
         }
 
         @Override
-        public void reloadFromDatabase(TelecomSystem.SyncRoot lock, CallsManager callsManager,
-                ContactsAsyncHelper contactsAsyncHelper,
-                CallerInfoAsyncQueryFactory callerInfoAsyncQueryFactory, UserHandle userHandle) {
+        public void reloadAfterBootComplete(CallerInfoLookupHelper callerInfoLookupHelper,
+                CallInfoFactory callInfoFactory) { }
 
-        }
+        @Override
+        public void reloadFromDatabase(CallerInfoLookupHelper callerInfoLookupHelper,
+                CallInfoFactory callInfoFactory, UserHandle userHandle) { }
 
         @Override
         public void setCurrentUserHandle(UserHandle userHandle) {
