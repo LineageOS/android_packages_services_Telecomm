@@ -136,7 +136,9 @@ public class RespondViaSmsManager extends CallsManagerListenerBase {
                         android.telecom.Call.Details.CAPABILITY_CAN_SEND_RESPONSE_VIA_CONNECTION)) {
             int subId = mCallsManager.getPhoneAccountRegistrar().getSubscriptionIdForPhoneAccount(
                     call.getTargetPhoneAccount());
-            rejectCallWithMessage(call.getContext(), call.getHandle().getSchemeSpecificPart(),
+            rejectCallWithMessage(call.getContext(),
+                    call.getName() != null ? call.getName()
+                            : call.getHandle().getSchemeSpecificPart(),
                     textMessage, subId);
         }
     }
