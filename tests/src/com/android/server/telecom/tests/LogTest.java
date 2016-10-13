@@ -437,7 +437,7 @@ public class LogTest extends TelecomTestCase{
         verifyContinueEventResult(sessionName, "", "", 0, 0);
         verifyMethodCall("", sessionName, 0, "", TEST_ENTER_METHOD4, 0);
 
-        // Verify the session is still active in sSessionMapper
+        // Verify the session is still active in mSessionMapper
         assertEquals(Log.sSessionMapper.size(), 1);
         assertEquals(true, mTestSystemLogger.isMessagesEmpty());
 
