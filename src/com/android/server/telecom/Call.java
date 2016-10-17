@@ -27,6 +27,7 @@ import android.os.RemoteException;
 import android.os.Trace;
 import android.provider.ContactsContract.Contacts;
 import android.telecom.CallAudioState;
+import android.telecom.Conference;
 import android.telecom.DisconnectCause;
 import android.telecom.Connection;
 import android.telecom.GatewayInfo;
@@ -393,6 +394,17 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
     private boolean mIsVideoCallingSupported = false;
 
     private PhoneNumberUtilsAdapter mPhoneNumberUtilsAdapter;
+
+    /**
+     * For {@link Connection}s or {@link android.telecom.Conference}s added via a ConnectionManager
+     * using the {@link android.telecom.ConnectionService#addExistingConnection(PhoneAccountHandle,
+     * Connection)} or {@link android.telecom.ConnectionService#addConference(Conference)},
+     * indicates the ID of this call as it was referred to by the {@code ConnectionService} which
+     * originally created it.
+     *
+     * See {@link Connection#EXTRA_ORIGINAL_CONNECTION_ID} for more information.
+     */
+    private String mOriginalConnectionId;
 
     /**
      * Persists the specified parameters and initializes the new instance.
@@ -1161,6 +1173,34 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         mConnectionService = service;
         mAnalytics.setCallConnectionService(service.getComponentName().flattenToShortString());
         mConnectionService.addCall(this);
+    }
+
+    /**
+     * Perform an in-place replacement of the {@link ConnectionServiceWrapper} for this Call.
+     * Removes the call from its former {@link ConnectionServiceWrapper}, ensuring that the
+     * ConnectionService is NOT unbound if the call count hits zero.
+     * This is used by the {@link ConnectionServiceWrapper} when handling {@link Connection} and
+     * {@link Conference} additions via a ConnectionManager.
+     * The original {@link android.telecom.ConnectionService} will directly add external calls and
+     * conferences to Telecom as well as the ConnectionManager, which will add to Telecom.  In these
+     * cases since its first added to via the original CS, we want to change the CS responsible for
+     * the call to the ConnectionManager rather than adding it again as another call/conference.
+     *
+     * @param service The new {@link ConnectionServiceWrapper}.
+     */
+    public void replaceConnectionService(ConnectionServiceWrapper service) {
+        Preconditions.checkNotNull(service);
+
+        if (mConnectionService != null) {
+            ConnectionServiceWrapper serviceTemp = mConnectionService;
+            mConnectionService = null;
+            serviceTemp.removeCall(this);
+            serviceTemp.decrementAssociatedCallCount(true /*isSuppressingUnbind*/);
+        }
+
+        service.incrementAssociatedCallCount();
+        mConnectionService = service;
+        mAnalytics.setCallConnectionService(service.getComponentName().flattenToShortString());
     }
 
     /**
@@ -2225,6 +2265,24 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
                 l.onConnectionEvent(this, event, extras);
             }
         }
+    }
+
+    public void setOriginalConnectionId(String originalConnectionId) {
+        mOriginalConnectionId = originalConnectionId;
+    }
+
+    /**
+     * For calls added via a ConnectionManager using the
+     * {@link android.telecom.ConnectionService#addExistingConnection(PhoneAccountHandle,
+     * Connection)}, or {@link android.telecom.ConnectionService#addConference(Conference)} APIS,
+     * indicates the ID of this call as it was referred to by the {@code ConnectionService} which
+     * originally created it.
+     *
+     * See {@link Connection#EXTRA_ORIGINAL_CONNECTION_ID}.
+     * @return The original connection ID.
+     */
+    public String getOriginalConnectionId() {
+        return mOriginalConnectionId;
     }
 
     /**
