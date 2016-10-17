@@ -117,11 +117,12 @@ public class Ringer {
 
         stopCallWaiting();
 
-        if (!shouldRingForContact(foregroundCall.getContactUri())) {
-            return false;
-        }
+        boolean[] shouldRingOrVibrate =
+                shouldRingOrVibrateForContact(foregroundCall.getContactUri());
+        boolean ringAllowed = shouldRingOrVibrate[0];
+        boolean vibrationAllowed = shouldRingOrVibrate[1];
 
-        if (isRingerAudible) {
+        if (ringAllowed && isRingerAudible) {
             mRingingCall = foregroundCall;
             Log.event(foregroundCall, Log.Events.START_RINGER);
 
@@ -145,7 +146,7 @@ public class Ringer {
             Log.i(this, "startRingingOrCallWaiting, skipping because volume is 0");
         }
 
-        if (shouldVibrate(mContext) && !mIsVibrating) {
+        if (vibrationAllowed && shouldVibrate(mContext) && !mIsVibrating) {
             mVibrator.vibrate(VIBRATION_PATTERN, VIBRATION_PATTERN_REPEAT,
                     VIBRATION_ATTRIBUTES);
             mIsVibrating = true;
@@ -204,7 +205,7 @@ public class Ringer {
         }
     }
 
-    private boolean shouldRingForContact(Uri contactUri) {
+    private boolean[] shouldRingOrVibrateForContact(Uri contactUri) {
         final NotificationManager manager =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         final Bundle extras = new Bundle();

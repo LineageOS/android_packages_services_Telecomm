@@ -451,7 +451,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
             }
         }).when(mAppOpsManager).checkPackage(anyInt(), anyString());
 
-        when(mNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
+        when(mNotificationManager.matchesCallFilter(any(Bundle.class)))
+                .thenReturn(new boolean[] { true, true });
 
         when(mUserManager.getSerialNumberForUser(any(UserHandle.class))).thenReturn(-1L);
 
