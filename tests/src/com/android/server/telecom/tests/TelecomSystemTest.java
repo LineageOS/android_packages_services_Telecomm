@@ -611,6 +611,11 @@ public class TelecomSystemTest extends TelecomTestCase {
         // called correctly in order to continue.
         verify(localAppContext).sendBroadcastAsUser(actionCallIntent, UserHandle.SYSTEM);
         mTelecomSystem.getCallIntentProcessor().processIntent(actionCallIntent);
+        // Wait for handler to start CallerInfo lookup.
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
+        // Send the CallerInfo lookup reply.
+        mCallerInfoAsyncQueryFactoryFixture.mRequests.forEach(
+                CallerInfoAsyncQueryFactoryFixture.Request::reply);
 
         if (!hasInCallAdapter) {
             verify(mInCallServiceFixtureX.getTestDouble())
@@ -742,10 +747,11 @@ public class TelecomSystemTest extends TelecomTestCase {
                 .createConnection(any(PhoneAccountHandle.class), anyString(),
                         any(ConnectionRequest.class), eq(true), eq(false), any());
 
-        for (CallerInfoAsyncQueryFactoryFixture.Request request :
-                mCallerInfoAsyncQueryFactoryFixture.mRequests) {
-            request.reply();
-        }
+        // Wait for the handler to start the CallerInfo lookup
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
+        // Process the CallerInfo lookup reply
+        mCallerInfoAsyncQueryFactoryFixture.mRequests.forEach(
+                CallerInfoAsyncQueryFactoryFixture.Request::reply);
 
         IContentProvider blockedNumberProvider =
                 mSpyContext.getContentResolver().acquireProvider(BlockedNumberContract.AUTHORITY);
