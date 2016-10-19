@@ -13,12 +13,12 @@ lite_test_telecom() {
   -h                    This help message.
   "
 
-  OPTIND=1
-  class=
-  install=false
-  installwdep=false
-  debug=false
-  coverage=false
+  local OPTIND=1
+  local class=
+  local install=false
+  local installwdep=false
+  local debug=false
+  local coverage=false
 
   while getopts "c:hadie" opt; do
     case "$opt" in
@@ -42,17 +42,20 @@ lite_test_telecom() {
     esac
   done
 
-  T=$(gettop)
+  local T=$(gettop)
 
   if [ $install = true ] ; then
-    olddir=$(pwd)
+    local olddir=$(pwd)
+    local emma_opt=
     cd $T
+    # Build and exit script early if build fails
+
     if [ $coverage = true ] ; then
       emma_opt="EMMA_INSTRUMENT_STATIC=true"
     else
       emma_opt="EMMA_INSTRUMENT_STATIC=false"
     fi
-    # Build and exit script early if build fails
+
     if [ $installwdep = true ] ; then
       mmma -j40 "packages/services/Telecomm/tests" ${emma_opt}
     else
@@ -63,7 +66,10 @@ lite_test_telecom() {
       return
     fi
 
-    adb install -r -t "out/target/product/$TARGET_PRODUCT/data/app/TelecomUnitTests/TelecomUnitTests.apk"
+    # Strip off any possible aosp_ prefix from the target product
+    local canonical_product=$(sed 's/^aosp_//' <<< "$TARGET_PRODUCT")
+
+    adb install -r -t "out/target/product/$canonical_product/data/app/TelecomUnitTests/TelecomUnitTests.apk"
     if [ $? -ne 0 ] ; then
       cd "$olddir"
       return $?
@@ -71,7 +77,7 @@ lite_test_telecom() {
     cd "$olddir"
   fi
 
-  e_options=""
+  local e_options=""
   if [ -n "$class" ] ; then
     e_options="${e_options} -e class com.android.server.telecom.tests.${class}"
   fi
