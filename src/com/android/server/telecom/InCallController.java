@@ -36,6 +36,8 @@ import android.telecom.CallAudioState;
 import android.telecom.ConnectionService;
 import android.telecom.DefaultDialerManager;
 import android.telecom.InCallService;
+import android.telecom.Log;
+import android.telecom.Logging.Runnable;
 import android.telecom.ParcelableCall;
 import android.telecom.TelecomManager;
 import android.text.TextUtils;
@@ -178,7 +180,7 @@ public final class InCallController extends CallsManagerListenerBase {
         @Override
         public boolean connect(Call call) {
             if (mIsConnected) {
-                Log.event(call, Log.Events.INFO, "Already connected, ignoring request.");
+                Log.addEvent(call, LogUtils.Events.INFO, "Already connected, ignoring request.");
                 return true;
             }
 
@@ -215,7 +217,7 @@ public final class InCallController extends CallsManagerListenerBase {
                 mContext.unbindService(mServiceConnection);
                 mIsConnected = false;
             } else {
-                Log.event(null, Log.Events.INFO, "Already disconnected, ignoring request.");
+                Log.addEvent(null, LogUtils.Events.INFO, "Already disconnected, ignoring request.");
             }
         }
 

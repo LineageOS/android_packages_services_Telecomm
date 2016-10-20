@@ -30,6 +30,8 @@ import android.telecom.Conference;
 import android.telecom.DisconnectCause;
 import android.telecom.Connection;
 import android.telecom.GatewayInfo;
+import android.telecom.Log;
+import android.telecom.Logging.EventManager;
 import android.telecom.ParcelableConnection;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
@@ -48,8 +50,10 @@ import com.android.internal.telephony.SmsApplication;
 import com.android.internal.util.Preconditions;
 
 import java.lang.String;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -63,7 +67,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *  connected etc).
  */
 @VisibleForTesting
-public class Call implements CreateConnectionResponse {
+public class Call implements CreateConnectionResponse, EventManager.Loggable {
     public final static String CALL_ID_UNKNOWN = "-1";
     public final static long DATA_USAGE_NOT_SET = -1;
 
@@ -519,7 +523,7 @@ public class Call implements CreateConnectionResponse {
                 analyticsDirection = Analytics.UNKNOWN_DIRECTION;
         }
         mAnalytics = Analytics.initiateCallAnalytics(mId, analyticsDirection);
-        Log.event(this, Log.Events.CREATED);
+        Log.addEvent(this, LogUtils.Events.CREATED);
     }
 
     public Analytics.CallInfo getAnalytics() {
@@ -527,7 +531,7 @@ public class Call implements CreateConnectionResponse {
     }
 
     public void destroy() {
-        Log.event(this, Log.Events.DESTROYED);
+        Log.addEvent(this, LogUtils.Events.DESTROYED);
     }
 
     /** {@inheritDoc} */
@@ -548,6 +552,20 @@ public class Call implements CreateConnectionResponse {
                 getParentCall() != null,
                 Connection.capabilitiesToString(getConnectionCapabilities()),
                 Connection.propertiesToString(getConnectionProperties()));
+    }
+
+    @Override
+    public String getDescription() {
+        StringBuilder s = new StringBuilder("Call ");
+        s.append(getId());
+        s.append(" [");
+        s.append(SimpleDateFormat.getDateTimeInstance().format(new Date(getCreationTimeMillis())));
+        s.append("]");
+        s.append(isIncoming() ? "(MT - incoming)" : "(MO - outgoing)");
+        s.append("\n\tTo address: ");
+        s.append(Log.piiHandle(getHandle()));
+        s.append("\n");
+        return s.toString();
     }
 
     /**
@@ -686,32 +704,32 @@ public class Call implements CreateConnectionResponse {
             Object data = null;
             switch (newState) {
                 case CallState.ACTIVE:
-                    event = Log.Events.SET_ACTIVE;
+                    event = LogUtils.Events.SET_ACTIVE;
                     break;
                 case CallState.CONNECTING:
-                    event = Log.Events.SET_CONNECTING;
+                    event = LogUtils.Events.SET_CONNECTING;
                     break;
                 case CallState.DIALING:
-                    event = Log.Events.SET_DIALING;
+                    event = LogUtils.Events.SET_DIALING;
                     break;
                 case CallState.PULLING:
-                    event = Log.Events.SET_PULLING;
+                    event = LogUtils.Events.SET_PULLING;
                     break;
                 case CallState.DISCONNECTED:
-                    event = Log.Events.SET_DISCONNECTED;
+                    event = LogUtils.Events.SET_DISCONNECTED;
                     data = getDisconnectCause();
                     break;
                 case CallState.DISCONNECTING:
-                    event = Log.Events.SET_DISCONNECTING;
+                    event = LogUtils.Events.SET_DISCONNECTING;
                     break;
                 case CallState.ON_HOLD:
-                    event = Log.Events.SET_HOLD;
+                    event = LogUtils.Events.SET_HOLD;
                     break;
                 case CallState.SELECT_PHONE_ACCOUNT:
-                    event = Log.Events.SET_SELECT_PHONE_ACCOUNT;
+                    event = LogUtils.Events.SET_SELECT_PHONE_ACCOUNT;
                     break;
                 case CallState.RINGING:
-                    event = Log.Events.SET_RINGING;
+                    event = LogUtils.Events.SET_RINGING;
                     break;
             }
             if (event != null) {
@@ -721,7 +739,7 @@ public class Call implements CreateConnectionResponse {
                     // If data exists, add it to tag.  If no tag, just use data.toString().
                     stringData = stringData == null ? data.toString() : stringData + "> " + data;
                 }
-                Log.event(this, event, stringData);
+                Log.addEvent(this, event, stringData);
             }
         }
     }
@@ -1047,7 +1065,7 @@ public class Call implements CreateConnectionResponse {
             }
 
             int xorCaps = previousCapabilities ^ mConnectionCapabilities;
-            Log.event(this, Log.Events.CAPABILITY_CHANGE,
+            Log.addEvent(this, LogUtils.Events.CAPABILITY_CHANGE,
                     "Current: [%s], Removed [%s], Added [%s]",
                     Connection.capabilitiesToStringShort(mConnectionCapabilities),
                     Connection.capabilitiesToStringShort(previousCapabilities & xorCaps),
@@ -1072,7 +1090,7 @@ public class Call implements CreateConnectionResponse {
             if (wasExternal != isExternal) {
                 Log.v(this, "setConnectionProperties: external call changed isExternal = %b",
                         isExternal);
-                Log.event(this, Log.Events.IS_EXTERNAL, isExternal);
+                Log.addEvent(this, LogUtils.Events.IS_EXTERNAL, isExternal);
                 for (Listener l : mListeners) {
                     l.onExternalCallChanged(this, isExternal);
                 }
@@ -1082,7 +1100,7 @@ public class Call implements CreateConnectionResponse {
             mAnalytics.addCallProperties(mConnectionProperties);
 
             int xorProps = previousProperties ^ mConnectionProperties;
-            Log.event(this, Log.Events.PROPERTY_CHANGE,
+            Log.addEvent(this, LogUtils.Events.PROPERTY_CHANGE,
                     "Current: [%s], Removed [%s], Added [%s]",
                     Connection.propertiesToStringShort(mConnectionProperties),
                     Connection.propertiesToStringShort(previousProperties & xorProps),
@@ -1283,7 +1301,7 @@ public class Call implements CreateConnectionResponse {
         } else {
             Log.i(this, "Send playDtmfTone to connection service for call %s", this);
             mConnectionService.playDtmfTone(this, digit);
-            Log.event(this, Log.Events.START_DTMF, Log.pii(digit));
+            Log.addEvent(this, LogUtils.Events.START_DTMF, Log.pii(digit));
         }
     }
 
@@ -1295,7 +1313,7 @@ public class Call implements CreateConnectionResponse {
             Log.w(this, "stopDtmfTone() request on a call without a connection service.");
         } else {
             Log.i(this, "Send stopDtmfTone to connection service for call %s", this);
-            Log.event(this, Log.Events.STOP_DTMF);
+            Log.addEvent(this, LogUtils.Events.STOP_DTMF);
             mConnectionService.stopDtmfTone(this);
         }
     }
@@ -1308,7 +1326,7 @@ public class Call implements CreateConnectionResponse {
             Log.w(this, "silence() request on a call without a connection service.");
         } else {
             Log.i(this, "Send silence to connection service for call %s", this);
-            Log.event(this, Log.Events.SILENCE);
+            Log.addEvent(this, LogUtils.Events.SILENCE);
             mConnectionService.silence(this);
         }
     }
@@ -1323,7 +1341,7 @@ public class Call implements CreateConnectionResponse {
      */
     @VisibleForTesting
     public void disconnect(boolean wasViaNewOutgoingCallBroadcaster) {
-        Log.event(this, Log.Events.REQUEST_DISCONNECT);
+        Log.addEvent(this, LogUtils.Events.REQUEST_DISCONNECT);
 
         // Track that the call is now locally disconnecting.
         setLocallyDisconnecting(true);
@@ -1403,7 +1421,7 @@ public class Call implements CreateConnectionResponse {
                 Log.e(this, new NullPointerException(),
                         "answer call failed due to null CS callId=%s", getId());
             }
-            Log.event(this, Log.Events.REQUEST_ACCEPT);
+            Log.addEvent(this, LogUtils.Events.REQUEST_ACCEPT);
         }
     }
 
@@ -1427,7 +1445,7 @@ public class Call implements CreateConnectionResponse {
                 Log.e(this, new NullPointerException(),
                         "reject call failed due to null CS callId=%s", getId());
             }
-            Log.event(this, Log.Events.REQUEST_REJECT);
+            Log.addEvent(this, LogUtils.Events.REQUEST_REJECT);
 
         }
     }
@@ -1443,7 +1461,7 @@ public class Call implements CreateConnectionResponse {
                 Log.e(this, new NullPointerException(),
                         "hold call failed due to null CS callId=%s", getId());
             }
-            Log.event(this, Log.Events.REQUEST_HOLD);
+            Log.addEvent(this, LogUtils.Events.REQUEST_HOLD);
         }
     }
 
@@ -1458,7 +1476,7 @@ public class Call implements CreateConnectionResponse {
                 Log.e(this, new NullPointerException(),
                         "unhold call failed due to null CS callId=%s", getId());
             }
-            Log.event(this, Log.Events.REQUEST_UNHOLD);
+            Log.addEvent(this, LogUtils.Events.REQUEST_UNHOLD);
         }
     }
 
@@ -1604,7 +1622,7 @@ public class Call implements CreateConnectionResponse {
         if (mConnectionService == null) {
             Log.w(this, "conference requested on a call without a connection service.");
         } else {
-            Log.event(this, Log.Events.CONFERENCE_WITH, otherCall);
+            Log.addEvent(this, LogUtils.Events.CONFERENCE_WITH, otherCall);
             mConnectionService.conference(this, otherCall);
         }
     }
@@ -1613,7 +1631,7 @@ public class Call implements CreateConnectionResponse {
         if (mConnectionService == null) {
             Log.w(this, "splitting from conference call without a connection service");
         } else {
-            Log.event(this, Log.Events.SPLIT_FROM_CONFERENCE);
+            Log.addEvent(this, LogUtils.Events.SPLIT_FROM_CONFERENCE);
             mConnectionService.splitFromConference(this);
         }
     }
@@ -1623,7 +1641,7 @@ public class Call implements CreateConnectionResponse {
         if (mConnectionService == null) {
             Log.w(this, "merging conference calls without a connection service.");
         } else if (can(Connection.CAPABILITY_MERGE_CONFERENCE)) {
-            Log.event(this, Log.Events.CONFERENCE_WITH);
+            Log.addEvent(this, LogUtils.Events.CONFERENCE_WITH);
             mConnectionService.mergeConference(this);
             mWasConferencePreviouslyMerged = true;
         }
@@ -1634,7 +1652,7 @@ public class Call implements CreateConnectionResponse {
         if (mConnectionService == null) {
             Log.w(this, "swapping conference calls without a connection service.");
         } else if (can(Connection.CAPABILITY_SWAP_CONFERENCE)) {
-            Log.event(this, Log.Events.SWAP);
+            Log.addEvent(this, LogUtils.Events.SWAP);
             mConnectionService.swapConference(this);
             switch (mChildCalls.size()) {
                 case 1:
@@ -1685,8 +1703,7 @@ public class Call implements CreateConnectionResponse {
             Log.w(this, "pullExternalCall - call %s is external but cannot be pulled.", mId);
             return;
         }
-
-        Log.event(this, Log.Events.REQUEST_PULL);
+        Log.addEvent(this, LogUtils.Events.REQUEST_PULL);
         mConnectionService.pullExternalCall(this);
     }
 
@@ -1727,7 +1744,7 @@ public class Call implements CreateConnectionResponse {
             mParentCall.addChildCall(this);
         }
 
-        Log.event(this, Log.Events.SET_PARENT, mParentCall);
+        Log.addEvent(this, LogUtils.Events.SET_PARENT, mParentCall);
         for (Listener l : mListeners) {
             l.onParentChanged(this);
         }
@@ -1764,7 +1781,7 @@ public class Call implements CreateConnectionResponse {
             mConferenceLevelActiveCall = call;
             mChildCalls.add(call);
 
-            Log.event(this, Log.Events.ADD_CHILD, call);
+            Log.addEvent(this, LogUtils.Events.ADD_CHILD, call);
 
             for (Listener l : mListeners) {
                 l.onChildrenChanged(this);
@@ -1774,7 +1791,7 @@ public class Call implements CreateConnectionResponse {
 
     private void removeChildCall(Call call) {
         if (mChildCalls.remove(call)) {
-            Log.event(this, Log.Events.REMOVE_CHILD, call);
+            Log.addEvent(this, LogUtils.Events.REMOVE_CHILD, call);
             for (Listener l : mListeners) {
                 l.onChildrenChanged(this);
             }
@@ -2050,7 +2067,7 @@ public class Call implements CreateConnectionResponse {
         int previousVideoState = mVideoState;
         mVideoState = videoState;
         if (mVideoState != previousVideoState) {
-            Log.event(this, Log.Events.VIDEO_STATE_CHANGED,
+            Log.addEvent(this, LogUtils.Events.VIDEO_STATE_CHANGED,
                     VideoProfile.videoStateToString(videoState));
             for (Listener l : mListeners) {
                 l.onVideoStateChanged(this, previousVideoState, mVideoState);
@@ -2208,10 +2225,10 @@ public class Call implements CreateConnectionResponse {
      * @param extras The extras.
      */
     public void onConnectionEvent(String event, Bundle extras) {
-        Log.event(this, Log.Events.CONNECTION_EVENT, event);
+        Log.addEvent(this, LogUtils.Events.CONNECTION_EVENT, event);
         if (Connection.EVENT_ON_HOLD_TONE_START.equals(event)) {
             mIsRemotelyHeld = true;
-            Log.event(this, Log.Events.REMOTELY_HELD);
+            Log.addEvent(this, LogUtils.Events.REMOTELY_HELD);
             // Inform listeners of the fact that a call hold tone was received.  This will trigger
             // the CallAudioManager to play a tone via the InCallTonePlayer.
             for (Listener l : mListeners) {
@@ -2219,7 +2236,7 @@ public class Call implements CreateConnectionResponse {
             }
         } else if (Connection.EVENT_ON_HOLD_TONE_END.equals(event)) {
             mIsRemotelyHeld = false;
-            Log.event(this, Log.Events.REMOTELY_UNHELD);
+            Log.addEvent(this, LogUtils.Events.REMOTELY_UNHELD);
             for (Listener l : mListeners) {
                 l.onHoldToneRequested(this);
             }

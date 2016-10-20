@@ -20,6 +20,7 @@ import android.content.Context;
 import android.telecom.Connection;
 import android.telecom.DisconnectCause;
 import android.telecom.InCallService;
+import android.telecom.Log;
 import android.telecom.ParcelableCallAnalytics;
 import android.telecom.TelecomAnalytics;
 import android.telecom.TelecomManager;
@@ -31,7 +32,7 @@ import android.util.Base64;
 
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.Analytics;
-import com.android.server.telecom.Log;
+import com.android.server.telecom.LogUtils;
 import com.android.server.telecom.TelecomLogClass;
 
 import java.io.PrintWriter;
@@ -244,13 +245,13 @@ public class AnalyticsTests extends TelecomSystemTest {
     @SmallTest
     public void testAnalyticsLogSessionTiming() throws Exception {
         long minTime = 50;
-        Log.startSession(Log.Sessions.CSW_ADD_CONFERENCE_CALL);
+        Log.startSession(LogUtils.Sessions.CSW_ADD_CONFERENCE_CALL);
         Thread.sleep(minTime);
         Log.endSession();
         TelecomManager tm = (TelecomManager) mSpyContext.getSystemService(Context.TELECOM_SERVICE);
         List<TelecomAnalytics.SessionTiming> sessions = tm.dumpAnalytics().getSessionTimings();
         sessions.stream()
-                .filter(s -> Log.Sessions.CSW_ADD_CONFERENCE_CALL.equals(
+                .filter(s -> LogUtils.Sessions.CSW_ADD_CONFERENCE_CALL.equals(
                         Analytics.sSessionIdToLogSession.get(s.getKey())))
                 .forEach(s -> assertTrue(s.getTime() >= minTime));
     }

@@ -17,7 +17,6 @@
 package com.android.server.telecom.components;
 
 import com.android.server.telecom.CallIntentProcessor;
-import com.android.server.telecom.Log;
 import com.android.server.telecom.TelecomSystem;
 
 import android.app.Activity;
@@ -26,6 +25,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.telecom.Log;
 import android.telecom.TelecomManager;
 
 // TODO: Needed for move to system service: import com.android.internal.R;
