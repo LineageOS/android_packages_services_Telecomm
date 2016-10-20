@@ -31,6 +31,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.UserHandle;
+import android.telecom.Log;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -182,8 +183,7 @@ public class TelecomSystem {
             PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
             InterruptionFilterProxy interruptionFilterProxy) {
         mContext = context.getApplicationContext();
-        Log.setContext(mContext);
-        Log.initMd5Sum();
+        LogUtils.initLogging(mContext);
 
         Log.startSession("TS.init");
         mPhoneAccountRegistrar = new PhoneAccountRegistrar(mContext);

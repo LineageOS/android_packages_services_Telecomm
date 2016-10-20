@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.UserHandle;
+import android.telecom.Log;
 import android.text.TextUtils;
 import android.util.ArraySet;
 
@@ -82,7 +83,7 @@ abstract class ServiceBinder {
                 Intent serviceIntent = new Intent(mServiceAction).setComponent(mComponentName);
                 ServiceConnection connection = new ServiceBinderConnection(call);
 
-                Log.event(call, Log.Events.BIND_CS, mComponentName);
+                Log.addEvent(call, LogUtils.Events.BIND_CS, mComponentName);
                 final int bindingFlags = Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE;
                 final boolean isBound;
                 if (mUserHandle != null) {
@@ -120,7 +121,7 @@ abstract class ServiceBinder {
                 synchronized (mLock) {
                     Log.i(this, "Service bound %s", componentName);
 
-                    Log.event(mCall, Log.Events.CS_BOUND, componentName);
+                    Log.addEvent(mCall, LogUtils.Events.CS_BOUND, componentName);
                     mCall = null;
 
                     // Unbind request was queued so unbind immediately.

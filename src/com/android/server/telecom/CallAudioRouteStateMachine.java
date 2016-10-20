@@ -32,6 +32,8 @@ import android.os.RemoteException;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.telecom.CallAudioState;
+import android.telecom.Log;
+import android.telecom.Logging.Session;
 import android.util.SparseArray;
 
 import com.android.internal.util.IState;
@@ -113,10 +115,10 @@ public class CallAudioRouteStateMachine extends StateMachine {
     public static final int RINGING_FOCUS = 3;
 
     private static final SparseArray<String> AUDIO_ROUTE_TO_LOG_EVENT = new SparseArray<String>() {{
-        put(CallAudioState.ROUTE_BLUETOOTH, Log.Events.AUDIO_ROUTE_BT);
-        put(CallAudioState.ROUTE_EARPIECE, Log.Events.AUDIO_ROUTE_EARPIECE);
-        put(CallAudioState.ROUTE_SPEAKER, Log.Events.AUDIO_ROUTE_SPEAKER);
-        put(CallAudioState.ROUTE_WIRED_HEADSET, Log.Events.AUDIO_ROUTE_HEADSET);
+        put(CallAudioState.ROUTE_BLUETOOTH, LogUtils.Events.AUDIO_ROUTE_BT);
+        put(CallAudioState.ROUTE_EARPIECE, LogUtils.Events.AUDIO_ROUTE_EARPIECE);
+        put(CallAudioState.ROUTE_SPEAKER, LogUtils.Events.AUDIO_ROUTE_SPEAKER);
+        put(CallAudioState.ROUTE_WIRED_HEADSET, LogUtils.Events.AUDIO_ROUTE_HEADSET);
     }};
 
     private static final SparseArray<String> MESSAGE_CODE_TO_NAME = new SparseArray<String>() {{
@@ -209,13 +211,13 @@ public class CallAudioRouteStateMachine extends StateMachine {
         @Override
         public void enter() {
             super.enter();
-            Log.event(mCallsManager.getForegroundCall(), Log.Events.AUDIO_ROUTE,
+            Log.addEvent(mCallsManager.getForegroundCall(), LogUtils.Events.AUDIO_ROUTE,
                     "Entering state " + getName());
         }
 
         @Override
         public void exit() {
-            Log.event(mCallsManager.getForegroundCall(), Log.Events.AUDIO_ROUTE,
+            Log.addEvent(mCallsManager.getForegroundCall(), LogUtils.Events.AUDIO_ROUTE,
                     "Leaving state " + getName());
             super.exit();
         }
@@ -224,18 +226,18 @@ public class CallAudioRouteStateMachine extends StateMachine {
         public boolean processMessage(Message msg) {
             switch (msg.what) {
                 case CONNECT_WIRED_HEADSET:
-                    Log.event(mCallsManager.getForegroundCall(), Log.Events.AUDIO_ROUTE,
+                    Log.addEvent(mCallsManager.getForegroundCall(), LogUtils.Events.AUDIO_ROUTE,
                             "Wired headset connected");
                     mAvailableRoutes &= ~ROUTE_EARPIECE;
                     mAvailableRoutes |= ROUTE_WIRED_HEADSET;
                     return NOT_HANDLED;
                 case CONNECT_BLUETOOTH:
-                    Log.event(mCallsManager.getForegroundCall(), Log.Events.AUDIO_ROUTE,
+                    Log.addEvent(mCallsManager.getForegroundCall(), LogUtils.Events.AUDIO_ROUTE,
                             "Bluetooth connected");
                     mAvailableRoutes |= ROUTE_BLUETOOTH;
                     return NOT_HANDLED;
                 case DISCONNECT_WIRED_HEADSET:
-                    Log.event(mCallsManager.getForegroundCall(), Log.Events.AUDIO_ROUTE,
+                    Log.addEvent(mCallsManager.getForegroundCall(), LogUtils.Events.AUDIO_ROUTE,
                             "Wired headset disconnected");
                     mAvailableRoutes &= ~ROUTE_WIRED_HEADSET;
                     if (mDoesDeviceSupportEarpieceRoute) {
@@ -243,7 +245,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return NOT_HANDLED;
                 case DISCONNECT_BLUETOOTH:
-                    Log.event(mCallsManager.getForegroundCall(), Log.Events.AUDIO_ROUTE,
+                    Log.addEvent(mCallsManager.getForegroundCall(), LogUtils.Events.AUDIO_ROUTE,
                             "Bluetooth disconnected");
                     mAvailableRoutes &= ~ROUTE_BLUETOOTH;
                     return NOT_HANDLED;
@@ -1344,7 +1346,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
 
     private void setMuteOn(boolean mute) {
         mIsMuted = mute;
-        Log.event(mCallsManager.getForegroundCall(), mute ? Log.Events.MUTE : Log.Events.UNMUTE);
+        Log.addEvent(mCallsManager.getForegroundCall(), mute ? LogUtils.Events.MUTE : LogUtils.Events.UNMUTE);
 
         if (mute != mAudioManager.isMicrophoneMute() && isInActiveState()) {
             IAudioService audio = mAudioServiceFactory.getAudioService();
@@ -1401,9 +1403,9 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     newCallAudioState);
             if (force || !newCallAudioState.equals(mLastKnownCallAudioState)) {
                 if (newCallAudioState.getRoute() != mLastKnownCallAudioState.getRoute()) {
-                    Log.event(mCallsManager.getForegroundCall(),
+                    Log.addEvent(mCallsManager.getForegroundCall(),
                             AUDIO_ROUTE_TO_LOG_EVENT.get(newCallAudioState.getRoute(),
-                                    Log.Events.AUDIO_ROUTE));
+                                    LogUtils.Events.AUDIO_ROUTE));
                 }
 
                 mCallsManager.onCallAudioStateChanged(mLastKnownCallAudioState, newCallAudioState);

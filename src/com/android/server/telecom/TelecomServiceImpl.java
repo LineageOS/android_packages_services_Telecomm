@@ -39,6 +39,8 @@ import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.telecom.DefaultDialerManager;
+import android.telecom.Log;
+import android.telecom.ParcelableCallAnalytics;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomAnalytics;
@@ -1194,7 +1196,7 @@ public class TelecomServiceImpl {
                 pw.decreaseIndent();
             }
 
-            Log.dumpCallEvents(pw);
+            Log.dumpEvents(pw);
         }
 
         /**
