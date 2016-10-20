@@ -33,7 +33,6 @@ import android.telecom.DisconnectCause;
 import android.telecom.GatewayInfo;
 import android.telecom.ParcelableConference;
 import android.telecom.ParcelableConnection;
-import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.StatusHints;
 import android.telecom.TelecomManager;
@@ -361,6 +360,8 @@ public class ConnectionServiceWrapper extends ServiceBinder {
                                 "call id %s", callId);
                         return;
                     }
+                    logIncoming("addConferenceCall %s %s [%s]", callId, parcelableConference,
+                            parcelableConference.getConnectionIds());
 
                     // Make sure that there's at least one valid call. For remote connections
                     // we'll get a add conference msg from both the remote connection service
@@ -378,16 +379,46 @@ public class ConnectionServiceWrapper extends ServiceBinder {
                         return;
                     }
 
-                    // need to create a new Call
                     PhoneAccountHandle phAcc = null;
                     if (parcelableConference != null &&
                             parcelableConference.getPhoneAccount() != null) {
                         phAcc = parcelableConference.getPhoneAccount();
                     }
-                    Call conferenceCall = mCallsManager.createConferenceCall(callId,
-                            phAcc, parcelableConference);
-                    mCallIdMapper.addCall(conferenceCall, callId);
-                    conferenceCall.setConnectionService(ConnectionServiceWrapper.this);
+
+                    Bundle connectionExtras = parcelableConference.getExtras();
+
+                    String connectIdToCheck = null;
+                    if (connectionExtras != null && connectionExtras
+                            .containsKey(Connection.EXTRA_ORIGINAL_CONNECTION_ID)) {
+                        // Conference was added via a connection manager, see if its original id is
+                        // known.
+                        connectIdToCheck = connectionExtras
+                                .getString(Connection.EXTRA_ORIGINAL_CONNECTION_ID);
+                    } else {
+                        connectIdToCheck = callId;
+                    }
+
+                    Call conferenceCall;
+                    // Check to see if this conference has already been added.
+                    Call alreadyAddedConnection = mCallsManager
+                            .getAlreadyAddedConnection(connectIdToCheck);
+                    if (alreadyAddedConnection != null && mCallIdMapper.getCall(callId) == null) {
+                        // We are currently attempting to add the conference via a connection mgr,
+                        // and the originating ConnectionService has already added it.  Instead of
+                        // making a new Telecom call, we will simply add it to the ID mapper here,
+                        // and replace the ConnectionService on the call.
+                        mCallIdMapper.addCall(alreadyAddedConnection, callId);
+                        alreadyAddedConnection.replaceConnectionService(
+                                ConnectionServiceWrapper.this);
+                        conferenceCall = alreadyAddedConnection;
+                    } else {
+                        // need to create a new Call
+                        Call newConferenceCall = mCallsManager.createConferenceCall(callId,
+                                phAcc, parcelableConference);
+                        mCallIdMapper.addCall(newConferenceCall, callId);
+                        newConferenceCall.setConnectionService(ConnectionServiceWrapper.this);
+                        conferenceCall = newConferenceCall;
+                    }
 
                     Log.d(this, "adding children to conference %s phAcc %s",
                             parcelableConference.getConnectionIds(), phAcc);
@@ -597,10 +628,11 @@ public class ConnectionServiceWrapper extends ServiceBinder {
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
-                    logIncoming("setConferenceableConnections %s %s", callId,
-                            conferenceableCallIds);
+
                     Call call = mCallIdMapper.getCall(callId);
                     if (call != null) {
+                        logIncoming("setConferenceableConnections %s %s", callId,
+                                conferenceableCallIds);
                         List<Call> conferenceableCalls =
                                 new ArrayList<>(conferenceableCallIds.size());
                         for (String otherId : conferenceableCallIds) {
@@ -643,8 +675,37 @@ public class ConnectionServiceWrapper extends ServiceBinder {
                             phoneAccountHandle = accountHandle;
                         }
                     }
+                    // Allow the Sim call manager account as well, even if its disabled.
+                    if (phoneAccountHandle == null && callingPhoneAccountHandle != null) {
+                        if (callingPhoneAccountHandle.equals(
+                                mPhoneAccountRegistrar.getSimCallManager(userHandle))) {
+                            phoneAccountHandle = callingPhoneAccountHandle;
+                        }
+                    }
                     if (phoneAccountHandle != null) {
-                        logIncoming("addExistingConnection  %s %s", callId, connection);
+                        logIncoming("addExistingConnection %s %s", callId, connection);
+
+                        Bundle connectionExtras = connection.getExtras();
+                        String connectIdToCheck = null;
+                        if (connectionExtras != null && connectionExtras
+                                .containsKey(Connection.EXTRA_ORIGINAL_CONNECTION_ID)) {
+                            connectIdToCheck = connectionExtras
+                                    .getString(Connection.EXTRA_ORIGINAL_CONNECTION_ID);
+                        } else {
+                            connectIdToCheck = callId;
+                        }
+                        // Check to see if this Connection has already been added.
+                        Call alreadyAddedConnection = mCallsManager
+                                .getAlreadyAddedConnection(connectIdToCheck);
+
+                        if (alreadyAddedConnection != null
+                                && mCallIdMapper.getCall(callId) == null) {
+                            mCallIdMapper.addCall(alreadyAddedConnection, callId);
+                            alreadyAddedConnection
+                                    .replaceConnectionService(ConnectionServiceWrapper.this);
+                            return;
+                        }
+
                         Call existingCall = mCallsManager
                                 .createCallForExistingConnection(callId, connection);
                         mCallIdMapper.addCall(existingCall, callId);
@@ -1117,11 +1178,13 @@ public class ConnectionServiceWrapper extends ServiceBinder {
     }
 
     private void logIncoming(String msg, Object... params) {
-        Log.d(this, "ConnectionService -> Telecom: " + msg, params);
+        Log.d(this, "ConnectionService -> Telecom[" + mComponentName.flattenToShortString() + "]: "
+                + msg, params);
     }
 
     private void logOutgoing(String msg, Object... params) {
-        Log.d(this, "Telecom -> ConnectionService: " + msg, params);
+        Log.d(this, "Telecom -> ConnectionService[" + mComponentName.flattenToShortString() + "]: "
+                + msg, params);
     }
 
     private void queryRemoteConnectionServices(final UserHandle userHandle,
