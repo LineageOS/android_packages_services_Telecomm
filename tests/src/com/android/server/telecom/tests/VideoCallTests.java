@@ -25,7 +25,6 @@ import android.test.suitebuilder.annotation.MediumTest;
 
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioRouteStateMachine;
-import com.android.server.telecom.Log;
 
 import java.util.List;
 

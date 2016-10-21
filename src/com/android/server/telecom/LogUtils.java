@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import android.content.Context;
 import android.telecom.Logging.EventManager;
 import android.telecom.Logging.EventManager.TimedEventPair;
 
@@ -26,6 +27,8 @@ import android.telecom.Logging.EventManager.TimedEventPair;
 public class LogUtils {
 
     private static final String TAG = "Telecom";
+
+    public static final boolean SYSTRACE_DEBUG = false; /* STOP SHIP if true */
 
     public static final class Sessions {
         public static final String ICA_ANSWER_CALL = "ICA.aC";
@@ -153,12 +156,10 @@ public class LogUtils {
         }
     }
 
-    static {
-        initLogging();
-    }
-
-    private static void initLogging() {
+    public static void initLogging(Context context) {
         android.telecom.Log.setTag(TAG);
+        android.telecom.Log.setSessionContext(context);
+        android.telecom.Log.initMd5Sum();
         for (EventManager.TimedEventPair p : Events.Timings.sTimedEvents) {
             android.telecom.Log.addRequestResponsePair(p);
         }

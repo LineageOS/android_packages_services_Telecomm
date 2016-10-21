@@ -16,8 +16,6 @@
 
 package com.android.server.telecom.tests;
 
-import com.android.server.telecom.Log;
-
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -25,21 +23,13 @@ import org.mockito.internal.exceptions.ExceptionIncludingMockitoWarnings;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Camera;
 import android.graphics.SurfaceTexture;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import android.telecom.Call;
-import android.telecom.CallAudioState;
-import android.telecom.Connection;
 import android.telecom.Connection.VideoProvider;
 import android.telecom.InCallService;
 import android.telecom.InCallService.VideoCall;
-import android.telecom.ParcelableCall;
-import android.telecom.TelecomManager;
 import android.telecom.VideoCallImpl;
 import android.telecom.VideoProfile;
 import android.telecom.VideoProfile.CameraCapabilities;
@@ -50,7 +40,6 @@ import com.google.common.base.Predicate;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.TimeUnit;
 
 import static android.test.MoreAsserts.assertEquals;

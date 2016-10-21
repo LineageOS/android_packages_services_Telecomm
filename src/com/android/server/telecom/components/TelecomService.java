@@ -26,6 +26,7 @@ import android.media.IAudioService;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.ServiceManager;
+import android.telecom.Log;
 
 import com.android.internal.telephony.CallerInfoAsyncQuery;
 import com.android.server.telecom.AsyncRingtonePlayer;
@@ -43,7 +44,6 @@ import com.android.server.telecom.PhoneNumberUtilsAdapter;
 import com.android.server.telecom.PhoneNumberUtilsAdapterImpl;
 import com.android.server.telecom.ProximitySensorManagerFactory;
 import com.android.server.telecom.InCallWakeLockController;
-import com.android.server.telecom.Log;
 import com.android.server.telecom.ProximitySensorManager;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.TelecomWakeLock;
