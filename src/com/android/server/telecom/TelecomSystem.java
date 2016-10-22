@@ -17,6 +17,8 @@
 package com.android.server.telecom;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.server.telecom.bluetooth.BluetoothDeviceManager;
+import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
 import com.android.server.telecom.ui.MissedCallNotifierImpl.MissedCallNotifierImplFactory;
@@ -200,8 +202,10 @@ public class TelecomSystem {
                         return context.getContentResolver().openInputStream(uri);
                     }
                 });
-        BluetoothManager bluetoothManager = new BluetoothManager(mContext,
-                new BluetoothAdapterProxy());
+        BluetoothDeviceManager bluetoothDeviceManager = new BluetoothDeviceManager(mContext,
+                new BluetoothAdapterProxy(), mLock);
+        BluetoothRouteManager bluetoothRouteManager = new BluetoothRouteManager(mContext, mLock,
+                bluetoothDeviceManager, new Timeouts.Adapter());
         WiredHeadsetManager wiredHeadsetManager = new WiredHeadsetManager(mContext);
         SystemStateProvider systemStateProvider = new SystemStateProvider(mContext);
 
@@ -219,7 +223,7 @@ public class TelecomSystem {
                 proximitySensorManagerFactory,
                 inCallWakeLockControllerFactory,
                 audioServiceFactory,
-                bluetoothManager,
+                bluetoothRouteManager,
                 wiredHeadsetManager,
                 systemStateProvider,
                 defaultDialerCache,

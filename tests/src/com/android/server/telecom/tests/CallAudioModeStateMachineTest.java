@@ -604,6 +604,8 @@ public class CallAudioModeStateMachineTest extends StateMachineTestBase<CallAudi
                 verify(mCallAudioManager).stopCallWaiting();
                 break;
         }
+
+        sm.quitNow();
     }
 
     private void resetMocks() {

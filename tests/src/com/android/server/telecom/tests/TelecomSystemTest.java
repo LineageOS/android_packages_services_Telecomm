@@ -322,6 +322,10 @@ public class TelecomSystemTest extends TelecomTestCase {
 
     @Override
     public void tearDown() throws Exception {
+        mTelecomSystem.getCallsManager().getCallAudioManager()
+                .getCallAudioRouteStateMachine().quitNow();
+        mTelecomSystem.getCallsManager().getCallAudioManager()
+                .getCallAudioModeStateMachine().quitNow();
         mTelecomSystem = null;
         super.tearDown();
     }
