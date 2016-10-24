@@ -137,7 +137,7 @@ public class BasicCallTests extends TelecomSystemTest {
         telecomManager.acceptRingingCall();
 
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
-                .answer(ids.mConnectionId);
+                .answer(eq(ids.mConnectionId), any());
         mConnectionServiceFixtureA.sendSetActive(ids.mConnectionId);
 
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(ids.mCallId);
@@ -165,7 +165,7 @@ public class BasicCallTests extends TelecomSystemTest {
 
         // Answer video API should be called
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
-                .answerVideo(eq(ids.mConnectionId), eq(VideoProfile.STATE_BIDIRECTIONAL));
+                .answerVideo(eq(ids.mConnectionId), eq(VideoProfile.STATE_BIDIRECTIONAL), any());
         mConnectionServiceFixtureA.sendSetActive(ids.mConnectionId);
 
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(ids.mCallId);
@@ -192,7 +192,7 @@ public class BasicCallTests extends TelecomSystemTest {
 
         // The generic answer method on the ConnectionService is used to answer audio-only calls.
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
-                .answer(eq(ids.mConnectionId));
+                .answer(eq(ids.mConnectionId), any());
         mConnectionServiceFixtureA.sendSetActive(ids.mConnectionId);
 
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(ids.mCallId);
@@ -220,7 +220,7 @@ public class BasicCallTests extends TelecomSystemTest {
 
         // Answer video API should be called
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
-                .answerVideo(eq(ids.mConnectionId), eq(VideoProfile.STATE_BIDIRECTIONAL));
+                .answerVideo(eq(ids.mConnectionId), eq(VideoProfile.STATE_BIDIRECTIONAL), any());
         mConnectionServiceFixtureA.sendSetActive(ids.mConnectionId);
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(ids.mCallId);
     }
@@ -291,7 +291,7 @@ public class BasicCallTests extends TelecomSystemTest {
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         verify(mConnectionServiceFixtureA.getTestDouble())
                 .createConnection(any(PhoneAccountHandle.class), anyString(),
-                        any(ConnectionRequest.class), eq(true), eq(false));
+                        any(ConnectionRequest.class), eq(true), eq(false), any());
 
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         assertEquals(1, mCallerInfoAsyncQueryFactoryFixture.mRequests.size());
@@ -333,7 +333,7 @@ public class BasicCallTests extends TelecomSystemTest {
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         verify(mConnectionServiceFixtureA.getTestDouble())
                 .createConnection(any(PhoneAccountHandle.class), anyString(),
-                        any(ConnectionRequest.class), eq(true), eq(false));
+                        any(ConnectionRequest.class), eq(true), eq(false), any());
 
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         // Never reply to the caller info lookup.
@@ -378,7 +378,7 @@ public class BasicCallTests extends TelecomSystemTest {
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         verify(mConnectionServiceFixtureA.getTestDouble())
                 .createConnection(any(PhoneAccountHandle.class), anyString(),
-                        any(ConnectionRequest.class), eq(true), eq(false));
+                        any(ConnectionRequest.class), eq(true), eq(false), any());
 
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         assertEquals(1, mCallerInfoAsyncQueryFactoryFixture.mRequests.size());
@@ -482,7 +482,7 @@ public class BasicCallTests extends TelecomSystemTest {
         IdPair incoming = startAndMakeActiveIncomingCall("650-555-2323",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
         verify(mConnectionServiceFixtureA.getTestDouble())
-                .hold(outgoing.mConnectionId);
+                .hold(eq(outgoing.mConnectionId), any());
         mConnectionServiceFixtureA.mConnectionById.get(outgoing.mConnectionId).state =
                 Connection.STATE_HOLDING;
         mConnectionServiceFixtureA.sendSetOnHold(outgoing.mConnectionId);
@@ -612,11 +612,11 @@ public class BasicCallTests extends TelecomSystemTest {
         mInCallServiceFixtureX.mInCallAdapter.pullExternalCall(ids.mCallId);
         Thread.sleep(TEST_TIMEOUT);
         verify(mConnectionServiceFixtureA.getTestDouble(), never())
-                .pullExternalCall(ids.mCallId);
+                .pullExternalCall(eq(ids.mCallId), any());
     }
 
     /**
-     * Tests the {@link Connection#sendConnectionEvent(String)} API.
+     * Tests the {@link Connection#sendConnectionEvent(String, Bundle)} API.
      *
      * @throws Exception
      */
@@ -631,7 +631,7 @@ public class BasicCallTests extends TelecomSystemTest {
     }
 
     /**
-     * Tests the {@link Connection#sendConnectionEvent(String)} API.
+     * Tests the {@link Connection#sendConnectionEvent(String, Bundle)} API.
      *
      * @throws Exception
      */
@@ -664,7 +664,7 @@ public class BasicCallTests extends TelecomSystemTest {
 
         mInCallServiceFixtureX.mInCallAdapter.sendCallEvent(ids.mCallId, TEST_EVENT, null);
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
-                .sendCallEvent(ids.mConnectionId, TEST_EVENT, null);
+                .sendCallEvent(eq(ids.mConnectionId), eq(TEST_EVENT), isNull(Bundle.class), any());
     }
 
     /**
@@ -686,7 +686,7 @@ public class BasicCallTests extends TelecomSystemTest {
                 testBundle);
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
                 .sendCallEvent(eq(ids.mConnectionId), eq(TEST_EVENT),
-                        bundleArgumentCaptor.capture());
+                        bundleArgumentCaptor.capture(), any());
         assert (bundleArgumentCaptor.getValue().containsKey(TEST_BUNDLE_KEY));
     }
 
@@ -870,7 +870,7 @@ public class BasicCallTests extends TelecomSystemTest {
         // Attempt to pull the call and verify the API call makes it through
         mInCallServiceFixtureX.mInCallAdapter.pullExternalCall(ids.mCallId);
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
-                .pullExternalCall(ids.mConnectionId);
+                .pullExternalCall(eq(ids.mConnectionId), any());
     }
 
     /**
@@ -895,7 +895,7 @@ public class BasicCallTests extends TelecomSystemTest {
         mInCallServiceFixtureX.mInCallAdapter.pullExternalCall(ids.mCallId);
         Thread.sleep(TEST_TIMEOUT);
         verify(mConnectionServiceFixtureA.getTestDouble(), never())
-                .pullExternalCall(ids.mConnectionId);
+                .pullExternalCall(eq(ids.mConnectionId), any());
     }
 
     @LargeTest
