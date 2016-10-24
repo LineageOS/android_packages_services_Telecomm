@@ -38,6 +38,7 @@ import android.telecom.ConnectionRequest;
 import android.telecom.ConnectionService;
 import android.telecom.DisconnectCause;
 import android.telecom.Log;
+import android.telecom.Logging.Session;
 import android.telecom.ParcelableConference;
 import android.telecom.ParcelableConnection;
 import android.telecom.PhoneAccountHandle;
@@ -192,28 +193,29 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         List<String> rejectedCallIds = Lists.newArrayList();
 
         @Override
-        public void addConnectionServiceAdapter(IConnectionServiceAdapter adapter)
-                throws RemoteException {
+        public void addConnectionServiceAdapter(IConnectionServiceAdapter adapter,
+                Session.Info info) throws RemoteException {
             if (!mConnectionServiceAdapters.add(adapter)) {
                 throw new RuntimeException("Adapter already added: " + adapter);
             }
-            mConnectionServiceDelegateAdapter.addConnectionServiceAdapter(adapter);
+            mConnectionServiceDelegateAdapter.addConnectionServiceAdapter(adapter,
+                    null /*Session.Info*/);
         }
 
         @Override
-        public void removeConnectionServiceAdapter(IConnectionServiceAdapter adapter)
-                throws RemoteException {
+        public void removeConnectionServiceAdapter(IConnectionServiceAdapter adapter,
+                Session.Info info) throws RemoteException {
             if (!mConnectionServiceAdapters.remove(adapter)) {
                 throw new RuntimeException("Adapter never added: " + adapter);
             }
-            mConnectionServiceDelegateAdapter.removeConnectionServiceAdapter(adapter);
+            mConnectionServiceDelegateAdapter.removeConnectionServiceAdapter(adapter,
+                    null /*Session.Info*/);
         }
 
         @Override
         public void createConnection(PhoneAccountHandle connectionManagerPhoneAccount,
-                String id,
-                ConnectionRequest request, boolean isIncoming, boolean isUnknown)
-                throws RemoteException {
+                String id, ConnectionRequest request, boolean isIncoming, boolean isUnknown,
+                Session.Info info) throws RemoteException {
             Log.i(ConnectionServiceFixture.this, "xoxox createConnection --> " + id);
 
             if (mConnectionById.containsKey(id)) {
@@ -233,74 +235,84 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
             c.isConferenceCreated = true;
             mConnectionById.put(id, c);
             mConnectionServiceDelegateAdapter.createConnection(connectionManagerPhoneAccount,
-                    id, request, isIncoming, isUnknown);
+                    id, request, isIncoming, isUnknown, null /*Session.Info*/);
         }
 
         @Override
-        public void abort(String callId) throws RemoteException { }
+        public void abort(String callId, Session.Info info) throws RemoteException { }
 
         @Override
-        public void answerVideo(String callId, int videoState) throws RemoteException { }
+        public void answerVideo(String callId, int videoState,
+                Session.Info info) throws RemoteException { }
 
         @Override
-        public void answer(String callId) throws RemoteException { }
+        public void answer(String callId, Session.Info info) throws RemoteException { }
 
         @Override
-        public void reject(String callId) throws RemoteException {
+        public void reject(String callId, Session.Info info) throws RemoteException {
             rejectedCallIds.add(callId);
         }
 
         @Override
-        public void rejectWithMessage(String callId, String message) throws RemoteException { }
+        public void rejectWithMessage(String callId, String message,
+                Session.Info info) throws RemoteException { }
 
         @Override
-        public void disconnect(String callId) throws RemoteException { }
+        public void disconnect(String callId, Session.Info info) throws RemoteException { }
 
         @Override
-        public void silence(String callId) throws RemoteException { }
+        public void silence(String callId, Session.Info info) throws RemoteException { }
 
         @Override
-        public void hold(String callId) throws RemoteException { }
+        public void hold(String callId, Session.Info info) throws RemoteException { }
 
         @Override
-        public void unhold(String callId) throws RemoteException { }
+        public void unhold(String callId, Session.Info info) throws RemoteException { }
 
         @Override
-        public void onCallAudioStateChanged(String activeCallId, CallAudioState audioState)
+        public void onCallAudioStateChanged(String activeCallId, CallAudioState audioState,
+                Session.Info info)
                 throws RemoteException { }
 
         @Override
-        public void playDtmfTone(String callId, char digit) throws RemoteException { }
+        public void playDtmfTone(String callId, char digit,
+                Session.Info info) throws RemoteException { }
 
         @Override
-        public void stopDtmfTone(String callId) throws RemoteException { }
+        public void stopDtmfTone(String callId, Session.Info info) throws RemoteException { }
 
         @Override
-        public void conference(String conferenceCallId, String callId) throws RemoteException {
-            mConnectionServiceDelegateAdapter.conference(conferenceCallId, callId);
+        public void conference(String conferenceCallId, String callId,
+                Session.Info info) throws RemoteException {
+            mConnectionServiceDelegateAdapter.conference(conferenceCallId, callId, info);
         }
 
         @Override
-        public void splitFromConference(String callId) throws RemoteException { }
+        public void splitFromConference(String callId, Session.Info info) throws RemoteException { }
 
         @Override
-        public void mergeConference(String conferenceCallId) throws RemoteException { }
+        public void mergeConference(String conferenceCallId,
+                Session.Info info) throws RemoteException { }
 
         @Override
-        public void swapConference(String conferenceCallId) throws RemoteException { }
+        public void swapConference(String conferenceCallId,
+                Session.Info info) throws RemoteException { }
 
         @Override
-        public void onPostDialContinue(String callId, boolean proceed) throws RemoteException { }
+        public void onPostDialContinue(String callId, boolean proceed,
+                Session.Info info) throws RemoteException { }
 
         @Override
-        public void pullExternalCall(String callId) throws RemoteException { }
+        public void pullExternalCall(String callId, Session.Info info) throws RemoteException { }
 
         @Override
-        public void sendCallEvent(String callId, String event, Bundle extras) throws RemoteException
+        public void sendCallEvent(String callId, String event, Bundle extras,
+                Session.Info info) throws RemoteException
         {}
 
-        public void onExtrasChanged(String callId, Bundle extras) throws RemoteException {
-            mConnectionServiceDelegateAdapter.onExtrasChanged(callId, extras);
+        public void onExtrasChanged(String callId, Bundle extras,
+                Session.Info info) throws RemoteException {
+            mConnectionServiceDelegateAdapter.onExtrasChanged(callId, extras, info);
         }
 
         @Override
