@@ -67,7 +67,6 @@ import com.android.server.telecom.CallerInfoAsyncQueryFactory;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.CallsManagerListenerBase;
-import com.android.server.telecom.ContactsAsyncHelper;
 import com.android.server.telecom.HeadsetMediaButton;
 import com.android.server.telecom.HeadsetMediaButtonFactory;
 import com.android.server.telecom.InCallWakeLockController;
