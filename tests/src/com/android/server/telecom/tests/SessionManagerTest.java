@@ -20,6 +20,8 @@ import android.telecom.Logging.Session;
 import android.telecom.Logging.SessionManager;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Unit tests for android.telecom.Logging.SessionManager
  */
@@ -30,7 +32,7 @@ public class SessionManagerTest extends TelecomTestCase {
     private static final int TEST_PARENT_THREAD_ID = 0;
     private static final String TEST_CHILD_NAME = "testChild";
     private static final int TEST_CHILD_THREAD_ID = 1;
-    private static final int TEST_DELAY_TIME = 100; //ms
+    private static final int TEST_DELAY_TIME = 100; // ms
 
     private SessionManager mTestSessionManager;
     // Used to verify sessionComplete callback
@@ -91,8 +93,7 @@ public class SessionManagerTest extends TelecomTestCase {
         // There should only be one session in the mapper (the child)
         assertEquals(1, mTestSessionManager.mSessionMapper.size());
         Session testChildSession = mTestSessionManager.mSessionMapper.get(TEST_PARENT_THREAD_ID);
-        assertEquals(TEST_PARENT_NAME + "->" + TEST_CHILD_NAME,
-                testChildSession.getShortMethodName());
+        assertEquals( TEST_CHILD_NAME, testChildSession.getShortMethodName());
         assertTrue(testChildSession.isStartedFromActiveSession());
         assertNotNull(testChildSession.getParentSession());
         assertEquals(TEST_PARENT_NAME, testChildSession.getParentSession().getShortMethodName());
@@ -268,5 +269,116 @@ public class SessionManagerTest extends TelecomTestCase {
         // +-10 ms
         assertTrue(mfullSessionCompleteTime >= TEST_DELAY_TIME - 10);
         assertTrue(mfullSessionCompleteTime <= TEST_DELAY_TIME + 10);
+    }
+
+    /**
+     * Tests that starting an external session packages up the parent session information and
+     * correctly generates the child session.
+     */
+    @SmallTest
+    public void testStartExternalSession() {
+        mTestSessionManager.mCurrentThreadId = () -> TEST_PARENT_THREAD_ID;
+        mTestSessionManager.startSession(TEST_PARENT_NAME, null);
+        Session.Info sessionInfo =
+                mTestSessionManager.mSessionMapper.get(TEST_PARENT_THREAD_ID).getInfo();
+        mTestSessionManager.mCurrentThreadId = () -> TEST_CHILD_THREAD_ID;
+
+        mTestSessionManager.startExternalSession(sessionInfo, TEST_CHILD_NAME);
+
+        Session externalSession = mTestSessionManager.mSessionMapper.get(TEST_CHILD_THREAD_ID);
+        assertNotNull(externalSession);
+        assertFalse(externalSession.isSessionCompleted());
+        assertEquals(TEST_CHILD_NAME, externalSession.getShortMethodName());
+        // First subsession of the parent external Session, so the session will be _0.
+        assertEquals("0", externalSession.getSessionId());
+    }
+
+    /**
+     * Verifies that ending an external session tears down the session correctly and removes the
+     * external session from mSessionMapper.
+     */
+    @SmallTest
+    public void testEndExternalSession() {
+        mTestSessionManager.mCurrentThreadId = () -> TEST_PARENT_THREAD_ID;
+        mTestSessionManager.startSession(TEST_PARENT_NAME, null);
+        Session.Info sessionInfo =
+                mTestSessionManager.mSessionMapper.get(TEST_PARENT_THREAD_ID).getInfo();
+        mTestSessionManager.mCurrentThreadId = () -> TEST_CHILD_THREAD_ID;
+        mTestSessionManager.startExternalSession(sessionInfo, TEST_CHILD_NAME);
+        Session externalSession = mTestSessionManager.mSessionMapper.get(TEST_CHILD_THREAD_ID);
+
+        try {
+            // Make sure execution time is > 0
+            Thread.sleep(1);
+        } catch (InterruptedException ignored) {}
+        mTestSessionManager.endSession();
+
+        assertTrue(externalSession.isSessionCompleted());
+        assertTrue(externalSession.getLocalExecutionTime() > 0);
+        assertNull(mTestSessionManager.mSessionMapper.get(TEST_CHILD_THREAD_ID));
+    }
+
+    /**
+     * Verifies that the callback to inform that the top level parent Session has completed is not
+     * the external Session, but the one subsession underneath.
+     */
+    @SmallTest
+    public void testEndExternalSessionListenerCallback() {
+        mTestSessionManager.mCurrentThreadId = () -> TEST_PARENT_THREAD_ID;
+        mTestSessionManager.startSession(TEST_PARENT_NAME, null);
+        Session.Info sessionInfo =
+                mTestSessionManager.mSessionMapper.get(TEST_PARENT_THREAD_ID).getInfo();
+        mTestSessionManager.mCurrentThreadId = () -> TEST_CHILD_THREAD_ID;
+        mTestSessionManager.startExternalSession(sessionInfo, TEST_CHILD_NAME);
+
+        try {
+            // Make sure execution time is recorded correctly
+            Thread.sleep(TEST_DELAY_TIME);
+        } catch (InterruptedException ignored) {}
+        mTestSessionManager.endSession();
+
+        assertEquals(TEST_CHILD_NAME, mFullSessionMethodName);
+        assertTrue(mfullSessionCompleteTime >= TEST_DELAY_TIME - 10);
+        assertTrue(mfullSessionCompleteTime <= TEST_DELAY_TIME + 10);
+    }
+
+    /**
+     * Verifies that the recursive method for getting the full ID works correctly.
+     */
+    @SmallTest
+    public void testFullMethodPath() {
+        mTestSessionManager.mCurrentThreadId = () -> TEST_PARENT_THREAD_ID;
+        mTestSessionManager.startSession(TEST_PARENT_NAME, null);
+        Session testSession = mTestSessionManager.createSubsession();
+        mTestSessionManager.mCurrentThreadId = () -> TEST_CHILD_THREAD_ID;
+        mTestSessionManager.continueSession(testSession, TEST_CHILD_NAME);
+
+        String fullId = mTestSessionManager.getSessionId();
+
+        assertTrue(fullId.contains(TEST_PARENT_NAME + Session.SUBSESSION_SEPARATION_CHAR
+                + TEST_CHILD_NAME));
+    }
+
+    /**
+     * Make sure that the cleanup timer runs correctly and the GC collects the stale sessions
+     * correctly to ensure that there are no dangling sessions.
+     */
+    @SmallTest
+    public void testStaleSessionCleanupTimer() {
+        mTestSessionManager.mCurrentThreadId = () -> TEST_PARENT_THREAD_ID;
+        mTestSessionManager.startSession(TEST_PARENT_NAME, null);
+        WeakReference<Session> sessionRef = new WeakReference<>(
+                mTestSessionManager.mSessionMapper.get(TEST_PARENT_THREAD_ID));
+        try {
+            // Make sure that the sleep time is always > delay time.
+            Thread.sleep(2 * TEST_DELAY_TIME);
+            mTestSessionManager.cleanupStaleSessions(TEST_DELAY_TIME);
+            Runtime.getRuntime().gc();
+            // Give it a second for GC to run.
+            Thread.sleep(1000);
+        } catch (InterruptedException ignored) {}
+
+        assertTrue(mTestSessionManager.mSessionMapper.isEmpty());
+        assertNull(sessionRef.get());
     }
 }
