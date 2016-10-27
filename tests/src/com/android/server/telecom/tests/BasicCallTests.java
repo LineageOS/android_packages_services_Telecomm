@@ -796,36 +796,6 @@ public class BasicCallTests extends TelecomSystemTest {
                 .pullExternalCall(ids.mConnectionId);
     }
 
-    public void testMergeFailedAndNotifyInCallUi() throws Exception {
-        IdPair testCall1 = startAndMakeActiveOutgoingCall(
-                "650-555-1212",
-                mPhoneAccountA0.getAccountHandle(),
-                mConnectionServiceFixtureA);
-        IdPair testCall2 = startAndMakeActiveOutgoingCall(
-                "650-555-1213",
-                mPhoneAccountA0.getAccountHandle(),
-                mConnectionServiceFixtureA);
-
-        assertEquals(Call.STATE_ACTIVE,
-                mInCallServiceFixtureX.getCall(testCall1.mCallId).getState());
-        assertEquals(Call.STATE_ACTIVE,
-                mInCallServiceFixtureX.getCall(testCall2.mCallId).getState());
-        assertEquals(Call.STATE_ACTIVE,
-                mInCallServiceFixtureY.getCall(testCall1.mCallId).getState());
-        assertEquals(Call.STATE_ACTIVE,
-                mInCallServiceFixtureY.getCall(testCall2.mCallId).getState());
-
-        // Conference will not occur and instead will send setConferenceMergeFailed
-        ((ConnectionServiceFixture.FakeConnection)
-                mConnectionServiceFixtureA.mLatestConnection).setIsConferenceCreated(false);
-        mInCallServiceFixtureX.getInCallAdapter().conference(testCall2.mCallId, testCall1.mCallId);
-
-        verify(mInCallServiceFixtureX.getTestDouble(), timeout(TEST_TIMEOUT)).onConnectionEvent(
-                eq(testCall2.mCallId), eq(Connection.EVENT_CALL_MERGE_FAILED), any(Bundle.class));
-        verify(mInCallServiceFixtureY.getTestDouble(), timeout(TEST_TIMEOUT)).onConnectionEvent(
-                eq(testCall2.mCallId), eq(Connection.EVENT_CALL_MERGE_FAILED), any(Bundle.class));
-    }
-
     @LargeTest
     public void testEmergencyCallFailMoveToSecondSim() throws Exception {
         IdPair ids = startAndMakeDialingEmergencyCall("650-555-1212",
