@@ -920,12 +920,12 @@ public class ConnectionServiceWrapper extends ServiceBinder {
     }
 
     void removeCall(String callId, DisconnectCause disconnectCause) {
+        mCallIdMapper.removeCall(callId);
+
         CreateConnectionResponse response = mPendingResponses.remove(callId);
         if (response != null) {
             response.handleCreateConnectionFailure(disconnectCause);
         }
-
-        mCallIdMapper.removeCall(callId);
     }
 
     void removeCall(Call call, DisconnectCause disconnectCause) {
