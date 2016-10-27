@@ -181,7 +181,6 @@ public class TelecomSystemTest extends TelecomTestCase {
             return mInterruptionFilter;
         }
     }
-
     @Mock HeadsetMediaButton mHeadsetMediaButton;
     @Mock ProximitySensorManager mProximitySensorManager;
     @Mock InCallWakeLockController mInCallWakeLockController;
@@ -256,8 +255,7 @@ public class TelecomSystemTest extends TelecomTestCase {
                     .setCapabilities(
                             PhoneAccount.CAPABILITY_CALL_PROVIDER |
                                     PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION |
-                                    PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS |
-                                    PhoneAccount.CAPABILITY_VIDEO_CALLING)
+                                    PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS)
                     .build();
 
     final PhoneAccount mPhoneAccountE1 =
@@ -270,8 +268,7 @@ public class TelecomSystemTest extends TelecomTestCase {
                     .setCapabilities(
                             PhoneAccount.CAPABILITY_CALL_PROVIDER |
                                     PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION |
-                                    PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS |
-                                    PhoneAccount.CAPABILITY_VIDEO_CALLING)
+                                    PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS)
                     .build();
 
     ConnectionServiceFixture mConnectionServiceFixtureA;
