@@ -669,7 +669,7 @@ public class TelecomSystemTest extends TelecomTestCase {
 
         verify(connectionServiceFixture.getTestDouble())
                 .createConnection(eq(phoneAccountHandle), anyString(), any(ConnectionRequest.class),
-                        eq(false)/*isIncoming*/, anyBoolean());
+                        eq(false)/*isIncoming*/, anyBoolean(), any());
         // Wait for handleCreateConnectionComplete
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
 
@@ -691,7 +691,7 @@ public class TelecomSystemTest extends TelecomTestCase {
 
         verify(connectionServiceFixture.getTestDouble())
                 .createConnection(eq(phoneAccountHandle), anyString(), any(ConnectionRequest.class),
-                        eq(false)/*isIncoming*/, anyBoolean());
+                        eq(false)/*isIncoming*/, anyBoolean(), any());
         // Wait for handleCreateConnectionComplete
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         // Wait for the callback in ConnectionService#onAdapterAttached to execute.
@@ -740,7 +740,7 @@ public class TelecomSystemTest extends TelecomTestCase {
 
         verify(connectionServiceFixture.getTestDouble())
                 .createConnection(any(PhoneAccountHandle.class), anyString(),
-                        any(ConnectionRequest.class), eq(true), eq(false));
+                        any(ConnectionRequest.class), eq(true), eq(false), any());
 
         for (CallerInfoAsyncQueryFactoryFixture.Request request :
                 mCallerInfoAsyncQueryFactoryFixture.mRequests) {
@@ -870,10 +870,10 @@ public class TelecomSystemTest extends TelecomTestCase {
 
         if (!VideoProfile.isVideo(videoState)) {
             verify(connectionServiceFixture.getTestDouble())
-                    .answer(ids.mConnectionId);
+                    .answer(eq(ids.mConnectionId), any());
         } else {
             verify(connectionServiceFixture.getTestDouble())
-                    .answerVideo(ids.mConnectionId, videoState);
+                    .answerVideo(eq(ids.mConnectionId), eq(videoState), any());
         }
 
         connectionServiceFixture.sendSetActive(ids.mConnectionId);
