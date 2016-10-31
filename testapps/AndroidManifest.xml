@@ -168,6 +168,16 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="com.android.server.telecom.testapps.TestUssdActivity"
+                android:label="@string/UssdUiAppLabel"
+                android:launchMode="singleInstance">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity android:name="com.android.server.telecom.testapps.SelfManagedCallingActivity"
                   android:label="@string/selfManagedCallingActivityLabel"
                   android:process="com.android.server.telecom.testapps.SelfMangingCallingApp"
