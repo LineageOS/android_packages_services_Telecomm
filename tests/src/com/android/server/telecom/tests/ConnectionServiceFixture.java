@@ -394,28 +394,28 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
             a.handleCreateConnectionComplete(
                     id,
                     mConnectionById.get(id).request,
-                    parcelable(mConnectionById.get(id)));
+                    parcelable(mConnectionById.get(id)), null /*Session.Info*/);
         }
     }
 
     public void sendSetActive(String id) throws Exception {
         mConnectionById.get(id).state = Connection.STATE_ACTIVE;
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.setActive(id);
+            a.setActive(id, null /*Session.Info*/);
         }
     }
 
     public void sendSetRinging(String id) throws Exception {
         mConnectionById.get(id).state = Connection.STATE_RINGING;
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.setRinging(id);
+            a.setRinging(id, null /*Session.Info*/);
         }
     }
 
     public void sendSetDialing(String id) throws Exception {
         mConnectionById.get(id).state = Connection.STATE_DIALING;
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.setDialing(id);
+            a.setDialing(id, null /*Session.Info*/);
         }
     }
 
@@ -423,61 +423,62 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         mConnectionById.get(id).state = Connection.STATE_DISCONNECTED;
         mConnectionById.get(id).disconnectCause = new DisconnectCause(disconnectCause);
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.setDisconnected(id, mConnectionById.get(id).disconnectCause);
+            a.setDisconnected(id, mConnectionById.get(id).disconnectCause, null /*Session.Info*/);
         }
     }
 
     public void sendSetOnHold(String id) throws Exception {
         mConnectionById.get(id).state = Connection.STATE_HOLDING;
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.setOnHold(id);
+            a.setOnHold(id, null /*Session.Info*/);
         }
     }
 
     public void sendSetRingbackRequested(String id) throws Exception {
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.setRingbackRequested(id, mConnectionById.get(id).ringing);
+            a.setRingbackRequested(id, mConnectionById.get(id).ringing, null /*Session.Info*/);
         }
     }
 
     public void sendSetConnectionCapabilities(String id) throws Exception {
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.setConnectionCapabilities(id, mConnectionById.get(id).capabilities);
+            a.setConnectionCapabilities(id, mConnectionById.get(id).capabilities,
+                    null /*Session.Info*/);
         }
     }
 
     public void sendSetConnectionProperties(String id) throws Exception {
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.setConnectionProperties(id, mConnectionById.get(id).properties);
+            a.setConnectionProperties(id, mConnectionById.get(id).properties, null /*Session.Info*/);
         }
     }
     public void sendSetIsConferenced(String id) throws Exception {
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.setIsConferenced(id, mConnectionById.get(id).conferenceId);
+            a.setIsConferenced(id, mConnectionById.get(id).conferenceId, null /*Session.Info*/);
         }
     }
 
     public void sendAddConferenceCall(String id) throws Exception {
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.addConferenceCall(id, parcelable(mConferenceById.get(id)));
+            a.addConferenceCall(id, parcelable(mConferenceById.get(id)), null /*Session.Info*/);
         }
     }
 
     public void sendRemoveCall(String id) throws Exception {
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.removeCall(id);
+            a.removeCall(id, null /*Session.Info*/);
         }
     }
 
     public void sendOnPostDialWait(String id, String remaining) throws Exception {
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.onPostDialWait(id, remaining);
+            a.onPostDialWait(id, remaining, null /*Session.Info*/);
         }
     }
 
     public void sendOnPostDialChar(String id, char nextChar) throws Exception {
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.onPostDialChar(id, nextChar);
+            a.onPostDialChar(id, nextChar, null /*Session.Info*/);
         }
     }
 
@@ -504,31 +505,32 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
                 public IBinder asBinder() {
                     return this;
                 }
-            });
+            }, null /*Session.Info*/);
         }
     }
 
     public void sendSetVideoProvider(String id) throws Exception {
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.setVideoProvider(id, mConnectionById.get(id).videoProvider);
+            a.setVideoProvider(id, mConnectionById.get(id).videoProvider, null /*Session.Info*/);
         }
     }
 
     public void sendSetVideoState(String id) throws Exception {
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.setVideoState(id, mConnectionById.get(id).videoState);
+            a.setVideoState(id, mConnectionById.get(id).videoState, null /*Session.Info*/);
         }
     }
 
     public void sendSetIsVoipAudioMode(String id) throws Exception {
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.setIsVoipAudioMode(id, mConnectionById.get(id).isVoipAudioMode);
+            a.setIsVoipAudioMode(id, mConnectionById.get(id).isVoipAudioMode,
+                    null /*Session.Info*/);
         }
     }
 
     public void sendSetStatusHints(String id) throws Exception {
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.setStatusHints(id, mConnectionById.get(id).statusHints);
+            a.setStatusHints(id, mConnectionById.get(id).statusHints, null /*Session.Info*/);
         }
     }
 
@@ -537,7 +539,7 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
             a.setAddress(
                     id,
                     mConnectionById.get(id).request.getAddress(),
-                    mConnectionById.get(id).addressPresentation);
+                    mConnectionById.get(id).addressPresentation, null /*Session.Info*/);
         }
     }
 
@@ -546,31 +548,32 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
             a.setCallerDisplayName(
                     id,
                     mConnectionById.get(id).callerDisplayName,
-                    mConnectionById.get(id).callerDisplayNamePresentation);
+                    mConnectionById.get(id).callerDisplayNamePresentation, null /*Session.Info*/);
         }
     }
 
     public void sendSetConferenceableConnections(String id) throws Exception {
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.setConferenceableConnections(id, mConnectionById.get(id).conferenceableConnectionIds);
+            a.setConferenceableConnections(id, mConnectionById.get(id).conferenceableConnectionIds,
+                    null /*Session.Info*/);
         }
     }
 
     public void sendAddExistingConnection(String id) throws Exception {
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.addExistingConnection(id, parcelable(mConnectionById.get(id)));
+            a.addExistingConnection(id, parcelable(mConnectionById.get(id)), null /*Session.Info*/);
         }
     }
 
     public void sendConnectionEvent(String id, String event, Bundle extras) throws Exception {
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.onConnectionEvent(id, event, extras);
+            a.onConnectionEvent(id, event, extras, null /*Session.Info*/);
         }
     }
 
     public void sendSetConferenceMergeFailed(String id) throws Exception {
         for (IConnectionServiceAdapter a : mConnectionServiceAdapters) {
-            a.setConferenceMergeFailed(id);
+            a.setConferenceMergeFailed(id, null /*Session.Info*/);
         }
     }
 
