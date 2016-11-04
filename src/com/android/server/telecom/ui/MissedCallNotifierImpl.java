@@ -127,7 +127,6 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
     private final NotificationManager mNotificationManager;
     private final NotificationBuilderFactory mNotificationBuilderFactory;
-    private final PhoneNumberUtilsAdapter mPhoneNumberUtilsAdapter;
     private UserHandle mCurrentUserHandle;
 
     // Used to track the number of missed calls.
