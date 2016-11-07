@@ -1532,7 +1532,7 @@ public class PhoneAccountRegistrar {
                         int outerDepth = parser.getDepth();
                         PhoneAccountHandle accountHandle = null;
                         String userSerialNumberString = null;
-                        String groupId = "";
+                        String groupId = null;
                         while (XmlUtils.nextElementWithin(parser, outerDepth)) {
                             if (parser.getName().equals(ACCOUNT_HANDLE)) {
                                 parser.nextTag();
@@ -1557,9 +1557,9 @@ public class PhoneAccountRegistrar {
                                         "Could not parse UserHandle " + userSerialNumberString);
                             }
                         }
-                        if (accountHandle != null && userHandle != null && groupId != null) {
+                        if (accountHandle != null && userHandle != null) {
                             return new DefaultPhoneAccountHandle(userHandle, accountHandle,
-                                    groupId);
+                                    groupId != null ? groupId : "");
                         }
                     }
                     return null;
