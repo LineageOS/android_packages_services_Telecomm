@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff2e2bb8_745ff771",
+        "filename": "src/com/android/server/telecom/PhoneAccountRegistrar.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1563,
+      "author": {
+        "id": 1063
+      },
+      "writtenOn": "2016-11-07T16:44:03Z",
+      "side": 1,
+      "message": "Could probably also drop the groupId null check here...",
+      "revId": "42efe7f88b137871e8938bcaa1c40a95ec1490d0",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ff2e2bb8_d4552352",
+        "filename": "src/com/android/server/telecom/PhoneAccountRegistrar.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1565,
+      "author": {
+        "id": 1063
+      },
+      "writtenOn": "2016-11-07T16:44:03Z",
+      "side": 1,
+      "message": "... and do \u0027groupId !\u003d null ? groupId : \"\" ’ here.",
+      "revId": "42efe7f88b137871e8938bcaa1c40a95ec1490d0",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
