@@ -23,6 +23,8 @@ import org.mockito.internal.exceptions.ExceptionIncludingMockitoWarnings;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import android.app.AppOpsManager;
+import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.net.Uri;
 import android.os.Handler;
@@ -46,9 +48,12 @@ import static android.test.MoreAsserts.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.mock;
@@ -71,6 +76,7 @@ public class VideoProviderTest extends TelecomSystemTest {
     private VideoCallImpl mVideoCallImpl;
     private ConnectionServiceFixture.ConnectionInfo mConnectionInfo;
     private CountDownLatch mVerificationLock;
+    private AppOpsManager mAppOpsManager;
 
     private Answer mVerification = new Answer() {
         @Override
@@ -83,6 +89,8 @@ public class VideoProviderTest extends TelecomSystemTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
+        mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
+        mAppOpsManager = (AppOpsManager) mContext.getSystemService(Context.APP_OPS_SERVICE);
 
         mCallIds = startAndMakeActiveOutgoingCall(
                 "650-555-1212",
@@ -96,13 +104,18 @@ public class VideoProviderTest extends TelecomSystemTest {
         // Provide a mocked VideoCall.Callback to receive callbacks via.
         mVideoCallCallback = mock(InCallService.VideoCall.Callback.class);
 
-        mVideoCall = mInCallServiceFixtureX.getCall(mCallIds.mCallId).getVideoCallImpl();
+        mVideoCall = mInCallServiceFixtureX.getCall(mCallIds.mCallId).getVideoCallImpl(
+                mInCallServiceComponentNameX.getPackageName());
         mVideoCallImpl = (VideoCallImpl) mVideoCall;
         mVideoCall.registerCallback(mVideoCallCallback);
 
         mConnectionInfo = mConnectionServiceFixtureA.mConnectionById.get(mCallIds.mConnectionId);
         mVerificationLock = new CountDownLatch(1);
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
+
+        doNothing().when(mContext).enforcePermission(anyString(), anyInt(), anyInt(), anyString());
+        doReturn(AppOpsManager.MODE_ALLOWED).when(mAppOpsManager).noteOp(anyInt(), anyInt(),
+                anyString());
     }
 
     @Override
@@ -143,6 +156,86 @@ public class VideoProviderTest extends TelecomSystemTest {
                 cameraCapabilities.get(0).getHeight());
         assertEquals(MockVideoProvider.CAMERA_BACK_DIMENSIONS,
                 cameraCapabilities.get(1).getHeight());
+    }
+
+    /**
+     * Tests the caller permission check in {@link VideoCall#setCamera(String)} to ensure a camera
+     * change from a non-permitted caller is ignored.
+     */
+    @MediumTest
+    public void testCameraChangePermissionFail() throws Exception {
+        // Wait until the callback has been received before performing verification.
+        doAnswer(mVerification).when(mVideoCallCallback).onCallSessionEvent(anyInt());
+
+        // ensure permission check fails.
+        doThrow(new SecurityException()).when(mContext)
+                .enforcePermission(anyString(), anyInt(), anyInt(), anyString());
+
+        // Make a request to change the camera
+        mVideoCall.setCamera(MockVideoProvider.CAMERA_FRONT);
+        mVerificationLock.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
+
+        // Capture the session event reported via the callback.
+        ArgumentCaptor<Integer> sessionEventCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(mVideoCallCallback, timeout(TEST_TIMEOUT)).onCallSessionEvent(
+                sessionEventCaptor.capture());
+
+        assertEquals(VideoProvider.SESSION_EVENT_CAMERA_PERMISSION_ERROR,
+                sessionEventCaptor.getValue().intValue());
+    }
+
+    /**
+     * Tests the caller app ops check in {@link VideoCall#setCamera(String)} to ensure a camera
+     * change from a non-permitted caller is ignored.
+     */
+    @MediumTest
+    public void testCameraChangeAppOpsFail() throws Exception {
+        // Wait until the callback has been received before performing verification.
+        doAnswer(mVerification).when(mVideoCallCallback).onCallSessionEvent(anyInt());
+
+        // ensure app ops check fails.
+        doReturn(AppOpsManager.MODE_ERRORED).when(mAppOpsManager).noteOp(anyInt(), anyInt(),
+                anyString());
+
+        // Make a request to change the camera
+        mVideoCall.setCamera(MockVideoProvider.CAMERA_FRONT);
+        mVerificationLock.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
+
+        // Capture the session event reported via the callback.
+        ArgumentCaptor<Integer> sessionEventCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(mVideoCallCallback, timeout(TEST_TIMEOUT)).onCallSessionEvent(
+                sessionEventCaptor.capture());
+
+        assertEquals(VideoProvider.SESSION_EVENT_CAMERA_PERMISSION_ERROR,
+                sessionEventCaptor.getValue().intValue());
+    }
+
+    /**
+     * Tests the caller permission check in {@link VideoCall#setCamera(String)} to ensure the
+     * caller can null out the camera, even if they do not have camera permission.
+     */
+    @MediumTest
+    public void testCameraChangeNullNoPermission() throws Exception {
+        // Wait until the callback has been received before performing verification.
+        doAnswer(mVerification).when(mVideoCallCallback).onCallSessionEvent(anyInt());
+
+        // ensure permission check fails.
+        doThrow(new SecurityException()).when(mContext)
+                .enforcePermission(anyString(), anyInt(), anyInt(), anyString());
+
+        // Make a request to null the camera; we expect the permission check won't happen.
+        mVideoCall.setCamera(null);
+        mVerificationLock.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
+
+        // Capture the session event reported via the callback.
+        ArgumentCaptor<Integer> sessionEventCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(mVideoCallCallback, timeout(TEST_TIMEOUT)).onCallSessionEvent(
+                sessionEventCaptor.capture());
+
+        // See the MockVideoProvider class; for convenience when the camera is nulled we just send
+        // back a "camera ready" event.
+        assertEquals(VideoProvider.SESSION_EVENT_CAMERA_READY,
+                sessionEventCaptor.getValue().intValue());
     }
 
     /**
