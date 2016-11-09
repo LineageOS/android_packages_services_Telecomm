@@ -309,6 +309,12 @@ public class ComponentContextFixture implements TestFixture<Context> {
         }
 
         @Override
+        public void enforcePermission(
+                String permission, int pid, int uid, String message) {
+            // By default, don't enforce anything in mock.
+        }
+
+        @Override
         public void startActivityAsUser(Intent intent, UserHandle userHandle) {
             // For capturing
         }
