@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff2e2bb8_0718ea7e",
+        "filename": "src/com/android/server/telecom/BluetoothPhoneServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 7880
+      },
+      "writtenOn": "2016-11-11T23:17:02Z",
+      "side": 1,
+      "message": "This change looks somewhat unnecessary",
+      "revId": "b2f6b282396f974ed75304b2a393a6db257e8ade",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
