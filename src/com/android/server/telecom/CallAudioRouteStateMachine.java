@@ -17,7 +17,7 @@
 package com.android.server.telecom;
 
 
-import android.app.ActivityManagerNative;
+import android.app.ActivityManager;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -1479,7 +1479,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
     private int getCurrentUserId() {
         final long ident = Binder.clearCallingIdentity();
         try {
-            UserInfo currentUser = ActivityManagerNative.getDefault().getCurrentUser();
+            UserInfo currentUser = ActivityManager.getService().getCurrentUser();
             return currentUser.id;
         } catch (RemoteException e) {
             // Activity manager not running, nothing we can do assume user 0.
