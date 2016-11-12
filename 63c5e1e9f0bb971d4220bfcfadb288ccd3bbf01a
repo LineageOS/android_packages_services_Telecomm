@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff2e2bb8_78a87776",
+        "filename": "src/com/android/server/telecom/CallAudioModeStateMachine.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2016-11-12T18:24:24Z",
+      "side": 1,
+      "message": "There\u0027s a LOG_TAG now.",
+      "range": {
+        "startLine": 299,
+        "startChar": 22,
+        "endLine": 299,
+        "endChar": 26
+      },
+      "revId": "63c5e1e9f0bb971d4220bfcfadb288ccd3bbf01a",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
