@@ -18,6 +18,9 @@ package com.android.server.telecom;
 
 import android.media.AudioManager;
 import android.os.Message;
+import android.os.SystemProperties;
+import android.telecom.PhoneAccountHandle;
+import android.telephony.SubscriptionManager;
 import android.util.SparseArray;
 
 import com.android.internal.util.IState;
@@ -287,8 +290,23 @@ public class CallAudioModeStateMachine extends StateMachine {
         @Override
         public void enter() {
             Log.i(LOG_TAG, "Audio focus entering SIM CALL state");
+            boolean setMsimAudioParams = SystemProperties
+                    .getBoolean("ro.multisim.set_audio_params", false);
+            Call call = mCallAudioManager.getForegroundCall();
+
             mAudioManager.requestAudioFocusForCall(AudioManager.STREAM_VOICE_CALL,
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+
+            if (call != null && setMsimAudioParams) {
+                int phoneId = getPhoneId(call);
+                Log.d(LOG_TAG, "setAudioParameters phoneId=" + phoneId);
+                if (phoneId == 0) {
+                    mAudioManager.setParameters("phone_type=cp1");
+                } else if (phoneId == 1) {
+                    mAudioManager.setParameters("phone_type=cp2");
+                }
+            }
+
             mAudioManager.setMode(AudioManager.MODE_IN_CALL);
             mMostRecentMode = AudioManager.MODE_IN_CALL;
             mCallAudioManager.setCallAudioRouteFocusState(CallAudioRouteStateMachine.ACTIVE_FOCUS);
@@ -342,6 +360,22 @@ public class CallAudioModeStateMachine extends StateMachine {
                     // The forced focus switch commands are handled by BaseState.
                     return NOT_HANDLED;
             }
+        }
+
+        private int getPhoneId(Call call) {
+            if (call.getTargetPhoneAccount() != null) {
+                PhoneAccountHandle account = call.getTargetPhoneAccount();
+                try {
+                    int index = Integer.parseInt(account.getId());
+                    int phoneId = SubscriptionManager.getPhoneId(index);
+                    if (SubscriptionManager.isValidPhoneId(phoneId)) {
+                        return phoneId;
+                    }
+                } catch (NumberFormatException e) {
+                    Log.e(LOG_TAG, e, "Cannot get phoneId from ID value " + account.getId());
+                }
+            }
+            return -1;
         }
     }
 
