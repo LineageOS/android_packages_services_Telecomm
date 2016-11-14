@@ -46,7 +46,6 @@ import android.telecom.TelecomManager;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.CallsManager.CallsManagerListener;
 
-import java.lang.NumberFormatException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -189,14 +188,7 @@ public class BluetoothPhoneServiceImpl {
                     if (account != null) {
                         PhoneAccountHandle ph = account.getAccountHandle();
                         if (ph != null) {
-                            String subId = ph.getId();
-                            int sub;
-                            try {
-                                sub = Integer.parseInt(subId);
-                            } catch (NumberFormatException e){
-                                Log.w(this, " NumberFormatException " + e);
-                                sub = SubscriptionManager.getDefaultVoiceSubscriptionId();
-                            }
+                            int sub = mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(ph);
                             label = TelephonyManager.from(mContext)
                                     .getNetworkOperatorName(sub);
                         } else {
@@ -1119,23 +1111,13 @@ public class BluetoothPhoneServiceImpl {
         if (mBluetoothDsda != null) {
             Log.d(TAG, "Get the Sub on which call state change happened");
             if (call.getTargetPhoneAccount() != null) {
-                String sub = call.getTargetPhoneAccount().getId();
-                subscription = SubscriptionManager.getDefaultVoiceSubscriptionId();
-                try {
-                    subscription = Integer.parseInt(sub);
-                } catch (NumberFormatException e) {
-                    Log.w(this, " NumberFormatException " + e);
-                }
+                PhoneAccountHandle ph = call.getTargetPhoneAccount();
+                int sub = mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(ph);
             } else if (call.isConference()) {
                 for (Call childCall : call.getChildCalls()) {
                     if (childCall.getTargetPhoneAccount() != null) {
-                        String sub = childCall.getTargetPhoneAccount().getId();
-                        subscription = SubscriptionManager.getDefaultVoiceSubscriptionId();
-                        try {
-                            subscription = Integer.parseInt(sub);
-                        } catch (NumberFormatException e) {
-                            Log.w(this, " NumberFormatException " + e);
-                        }
+                        PhoneAccountHandle ph = call.getTargetPhoneAccount();
+                        int sub = mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(ph);
                     } else {
                         Log.w(this, "PhoneAccountHandle is NULL for childCall: " + childCall);
                     }
@@ -1202,23 +1184,14 @@ public class BluetoothPhoneServiceImpl {
 
         if (activeCall != null && activeCall.isConference()) {
             if (activeCall.getTargetPhoneAccount() != null) {
+                PhoneAccountHandle ph = activeCall.getTargetPhoneAccount();
+                activeCallSub = mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(ph);
                 String sub = activeCall.getTargetPhoneAccount().getId();
-                activeCallSub = SubscriptionManager.getDefaultVoiceSubscriptionId();
-                try {
-                    activeCallSub = Integer.parseInt(sub);
-                } catch (NumberFormatException e) {
-                    Log.w(this, " NumberFormatException " + e);
-                }
             } else {
                 for (Call childCall : activeCall.getChildCalls()) {
                     if (childCall.getTargetPhoneAccount() != null) {
-                        String sub = childCall.getTargetPhoneAccount().getId();
-                        activeCallSub = SubscriptionManager.getDefaultVoiceSubscriptionId();
-                        try {
-                            activeCallSub = Integer.parseInt(sub);
-                        } catch (NumberFormatException e) {
-                            Log.w(this, " NumberFormatException " + e);
-                        }
+                        PhoneAccountHandle ph = activeCall.getTargetPhoneAccount();
+                        activeCallSub = mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(ph);
                     } else {
                         Log.w(this, "PhoneAccountHandle is NULL for childCall: " + childCall);
                     }

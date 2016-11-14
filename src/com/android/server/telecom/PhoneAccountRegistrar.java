@@ -924,23 +924,10 @@ public class PhoneAccountRegistrar {
         Collections.sort(handles, new Comparator<PhoneAccountHandle>() {
             public int compare(PhoneAccountHandle accountHandle1
                         , PhoneAccountHandle accountHandle2) {
-                TelephonyManager tm = (TelephonyManager) mContext
-                        .getSystemService(Context.TELEPHONY_SERVICE);
-                int max = tm.getPhoneCount();
-                int phoneId1 = max;
-                int phoneId2 = max;
-                try {
-                    phoneId1 = SubscriptionManager
-                            .getPhoneId(Integer.parseInt(accountHandle1.getId()));
-                } catch (NumberFormatException e) {
-                    Log.e(this, e, "Could not parse subId1 " + accountHandle1.getId());
-                }
-                try {
-                    phoneId2 = SubscriptionManager
-                            .getPhoneId(Integer.parseInt(accountHandle2.getId()));
-                } catch (NumberFormatException e) {
-                    Log.e(this, e, "Could not parse subId2 " + accountHandle2.getId());
-                }
+                int subId1 = getSubscriptionIdForPhoneAccount(accountHandle1);
+                int subId2 = getSubscriptionIdForPhoneAccount(accountHandle2);
+                int phoneId1 = SubscriptionManager.getPhoneId(subId1);
+                int phoneId2 = SubscriptionManager.getPhoneId(subId2);
                 return (phoneId1 < phoneId2 ? -1 : (phoneId1 == phoneId2 ? 0 : 1));
             }
         });
