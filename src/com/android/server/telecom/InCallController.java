@@ -606,14 +606,12 @@ public final class InCallController extends CallsManagerListenerBase {
              *  give them enough time to process all the pending messages.
              */
             Handler handler = new Handler(Looper.getMainLooper());
-            handler.postDelayed(new Runnable("ICC.oCR") {
+            handler.postDelayed(new Runnable("ICC.oCR", mLock) {
                 @Override
                 public void loggedRun() {
-                    synchronized (mLock) {
-                        // Check again to make sure there are no active calls.
-                        if (mCallsManager.getCalls().isEmpty()) {
-                            unbindFromServices();
-                        }
+                    // Check again to make sure there are no active calls.
+                    if (mCallsManager.getCalls().isEmpty()) {
+                        unbindFromServices();
                     }
                 }
             }.prepare(), Timeouts.getCallRemoveUnbindInCallServicesDelay(
