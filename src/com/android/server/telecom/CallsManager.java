@@ -1159,8 +1159,8 @@ public class CallsManager extends Call.ListenerBase
             // STATE_DIALING, put it on hold before answering the call.
             if (activeCall != null && activeCall != call &&
                     (activeCall.isActive() ||
-                     activeCall.getState() == CallState.DIALING) ||
-                     activeCall.getState() == CallState.PULLING) {
+                     activeCall.getState() == CallState.DIALING ||
+                     activeCall.getState() == CallState.PULLING )) {
                 if (0 == (activeCall.getConnectionCapabilities()
                         & Connection.CAPABILITY_HOLD)) {
                     // This call does not support hold.  If it is from a different connection
