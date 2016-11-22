@@ -32,6 +32,14 @@ public final class Timeouts {
         public long getCallScreeningTimeoutMillis(ContentResolver cr) {
             return Timeouts.getCallScreeningTimeoutMillis(cr);
         }
+
+        public long getRetryBluetoothConnectAudioBackoffMillis(ContentResolver cr) {
+            return Timeouts.getRetryBluetoothConnectAudioBackoffMillis(cr);
+        }
+
+        public long getBluetoothPendingTimeoutMillis(ContentResolver cr) {
+            return Timeouts.getBluetoothPendingTimeoutMillis(cr);
+        }
     }
 
     /** A prefix to use for all keys so to not clobber the global namespace. */
