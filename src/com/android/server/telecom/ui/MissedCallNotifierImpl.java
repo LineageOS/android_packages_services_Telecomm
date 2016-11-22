@@ -543,7 +543,7 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
             UserHandle userHandle) {
         Intent intent = new Intent(action, data, mContext, TelecomBroadcastReceiver.class);
         intent.putExtra(TelecomBroadcastIntentProcessor.EXTRA_USERHANDLE, userHandle);
-        return PendingIntent.getBroadcast(mContext, 0, intent, 0);
+        return PendingIntent.getBroadcast(mContext, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
     /**
