@@ -36,6 +36,14 @@ public final class Timeouts {
         public long getCallRemoveUnbindInCallServicesDelay(ContentResolver cr) {
             return Timeouts.getCallRemoveUnbindInCallServicesDelay(cr);
         }
+
+        public long getRetryBluetoothConnectAudioBackoffMillis(ContentResolver cr) {
+            return Timeouts.getRetryBluetoothConnectAudioBackoffMillis(cr);
+        }
+
+        public long getBluetoothPendingTimeoutMillis(ContentResolver cr) {
+            return Timeouts.getBluetoothPendingTimeoutMillis(cr);
+        }
     }
 
     /** A prefix to use for all keys so to not clobber the global namespace. */
