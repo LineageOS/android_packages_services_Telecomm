@@ -1531,6 +1531,15 @@ public class CallsManager extends Call.ListenerBase
             updateLchStatus(account.getId());
             call.setTargetPhoneAccount(account);
 
+            // Set video state after selection of phone account.
+            Bundle extras = call.getIntentExtras();
+            if (extras != null) {
+                int videoState = extras.getInt(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
+                        VideoProfile.STATE_AUDIO_ONLY);
+                Log.d(this, "phoneAccountSelected , setVideoState : " + videoState);
+                call.setVideoState(videoState);
+            }
+
             if (!call.isNewOutgoingCallIntentBroadcastDone()) {
                 return;
             }
