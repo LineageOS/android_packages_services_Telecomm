@@ -50,7 +50,7 @@
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"අවලංගු කරන්න"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> ඇමතුම් ලබා ගැනීමට සහ එවායේ සියලු අංග පාලනය කිරීමට හැකි වනු ඇත. ඔබ විශ්වාස කරන යෙදුම් පමණක් පෙරනිමි දුරකථන යෙදුම ලෙස සැකසිය යුතුය."</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"අවහිර කළ අංක"</string>
-    <string name="blocked_numbers_msg" msgid="1045015186124965643">"ඔබට අවහිර කළ අංකයවලින් ඇමතුම් හෝ පෙළ නොලැබෙනු ඇත."</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"ඔබට අවහිර කළ අංකවලින් ඇමතුම් හෝ පෙළ නොලැබෙනු ඇත."</string>
     <string name="block_number" msgid="1101252256321306179">"අංකයක් එක් කරන්න"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> අවහිර නොකරන්නද?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"අවහිර නොකරන්න"</string>
