@@ -89,7 +89,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @VisibleForTesting
 public class CallsManager extends Call.ListenerBase
-        implements VideoProviderProxy.Listener, CallFilterResultCallback {
+        implements VideoProviderProxy.Listener, CallFilterResultCallback, CurrentUserProxy {
 
     // TODO: Consider renaming this CallsManagerPlugin.
     @VisibleForTesting
@@ -637,6 +637,7 @@ public class CallsManager extends Call.ListenerBase
         return mCallAudioManager.getForegroundCall();
     }
 
+    @Override
     public UserHandle getCurrentUserHandle() {
         return mCurrentUserHandle;
     }
@@ -2170,7 +2171,8 @@ public class CallsManager extends Call.ListenerBase
      * Callback when foreground user is switched. We will reload missed call in all profiles
      * including the user itself. There may be chances that profiles are not started yet.
      */
-    void onUserSwitch(UserHandle userHandle) {
+    @VisibleForTesting
+    public void onUserSwitch(UserHandle userHandle) {
         mCurrentUserHandle = userHandle;
         mMissedCallNotifier.setCurrentUserHandle(userHandle);
         final UserManager userManager = UserManager.get(mContext);

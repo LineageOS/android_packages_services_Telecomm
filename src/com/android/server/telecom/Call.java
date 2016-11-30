@@ -1986,7 +1986,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
 
         if (videoProvider != null ) {
             try {
-                mVideoProviderProxy = new VideoProviderProxy(mLock, videoProvider, this);
+                mVideoProviderProxy = new VideoProviderProxy(mLock, videoProvider, this,
+                        mCallsManager);
             } catch (RemoteException ignored) {
                 // Ignore RemoteException.
             }

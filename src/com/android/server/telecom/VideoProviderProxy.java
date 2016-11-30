@@ -24,6 +24,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.os.UserHandle;
 import android.telecom.Connection;
 import android.telecom.InCallService;
 import android.telecom.Log;
@@ -88,6 +89,11 @@ public class VideoProviderProxy extends Connection.VideoProvider {
      */
     private Call mCall;
 
+    /**
+     * Interface providing access to the currently logged in user.
+     */
+    private CurrentUserProxy mCurrentUserProxy;
+
     private IBinder.DeathRecipient mDeathRecipient = new IBinder.DeathRecipient() {
         @Override
         public void binderDied() {
@@ -106,7 +112,8 @@ public class VideoProviderProxy extends Connection.VideoProvider {
      * @throws RemoteException Remote exception.
      */
     VideoProviderProxy(TelecomSystem.SyncRoot lock,
-            IVideoProvider videoProvider, Call call) throws RemoteException {
+            IVideoProvider videoProvider, Call call, CurrentUserProxy currentUserProxy)
+            throws RemoteException {
 
         super(Looper.getMainLooper());
 
@@ -118,6 +125,7 @@ public class VideoProviderProxy extends Connection.VideoProvider {
         mVideoCallListenerBinder = new VideoCallListenerBinder();
         mConectionServiceVideoProvider.addVideoCallback(mVideoCallListenerBinder);
         mCall = call;
+        mCurrentUserProxy = currentUserProxy;
     }
 
     /**
@@ -301,13 +309,15 @@ public class VideoProviderProxy extends Connection.VideoProvider {
     public void onSetCamera(String cameraId, String callingPackage, int callingUid,
             int callingPid) {
         synchronized (mLock) {
-            logFromInCall("setCamera: " + cameraId + " callingPackage=" + callingPackage);
+            logFromInCall("setCamera: " + cameraId + " callingPackage=" + callingPackage +
+                    "; callingUid=" + callingUid);
 
             if (!TextUtils.isEmpty(cameraId)) {
                 if (!canUseCamera(mCall.getContext(), callingPackage, callingUid, callingPid)) {
                     // Calling app is not permitted to use the camera.  Ignore the request and send
                     // back a call session event indicating the error.
-                    Log.i(this, "onSetCamera: camera permission denied; package=%d, uid=%d, pid=%d",
+                    Log.i(this, "onSetCamera: camera permission denied; package=%d, uid=%d, "
+                            + "pid=%d",
                             callingPackage, callingUid, callingPid);
                     VideoProviderProxy.this.handleCallSessionEvent(
                             Connection.VideoProvider.SESSION_EVENT_CAMERA_PERMISSION_ERROR);
@@ -529,11 +539,20 @@ public class VideoProviderProxy extends Connection.VideoProvider {
      * @param context The context.
      * @param callingPackage The package name of the caller (i.e. Dialer).
      * @param callingUid The UID of the caller.
+     * @param callingPid The PID of the caller.
      * @return {@code true} if the calling uid and package can use the camera, {@code false}
      *      otherwise.
      */
     private boolean canUseCamera(Context context, String callingPackage, int callingUid,
             int callingPid) {
+
+        UserHandle callingUser = UserHandle.getUserHandleForUid(callingUid);
+        UserHandle currentUserHandle = mCurrentUserProxy.getCurrentUserHandle();
+        if (currentUserHandle != null && !currentUserHandle.equals(callingUser)) {
+            Log.w(this, "canUseCamera attempt to user camera by background user.");
+            return false;
+        }
+
         try {
             context.enforcePermission(Manifest.permission.CAMERA, callingPid, callingUid,
                     "Camera permission required.");
@@ -549,7 +568,7 @@ public class VideoProviderProxy extends Connection.VideoProvider {
             return appOpsManager != null && appOpsManager.noteOp(AppOpsManager.OP_CAMERA,
                     callingUid, callingPackage) == AppOpsManager.MODE_ALLOWED;
         } catch (SecurityException se) {
-            Log.w(this, "canUserCamera got appOpps Exception " + se.toString());
+            Log.w(this, "canUseCamera got appOpps Exception " + se.toString());
             return false;
         }
     }
