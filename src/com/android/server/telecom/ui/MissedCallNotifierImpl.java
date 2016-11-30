@@ -19,7 +19,6 @@ package com.android.server.telecom.ui;
 import static android.Manifest.permission.READ_PHONE_STATE;
 
 import android.annotation.NonNull;
-import android.content.ComponentName;
 import android.content.ContentProvider;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.telecom.Logging.Runnable;
