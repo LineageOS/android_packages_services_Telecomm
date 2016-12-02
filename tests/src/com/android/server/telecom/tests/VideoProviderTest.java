@@ -29,6 +29,7 @@ import android.graphics.SurfaceTexture;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.UserHandle;
 import android.telecom.Connection.VideoProvider;
 import android.telecom.InCallService;
 import android.telecom.InCallService.VideoCall;
@@ -196,6 +197,31 @@ public class VideoProviderTest extends TelecomSystemTest {
         // ensure app ops check fails.
         doReturn(AppOpsManager.MODE_ERRORED).when(mAppOpsManager).noteOp(anyInt(), anyInt(),
                 anyString());
+
+        // Make a request to change the camera
+        mVideoCall.setCamera(MockVideoProvider.CAMERA_FRONT);
+        mVerificationLock.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
+
+        // Capture the session event reported via the callback.
+        ArgumentCaptor<Integer> sessionEventCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(mVideoCallCallback, timeout(TEST_TIMEOUT)).onCallSessionEvent(
+                sessionEventCaptor.capture());
+
+        assertEquals(VideoProvider.SESSION_EVENT_CAMERA_PERMISSION_ERROR,
+                sessionEventCaptor.getValue().intValue());
+    }
+
+    /**
+     * Tests the caller user handle check in {@link VideoCall#setCamera(String)} to ensure a camera
+     * change from a background user is not permitted.
+     */
+    @MediumTest
+    public void testCameraChangeUserFail() throws Exception {
+        // Wait until the callback has been received before performing verification.
+        doAnswer(mVerification).when(mVideoCallCallback).onCallSessionEvent(anyInt());
+
+        // Set a fake user to be the current foreground user.
+        mTelecomSystem.getCallsManager().onUserSwitch(new UserHandle(1000));
 
         // Make a request to change the camera
         mVideoCall.setCamera(MockVideoProvider.CAMERA_FRONT);
