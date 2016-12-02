@@ -26,6 +26,7 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.os.Trace;
 import android.provider.ContactsContract.Contacts;
+import android.telecom.CallAudioState;
 import android.telecom.Conference;
 import android.telecom.DisconnectCause;
 import android.telecom.Connection;
@@ -322,6 +323,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
     private int mConnectionCapabilities;
 
     private int mConnectionProperties;
+
+    private int mSupportedAudioRoutes = CallAudioState.ROUTE_ALL;
 
     private boolean mIsConference = false;
 
@@ -1092,6 +1095,16 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         }
     }
 
+    int getSupportedAudioRoutes() {
+        return mSupportedAudioRoutes;
+    }
+
+    void setSupportedAudioRoutes(int audioRoutes) {
+        if (mSupportedAudioRoutes != audioRoutes) {
+            mSupportedAudioRoutes = audioRoutes;
+        }
+    }
+
     @VisibleForTesting
     public Call getParentCall() {
         return mParentCall;
@@ -1216,6 +1229,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
 
         setConnectionCapabilities(connection.getConnectionCapabilities());
         setConnectionProperties(connection.getConnectionProperties());
+        setSupportedAudioRoutes(connection.getSupportedAudioRoutes());
         setVideoProvider(connection.getVideoProvider());
         setVideoState(connection.getVideoState());
         setRingbackRequested(connection.isRingbackRequested());
