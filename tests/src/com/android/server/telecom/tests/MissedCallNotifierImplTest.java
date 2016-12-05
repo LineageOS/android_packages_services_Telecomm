@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.ICancellationSignal;
 import android.os.Looper;
@@ -420,8 +421,8 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                         CallLog.Calls.PRESENTATION_ALLOWED, CALL_TIMESTAMP)
                 .build();
 
-        when(cp.query(anyString(), eq(queryUri), any(String[].class), anyString(), any
-                (String[].class), anyString(), any(ICancellationSignal.class)))
+        when(cp.query(anyString(), eq(queryUri), any(String[].class),
+                any(Bundle.class), any(ICancellationSignal.class)))
                 .thenReturn(mockMissedCallsCursor);
 
         PhoneAccount phoneAccount = makePhoneAccount(PRIMARY_USER, NO_CAPABILITY);
@@ -488,8 +489,8 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                 PRIMARY_USER.getIdentifier());
         IContentProvider cp = getContentProviderForUser(PRIMARY_USER.getIdentifier());
 
-        when(cp.query(anyString(), eq(queryUri), any(String[].class), anyString(), any
-                (String[].class), anyString(), any(ICancellationSignal.class)))
+        when(cp.query(anyString(), eq(queryUri), any(String[].class),
+                any(Bundle.class), any(ICancellationSignal.class)))
                 .thenReturn(mockMissedCallsCursor);
 
         PhoneAccount phoneAccount = makePhoneAccount(PRIMARY_USER, NO_CAPABILITY);
