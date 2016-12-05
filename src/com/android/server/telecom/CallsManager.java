@@ -229,7 +229,8 @@ public class CallsManager extends Call.ListenerBase
             Timeouts.Adapter timeoutsAdapter,
             AsyncRingtonePlayer asyncRingtonePlayer,
             PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
-            InterruptionFilterProxy interruptionFilterProxy) {
+            InterruptionFilterProxy interruptionFilterProxy,
+            EmergencyLocationHelper emergencyLocationHelper) {
         mContext = context;
         mLock = lock;
         mPhoneNumberUtilsAdapter = phoneNumberUtilsAdapter;
@@ -275,7 +276,8 @@ public class CallsManager extends Call.ListenerBase
         RingtoneFactory ringtoneFactory = new RingtoneFactory(this, context);
         SystemVibrator systemVibrator = new SystemVibrator(context);
         mInCallController = new InCallController(
-                context, mLock, this, systemStateProvider, defaultDialerCache, mTimeoutsAdapter);
+                context, mLock, this, systemStateProvider, defaultDialerCache, mTimeoutsAdapter,
+                emergencyLocationHelper);
         mRinger = new Ringer(playerFactory, context, systemSettingsUtil, asyncRingtonePlayer,
                 ringtoneFactory, systemVibrator, mInCallController);
 

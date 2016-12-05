@@ -296,6 +296,9 @@ public final class InCallController extends CallsManagerListenerBase {
                 mIsProxying = false;
             }
 
+            mEmergencyLocationHelper.maybeGrantTemporaryLocationPermission(call,
+                mCallsManager.getCurrentUserHandle());
+
             // If we are here, we didn't or could not connect to child. So lets connect ourselves.
             return super.connect(call);
         }
@@ -307,6 +310,7 @@ public final class InCallController extends CallsManagerListenerBase {
                 mSubConnection.disconnect();
             } else {
                 super.disconnect();
+                mEmergencyLocationHelper.maybeRevokeTemporaryLocationPermission();
             }
             mIsConnected = false;
         }
@@ -615,18 +619,21 @@ public final class InCallController extends CallsManagerListenerBase {
     private final SystemStateProvider mSystemStateProvider;
     private final Timeouts.Adapter mTimeoutsAdapter;
     private final DefaultDialerCache mDefaultDialerCache;
+    private final EmergencyLocationHelper mEmergencyLocationHelper;
     private CarSwappingInCallServiceConnection mInCallServiceConnection;
     private NonUIInCallServiceConnectionCollection mNonUIInCallServiceConnections;
 
     public InCallController(Context context, TelecomSystem.SyncRoot lock, CallsManager callsManager,
             SystemStateProvider systemStateProvider,
-            DefaultDialerCache defaultDialerCache, Timeouts.Adapter timeoutsAdapter) {
+            DefaultDialerCache defaultDialerCache, Timeouts.Adapter timeoutsAdapter,
+            EmergencyLocationHelper emergencyLocationHelper) {
         mContext = context;
         mLock = lock;
         mCallsManager = callsManager;
         mSystemStateProvider = systemStateProvider;
         mTimeoutsAdapter = timeoutsAdapter;
         mDefaultDialerCache = defaultDialerCache;
+        mEmergencyLocationHelper = emergencyLocationHelper;
 
         Resources resources = mContext.getResources();
         mSystemInCallComponentName = new ComponentName(
