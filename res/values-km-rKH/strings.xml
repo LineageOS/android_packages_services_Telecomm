@@ -50,7 +50,7 @@
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"បោះបង់"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> នឹង​អាច​ដាក់ចុះ និង​ត្រួតពិនិត្យ​​ទិដ្ឋភាព​ការ​ហៅ​ទាំងអស់។ មាន​តែ​កម្មវិធី​ដែល​អ្នក​ទុកចិត្ត​ប៉ុណ្ណោះ​​អាច​​ត្រូវ​បាន​​កំណត់​ជា​កម្មវិធី​ទូរសព្ទ​លំនាំដើម។"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"លេខដែល​បានរារាំង"</string>
-    <string name="blocked_numbers_msg" msgid="1045015186124965643">"អ្នក​នឹង​មិន​ទទួល​បាន​ការ​ហៅទូរស័ព្ទ ឬ​សារ​​ពី​លេខ​ដែល​បាន​​រារាំង​ឡើយ។"</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"អ្នក​នឹង​មិន​ទទួល​បាន​ការ​ហៅទូរសព្ទ ឬ​សារ​​ពី​លេខ​ដែល​បាន​​រារាំង​ឡើយ។"</string>
     <string name="block_number" msgid="1101252256321306179">"បញ្ចូល​លេខ"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"ឈប់រារាំង <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ឬ?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"ឈប់រារាំង"</string>
