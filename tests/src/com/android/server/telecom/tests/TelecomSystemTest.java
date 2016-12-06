@@ -33,6 +33,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -44,11 +45,13 @@ import android.media.IAudioService;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Process;
 import android.os.UserHandle;
 import android.provider.BlockedNumberContract;
 import android.telecom.Call;
 import android.telecom.ConnectionRequest;
+import android.telecom.DisconnectCause;
 import android.telecom.ParcelableCall;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
@@ -59,6 +62,7 @@ import com.android.internal.telecom.IInCallAdapter;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.BluetoothPhoneServiceImpl;
 import com.android.server.telecom.CallAudioManager;
+import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.CallerInfoAsyncQueryFactory;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.CallsManagerListenerBase;
@@ -67,12 +71,17 @@ import com.android.server.telecom.HeadsetMediaButton;
 import com.android.server.telecom.HeadsetMediaButtonFactory;
 import com.android.server.telecom.InCallWakeLockController;
 import com.android.server.telecom.InCallWakeLockControllerFactory;
+import com.android.server.telecom.InterruptionFilterProxy;
 import com.android.server.telecom.MissedCallNotifier;
 import com.android.server.telecom.PhoneAccountRegistrar;
+import com.android.server.telecom.PhoneNumberUtilsAdapter;
+import com.android.server.telecom.PhoneNumberUtilsAdapterImpl;
 import com.android.server.telecom.ProximitySensorManager;
 import com.android.server.telecom.ProximitySensorManagerFactory;
+import com.android.server.telecom.Runnable;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
+import com.android.server.telecom.callfiltering.AsyncBlockCheckFilter;
 import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.ui.MissedCallNotifierImpl.MissedCallNotifierImplFactory;
 
@@ -87,6 +96,8 @@ import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Implements mocks and functionality required to implement telecom system tests.
@@ -146,12 +157,40 @@ public class TelecomSystemTest extends TelecomTestCase {
     }
 
     MissedCallNotifierFakeImpl mMissedCallNotifier = new MissedCallNotifierFakeImpl();
+    private class EmergencyNumberUtilsAdapter extends PhoneNumberUtilsAdapterImpl {
+
+        @Override
+        public boolean isLocalEmergencyNumber(Context context, String number) {
+            return mIsEmergencyCall;
+        }
+
+        @Override
+        public boolean isPotentialLocalEmergencyNumber(Context context, String number) {
+            return mIsEmergencyCall;
+        }
+    }
+    PhoneNumberUtilsAdapter mPhoneNumberUtilsAdapter = new EmergencyNumberUtilsAdapter();
+
+    public static class MockInterruptionFilterProxy implements InterruptionFilterProxy {
+        private int mInterruptionFilter = NotificationManager.INTERRUPTION_FILTER_ALL;
+        @Override
+        public void setInterruptionFilter(int interruptionFilter) {
+            mInterruptionFilter = interruptionFilter;
+        }
+
+        @Override
+        public int getCurrentInterruptionFilter() {
+            return mInterruptionFilter;
+        }
+    }
+
     @Mock HeadsetMediaButton mHeadsetMediaButton;
     @Mock ProximitySensorManager mProximitySensorManager;
     @Mock InCallWakeLockController mInCallWakeLockController;
     @Mock BluetoothPhoneServiceImpl mBluetoothPhoneServiceImpl;
     @Mock AsyncRingtonePlayer mAsyncRingtonePlayer;
     @Mock ViceNotifier mViceNotifier;
+    @Mock InterruptionFilterProxy mInterruptionFilterProxy;
 
     final ComponentName mInCallServiceComponentNameX =
             new ComponentName(
@@ -183,7 +222,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                     .addSupportedUriScheme("tel")
                     .setCapabilities(
                             PhoneAccount.CAPABILITY_CALL_PROVIDER |
-                            PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
+                                    PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION |
+                                    PhoneAccount.CAPABILITY_VIDEO_CALLING)
                     .build();
     final PhoneAccount mPhoneAccountA1 =
             PhoneAccount.builder(
@@ -194,7 +234,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                     .addSupportedUriScheme("tel")
                     .setCapabilities(
                             PhoneAccount.CAPABILITY_CALL_PROVIDER |
-                            PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
+                                    PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION |
+                                    PhoneAccount.CAPABILITY_VIDEO_CALLING)
                     .build();
     final PhoneAccount mPhoneAccountB0 =
             PhoneAccount.builder(
@@ -205,7 +246,35 @@ public class TelecomSystemTest extends TelecomTestCase {
                     .addSupportedUriScheme("tel")
                     .setCapabilities(
                             PhoneAccount.CAPABILITY_CALL_PROVIDER |
-                            PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
+                                    PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION |
+                                    PhoneAccount.CAPABILITY_VIDEO_CALLING)
+                    .build();
+    final PhoneAccount mPhoneAccountE0 =
+            PhoneAccount.builder(
+                    new PhoneAccountHandle(
+                            mConnectionServiceComponentNameA,
+                            "id E 0"),
+                    "Phone account service E ID 0")
+                    .addSupportedUriScheme("tel")
+                    .setCapabilities(
+                            PhoneAccount.CAPABILITY_CALL_PROVIDER |
+                                    PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION |
+                                    PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS |
+                                    PhoneAccount.CAPABILITY_VIDEO_CALLING)
+                    .build();
+
+    final PhoneAccount mPhoneAccountE1 =
+            PhoneAccount.builder(
+                    new PhoneAccountHandle(
+                            mConnectionServiceComponentNameA,
+                            "id E 1"),
+                    "Phone account service E ID 1")
+                    .addSupportedUriScheme("tel")
+                    .setCapabilities(
+                            PhoneAccount.CAPABILITY_CALL_PROVIDER |
+                                    PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION |
+                                    PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS |
+                                    PhoneAccount.CAPABILITY_VIDEO_CALLING)
                     .build();
 
     ConnectionServiceFixture mConnectionServiceFixtureA;
@@ -221,6 +290,8 @@ public class TelecomSystemTest extends TelecomTestCase {
     Context mSpyContext;
 
     private int mNumOutgoingCallsMade;
+
+    private boolean mIsEmergencyCall;
 
     class IdPair {
         final String mConnectionId;
@@ -239,6 +310,8 @@ public class TelecomSystemTest extends TelecomTestCase {
         doReturn(mSpyContext).when(mSpyContext).getApplicationContext();
 
         mNumOutgoingCallsMade = 0;
+
+        mIsEmergencyCall = false;
 
         // First set up information about the In-Call services in the mock Context, since
         // Telecom will search for these as soon as it is instantiated
@@ -299,14 +372,15 @@ public class TelecomSystemTest extends TelecomTestCase {
 
         mTimeoutsAdapter = mock(Timeouts.Adapter.class);
         when(mTimeoutsAdapter.getCallScreeningTimeoutMillis(any(ContentResolver.class)))
-                .thenReturn(TEST_TIMEOUT / 10L);
+                .thenReturn(TEST_TIMEOUT / 5L);
 
         mTelecomSystem = new TelecomSystem(
                 mComponentContextFixture.getTestDouble(),
                 new MissedCallNotifierImplFactory() {
                     @Override
                     public MissedCallNotifier makeMissedCallNotifierImpl(Context context,
-                            PhoneAccountRegistrar phoneAccountRegistrar) {
+                            PhoneAccountRegistrar phoneAccountRegistrar,
+                            PhoneNumberUtilsAdapter phoneNumberUtilsAdapter) {
                         return mMissedCallNotifier;
                     }
                 },
@@ -330,8 +404,9 @@ public class TelecomSystemTest extends TelecomTestCase {
                 },
                 mTimeoutsAdapter,
                 mAsyncRingtonePlayer,
-                mViceNotifier
-            );
+                mViceNotifier,
+                mPhoneNumberUtilsAdapter,
+                mInterruptionFilterProxy);
 
         mComponentContextFixture.setTelecomManager(new TelecomManager(
                 mComponentContextFixture.getTestDouble(),
@@ -361,6 +436,8 @@ public class TelecomSystemTest extends TelecomTestCase {
         mTelecomSystem.getPhoneAccountRegistrar().registerPhoneAccount(mPhoneAccountA0);
         mTelecomSystem.getPhoneAccountRegistrar().registerPhoneAccount(mPhoneAccountA1);
         mTelecomSystem.getPhoneAccountRegistrar().registerPhoneAccount(mPhoneAccountB0);
+        mTelecomSystem.getPhoneAccountRegistrar().registerPhoneAccount(mPhoneAccountE0);
+        mTelecomSystem.getPhoneAccountRegistrar().registerPhoneAccount(mPhoneAccountE1);
 
         mTelecomSystem.getPhoneAccountRegistrar().setUserSelectedOutgoingPhoneAccount(
                 mPhoneAccountA0.getAccountHandle(), Process.myUserHandle());
@@ -464,10 +541,46 @@ public class TelecomSystemTest extends TelecomTestCase {
                 phoneAccountHandle, connectionServiceFixture);
     }
 
-    protected String startOutgoingPhoneCallPendingCreateConnection(String number,
+    protected IdPair triggerEmergencyRedial(PhoneAccountHandle phoneAccountHandle,
+            ConnectionServiceFixture connectionServiceFixture, IdPair emergencyIds)
+            throws Exception {
+        int startingNumConnections = connectionServiceFixture.mConnectionById.size();
+        int startingNumCalls = mInCallServiceFixtureX.mCallById.size();
+
+        // Send the message to disconnect the Emergency call due to an error.
+        // CreateConnectionProcessor should now try the second SIM account
+        connectionServiceFixture.sendSetDisconnected(emergencyIds.mConnectionId,
+                DisconnectCause.ERROR);
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
+        assertEquals(Call.STATE_DIALING, mInCallServiceFixtureX.getCall(
+                emergencyIds.mCallId).getState());
+        assertEquals(Call.STATE_DIALING, mInCallServiceFixtureY.getCall(
+                emergencyIds.mCallId).getState());
+
+        return redialingCallCreateConnectionComplete(startingNumConnections, startingNumCalls,
+                phoneAccountHandle, connectionServiceFixture);
+    }
+
+    protected IdPair startOutgoingEmergencyCall(String number,
             PhoneAccountHandle phoneAccountHandle,
             ConnectionServiceFixture connectionServiceFixture, UserHandle initiatingUser,
             int videoState) throws Exception {
+        int startingNumConnections = connectionServiceFixture.mConnectionById.size();
+        int startingNumCalls = mInCallServiceFixtureX.mCallById.size();
+
+        mIsEmergencyCall = true;
+        // Call will not use the ordered broadcaster, since it is an Emergency Call
+        startOutgoingPhoneCallWaitForBroadcaster(number, phoneAccountHandle,
+                connectionServiceFixture, initiatingUser, videoState, true /*isEmergency*/);
+
+        return outgoingCallCreateConnectionComplete(startingNumConnections, startingNumCalls,
+                phoneAccountHandle, connectionServiceFixture);
+    }
+
+    protected void startOutgoingPhoneCallWaitForBroadcaster(String number,
+            PhoneAccountHandle phoneAccountHandle,
+            ConnectionServiceFixture connectionServiceFixture, UserHandle initiatingUser,
+            int videoState, boolean isEmergency) throws Exception {
         reset(connectionServiceFixture.getTestDouble(), mInCallServiceFixtureX.getTestDouble(),
                 mInCallServiceFixtureY.getTestDouble());
 
@@ -483,7 +596,11 @@ public class TelecomSystemTest extends TelecomTestCase {
         Intent actionCallIntent = new Intent();
         actionCallIntent.setData(Uri.parse("tel:" + number));
         actionCallIntent.putExtra(Intent.EXTRA_PHONE_NUMBER, number);
-        actionCallIntent.setAction(Intent.ACTION_CALL);
+        if(isEmergency) {
+            actionCallIntent.setAction(Intent.ACTION_CALL_EMERGENCY);
+        } else {
+            actionCallIntent.setAction(Intent.ACTION_CALL);
+        }
         if (phoneAccountHandle != null) {
             actionCallIntent.putExtra(
                     TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE,
@@ -511,6 +628,14 @@ public class TelecomSystemTest extends TelecomTestCase {
                     .setInCallAdapter(
                             any(IInCallAdapter.class));
         }
+    }
+
+    protected String startOutgoingPhoneCallPendingCreateConnection(String number,
+            PhoneAccountHandle phoneAccountHandle,
+            ConnectionServiceFixture connectionServiceFixture, UserHandle initiatingUser,
+            int videoState) throws Exception {
+        startOutgoingPhoneCallWaitForBroadcaster(number,phoneAccountHandle,
+                connectionServiceFixture, initiatingUser, videoState, false /*isEmergency*/);
 
         ArgumentCaptor<Intent> newOutgoingCallIntent =
                 ArgumentCaptor.forClass(Intent.class);
@@ -542,6 +667,30 @@ public class TelecomSystemTest extends TelecomTestCase {
         return mInCallServiceFixtureX.mLatestCallId;
     }
 
+    // When Telecom is redialing due to an error, we need to make sure the number of connections
+    // increase, but not the number of Calls in the InCallService.
+    protected IdPair redialingCallCreateConnectionComplete(int startingNumConnections,
+            int startingNumCalls, PhoneAccountHandle phoneAccountHandle,
+            ConnectionServiceFixture connectionServiceFixture) throws Exception {
+
+        assertEquals(startingNumConnections + 1, connectionServiceFixture.mConnectionById.size());
+
+        verify(connectionServiceFixture.getTestDouble())
+                .createConnection(eq(phoneAccountHandle), anyString(), any(ConnectionRequest.class),
+                        eq(false)/*isIncoming*/, anyBoolean());
+        // Wait for handleCreateConnectionComplete
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
+
+        // Make sure the number of registered InCallService Calls stays the same.
+        assertEquals(startingNumCalls, mInCallServiceFixtureX.mCallById.size());
+        assertEquals(startingNumCalls, mInCallServiceFixtureY.mCallById.size());
+
+        assertEquals(mInCallServiceFixtureX.mLatestCallId, mInCallServiceFixtureY.mLatestCallId);
+
+        return new IdPair(connectionServiceFixture.mLatestConnectionId,
+                mInCallServiceFixtureX.mLatestCallId);
+    }
+
     protected IdPair outgoingCallCreateConnectionComplete(int startingNumConnections,
             int startingNumCalls, PhoneAccountHandle phoneAccountHandle,
             ConnectionServiceFixture connectionServiceFixture) throws Exception {
@@ -550,9 +699,11 @@ public class TelecomSystemTest extends TelecomTestCase {
 
         verify(connectionServiceFixture.getTestDouble())
                 .createConnection(eq(phoneAccountHandle), anyString(), any(ConnectionRequest.class),
-                        anyBoolean(), anyBoolean());
-        connectionServiceFixture.sendHandleCreateConnectionComplete(
-                connectionServiceFixture.mLatestConnectionId);
+                        eq(false)/*isIncoming*/, anyBoolean());
+        // Wait for handleCreateConnectionComplete
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
+        // Wait for the callback in ConnectionService#onAdapterAttached to execute.
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
 
         assertEquals(startingNumCalls + 1, mInCallServiceFixtureX.mCallById.size());
         assertEquals(startingNumCalls + 1, mInCallServiceFixtureY.mCallById.size());
@@ -736,6 +887,20 @@ public class TelecomSystemTest extends TelecomTestCase {
         connectionServiceFixture.sendSetActive(ids.mConnectionId);
         assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
         assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureY.getCall(ids.mCallId).getState());
+
+        return ids;
+    }
+
+    protected IdPair startAndMakeDialingEmergencyCall(
+            String number,
+            PhoneAccountHandle phoneAccountHandle,
+            ConnectionServiceFixture connectionServiceFixture) throws Exception {
+        IdPair ids = startOutgoingEmergencyCall(number, phoneAccountHandle,
+                connectionServiceFixture, Process.myUserHandle(), VideoProfile.STATE_AUDIO_ONLY);
+
+        connectionServiceFixture.sendSetDialing(ids.mConnectionId);
+        assertEquals(Call.STATE_DIALING, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+        assertEquals(Call.STATE_DIALING, mInCallServiceFixtureY.getCall(ids.mCallId).getState());
 
         return ids;
     }

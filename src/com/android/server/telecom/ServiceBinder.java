@@ -169,7 +169,7 @@ abstract class ServiceBinder {
     private final String mServiceAction;
 
     /** The component name of the service to bind to. */
-    private final ComponentName mComponentName;
+    protected final ComponentName mComponentName;
 
     /** The set of callbacks waiting for notification of the binding's success or failure. */
     private final Set<BindCallback> mCallbacks = new ArraySet<>();
@@ -227,12 +227,16 @@ abstract class ServiceBinder {
     }
 
     final void decrementAssociatedCallCount() {
+        decrementAssociatedCallCount(false /*isSuppressingUnbind*/);
+    }
+
+    final void decrementAssociatedCallCount(boolean isSuppressingUnbind) {
         if (mAssociatedCallCount > 0) {
             mAssociatedCallCount--;
             Log.v(this, "Call count decrement %d, %s", mAssociatedCallCount,
                     mComponentName.flattenToShortString());
 
-            if (mAssociatedCallCount == 0) {
+            if (!isSuppressingUnbind && mAssociatedCallCount == 0) {
                 unbind();
             }
         } else {
@@ -336,22 +340,28 @@ abstract class ServiceBinder {
      */
     private void setBinder(IBinder binder) {
         if (mBinder != binder) {
-            mBinder = binder;
-
-            setServiceInterface(binder);
-
             if (binder == null) {
+                removeServiceInterface();
+                mBinder = null;
                 for (Listener l : mListeners) {
                     l.onUnbind(this);
                 }
+            } else {
+                mBinder = binder;
+                setServiceInterface(binder);
             }
         }
     }
 
     /**
-     * Sets the service interface after the service is bound or unbound.
+     * Sets the service interface after the service is bound.
      *
-     * @param binder The actual bound service implementation.
+     * @param binder The new binder interface that is being set.
      */
     protected abstract void setServiceInterface(IBinder binder);
+
+    /**
+     * Removes the service interface before the service is unbound.
+     */
+    protected abstract void removeServiceInterface();
 }
