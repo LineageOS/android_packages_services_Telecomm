@@ -1083,7 +1083,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         }
     }
 
-    int getSupportedAudioRoutes() {
+    public int getSupportedAudioRoutes() {
         return mSupportedAudioRoutes;
     }
 
