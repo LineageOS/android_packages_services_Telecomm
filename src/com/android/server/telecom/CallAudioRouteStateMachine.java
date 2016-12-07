@@ -205,16 +205,6 @@ public class CallAudioRouteStateMachine extends StateMachine {
         Log.endSession();
     }
 
-    private int getCurrentCallSupportedRoutes() {
-        int supportedRoutes = CallAudioState.ROUTE_ALL;
-
-        if (mCallsManager.getForegroundCall() != null) {
-            supportedRoutes &= mCallsManager.getForegroundCall().getSupportedAudioRoutes();
-        }
-
-        return supportedRoutes;
-    }
-
     abstract class AudioState extends State {
         @Override
         public void enter() {
@@ -285,18 +275,6 @@ public class CallAudioRouteStateMachine extends StateMachine {
         // Behavior will depend on whether the state is an active one or a quiescent one.
         abstract public void updateSystemAudioState();
         abstract public boolean isActive();
-    }
-
-    private int modifyRoutes(int base, int remove, int add, boolean considerCurrentCall) {
-        base &= ~remove;
-
-        if (considerCurrentCall) {
-            add &= getCurrentCallSupportedRoutes();
-        }
-
-        base |= add;
-
-        return base;
     }
 
     class ActiveEarpieceRoute extends EarpieceRoute {
@@ -1236,14 +1214,14 @@ public class CallAudioRouteStateMachine extends StateMachine {
 
     public void initialize(CallAudioState initState) {
         if ((initState.getRoute() & getCurrentCallSupportedRoutes()) == 0) {
-            Log.e(this, new IllegalArgumentException(), "Route " + initState.getRoute()
-                    + "specified when supported call routes are:" + getCurrentCallSupportedRoutes());
+            Log.e(this, new IllegalArgumentException(), "Route %d specified when supported call" +
+                    " routes are: %d", initState.getRoute(), getCurrentCallSupportedRoutes());
         }
 
         mCurrentCallAudioState = initState;
         mLastKnownCallAudioState = initState;
         mDeviceSupportedRoutes = initState.getSupportedRouteMask();
-        mAvailableRoutes = mDeviceSupportedRoutes;
+        mAvailableRoutes = mDeviceSupportedRoutes & getCurrentCallSupportedRoutes();
         mIsMuted = initState.isMuted();
         mWasOnSpeaker = false;
 
@@ -1552,13 +1530,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
             return isExplicitUserRequest ? USER_SWITCH_EARPIECE : SWITCH_EARPIECE;
         } else if ((mAvailableRoutes & ROUTE_WIRED_HEADSET) != 0) {
             return isExplicitUserRequest ? USER_SWITCH_HEADSET : SWITCH_HEADSET;
-        } else if (!mDoesDeviceSupportEarpieceRoute) {
-            return isExplicitUserRequest ? USER_SWITCH_SPEAKER : SWITCH_SPEAKER;
         } else {
-            Log.e(this, new IllegalStateException(),
-                    "Neither headset nor earpiece are available, but there is an " +
-                            "earpiece on the device. Defaulting to earpiece.");
-            return isExplicitUserRequest ? USER_SWITCH_EARPIECE : SWITCH_EARPIECE;
+            return isExplicitUserRequest ? USER_SWITCH_SPEAKER : SWITCH_SPEAKER;
         }
     }
 
@@ -1583,5 +1556,27 @@ public class CallAudioRouteStateMachine extends StateMachine {
         if ((mAvailableRoutes & currentState.getRoute()) == 0) {
             sendInternalMessage(calculateBaselineRouteMessage(false));
         }
+    }
+
+    private int getCurrentCallSupportedRoutes() {
+        int supportedRoutes = CallAudioState.ROUTE_ALL;
+
+        if (mCallsManager.getForegroundCall() != null) {
+            supportedRoutes &= mCallsManager.getForegroundCall().getSupportedAudioRoutes();
+        }
+
+        return supportedRoutes;
+    }
+
+    private int modifyRoutes(int base, int remove, int add, boolean considerCurrentCall) {
+        base &= ~remove;
+
+        if (considerCurrentCall) {
+            add &= getCurrentCallSupportedRoutes();
+        }
+
+        base |= add;
+
+        return base;
     }
 }
