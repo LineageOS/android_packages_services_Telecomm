@@ -34,6 +34,7 @@ import com.android.internal.telecom.ICallScreeningAdapter;
 import com.android.internal.telecom.ICallScreeningService;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallsManager;
+import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.LogUtils;
 import com.android.server.telecom.ParcelableCallUtils;
 import com.android.server.telecom.PhoneAccountRegistrar;
@@ -137,7 +138,7 @@ public class CallScreeningServiceFilter implements IncomingCallFilter.CallFilter
     private final Context mContext;
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
     private final CallsManager mCallsManager;
-    private final TelecomServiceImpl.DefaultDialerManagerAdapter mDefaultDialerManagerAdapter;
+    private final DefaultDialerCache mDefaultDialerCache;
     private final ParcelableCallUtils.Converter mParcelableCallUtilsConverter;
     private final TelecomSystem.SyncRoot mTelecomLock;
 
@@ -158,13 +159,13 @@ public class CallScreeningServiceFilter implements IncomingCallFilter.CallFilter
             Context context,
             CallsManager callsManager,
             PhoneAccountRegistrar phoneAccountRegistrar,
-            TelecomServiceImpl.DefaultDialerManagerAdapter defaultDialerManagerAdapter,
+            DefaultDialerCache defaultDialerCache,
             ParcelableCallUtils.Converter parcelableCallUtilsConverter,
             TelecomSystem.SyncRoot lock) {
         mContext = context;
         mPhoneAccountRegistrar = phoneAccountRegistrar;
         mCallsManager = callsManager;
-        mDefaultDialerManagerAdapter = defaultDialerManagerAdapter;
+        mDefaultDialerCache = defaultDialerCache;
         mParcelableCallUtilsConverter = parcelableCallUtilsConverter;
         mTelecomLock = lock;
     }
@@ -200,8 +201,8 @@ public class CallScreeningServiceFilter implements IncomingCallFilter.CallFilter
     }
 
     private boolean bindService() {
-        String dialerPackage = mDefaultDialerManagerAdapter
-                .getDefaultDialerApplication(mContext, UserHandle.USER_CURRENT);
+        String dialerPackage = mDefaultDialerCache
+                .getDefaultDialerApplication(UserHandle.USER_CURRENT);
         if (TextUtils.isEmpty(dialerPackage)) {
             Log.i(this, "Default dialer is empty. Not performing call screening.");
             return false;
