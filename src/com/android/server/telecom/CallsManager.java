@@ -57,7 +57,6 @@ import com.android.internal.telephony.AsyncEmergencyContactNotifier;
 import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.telephony.TelephonyProperties;
 import com.android.internal.util.IndentingPrintWriter;
-import com.android.server.telecom.TelecomServiceImpl.DefaultDialerManagerAdapter;
 import com.android.server.telecom.callfiltering.AsyncBlockCheckFilter;
 import com.android.server.telecom.callfiltering.BlockCheckerAdapter;
 import com.android.server.telecom.callfiltering.CallFilterResultCallback;
@@ -194,7 +193,7 @@ public class CallsManager extends Call.ListenerBase
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
     private final MissedCallNotifier mMissedCallNotifier;
     private final CallerInfoLookupHelper mCallerInfoLookupHelper;
-    private final DefaultDialerManagerAdapter mDefaultDialerManagerAdapter;
+    private final DefaultDialerCache mDefaultDialerCache;
     private final Timeouts.Adapter mTimeoutsAdapter;
     private final PhoneNumberUtilsAdapter mPhoneNumberUtilsAdapter;
     private final NotificationManager mNotificationManager;
@@ -226,7 +225,7 @@ public class CallsManager extends Call.ListenerBase
             BluetoothManager bluetoothManager,
             WiredHeadsetManager wiredHeadsetManager,
             SystemStateProvider systemStateProvider,
-            DefaultDialerManagerAdapter defaultDialerAdapter,
+            DefaultDialerCache defaultDialerCache,
             Timeouts.Adapter timeoutsAdapter,
             AsyncRingtonePlayer asyncRingtonePlayer,
             PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
@@ -241,7 +240,7 @@ public class CallsManager extends Call.ListenerBase
         StatusBarNotifier statusBarNotifier = new StatusBarNotifier(context, this);
         mWiredHeadsetManager = wiredHeadsetManager;
         mBluetoothManager = bluetoothManager;
-        mDefaultDialerManagerAdapter = defaultDialerAdapter;
+        mDefaultDialerCache = defaultDialerCache;
         mDockManager = new DockManager(context);
         mTimeoutsAdapter = timeoutsAdapter;
         mCallerInfoLookupHelper = new CallerInfoLookupHelper(context, mCallerInfoAsyncQueryFactory,
@@ -276,7 +275,7 @@ public class CallsManager extends Call.ListenerBase
         RingtoneFactory ringtoneFactory = new RingtoneFactory(this, context);
         SystemVibrator systemVibrator = new SystemVibrator(context);
         mInCallController = new InCallController(
-                context, mLock, this, systemStateProvider, defaultDialerAdapter, mTimeoutsAdapter);
+                context, mLock, this, systemStateProvider, defaultDialerCache, mTimeoutsAdapter);
         mRinger = new Ringer(playerFactory, context, systemSettingsUtil, asyncRingtonePlayer,
                 ringtoneFactory, systemVibrator, mInCallController);
 
@@ -367,8 +366,7 @@ public class CallsManager extends Call.ListenerBase
         filters.add(new DirectToVoicemailCallFilter(mCallerInfoLookupHelper));
         filters.add(new AsyncBlockCheckFilter(mContext, new BlockCheckerAdapter()));
         filters.add(new CallScreeningServiceFilter(mContext, this, mPhoneAccountRegistrar,
-                mDefaultDialerManagerAdapter,
-                new ParcelableCallUtils.Converter(), mLock));
+                mDefaultDialerCache, new ParcelableCallUtils.Converter(), mLock));
         new IncomingCallFilter(mContext, this, incomingCall, mLock,
                 mTimeoutsAdapter, filters).performFiltering();
     }
@@ -2230,6 +2228,13 @@ public class CallsManager extends Call.ListenerBase
             pw.println("mInCallController:");
             pw.increaseIndent();
             mInCallController.dump(pw);
+            pw.decreaseIndent();
+        }
+
+        if (mDefaultDialerCache != null) {
+            pw.println("mDefaultDialerCache:");
+            pw.increaseIndent();
+            mDefaultDialerCache.dumpCache(pw);
             pw.decreaseIndent();
         }
 

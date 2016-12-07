@@ -134,6 +134,7 @@ public class PhoneAccountRegistrar {
     private final Context mContext;
     private final UserManager mUserManager;
     private final SubscriptionManager mSubscriptionManager;
+    private final DefaultDialerCache mDefaultDialerCache;
     private State mState;
     private UserHandle mCurrentUserHandle;
     private interface PhoneAccountRegistrarWriteLock {}
@@ -141,12 +142,13 @@ public class PhoneAccountRegistrar {
             new PhoneAccountRegistrarWriteLock() {};
 
     @VisibleForTesting
-    public PhoneAccountRegistrar(Context context) {
-        this(context, FILE_NAME);
+    public PhoneAccountRegistrar(Context context, DefaultDialerCache defaultDialerCache) {
+        this(context, FILE_NAME, defaultDialerCache);
     }
 
     @VisibleForTesting
-    public PhoneAccountRegistrar(Context context, String fileName) {
+    public PhoneAccountRegistrar(Context context, String fileName,
+            DefaultDialerCache defaultDialerCache) {
         // TODO: This file path is subject to change -- it is storing the phone account registry
         // state file in the path /data/system/users/0/, which is likely not correct in a
         // multi-user setting.
@@ -160,6 +162,7 @@ public class PhoneAccountRegistrar {
         mState = new State();
         mContext = context;
         mUserManager = UserManager.get(context);
+        mDefaultDialerCache = defaultDialerCache;
         mSubscriptionManager = SubscriptionManager.from(mContext);
         mCurrentUserHandle = Process.myUserHandle();
         read();
@@ -363,8 +366,8 @@ public class PhoneAccountRegistrar {
      */
     public PhoneAccountHandle getSimCallManager(UserHandle userHandle) {
         // Get the default dialer in case it has a connection manager associated with it.
-        String dialerPackage = DefaultDialerManager
-                .getDefaultDialerApplication(mContext, userHandle.getIdentifier());
+        String dialerPackage = mDefaultDialerCache
+                .getDefaultDialerApplication(userHandle.getIdentifier());
 
         // Check carrier config.
         ComponentName systemSimCallManagerComponent = getSystemSimCallManagerComponent();

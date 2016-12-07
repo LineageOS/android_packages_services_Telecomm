@@ -28,6 +28,7 @@ import android.telecom.TelecomManager;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManagerListenerBase;
 import com.android.server.telecom.Constants;
+import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.MissedCallNotifier;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.PhoneNumberUtilsAdapter;
@@ -54,7 +55,6 @@ import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.UserHandle;
 import android.provider.CallLog.Calls;
-import android.telecom.DefaultDialerManager;
 import android.telecom.Log;
 import android.telecom.PhoneAccount;
 import android.telephony.PhoneNumberUtils;
@@ -85,7 +85,8 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
 
     public interface MissedCallNotifierImplFactory {
         MissedCallNotifier makeMissedCallNotifierImpl(Context context,
-                PhoneAccountRegistrar phoneAccountRegistrar);
+                PhoneAccountRegistrar phoneAccountRegistrar,
+                DefaultDialerCache defaultDialerCache);
     }
 
     public interface NotificationBuilderFactory {
@@ -127,6 +128,7 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
     private final NotificationManager mNotificationManager;
     private final NotificationBuilderFactory mNotificationBuilderFactory;
+    private final DefaultDialerCache mDefaultDialerCache;
     private UserHandle mCurrentUserHandle;
 
     // Used to track the number of missed calls.
@@ -134,17 +136,21 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
 
     private UserHandle userToLoadAfterBootComplete;
 
-    public MissedCallNotifierImpl(Context context, PhoneAccountRegistrar phoneAccountRegistrar) {
-        this(context, phoneAccountRegistrar, new DefaultNotificationBuilderFactory());
+    public MissedCallNotifierImpl(Context context, PhoneAccountRegistrar phoneAccountRegistrar,
+            DefaultDialerCache defaultDialerCache) {
+        this(context, phoneAccountRegistrar, defaultDialerCache,
+                new DefaultNotificationBuilderFactory());
     }
 
     public MissedCallNotifierImpl(Context context,
             PhoneAccountRegistrar phoneAccountRegistrar,
+            DefaultDialerCache defaultDialerCache,
             NotificationBuilderFactory notificationBuilderFactory) {
         mContext = context;
         mPhoneAccountRegistrar = phoneAccountRegistrar;
         mNotificationManager =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        mDefaultDialerCache = defaultDialerCache;
 
         mNotificationBuilderFactory = notificationBuilderFactory;
         mMissedCallCounts = new ConcurrentHashMap<>();
@@ -198,8 +204,8 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
      * dialer for the given user which could be a managed (work profile) dialer.
      */
     private Intent getShowMissedCallIntentForDefaultDialer(UserHandle userHandle) {
-        String dialerPackage = DefaultDialerManager
-                .getDefaultDialerApplication(mContext, userHandle.getIdentifier());
+        String dialerPackage = mDefaultDialerCache.getDefaultDialerApplication(
+                userHandle.getIdentifier());
         if (TextUtils.isEmpty(dialerPackage)) {
             return null;
         }

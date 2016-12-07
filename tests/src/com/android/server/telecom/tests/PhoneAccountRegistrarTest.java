@@ -35,6 +35,7 @@ import android.util.Xml;
 
 import com.android.internal.telecom.IConnectionService;
 import com.android.internal.util.FastXmlSerializer;
+import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.PhoneAccountRegistrar.DefaultPhoneAccountHandle;
 
@@ -52,13 +53,16 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Set;
 
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.when;
+
 public class PhoneAccountRegistrarTest extends TelecomTestCase {
 
     private static final int MAX_VERSION = Integer.MAX_VALUE;
     private static final String FILE_NAME = "phone-account-registrar-test-1223.xml";
     private PhoneAccountRegistrar mRegistrar;
-    @Mock
-    private TelecomManager mTelecomManager;
+    @Mock private TelecomManager mTelecomManager;
+    @Mock private DefaultDialerCache mDefaultDialerCache;
 
     @Override
     public void setUp() throws Exception {
@@ -69,9 +73,11 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
                 mComponentContextFixture.getTestDouble().getApplicationContext().getFilesDir(),
                 FILE_NAME)
                 .delete();
+        when(mDefaultDialerCache.getDefaultDialerApplication(anyInt()))
+                .thenReturn("com.android.dialer");
         mRegistrar = new PhoneAccountRegistrar(
                 mComponentContextFixture.getTestDouble().getApplicationContext(),
-                FILE_NAME);
+                FILE_NAME, mDefaultDialerCache);
     }
 
     @Override
