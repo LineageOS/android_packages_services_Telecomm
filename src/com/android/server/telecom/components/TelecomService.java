@@ -34,6 +34,7 @@ import com.android.server.telecom.BluetoothAdapterProxy;
 import com.android.server.telecom.BluetoothPhoneServiceImpl;
 import com.android.server.telecom.CallerInfoAsyncQueryFactory;
 import com.android.server.telecom.CallsManager;
+import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.HeadsetMediaButton;
 import com.android.server.telecom.HeadsetMediaButtonFactory;
 import com.android.server.telecom.InCallWakeLockControllerFactory;
@@ -86,9 +87,10 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                 @Override
                                 public MissedCallNotifierImpl makeMissedCallNotifierImpl(
                                         Context context,
-                                        PhoneAccountRegistrar phoneAccountRegistrar) {
+                                        PhoneAccountRegistrar phoneAccountRegistrar,
+                                        DefaultDialerCache defaultDialerCache) {
                                     return new MissedCallNotifierImpl(context,
-                                            phoneAccountRegistrar);
+                                            phoneAccountRegistrar, defaultDialerCache);
                                 }
                             },
                             new CallerInfoAsyncQueryFactory() {

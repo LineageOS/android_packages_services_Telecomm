@@ -27,14 +27,40 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.UserHandle;
 import android.provider.Settings;
+import android.telecom.DefaultDialerManager;
 import android.telecom.Log;
 import android.util.SparseArray;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.util.IndentingPrintWriter;
 
 import java.util.Objects;
 
 public class DefaultDialerCache {
+    public interface DefaultDialerManagerAdapter {
+        String getDefaultDialerApplication(Context context);
+        String getDefaultDialerApplication(Context context, int userId);
+        boolean setDefaultDialerApplication(Context context, String packageName, int userId);
+    }
+
+    static class DefaultDialerManagerAdapterImpl implements DefaultDialerManagerAdapter {
+        @Override
+        public String getDefaultDialerApplication(Context context) {
+            return DefaultDialerManager.getDefaultDialerApplication(context);
+        }
+
+        @Override
+        public String getDefaultDialerApplication(Context context, int userId) {
+            return DefaultDialerManager.getDefaultDialerApplication(context, userId);
+        }
+
+        @Override
+        public boolean setDefaultDialerApplication(Context context, String packageName,
+                int userId) {
+            return DefaultDialerManager.setDefaultDialerApplication(context, packageName, userId);
+        }
+    }
+
     private static final String LOG_TAG = "DefaultDialerCache";
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -43,7 +69,7 @@ public class DefaultDialerCache {
             try {
                 String packageName;
                 if (Intent.ACTION_PACKAGE_CHANGED.equals(intent.getAction())) {
-                    packageName = intent.getData().getSchemeSpecificPart();
+                    packageName = null;
                 } else if (Intent.ACTION_PACKAGE_REMOVED.equals(intent.getAction())
                         && !intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
                     packageName = intent.getData().getSchemeSpecificPart();
@@ -86,13 +112,13 @@ public class DefaultDialerCache {
     };
 
     private final Context mContext;
-    private final TelecomServiceImpl.DefaultDialerManagerAdapter mDefaultDialerManagerAdapter;
+    private final DefaultDialerManagerAdapter mDefaultDialerManagerAdapter;
     private final TelecomSystem.SyncRoot mLock;
     private final String mSystemDialerName;
     private SparseArray<String> mCurrentDefaultDialerPerUser = new SparseArray<>();
 
     public DefaultDialerCache(Context context,
-            TelecomServiceImpl.DefaultDialerManagerAdapter defaultDialerManagerAdapter,
+            DefaultDialerManagerAdapter defaultDialerManagerAdapter,
             TelecomSystem.SyncRoot lock) {
         mContext = context;
         mDefaultDialerManagerAdapter = defaultDialerManagerAdapter;
@@ -136,10 +162,16 @@ public class DefaultDialerCache {
         return getDefaultDialerApplication(mContext.getUserId());
     }
 
-    public boolean isDefaultOrSystemDialer(Context context, String packageName) {
-        String defaultDialer = getDefaultDialerApplication(context.getUserId());
+    public boolean isDefaultOrSystemDialer(String packageName, int userId) {
+        String defaultDialer = getDefaultDialerApplication(userId);
         return Objects.equals(packageName, defaultDialer)
                 || Objects.equals(packageName, mSystemDialerName);
+    }
+
+    public boolean setDefaultDialer(String packageName, int userId) {
+        // No need to update cache -- this'll trigger the content observer.
+        return mDefaultDialerManagerAdapter.setDefaultDialerApplication(
+                mContext, packageName, userId);
     }
 
     private String refreshCacheForUser(int userId) {
@@ -164,6 +196,15 @@ public class DefaultDialerCache {
                 String newDefaultDialer = refreshCacheForUser(userId);
                 Log.i(LOG_TAG, "Refreshing default dialer for user %d: now %s",
                         userId, newDefaultDialer);
+            }
+        }
+    }
+
+    public void dumpCache(IndentingPrintWriter pw) {
+        synchronized (mLock) {
+            for (int i = 0; i < mCurrentDefaultDialerPerUser.size(); i++) {
+                pw.printf("User %d: %s\n", mCurrentDefaultDialerPerUser.keyAt(i),
+                        mCurrentDefaultDialerPerUser.valueAt(i));
             }
         }
     }
