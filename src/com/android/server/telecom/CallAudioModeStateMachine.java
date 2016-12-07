@@ -201,19 +201,22 @@ public class CallAudioModeStateMachine extends StateMachine {
         @Override
         public void enter() {
             Log.i(LOG_TAG, "Audio focus entering RINGING state");
-            mAudioManager.requestAudioFocusForCall(AudioManager.STREAM_RING,
-                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
-            if (mMostRecentMode == AudioManager.MODE_IN_CALL) {
-                // Preserving behavior from the old CallAudioManager.
-                Log.i(LOG_TAG, "Transition from IN_CALL -> RINGTONE."
-                        + "  Resetting to NORMAL first.");
-                mAudioManager.setMode(AudioManager.MODE_NORMAL);
+            if (mCallAudioManager.startRinging()) {
+                mAudioManager.requestAudioFocusForCall(AudioManager.STREAM_RING,
+                        AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+                if (mMostRecentMode == AudioManager.MODE_IN_CALL) {
+                    // Preserving behavior from the old CallAudioManager.
+                    Log.i(LOG_TAG, "Transition from IN_CALL -> RINGTONE."
+                            + "  Resetting to NORMAL first.");
+                    mAudioManager.setMode(AudioManager.MODE_NORMAL);
+                }
+                mAudioManager.setMode(AudioManager.MODE_RINGTONE);
+                mCallAudioManager.setCallAudioRouteFocusState(CallAudioRouteStateMachine.RINGING_FOCUS);
+            } else {
+                Log.i(LOG_TAG, "Entering RINGING but not acquiring focus -- silent ringtone");
             }
-            mAudioManager.setMode(AudioManager.MODE_RINGTONE);
 
             mCallAudioManager.stopCallWaiting();
-            mCallAudioManager.startRinging();
-            mCallAudioManager.setCallAudioRouteFocusState(CallAudioRouteStateMachine.HAS_FOCUS);
         }
 
         @Override
@@ -288,7 +291,7 @@ public class CallAudioModeStateMachine extends StateMachine {
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
             mAudioManager.setMode(AudioManager.MODE_IN_CALL);
             mMostRecentMode = AudioManager.MODE_IN_CALL;
-            mCallAudioManager.setCallAudioRouteFocusState(CallAudioRouteStateMachine.HAS_FOCUS);
+            mCallAudioManager.setCallAudioRouteFocusState(CallAudioRouteStateMachine.ACTIVE_FOCUS);
         }
 
         @Override
@@ -350,7 +353,7 @@ public class CallAudioModeStateMachine extends StateMachine {
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
             mAudioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
             mMostRecentMode = AudioManager.MODE_IN_COMMUNICATION;
-            mCallAudioManager.setCallAudioRouteFocusState(CallAudioRouteStateMachine.HAS_FOCUS);
+            mCallAudioManager.setCallAudioRouteFocusState(CallAudioRouteStateMachine.ACTIVE_FOCUS);
         }
 
         @Override
@@ -407,7 +410,7 @@ public class CallAudioModeStateMachine extends StateMachine {
             mAudioManager.requestAudioFocusForCall(AudioManager.STREAM_VOICE_CALL,
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
             mAudioManager.setMode(mMostRecentMode);
-            mCallAudioManager.setCallAudioRouteFocusState(CallAudioRouteStateMachine.HAS_FOCUS);
+            mCallAudioManager.setCallAudioRouteFocusState(CallAudioRouteStateMachine.ACTIVE_FOCUS);
         }
 
         @Override

@@ -94,30 +94,32 @@ public class Ringer {
         mInCallController = inCallController;
     }
 
-    public void startRinging(Call foregroundCall) {
+    public boolean startRinging(Call foregroundCall) {
+        AudioManager audioManager =
+                (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+        boolean isRingerAudible = audioManager.getStreamVolume(AudioManager.STREAM_RING) > 0;
+
         if (mSystemSettingsUtil.isTheaterModeOn(mContext)) {
-            return;
+            return false;
         }
 
         if (foregroundCall == null) {
             Log.wtf(this, "startRinging called with null foreground call.");
-            return;
+            return false;
         }
 
         if (mInCallController.doesConnectedDialerSupportRinging()) {
             Log.event(foregroundCall, Log.Events.SKIP_RINGING);
-            return;
+            return isRingerAudible;
         }
 
         stopCallWaiting();
 
         if (!shouldRingForContact(foregroundCall.getContactUri())) {
-            return;
+            return false;
         }
 
-        AudioManager audioManager =
-                (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-        if (audioManager.getStreamVolume(AudioManager.STREAM_RING) > 0) {
+        if (isRingerAudible) {
             mRingingCall = foregroundCall;
             Log.event(foregroundCall, Log.Events.START_RINGER);
             // Because we wait until a contact info query to complete before processing a
@@ -126,7 +128,7 @@ public class Ringer {
             // request the custom ringtone from the call and expect it to be current.
             mRingtonePlayer.play(mRingtoneFactory, foregroundCall);
         } else {
-            Log.v(this, "startRingingOrCallWaiting, skipping because volume is 0");
+            Log.i(this, "startRingingOrCallWaiting, skipping because volume is 0");
         }
 
         if (shouldVibrate(mContext) && !mIsVibrating) {
@@ -134,6 +136,8 @@ public class Ringer {
                     VIBRATION_ATTRIBUTES);
             mIsVibrating = true;
         }
+
+        return isRingerAudible;
     }
 
     public void startCallWaiting(Call call) {
