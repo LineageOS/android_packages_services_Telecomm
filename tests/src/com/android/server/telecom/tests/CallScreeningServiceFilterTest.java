@@ -34,6 +34,7 @@ import com.android.internal.telecom.ICallScreeningAdapter;
 import com.android.internal.telecom.ICallScreeningService;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallsManager;
+import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.ParcelableCallUtils;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.TelecomServiceImpl;
@@ -62,9 +63,8 @@ public class CallScreeningServiceFilterTest extends TelecomTestCase {
     @Mock Context mContext;
     @Mock CallsManager mCallsManager;
     @Mock PhoneAccountRegistrar mPhoneAccountRegistrar;
-    @Mock TelecomServiceImpl.DefaultDialerManagerAdapter mDefaultDialerManagerAdapter;
-    @Mock
-    ParcelableCallUtils.Converter mParcelableCallUtilsConverter;
+    @Mock DefaultDialerCache mDefaultDialerCache;
+    @Mock ParcelableCallUtils.Converter mParcelableCallUtilsConverter;
     private TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
 
     @Mock Call mCall;
@@ -106,10 +106,10 @@ public class CallScreeningServiceFilterTest extends TelecomTestCase {
         }};
 
         mFilter = new CallScreeningServiceFilter(mContext, mCallsManager, mPhoneAccountRegistrar,
-                mDefaultDialerManagerAdapter, mParcelableCallUtilsConverter, mLock);
+                mDefaultDialerCache, mParcelableCallUtilsConverter, mLock);
 
-        when(mDefaultDialerManagerAdapter.getDefaultDialerApplication(
-                eq(mContext), eq(UserHandle.USER_CURRENT))).thenReturn(PKG_NAME);
+        when(mDefaultDialerCache.getDefaultDialerApplication(eq(UserHandle.USER_CURRENT)))
+                .thenReturn(PKG_NAME);
         when(mPackageManager.queryIntentServicesAsUser(any(Intent.class), anyInt(), anyInt()))
                 .thenReturn(Collections.singletonList(mResolveInfo));
         when(mParcelableCallUtilsConverter.toParcelableCall(
@@ -120,8 +120,8 @@ public class CallScreeningServiceFilterTest extends TelecomTestCase {
 
     @SmallTest
     public void testNoDefaultDialer() {
-        when(mDefaultDialerManagerAdapter.getDefaultDialerApplication(
-                eq(mContext), eq(UserHandle.USER_CURRENT))).thenReturn(null);
+        when(mDefaultDialerCache.getDefaultDialerApplication(eq(UserHandle.USER_CURRENT)))
+                .thenReturn(null);
         mFilter.startFilterLookup(mCall, mCallback);
         verify(mCallback).onCallFilteringComplete(eq(mCall), eq(PASS_RESULT));
     }
