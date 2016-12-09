@@ -86,6 +86,8 @@ public class CallAudioRouteStateMachineTest
         public boolean doesDeviceSupportEarpiece; // set to false in the case of Wear devices
         public boolean shouldRunWithFocus;
 
+        public int callSupportedRoutes = CallAudioState.ROUTE_ALL;
+
         public RoutingTestParameters(String name, int initialRoute,
                 int initialNotificationFilter, int availableRoutes, int speakerInteraction,
                 int bluetoothInteraction, int action, int expectedRoute,
@@ -105,6 +107,11 @@ public class CallAudioRouteStateMachineTest
             this.isNotificationChangeExpected = isNotificationChangeExpected;
             this.doesDeviceSupportEarpiece = doesDeviceSupportEarpiece;
             this.shouldRunWithFocus = shouldRunWithFocus;
+        }
+
+        public RoutingTestParameters setCallSupportedRoutes(int routes) {
+            callSupportedRoutes = routes;
+            return this;
         }
 
         @Override
@@ -159,6 +166,7 @@ public class CallAudioRouteStateMachineTest
         when(mockCallsManager.getLock()).thenReturn(mLock);
         when(fakeCall.getConnectionService()).thenReturn(mockConnectionServiceWrapper);
         when(fakeCall.isAlive()).thenReturn(true);
+        when(fakeCall.getSupportedAudioRoutes()).thenReturn(CallAudioState.ROUTE_ALL);
         setupInterruptionFilterMocks();
 
         doNothing().when(mockConnectionServiceWrapper).onCallAudioStateChanged(any(Call.class),
@@ -878,6 +886,38 @@ public class CallAudioRouteStateMachineTest
                 shouldRunWithFocus
         ));
 
+        params.add(new RoutingTestParameters(
+                "Disconnect wired headset when call doesn't support earpiece", // name
+                CallAudioState.ROUTE_WIRED_HEADSET, // initialRoute
+                NotificationManager.INTERRUPTION_FILTER_ALL, // initialNotificationFilter
+                CallAudioState.ROUTE_WIRED_HEADSET, // availableRoutes
+                ON, // speakerInteraction
+                NONE, // bluetoothInteraction
+                CallAudioRouteStateMachine.DISCONNECT_WIRED_HEADSET, // action
+                CallAudioState.ROUTE_SPEAKER, // expectedRoute
+                CallAudioState.ROUTE_SPEAKER, // expectedAvailableRoutes
+                NotificationManager.INTERRUPTION_FILTER_ALL, // expectedNotificationFilter
+                false, // isNotificationChangeExpected
+                true, // doesDeviceSupportEarpiece
+                shouldRunWithFocus
+        ).setCallSupportedRoutes(CallAudioState.ROUTE_ALL & ~CallAudioState.ROUTE_EARPIECE));
+
+        params.add(new RoutingTestParameters(
+                "Disconnect bluetooth when call does not support earpiece", // name
+                CallAudioState.ROUTE_BLUETOOTH, // initialRoute
+                NotificationManager.INTERRUPTION_FILTER_ALL, // initialNotificationFilter
+                CallAudioState.ROUTE_BLUETOOTH,  // availableRoutes
+                ON, // speakerInteraction
+                OFF, // bluetoothInteraction
+                CallAudioRouteStateMachine.DISCONNECT_BLUETOOTH, // action
+                CallAudioState.ROUTE_SPEAKER, // expectedRoute
+                CallAudioState.ROUTE_SPEAKER, // expectedAvailableRoutes
+                NotificationManager.INTERRUPTION_FILTER_ALL, // expectedNotificationFilter
+                false, // isNotificationChangeExpected
+                true, // doesDeviceSupportEarpiece
+                shouldRunWithFocus
+        ).setCallSupportedRoutes(CallAudioState.ROUTE_ALL & ~CallAudioState.ROUTE_EARPIECE));
+
         return params;
     }
 
@@ -916,6 +956,7 @@ public class CallAudioRouteStateMachineTest
                         || (params.expectedAvailableRoutes & CallAudioState.ROUTE_BLUETOOTH) != 0);
         doReturn(params.initialRoute == CallAudioState.ROUTE_SPEAKER).when(mockAudioManager).
                 isSpeakerphoneOn();
+        when(fakeCall.getSupportedAudioRoutes()).thenReturn(params.callSupportedRoutes);
 
         // Set the initial CallAudioState object
         final CallAudioState initState = new CallAudioState(false,
@@ -999,6 +1040,7 @@ public class CallAudioRouteStateMachineTest
                 || (params.expectedAvailableRoutes & CallAudioState.ROUTE_BLUETOOTH) != 0);
         when(mockAudioManager.isSpeakerphoneOn()).thenReturn(
                 params.initialRoute == CallAudioState.ROUTE_SPEAKER);
+        when(fakeCall.getSupportedAudioRoutes()).thenReturn(params.callSupportedRoutes);
 
         // Set the initial CallAudioState object
         CallAudioState initState = new CallAudioState(false,
@@ -1051,10 +1093,13 @@ public class CallAudioRouteStateMachineTest
 
     private void resetMocks() {
         reset(mockAudioManager, mockBluetoothManager, mockCallsManager,
-                mockConnectionServiceWrapper, mMockInterruptionFilterProxy);
+                mockConnectionServiceWrapper, mMockInterruptionFilterProxy, fakeCall);
         mMockInterruptionFilterProxy = mock(InterruptionFilterProxy.class);
         setupInterruptionFilterMocks();
         when(mockCallsManager.getForegroundCall()).thenReturn(fakeCall);
+        when(fakeCall.getConnectionService()).thenReturn(mockConnectionServiceWrapper);
+        when(fakeCall.isAlive()).thenReturn(true);
+        when(fakeCall.getSupportedAudioRoutes()).thenReturn(CallAudioState.ROUTE_ALL);
         when(mockCallsManager.getLock()).thenReturn(mLock);
         doNothing().when(mockConnectionServiceWrapper).onCallAudioStateChanged(any(Call.class),
                 any(CallAudioState.class));
