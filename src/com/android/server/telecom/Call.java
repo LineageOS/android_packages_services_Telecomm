@@ -1078,7 +1078,7 @@ public class Call implements CreateConnectionResponse {
         }
     }
 
-    int getSupportedAudioRoutes() {
+    public int getSupportedAudioRoutes() {
         return mSupportedAudioRoutes;
     }
 
