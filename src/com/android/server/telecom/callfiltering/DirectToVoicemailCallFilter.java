@@ -23,6 +23,8 @@ import com.android.server.telecom.Call;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.Log;
 
+import java.util.Objects;
+
 public class DirectToVoicemailCallFilter implements IncomingCallFilter.CallFilter {
     private final CallerInfoLookupHelper mCallerInfoLookupHelper;
 
@@ -34,13 +36,14 @@ public class DirectToVoicemailCallFilter implements IncomingCallFilter.CallFilte
     public void startFilterLookup(final Call call, CallFilterResultCallback callback) {
         Log.event(call, Log.Events.DIRECT_TO_VM_INITIATED);
         final Uri callHandle = call.getHandle();
+
         mCallerInfoLookupHelper.startLookup(callHandle,
                 new CallerInfoLookupHelper.OnQueryCompleteListener() {
                     @Override
                     public void onCallerInfoQueryComplete(Uri handle, CallerInfo info) {
                         CallFilteringResult result;
-                        if ((handle != null) && callHandle.equals(handle)) {
-                            if ((info != null) && info.shouldSendToVoicemail) {
+                        if (Objects.equals(callHandle, handle)) {
+                            if (info != null && info.shouldSendToVoicemail) {
                                 result = new CallFilteringResult(
                                         false, // shouldAllowCall
                                         true, // shouldReject

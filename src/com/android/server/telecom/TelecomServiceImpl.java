@@ -39,9 +39,9 @@ import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.telecom.DefaultDialerManager;
-import android.telecom.ParcelableCallAnalytics;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
+import android.telecom.TelecomAnalytics;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.telephony.SubscriptionManager;
@@ -56,8 +56,6 @@ import com.android.server.telecom.settings.BlockedNumbersActivity;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -1145,11 +1143,11 @@ public class TelecomServiceImpl {
         }
 
         @Override
-        public List<ParcelableCallAnalytics> dumpCallAnalytics() {
+        public TelecomAnalytics dumpCallAnalytics() {
             try {
                 Log.startSession("TSI.dCA");
                 enforcePermission(DUMP);
-                return Arrays.asList(Analytics.dumpToParcelableAnalytics());
+                return Analytics.dumpToParcelableAnalytics();
             } finally {
                 Log.endSession();
             }
@@ -1170,6 +1168,11 @@ public class TelecomServiceImpl {
                 writer.println("Permission Denial: can't dump TelecomService " +
                         "from from pid=" + Binder.getCallingPid() + ", uid=" +
                         Binder.getCallingUid());
+                return;
+            }
+
+            if (args.length > 0 && Analytics.ANALYTICS_DUMPSYS_ARG.equals(args[0])) {
+                Analytics.dumpToEncodedProto(writer, args);
                 return;
             }
 
@@ -1293,6 +1296,7 @@ public class TelecomServiceImpl {
             call = mCallsManager.getFirstCallWithState(
                     CallState.ACTIVE,
                     CallState.DIALING,
+                    CallState.PULLING,
                     CallState.RINGING,
                     CallState.ON_HOLD);
         }

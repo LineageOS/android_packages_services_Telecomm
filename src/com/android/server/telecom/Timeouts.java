@@ -32,6 +32,10 @@ public final class Timeouts {
         public long getCallScreeningTimeoutMillis(ContentResolver cr) {
             return Timeouts.getCallScreeningTimeoutMillis(cr);
         }
+
+        public long getCallRemoveUnbindInCallServicesDelay(ContentResolver cr) {
+            return Timeouts.getCallRemoveUnbindInCallServicesDelay(cr);
+        }
     }
 
     /** A prefix to use for all keys so to not clobber the global namespace. */
@@ -53,22 +57,13 @@ public final class Timeouts {
     }
 
     /**
-     * Returns the longest period, in milliseconds, to wait for the query for direct-to-voicemail
-     * to complete. If the query goes beyond this timeout, the incoming call screen is shown to the
-     * user.
-     */
-    public static long getDirectToVoicemailMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "direct_to_voicemail_ms", 500L);
-    }
-
-    /**
      * Returns the amount of time to wait before disconnecting a call that was canceled via
      * NEW_OUTGOING_CALL broadcast. This timeout allows apps which repost the call using a gateway
      * to reuse the existing call, preventing the call from causing a start->end->start jank in the
      * in-call UI.
      */
     public static long getNewOutgoingCallCancelMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "new_outgoing_call_cancel_ms", 400L);
+        return get(contentResolver, "new_outgoing_call_cancel_ms", 100000L);
     }
 
     /**
@@ -140,12 +135,5 @@ public final class Timeouts {
      */
     public static long getCallScreeningTimeoutMillis(ContentResolver contentResolver) {
         return get(contentResolver, "call_screening_timeout", 5000L /* 5 seconds */);
-    }
-
-    /**
-     * Returns the amount of time to wait for the block checker to allow or disallow a call.
-     */
-    public static long getBlockCheckTimeoutMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "block_check_timeout_millis", 500L);
     }
 }
