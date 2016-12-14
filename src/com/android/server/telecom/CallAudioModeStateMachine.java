@@ -378,7 +378,9 @@ public class CallAudioModeStateMachine extends StateMachine {
                     // Do nothing.
                     return HANDLED;
                 case NEW_ACTIVE_OR_DIALING_CALL:
-                    // Do nothing. Already active.
+                    if (!args.foregroundCallIsVoip) {
+                        transitionTo(mSimCallFocusState);
+                    }
                     return HANDLED;
                 case NEW_RINGING_CALL:
                     // Don't make a call ring over an active call, but do play a call waiting tone.
