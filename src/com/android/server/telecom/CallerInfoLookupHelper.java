@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import android.annotation.Nullable;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -41,7 +42,7 @@ public class CallerInfoLookupHelper {
          * @param info
          * @return true if the value should be cached, false otherwise.
          */
-        void onCallerInfoQueryComplete(Uri handle, CallerInfo info);
+        void onCallerInfoQueryComplete(Uri handle, @Nullable CallerInfo info);
         void onContactPhotoQueryComplete(Uri handle, CallerInfo info);
     }
 
@@ -54,6 +55,7 @@ public class CallerInfoLookupHelper {
             listeners = new LinkedList<>();
         }
     }
+
     private final Map<Uri, CallerInfoQueryInfo> mQueryEntries = new HashMap<>();
 
     private final CallerInfoAsyncQueryFactory mCallerInfoAsyncQueryFactory;
@@ -95,7 +97,7 @@ public class CallerInfoLookupHelper {
                             info.callerInfo.cachedPhotoIcon != null)) {
                         listener.onContactPhotoQueryComplete(handle, info.callerInfo);
                     } else if (info.imageQueryPending) {
-                        Log.i(this, "There is a previously incomplete query for handle %s. " +
+                        Log.i(this, "There is a pending photo query for handle %s. " +
                                 "Adding to listeners for this query.", Log.piiHandle(handle));
                         info.listeners.add(listener);
                     }
@@ -112,7 +114,7 @@ public class CallerInfoLookupHelper {
             }
         }
 
-        mHandler.post(new Runnable("CILH.sL") {
+        mHandler.post(new Runnable("CILH.sL", mLock) {
             @Override
             public void loggedRun() {
                 Session continuedSession = Log.createSubsession();
@@ -139,11 +141,15 @@ public class CallerInfoLookupHelper {
                 Log.continueSession((Session) cookie, "CILH.oQC");
                 try {
                     if (mQueryEntries.containsKey(handle)) {
+                        Log.i(CallerInfoLookupHelper.this, "CI query for handle %s has completed;" +
+                                " notifying all listeners.", Log.piiHandle(handle));
                         CallerInfoQueryInfo info = mQueryEntries.get(handle);
                         for (OnQueryCompleteListener l : info.listeners) {
                             l.onCallerInfoQueryComplete(handle, ci);
                         }
                         if (ci.contactDisplayPhotoUri == null) {
+                            Log.i(CallerInfoLookupHelper.this, "There is no photo for this " +
+                                    "contact, skipping photo query");
                             mQueryEntries.remove(handle);
                         } else {
                             info.callerInfo = ci;
@@ -152,7 +158,7 @@ public class CallerInfoLookupHelper {
                         }
                     } else {
                         Log.i(CallerInfoLookupHelper.this, "CI query for handle %s has completed," +
-                                " but there are no listeners left.", handle);
+                                " but there are no listeners left.", Log.piiHandle(handle));
                     }
                 } finally {
                     Log.endSession();
@@ -162,7 +168,7 @@ public class CallerInfoLookupHelper {
     }
 
     private void startPhotoLookup(final Uri handle, final Uri contactPhotoUri) {
-        mHandler.post(new Runnable("CILH.sPL") {
+        mHandler.post(new Runnable("CILH.sPL", mLock) {
             @Override
             public void loggedRun() {
                 Session continuedSession = Log.createSubsession();
@@ -189,6 +195,7 @@ public class CallerInfoLookupHelper {
                         if (info.callerInfo == null) {
                             Log.w(CallerInfoLookupHelper.this, "Photo query finished, but the " +
                                     "CallerInfo object previously looked up was not cached.");
+                            mQueryEntries.remove(handle);
                             return;
                         }
                         info.callerInfo.cachedPhoto = photo;
@@ -199,7 +206,8 @@ public class CallerInfoLookupHelper {
                         mQueryEntries.remove(handle);
                     } else {
                         Log.i(CallerInfoLookupHelper.this, "Photo query for handle %s has" +
-                                " completed, but there are no listeners left.", handle);
+                                " completed, but there are no listeners left.",
+                                Log.piiHandle(handle));
                     }
                 } finally {
                     Log.endSession();
