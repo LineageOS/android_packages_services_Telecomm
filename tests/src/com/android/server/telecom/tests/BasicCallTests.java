@@ -238,6 +238,37 @@ public class BasicCallTests extends TelecomSystemTest {
     }
 
     @LargeTest
+    public void testIncomingEmergencyCallback() throws Exception {
+        // Make an outgoing emergency call
+        String phoneNumber = "650-555-1212";
+        IdPair ids = startAndMakeDialingEmergencyCall(phoneNumber,
+                mPhoneAccountE0.getAccountHandle(), mConnectionServiceFixtureA);
+        mInCallServiceFixtureX.mInCallAdapter.disconnectCall(ids.mCallId);
+        mConnectionServiceFixtureA.sendSetDisconnected(ids.mConnectionId, DisconnectCause.LOCAL);
+
+        // Incoming call should be marked as a potential emergency callback
+        Bundle extras = new Bundle();
+        extras.putParcelable(
+                TelecomManager.EXTRA_INCOMING_CALL_ADDRESS,
+                Uri.fromParts(PhoneAccount.SCHEME_TEL, phoneNumber, null));
+        mTelecomSystem.getTelecomServiceImpl().getBinder()
+                .addNewIncomingCall(mPhoneAccountA0.getAccountHandle(), extras);
+
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
+        ArgumentCaptor<ConnectionRequest> connectionRequestCaptor
+            = ArgumentCaptor.forClass(ConnectionRequest.class);
+        verify(mConnectionServiceFixtureA.getTestDouble())
+                .createConnection(any(PhoneAccountHandle.class), anyString(),
+                        connectionRequestCaptor.capture(), eq(true), eq(false), any());
+
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
+        assert(connectionRequestCaptor.getValue().getExtras().containsKey(
+            android.telecom.Call.EXTRA_LAST_EMERGENCY_CALLBACK_TIME_MILLIS));
+        assertTrue(connectionRequestCaptor.getValue().getExtras().getLong(
+            android.telecom.Call.EXTRA_LAST_EMERGENCY_CALLBACK_TIME_MILLIS, 0) > 0);
+    }
+
+    @LargeTest
     public void testOutgoingCallAndSelectPhoneAccount() throws Exception {
         // Remove default PhoneAccount so that the Call moves into the correct
         // SELECT_PHONE_ACCOUNT state.

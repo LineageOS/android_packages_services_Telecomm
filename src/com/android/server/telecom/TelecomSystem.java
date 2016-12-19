@@ -212,7 +212,7 @@ public class TelecomSystem {
         mMissedCallNotifier = missedCallNotifierImplFactory
                 .makeMissedCallNotifierImpl(mContext, mPhoneAccountRegistrar, defaultDialerCache);
 
-        EmergencyLocationHelper emergencyLocationHelper = new EmergencyLocationHelper(mContext,
+        EmergencyCallHelper emergencyCallHelper = new EmergencyCallHelper(mContext,
                 mContext.getResources().getString(R.string.ui_default_package), timeoutsAdapter);
 
         mCallsManager = new CallsManager(
@@ -234,7 +234,7 @@ public class TelecomSystem {
                 asyncRingtonePlayer,
                 phoneNumberUtilsAdapter,
                 interruptionFilterProxy,
-                emergencyLocationHelper);
+                emergencyCallHelper);
 
         mRespondViaSmsManager = new RespondViaSmsManager(mCallsManager, mLock);
         mCallsManager.setRespondViaSmsManager(mRespondViaSmsManager);

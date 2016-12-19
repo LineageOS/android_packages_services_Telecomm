@@ -844,6 +844,15 @@ public class ConnectionServiceWrapper extends ServiceBinder {
                             gatewayInfo.getOriginalAddress());
                 }
 
+                if (call.isIncoming() && mCallsManager.getEmergencyCallHelper()
+                        .getLastEmergencyCallTimeMillis() > 0) {
+                  // Add the last emergency call time to the connection request
+                  extras = new Bundle();
+                  extras.putLong(android.telecom.Call.EXTRA_LAST_EMERGENCY_CALLBACK_TIME_MILLIS,
+                      mCallsManager.getEmergencyCallHelper().getLastEmergencyCallTimeMillis());
+                  call.putExtras(Call.SOURCE_CONNECTION_SERVICE, extras);
+                }
+
                 Log.addEvent(call, LogUtils.Events.START_CONNECTION, Log.piiHandle(call.getHandle()));
                 try {
                     mServiceInterface.createConnection(

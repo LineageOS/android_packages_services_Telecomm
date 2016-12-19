@@ -296,8 +296,17 @@ public final class InCallController extends CallsManagerListenerBase {
                 mIsProxying = false;
             }
 
-            mEmergencyLocationHelper.maybeGrantTemporaryLocationPermission(call,
+            mEmergencyCallHelper.maybeGrantTemporaryLocationPermission(call,
                 mCallsManager.getCurrentUserHandle());
+
+            if (call != null && call.isIncoming()
+                && mEmergencyCallHelper.getLastEmergencyCallTimeMillis() > 0) {
+              // Add the last emergency call time to the call
+              Bundle extras = new Bundle();
+              extras.putLong(android.telecom.Call.EXTRA_LAST_EMERGENCY_CALLBACK_TIME_MILLIS,
+                      mEmergencyCallHelper.getLastEmergencyCallTimeMillis());
+              call.putExtras(Call.SOURCE_CONNECTION_SERVICE, extras);
+            }
 
             // If we are here, we didn't or could not connect to child. So lets connect ourselves.
             return super.connect(call);
@@ -310,7 +319,7 @@ public final class InCallController extends CallsManagerListenerBase {
                 mSubConnection.disconnect();
             } else {
                 super.disconnect();
-                mEmergencyLocationHelper.maybeRevokeTemporaryLocationPermission();
+                mEmergencyCallHelper.maybeRevokeTemporaryLocationPermission();
             }
             mIsConnected = false;
         }
@@ -619,21 +628,21 @@ public final class InCallController extends CallsManagerListenerBase {
     private final SystemStateProvider mSystemStateProvider;
     private final Timeouts.Adapter mTimeoutsAdapter;
     private final DefaultDialerCache mDefaultDialerCache;
-    private final EmergencyLocationHelper mEmergencyLocationHelper;
+    private final EmergencyCallHelper mEmergencyCallHelper;
     private CarSwappingInCallServiceConnection mInCallServiceConnection;
     private NonUIInCallServiceConnectionCollection mNonUIInCallServiceConnections;
 
     public InCallController(Context context, TelecomSystem.SyncRoot lock, CallsManager callsManager,
             SystemStateProvider systemStateProvider,
             DefaultDialerCache defaultDialerCache, Timeouts.Adapter timeoutsAdapter,
-            EmergencyLocationHelper emergencyLocationHelper) {
+            EmergencyCallHelper emergencyCallHelper) {
         mContext = context;
         mLock = lock;
         mCallsManager = callsManager;
         mSystemStateProvider = systemStateProvider;
         mTimeoutsAdapter = timeoutsAdapter;
         mDefaultDialerCache = defaultDialerCache;
-        mEmergencyLocationHelper = emergencyLocationHelper;
+        mEmergencyCallHelper = emergencyCallHelper;
 
         Resources resources = mContext.getResources();
         mSystemInCallComponentName = new ComponentName(

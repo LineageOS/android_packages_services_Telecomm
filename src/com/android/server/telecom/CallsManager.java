@@ -202,6 +202,7 @@ public class CallsManager extends Call.ListenerBase
     private final Set<Call> mPendingCallsToDisconnect = new HashSet<>();
     /* Handler tied to thread in which CallManager was initialized. */
     private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private final EmergencyCallHelper mEmergencyCallHelper;
 
     private boolean mCanAddCall = true;
 
@@ -231,7 +232,7 @@ public class CallsManager extends Call.ListenerBase
             AsyncRingtonePlayer asyncRingtonePlayer,
             PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
             InterruptionFilterProxy interruptionFilterProxy,
-            EmergencyLocationHelper emergencyLocationHelper) {
+            EmergencyCallHelper emergencyCallHelper) {
         mContext = context;
         mLock = lock;
         mPhoneNumberUtilsAdapter = phoneNumberUtilsAdapter;
@@ -245,6 +246,7 @@ public class CallsManager extends Call.ListenerBase
         mBluetoothRouteManager = bluetoothManager;
         mDockManager = new DockManager(context);
         mTimeoutsAdapter = timeoutsAdapter;
+        mEmergencyCallHelper = emergencyCallHelper;
         mCallerInfoLookupHelper = new CallerInfoLookupHelper(context, mCallerInfoAsyncQueryFactory,
                 mContactsAsyncHelper, mLock);
 
@@ -278,7 +280,7 @@ public class CallsManager extends Call.ListenerBase
         SystemVibrator systemVibrator = new SystemVibrator(context);
         mInCallController = new InCallController(
                 context, mLock, this, systemStateProvider, defaultDialerCache, mTimeoutsAdapter,
-                emergencyLocationHelper);
+                emergencyCallHelper);
         mRinger = new Ringer(playerFactory, context, systemSettingsUtil, asyncRingtonePlayer,
                 ringtoneFactory, systemVibrator, mInCallController);
 
@@ -649,6 +651,10 @@ public class CallsManager extends Call.ListenerBase
 
     InCallController getInCallController() {
         return mInCallController;
+    }
+
+    EmergencyCallHelper getEmergencyCallHelper() {
+        return mEmergencyCallHelper;
     }
 
     @VisibleForTesting

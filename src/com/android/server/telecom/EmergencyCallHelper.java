@@ -24,19 +24,20 @@ import android.telecom.Log;
 import com.android.internal.annotations.VisibleForTesting;
 
 /**
- * Grants temporary location permission to the default dialer service during
- * emergency calls, if it doesn't already have it.
+ * Helps with emergency calls by:
+ * 1. granting temporary location permission to the default dialer service during emergency calls
+ * 2. keeping track of the time of the last emergency call
  */
 @VisibleForTesting
-public class EmergencyLocationHelper {
+public class EmergencyCallHelper {
     private final Context mContext;
     private final String mDefaultDialerPackage;
     private final Timeouts.Adapter mTimeoutsAdapter;
     private UserHandle mLocationPermissionGrantedToUser;
-    private long mLocationPermissionGrantedTimestampMillis;
+    private long mLastEmergencyCallTimestampMillis;
 
     @VisibleForTesting
-    public EmergencyLocationHelper(
+    public EmergencyCallHelper(
             Context context,
             String defaultDialerPackage,
             Timeouts.Adapter timeoutsAdapter) {
@@ -49,12 +50,28 @@ public class EmergencyLocationHelper {
         if (shouldGrantTemporaryLocationPermission(call)) {
             grantLocationPermission(userHandle, call);
         }
+        if (call != null && call.isEmergencyCall()) {
+            recordEmergencyCallTime();
+        }
     }
 
     void maybeRevokeTemporaryLocationPermission() {
         if (wasGrantedTemporaryLocationPermission()) {
             revokeLocationPermission();
         }
+    }
+
+    long getLastEmergencyCallTimeMillis() {
+        return mLastEmergencyCallTimestampMillis;
+    }
+
+    private void recordEmergencyCallTime() {
+        mLastEmergencyCallTimestampMillis = System.currentTimeMillis();
+    }
+
+    private boolean isInEmergencyCallbackWindow() {
+        return System.currentTimeMillis() - getLastEmergencyCallTimeMillis()
+                < mTimeoutsAdapter.getEmergencyCallbackWindowMillis(mContext.getContentResolver());
     }
 
     private boolean shouldGrantTemporaryLocationPermission(Call call) {
@@ -80,7 +97,7 @@ public class EmergencyLocationHelper {
         try {
             mContext.getPackageManager().grantRuntimePermission(mDefaultDialerPackage,
                 Manifest.permission.ACCESS_FINE_LOCATION, userHandle);
-            recordPermissionGrant(userHandle, call.isEmergencyCall());
+            recordPermissionGrant(userHandle);
         } catch (Exception e) {
             Log.e(this, e, "Failed to grant location permission to " + mDefaultDialerPackage
                   + ", user: " + userHandle);
@@ -107,11 +124,8 @@ public class EmergencyLocationHelper {
                 == PackageManager.PERMISSION_GRANTED;
     }
 
-    private void recordPermissionGrant(UserHandle userHandle, boolean startEmergencyWindow) {
+    private void recordPermissionGrant(UserHandle userHandle) {
         mLocationPermissionGrantedToUser = userHandle;
-        if (startEmergencyWindow) {
-            mLocationPermissionGrantedTimestampMillis = System.currentTimeMillis();
-        }
     }
 
     private boolean wasGrantedTemporaryLocationPermission() {
@@ -120,10 +134,5 @@ public class EmergencyLocationHelper {
 
     private void clearPermissionGrant() {
         mLocationPermissionGrantedToUser = null;
-    }
-
-    private boolean isInEmergencyCallbackWindow() {
-        return System.currentTimeMillis() - mLocationPermissionGrantedTimestampMillis
-                < mTimeoutsAdapter.getEmergencyCallbackWindowMillis(mContext.getContentResolver());
     }
 }
