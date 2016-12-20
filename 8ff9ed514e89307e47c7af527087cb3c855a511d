@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f681702_dbd6e7f1",
+        "filename": "src/com/android/server/telecom/ConnectionServiceRepository.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 9442
+      },
+      "writtenOn": "2016-12-20T07:01:00Z",
+      "side": 1,
+      "message": "Key : Pair\u003cComponentName, UserHandle\u003e",
+      "range": {
+        "startLine": 34,
+        "startChar": 26,
+        "endLine": 34,
+        "endChar": 57
+      },
+      "revId": "8ff9ed514e89307e47c7af527087cb3c855a511d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f681702_1b0a1f89",
+        "filename": "src/com/android/server/telecom/ConnectionServiceRepository.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 9442
+      },
+      "writtenOn": "2016-12-20T07:01:00Z",
+      "side": 1,
+      "message": "This already merged in cm-13\nhttps://review.cyanogenmod.org/#/c/139914/",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 55
+      },
+      "revId": "8ff9ed514e89307e47c7af527087cb3c855a511d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f681702_3b071b85",
+        "filename": "src/com/android/server/telecom/ConnectionServiceRepository.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 9442
+      },
+      "writtenOn": "2016-12-20T07:01:00Z",
+      "side": 1,
+      "message": "mServiceCache.get use Pair\u003cComponentName, UserHandle\u003e",
+      "range": {
+        "startLine": 66,
+        "startChar": 8,
+        "endLine": 66,
+        "endChar": 89
+      },
+      "revId": "8ff9ed514e89307e47c7af527087cb3c855a511d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f681702_bbd16bfe",
+        "filename": "src/com/android/server/telecom/InCallController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 9442
+      },
+      "writtenOn": "2016-12-20T07:01:00Z",
+      "side": 1,
+      "message": "InCallServiceInfo is key class",
+      "range": {
+        "startLine": 600,
+        "startChar": 22,
+        "endLine": 600,
+        "endChar": 39
+      },
+      "revId": "8ff9ed514e89307e47c7af527087cb3c855a511d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f681702_9bcc6f62",
+        "filename": "src/com/android/server/telecom/InCallController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 9442
+      },
+      "writtenOn": "2016-12-20T07:01:00Z",
+      "side": 1,
+      "message": "mInCallServices.put using InCallServiceInfo",
+      "range": {
+        "startLine": 1084,
+        "startChar": 8,
+        "endLine": 1084,
+        "endChar": 32
+      },
+      "revId": "8ff9ed514e89307e47c7af527087cb3c855a511d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f681702_fbdbe317",
+        "filename": "src/com/android/server/telecom/InCallController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1140,
+      "author": {
+        "id": 9442
+      },
+      "writtenOn": "2016-12-20T07:01:00Z",
+      "side": 1,
+      "message": "mInCallServices.remove should use InCallServiceInfo",
+      "range": {
+        "startLine": 1140,
+        "startChar": 8,
+        "endLine": 1140,
+        "endChar": 54
+      },
+      "revId": "8ff9ed514e89307e47c7af527087cb3c855a511d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
