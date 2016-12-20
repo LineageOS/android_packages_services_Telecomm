@@ -27,7 +27,6 @@ import android.os.UserHandle;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.DefaultDialerCache;
-import com.android.server.telecom.TelecomServiceImpl;
 import com.android.server.telecom.TelecomSystem;
 
 import org.mockito.ArgumentCaptor;
@@ -53,7 +52,7 @@ public class DefaultDialerCacheTest extends TelecomTestCase {
     private ContentObserver mDefaultDialerSettingObserver;
     private BroadcastReceiver mPackageChangeReceiver;
 
-    @Mock private TelecomServiceImpl.DefaultDialerManagerAdapter mMockDefaultDialerManager;
+    @Mock private DefaultDialerCache.DefaultDialerManagerAdapter mMockDefaultDialerManager;
 
     public void setUp() throws Exception {
         super.setUp();
@@ -112,9 +111,9 @@ public class DefaultDialerCacheTest extends TelecomTestCase {
         mPackageChangeReceiver.onReceive(mContext, packageChangeIntent);
         verify(mMockDefaultDialerManager, times(2))
                 .getDefaultDialerApplication(any(Context.class), eq(USER0));
-        verify(mMockDefaultDialerManager, times(1))
+        verify(mMockDefaultDialerManager, times(2))
                 .getDefaultDialerApplication(any(Context.class), eq(USER1));
-        verify(mMockDefaultDialerManager, times(1))
+        verify(mMockDefaultDialerManager, times(2))
                 .getDefaultDialerApplication(any(Context.class), eq(USER2));
 
         assertEquals(mDefaultDialerCache.getDefaultDialerApplication(USER0), DIALER2);
@@ -129,11 +128,11 @@ public class DefaultDialerCacheTest extends TelecomTestCase {
         Intent packageChangeIntent = new Intent(Intent.ACTION_PACKAGE_CHANGED,
                 Uri.fromParts("package", "red.orange.blue", null));
         mPackageChangeReceiver.onReceive(mContext, packageChangeIntent);
-        verify(mMockDefaultDialerManager, times(1))
+        verify(mMockDefaultDialerManager, times(2))
                 .getDefaultDialerApplication(any(Context.class), eq(USER0));
-        verify(mMockDefaultDialerManager, times(1))
+        verify(mMockDefaultDialerManager, times(2))
                 .getDefaultDialerApplication(any(Context.class), eq(USER1));
-        verify(mMockDefaultDialerManager, times(1))
+        verify(mMockDefaultDialerManager, times(2))
                 .getDefaultDialerApplication(any(Context.class), eq(USER2));
     }
 

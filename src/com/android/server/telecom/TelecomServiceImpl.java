@@ -37,7 +37,6 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.Process;
 import android.os.UserHandle;
-import android.os.UserManager;
 import android.telecom.DefaultDialerManager;
 import android.telecom.Log;
 import android.telecom.ParcelableCallAnalytics;
@@ -58,6 +57,7 @@ import com.android.server.telecom.settings.BlockedNumbersActivity;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -65,34 +65,6 @@ import java.util.List;
  * Implementation of the ITelecom interface.
  */
 public class TelecomServiceImpl {
-    public interface DefaultDialerManagerAdapter {
-        String getDefaultDialerApplication(Context context);
-        String getDefaultDialerApplication(Context context, int userId);
-        boolean setDefaultDialerApplication(Context context, String packageName);
-        boolean isDefaultOrSystemDialer(Context context, String packageName);
-    }
-
-    static class DefaultDialerManagerAdapterImpl implements DefaultDialerManagerAdapter {
-        @Override
-        public String getDefaultDialerApplication(Context context) {
-            return DefaultDialerManager.getDefaultDialerApplication(context);
-        }
-
-        @Override
-        public String getDefaultDialerApplication(Context context, int userId) {
-            return DefaultDialerManager.getDefaultDialerApplication(context, userId);
-        }
-
-        @Override
-        public boolean setDefaultDialerApplication(Context context, String packageName) {
-            return DefaultDialerManager.setDefaultDialerApplication(context, packageName);
-        }
-
-        @Override
-        public boolean isDefaultOrSystemDialer(Context context, String packageName) {
-            return DefaultDialerManager.isDefaultOrSystemDialer(context, packageName);
-        }
-    }
 
     public interface SubscriptionManagerAdapter {
         int getDefaultVoiceSubId();
@@ -618,7 +590,8 @@ public class TelecomServiceImpl {
                 Log.startSession("TSI.gDDP");
                 final long token = Binder.clearCallingIdentity();
                 try {
-                    return mDefaultDialerManagerAdapter.getDefaultDialerApplication(mContext);
+                    return mDefaultDialerCache.getDefaultDialerApplication(
+                            ActivityManager.getCurrentUser());
                 } finally {
                     Binder.restoreCallingIdentity(token);
                 }
@@ -1123,9 +1096,8 @@ public class TelecomServiceImpl {
                 synchronized (mLock) {
                     long token = Binder.clearCallingIdentity();
                     try {
-                        final boolean result =
-                                mDefaultDialerManagerAdapter
-                                        .setDefaultDialerApplication(mContext, packageName);
+                        final boolean result = mDefaultDialerCache.setDefaultDialer(
+                                packageName, ActivityManager.getCurrentUser());
                         if (result) {
                             final Intent intent =
                                     new Intent(TelecomManager.ACTION_DEFAULT_DIALER_CHANGED);
@@ -1210,13 +1182,12 @@ public class TelecomServiceImpl {
 
     private Context mContext;
     private AppOpsManager mAppOpsManager;
-    private UserManager mUserManager;
     private PackageManager mPackageManager;
     private CallsManager mCallsManager;
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
     private final CallIntentProcessor.Adapter mCallIntentProcessorAdapter;
     private final UserCallIntentProcessorFactory mUserCallIntentProcessorFactory;
-    private final DefaultDialerManagerAdapter mDefaultDialerManagerAdapter;
+    private final DefaultDialerCache mDefaultDialerCache;
     private final SubscriptionManagerAdapter mSubscriptionManagerAdapter;
     private final TelecomSystem.SyncRoot mLock;
 
@@ -1226,20 +1197,19 @@ public class TelecomServiceImpl {
             PhoneAccountRegistrar phoneAccountRegistrar,
             CallIntentProcessor.Adapter callIntentProcessorAdapter,
             UserCallIntentProcessorFactory userCallIntentProcessorFactory,
-            DefaultDialerManagerAdapter defaultDialerManagerAdapter,
+            DefaultDialerCache defaultDialerCache,
             SubscriptionManagerAdapter subscriptionManagerAdapter,
             TelecomSystem.SyncRoot lock) {
         mContext = context;
         mAppOpsManager = (AppOpsManager) mContext.getSystemService(Context.APP_OPS_SERVICE);
 
-        mUserManager = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
         mPackageManager = mContext.getPackageManager();
 
         mCallsManager = callsManager;
         mLock = lock;
         mPhoneAccountRegistrar = phoneAccountRegistrar;
         mUserCallIntentProcessorFactory = userCallIntentProcessorFactory;
-        mDefaultDialerManagerAdapter = defaultDialerManagerAdapter;
+        mDefaultDialerCache = defaultDialerCache;
         mCallIntentProcessorAdapter = callIntentProcessorAdapter;
         mSubscriptionManagerAdapter = subscriptionManagerAdapter;
     }
@@ -1468,7 +1438,8 @@ public class TelecomServiceImpl {
 
     private boolean isPrivilegedDialerCalling(String callingPackage) {
         mAppOpsManager.checkPackage(Binder.getCallingUid(), callingPackage);
-        return mDefaultDialerManagerAdapter.isDefaultOrSystemDialer(mContext, callingPackage);
+        return mDefaultDialerCache.isDefaultOrSystemDialer(
+                callingPackage, Binder.getCallingUserHandle().getIdentifier());
     }
 
     private TelephonyManager getTelephonyManager() {

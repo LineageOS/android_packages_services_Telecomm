@@ -43,11 +43,11 @@ import com.android.server.telecom.Analytics;
 import com.android.server.telecom.BluetoothHeadsetProxy;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallsManager;
+import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.InCallController;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.R;
 import com.android.server.telecom.SystemStateProvider;
-import com.android.server.telecom.TelecomServiceImpl.DefaultDialerManagerAdapter;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
 
@@ -64,7 +64,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -82,8 +81,8 @@ public class InCallControllerTests extends TelecomTestCase {
     @Mock Call mMockCall;
     @Mock Resources mMockResources;
     @Mock MockContext mMockContext;
-    @Mock DefaultDialerManagerAdapter mMockDefaultDialerAdapter;
     @Mock Timeouts.Adapter mTimeoutsAdapter;
+    @Mock DefaultDialerCache mDefaultDialerCache;
 
     private static final int CURRENT_USER_ID = 900973;
     private static final String DEF_PKG = "defpkg";
@@ -106,7 +105,7 @@ public class InCallControllerTests extends TelecomTestCase {
         doReturn(SYS_PKG).when(mMockResources).getString(R.string.ui_default_package);
         doReturn(SYS_CLASS).when(mMockResources).getString(R.string.incall_default_class);
         mInCallController = new InCallController(mMockContext, mLock, mMockCallsManager,
-                mMockSystemStateProvider, mMockDefaultDialerAdapter, mTimeoutsAdapter);
+                mMockSystemStateProvider, mDefaultDialerCache, mTimeoutsAdapter);
     }
 
     @Override
@@ -185,7 +184,7 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
         when(mMockCall.getIntentExtras()).thenReturn(callExtras);
         when(mMockCall.isExternalCall()).thenReturn(false);
-        when(mMockDefaultDialerAdapter.getDefaultDialerApplication(mMockContext, CURRENT_USER_ID))
+        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID))
                 .thenReturn(DEF_PKG);
         when(mMockContext.bindServiceAsUser(any(Intent.class), any(ServiceConnection.class),
                 anyInt(), eq(UserHandle.CURRENT))).thenReturn(true);
@@ -235,7 +234,7 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
         when(mMockCall.getIntentExtras()).thenReturn(callExtras);
         when(mMockCall.isExternalCall()).thenReturn(false);
-        when(mMockDefaultDialerAdapter.getDefaultDialerApplication(mMockContext, CURRENT_USER_ID))
+        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID))
                 .thenReturn(DEF_PKG);
         when(mMockContext.bindServiceAsUser(any(Intent.class), any(ServiceConnection.class),
                 eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE),
@@ -291,7 +290,7 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.getIntentExtras()).thenReturn(callExtras);
         when(mMockCall.isExternalCall()).thenReturn(false);
         when(mMockCall.getConferenceableCalls()).thenReturn(Collections.emptyList());
-        when(mMockDefaultDialerAdapter.getDefaultDialerApplication(mMockContext, CURRENT_USER_ID))
+        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID))
                 .thenReturn(DEF_PKG);
         when(mMockContext.bindServiceAsUser(
                 any(Intent.class), any(ServiceConnection.class), anyInt(), any(UserHandle.class)))
@@ -406,8 +405,7 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCallsManager.hasEmergencyCall()).thenReturn(false);
         when(mMockCall.isIncoming()).thenReturn(true);
         when(mMockCall.isExternalCall()).thenReturn(false);
-        when(mMockDefaultDialerAdapter.getDefaultDialerApplication(mMockContext, CURRENT_USER_ID))
-                .thenReturn(DEF_PKG);
+        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID)).thenReturn(DEF_PKG);
         when(mMockContext.bindServiceAsUser(
                 any(Intent.class), any(ServiceConnection.class), anyInt(), any(UserHandle.class)))
                 .thenReturn(true);
@@ -456,8 +454,7 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCallsManager.hasEmergencyCall()).thenReturn(false);
         when(mMockCall.isIncoming()).thenReturn(false);
         when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
-        when(mMockDefaultDialerAdapter.getDefaultDialerApplication(mMockContext, CURRENT_USER_ID))
-                .thenReturn(DEF_PKG);
+        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID)).thenReturn(DEF_PKG);
         when(mMockContext.bindServiceAsUser(any(Intent.class), any(ServiceConnection.class),
                 anyInt(), eq(UserHandle.CURRENT))).thenReturn(true);
         when(mMockCall.isExternalCall()).thenReturn(isExternalCall);
