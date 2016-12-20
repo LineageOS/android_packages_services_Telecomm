@@ -22,7 +22,7 @@ import com.android.server.telecom.components.UserCallIntentProcessorFactory;
 import com.android.server.telecom.ui.MissedCallNotifierImpl.MissedCallNotifierImplFactory;
 import com.android.server.telecom.BluetoothPhoneServiceImpl.BluetoothPhoneServiceImplFactory;
 import com.android.server.telecom.CallAudioManager.AudioServiceFactory;
-import com.android.server.telecom.TelecomServiceImpl.DefaultDialerManagerAdapter;
+import com.android.server.telecom.DefaultDialerCache.DefaultDialerManagerAdapter;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -184,9 +184,14 @@ public class TelecomSystem {
             InterruptionFilterProxy interruptionFilterProxy) {
         mContext = context.getApplicationContext();
         LogUtils.initLogging(mContext);
+        DefaultDialerManagerAdapter defaultDialerAdapter =
+                new DefaultDialerCache.DefaultDialerManagerAdapterImpl();
+
+        DefaultDialerCache defaultDialerCache = new DefaultDialerCache(mContext,
+                defaultDialerAdapter, mLock);
 
         Log.startSession("TS.init");
-        mPhoneAccountRegistrar = new PhoneAccountRegistrar(mContext);
+        mPhoneAccountRegistrar = new PhoneAccountRegistrar(mContext, defaultDialerCache);
         mContactsAsyncHelper = new ContactsAsyncHelper(
                 new ContactsAsyncHelper.ContentResolverAdapter() {
                     @Override
@@ -201,10 +206,7 @@ public class TelecomSystem {
         SystemStateProvider systemStateProvider = new SystemStateProvider(mContext);
 
         mMissedCallNotifier = missedCallNotifierImplFactory
-                .makeMissedCallNotifierImpl(mContext, mPhoneAccountRegistrar);
-
-        DefaultDialerManagerAdapter defaultDialerAdapter =
-                new TelecomServiceImpl.DefaultDialerManagerAdapterImpl();
+                .makeMissedCallNotifierImpl(mContext, mPhoneAccountRegistrar, defaultDialerCache);
 
         mCallsManager = new CallsManager(
                 mContext,
@@ -220,7 +222,7 @@ public class TelecomSystem {
                 bluetoothManager,
                 wiredHeadsetManager,
                 systemStateProvider,
-                defaultDialerAdapter,
+                defaultDialerCache,
                 timeoutsAdapter,
                 asyncRingtonePlayer,
                 phoneNumberUtilsAdapter,
@@ -253,7 +255,7 @@ public class TelecomSystem {
                         return new UserCallIntentProcessor(context, userHandle);
                     }
                 },
-                defaultDialerAdapter,
+                defaultDialerCache,
                 new TelecomServiceImpl.SubscriptionManagerAdapterImpl(),
                 mLock);
         Log.endSession();
