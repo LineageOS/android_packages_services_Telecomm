@@ -217,18 +217,16 @@ public class CallAudioManager extends CallsManagerListenerBase {
         // sets the call to active. Only thing to handle for mode here is the audio speedup thing.
 
         if (call.can(android.telecom.Call.Details.CAPABILITY_SPEED_UP_MT_AUDIO)) {
-            if (mForegroundCall == call) {
-                Log.i(LOG_TAG, "Invoking the MT_AUDIO_SPEEDUP mechanism. Transitioning into " +
-                        "an active in-call audio state before connection service has " +
-                        "connected the call.");
-                if (mCallStateToCalls.get(call.getState()) != null) {
-                    mCallStateToCalls.get(call.getState()).remove(call);
-                }
-                mActiveDialingOrConnectingCalls.add(call);
-                mCallAudioModeStateMachine.sendMessageWithArgs(
-                        CallAudioModeStateMachine.MT_AUDIO_SPEEDUP_FOR_RINGING_CALL,
-                        makeArgsForModeStateMachine());
+            Log.i(LOG_TAG, "Invoking the MT_AUDIO_SPEEDUP mechanism. Transitioning into " +
+                    "an active in-call audio state before connection service has " +
+                    "connected the call.");
+            if (mCallStateToCalls.get(call.getState()) != null) {
+                mCallStateToCalls.get(call.getState()).remove(call);
             }
+            mActiveDialingOrConnectingCalls.add(call);
+            mCallAudioModeStateMachine.sendMessageWithArgs(
+                    CallAudioModeStateMachine.MT_AUDIO_SPEEDUP_FOR_RINGING_CALL,
+                    makeArgsForModeStateMachine());
         }
 
         maybeStopRingingAndCallWaitingForAnsweredOrRejectedCall(call);
