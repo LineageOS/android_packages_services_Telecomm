@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa0f191f_9a7dadb4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 16475
+      },
+      "writtenOn": "2016-12-29T13:56:20Z",
+      "side": 0,
+      "message": "---\n src/com/android/server/telecom/CallAudioModeStateMachine.java | 10 ++++++++++\n 1 file changed, 10 insertions(+)\n\ndiff --git a/src/com/android/server/telecom/CallAudioModeStateMachine.java b/src/com/android/server/telecom/CallAudioModeStateMachine.java\nindex dfc7075..8f5136b 100644\n--- a/src/com/android/server/telecom/CallAudioModeStateMachine.java\n+++ b/src/com/android/server/telecom/CallAudioModeStateMachine.java\n@@ -151,7 +151,12 @@ public class CallAudioModeStateMachine extends StateMachine {\n         public void enter() {\n             if (mIsInitialized) {\n                 Log.i(LOG_TAG, \"Abandoning audio focus: now UNFOCUSED\");\n+                boolean setRealcallAudioParams \u003d SystemProperties\n+                    .getBoolean(\"ro.telephony.samsung.realcall\", false);\n                 mAudioManager.abandonAudioFocusForCall();\n+ \t\tif (setRealcallAudioParams) {\n+                    mAudioManager.setParameters(\"realcall\u003doff\");\n+                }\n                 mAudioManager.setMode(AudioManager.MODE_NORMAL);\n \n                 mMostRecentMode \u003d AudioManager.MODE_NORMAL;\n@@ -293,6 +298,8 @@ public class CallAudioModeStateMachine extends StateMachine {\n             boolean setMsimAudioParams \u003d SystemProperties\n                     .getBoolean(\"ro.multisim.set_audio_params\", false);\n             Call call \u003d mCallAudioManager.getForegroundCall();\n+\t    boolean setRealcallAudioParams \u003d SystemProperties\n+                    .getBoolean(\"ro.telephony.samsung.realcall\", false);\n \n             mAudioManager.requestAudioFocusForCall(AudioManager.STREAM_VOICE_CALL,\n                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);\n@@ -305,6 +312,9 @@ public class CallAudioModeStateMachine extends StateMachine {\n                 } else if (phoneId \u003d\u003d 1) {\n                     mAudioManager.setParameters(\"phone_type\u003dcp2\");\n                 }\n+\t\tif(setRealcallAudioParams){\n+                    mAudioManager.setParameters(\"realcall\u003don\");\n+                }\n             }\n \n             mAudioManager.setMode(AudioManager.MODE_IN_CALL);\n-- \n1.9.1",
+      "revId": "8ff9ed514e89307e47c7af527087cb3c855a511d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
