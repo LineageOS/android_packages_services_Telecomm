@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a202591_b55400cb",
+        "filename": "src/com/android/server/telecom/CallAudioModeStateMachine.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 11604
+      },
+      "writtenOn": "2016-12-29T10:51:07Z",
+      "side": 1,
+      "message": "wrong indent level, and put spaces around the condition:\n\n    if (setRealcallAudioParams) {",
+      "revId": "63c46c130eaa4552d628b3be403229da1b6a80a1",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
