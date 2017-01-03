@@ -19,8 +19,11 @@ package com.android.server.telecom;
 import android.media.AudioManager;
 import android.os.Message;
 import android.os.SystemProperties;
+import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
+import android.telecom.TelecomManager;
 import android.telephony.SubscriptionManager;
+import android.telephony.TelephonyManager;
 import android.util.SparseArray;
 
 import com.android.internal.util.IState;
@@ -297,8 +300,11 @@ public class CallAudioModeStateMachine extends StateMachine {
             mAudioManager.requestAudioFocusForCall(AudioManager.STREAM_VOICE_CALL,
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
 
-            if (call != null && setMsimAudioParams) {
-                int phoneId = getPhoneId(call);
+            if (call != null && call.getTargetPhoneAccount() != null && setMsimAudioParams) {
+                PhoneAccountHandle handle = call.getTargetPhoneAccount();
+                PhoneAccount account = mTelecomManager.getPhoneAccount(handle);
+                int subId = TelephonyManager.getDefault().getSubIdForPhoneAccount(account);
+                int phoneId = SubscriptionManager.getPhoneId(subId);
                 Log.d(LOG_TAG, "setAudioParameters phoneId=" + phoneId);
                 if (phoneId == 0) {
                     mAudioManager.setParameters("phone_type=cp1");
@@ -360,22 +366,6 @@ public class CallAudioModeStateMachine extends StateMachine {
                     // The forced focus switch commands are handled by BaseState.
                     return NOT_HANDLED;
             }
-        }
-
-        private int getPhoneId(Call call) {
-            if (call.getTargetPhoneAccount() != null) {
-                PhoneAccountHandle account = call.getTargetPhoneAccount();
-                try {
-                    int index = Integer.parseInt(account.getId());
-                    int phoneId = SubscriptionManager.getPhoneId(index);
-                    if (SubscriptionManager.isValidPhoneId(phoneId)) {
-                        return phoneId;
-                    }
-                } catch (NumberFormatException e) {
-                    Log.e(LOG_TAG, e, "Cannot get phoneId from ID value " + account.getId());
-                }
-            }
-            return -1;
         }
     }
 
@@ -503,14 +493,16 @@ public class CallAudioModeStateMachine extends StateMachine {
     private final BaseState mOtherFocusState = new OtherFocusState();
 
     private final AudioManager mAudioManager;
+    private final TelecomManager mTelecomManager;
     private CallAudioManager mCallAudioManager;
 
     private int mMostRecentMode;
     private boolean mIsInitialized = false;
 
-    public CallAudioModeStateMachine(AudioManager audioManager) {
+    public CallAudioModeStateMachine(AudioManager audioManager, TelecomManager telecomManager) {
         super(CallAudioModeStateMachine.class.getSimpleName());
         mAudioManager = audioManager;
+        mTelecomManager = telecomManager;
         mMostRecentMode = AudioManager.MODE_NORMAL;
 
         addState(mUnfocusedState);
