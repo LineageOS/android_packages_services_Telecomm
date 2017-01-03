@@ -21,6 +21,7 @@
         android:sharedUserId="android.uid.system">
 
     <protected-broadcast android:name="android.intent.action.SHOW_MISSED_CALLS_NOTIFICATION" />
+    <protected-broadcast android:name="codeaurora.intent.action.DEFAULT_PHONE_ACCOUNT_CHANGED" />
 
     <!-- Prevents the activity manager from delaying any activity-start
          requests by this package, including requests immediately after
