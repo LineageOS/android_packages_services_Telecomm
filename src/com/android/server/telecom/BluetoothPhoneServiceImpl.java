@@ -779,7 +779,8 @@ public class BluetoothPhoneServiceImpl {
         boolean isActive = false;
         boolean allowDsda = false;
         int state = convertCallState(call.getState(), isForeground);
-        int subForCall = Integer.parseInt(call.getTargetPhoneAccount().getId());
+        PhoneAccount account = mTelecomManager.getPhoneAccount(call.getTargetPhoneAccount());
+        int subForCall = TelephonyManager.getDefault().getSubIdForPhoneAccount(account);
         int activeSub = getActiveSubscription();
         if (INVALID_SUBID == activeSub) {
             Log.i(TAG, "Invalid activeSub id, returning");
