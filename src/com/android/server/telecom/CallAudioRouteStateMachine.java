@@ -39,6 +39,7 @@ import android.util.SparseArray;
 import com.android.internal.util.IState;
 import com.android.internal.util.State;
 import com.android.internal.util.StateMachine;
+import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 
 import java.util.HashMap;
 
@@ -829,6 +830,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
             super.enter();
             mHasUserExplicitlyLeftBluetooth = false;
             updateInternalCallAudioState();
+            setBluetoothOn(false);
         }
 
         @Override
@@ -1135,7 +1137,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
     private final Context mContext;
     private final CallsManager mCallsManager;
     private final AudioManager mAudioManager;
-    private final BluetoothManager mBluetoothManager;
+    private final BluetoothRouteManager mBluetoothRouteManager;
     private final WiredHeadsetManager mWiredHeadsetManager;
     private final StatusBarNotifier mStatusBarNotifier;
     private final CallAudioManager.AudioServiceFactory mAudioServiceFactory;
@@ -1155,7 +1157,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
     public CallAudioRouteStateMachine(
             Context context,
             CallsManager callsManager,
-            BluetoothManager bluetoothManager,
+            BluetoothRouteManager bluetoothManager,
             WiredHeadsetManager wiredHeadsetManager,
             StatusBarNotifier statusBarNotifier,
             CallAudioManager.AudioServiceFactory audioServiceFactory,
@@ -1175,7 +1177,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
         mContext = context;
         mCallsManager = callsManager;
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-        mBluetoothManager = bluetoothManager;
+        mBluetoothRouteManager = bluetoothManager;
         mWiredHeadsetManager = wiredHeadsetManager;
         mStatusBarNotifier = statusBarNotifier;
         mAudioServiceFactory = audioServiceFactory;
@@ -1290,7 +1292,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 return;
             default:
                 Log.e(this, new IllegalStateException(),
-                        "Unexpected message code");
+                        "Unexpected message code %d", msg.what);
         }
     }
 
@@ -1350,14 +1352,13 @@ public class CallAudioRouteStateMachine extends StateMachine {
     }
 
     private void setBluetoothOn(boolean on) {
-        if (mBluetoothManager.isBluetoothAvailable()) {
-            boolean isAlreadyOn = mBluetoothManager.isBluetoothAudioConnectedOrPending();
-            if (on != isAlreadyOn) {
+        if (mBluetoothRouteManager.isBluetoothAvailable()) {
+            if (on != mBluetoothRouteManager.isBluetoothAudioConnectedOrPending()) {
                 Log.i(this, "connecting bluetooth %s", on);
                 if (on) {
-                    mBluetoothManager.connectBluetoothAudio();
+                    mBluetoothRouteManager.connectBluetoothAudio(null /*TODO: add real address*/);
                 } else {
-                    mBluetoothManager.disconnectBluetoothAudio();
+                    mBluetoothRouteManager.disconnectBluetoothAudio();
                 }
             }
         }
@@ -1365,8 +1366,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
 
     private void setMuteOn(boolean mute) {
         mIsMuted = mute;
-        Log.addEvent(mCallsManager.getForegroundCall(), mute ? LogUtils.Events.MUTE : LogUtils.Events.UNMUTE);
-
+        Log.addEvent(mCallsManager.getForegroundCall(), mute ?
+                LogUtils.Events.MUTE : LogUtils.Events.UNMUTE);
         if (mute != mAudioManager.isMicrophoneMute() && isInActiveState()) {
             IAudioService audio = mAudioServiceFactory.getAudioService();
             Log.i(this, "changing microphone mute state to: %b [serviceIsNull=%b]",
@@ -1450,7 +1451,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
             routeMask |= CallAudioState.ROUTE_EARPIECE;
         }
 
-        if (mBluetoothManager.isBluetoothAvailable()) {
+        if (mBluetoothRouteManager.isBluetoothAvailable()) {
             routeMask |=  CallAudioState.ROUTE_BLUETOOTH;
         }
 
