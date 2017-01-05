@@ -57,6 +57,7 @@ import com.android.internal.telephony.AsyncEmergencyContactNotifier;
 import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.telephony.TelephonyProperties;
 import com.android.internal.util.IndentingPrintWriter;
+import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.callfiltering.AsyncBlockCheckFilter;
 import com.android.server.telecom.callfiltering.BlockCheckerAdapter;
 import com.android.server.telecom.callfiltering.CallFilterResultCallback;
@@ -180,7 +181,7 @@ public class CallsManager extends Call.ListenerBase
             new ConcurrentHashMap<CallsManagerListener, Boolean>(16, 0.9f, 1));
     private final HeadsetMediaButton mHeadsetMediaButton;
     private final WiredHeadsetManager mWiredHeadsetManager;
-    private final BluetoothManager mBluetoothManager;
+    private final BluetoothRouteManager mBluetoothRouteManager;
     private final DockManager mDockManager;
     private final TtyManager mTtyManager;
     private final ProximitySensorManager mProximitySensorManager;
@@ -222,7 +223,7 @@ public class CallsManager extends Call.ListenerBase
             ProximitySensorManagerFactory proximitySensorManagerFactory,
             InCallWakeLockControllerFactory inCallWakeLockControllerFactory,
             CallAudioManager.AudioServiceFactory audioServiceFactory,
-            BluetoothManager bluetoothManager,
+            BluetoothRouteManager bluetoothManager,
             WiredHeadsetManager wiredHeadsetManager,
             SystemStateProvider systemStateProvider,
             DefaultDialerCache defaultDialerCache,
@@ -240,8 +241,8 @@ public class CallsManager extends Call.ListenerBase
         mMissedCallNotifier = missedCallNotifier;
         StatusBarNotifier statusBarNotifier = new StatusBarNotifier(context, this);
         mWiredHeadsetManager = wiredHeadsetManager;
-        mBluetoothManager = bluetoothManager;
         mDefaultDialerCache = defaultDialerCache;
+        mBluetoothRouteManager = bluetoothManager;
         mDockManager = new DockManager(context);
         mTimeoutsAdapter = timeoutsAdapter;
         mCallerInfoLookupHelper = new CallerInfoLookupHelper(context, mCallerInfoAsyncQueryFactory,
@@ -1108,7 +1109,7 @@ public class CallsManager extends Call.ListenerBase
     public boolean isSpeakerphoneAutoEnabledForVideoCalls(int videoState) {
         return VideoProfile.isVideo(videoState) &&
             !mWiredHeadsetManager.isPluggedIn() &&
-            !mBluetoothManager.isBluetoothAvailable() &&
+            !mBluetoothRouteManager.isBluetoothAvailable() &&
             isSpeakerEnabledForVideoCalls();
     }
 
@@ -1122,7 +1123,7 @@ public class CallsManager extends Call.ListenerBase
     private boolean isSpeakerphoneEnabledForDock() {
         return mDockManager.isDocked() &&
             !mWiredHeadsetManager.isPluggedIn() &&
-            !mBluetoothManager.isBluetoothAvailable();
+            !mBluetoothRouteManager.isBluetoothAvailable();
     }
 
     /**
