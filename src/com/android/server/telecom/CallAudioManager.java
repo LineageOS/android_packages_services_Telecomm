@@ -414,12 +414,8 @@ public class CallAudioManager extends CallsManagerListenerBase {
             call.silence();
         }
 
-        mRingingCalls.clear();
         mRinger.stopRinging();
         mRinger.stopCallWaiting();
-        mCallAudioModeStateMachine.sendMessageWithArgs(
-                CallAudioModeStateMachine.NO_MORE_RINGING_CALLS,
-                makeArgsForModeStateMachine());
     }
 
     @VisibleForTesting
