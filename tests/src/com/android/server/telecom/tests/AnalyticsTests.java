@@ -36,6 +36,7 @@ import com.android.server.telecom.TelecomLogClass;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -335,6 +336,26 @@ public class AnalyticsTests extends TelecomSystemTest {
 
         assertEquals(expectedProperties,
                 analyticsProto.callLogs[0].getConnectionProperties() & expectedProperties);
+    }
+
+    @SmallTest
+    public void testAnalyticsMaxSize() throws Exception {
+        Analytics.reset();
+        for (int i = 0; i < Analytics.MAX_NUM_CALLS_TO_STORE * 2; i++) {
+            Analytics.initiateCallAnalytics(String.valueOf(i), Analytics.INCOMING_DIRECTION)
+                    .addCallTechnology(i);
+        }
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        Analytics.dumpToEncodedProto(pw, new String[]{});
+        TelecomLogClass.TelecomLog analyticsProto =
+                TelecomLogClass.TelecomLog.parseFrom(Base64.decode(sw.toString(), Base64.DEFAULT));
+
+        assertEquals(Analytics.MAX_NUM_CALLS_TO_STORE, analyticsProto.callLogs.length);
+        assertEquals(Arrays.stream(analyticsProto.callLogs)
+                .filter(x -> x.getCallTechnologies() < 100)
+                .count(), 0);
     }
 
     private void assertIsRoundedToOneSigFig(long x) {

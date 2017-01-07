@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.stream.Collectors;
 
 import static android.telecom.ParcelableCallAnalytics.AnalyticsEvent;
@@ -521,8 +522,11 @@ public class Analytics {
 
     public static final long MILLIS_IN_1_SECOND = ParcelableCallAnalytics.MILLIS_IN_1_SECOND;
 
+    public static final int MAX_NUM_CALLS_TO_STORE = 100;
+
     private static final Object sLock = new Object(); // Coarse lock for all of analytics
     private static final Map<String, CallInfoImpl> sCallIdToInfo = new HashMap<>();
+    private static final LinkedList<String> sActiveCallIds = new LinkedList<>();
     private static final List<SessionTiming> sSessionTimings = new LinkedList<>();
 
     public static void addSessionTiming(String sessionName, long time) {
@@ -538,7 +542,12 @@ public class Analytics {
         Log.d(TAG, "Starting analytics for call " + callId);
         CallInfoImpl callInfo = new CallInfoImpl(callId, direction);
         synchronized (sLock) {
+            while (sActiveCallIds.size() >= MAX_NUM_CALLS_TO_STORE) {
+                String callToRemove = sActiveCallIds.remove();
+                sCallIdToInfo.remove(callToRemove);
+            }
             sCallIdToInfo.put(callId, callInfo);
+            sActiveCallIds.add(callId);
         }
         return callInfo;
     }
