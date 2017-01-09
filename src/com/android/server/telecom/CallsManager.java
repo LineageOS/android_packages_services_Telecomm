@@ -694,6 +694,16 @@ public class CallsManager extends Call.ListenerBase
                 false /* isConference */
         );
 
+        // Ensure new calls related to self-managed calls/connections are set as such.  This will
+        // be overridden when the actual connection is returned in startCreateConnection, however
+        // doing this now ensures the logs and any other logic will treat this call as self-managed
+        // from the moment it is created.
+        PhoneAccount phoneAccount = mPhoneAccountRegistrar.getPhoneAccountUnchecked(
+                phoneAccountHandle);
+        if (phoneAccount != null) {
+            call.setIsSelfManaged(phoneAccount.isSelfManaged());
+        }
+
         call.initAnalytics();
         if (getForegroundCall() != null) {
             getForegroundCall().getAnalytics().setCallIsInterrupted(true);
@@ -782,6 +792,9 @@ public class CallsManager extends Call.ListenerBase
         boolean isReusedCall = true;
         Call call = reuseOutgoingCall(handle);
 
+        PhoneAccount account =
+                mPhoneAccountRegistrar.getPhoneAccount(phoneAccountHandle, initiatingUser);
+
         // Create a call with original handle. The handle may be changed when the call is attached
         // to a connection service, but in most cases will remain the same.
         if (call == null) {
@@ -802,6 +815,14 @@ public class CallsManager extends Call.ListenerBase
             );
             call.initAnalytics();
 
+            // Ensure new calls related to self-managed calls/connections are set as such.  This
+            // will be overridden when the actual connection is returned in startCreateConnection,
+            // however doing this now ensures the logs and any other logic will treat this call as
+            // self-managed from the moment it is created.
+            if (account != null) {
+                call.setIsSelfManaged(account.isSelfManaged());
+            }
+
             call.setInitiatingUser(initiatingUser);
 
             isReusedCall = false;
@@ -818,9 +839,6 @@ public class CallsManager extends Call.ListenerBase
             // Also, ensure we don't try to place an outgoing call with video if video is not
             // supported.
             if (VideoProfile.isVideo(videoState)) {
-                PhoneAccount account =
-                        mPhoneAccountRegistrar.getPhoneAccount(phoneAccountHandle, initiatingUser);
-
                 if (call.isEmergencyCall() && account != null &&
                         !account.hasCapabilities(PhoneAccount.CAPABILITY_EMERGENCY_VIDEO_CALLING)) {
                     // Phone account doesn't support emergency video calling, so fallback to
