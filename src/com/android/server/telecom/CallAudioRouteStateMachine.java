@@ -65,6 +65,9 @@ import java.util.HashMap;
  * mIsMuted: a boolean indicating whether the audio is muted
  */
 public class CallAudioRouteStateMachine extends StateMachine {
+    private static final String TELECOM_PACKAGE =
+            CallAudioRouteStateMachine.class.getPackage().getName();
+
     /** Direct the audio stream through the device's earpiece. */
     public static final int ROUTE_EARPIECE      = CallAudioState.ROUTE_EARPIECE;
 
@@ -167,6 +170,19 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 String action = intent.getAction();
 
                 if (action.equals(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED)) {
+                    // We get an this broadcast any time the notification filter is changed, even if
+                    // we are the initiator of the change.
+                    // So, we'll look at who the initiator of the manual zen rule is in the
+                    // notification manager.  If its us, then we can just exit now.
+                    String initiator =
+                            mInterruptionFilterProxy.getInterruptionModeInitiator();
+
+                    if (TELECOM_PACKAGE.equals(initiator)) {
+                        // We are the initiator of this change, so ignore it.
+                        Log.i(this, "interruptionFilterChanged - ignoring own change");
+                        return;
+                    }
+
                     if (mAreNotificationSuppressed) {
                         // If we've already set the interruption filter, and the user changes it to
                         // something other than INTERRUPTION_FILTER_ALARMS, assume we will no longer
@@ -174,6 +190,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                         mAreNotificationSuppressed =
                                 mInterruptionFilterProxy.getCurrentInterruptionFilter()
                                         == NotificationManager.INTERRUPTION_FILTER_ALARMS;
+                        Log.i(this, "interruptionFilterChanged - changing to %b",
+                                mAreNotificationSuppressed);
                     }
                 }
             } finally {
