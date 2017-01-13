@@ -26,6 +26,7 @@ import android.media.IAudioService;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.ServiceManager;
+import android.service.notification.ZenModeConfig;
 
 import com.android.internal.telephony.CallerInfoAsyncQuery;
 import com.android.server.telecom.AsyncRingtonePlayer;
@@ -168,6 +169,15 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                 @Override
                                 public int getCurrentInterruptionFilter() {
                                     return notificationManager.getCurrentInterruptionFilter();
+                                }
+
+                                @Override
+                                public String getInterruptionModeInitiator() {
+                                    ZenModeConfig config = notificationManager.getZenModeConfig();
+                                    if (config.manualRule != null) {
+                                        return config.manualRule.enabler;
+                                    }
+                                    return null;
                                 }
                             }
                     ));

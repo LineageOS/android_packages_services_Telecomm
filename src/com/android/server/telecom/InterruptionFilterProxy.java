@@ -24,4 +24,5 @@ package com.android.server.telecom;
 public interface InterruptionFilterProxy {
     void setInterruptionFilter(int interruptionFilter);
     int getCurrentInterruptionFilter();
+    String getInterruptionModeInitiator();
 }
