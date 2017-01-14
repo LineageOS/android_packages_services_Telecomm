@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da3975d1_e0cd0c5f",
+        "filename": "src/com/android/server/telecom/CallAudioModeStateMachine.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 13648
+      },
+      "writtenOn": "2017-01-14T13:18:19Z",
+      "side": 1,
+      "message": "I was just looking at a logcat where I can see this being logged.",
+      "range": {
+        "startLine": 295,
+        "startChar": 12,
+        "endLine": 295,
+        "endChar": 66
+      },
+      "revId": "bd883a69ed68f8c508b4854117a6503cb6d52c36",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da3975d1_00d130fb",
+        "filename": "src/com/android/server/telecom/CallAudioModeStateMachine.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 13648
+      },
+      "writtenOn": "2017-01-14T13:18:19Z",
+      "side": 1,
+      "message": "But this is not logged at all.",
+      "range": {
+        "startLine": 308,
+        "startChar": 16,
+        "endLine": 308,
+        "endChar": 72
+      },
+      "revId": "bd883a69ed68f8c508b4854117a6503cb6d52c36",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
