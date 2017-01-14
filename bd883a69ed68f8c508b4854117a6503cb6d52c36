@@ -69,6 +69,30 @@
       "revId": "bd883a69ed68f8c508b4854117a6503cb6d52c36",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da3975d1_e022ac00",
+        "filename": "src/com/android/server/telecom/CallAudioModeStateMachine.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 15173
+      },
+      "writtenOn": "2017-01-14T13:50:36Z",
+      "side": 1,
+      "message": "Are you filtering out loglevel debug somewhere, only showing info and higher?",
+      "parentUuid": "da3975d1_e03bcc36",
+      "range": {
+        "startLine": 308,
+        "startChar": 16,
+        "endLine": 308,
+        "endChar": 72
+      },
+      "revId": "bd883a69ed68f8c508b4854117a6503cb6d52c36",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
