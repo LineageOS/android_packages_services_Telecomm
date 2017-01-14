@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "da3975d1_abb5a532",
+        "filename": "src/com/android/server/telecom/CallAudioModeStateMachine.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 13648
+      },
+      "writtenOn": "2017-01-14T16:01:29Z",
+      "side": 1,
+      "message": "Kevin, are you saying we should be using getPhoneId instead?",
+      "range": {
+        "startLine": 307,
+        "startChar": 50,
+        "endLine": 307,
+        "endChar": 59
+      },
+      "revId": "bd883a69ed68f8c508b4854117a6503cb6d52c36",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da3975d1_00d130fb",
         "filename": "src/com/android/server/telecom/CallAudioModeStateMachine.java",
         "patchSetId": 4
