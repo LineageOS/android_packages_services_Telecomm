@@ -117,6 +117,30 @@
       "revId": "bd883a69ed68f8c508b4854117a6503cb6d52c36",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da3975d1_a02b8493",
+        "filename": "src/com/android/server/telecom/CallAudioModeStateMachine.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 13897
+      },
+      "writtenOn": "2017-01-14T14:48:57Z",
+      "side": 1,
+      "message": "Yeah, debug is enabled usually, that\u0027s why I assume the problem was the target phone account.\n\nMaybe you could forward the target phone account change like this: http://pastebin.com/raw/1y7b8D5M (probably wrong, I didn\u0027t look carefully how these classes inherit the methods and I didn\u0027t test the code).",
+      "parentUuid": "da3975d1_60cc7c36",
+      "range": {
+        "startLine": 308,
+        "startChar": 16,
+        "endLine": 308,
+        "endChar": 72
+      },
+      "revId": "bd883a69ed68f8c508b4854117a6503cb6d52c36",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
