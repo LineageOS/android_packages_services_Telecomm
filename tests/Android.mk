@@ -22,7 +22,8 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
         android-support-v4 \
         guava \
         mockito-target \
-        platform-test-annotations
+        platform-test-annotations \
+        legacy-android-test
 
 LOCAL_SRC_FILES := \
         $(call all-java-files-under, src) \
