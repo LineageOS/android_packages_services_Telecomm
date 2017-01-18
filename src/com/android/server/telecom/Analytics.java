@@ -26,7 +26,6 @@ import android.telecom.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.IndentingPrintWriter;
-import com.android.server.telecom.nano.TelecomLogClass;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
