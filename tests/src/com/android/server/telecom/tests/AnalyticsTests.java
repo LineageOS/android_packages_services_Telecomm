@@ -33,7 +33,7 @@ import android.util.Base64;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.Analytics;
 import com.android.server.telecom.LogUtils;
-import com.android.server.telecom.nano.TelecomLogClass;
+import com.android.server.telecom.TelecomLogClass;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
