@@ -122,6 +122,11 @@ public class Ringer {
             return false;
         }
 
+        // Don't ring/acquire focus if there is no ringtone
+        if (mRingtoneFactory.getRingtone(foregroundCall) == null) {
+            isRingerAudible = false;
+        }
+
         if (isRingerAudible) {
             mRingingCall = foregroundCall;
             Log.addEvent(foregroundCall, LogUtils.Events.START_RINGER);
