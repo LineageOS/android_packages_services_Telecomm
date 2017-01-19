@@ -350,6 +350,9 @@ public class TelecomServiceImpl {
                     try {
                         enforcePhoneAccountModificationForPackage(
                                 account.getAccountHandle().getComponentName().getPackageName());
+                        if (account.hasCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED)) {
+                            enforceRegisterSelfManaged();
+                        }
                         if (account.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
                             enforceRegisterSimSubscriptionPermission();
                         }
@@ -1177,6 +1180,51 @@ public class TelecomServiceImpl {
         public Intent createManageBlockedNumbersIntent() {
             return BlockedNumbersActivity.getIntentForStartingActivity();
         }
+
+        /**
+         * @see android.telecom.TelecomManager#isIncomingCallPermitted(PhoneAccountHandle)
+         */
+        @Override
+        public boolean isIncomingCallPermitted(PhoneAccountHandle phoneAccountHandle) {
+            try {
+                Log.startSession("TSI.iICP");
+                enforcePermission(android.Manifest.permission.MANAGE_OWN_CALLS);
+                synchronized (mLock) {
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        // TODO(3pcalls) - Implement body.
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+            return true;
+        }
+
+        /**
+         * @see android.telecom.TelecomManager#isOutgoingCallPermitted(PhoneAccountHandle)
+         */
+        @Override
+        public boolean isOutgoingCallPermitted(PhoneAccountHandle phoneAccountHandle) {
+            try {
+                Log.startSession("TSI.iOCP");
+                enforcePermission(android.Manifest.permission.MANAGE_OWN_CALLS);
+                synchronized (mLock) {
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        // TODO(3pcalls) - Implement body.
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+
+            return true;
+        }
     };
 
     private Context mContext;
@@ -1348,6 +1396,10 @@ public class TelecomServiceImpl {
 
     private void enforcePermission(String permission) {
         mContext.enforceCallingOrSelfPermission(permission, null);
+    }
+
+    private void enforceRegisterSelfManaged() {
+        mContext.enforceCallingPermission(android.Manifest.permission.MANAGE_OWN_CALLS, null);
     }
 
     private void enforceRegisterMultiUser() {

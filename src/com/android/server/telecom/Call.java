@@ -374,13 +374,18 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
     // Set to true once the NewOutgoingCallIntentBroadcast comes back and is processed.
     private boolean mIsNewOutgoingCallIntentBroadcastDone = false;
 
-
     /**
      * Indicates whether the call is remotely held.  A call is considered remotely held when
      * {@link #onConnectionEvent(String)} receives the {@link Connection#EVENT_ON_HOLD_TONE_START}
      * event.
      */
     private boolean mIsRemotelyHeld = false;
+
+    /**
+     * Indicates whether the {@link PhoneAccount} associated with this call is self-managed.
+     * See {@link PhoneAccount#CAPABILITY_SELF_MANAGED} for more information.
+     */
+    private boolean mIsSelfManaged = false;
 
     /**
      * Indicates whether the {@link PhoneAccount} associated with this call supports video calling.
@@ -947,6 +952,17 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         return mIsVideoCallingSupported;
     }
 
+    public boolean isSelfManaged() {
+        return mIsSelfManaged;
+    }
+
+    public void setIsSelfManaged(boolean isSelfManaged) {
+        mIsSelfManaged = isSelfManaged;
+
+        // Connection properties will add/remove the PROPERTY_SELF_MANAGED.
+        setConnectionProperties(getConnectionProperties());
+    }
+
     private void configureIsWorkCall() {
         PhoneAccountRegistrar phoneAccountRegistrar = mCallsManager.getPhoneAccountRegistrar();
         boolean isWorkCall = false;
@@ -1079,6 +1095,14 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
     void setConnectionProperties(int connectionProperties) {
         Log.v(this, "setConnectionProperties: %s", Connection.propertiesToString(
                 connectionProperties));
+
+        // Ensure the ConnectionService can't change the state of the self-managed property.
+        if (isSelfManaged()) {
+            connectionProperties |= Connection.PROPERTY_SELF_MANAGED;
+        } else {
+            connectionProperties &= ~Connection.PROPERTY_SELF_MANAGED;
+        }
+
         if (mConnectionProperties != connectionProperties) {
             int previousProperties = mConnectionProperties;
             mConnectionProperties = connectionProperties;
