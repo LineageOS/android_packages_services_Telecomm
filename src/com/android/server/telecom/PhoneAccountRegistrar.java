@@ -643,9 +643,11 @@ public class PhoneAccountRegistrar {
         // Set defaults and replace based on the group Id.
         maybeReplaceOldAccount(account);
         // Reset enabled state to whatever the value was if the account was already registered,
-        // or _true_ if this is a SIM-based account.  All SIM-based accounts are always enabled.
+        // or _true_ if this is a SIM-based account.  All SIM-based accounts are always enabled,
+        // as are all self-managed phone accounts.
         account.setIsEnabled(
-                isEnabled || account.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION));
+                isEnabled || account.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
+                || account.hasCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED));
 
         write();
         fireAccountsChanged();
