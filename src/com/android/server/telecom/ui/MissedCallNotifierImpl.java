@@ -588,8 +588,10 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
                                                                 "different handle.");
                                                 return;
                                             }
-                                            if (info.contactDisplayPhotoUri == null) {
-                                                // If there is no photo, just show the notification.
+                                            if (info == null ||
+                                                    info.contactDisplayPhotoUri == null) {
+                                                // If there is no photo or if the caller info is
+                                                // null, just show the notification.
                                                 CallInfo callInfo = callInfoFactory.makeCallInfo(
                                                         info, null, handle, date);
                                                 showMissedCallNotification(callInfo, userHandle);
