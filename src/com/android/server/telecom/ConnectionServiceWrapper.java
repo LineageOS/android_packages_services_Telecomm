@@ -542,6 +542,22 @@ public class ConnectionServiceWrapper extends ServiceBinder {
         }
 
         @Override
+        public void setAudioRoute(String callId, int audioRoute, Session.Info sessionInfo) {
+            Log.startSession(sessionInfo, "CSW.sAR");
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    logIncoming("setAudioRoute %s %s", callId,
+                            CallAudioState.audioRouteToString(audioRoute));
+                    mCallsManager.setAudioRoute(audioRoute);
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+                Log.endSession();
+            }
+        }
+
+        @Override
         public void setStatusHints(String callId, StatusHints statusHints,
                 Session.Info sessionInfo) {
             Log.startSession(sessionInfo, "CSW.sSH");
@@ -854,7 +870,9 @@ public class ConnectionServiceWrapper extends ServiceBinder {
                                     call.getHandle(),
                                     extras,
                                     call.getVideoState(),
-                                    callId),
+                                    callId,
+                                    false), // TODO(3pcalls): pass in true/false based on whether ux
+                                            // should show.
                             call.shouldAttachToExistingConnection(),
                             call.isUnknown(),
                             Log.getExternalSession());
