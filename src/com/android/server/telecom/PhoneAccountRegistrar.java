@@ -448,6 +448,8 @@ public class PhoneAccountRegistrar {
      */
     public boolean enablePhoneAccount(PhoneAccountHandle accountHandle, boolean isEnabled) {
         PhoneAccount account = getPhoneAccountUnchecked(accountHandle);
+        Log.i(this, "Phone account %s %s.", accountHandle.toString(),
+                isEnabled ? "enabled" : "disabled");
         if (account == null) {
             Log.w(this, "Could not find account to enable: " + accountHandle);
             return false;
@@ -1481,8 +1483,9 @@ public class PhoneAccountRegistrar {
                                 parser.next();
                                 userSerialNumberString = parser.getText();
                             } else if (parser.getName().equals(GROUP_ID)) {
-                                parser.next();
-                                groupId = parser.getText();
+                                if (parser.next() == XmlPullParser.TEXT) {
+                                    groupId = parser.getText();
+                                }
                             }
                         }
                         UserHandle userHandle = null;
