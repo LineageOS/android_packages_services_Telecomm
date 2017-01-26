@@ -17,7 +17,7 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <!-- Blacklist preferences -->
-  <string name="blacklist_title">已封鎖來電者名單</string>
+  <string name="blacklist_title">已封鎖來電名單</string>
   <string name="blacklist_summary_disabled">停用</string>
   <string name="blacklist_summary">您將不會收到任何在已封鎖來電者名單上的電話號碼的來電或簡訊</string>
   <!-- Blacklist notifications -->

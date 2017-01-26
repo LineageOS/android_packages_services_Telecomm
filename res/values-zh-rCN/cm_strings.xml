@@ -24,11 +24,11 @@
   <string name="blacklist_call_notification">阻止来自 %s 的来电</string>
   <string name="blacklist_call_notification_private_number">阻挡了一个私人号码的来电</string>
   <string name="blacklist_call_notification_unknown_number">阻止了未知号码 %s 的来电</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> 个来电被阻止</string>
+  <string name="blacklist_call_notification_multiple">已阻止 <xliff:g id="count">%d</xliff:g> 通来电</string>
   <string name="blacklist_message_notification">阻止来自 %s 的信息</string>
   <string name="blacklist_message_notification_private_number">阻止来自于私人号码的信息</string>
   <string name="blacklist_message_notification_unknown_number">阻止来自未知号码 %s 的信息</string>
-  <string name="blacklist_message_notification_multiple">已阻止 <xliff:g id="count">%d</xliff:g> 条信息</string>
+  <string name="blacklist_message_notification_multiple">已拦截 <xliff:g id="count">%d</xliff:g> 条信息</string>
   <string name="blacklist_notification_list_private">私人号码</string>
   <string name="unblock_number">取消阻止</string>
   <string name="unblock_contact">取消阻止联系人</string>
