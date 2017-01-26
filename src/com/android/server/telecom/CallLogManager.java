@@ -263,7 +263,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
         boolean okToLogEmergencyNumber = false;
         CarrierConfigManager configManager = (CarrierConfigManager) mContext.getSystemService(
                 Context.CARRIER_CONFIG_SERVICE);
-        PersistableBundle configBundle = configManager.getConfig();
+        PersistableBundle configBundle = configManager.getConfigForSubId(
+                mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(accountHandle));
         if (configBundle != null) {
             okToLogEmergencyNumber = configBundle.getBoolean(
                     CarrierConfigManager.KEY_ALLOW_EMERGENCY_NUMBERS_IN_CALL_LOG_BOOL);
