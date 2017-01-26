@@ -49,4 +49,17 @@
     <string name="UssdUiAppLabel">Test Ussd UI</string>
 
     <string name="placeUssdButton">Send USSD</string>
+
+    <!-- String for button in SelfManagedCallingActivity. -->
+    <string name="checkIfPermittedBeforeCallingButton">Check if calls permitted before calling</string>
+
+    <string name="selfManagedCallingActivityLabel">Self-Managed Sample</string>
+
+    <string name="outgoingCallNotPermitted">Outgoing call not permitted.</string>
+
+    <string name="outgoingCallNotPermittedCS">Outgoing call not permitted (CS Reported).</string>
+
+    <string name="incomingCallNotPermitted">Incoming call not permitted.</string>
+
+    <string name="incomingCallNotPermittedCS">Incoming call not permitted (CS Reported).</string>
 </resources>

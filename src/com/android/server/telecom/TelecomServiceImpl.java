@@ -24,6 +24,7 @@ import static android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE;
 import static android.Manifest.permission.REGISTER_SIM_SUBSCRIPTION;
 import static android.Manifest.permission.WRITE_SECURE_SETTINGS;
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.content.ComponentName;
@@ -952,6 +953,13 @@ public class TelecomServiceImpl {
                             enforceUserHandleMatchesCaller(phoneAccountHandle);
                             enforcePhoneAccountIsRegisteredEnabled(phoneAccountHandle,
                                     Binder.getCallingUserHandle());
+                            if (isSelfManagedConnectionService(phoneAccountHandle)) {
+                                // Self-managed phone account, ensure it has MANAGE_OWN_CALLS.
+                                mContext.enforceCallingOrSelfPermission(
+                                        android.Manifest.permission.MANAGE_OWN_CALLS,
+                                        "Self-managed phone accounts must have MANAGE_OWN_CALLS " +
+                                                "permission.");
+                            }
                         }
                         long token = Binder.clearCallingIdentity();
                         try {
@@ -1030,7 +1038,18 @@ public class TelecomServiceImpl {
             try {
                 Log.startSession("TSI.pC");
                 enforceCallingPackage(callingPackage);
-                if (!canCallPhone(callingPackage, "placeCall")) {
+
+                PhoneAccountHandle phoneAccountHandle = null;
+                if (extras != null) {
+                    phoneAccountHandle = extras.getParcelable(
+                            TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE);
+                }
+                boolean isSelfManaged = phoneAccountHandle != null &&
+                        isSelfManagedConnectionService(phoneAccountHandle);
+                if (isSelfManaged) {
+                    mContext.enforceCallingOrSelfPermission(Manifest.permission.MANAGE_OWN_CALLS,
+                            "Self-managed ConnectionServices require MANAGE_OWN_CALLS permission.");
+                } else if (!canCallPhone(callingPackage, "placeCall")) {
                     throw new SecurityException("Package " + callingPackage
                             + " is not allowed to place phone calls");
                 }
@@ -1059,7 +1078,8 @@ public class TelecomServiceImpl {
                         }
                         mUserCallIntentProcessorFactory.create(mContext, userHandle)
                                 .processIntent(
-                                        intent, callingPackage, hasCallAppOp && hasCallPermission);
+                                        intent, callingPackage, isSelfManaged ||
+                                                (hasCallAppOp && hasCallPermission));
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
@@ -1194,7 +1214,7 @@ public class TelecomServiceImpl {
                 synchronized (mLock) {
                     long token = Binder.clearCallingIdentity();
                     try {
-                        // TODO(3pcalls) - Implement body.
+                        return mCallsManager.isIncomingCallPermitted(phoneAccountHandle);
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
@@ -1202,7 +1222,6 @@ public class TelecomServiceImpl {
             } finally {
                 Log.endSession();
             }
-            return true;
         }
 
         /**
@@ -1216,7 +1235,7 @@ public class TelecomServiceImpl {
                 synchronized (mLock) {
                     long token = Binder.clearCallingIdentity();
                     try {
-                        // TODO(3pcalls) - Implement body.
+                        return mCallsManager.isOutgoingCallPermitted(phoneAccountHandle);
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
@@ -1224,8 +1243,6 @@ public class TelecomServiceImpl {
             } finally {
                 Log.endSession();
             }
-
-            return true;
         }
     };
 
@@ -1452,6 +1469,15 @@ public class TelecomServiceImpl {
             return mAppOpsManager.noteOp(AppOpsManager.OP_READ_PHONE_STATE,
                     Binder.getCallingUid(), callingPackage) == AppOpsManager.MODE_ALLOWED;
         }
+    }
+
+    private boolean isSelfManagedConnectionService(PhoneAccountHandle phoneAccountHandle) {
+        if (phoneAccountHandle != null) {
+                PhoneAccount phoneAccount = mPhoneAccountRegistrar.getPhoneAccountUnchecked(
+                        phoneAccountHandle);
+                return phoneAccount.isSelfManaged();
+        }
+        return false;
     }
 
     private boolean canCallPhone(String callingPackage, String message) {

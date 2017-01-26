@@ -216,7 +216,7 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         public void createConnection(PhoneAccountHandle connectionManagerPhoneAccount,
                 String id, ConnectionRequest request, boolean isIncoming, boolean isUnknown,
                 Session.Info info) throws RemoteException {
-            Log.i(ConnectionServiceFixture.this, "xoxox createConnection --> " + id);
+            Log.i(ConnectionServiceFixture.this, "createConnection --> " + id);
 
             if (mConnectionById.containsKey(id)) {
                 throw new RuntimeException("Connection already exists: " + id);
@@ -236,6 +236,18 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
             mConnectionById.put(id, c);
             mConnectionServiceDelegateAdapter.createConnection(connectionManagerPhoneAccount,
                     id, request, isIncoming, isUnknown, null /*Session.Info*/);
+        }
+
+        @Override
+        public void createConnectionFailed(String callId, ConnectionRequest request,
+                boolean isIncoming, Session.Info sessionInfo) throws RemoteException {
+            Log.i(ConnectionServiceFixture.this, "createConnectionFailed --> " + callId);
+
+            if (mConnectionById.containsKey(callId)) {
+                throw new RuntimeException("Connection already exists: " + callId);
+            }
+
+            // TODO(3p-calls): Implement this.
         }
 
         @Override

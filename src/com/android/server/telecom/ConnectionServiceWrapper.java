@@ -871,6 +871,13 @@ public class ConnectionServiceWrapper extends ServiceBinder {
 
                 Log.addEvent(call, LogUtils.Events.START_CONNECTION, Log.piiHandle(call.getHandle()));
                 try {
+                    // For self-managed incoming calls, if there is another ongoing call Telecom is
+                    // responsible for showing a UI to ask the user if they'd like to answer this
+                    // new incoming call.
+                    boolean shouldShowIncomingCallUI = call.isSelfManaged() &&
+                            !mCallsManager.hasCallsForOtherPhoneAccount(
+                                    call.getTargetPhoneAccount());
+
                     mServiceInterface.createConnection(
                             call.getConnectionManagerPhoneAccount(),
                             callId,
@@ -880,11 +887,11 @@ public class ConnectionServiceWrapper extends ServiceBinder {
                                     extras,
                                     call.getVideoState(),
                                     callId,
-                                    false), // TODO(3pcalls): pass in true/false based on whether ux
-                                            // should show.
+                                    shouldShowIncomingCallUI),
                             call.shouldAttachToExistingConnection(),
                             call.isUnknown(),
                             Log.getExternalSession());
+
                 } catch (RemoteException e) {
                     Log.e(this, e, "Failure to createConnection -- %s", getComponentName());
                     mPendingResponses.remove(callId).handleCreateConnectionFailure(
@@ -896,6 +903,50 @@ public class ConnectionServiceWrapper extends ServiceBinder {
             public void onFailure() {
                 Log.e(this, new Exception(), "Failure to call %s", getComponentName());
                 response.handleCreateConnectionFailure(new DisconnectCause(DisconnectCause.ERROR));
+            }
+        };
+
+        mBinder.bind(callback, call);
+    }
+
+    /**
+     * Notifies the {@link ConnectionService} associated with a {@link Call} that the request to
+     * create a connection has been denied or failed.
+     * @param call The call.
+     */
+    void createConnectionFailed(final Call call) {
+        Log.d(this, "createConnectionFailed(%s) via %s.", call, getComponentName());
+        BindCallback callback = new BindCallback() {
+            @Override
+            public void onSuccess() {
+                final String callId = mCallIdMapper.getCallId(call);
+                // If still bound, tell the connection service create connection has failed.
+                if (callId != null && isServiceValid("createConnectionFailed")) {
+                    Log.addEvent(call, LogUtils.Events.CREATE_CONNECTION_FAILED,
+                            Log.piiHandle(call.getHandle()));
+                    try {
+                        logOutgoing("createConnectionFailed %s", callId);
+                        mServiceInterface.createConnectionFailed(callId,
+                                new ConnectionRequest(
+                                        call.getTargetPhoneAccount(),
+                                        call.getHandle(),
+                                        call.getIntentExtras(),
+                                        call.getVideoState(),
+                                        callId,
+                                        false),
+                                call.isIncoming(),
+                                Log.getExternalSession());
+                        call.setDisconnectCause(new DisconnectCause(DisconnectCause.CANCELED));
+                        call.disconnect();
+                    } catch (RemoteException e) {
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure() {
+                // Binding failed.  Oh no.
+                Log.w(this, "onFailure - could not bind to CS for call %s", call.getId());
             }
         };
 
