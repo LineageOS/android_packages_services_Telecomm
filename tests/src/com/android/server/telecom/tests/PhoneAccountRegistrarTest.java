@@ -126,6 +126,16 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         assertPhoneAccountEquals(input, result);
     }
 
+    @MediumTest
+    public void testDefaultPhoneAccountHandleEmptyGroup() throws Exception {
+        DefaultPhoneAccountHandle input = new DefaultPhoneAccountHandle(Process.myUserHandle(),
+                makeQuickAccountHandle("i1"), "");
+        DefaultPhoneAccountHandle result = roundTripXml(this, input,
+                PhoneAccountRegistrar.sDefaultPhoneAcountHandleXml, mContext);
+
+        assertDefaultPhoneAccountHandleEquals(input, result);
+    }
+
     /**
      * Test to ensure non-supported values
      * @throws Exception
