@@ -17,9 +17,10 @@
 package com.android.server.telecom.testapps;
 
 import android.app.Activity;
-import android.graphics.Color;
+import android.content.Intent;
 import android.os.Bundle;
 import android.telecom.Call;
+import android.telecom.VideoProfile;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -46,7 +47,7 @@ public class TestInCallUI extends Activity {
             @Override
             public void onCallRemoved(Call call) {
                 if (mCallList.size() == 0) {
-                    Log.i("Santos", "Ending the incall UI");
+                    Log.i(TestInCallUI.class.getSimpleName(), "Ending the incall UI");
                     finish();
                 }
             }
@@ -55,6 +56,8 @@ public class TestInCallUI extends Activity {
         View endCallButton = findViewById(R.id.end_call_button);
         View holdButton = findViewById(R.id.hold_button);
         View muteButton = findViewById(R.id.mute_button);
+        View rttIfaceButton = findViewById(R.id.rtt_iface_button);
+        View answerButton = findViewById(R.id.answer_button);
 
         endCallButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -83,7 +86,22 @@ public class TestInCallUI extends Activity {
             public void onClick(View view) {
                 Call call = mCallList.getCall(0);
                 if (call != null) {
+
                 }
+            }
+        });
+        rttIfaceButton.setOnClickListener((view) -> {
+            Call call = mCallList.getCall(0);
+            if (call.isRttActive()) {
+                Intent intent = new Intent(Intent.ACTION_MAIN);
+                intent.setClass(this, TestRttActivity.class);
+                startActivity(intent);
+            }
+        });
+        answerButton.setOnClickListener(view -> {
+            Call call = mCallList.getCall(0);
+            if (call.getState() == Call.STATE_RINGING) {
+                call.answer(VideoProfile.STATE_AUDIO_ONLY);
             }
         });
     }

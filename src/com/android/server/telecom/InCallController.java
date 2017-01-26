@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Parcel;
 import android.os.RemoteException;
 import android.os.Trace;
 import android.os.UserHandle;
@@ -76,6 +77,7 @@ public final class InCallController extends CallsManagerListenerBase {
         public void setListener(Listener l) {
             mListener = l;
         }
+        public InCallServiceInfo getInfo() { return null; }
         public void dump(IndentingPrintWriter pw) {}
     }
 
@@ -211,6 +213,11 @@ public final class InCallController extends CallsManagerListenerBase {
         }
 
         @Override
+        public InCallServiceInfo getInfo() {
+            return mInCallServiceInfo;
+        }
+
+        @Override
         public void disconnect() {
             if (mIsConnected) {
                 mContext.unbindService(mServiceConnection);
@@ -318,6 +325,14 @@ public final class InCallController extends CallsManagerListenerBase {
             }
         }
 
+        @Override
+        public InCallServiceInfo getInfo() {
+            if (mIsProxying) {
+                return mSubConnection.getInfo();
+            } else {
+                return super.getInfo();
+            }
+        }
         @Override
         protected void onDisconnected() {
             // Save this here because super.onDisconnected() could force us to explicitly
@@ -427,6 +442,11 @@ public final class InCallController extends CallsManagerListenerBase {
         }
 
         @Override
+        public InCallServiceInfo getInfo() {
+            return mCurrentConnection.getInfo();
+        }
+
+        @Override
         public void dump(IndentingPrintWriter pw) {
             pw.println("Car Swapping ICS");
             pw.increaseIndent();
@@ -490,8 +510,8 @@ public final class InCallController extends CallsManagerListenerBase {
         }
 
         @Override
-        public void onConnectionPropertiesChanged(Call call) {
-            updateCall(call);
+        public void onConnectionPropertiesChanged(Call call, boolean didRttChange) {
+            updateCall(call, false /* includeVideoProvider */, didRttChange);
         }
 
         @Override
@@ -501,7 +521,7 @@ public final class InCallController extends CallsManagerListenerBase {
 
         @Override
         public void onVideoCallProviderChanged(Call call) {
-            updateCall(call, true /* videoProviderChanged */);
+            updateCall(call, true /* videoProviderChanged */, false);
         }
 
         @Override
@@ -660,12 +680,15 @@ public final class InCallController extends CallsManagerListenerBase {
                     continue;
                 }
 
+                // Only send the RTT call if it's a UI in-call service
+                boolean includeRttCall = info.equals(mInCallServiceConnection.getInfo());
+
                 componentsUpdated.add(info.getComponentName());
                 IInCallService inCallService = entry.getValue();
 
                 ParcelableCall parcelableCall = ParcelableCallUtils.toParcelableCall(call,
                         true /* includeVideoProvider */, mCallsManager.getPhoneAccountRegistrar(),
-                        info.isExternalCallsSupported());
+                        info.isExternalCallsSupported(), includeRttCall);
                 try {
                     inCallService.addCall(parcelableCall);
                 } catch (RemoteException ignored) {
@@ -728,9 +751,12 @@ public final class InCallController extends CallsManagerListenerBase {
                 componentsUpdated.add(info.getComponentName());
                 IInCallService inCallService = entry.getValue();
 
+                // Only send the RTT call if it's a UI in-call service
+                boolean includeRttCall = info.equals(mInCallServiceConnection.getInfo());
+
                 ParcelableCall parcelableCall = ParcelableCallUtils.toParcelableCall(call,
                         true /* includeVideoProvider */, mCallsManager.getPhoneAccountRegistrar(),
-                        info.isExternalCallsSupported());
+                        info.isExternalCallsSupported(), includeRttCall);
                 try {
                     inCallService.addCall(parcelableCall);
                 } catch (RemoteException ignored) {
@@ -746,7 +772,8 @@ public final class InCallController extends CallsManagerListenerBase {
                     false /* includeVideoProvider */,
                     mCallsManager.getPhoneAccountRegistrar(),
                     false /* supportsExternalCalls */,
-                    android.telecom.Call.STATE_DISCONNECTED /* overrideState */);
+                    android.telecom.Call.STATE_DISCONNECTED /* overrideState */,
+                    false /* includeRttCall */);
 
             Log.i(this, "Removing external call %s ==> %s", call, parcelableCall);
             for (Map.Entry<InCallServiceInfo, IInCallService> entry : mInCallServices.entrySet()) {
@@ -1138,6 +1165,9 @@ public final class InCallController extends CallsManagerListenerBase {
                     continue;
                 }
 
+                // Only send the RTT call if it's a UI in-call service
+                boolean includeRttCall = info.equals(mInCallServiceConnection.getInfo());
+
                 // Track the call if we don't already know about it.
                 addCall(call);
                 numCallsSent += 1;
@@ -1145,7 +1175,8 @@ public final class InCallController extends CallsManagerListenerBase {
                         call,
                         true /* includeVideoProvider */,
                         mCallsManager.getPhoneAccountRegistrar(),
-                        info.isExternalCallsSupported()));
+                        info.isExternalCallsSupported(),
+                        includeRttCall));
             } catch (RemoteException ignored) {
             }
         }
@@ -1176,7 +1207,7 @@ public final class InCallController extends CallsManagerListenerBase {
      * @param call The {@link Call}.
      */
     private void updateCall(Call call) {
-        updateCall(call, false /* videoProviderChanged */);
+        updateCall(call, false /* videoProviderChanged */, false);
     }
 
     /**
@@ -1185,8 +1216,10 @@ public final class InCallController extends CallsManagerListenerBase {
      * @param call The {@link Call}.
      * @param videoProviderChanged {@code true} if the video provider changed, {@code false}
      *      otherwise.
+     * @param rttInfoChanged {@code true} if any information about the RTT session changed,
+     * {@code false} otherwise.
      */
-    private void updateCall(Call call, boolean videoProviderChanged) {
+    private void updateCall(Call call, boolean videoProviderChanged, boolean rttInfoChanged) {
         if (!mInCallServices.isEmpty()) {
             Log.i(this, "Sending updateCall %s", call);
             List<ComponentName> componentsUpdated = new ArrayList<>();
@@ -1200,7 +1233,8 @@ public final class InCallController extends CallsManagerListenerBase {
                         call,
                         videoProviderChanged /* includeVideoProvider */,
                         mCallsManager.getPhoneAccountRegistrar(),
-                        info.isExternalCallsSupported());
+                        info.isExternalCallsSupported(),
+                        rttInfoChanged && info.equals(mInCallServiceConnection.getInfo()));
                 ComponentName componentName = info.getComponentName();
                 IInCallService inCallService = entry.getValue();
                 componentsUpdated.add(componentName);

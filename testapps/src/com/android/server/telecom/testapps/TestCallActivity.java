@@ -52,6 +52,9 @@ public class TestCallActivity extends Activity {
     public static final String ACTION_SEND_UPGRADE_REQUEST =
             "android.telecom.testapps.ACTION_SEND_UPGRADE_REQUEST";
 
+    static final String ACTION_RTT_CALL =
+            "android.telecom.testapps.ACTION_RTT_CALL";
+
     @Override
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -65,6 +68,9 @@ public class TestCallActivity extends Activity {
             CallNotificationReceiver.addNewUnknownCall(this, data, intent.getExtras());
         } else if (ACTION_HANGUP_CALLS.equals(action)) {
             CallNotificationReceiver.hangupCalls(this);
+        } else if (ACTION_RTT_CALL.equals(action)) {
+            CallNotificationReceiver.sendIncomingRttCallIntent(
+                    this, data, VideoProfile.STATE_AUDIO_ONLY);
         } else if (ACTION_SEND_UPGRADE_REQUEST.equals(action)) {
             CallNotificationReceiver.sendUpgradeRequest(this, data);
         } else {
