@@ -448,8 +448,7 @@ public class PhoneAccountRegistrar {
      */
     public boolean enablePhoneAccount(PhoneAccountHandle accountHandle, boolean isEnabled) {
         PhoneAccount account = getPhoneAccountUnchecked(accountHandle);
-        Log.i(this, "Phone account %s %s.", accountHandle.toString(),
-                isEnabled ? "enabled" : "disabled");
+        Log.i(this, "Phone account %s %s.", accountHandle, isEnabled ? "enabled" : "disabled");
         if (account == null) {
             Log.w(this, "Could not find account to enable: " + accountHandle);
             return false;
