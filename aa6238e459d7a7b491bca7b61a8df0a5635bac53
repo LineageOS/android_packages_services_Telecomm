@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a437d4f_7981c049",
+        "filename": "tests/src/com/android/server/telecom/tests/CallAudioModeStateMachineTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 7880
+      },
+      "writtenOn": "2017-01-28T00:09:04Z",
+      "side": 1,
+      "message": "l comes before s",
+      "parentUuid": "",
+      "revId": "aa6238e459d7a7b491bca7b61a8df0a5635bac53",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
