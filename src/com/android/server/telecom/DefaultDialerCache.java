@@ -75,6 +75,8 @@ public class DefaultDialerCache {
                     packageName = intent.getData().getSchemeSpecificPart();
                 } else if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
                     packageName = null;
+                } else if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+                    packageName = null;
                 } else {
                     return;
                 }
@@ -125,12 +127,16 @@ public class DefaultDialerCache {
         mLock = lock;
         mSystemDialerName = mContext.getResources().getString(R.string.ui_default_package);
 
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
-        intentFilter.addDataScheme("package");
-        context.registerReceiverAsUser(mReceiver, UserHandle.ALL, intentFilter, null, null);
+        IntentFilter packageIntentFilter = new IntentFilter();
+        packageIntentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        packageIntentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        packageIntentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        packageIntentFilter.addDataScheme("package");
+        context.registerReceiverAsUser(mReceiver, UserHandle.ALL, packageIntentFilter, null, null);
+
+        IntentFilter bootIntentFilter = new IntentFilter(Intent.ACTION_BOOT_COMPLETED);
+        context.registerReceiverAsUser(mReceiver, UserHandle.ALL, bootIntentFilter, null, null);
+
 
         Uri defaultDialerSetting =
                 Settings.Secure.getUriFor(Settings.Secure.DIALER_DEFAULT_APPLICATION);
