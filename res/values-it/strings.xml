@@ -19,10 +19,10 @@
     <string name="telecommAppLabel" product="default" msgid="382363169988504520">"Gestione chiamate"</string>
     <string name="userCallActivityLabel" product="default" msgid="5415173590855187131">"Telefono"</string>
     <string name="unknown" msgid="6878797917991465859">"Sconosciuto"</string>
-    <string name="notification_missedCallTitle" msgid="7554385905572364535">"Chiamata senza risposta"</string>
+    <string name="notification_missedCallTitle" msgid="7554385905572364535">"Chiamata persa"</string>
     <string name="notification_missedWorkCallTitle" msgid="6242489980390803090">"Chiamata di lavoro persa"</string>
-    <string name="notification_missedCallsTitle" msgid="1361677948941502522">"Chiamate senza risposta"</string>
-    <string name="notification_missedCallsMsg" msgid="4575787816055205600">"<xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> chiamate senza risposta"</string>
+    <string name="notification_missedCallsTitle" msgid="1361677948941502522">"Chiamate perse"</string>
+    <string name="notification_missedCallsMsg" msgid="4575787816055205600">"<xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> chiamate perse"</string>
     <string name="notification_missedCallTicker" msgid="504686252427747209">"Chiamata senza risposta da <xliff:g id="MISSED_CALL_FROM">%s</xliff:g>"</string>
     <string name="notification_missedCall_call_back" msgid="2684890353590890187">"Richiama"</string>
     <string name="notification_missedCall_message" msgid="3049928912736917988">"Messaggio"</string>
