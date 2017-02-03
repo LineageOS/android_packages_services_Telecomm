@@ -289,6 +289,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
 
     private boolean mSpeakerphoneOn;
 
+    private boolean mIsDisconnectingChildCall = false;
+
     /**
      * Tracks the video states which were applicable over the duration of a call.
      * See {@link VideoProfile} for a list of valid video states.
@@ -1179,6 +1181,19 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         return mWasConferencePreviouslyMerged;
     }
 
+    public boolean isDisconnectingChildCall() {
+        return mIsDisconnectingChildCall;
+    }
+
+    /**
+     * Sets whether this call is a child call.
+     */
+    private void maybeSetCallAsDisconnectingChild() {
+        if (mParentCall != null) {
+            mIsDisconnectingChildCall = true;
+        }
+    }
+
     @VisibleForTesting
     public Call getConferenceLevelActiveCall() {
         return mConferenceLevelActiveCall;
@@ -1402,6 +1417,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
 
         // Track that the call is now locally disconnecting.
         setLocallyDisconnecting(true);
+        maybeSetCallAsDisconnectingChild();
 
         if (mState == CallState.NEW || mState == CallState.SELECT_PHONE_ACCOUNT ||
                 mState == CallState.CONNECTING) {
