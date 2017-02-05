@@ -46,7 +46,6 @@
   <!-- Slightly more verbose title of settings screen for managing the
          "Respond via SMS" feature. [CHAR LIMIT=30] -->
   <!-- Settings summary string for the "Respond via SMS" feature. [CHAR LIMIT=40] -->
-  <string name="respond_via_sms_setting_summary"></string>
   <!-- Dialog title when changing a string for the "Respond via SMS" feature. [CHAR LIMIT=30] -->
   <!-- "Respond via SMS": Confirmation message shown after sending
         a text response. [CHAR LIMIT=40] -->
