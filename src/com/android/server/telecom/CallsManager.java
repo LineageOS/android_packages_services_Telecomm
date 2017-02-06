@@ -51,6 +51,7 @@ import android.telecom.VideoProfile;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.ArraySet;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telephony.AsyncEmergencyContactNotifier;
@@ -68,6 +69,7 @@ import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.components.ErrorDialogActivity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -79,6 +81,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Singleton.
@@ -122,6 +127,7 @@ public class CallsManager extends Call.ListenerBase
     private static final int MAXIMUM_DIALING_CALLS = 1;
     private static final int MAXIMUM_OUTGOING_CALLS = 1;
     private static final int MAXIMUM_TOP_LEVEL_CALLS = 2;
+    private static final int MAXIMUM_SELF_MANAGED_CALLS = 10;
 
     private static final int[] OUTGOING_CALL_STATES =
             {CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING,
@@ -130,6 +136,11 @@ public class CallsManager extends Call.ListenerBase
     private static final int[] LIVE_CALL_STATES =
             {CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING,
                     CallState.PULLING, CallState.ACTIVE};
+
+    private static final int[] ANY_CALL_STATE =
+            {CallState.NEW, CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING,
+                    CallState.RINGING, CallState.ACTIVE, CallState.ON_HOLD, CallState.DISCONNECTED,
+                    CallState.ABORTED, CallState.DISCONNECTING, CallState.PULLING};
 
     public static final String TELECOM_CALL_ID_PREFIX = "TC@";
 
@@ -387,11 +398,11 @@ public class CallsManager extends Call.ListenerBase
         }
 
         if (result.shouldAllowCall) {
-            if (hasMaximumRingingCalls()) {
+            if (hasMaximumManagedRingingCalls(incomingCall)) {
                 Log.i(this, "onCallFilteringCompleted: Call rejected! Exceeds maximum number of " +
                         "ringing calls.");
                 rejectCallAndLog(incomingCall);
-            } else if (hasMaximumDialingCalls()) {
+            } else if (hasMaximumManagedDialingCalls(incomingCall)) {
                 Log.i(this, "onCallFilteringCompleted: Call rejected! Exceeds maximum number of " +
                         "dialing calls.");
                 rejectCallAndLog(incomingCall);
@@ -714,7 +725,12 @@ public class CallsManager extends Call.ListenerBase
         setIntentExtrasAndStartTime(call, extras);
         // TODO: Move this to be a part of addCall()
         call.addListener(this);
-        call.startCreateConnection(mPhoneAccountRegistrar);
+
+        if (call.isSelfManaged() && !isIncomingCallPermitted(call, call.getTargetPhoneAccount())) {
+            notifyCreateConnectionFailed(phoneAccountHandle, call);
+        } else {
+            call.startCreateConnection(mPhoneAccountRegistrar);
+        }
     }
 
     void addNewUnknownCall(PhoneAccountHandle phoneAccountHandle, Bundle extras) {
@@ -780,7 +796,11 @@ public class CallsManager extends Call.ListenerBase
     }
 
     /**
-     * Kicks off the first steps to creating an outgoing call so that InCallUI can launch.
+     * Kicks off the first steps to creating an outgoing call.
+     *
+     * For managed connections, this is the first step to launching the Incall UI.
+     * For self-managed connections, we don't expect the Incall UI to launch, but this is still a
+     * first step in getting the self-managed ConnectionService to create the connection.
      *
      * @param handle Handle to connect the call with.
      * @param phoneAccountHandle The phone account which contains the component name of the
@@ -860,45 +880,53 @@ public class CallsManager extends Call.ListenerBase
             call.setVideoState(videoState);
         }
 
-        List<PhoneAccountHandle> accounts = constructPossiblePhoneAccounts(handle, initiatingUser);
-        Log.v(this, "startOutgoingCall found accounts = " + accounts);
+        PhoneAccount targetPhoneAccount = mPhoneAccountRegistrar.getPhoneAccount(
+                phoneAccountHandle, initiatingUser);
+        boolean isSelfManaged = targetPhoneAccount != null && targetPhoneAccount.isSelfManaged();
 
-        // Only dial with the requested phoneAccount if it is still valid. Otherwise treat this call
-        // as if a phoneAccount was not specified (does the default behavior instead).
-        // Note: We will not attempt to dial with a requested phoneAccount if it is disabled.
-        if (phoneAccountHandle != null) {
-            if (!accounts.contains(phoneAccountHandle)) {
-                phoneAccountHandle = null;
-            }
-        }
+        List<PhoneAccountHandle> accounts;
+        if (!isSelfManaged) {
+            accounts = constructPossiblePhoneAccounts(handle, initiatingUser);
+            Log.v(this, "startOutgoingCall found accounts = " + accounts);
 
-        if (phoneAccountHandle == null && accounts.size() > 0) {
-            // No preset account, check if default exists that supports the URI scheme for the
-            // handle and verify it can be used.
-            if(accounts.size() > 1) {
-                PhoneAccountHandle defaultPhoneAccountHandle =
-                        mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(handle.getScheme(),
-                                initiatingUser);
-                if (defaultPhoneAccountHandle != null &&
-                        accounts.contains(defaultPhoneAccountHandle)) {
-                    phoneAccountHandle = defaultPhoneAccountHandle;
+            // Only dial with the requested phoneAccount if it is still valid. Otherwise treat this
+            // call as if a phoneAccount was not specified (does the default behavior instead).
+            // Note: We will not attempt to dial with a requested phoneAccount if it is disabled.
+            if (phoneAccountHandle != null) {
+                if (!accounts.contains(phoneAccountHandle)) {
+                    phoneAccountHandle = null;
                 }
-            } else {
-                // Use the only PhoneAccount that is available
-                phoneAccountHandle = accounts.get(0);
             }
 
+            if (phoneAccountHandle == null && accounts.size() > 0) {
+                // No preset account, check if default exists that supports the URI scheme for the
+                // handle and verify it can be used.
+                if (accounts.size() > 1) {
+                    PhoneAccountHandle defaultPhoneAccountHandle =
+                            mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(
+                                    handle.getScheme(), initiatingUser);
+                    if (defaultPhoneAccountHandle != null &&
+                            accounts.contains(defaultPhoneAccountHandle)) {
+                        phoneAccountHandle = defaultPhoneAccountHandle;
+                    }
+                } else {
+                    // Use the only PhoneAccount that is available
+                    phoneAccountHandle = accounts.get(0);
+                }
+            }
+        } else {
+            accounts = Collections.EMPTY_LIST;
         }
 
         call.setTargetPhoneAccount(phoneAccountHandle);
 
-        boolean isPotentialInCallMMICode = isPotentialInCallMMICode(handle);
+        boolean isPotentialInCallMMICode = isPotentialInCallMMICode(handle) && !isSelfManaged;
 
         // Do not support any more live calls.  Our options are to move a call to hold, disconnect
         // a call, or cancel this call altogether. If a call is being reused, then it has already
         // passed the makeRoomForOutgoingCall check once and will fail the second time due to the
         // call transitioning into the CONNECTING state.
-        if (!isPotentialInCallMMICode && (!isReusedCall &&
+        if (!isSelfManaged && !isPotentialInCallMMICode && (!isReusedCall &&
                 !makeRoomForOutgoingCall(call, call.isEmergencyCall()))) {
             // just cancel at this point.
             Log.i(this, "No remaining room for outgoing call: %s", call);
@@ -911,7 +939,7 @@ public class CallsManager extends Call.ListenerBase
         }
 
         boolean needsAccountSelection = phoneAccountHandle == null && accounts.size() > 1 &&
-                !call.isEmergencyCall();
+                !call.isEmergencyCall() && !isSelfManaged;
 
         if (needsAccountSelection) {
             // This is the state where the user is expected to select an account
@@ -998,7 +1026,13 @@ public class CallsManager extends Call.ListenerBase
         if (call.getTargetPhoneAccount() != null || call.isEmergencyCall()) {
             // If the account has been set, proceed to place the outgoing call.
             // Otherwise the connection will be initiated when the account is set by the user.
-            call.startCreateConnection(mPhoneAccountRegistrar);
+            if (call.isSelfManaged() && !isOutgoingCallPermitted(call,
+                    call.getTargetPhoneAccount())) {
+
+                notifyCreateConnectionFailed(call.getTargetPhoneAccount(), call);
+            } else {
+                call.startCreateConnection(mPhoneAccountRegistrar);
+            }
         } else if (mPhoneAccountRegistrar.getCallCapablePhoneAccounts(
                 requireCallCapableAccountByHandle ? call.getHandle().getScheme() : null, false,
                 call.getInitiatingUser()).isEmpty()) {
@@ -1904,42 +1938,92 @@ public class CallsManager extends Call.ListenerBase
         return false;
     }
 
-    private int getNumCallsWithState(int... states) {
-        int count = 0;
-        for (int state : states) {
-            for (Call call : mCalls) {
-                if (call.getParentCall() == null && call.getState() == state &&
-                        !call.isExternalCall()) {
+    @VisibleForTesting
+    public int getNumCallsWithState(final boolean isSelfManaged, Call excludeCall,
+                                     PhoneAccountHandle phoneAccountHandle, int... states) {
 
-                    count++;
-                }
-            }
+        Set<Integer> desiredStates = IntStream.of(states).boxed().collect(Collectors.toSet());
+
+        Stream<Call> callsStream = mCalls.stream()
+                .filter(call -> desiredStates.contains(call.getState()) &&
+                        call.getParentCall() == null && !call.isExternalCall() &&
+                        call.isSelfManaged() == isSelfManaged);
+
+        // If a call to exclude was specifeid, filter it out.
+        if (excludeCall != null) {
+            callsStream = callsStream.filter(call -> call != excludeCall);
         }
-        return count;
+
+        // If a phone account handle was specified, only consider calls for that phone account.
+        if (phoneAccountHandle != null) {
+            callsStream = callsStream.filter(
+                    call -> phoneAccountHandle.equals(call.getTargetPhoneAccount()));
+        }
+
+        return (int) callsStream.count();
     }
 
-    private boolean hasMaximumLiveCalls() {
-        return MAXIMUM_LIVE_CALLS <= getNumCallsWithState(LIVE_CALL_STATES);
+    private boolean hasMaximumManagedLiveCalls(Call exceptCall) {
+        return MAXIMUM_LIVE_CALLS <= getNumCallsWithState(false /* isSelfManaged */,
+                exceptCall, null /* phoneAccountHandle */, LIVE_CALL_STATES);
     }
 
-    private boolean hasMaximumHoldingCalls() {
-        return MAXIMUM_HOLD_CALLS <= getNumCallsWithState(CallState.ON_HOLD);
+    private boolean hasMaximumSelfManagedCalls(Call exceptCall,
+                                                   PhoneAccountHandle phoneAccountHandle) {
+        return MAXIMUM_SELF_MANAGED_CALLS <= getNumCallsWithState(true /* isSelfManaged */,
+                exceptCall, phoneAccountHandle, ANY_CALL_STATE);
     }
 
-    private boolean hasMaximumRingingCalls() {
-        return MAXIMUM_RINGING_CALLS <= getNumCallsWithState(CallState.RINGING);
+    private boolean hasMaximumManagedHoldingCalls(Call exceptCall) {
+        return MAXIMUM_HOLD_CALLS <= getNumCallsWithState(false /* isSelfManaged */, exceptCall,
+                null /* phoneAccountHandle */, CallState.ON_HOLD);
     }
 
-    private boolean hasMaximumOutgoingCalls() {
-        return MAXIMUM_OUTGOING_CALLS <= getNumCallsWithState(OUTGOING_CALL_STATES);
+    private boolean hasMaximumManagedRingingCalls(Call exceptCall) {
+        return MAXIMUM_RINGING_CALLS <= getNumCallsWithState(false /* isSelfManaged */, exceptCall,
+                null /* phoneAccountHandle */, CallState.RINGING);
     }
 
-    private boolean hasMaximumDialingCalls() {
-        return MAXIMUM_DIALING_CALLS <= getNumCallsWithState(CallState.DIALING, CallState.PULLING);
+    private boolean hasMaximumSelfManagedRingingCalls(Call exceptCall,
+                                                      PhoneAccountHandle phoneAccountHandle) {
+        return MAXIMUM_RINGING_CALLS <= getNumCallsWithState(true /* isSelfManaged */, exceptCall,
+                phoneAccountHandle, CallState.RINGING);
+    }
+
+    private boolean hasMaximumManagedOutgoingCalls(Call exceptCall) {
+        return MAXIMUM_OUTGOING_CALLS <= getNumCallsWithState(false /* isSelfManaged */, exceptCall,
+                null /* phoneAccountHandle */, OUTGOING_CALL_STATES);
+    }
+
+    private boolean hasMaximumManagedDialingCalls(Call exceptCall) {
+        return MAXIMUM_DIALING_CALLS <= getNumCallsWithState(false /* isSelfManaged */, exceptCall,
+                null /* phoneAccountHandle */, CallState.DIALING, CallState.PULLING);
+    }
+
+    /**
+     * Given a {@link PhoneAccountHandle} determines if there are calls owned by any other
+     * {@link PhoneAccountHandle}.
+     * @param phoneAccountHandle The {@link PhoneAccountHandle} to check.
+     * @return {@code true} if there are other calls, {@code false} otherwise.
+     */
+    public boolean hasCallsForOtherPhoneAccount(PhoneAccountHandle phoneAccountHandle) {
+        return mCalls.stream().filter(call ->
+                !phoneAccountHandle.equals(call.getTargetPhoneAccount()) &&
+                call.getParentCall() == null &&
+                !call.isExternalCall()).count() > 0;
+    }
+
+    /**
+     * Given a {@link PhoneAccountHandle} determines if there are and managed calls.
+     * @return {@code true} if there are managed calls, {@code false} otherwise.
+     */
+    public boolean hasManagedCalls() {
+        return mCalls.stream().filter(call -> !call.isSelfManaged() &&
+                !call.isExternalCall()).count() > 0;
     }
 
     private boolean makeRoomForOutgoingCall(Call call, boolean isEmergency) {
-        if (hasMaximumLiveCalls()) {
+        if (hasMaximumManagedLiveCalls(call)) {
             // NOTE: If the amount of live calls changes beyond 1, this logic will probably
             // have to change.
             Call liveCall = getFirstCallWithState(LIVE_CALL_STATES);
@@ -1953,7 +2037,7 @@ public class CallsManager extends Call.ListenerBase
                 return true;
             }
 
-            if (hasMaximumOutgoingCalls()) {
+            if (hasMaximumManagedOutgoingCalls(call)) {
                 Call outgoingCall = getFirstCallWithState(OUTGOING_CALL_STATES);
                 if (isEmergency && !outgoingCall.isEmergencyCall()) {
                     // Disconnect the current outgoing call if it's not an emergency call. If the
@@ -1975,7 +2059,7 @@ public class CallsManager extends Call.ListenerBase
                 return false;
             }
 
-            if (hasMaximumHoldingCalls()) {
+            if (hasMaximumManagedHoldingCalls(call)) {
                 // There is no more room for any more calls, unless it's an emergency.
                 if (isEmergency) {
                     // Kill the current active call, this is easier then trying to disconnect a
@@ -2186,6 +2270,61 @@ public class CallsManager extends Call.ListenerBase
                 new MissedCallNotifier.CallInfoFactory());
     }
 
+    public boolean isIncomingCallPermitted(PhoneAccountHandle phoneAccountHandle) {
+        return isIncomingCallPermitted(null /* excludeCall */, phoneAccountHandle);
+    }
+
+    public boolean isIncomingCallPermitted(Call excludeCall,
+                                           PhoneAccountHandle phoneAccountHandle) {
+        if (phoneAccountHandle == null) {
+            return false;
+        }
+        PhoneAccount phoneAccount =
+                mPhoneAccountRegistrar.getPhoneAccountUnchecked(phoneAccountHandle);
+        if (phoneAccount == null) {
+            return false;
+        }
+
+        if (!phoneAccount.isSelfManaged()) {
+            return !hasMaximumManagedRingingCalls(excludeCall) &&
+                    !hasMaximumManagedHoldingCalls(excludeCall);
+        } else {
+            return !hasEmergencyCall() &&
+                    !hasMaximumSelfManagedRingingCalls(excludeCall, phoneAccountHandle) &&
+                    !hasMaximumSelfManagedCalls(excludeCall, phoneAccountHandle) &&
+                    !hasManagedCalls();
+        }
+    }
+
+    public boolean isOutgoingCallPermitted(PhoneAccountHandle phoneAccountHandle) {
+        return isOutgoingCallPermitted(null /* excludeCall */, phoneAccountHandle);
+    }
+
+    public boolean isOutgoingCallPermitted(Call excludeCall,
+                                           PhoneAccountHandle phoneAccountHandle) {
+        if (phoneAccountHandle == null) {
+            return false;
+        }
+        PhoneAccount phoneAccount =
+                mPhoneAccountRegistrar.getPhoneAccountUnchecked(phoneAccountHandle);
+        if (phoneAccount == null) {
+            return false;
+        }
+
+        if (!phoneAccount.isSelfManaged()) {
+            return !hasMaximumManagedOutgoingCalls(excludeCall) &&
+                    !hasMaximumManagedDialingCalls(excludeCall) &&
+                    !hasMaximumManagedLiveCalls(excludeCall) &&
+                    !hasMaximumManagedHoldingCalls(excludeCall);
+        } else {
+            // Only permit outgoing calls if there is no ongoing emergency calls and all other calls
+            // are associated with the current PhoneAccountHandle.
+            return !hasEmergencyCall() &&
+                    !hasMaximumSelfManagedCalls(excludeCall, phoneAccountHandle) &&
+                    !hasCallsForOtherPhoneAccount(phoneAccountHandle);
+        }
+    }
+
     /**
      * Dumps the state of the {@link CallsManager}.
      *
@@ -2268,5 +2407,27 @@ public class CallsManager extends Call.ListenerBase
               SystemClock.elapsedRealtime());
 
       call.setIntentExtras(extras);
+    }
+
+    /**
+     * Notifies the {@link android.telecom.ConnectionService} associated with a
+     * {@link PhoneAccountHandle} that the attempt to create a new connection has failed.
+     *
+     * @param phoneAccountHandle The {@link PhoneAccountHandle}.
+     * @param call The {@link Call} which could not be added.
+     */
+    private void notifyCreateConnectionFailed(PhoneAccountHandle phoneAccountHandle, Call call) {
+        if (phoneAccountHandle == null) {
+            return;
+        }
+        ConnectionServiceWrapper service = mConnectionServiceRepository.getService(
+                phoneAccountHandle.getComponentName(), phoneAccountHandle.getUserHandle());
+        if (service == null) {
+            Log.i(this, "Found no connection service.");
+            return;
+        } else {
+            call.setConnectionService(service);
+            service.createConnectionFailed(call);
+        }
     }
 }

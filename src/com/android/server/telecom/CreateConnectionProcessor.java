@@ -132,8 +132,10 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
             mAttemptRecords.add(new CallAttemptRecord(
                     mCall.getTargetPhoneAccount(), mCall.getTargetPhoneAccount()));
         }
-        adjustAttemptsForConnectionManager();
-        adjustAttemptsForEmergency(mCall.getTargetPhoneAccount());
+        if (!mCall.isSelfManaged()) {
+            adjustAttemptsForConnectionManager();
+            adjustAttemptsForEmergency(mCall.getTargetPhoneAccount());
+        }
         mAttemptRecordIterator = mAttemptRecords.iterator();
         attemptNextPhoneAccount();
     }
