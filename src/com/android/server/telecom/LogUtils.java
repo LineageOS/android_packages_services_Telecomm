@@ -77,6 +77,7 @@ public class LogUtils {
         public static final String START_CALL_WAITING_TONE = "START_CALL_WAITING_TONE";
         public static final String STOP_CALL_WAITING_TONE = "STOP_CALL_WAITING_TONE";
         public static final String START_CONNECTION = "START_CONNECTION";
+        public static final String CREATE_CONNECTION_FAILED = "CREATE_CONNECTION_FAILED";
         public static final String BIND_CS = "BIND_CS";
         public static final String CS_BOUND = "CS_BOUND";
         public static final String CONFERENCE_WITH = "CONF_WITH";
