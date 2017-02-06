@@ -654,6 +654,11 @@ public final class InCallController extends CallsManagerListenerBase {
 
     @Override
     public void onCallAdded(Call call) {
+        if (call.isSelfManaged()) {
+            Log.i(this, "onCallAdded: skipped self-managed %s", call);
+            return;
+        }
+
         if (!isBoundToServices()) {
             bindToServices(call);
         } else {
@@ -688,6 +693,11 @@ public final class InCallController extends CallsManagerListenerBase {
 
     @Override
     public void onCallRemoved(Call call) {
+        if (call.isSelfManaged()) {
+            Log.i(this, "onCallRemoved: skipped self-managed %s", call);
+            return;
+        }
+
         Log.i(this, "onCallRemoved: %s", call);
         if (mCallsManager.getCalls().isEmpty()) {
             /** Let's add a 2 second delay before we send unbind to the services to hopefully
@@ -711,6 +721,11 @@ public final class InCallController extends CallsManagerListenerBase {
 
     @Override
     public void onExternalCallChanged(Call call, boolean isExternalCall) {
+        if (call.isSelfManaged()) {
+            Log.i(this, "onExternalCallChanged: skipped self-managed %s", call);
+            return;
+        }
+
         Log.i(this, "onExternalCallChanged: %s -> %b", call, isExternalCall);
 
         List<ComponentName> componentsUpdated = new ArrayList<>();
@@ -772,6 +787,11 @@ public final class InCallController extends CallsManagerListenerBase {
 
     @Override
     public void onCallStateChanged(Call call, int oldState, int newState) {
+        if (call.isSelfManaged()) {
+            Log.i(this, "onExternalCallChanged: skipped self-managed %s", call);
+            return;
+        }
+
         updateCall(call);
     }
 
@@ -780,6 +800,11 @@ public final class InCallController extends CallsManagerListenerBase {
             Call call,
             ConnectionServiceWrapper oldService,
             ConnectionServiceWrapper newService) {
+        if (call.isSelfManaged()) {
+            Log.i(this, "onConnectionServiceChanged: skipped self-managed %s", call);
+            return;
+        }
+
         updateCall(call);
     }
 
@@ -825,6 +850,11 @@ public final class InCallController extends CallsManagerListenerBase {
 
     @Override
     public void onIsConferencedChanged(Call call) {
+        if (call.isSelfManaged()) {
+            Log.i(this, "onIsConferencedChanged: skipped self-managed %s", call);
+            return;
+        }
+
         Log.d(this, "onIsConferencedChanged %s", call);
         updateCall(call);
     }
@@ -1119,7 +1149,8 @@ public final class InCallController extends CallsManagerListenerBase {
         int numCallsSent = 0;
         for (Call call : calls) {
             try {
-                if (call.isExternalCall() && !info.isExternalCallsSupported()) {
+                if (call.isSelfManaged() ||
+                        (call.isExternalCall() && !info.isExternalCallsSupported())) {
                     continue;
                 }
 
