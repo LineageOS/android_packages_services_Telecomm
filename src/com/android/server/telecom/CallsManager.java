@@ -76,6 +76,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -1692,6 +1693,12 @@ public class CallsManager extends Call.ListenerBase
         call.setVideoProvider(parcelableConference.getVideoProvider());
         call.setStatusHints(parcelableConference.getStatusHints());
         call.putExtras(Call.SOURCE_CONNECTION_SERVICE, parcelableConference.getExtras());
+        // In case this Conference was added via a ConnectionManager, keep track of the original
+        // Connection ID as created by the originating ConnectionService.
+        Bundle extras = parcelableConference.getExtras();
+        if (extras != null && extras.containsKey(Connection.EXTRA_ORIGINAL_CONNECTION_ID)) {
+            call.setOriginalConnectionId(extras.getString(Connection.EXTRA_ORIGINAL_CONNECTION_ID));
+        }
 
         // TODO: Move this to be a part of addCall()
         call.addListener(this);
@@ -2095,11 +2102,41 @@ public class CallsManager extends Call.ListenerBase
         call.setConnectionProperties(connection.getConnectionProperties());
         call.setCallerDisplayName(connection.getCallerDisplayName(),
                 connection.getCallerDisplayNamePresentation());
-
         call.addListener(this);
+
+        // In case this connection was added via a ConnectionManager, keep track of the original
+        // Connection ID as created by the originating ConnectionService.
+        Bundle extras = connection.getExtras();
+        if (extras != null && extras.containsKey(Connection.EXTRA_ORIGINAL_CONNECTION_ID)) {
+            call.setOriginalConnectionId(extras.getString(Connection.EXTRA_ORIGINAL_CONNECTION_ID));
+        }
         addCall(call);
 
         return call;
+    }
+
+    /**
+     * Determines whether Telecom already knows about a Connection added via the
+     * {@link android.telecom.ConnectionService#addExistingConnection(PhoneAccountHandle,
+     * Connection)} API via a ConnectionManager.
+     *
+     * See {@link Connection#EXTRA_ORIGINAL_CONNECTION_ID}.
+     * @param originalConnectionId The new connection ID to check.
+     * @return {@code true} if this connection is already known by Telecom.
+     */
+    Call getAlreadyAddedConnection(String originalConnectionId) {
+        Optional<Call> existingCall = mCalls.stream()
+                .filter(call -> originalConnectionId.equals(call.getOriginalConnectionId()) ||
+                            originalConnectionId.equals(call.getId()))
+                .findFirst();
+
+        if (existingCall.isPresent()) {
+            Log.i(this, "isExistingConnectionAlreadyAdded - call %s already added with id %s",
+                    originalConnectionId, existingCall.get().getId());
+            return existingCall.get();
+        }
+
+        return null;
     }
 
     /**
