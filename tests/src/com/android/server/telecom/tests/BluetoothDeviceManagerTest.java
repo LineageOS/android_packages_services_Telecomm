@@ -131,6 +131,20 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
                 mBluetoothDeviceManager.getMostRecentlyConnectedDevice(device3.getAddress()));
     }
 
+    @SmallTest
+    public void testHeadsetServiceDisconnect() {
+        receiverUnderTest.onReceive(mContext,
+                buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device1));
+        receiverUnderTest.onReceive(mContext,
+                buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device2));
+        serviceListenerUnderTest.onServiceDisconnected(0);
+
+        verify(mRouteManager).onDeviceLost(device1);
+        verify(mRouteManager).onDeviceLost(device2);
+        assertNull(mBluetoothDeviceManager.getHeadsetService());
+        assertEquals(0, mBluetoothDeviceManager.getNumConnectedDevices());
+    }
+
     private Intent buildConnectionActionIntent(int state, BluetoothDevice device) {
         Intent i = new Intent(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED);
         i.putExtra(BluetoothHeadset.EXTRA_STATE, state);
