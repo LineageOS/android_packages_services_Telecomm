@@ -207,7 +207,8 @@ public class AnalyticsTests extends TelecomSystemTest {
         mConnectionServiceFixtureA.sendSetVideoProvider(
                 mConnectionServiceFixtureA.mLatestConnectionId);
         InCallService.VideoCall videoCall =
-                mInCallServiceFixtureX.getCall(callIds.mCallId).getVideoCallImpl();
+                mInCallServiceFixtureX.getCall(callIds.mCallId).getVideoCallImpl(
+                        mInCallServiceComponentNameX.getPackageName());
         videoCall.registerCallback(callback);
         ((VideoCallImpl) videoCall).setVideoState(VideoProfile.STATE_BIDIRECTIONAL);
 
