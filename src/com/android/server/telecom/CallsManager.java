@@ -81,6 +81,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -121,6 +123,7 @@ public class CallsManager extends Call.ListenerBase
 
     private static final String TAG = "CallsManager";
 
+    private static final int HANDLER_WAIT_TIMEOUT = 10000;
     private static final int MAXIMUM_LIVE_CALLS = 1;
     private static final int MAXIMUM_HOLD_CALLS = 1;
     private static final int MAXIMUM_RINGING_CALLS = 1;
@@ -2367,6 +2370,28 @@ public class CallsManager extends Call.ListenerBase
             return !hasEmergencyCall() &&
                     !hasMaximumSelfManagedCalls(excludeCall, phoneAccountHandle) &&
                     !hasCallsForOtherPhoneAccount(phoneAccountHandle);
+        }
+    }
+
+    /**
+     * Blocks execution until all Telecom handlers have completed their current work.
+     */
+    public void waitOnHandlers() {
+        CountDownLatch mainHandlerLatch = new CountDownLatch(3);
+        mHandler.post(() -> {
+            mainHandlerLatch.countDown();
+        });
+        mCallAudioManager.getCallAudioModeStateMachine().getHandler().post(() -> {
+            mainHandlerLatch.countDown();
+        });
+        mCallAudioManager.getCallAudioRouteStateMachine().getHandler().post(() -> {
+            mainHandlerLatch.countDown();
+        });
+
+        try {
+            mainHandlerLatch.await(HANDLER_WAIT_TIMEOUT, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Log.w(this, "waitOnHandlers: interrupted %s", e);
         }
     }
 
