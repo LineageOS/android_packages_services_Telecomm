@@ -354,6 +354,15 @@ public class TelecomServiceImpl {
                                 account.getAccountHandle().getComponentName().getPackageName());
                         if (account.hasCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED)) {
                             enforceRegisterSelfManaged();
+                            if (account.hasCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER) ||
+                                    account.hasCapabilities(
+                                            PhoneAccount.CAPABILITY_CONNECTION_MANAGER) ||
+                                    account.hasCapabilities(
+                                            PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
+                                throw new SecurityException("Self-managed ConnectionServices " +
+                                        "cannot also be call capable, connection managers, or " +
+                                        "SIM accounts.");
+                            }
                         }
                         if (account.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
                             enforceRegisterSimSubscriptionPermission();
@@ -1243,6 +1252,30 @@ public class TelecomServiceImpl {
                 Log.endSession();
             }
         }
+
+        /**
+         * Blocks until all Telecom handlers have completed their current work.
+         *
+         * See {@link com.android.commands.telecom.Telecom}.
+         */
+        @Override
+        public void waitOnHandlers() {
+            try {
+                Log.startSession("TSI.wOH");
+                enforceModifyPermission();
+                synchronized (mLock) {
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        Log.i(this, "waitOnHandlers");
+                        mCallsManager.waitOnHandlers();
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
     };
 
     private Context mContext;
@@ -1474,7 +1507,7 @@ public class TelecomServiceImpl {
         if (phoneAccountHandle != null) {
                 PhoneAccount phoneAccount = mPhoneAccountRegistrar.getPhoneAccountUnchecked(
                         phoneAccountHandle);
-                return phoneAccount.isSelfManaged();
+                return phoneAccount != null && phoneAccount.isSelfManaged();
         }
         return false;
     }

@@ -146,11 +146,13 @@ public final class CallLogManager extends CallsManagerListenerBase {
         // 2) It is a conference call
         // 3) Call was not explicitly canceled
         // 4) Call is not an external call
+        // 5) Call is not a self-managed call
         if (isNewlyDisconnected &&
                 (oldState != CallState.SELECT_PHONE_ACCOUNT &&
                  !call.isConference() &&
                  !isCallCanceled) &&
-                !call.isExternalCall()) {
+                !call.isExternalCall() &&
+                !call.isSelfManaged()) {
             int type;
             if (!call.isIncoming()) {
                 type = Calls.OUTGOING_TYPE;
