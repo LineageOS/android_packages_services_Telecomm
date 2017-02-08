@@ -29,8 +29,13 @@ import com.android.server.telecom.BluetoothAdapterProxy;
 import com.android.server.telecom.BluetoothHeadsetProxy;
 import com.android.server.telecom.TelecomSystem;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class BluetoothDeviceManager {
     private final BluetoothProfile.ServiceListener mBluetoothProfileServiceListener =
@@ -60,7 +65,14 @@ public class BluetoothDeviceManager {
                     try {
                         synchronized (mLock) {
                             mBluetoothHeadsetService = null;
-                            Log.i(BluetoothDeviceManager.this, "Lost BluetoothHeadset service.");
+                            Log.i(BluetoothDeviceManager.this, "Lost BluetoothHeadset service. " +
+                                    "Removing all tracked devices.");
+                            List<BluetoothDevice> devicesToRemove = new LinkedList<>(
+                                    mConnectedDevicesByAddress.values());
+                            mConnectedDevicesByAddress.clear();
+                            for (BluetoothDevice device : devicesToRemove) {
+                                mBluetoothRouteManager.onDeviceLost(device);
+                            }
                         }
                     } finally {
                         Log.endSession();
