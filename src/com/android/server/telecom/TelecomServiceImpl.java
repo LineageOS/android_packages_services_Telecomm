@@ -38,7 +38,6 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.Process;
 import android.os.UserHandle;
-import android.telecom.DefaultDialerManager;
 import android.telecom.Log;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
@@ -49,7 +48,6 @@ import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.util.EventLog;
 
-// TODO: Needed for move to system service: import com.android.internal.R;
 import com.android.internal.telecom.ITelecomService;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
@@ -57,9 +55,10 @@ import com.android.server.telecom.settings.BlockedNumbersActivity;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+// TODO: Needed for move to system service: import com.android.internal.R;
 
 /**
  * Implementation of the ITelecom interface.
@@ -704,11 +703,11 @@ public class TelecomServiceImpl {
          * @see android.telecom.TelecomManager#acceptRingingCall
          */
         @Override
-        public void acceptRingingCall() {
+        public void acceptRingingCall(String packageName) {
             try {
                 Log.startSession("TSI.aRC");
                 synchronized (mLock) {
-                    enforceModifyPermission();
+                    if (!enforceAnswerCallPermission(packageName, Binder.getCallingUid())) return;
 
                     long token = Binder.clearCallingIdentity();
                     try {
@@ -727,11 +726,11 @@ public class TelecomServiceImpl {
          *
          */
         @Override
-        public void acceptRingingCallWithVideoState(int videoState) {
+        public void acceptRingingCallWithVideoState(String packageName, int videoState) {
             try {
                 Log.startSession("TSI.aRCWVS");
                 synchronized (mLock) {
-                    enforceModifyPermission();
+                    if (!enforceAnswerCallPermission(packageName, Binder.getCallingUid())) return;
 
                     long token = Binder.clearCallingIdentity();
                     try {
@@ -1245,6 +1244,27 @@ public class TelecomServiceImpl {
             }
         }
     };
+
+    /**
+     * @return whether to return early without doing the action/throwing
+     * @throws SecurityException same as {@link Context#enforceCallingOrSelfPermission}
+     */
+    private boolean enforceAnswerCallPermission(String packageName, int uid) {
+        try {
+            enforceModifyPermission();
+        } catch (SecurityException e) {
+            final String permission = Manifest.permission.ANSWER_PHONE_CALLS;
+            enforcePermission(permission);
+
+            final int opCode = AppOpsManager.permissionToOpCode(permission);
+            if (opCode != AppOpsManager.OP_NONE
+                    && mAppOpsManager.checkOp(opCode, uid, packageName)
+                        != AppOpsManager.MODE_ALLOWED) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     private Context mContext;
     private AppOpsManager mAppOpsManager;

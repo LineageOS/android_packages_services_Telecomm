@@ -860,7 +860,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         // with whatever video state it's currently in.
         int fakeVideoState = 29578215;
         when(call.getVideoState()).thenReturn(fakeVideoState);
-        mTSIBinder.acceptRingingCall();
+        mTSIBinder.acceptRingingCall("");
         verify(call).answer(fakeVideoState);
     }
 
@@ -874,7 +874,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         int fakeVideoState = 29578215;
         int realVideoState = VideoProfile.STATE_RX_ENABLED | VideoProfile.STATE_TX_ENABLED;
         when(call.getVideoState()).thenReturn(fakeVideoState);
-        mTSIBinder.acceptRingingCallWithVideoState(realVideoState);
+        mTSIBinder.acceptRingingCallWithVideoState("", realVideoState);
         verify(call).answer(realVideoState);
     }
 
