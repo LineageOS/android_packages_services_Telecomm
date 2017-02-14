@@ -64,10 +64,11 @@ public class DefaultDialerCacheTest extends TelecomTestCase {
         mDefaultDialerCache = new DefaultDialerCache(
                 mContext, mMockDefaultDialerManager, new TelecomSystem.SyncRoot() { });
 
-        verify(mContext).registerReceiverAsUser(
+        verify(mContext, times(2)).registerReceiverAsUser(
                 receiverCaptor.capture(), eq(UserHandle.ALL), any(IntentFilter.class),
                 isNull(String.class), isNull(Handler.class));
-        mPackageChangeReceiver = receiverCaptor.getValue();
+        // Receive the first receiver that was captured, the package change receiver.
+        mPackageChangeReceiver = receiverCaptor.getAllValues().get(0);
         mDefaultDialerSettingObserver = mDefaultDialerCache.getContentObserver();
 
         when(mMockDefaultDialerManager.getDefaultDialerApplication(any(Context.class), eq(USER0)))
