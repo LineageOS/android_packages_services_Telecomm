@@ -246,7 +246,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
         mBluetoothPhoneService.mBinder.listCurrentCalls();
 
         verify(mMockBluetoothHeadset).clccResponse(eq(1), eq(0), eq(0), eq(0), eq(false),
-                eq("555-000"), eq(PhoneNumberUtils.TOA_Unknown));
+                eq("555000"), eq(PhoneNumberUtils.TOA_Unknown));
         verify(mMockBluetoothHeadset).clccResponse(0, 0, 0, 0, false, null, 0);
     }
 
@@ -335,9 +335,9 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
         mBluetoothPhoneService.mBinder.listCurrentCalls();
 
         verify(mMockBluetoothHeadset).clccResponse(eq(1), eq(0), eq(CALL_STATE_ACTIVE), eq(0),
-                eq(false), eq("555-0000"), eq(PhoneNumberUtils.TOA_Unknown));
+                eq(false), eq("5550000"), eq(PhoneNumberUtils.TOA_Unknown));
         verify(mMockBluetoothHeadset).clccResponse(eq(2), eq(1), eq(CALL_STATE_HELD), eq(0),
-                eq(false), eq("555-0001"), eq(PhoneNumberUtils.TOA_Unknown));
+                eq(false), eq("5550001"), eq(PhoneNumberUtils.TOA_Unknown));
         verify(mMockBluetoothHeadset).clccResponse(0, 0, 0, 0, false, null, 0);
     }
 
@@ -376,9 +376,9 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
         mBluetoothPhoneService.mBinder.listCurrentCalls();
 
         verify(mMockBluetoothHeadset).clccResponse(eq(1), eq(0), eq(CALL_STATE_ACTIVE), eq(0),
-                eq(true), eq("555-0000"), eq(PhoneNumberUtils.TOA_Unknown));
+                eq(true), eq("5550000"), eq(PhoneNumberUtils.TOA_Unknown));
         verify(mMockBluetoothHeadset).clccResponse(eq(2), eq(1), eq(CALL_STATE_ACTIVE), eq(0),
-                eq(true), eq("555-0001"), eq(PhoneNumberUtils.TOA_Unknown));
+                eq(true), eq("5550001"), eq(PhoneNumberUtils.TOA_Unknown));
         verify(mMockBluetoothHeadset).clccResponse(0, 0, 0, 0, false, null, 0);
     }
 
@@ -398,7 +398,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
 
         mBluetoothPhoneService.mBinder.listCurrentCalls();
         verify(mMockBluetoothHeadset).clccResponse(1, 1, CALL_STATE_WAITING, 0, false,
-                "555-0000", PhoneNumberUtils.TOA_Unknown);
+                "5550000", PhoneNumberUtils.TOA_Unknown);
         verify(mMockBluetoothHeadset).clccResponse(0, 0, 0, 0, false, null, 0);
         verify(mMockBluetoothHeadset, times(2)).clccResponse(anyInt(),
                 anyInt(), anyInt(), anyInt(), anyBoolean(), anyString(), anyInt());
@@ -433,7 +433,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
 
         mBluetoothPhoneService.mBinder.listCurrentCalls();
         verify(mMockBluetoothHeadset).clccResponse(1, 1, CALL_STATE_INCOMING, 0, false,
-                "555-0000", PhoneNumberUtils.TOA_Unknown);
+                "5550000", PhoneNumberUtils.TOA_Unknown);
         verify(mMockBluetoothHeadset).clccResponse(0, 0, 0, 0, false, null, 0);
         verify(mMockBluetoothHeadset, times(2)).clccResponse(anyInt(),
                 anyInt(), anyInt(), anyInt(), anyBoolean(), anyString(), anyInt());
@@ -449,11 +449,11 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
         when(ringingCall.isIncoming()).thenReturn(true);
         when(ringingCall.isConference()).thenReturn(false);
         when(ringingCall.getGatewayInfo()).thenReturn(new GatewayInfo(null, null,
-                Uri.parse("tel:555-0000")));
+                Uri.parse("tel:5550000")));
 
         mBluetoothPhoneService.mBinder.listCurrentCalls();
         verify(mMockBluetoothHeadset).clccResponse(1, 1, CALL_STATE_INCOMING, 0, false,
-                "555-0000", PhoneNumberUtils.TOA_Unknown);
+                "5550000", PhoneNumberUtils.TOA_Unknown);
 
         // Test Caching of old call indicies in clcc
         when(ringingCall.getState()).thenReturn(CallState.ACTIVE);
@@ -467,9 +467,9 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
 
         mBluetoothPhoneService.mBinder.listCurrentCalls();
         verify(mMockBluetoothHeadset).clccResponse(1, 1, CALL_STATE_ACTIVE, 0, false,
-                "555-0000", PhoneNumberUtils.TOA_Unknown);
+                "5550000", PhoneNumberUtils.TOA_Unknown);
         verify(mMockBluetoothHeadset).clccResponse(2, 1, CALL_STATE_HELD, 0, false,
-                "555-0001", PhoneNumberUtils.TOA_Unknown);
+                "5550001", PhoneNumberUtils.TOA_Unknown);
         verify(mMockBluetoothHeadset, times(2)).clccResponse(0, 0, 0, 0, false, null, 0);
     }
 
@@ -487,7 +487,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
 
         mBluetoothPhoneService.mBinder.listCurrentCalls();
         verify(mMockBluetoothHeadset).clccResponse(1, 0, CALL_STATE_ALERTING, 0, false,
-                "555-0000", PhoneNumberUtils.TOA_Unknown);
+                "5550000", PhoneNumberUtils.TOA_Unknown);
         verify(mMockBluetoothHeadset).clccResponse(0, 0, 0, 0, false, null, 0);
         verify(mMockBluetoothHeadset, times(2)).clccResponse(anyInt(),
                 anyInt(), anyInt(), anyInt(), anyBoolean(), anyString(), anyInt());
@@ -514,9 +514,9 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
 
         mBluetoothPhoneService.mBinder.listCurrentCalls();
         verify(mMockBluetoothHeadset).clccResponse(1, 0, CALL_STATE_ALERTING, 0, false,
-                "555-0000", PhoneNumberUtils.TOA_Unknown);
+                "5550000", PhoneNumberUtils.TOA_Unknown);
         verify(mMockBluetoothHeadset).clccResponse(2, 1, CALL_STATE_HELD, 0, false,
-                "555-0001", PhoneNumberUtils.TOA_Unknown);
+                "5550001", PhoneNumberUtils.TOA_Unknown);
         verify(mMockBluetoothHeadset).clccResponse(0, 0, 0, 0, false, null, 0);
         verify(mMockBluetoothHeadset, times(3)).clccResponse(anyInt(),
                 anyInt(), anyInt(), anyInt(), anyBoolean(), anyString(), anyInt());
@@ -543,12 +543,12 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     @MediumTest
     public void testQueryPhoneState() throws Exception {
         Call ringingCall = createRingingCall();
-        when(ringingCall.getHandle()).thenReturn(Uri.parse("tel:555-0000"));
+        when(ringingCall.getHandle()).thenReturn(Uri.parse("tel:5550000"));
 
         mBluetoothPhoneService.mBinder.queryPhoneState();
 
         verify(mMockBluetoothHeadset).phoneStateChanged(eq(0), eq(0), eq(CALL_STATE_INCOMING),
-                eq("555-0000"), eq(PhoneNumberUtils.TOA_Unknown));
+                eq("5550000"), eq(PhoneNumberUtils.TOA_Unknown));
     }
 
     @MediumTest
@@ -705,12 +705,12 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     @MediumTest
     public void testOnCallAddedRinging() throws Exception {
         Call ringingCall = createRingingCall();
-        when(ringingCall.getHandle()).thenReturn(Uri.parse("tel:555-000"));
+        when(ringingCall.getHandle()).thenReturn(Uri.parse("tel:555000"));
 
         mBluetoothPhoneService.mCallsManagerListener.onCallAdded(ringingCall);
 
         verify(mMockBluetoothHeadset).phoneStateChanged(eq(0), eq(0), eq(CALL_STATE_INCOMING),
-                eq("555-000"), eq(PhoneNumberUtils.TOA_Unknown));
+                eq("555000"), eq(PhoneNumberUtils.TOA_Unknown));
 
     }
 
@@ -814,7 +814,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
                 CallState.ACTIVE, CallState.ON_HOLD);
 
         verify(mMockBluetoothHeadset, never()).phoneStateChanged(eq(0), eq(2), eq(CALL_STATE_HELD),
-                eq("555-0000"), eq(PhoneNumberUtils.TOA_Unknown));
+                eq("5550000"), eq(PhoneNumberUtils.TOA_Unknown));
     }
 
     @MediumTest
@@ -856,14 +856,14 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     @MediumTest
     public void testBluetoothAdapterReceiver() throws Exception {
         Call ringingCall = createRingingCall();
-        when(ringingCall.getHandle()).thenReturn(Uri.parse("tel:555-0000"));
+        when(ringingCall.getHandle()).thenReturn(Uri.parse("tel:5550000"));
 
         Intent intent = new Intent();
         intent.putExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_ON);
         mBluetoothPhoneService.mBluetoothAdapterReceiver.onReceive(mContext, intent);
 
         verify(mMockBluetoothHeadset).phoneStateChanged(eq(0), eq(0), eq(CALL_STATE_INCOMING),
-                eq("555-0000"), eq(PhoneNumberUtils.TOA_Unknown));
+                eq("5550000"), eq(PhoneNumberUtils.TOA_Unknown));
     }
 
     private void addCallCapability(Call call, int capability) {
