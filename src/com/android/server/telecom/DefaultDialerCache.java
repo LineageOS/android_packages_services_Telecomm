@@ -175,9 +175,15 @@ public class DefaultDialerCache {
     }
 
     public boolean setDefaultDialer(String packageName, int userId) {
-        // No need to update cache -- this'll trigger the content observer.
-        return mDefaultDialerManagerAdapter.setDefaultDialerApplication(
+        boolean isChanged = mDefaultDialerManagerAdapter.setDefaultDialerApplication(
                 mContext, packageName, userId);
+        if(isChanged) {
+            synchronized (mLock) {
+                // Update the cache synchronously so that there is no delay in cache update.
+                mCurrentDefaultDialerPerUser.put(userId, packageName);
+            }
+        }
+        return isChanged;
     }
 
     private String refreshCacheForUser(int userId) {
