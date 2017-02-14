@@ -261,11 +261,12 @@ public class BasicCallTests extends TelecomSystemTest {
                 .createConnection(any(PhoneAccountHandle.class), anyString(),
                         connectionRequestCaptor.capture(), eq(true), eq(false), any());
 
-        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         assert(connectionRequestCaptor.getValue().getExtras().containsKey(
             android.telecom.Call.EXTRA_LAST_EMERGENCY_CALLBACK_TIME_MILLIS));
         assertTrue(connectionRequestCaptor.getValue().getExtras().getLong(
             android.telecom.Call.EXTRA_LAST_EMERGENCY_CALLBACK_TIME_MILLIS, 0) > 0);
+        assert(connectionRequestCaptor.getValue().getExtras().containsKey(
+            TelecomManager.EXTRA_INCOMING_CALL_ADDRESS));
     }
 
     @LargeTest
