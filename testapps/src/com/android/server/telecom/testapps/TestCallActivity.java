@@ -55,6 +55,9 @@ public class TestCallActivity extends Activity {
     static final String ACTION_RTT_CALL =
             "android.telecom.testapps.ACTION_RTT_CALL";
 
+    public static final String ACTION_REMOTE_RTT_UPGRADE =
+            "android.telecom.testapps.ACTION_REMOTE_RTT_UPGRADE";
+
     @Override
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -73,6 +76,8 @@ public class TestCallActivity extends Activity {
                     this, data, VideoProfile.STATE_AUDIO_ONLY);
         } else if (ACTION_SEND_UPGRADE_REQUEST.equals(action)) {
             CallNotificationReceiver.sendUpgradeRequest(this, data);
+        } else if (ACTION_REMOTE_RTT_UPGRADE.equals(action)) {
+            CallNotificationReceiver.remoteRttUpgrade(this);
         } else {
             CallServiceNotifier.getInstance().updateNotification(this);
         }

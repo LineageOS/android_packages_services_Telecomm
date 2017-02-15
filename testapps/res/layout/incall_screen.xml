@@ -26,7 +26,8 @@
             android:divider="#FFCC00"
             android:dividerHeight="4px">
     </ListView>
-    <LinearLayout
+    <GridLayout
+        android:columnCount="4"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal">
@@ -55,5 +56,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/answerCallButton"/>
-    </LinearLayout>
+        <Button
+            android:id="@+id/start_rtt_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/startRttButton"/>
+        <Button
+            android:id="@+id/accept_rtt_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/acceptRttButton"/>
+    </GridLayout>
 </LinearLayout>
