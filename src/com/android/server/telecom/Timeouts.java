@@ -63,7 +63,16 @@ public final class Timeouts {
      * in-call UI.
      */
     public static long getNewOutgoingCallCancelMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "new_outgoing_call_cancel_ms", 100000L);
+        return get(contentResolver, "new_outgoing_call_cancel_ms", 500L);
+    }
+
+    /**
+     * Returns the maximum amount of time to wait before disconnecting a call that was canceled via
+     * NEW_OUTGOING_CALL broadcast. This prevents malicious or poorly configured apps from
+     * forever tying up the Telecom stack.
+     */
+    public static long getMaxNewOutgoingCallCancelMillis(ContentResolver contentResolver) {
+        return get(contentResolver, "max_new_outgoing_call_cancel_ms", 10000L);
     }
 
     /**
