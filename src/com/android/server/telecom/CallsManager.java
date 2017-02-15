@@ -533,7 +533,8 @@ public class CallsManager extends Call.ListenerBase
     }
 
     @Override
-    public boolean onCanceledViaNewOutgoingCallBroadcast(final Call call) {
+    public boolean onCanceledViaNewOutgoingCallBroadcast(final Call call,
+            long disconnectionTimeout) {
         mPendingCallsToDisconnect.add(call);
         mHandler.postDelayed(new Runnable("CM.oCVNOCB", mLock) {
             @Override
@@ -543,7 +544,7 @@ public class CallsManager extends Call.ListenerBase
                     call.disconnect();
                 }
             }
-        }.prepare(), Timeouts.getNewOutgoingCallCancelMillis(mContext.getContentResolver()));
+        }.prepare(), disconnectionTimeout);
 
         return true;
     }
