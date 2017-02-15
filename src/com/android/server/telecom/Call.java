@@ -114,7 +114,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         void onConnectionManagerPhoneAccountChanged(Call call);
         void onPhoneAccountChanged(Call call);
         void onConferenceableCallsChanged(Call call);
-        boolean onCanceledViaNewOutgoingCallBroadcast(Call call);
+        boolean onCanceledViaNewOutgoingCallBroadcast(Call call, long disconnectionTimeout);
         void onHoldToneRequested(Call call);
         void onConnectionEvent(Call call, String event, Bundle extras);
         void onExternalCallChanged(Call call, boolean isExternalCall);
@@ -176,7 +176,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         @Override
         public void onConferenceableCallsChanged(Call call) {}
         @Override
-        public boolean onCanceledViaNewOutgoingCallBroadcast(Call call) {
+        public boolean onCanceledViaNewOutgoingCallBroadcast(Call call, long disconnectionTimeout) {
             return false;
         }
 
@@ -1371,14 +1371,14 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
 
     @VisibleForTesting
     public void disconnect() {
-        disconnect(false);
+        disconnect(0);
     }
 
     /**
      * Attempts to disconnect the call through the connection service.
      */
     @VisibleForTesting
-    public void disconnect(boolean wasViaNewOutgoingCallBroadcaster) {
+    public void disconnect(long disconnectionTimeout) {
         Log.addEvent(this, LogUtils.Events.REQUEST_DISCONNECT);
 
         // Track that the call is now locally disconnecting.
@@ -1387,7 +1387,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         if (mState == CallState.NEW || mState == CallState.SELECT_PHONE_ACCOUNT ||
                 mState == CallState.CONNECTING) {
             Log.v(this, "Aborting call %s", this);
-            abort(wasViaNewOutgoingCallBroadcaster);
+            abort(disconnectionTimeout);
         } else if (mState != CallState.ABORTED && mState != CallState.DISCONNECTED) {
             if (mConnectionService == null) {
                 Log.e(this, new Exception(), "disconnect() request on a call without a"
@@ -1403,22 +1403,25 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         }
     }
 
-    void abort(boolean wasViaNewOutgoingCallBroadcaster) {
+    void abort(long disconnectionTimeout) {
         if (mCreateConnectionProcessor != null &&
                 !mCreateConnectionProcessor.isProcessingComplete()) {
             mCreateConnectionProcessor.abort();
         } else if (mState == CallState.NEW || mState == CallState.SELECT_PHONE_ACCOUNT
                 || mState == CallState.CONNECTING) {
-            if (wasViaNewOutgoingCallBroadcaster) {
-                // If the cancelation was from NEW_OUTGOING_CALL, then we do not automatically
-                // destroy the call.  Instead, we announce the cancelation and CallsManager handles
+            if (disconnectionTimeout > 0) {
+                // If the cancelation was from NEW_OUTGOING_CALL with a timeout of > 0
+                // milliseconds, do not destroy the call.
+                // Instead, we announce the cancellation and CallsManager handles
                 // it through a timer. Since apps often cancel calls through NEW_OUTGOING_CALL and
                 // then re-dial them quickly using a gateway, allowing the first call to end
                 // causes jank. This timeout allows CallsManager to transition the first call into
                 // the second call so that in-call only ever sees a single call...eliminating the
-                // jank altogether.
+                // jank altogether. The app will also be able to set the timeout via an extra on
+                // the ordered broadcast.
                 for (Listener listener : mListeners) {
-                    if (listener.onCanceledViaNewOutgoingCallBroadcast(this)) {
+                    if (listener.onCanceledViaNewOutgoingCallBroadcast(
+                            this, disconnectionTimeout)) {
                         // The first listener to handle this wins. A return value of true means that
                         // the listener will handle the disconnection process later and so we
                         // should not continue it here.
