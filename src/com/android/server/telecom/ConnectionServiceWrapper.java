@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.telecom.CallAudioState;
@@ -771,6 +772,54 @@ public class ConnectionServiceWrapper extends ServiceBinder {
                 Log.endSession();
             }
         }
+
+        @Override
+        public void onRttInitiationSuccess(String callId, Session.Info sessionInfo)
+                throws RemoteException {
+
+        }
+
+        @Override
+        public void onRttInitiationFailure(String callId, int reason, Session.Info sessionInfo)
+                throws RemoteException {
+            Log.startSession(sessionInfo, "CSW.oRIF");
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        call.onRttConnectionFailure(reason);
+                    }
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+                Log.endSession();
+            }
+        }
+
+        @Override
+        public void onRttSessionRemotelyTerminated(String callId, Session.Info sessionInfo)
+                throws RemoteException {
+
+        }
+
+        @Override
+        public void onRemoteRttRequest(String callId, Session.Info sessionInfo)
+                throws RemoteException {
+            Log.startSession(sessionInfo, "CSW.oRRR");
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        call.onRemoteRttRequest();
+                    }
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+                Log.endSession();
+            }
+        }
     }
 
     private final Adapter mAdapter = new Adapter();
@@ -860,7 +909,8 @@ public class ConnectionServiceWrapper extends ServiceBinder {
                             gatewayInfo.getOriginalAddress());
                 }
 
-                Log.addEvent(call, LogUtils.Events.START_CONNECTION, Log.piiHandle(call.getHandle()));
+                Log.addEvent(call, LogUtils.Events.START_CONNECTION,
+                        Log.piiHandle(call.getHandle()));
 
                 // For self-managed incoming calls, if there is another ongoing call Telecom is
                 // responsible for showing a UI to ask the user if they'd like to answer this
@@ -1209,6 +1259,41 @@ public class ConnectionServiceWrapper extends ServiceBinder {
             try {
                 logOutgoing("onExtrasChanged %s %s", callId, extras);
                 mServiceInterface.onExtrasChanged(callId, extras, Log.getExternalSession());
+            } catch (RemoteException ignored) {
+            }
+        }
+    }
+
+    void startRtt(Call call, ParcelFileDescriptor fromInCall, ParcelFileDescriptor toInCall) {
+        final String callId = mCallIdMapper.getCallId(call);
+        if (callId != null && isServiceValid("startRtt")) {
+            try {
+                logOutgoing("startRtt: %s %s %s", callId, fromInCall, toInCall);
+                mServiceInterface.startRtt(callId, fromInCall, toInCall, Log.getExternalSession());
+            } catch (RemoteException ignored) {
+            }
+        }
+    }
+
+    void stopRtt(Call call) {
+        final String callId = mCallIdMapper.getCallId(call);
+        if (callId != null && isServiceValid("stopRtt")) {
+            try {
+                logOutgoing("stopRtt: %s", callId);
+                mServiceInterface.stopRtt(callId, Log.getExternalSession());
+            } catch (RemoteException ignored) {
+            }
+        }
+    }
+
+    void respondToRttRequest(
+            Call call, ParcelFileDescriptor fromInCall, ParcelFileDescriptor toInCall) {
+        final String callId = mCallIdMapper.getCallId(call);
+        if (callId != null && isServiceValid("respondToRttRequest")) {
+            try {
+                logOutgoing("respondToRttRequest: %s %s %s", callId, fromInCall, toInCall);
+                mServiceInterface.respondToRttUpgradeRequest(
+                        callId, fromInCall, toInCall, Log.getExternalSession());
             } catch (RemoteException ignored) {
             }
         }
