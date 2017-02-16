@@ -62,7 +62,6 @@
          "Respond via SMS" feature. [CHAR LIMIT=30] -->
   <string name="respond_via_sms_setting_title_2">Séier Äntwerten änneren</string>
   <!-- Settings summary string for the "Respond via SMS" feature. [CHAR LIMIT=40] -->
-  <string name="respond_via_sms_setting_summary"></string>
   <!-- Dialog title when changing a string for the "Respond via SMS" feature. [CHAR LIMIT=30] -->
   <string name="respond_via_sms_edittext_dialog_title">Séier Äntwert</string>
   <!-- "Respond via SMS": Confirmation message shown after sending
