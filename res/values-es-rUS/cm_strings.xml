@@ -18,7 +18,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <!-- Blacklist preferences -->
   <string name="blacklist_title">Lista de contactos bloqueados</string>
-  <string name="blacklist_summary_disabled">Deshabilitada</string>
+  <string name="blacklist_summary_disabled">Desactivada</string>
   <string name="blacklist_summary">No recibirás llamadas ni mensajes de los números incluidos en la lista de números bloqueados</string>
   <!-- Blacklist notifications -->
   <string name="blacklist_call_notification">Llamada de %s, bloqueada</string>
