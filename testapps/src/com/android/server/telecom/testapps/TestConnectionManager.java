@@ -135,6 +135,7 @@ public class TestConnectionManager extends ConnectionService {
             mRemote.registerCallback(mRemoteCallback);
             setState(mRemote.getState());
             setVideoState(mRemote.getVideoState());
+            setConnectionProperties(remote.getConnectionProperties());
         }
 
         @Override

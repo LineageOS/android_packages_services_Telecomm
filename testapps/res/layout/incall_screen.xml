@@ -44,7 +44,16 @@
             android:id="@+id/hold_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/holdButton" >
-        </Button>
+            android:text="@string/holdButton"/>
+        <Button
+            android:id="@+id/rtt_iface_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rttIfaceButton"/>
+        <Button
+            android:id="@+id/answer_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/answerCallButton"/>
     </LinearLayout>
 </LinearLayout>

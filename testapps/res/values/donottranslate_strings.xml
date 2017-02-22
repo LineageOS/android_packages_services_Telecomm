@@ -40,6 +40,14 @@
 
     <string name="endCallButton">End Call</string>
 
+    <string name="answerCallButton">Answer</string>
+
+    <string name="startCallWithRtt">Start call with RTT</string>
+
+    <string name="rttIfaceButton">RTT</string>
+
+    <string name="endRttButton">End RTT</string>
+
     <string name="muteButton">Mute</string>
 
     <string name="holdButton">Hold</string>
@@ -62,4 +70,22 @@
     <string name="incomingCallNotPermitted">Incoming call not permitted.</string>
 
     <string name="incomingCallNotPermittedCS">Incoming call not permitted (CS Reported).</string>
+
+    <string name="rttUiLabel">Test RTT UI</string>
+
+    <string-array name="rtt_mode_array">
+        <item>Full</item>
+        <item>HCO</item>
+        <item>VCO</item>
+    </string-array>
+
+    <string-array name="rtt_reply_one_liners">
+        <item>To RTT or not to RTT, that is the question...</item>
+        <item>Making TTY great again!</item>
+        <item>I would be more comfortable with real "Thyme" chatting. I don\'t know how to end
+        this pun</item>
+        <item>お疲れ様でした</item>
+        <item>The FCC has mandated that I respond... I will do so begrudgingly</item>
+        <item>😂😂😂💯</item>
+    </string-array>
 </resources>
