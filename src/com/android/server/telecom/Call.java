@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.os.Trace;
 import android.provider.ContactsContract.Contacts;
@@ -34,6 +35,7 @@ import android.telecom.GatewayInfo;
 import android.telecom.Log;
 import android.telecom.Logging.EventManager;
 import android.telecom.ParcelableConnection;
+import android.telecom.ParcelableRttCall;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.Response;
@@ -50,6 +52,7 @@ import com.android.internal.telephony.CallerInfo;
 import com.android.internal.telephony.SmsApplication;
 import com.android.internal.util.Preconditions;
 
+import java.io.IOException;
 import java.lang.String;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -82,6 +85,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
     /** Identifies extras changes which originated from an incall service. */
     public static final int SOURCE_INCALL_SERVICE = 2;
 
+    private static final int RTT_PIPE_READ_SIDE_INDEX = 0;
+    private static final int RTT_PIPE_WRITE_SIDE_INDEX = 1;
     /**
      * Listener for events on the call.
      */
@@ -97,7 +102,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         void onPostDialWait(Call call, String remaining);
         void onPostDialChar(Call call, char nextChar);
         void onConnectionCapabilitiesChanged(Call call);
-        void onConnectionPropertiesChanged(Call call);
+        void onConnectionPropertiesChanged(Call call, boolean didRttChange);
         void onParentChanged(Call call);
         void onChildrenChanged(Call call);
         void onCannedSmsResponsesLoaded(Call call);
@@ -142,7 +147,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         @Override
         public void onConnectionCapabilitiesChanged(Call call) {}
         @Override
-        public void onConnectionPropertiesChanged(Call call) {}
+        public void onConnectionPropertiesChanged(Call call, boolean didRttChange) {}
         @Override
         public void onParentChanged(Call call) {}
         @Override
@@ -405,6 +410,20 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
      * See {@link Connection#EXTRA_ORIGINAL_CONNECTION_ID} for more information.
      */
     private String mOriginalConnectionId;
+
+    /**
+     * Two pairs of {@link android.os.ParcelFileDescriptor}s that handle RTT text communication
+     * between the in-call app and the connection service. If both non-null, this call should be
+     * treated as an RTT call.
+     * Each array should be of size 2. First one is the read side and the second one is the write
+     * side.
+     */
+    private ParcelFileDescriptor[] mInCallToConnectionServiceStreams;
+    private ParcelFileDescriptor[] mConnectionServiceToInCallStreams;
+    /**
+     * Integer constant from {@link android.telecom.Call.RttCall}. Describes the current RTT mode.
+     */
+    private int mRttMode;
 
     /**
      * Persists the specified parameters and initializes the new instance.
@@ -1087,11 +1106,17 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
             connectionProperties &= ~Connection.PROPERTY_SELF_MANAGED;
         }
 
-        if (mConnectionProperties != connectionProperties) {
+        int changedProperties = mConnectionProperties ^ connectionProperties;
+
+        if (changedProperties != 0) {
             int previousProperties = mConnectionProperties;
             mConnectionProperties = connectionProperties;
+            setIsRttCall((mConnectionProperties & Connection.PROPERTY_IS_RTT) ==
+                    Connection.PROPERTY_IS_RTT);
+            boolean didRttChange =
+                    (changedProperties & Connection.PROPERTY_IS_RTT) == Connection.PROPERTY_IS_RTT;
             for (Listener l : mListeners) {
-                l.onConnectionPropertiesChanged(this);
+                l.onConnectionPropertiesChanged(this, didRttChange);
             }
 
             boolean wasExternal = (previousProperties & Connection.PROPERTY_IS_EXTERNAL_CALL)
@@ -1105,7 +1130,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
                 for (Listener l : mListeners) {
                     l.onExternalCallChanged(this, isExternal);
                 }
-
             }
 
             mAnalytics.addCallProperties(mConnectionProperties);
@@ -2003,6 +2027,55 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         return mSpeakerphoneOn;
     }
 
+    public void setIsRttCall(boolean shouldBeRtt) {
+        boolean areStreamsInitialized = mInCallToConnectionServiceStreams != null
+                && mConnectionServiceToInCallStreams != null;
+        if (shouldBeRtt && !areStreamsInitialized) {
+            try {
+                mInCallToConnectionServiceStreams = ParcelFileDescriptor.createReliablePipe();
+                mConnectionServiceToInCallStreams = ParcelFileDescriptor.createReliablePipe();
+            } catch (IOException e) {
+                Log.e(this, e, "Failed to create pipes for RTT call.");
+            }
+        } else if (!shouldBeRtt && areStreamsInitialized) {
+            closeRttPipes();
+            mInCallToConnectionServiceStreams = null;
+            mConnectionServiceToInCallStreams = null;
+        }
+    }
+
+    public void closeRttPipes() {
+        // TODO: may defer this until call is removed?
+    }
+
+    public boolean isRttCall() {
+        return (mConnectionProperties & Connection.PROPERTY_IS_RTT) == Connection.PROPERTY_IS_RTT;
+    }
+
+    public ParcelFileDescriptor getCsToInCallRttPipeForCs() {
+        return mConnectionServiceToInCallStreams == null ? null
+                : mConnectionServiceToInCallStreams[RTT_PIPE_WRITE_SIDE_INDEX];
+    }
+
+    public ParcelFileDescriptor getInCallToCsRttPipeForCs() {
+        return mInCallToConnectionServiceStreams == null ? null
+                : mInCallToConnectionServiceStreams[RTT_PIPE_READ_SIDE_INDEX];
+    }
+
+    public ParcelFileDescriptor getCsToInCallRttPipeForInCall() {
+        return mConnectionServiceToInCallStreams == null ? null
+                : mConnectionServiceToInCallStreams[RTT_PIPE_READ_SIDE_INDEX];
+    }
+
+    public ParcelFileDescriptor getInCallToCsRttPipeForInCall() {
+        return mInCallToConnectionServiceStreams == null ? null
+                : mInCallToConnectionServiceStreams[RTT_PIPE_WRITE_SIDE_INDEX];
+    }
+
+    public int getRttMode() {
+        return mRttMode;
+    }
+
     /**
      * Sets a video call provider for the call.
      */
@@ -2219,6 +2292,11 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
      */
     public long getCallDataUsage() {
         return mCallDataUsage;
+    }
+
+    public void setRttMode(int mode) {
+        mRttMode = mode;
+        // TODO: hook this up to CallAudioManager
     }
 
     /**

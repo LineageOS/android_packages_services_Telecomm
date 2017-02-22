@@ -19,6 +19,7 @@ package com.android.server.telecom;
 import android.net.Uri;
 import android.telecom.Connection;
 import android.telecom.ParcelableCall;
+import android.telecom.ParcelableRttCall;
 import android.telecom.TelecomManager;
 
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class ParcelableCallUtils {
         public ParcelableCall toParcelableCall(Call call, boolean includeVideoProvider,
                 PhoneAccountRegistrar phoneAccountRegistrar) {
             return ParcelableCallUtils.toParcelableCall(
-                    call, includeVideoProvider, phoneAccountRegistrar, false);
+                    call, includeVideoProvider, phoneAccountRegistrar, false, false);
         }
     }
 
@@ -54,9 +55,11 @@ public class ParcelableCallUtils {
             Call call,
             boolean includeVideoProvider,
             PhoneAccountRegistrar phoneAccountRegistrar,
-            boolean supportsExternalCalls) {
+            boolean supportsExternalCalls,
+            boolean includeRttCall) {
         return toParcelableCall(call, includeVideoProvider, phoneAccountRegistrar,
-                supportsExternalCalls, CALL_STATE_OVERRIDE_NONE /* overrideState */);
+                supportsExternalCalls, CALL_STATE_OVERRIDE_NONE /* overrideState */,
+                includeRttCall);
     }
 
     /**
@@ -79,7 +82,8 @@ public class ParcelableCallUtils {
             boolean includeVideoProvider,
             PhoneAccountRegistrar phoneAccountRegistrar,
             boolean supportsExternalCalls,
-            int overrideState) {
+            int overrideState,
+            boolean includeRttCall) {
         int state;
         if (overrideState == CALL_STATE_OVERRIDE_NONE) {
             state = getParcelableState(call, supportsExternalCalls);
@@ -152,6 +156,8 @@ public class ParcelableCallUtils {
             conferenceableCallIds.add(otherCall.getId());
         }
 
+        ParcelableRttCall rttCall = includeRttCall ? getParcelableRttCall(call) : null;
+
         return new ParcelableCall(
                 call.getId(),
                 state,
@@ -169,6 +175,8 @@ public class ParcelableCallUtils {
                 call.getTargetPhoneAccount(),
                 includeVideoProvider,
                 includeVideoProvider ? call.getVideoProvider() : null,
+                includeRttCall,
+                rttCall,
                 parentCallId,
                 childCallIds,
                 call.getStatusHints(),
@@ -344,6 +352,14 @@ public class ParcelableCallUtils {
      */
     private static int removeCapability(int capabilities, int capability) {
         return capabilities & ~capability;
+    }
+
+    private static ParcelableRttCall getParcelableRttCall(Call call) {
+        if (!call.isRttCall()) {
+            return null;
+        }
+        return new ParcelableRttCall(call.getRttMode(), call.getInCallToCsRttPipeForInCall(),
+                call.getCsToInCallRttPipeForInCall());
     }
 
     private ParcelableCallUtils() {}
