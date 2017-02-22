@@ -25,6 +25,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.ParcelFileDescriptor;
 import android.support.v4.content.LocalBroadcastManager;
 import android.telecom.Conference;
 import android.telecom.Connection;
@@ -35,7 +36,7 @@ import android.telecom.ConnectionService;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
-import android.util.Log;
+import android.telecom.Log;
 import android.widget.Toast;
 
 import com.android.server.telecom.testapps.R;
@@ -57,6 +58,7 @@ public class TestConnectionService extends ConnectionService {
 
     public static final String EXTRA_HANDLE = "extra_handle";
 
+    private static final String LOG_TAG = TestConnectionService.class.getSimpleName();
     /**
      * Random number generator used to generate phone numbers.
      */
@@ -271,6 +273,8 @@ public class TestConnectionService extends ConnectionService {
 
     /** Used to play an audio tone during a call. */
     private MediaPlayer mMediaPlayer;
+    // Used to provide text reply in an RTT call
+    private RttChatbot mRttChatbot;
 
     @Override
     public boolean onUnbind(Intent intent) {
@@ -309,11 +313,22 @@ public class TestConnectionService extends ConnectionService {
                     Toast.LENGTH_SHORT).show();
         }
 
+        if (originalRequest.isRequestingRtt()) {
+            Log.i(LOG_TAG, "Is RTT call. Starting chatbot service.");
+            mRttChatbot = new RttChatbot(getApplicationContext(),
+                    originalRequest.getRttTextStream());
+            mRttChatbot.start();
+        }
+
         log("gateway package [" + gatewayPackage + "], original handle [" +
                 originalHandle + "]");
 
         final TestConnection connection = new TestConnection(false /* isIncoming */);
         setAddress(connection, handle);
+        if (originalRequest.isRequestingRtt()) {
+            connection.setConnectionProperties(
+                    connection.getConnectionProperties() | Connection.PROPERTY_IS_RTT);
+        }
 
         // If the number starts with 555, then we handle it ourselves. If not, then we
         // use a remote connection service.
@@ -377,6 +392,13 @@ public class TestConnectionService extends ConnectionService {
                 connectionExtras.putString(Connection.EXTRA_CALL_SUBJECT,
                         "This is a test of call subject lines.");
             }
+
+            if (request.isRequestingRtt()) {
+                Log.i(LOG_TAG, "Is RTT call. Starting chatbot service.");
+                mRttChatbot = new RttChatbot(getApplicationContext(), request.getRttTextStream());
+                mRttChatbot.start();
+            }
+
             connection.putExtras(connectionExtras);
 
             setAddress(connection, address);
@@ -385,11 +407,6 @@ public class TestConnectionService extends ConnectionService {
 
             addCall(connection);
 
-            ConnectionRequest newRequest = new ConnectionRequest(
-                    request.getAccountHandle(),
-                    address,
-                    request.getExtras(),
-                    videoState);
             connection.setVideoState(videoState);
             return connection;
         } else {

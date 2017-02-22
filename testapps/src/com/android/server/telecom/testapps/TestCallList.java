@@ -32,7 +32,7 @@ import java.util.Set;
 /**
  * Maintains a list of calls received via the {@link TestInCallServiceImpl}.
  */
-public class TestCallList extends Call.Listener {
+public class TestCallList extends Call.Callback {
 
     public static abstract class Listener {
         public void onCallAdded(Call call) {}
@@ -126,7 +126,7 @@ public class TestCallList extends Call.Listener {
         }
         Log.i(TAG, "addCall: " + call + " " + System.identityHashCode(this));
         mCalls.add(call);
-        call.addListener(this);
+        call.registerCallback(this);
 
         for (Listener l : mListeners) {
             l.onCallAdded(call);
@@ -140,7 +140,7 @@ public class TestCallList extends Call.Listener {
         }
         Log.i(TAG, "removeCall: " + call);
         mCalls.remove(call);
-        call.removeListener(this);
+        call.unregisterCallback(this);
 
         for (Listener l : mListeners) {
             l.onCallRemoved(call);
@@ -212,6 +212,17 @@ public class TestCallList extends Call.Listener {
                 mVideoCallListeners.put(call, listener);
                 Log.v(TAG, "onVideoCallChanged: added new listener");
             }
+        }
+    }
+
+    @Override
+    public void onRttStatusChanged(Call call, boolean enabled, Call.RttCall rttCall) {
+        Log.v(TAG, "onRttStatusChanged: call = " + call + " " + System.identityHashCode(this));
+
+        if (call != null) {
+            // Did you have another call? Well too bad, this class isn't gonna handle it.
+            mCalls.clear();
+            mCalls.add(call);
         }
     }
 }

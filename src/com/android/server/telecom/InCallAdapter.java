@@ -494,4 +494,72 @@ class InCallAdapter extends IInCallAdapter.Stub {
              Log.endSession();
         }
     }
+
+    @Override
+    public void sendRttRequest() {
+        try {
+            Log.startSession("ICA.sRR");
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    // TODO
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+        } finally {
+            Log.endSession();
+        }
+    }
+
+    @Override
+    public void respondToRttRequest(int id, boolean accept) {
+        try {
+            Log.startSession("ICA.rTRR");
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    // TODO
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+        } finally {
+            Log.endSession();
+        }
+    }
+
+    @Override
+    public void stopRtt() {
+        try {
+            Log.startSession("ICA.sRTT");
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    // TODO
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+        } finally {
+            Log.endSession();
+        }
+    }
+
+    @Override
+    public void setRttMode(int mode) {
+        try {
+            Log.startSession("ICA.sRM");
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    // TODO
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+        } finally {
+            Log.endSession();
+        }
+    }
 }
