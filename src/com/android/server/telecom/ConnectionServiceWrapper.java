@@ -882,7 +882,7 @@ public class ConnectionServiceWrapper extends ServiceBinder {
                 ConnectionRequest connectionRequest = new ConnectionRequest.Builder()
                         .setAccountHandle(call.getTargetPhoneAccount())
                         .setAddress(call.getHandle())
-                        .setExtras(call.getIntentExtras())
+                        .setExtras(extras)
                         .setVideoState(call.getVideoState())
                         .setTelecomCallId(callId)
                         .setShouldShowIncomingCallUi(shouldShowIncomingCallUI)
