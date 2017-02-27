@@ -34,6 +34,7 @@ import android.os.UserManager;
 import android.platform.test.annotations.Postsubmit;
 import android.provider.CallLog;
 import android.provider.CallLog.Calls;
+import android.support.test.filters.FlakyTest;
 import android.telecom.DisconnectCause;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
@@ -424,6 +425,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @FlakyTest
     @Postsubmit
     public void testLogCallDirectionOutgoingWithMultiUserCapability() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
@@ -518,6 +520,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @FlakyTest
     @Postsubmit
     public void testLogCallDirectionOutgoingFromManagedProfile() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
