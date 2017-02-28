@@ -20,6 +20,7 @@ include $(CLEAR_VARS)
 LOCAL_STATIC_JAVA_LIBRARIES := \
         android-ex-camera2 \
         android-support-v4 \
+        android-support-test \
         guava \
         mockito-target \
         platform-test-annotations \
