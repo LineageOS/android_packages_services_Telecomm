@@ -264,7 +264,8 @@ public class CallsManager extends Call.ListenerBase
         mCallerInfoLookupHelper = new CallerInfoLookupHelper(context, mCallerInfoAsyncQueryFactory,
                 mContactsAsyncHelper, mLock);
 
-        mDtmfLocalTonePlayer = new DtmfLocalTonePlayer();
+        mDtmfLocalTonePlayer =
+                new DtmfLocalTonePlayer(new DtmfLocalTonePlayer.ToneGeneratorProxy());
         mNotificationManager = (NotificationManager) context.getSystemService(
                 Context.NOTIFICATION_SERVICE);
         CallAudioRouteStateMachine callAudioRouteStateMachine = new CallAudioRouteStateMachine(

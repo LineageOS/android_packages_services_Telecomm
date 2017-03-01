@@ -1199,7 +1199,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
      *
      * @return The {@link Context}.
      */
-    Context getContext() {
+    public Context getContext() {
         return mContext;
     }
 
