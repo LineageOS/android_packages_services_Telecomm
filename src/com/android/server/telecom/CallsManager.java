@@ -2080,12 +2080,23 @@ public class CallsManager extends Call.ListenerBase
     }
 
     /**
-     * Given a {@link PhoneAccountHandle} determines if there are and managed calls.
+     * Determines if there are any managed calls.
      * @return {@code true} if there are managed calls, {@code false} otherwise.
      */
     public boolean hasManagedCalls() {
         return mCalls.stream().filter(call -> !call.isSelfManaged() &&
                 !call.isExternalCall()).count() > 0;
+    }
+
+    /**
+     * Determines if there are any ongoing managed calls.
+     * @return {@code true} if there are ongoing managed calls, {@code false} otherwise.
+     */
+    public boolean hasOngoingManagedCalls() {
+        return getNumCallsWithState(
+                false /* isSelfManaged */, null /* excludeCall */,
+                null /* phoneAccountHandle */,
+                LIVE_CALL_STATES) > 0;
     }
 
     private boolean makeRoomForOutgoingCall(Call call, boolean isEmergency) {
