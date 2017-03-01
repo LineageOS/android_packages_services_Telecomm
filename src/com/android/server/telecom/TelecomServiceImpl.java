@@ -648,6 +648,26 @@ public class TelecomServiceImpl {
         }
 
         /**
+         * @see android.telecom.TelecomManager#isInManagedCall
+         */
+        @Override
+        public boolean isInManagedCall(String callingPackage) {
+            try {
+                Log.startSession("TSI.iIMC");
+                if (!canReadPhoneState(callingPackage, "isInManagedCall")) {
+                    throw new SecurityException("Only the default dialer or caller with " +
+                            "READ_PHONE_STATE permission can use this method.");
+                }
+
+                synchronized (mLock) {
+                    return mCallsManager.hasOngoingManagedCalls();
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        /**
          * @see android.telecom.TelecomManager#isRinging
          */
         @Override

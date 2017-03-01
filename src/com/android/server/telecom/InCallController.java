@@ -84,13 +84,16 @@ public final class InCallController extends CallsManagerListenerBase {
     private class InCallServiceInfo {
         private final ComponentName mComponentName;
         private boolean mIsExternalCallsSupported;
+        private boolean mIsSelfManagedCallsSupported;
         private final int mType;
 
         public InCallServiceInfo(ComponentName componentName,
                 boolean isExternalCallsSupported,
+                boolean isSelfManageCallsSupported,
                 int type) {
             mComponentName = componentName;
             mIsExternalCallsSupported = isExternalCallsSupported;
+            mIsSelfManagedCallsSupported = isSelfManageCallsSupported;
             mType = type;
         }
 
@@ -100,6 +103,10 @@ public final class InCallController extends CallsManagerListenerBase {
 
         public boolean isExternalCallsSupported() {
             return mIsExternalCallsSupported;
+        }
+
+        public boolean isSelfManagedCallsSupported() {
+            return mIsSelfManagedCallsSupported;
         }
 
         public int getType() {
@@ -120,18 +127,23 @@ public final class InCallController extends CallsManagerListenerBase {
             if (mIsExternalCallsSupported != that.mIsExternalCallsSupported) {
                 return false;
             }
+            if (mIsSelfManagedCallsSupported != that.mIsExternalCallsSupported) {
+                return false;
+            }
             return mComponentName.equals(that.mComponentName);
 
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(mComponentName, mIsExternalCallsSupported);
+            return Objects.hash(mComponentName, mIsExternalCallsSupported,
+                    mIsSelfManagedCallsSupported);
         }
 
         @Override
         public String toString() {
-            return "[" + mComponentName + " supportsExternal? " + mIsExternalCallsSupported + "]";
+            return "[" + mComponentName + " supportsExternal? " + mIsExternalCallsSupported +
+                    " supportsSelfMg?" + mIsSelfManagedCallsSupported + "]";
         }
     }
 
@@ -658,11 +670,6 @@ public final class InCallController extends CallsManagerListenerBase {
 
     @Override
     public void onCallAdded(Call call) {
-        if (call.isSelfManaged()) {
-            Log.i(this, "onCallAdded: skipped self-managed %s", call);
-            return;
-        }
-
         if (!isBoundToServices()) {
             bindToServices(call);
         } else {
@@ -700,11 +707,6 @@ public final class InCallController extends CallsManagerListenerBase {
 
     @Override
     public void onCallRemoved(Call call) {
-        if (call.isSelfManaged()) {
-            Log.i(this, "onCallRemoved: skipped self-managed %s", call);
-            return;
-        }
-
         Log.i(this, "onCallRemoved: %s", call);
         if (mCallsManager.getCalls().isEmpty()) {
             /** Let's add a 2 second delay before we send unbind to the services to hopefully
@@ -728,11 +730,6 @@ public final class InCallController extends CallsManagerListenerBase {
 
     @Override
     public void onExternalCallChanged(Call call, boolean isExternalCall) {
-        if (call.isSelfManaged()) {
-            Log.i(this, "onExternalCallChanged: skipped self-managed %s", call);
-            return;
-        }
-
         Log.i(this, "onExternalCallChanged: %s -> %b", call, isExternalCall);
 
         List<ComponentName> componentsUpdated = new ArrayList<>();
@@ -745,6 +742,10 @@ public final class InCallController extends CallsManagerListenerBase {
                 if (info.isExternalCallsSupported()) {
                     // For InCallServices which support external calls, the call will have already
                     // been added to the connection service, so we do not need to add it again.
+                    continue;
+                }
+
+                if (call.isSelfManaged() && !info.isSelfManagedCallsSupported()) {
                     continue;
                 }
 
@@ -798,11 +799,6 @@ public final class InCallController extends CallsManagerListenerBase {
 
     @Override
     public void onCallStateChanged(Call call, int oldState, int newState) {
-        if (call.isSelfManaged()) {
-            Log.i(this, "onExternalCallChanged: skipped self-managed %s", call);
-            return;
-        }
-
         updateCall(call);
     }
 
@@ -811,11 +807,6 @@ public final class InCallController extends CallsManagerListenerBase {
             Call call,
             ConnectionServiceWrapper oldService,
             ConnectionServiceWrapper newService) {
-        if (call.isSelfManaged()) {
-            Log.i(this, "onConnectionServiceChanged: skipped self-managed %s", call);
-            return;
-        }
-
         updateCall(call);
     }
 
@@ -861,11 +852,6 @@ public final class InCallController extends CallsManagerListenerBase {
 
     @Override
     public void onIsConferencedChanged(Call call) {
-        if (call.isSelfManaged()) {
-            Log.i(this, "onIsConferencedChanged: skipped self-managed %s", call);
-            return;
-        }
-
         Log.d(this, "onIsConferencedChanged %s", call);
         updateCall(call);
     }
@@ -992,7 +978,7 @@ public final class InCallController extends CallsManagerListenerBase {
             // Last Resort: Try to bind to the ComponentName given directly.
             Log.e(this, new Exception(), "Package Manager could not find ComponentName: "
                     + componentName +". Trying to bind anyway.");
-            return new InCallServiceInfo(componentName, false, type);
+            return new InCallServiceInfo(componentName, false, false, type);
         }
     }
 
@@ -1041,12 +1027,15 @@ public final class InCallController extends CallsManagerListenerBase {
                 boolean isExternalCallsSupported = serviceInfo.metaData != null &&
                         serviceInfo.metaData.getBoolean(
                                 TelecomManager.METADATA_INCLUDE_EXTERNAL_CALLS, false);
+                boolean isSelfManageCallsSupported = serviceInfo.metaData != null &&
+                        serviceInfo.metaData.getBoolean(
+                                TelecomManager.METADATA_INCLUDE_SELF_MANAGED_CALLS, false);
                 if (requestedType == 0 || requestedType == getInCallServiceType(entry.serviceInfo,
                         packageManager)) {
 
                     retval.add(new InCallServiceInfo(
                             new ComponentName(serviceInfo.packageName, serviceInfo.name),
-                            isExternalCallsSupported, requestedType));
+                            isExternalCallsSupported, isSelfManageCallsSupported, requestedType));
                 }
             }
         }
@@ -1160,7 +1149,7 @@ public final class InCallController extends CallsManagerListenerBase {
         int numCallsSent = 0;
         for (Call call : calls) {
             try {
-                if (call.isSelfManaged() ||
+                if ((call.isSelfManaged() && !info.isSelfManagedCallsSupported()) ||
                         (call.isExternalCall() && !info.isExternalCallsSupported())) {
                     continue;
                 }
@@ -1226,6 +1215,10 @@ public final class InCallController extends CallsManagerListenerBase {
             for (Map.Entry<InCallServiceInfo, IInCallService> entry : mInCallServices.entrySet()) {
                 InCallServiceInfo info = entry.getKey();
                 if (call.isExternalCall() && !info.isExternalCallsSupported()) {
+                    continue;
+                }
+
+                if (call.isSelfManaged() && !info.isSelfManagedCallsSupported()) {
                     continue;
                 }
 
