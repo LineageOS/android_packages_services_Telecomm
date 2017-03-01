@@ -332,7 +332,10 @@ public class ParcelableCallUtils {
         android.telecom.Call.Details.PROPERTY_IS_EXTERNAL_CALL,
 
         Connection.PROPERTY_HAS_CDMA_VOICE_PRIVACY,
-        android.telecom.Call.Details.PROPERTY_HAS_CDMA_VOICE_PRIVACY
+        android.telecom.Call.Details.PROPERTY_HAS_CDMA_VOICE_PRIVACY,
+
+        Connection.PROPERTY_SELF_MANAGED,
+        android.telecom.Call.Details.PROPERTY_SELF_MANAGED
     };
 
     private static int convertConnectionToCallProperties(int connectionProperties) {
