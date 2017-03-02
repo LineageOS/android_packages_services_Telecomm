@@ -21,6 +21,7 @@ import android.app.AppOpsManager;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
@@ -303,10 +304,12 @@ public class VideoProviderProxy extends Connection.VideoProvider {
      * @param callingPackage The package calling in.
      * @param callingUid The UID of the caller.
      * @param callingPid The PID of the caller.
+     * @param targetSdkVersion The target SDK version of the calling InCallService where the camera
+     *      request originated.
      */
     @Override
     public void onSetCamera(String cameraId, String callingPackage, int callingUid,
-            int callingPid) {
+            int callingPid, int targetSdkVersion) {
         synchronized (mLock) {
             logFromInCall("setCamera: " + cameraId + " callingPackage=" + callingPackage +
                     "; callingUid=" + callingUid);
@@ -316,15 +319,24 @@ public class VideoProviderProxy extends Connection.VideoProvider {
                     // Calling app is not permitted to use the camera.  Ignore the request and send
                     // back a call session event indicating the error.
                     Log.i(this, "onSetCamera: camera permission denied; package=%d, uid=%d, "
-                            + "pid=%d",
-                            callingPackage, callingUid, callingPid);
-                    VideoProviderProxy.this.handleCallSessionEvent(
-                            Connection.VideoProvider.SESSION_EVENT_CAMERA_PERMISSION_ERROR);
+                            + "pid=%d, targetSdkVersion=%d",
+                            callingPackage, callingUid, callingPid, targetSdkVersion);
+
+                    // API 26 introduces a new camera permission error we can use here since the
+                    // caller supports that API version.
+                    if (targetSdkVersion > Build.VERSION_CODES.N_MR1) {
+                        VideoProviderProxy.this.handleCallSessionEvent(
+                                Connection.VideoProvider.SESSION_EVENT_CAMERA_PERMISSION_ERROR);
+                    } else {
+                        VideoProviderProxy.this.handleCallSessionEvent(
+                                Connection.VideoProvider.SESSION_EVENT_CAMERA_FAILURE);
+                    }
                     return;
                 }
             }
             try {
-                mConectionServiceVideoProvider.setCamera(cameraId, callingPackage);
+                mConectionServiceVideoProvider.setCamera(cameraId, callingPackage,
+                        targetSdkVersion);
             } catch (RemoteException e) {
                 VideoProviderProxy.this.handleCallSessionEvent(
                         Connection.VideoProvider.SESSION_EVENT_CAMERA_FAILURE);
