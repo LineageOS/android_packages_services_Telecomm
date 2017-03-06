@@ -1521,7 +1521,7 @@ public class CallsManager extends Call.ListenerBase
      */
     private boolean isSamePhAccIdOrSipId(String id1, String id2) {
         boolean ret = ((id1 != null && id2 != null) &&
-                (id1.equals(id2) || id1.contains("sip") || id2.contains("sip")));
+                (id1.equals(id2) || id1.contains("@") || id2.contains("@")));
         Log.d(this, "isSamePhAccIdOrSipId: id1 = " + id1 + " id2 = " + id2 + " ret = " + ret);
         return ret;
     }
