@@ -43,7 +43,7 @@
     <string name="outgoing_call_error_no_phone_number_supplied" msgid="1940125199802007505">"कॉल करने के लिए, मान्‍य नंबर डालें."</string>
     <string name="duplicate_video_call_not_allowed" msgid="3749211605014548386">"इस समय कॉल नहीं जोड़ा जा सकता."</string>
     <string name="no_vm_number" msgid="4164780423805688336">"गुम वॉयस मेल नंबर"</string>
-    <string name="no_vm_number_msg" msgid="1300729501030053828">"सिम कार्ड पर कोई वॉयस मेल नंबर संग्रहीत नहीं है."</string>
+    <string name="no_vm_number_msg" msgid="1300729501030053828">"सिम कार्ड पर कोई वॉयस मेल नंबर संग्रहित नहीं है."</string>
     <string name="add_vm_number_str" msgid="4676479471644687453">"नंबर जोड़ें"</string>
     <string name="change_default_dialer_dialog_title" msgid="9101655962941740507">"<xliff:g id="NEW_APP">%s</xliff:g> को अपना डिफ़ॉल्ट ऐप्लिकेशन बनाएं?"</string>
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"डिफ़ॉल्ट सेट करें"</string>
