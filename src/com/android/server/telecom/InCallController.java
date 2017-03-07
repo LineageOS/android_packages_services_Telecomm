@@ -29,7 +29,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.Parcel;
 import android.os.RemoteException;
 import android.os.Trace;
 import android.os.UserHandle;
@@ -611,6 +610,17 @@ public final class InCallController extends CallsManagerListenerBase {
         public void onConnectionEvent(Call call, String event, Bundle extras) {
             notifyConnectionEvent(call, event, extras);
         }
+
+        @Override
+        public void onRttInitiationFailure(Call call, int reason) {
+            notifyRttInitiationFailure(call, reason);
+            updateCall(call, false, true);
+        }
+
+        @Override
+        public void onRemoteRttRequest(Call call, int requestId) {
+            notifyRemoteRttRequest(call, requestId);
+        }
     };
 
     private final SystemStateListener mSystemStateListener = new SystemStateListener() {
@@ -899,6 +909,37 @@ public final class InCallController extends CallsManagerListenerBase {
         }
     }
 
+    private void notifyRttInitiationFailure(Call call, int reason) {
+        if (!mInCallServices.isEmpty()) {
+             mInCallServices.entrySet().stream()
+                    .filter((entry) -> entry.getKey().equals(mInCallServiceConnection.getInfo()))
+                    .forEach((entry) -> {
+                        try {
+                            Log.i(this, "notifyRttFailure, call %s, incall %s",
+                                    call, entry.getKey());
+                            entry.getValue().onRttInitiationFailure(mCallIdMapper.getCallId(call),
+                                    reason);
+                        } catch (RemoteException ignored) {
+                        }
+                    });
+        }
+    }
+
+    private void notifyRemoteRttRequest(Call call, int requestId) {
+        if (!mInCallServices.isEmpty()) {
+            mInCallServices.entrySet().stream()
+                    .filter((entry) -> entry.getKey().equals(mInCallServiceConnection.getInfo()))
+                    .forEach((entry) -> {
+                        try {
+                            Log.i(this, "notifyRemoteRttRequest, call %s, incall %s",
+                                    call, entry.getKey());
+                            entry.getValue().onRttUpgradeRequest(
+                                    mCallIdMapper.getCallId(call), requestId);
+                        } catch (RemoteException ignored) {
+                        }
+                    });
+        }
+    }
     /**
      * Unbinds an existing bound connection to the in-call app.
      */

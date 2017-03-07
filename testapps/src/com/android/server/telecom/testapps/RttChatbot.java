@@ -47,6 +47,8 @@ public class RttChatbot {
     private final Random mRandom = new Random();
     private final String[] mOneLiners;
     private Handler mHandler;
+    private HandlerThread mSenderThread;
+    private Thread mReceiverThread;
 
     private final class ReplyHandler extends Handler {
         private StringBuilder mInputSoFar;
@@ -110,8 +112,9 @@ public class RttChatbot {
         Log.i(LOG_TAG, "Starting RTT chatbot.");
         HandlerThread ht = new HandlerThread("RttChatbotSender");
         ht.start();
+        mSenderThread = ht;
         mHandler = new ReplyHandler(ht.getLooper());
-        Thread receiveThread = new Thread(() -> {
+        mReceiverThread = new Thread(() -> {
             while (true) {
                 String charsReceived = mRttTextStream.read();
                 if (charsReceived == null) {
@@ -129,6 +132,15 @@ public class RttChatbot {
                         .sendToTarget();
             }
         }, "RttChatbotReceiver");
-        receiveThread.start();
+        mReceiverThread.start();
+    }
+
+    public void stop() {
+        if (mSenderThread != null && mSenderThread.isAlive()) {
+            mSenderThread.quit();
+        }
+        if (mReceiverThread != null && mReceiverThread.isAlive()) {
+            mReceiverThread.interrupt();
+        }
     }
 }
