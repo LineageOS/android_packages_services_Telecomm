@@ -687,6 +687,10 @@ public final class InCallController extends CallsManagerListenerBase {
                     continue;
                 }
 
+                if (call.isSelfManaged() && !info.isSelfManagedCallsSupported()) {
+                    continue;
+                }
+
                 // Only send the RTT call if it's a UI in-call service
                 boolean includeRttCall = info.equals(mInCallServiceConnection.getInfo());
 

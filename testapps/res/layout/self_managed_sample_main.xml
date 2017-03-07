@@ -68,6 +68,11 @@
                 android:layout_height="wrap_content"
                 android:text="Incoming Call"
                 android:id="@+id/placeIncomingCallButton" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Incoming Call (Delay)"
+                android:id="@+id/placeIncomingCallDelayButton" />
         </TableRow>
         <TableRow android:layout_span="2">
             <ListView
