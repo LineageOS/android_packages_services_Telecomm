@@ -125,6 +125,10 @@ public class InCallServiceFixture implements TestFixture<IInCallService> {
         }
 
         @Override
+        public void onRttInitiationFailure(String callId, int reason) throws RemoteException {
+        }
+
+        @Override
         public IBinder asBinder() {
             return this;
         }

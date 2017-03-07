@@ -51,7 +51,6 @@ import android.telecom.VideoProfile;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.ArraySet;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telephony.AsyncEmergencyContactNotifier;
@@ -69,7 +68,6 @@ import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.components.ErrorDialogActivity;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -177,6 +175,7 @@ public class CallsManager extends Call.ListenerBase
      */
     private int mCallId = 0;
 
+    private int mRttRequestId = 0;
     /**
      * Stores the current foreground user.
      */
@@ -767,7 +766,7 @@ public class CallsManager extends Call.ListenerBase
         if (extras.getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false)) {
             if (phoneAccount != null &&
                     phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_RTT)) {
-                call.setIsRttCall(true);
+                call.setRttStreams(true);
             }
         }
 
@@ -1012,7 +1011,7 @@ public class CallsManager extends Call.ListenerBase
                     && extras.getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false)) {
                 if (accountToUse != null
                         && accountToUse.hasCapabilities(PhoneAccount.CAPABILITY_RTT)) {
-                    call.setIsRttCall(true);
+                    call.setRttStreams(true);
                 }
             }
         }
@@ -1465,7 +1464,7 @@ public class CallsManager extends Call.ListenerBase
                         mPhoneAccountRegistrar.getPhoneAccountUnchecked(account);
                 if (realPhoneAccount != null
                         && realPhoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_RTT)) {
-                    call.setIsRttCall(true);
+                    call.setRttStreams(true);
                 }
             }
 
@@ -2314,6 +2313,12 @@ public class CallsManager extends Call.ListenerBase
     private String getNextCallId() {
         synchronized(mLock) {
             return TELECOM_CALL_ID_PREFIX + (++mCallId);
+        }
+    }
+
+    public int getNextRttRequestId() {
+        synchronized (mLock) {
+            return (++mRttRequestId);
         }
     }
 

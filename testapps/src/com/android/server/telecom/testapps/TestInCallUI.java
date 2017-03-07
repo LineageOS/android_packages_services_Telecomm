@@ -25,6 +25,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class TestInCallUI extends Activity {
 
@@ -51,6 +52,28 @@ public class TestInCallUI extends Activity {
                     finish();
                 }
             }
+
+            @Override
+            public void onRttStarted(Call call) {
+                Toast.makeText(TestInCallUI.this, "RTT now enabled", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onRttStopped(Call call) {
+                Toast.makeText(TestInCallUI.this, "RTT now disabled", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onRttInitiationFailed(Call call, int reason) {
+                Toast.makeText(TestInCallUI.this, String.format("RTT failed to init: %d", reason),
+                        Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onRttRequest(Call call, int id) {
+                Toast.makeText(TestInCallUI.this, String.format("RTT request: %d", id),
+                        Toast.LENGTH_SHORT).show();
+            }
         });
 
         View endCallButton = findViewById(R.id.end_call_button);
@@ -58,6 +81,8 @@ public class TestInCallUI extends Activity {
         View muteButton = findViewById(R.id.mute_button);
         View rttIfaceButton = findViewById(R.id.rtt_iface_button);
         View answerButton = findViewById(R.id.answer_button);
+        View startRttButton = findViewById(R.id.start_rtt_button);
+        View acceptRttButton = findViewById(R.id.accept_rtt_button);
 
         endCallButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -90,6 +115,7 @@ public class TestInCallUI extends Activity {
                 }
             }
         });
+
         rttIfaceButton.setOnClickListener((view) -> {
             Call call = mCallList.getCall(0);
             if (call.isRttActive()) {
@@ -98,10 +124,25 @@ public class TestInCallUI extends Activity {
                 startActivity(intent);
             }
         });
+
         answerButton.setOnClickListener(view -> {
             Call call = mCallList.getCall(0);
             if (call.getState() == Call.STATE_RINGING) {
                 call.answer(VideoProfile.STATE_AUDIO_ONLY);
+            }
+        });
+
+        startRttButton.setOnClickListener(view -> {
+            Call call = mCallList.getCall(0);
+            if (!call.isRttActive()) {
+                call.sendRttRequest();
+            }
+        });
+
+        acceptRttButton.setOnClickListener(view -> {
+            Call call = mCallList.getCall(0);
+            if (!call.isRttActive()) {
+                call.respondToRttRequest(mCallList.getLastRttRequestId(), true);
             }
         });
     }

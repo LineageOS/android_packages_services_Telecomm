@@ -35,7 +35,6 @@ import android.telecom.GatewayInfo;
 import android.telecom.Log;
 import android.telecom.Logging.EventManager;
 import android.telecom.ParcelableConnection;
-import android.telecom.ParcelableRttCall;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.Response;
@@ -87,6 +86,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
 
     private static final int RTT_PIPE_READ_SIDE_INDEX = 0;
     private static final int RTT_PIPE_WRITE_SIDE_INDEX = 1;
+
+    private static final int INVALID_RTT_REQUEST_ID = -1;
     /**
      * Listener for events on the call.
      */
@@ -123,6 +124,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         void onHoldToneRequested(Call call);
         void onConnectionEvent(Call call, String event, Bundle extras);
         void onExternalCallChanged(Call call, boolean isExternalCall);
+        void onRttInitiationFailure(Call call, int reason);
+        void onRemoteRttRequest(Call call, int requestId);
     }
 
     public abstract static class ListenerBase implements Listener {
@@ -184,13 +187,16 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         public boolean onCanceledViaNewOutgoingCallBroadcast(Call call, long disconnectionTimeout) {
             return false;
         }
-
         @Override
         public void onHoldToneRequested(Call call) {}
         @Override
         public void onConnectionEvent(Call call, String event, Bundle extras) {}
         @Override
         public void onExternalCallChanged(Call call, boolean isExternalCall) {}
+        @Override
+        public void onRttInitiationFailure(Call call, int reason) {}
+        @Override
+        public void onRemoteRttRequest(Call call, int requestId) {}
     }
 
     private final CallerInfoLookupHelper.OnQueryCompleteListener mCallerInfoQueryListener =
@@ -424,6 +430,11 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
      * Integer constant from {@link android.telecom.Call.RttCall}. Describes the current RTT mode.
      */
     private int mRttMode;
+
+    /**
+     * Integer indicating the remote RTT request ID that is pending a response from the user.
+     */
+    private int mPendingRttRequestId = INVALID_RTT_REQUEST_ID;
 
     /**
      * Persists the specified parameters and initializes the new instance.
@@ -1127,7 +1138,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         if (changedProperties != 0) {
             int previousProperties = mConnectionProperties;
             mConnectionProperties = connectionProperties;
-            setIsRttCall((mConnectionProperties & Connection.PROPERTY_IS_RTT) ==
+            setRttStreams((mConnectionProperties & Connection.PROPERTY_IS_RTT) ==
                     Connection.PROPERTY_IS_RTT);
             boolean didRttChange =
                     (changedProperties & Connection.PROPERTY_IS_RTT) == Connection.PROPERTY_IS_RTT;
@@ -2043,7 +2054,22 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         return mSpeakerphoneOn;
     }
 
-    public void setIsRttCall(boolean shouldBeRtt) {
+    public void stopRtt() {
+        if (mConnectionService != null) {
+            mConnectionService.stopRtt(this);
+        } else {
+            // If this gets called by the in-call app before the connection service is set, we'll
+            // just ignore it since it's really not supposed to happen.
+            Log.w(this, "stopRtt() called before connection service is set.");
+        }
+    }
+
+    public void sendRttRequest() {
+        setRttStreams(true);
+        mConnectionService.startRtt(this, getInCallToCsRttPipeForCs(), getCsToInCallRttPipeForCs());
+    }
+
+    public void setRttStreams(boolean shouldBeRtt) {
         boolean areStreamsInitialized = mInCallToConnectionServiceStreams != null
                 && mConnectionServiceToInCallStreams != null;
         if (shouldBeRtt && !areStreamsInitialized) {
@@ -2057,6 +2083,45 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
             closeRttPipes();
             mInCallToConnectionServiceStreams = null;
             mConnectionServiceToInCallStreams = null;
+        }
+    }
+
+    public void onRttConnectionFailure(int reason) {
+        setRttStreams(false);
+        for (Listener l : mListeners) {
+            l.onRttInitiationFailure(this, reason);
+        }
+    }
+
+    public void onRemoteRttRequest() {
+        if (isRttCall()) {
+            Log.w(this, "Remote RTT request on a call that's already RTT");
+            return;
+        }
+
+        mPendingRttRequestId = mCallsManager.getNextRttRequestId();
+        for (Listener l : mListeners) {
+            l.onRemoteRttRequest(this, mPendingRttRequestId);
+        }
+    }
+
+    public void handleRttRequestResponse(int id, boolean accept) {
+        if (mPendingRttRequestId == INVALID_RTT_REQUEST_ID) {
+            Log.w(this, "Response received to a nonexistent RTT request: %d", id);
+            return;
+        }
+        if (id != mPendingRttRequestId) {
+            Log.w(this, "Response ID %d does not match expected %d", id, mPendingRttRequestId);
+            return;
+        }
+        setRttStreams(accept);
+        if (accept) {
+            Log.i(this, "RTT request %d accepted.", id);
+            mConnectionService.respondToRttRequest(
+                    this, getInCallToCsRttPipeForCs(), getCsToInCallRttPipeForCs());
+        } else {
+            Log.i(this, "RTT request %d rejected.", id);
+            mConnectionService.respondToRttRequest(this, null, null);
         }
     }
 
