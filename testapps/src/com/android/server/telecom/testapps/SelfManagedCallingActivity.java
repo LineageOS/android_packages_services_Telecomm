@@ -24,6 +24,7 @@ import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -45,6 +46,7 @@ public class SelfManagedCallingActivity extends Activity {
     private CheckBox mCheckIfPermittedBeforeCalling;
     private Button mPlaceOutgoingCallButton;
     private Button mPlaceIncomingCallButton;
+    private Button mPlaceIncomingCallDelayButton;
     private RadioButton mUseAcct1Button;
     private RadioButton mUseAcct2Button;
     private EditText mNumber;
@@ -76,6 +78,12 @@ public class SelfManagedCallingActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        int flags =
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                        | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                        | WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES;
+
+        getWindow().addFlags(flags);
         setContentView(R.layout.self_managed_sample_main);
         mCheckIfPermittedBeforeCalling = (CheckBox) findViewById(
                 R.id.checkIfPermittedBeforeCalling);
@@ -90,6 +98,20 @@ public class SelfManagedCallingActivity extends Activity {
         mPlaceIncomingCallButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                placeIncomingCall();
+            }
+        });
+
+        mPlaceIncomingCallDelayButton = (Button) findViewById(R.id.placeIncomingCallDelayButton);
+        mPlaceIncomingCallDelayButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Delay the incoming call so that we can turn off the screen and
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 placeIncomingCall();
             }
         });

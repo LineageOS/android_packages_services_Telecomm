@@ -49,12 +49,14 @@ public class SelfManagedConnectionService extends ConnectionService {
     }
 
     @Override
-    public void onCreateIncomingConnectionFailed(ConnectionRequest request) {
+    public void onCreateIncomingConnectionFailed(PhoneAccountHandle connectionManagerPhoneAccount,
+                                                 ConnectionRequest request) {
         mCallList.notifyCreateIncomingConnectionFailed(request);
     }
 
     @Override
-    public void onCreateOutgoingConnectionFailed(ConnectionRequest request) {
+    public void onCreateOutgoingConnectionFailed(PhoneAccountHandle connectionManagerPhoneAccount,
+                                                 ConnectionRequest request) {
         mCallList.notifyCreateOutgoingConnectionFailed(request);
     }
 
@@ -62,6 +64,7 @@ public class SelfManagedConnectionService extends ConnectionService {
     private Connection createSelfManagedConnection(ConnectionRequest request, boolean isIncoming) {
         SelfManagedConnection connection = new SelfManagedConnection(mCallList,
                 getApplicationContext(), isIncoming);
+        connection.setListener(mCallList.getConnectionListener());
         connection.setConnectionProperties(Connection.PROPERTY_SELF_MANAGED);
         connection.setAddress(request.getAddress(), TelecomManager.PRESENTATION_ALLOWED);
         connection.setExtras(request.getExtras());
