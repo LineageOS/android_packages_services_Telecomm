@@ -144,4 +144,9 @@ public class CallNotificationReceiver extends BroadcastReceiver {
         intent.setData(data);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
+
+    public static void remoteRttUpgrade(Context context) {
+        final Intent intent = new Intent(TestCallActivity.ACTION_REMOTE_RTT_UPGRADE);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+    }
 }

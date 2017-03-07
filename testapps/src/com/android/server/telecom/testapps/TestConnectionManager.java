@@ -124,6 +124,26 @@ public class TestConnectionManager extends ConnectionService {
                 }
                 setConferenceableConnections(c);
             }
+
+            @Override
+            public void onRttInitiationSuccess(RemoteConnection connection) {
+                sendRttInitiationSuccess();
+            }
+
+            @Override
+            public void onRttInitiationFailure(RemoteConnection connection, int reason) {
+                sendRttInitiationFailure(reason);
+            }
+
+            @Override
+            public void onRttSessionRemotelyTerminated(RemoteConnection connection) {
+                sendRttSessionRemotelyTerminated();
+            }
+
+            @Override
+            public void onRemoteRttRequest(RemoteConnection connection) {
+                sendRemoteRttRequest();
+            }
         };
 
         private final RemoteConnection mRemote;
@@ -143,13 +163,17 @@ public class TestConnectionManager extends ConnectionService {
             mRemote.abort();
         }
 
-        /** ${inheritDoc} */
+        /**
+         * ${inheritDoc}
+         */
         @Override
         public void onAnswer(int videoState) {
             mRemote.answer(videoState);
         }
 
-        /** ${inheritDoc} */
+        /**
+         * ${inheritDoc}
+         */
         @Override
         public void onDisconnect() {
             mRemote.disconnect();
@@ -160,19 +184,25 @@ public class TestConnectionManager extends ConnectionService {
             mRemote.playDtmfTone(c);
         }
 
-        /** ${inheritDoc} */
+        /**
+         * ${inheritDoc}
+         */
         @Override
         public void onHold() {
             mRemote.hold();
         }
 
-        /** ${inheritDoc} */
+        /**
+         * ${inheritDoc}
+         */
         @Override
         public void onReject() {
             mRemote.reject();
         }
 
-        /** ${inheritDoc} */
+        /**
+         * ${inheritDoc}
+         */
         @Override
         public void onUnhold() {
             mRemote.unhold();
@@ -181,6 +211,21 @@ public class TestConnectionManager extends ConnectionService {
         @Override
         public void onCallAudioStateChanged(CallAudioState state) {
             mRemote.setCallAudioState(state);
+        }
+
+        @Override
+        public void onStartRtt(RttTextStream rttTextStream) {
+            mRemote.startRtt(rttTextStream);
+        }
+
+        @Override
+        public void onStopRtt() {
+            mRemote.stopRtt();
+        }
+
+        @Override
+        public void handleRttUpgradeResponse(RttTextStream rttTextStream) {
+            mRemote.sendRttUpgradeResponse(rttTextStream);
         }
 
         private void setState(int state) {
@@ -201,7 +246,6 @@ public class TestConnectionManager extends ConnectionService {
             }
         }
     }
-
     public final class TestManagedConference extends Conference {
         private final RemoteConference.Callback mRemoteCallback = new RemoteConference.Callback() {
             @Override

@@ -16,6 +16,7 @@
 
 package com.android.server.telecom.testapps;
 
+import android.content.Context;
 import android.telecom.Call;
 import android.telecom.InCallService;
 import android.telecom.VideoProfile;
@@ -23,6 +24,7 @@ import android.telecom.VideoProfile.CameraCapabilities;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -37,6 +39,10 @@ public class TestCallList extends Call.Callback {
     public static abstract class Listener {
         public void onCallAdded(Call call) {}
         public void onCallRemoved(Call call) {}
+        public void onRttStarted(Call call) {}
+        public void onRttStopped(Call call) {}
+        public void onRttInitiationFailed(Call call, int reason) {}
+        public void onRttRequest(Call call, int id) {}
     }
 
     private static final TestCallList INSTANCE = new TestCallList();
@@ -97,6 +103,8 @@ public class TestCallList extends Call.Callback {
     private Map<Call, TestVideoCallListener> mVideoCallListeners =
             new ArrayMap<Call, TestVideoCallListener>();
     private Set<Listener> mListeners = new ArraySet<Listener>();
+    private Context mContext;
+    private int mLastRttRequestId = -1;
 
     /**
      * Singleton accessor.
@@ -164,6 +172,10 @@ public class TestCallList extends Call.Callback {
         return mCalls.size();
     }
 
+    public int getLastRttRequestId() {
+        return mLastRttRequestId;
+    }
+
     /**
      * For any video calls tracked, sends an upgrade to video request.
      */
@@ -218,11 +230,29 @@ public class TestCallList extends Call.Callback {
     @Override
     public void onRttStatusChanged(Call call, boolean enabled, Call.RttCall rttCall) {
         Log.v(TAG, "onRttStatusChanged: call = " + call + " " + System.identityHashCode(this));
+        if (enabled) {
+            for (Listener l : mListeners) {
+                l.onRttStarted(call);
+            }
+        } else {
+            for (Listener l : mListeners) {
+                l.onRttStopped(call);
+            }
+        }
+    }
 
-        if (call != null) {
-            // Did you have another call? Well too bad, this class isn't gonna handle it.
-            mCalls.clear();
-            mCalls.add(call);
+    @Override
+    public void onRttInitiationFailure(Call call, int reason) {
+        for (Listener l : mListeners) {
+            l.onRttInitiationFailed(call, reason);
+        }
+    }
+
+    @Override
+    public void onRttRequest(Call call, int id) {
+        mLastRttRequestId = id;
+        for (Listener l : mListeners) {
+            l.onRttRequest(call, id);
         }
     }
 }

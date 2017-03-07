@@ -32,6 +32,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -145,6 +146,11 @@ public class TestRttActivity extends Activity {
                     Log.i(LOG_TAG, "Ending the RTT UI");
                     finish();
                 }
+            }
+
+            @Override
+            public void onRttStopped(Call call) {
+                TestRttActivity.this.finish();
             }
         });
 

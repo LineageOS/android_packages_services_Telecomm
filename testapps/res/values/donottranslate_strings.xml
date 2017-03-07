@@ -48,6 +48,10 @@
 
     <string name="endRttButton">End RTT</string>
 
+    <string name="startRttButton">Start RTT</string>
+
+    <string name="acceptRttButton">Accept RTT request</string>
+
     <string name="muteButton">Mute</string>
 
     <string name="holdButton">Hold</string>

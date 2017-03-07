@@ -120,6 +120,10 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:scheme="tel" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.telecom.testapps.ACTION_REMOTE_RTT_UPGRADE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <receiver android:name="com.android.server.telecom.testapps.CallNotificationReceiver"
