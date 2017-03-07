@@ -17,6 +17,7 @@
 package com.android.server.telecom.tests;
 
 import android.content.Context;
+import android.os.Build;
 import android.telecom.Connection;
 import android.telecom.DisconnectCause;
 import android.telecom.InCallService;
@@ -208,7 +209,7 @@ public class AnalyticsTests extends TelecomSystemTest {
                 mConnectionServiceFixtureA.mLatestConnectionId);
         InCallService.VideoCall videoCall =
                 mInCallServiceFixtureX.getCall(callIds.mCallId).getVideoCallImpl(
-                        mInCallServiceComponentNameX.getPackageName());
+                        mInCallServiceComponentNameX.getPackageName(), Build.VERSION.SDK_INT);
         videoCall.registerCallback(callback);
         ((VideoCallImpl) videoCall).setVideoState(VideoProfile.STATE_BIDIRECTIONAL);
 

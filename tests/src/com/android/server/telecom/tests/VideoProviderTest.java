@@ -27,6 +27,7 @@ import android.app.AppOpsManager;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.UserHandle;
@@ -106,7 +107,7 @@ public class VideoProviderTest extends TelecomSystemTest {
         mVideoCallCallback = mock(InCallService.VideoCall.Callback.class);
 
         mVideoCall = mInCallServiceFixtureX.getCall(mCallIds.mCallId).getVideoCallImpl(
-                mInCallServiceComponentNameX.getPackageName());
+                mInCallServiceComponentNameX.getPackageName(), Build.VERSION.SDK_INT);
         mVideoCallImpl = (VideoCallImpl) mVideoCall;
         mVideoCall.registerCallback(mVideoCallCallback);
 

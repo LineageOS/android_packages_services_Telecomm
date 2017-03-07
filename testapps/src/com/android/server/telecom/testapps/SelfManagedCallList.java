@@ -29,6 +29,7 @@ import android.util.ArrayMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Manages the list of {@link SelfManagedConnection} active in the sample third-party calling app.
@@ -63,6 +64,25 @@ public class SelfManagedCallList {
     private Listener mListener;
 
     private List<SelfManagedConnection> mConnections = new ArrayList<>();
+
+    private SelfManagedConnection.Listener mConnectionListener =
+            new SelfManagedConnection.Listener() {
+                @Override
+                public void onConnectionStateChanged(SelfManagedConnection connection) {
+                    notifyCallModified();
+                }
+
+                @Override
+                public void onConnectionRemoved(SelfManagedConnection connection) {
+                    removeConnection(connection);
+                    notifyCallModified();
+                }
+    };
+
+    public SelfManagedConnection.Listener getConnectionListener() {
+        return mConnectionListener;
+    }
+
 
     public void setListener(Listener listener) {
         mListener = listener;
@@ -123,6 +143,13 @@ public class SelfManagedCallList {
 
     public List<SelfManagedConnection> getConnections() {
         return mConnections;
+    }
+
+    public SelfManagedConnection getConnectionById(int callId) {
+        Optional<SelfManagedConnection> foundOptional = mConnections.stream()
+                .filter((c) -> {return c.getCallId() == callId;})
+                .findFirst();
+        return foundOptional.orElse(null);
     }
 
     public void notifyCallModified() {
