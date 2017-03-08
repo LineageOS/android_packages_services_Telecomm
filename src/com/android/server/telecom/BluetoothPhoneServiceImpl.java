@@ -615,6 +615,12 @@ public class BluetoothPhoneServiceImpl {
                     }
                 }
             }
+            if (conferenceCall.getState() == CallState.ON_HOLD &&
+                    conferenceCall.can(Connection.CAPABILITY_MANAGE_CONFERENCE)) {
+                // If the parent IMS CEP conference call is on hold, we should mark this call as
+                // being on hold regardless of what the other children are doing.
+                state = CALL_STATE_HELD;
+            }
         } else if (isConferenceWithNoChildren) {
             // Handle the special case of an IMS conference call without conference event package
             // support.  The call will be marked as a conference, but the conference will not have
