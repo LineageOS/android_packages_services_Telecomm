@@ -541,6 +541,36 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    public void testListCurrentCallsHeldImsCepConference() throws Exception {
+        ArrayList<Call> calls = new ArrayList<>();
+        Call parentCall = createHeldCall();
+        Call childCall1 = createActiveCall();
+        Call childCall2 = createActiveCall();
+        calls.add(parentCall);
+        calls.add(childCall1);
+        calls.add(childCall2);
+        addCallCapability(parentCall, Connection.CAPABILITY_MANAGE_CONFERENCE);
+        when(childCall1.getParentCall()).thenReturn(parentCall);
+        when(childCall2.getParentCall()).thenReturn(parentCall);
+
+        when(parentCall.isConference()).thenReturn(true);
+        when(parentCall.getState()).thenReturn(CallState.ON_HOLD);
+        when(childCall1.getState()).thenReturn(CallState.ACTIVE);
+        when(childCall2.getState()).thenReturn(CallState.ACTIVE);
+
+        when(parentCall.isIncoming()).thenReturn(true);
+        when(mMockCallsManager.getCalls()).thenReturn(calls);
+
+        mBluetoothPhoneService.mBinder.listCurrentCalls();
+
+        verify(mMockBluetoothHeadset).clccResponse(eq(1), eq(0), eq(CALL_STATE_HELD), eq(0),
+                eq(true), (String) isNull(), eq(-1));
+        verify(mMockBluetoothHeadset).clccResponse(eq(2), eq(0), eq(CALL_STATE_HELD), eq(0),
+                eq(true), (String) isNull(), eq(-1));
+        verify(mMockBluetoothHeadset).clccResponse(0, 0, 0, 0, false, null, 0);
+    }
+
+    @MediumTest
     public void testQueryPhoneState() throws Exception {
         Call ringingCall = createRingingCall();
         when(ringingCall.getHandle()).thenReturn(Uri.parse("tel:5550000"));
