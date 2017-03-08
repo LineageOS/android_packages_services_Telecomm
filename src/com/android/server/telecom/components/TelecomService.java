@@ -16,7 +16,6 @@
 
 package com.android.server.telecom.components;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -28,6 +27,7 @@ import android.os.PowerManager;
 import android.os.ServiceManager;
 import android.service.notification.ZenModeConfig;
 import android.telecom.Log;
+import android.telecom.PhoneAccountHandle;
 
 import com.android.internal.telephony.CallerInfoAsyncQuery;
 import com.android.server.telecom.AsyncRingtonePlayer;
@@ -42,7 +42,6 @@ import com.android.server.telecom.InCallWakeLockControllerFactory;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.InterruptionFilterProxy;
 import com.android.server.telecom.PhoneAccountRegistrar;
-import com.android.server.telecom.PhoneNumberUtilsAdapter;
 import com.android.server.telecom.PhoneNumberUtilsAdapterImpl;
 import com.android.server.telecom.ProximitySensorManagerFactory;
 import com.android.server.telecom.InCallWakeLockController;
@@ -50,6 +49,7 @@ import com.android.server.telecom.ProximitySensorManager;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.TelecomWakeLock;
 import com.android.server.telecom.Timeouts;
+import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.MissedCallNotifierImpl;
 
 /**
@@ -132,7 +132,7 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                             new InCallWakeLockControllerFactory() {
                                 @Override
                                 public InCallWakeLockController create(Context context,
-                                        CallsManager callsManager) {
+                                                                       CallsManager callsManager) {
                                     return new InCallWakeLockController(
                                             new TelecomWakeLock(context,
                                                     PowerManager.FULL_WAKE_LOCK,
@@ -180,7 +180,8 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                     }
                                     return null;
                                 }
-                            }
+                            },
+                            new IncomingCallNotifier(context)
                     ));
         }
         if (BluetoothAdapter.getDefaultAdapter() != null) {
