@@ -122,6 +122,14 @@ public class PhoneAccountRegistrar {
         public void onSimCallManagerChanged(PhoneAccountRegistrar registrar) {}
     }
 
+    /**
+     * Abstracts away dependency on the {@link PackageManager} required to fetch the label for an
+     * app.
+     */
+    public interface AppLabelProxy {
+        CharSequence getAppLabel(String packageName);
+    }
+
     private static final String FILE_NAME = "phone-account-registrar-state.xml";
     @VisibleForTesting
     public static final int EXPECTED_STATE_VERSION = 9;
@@ -135,6 +143,7 @@ public class PhoneAccountRegistrar {
     private final UserManager mUserManager;
     private final SubscriptionManager mSubscriptionManager;
     private final DefaultDialerCache mDefaultDialerCache;
+    private final AppLabelProxy mAppLabelProxy;
     private State mState;
     private UserHandle mCurrentUserHandle;
     private interface PhoneAccountRegistrarWriteLock {}
@@ -142,21 +151,15 @@ public class PhoneAccountRegistrar {
             new PhoneAccountRegistrarWriteLock() {};
 
     @VisibleForTesting
-    public PhoneAccountRegistrar(Context context, DefaultDialerCache defaultDialerCache) {
-        this(context, FILE_NAME, defaultDialerCache);
+    public PhoneAccountRegistrar(Context context, DefaultDialerCache defaultDialerCache,
+                                 AppLabelProxy appLabelProxy) {
+        this(context, FILE_NAME, defaultDialerCache, appLabelProxy);
     }
 
     @VisibleForTesting
     public PhoneAccountRegistrar(Context context, String fileName,
-            DefaultDialerCache defaultDialerCache) {
-        // TODO: This file path is subject to change -- it is storing the phone account registry
-        // state file in the path /data/system/users/0/, which is likely not correct in a
-        // multi-user setting.
-        /** UNCOMMENT_FOR_MOVE_TO_SYSTEM_SERVICE
-        String filePath = Environment.getUserSystemDirectory(UserHandle.myUserId()).
-                getAbsolutePath();
-        mAtomicFile = new AtomicFile(new File(filePath, fileName));
-         UNCOMMENT_FOR_MOVE_TO_SYSTEM_SERVICE */
+            DefaultDialerCache defaultDialerCache, AppLabelProxy appLabelProxy) {
+
         mAtomicFile = new AtomicFile(new File(context.getFilesDir(), fileName));
 
         mState = new State();
@@ -164,6 +167,7 @@ public class PhoneAccountRegistrar {
         mUserManager = UserManager.get(context);
         mDefaultDialerCache = defaultDialerCache;
         mSubscriptionManager = SubscriptionManager.from(mContext);
+        mAppLabelProxy = appLabelProxy;
         mCurrentUserHandle = Process.myUserHandle();
         read();
     }
@@ -638,6 +642,27 @@ public class PhoneAccountRegistrar {
             Log.i(this, getAccountDiffString(account, oldAccount));
         } else {
             Log.i(this, "New phone account registered: " + account);
+        }
+
+        // When registering a self-managed PhoneAccount we enforce the rule that the label that the
+        // app uses is also its phone account label.  Also ensure it does not attempt to declare
+        // itself as a sim acct, call manager or call provider.
+        if (account.hasCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED)) {
+            // Turn off bits we don't want to be able to set (TelecomServiceImpl protects against
+            // this but we'll also prevent it from happening here, just to be safe).
+            int newCapabilities = account.getCapabilities() &
+                    ~(PhoneAccount.CAPABILITY_CALL_PROVIDER |
+                        PhoneAccount.CAPABILITY_CONNECTION_MANAGER |
+                        PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION);
+
+            // Ensure name is correct.
+            CharSequence newLabel = mAppLabelProxy.getAppLabel(
+                    account.getAccountHandle().getComponentName().getPackageName());
+
+            account = account.toBuilder()
+                    .setLabel(newLabel)
+                    .setCapabilities(newCapabilities)
+                    .build();
         }
 
         mState.accounts.add(account);

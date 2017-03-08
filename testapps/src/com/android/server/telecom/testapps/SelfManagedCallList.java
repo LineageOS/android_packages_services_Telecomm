@@ -43,6 +43,8 @@ public class SelfManagedCallList {
 
     public static String SELF_MANAGED_ACCOUNT_1 = "1";
     public static String SELF_MANAGED_ACCOUNT_2 = "2";
+    public static String SELF_MANAGED_NAME_1 = "SuperCall";
+    public static String SELF_MANAGED_NAME_2 = "Mega Call";
 
     private static SelfManagedCallList sInstance;
     private static ComponentName COMPONENT_NAME = new ComponentName(
@@ -89,20 +91,23 @@ public class SelfManagedCallList {
     }
 
     public void registerPhoneAccounts(Context context) {
-        registerPhoneAccount(context, SELF_MANAGED_ACCOUNT_1, SELF_MANAGED_ADDRESS_1);
-        registerPhoneAccount(context, SELF_MANAGED_ACCOUNT_2, SELF_MANAGED_ADDRESS_2);
+        registerPhoneAccount(context, SELF_MANAGED_ACCOUNT_1, SELF_MANAGED_ADDRESS_1,
+                SELF_MANAGED_NAME_1);
+        registerPhoneAccount(context, SELF_MANAGED_ACCOUNT_2, SELF_MANAGED_ADDRESS_2,
+                SELF_MANAGED_NAME_2);
     }
 
-    public void registerPhoneAccount(Context context, String id, Uri address) {
+    public void registerPhoneAccount(Context context, String id, Uri address, String name) {
         PhoneAccountHandle handle = new PhoneAccountHandle(COMPONENT_NAME, id);
         mPhoneAccounts.put(id, handle);
-        PhoneAccount.Builder builder = PhoneAccount.builder(handle, id)
+        PhoneAccount.Builder builder = PhoneAccount.builder(handle, name)
                 .addSupportedUriScheme(PhoneAccount.SCHEME_TEL)
                 .addSupportedUriScheme(PhoneAccount.SCHEME_SIP)
                 .setAddress(address)
                 .setCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED |
                         PhoneAccount.CAPABILITY_VIDEO_CALLING |
-                        PhoneAccount.CAPABILITY_SUPPORTS_VIDEO_CALLING);
+                        PhoneAccount.CAPABILITY_SUPPORTS_VIDEO_CALLING)
+                .setShortDescription(name);
 
         TelecomManager.from(context).registerPhoneAccount(builder.build());
     }
