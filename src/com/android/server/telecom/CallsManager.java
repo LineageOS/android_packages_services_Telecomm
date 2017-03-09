@@ -834,6 +834,7 @@ public class CallsManager extends Call.ListenerBase
                 reusedCall = pendingCall;
             } else {
                 Log.i(this, "Not reusing disconnected call %s", pendingCall);
+                callIter.remove();
                 pendingCall.disconnect();
             }
         }
