@@ -1547,7 +1547,15 @@ public class CallAudioRouteStateMachine extends StateMachine {
     }
 
     private int calculateBaselineRouteMessage(boolean isExplicitUserRequest) {
-        if ((mAvailableRoutes & ROUTE_EARPIECE) != 0) {
+        boolean isSkipEarpiece = false;
+        if (!isExplicitUserRequest) {
+            synchronized (mLock) {
+                // Check video calls to skip earpiece since the baseline for video
+                // calls should be the speakerphone route
+                isSkipEarpiece = mCallsManager.hasVideoCall();
+            }
+        }
+        if ((mAvailableRoutes & ROUTE_EARPIECE) != 0 && !isSkipEarpiece) {
             return isExplicitUserRequest ? USER_SWITCH_EARPIECE : SWITCH_EARPIECE;
         } else if ((mAvailableRoutes & ROUTE_WIRED_HEADSET) != 0) {
             return isExplicitUserRequest ? USER_SWITCH_HEADSET : SWITCH_HEADSET;
