@@ -126,7 +126,7 @@ public final class InCallController extends CallsManagerListenerBase {
             if (mIsExternalCallsSupported != that.mIsExternalCallsSupported) {
                 return false;
             }
-            if (mIsSelfManagedCallsSupported != that.mIsExternalCallsSupported) {
+            if (mIsSelfManagedCallsSupported != that.mIsSelfManagedCallsSupported) {
                 return false;
             }
             return mComponentName.equals(that.mComponentName);
