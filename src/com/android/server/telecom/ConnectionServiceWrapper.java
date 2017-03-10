@@ -1369,12 +1369,12 @@ public class ConnectionServiceWrapper extends ServiceBinder {
 
     private void logIncoming(String msg, Object... params) {
         Log.d(this, "ConnectionService -> Telecom[" + mComponentName.flattenToShortString() + "]: "
-                + msg, params);
+                + msg, Log.pii(params));
     }
 
     private void logOutgoing(String msg, Object... params) {
         Log.d(this, "Telecom -> ConnectionService[" + mComponentName.flattenToShortString() + "]: "
-                + msg, params);
+                + msg, Log.pii(params));
     }
 
     private void queryRemoteConnectionServices(final UserHandle userHandle,
