@@ -54,8 +54,8 @@ import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
 
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
+import org.mockito.compat.ArgumentMatcher;
 import org.mockito.internal.matchers.VarargMatcher;
 
 import java.util.ArrayList;
@@ -114,14 +114,14 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         }
 
         @Override
-        public boolean matches(Object string) {
+        public boolean matchesObject(Object string) {
             return mStrings.contains(string);
         }
     }
 
     private static class IntVarArgMatcher extends ArgumentMatcher<int[]> implements VarargMatcher {
         @Override
-        public boolean matches(Object argument) {
+        public boolean matchesObject(Object argument) {
             return true;
         }
     }
