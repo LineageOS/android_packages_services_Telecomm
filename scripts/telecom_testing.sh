@@ -51,15 +51,15 @@ lite_test_telecom() {
     # Build and exit script early if build fails
 
     if [ $coverage = true ] ; then
-      emma_opt="EMMA_INSTRUMENT_STATIC=true"
+      emma_opt="EMMA_INSTRUMENT=true LOCAL_EMMA_INSTRUMENT=true EMMA_INSTRUMENT_STATIC=true"
     else
-      emma_opt="EMMA_INSTRUMENT_STATIC=false"
+      emma_opt="EMMA_INSTRUMENT=false"
     fi
 
     if [ $installwdep = true ] ; then
-      mmma -j40 "packages/services/Telecomm/tests" ${emma_opt}
+      (export ${emma_opt}; mmma -j40 "packages/services/Telecomm/tests")
     else
-      mmm "packages/services/Telecomm/tests" ${emma_opt}
+      (export ${emma_opt}; mmm "packages/services/Telecomm/tests")
     fi
     if [ $? -ne 0 ] ; then
       echo "Make failed! try using -a instead of -i if building with coverage"
