@@ -691,7 +691,7 @@ public class CallsManager extends Call.ListenerBase
         return true;
     }
 
-    boolean hasVideoCall() {
+    public boolean hasVideoCall() {
         for (Call call : mCalls) {
             if (VideoProfile.isVideo(call.getVideoState())) {
                 return true;
