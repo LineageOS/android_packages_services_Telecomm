@@ -164,6 +164,7 @@ public class CallAudioRouteStateMachineTest
 
         when(mockCallsManager.getForegroundCall()).thenReturn(fakeCall);
         when(mockCallsManager.getLock()).thenReturn(mLock);
+        when(mockCallsManager.hasVideoCall()).thenReturn(false);
         when(fakeCall.getConnectionService()).thenReturn(mockConnectionServiceWrapper);
         when(fakeCall.isAlive()).thenReturn(true);
         when(fakeCall.getSupportedAudioRoutes()).thenReturn(CallAudioState.ROUTE_ALL);
