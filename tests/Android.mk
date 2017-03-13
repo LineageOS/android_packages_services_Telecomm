@@ -47,6 +47,8 @@ LOCAL_AAPT_FLAGS := \
     --auto-add-overlay \
     --extra-packages com.android.server.telecom
 
+LOCAL_JACK_FLAGS := --multi-dex native
+
 LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_PACKAGE_NAME := TelecomUnitTests
