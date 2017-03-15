@@ -318,7 +318,7 @@ public class VideoProviderProxy extends Connection.VideoProvider {
                 if (!canUseCamera(mCall.getContext(), callingPackage, callingUid, callingPid)) {
                     // Calling app is not permitted to use the camera.  Ignore the request and send
                     // back a call session event indicating the error.
-                    Log.i(this, "onSetCamera: camera permission denied; package=%d, uid=%d, "
+                    Log.i(this, "onSetCamera: camera permission denied; package=%s, uid=%d, "
                             + "pid=%d, targetSdkVersion=%d",
                             callingPackage, callingUid, callingPid, targetSdkVersion);
 
