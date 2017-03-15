@@ -1531,8 +1531,15 @@ public class CallsManager extends Call.ListenerBase
         removeCall(call);
         Call foregroundCall = mCallAudioManager.getPossiblyHeldForegroundCall();
         if (mLocallyDisconnectingCalls.contains(call)) {
+            boolean isDisconnectingChildCall = call.isDisconnectingChildCall();
+            Log.v(this, "markCallAsRemoved: isDisconnectingChildCall = "
+                + isDisconnectingChildCall + "call -> %s", call);
             mLocallyDisconnectingCalls.remove(call);
-            if (foregroundCall != null && foregroundCall.getState() == CallState.ON_HOLD) {
+            // Auto-unhold the foreground call due to a locally disconnected call, except if the
+            // call which was disconnected is a member of a conference (don't want to auto un-hold
+            // the conference if we remove a member of the conference).
+            if (!isDisconnectingChildCall && foregroundCall != null
+                    && foregroundCall.getState() == CallState.ON_HOLD) {
                 foregroundCall.unhold();
             }
         } else if (foregroundCall != null &&
