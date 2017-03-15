@@ -18,6 +18,7 @@
   <!-- Official label of the Telecomm/Phone app, as seen in "Manage Applications"
          and other settings UIs. This is the "app name" used in notification, recents,
          and app info screens. -->
+  <string name="telecommAppLabel" product="default">Xestión de llamaes</string>
   <!-- Title used for the activity for placing a call. This name appears
          in activity disambig dialogs -->
   <!-- Name for an "unknown" caller. -->
@@ -67,6 +68,7 @@
             application [CHAR LIMIT=55]-->
   <!-- Confirmation text that a user taps on to change the Default Phone App-->
   <!-- Cancel text that a user taps on to not change the Default Phone App-->
+  <string name="change_default_dialer_dialog_negative">Encaboxar</string>
   <!-- Warning message indicating what may happen if a user allows a 3rd party app to become the default dialer.-->
   <!-- Blocked numbers -->
   <!-- Text shown at the beginning of the blocked numbers screen to explain what the screen is about. -->
@@ -87,12 +89,20 @@
   <!-- Message to show when a number cannot be blocked because it is associated with emergency services.. -->
   <!-- Message to show when a number is already blocked. -->
   <!-- DO NOT TRANSLATE. Label for test Subscription 0. -->
+  <string name="test_account_0_label">Q Mobile</string>
   <!-- DO NOT TRANSLATE. Label for test Subscription 1. -->
+  <string name="test_account_1_label">Market Wireless</string>
   <!-- DO NOT TRANSLATE. Label for test Subscription 2. -->
+  <string name="test_account_2_label">Sonoma Circles Talk Plus</string>
   <!-- DO NOT TRANSLATE. Label for test Subscription 3. -->
+  <string name="test_account_3_label">Bay Voice Chat Pro</string>
   <!-- DO NOT TRANSLATE. Short description for test Subscription 0. -->
+  <string name="test_account_0_short_description">Account with Q Mobile</string>
   <!-- DO NOT TRANSLATE. Short description for test Subscription 1. -->
+  <string name="test_account_1_short_description">Account with Market Wireless</string>
   <!-- DO NOT TRANSLATE. Short description for test Subscription 2. -->
+  <string name="test_account_2_short_description">Talk to everyone in your Circles!</string>
   <!-- DO NOT TRANSLATE. Short description for test Subscription 3. -->
+  <string name="test_account_3_short_description">Chat with Chat Network users</string>
   <!-- DO NOT TRANSLATE. Hardcoded number used for restricted incoming phone numbers. -->
 </resources>
