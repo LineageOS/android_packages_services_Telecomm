@@ -27,6 +27,7 @@ import android.location.Country;
 import android.location.CountryDetector;
 import android.location.CountryListener;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.Looper;
 import android.os.PersistableBundle;
 import android.os.UserHandle;
@@ -40,15 +41,18 @@ import android.telecom.PhoneAccountHandle;
 import android.telecom.VideoProfile;
 import android.telephony.CarrierConfigManager;
 import android.telephony.PhoneNumberUtils;
+import android.telephony.TelephonyManager;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallLogManager;
 import com.android.server.telecom.CallState;
+import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.MissedCallNotifier;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.R;
+import com.android.server.telecom.SensitivePhoneNumbers;
 import com.android.server.telecom.TelephonyUtil;
 
 import static org.mockito.Matchers.any;
@@ -57,15 +61,18 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Locale;
 
@@ -78,6 +85,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     private PhoneAccountHandle mManagedProfileAccountHandle;
 
     private static final Uri TEL_PHONEHANDLE = Uri.parse("tel:5555551234");
+    private static final Uri TEL_SENSITIVE_PHONEHANDLE = Uri.parse("tel:016");
 
     private static final PhoneAccountHandle EMERGENCY_ACCT_HANDLE = TelephonyUtil
             .getDefaultEmergencyPhoneAccount()
@@ -221,6 +229,32 @@ public class CallLogManagerTest extends TelecomTestCase {
         );
         mCallLogManager.onCallStateChanged(fakeCall, CallState.ACTIVE, CallState.DISCONNECTED);
         verifyNoInsertion();
+    }
+
+    @MediumTest
+    public void testDontLogCallsToSensitivePhoneNumber() {
+        when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
+                .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, CURRENT_USER_ID));
+
+        TelephonyManager mockTelephonyManager =
+                (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
+        when(mockTelephonyManager.getNetworkOperator(Mockito.anyInt())).thenReturn("21407");
+
+        Call fakeCall = makeFakeCall(
+                DisconnectCause.OTHER, // disconnectCauseCode
+                false, // isConference
+                false, // isIncoming
+                1L, // creationTimeMillis
+                1000L, // ageMillis
+                TEL_SENSITIVE_PHONEHANDLE, // callHandle
+                mDefaultAccountHandle, // phoneAccountHandle
+                NO_VIDEO_STATE, // callVideoState
+                POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
+                UserHandle.of(CURRENT_USER_ID)
+        );
+        mCallLogManager.onCallStateChanged(fakeCall, CallState.ACTIVE, CallState.DISCONNECTED);
+        verifyNoInsertionIfFileExists();
     }
 
     @MediumTest
@@ -671,6 +705,21 @@ public class CallLogManagerTest extends TelecomTestCase {
         try {
             Thread.sleep(TEST_TIMEOUT_MILLIS);
             verify(mContentProvider, never()).insert(any(String.class),
+                    any(Uri.class), any(ContentValues.class));
+        } catch (android.os.RemoteException e) {
+            fail("Remote exception occurred during test execution");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void verifyNoInsertionIfFileExists() {
+        File sensiblePNFile = new File(Environment.getRootDirectory(),
+                SensitivePhoneNumbers.SENSIBLE_PHONENUMBERS_FILE_PATH);
+        try {
+            Thread.sleep(TEST_TIMEOUT_MILLIS);
+            verify(mContentProvider,
+                    sensiblePNFile.exists() ? never() : atLeastOnce()).insert(any(String.class),
                     any(Uri.class), any(ContentValues.class));
         } catch (android.os.RemoteException e) {
             fail("Remote exception occurred during test execution");
