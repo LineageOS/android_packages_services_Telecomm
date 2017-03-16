@@ -823,8 +823,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case BT_AUDIO_DISCONNECT:
-                    // Ignore BT_AUDIO_DISCONNECT when ringing, since SCO audio should not be
-                    // connected.
+                    // BT SCO might be connected when in-band ringing is enabled
+                    sendInternalMessage(SWITCH_BASELINE_ROUTE);
                     return HANDLED;
                 default:
                     return NOT_HANDLED;
