@@ -403,6 +403,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
         // Don't log sensitive numbers.
         boolean isSensitiveNumber = mSensitivePhoneNumbers.isSensitiveNumber(mContext, number,
                 subId);
+        Log.d(TAG, "isSensitiveNumber: " + isSensitiveNumber);
 
         // Don't log emergency numbers if the device doesn't allow it.
         final boolean isOkToLogThisCall = (!isEmergency || okToLogEmergencyNumber)
