@@ -183,7 +183,8 @@ public class ParcelableCallUtils {
                 call.getVideoState(),
                 conferenceableCallIds,
                 call.getIntentExtras(),
-                call.getExtras());
+                call.getExtras(),
+                call.getCreationTimeMillis());
     }
 
     private static int getParcelableState(Call call, boolean supportsExternalCalls) {
