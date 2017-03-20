@@ -17,6 +17,7 @@
 package com.android.server.telecom.tests;
 
 
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
@@ -670,10 +671,10 @@ public class TelecomSystemTest extends TelecomTestCase {
                         anyString(),
                         anyInt(),
                         newOutgoingCallReceiver.capture(),
-                        any(Handler.class),
+                        nullable(Handler.class),
                         anyInt(),
                         anyString(),
-                        any(Bundle.class));
+                        nullable(Bundle.class));
 
         // Pass on the new outgoing call Intent
         // Set a dummy PendingResult so the BroadcastReceiver agrees to accept onReceive()
