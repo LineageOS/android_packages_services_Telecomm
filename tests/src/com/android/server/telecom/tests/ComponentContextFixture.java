@@ -37,6 +37,7 @@ import android.content.IContentProvider;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
@@ -206,6 +207,11 @@ public class ComponentContextFixture implements TestFixture<Context> {
         @Override
         public String getOpPackageName() {
             return "com.android.server.telecom.tests";
+        }
+
+        @Override
+        public ApplicationInfo getApplicationInfo() {
+            return mTestApplicationInfo;
         }
 
         @Override
@@ -423,6 +429,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
     private final CountryDetector mCountryDetector = mock(CountryDetector.class);
     private final Map<String, IContentProvider> mIContentProviderByUri = new HashMap<>();
     private final Configuration mResourceConfiguration = new Configuration();
+    private final ApplicationInfo mTestApplicationInfo = new ApplicationInfo();
 
     private TelecomManager mTelecomManager = null;
 

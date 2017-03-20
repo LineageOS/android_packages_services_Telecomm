@@ -64,6 +64,7 @@ import java.util.List;
 
 import static android.Manifest.permission.REGISTER_SIM_SUBSCRIPTION;
 import static android.Manifest.permission.WRITE_SECURE_SETTINGS;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
@@ -253,7 +254,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @SmallTest
     public void testSetUserSelectedOutgoingPhoneAccountFailure() throws RemoteException {
         doThrow(new SecurityException()).when(mContext).enforceCallingOrSelfPermission(
-                anyString(), anyString());
+                anyString(), nullable(String.class));
         try {
             mTSIBinder.setUserSelectedOutgoingPhoneAccount(TEL_PA_HANDLE_16);
         } catch (SecurityException e) {
@@ -276,12 +277,12 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         }};
         // Returns all phone accounts when getCallCapablePhoneAccounts is called.
         when(mFakePhoneAccountRegistrar
-                .getCallCapablePhoneAccounts(anyString(), eq(true), any(UserHandle.class)))
-                .thenReturn(fullPHList);
+                .getCallCapablePhoneAccounts(nullable(String.class), eq(true),
+                        nullable(UserHandle.class))).thenReturn(fullPHList);
         // Returns only enabled phone accounts when getCallCapablePhoneAccounts is called.
         when(mFakePhoneAccountRegistrar
-                .getCallCapablePhoneAccounts(anyString(), eq(false), any(UserHandle.class)))
-                .thenReturn(smallPHList);
+                .getCallCapablePhoneAccounts(nullable(String.class), eq(false),
+                        nullable(UserHandle.class))).thenReturn(smallPHList);
         makeAccountsVisibleToAllUsers(TEL_PA_HANDLE_16, SIP_PA_HANDLE_17);
 
         assertEquals(fullPHList,
@@ -428,7 +429,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 .when(mContext).checkCallingOrSelfPermission(MODIFY_PHONE_STATE);
         doThrow(new SecurityException())
                 .when(mContext)
-                .enforceCallingOrSelfPermission(eq(REGISTER_SIM_SUBSCRIPTION), anyString());
+                .enforceCallingOrSelfPermission(eq(REGISTER_SIM_SUBSCRIPTION),
+                        nullable(String.class));
 
         registerPhoneAccountTestHelper(phoneAccount, false);
     }
@@ -722,14 +724,14 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @SmallTest
     public void testSetDefaultDialerNoModifyPhoneStatePermission() throws Exception {
         doThrow(new SecurityException()).when(mContext).enforceCallingOrSelfPermission(
-                eq(MODIFY_PHONE_STATE), anyString());
+                eq(MODIFY_PHONE_STATE), nullable(String.class));
         setDefaultDialerFailureTestHelper();
     }
 
     @SmallTest
     public void testSetDefaultDialerNoWriteSecureSettingsPermission() throws Exception {
         doThrow(new SecurityException()).when(mContext).enforceCallingOrSelfPermission(
-                eq(WRITE_SECURE_SETTINGS), anyString());
+                eq(WRITE_SECURE_SETTINGS), nullable(String.class));
         setDefaultDialerFailureTestHelper();
     }
 
@@ -854,21 +856,19 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @SmallTest
     public void testAcceptRingingCall() throws Exception {
         Call call = mock(Call.class);
-        when(mFakeCallsManager.getFirstCallWithState(any(int[].class)))
-                .thenReturn(call);
+        when(mFakeCallsManager.getFirstCallWithState(anyInt())).thenReturn(call);
         // Not intended to be a real video state. Here to ensure that the call will be answered
         // with whatever video state it's currently in.
         int fakeVideoState = 29578215;
         when(call.getVideoState()).thenReturn(fakeVideoState);
         mTSIBinder.acceptRingingCall();
-        verify(call).answer(fakeVideoState);
+        verify(call).answer(eq(fakeVideoState));
     }
 
     @SmallTest
     public void testAcceptRingingCallWithValidVideoState() throws Exception {
         Call call = mock(Call.class);
-        when(mFakeCallsManager.getFirstCallWithState(any(int[].class)))
-                .thenReturn(call);
+        when(mFakeCallsManager.getFirstCallWithState(anyInt())).thenReturn(call);
         // Not intended to be a real video state. Here to ensure that the call will be answered
         // with the video state passed in to acceptRingingCallWithVideoState
         int fakeVideoState = 29578215;
@@ -888,10 +888,10 @@ public class TelecomServiceImplTest extends TelecomTestCase {
             when(mFakePhoneAccountRegistrar.getPhoneAccountUnchecked(eq(ph))).thenReturn(
                     makeMultiUserPhoneAccount(ph).build());
             when(mFakePhoneAccountRegistrar
-                    .getPhoneAccount(eq(ph), any(UserHandle.class), anyBoolean()))
+                    .getPhoneAccount(eq(ph), nullable(UserHandle.class), anyBoolean()))
                     .thenReturn(makeMultiUserPhoneAccount(ph).build());
             when(mFakePhoneAccountRegistrar
-                    .getPhoneAccount(eq(ph), any(UserHandle.class)))
+                    .getPhoneAccount(eq(ph), nullable(UserHandle.class)))
                     .thenReturn(makeMultiUserPhoneAccount(ph).build());
         }
     }
