@@ -87,6 +87,7 @@
   <!-- Message to show when a number is blocked. -->
   <!-- Message to show when a number is unblocked. -->
   <!-- Message to show when a number cannot be blocked because it is associated with emergency services.. -->
+  <string name="blocked_numbers_block_emergency_number_message">Nun pue bloquiase\'l númberu d\'emerxencies.</string>
   <!-- Message to show when a number is already blocked. -->
   <!-- DO NOT TRANSLATE. Label for test Subscription 0. -->
   <string name="test_account_0_label">Q Mobile</string>
