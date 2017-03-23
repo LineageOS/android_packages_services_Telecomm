@@ -54,7 +54,7 @@
     <string name="block_number" msgid="1101252256321306179">"Ավելացնել համար"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Արգելաբացե՞լ <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> համարը:"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Արգելաբացել"</string>
-    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Արգելափակել այս համարից ստացվող զանգերն ու տեքստային հաղորդագրությունները"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Արգելափակել այս համարից ուղարկված զանգերն ու հաղորդագրությունները՝"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Հեռախոսահամարը"</string>
     <string name="block_button" msgid="8822290682524373357">"Արգելափակել"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Միայն սարքի սեփականատերը կարող է դիտել և կառավարել արգելափակված համարները:"</string>

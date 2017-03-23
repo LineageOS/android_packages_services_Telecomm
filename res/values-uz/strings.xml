@@ -19,11 +19,11 @@
     <string name="telecommAppLabel" product="default" msgid="382363169988504520">"Qo‘ng‘iroqlar boshqaruvi"</string>
     <string name="userCallActivityLabel" product="default" msgid="5415173590855187131">"Telefon"</string>
     <string name="unknown" msgid="6878797917991465859">"Noma’lum"</string>
-    <string name="notification_missedCallTitle" msgid="7554385905572364535">"Javobsiz qo‘ng‘iroq"</string>
-    <string name="notification_missedWorkCallTitle" msgid="6242489980390803090">"Javobsiz ishchi qo‘ng‘irog‘i"</string>
-    <string name="notification_missedCallsTitle" msgid="1361677948941502522">"Javobsiz qo‘ng‘iroqlar"</string>
-    <string name="notification_missedCallsMsg" msgid="4575787816055205600">"<xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> ta javobsiz qo‘ng‘iroq"</string>
-    <string name="notification_missedCallTicker" msgid="504686252427747209">"<xliff:g id="MISSED_CALL_FROM">%s</xliff:g> qo‘ng‘irog‘i javobsiz qoldirildi"</string>
+    <string name="notification_missedCallTitle" msgid="7554385905572364535">"Javobsiz chaqiruv"</string>
+    <string name="notification_missedWorkCallTitle" msgid="6242489980390803090">"Javobsiz chaqiruv (ish)"</string>
+    <string name="notification_missedCallsTitle" msgid="1361677948941502522">"Javobsiz chaqiruvlar"</string>
+    <string name="notification_missedCallsMsg" msgid="4575787816055205600">"<xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> ta javobsiz chaqiruv"</string>
+    <string name="notification_missedCallTicker" msgid="504686252427747209">"<xliff:g id="MISSED_CALL_FROM">%s</xliff:g> chaqiruvi javobsiz qoldi"</string>
     <string name="notification_missedCall_call_back" msgid="2684890353590890187">"Telefon"</string>
     <string name="notification_missedCall_message" msgid="3049928912736917988">"SMS"</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"Qo‘ng‘iroq ovozi o‘chirildi."</string>
