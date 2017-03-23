@@ -39,9 +39,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -228,7 +227,7 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
                 BluetoothRouteManager.AUDIO_OFF_STATE_NAME, null);
         setupConnectedDevices(new BluetoothDevice[]{device1}, null);
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
-                any(ContentResolver.class))).thenReturn(0L);
+                nullable(ContentResolver.class))).thenReturn(0L);
         when(mHeadsetProxy.connectAudio()).thenReturn(false);
         executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, null);
         // Wait 3 times: for the first connection attempt, the retry attempt, and once more to
@@ -249,7 +248,7 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
                 BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX, device1);
         setupConnectedDevices(new BluetoothDevice[]{device1, device2}, null);
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
-                any(ContentResolver.class))).thenReturn(0L);
+                nullable(ContentResolver.class))).thenReturn(0L);
         when(mHeadsetProxy.connectAudio()).thenReturn(false);
         executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, device2.getAddress());
         // Wait 3 times: the first connection attempt is accounted for in executeRoutingAction,
@@ -426,7 +425,7 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
             BluetoothDevice first = getFirstExcluding(devices,
                     (String) invocation.getArguments()[0]);
             return first == null ? null : first.getAddress();
-        }).when(mDeviceManager).getMostRecentlyConnectedDevice(anyString());
+        }).when(mDeviceManager).getMostRecentlyConnectedDevice(nullable(String.class));
     }
 
     private void executeRoutingAction(BluetoothRouteManager brm, int message, String device) {
@@ -457,9 +456,9 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
         when(mDeviceManager.getHeadsetService()).thenReturn(mHeadsetProxy);
         when(mHeadsetProxy.connectAudio()).thenReturn(true);
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
-                any(ContentResolver.class))).thenReturn(100000L);
+                nullable(ContentResolver.class))).thenReturn(100000L);
         when(mTimeoutsAdapter.getBluetoothPendingTimeoutMillis(
-                any(ContentResolver.class))).thenReturn(100000L);
+                nullable(ContentResolver.class))).thenReturn(100000L);
     }
 
     private static BluetoothDevice getFirstExcluding(
