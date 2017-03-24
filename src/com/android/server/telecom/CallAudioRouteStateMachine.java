@@ -37,6 +37,7 @@ import android.telecom.Logging.Session;
 import android.util.SparseArray;
 
 import com.android.internal.util.IState;
+import com.android.internal.util.IndentingPrintWriter;
 import com.android.internal.util.State;
 import com.android.internal.util.StateMachine;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
@@ -1316,6 +1317,10 @@ public class CallAudioRouteStateMachine extends StateMachine {
 
     public void quitStateMachine() {
         quitNow();
+    }
+
+    public void dumpPendingMessages(IndentingPrintWriter pw) {
+        getHandler().getLooper().dump(pw::println, "");
     }
 
     /**

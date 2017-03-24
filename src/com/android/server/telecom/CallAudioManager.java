@@ -477,6 +477,16 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
         pw.println("Foreground call:");
         pw.println(mForegroundCall);
+
+        pw.println("CallAudioModeStateMachine pending messages:");
+        pw.increaseIndent();
+        mCallAudioModeStateMachine.dumpPendingMessages(pw);
+        pw.decreaseIndent();
+
+        pw.println("CallAudioRouteStateMachine pending messages:");
+        pw.increaseIndent();
+        mCallAudioRouteStateMachine.dumpPendingMessages(pw);
+        pw.decreaseIndent();
     }
 
     @VisibleForTesting
