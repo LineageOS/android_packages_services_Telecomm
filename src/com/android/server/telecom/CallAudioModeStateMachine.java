@@ -24,6 +24,7 @@ import android.telecom.Logging.Session;
 import android.util.SparseArray;
 
 import com.android.internal.util.IState;
+import com.android.internal.util.IndentingPrintWriter;
 import com.android.internal.util.State;
 import com.android.internal.util.StateMachine;
 
@@ -513,6 +514,10 @@ public class CallAudioModeStateMachine extends StateMachine {
                 Log.w(LOG_TAG, "The message was of code %d = %s",
                         msg.what, MESSAGE_CODE_TO_NAME.get(msg.what));
         }
+    }
+
+    public void dumpPendingMessages(IndentingPrintWriter pw) {
+        getHandler().getLooper().dump(pw::println, "");
     }
 
     @Override
