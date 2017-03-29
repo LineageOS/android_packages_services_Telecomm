@@ -315,7 +315,8 @@ public class NewOutgoingCallIntentBroadcaster {
 
         // Force receivers of this broadcast intent to run at foreground priority because we
         // want to finish processing the broadcast intent as soon as possible.
-        broadcastIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+        broadcastIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND
+                | Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND);
         Log.v(this, "Broadcasting intent: %s.", broadcastIntent);
 
         checkAndCopyProviderExtras(originalCallIntent, broadcastIntent);
