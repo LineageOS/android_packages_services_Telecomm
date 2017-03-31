@@ -912,20 +912,17 @@ public class ConnectionServiceWrapper extends ServiceBinder {
                 Log.addEvent(call, LogUtils.Events.START_CONNECTION,
                         Log.piiHandle(call.getHandle()));
 
-                // For self-managed incoming calls, if there is another ongoing call Telecom is
-                // responsible for showing a UI to ask the user if they'd like to answer this
-                // new incoming call.
-                boolean shouldShowIncomingCallUI = call.isSelfManaged() &&
-                        !mCallsManager.hasCallsForOtherPhoneAccount(
-                                call.getTargetPhoneAccount());
-
                 ConnectionRequest connectionRequest = new ConnectionRequest.Builder()
                         .setAccountHandle(call.getTargetPhoneAccount())
                         .setAddress(call.getHandle())
                         .setExtras(extras)
                         .setVideoState(call.getVideoState())
                         .setTelecomCallId(callId)
-                        .setShouldShowIncomingCallUi(shouldShowIncomingCallUI)
+                        // For self-managed incoming calls, if there is another ongoing call Telecom
+                        // is responsible for showing a UI to ask the user if they'd like to answer
+                        // this new incoming call.
+                        .setShouldShowIncomingCallUi(
+                                !mCallsManager.shouldShowSystemIncomingCallUi(call))
                         .setRttPipeFromInCall(call.getInCallToCsRttPipeForCs())
                         .setRttPipeToInCall(call.getCsToInCallRttPipeForCs())
                         .build();

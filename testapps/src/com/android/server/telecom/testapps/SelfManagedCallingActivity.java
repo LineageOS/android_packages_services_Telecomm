@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.telecom.ConnectionRequest;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
+import android.telecom.VideoProfile;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -46,9 +47,10 @@ public class SelfManagedCallingActivity extends Activity {
     private CheckBox mCheckIfPermittedBeforeCalling;
     private Button mPlaceOutgoingCallButton;
     private Button mPlaceIncomingCallButton;
-    private Button mPlaceIncomingCallDelayButton;
     private RadioButton mUseAcct1Button;
     private RadioButton mUseAcct2Button;
+    private RadioButton mVideoCallButton;
+    private RadioButton mAudioCallButton;
     private EditText mNumber;
     private ListView mListView;
     private SelfManagedCallListAdapter mListAdapter;
@@ -102,21 +104,10 @@ public class SelfManagedCallingActivity extends Activity {
             }
         });
 
-        mPlaceIncomingCallDelayButton = (Button) findViewById(R.id.placeIncomingCallDelayButton);
-        mPlaceIncomingCallDelayButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Delay the incoming call so that we can turn off the screen and
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                placeIncomingCall();
-            }
-        });
         mUseAcct1Button = (RadioButton) findViewById(R.id.useAcct1Button);
         mUseAcct2Button = (RadioButton) findViewById(R.id.useAcct2Button);
+        mVideoCallButton = (RadioButton) findViewById(R.id.videoCallButton);
+        mAudioCallButton = (RadioButton) findViewById(R.id.audioCallButton);
         mNumber = (EditText) findViewById(R.id.phoneNumber);
         mListView = (ListView) findViewById(R.id.callList);
         mCallList.setListener(mCallListListener);
@@ -150,6 +141,10 @@ public class SelfManagedCallingActivity extends Activity {
         Bundle extras = new Bundle();
         extras.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE,
                 getSelectedPhoneAccountHandle());
+        if (mVideoCallButton.isChecked()) {
+            extras.putInt(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
+                    VideoProfile.STATE_BIDIRECTIONAL);
+        }
         tm.placeCall(Uri.parse(mNumber.getText().toString()), extras);
     }
 
@@ -167,6 +162,10 @@ public class SelfManagedCallingActivity extends Activity {
         Bundle extras = new Bundle();
         extras.putParcelable(TelecomManager.EXTRA_INCOMING_CALL_ADDRESS,
                 Uri.parse(mNumber.getText().toString()));
+        if (mVideoCallButton.isChecked()) {
+            extras.putInt(TelecomManager.EXTRA_INCOMING_VIDEO_STATE,
+                    VideoProfile.STATE_BIDIRECTIONAL);
+        }
         tm.addNewIncomingCall(getSelectedPhoneAccountHandle(), extras);
     }
 }
