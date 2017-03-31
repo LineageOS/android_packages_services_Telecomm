@@ -24,63 +24,80 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/checkIfPermittedBeforeCallingButton" />
-    <TableLayout
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="This app provides two sample implementations of the self-managed ConnectionService API.  Use this UI to add simulated self-managed calls:" />
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sample Source 1"
+            android:id="@+id/useAcct1Button"
+            android:background="@color/test_call_a_color"/>
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sample Source 2"
+            android:id="@+id/useAcct2Button"
+            android:background="@color/test_call_b_color"/>
+    </RadioGroup>
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Video Call"
+            android:id="@+id/videoCallButton"/>
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Audio Call"
+            android:id="@+id/audioCallButton"/>
+    </RadioGroup>
+
+    <LinearLayout android:orientation="horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
-        <TableRow android:layout_span="2">
-            <RadioGroup>
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Acct 1"
-                    android:id="@+id/useAcct1Button"/>
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Acct 2"
-                    android:id="@+id/useAcct2Button"/>
-            </RadioGroup>
-        </TableRow>
-        <TableRow android:layout_span="2">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Place call:" />
-        </TableRow>
-        <TableRow>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Number:" />
-            <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/phoneNumber" />
-        </TableRow>
-        <TableRow>
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Outgoing Call"
-                android:id="@+id/placeOutgoingCallButton" />
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Incoming Call"
-                android:id="@+id/placeIncomingCallButton" />
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Incoming Call (Delay)"
-                android:id="@+id/placeIncomingCallDelayButton" />
-        </TableRow>
-        <TableRow android:layout_span="2">
-            <ListView
-                android:id="@+id/callList"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:listSelector="@null"
-                android:divider="@null" />
-        </TableRow>
-    </TableLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Number:" />
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/phoneNumber"
+            android:text="tel:555-1212"/>
+    </LinearLayout>
+
+    <LinearLayout android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Outgoing Call"
+            android:id="@+id/placeOutgoingCallButton" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Incoming Call"
+            android:id="@+id/placeIncomingCallButton" />
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/callList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:listSelector="@null"
+        android:divider="@null" />
 </LinearLayout>

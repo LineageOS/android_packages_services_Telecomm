@@ -361,6 +361,10 @@ public class TelecomServiceImpl {
                                         "cannot also be call capable, connection managers, or " +
                                         "SIM accounts.");
                             }
+
+                            // For self-managed CS, the phone account registrar will override the
+                            // label the user has set for the phone account.  This ensures the
+                            // self-managed cs implementation can't spoof their app name.
                         }
                         if (account.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
                             enforceRegisterSimSubscriptionPermission();
