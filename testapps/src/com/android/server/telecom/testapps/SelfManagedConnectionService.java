@@ -23,8 +23,10 @@ import android.telecom.ConnectionService;
 import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
+import android.telecom.VideoProfile;
 
 import java.util.Objects;
+import java.util.Random;
 
 /**
  * Sample implementation of the self-managed {@link ConnectionService} API.
@@ -32,6 +34,8 @@ import java.util.Objects;
  * See {@link android.telecom} for more information on self-managed {@link ConnectionService}s.
  */
 public class SelfManagedConnectionService extends ConnectionService {
+    private static final String[] TEST_NAMES = {"Tom Smith", "Jane Appleseed", "Joseph Engleton",
+            "Claudia McPherson", "Chris P. Bacon", "Seymour Butz", "Hugh Mungus", "Anita Bath"};
     private final SelfManagedCallList mCallList = SelfManagedCallList.getInstance();
 
     @Override
@@ -60,13 +64,17 @@ public class SelfManagedConnectionService extends ConnectionService {
         mCallList.notifyCreateOutgoingConnectionFailed(request);
     }
 
-
     private Connection createSelfManagedConnection(ConnectionRequest request, boolean isIncoming) {
         SelfManagedConnection connection = new SelfManagedConnection(mCallList,
                 getApplicationContext(), isIncoming);
         connection.setListener(mCallList.getConnectionListener());
         connection.setConnectionProperties(Connection.PROPERTY_SELF_MANAGED);
         connection.setAddress(request.getAddress(), TelecomManager.PRESENTATION_ALLOWED);
+        connection.setAudioModeIsVoip(true);
+        connection.setVideoState(request.getVideoState());
+        Random random = new Random();
+        connection.setCallerDisplayName(TEST_NAMES[random.nextInt(TEST_NAMES.length)],
+                TelecomManager.PRESENTATION_ALLOWED);
         connection.setExtras(request.getExtras());
         if (isIncoming) {
             connection.setIsIncomingCallUiShowing(request.shouldShowIncomingCallUi());

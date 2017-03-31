@@ -26,6 +26,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.android.server.telecom.testapps.R;
+
 import java.util.List;
 
 public class SelfManagedCallListAdapter extends BaseAdapter {
@@ -124,6 +126,12 @@ public class SelfManagedCallListAdapter extends BaseAdapter {
         SelfManagedConnection connection = mConnections.get(position);
         PhoneAccountHandle phoneAccountHandle = connection.getExtras().getParcelable(
                 SelfManagedConnection.EXTRA_PHONE_ACCOUNT_HANDLE);
+        if (phoneAccountHandle.getId().equals(SelfManagedCallList.SELF_MANAGED_ACCOUNT_1)) {
+            result.setBackgroundColor(result.getContext().getColor(R.color.test_call_a_color));
+        } else {
+            result.setBackgroundColor(result.getContext().getColor(R.color.test_call_b_color));
+        }
+
         CallAudioState audioState = connection.getCallAudioState();
         String audioRoute = "?";
         if (audioState != null) {
@@ -148,9 +156,9 @@ public class SelfManagedCallListAdapter extends BaseAdapter {
         String callType;
         if (connection.isIncomingCall()) {
             if (connection.isIncomingCallUiShowing()) {
-                callType = "Incoming - Show Incoming UX";
+                callType = "Incoming(our ux) ";
             } else {
-                callType = "Incoming - DO NOT SHOW Incoming UX";
+                callType = "Incoming(sys ux) ";
             }
         } else {
             callType = "Outgoing";

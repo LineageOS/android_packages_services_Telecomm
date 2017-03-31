@@ -83,6 +83,7 @@ import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.callfiltering.AsyncBlockCheckFilter;
 import com.android.server.telecom.components.UserCallIntentProcessor;
+import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.MissedCallNotifierImpl.MissedCallNotifierImplFactory;
 
 import com.google.common.base.Predicate;
@@ -193,6 +194,7 @@ public class TelecomSystemTest extends TelecomTestCase {
     @Mock BluetoothPhoneServiceImpl mBluetoothPhoneServiceImpl;
     @Mock AsyncRingtonePlayer mAsyncRingtonePlayer;
     @Mock InterruptionFilterProxy mInterruptionFilterProxy;
+    @Mock IncomingCallNotifier mIncomingCallNotifier;
 
     final ComponentName mInCallServiceComponentNameX =
             new ComponentName(
@@ -377,6 +379,7 @@ public class TelecomSystemTest extends TelecomTestCase {
         mTimeoutsAdapter = mock(Timeouts.Adapter.class);
         when(mTimeoutsAdapter.getCallScreeningTimeoutMillis(any(ContentResolver.class)))
                 .thenReturn(TEST_TIMEOUT / 5L);
+        mIncomingCallNotifier = mock(IncomingCallNotifier.class);
 
         mTelecomSystem = new TelecomSystem(
                 mComponentContextFixture.getTestDouble(),
@@ -409,7 +412,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                 mTimeoutsAdapter,
                 mAsyncRingtonePlayer,
                 mPhoneNumberUtilsAdapter,
-                mInterruptionFilterProxy);
+                mInterruptionFilterProxy,
+                mIncomingCallNotifier);
 
         mComponentContextFixture.setTelecomManager(new TelecomManager(
                 mComponentContextFixture.getTestDouble(),
