@@ -27,6 +27,7 @@ import android.telecom.CallAudioState;
 import android.telecom.Connection;
 import android.telecom.ConnectionService;
 import android.telecom.DisconnectCause;
+import android.telecom.VideoProfile;
 
 import com.android.server.telecom.testapps.R;
 
@@ -127,6 +128,36 @@ public class SelfManagedConnection extends Connection {
         NotificationManager notificationManager = mContext.getSystemService(
                 NotificationManager.class);
         notificationManager.notify(CALL_NOTIFICATION, mCallId, builder.build());
+    }
+
+    @Override
+    public void onHold() {
+        setOnHold();
+    }
+
+    @Override
+    public void onUnhold() {
+        setActive();
+    }
+
+    @Override
+    public void onAnswer(int videoState) {
+        setConnectionActive();
+    }
+
+    @Override
+    public void onAnswer() {
+        onAnswer(VideoProfile.STATE_AUDIO_ONLY);
+    }
+
+    @Override
+    public void onReject() {
+        setConnectionDisconnected(DisconnectCause.REJECTED);
+    }
+
+    @Override
+    public void onDisconnect() {
+        setConnectionDisconnected(DisconnectCause.LOCAL);
     }
 
     public void setConnectionActive() {
