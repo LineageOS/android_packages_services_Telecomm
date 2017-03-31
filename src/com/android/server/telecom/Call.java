@@ -595,12 +595,30 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
 
     @Override
     public String getDescription() {
-        StringBuilder s = new StringBuilder("Call ");
+        StringBuilder s = new StringBuilder();
+        if (isSelfManaged()) {
+            s.append("SelfMgd Call");
+        } else if (isExternalCall()) {
+            s.append("External Call");
+        } else {
+            s.append("Call");
+        }
         s.append(getId());
         s.append(" [");
         s.append(SimpleDateFormat.getDateTimeInstance().format(new Date(getCreationTimeMillis())));
         s.append("]");
         s.append(isIncoming() ? "(MT - incoming)" : "(MO - outgoing)");
+        s.append("\n\tVia PhoneAccount: ");
+        PhoneAccountHandle targetPhoneAccountHandle = getTargetPhoneAccount();
+        if (targetPhoneAccountHandle != null) {
+            s.append(targetPhoneAccountHandle);
+            s.append(" (");
+            s.append(getTargetPhoneAccountLabel());
+            s.append(")");
+        } else {
+            s.append("not set");
+        }
+
         s.append("\n\tTo address: ");
         s.append(Log.piiHandle(getHandle()));
         s.append("\n");
@@ -857,11 +875,11 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         }
     }
 
-    String getCallerDisplayName() {
+    public String getCallerDisplayName() {
         return mCallerDisplayName;
     }
 
-    int getCallerDisplayNamePresentation() {
+    public int getCallerDisplayNamePresentation() {
         return mCallerDisplayNamePresentation;
     }
 
@@ -963,6 +981,20 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
             configureIsWorkCall();
             checkIfVideoCapable();
         }
+    }
+
+    public CharSequence getTargetPhoneAccountLabel() {
+        if (getTargetPhoneAccount() == null) {
+            return null;
+        }
+        PhoneAccount phoneAccount = mCallsManager.getPhoneAccountRegistrar()
+                .getPhoneAccountUnchecked(getTargetPhoneAccount());
+
+        if (phoneAccount == null) {
+            return null;
+        }
+
+        return phoneAccount.getLabel();
     }
 
     @VisibleForTesting

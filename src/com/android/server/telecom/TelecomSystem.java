@@ -21,6 +21,8 @@ import com.android.server.telecom.bluetooth.BluetoothDeviceManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
+import com.android.server.telecom.ui.IncomingCallNotifier;
+import com.android.server.telecom.ui.IncomingCallNotifier.IncomingCallNotifierFactory;
 import com.android.server.telecom.ui.MissedCallNotifierImpl.MissedCallNotifierImplFactory;
 import com.android.server.telecom.BluetoothPhoneServiceImpl.BluetoothPhoneServiceImplFactory;
 import com.android.server.telecom.CallAudioManager.AudioServiceFactory;
@@ -31,9 +33,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.UserHandle;
 import android.telecom.Log;
+import android.telecom.PhoneAccountHandle;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -97,6 +102,7 @@ public class TelecomSystem {
 
     private final SyncRoot mLock = new SyncRoot() { };
     private final MissedCallNotifier mMissedCallNotifier;
+    private final IncomingCallNotifier mIncomingCallNotifier;
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
     private final CallsManager mCallsManager;
     private final RespondViaSmsManager mRespondViaSmsManager;
@@ -183,7 +189,8 @@ public class TelecomSystem {
             Timeouts.Adapter timeoutsAdapter,
             AsyncRingtonePlayer asyncRingtonePlayer,
             PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
-            InterruptionFilterProxy interruptionFilterProxy) {
+            InterruptionFilterProxy interruptionFilterProxy,
+            IncomingCallNotifier incomingCallNotifier) {
         mContext = context.getApplicationContext();
         LogUtils.initLogging(mContext);
         DefaultDialerManagerAdapter defaultDialerAdapter =
@@ -193,7 +200,21 @@ public class TelecomSystem {
                 defaultDialerAdapter, mLock);
 
         Log.startSession("TS.init");
-        mPhoneAccountRegistrar = new PhoneAccountRegistrar(mContext, defaultDialerCache);
+        mPhoneAccountRegistrar = new PhoneAccountRegistrar(mContext, defaultDialerCache,
+                new PhoneAccountRegistrar.AppLabelProxy() {
+                    @Override
+                    public CharSequence getAppLabel(String packageName) {
+                        PackageManager pm = mContext.getPackageManager();
+                        try {
+                            ApplicationInfo info = pm.getApplicationInfo(packageName, 0);
+                            return pm.getApplicationLabel(info);
+                        } catch (PackageManager.NameNotFoundException nnfe) {
+                            Log.w(this, "Could not determine package name.");
+                        }
+
+                        return null;
+                    }
+                });
         mContactsAsyncHelper = new ContactsAsyncHelper(
                 new ContactsAsyncHelper.ContentResolverAdapter() {
                     @Override
@@ -231,6 +252,25 @@ public class TelecomSystem {
                 asyncRingtonePlayer,
                 phoneNumberUtilsAdapter,
                 interruptionFilterProxy);
+
+        mIncomingCallNotifier = incomingCallNotifier;
+        incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {
+            @Override
+            public boolean hasCallsForOtherPhoneAccount(PhoneAccountHandle phoneAccountHandle) {
+                return mCallsManager.hasCallsForOtherPhoneAccount(phoneAccountHandle);
+            }
+
+            @Override
+            public int getNumCallsForOtherPhoneAccount(PhoneAccountHandle phoneAccountHandle) {
+                return mCallsManager.getNumCallsForOtherPhoneAccount(phoneAccountHandle);
+            }
+
+            @Override
+            public Call getActiveCall() {
+                return mCallsManager.getActiveCall();
+            }
+        });
+        mCallsManager.setIncomingCallNotifier(mIncomingCallNotifier);
 
         mRespondViaSmsManager = new RespondViaSmsManager(mCallsManager, mLock);
         mCallsManager.setRespondViaSmsManager(mRespondViaSmsManager);

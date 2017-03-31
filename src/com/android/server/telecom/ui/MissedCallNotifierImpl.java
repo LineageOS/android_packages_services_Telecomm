@@ -123,6 +123,7 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
     public static final int CALL_LOG_COLUMN_TYPE = 5;
 
     private static final int MISSED_CALL_NOTIFICATION_ID = 1;
+    private static final String NOTIFICATION_TAG = MissedCallNotifierImpl.class.getSimpleName();
 
     private final Context mContext;
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
@@ -376,7 +377,7 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
         long token = Binder.clearCallingIdentity();
         try {
             mNotificationManager.notifyAsUser(
-                    null /* tag */, MISSED_CALL_NOTIFICATION_ID, notification, userHandle);
+                    NOTIFICATION_TAG, MISSED_CALL_NOTIFICATION_ID, notification, userHandle);
         } finally {
             Binder.restoreCallingIdentity(token);
         }
@@ -396,7 +397,8 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
 
         long token = Binder.clearCallingIdentity();
         try {
-            mNotificationManager.cancelAsUser(null, MISSED_CALL_NOTIFICATION_ID, userHandle);
+            mNotificationManager.cancelAsUser(NOTIFICATION_TAG, MISSED_CALL_NOTIFICATION_ID,
+                    userHandle);
         } finally {
             Binder.restoreCallingIdentity(token);
         }
