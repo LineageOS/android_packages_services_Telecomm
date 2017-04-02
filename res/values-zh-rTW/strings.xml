@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="telecommAppLabel" product="default" msgid="9166784827254469057">"通話管理"</string>
+    <string name="telecommAppLabel" product="default" msgid="382363169988504520">"通話管理"</string>
     <string name="userCallActivityLabel" product="default" msgid="5415173590855187131">"電話"</string>
     <string name="unknown" msgid="6878797917991465859">"不明"</string>
     <string name="notification_missedCallTitle" msgid="7554385905572364535">"未接來電"</string>
@@ -45,7 +45,39 @@
     <string name="no_vm_number" msgid="4164780423805688336">"遺失語音信箱號碼"</string>
     <string name="no_vm_number_msg" msgid="1300729501030053828">"SIM 卡中未儲存語音信箱號碼。"</string>
     <string name="add_vm_number_str" msgid="4676479471644687453">"新增號碼"</string>
-    <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"要變更預設撥號應用程式嗎？"</string>
-    <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"要將 <xliff:g id="NEW_APP">%1$s</xliff:g> (而非 <xliff:g id="CURRENT_APP">%2$s</xliff:g>) 設為預設撥號應用程式嗎？"</string>
-    <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"要將 <xliff:g id="NEW_APP">%s</xliff:g> 設為預設撥號應用程式嗎？"</string>
+    <string name="change_default_dialer_dialog_title" msgid="9101655962941740507">"確定要將 <xliff:g id="NEW_APP">%s</xliff:g> 設為預設電話應用程式嗎？"</string>
+    <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"設為預設電話應用程式"</string>
+    <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"取消"</string>
+    <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"這樣一來，<xliff:g id="NEW_APP">%s</xliff:g> 將能撥打電話及控管所有通話設定。請務必只將您信任的應用程式設為預設電話應用程式。"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"已封鎖的號碼"</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"您不會收到已封鎖號碼的來電或簡訊。"</string>
+    <string name="block_number" msgid="1101252256321306179">"新增號碼"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"要解除封鎖 <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> 嗎？"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"解除封鎖"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"封鎖以下號碼的來電和簡訊："</string>
+    <string name="add_blocked_number_hint" msgid="6847675097085433553">"電話號碼"</string>
+    <string name="block_button" msgid="8822290682524373357">"封鎖"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"只有裝置擁有者能夠查看及管理已封鎖的號碼。"</string>
+    <string name="delete_icon_description" msgid="8903995728252556724">"解除封鎖"</string>
+    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"已暫時停用來電封鎖功能"</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"當您撥打或傳送簡訊到緊急服務電話後，系統就會停用來電封鎖功能，以確保緊急服務人員能夠與您聯絡。"</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"立即重新啟用"</string>
+    <string name="blocked_numbers_number_blocked_message" msgid="7678509606805029540">"已封鎖 <xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g>"</string>
+    <string name="blocked_numbers_number_unblocked_message" msgid="977894647366750418">"已解除封鎖 <xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g>"</string>
+    <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"無法封鎖緊急服務電話號碼。"</string>
+    <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> 已在封鎖清單中。"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"使用個人撥號程式撥打電話"</string>
+    <string name="notification_incoming_call" msgid="7713197997773986670">"<xliff:g id="CALL_FROM">%2$s</xliff:g>的 <xliff:g id="CALL_VIA">%1$s</xliff:g> 來電"</string>
+    <string name="notification_incoming_video_call" msgid="6638486071698373893">"<xliff:g id="CALL_FROM">%2$s</xliff:g>的 <xliff:g id="CALL_VIA">%1$s</xliff:g> 視訊通話來電"</string>
+    <string name="answering_ends_other_call" msgid="8282145910153766401">"接聽之後，你的 <xliff:g id="CALL_VIA">%1$s</xliff:g> 通話就會結束"</string>
+    <string name="answering_ends_other_calls" msgid="1198589551399049197">"接聽之後，你的 <xliff:g id="CALL_VIA">%1$s</xliff:g> 通話就會結束"</string>
+    <string name="answering_ends_other_video_call" msgid="8510410917384186360">"接聽之後，你的 <xliff:g id="CALL_VIA">%1$s</xliff:g> 視訊通話就會結束"</string>
+    <string name="answering_ends_other_managed_call" msgid="5186137550267947785">"接聽之後，你正在進行的通話就會結束"</string>
+    <string name="answering_ends_other_managed_calls" msgid="6429838309560397988">"接聽之後，你正在進行的通話就會結束"</string>
+    <string name="answering_ends_other_managed_video_call" msgid="1585423762458248435">"接聽之後，你正在進行的視訊通話就會結束"</string>
+    <string name="answer_incoming_call" msgid="4140530013111794587">"接聽"</string>
+    <string name="decline_incoming_call" msgid="806026168661598368">"拒接"</string>
+    <string name="cant_call_due_to_ongoing_call" msgid="4952615196237854748">"你正在進行 <xliff:g id="OTHER_CALL">%1$s</xliff:g> 通話，因此無法撥打電話。"</string>
+    <string name="cant_call_due_to_ongoing_calls" msgid="1380804892363503856">"你正在進行 <xliff:g id="OTHER_CALL">%1$s</xliff:g> 通話，所以無法撥打電話。"</string>
+    <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"你正在使用其他應用程式進行通話，因此無法撥打電話。"</string>
 </resources>

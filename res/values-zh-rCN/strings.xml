@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="telecommAppLabel" product="default" msgid="9166784827254469057">"通话管理"</string>
+    <string name="telecommAppLabel" product="default" msgid="382363169988504520">"通话管理"</string>
     <string name="userCallActivityLabel" product="default" msgid="5415173590855187131">"电话"</string>
     <string name="unknown" msgid="6878797917991465859">"未知"</string>
     <string name="notification_missedCallTitle" msgid="7554385905572364535">"未接电话"</string>
@@ -25,7 +25,7 @@
     <string name="notification_missedCallsMsg" msgid="4575787816055205600">"<xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> 个未接电话"</string>
     <string name="notification_missedCallTicker" msgid="504686252427747209">"来自<xliff:g id="MISSED_CALL_FROM">%s</xliff:g>的未接电话"</string>
     <string name="notification_missedCall_call_back" msgid="2684890353590890187">"回拨"</string>
-    <string name="notification_missedCall_message" msgid="3049928912736917988">"短信"</string>
+    <string name="notification_missedCall_message" msgid="3049928912736917988">"发短信"</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"通话已静音。"</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"扬声器已启用。"</string>
     <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"现在无法接听。有什么事吗？"</string>
@@ -45,7 +45,39 @@
     <string name="no_vm_number" msgid="4164780423805688336">"缺少语音信箱号码"</string>
     <string name="no_vm_number_msg" msgid="1300729501030053828">"SIM卡上未存储语音信箱号码。"</string>
     <string name="add_vm_number_str" msgid="4676479471644687453">"添加号码"</string>
-    <string name="change_default_dialer_dialog_title" msgid="4430590714918044425">"要更改默认拨号器应用吗？"</string>
-    <string name="change_default_dialer_with_previous_app_set_text" msgid="3213396537499337949">"要使用<xliff:g id="NEW_APP">%1$s</xliff:g>（而非<xliff:g id="CURRENT_APP">%2$s</xliff:g>）作为您的默认拨号器应用吗？"</string>
-    <string name="change_default_dialer_no_previous_app_set_text" msgid="7608426684114545221">"要使用<xliff:g id="NEW_APP">%s</xliff:g>作为您的默认拨号器应用吗？"</string>
+    <string name="change_default_dialer_dialog_title" msgid="9101655962941740507">"要将 <xliff:g id="NEW_APP">%s</xliff:g> 设为默认电话应用吗？"</string>
+    <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"设为默认电话应用"</string>
+    <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"取消"</string>
+    <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> 将可用于拨打电话和全面管理通话。请务必仅将您信任的应用设为默认电话应用。"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"已屏蔽的号码"</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"您不会收到来自已屏蔽的号码的来电或短信。"</string>
+    <string name="block_number" msgid="1101252256321306179">"添加电话号码"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"要取消屏蔽 <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> 吗？"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"取消屏蔽"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"屏蔽以下号码的来电和短信："</string>
+    <string name="add_blocked_number_hint" msgid="6847675097085433553">"电话号码"</string>
+    <string name="block_button" msgid="8822290682524373357">"屏蔽"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"只有机主才能查看和管理已屏蔽的号码。"</string>
+    <string name="delete_icon_description" msgid="8903995728252556724">"取消屏蔽"</string>
+    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"已暂时关闭来电拦截功能"</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"您拨打紧急服务电话或向其发送短信后，系统会关闭来电拦截功能，以确保紧急服务人员能与您联系。"</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"立即重新启用"</string>
+    <string name="blocked_numbers_number_blocked_message" msgid="7678509606805029540">"已屏蔽 <xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g>"</string>
+    <string name="blocked_numbers_number_unblocked_message" msgid="977894647366750418">"已取消屏蔽 <xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g>"</string>
+    <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"无法屏蔽紧急服务号码。"</string>
+    <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> 已被屏蔽。"</string>
+    <string name="toast_personal_call_msg" msgid="5115361633476779723">"使用个人拨号器拨打电话"</string>
+    <string name="notification_incoming_call" msgid="7713197997773986670">"接到来自<xliff:g id="CALL_FROM">%2$s</xliff:g>的 <xliff:g id="CALL_VIA">%1$s</xliff:g> 通话邀请"</string>
+    <string name="notification_incoming_video_call" msgid="6638486071698373893">"接到来自<xliff:g id="CALL_FROM">%2$s</xliff:g>的 <xliff:g id="CALL_VIA">%1$s</xliff:g> 视频通话邀请"</string>
+    <string name="answering_ends_other_call" msgid="8282145910153766401">"如果接听此来电，您的 <xliff:g id="CALL_VIA">%1$s</xliff:g> 通话会中断。"</string>
+    <string name="answering_ends_other_calls" msgid="1198589551399049197">"如果接听此来电，您的 <xliff:g id="CALL_VIA">%1$s</xliff:g> 通话会中断。"</string>
+    <string name="answering_ends_other_video_call" msgid="8510410917384186360">"如果接听此来电，您的 <xliff:g id="CALL_VIA">%1$s</xliff:g> 视频通话会中断"</string>
+    <string name="answering_ends_other_managed_call" msgid="5186137550267947785">"如果接听此来电，您当前的通话会中断。"</string>
+    <string name="answering_ends_other_managed_calls" msgid="6429838309560397988">"如果接听此来电，您当前的通话会中断。"</string>
+    <string name="answering_ends_other_managed_video_call" msgid="1585423762458248435">"如果接听此来电，您当前的视频通话会中断。"</string>
+    <string name="answer_incoming_call" msgid="4140530013111794587">"接听"</string>
+    <string name="decline_incoming_call" msgid="806026168661598368">"拒绝"</string>
+    <string name="cant_call_due_to_ongoing_call" msgid="4952615196237854748">"由于当前正在进行 <xliff:g id="OTHER_CALL">%1$s</xliff:g> 通话，因此无法拨打电话。"</string>
+    <string name="cant_call_due_to_ongoing_calls" msgid="1380804892363503856">"由于当前正在进行 <xliff:g id="OTHER_CALL">%1$s</xliff:g> 通话，因此无法拨打电话。"</string>
+    <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"由于当前正在通过其他应用通话，因此无法拨打电话。"</string>
 </resources>
