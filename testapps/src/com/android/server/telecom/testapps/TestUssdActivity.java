@@ -36,7 +36,7 @@ public class TestUssdActivity extends Activity {
     }
 
     public static final class OnReceiveUssdResponseCallback extends
-        TelephonyManager.OnReceiveUssdResponseCallback {
+        TelephonyManager.UssdResponseCallback {
 
             OnReceiveUssdResponseCallback() {
             }
