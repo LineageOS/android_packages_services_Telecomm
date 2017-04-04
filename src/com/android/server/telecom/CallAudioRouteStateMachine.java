@@ -1323,6 +1323,10 @@ public class CallAudioRouteStateMachine extends StateMachine {
         getHandler().getLooper().dump(pw::println, "");
     }
 
+    public boolean isHfpDeviceAvailable() {
+        return mBluetoothRouteManager.isBluetoothAvailable();
+    }
+
     /**
      * Sets whether notifications should be suppressed or not.  Used when in a call to ensure the
      * device will not vibrate due to notifications.
