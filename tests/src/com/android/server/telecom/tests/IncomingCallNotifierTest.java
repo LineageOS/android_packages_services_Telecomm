@@ -81,7 +81,7 @@ public class IncomingCallNotifierTest extends TelecomTestCase {
     @SmallTest
     public void testSingleCall() {
         mIncomingCallNotifier.onCallAdded(mAudioCall);
-        verify(mNotificationManager, never()).notify(
+        verify(mNotificationManager, never()).notify(eq(IncomingCallNotifier.NOTIFICATION_TAG),
                 eq(IncomingCallNotifier.NOTIFICATION_INCOMING_CALL), any());
     }
 
@@ -92,7 +92,7 @@ public class IncomingCallNotifierTest extends TelecomTestCase {
     public void testIncomingDuringOngoingCall() {
         when(mCallsManagerProxy.hasCallsForOtherPhoneAccount(any())).thenReturn(false);
         mIncomingCallNotifier.onCallAdded(mRingingCall);
-        verify(mNotificationManager, never()).notify(
+        verify(mNotificationManager, never()).notify(eq(IncomingCallNotifier.NOTIFICATION_TAG),
                 eq(IncomingCallNotifier.NOTIFICATION_INCOMING_CALL), any());
     }
 
@@ -107,7 +107,7 @@ public class IncomingCallNotifierTest extends TelecomTestCase {
 
         mIncomingCallNotifier.onCallAdded(mAudioCall);
         mIncomingCallNotifier.onCallAdded(mRingingCall);
-        verify(mNotificationManager, never()).notify(
+        verify(mNotificationManager, never()).notify(eq(IncomingCallNotifier.NOTIFICATION_TAG),
                 eq(IncomingCallNotifier.NOTIFICATION_INCOMING_CALL), any());;
     }
 
@@ -122,9 +122,10 @@ public class IncomingCallNotifierTest extends TelecomTestCase {
 
         mIncomingCallNotifier.onCallAdded(mAudioCall);
         mIncomingCallNotifier.onCallAdded(mRingingCall);
-        verify(mNotificationManager).notify(
+        verify(mNotificationManager).notify(eq(IncomingCallNotifier.NOTIFICATION_TAG),
                 eq(IncomingCallNotifier.NOTIFICATION_INCOMING_CALL), any());
         mIncomingCallNotifier.onCallRemoved(mRingingCall);
-        verify(mNotificationManager).cancel(eq(IncomingCallNotifier.NOTIFICATION_INCOMING_CALL));
+        verify(mNotificationManager).cancel(eq(IncomingCallNotifier.NOTIFICATION_TAG),
+                eq(IncomingCallNotifier.NOTIFICATION_INCOMING_CALL));
     }
 }
