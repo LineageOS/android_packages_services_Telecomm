@@ -229,6 +229,9 @@ public class CallAudioManager extends CallsManagerListenerBase {
                     makeArgsForModeStateMachine());
         }
 
+        // Turn off mute when a new incoming call is answered.
+        mute(false /* shouldMute */);
+
         maybeStopRingingAndCallWaitingForAnsweredOrRejectedCall(call);
     }
 
@@ -360,7 +363,8 @@ public class CallAudioManager extends CallsManagerListenerBase {
                 CallAudioRouteStateMachine.TOGGLE_MUTE);
     }
 
-    void mute(boolean shouldMute) {
+    @VisibleForTesting
+    public void mute(boolean shouldMute) {
         Log.v(this, "mute, shouldMute: %b", shouldMute);
 
         // Don't mute if there are any emergency calls.

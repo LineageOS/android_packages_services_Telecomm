@@ -437,9 +437,13 @@ public class CallsManager extends Call.ListenerBase
 
         if (result.shouldAllowCall) {
             if (hasMaximumRingingCalls(incomingCall.getTargetPhoneAccount().getId())) {
-                Log.i(this, "onCallFilteringCompleted: Call rejected! Exceeds maximum number of " +
-                        "ringing calls.");
-                rejectCallAndLog(incomingCall);
+                if (shouldSilenceInsteadOfReject(incomingCall)) {
+                    incomingCall.silence();
+                } else {
+                    Log.i(this, "onCallFilteringCompleted: Call rejected! " +
+                            "Exceeds maximum number of ringing calls.");
+                    rejectCallAndLog(incomingCall);
+                }
             } else if (hasMaximumDialingCalls()) {
                 Log.i(this, "onCallFilteringCompleted: Call rejected! Exceeds maximum number of " +
                         "dialing calls.");
@@ -500,6 +504,37 @@ public class CallsManager extends Call.ListenerBase
 
         final int state = call.getState();
         return (state == CallState.RINGING);
+    }
+
+    /**
+     * Whether allow (silence rather than reject) the incoming call if it has a different source
+     * (connection service) from the existing ringing call when reaching maximum ringing calls.
+     */
+    private boolean shouldSilenceInsteadOfReject(Call incomingCall) {
+        if (!mContext.getResources().getBoolean(
+                R.bool.silence_incoming_when_different_service_and_maximum_ringing)) {
+            return false;
+        }
+
+        Call ringingCall = null;
+
+        for (Call call : mCalls) {
+            // Only operate on top-level calls
+            if (call.getParentCall() != null) {
+                continue;
+            }
+
+            if (call.isExternalCall()) {
+                continue;
+            }
+
+            if (CallState.RINGING == call.getState() &&
+                    call.getConnectionService() == incomingCall.getConnectionService()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override
@@ -603,7 +638,8 @@ public class CallsManager extends Call.ListenerBase
     }
 
     @Override
-    public boolean onCanceledViaNewOutgoingCallBroadcast(final Call call) {
+    public boolean onCanceledViaNewOutgoingCallBroadcast(final Call call,
+            long disconnectionTimeout) {
         mPendingCallsToDisconnect.add(call);
         mHandler.postDelayed(new Runnable("CM.oCVNOCB", mLock) {
             @Override
@@ -613,7 +649,7 @@ public class CallsManager extends Call.ListenerBase
                     call.disconnect();
                 }
             }
-        }.prepare(), Timeouts.getNewOutgoingCallCancelMillis(mContext.getContentResolver()));
+        }.prepare(), disconnectionTimeout);
 
         return true;
     }

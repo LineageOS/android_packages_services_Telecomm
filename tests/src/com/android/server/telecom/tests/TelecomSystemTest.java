@@ -182,6 +182,11 @@ public class TelecomSystemTest extends TelecomTestCase {
         public int getCurrentInterruptionFilter() {
             return mInterruptionFilter;
         }
+
+        @Override
+        public String getInterruptionModeInitiator() {
+            return "com.android.server.telecom";
+        }
     }
 
     @Mock HeadsetMediaButton mHeadsetMediaButton;

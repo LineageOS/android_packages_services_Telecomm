@@ -50,7 +50,7 @@
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Չեղարկել"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> հավելվածը կկատարի զանգերի հետ կապված բոլոր գործառույթները: Որպես Հեռախոսի կանխադրված հավելված նշեք միայն վստահելի հավելվածներ:"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Արգելափակված համարներ"</string>
-    <string name="blocked_numbers_msg" msgid="1045015186124965643">"Արգելափակված համարներից զանգեր կամ SMS–ներ չեք ստանա:"</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"Արգելափակված համարներից զանգեր և SMS-ներ չեք ստանա:"</string>
     <string name="block_number" msgid="1101252256321306179">"Ավելացնել համար"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Արգելաբացե՞լ <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> համարը:"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Արգելաբացել"</string>

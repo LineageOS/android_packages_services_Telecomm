@@ -19,7 +19,7 @@
     <string name="telecommAppLabel" product="default" msgid="382363169988504520">"Deien kudeaketa"</string>
     <string name="userCallActivityLabel" product="default" msgid="5415173590855187131">"Telefonoa"</string>
     <string name="unknown" msgid="6878797917991465859">"Ezezaguna"</string>
-    <string name="notification_missedCallTitle" msgid="7554385905572364535">"Dei galdua"</string>
+    <string name="notification_missedCallTitle" msgid="7554385905572364535">"Galdutako deia"</string>
     <string name="notification_missedWorkCallTitle" msgid="6242489980390803090">"Laneko dei bat galdu duzu"</string>
     <string name="notification_missedCallsTitle" msgid="1361677948941502522">"Dei galduak"</string>
     <string name="notification_missedCallsMsg" msgid="4575787816055205600">"<xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> dei galdu"</string>

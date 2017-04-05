@@ -313,7 +313,28 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
 
         result.receiver.onReceive(mContext, result.intent);
         verifyNoCallPlaced();
-        verify(mCall).disconnect(true);
+        ArgumentCaptor<Long> timeoutCaptor = ArgumentCaptor.forClass(Long.class);
+        verify(mCall).disconnect(timeoutCaptor.capture());
+        assertTrue(timeoutCaptor.getValue() > 0);
+    }
+
+    @SmallTest
+    public void testCallNumberModifiedToNullWithLongCustomTimeout() {
+        Uri handle = Uri.parse("tel:6505551234");
+        Intent callIntent = buildIntent(handle, Intent.ACTION_CALL, null);
+        ReceiverIntentPair result = regularCallTestHelper(callIntent, null);
+
+        long customTimeout = 100000000;
+        Bundle bundle = new Bundle();
+        bundle.putLong(TelecomManager.EXTRA_NEW_OUTGOING_CALL_CANCEL_TIMEOUT, customTimeout);
+        result.receiver.setResultData(null);
+        result.receiver.setResultExtras(bundle);
+
+        result.receiver.onReceive(mContext, result.intent);
+        verifyNoCallPlaced();
+        ArgumentCaptor<Long> timeoutCaptor = ArgumentCaptor.forClass(Long.class);
+        verify(mCall).disconnect(timeoutCaptor.capture());
+        assertTrue(timeoutCaptor.getValue() < customTimeout);
     }
 
     @SmallTest
@@ -328,7 +349,7 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
         doReturn(true).when(mPhoneNumberUtilsAdapterSpy).isPotentialLocalEmergencyNumber(
                 any(Context.class), eq(newEmergencyNumber));
         result.receiver.onReceive(mContext, result.intent);
-        verify(mCall).disconnect(true);
+        verify(mCall).disconnect(eq(0L));
     }
 
     private ReceiverIntentPair regularCallTestHelper(Intent intent,

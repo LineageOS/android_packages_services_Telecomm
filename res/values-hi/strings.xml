@@ -54,7 +54,7 @@
     <string name="block_number" msgid="1101252256321306179">"एक नंबर जोड़ें"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> को अनवरोधित करें?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"अनवरोधित करें"</string>
-    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"इसके कॉल और लेख को अवरुद्ध करें"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"इसके कॉल और लेख अवरुद्ध करें"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"फ़ोन नंबर"</string>
     <string name="block_button" msgid="8822290682524373357">"अवरुद्ध करें"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"केवल डिवाइस स्वामी अवरुद्ध किए गए नंबर देख और प्रबंधित कर सकते हैं."</string>

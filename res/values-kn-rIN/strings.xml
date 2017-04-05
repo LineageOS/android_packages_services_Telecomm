@@ -18,7 +18,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="telecommAppLabel" product="default" msgid="382363169988504520">"ಕರೆ ನಿರ್ವಹಣೆ"</string>
     <string name="userCallActivityLabel" product="default" msgid="5415173590855187131">"ಫೋನ್"</string>
-    <string name="unknown" msgid="6878797917991465859">"ಅಜ್ಞಾತ"</string>
+    <string name="unknown" msgid="6878797917991465859">"ಅಪರಿಚಿತ"</string>
     <string name="notification_missedCallTitle" msgid="7554385905572364535">"ಮಿಸ್ಡ್‌ ಕಾಲ್‌"</string>
     <string name="notification_missedWorkCallTitle" msgid="6242489980390803090">"ಮಿಸ್ಡ್‌ ಕೆಲಸದ ಕರೆ"</string>
     <string name="notification_missedCallsTitle" msgid="1361677948941502522">"ತಪ್ಪಿದ ಕರೆಗಳು"</string>
@@ -47,7 +47,7 @@
     <string name="add_vm_number_str" msgid="4676479471644687453">"ಸಂಖ್ಯೆಯನ್ನು ಸೇರಿಸಿ"</string>
     <string name="change_default_dialer_dialog_title" msgid="9101655962941740507">"<xliff:g id="NEW_APP">%s</xliff:g> ಅನ್ನು ನಿಮ್ಮ ಡಿಫಾಲ್ಟ್ ಫೋನ್ ಅಪ್ಲಿಕೇಶನ್ ಆಗಿ ಮಾಡುವುದೇ?"</string>
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"ಡಿಫಾಲ್ಟ್ ಹೊಂದಿಸಿ"</string>
-    <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"ರದ್ದುಮಾಡು"</string>
+    <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"ರದ್ದುಮಾಡಿ"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> ಗೆ ನಿಮ್ಮ ಕರೆಗಳ ಎಲ್ಲಾ ಅಂಶಗಳನ್ನು ನಿಯಂತ್ರಿಸಲು ಮತ್ತು ಕರೆಗಳನ್ನು ಮಾಡಲು ಸಾಧ್ಯವಾಗುತ್ತದೆ. ನೀವು ವಿಶ್ವಾಸವಿರಿಸಿರುವಂತಹ ಅಪ್ಲಿಕೇಶನ್‌ಗಳನ್ನು ಮಾತ್ರ ನಿಮ್ಮ ಡಿಫಾಲ್ಟ್ ಅಪ್ಲಿಕೇಶನ್ ಆಗಿ ಹೊಂದಿಸಬೇಕು."</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"ನಿರ್ಬಂಧಿಸಲಾದ ಸಂಖ್ಯೆಗಳು"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"ನಿರ್ಬಂಧಿಸಲಾದ ಸಂಖ್ಯೆಗಳಿಂದ ಕರೆಗಳು ಅಥವಾ ಪಠ್ಯ ಸಂದೇಶಗಳನ್ನು ನೀವು ಸ್ವೀಕರಿಸುವುದಿಲ್ಲ."</string>

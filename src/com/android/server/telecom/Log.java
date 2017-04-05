@@ -125,6 +125,9 @@ public class Log {
         public static final String STOP_DTMF = "STOP_DTMF";
         public static final String START_RINGER = "START_RINGER";
         public static final String STOP_RINGER = "STOP_RINGER";
+        public static final String START_VIBRATOR = "START_VIBRATOR";
+        public static final String STOP_VIBRATOR = "STOP_VIBRATOR";
+        public static final String SKIP_VIBRATION = "SKIP_VIBRATION";
         public static final String SKIP_RINGING = "SKIP_RINGING";
         public static final String START_CALL_WAITING_TONE = "START_CALL_WAITING_TONE";
         public static final String STOP_CALL_WAITING_TONE = "STOP_CALL_WAITING_TONE";
