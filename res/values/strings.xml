@@ -247,4 +247,9 @@
          phone call in a third-party app.  Unlike cant_call_due_to_ongoing_call, this is used when
          the name of the other app is not known. [CHAR LIMIT=none] -->
     <string name="cant_call_due_to_ongoing_unknown_call">Call cannot be placed due to a call in another app.</string>
+
+    <!-- Notification channel name for a channel containing incoming call notifications. -->
+    <string name="notification_channel_incoming_call">Incoming calls</string>
+    <!-- Notification channel name for a channel containing missed call notifications. -->
+    <string name="notification_channel_missed_call">Missed calls</string>
 </resources>

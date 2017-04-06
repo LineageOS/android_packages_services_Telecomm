@@ -51,6 +51,7 @@ import com.android.server.telecom.TelecomWakeLock;
 import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.MissedCallNotifierImpl;
+import com.android.server.telecom.ui.NotificationChannelManager;
 
 /**
  * Implementation of the ITelecom interface.
@@ -81,6 +82,9 @@ public class TelecomService extends Service implements TelecomSystem.Component {
             final NotificationManager notificationManager =
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
+            NotificationChannelManager notificationChannelManager =
+                    new NotificationChannelManager();
+            notificationChannelManager.createChannels(context);
             TelecomSystem.setInstance(
                     new TelecomSystem(
                             context,
