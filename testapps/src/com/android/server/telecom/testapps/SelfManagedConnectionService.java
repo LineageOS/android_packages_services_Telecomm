@@ -16,6 +16,7 @@
 
 package com.android.server.telecom.testapps;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.telecom.Connection;
 import android.telecom.ConnectionRequest;
@@ -78,6 +79,16 @@ public class SelfManagedConnectionService extends ConnectionService {
         connection.setExtras(request.getExtras());
         if (isIncoming) {
             connection.setIsIncomingCallUiShowing(request.shouldShowIncomingCallUi());
+        }
+        Bundle requestExtras = request.getExtras();
+        if (requestExtras != null) {
+            connection.setIsHandover(requestExtras.getBoolean(TelecomManager.EXTRA_IS_HANDOVER,
+                    false));
+            Intent intent = new Intent(Intent.ACTION_MAIN, null);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION | Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.setClass(this, HandoverActivity.class);
+            intent.putExtra(HandoverActivity.EXTRA_CALL_ID, connection.getCallId());
+            startActivity(intent);
         }
 
         // Track the phone account handle which created this connection so we can distinguish them

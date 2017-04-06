@@ -656,6 +656,18 @@ public class CallsManager extends Call.ListenerBase
         }
     }
 
+    /**
+     * A {@link Call} managed by the {@link CallsManager} has requested a handover to another
+     * {@link PhoneAccount}.
+     * @param call The call.
+     * @param handoverTo The {@link PhoneAccountHandle} to handover the call to.
+     * @param videoState The desired video state of the call after handover.
+     */
+    @Override
+    public void onHandoverRequested(Call call, PhoneAccountHandle handoverTo, int videoState) {
+        requestHandover(call, handoverTo, videoState);
+    }
+
     @VisibleForTesting
     public Call getForegroundCall() {
         if (mCallAudioManager == null) {
@@ -741,6 +753,7 @@ public class CallsManager extends Call.ListenerBase
      */
     void processIncomingCallIntent(PhoneAccountHandle phoneAccountHandle, Bundle extras) {
         Log.d(this, "processIncomingCallIntent");
+        boolean isHandover = extras.getBoolean(TelecomManager.EXTRA_IS_HANDOVER);
         Uri handle = extras.getParcelable(TelecomManager.EXTRA_INCOMING_CALL_ADDRESS);
         if (handle == null) {
             // Required for backwards compatibility
@@ -818,7 +831,37 @@ public class CallsManager extends Call.ListenerBase
         // TODO: Move this to be a part of addCall()
         call.addListener(this);
 
-        if (call.isSelfManaged() && !isIncomingCallPermitted(call, call.getTargetPhoneAccount())) {
+        boolean isHandoverAllowed = true;
+        if (isHandover) {
+            if (!isHandoverInProgress() &&
+                    isHandoverToPhoneAccountSupported(phoneAccountHandle)) {
+                Log.w(this, "processIncomingCallIntent: To account doesn't support handover.");
+                final String handleScheme = handle.getSchemeSpecificPart();
+                Call fromCall = mCalls.stream()
+                        .filter((c) -> mPhoneNumberUtilsAdapter.isSamePhoneNumber(
+                                c.getHandle().getSchemeSpecificPart(), handleScheme))
+                        .findFirst()
+                        .orElse(null);
+                if (fromCall != null) {
+                    if (!isHandoverFromPhoneAccountSupported(fromCall.getTargetPhoneAccount())) {
+                        Log.w(this, "processIncomingCallIntent: From account doesn't support " +
+                                        "handover.");
+                        isHandoverAllowed = false;
+                    }
+                } else {
+                    Log.w(this, "processIncomingCallIntent: handover fail; can't find from call.");
+                    isHandoverAllowed = false;
+                }
+
+                if (isHandoverAllowed) {
+                    // Link the calls so we know we're handing over.
+                    fromCall.setHandoverToCall(call);
+                    call.setHandoverFromCall(fromCall);
+                }
+            }
+        }
+        if (!isHandoverAllowed || (call.isSelfManaged() && !isIncomingCallPermitted(call,
+                call.getTargetPhoneAccount()))) {
             notifyCreateConnectionFailed(phoneAccountHandle, call);
         } else {
             call.startCreateConnection(mPhoneAccountRegistrar);
@@ -1621,6 +1664,9 @@ public class CallsManager extends Call.ListenerBase
      * Removes an existing disconnected call, and notifies the in-call app.
      */
     void markCallAsRemoved(Call call) {
+        call.setHandoverToCall(null);
+        call.setHandoverFromCall(null);
+
         removeCall(call);
         Call foregroundCall = mCallAudioManager.getPossiblyHeldForegroundCall();
         if (mLocallyDisconnectingCalls.contains(call)) {
@@ -2047,6 +2093,31 @@ public class CallsManager extends Call.ListenerBase
             maybeShowErrorDialogOnDisconnect(call);
 
             Trace.beginSection("onCallStateChanged");
+
+            // If this call became active because it is being handed over from another Call, the
+            // call which was being handed over from can be disconnected at this point.
+            if (call.getHandoverFromCall() != null) {
+                if (newState == CallState.ACTIVE) {
+                    Call handoverFrom = call.getHandoverFromCall();
+                    Log.addEvent(call, LogUtils.Events.HANDOVER_COMPLETE, "from=%s, to=%s",
+                            call.getId(), handoverFrom.getId());
+                    Log.addEvent(handoverFrom, LogUtils.Events.HANDOVER_COMPLETE, "from=%s, to=%s",
+                            call.getId(), handoverFrom.getId());
+                    markCallAsDisconnected(handoverFrom,
+                            new DisconnectCause(DisconnectCause.LOCAL));
+                    markCallAsRemoved(handoverFrom);
+                    call.sendCallEvent(android.telecom.Call.EVENT_HANDOVER_COMPLETE, null);
+                } else if (newState == CallState.DISCONNECTED) {
+                    Call handoverFrom = call.getHandoverFromCall();
+                    Log.i(this, "Call %s failed to handover from %s.",
+                            call.getId(), handoverFrom.getId());
+                    Log.addEvent(handoverFrom, LogUtils.Events.HANDOVER_FAILED, "from=%s, to=%s",
+                            call.getId(), handoverFrom.getId());
+                    handoverFrom.sendCallEvent(
+                            android.telecom.Call.EVENT_HANDOVER_FAILED, null);
+                }
+            }
+
             // Only broadcast state change for calls that are being tracked.
             if (mCalls.contains(call)) {
                 updateCanAddCall();
@@ -2232,7 +2303,8 @@ public class CallsManager extends Call.ListenerBase
      */
     public boolean shouldShowSystemIncomingCallUi(Call incomingCall) {
         return incomingCall.isIncoming() && incomingCall.isSelfManaged() &&
-                hasCallsForOtherPhoneAccount(incomingCall.getTargetPhoneAccount());
+                hasCallsForOtherPhoneAccount(incomingCall.getTargetPhoneAccount()) &&
+                incomingCall.getHandoverFromCall() == null;
     }
 
     private boolean makeRoomForOutgoingCall(Call call, boolean isEmergency) {
@@ -2538,10 +2610,11 @@ public class CallsManager extends Call.ListenerBase
         } else {
             // Only permit outgoing calls if there is no ongoing emergency calls and all other calls
             // are associated with the current PhoneAccountHandle.
-            return !hasEmergencyCall() &&
-                    !hasMaximumSelfManagedCalls(excludeCall, phoneAccountHandle) &&
-                    !hasCallsForOtherPhoneAccount(phoneAccountHandle) &&
-                    !hasManagedCalls();
+            return !hasEmergencyCall() && (
+                    excludeCall.getHandoverFromCall() != null ||
+                            (!hasMaximumSelfManagedCalls(excludeCall, phoneAccountHandle) &&
+                            !hasCallsForOtherPhoneAccount(phoneAccountHandle) &&
+                            !hasManagedCalls()));
         }
     }
 
@@ -2671,5 +2744,95 @@ public class CallsManager extends Call.ListenerBase
             call.setConnectionService(service);
             service.createConnectionFailed(call);
         }
+    }
+
+    /**
+     * Called in response to a {@link Call} receiving a {@link Call#sendCallEvent(String, Bundle)}
+     * of type {@link android.telecom.Call#EVENT_REQUEST_HANDOVER} indicating the
+     * {@link android.telecom.InCallService} has requested a handover to another
+     * {@link android.telecom.ConnectionService}.
+     *
+     * We will explicitly disallow a handover when there is an emergency call present.
+     *
+     * @param handoverFromCall The {@link Call} to be handed over.
+     * @param handoverToHandle The {@link PhoneAccountHandle} to hand over the call to.
+     * @param videoState The desired video state of {@link Call} after handover.
+     */
+    private void requestHandover(Call handoverFromCall, PhoneAccountHandle handoverToHandle,
+                                 int videoState) {
+
+        boolean isHandoverFromSupported = isHandoverFromPhoneAccountSupported(
+                handoverFromCall.getTargetPhoneAccount());
+        boolean isHandoverToSupported = isHandoverToPhoneAccountSupported(handoverToHandle);
+
+        if (!isHandoverFromSupported || !isHandoverToSupported || hasEmergencyCall()) {
+            handoverFromCall.sendCallEvent(android.telecom.Call.EVENT_HANDOVER_FAILED, null);
+            return;
+        }
+
+        Log.addEvent(handoverFromCall, LogUtils.Events.HANDOVER_REQUEST, handoverToHandle);
+
+        Bundle extras = new Bundle();
+        extras.putBoolean(TelecomManager.EXTRA_IS_HANDOVER, true);
+        extras.putInt(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE, videoState);
+        Call handoverToCall = startOutgoingCall(handoverFromCall.getHandle(), handoverToHandle,
+                extras, getCurrentUserHandle());
+        Log.addEvent(handoverFromCall, LogUtils.Events.START_HANDOVER,
+                "handOverFrom=%s, handOverTo=%s", handoverFromCall.getId(), handoverToCall.getId());
+        handoverFromCall.setHandoverToCall(handoverToCall);
+        handoverToCall.setHandoverFromCall(handoverFromCall);
+        handoverToCall.setNewOutgoingCallIntentBroadcastIsDone();
+        placeOutgoingCall(handoverToCall, handoverToCall.getHandle(), null /* gatewayInfo */,
+                false /* startwithSpeaker */,
+                videoState);
+    }
+
+    /**
+     * Determines if handover from the specified {@link PhoneAccountHandle} is supported.
+     *
+     * @param from The {@link PhoneAccountHandle} the handover originates from.
+     * @return {@code true} if handover is currently allowed, {@code false} otherwise.
+     */
+    private boolean isHandoverFromPhoneAccountSupported(PhoneAccountHandle from) {
+        return getBooleanPhoneAccountExtra(from, PhoneAccount.EXTRA_SUPPORTS_HANDOVER_TO);
+    }
+
+    /**
+     * Determines if handover to the specified {@link PhoneAccountHandle} is supported.
+     *
+     * @param to The {@link PhoneAccountHandle} the handover it to.
+     * @return {@code true} if handover is currently allowed, {@code false} otherwise.
+     */
+    private boolean isHandoverToPhoneAccountSupported(PhoneAccountHandle to) {
+        return getBooleanPhoneAccountExtra(to, PhoneAccount.EXTRA_SUPPORTS_HANDOVER_TO);
+    }
+
+    /**
+     * Retrieves a boolean phone account extra.
+     * @param handle the {@link PhoneAccountHandle} to retrieve the extra for.
+     * @param key The extras key.
+     * @return {@code true} if the extra {@link PhoneAccount} extra is true, {@code false}
+     *      otherwise.
+     */
+    private boolean getBooleanPhoneAccountExtra(PhoneAccountHandle handle, String key) {
+        PhoneAccount phoneAccount = getPhoneAccountRegistrar().getPhoneAccountUnchecked(handle);
+        if (phoneAccount == null) {
+            return false;
+        }
+
+        Bundle fromExtras = phoneAccount.getExtras();
+        if (fromExtras == null) {
+            return false;
+        }
+        return fromExtras.getBoolean(key);
+    }
+
+    /**
+     * Determines if there is an existing handover in process.
+     * @return {@code true} if a call in the process of handover exists, {@code false} otherwise.
+     */
+    private boolean isHandoverInProgress() {
+        return mCalls.stream().filter(c -> c.getHandoverFromCall() != null ||
+                c.getHandoverToCall() != null).count() > 0;
     }
 }

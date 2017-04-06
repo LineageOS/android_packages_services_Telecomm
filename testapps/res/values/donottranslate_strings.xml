@@ -56,6 +56,8 @@
 
     <string name="holdButton">Hold</string>
 
+    <string name="handoverButton">Handover</string>
+
     <string name="inCallUiAppLabel">Test InCall UI</string>
 
     <string name="UssdUiAppLabel">Test Ussd UI</string>
