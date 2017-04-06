@@ -331,7 +331,8 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
                 // Include a public version of the notification to be shown when the missed call
                 // notification is shown on the user's lock screen and they have chosen to hide
                 // sensitive notification information.
-                .setPublicVersion(publicBuilder.build());
+                .setPublicVersion(publicBuilder.build())
+                .setChannel(NotificationChannelManager.CHANNEL_ID_MISSED_CALLS);
 
         Uri handleUri = callInfo.getHandle();
         String handle = callInfo.getHandleSchemeSpecificPart();
