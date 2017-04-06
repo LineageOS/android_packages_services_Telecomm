@@ -212,7 +212,8 @@ public class InCallController extends CallsManagerListenerBase {
                 return CONNECTION_SUCCEEDED;
             }
 
-            if (call.isSelfManaged() && !mInCallServiceInfo.isSelfManagedCallsSupported()) {
+            if (call != null && call.isSelfManaged() &&
+                    !mInCallServiceInfo.isSelfManagedCallsSupported()) {
                 Log.i(this, "Skipping binding to %s - doesn't support self-mgd calls",
                         mInCallServiceInfo);
                 mIsConnected = false;
