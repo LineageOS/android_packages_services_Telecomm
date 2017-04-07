@@ -67,30 +67,21 @@
     <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"Numri i urgjencës nuk mund të bllokohet."</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> është i bllokuar tashmë."</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Po përdor formuesin personal të numrave për të kryer telefonatën"</string>
-    <!-- no translation found for notification_incoming_call (7713197997773986670) -->
+    <string name="notification_incoming_call" msgid="7713197997773986670">"Telefonatë e <xliff:g id="CALL_VIA">%1$s</xliff:g> nga <xliff:g id="CALL_FROM">%2$s</xliff:g>"</string>
+    <string name="notification_incoming_video_call" msgid="6638486071698373893">"Telefonatë me video e <xliff:g id="CALL_VIA">%1$s</xliff:g> nga <xliff:g id="CALL_FROM">%2$s</xliff:g>"</string>
+    <string name="answering_ends_other_call" msgid="8282145910153766401">"Përgjigjja do ta mbyllë telefonatën tënde të <xliff:g id="CALL_VIA">%1$s</xliff:g>"</string>
+    <string name="answering_ends_other_calls" msgid="1198589551399049197">"Përgjigjja do t\'i mbyllë telefonatat e tua të <xliff:g id="CALL_VIA">%1$s</xliff:g>"</string>
+    <string name="answering_ends_other_video_call" msgid="8510410917384186360">"Përgjigjja do ta mbyllë telefonatën me video të <xliff:g id="CALL_VIA">%1$s</xliff:g>"</string>
+    <string name="answering_ends_other_managed_call" msgid="5186137550267947785">"Përgjigjja do ta mbyllë telefonatën tënde në vazhdim"</string>
+    <string name="answering_ends_other_managed_calls" msgid="6429838309560397988">"Përgjigjja do t\'i mbyllë telefonatat e tua në vazhdim"</string>
+    <string name="answering_ends_other_managed_video_call" msgid="1585423762458248435">"Përgjigjja do ta mbyllë telefonatën me video në vazhdim"</string>
+    <string name="answer_incoming_call" msgid="4140530013111794587">"Përgjigju"</string>
+    <string name="decline_incoming_call" msgid="806026168661598368">"Refuzo"</string>
+    <string name="cant_call_due_to_ongoing_call" msgid="4952615196237854748">"Telefonata nuk mund të kryhet për shkak të telefonatës tënde të <xliff:g id="OTHER_CALL">%1$s</xliff:g>."</string>
+    <string name="cant_call_due_to_ongoing_calls" msgid="1380804892363503856">"Telefonata nuk mund të kryhet për shkak të telefonatave të tua të <xliff:g id="OTHER_CALL">%1$s</xliff:g>."</string>
+    <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"Telefonata nuk mund të kryhet për shkak të një telefonate në një aplikacion tjetër."</string>
+    <!-- no translation found for notification_channel_incoming_call (3513761697082968084) -->
     <skip />
-    <!-- no translation found for notification_incoming_video_call (6638486071698373893) -->
-    <skip />
-    <!-- no translation found for answering_ends_other_call (8282145910153766401) -->
-    <skip />
-    <!-- no translation found for answering_ends_other_calls (1198589551399049197) -->
-    <skip />
-    <!-- no translation found for answering_ends_other_video_call (8510410917384186360) -->
-    <skip />
-    <!-- no translation found for answering_ends_other_managed_call (5186137550267947785) -->
-    <skip />
-    <!-- no translation found for answering_ends_other_managed_calls (6429838309560397988) -->
-    <skip />
-    <!-- no translation found for answering_ends_other_managed_video_call (1585423762458248435) -->
-    <skip />
-    <!-- no translation found for answer_incoming_call (4140530013111794587) -->
-    <skip />
-    <!-- no translation found for decline_incoming_call (806026168661598368) -->
-    <skip />
-    <!-- no translation found for cant_call_due_to_ongoing_call (4952615196237854748) -->
-    <skip />
-    <!-- no translation found for cant_call_due_to_ongoing_calls (1380804892363503856) -->
-    <skip />
-    <!-- no translation found for cant_call_due_to_ongoing_unknown_call (149091978697302211) -->
+    <!-- no translation found for notification_channel_missed_call (8727062678632713146) -->
     <skip />
 </resources>
