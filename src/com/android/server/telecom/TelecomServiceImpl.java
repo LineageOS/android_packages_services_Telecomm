@@ -175,6 +175,31 @@ public class TelecomServiceImpl {
         }
 
         @Override
+        public List<PhoneAccountHandle> getSelfManagedPhoneAccounts(String callingPackage) {
+            try {
+                Log.startSession("TSI.gSMPA");
+                if (!canReadPhoneState(callingPackage, "Requires READ_PHONE_STATE permission.")) {
+                    throw new SecurityException("Requires READ_PHONE_STATE permission.");
+                }
+                synchronized (mLock) {
+                    final UserHandle callingUserHandle = Binder.getCallingUserHandle();
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        return mPhoneAccountRegistrar.getSelfManagedPhoneAccounts(
+                                callingUserHandle);
+                    } catch (Exception e) {
+                        Log.e(this, e, "getSelfManagedPhoneAccounts");
+                        throw e;
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        @Override
         public List<PhoneAccountHandle> getPhoneAccountsSupportingScheme(String uriScheme,
                 String callingPackage) {
             try {
