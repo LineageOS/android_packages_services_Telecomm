@@ -196,6 +196,14 @@
           </intent-filter>
         </activity>
 
+        <activity android:name="com.android.server.telecom.testapps.HandoverActivity"
+                  android:label="@string/selfManagedCallingActivityLabel"
+                  android:process="com.android.server.telecom.testapps.SelfMangingCallingApp">
+          <intent-filter>
+              <action android:name="android.intent.action.MAIN" />
+          </intent-filter>
+        </activity>
+
         <service android:name="com.android.server.telecom.testapps.SelfManagedConnectionService"
                  android:permission="android.permission.BIND_TELECOM_CONNECTION_SERVICE"
                  android:process="com.android.server.telecom.testapps.SelfMangingCallingApp">

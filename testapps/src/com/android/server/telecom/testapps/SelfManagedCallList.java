@@ -19,6 +19,7 @@ package com.android.server.telecom.testapps;
 import android.content.ComponentName;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Bundle;
 import android.telecom.ConnectionRequest;
 import android.telecom.Log;
 import android.telecom.PhoneAccount;
@@ -100,6 +101,8 @@ public class SelfManagedCallList {
     public void registerPhoneAccount(Context context, String id, Uri address, String name) {
         PhoneAccountHandle handle = new PhoneAccountHandle(COMPONENT_NAME, id);
         mPhoneAccounts.put(id, handle);
+        Bundle extras = new Bundle();
+        extras.putBoolean(PhoneAccount.EXTRA_SUPPORTS_HANDOVER_TO, true);
         PhoneAccount.Builder builder = PhoneAccount.builder(handle, name)
                 .addSupportedUriScheme(PhoneAccount.SCHEME_TEL)
                 .addSupportedUriScheme(PhoneAccount.SCHEME_SIP)
@@ -107,6 +110,7 @@ public class SelfManagedCallList {
                 .setCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED |
                         PhoneAccount.CAPABILITY_VIDEO_CALLING |
                         PhoneAccount.CAPABILITY_SUPPORTS_VIDEO_CALLING)
+                .setExtras(extras)
                 .setShortDescription(name);
 
         TelecomManager.from(context).registerPhoneAccount(builder.build());

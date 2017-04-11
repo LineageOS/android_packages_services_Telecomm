@@ -24,11 +24,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
+import android.os.Parcelable;
 import android.os.RemoteException;
 import android.os.Trace;
 import android.provider.ContactsContract.Contacts;
 import android.telecom.CallAudioState;
 import android.telecom.Conference;
+import android.telecom.ConnectionService;
 import android.telecom.DisconnectCause;
 import android.telecom.Connection;
 import android.telecom.GatewayInfo;
@@ -126,6 +128,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         void onExternalCallChanged(Call call, boolean isExternalCall);
         void onRttInitiationFailure(Call call, int reason);
         void onRemoteRttRequest(Call call, int requestId);
+        void onHandoverRequested(Call call, PhoneAccountHandle handoverTo, int videoState);
     }
 
     public abstract static class ListenerBase implements Listener {
@@ -197,6 +200,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         public void onRttInitiationFailure(Call call, int reason) {}
         @Override
         public void onRemoteRttRequest(Call call, int requestId) {}
+        @Override
+        public void onHandoverRequested(Call call, PhoneAccountHandle handoverTo, int videoState) {}
     }
 
     private final CallerInfoLookupHelper.OnQueryCompleteListener mCallerInfoQueryListener =
@@ -437,6 +442,18 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
      * Integer indicating the remote RTT request ID that is pending a response from the user.
      */
     private int mPendingRttRequestId = INVALID_RTT_REQUEST_ID;
+
+    /**
+     * When a call handover has been initiated via {@link #requestHandover(PhoneAccountHandle)},
+     * contains the call which this call is being handed over to.
+     */
+    private Call mHandoverToCall = null;
+
+    /**
+     * When a call handover has been initiated via {@link #requestHandover(PhoneAccountHandle)},
+     * contains the call which this call is being handed over from.
+     */
+    private Call mHandoverFromCall = null;
 
     /**
      * Persists the specified parameters and initializes the new instance.
@@ -1025,6 +1042,22 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
 
         // Connection properties will add/remove the PROPERTY_SELF_MANAGED.
         setConnectionProperties(getConnectionProperties());
+    }
+
+    public Call getHandoverToCall() {
+        return mHandoverToCall;
+    }
+
+    public void setHandoverToCall(Call call) {
+        mHandoverToCall = call;
+    }
+
+    public Call getHandoverFromCall() {
+        return mHandoverFromCall;
+    }
+
+    public void setHandoverFromCall(Call call) {
+        mHandoverFromCall = call;
     }
 
     private void configureIsWorkCall() {
@@ -1841,7 +1874,32 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
      */
     public void sendCallEvent(String event, Bundle extras) {
         if (mConnectionService != null) {
-            mConnectionService.sendCallEvent(this, event, extras);
+            if (android.telecom.Call.EVENT_REQUEST_HANDOVER.equals(event)) {
+                // Handover requests are targeted at Telecom, not the ConnectionService.
+                if (extras == null) {
+                    Log.w(this, "sendCallEvent: %s event received with null extras.",
+                            android.telecom.Call.EVENT_REQUEST_HANDOVER);
+                    mConnectionService.sendCallEvent(this,
+                            android.telecom.Call.EVENT_HANDOVER_FAILED, null);
+                    return;
+                }
+                Parcelable parcelable = extras.getParcelable(
+                        android.telecom.Call.EXTRA_HANDOVER_PHONE_ACCOUNT_HANDLE);
+                if (!(parcelable instanceof PhoneAccountHandle) || parcelable == null) {
+                    Log.w(this, "sendCallEvent: %s event received with invalid handover acct.",
+                            android.telecom.Call.EVENT_REQUEST_HANDOVER);
+                    mConnectionService.sendCallEvent(this,
+                            android.telecom.Call.EVENT_HANDOVER_FAILED, null);
+                    return;
+                }
+                PhoneAccountHandle phoneAccountHandle = (PhoneAccountHandle) parcelable;
+                int videoState = extras.getInt(android.telecom.Call.EXTRA_HANDOVER_VIDEO_STATE,
+                        VideoProfile.STATE_AUDIO_ONLY);
+                requestHandover(phoneAccountHandle, videoState);
+            } else {
+                Log.addEvent(this, LogUtils.Events.CALL_EVENT, event);
+                mConnectionService.sendCallEvent(this, event, extras);
+            }
         } else {
             Log.e(this, new NullPointerException(),
                     "sendCallEvent failed due to null CS callId=%s", getId());
@@ -2519,5 +2577,16 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
     private int removeVideoCapabilities(int capabilities) {
         return capabilities & ~(Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL |
                 Connection.CAPABILITY_SUPPORTS_VT_REMOTE_BIDIRECTIONAL);
+    }
+
+    /**
+     * Initiates a handover of this {@link Call} to another {@link PhoneAccount}.
+     * @param handoverToHandle The {@link PhoneAccountHandle} to handover to.
+     * @param videoState The video state of the call when handed over.
+     */
+    private void requestHandover(PhoneAccountHandle handoverToHandle, int videoState) {
+        for (Listener l : mListeners) {
+            l.onHandoverRequested(this, handoverToHandle, videoState);
+        }
     }
 }

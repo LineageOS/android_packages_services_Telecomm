@@ -23,6 +23,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Icon;
 import android.media.MediaPlayer;
+import android.os.Bundle;
+import android.telecom.Call;
 import android.telecom.CallAudioState;
 import android.telecom.Connection;
 import android.telecom.ConnectionService;
@@ -55,6 +57,7 @@ public class SelfManagedConnection extends Connection {
     private final boolean mIsIncomingCall;
     private boolean mIsIncomingCallUiShowing;
     private Listener mListener;
+    private boolean mIsHandover;
 
     SelfManagedConnection(SelfManagedCallList callList, Context context, boolean isIncoming) {
         mCallList = callList;
@@ -199,6 +202,14 @@ public class SelfManagedConnection extends Connection {
 
     public int getCallId() {
         return mCallId;
+    }
+
+    public void setIsHandover(boolean isHandover) {
+        mIsHandover = isHandover;
+    }
+
+    public boolean isHandover() {
+        return mIsHandover;
     }
 
     private MediaPlayer createMediaPlayer(Context context) {
