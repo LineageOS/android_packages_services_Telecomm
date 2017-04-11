@@ -576,6 +576,24 @@ public class PhoneAccountRegistrar {
                 uriScheme, null, includeDisabledAccounts, userHandle);
     }
 
+    /**
+     * Retrieves a list of all phone accounts which have
+     * {@link PhoneAccount#CAPABILITY_SELF_MANAGED}.
+     * <p>
+     * Returns only the {@link PhoneAccount}s which are enabled as self-managed accounts are
+     * automatically enabled by default (see {@link #registerPhoneAccount(PhoneAccount)}).
+     *
+     * @param userHandle User handle of phone account owner.
+     * @return The phone account handles.
+     */
+    public List<PhoneAccountHandle> getSelfManagedPhoneAccounts(UserHandle userHandle) {
+        return getPhoneAccountHandles(
+                PhoneAccount.CAPABILITY_SELF_MANAGED,
+                PhoneAccount.CAPABILITY_EMERGENCY_CALLS_ONLY /* excludedCapabilities */,
+                null /* uriScheme */, null /* packageName */, false /* includeDisabledAccounts */,
+                userHandle);
+    }
+
     public List<PhoneAccountHandle> getCallCapablePhoneAccountsOfCurrentUser(
             String uriScheme, boolean includeDisabledAccounts) {
         return getCallCapablePhoneAccounts(uriScheme, includeDisabledAccounts, mCurrentUserHandle);
