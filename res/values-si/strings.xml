@@ -80,8 +80,6 @@
     <string name="cant_call_due_to_ongoing_call" msgid="4952615196237854748">"ඔබේ <xliff:g id="OTHER_CALL">%1$s</xliff:g> ඇමතුම හේතුවෙන් ඇමතුම ගැනීමට නොහැකිය."</string>
     <string name="cant_call_due_to_ongoing_calls" msgid="1380804892363503856">"ඔබේ <xliff:g id="OTHER_CALL">%1$s</xliff:g> ඇමතුම් හේතුවෙන් ඇමතුම ගැනීමට නොහැකිය."</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"වෙනත් යෙදුමක ඇමතුමක් හේතුවෙන් ඇමතුම ගැනීමට නොහැකිය."</string>
-    <!-- no translation found for notification_channel_incoming_call (3513761697082968084) -->
-    <skip />
-    <!-- no translation found for notification_channel_missed_call (8727062678632713146) -->
-    <skip />
+    <string name="notification_channel_incoming_call" msgid="3513761697082968084">"එන ඇමතුම්"</string>
+    <string name="notification_channel_missed_call" msgid="8727062678632713146">"මඟ හැරුණු ඇමතුම්"</string>
 </resources>
