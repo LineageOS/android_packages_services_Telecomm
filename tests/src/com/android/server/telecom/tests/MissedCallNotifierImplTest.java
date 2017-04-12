@@ -207,7 +207,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
 
         ArgumentCaptor<Integer> requestIdCaptor = ArgumentCaptor.forClass(
                 Integer.class);
-        verify(mNotificationManager, times(2)).notifyAsUser(isNull(String.class),
+        verify(mNotificationManager, times(2)).notifyAsUser(nullable(String.class),
                 requestIdCaptor.capture(), nullable(Notification.class), eq(userHandle));
         verify(mNotificationManager).cancelAsUser(nullable(String.class),
                 eq(requestIdCaptor.getValue()), eq(userHandle));
@@ -245,7 +245,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         // to notifyAsUser are the versions which contain sensitive information.
         ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(
                 Notification.class);
-        verify(mNotificationManager, times(2)).notifyAsUser(isNull(String.class), eq(1),
+        verify(mNotificationManager, times(2)).notifyAsUser(nullable(String.class), eq(1),
                 notificationArgumentCaptor.capture(), eq(PRIMARY_USER));
         HashSet<String> privateNotifications = new HashSet<>();
         for (Notification n : notificationArgumentCaptor.getAllValues()) {
@@ -332,7 +332,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         } else {
             expectedUserHandle = phoneAccount.getAccountHandle().getUserHandle();
         }
-        verify(mNotificationManager).notifyAsUser(isNull(String.class), eq(1),
+        verify(mNotificationManager).notifyAsUser(nullable(String.class), eq(1),
                 notificationArgumentCaptor.capture(), eq((expectedUserHandle)));
 
         Notification.Builder builder;
@@ -534,7 +534,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         listenerCaptor.getAllValues().get(1).onCallerInfoQueryComplete(escapedSipHandle, ci);
 
         // Verify that two notifications were generated, both with the same id.
-        verify(mNotificationManager, times(2)).notifyAsUser(isNull(String.class), eq(1),
+        verify(mNotificationManager, times(2)).notifyAsUser(nullable(String.class), eq(1),
                 nullable(Notification.class), eq(PRIMARY_USER));
     }
 
