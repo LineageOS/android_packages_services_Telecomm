@@ -27,6 +27,7 @@ import android.telecom.TelecomAnalytics;
 import android.telecom.TelecomManager;
 import android.telecom.VideoCallImpl;
 import android.telecom.VideoProfile;
+import android.support.test.filters.FlakyTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Base64;
@@ -92,6 +93,7 @@ public class AnalyticsTests extends TelecomSystemTest {
         }
     }
 
+    @FlakyTest
     @MediumTest
     public void testAnalyticsDumping() throws Exception {
         Analytics.reset();

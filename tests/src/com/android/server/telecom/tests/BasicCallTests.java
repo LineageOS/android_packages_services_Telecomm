@@ -47,6 +47,7 @@ import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
+import android.support.test.filters.FlakyTest;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 
@@ -874,6 +875,7 @@ public class BasicCallTests extends TelecomSystemTest {
      * then subsequently selects a PhoneAccount which does not support video calling.
      * @throws Exception
      */
+    @FlakyTest
     @LargeTest
     public void testOutgoingCallSelectPhoneAccountNoVideo() throws Exception {
         startOutgoingPhoneCallPendingCreateConnection("650-555-1212",

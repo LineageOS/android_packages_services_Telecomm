@@ -405,7 +405,8 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
 
         Intent capturedIntent = intentCaptor.getValue();
         assertEquals(Intent.ACTION_NEW_OUTGOING_CALL, capturedIntent.getAction());
-        assertEquals(Intent.FLAG_RECEIVER_FOREGROUND, capturedIntent.getFlags());
+        assertEquals(Intent.FLAG_RECEIVER_FOREGROUND | Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND,
+                capturedIntent.getFlags());
         assertTrue(areBundlesEqual(expectedExtras, capturedIntent.getExtras()));
 
         BroadcastReceiver receiver = receiverCaptor.getValue();
