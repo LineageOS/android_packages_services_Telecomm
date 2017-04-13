@@ -116,6 +116,11 @@ public class Ringer {
             return isRingerAudible;
         }
 
+        if (foregroundCall.isSelfManaged()) {
+            Log.addEvent(foregroundCall, LogUtils.Events.SKIP_RINGING, "Self-managed");
+            return false;
+        }
+
         stopCallWaiting();
 
         if (!shouldRingForContact(foregroundCall.getContactUri())) {
@@ -158,6 +163,11 @@ public class Ringer {
 
         if (mInCallController.doesConnectedDialerSupportRinging()) {
             Log.addEvent(call, LogUtils.Events.SKIP_RINGING);
+            return;
+        }
+
+        if (call.isSelfManaged()) {
+            Log.addEvent(call, LogUtils.Events.SKIP_RINGING, "Self-managed");
             return;
         }
 
