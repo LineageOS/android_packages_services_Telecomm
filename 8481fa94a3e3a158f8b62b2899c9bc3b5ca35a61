@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a51691d_b71627f0",
+        "filename": "src/com/android/server/telecom/CallAudioModeStateMachine.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2017-04-13T00:12:24Z",
+      "side": 1,
+      "message": "Follow the coding standard, if (...) {",
+      "revId": "8481fa94a3e3a158f8b62b2899c9bc3b5ca35a61",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
