@@ -60,6 +60,7 @@ import org.mockito.stubbing.Answer;
 import java.util.Collections;
 import java.util.LinkedList;
 
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -406,11 +407,11 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.isIncoming()).thenReturn(true);
         when(mMockCall.isExternalCall()).thenReturn(false);
         when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID)).thenReturn(DEF_PKG);
-        when(mMockContext.bindServiceAsUser(
-                any(Intent.class), any(ServiceConnection.class), anyInt(), any(UserHandle.class)))
+        when(mMockContext.bindServiceAsUser(nullable(Intent.class),
+                nullable(ServiceConnection.class), anyInt(), nullable(UserHandle.class)))
                 .thenReturn(true);
-        when(mTimeoutsAdapter.getCallRemoveUnbindInCallServicesDelay(any(ContentResolver.class)))
-                .thenReturn(500L);
+        when(mTimeoutsAdapter.getCallRemoveUnbindInCallServicesDelay(
+                nullable(ContentResolver.class))).thenReturn(500L);
 
         when(mMockCallsManager.getCalls()).thenReturn(Collections.singletonList(mMockCall));
         setupMockPackageManager(true /* default */, true /* system */, false /* external calls */);
@@ -438,7 +439,7 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mockBinder.queryLocalInterface(anyString())).thenReturn(mockInCallService);
 
         serviceConnection.onServiceConnected(defDialerComponentName, mockBinder);
-        verify(mockInCallService).setInCallAdapter(any(IInCallAdapter.class));
+        verify(mockInCallService).setInCallAdapter(nullable(IInCallAdapter.class));
         verify(mMockContext, never()).unbindService(serviceConnection);
         verify(mockInCallService, never()).addCall(any(ParcelableCall.class));
 
