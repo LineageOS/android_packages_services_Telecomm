@@ -29,6 +29,7 @@ import android.util.SparseArray;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.os.SomeArgs;
+import com.android.internal.util.IState;
 import com.android.internal.util.State;
 import com.android.internal.util.StateMachine;
 import com.android.server.telecom.BluetoothHeadsetProxy;
@@ -43,6 +44,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class BluetoothRouteManager extends StateMachine {
     private static final String LOG_TAG = BluetoothRouteManager.class.getSimpleName();
@@ -581,8 +584,27 @@ public class BluetoothRouteManager extends StateMachine {
         return mDeviceManager.getNumConnectedDevices() > 0;
     }
 
+    /**
+     * This method needs be synchronized with the local looper because getCurrentState() depends
+     * on the internal state of the state machine being consistent. Therefore, there may be a
+     * delay when calling this method.
+     * @return
+     */
     public boolean isBluetoothAudioConnectedOrPending() {
-        return getCurrentState() != mAudioOffState;
+        IState[] state = new IState[] {null};
+        CountDownLatch latch = new CountDownLatch(1);
+        Runnable r = () -> {
+            state[0] = getCurrentState();
+            latch.countDown();
+        };
+        sendMessage(RUN_RUNNABLE, r);
+        try {
+            latch.await(1000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Log.w(LOG_TAG, "isBluetoothAudioConnectedOrPending -- interrupted getting state");
+            return false;
+        }
+        return (state[0] != null) && (state[0] != mAudioOffState);
     }
 
     /**
