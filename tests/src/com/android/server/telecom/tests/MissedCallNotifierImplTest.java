@@ -60,6 +60,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -207,9 +208,9 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         ArgumentCaptor<Integer> requestIdCaptor = ArgumentCaptor.forClass(
                 Integer.class);
         verify(mNotificationManager, times(2)).notifyAsUser(isNull(String.class),
-                requestIdCaptor.capture(), any(Notification.class), eq(userHandle));
-        verify(mNotificationManager).cancelAsUser(any(String.class), eq(requestIdCaptor.getValue()),
-                eq(userHandle));
+                requestIdCaptor.capture(), nullable(Notification.class), eq(userHandle));
+        verify(mNotificationManager).cancelAsUser(nullable(String.class),
+                eq(requestIdCaptor.getValue()), eq(userHandle));
 
         // Verify that the second call to showMissedCallNotification behaves like it were the first.
         verify(builder2).setContentText(CALLER_NAME);
@@ -423,15 +424,15 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                         CallLog.Calls.PRESENTATION_ALLOWED, CALL_TIMESTAMP)
                 .build();
 
-        when(cp.query(anyString(), eq(queryUri), any(String[].class), anyString(), any
-                (String[].class), anyString(), any(ICancellationSignal.class)))
+        when(cp.query(anyString(), eq(queryUri), nullable(String[].class), nullable(String.class),
+                nullable(String[].class), nullable(String.class), any(ICancellationSignal.class)))
                 .thenReturn(mockMissedCallsCursor);
 
         PhoneAccount phoneAccount = makePhoneAccount(PRIMARY_USER, NO_CAPABILITY);
         MissedCallNotifier.CallInfo fakeCallInfo = makeFakeCallInfo(TEL_CALL_HANDLE,
                 CALLER_NAME, CALL_TIMESTAMP, phoneAccount.getAccountHandle());
-        when(mockCallInfoFactory.makeCallInfo(any(CallerInfo.class),
-                any(PhoneAccountHandle.class), any(Uri.class), eq(CALL_TIMESTAMP)))
+        when(mockCallInfoFactory.makeCallInfo(nullable(CallerInfo.class),
+                nullable(PhoneAccountHandle.class), nullable(Uri.class), eq(CALL_TIMESTAMP)))
                 .thenReturn(fakeCallInfo);
 
         Notification.Builder builder1 = makeNotificationBuilder("builder1");
@@ -491,15 +492,15 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                 PRIMARY_USER.getIdentifier());
         IContentProvider cp = getContentProviderForUser(PRIMARY_USER.getIdentifier());
 
-        when(cp.query(anyString(), eq(queryUri), any(String[].class), anyString(), any
-                (String[].class), anyString(), any(ICancellationSignal.class)))
+        when(cp.query(anyString(), eq(queryUri), nullable(String[].class), nullable(String.class),
+                nullable(String[].class), nullable(String.class), any(ICancellationSignal.class)))
                 .thenReturn(mockMissedCallsCursor);
 
         PhoneAccount phoneAccount = makePhoneAccount(PRIMARY_USER, NO_CAPABILITY);
         MissedCallNotifier.CallInfo fakeCallInfo = makeFakeCallInfo(TEL_CALL_HANDLE,
                 CALLER_NAME, CALL_TIMESTAMP, phoneAccount.getAccountHandle());
-        when(mockCallInfoFactory.makeCallInfo(any(CallerInfo.class),
-                any(PhoneAccountHandle.class), any(Uri.class), eq(CALL_TIMESTAMP)))
+        when(mockCallInfoFactory.makeCallInfo(nullable(CallerInfo.class),
+                nullable(PhoneAccountHandle.class), nullable(Uri.class), eq(CALL_TIMESTAMP)))
                 .thenReturn(fakeCallInfo);
 
         Notification.Builder builder1 = makeNotificationBuilder("builder1");
@@ -534,7 +535,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
 
         // Verify that two notifications were generated, both with the same id.
         verify(mNotificationManager, times(2)).notifyAsUser(isNull(String.class), eq(1),
-                any(Notification.class), eq(PRIMARY_USER));
+                nullable(Notification.class), eq(PRIMARY_USER));
     }
 
     private Notification.Builder makeNotificationBuilder(String label) {

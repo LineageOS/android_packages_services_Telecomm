@@ -43,6 +43,7 @@ import com.android.server.telecom.TelecomSystem;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
@@ -100,7 +101,7 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
 
         assertEquals(DisconnectCause.NOT_DISCONNECTED, result);
         verify(mCallsManager).placeOutgoingCall(eq(mCall), eq(Uri.parse(voicemailNumber)),
-                any(GatewayInfo.class), eq(true), eq(VideoProfile.STATE_AUDIO_ONLY));
+                nullable(GatewayInfo.class), eq(true), eq(VideoProfile.STATE_AUDIO_ONLY));
     }
 
     @SmallTest

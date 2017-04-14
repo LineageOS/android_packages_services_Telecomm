@@ -173,6 +173,8 @@ public class VideoProviderTest extends TelecomSystemTest {
         doThrow(new SecurityException()).when(mContext)
                 .enforcePermission(anyString(), anyInt(), anyInt(), anyString());
 
+        // Set the target SDK version to to > N-MR1.
+        mVideoCallImpl.setTargetSdkVersion(Build.VERSION_CODES.CUR_DEVELOPMENT);
         // Make a request to change the camera
         mVideoCall.setCamera(MockVideoProvider.CAMERA_FRONT);
         mVerificationLock.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
@@ -199,6 +201,8 @@ public class VideoProviderTest extends TelecomSystemTest {
         doReturn(AppOpsManager.MODE_ERRORED).when(mAppOpsManager).noteOp(anyInt(), anyInt(),
                 anyString());
 
+        // Set the target SDK version to > N-MR1.
+        mVideoCallImpl.setTargetSdkVersion(Build.VERSION_CODES.CUR_DEVELOPMENT);
         // Make a request to change the camera
         mVideoCall.setCamera(MockVideoProvider.CAMERA_FRONT);
         mVerificationLock.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
@@ -209,6 +213,36 @@ public class VideoProviderTest extends TelecomSystemTest {
                 sessionEventCaptor.capture());
 
         assertEquals(VideoProvider.SESSION_EVENT_CAMERA_PERMISSION_ERROR,
+                sessionEventCaptor.getValue().intValue());
+    }
+
+    /**
+     * Tests the caller app ops check in {@link VideoCall#setCamera(String)} to ensure a camera
+     * change from a non-permitted caller is ignored. For < N-MR1, throw a CAMERA_FAILURE instead
+     * of a CAMERA_PERMISSION_ERROR.
+     */
+    @MediumTest
+    public void testCameraChangeAppOpsBelowNMR1Fail() throws Exception {
+        // Wait until the callback has been received before performing verification.
+        doAnswer(mVerification).when(mVideoCallCallback).onCallSessionEvent(anyInt());
+
+        // ensure app ops check fails.
+        doReturn(AppOpsManager.MODE_ERRORED).when(mAppOpsManager).noteOp(anyInt(), anyInt(),
+                anyString());
+
+        // Set the target SDK version to below N-MR1
+        mVideoCallImpl.setTargetSdkVersion(Build.VERSION_CODES.N);
+
+        // Make a request to change the camera
+        mVideoCall.setCamera(MockVideoProvider.CAMERA_FRONT);
+        mVerificationLock.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
+
+        // Capture the session event reported via the callback.
+        ArgumentCaptor<Integer> sessionEventCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(mVideoCallCallback, timeout(TEST_TIMEOUT)).onCallSessionEvent(
+                sessionEventCaptor.capture());
+
+        assertEquals(VideoProvider.SESSION_EVENT_CAMERA_FAILURE,
                 sessionEventCaptor.getValue().intValue());
     }
 
@@ -224,6 +258,8 @@ public class VideoProviderTest extends TelecomSystemTest {
         // Set a fake user to be the current foreground user.
         mTelecomSystem.getCallsManager().onUserSwitch(new UserHandle(1000));
 
+        // Set the target SDK version to > N-MR1
+        mVideoCallImpl.setTargetSdkVersion(Build.VERSION_CODES.CUR_DEVELOPMENT);
         // Make a request to change the camera
         mVideoCall.setCamera(MockVideoProvider.CAMERA_FRONT);
         mVerificationLock.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS);

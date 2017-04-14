@@ -48,6 +48,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyChar;
@@ -190,7 +191,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
         Call mockCall = createForegroundCall();
         PhoneAccount fakePhoneAccount = makeQuickAccount("id0", TEST_ACCOUNT_INDEX);
         when(mMockPhoneAccountRegistrar.getPhoneAccountOfCurrentUser(
-                any(PhoneAccountHandle.class))).thenReturn(fakePhoneAccount);
+                nullable(PhoneAccountHandle.class))).thenReturn(fakePhoneAccount);
 
         String networkOperator = mBluetoothPhoneService.mBinder.getNetworkOperator();
 
@@ -211,7 +212,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
         Call mockCall = createForegroundCall();
         PhoneAccount fakePhoneAccount = makeQuickAccount("id0", TEST_ACCOUNT_INDEX);
         when(mMockPhoneAccountRegistrar.getPhoneAccountOfCurrentUser(
-                any(PhoneAccountHandle.class))).thenReturn(fakePhoneAccount);
+                nullable(PhoneAccountHandle.class))).thenReturn(fakePhoneAccount);
 
         String subscriberNumber = mBluetoothPhoneService.mBinder.getSubscriberNumber();
 
@@ -223,9 +224,9 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
         Call mockCall = createForegroundCall();
         String fakeNumber = "8675309";
         when(mMockPhoneAccountRegistrar.getPhoneAccountOfCurrentUser(
-                any(PhoneAccountHandle.class))).thenReturn(null);
+                nullable(PhoneAccountHandle.class))).thenReturn(null);
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(
-                any(PhoneAccountHandle.class))).thenReturn(null);
+                nullable(PhoneAccountHandle.class))).thenReturn(null);
         when(TelephonyManager.from(mContext).getLine1Number()).thenReturn(fakeNumber);
 
         String subscriberNumber = mBluetoothPhoneService.mBinder.getSubscriberNumber();
@@ -297,7 +298,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
         mBluetoothPhoneService.mCallsManagerListener.onIsConferencedChanged(parentCall);
         // Make sure the call has only occurred collectively 2 times (not on the third)
         verify(mMockBluetoothHeadset, times(2)).phoneStateChanged(any(int.class),
-                any(int.class), any(int.class), any(String.class), any(int.class));
+                any(int.class), any(int.class), nullable(String.class), any(int.class));
     }
 
     @MediumTest
@@ -401,7 +402,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
                 "5550000", PhoneNumberUtils.TOA_Unknown);
         verify(mMockBluetoothHeadset).clccResponse(0, 0, 0, 0, false, null, 0);
         verify(mMockBluetoothHeadset, times(2)).clccResponse(anyInt(),
-                anyInt(), anyInt(), anyInt(), anyBoolean(), anyString(), anyInt());
+                anyInt(), anyInt(), anyInt(), anyBoolean(), nullable(String.class), anyInt());
     }
 
     @MediumTest
@@ -416,7 +417,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
         mBluetoothPhoneService.mBinder.listCurrentCalls();
         verify(mMockBluetoothHeadset).clccResponse(0, 0, 0, 0, false, null, 0);
         verify(mMockBluetoothHeadset, times(1)).clccResponse(anyInt(),
-                anyInt(), anyInt(), anyInt(), anyBoolean(), anyString(), anyInt());
+                anyInt(), anyInt(), anyInt(), anyBoolean(), nullable(String.class), anyInt());
     }
 
     @MediumTest
@@ -436,7 +437,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
                 "5550000", PhoneNumberUtils.TOA_Unknown);
         verify(mMockBluetoothHeadset).clccResponse(0, 0, 0, 0, false, null, 0);
         verify(mMockBluetoothHeadset, times(2)).clccResponse(anyInt(),
-                anyInt(), anyInt(), anyInt(), anyBoolean(), anyString(), anyInt());
+                anyInt(), anyInt(), anyInt(), anyBoolean(), nullable(String.class), anyInt());
     }
 
     @MediumTest
@@ -490,7 +491,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
                 "5550000", PhoneNumberUtils.TOA_Unknown);
         verify(mMockBluetoothHeadset).clccResponse(0, 0, 0, 0, false, null, 0);
         verify(mMockBluetoothHeadset, times(2)).clccResponse(anyInt(),
-                anyInt(), anyInt(), anyInt(), anyBoolean(), anyString(), anyInt());
+                anyInt(), anyInt(), anyInt(), anyBoolean(), nullable(String.class), anyInt());
     }
 
     @MediumTest
@@ -519,7 +520,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
                 "5550001", PhoneNumberUtils.TOA_Unknown);
         verify(mMockBluetoothHeadset).clccResponse(0, 0, 0, 0, false, null, 0);
         verify(mMockBluetoothHeadset, times(3)).clccResponse(anyInt(),
-                anyInt(), anyInt(), anyInt(), anyBoolean(), anyString(), anyInt());
+                anyInt(), anyInt(), anyInt(), anyBoolean(), nullable(String.class), anyInt());
     }
 
     @MediumTest
@@ -607,7 +608,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
 
         boolean didProcess = mBluetoothPhoneService.mBinder.processChld(CHLD_TYPE_RELEASEHELD);
 
-        verify(mMockCallsManager).rejectCall(eq(ringingCall), eq(false), any(String.class));
+        verify(mMockCallsManager).rejectCall(eq(ringingCall), eq(false), nullable(String.class));
         assertEquals(didProcess, true);
     }
 
