@@ -46,6 +46,7 @@ import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.EventLog;
 
 import com.android.internal.telecom.ITelecomService;
@@ -76,8 +77,6 @@ public class TelecomServiceImpl {
         }
     }
 
-    private static final String PERMISSION_PROCESS_PHONE_ACCOUNT_REGISTRATION =
-            "android.permission.PROCESS_PHONE_ACCOUNT_REGISTRATION";
     private static final int DEFAULT_VIDEO_STATE = -1;
 
     private final ITelecomService.Stub mBinderImpl = new ITelecomService.Stub() {
@@ -399,20 +398,6 @@ public class TelecomServiceImpl {
                         }
                         enforceUserHandleMatchesCaller(account.getAccountHandle());
                         mPhoneAccountRegistrar.registerPhoneAccount(account);
-                        // Broadcast an intent indicating the phone account which was registered.
-                        long token = Binder.clearCallingIdentity();
-                        try {
-                            Intent intent = new Intent(
-                                    TelecomManager.ACTION_PHONE_ACCOUNT_REGISTERED);
-                            intent.addFlags(Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND);
-                            intent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE,
-                                    account.getAccountHandle());
-                            Log.i(this, "Sending phone-account registered intent as user");
-                            mContext.sendBroadcastAsUser(intent, UserHandle.ALL,
-                                    PERMISSION_PROCESS_PHONE_ACCOUNT_REGISTRATION);
-                        } finally {
-                            Binder.restoreCallingIdentity(token);
-                        }
                     } catch (Exception e) {
                         Log.e(this, e, "registerPhoneAccount %s", account);
                         throw e;
@@ -432,21 +417,6 @@ public class TelecomServiceImpl {
                             accountHandle.getComponentName().getPackageName());
                     enforceUserHandleMatchesCaller(accountHandle);
                     mPhoneAccountRegistrar.unregisterPhoneAccount(accountHandle);
-
-                    // Broadcast an intent indicating the phone account which was unregistered.
-                    long token = Binder.clearCallingIdentity();
-                    try {
-                        Intent intent =
-                                new Intent(TelecomManager.ACTION_PHONE_ACCOUNT_UNREGISTERED);
-                        intent.addFlags(Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND);
-                        intent.putExtra(
-                                TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, accountHandle);
-                        Log.i(this, "Sending phone-account unregistered intent as user");
-                        mContext.sendBroadcastAsUser(intent, UserHandle.ALL,
-                                PERMISSION_PROCESS_PHONE_ACCOUNT_REGISTRATION);
-                    } finally {
-                        Binder.restoreCallingIdentity(token);
-                    }
                 } catch (Exception e) {
                     Log.e(this, e, "unregisterPhoneAccount %s", accountHandle);
                     throw e;
