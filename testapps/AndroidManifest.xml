@@ -66,7 +66,8 @@
             <intent-filter>
                 <action android:name="android.server.telecom.testapps.ACTION_SEND_UPDATE_REQUEST_FROM_TEST_INCALL_SERVICE"/>
                 <action android:name="android.server.telecom.testapps.ACTION_SEND_UPGRADE_RESPONSE"/>
-                <data android:scheme="int" />
+                <action android:name="android.telecom.action.PHONE_ACCOUNT_REGISTERED"/>
+                <action android:name="android.telecom.action.PHONE_ACCOUNT_UNREGISTERED"/>
             </intent-filter>
         </receiver>
 
