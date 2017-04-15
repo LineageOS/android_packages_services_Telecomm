@@ -122,6 +122,27 @@ public class CallsManager extends Call.ListenerBase
 
     private static final String TAG = "CallsManager";
 
+    /**
+     * Call filter specifier used with
+     * {@link #getNumCallsWithState(int, Call, PhoneAccountHandle, int...)} to indicate only
+     * self-managed calls should be included.
+     */
+    private static final int CALL_FILTER_SELF_MANAGED = 1;
+
+    /**
+     * Call filter specifier used with
+     * {@link #getNumCallsWithState(int, Call, PhoneAccountHandle, int...)} to indicate only
+     * managed calls should be included.
+     */
+    private static final int CALL_FILTER_MANAGED = 2;
+
+    /**
+     * Call filter specifier used with
+     * {@link #getNumCallsWithState(int, Call, PhoneAccountHandle, int...)} to indicate both managed
+     * and self-managed calls should be included.
+     */
+    private static final int CALL_FILTER_ALL = 3;
+
     private static final int HANDLER_WAIT_TIMEOUT = 10000;
     private static final int MAXIMUM_LIVE_CALLS = 1;
     private static final int MAXIMUM_HOLD_CALLS = 1;
@@ -135,9 +156,24 @@ public class CallsManager extends Call.ListenerBase
             {CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING,
                     CallState.PULLING};
 
+    /**
+     * These states are used by {@link #makeRoomForOutgoingCall(Call, boolean)} to determine which
+     * call should be ended first to make room for a new outgoing call.
+     */
     private static final int[] LIVE_CALL_STATES =
             {CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING,
                     CallState.PULLING, CallState.ACTIVE};
+
+    /**
+     * These states determine which calls will cause {@link TelecomManager#isInCall()} or
+     * {@link TelecomManager#isInManagedCall()} to return true.
+     *
+     * See also {@link PhoneStateBroadcaster}, which considers a similar set of states as being
+     * off-hook.
+     */
+    public static final int[] ONGOING_CALL_STATES =
+            {CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING, CallState.PULLING, CallState.ACTIVE,
+                    CallState.ON_HOLD, CallState.RINGING};
 
     private static final int[] ANY_CALL_STATE =
             {CallState.NEW, CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING,
@@ -2113,16 +2149,40 @@ public class CallsManager extends Call.ListenerBase
 
     @VisibleForTesting
     public int getNumCallsWithState(final boolean isSelfManaged, Call excludeCall,
-                                     PhoneAccountHandle phoneAccountHandle, int... states) {
+                                    PhoneAccountHandle phoneAccountHandle, int... states) {
+        return getNumCallsWithState(isSelfManaged ? CALL_FILTER_SELF_MANAGED : CALL_FILTER_MANAGED,
+                excludeCall, phoneAccountHandle, states);
+    }
+
+    /**
+     * Determines the number of calls matching the specified criteria.
+     * @param callFilter indicates whether to include just managed calls
+     *                   ({@link #CALL_FILTER_MANAGED}), self-managed calls
+     *                   ({@link #CALL_FILTER_SELF_MANAGED}), or all calls
+     *                   ({@link #CALL_FILTER_ALL}).
+     * @param excludeCall Where {@code non-null}, this call is excluded from the count.
+     * @param phoneAccountHandle Where {@code non-null}, calls for this {@link PhoneAccountHandle}
+     *                           are excluded from the count.
+     * @param states The list of {@link CallState}s to include in the count.
+     * @return Count of calls matching criteria.
+     */
+    @VisibleForTesting
+    public int getNumCallsWithState(final int callFilter, Call excludeCall,
+                                    PhoneAccountHandle phoneAccountHandle, int... states) {
 
         Set<Integer> desiredStates = IntStream.of(states).boxed().collect(Collectors.toSet());
 
         Stream<Call> callsStream = mCalls.stream()
                 .filter(call -> desiredStates.contains(call.getState()) &&
-                        call.getParentCall() == null && !call.isExternalCall() &&
-                        call.isSelfManaged() == isSelfManaged);
+                        call.getParentCall() == null && !call.isExternalCall());
 
-        // If a call to exclude was specifeid, filter it out.
+        if (callFilter == CALL_FILTER_MANAGED) {
+            callsStream = callsStream.filter(call -> !call.isSelfManaged());
+        } else if (callFilter == CALL_FILTER_SELF_MANAGED) {
+            callsStream = callsStream.filter(call -> call.isSelfManaged());
+        }
+
+        // If a call to exclude was specified, filter it out.
         if (excludeCall != null) {
             callsStream = callsStream.filter(call -> call != excludeCall);
         }
@@ -2213,18 +2273,31 @@ public class CallsManager extends Call.ListenerBase
     }
 
     /**
+     * Determines if there are any ongoing managed or self-managed calls.
+     * Note: The {@link #ONGOING_CALL_STATES} are
+     * @return {@code true} if there are ongoing managed or self-managed calls, {@code false}
+     *      otherwise.
+     */
+    public boolean hasOngoingCalls() {
+        return getNumCallsWithState(
+                CALL_FILTER_ALL, null /* excludeCall */,
+                null /* phoneAccountHandle */,
+                ONGOING_CALL_STATES) > 0;
+    }
+
+    /**
      * Determines if there are any ongoing managed calls.
      * @return {@code true} if there are ongoing managed calls, {@code false} otherwise.
      */
     public boolean hasOngoingManagedCalls() {
         return getNumCallsWithState(
-                false /* isSelfManaged */, null /* excludeCall */,
+                CALL_FILTER_MANAGED, null /* excludeCall */,
                 null /* phoneAccountHandle */,
-                LIVE_CALL_STATES) > 0;
+                ONGOING_CALL_STATES) > 0;
     }
 
     /**
-     * Deteremines if the system incoming call UI should be shown.
+     * Determines if the system incoming call UI should be shown.
      * The system incoming call UI will be shown if the new incoming call is self-managed, and there
      * are ongoing calls for another PhoneAccount.
      * @param incomingCall The incoming call.
