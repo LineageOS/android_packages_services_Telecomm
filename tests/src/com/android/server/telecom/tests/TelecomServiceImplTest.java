@@ -878,6 +878,56 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         verify(call).answer(realVideoState);
     }
 
+    @SmallTest
+    public void testIsInCall() throws Exception {
+        when(mFakeCallsManager.hasOngoingCalls()).thenReturn(true);
+        assertTrue(mTSIBinder.isInCall(DEFAULT_DIALER_PACKAGE));
+    }
+
+    @SmallTest
+    public void testNotIsInCall() throws Exception {
+        when(mFakeCallsManager.hasOngoingCalls()).thenReturn(false);
+        assertFalse(mTSIBinder.isInCall(DEFAULT_DIALER_PACKAGE));
+    }
+
+    @SmallTest
+    public void testIsInCallFail() throws Exception {
+        doThrow(new SecurityException()).when(mContext).enforceCallingOrSelfPermission(
+                anyString(), any());
+        try {
+            mTSIBinder.isInCall("blah");
+            fail();
+        } catch (SecurityException e) {
+            // desired result
+        }
+        verify(mFakeCallsManager, never()).hasOngoingCalls();
+    }
+
+    @SmallTest
+    public void testIsInManagedCall() throws Exception {
+        when(mFakeCallsManager.hasOngoingManagedCalls()).thenReturn(true);
+        assertTrue(mTSIBinder.isInManagedCall(DEFAULT_DIALER_PACKAGE));
+    }
+
+    @SmallTest
+    public void testNotIsInManagedCall() throws Exception {
+        when(mFakeCallsManager.hasOngoingManagedCalls()).thenReturn(false);
+        assertFalse(mTSIBinder.isInManagedCall(DEFAULT_DIALER_PACKAGE));
+    }
+
+    @SmallTest
+    public void testIsInManagedCallFail() throws Exception {
+        doThrow(new SecurityException()).when(mContext).enforceCallingOrSelfPermission(
+                anyString(), any());
+        try {
+            mTSIBinder.isInManagedCall("blah");
+            fail();
+        } catch (SecurityException e) {
+            // desired result
+        }
+        verify(mFakeCallsManager, never()).hasOngoingCalls();
+    }
+
     /**
      * Register phone accounts for the supplied PhoneAccountHandles to make them
      * visible to all users (via the isVisibleToCaller method in TelecomServiceImpl.
