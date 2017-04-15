@@ -143,6 +143,9 @@ public class CallsManager extends Call.ListenerBase
      */
     private static final int CALL_FILTER_ALL = 3;
 
+    private static final String PERMISSION_PROCESS_PHONE_ACCOUNT_REGISTRATION =
+            "android.permission.PROCESS_PHONE_ACCOUNT_REGISTRATION";
+
     private static final int HANDLER_WAIT_TIMEOUT = 10000;
     private static final int MAXIMUM_LIVE_CALLS = 1;
     private static final int MAXIMUM_HOLD_CALLS = 1;
@@ -262,6 +265,21 @@ public class CallsManager extends Call.ListenerBase
     private Runnable mStopTone;
 
     /**
+     * Listener to PhoneAccountRegistrar events.
+     */
+    private PhoneAccountRegistrar.Listener mPhoneAccountListener =
+            new PhoneAccountRegistrar.Listener() {
+        public void onPhoneAccountRegistered(PhoneAccountRegistrar registrar,
+                                             PhoneAccountHandle handle) {
+            broadcastRegisterIntent(handle);
+        }
+        public void onPhoneAccountUnRegistered(PhoneAccountRegistrar registrar,
+                                               PhoneAccountHandle handle) {
+            broadcastUnregisterIntent(handle);
+        }
+    };
+
+    /**
      * Initializes the required Telecom components.
      */
     CallsManager(
@@ -290,6 +308,7 @@ public class CallsManager extends Call.ListenerBase
         mContactsAsyncHelper = contactsAsyncHelper;
         mCallerInfoAsyncQueryFactory = callerInfoAsyncQueryFactory;
         mPhoneAccountRegistrar = phoneAccountRegistrar;
+        mPhoneAccountRegistrar.addListener(mPhoneAccountListener);
         mMissedCallNotifier = missedCallNotifier;
         StatusBarNotifier statusBarNotifier = new StatusBarNotifier(context, this);
         mWiredHeadsetManager = wiredHeadsetManager;
@@ -2744,5 +2763,51 @@ public class CallsManager extends Call.ListenerBase
             call.setConnectionService(service);
             service.createConnectionFailed(call);
         }
+    }
+
+    private void broadcastUnregisterIntent(PhoneAccountHandle accountHandle) {
+        Intent intent =
+                new Intent(TelecomManager.ACTION_PHONE_ACCOUNT_UNREGISTERED);
+        intent.addFlags(Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND);
+        intent.putExtra(
+                TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, accountHandle);
+        Log.i(this, "Sending phone-account %s unregistered intent as user", accountHandle);
+        mContext.sendBroadcastAsUser(intent, UserHandle.ALL,
+                PERMISSION_PROCESS_PHONE_ACCOUNT_REGISTRATION);
+
+        String dialerPackage = mDefaultDialerCache.getDefaultDialerApplication(
+                getCurrentUserHandle().getIdentifier());
+        if (!TextUtils.isEmpty(dialerPackage)) {
+            Intent directedIntent = new Intent(TelecomManager.ACTION_PHONE_ACCOUNT_UNREGISTERED)
+                    .setPackage(dialerPackage);
+            directedIntent.putExtra(
+                    TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, accountHandle);
+            Log.i(this, "Sending phone-account unregistered intent to default dialer");
+            mContext.sendBroadcastAsUser(directedIntent, UserHandle.ALL, null);
+        }
+        return ;
+    }
+
+    private void broadcastRegisterIntent(PhoneAccountHandle accountHandle) {
+        Intent intent = new Intent(
+                TelecomManager.ACTION_PHONE_ACCOUNT_REGISTERED);
+        intent.addFlags(Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND);
+        intent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE,
+                accountHandle);
+        Log.i(this, "Sending phone-account %s registered intent as user", accountHandle);
+        mContext.sendBroadcastAsUser(intent, UserHandle.ALL,
+                PERMISSION_PROCESS_PHONE_ACCOUNT_REGISTRATION);
+
+        String dialerPackage = mDefaultDialerCache.getDefaultDialerApplication(
+                getCurrentUserHandle().getIdentifier());
+        if (!TextUtils.isEmpty(dialerPackage)) {
+            Intent directedIntent = new Intent(TelecomManager.ACTION_PHONE_ACCOUNT_REGISTERED)
+                    .setPackage(dialerPackage);
+            directedIntent.putExtra(
+                    TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, accountHandle);
+            Log.i(this, "Sending phone-account registered intent to default dialer");
+            mContext.sendBroadcastAsUser(directedIntent, UserHandle.ALL, null);
+        }
+        return ;
     }
 }

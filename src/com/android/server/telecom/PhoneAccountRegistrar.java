@@ -120,6 +120,10 @@ public class PhoneAccountRegistrar {
         public void onAccountsChanged(PhoneAccountRegistrar registrar) {}
         public void onDefaultOutgoingChanged(PhoneAccountRegistrar registrar) {}
         public void onSimCallManagerChanged(PhoneAccountRegistrar registrar) {}
+        public void onPhoneAccountRegistered(PhoneAccountRegistrar registrar,
+                                             PhoneAccountHandle handle) {}
+        public void onPhoneAccountUnRegistered(PhoneAccountRegistrar registrar,
+                                             PhoneAccountHandle handle) {}
     }
 
     /**
@@ -652,14 +656,17 @@ public class PhoneAccountRegistrar {
         // !!! IMPORTANT !!! It is important that we do not read the enabled state that the
         // source app provides or else an third party app could enable itself.
         boolean isEnabled = false;
+        boolean isNewAccount;
 
         PhoneAccount oldAccount = getPhoneAccountUnchecked(account.getAccountHandle());
         if (oldAccount != null) {
             mState.accounts.remove(oldAccount);
             isEnabled = oldAccount.isEnabled();
-            Log.i(this, getAccountDiffString(account, oldAccount));
+            Log.i(this, "Modify account: %s", getAccountDiffString(account, oldAccount));
+            isNewAccount = false;
         } else {
             Log.i(this, "New phone account registered: " + account);
+            isNewAccount = true;
         }
 
         // When registering a self-managed PhoneAccount we enforce the rule that the label that the
@@ -695,6 +702,9 @@ public class PhoneAccountRegistrar {
 
         write();
         fireAccountsChanged();
+        if (isNewAccount) {
+            fireAccountRegistered(account.getAccountHandle());
+        }
     }
 
     public void unregisterPhoneAccount(PhoneAccountHandle accountHandle) {
@@ -703,6 +713,7 @@ public class PhoneAccountRegistrar {
             if (mState.accounts.remove(account)) {
                 write();
                 fireAccountsChanged();
+                fireAccountUnRegistered(accountHandle);
             }
         }
     }
@@ -748,6 +759,18 @@ public class PhoneAccountRegistrar {
         }
     }
 
+    private void fireAccountRegistered(PhoneAccountHandle handle) {
+        for (Listener l : mListeners) {
+            l.onPhoneAccountRegistered(this, handle);
+        }
+    }
+
+    private void fireAccountUnRegistered(PhoneAccountHandle handle) {
+        for (Listener l : mListeners) {
+            l.onPhoneAccountUnRegistered(this, handle);
+        }
+    }
+
     private void fireAccountsChanged() {
         for (Listener l : mListeners) {
             l.onAccountsChanged(this);
@@ -771,7 +794,6 @@ public class PhoneAccountRegistrar {
                 Log.piiHandle(account2.getAddress()));
         appendDiff(sb, "cap", account1.getCapabilities(), account2.getCapabilities());
         appendDiff(sb, "hl", account1.getHighlightColor(), account2.getHighlightColor());
-        appendDiff(sb, "icon", account1.getIcon(), account2.getIcon());
         appendDiff(sb, "lbl", account1.getLabel(), account2.getLabel());
         appendDiff(sb, "desc", account1.getShortDescription(), account2.getShortDescription());
         appendDiff(sb, "subAddr", Log.piiHandle(account1.getSubscriptionAddress()),
