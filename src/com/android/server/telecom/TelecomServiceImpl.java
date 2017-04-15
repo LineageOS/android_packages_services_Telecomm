@@ -667,9 +667,7 @@ public class TelecomServiceImpl {
                 }
 
                 synchronized (mLock) {
-                    final int callState = mCallsManager.getCallState();
-                    return callState == TelephonyManager.CALL_STATE_OFFHOOK
-                            || callState == TelephonyManager.CALL_STATE_RINGING;
+                    return mCallsManager.hasOngoingCalls();
                 }
             } finally {
                 Log.endSession();
