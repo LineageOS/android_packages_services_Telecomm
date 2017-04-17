@@ -97,40 +97,43 @@ public class Ringer {
         mInCallController = inCallController;
     }
 
-    public boolean startRinging(Call foregroundCall) {
-        AudioManager audioManager =
-                (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-        boolean isRingerAudible = audioManager.getStreamVolume(AudioManager.STREAM_RING) > 0;
-
-        if (mSystemSettingsUtil.isTheaterModeOn(mContext)) {
-            return false;
-        }
-
+    public boolean startRinging(Call foregroundCall, boolean isHfpDeviceAttached) {
         if (foregroundCall == null) {
             Log.wtf(this, "startRinging called with null foreground call.");
             return false;
         }
 
-        if (mInCallController.doesConnectedDialerSupportRinging()) {
-            Log.addEvent(foregroundCall, LogUtils.Events.SKIP_RINGING);
-            return isRingerAudible;
-        }
+        AudioManager audioManager =
+                (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+        boolean isVolumeOverZero = audioManager.getStreamVolume(AudioManager.STREAM_RING) > 0;
+        boolean shouldRingForContact = shouldRingForContact(foregroundCall.getContactUri());
+        boolean isRingtonePresent = !(mRingtoneFactory.getRingtone(foregroundCall) == null);
+        boolean isSelfManaged = foregroundCall.isSelfManaged();
 
-        if (foregroundCall.isSelfManaged()) {
-            Log.addEvent(foregroundCall, LogUtils.Events.SKIP_RINGING, "Self-managed");
-            return false;
+        boolean isRingerAudible = isVolumeOverZero && shouldRingForContact && isRingtonePresent;
+        // Acquire audio focus under any of the following conditions:
+        // 1. Should ring for contact and there's an HFP device attached
+        // 2. Volume is over zero, we should ring for the contact, and there's a audible ringtone
+        //    present.
+        // 3. The call is self-managed.
+        boolean shouldAcquireAudioFocus =
+                isRingerAudible || (isHfpDeviceAttached && shouldRingForContact) || isSelfManaged;
+
+        // Don't do call waiting operations or vibration unless these are false.
+        boolean isTheaterModeOn = mSystemSettingsUtil.isTheaterModeOn(mContext);
+        boolean letDialerHandleRinging = mInCallController.doesConnectedDialerSupportRinging();
+        boolean endEarly = isTheaterModeOn || letDialerHandleRinging || isSelfManaged;
+
+        if (endEarly) {
+            if (letDialerHandleRinging) {
+                Log.addEvent(foregroundCall, LogUtils.Events.SKIP_RINGING);
+            }
+            Log.i(this, "Ending early -- isTheaterModeOn=%s, letDialerHandleRinging=%s, " +
+                    "isSelfManaged=%s", isTheaterModeOn, letDialerHandleRinging, isSelfManaged);
+            return shouldAcquireAudioFocus;
         }
 
         stopCallWaiting();
-
-        if (!shouldRingForContact(foregroundCall.getContactUri())) {
-            return false;
-        }
-
-        // Don't ring/acquire focus if there is no ringtone
-        if (mRingtoneFactory.getRingtone(foregroundCall) == null) {
-            isRingerAudible = false;
-        }
 
         if (isRingerAudible) {
             mRingingCall = foregroundCall;
@@ -141,10 +144,12 @@ public class Ringer {
             // request the custom ringtone from the call and expect it to be current.
             mRingtonePlayer.play(mRingtoneFactory, foregroundCall);
         } else {
-            Log.i(this, "startRingingOrCallWaiting, skipping because volume is 0");
+            Log.i(this, "startRinging: skipping because ringer would not be audible. " +
+                    "isVolumeOverZero=%s, shouldRingForContact=%s, isRingtonePresent=%s",
+                    isVolumeOverZero, shouldRingForContact, isRingtonePresent);
         }
 
-        if (shouldVibrate(mContext, foregroundCall) && !mIsVibrating) {
+        if (shouldVibrate(mContext, foregroundCall) && !mIsVibrating && shouldRingForContact) {
             mVibratingCall = foregroundCall;
             mVibrator.vibrate(VIBRATION_PATTERN, VIBRATION_PATTERN_REPEAT,
                     VIBRATION_ATTRIBUTES);
@@ -153,7 +158,7 @@ public class Ringer {
             Log.addEvent(foregroundCall, LogUtils.Events.SKIP_VIBRATION, "already vibrating");
         }
 
-        return isRingerAudible;
+        return shouldAcquireAudioFocus;
     }
 
     public void startCallWaiting(Call call) {

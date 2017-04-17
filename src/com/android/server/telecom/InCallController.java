@@ -61,7 +61,7 @@ import java.util.Objects;
  * can send updates to the in-call app. This class is created and owned by CallsManager and retains
  * a binding to the {@link IInCallService} (implemented by the in-call app).
  */
-public final class InCallController extends CallsManagerListenerBase {
+public class InCallController extends CallsManagerListenerBase {
 
     public class InCallServiceConnection {
         /**
