@@ -18,7 +18,11 @@ package com.android.server.telecom;
 
 
 import android.app.ActivityManager;
+import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.UserInfo;
 import android.media.AudioManager;
 import android.media.IAudioService;
@@ -154,6 +158,49 @@ public class CallAudioRouteStateMachine extends StateMachine {
         put(RUN_RUNNABLE, "RUN_RUNNABLE");
     }};
 
+    /**
+     * BroadcastReceiver used to track changes in the notification interruption filter.  This
+     * ensures changes to the notification interruption filter made by the user during a call are
+     * respected when restoring the notification interruption filter state.
+     */
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.startSession("CARSM.oR");
+            try {
+                String action = intent.getAction();
+
+                if (action.equals(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED)) {
+                    // We get an this broadcast any time the notification filter is changed, even if
+                    // we are the initiator of the change.
+                    // So, we'll look at who the initiator of the manual zen rule is in the
+                    // notification manager.  If its us, then we can just exit now.
+                    String initiator =
+                            mInterruptionFilterProxy.getInterruptionModeInitiator();
+
+                    if (TELECOM_PACKAGE.equals(initiator)) {
+                        // We are the initiator of this change, so ignore it.
+                        Log.i(this, "interruptionFilterChanged - ignoring own change");
+                        return;
+                    }
+
+                    if (mAreNotificationSuppressed) {
+                        // If we've already set the interruption filter, and the user changes it to
+                        // something other than INTERRUPTION_FILTER_ALARMS, assume we will no longer
+                        // try to change it back if the audio route changes.
+                        mAreNotificationSuppressed =
+                                mInterruptionFilterProxy.getCurrentInterruptionFilter()
+                                        == NotificationManager.INTERRUPTION_FILTER_ALARMS;
+                        Log.i(this, "interruptionFilterChanged - changing to %b",
+                                mAreNotificationSuppressed);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+    };
+
     private static final String ACTIVE_EARPIECE_ROUTE_NAME = "ActiveEarpieceRoute";
     private static final String ACTIVE_BLUETOOTH_ROUTE_NAME = "ActiveBluetoothRoute";
     private static final String ACTIVE_SPEAKER_ROUTE_NAME = "ActiveSpeakerRoute";
@@ -268,10 +315,19 @@ public class CallAudioRouteStateMachine extends StateMachine {
             super.enter();
             setSpeakerphoneOn(false);
             setBluetoothOn(false);
+            if (mAudioFocusType == ACTIVE_FOCUS) {
+                setNotificationsSuppressed(true);
+            }
             CallAudioState newState = new CallAudioState(mIsMuted, ROUTE_EARPIECE,
                     mAvailableRoutes);
             setSystemAudioState(newState, true);
             updateInternalCallAudioState();
+        }
+
+        @Override
+        public void exit() {
+            super.exit();
+            setNotificationsSuppressed(false);
         }
 
         @Override
@@ -312,6 +368,10 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     transitionTo(mActiveSpeakerRoute);
                     return HANDLED;
                 case SWITCH_FOCUS:
+                    if (msg.arg1 == ACTIVE_FOCUS) {
+                        setNotificationsSuppressed(true);
+                    }
+
                     if (msg.arg1 == NO_FOCUS) {
                         reinitialize();
                     }
@@ -1091,6 +1151,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
     private int mAudioFocusType;
     private boolean mWasOnSpeaker;
     private boolean mIsMuted;
+    private boolean mAreNotificationSuppressed = false;
 
     private final Context mContext;
     private final CallsManager mCallsManager;
@@ -1099,6 +1160,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
     private final WiredHeadsetManager mWiredHeadsetManager;
     private final StatusBarNotifier mStatusBarNotifier;
     private final CallAudioManager.AudioServiceFactory mAudioServiceFactory;
+    private final InterruptionFilterProxy mInterruptionFilterProxy;
     private final boolean mDoesDeviceSupportEarpieceRoute;
     private final TelecomSystem.SyncRoot mLock;
     private boolean mHasUserExplicitlyLeftBluetooth = false;
@@ -1118,6 +1180,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
             WiredHeadsetManager wiredHeadsetManager,
             StatusBarNotifier statusBarNotifier,
             CallAudioManager.AudioServiceFactory audioServiceFactory,
+            InterruptionFilterProxy interruptionFilterProxy,
             boolean doesDeviceSupportEarpieceRoute) {
         super(NAME);
         addState(mActiveEarpieceRoute);
@@ -1137,6 +1200,11 @@ public class CallAudioRouteStateMachine extends StateMachine {
         mWiredHeadsetManager = wiredHeadsetManager;
         mStatusBarNotifier = statusBarNotifier;
         mAudioServiceFactory = audioServiceFactory;
+        mInterruptionFilterProxy = interruptionFilterProxy;
+        // Register for misc other intent broadcasts.
+        IntentFilter intentFilter =
+                new IntentFilter(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED);
+        context.registerReceiver(mReceiver, intentFilter);
         mDoesDeviceSupportEarpieceRoute = doesDeviceSupportEarpieceRoute;
         mLock = callsManager.getLock();
 
@@ -1257,6 +1325,49 @@ public class CallAudioRouteStateMachine extends StateMachine {
 
     public boolean isHfpDeviceAvailable() {
         return mBluetoothRouteManager.isBluetoothAvailable();
+    }
+
+    /**
+     * Sets whether notifications should be suppressed or not.  Used when in a call to ensure the
+     * device will not vibrate due to notifications.
+     * Alarm-only filtering is activated when
+     *
+     * @param on {@code true} when notification suppression should be activated, {@code false} when
+     *                       it should be deactivated.
+     */
+    private void setNotificationsSuppressed(boolean on) {
+        if (mInterruptionFilterProxy == null) {
+            return;
+        }
+
+        Log.i(this, "setNotificationsSuppressed: on=%s; suppressed=%s", (on ? "yes" : "no"),
+                (mAreNotificationSuppressed ? "yes" : "no"));
+        if (on) {
+            if (!mAreNotificationSuppressed) {
+                // Enabling suppression of notifications.
+                int interruptionFilter = mInterruptionFilterProxy.getCurrentInterruptionFilter();
+                if (interruptionFilter == NotificationManager.INTERRUPTION_FILTER_ALL) {
+                    // No interruption filter is specified, so suppress notifications by setting the
+                    // current filter to alarms-only.
+                    mAreNotificationSuppressed = true;
+                    mInterruptionFilterProxy.setInterruptionFilter(
+                            NotificationManager.INTERRUPTION_FILTER_ALARMS);
+                } else {
+                    // Interruption filter is already chosen by the user, so do not attempt to change
+                    // it.
+                    mAreNotificationSuppressed = false;
+                }
+            }
+        } else {
+            // Disabling suppression of notifications.
+            if (mAreNotificationSuppressed) {
+                // We have implemented the alarms-only policy and the user has not changed it since
+                // we originally set it, so reset the notification filter.
+                mInterruptionFilterProxy.setInterruptionFilter(
+                        NotificationManager.INTERRUPTION_FILTER_ALL);
+            }
+            mAreNotificationSuppressed = false;
+        }
     }
 
     private void setSpeakerphoneOn(boolean on) {
