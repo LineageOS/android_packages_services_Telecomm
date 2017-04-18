@@ -692,36 +692,6 @@ public class PhoneAccountRegistrar {
         }
 
         mState.accounts.add(account);
-        if (mState.accounts.size() > 1) {
-            mState.accounts.sort(new Comparator<PhoneAccount>() {
-                public int compare(PhoneAccount phoneaccount1, PhoneAccount phoneaccount2) {
-                    if (phoneaccount1.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
-                            && phoneaccount2
-                                    .hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
-                        int slotId1 = phoneaccount1.getExtras()
-                                .getInt(PhoneAccount.EXTRA_SORT_ORDER);
-                        int slotId2 = phoneaccount2.getExtras()
-                                .getInt(PhoneAccount.EXTRA_SORT_ORDER);
-                        return (slotId1 < slotId2 ? -1 : (slotId1 == slotId2 ? 0 : 1));
-                    } else if (phoneaccount1
-                            .hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
-                            && !phoneaccount2
-                                    .hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
-                        return -1;
-                    } else if (!phoneaccount1
-                            .hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
-                            && phoneaccount2
-                                    .hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
-                        return 1;
-                    } else {
-                        return nullToEmpty(phoneaccount1.getLabel().toString())
-                                .compareToIgnoreCase(
-                                        nullToEmpty(phoneaccount2.getLabel().toString()));
-                    }
-                }
-            });
-        }
-
         // Set defaults and replace based on the group Id.
         maybeReplaceOldAccount(account);
         // Reset enabled state to whatever the value was if the account was already registered,
@@ -1120,6 +1090,52 @@ public class PhoneAccountRegistrar {
         }
     }
 
+    private void sortPhoneAccounts() {
+        if (mState.accounts.size() > 1) {
+            // Sort the phone accounts using sort order:
+            // 1) SIM accounts first, followed by non-sim accounts
+            // 2) Sort order, with those specifying no sort order last.
+            // 3) Label
+
+            // Comparator to sort SIM subscriptions before non-sim subscriptions.
+            Comparator<PhoneAccount> bySimCapability = (p1, p2) -> {
+                if (p1.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
+                        && !p2.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
+                    return -1;
+                } else if (!p1.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
+                        && p2.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            };
+
+            // Create a string comparator which will sort strings, placing nulls last.
+            Comparator<String> nullSafeStringComparator = Comparator.nullsLast(
+                    String::compareTo);
+
+            // Comparator which places PhoneAccounts with a specified sort order first, followed by
+            // those with no sort order.
+            Comparator<PhoneAccount> bySortOrder = (p1, p2) -> {
+                String sort1 = p1.getExtras() == null ? null :
+                        p1.getExtras().getString(PhoneAccount.EXTRA_SORT_ORDER, null);
+                String sort2 = p2.getExtras() == null ? null :
+                        p2.getExtras().getString(PhoneAccount.EXTRA_SORT_ORDER, null);
+                return nullSafeStringComparator.compare(sort1, sort2);
+            };
+
+            // Comparator which sorts PhoneAccounts by label.
+            Comparator<PhoneAccount> byLabel = (p1, p2) -> {
+                String s1 = p1.getLabel() == null ? null : p1.getLabel().toString();
+                String s2 = p2.getLabel() == null ? null : p2.getLabel().toString();
+                return nullSafeStringComparator.compare(s1, s2);
+            };
+
+            // Sort the phone accounts.
+            mState.accounts.sort(bySimCapability.thenComparing(bySortOrder.thenComparing(byLabel)));
+        }
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // State management
@@ -1146,6 +1162,7 @@ public class PhoneAccountRegistrar {
 
     private void write() {
         try {
+            sortPhoneAccounts();
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             XmlSerializer serializer = new FastXmlSerializer();
             serializer.setOutput(os, "utf-8");
