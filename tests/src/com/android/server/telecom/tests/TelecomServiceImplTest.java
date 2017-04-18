@@ -466,22 +466,10 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         if (shouldSucceed) {
             assertFalse(didExceptionOccur);
             verify(mFakePhoneAccountRegistrar).registerPhoneAccount(testPhoneAccount);
-            verify(mContext).sendBroadcastAsUser(intentCaptor.capture(), eq(UserHandle.ALL),
-                    anyString());
-
-            Intent capturedIntent = intentCaptor.getValue();
-            assertEquals(TelecomManager.ACTION_PHONE_ACCOUNT_REGISTERED,
-                    capturedIntent.getAction());
-            Bundle intentExtras = capturedIntent.getExtras();
-            assertEquals(1, intentExtras.size());
-            assertEquals(testPhoneAccount.getAccountHandle(),
-                    intentExtras.get(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE));
         } else {
             assertTrue(didExceptionOccur);
             verify(mFakePhoneAccountRegistrar, never())
                     .registerPhoneAccount(any(PhoneAccount.class));
-            verify(mContext, never())
-                    .sendBroadcastAsUser(any(Intent.class), any(UserHandle.class), anyString());
         }
     }
 
@@ -497,14 +485,6 @@ public class TelecomServiceImplTest extends TelecomTestCase {
 
         mTSIBinder.unregisterPhoneAccount(phHandle);
         verify(mFakePhoneAccountRegistrar).unregisterPhoneAccount(phHandle);
-        verify(mContext).sendBroadcastAsUser(intentCaptor.capture(), eq(UserHandle.ALL),
-                anyString());
-        Intent capturedIntent = intentCaptor.getValue();
-        assertEquals(TelecomManager.ACTION_PHONE_ACCOUNT_UNREGISTERED,
-                capturedIntent.getAction());
-        Bundle intentExtras = capturedIntent.getExtras();
-        assertEquals(1, intentExtras.size());
-        assertEquals(phHandle, intentExtras.get(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE));
     }
 
     @SmallTest
