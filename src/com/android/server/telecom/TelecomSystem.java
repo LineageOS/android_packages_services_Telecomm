@@ -189,6 +189,7 @@ public class TelecomSystem {
             Timeouts.Adapter timeoutsAdapter,
             AsyncRingtonePlayer asyncRingtonePlayer,
             PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
+            InterruptionFilterProxy interruptionFilterProxy,
             IncomingCallNotifier incomingCallNotifier) {
         mContext = context.getApplicationContext();
         LogUtils.initLogging(mContext);
@@ -253,6 +254,7 @@ public class TelecomSystem {
                 timeoutsAdapter,
                 asyncRingtonePlayer,
                 phoneNumberUtilsAdapter,
+                interruptionFilterProxy,
                 emergencyCallHelper);
 
         mIncomingCallNotifier = incomingCallNotifier;

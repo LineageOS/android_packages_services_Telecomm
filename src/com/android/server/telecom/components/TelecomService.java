@@ -16,6 +16,7 @@
 
 package com.android.server.telecom.components;
 
+import android.app.NotificationManager;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
@@ -24,7 +25,9 @@ import android.media.IAudioService;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.ServiceManager;
+import android.service.notification.ZenModeConfig;
 import android.telecom.Log;
+import android.telecom.PhoneAccountHandle;
 
 import com.android.internal.telephony.CallerInfoAsyncQuery;
 import com.android.server.telecom.AsyncRingtonePlayer;
@@ -37,6 +40,7 @@ import com.android.server.telecom.HeadsetMediaButton;
 import com.android.server.telecom.HeadsetMediaButtonFactory;
 import com.android.server.telecom.InCallWakeLockControllerFactory;
 import com.android.server.telecom.CallAudioManager;
+import com.android.server.telecom.InterruptionFilterProxy;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.PhoneNumberUtilsAdapterImpl;
 import com.android.server.telecom.ProximitySensorManagerFactory;
@@ -75,6 +79,9 @@ public class TelecomService extends Service implements TelecomSystem.Component {
      */
     static void initializeTelecomSystem(Context context) {
         if (TelecomSystem.getInstance() == null) {
+            final NotificationManager notificationManager =
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
             NotificationChannelManager notificationChannelManager =
                     new NotificationChannelManager();
             notificationChannelManager.createChannels(context);
@@ -158,6 +165,26 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                             new Timeouts.Adapter(),
                             new AsyncRingtonePlayer(),
                             new PhoneNumberUtilsAdapterImpl(),
+                            new InterruptionFilterProxy() {
+                                @Override
+                                public void setInterruptionFilter(int interruptionFilter) {
+                                    notificationManager.setInterruptionFilter(interruptionFilter);
+                                }
+
+                                @Override
+                                public int getCurrentInterruptionFilter() {
+                                    return notificationManager.getCurrentInterruptionFilter();
+                                }
+
+                                @Override
+                                public String getInterruptionModeInitiator() {
+                                    ZenModeConfig config = notificationManager.getZenModeConfig();
+                                    if (config.manualRule != null) {
+                                        return config.manualRule.enabler;
+                                    }
+                                    return null;
+                                }
+                            },
                             new IncomingCallNotifier(context)
                     ));
         }
