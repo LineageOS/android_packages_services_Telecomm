@@ -146,6 +146,27 @@ public class CallsManager extends Call.ListenerBase
     private static final String PERMISSION_PROCESS_PHONE_ACCOUNT_REGISTRATION =
             "android.permission.PROCESS_PHONE_ACCOUNT_REGISTRATION";
 
+    /**
+     * Call filter specifier used with
+     * {@link #getNumCallsWithState(int, Call, PhoneAccountHandle, int...)} to indicate only
+     * self-managed calls should be included.
+     */
+    private static final int CALL_FILTER_SELF_MANAGED = 1;
+
+    /**
+     * Call filter specifier used with
+     * {@link #getNumCallsWithState(int, Call, PhoneAccountHandle, int...)} to indicate only
+     * managed calls should be included.
+     */
+    private static final int CALL_FILTER_MANAGED = 2;
+
+    /**
+     * Call filter specifier used with
+     * {@link #getNumCallsWithState(int, Call, PhoneAccountHandle, int...)} to indicate both managed
+     * and self-managed calls should be included.
+     */
+    private static final int CALL_FILTER_ALL = 3;
+
     private static final int HANDLER_WAIT_TIMEOUT = 10000;
     private static final int MAXIMUM_LIVE_CALLS = 1;
     private static final int MAXIMUM_HOLD_CALLS = 1;
