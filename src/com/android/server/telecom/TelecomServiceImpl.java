@@ -397,7 +397,12 @@ public class TelecomServiceImpl {
                             enforceRegisterMultiUser();
                         }
                         enforceUserHandleMatchesCaller(account.getAccountHandle());
-                        mPhoneAccountRegistrar.registerPhoneAccount(account);
+                        final long token = Binder.clearCallingIdentity();
+                        try {
+                            mPhoneAccountRegistrar.registerPhoneAccount(account);
+                        } finally {
+                            Binder.restoreCallingIdentity(token);
+                        }
                     } catch (Exception e) {
                         Log.e(this, e, "registerPhoneAccount %s", account);
                         throw e;
@@ -416,7 +421,12 @@ public class TelecomServiceImpl {
                     enforcePhoneAccountModificationForPackage(
                             accountHandle.getComponentName().getPackageName());
                     enforceUserHandleMatchesCaller(accountHandle);
-                    mPhoneAccountRegistrar.unregisterPhoneAccount(accountHandle);
+                    final long token = Binder.clearCallingIdentity();
+                    try {
+                        mPhoneAccountRegistrar.unregisterPhoneAccount(accountHandle);
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
                 } catch (Exception e) {
                     Log.e(this, e, "unregisterPhoneAccount %s", accountHandle);
                     throw e;
