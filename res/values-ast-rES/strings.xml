@@ -26,6 +26,7 @@
   <!-- Missed call notification label, used when there's exactly one missed call -->
   <!-- Missed work call notification label, used when there's exactly one missed call [CHAR LIMIT=NONE] -->
   <!-- Missed call notification label, used when there are two or more missed calls -->
+  <string name="notification_missedCallsTitle">Llamaes perdíes</string>
   <!-- Missed call notification message used when there are multiple missed calls -->
   <!-- Missed call notification message used for a single missed call, including
          the caller-id info from the missed call -->
@@ -71,6 +72,7 @@
   <string name="change_default_dialer_dialog_negative">Encaboxar</string>
   <!-- Warning message indicating what may happen if a user allows a 3rd party app to become the default dialer.-->
   <!-- Blocked numbers -->
+  <string name="blocked_numbers">Númberos bloquiaos</string>
   <!-- Text shown at the beginning of the blocked numbers screen to explain what the screen is about. -->
   <!-- Button to add a blocked number. -->
   <!-- Body of dialog to confirm unblocking a number. -->
