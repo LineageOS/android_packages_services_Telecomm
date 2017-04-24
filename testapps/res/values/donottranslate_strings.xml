@@ -88,4 +88,7 @@
         <item>The FCC has mandated that I respond... I will do so begrudgingly</item>
         <item>😂😂😂💯</item>
     </string-array>
+
+    <string name="UssdUiAppLabel">Test Ussd UI</string>
+    <string name="placeUssdButton">Send USSD</string>
 </resources>
