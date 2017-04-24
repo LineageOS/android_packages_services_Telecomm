@@ -20,6 +20,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.IAudioService;
+import android.os.Handler;
 import android.telecom.CallAudioState;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -988,6 +989,8 @@ public class CallAudioRouteStateMachineTest
             verify(mMockInterruptionFilterProxy, never()).setInterruptionFilter(anyInt());
         }
 
+        Handler h = stateMachine.getHandler();
+        waitForHandlerAction(h, TEST_TIMEOUT);
         stateMachine.quitStateMachine();
 
         // Verify interactions with the speakerphone and bluetooth systems
