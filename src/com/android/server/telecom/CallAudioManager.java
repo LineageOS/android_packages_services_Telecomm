@@ -309,7 +309,10 @@ public class CallAudioManager extends CallsManagerListenerBase {
         } else {
             // The call joined a conference, so stop tracking it.
             if (mCallStateToCalls.get(call.getState()) != null) {
-                mCallStateToCalls.get(call.getState()).remove(call);
+                boolean isRemoveCallSuccess = mCallStateToCalls.get(call.getState()).remove(call);
+                if (!isRemoveCallSuccess) {
+                    mActiveDialingOrConnectingCalls.remove(call);
+                }
             }
 
             updateForegroundCall();
