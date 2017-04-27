@@ -263,7 +263,7 @@ public class IncomingCallNotifier extends CallsManagerListenerBase {
         builder.setContentTitle(incomingCallText);
         builder.setContentText(disconnectText);
         builder.setSmallIcon(R.drawable.ic_phone);
-        builder.setChannel(NotificationChannelManager.CHANNEL_ID_INCOMING_CALLS);
+        builder.setChannelId(NotificationChannelManager.CHANNEL_ID_INCOMING_CALLS);
         // Ensures this is a heads up notification.  A heads-up notification is typically only shown
         // if there is a fullscreen intent.  However since this notification doesn't have that we
         // will use this trick to get it to show as one anyways.
