@@ -31,4 +31,8 @@
   <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> messages were blocked</string>
   <string name="blacklist_notification_list_private">Private</string>
   <string name="unblock_number">Unblock</string>
+  <string name="unblock_contact">Unblock contact</string>
+  <string name="call_waiting_dialog_title">Answer %s</string>
+  <string name="call_waiting_dialog_hold_call">Put current call on hold</string>
+  <string name="call_waiting_dialog_end_call">End current call</string>
 </resources>

@@ -17,11 +17,13 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <!-- Blacklist preferences -->
+  <string name="blacklist_title">Llistáu de númberos bloquiaos</string>
   <string name="blacklist_summary_disabled">Deshabilitada</string>
+  <string name="blacklist_summary">Nun recibirás llamaes entrantes o mensaxes de númberos telefónicos nel llistáu de númberos bloquiaos</string>
   <!-- Blacklist notifications -->
   <string name="blacklist_call_notification">Bloquióse una llamada de %s</string>
   <string name="blacklist_call_notification_private_number">Bloquióse una llamada d\'un númberu priváu</string>
-  <string name="blacklist_call_notification_unknown_number">Bloquióse una llamada del númberu %s</string>
+  <string name="blacklist_call_notification_unknown_number">Bloquióse una llamada d\'un númberu desconocíu %s</string>
   <string name="blacklist_call_notification_multiple">Bloquiáronse <xliff:g id="count">%d</xliff:g> llamaes</string>
   <string name="blacklist_message_notification">Bloquióse un mensaxe de %s</string>
   <string name="blacklist_message_notification_private_number">Bloquióse un mensaxe d\'un númberu priváu</string>
@@ -30,7 +32,7 @@
   <string name="blacklist_notification_list_private">Priváu</string>
   <string name="unblock_number">Desbloquiar</string>
   <string name="unblock_contact">Desbloquiar contautu</string>
-  <string name="call_waiting_dialog_title">Responder %s</string>
+  <string name="call_waiting_dialog_title">Contestar a %s</string>
   <string name="call_waiting_dialog_hold_call">Poner llamada actual n\'espera</string>
   <string name="call_waiting_dialog_end_call">Finar llamada actual</string>
 </resources>

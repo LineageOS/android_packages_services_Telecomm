@@ -17,5 +17,22 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <!-- Blacklist preferences -->
+  <string name="blacklist_title">Lista e telefonuesve të bllokuar</string>
+  <string name="blacklist_summary_disabled">E çaktivizuar</string>
+  <string name="blacklist_summary">Ju nuk do të merrni thirrje apo mesazhe nga numrat e telefonit që janë në listën e telefonuesve të bllokuar</string>
   <!-- Blacklist notifications -->
+  <string name="blacklist_call_notification">U bllokua një thirrje nga %s</string>
+  <string name="blacklist_call_notification_private_number">U bllokua një thirrje nga një numër privat</string>
+  <string name="blacklist_call_notification_unknown_number">U bllokua një thirrje nga numri i panjohur %s</string>
+  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> thirrje u bllokuan</string>
+  <string name="blacklist_message_notification">U bllokua një mesazh nga %s</string>
+  <string name="blacklist_message_notification_private_number">U bllokua një mesazh nga një numër privat</string>
+  <string name="blacklist_message_notification_unknown_number">U bllokua një mesazh nga numri i panjohur %s</string>
+  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> mesazhe u bllokuan</string>
+  <string name="blacklist_notification_list_private">Privat</string>
+  <string name="unblock_number">Zhblloko</string>
+  <string name="unblock_contact">Zhblloko kontaktin</string>
+  <string name="call_waiting_dialog_title">Përgjigjiu %s</string>
+  <string name="call_waiting_dialog_hold_call">Vendos telefonatën në pritje</string>
+  <string name="call_waiting_dialog_end_call">Përfundo telefonatën</string>
 </resources>
