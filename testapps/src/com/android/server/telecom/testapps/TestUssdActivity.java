@@ -15,13 +15,30 @@ import android.widget.Toast;
 public class TestUssdActivity extends Activity {
 
     private EditText mUssdNumberView;
-    private static Context context;
+    private Context mContext;
     public static final String LOG_TAG = "TestUssdActivity";
+
+    private TelephonyManager.UssdResponseCallback mReceiveUssdResponseCallback =
+            new TelephonyManager.UssdResponseCallback () {
+                @Override
+                public void onReceiveUssdResponse(final TelephonyManager telephonyManager,
+                                                  String request, CharSequence response) {
+                    Log.i(LOG_TAG, "USSD Success: " + request + "," + response);
+                    showToast("USSD Response Successly received for code:" + request + "," +
+                            response);
+                }
+
+                public void onReceiveUssdResponseFailed(final TelephonyManager telephonyManager,
+                                                        String request, int failureCode) {
+                    Log.i(LOG_TAG, "USSD Fail: " + request + "," + failureCode);
+                    showToast("USSD Response failed for code:" + request + "," + failureCode);
+                }
+            };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TestUssdActivity.context = getApplicationContext();
+        mContext = getApplicationContext();
 
         setContentView(R.layout.testussd_main);
         findViewById(R.id.place_ussd_button).setOnClickListener(new OnClickListener() {
@@ -31,50 +48,38 @@ public class TestUssdActivity extends Activity {
                 placeUssdRequest();
             }
         });
+        findViewById(R.id.place_many_ussd_button).setOnClickListener((v) -> {
+                    placeUssdRequestMultiple();
+                }
+        );
 
         mUssdNumberView = (EditText) findViewById(R.id.number);
     }
 
-    public static final class OnReceiveUssdResponseCallback extends
-        TelephonyManager.UssdResponseCallback {
-
-            OnReceiveUssdResponseCallback() {
-            }
-
-            public void onReceiveUssdResponse(String req, CharSequence message) {
-                Log.i(LOG_TAG, "USSD Success:::" + req + "," + message);
-                showToast("USSD Response Successly received for code:" + req + "," + message);
-            }
-
-            public void onReceiveUssdResponseFailed(String req, int resultCode) {
-                Log.i(LOG_TAG, "USSD Fail:::" + req + "," + resultCode);
-                showToast("USSD Response failed for code:" + req + "," + resultCode);
-            }
-    }
-
     private void placeUssdRequest() {
-
         String mUssdNumber = mUssdNumberView.getText().toString();
         if (mUssdNumber.equals("") || mUssdNumber == null) {
-            mUssdNumber = "932";
+            mUssdNumber = "#932#";
         }
-        mUssdNumber = "#" + mUssdNumber + "#";
         final TelephonyManager telephonyManager =
                 (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         try {
             Handler h = new Handler(Looper.getMainLooper());
-            OnReceiveUssdResponseCallback receiveUssdResponseCallback =
-                    new OnReceiveUssdResponseCallback();
-
-            telephonyManager.sendUssdRequest(mUssdNumber, receiveUssdResponseCallback, h);
-
+            Log.i(LOG_TAG, "placeUssdRequest: " + mUssdNumber);
+            telephonyManager.sendUssdRequest(mUssdNumber, mReceiveUssdResponseCallback, h);
         } catch (SecurityException e) {
             showToast("Permission check failed");
             return;
         }
     }
 
-    private static void showToast(String message) {
-        Toast.makeText(TestUssdActivity.context, message, Toast.LENGTH_SHORT).show();
+    private void placeUssdRequestMultiple() {
+        for (int ix = 0; ix < 4 ; ix++) {
+            placeUssdRequest();
+        }
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
     }
 }
