@@ -43,7 +43,7 @@
     <string name="outgoing_call_error_no_phone_number_supplied" msgid="1940125199802007505">"Als je wilt bellen, moet je een geldig nummer invoeren."</string>
     <string name="duplicate_video_call_not_allowed" msgid="3749211605014548386">"Oproep kan momenteel niet worden toegevoegd."</string>
     <string name="no_vm_number" msgid="4164780423805688336">"Voicemailnummer ontbreekt"</string>
-    <string name="no_vm_number_msg" msgid="1300729501030053828">"Er is geen voicemailnummer op de SIM-kaart opgeslagen."</string>
+    <string name="no_vm_number_msg" msgid="1300729501030053828">"Er is geen voicemailnummer op de simkaart opgeslagen."</string>
     <string name="add_vm_number_str" msgid="4676479471644687453">"Nummer toevoegen"</string>
     <string name="change_default_dialer_dialog_title" msgid="9101655962941740507">"Wil je <xliff:g id="NEW_APP">%s</xliff:g> instellen als je standaard telefoon-app?"</string>
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Standaard instellen"</string>

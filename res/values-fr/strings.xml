@@ -54,7 +54,7 @@
     <string name="block_number" msgid="1101252256321306179">"Ajouter un numéro"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Débloquer <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Débloquer"</string>
-    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Bloquer les appels et les SMS de"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Bloquer les appels et les SMS provenant du numéro :"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Numéro de téléphone"</string>
     <string name="block_button" msgid="8822290682524373357">"Bloquer"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Seul le propriétaire de l\'appareil peut afficher et gérer les numéros bloqués."</string>
