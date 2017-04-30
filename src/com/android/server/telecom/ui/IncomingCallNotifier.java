@@ -133,7 +133,7 @@ public class IncomingCallNotifier extends CallsManagerListenerBase {
     private void updateIncomingCall() {
         Optional<Call> incomingCallOp = mCalls.stream()
                 .filter(call -> call.isSelfManaged() && call.isIncoming() &&
-                        call.getState() == CallState.RINGING)
+                        call.getState() == CallState.RINGING && !call.isHandoverInProgress())
                 .findFirst();
         Call incomingCall = incomingCallOp.orElse(null);
         if (incomingCall != null && mCallsManagerProxy != null &&

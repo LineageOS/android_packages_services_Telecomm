@@ -128,7 +128,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         void onExternalCallChanged(Call call, boolean isExternalCall);
         void onRttInitiationFailure(Call call, int reason);
         void onRemoteRttRequest(Call call, int requestId);
-        void onHandoverRequested(Call call, PhoneAccountHandle handoverTo, int videoState);
+        void onHandoverRequested(Call call, PhoneAccountHandle handoverTo, int videoState,
+                                 Bundle extras);
     }
 
     public abstract static class ListenerBase implements Listener {
@@ -201,7 +202,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         @Override
         public void onRemoteRttRequest(Call call, int requestId) {}
         @Override
-        public void onHandoverRequested(Call call, PhoneAccountHandle handoverTo, int videoState) {}
+        public void onHandoverRequested(Call call, PhoneAccountHandle handoverTo, int videoState,
+                                        Bundle extras) {}
     }
 
     private final CallerInfoLookupHelper.OnQueryCompleteListener mCallerInfoQueryListener =
@@ -1015,6 +1017,30 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         return phoneAccount.getLabel();
     }
 
+    /**
+     * Determines if this Call should be written to the call log.
+     * @return {@code true} for managed calls or for self-managed calls which have the
+     * {@link PhoneAccount#EXTRA_LOG_SELF_MANAGED_CALLS} extra set.
+     */
+    public boolean isLoggedSelfManaged() {
+        if (!isSelfManaged()) {
+            // Managed calls are always logged.
+            return true;
+        }
+        if (getTargetPhoneAccount() == null) {
+            return false;
+        }
+        PhoneAccount phoneAccount = mCallsManager.getPhoneAccountRegistrar()
+                .getPhoneAccountUnchecked(getTargetPhoneAccount());
+
+        if (phoneAccount == null) {
+            return false;
+        }
+
+        return phoneAccount.getExtras() != null && phoneAccount.getExtras().getBoolean(
+                PhoneAccount.EXTRA_LOG_SELF_MANAGED_CALLS, false);
+    }
+
     @VisibleForTesting
     public boolean isIncoming() {
         return mCallDirection == CALL_DIRECTION_INCOMING;
@@ -1042,6 +1068,27 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
 
         // Connection properties will add/remove the PROPERTY_SELF_MANAGED.
         setConnectionProperties(getConnectionProperties());
+    }
+
+    /**
+     * Marks a handover as being completed, either as a result of failing to handover or completion
+     * of handover.
+     */
+    public void markHandoverFinished() {
+        if (mHandoverFromCall != null) {
+            mHandoverFromCall.setHandoverFromCall(null);
+            mHandoverFromCall.setHandoverToCall(null);
+            mHandoverFromCall = null;
+        } else if (mHandoverToCall != null) {
+            mHandoverToCall.setHandoverFromCall(null);
+            mHandoverToCall.setHandoverToCall(null);
+            mHandoverToCall = null;
+        }
+
+    }
+
+    public boolean isHandoverInProgress() {
+        return mHandoverFromCall != null || mHandoverToCall != null;
     }
 
     public Call getHandoverToCall() {
@@ -1895,7 +1942,13 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
                 PhoneAccountHandle phoneAccountHandle = (PhoneAccountHandle) parcelable;
                 int videoState = extras.getInt(android.telecom.Call.EXTRA_HANDOVER_VIDEO_STATE,
                         VideoProfile.STATE_AUDIO_ONLY);
-                requestHandover(phoneAccountHandle, videoState);
+                Parcelable handoverExtras = extras.getParcelable(
+                        android.telecom.Call.EXTRA_HANDOVER_EXTRAS);
+                Bundle handoverExtrasBundle = null;
+                if (handoverExtras instanceof Bundle) {
+                    handoverExtrasBundle = (Bundle) handoverExtras;
+                }
+                requestHandover(phoneAccountHandle, videoState, handoverExtrasBundle);
             } else {
                 Log.addEvent(this, LogUtils.Events.CALL_EVENT, event);
                 mConnectionService.sendCallEvent(this, event, extras);
@@ -2583,10 +2636,13 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
      * Initiates a handover of this {@link Call} to another {@link PhoneAccount}.
      * @param handoverToHandle The {@link PhoneAccountHandle} to handover to.
      * @param videoState The video state of the call when handed over.
+     * @param extras Optional extras {@link Bundle} provided by the initiating
+     *      {@link android.telecom.InCallService}.
      */
-    private void requestHandover(PhoneAccountHandle handoverToHandle, int videoState) {
+    private void requestHandover(PhoneAccountHandle handoverToHandle, int videoState,
+                                 Bundle extras) {
         for (Listener l : mListeners) {
-            l.onHandoverRequested(this, handoverToHandle, videoState);
+            l.onHandoverRequested(this, handoverToHandle, videoState, extras);
         }
     }
 }

@@ -50,8 +50,8 @@
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"अभी नहीं"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> कॉल करने और कॉल से संबंधित सभी पहलुओं को नियंत्रित कर पाएगा. केवल उन्हीं ऐप्लिकेशन को डिफ़ॉल्ट फ़ोन ऐप्लिकेशन के रूप में सेट करना चाहिए जिन पर आप विश्वास करते हैं."</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"अवरोधित नंबर"</string>
-    <string name="blocked_numbers_msg" msgid="1045015186124965643">"आपको अवरुद्ध किए गए नंबर से कॉल या लेख संदेश प्राप्त नहीं होंगे."</string>
-    <string name="block_number" msgid="1101252256321306179">"एक नंबर जोड़ें"</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"आपको अवरुद्ध किए गए नंबर से कॉल या लेख संदेश नहीं मिलेंगे."</string>
+    <string name="block_number" msgid="1101252256321306179">"नंबर जोड़ें"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> को अनवरोधित करें?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"अनवरोधित करें"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"इसके कॉल और लेख अवरुद्ध करें"</string>

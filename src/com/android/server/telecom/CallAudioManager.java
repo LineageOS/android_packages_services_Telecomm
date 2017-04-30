@@ -637,7 +637,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
     private void playToneForDisconnectedCall(Call call) {
         // If this call is being disconnected as a result of being handed over to another call,
         // we will not play a disconnect tone.
-        if (call.getHandoverToCall() != null || call.getHandoverFromCall() != null) {
+        if (call.isHandoverInProgress()) {
             Log.i(LOG_TAG, "Omitting tone because %s is being handed over.", call);
             return;
         }
