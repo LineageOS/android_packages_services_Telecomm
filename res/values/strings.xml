@@ -252,4 +252,8 @@
     <string name="notification_channel_incoming_call">Incoming calls</string>
     <!-- Notification channel name for a channel containing missed call notifications. -->
     <string name="notification_channel_missed_call">Missed calls</string>
+
+    <!-- Alert dialog content used to inform the user that placing a new outgoing call will end the
+         ongoing call in the app "other_app". -->
+    <string name="alert_outgoing_call">Placing this call will end your <xliff:g id="other_app">%1$s</xliff:g> call.</string>
 </resources>
