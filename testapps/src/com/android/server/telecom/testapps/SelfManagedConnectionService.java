@@ -84,11 +84,15 @@ public class SelfManagedConnectionService extends ConnectionService {
         if (requestExtras != null) {
             connection.setIsHandover(requestExtras.getBoolean(TelecomManager.EXTRA_IS_HANDOVER,
                     false));
-            Intent intent = new Intent(Intent.ACTION_MAIN, null);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION | Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.setClass(this, HandoverActivity.class);
-            intent.putExtra(HandoverActivity.EXTRA_CALL_ID, connection.getCallId());
-            startActivity(intent);
+            if (!isIncoming && connection.isHandover()) {
+                Intent intent = new Intent(Intent.ACTION_MAIN, null);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION | Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setClass(this, HandoverActivity.class);
+                intent.putExtra(HandoverActivity.EXTRA_CALL_ID, connection.getCallId());
+                startActivity(intent);
+            } else {
+                Log.i(this, "Handover incoming call created.");
+            }
         }
 
         // Track the phone account handle which created this connection so we can distinguish them
