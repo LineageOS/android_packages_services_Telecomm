@@ -82,6 +82,9 @@ public class SelfManagedConnection extends Connection {
 
     @Override
     public void onShowIncomingCallUi() {
+        if (isHandover()) {
+            return;
+        }
         // Create the fullscreen intent used to show the fullscreen incoming call UX.
         Intent intent = new Intent(Intent.ACTION_MAIN, null);
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION | Intent.FLAG_ACTIVITY_NEW_TASK);

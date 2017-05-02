@@ -51,7 +51,7 @@
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> అన్ని రకాల కాల్‌లను చేయగలదు మరియు సంబంధిత అన్ని అంశాలను నియంత్రించగలదు. మీరు విశ్వసించే అనువర్తనాలను మాత్రమే డిఫాల్ట్ ఫోన్ అనువర్తనంగా సెట్ చేయాలి."</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"బ్లాక్ చేయబడిన నంబర్‌లు"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"మీరు బ్లాక్ చేయబడిన నంబర్‌ల నుండి కాల్‌లు లేదా వచన సందేశాలను స్వీకరించరు."</string>
-    <string name="block_number" msgid="1101252256321306179">"నంబర్‌ను జోడించు"</string>
+    <string name="block_number" msgid="1101252256321306179">"నంబర్‌ను జోడించండి"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>ని అన్‌బ్లాక్ చేయాలా?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"అన్‌బ్లాక్ చేయి"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"దీని నుండి కాల్‌లు మరియు సందేశాలను బ్లాక్ చేయండి"</string>

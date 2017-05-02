@@ -54,7 +54,7 @@
     <string name="block_number" msgid="1101252256321306179">"Dodaj broj"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Deblokirati <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Deblokiraj"</string>
-    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Blokiraj pozive i tekstualne poruke od"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Blokiraj pozive i poruke od"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Broj telefona"</string>
     <string name="block_button" msgid="8822290682524373357">"Blokiraj"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Samo vlasnik uređaja može pregledati i upravljati blokiranim brojevima."</string>
