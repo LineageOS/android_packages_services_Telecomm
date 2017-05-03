@@ -21,6 +21,8 @@ import android.content.Intent;
 import android.os.UserHandle;
 import android.telecom.Log;
 
+import com.android.server.telecom.ui.ConfirmCallDialogActivity;
+
 public final class TelecomBroadcastIntentProcessor {
     /** The action used to send SMS response for the missed call notification. */
     public static final String ACTION_SEND_SMS_FROM_NOTIFICATION =
@@ -47,6 +49,20 @@ public final class TelecomBroadcastIntentProcessor {
      */
     public static final String ACTION_REJECT_FROM_NOTIFICATION =
             "com.android.server.telecom.ACTION_REJECT_FROM_NOTIFICATION";
+
+    /**
+     * The action used to proceed with a call being confirmed via
+     * {@link com.android.server.telecom.ui.ConfirmCallDialogActivity}.
+     */
+    public static final String ACTION_PROCEED_WITH_CALL =
+            "com.android.server.telecom.PROCEED_WITH_CALL";
+
+    /**
+     * The action used to cancel a call being confirmed via
+     * {@link com.android.server.telecom.ui.ConfirmCallDialogActivity}.
+     */
+    public static final String ACTION_CANCEL_CALL =
+            "com.android.server.telecom.CANCEL_CALL";
 
     public static final String EXTRA_USERHANDLE = "userhandle";
 
@@ -112,11 +128,30 @@ public final class TelecomBroadcastIntentProcessor {
         } else if (ACTION_REJECT_FROM_NOTIFICATION.equals(action)) {
             Log.startSession("TBIP.aRFM");
             try {
+
                 // Reject the current ringing call.
                 Call incomingCall = mCallsManager.getIncomingCallNotifier().getIncomingCall();
                 if (incomingCall != null) {
                     mCallsManager.rejectCall(incomingCall, false /* isRejectWithMessage */, null);
                 }
+            } finally {
+                Log.endSession();
+            }
+        } else if (ACTION_PROCEED_WITH_CALL.equals(action)) {
+            Log.startSession("TBIP.aPWC");
+            try {
+                String callId = intent.getStringExtra(
+                        ConfirmCallDialogActivity.EXTRA_OUTGOING_CALL_ID);
+                mCallsManager.confirmPendingCall(callId);
+            } finally {
+                Log.endSession();
+            }
+        } else if (ACTION_CANCEL_CALL.equals(action)) {
+            Log.startSession("TBIP.aCC");
+            try {
+                String callId = intent.getStringExtra(
+                        ConfirmCallDialogActivity.EXTRA_OUTGOING_CALL_ID);
+                mCallsManager.cancelPendingCall(callId);
             } finally {
                 Log.endSession();
             }
