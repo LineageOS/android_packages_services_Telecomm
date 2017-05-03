@@ -54,6 +54,9 @@ public class LogUtils {
 
     public final static class Events {
         public static final String CREATED = "CREATED";
+        public static final String USER_CONFIRMATION = "USER_CONFIRMATION";
+        public static final String USER_CONFIRMED = "USER_CONFIRMED";
+        public static final String USER_CANCELLED = "USER_CANCELLED";
         public static final String DESTROYED = "DESTROYED";
         public static final String SET_CONNECTING = "SET_CONNECTING";
         public static final String SET_DIALING = "SET_DIALING";

@@ -212,6 +212,8 @@
                 <action android:name="com.android.server.telecom.ACTION_SEND_SMS_FROM_NOTIFICATION" />
                 <action android:name="com.android.server.telecom.ACTION_ANSWER_FROM_NOTIFICATION" />
                 <action android:name="com.android.server.telecom.ACTION_REJECT_FROM_NOTIFICATION" />
+                <action android:name="com.android.server.telecom.PROCEED_WITH_CALL" />
+                <action android:name="com.android.server.telecom.CANCEL_CALL" />
             </intent-filter>
         </receiver>
 
@@ -254,6 +256,14 @@
                 android:process=":ui">
         </activity>
 
+        <activity android:name=".ui.ConfirmCallDialogActivity"
+                android:configChanges="orientation|screenSize|keyboardHidden"
+                android:excludeFromRecents="true"
+                android:launchMode="singleInstance"
+                android:theme="@style/Theme.Telecomm.Transparent"
+                android:process=":ui">
+        </activity>
+
         <activity android:name=".components.ChangeDefaultDialerDialog"
                   android:label="@string/change_default_dialer_dialog_title"
                   android:excludeFromRecents="true"
@@ -265,7 +275,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".testapps.IncomingSelfManagedCallActivity" />
 
         <receiver android:name=".components.PrimaryCallReceiver"
                 android:exported="true"
