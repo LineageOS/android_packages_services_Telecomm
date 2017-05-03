@@ -2205,7 +2205,12 @@ public class CallsManager extends Call.ListenerBase
                     handoverFrom.onConnectionEvent(Connection.EVENT_HANDOVER_FAILED, null);
                     // Inform the "to" ConnectionService that handover to it has failed.  This
                     // allows the ConnectionService the call was being handed over
-                    call.sendCallEvent(android.telecom.Call.EVENT_HANDOVER_FAILED, null);
+                    if (call.getConnectionService() != null) {
+                        // Only attempt if the call has a bound ConnectionService if handover failed
+                        // early on in the handover process, the CS will be unbound and we won't be
+                        // able to send the call event.
+                        call.sendCallEvent(android.telecom.Call.EVENT_HANDOVER_FAILED, null);
+                    }
                     call.markHandoverFinished();
                 }
             // If this call was disconnected because it was handed over TO another call, report the
