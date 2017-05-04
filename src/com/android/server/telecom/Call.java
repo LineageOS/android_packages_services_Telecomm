@@ -17,6 +17,7 @@
 package com.android.server.telecom;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -316,6 +317,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
     private DisconnectCause mDisconnectCause = new DisconnectCause(DisconnectCause.UNKNOWN);
 
     private Bundle mIntentExtras = new Bundle();
+
+    /**
+     * The {@link Intent} which originally created this call.  Only populated when we are putting a
+     * call into a pending state and need to pick up initiation of the call later.
+     */
+    private Intent mOriginalCallIntent = null;
 
     /** Set of listeners on this call.
      *
@@ -1784,6 +1791,14 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
 
     void setIntentExtras(Bundle extras) {
         mIntentExtras = extras;
+    }
+
+    public Intent getOriginalCallIntent() {
+        return mOriginalCallIntent;
+    }
+
+    public void setOriginalCallIntent(Intent intent) {
+        mOriginalCallIntent = intent;
     }
 
     /**
