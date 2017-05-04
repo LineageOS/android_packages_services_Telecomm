@@ -58,6 +58,14 @@
 
     <string name="inCallUiAppLabel">Test InCall UI</string>
 
+    <string name="UssdUiAppLabel">Test Ussd UI</string>
+
+    <string name="placeUssdButton">Send USSD</string>
+
+    <string name="KeyUiAppLabel">Get Key UI</string>
+
+    <string name="getKeyButton">Get Key Json</string>
+
     <!-- String for button in SelfManagedCallingActivity. -->
     <string name="checkIfPermittedBeforeCallingButton">Check if calls permitted before calling</string>
 
@@ -88,7 +96,4 @@
         <item>The FCC has mandated that I respond... I will do so begrudgingly</item>
         <item>😂😂😂💯</item>
     </string-array>
-
-    <string name="UssdUiAppLabel">Test Ussd UI</string>
-    <string name="placeUssdButton">Send USSD</string>
 </resources>
