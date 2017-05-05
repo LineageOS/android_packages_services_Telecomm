@@ -82,4 +82,5 @@
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"Başka bir uygulamada devam eden çağrınız nedeniyle telefon araması yapılamıyor."</string>
     <string name="notification_channel_incoming_call" msgid="3513761697082968084">"Gelen çağrılar"</string>
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Cevapsız çağrılar"</string>
+    <string name="alert_outgoing_call" msgid="982908156825958001">"Bu çağrıyı yaptığınızda <xliff:g id="OTHER_APP">%1$s</xliff:g> çağrınız sona erecek."</string>
 </resources>
