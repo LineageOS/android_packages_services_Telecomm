@@ -82,4 +82,5 @@
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"Opkaldet kan ikke foretages på grund et opkald i en anden app."</string>
     <string name="notification_channel_incoming_call" msgid="3513761697082968084">"Indgående opkald"</string>
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Ubesvarede opkald"</string>
+    <string name="alert_outgoing_call" msgid="982908156825958001">"Hvis du foretager dette opkald, afsluttes dit opkald i <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
 </resources>

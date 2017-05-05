@@ -82,4 +82,5 @@
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"மற்றொரு பயன்பாட்டில் அழைப்பு செயலில் உள்ளதால், புதிய அழைப்பைச் செய்ய முடியாது."</string>
     <string name="notification_channel_incoming_call" msgid="3513761697082968084">"உள்வரும் அழைப்புகள்"</string>
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"தவறிய அழைப்புகள்"</string>
+    <string name="alert_outgoing_call" msgid="982908156825958001">"புதிய அழைப்பைச் செய்தால், செயலில் உள்ள <xliff:g id="OTHER_APP">%1$s</xliff:g> அழைப்பு துண்டிக்கப்படும்."</string>
 </resources>
