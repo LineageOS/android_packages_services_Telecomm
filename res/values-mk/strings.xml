@@ -43,7 +43,7 @@
     <string name="outgoing_call_error_no_phone_number_supplied" msgid="1940125199802007505">"За да повикате, внесете важечки број."</string>
     <string name="duplicate_video_call_not_allowed" msgid="3749211605014548386">"Повикот не може да се додаде во моментов."</string>
     <string name="no_vm_number" msgid="4164780423805688336">"Недостасува број на говорна пошта"</string>
-    <string name="no_vm_number_msg" msgid="1300729501030053828">"Нема мемориран број на говорна пошта на СИМ картичката."</string>
+    <string name="no_vm_number_msg" msgid="1300729501030053828">"Нема мемориран број на говорна пошта на SIM картичката."</string>
     <string name="add_vm_number_str" msgid="4676479471644687453">"Додај број"</string>
     <string name="change_default_dialer_dialog_title" msgid="9101655962941740507">"Да се направи <xliff:g id="NEW_APP">%s</xliff:g> ваша стандардна апликација Телефон?"</string>
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Поставете стандардна"</string>

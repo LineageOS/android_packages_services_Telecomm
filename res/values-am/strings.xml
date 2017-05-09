@@ -82,6 +82,5 @@
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"በሌላ መተግበሪያ ውስጥ ባለ ጥሪ ምክንያት ጥሪ መደረግ አይችልም።"</string>
     <string name="notification_channel_incoming_call" msgid="3513761697082968084">"ገቢ ጥሪዎች"</string>
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"ያመለጡ ጥሪዎች"</string>
-    <!-- no translation found for alert_outgoing_call (982908156825958001) -->
-    <skip />
+    <string name="alert_outgoing_call" msgid="982908156825958001">"ይህን ጥሪ ማድረግ የ<xliff:g id="OTHER_APP">%1$s</xliff:g> ጥሪዎን ያቋርጣል።"</string>
 </resources>

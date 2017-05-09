@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="telecommAppLabel" product="default" msgid="382363169988504520">"Кіраванне выклікамі"</string>
-    <string name="userCallActivityLabel" product="default" msgid="5415173590855187131">"Патэлефанаваць"</string>
+    <string name="userCallActivityLabel" product="default" msgid="5415173590855187131">"Тэлефон"</string>
     <string name="unknown" msgid="6878797917991465859">"Невядомы"</string>
     <string name="notification_missedCallTitle" msgid="7554385905572364535">"Прапушчаны выклік"</string>
     <string name="notification_missedWorkCallTitle" msgid="6242489980390803090">"Прапушчаны выклік па працы"</string>
