@@ -2069,7 +2069,7 @@ public class CallsManager extends Call.ListenerBase
         Trace.beginSection("removeCall");
         Log.v(this, "removeCall(%s)", call);
 
-        call.setParentCall(null);  // need to clean up parent relationship before destroying.
+        call.setParentAndChildCall(null);  // clean up parent relationship before destroying.
         call.removeListener(this);
         call.clearConnectionService();
         // TODO: clean up RTT pipes
@@ -2520,7 +2520,29 @@ public class CallsManager extends Call.ListenerBase
         if (extras != null && extras.containsKey(Connection.EXTRA_ORIGINAL_CONNECTION_ID)) {
             call.setOriginalConnectionId(extras.getString(Connection.EXTRA_ORIGINAL_CONNECTION_ID));
         }
+        Log.i(this, "createCallForExistingConnection: %s", connection);
+        Call parentCall = null;
+        if (!TextUtils.isEmpty(connection.getParentCallId())) {
+            String parentId = connection.getParentCallId();
+            parentCall = mCalls
+                    .stream()
+                    .filter(c -> c.getId().equals(parentId))
+                    .findFirst()
+                    .orElse(null);
+            if (parentCall != null) {
+                Log.i(this, "createCallForExistingConnection: %s added as child of %s.",
+                        call.getId(),
+                        parentCall.getId());
+                // Set JUST the parent property, which won't send an update to the Incall UI.
+                call.setParentCall(parentCall);
+            }
+        }
         addCall(call);
+        if (parentCall != null) {
+            // Now, set the call as a child of the parent since it has been added to Telecom.  This
+            // is where we will inform InCall.
+            call.setChildOf(parentCall);
+        }
 
         return call;
     }

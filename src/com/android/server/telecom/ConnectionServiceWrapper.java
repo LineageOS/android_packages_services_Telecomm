@@ -320,10 +320,10 @@ public class ConnectionServiceWrapper extends ServiceBinder {
                     if (childCall != null) {
                         if (conferenceCallId == null) {
                             Log.d(this, "unsetting parent: %s", conferenceCallId);
-                            childCall.setParentCall(null);
+                            childCall.setParentAndChildCall(null);
                         } else {
                             Call conferenceCall = mCallIdMapper.getCall(conferenceCallId);
-                            childCall.setParentCall(conferenceCall);
+                            childCall.setParentAndChildCall(conferenceCall);
                         }
                     } else {
                         // Log.w(this, "setIsConferenced, unknown call id: %s", args.arg1);
@@ -436,7 +436,7 @@ public class ConnectionServiceWrapper extends ServiceBinder {
                         Call childCall = mCallIdMapper.getCall(connId);
                         Log.d(this, "found child: %s", connId);
                         if (childCall != null) {
-                            childCall.setParentCall(conferenceCall);
+                            childCall.setParentAndChildCall(conferenceCall);
                         }
                     }
                 }
