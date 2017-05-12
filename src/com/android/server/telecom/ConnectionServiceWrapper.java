@@ -77,6 +77,15 @@ public class ConnectionServiceWrapper extends ServiceBinder {
                     logIncoming("handleCreateConnectionComplete %s", callId);
                     ConnectionServiceWrapper.this
                             .handleCreateConnectionComplete(callId, request, connection);
+
+                    if (mServiceInterface != null) {
+                        logOutgoing("createConnectionComplete %s", callId);
+                        try {
+                            mServiceInterface.createConnectionComplete(callId,
+                                    Log.getExternalSession());
+                        } catch (RemoteException e) {
+                        }
+                    }
                 }
             } finally {
                 Binder.restoreCallingIdentity(token);
