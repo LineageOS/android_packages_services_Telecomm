@@ -37,7 +37,8 @@ LOCAL_PROTO_JAVA_OUTPUT_PARAMS := optional_field_style=accessors
 
 LOCAL_RESOURCE_DIR := \
     $(LOCAL_PATH)/res \
-    $(LOCAL_PATH)/../res
+    $(LOCAL_PATH)/../res \
+    $(SUPPORT_LIBRARY_ROOT)/compat/res
 
 LOCAL_JAVA_LIBRARIES := \
         android.test.runner \
@@ -45,7 +46,7 @@ LOCAL_JAVA_LIBRARIES := \
 
 LOCAL_AAPT_FLAGS := \
     --auto-add-overlay \
-    --extra-packages com.android.server.telecom
+    --extra-packages com.android.server.telecom:android.support.compat
 
 LOCAL_JACK_FLAGS := --multi-dex native
 
