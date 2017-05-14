@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a486d77_93aaf617",
+        "filename": "src/com/android/server/telecom/CallLogManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 8461
+      },
+      "writtenOn": "2017-05-14T21:23:34Z",
+      "side": 1,
+      "message": "100 chars",
+      "revId": "121f7db34e61917c3890e75d219973086e598a57",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a486d77_73a77a50",
+        "filename": "src/com/android/server/telecom/SensitivePhoneNumber.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 8461
+      },
+      "writtenOn": "2017-05-14T21:23:34Z",
+      "side": 1,
+      "message": "add \"Copyright (C) 2017 The LineageOS Project\" copyright",
+      "revId": "121f7db34e61917c3890e75d219973086e598a57",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a486d77_53647e21",
+        "filename": "src/com/android/server/telecom/SensitivePhoneNumbers.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 8461
+      },
+      "writtenOn": "2017-05-14T21:23:34Z",
+      "side": 1,
+      "message": "add \"Copyright (C) 2017 The LineageOS Project\" copyright",
+      "revId": "121f7db34e61917c3890e75d219973086e598a57",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
