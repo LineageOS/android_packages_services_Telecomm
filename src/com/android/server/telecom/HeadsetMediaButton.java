@@ -47,11 +47,12 @@ public class HeadsetMediaButton extends CallsManagerListenerBase {
         public boolean onMediaButtonEvent(Intent intent) {
             KeyEvent event = (KeyEvent) intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
             Log.v(this, "SessionCallback.onMediaButton()...  event = %s.", event);
-            if ((event != null) && (event.getKeyCode() == KeyEvent.KEYCODE_HEADSETHOOK)) {
+            if ((event != null) && ((event.getKeyCode() == KeyEvent.KEYCODE_HEADSETHOOK) ||
+                                    (event.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE))) {
                 synchronized (mLock) {
-                    Log.v(this, "SessionCallback: HEADSETHOOK");
-                    boolean consumed = handleHeadsetHook(event);
-                    Log.v(this, "==> handleHeadsetHook(): consumed = %b.", consumed);
+                    Log.v(this, "SessionCallback: HEADSETHOOK/MEDIA_PLAY_PAUSE");
+                    boolean consumed = handleCallMediaButton(event);
+                    Log.v(this, "==> handleCallMediaButton(): consumed = %b.", consumed);
                     return consumed;
                 }
             }
@@ -113,8 +114,8 @@ public class HeadsetMediaButton extends CallsManagerListenerBase {
      *
      * @return true if we consumed the event.
      */
-    private boolean handleHeadsetHook(KeyEvent event) {
-        Log.d(this, "handleHeadsetHook()...%s %s", event.getAction(), event.getRepeatCount());
+    private boolean handleCallMediaButton(KeyEvent event) {
+        Log.d(this, "handleCallMediaButton()...%s %s", event.getAction(), event.getRepeatCount());
 
         // Save ACTION_DOWN Event temporarily.
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
