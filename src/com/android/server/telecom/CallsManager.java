@@ -1721,7 +1721,7 @@ public class CallsManager extends Call.ListenerBase
      * Removes an existing disconnected call, and notifies the in-call app.
      */
     void markCallAsRemoved(Call call) {
-        call.markHandoverFinished();
+        call.markHandoverFailed();
 
         removeCall(call);
         Call foregroundCall = mCallAudioManager.getPossiblyHeldForegroundCall();
@@ -2190,9 +2190,9 @@ public class CallsManager extends Call.ListenerBase
                             android.telecom.Connection.EVENT_HANDOVER_COMPLETE, null);
                     markCallAsDisconnected(handoverFrom,
                             new DisconnectCause(DisconnectCause.LOCAL));
+                    call.markHandoverSuccess();
                     markCallAsRemoved(handoverFrom);
                     call.sendCallEvent(android.telecom.Call.EVENT_HANDOVER_COMPLETE, null);
-                    call.markHandoverFinished();
                 } else if (newState == CallState.DISCONNECTED) {
                     Call handoverFrom = call.getHandoverFromCall();
                     Log.i(this, "Call %s failed to handover from %s.",
@@ -2211,13 +2211,12 @@ public class CallsManager extends Call.ListenerBase
                         // able to send the call event.
                         call.sendCallEvent(android.telecom.Call.EVENT_HANDOVER_FAILED, null);
                     }
-                    call.markHandoverFinished();
+                    call.markHandoverFailed();
                 }
             // If this call was disconnected because it was handed over TO another call, report the
             // handover as complete.
             } else if (call.getHandoverToCall() != null && newState == CallState.DISCONNECTED) {
                 Call handoverTo = call.getHandoverToCall();
-
                 Log.addEvent(handoverTo, LogUtils.Events.HANDOVER_COMPLETE, "from=%s, to=%s",
                         call.getId(), handoverTo.getId());
                 Log.addEvent(call, LogUtils.Events.HANDOVER_COMPLETE, "from=%s, to=%s",
@@ -2230,7 +2229,7 @@ public class CallsManager extends Call.ListenerBase
                 // Inform the "to" ConnectionService that handover to it has completed.
                 handoverTo.sendCallEvent(android.telecom.Call.EVENT_HANDOVER_COMPLETE, null);
                 answerCall(handoverTo, handoverTo.getVideoState());
-                call.markHandoverFinished();
+                call.markHandoverSuccess();
             }
 
             // Only broadcast state change for calls that are being tracked.
