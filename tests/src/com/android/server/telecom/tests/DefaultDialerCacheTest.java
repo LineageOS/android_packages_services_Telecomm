@@ -51,6 +51,7 @@ public class DefaultDialerCacheTest extends TelecomTestCase {
     private DefaultDialerCache mDefaultDialerCache;
     private ContentObserver mDefaultDialerSettingObserver;
     private BroadcastReceiver mPackageChangeReceiver;
+    private BroadcastReceiver mUserRemovedReceiver;
 
     @Mock private DefaultDialerCache.DefaultDialerManagerAdapter mMockDefaultDialerManager;
 
@@ -58,17 +59,24 @@ public class DefaultDialerCacheTest extends TelecomTestCase {
         super.setUp();
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
 
-        ArgumentCaptor<BroadcastReceiver> receiverCaptor =
+        ArgumentCaptor<BroadcastReceiver> packageReceiverCaptor =
                 ArgumentCaptor.forClass(BroadcastReceiver.class);
 
         mDefaultDialerCache = new DefaultDialerCache(
                 mContext, mMockDefaultDialerManager, new TelecomSystem.SyncRoot() { });
 
         verify(mContext, times(2)).registerReceiverAsUser(
-                receiverCaptor.capture(), eq(UserHandle.ALL), any(IntentFilter.class),
+            packageReceiverCaptor.capture(), eq(UserHandle.ALL), any(IntentFilter.class),
                 isNull(String.class), isNull(Handler.class));
         // Receive the first receiver that was captured, the package change receiver.
-        mPackageChangeReceiver = receiverCaptor.getAllValues().get(0);
+        mPackageChangeReceiver = packageReceiverCaptor.getAllValues().get(0);
+
+        ArgumentCaptor<BroadcastReceiver> userRemovedReceiverCaptor =
+            ArgumentCaptor.forClass(BroadcastReceiver.class);
+        verify(mContext).registerReceiver(
+            userRemovedReceiverCaptor.capture(), any(IntentFilter.class));
+        mUserRemovedReceiver = userRemovedReceiverCaptor.getAllValues().get(0);
+
         mDefaultDialerSettingObserver = mDefaultDialerCache.getContentObserver();
 
         when(mMockDefaultDialerManager.getDefaultDialerApplication(any(Context.class), eq(USER0)))
@@ -135,6 +143,24 @@ public class DefaultDialerCacheTest extends TelecomTestCase {
                 .getDefaultDialerApplication(any(Context.class), eq(USER1));
         verify(mMockDefaultDialerManager, times(2))
                 .getDefaultDialerApplication(any(Context.class), eq(USER2));
+    }
+
+    @SmallTest
+    public void testUserRemoved() {
+        assertEquals(mDefaultDialerCache.getDefaultDialerApplication(USER0), DIALER1);
+        assertEquals(mDefaultDialerCache.getDefaultDialerApplication(USER1), DIALER2);
+
+        Intent userRemovalIntent = new Intent(Intent.ACTION_USER_REMOVED);
+        userRemovalIntent.putExtra(Intent.EXTRA_USER_HANDLE, USER0);
+        mUserRemovedReceiver.onReceive(mContext, userRemovalIntent);
+
+        assertEquals(mDefaultDialerCache.getDefaultDialerApplication(USER0), DIALER1);
+        assertEquals(mDefaultDialerCache.getDefaultDialerApplication(USER1), DIALER2);
+
+        verify(mMockDefaultDialerManager, times(2))
+                .getDefaultDialerApplication(any(Context.class), eq(USER0));
+        verify(mMockDefaultDialerManager, times(1))
+                .getDefaultDialerApplication(any(Context.class), eq(USER1));
     }
 
     @SmallTest
