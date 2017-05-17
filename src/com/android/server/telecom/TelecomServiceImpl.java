@@ -996,6 +996,10 @@ public class TelecomServiceImpl {
                                         android.Manifest.permission.MANAGE_OWN_CALLS,
                                         "Self-managed phone accounts must have MANAGE_OWN_CALLS " +
                                                 "permission.");
+
+                                // Self-managed ConnectionServices can ONLY add new incoming calls
+                                // using their own PhoneAccounts.  The checkPackage(..) app opps
+                                // check above ensures this.
                             }
                         }
                         long token = Binder.clearCallingIdentity();
@@ -1086,6 +1090,16 @@ public class TelecomServiceImpl {
                 if (isSelfManaged) {
                     mContext.enforceCallingOrSelfPermission(Manifest.permission.MANAGE_OWN_CALLS,
                             "Self-managed ConnectionServices require MANAGE_OWN_CALLS permission.");
+
+                    if (!callingPackage.equals(
+                            phoneAccountHandle.getComponentName().getPackageName())
+                            && !canCallPhone(callingPackage,
+                            "CALL_PHONE permission required to place calls.")) {
+                        // The caller is not allowed to place calls, so we want to ensure that it
+                        // can only place calls through itself.
+                        throw new SecurityException("Self-managed ConnectionServices can only "
+                                + "place calls through their own ConnectionService.");
+                    }
                 } else if (!canCallPhone(callingPackage, "placeCall")) {
                     throw new SecurityException("Package " + callingPackage
                             + " is not allowed to place phone calls");
