@@ -17,6 +17,7 @@
 package com.android.server.telecom;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -317,6 +318,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
 
     private Bundle mIntentExtras = new Bundle();
 
+    /**
+     * The {@link Intent} which originally created this call.  Only populated when we are putting a
+     * call into a pending state and need to pick up initiation of the call later.
+     */
+    private Intent mOriginalCallIntent = null;
+
     /** Set of listeners on this call.
      *
      * ConcurrentHashMap constructor params: 8 is initial table size, 0.9f is
@@ -446,16 +453,23 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
     private int mPendingRttRequestId = INVALID_RTT_REQUEST_ID;
 
     /**
-     * When a call handover has been initiated via {@link #requestHandover(PhoneAccountHandle)},
-     * contains the call which this call is being handed over to.
+     * When a call handover has been initiated via {@link #requestHandover(PhoneAccountHandle,
+     * int, Bundle)}, contains the call which this call is being handed over to.
      */
     private Call mHandoverToCall = null;
 
     /**
-     * When a call handover has been initiated via {@link #requestHandover(PhoneAccountHandle)},
-     * contains the call which this call is being handed over from.
+     * When a call handover has been initiated via {@link #requestHandover(PhoneAccountHandle,
+     * int, Bundle)}, contains the call which this call is being handed over from.
      */
     private Call mHandoverFromCall = null;
+
+    /**
+     * When a call handover has been initiated via {@link #requestHandover(PhoneAccountHandle,
+     * int, Bundle)} and the handover has successfully succeeded, this field is set {@code true} to
+     * indicate that the call was handed over from another call.
+     */
+    private boolean mIsHandoverSuccessful = false;
 
     /**
      * Persists the specified parameters and initializes the new instance.
@@ -1071,20 +1085,32 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
     }
 
     /**
-     * Marks a handover as being completed, either as a result of failing to handover or completion
-     * of handover.
+     * Marks a handover as failed.
      */
-    public void markHandoverFinished() {
+    public void markHandoverFailed() {
+        markHandoverResult(false /* isComplete */);
+    }
+
+    /**
+     * Marks a handover as being successful.
+     */
+    public void markHandoverSuccess() {
+       markHandoverResult(true /* isComplete */);
+    }
+
+    private void markHandoverResult(boolean isHandoverSuccessful) {
         if (mHandoverFromCall != null) {
+            mHandoverFromCall.mIsHandoverSuccessful = isHandoverSuccessful;
             mHandoverFromCall.setHandoverFromCall(null);
             mHandoverFromCall.setHandoverToCall(null);
             mHandoverFromCall = null;
         } else if (mHandoverToCall != null) {
+            mHandoverToCall.mIsHandoverSuccessful = isHandoverSuccessful;
             mHandoverToCall.setHandoverFromCall(null);
             mHandoverToCall.setHandoverToCall(null);
             mHandoverToCall = null;
         }
-
+        mIsHandoverSuccessful = isHandoverSuccessful;
     }
 
     public boolean isHandoverInProgress() {
@@ -1105,6 +1131,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
 
     public void setHandoverFromCall(Call call) {
         mHandoverFromCall = call;
+    }
+
+    public boolean isHandoverSuccessful() {
+        return mIsHandoverSuccessful;
     }
 
     private void configureIsWorkCall() {
@@ -1784,6 +1814,14 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
 
     void setIntentExtras(Bundle extras) {
         mIntentExtras = extras;
+    }
+
+    public Intent getOriginalCallIntent() {
+        return mOriginalCallIntent;
+    }
+
+    public void setOriginalCallIntent(Intent intent) {
+        mOriginalCallIntent = intent;
     }
 
     /**

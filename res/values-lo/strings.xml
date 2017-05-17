@@ -82,4 +82,5 @@
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"ບໍ່ສາມາດໂທອອກໄດ້ເນື່ອງຈາກສາຍໃນແອັບອື່ນ."</string>
     <string name="notification_channel_incoming_call" msgid="3513761697082968084">"ສາຍໂທເຂົ້າ"</string>
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"ສາຍບໍ່ໄດ້ຮັບ"</string>
+    <string name="alert_outgoing_call" msgid="982908156825958001">"ການໂທສາຍນີ້ຈະເປັນການສິ້ນສຸດສາຍ <xliff:g id="OTHER_APP">%1$s</xliff:g> ຂອງທ່ານ."</string>
 </resources>

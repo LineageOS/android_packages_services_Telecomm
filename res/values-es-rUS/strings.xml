@@ -82,4 +82,5 @@
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"No se puede realizar la llamada porque hay una llamada en curso en otra app."</string>
     <string name="notification_channel_incoming_call" msgid="3513761697082968084">"Llamadas entrantes"</string>
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Llamadas perdidas"</string>
+    <string name="alert_outgoing_call" msgid="982908156825958001">"Si realizas esta llamada, finalizará la de <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
 </resources>

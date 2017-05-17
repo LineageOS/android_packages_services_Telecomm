@@ -51,7 +51,7 @@
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> dapat melakukan panggilan dan mengontrol semua aspek panggilan. Hanya aplikasi yang Anda percaya boleh disetel sebagai aplikasi Telepon default."</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Nomor yang diblokir"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Anda tidak akan menerima telepon atau SMS dari nomor yang diblokir."</string>
-    <string name="block_number" msgid="1101252256321306179">"Tambah nomor"</string>
+    <string name="block_number" msgid="1101252256321306179">"Tambahkan nomor"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Batalkan pemblokiran <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Batalkan pemblokiran"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Blokir panggilan telepon dan SMS dari"</string>
@@ -82,4 +82,5 @@
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"Panggilan tidak dapat dilakukan karena adanya panggilan di aplikasi lain."</string>
     <string name="notification_channel_incoming_call" msgid="3513761697082968084">"Panggilan masuk"</string>
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Panggilan tak terjawab"</string>
+    <string name="alert_outgoing_call" msgid="982908156825958001">"Melakukan panggilan ini akan mengakhiri panggilan <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
 </resources>
