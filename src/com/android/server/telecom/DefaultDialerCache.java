@@ -91,6 +91,22 @@ public class DefaultDialerCache {
         }
     };
 
+    private final BroadcastReceiver mUserRemovedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Intent.ACTION_USER_REMOVED.equals(intent.getAction())) {
+                int removedUser = intent.getIntExtra(Intent.EXTRA_USER_HANDLE,
+                    UserHandle.USER_NULL);
+                if (removedUser == UserHandle.USER_NULL) {
+                    Log.w(LOG_TAG, "Expected EXTRA_USER_HANDLE with ACTION_USER_REMOVED");
+                } else {
+                    removeUserFromCache(removedUser);
+                    Log.i(LOG_TAG, "Removing user %s", removedUser);
+                }
+            }
+        }
+    };
+
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final ContentObserver mDefaultDialerObserver = new ContentObserver(mHandler) {
         @Override
@@ -137,6 +153,8 @@ public class DefaultDialerCache {
         IntentFilter bootIntentFilter = new IntentFilter(Intent.ACTION_BOOT_COMPLETED);
         context.registerReceiverAsUser(mReceiver, UserHandle.ALL, bootIntentFilter, null, null);
 
+        IntentFilter userRemovedFilter = new IntentFilter(Intent.ACTION_USER_REMOVED);
+        context.registerReceiver(mUserRemovedReceiver, userRemovedFilter);
 
         Uri defaultDialerSetting =
                 Settings.Secure.getUriFor(Settings.Secure.DIALER_DEFAULT_APPLICATION);
@@ -218,6 +236,12 @@ public class DefaultDialerCache {
                 pw.printf("User %d: %s\n", mCurrentDefaultDialerPerUser.keyAt(i),
                         mCurrentDefaultDialerPerUser.valueAt(i));
             }
+        }
+    }
+
+    private void removeUserFromCache(int userId) {
+        synchronized (mLock) {
+            mCurrentDefaultDialerPerUser.remove(userId);
         }
     }
 
