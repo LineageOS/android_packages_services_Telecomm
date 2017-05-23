@@ -18,9 +18,13 @@ package com.android.server.telecom.ui;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioAttributes;
 import android.net.Uri;
+import android.telecom.Log;
 
 import com.android.server.telecom.R;
 
@@ -33,18 +37,29 @@ public class NotificationChannelManager {
     public static final String CHANNEL_ID_MISSED_CALLS = "TelecomMissedCalls";
     public static final String CHANNEL_ID_INCOMING_CALLS = "TelecomIncomingCalls";
 
+    private BroadcastReceiver mLocaleChangeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i(this, "Locale change; recreating channels.");
+            createOrUpdateAll(context);
+        }
+    };
+
     public void createChannels(Context context) {
-        maybeCreateChannel(context, CHANNEL_ID_MISSED_CALLS);
-        maybeCreateChannel(context, CHANNEL_ID_INCOMING_CALLS);
+        context.registerReceiver(mLocaleChangeReceiver,
+                new IntentFilter(Intent.ACTION_LOCALE_CHANGED));
+
+        createOrUpdateAll(context);
     }
 
-    private void maybeCreateChannel(Context context, String channelId) {
-        NotificationChannel channel = getNotificationManager(context).getNotificationChannel(
-                channelId);
-        if (channel == null) {
-            channel = createChannel(context, channelId);
-            getNotificationManager(context).createNotificationChannel(channel);
-        }
+    private void createOrUpdateAll(Context context) {
+        createOrUpdateChannel(context, CHANNEL_ID_MISSED_CALLS);
+        createOrUpdateChannel(context, CHANNEL_ID_INCOMING_CALLS);
+    }
+
+    private void createOrUpdateChannel(Context context, String channelId) {
+        NotificationChannel channel = createChannel(context, channelId);
+        getNotificationManager(context).createNotificationChannel(channel);
     }
 
     private NotificationChannel createChannel(Context context, String channelId) {
