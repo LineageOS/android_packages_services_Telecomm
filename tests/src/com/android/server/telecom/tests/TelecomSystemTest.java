@@ -732,6 +732,10 @@ public class TelecomSystemTest extends TelecomTestCase {
         // Wait for the callback in ConnectionService#onAdapterAttached to execute.
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
 
+        // Ensure callback to CS on successful creation happened.
+        verify(connectionServiceFixture.getTestDouble(), timeout(TEST_TIMEOUT))
+                .createConnectionComplete(anyString(), any());
+
         assertEquals(startingNumCalls + 1, mInCallServiceFixtureX.mCallById.size());
         assertEquals(startingNumCalls + 1, mInCallServiceFixtureY.mCallById.size());
 
@@ -779,6 +783,12 @@ public class TelecomSystemTest extends TelecomTestCase {
 
         // Wait for the handler to start the CallerInfo lookup
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
+
+        // Ensure callback to CS on successful creation happened.
+        verify(connectionServiceFixture.getTestDouble(), timeout(TEST_TIMEOUT))
+                .createConnectionComplete(anyString(), any());
+
+
         // Process the CallerInfo lookup reply
         mCallerInfoAsyncQueryFactoryFixture.mRequests.forEach(
                 CallerInfoAsyncQueryFactoryFixture.Request::reply);
