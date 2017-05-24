@@ -189,6 +189,9 @@ public class RespondViaSmsManager extends CallsManagerListenerBase {
                 if (SubscriptionManager.isValidSubscriptionId(subId)) {
                     intent.putExtra(PhoneConstants.SUBSCRIPTION_KEY, subId);
                 }
+                // Wakeup apps for the broadcast.
+                // TODO: Use SmsManager instead of an intent.
+                intent.addFlags(Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND);
 
                 SomeArgs args = SomeArgs.obtain();
                 args.arg1 = phoneNumber;
