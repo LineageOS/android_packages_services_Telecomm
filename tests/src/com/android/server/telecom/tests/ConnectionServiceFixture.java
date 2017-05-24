@@ -117,6 +117,10 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         }
 
         @Override
+        public void onCreateConnectionComplete(Connection connection) {
+        }
+
+        @Override
         public void onConference(Connection cxn1, Connection cxn2) {
             if (((FakeConnection) cxn1).getIsConferenceCreated()) {
                 // Usually, this is implemented by something in Telephony, which does a bunch of
@@ -237,6 +241,11 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
             mConnectionById.put(id, c);
             mConnectionServiceDelegateAdapter.createConnection(connectionManagerPhoneAccount,
                     id, request, isIncoming, isUnknown, null /*Session.Info*/);
+        }
+
+        @Override
+        public void createConnectionComplete(String id, Session.Info info) throws RemoteException {
+            mConnectionServiceDelegateAdapter.createConnectionComplete(id, null /*Session.Info*/);
         }
 
         @Override
