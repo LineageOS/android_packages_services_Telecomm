@@ -77,6 +77,7 @@ public class TelecomServiceImpl {
         }
     }
 
+    private static final String TIME_LINE_ARG = "timeline";
     private static final int DEFAULT_VIDEO_STATE = -1;
 
     private final ITelecomService.Stub mBinderImpl = new ITelecomService.Stub() {
@@ -1222,6 +1223,7 @@ public class TelecomServiceImpl {
                 Analytics.dumpToEncodedProto(writer, args);
                 return;
             }
+            boolean isTimeLineView = (args.length > 0 && TIME_LINE_ARG.equalsIgnoreCase(args[0]));
 
             final IndentingPrintWriter pw = new IndentingPrintWriter(writer, "  ");
             if (mCallsManager != null) {
@@ -1240,8 +1242,11 @@ public class TelecomServiceImpl {
                 Analytics.dump(pw);
                 pw.decreaseIndent();
             }
-
-            Log.dumpEvents(pw);
+            if (isTimeLineView) {
+                Log.dumpEventsTimeline(pw);
+            } else {
+                Log.dumpEvents(pw);
+            }
         }
 
         /**
