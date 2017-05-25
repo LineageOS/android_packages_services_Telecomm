@@ -578,6 +578,13 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
     }
 
     public void destroy() {
+        // We should not keep these bitmaps around because the Call objects may be held for logging
+        // purposes.
+        // TODO: Make a container object that only stores the information we care about for Logging.
+        if (mCallerInfo != null) {
+            mCallerInfo.cachedPhotoIcon = null;
+            mCallerInfo.cachedPhoto = null;
+        }
         Log.addEvent(this, LogUtils.Events.DESTROYED);
     }
 
