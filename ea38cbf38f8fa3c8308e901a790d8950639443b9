@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_ac792c95",
+        "filename": "src/com/android/server/telecom/CallLogManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 11883
+      },
+      "writtenOn": "2017-05-26T17:31:09Z",
+      "side": 1,
+      "message": "100 :(",
+      "revId": "ea38cbf38f8fa3c8308e901a790d8950639443b9",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
