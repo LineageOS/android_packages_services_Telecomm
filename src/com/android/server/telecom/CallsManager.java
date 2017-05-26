@@ -884,7 +884,6 @@ public class CallsManager extends Call.ListenerBase
             getForegroundCall().getAnalytics().setCallIsInterrupted(true);
             call.getAnalytics().setCallIsAdditional(true);
         }
-
         setIntentExtrasAndStartTime(call, extras);
         // TODO: Move this to be a part of addCall()
         call.addListener(this);
@@ -902,7 +901,7 @@ public class CallsManager extends Call.ListenerBase
                 if (fromCall != null) {
                     if (!isHandoverFromPhoneAccountSupported(fromCall.getTargetPhoneAccount())) {
                         Log.w(this, "processIncomingCallIntent: From account doesn't support " +
-                                        "handover.");
+                                "handover.");
                         isHandoverAllowed = false;
                     }
                 } else {
@@ -912,8 +911,10 @@ public class CallsManager extends Call.ListenerBase
 
                 if (isHandoverAllowed) {
                     // Link the calls so we know we're handing over.
-                    fromCall.setHandoverToCall(call);
-                    call.setHandoverFromCall(fromCall);
+                    fromCall.setHandoverDestinationCall(call);
+                    call.setHandoverSourceCall(fromCall);
+                    call.setHandoverState(HandoverState.HANDOVER_TO_STARTED);
+                    fromCall.setHandoverState(HandoverState.HANDOVER_FROM_STARTED);
                     Log.addEvent(fromCall, LogUtils.Events.START_HANDOVER,
                             "handOverFrom=%s, handOverTo=%s", fromCall.getId(), call.getId());
                     Log.addEvent(call, LogUtils.Events.START_HANDOVER,
@@ -921,9 +922,9 @@ public class CallsManager extends Call.ListenerBase
                 }
             } else {
                 Log.w(this, "processIncomingCallIntent: To account doesn't support handover.");
-                isHandoverAllowed = false;
             }
         }
+
         if (!isHandoverAllowed || (call.isSelfManaged() && !isIncomingCallPermitted(call,
                 call.getTargetPhoneAccount()))) {
             notifyCreateConnectionFailed(phoneAccountHandle, call);
@@ -1721,8 +1722,7 @@ public class CallsManager extends Call.ListenerBase
      * Removes an existing disconnected call, and notifies the in-call app.
      */
     void markCallAsRemoved(Call call) {
-        call.markHandoverFailed();
-
+        call.maybeCleanupHandover();
         removeCall(call);
         Call foregroundCall = mCallAudioManager.getPossiblyHeldForegroundCall();
         if (mLocallyDisconnectingCalls.contains(call)) {
@@ -2177,60 +2177,7 @@ public class CallsManager extends Call.ListenerBase
 
             Trace.beginSection("onCallStateChanged");
 
-            // If this call became active because it is being handed over from another Call, the
-            // call which was being handed over from can be disconnected at this point.
-            if (call.getHandoverFromCall() != null) {
-                if (newState == CallState.ACTIVE) {
-                    Call handoverFrom = call.getHandoverFromCall();
-                    Log.addEvent(call, LogUtils.Events.HANDOVER_COMPLETE, "from=%s, to=%s",
-                            handoverFrom.getId(), call.getId());
-                    Log.addEvent(handoverFrom, LogUtils.Events.HANDOVER_COMPLETE, "from=%s, to=%s",
-                            handoverFrom.getId(), call.getId());
-                    handoverFrom.onConnectionEvent(
-                            android.telecom.Connection.EVENT_HANDOVER_COMPLETE, null);
-                    markCallAsDisconnected(handoverFrom,
-                            new DisconnectCause(DisconnectCause.LOCAL));
-                    call.markHandoverSuccess();
-                    markCallAsRemoved(handoverFrom);
-                    call.sendCallEvent(android.telecom.Call.EVENT_HANDOVER_COMPLETE, null);
-                } else if (newState == CallState.DISCONNECTED) {
-                    Call handoverFrom = call.getHandoverFromCall();
-                    Log.i(this, "Call %s failed to handover from %s.",
-                            call.getId(), handoverFrom.getId());
-                    Log.addEvent(handoverFrom, LogUtils.Events.HANDOVER_FAILED, "from=%s, to=%s",
-                            call.getId(), handoverFrom.getId());
-                    // Inform the "from" Call (ie the source call) that the handover from it has
-                    // failed; this allows the InCallService to be notified that a handover it
-                    // initiated failed.
-                    handoverFrom.onConnectionEvent(Connection.EVENT_HANDOVER_FAILED, null);
-                    // Inform the "to" ConnectionService that handover to it has failed.  This
-                    // allows the ConnectionService the call was being handed over
-                    if (call.getConnectionService() != null) {
-                        // Only attempt if the call has a bound ConnectionService if handover failed
-                        // early on in the handover process, the CS will be unbound and we won't be
-                        // able to send the call event.
-                        call.sendCallEvent(android.telecom.Call.EVENT_HANDOVER_FAILED, null);
-                    }
-                    call.markHandoverFailed();
-                }
-            // If this call was disconnected because it was handed over TO another call, report the
-            // handover as complete.
-            } else if (call.getHandoverToCall() != null && newState == CallState.DISCONNECTED) {
-                Call handoverTo = call.getHandoverToCall();
-                Log.addEvent(handoverTo, LogUtils.Events.HANDOVER_COMPLETE, "from=%s, to=%s",
-                        call.getId(), handoverTo.getId());
-                Log.addEvent(call, LogUtils.Events.HANDOVER_COMPLETE, "from=%s, to=%s",
-                        call.getId(), handoverTo.getId());
-
-                // Inform the "from" Call (ie the source call) that the handover from it has
-                // completed; this allows the InCallService to be notified that a handover it
-                // initiated completed.
-                call.onConnectionEvent(Connection.EVENT_HANDOVER_COMPLETE, null);
-                // Inform the "to" ConnectionService that handover to it has completed.
-                handoverTo.sendCallEvent(android.telecom.Call.EVENT_HANDOVER_COMPLETE, null);
-                answerCall(handoverTo, handoverTo.getVideoState());
-                call.markHandoverSuccess();
-            }
+            maybeHandleHandover(call, newState);
 
             // Only broadcast state change for calls that are being tracked.
             if (mCalls.contains(call)) {
@@ -2247,6 +2194,105 @@ public class CallsManager extends Call.ListenerBase
             }
             Trace.endSection();
         }
+    }
+
+    /**
+     * Identifies call state transitions for a call which trigger handover events.
+     * - If this call has a handover to it which just started and this call goes active, treat
+     * this as if the user accepted the handover.
+     * - If this call has a handover to it which just started and this call is disconnected, treat
+     * this as if the user rejected the handover.
+     * - If this call has a handover from it which just started and this call is disconnected, do
+     * nothing as the call prematurely disconnected before the user accepted the handover.
+     * - If this call has a handover from it which was already accepted by the user and this call is
+     * disconnected, mark the handover as complete.
+     *
+     * @param call A call whose state is changing.
+     * @param newState The new state of the call.
+     */
+    private void maybeHandleHandover(Call call, int newState) {
+        if (call.getHandoverSourceCall() != null) {
+            // We are handing over another call to this one.
+            if (call.getHandoverState() == HandoverState.HANDOVER_TO_STARTED) {
+                // A handover to this call has just been initiated.
+                if (newState == CallState.ACTIVE) {
+                    // This call went active, so the user has accepted the handover.
+                    Log.i(this, "setCallState: handover to accepted");
+                    acceptHandoverTo(call);
+                } else if (newState == CallState.DISCONNECTED) {
+                    // The call was disconnected, so the user has rejected the handover.
+                    Log.i(this, "setCallState: handover to rejected");
+                    rejectHandoverTo(call);
+                }
+            }
+        // If this call was disconnected because it was handed over TO another call, report the
+        // handover as complete.
+        } else if (call.getHandoverDestinationCall() != null
+                && newState == CallState.DISCONNECTED) {
+            int handoverState = call.getHandoverState();
+            if (handoverState == HandoverState.HANDOVER_FROM_STARTED) {
+                // Disconnect before handover was accepted.
+                Log.i(this, "setCallState: disconnect before handover accepted");
+            } else if (handoverState == HandoverState.HANDOVER_ACCEPTED) {
+                Log.i(this, "setCallState: handover from complete");
+                completeHandoverFrom(call);
+            }
+        }
+    }
+
+    private void completeHandoverFrom(Call call) {
+        Call handoverTo = call.getHandoverDestinationCall();
+        Log.addEvent(handoverTo, LogUtils.Events.HANDOVER_COMPLETE, "from=%s, to=%s",
+                call.getId(), handoverTo.getId());
+        Log.addEvent(call, LogUtils.Events.HANDOVER_COMPLETE, "from=%s, to=%s",
+                call.getId(), handoverTo.getId());
+
+        // Inform the "from" Call (ie the source call) that the handover from it has
+        // completed; this allows the InCallService to be notified that a handover it
+        // initiated completed.
+        call.onConnectionEvent(Connection.EVENT_HANDOVER_COMPLETE, null);
+        // Inform the "to" ConnectionService that handover to it has completed.
+        handoverTo.sendCallEvent(android.telecom.Call.EVENT_HANDOVER_COMPLETE, null);
+        answerCall(handoverTo, handoverTo.getVideoState());
+        call.markFinishedHandoverStateAndCleanup(HandoverState.HANDOVER_COMPLETE);
+    }
+
+    private void rejectHandoverTo(Call handoverTo) {
+        Call handoverFrom = handoverTo.getHandoverSourceCall();
+        Log.i(this, "rejectHandoverTo: from=%s, to=%s", handoverFrom.getId(), handoverTo.getId());
+        Log.addEvent(handoverFrom, LogUtils.Events.HANDOVER_FAILED, "from=%s, to=%s",
+                handoverTo.getId(), handoverFrom.getId());
+        Log.addEvent(handoverTo, LogUtils.Events.HANDOVER_FAILED, "from=%s, to=%s",
+                handoverTo.getId(), handoverFrom.getId());
+
+        // Inform the "from" Call (ie the source call) that the handover from it has
+        // failed; this allows the InCallService to be notified that a handover it
+        // initiated failed.
+        handoverFrom.onConnectionEvent(Connection.EVENT_HANDOVER_FAILED, null);
+        // Inform the "to" ConnectionService that handover to it has failed.  This
+        // allows the ConnectionService the call was being handed over
+        if (handoverTo.getConnectionService() != null) {
+            // Only attempt if the call has a bound ConnectionService if handover failed
+            // early on in the handover process, the CS will be unbound and we won't be
+            // able to send the call event.
+            handoverTo.sendCallEvent(android.telecom.Call.EVENT_HANDOVER_FAILED, null);
+        }
+        handoverTo.markFinishedHandoverStateAndCleanup(HandoverState.HANDOVER_FAILED);
+    }
+
+    private void acceptHandoverTo(Call handoverTo) {
+        Call handoverFrom = handoverTo.getHandoverSourceCall();
+        Log.i(this, "acceptHandoverTo: from=%s, to=%s", handoverFrom.getId(), handoverTo.getId());
+        handoverTo.setHandoverState(HandoverState.HANDOVER_ACCEPTED);
+        handoverFrom.setHandoverState(HandoverState.HANDOVER_ACCEPTED);
+
+        Log.addEvent(handoverTo, LogUtils.Events.ACCEPT_HANDOVER, "from=%s, to=%s",
+                handoverFrom.getId(), handoverTo.getId());
+        Log.addEvent(handoverFrom, LogUtils.Events.ACCEPT_HANDOVER, "from=%s, to=%s",
+                handoverFrom.getId(), handoverTo.getId());
+
+        // Disconnect the call we handed over from.
+        disconnectCall(handoverFrom);
     }
 
     private void updateCanAddCall() {
@@ -2455,7 +2501,7 @@ public class CallsManager extends Call.ListenerBase
     public boolean shouldShowSystemIncomingCallUi(Call incomingCall) {
         return incomingCall.isIncoming() && incomingCall.isSelfManaged() &&
                 hasCallsForOtherPhoneAccount(incomingCall.getTargetPhoneAccount()) &&
-                incomingCall.getHandoverFromCall() == null;
+                incomingCall.getHandoverSourceCall() == null;
     }
 
     private boolean makeRoomForOutgoingCall(Call call, boolean isEmergency) {
@@ -2785,7 +2831,7 @@ public class CallsManager extends Call.ListenerBase
             // Only permit outgoing calls if there is no ongoing emergency calls and all other calls
             // are associated with the current PhoneAccountHandle.
             return !hasEmergencyCall() && (
-                    excludeCall.getHandoverFromCall() != null ||
+                    excludeCall.getHandoverSourceCall() != null ||
                             (!hasMaximumSelfManagedCalls(excludeCall, phoneAccountHandle) &&
                             !hasCallsForOtherPhoneAccount(phoneAccountHandle) &&
                             !hasManagedCalls()));
@@ -3046,6 +3092,8 @@ public class CallsManager extends Call.ListenerBase
 
         Bundle extras = new Bundle();
         extras.putBoolean(TelecomManager.EXTRA_IS_HANDOVER, true);
+        extras.putParcelable(TelecomManager.EXTRA_HANDOVER_FROM_PHONE_ACCOUNT,
+                handoverFromCall.getTargetPhoneAccount());
         extras.putInt(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE, videoState);
         if (initiatingExtras != null) {
             extras.putAll(initiatingExtras);
@@ -3056,8 +3104,10 @@ public class CallsManager extends Call.ListenerBase
                 extras, getCurrentUserHandle(), null /* originalIntent */);
         Log.addEvent(handoverFromCall, LogUtils.Events.START_HANDOVER,
                 "handOverFrom=%s, handOverTo=%s", handoverFromCall.getId(), handoverToCall.getId());
-        handoverFromCall.setHandoverToCall(handoverToCall);
-        handoverToCall.setHandoverFromCall(handoverFromCall);
+        handoverFromCall.setHandoverDestinationCall(handoverToCall);
+        handoverFromCall.setHandoverState(HandoverState.HANDOVER_FROM_STARTED);
+        handoverToCall.setHandoverState(HandoverState.HANDOVER_TO_STARTED);
+        handoverToCall.setHandoverSourceCall(handoverFromCall);
         handoverToCall.setNewOutgoingCallIntentBroadcastIsDone();
         placeOutgoingCall(handoverToCall, handoverToCall.getHandle(), null /* gatewayInfo */,
                 false /* startwithSpeaker */,
@@ -3109,8 +3159,8 @@ public class CallsManager extends Call.ListenerBase
      * @return {@code true} if a call in the process of handover exists, {@code false} otherwise.
      */
     private boolean isHandoverInProgress() {
-        return mCalls.stream().filter(c -> c.getHandoverFromCall() != null ||
-                c.getHandoverToCall() != null).count() > 0;
+        return mCalls.stream().filter(c -> c.getHandoverSourceCall() != null ||
+                c.getHandoverDestinationCall() != null).count() > 0;
     }
 
     private void broadcastUnregisterIntent(PhoneAccountHandle accountHandle) {
