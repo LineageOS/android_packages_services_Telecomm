@@ -688,7 +688,8 @@ public class BluetoothRouteManager extends StateMachine {
                     address, actualAddress);
         }
         if (actualAddress != null && !connectAudio(actualAddress)) {
-            Log.w(LOG_TAG, "Could not connect to %s. Will %s", shouldRetry ? "retry" : "not retry");
+            Log.w(LOG_TAG, "Could not connect to %s. Will %s",
+                actualAddress, shouldRetry ? "retry" : "not retry");
             if (shouldRetry) {
                 SomeArgs args = SomeArgs.obtain();
                 args.arg1 = Log.createSubsession();
