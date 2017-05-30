@@ -109,6 +109,7 @@ public class InCallControllerTests extends TelecomTestCase {
         doReturn(mMockResources).when(mMockContext).getResources();
         doReturn(SYS_PKG).when(mMockResources).getString(R.string.ui_default_package);
         doReturn(SYS_CLASS).when(mMockResources).getString(R.string.incall_default_class);
+        doReturn(true).when(mMockResources).getBoolean(R.bool.grant_location_permission_enabled);
         mEmergencyCallHelper = new EmergencyCallHelper(mMockContext, SYS_PKG,
                 mTimeoutsAdapter);
         mInCallController = new InCallController(mMockContext, mLock, mMockCallsManager,
