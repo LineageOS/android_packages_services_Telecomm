@@ -108,4 +108,5 @@
   <!-- DO NOT TRANSLATE. Short description for test Subscription 3. -->
   <string name="test_account_3_short_description">Chat with Chat Network users</string>
   <!-- DO NOT TRANSLATE. Hardcoded number used for restricted incoming phone numbers. -->
+  <string name="handle_restricted">RESTRICTED</string>
 </resources>
