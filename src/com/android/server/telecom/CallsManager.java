@@ -2652,6 +2652,7 @@ public class CallsManager extends Call.ListenerBase
             // Now, set the call as a child of the parent since it has been added to Telecom.  This
             // is where we will inform InCall.
             call.setChildOf(parentCall);
+            call.notifyParentChanged(parentCall);
         }
 
         return call;

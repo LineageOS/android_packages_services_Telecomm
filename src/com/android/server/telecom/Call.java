@@ -2010,8 +2010,24 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
      * @param parentCall
      */
     void setParentAndChildCall(Call parentCall) {
+        boolean isParentChanging = (mParentCall != parentCall);
         setParentCall(parentCall);
         setChildOf(parentCall);
+        if (isParentChanging) {
+            notifyParentChanged(parentCall);
+        }
+    }
+
+    /**
+     * Notifies listeners when the parent call changes.
+     * Used by {@link #setParentAndChildCall(Call)}, and in {@link CallsManager}.
+     * @param parentCall The new parent call for this call.
+     */
+    void notifyParentChanged(Call parentCall) {
+        Log.addEvent(this, LogUtils.Events.SET_PARENT, parentCall);
+        for (Listener l : mListeners) {
+            l.onParentChanged(this);
+        }
     }
 
     /**
@@ -2040,25 +2056,13 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
      * To be called after {@link #setParentCall(Call)} to complete setting the parent by adding
      * this call as a child of another call.
      * <p>
-     * Note: The fact that the {@link Listener#onParentChanged(Call)} callback is called here seems
-     * counter-intuitive; it is done here so that when this method is called from
-     * {@link CallsManager#createCallForExistingConnection(String, ParcelableConnection)} we can
-     * delay informing InCallServices of the change in parent relationship until AFTER the call has
-     * been added to Telecom.
+     * Note: if using this method alone, the caller must call {@link #notifyParentChanged(Call)} to
+     * ensure the InCall UI is updated with the change in parent.
      * @param parentCall The new parent for this call.
      */
     void setChildOf(Call parentCall) {
-        if (parentCall == null) {
-            return;
-        }
-
-        if (!parentCall.getChildCalls().contains(this)) {
+        if (parentCall != null && !parentCall.getChildCalls().contains(this)) {
             parentCall.addChildCall(this);
-
-            Log.addEvent(this, LogUtils.Events.SET_PARENT, parentCall);
-            for (Listener l : mListeners) {
-                l.onParentChanged(this);
-            }
         }
     }
 
