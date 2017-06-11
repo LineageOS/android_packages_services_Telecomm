@@ -54,6 +54,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 
 import android.util.Base64;
 
@@ -81,16 +82,6 @@ public class TestCertActivity extends Activity {
 
         mCertUrlView = (EditText) findViewById(R.id.text);
         mCertUrlView.setText(mURL);
-    }
-
-    public static PublicKey makeKeyObject(byte[] publicKeyBytes) {
-        try {
-            X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(publicKeyBytes);
-            return KeyFactory.getInstance("RSA").generatePublic(pubKeySpec);
-        } catch (InvalidKeySpecException | NoSuchAlgorithmException ex) {
-            Log.e(LOG_TAG, "Error makeKeyObject: unable to convert into PublicKey", ex);
-        }
-        return null;
     }
 
     /**
@@ -152,8 +143,6 @@ public class TestCertActivity extends Activity {
 
         private void savePublicKey(String key, int type, String identifier) {
             byte[] keyBytes = Base64.decode(key.getBytes(), Base64.DEFAULT);
-            PublicKey publicKey = makeKeyObject(keyBytes);
-            Log.i(LOG_TAG, "generated public key: " + publicKey);
             final TelephonyManager telephonyManager =
                     (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
@@ -168,7 +157,7 @@ public class TestCertActivity extends Activity {
             }
 
             ImsiEncryptionInfo imsiEncryptionInfo = new ImsiEncryptionInfo(mcc,
-                    mnc, type, identifier, publicKey);
+                    mnc, type, identifier, keyBytes, new Date());
             telephonyManager.setCarrierInfoForImsiEncryption(imsiEncryptionInfo);
             keyList.add(imsiEncryptionInfo.getKeyType() + "," +
                     imsiEncryptionInfo.getKeyIdentifier());
