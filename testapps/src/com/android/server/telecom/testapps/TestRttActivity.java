@@ -93,12 +93,7 @@ public class TestRttActivity extends Activity {
                     }
                     // inner read loop
                     while (true) {
-                        String receivedText;
-                        try {
-                            receivedText = rttCall.read();
-                        } catch (IOException e) {
-                            break;
-                        }
+                        String receivedText = rttCall.read();
                         if (receivedText == null) {
                             if (Thread.currentThread().isInterrupted()) {
                                 break begin;
