@@ -82,6 +82,9 @@ public class SelfManagedConnectionService extends ConnectionService {
         }
         Bundle requestExtras = request.getExtras();
         if (requestExtras != null) {
+            Log.i(this, "createConnection: isHandover=%b, handoverFrom=%s",
+                    requestExtras.getBoolean(TelecomManager.EXTRA_IS_HANDOVER),
+                    requestExtras.getString(TelecomManager.EXTRA_HANDOVER_FROM_PHONE_ACCOUNT));
             connection.setIsHandover(requestExtras.getBoolean(TelecomManager.EXTRA_IS_HANDOVER,
                     false));
             if (!isIncoming && connection.isHandover()) {

@@ -25,6 +25,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallState;
+import com.android.server.telecom.HandoverState;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 
 import org.mockito.Mock;
@@ -70,8 +71,7 @@ public class IncomingCallNotifierTest extends TelecomTestCase {
         when(mRingingCall.getState()).thenReturn(CallState.RINGING);
         when(mRingingCall.getVideoState()).thenReturn(VideoProfile.STATE_AUDIO_ONLY);
         when(mRingingCall.getTargetPhoneAccountLabel()).thenReturn("Foo");
-        when(mRingingCall.isHandoverInProgress()).thenReturn(false);
-        when(mRingingCall.isHandoverSuccessful()).thenReturn(false);
+        when(mRingingCall.getHandoverState()).thenReturn(HandoverState.HANDOVER_NONE);
     }
 
     /**
@@ -136,8 +136,7 @@ public class IncomingCallNotifierTest extends TelecomTestCase {
         when(mCallsManagerProxy.hasCallsForOtherPhoneAccount(any())).thenReturn(true);
         when(mCallsManagerProxy.getNumCallsForOtherPhoneAccount(any())).thenReturn(1);
         when(mCallsManagerProxy.getActiveCall()).thenReturn(mAudioCall);
-        when(mRingingCall.isHandoverInProgress()).thenReturn(true);
-        when(mRingingCall.isHandoverSuccessful()).thenReturn(false);
+        when(mRingingCall.getHandoverState()).thenReturn(HandoverState.HANDOVER_FROM_STARTED);
 
         mIncomingCallNotifier.onCallAdded(mAudioCall);
         mIncomingCallNotifier.onCallAdded(mRingingCall);
@@ -155,8 +154,7 @@ public class IncomingCallNotifierTest extends TelecomTestCase {
         when(mCallsManagerProxy.hasCallsForOtherPhoneAccount(any())).thenReturn(true);
         when(mCallsManagerProxy.getNumCallsForOtherPhoneAccount(any())).thenReturn(1);
         when(mCallsManagerProxy.getActiveCall()).thenReturn(mAudioCall);
-        when(mRingingCall.isHandoverInProgress()).thenReturn(false);
-        when(mRingingCall.isHandoverSuccessful()).thenReturn(true);
+        when(mRingingCall.getHandoverState()).thenReturn(HandoverState.HANDOVER_COMPLETE);
 
         mIncomingCallNotifier.onCallAdded(mAudioCall);
         mIncomingCallNotifier.onCallAdded(mRingingCall);
