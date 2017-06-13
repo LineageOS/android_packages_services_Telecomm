@@ -189,7 +189,8 @@ public class TelecomSystem {
             Timeouts.Adapter timeoutsAdapter,
             AsyncRingtonePlayer asyncRingtonePlayer,
             PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
-            IncomingCallNotifier incomingCallNotifier) {
+            IncomingCallNotifier incomingCallNotifier,
+            InCallTonePlayer.ToneGeneratorFactory toneGeneratorFactory) {
         mContext = context.getApplicationContext();
         LogUtils.initLogging(mContext);
         DefaultDialerManagerAdapter defaultDialerAdapter =
@@ -253,7 +254,8 @@ public class TelecomSystem {
                 timeoutsAdapter,
                 asyncRingtonePlayer,
                 phoneNumberUtilsAdapter,
-                emergencyCallHelper);
+                emergencyCallHelper,
+                toneGeneratorFactory);
 
         mIncomingCallNotifier = incomingCallNotifier;
         incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {

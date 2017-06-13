@@ -305,7 +305,8 @@ public class CallsManager extends Call.ListenerBase
             Timeouts.Adapter timeoutsAdapter,
             AsyncRingtonePlayer asyncRingtonePlayer,
             PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
-            EmergencyCallHelper emergencyCallHelper) {
+            EmergencyCallHelper emergencyCallHelper,
+            InCallTonePlayer.ToneGeneratorFactory toneGeneratorFactory) {
         mContext = context;
         mLock = lock;
         mPhoneNumberUtilsAdapter = phoneNumberUtilsAdapter;
@@ -345,7 +346,7 @@ public class CallsManager extends Call.ListenerBase
                         mDockManager);
 
         InCallTonePlayer.Factory playerFactory = new InCallTonePlayer.Factory(
-                callAudioRoutePeripheralAdapter, lock);
+                callAudioRoutePeripheralAdapter, lock, toneGeneratorFactory);
 
         SystemSettingsUtil systemSettingsUtil = new SystemSettingsUtil();
         RingtoneFactory ringtoneFactory = new RingtoneFactory(this, context);
