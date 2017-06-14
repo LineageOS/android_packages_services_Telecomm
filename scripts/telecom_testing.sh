@@ -10,6 +10,7 @@ _lite_test_general() {
                           running tests (mmma).
   -e                    Run code coverage. Coverage will be output into the coverage/
                           directory in the repo root.
+  -g                    Run build commands with USE_GOMA=true
   -h                    This help message.
   "
 
@@ -20,8 +21,9 @@ _lite_test_general() {
   local installwdep=false
   local debug=false
   local coverage=false
+  local goma=false
 
-  while getopts "c:p:hadie" opt; do
+  while getopts "c:p:hadieg" opt; do
     case "$opt" in
       h)
         echo "$usage"
@@ -40,6 +42,8 @@ _lite_test_general() {
         installwdep=true;;
       e)
         coverage=true;;
+      g)
+        goma=true;;
       p)
         project=$OPTARG;;
     esac
@@ -67,6 +71,8 @@ _lite_test_general() {
   if [ $install = true ] ; then
     local olddir=$(pwd)
     local emma_opt=
+    local goma_opt=
+
     cd $T
     # Build and exit script early if build fails
 
@@ -76,10 +82,14 @@ _lite_test_general() {
       emma_opt="EMMA_INSTRUMENT=false"
     fi
 
+    if [ $goma = true ] ; then
+        goma_opt="USE_GOMA=true"
+    fi
+
     if [ $installwdep = true ] ; then
-      (export ${emma_opt}; mmma -j40 "$build_dir")
+      (export ${emma_opt}; mmma ${goma_opt} -j40 "$build_dir")
     else
-      (export ${emma_opt}; mmm "$build_dir")
+      (export ${emma_opt}; mmm ${goma_opt} "$build_dir")
     fi
     if [ $? -ne 0 ] ; then
       echo "Make failed! try using -a instead of -i if building with coverage"

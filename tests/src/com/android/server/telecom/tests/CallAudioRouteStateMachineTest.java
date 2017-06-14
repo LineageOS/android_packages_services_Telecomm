@@ -915,6 +915,8 @@ public class CallAudioRouteStateMachineTest
 
         waitForStateMachineActionCompletion(stateMachine, CallAudioModeStateMachine.RUN_RUNNABLE);
 
+        Handler h = stateMachine.getHandler();
+        waitForHandlerAction(h, TEST_TIMEOUT);
         stateMachine.quitStateMachine();
 
         // Verify that no substantive interactions have taken place with the

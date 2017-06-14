@@ -1083,6 +1083,10 @@ public class TelecomServiceImpl {
                 if (extras != null) {
                     phoneAccountHandle = extras.getParcelable(
                             TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE);
+                    if (extras.containsKey(TelecomManager.EXTRA_IS_HANDOVER)) {
+                        // This extra is for Telecom use only so should never be passed in.
+                        extras.remove(TelecomManager.EXTRA_IS_HANDOVER);
+                    }
                 }
                 boolean isSelfManaged = phoneAccountHandle != null &&
                         isSelfManagedConnectionService(phoneAccountHandle);
