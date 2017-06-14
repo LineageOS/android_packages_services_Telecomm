@@ -153,7 +153,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
                  !isCallCanceled) &&
                 !call.isExternalCall() &&
                 (!call.isSelfManaged() ||
-                call.isLoggedSelfManaged())) {
+                call.isLoggedSelfManaged() &&
+                        call.getHandoverState() != HandoverState.HANDOVER_FAILED)) {
             int type;
             if (!call.isIncoming()) {
                 type = Calls.OUTGOING_TYPE;

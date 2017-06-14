@@ -44,6 +44,7 @@ import android.content.IContentProvider;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.IAudioService;
+import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -170,6 +171,21 @@ public class TelecomSystemTest extends TelecomTestCase {
             return mIsEmergencyCall;
         }
     }
+
+    private class IncomingCallAddedListener extends CallsManagerListenerBase {
+
+        private final CountDownLatch mCountDownLatch;
+
+        public IncomingCallAddedListener(CountDownLatch latch) {
+            mCountDownLatch = latch;
+        }
+
+        @Override
+        public void onCallAdded(com.android.server.telecom.Call call) {
+            mCountDownLatch.countDown();
+        }
+    }
+
     PhoneNumberUtilsAdapter mPhoneNumberUtilsAdapter = new EmergencyNumberUtilsAdapter();
 
     @Mock HeadsetMediaButton mHeadsetMediaButton;
@@ -320,6 +336,8 @@ public class TelecomSystemTest extends TelecomTestCase {
         // Finally, register the ConnectionServices with the PhoneAccountRegistrar of the
         // now-running TelecomSystem
         setupConnectionServices();
+
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
     }
 
     @Override
@@ -407,7 +425,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                 mTimeoutsAdapter,
                 mAsyncRingtonePlayer,
                 mPhoneNumberUtilsAdapter,
-                mIncomingCallNotifier);
+                mIncomingCallNotifier,
+                (streamType, volume) -> mock(ToneGenerator.class));
 
         mComponentContextFixture.setTelecomManager(new TelecomManager(
                 mComponentContextFixture.getTestDouble(),
@@ -749,6 +768,10 @@ public class TelecomSystemTest extends TelecomTestCase {
         final int startingNumCalls = mInCallServiceFixtureX.mCallById.size();
         boolean hasInCallAdapter = mInCallServiceFixtureX.mInCallAdapter != null;
         connectionServiceFixture.mConnectionServiceDelegate.mVideoState = videoState;
+        CountDownLatch incomingCallAddedLatch = new CountDownLatch(1);
+        IncomingCallAddedListener callAddedListener =
+                new IncomingCallAddedListener(incomingCallAddedLatch);
+        mTelecomSystem.getCallsManager().addListener(callAddedListener);
 
         Bundle extras = new Bundle();
         extras.putParcelable(
@@ -772,6 +795,9 @@ public class TelecomSystemTest extends TelecomTestCase {
         // Process the CallerInfo lookup reply
         mCallerInfoAsyncQueryFactoryFixture.mRequests.forEach(
                 CallerInfoAsyncQueryFactoryFixture.Request::reply);
+
+        //Wait for/Verify call blocking happened asynchronously
+        incomingCallAddedLatch.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
 
         IContentProvider blockedNumberProvider =
                 mSpyContext.getContentResolver().acquireProvider(BlockedNumberContract.AUTHORITY);

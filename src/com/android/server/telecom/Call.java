@@ -456,20 +456,18 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
      * When a call handover has been initiated via {@link #requestHandover(PhoneAccountHandle,
      * int, Bundle)}, contains the call which this call is being handed over to.
      */
-    private Call mHandoverToCall = null;
+    private Call mHandoverDestinationCall = null;
 
     /**
      * When a call handover has been initiated via {@link #requestHandover(PhoneAccountHandle,
      * int, Bundle)}, contains the call which this call is being handed over from.
      */
-    private Call mHandoverFromCall = null;
+    private Call mHandoverSourceCall = null;
 
     /**
-     * When a call handover has been initiated via {@link #requestHandover(PhoneAccountHandle,
-     * int, Bundle)} and the handover has successfully succeeded, this field is set {@code true} to
-     * indicate that the call was handed over from another call.
+     * Indicates the current state of this call if it is in the process of a handover.
      */
-    private boolean mIsHandoverSuccessful = false;
+    private int mHandoverState = HandoverState.HANDOVER_NONE;
 
     /**
      * Persists the specified parameters and initializes the new instance.
@@ -1091,57 +1089,56 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         setConnectionProperties(getConnectionProperties());
     }
 
-    /**
-     * Marks a handover as failed.
-     */
-    public void markHandoverFailed() {
-        markHandoverResult(false /* isComplete */);
-    }
-
-    /**
-     * Marks a handover as being successful.
-     */
-    public void markHandoverSuccess() {
-       markHandoverResult(true /* isComplete */);
-    }
-
-    private void markHandoverResult(boolean isHandoverSuccessful) {
-        if (mHandoverFromCall != null) {
-            mHandoverFromCall.mIsHandoverSuccessful = isHandoverSuccessful;
-            mHandoverFromCall.setHandoverFromCall(null);
-            mHandoverFromCall.setHandoverToCall(null);
-            mHandoverFromCall = null;
-        } else if (mHandoverToCall != null) {
-            mHandoverToCall.mIsHandoverSuccessful = isHandoverSuccessful;
-            mHandoverToCall.setHandoverFromCall(null);
-            mHandoverToCall.setHandoverToCall(null);
-            mHandoverToCall = null;
+    public void markFinishedHandoverStateAndCleanup(int handoverState) {
+        if (mHandoverSourceCall != null) {
+            mHandoverSourceCall.setHandoverState(handoverState);
+        } else if (mHandoverDestinationCall != null) {
+            mHandoverDestinationCall.setHandoverState(handoverState);
         }
-        mIsHandoverSuccessful = isHandoverSuccessful;
+        setHandoverState(handoverState);
+        maybeCleanupHandover();
+    }
+
+    public void maybeCleanupHandover() {
+        if (mHandoverSourceCall != null) {
+            mHandoverSourceCall.setHandoverSourceCall(null);
+            mHandoverSourceCall.setHandoverDestinationCall(null);
+            mHandoverSourceCall = null;
+        } else if (mHandoverDestinationCall != null) {
+            mHandoverDestinationCall.setHandoverSourceCall(null);
+            mHandoverDestinationCall.setHandoverDestinationCall(null);
+            mHandoverDestinationCall = null;
+        }
     }
 
     public boolean isHandoverInProgress() {
-        return mHandoverFromCall != null || mHandoverToCall != null;
+        return mHandoverSourceCall != null || mHandoverDestinationCall != null;
     }
 
-    public Call getHandoverToCall() {
-        return mHandoverToCall;
+    public Call getHandoverDestinationCall() {
+        return mHandoverDestinationCall;
     }
 
-    public void setHandoverToCall(Call call) {
-        mHandoverToCall = call;
+    public void setHandoverDestinationCall(Call call) {
+        mHandoverDestinationCall = call;
     }
 
-    public Call getHandoverFromCall() {
-        return mHandoverFromCall;
+    public Call getHandoverSourceCall() {
+        return mHandoverSourceCall;
     }
 
-    public void setHandoverFromCall(Call call) {
-        mHandoverFromCall = call;
+    public void setHandoverSourceCall(Call call) {
+        mHandoverSourceCall = call;
     }
 
-    public boolean isHandoverSuccessful() {
-        return mIsHandoverSuccessful;
+    public void setHandoverState(int handoverState) {
+        Log.d(this, "setHandoverState: callId=%s, handoverState=%s", getId(),
+                HandoverState.stateToString(handoverState));
+        mHandoverState = handoverState;
+    }
+
+    public int getHandoverState() {
+        return mHandoverState;
     }
 
     private void configureIsWorkCall() {

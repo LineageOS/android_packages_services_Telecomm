@@ -129,6 +129,7 @@ public class LogUtils {
         public static final String CALL_EVENT = "CALL_EVENT";
         public static final String HANDOVER_REQUEST = "HANDOVER_REQUEST";
         public static final String START_HANDOVER = "START_HANDOVER";
+        public static final String ACCEPT_HANDOVER = "ACCEPT_HANDOVER";
         public static final String HANDOVER_COMPLETE = "HANDOVER_COMPLETE";
         public static final String HANDOVER_FAILED = "HANDOVER_FAILED";
 
