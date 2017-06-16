@@ -1469,7 +1469,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         setVideoProvider(connection.getVideoProvider());
         setVideoState(connection.getVideoState());
         setRingbackRequested(connection.isRingbackRequested());
-        setIsVoipAudioMode(connection.getIsVoipAudioMode());
         setStatusHints(connection.getStatusHints());
         putExtras(SOURCE_CONNECTION_SERVICE, connection.getExtras());
 
