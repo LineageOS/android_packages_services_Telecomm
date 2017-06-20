@@ -287,7 +287,7 @@ public class InCallController extends CallsManagerListenerBase {
         }
 
         protected void onDisconnected() {
-            InCallController.this.onDisconnected(mInCallServiceInfo.getComponentName());
+            InCallController.this.onDisconnected(mInCallServiceInfo);
             disconnect();  // Unbind explicitly if we get disconnected.
             if (mListener != null) {
                 mListener.onDisconnect(InCallServiceBindingConnection.this);
@@ -1010,6 +1010,7 @@ public class InCallController extends CallsManagerListenerBase {
             mNonUIInCallServiceConnections.disconnect();
             mNonUIInCallServiceConnections = null;
         }
+        mInCallServices.clear();
     }
 
     /**
@@ -1303,12 +1304,12 @@ public class InCallController extends CallsManagerListenerBase {
     /**
      * Cleans up an instance of in-call app after the service has been unbound.
      *
-     * @param disconnectedComponent The {@link ComponentName} of the service which disconnected.
+     * @param disconnectedInfo The {@link InCallServiceInfo} of the service which disconnected.
      */
-    private void onDisconnected(ComponentName disconnectedComponent) {
-        Log.i(this, "onDisconnected from %s", disconnectedComponent);
+    private void onDisconnected(InCallServiceInfo disconnectedInfo) {
+        Log.i(this, "onDisconnected from %s", disconnectedInfo.getComponentName());
 
-        mInCallServices.remove(disconnectedComponent);
+        mInCallServices.remove(disconnectedInfo);
     }
 
     /**
