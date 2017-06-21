@@ -881,10 +881,12 @@ public class CallsManager extends Call.ListenerBase
         }
         // If the extras specifies a video state, set it on the call if the PhoneAccount supports
         // video.
+        int videoState = VideoProfile.STATE_AUDIO_ONLY;
         if (extras.containsKey(TelecomManager.EXTRA_INCOMING_VIDEO_STATE) &&
                 phoneAccount != null && phoneAccount.hasCapabilities(
                         PhoneAccount.CAPABILITY_VIDEO_CALLING)) {
-            call.setVideoState(extras.getInt(TelecomManager.EXTRA_INCOMING_VIDEO_STATE));
+            videoState = extras.getInt(TelecomManager.EXTRA_INCOMING_VIDEO_STATE);
+            call.setVideoState(videoState);
         }
 
         call.initAnalytics();
@@ -927,6 +929,11 @@ public class CallsManager extends Call.ListenerBase
                             "handOverFrom=%s, handOverTo=%s", fromCall.getId(), call.getId());
                     Log.addEvent(call, LogUtils.Events.START_HANDOVER,
                             "handOverFrom=%s, handOverTo=%s", fromCall.getId(), call.getId());
+                    if (isSpeakerEnabledForVideoCalls() && VideoProfile.isVideo(videoState)) {
+                        // Ensure when the call goes active that it will go to speakerphone if the
+                        // handover to call is a video call.
+                        call.setStartWithSpeakerphoneOn(true);
+                    }
                 }
             } else {
                 Log.w(this, "processIncomingCallIntent: To account doesn't support handover.");
@@ -2647,6 +2654,11 @@ public class CallsManager extends Call.ListenerBase
      * Checks to see if the call should be on speakerphone and if so, set it.
      */
     private void maybeMoveToSpeakerPhone(Call call) {
+        if (call.isHandoverInProgress() && call.getState() == CallState.DIALING) {
+            // When a new outgoing call is initiated for the purpose of handing over, do not engage
+            // speaker automatically until the call goes active.
+            return;
+        }
         if (call.getStartWithSpeakerphoneOn()) {
             setAudioRoute(CallAudioState.ROUTE_SPEAKER);
             call.setStartWithSpeakerphoneOn(false);
