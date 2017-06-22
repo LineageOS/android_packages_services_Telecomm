@@ -22,6 +22,30 @@
       "revId": "eb996e6bfc03719cdeea76d150c9bf5076bfcf55",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da87b5cf_cbceaf83",
+        "filename": "src/com/android/server/telecom/SensitivePhoneNumbers.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 11801
+      },
+      "writtenOn": "2017-06-22T15:47:15Z",
+      "side": 1,
+      "message": "Yea, fixed.\nI noticed already :)",
+      "parentUuid": "da87b5cf_6bc0c350",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 2
+      },
+      "revId": "eb996e6bfc03719cdeea76d150c9bf5076bfcf55",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
