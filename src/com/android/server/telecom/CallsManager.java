@@ -1815,10 +1815,12 @@ public class CallsManager extends Call.ListenerBase
      */
     void handleConnectionServiceDeath(ConnectionServiceWrapper service) {
         if (service != null) {
+            Log.i(this, "handleConnectionServiceDeath: service %s died", service);
             for (Call call : mCalls) {
                 if (call.getConnectionService() == service) {
                     if (call.getState() != CallState.DISCONNECTED) {
-                        markCallAsDisconnected(call, new DisconnectCause(DisconnectCause.ERROR));
+                        markCallAsDisconnected(call, new DisconnectCause(DisconnectCause.ERROR,
+                                "CS_DEATH"));
                     }
                     markCallAsRemoved(call);
                 }
