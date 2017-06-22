@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da87b5cf_2bb15bf8",
+        "filename": "src/com/android/server/telecom/SensitivePhoneNumbers.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 11883
+      },
+      "writtenOn": "2017-06-22T16:01:16Z",
+      "side": 1,
+      "message": "String[] mcc \u003d sensitivePN.getNetworkNumeric().split(\",\");",
+      "range": {
+        "startLine": 89,
+        "startChar": 16,
+        "endLine": 89,
+        "endChar": 61
+      },
+      "revId": "86ed701b347a1451e68e3255f1706649ffb66c03",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da87b5cf_cb954f41",
+        "filename": "src/com/android/server/telecom/SensitivePhoneNumbers.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 11883
+      },
+      "writtenOn": "2017-06-22T16:01:16Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "86ed701b347a1451e68e3255f1706649ffb66c03",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da87b5cf_0bac979f",
+        "filename": "src/com/android/server/telecom/SensitivePhoneNumbers.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 11883
+      },
+      "writtenOn": "2017-06-22T16:01:16Z",
+      "side": 1,
+      "message": "String mcc : mcc_arr",
+      "range": {
+        "startLine": 92,
+        "startChar": 21,
+        "endLine": 92,
+        "endChar": 55
+      },
+      "revId": "86ed701b347a1451e68e3255f1706649ffb66c03",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
