@@ -86,8 +86,13 @@ public class SensitivePhoneNumbers {
             if ("sensitivePN".equals(name)) {
                 SensitivePhoneNumber sensitivePN = SensitivePhoneNumber
                         .readSensitivePhoneNumbers(parser);
-                mSensitiveNumbersMap.put(sensitivePN.getNetworkNumeric(),
-                        sensitivePN.getPhoneNumbers());
+                String mcc = sensitivePN.getNetworkNumeric();
+                String[] mcc_arr = mcc.split("-");
+                ArrayList<String> sensitive_nums = sensitivePN.getPhoneNumbers();
+                for (int i = Integer.parseInt(mcc_arr[0]);
+                    i <= Integer.parseInt(mcc_arr[mcc_arr.length-1]); i++) {
+                    mSensitiveNumbersMap.put(String.valueOf(i), sensitive_nums);
+                }
             } else {
                 break;
             }
