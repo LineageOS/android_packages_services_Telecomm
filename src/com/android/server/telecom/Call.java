@@ -660,6 +660,23 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
 
         s.append("\n\tTo address: ");
         s.append(Log.piiHandle(getHandle()));
+        s.append(" Presentation: ");
+        switch (getHandlePresentation()) {
+            case TelecomManager.PRESENTATION_ALLOWED:
+                s.append("Allowed");
+                break;
+            case TelecomManager.PRESENTATION_PAYPHONE:
+                s.append("Payphone");
+                break;
+            case TelecomManager.PRESENTATION_RESTRICTED:
+                s.append("Restricted");
+                break;
+            case TelecomManager.PRESENTATION_UNKNOWN:
+                s.append("Unknown");
+                break;
+            default:
+                s.append("<undefined>");
+        }
         s.append("\n");
         return s.toString();
     }

@@ -2687,6 +2687,7 @@ public class CallsManager extends Call.ListenerBase
                 "existing connection");
         call.setConnectionCapabilities(connection.getConnectionCapabilities());
         call.setConnectionProperties(connection.getConnectionProperties());
+        call.setHandle(connection.getHandle(), connection.getHandlePresentation());
         call.setCallerDisplayName(connection.getCallerDisplayName(),
                 connection.getCallerDisplayNamePresentation());
         call.addListener(this);
