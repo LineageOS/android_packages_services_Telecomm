@@ -2261,6 +2261,10 @@ public class CallsManager extends Call.ListenerBase
             if (handoverState == HandoverState.HANDOVER_FROM_STARTED) {
                 // Disconnect before handover was accepted.
                 Log.i(this, "setCallState: disconnect before handover accepted");
+                // Let the handover destination know that the source has disconnected prior to
+                // completion of the handover.
+                call.getHandoverDestinationCall().sendCallEvent(
+                        android.telecom.Call.EVENT_HANDOVER_SOURCE_DISCONNECTED, null);
             } else if (handoverState == HandoverState.HANDOVER_ACCEPTED) {
                 Log.i(this, "setCallState: handover from complete");
                 completeHandoverFrom(call);
