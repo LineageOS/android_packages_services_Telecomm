@@ -208,12 +208,6 @@ public class CallAudioModeStateMachine extends StateMachine {
             if (mCallAudioManager.startRinging()) {
                 mAudioManager.requestAudioFocusForCall(AudioManager.STREAM_RING,
                         AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
-                if (mMostRecentMode == AudioManager.MODE_IN_CALL) {
-                    // Preserving behavior from the old CallAudioManager.
-                    Log.i(LOG_TAG, "Transition from IN_CALL -> RINGTONE."
-                            + "  Resetting to NORMAL first.");
-                    mAudioManager.setMode(AudioManager.MODE_NORMAL);
-                }
                 mAudioManager.setMode(AudioManager.MODE_RINGTONE);
                 mCallAudioManager.setCallAudioRouteFocusState(CallAudioRouteStateMachine.RINGING_FOCUS);
             } else {
