@@ -807,7 +807,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
                 fixParentAfterDisconnect();
             }
             if (mState == CallState.DISCONNECTED &&
-                    mDisconnectCause.getCode() == DisconnectCause.MISSED) {
+                    (mDisconnectCause.getCode() == DisconnectCause.MISSED ||
+                            mDisconnectCause.getCode() == DisconnectCause.REJECTED)) {
                 // Ensure when an incoming call is missed that the video state history is updated.
                 mVideoStateHistory |= mVideoState;
             }
