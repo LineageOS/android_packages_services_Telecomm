@@ -149,12 +149,12 @@ public final class CallLogManager extends CallsManagerListenerBase {
         //    should be logged in its PhoneAccount
         if (isNewlyDisconnected &&
                 (oldState != CallState.SELECT_PHONE_ACCOUNT &&
-                 !call.isConference() &&
-                 !isCallCanceled) &&
+                        !call.isConference() &&
+                        !isCallCanceled) &&
                 !call.isExternalCall() &&
                 (!call.isSelfManaged() ||
-                call.isLoggedSelfManaged() &&
-                        call.getHandoverState() != HandoverState.HANDOVER_FAILED)) {
+                        (call.isLoggedSelfManaged() &&
+                                call.getHandoverState() != HandoverState.HANDOVER_FAILED))) {
             int type;
             if (!call.isIncoming()) {
                 type = Calls.OUTGOING_TYPE;
@@ -167,7 +167,10 @@ public final class CallLogManager extends CallsManagerListenerBase {
             } else {
                 type = Calls.INCOMING_TYPE;
             }
-            logCall(call, type, true /*showNotificationForMissedCall*/);
+            // Always show the notification for managed calls. For self-managed calls, it is up to
+            // the app to show the notification, so suppress the notification when logging the call.
+            boolean showNotification = !call.isLoggedSelfManaged();
+            logCall(call, type, showNotification);
         }
     }
 
