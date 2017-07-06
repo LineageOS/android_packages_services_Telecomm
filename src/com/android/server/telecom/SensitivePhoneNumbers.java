@@ -19,6 +19,7 @@ package com.android.server.telecom;
 
 import android.content.Context;
 import android.os.Environment;
+import android.telephony.PhoneNumberUtils;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -102,17 +103,24 @@ public class SensitivePhoneNumbers {
                 (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 
         int subIdInt = SubscriptionManager.getDefaultSubscriptionId();
-        try{
+
+        try {
             subIdInt = Integer.valueOf(subId);
-        }catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             Log.w(LOG_TAG, "Error parsing subId");
         }
 
         String networkUsed = telephonyManager.getNetworkOperator(subIdInt);
         if (!TextUtils.isEmpty(networkUsed)) {
             String networkMCC = networkUsed.substring(0, 3);
-            return mSensitiveNumbersMap.containsKey(networkMCC) &&
-                   mSensitiveNumbersMap.get(networkMCC).contains(numberToCheck);
+            if (mSensitiveNumbersMap.containsKey(networkMCC)) {
+                ArrayList<String> sensitive_nums = mSensitiveNumbersMap.get(networkMCC);
+                for (String num : sensitive_nums) {
+                    if (PhoneNumberUtils.compare(numberToCheck, num) {
+                        return true;
+                    }
+                }
+            }
         }
         return false;
     }
