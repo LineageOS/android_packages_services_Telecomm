@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da87b5cf_edf927c9",
+        "filename": "src/com/android/server/telecom/SensitivePhoneNumbers.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 13897
+      },
+      "writtenOn": "2017-07-06T21:17:06Z",
+      "side": 1,
+      "message": "You should probably remove this.",
+      "range": {
+        "startLine": 100,
+        "startChar": 74,
+        "endLine": 100,
+        "endChar": 88
+      },
+      "revId": "dc8d466ca6df8b59ac7c2b0ad037a4af8013bac4",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
