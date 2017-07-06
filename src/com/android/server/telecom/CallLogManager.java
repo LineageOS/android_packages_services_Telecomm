@@ -169,7 +169,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
             }
             // Always show the notification for managed calls. For self-managed calls, it is up to
             // the app to show the notification, so suppress the notification when logging the call.
-            boolean showNotification = !call.isLoggedSelfManaged();
+            boolean showNotification = !call.isSelfManaged();
             logCall(call, type, showNotification);
         }
     }
