@@ -20,7 +20,6 @@ package com.android.server.telecom;
 import android.content.Context;
 import android.os.Environment;
 import android.telephony.PhoneNumberUtils;
-import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -39,58 +38,58 @@ import java.util.HashMap;
 public class SensitivePhoneNumbers {
     private final String LOG_TAG = this.getClass().getSimpleName();
 
-    public static final String SENSIBLE_PHONENUMBERS_FILE_PATH = "etc/sensitive_pn.xml";
+    public static final String SENSITIVE_PHONENUMBERS_FILE_PATH = "etc/sensitive_pn.xml";
     private static final String ns = null;
 
     private HashMap<String, ArrayList<String>> mSensitiveNumbersMap = new HashMap<>();
 
     public SensitivePhoneNumbers() {
-        loadSensiblePhoneNumbers();
+        loadSensitivePhoneNumbers();
     }
 
-    private void loadSensiblePhoneNumbers() {
-        FileReader sensiblePNReader;
+    private void loadSensitivePhoneNumbers() {
+        FileReader sensitiveNumberReader;
 
-        File sensiblePNFile = new File(Environment.getRootDirectory(),
-                SENSIBLE_PHONENUMBERS_FILE_PATH);
+        File sensitiveNumberFile = new File(Environment.getRootDirectory(),
+                SENSITIVE_PHONENUMBERS_FILE_PATH);
 
         try {
-            sensiblePNReader = new FileReader(sensiblePNFile);
+            sensitiveNumberReader = new FileReader(sensitiveNumberFile);
         } catch (FileNotFoundException e) {
-            Log.w(LOG_TAG, "Can not open " + sensiblePNFile.getAbsolutePath());
+            Log.w(LOG_TAG, "Can not open " + sensitiveNumberFile.getAbsolutePath());
             return;
         }
 
         try {
             XmlPullParser parser = Xml.newPullParser();
-            parser.setInput(sensiblePNReader);
+            parser.setInput(sensitiveNumberReader);
             parser.nextTag();
-
-            readSensitivePNS(parser);
-
-            sensiblePNReader.close();
+            readSensitiveNumbers(parser);
+            sensitiveNumberReader.close();
         } catch (XmlPullParserException e) {
-            Log.w(LOG_TAG, "Exception in spn-conf parser " + e);
+            Log.w(LOG_TAG, "XML Parsing exception in reading sensitive_pn.xml: " + e);
         } catch (IOException e) {
-            Log.w(LOG_TAG, "Exception in spn-conf parser " + e);
+            Log.w(LOG_TAG, "IO Exception in reading in reading sesnsitive_pn.xml" + e);
         }
     }
 
-    private void readSensitivePNS(XmlPullParser parser)
+    private void readSensitiveNumbers(XmlPullParser parser)
                 throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, ns, "sensitivePNS");
+
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
+
             String name = parser.getName();
             if ("sensitivePN".equals(name)) {
-                SensitivePhoneNumber sensitivePN = SensitivePhoneNumber
+                SensitivePhoneNumber sensitiveNumbers = SensitivePhoneNumber
                         .readSensitivePhoneNumbers(parser);
-                String[] mccs = sensitivePN.getNetworkNumeric().split(",");
-                ArrayList<String> sensitive_nums = sensitivePN.getPhoneNumbers();
+                String[] mccs = sensitiveNumbers.getNetworkNumeric().split(",");
+                ArrayList<String> sensitiveNums = sensitiveNumbers.getPhoneNumbers();
                 for (String mcc : mccs) {
-                    mSensitiveNumbersMap.put(mcc, sensitive_nums);
+                    mSensitiveNumbersMap.put(mcc, sensitiveNums);
                 }
             } else {
                 break;
@@ -98,18 +97,11 @@ public class SensitivePhoneNumbers {
         }
     }
 
-    public boolean isSensitiveNumber(Context context, String numberToCheck, String subId) {
+    public boolean isSensitiveNumber(Context context, String numberToCheck) {
         TelephonyManager telephonyManager =
                 (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 
-        int subIdInt = SubscriptionManager.getDefaultSubscriptionId();
-        try{
-            subIdInt = Integer.valueOf(subId);
-        }catch (NumberFormatException e) {
-            Log.w(LOG_TAG, "Error parsing subId");
-        }
-
-        String networkUsed = telephonyManager.getNetworkOperator(subIdInt);
+        String networkUsed = telephonyManager.getNetworkOperator();
         if (!TextUtils.isEmpty(networkUsed)) {
             String networkMCC = networkUsed.substring(0, 3);
             if (mSensitiveNumbersMap.containsKey(networkMCC)) {

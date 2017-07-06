@@ -271,8 +271,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
         }
 
         // Don't log emergency nor sensitive numbers if the device doesn't allow it.
-        boolean isSensitiveNumber = mSensitivePhoneNumbers.isSensitiveNumber(mContext, number,
-                accountHandle.getId());
+        boolean isSensitiveNumber = mSensitivePhoneNumbers.isSensitiveNumber(mContext, number);
         Log.d(TAG, "isSensitiveNumber: "+ isSensitiveNumber);
         final boolean isOkToLogThisCall = (!isEmergency || okToLogEmergencyNumber) && !isSensitiveNumber;
 
