@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "da87b5cf_ed8927cb",
+        "filename": "src/com/android/server/telecom/SensitivePhoneNumbers.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 13897
+      },
+      "writtenOn": "2017-07-07T07:41:43Z",
+      "side": 1,
+      "message": "Printing the full stack trace is better:\n\n    Log.w(LOG_TAG, \"message\", e)",
+      "parentUuid": "da87b5cf_6d9677f2",
+      "range": {
+        "startLine": 70,
+        "startChar": 27,
+        "endLine": 70,
+        "endChar": 84
+      },
+      "revId": "c817803f135e65b20ab33a726ed69a73d2ad5ed2",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da87b5cf_8d997b21",
         "filename": "src/com/android/server/telecom/SensitivePhoneNumbers.java",
         "patchSetId": 2
