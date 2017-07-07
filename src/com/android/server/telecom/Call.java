@@ -780,6 +780,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
                 return;
             }
 
+            updateVideoHistoryViaState(mState, newState);
+
             mState = newState;
             maybeLoadCannedSmsResponses();
 
@@ -792,12 +794,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
                     mAnalytics.setCallStartTime(mConnectTimeMillis);
                 }
 
-                // Video state changes are normally tracked against history when a call is active.
-                // When the call goes active we need to be sure we track the history in case the
-                // state never changes during the duration of the call -- we want to ensure we
-                // always know the state at the start of the call.
-                mVideoStateHistory = mVideoStateHistory | mVideoState;
-
                 // We're clearly not disconnected, so reset the disconnected time.
                 mDisconnectTimeMillis = 0;
             } else if (mState == CallState.DISCONNECTED) {
@@ -805,12 +801,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
                 mAnalytics.setCallEndTime(mDisconnectTimeMillis);
                 setLocallyDisconnecting(false);
                 fixParentAfterDisconnect();
-            }
-            if (mState == CallState.DISCONNECTED &&
-                    (mDisconnectCause.getCode() == DisconnectCause.MISSED ||
-                            mDisconnectCause.getCode() == DisconnectCause.REJECTED)) {
-                // Ensure when an incoming call is missed that the video state history is updated.
-                mVideoStateHistory |= mVideoState;
             }
 
             // Log the state transition event
@@ -2487,13 +2477,14 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
             videoState = VideoProfile.STATE_AUDIO_ONLY;
         }
 
-        // Track which video states were applicable over the duration of the call.
-        // Only track the call state when the call is active or disconnected.  This ensures we do
-        // not include the video state when:
+        // Track Video State history during the duration of the call.
+        // Only update the history when the call is active or disconnected. This ensures we do
+        // not include the video state history when:
         // - Call is incoming (but not answered).
         // - Call it outgoing (but not answered).
         // We include the video state when disconnected to ensure that rejected calls reflect the
         // appropriate video state.
+        // For all other times we add to the video state history, see #setState.
         if (isActive() || getState() == CallState.DISCONNECTED) {
             mVideoStateHistory = mVideoStateHistory | videoState;
         }
@@ -2740,4 +2731,21 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
             l.onHandoverRequested(this, handoverToHandle, videoState, extras);
         }
     }
+
+    /**
+     * Sets the video history based on the state and state transitions of the call. Always add the
+     * current video state to the video state history during a call transition except for the
+     * transitions DIALING->ACTIVE and RINGING->ACTIVE. In these cases, clear the history. If a
+     * call starts dialing/ringing as a VT call and gets downgraded to audio, we need to record
+     * the history as an audio call.
+     */
+    private void updateVideoHistoryViaState(int oldState, int newState) {
+        if ((oldState == CallState.DIALING || oldState == CallState.RINGING)
+                && newState == CallState.ACTIVE) {
+            mVideoStateHistory = mVideoState;
+        }
+
+        mVideoStateHistory |= mVideoState;
+    }
+
 }
