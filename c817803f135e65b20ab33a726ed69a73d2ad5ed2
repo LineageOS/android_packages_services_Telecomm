@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "da87b5cf_1bffe568",
+        "filename": "src/com/android/server/telecom/SensitivePhoneNumbers.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 11801
+      },
+      "writtenOn": "2017-07-08T01:52:34Z",
+      "side": 1,
+      "message": "I\u0027m not quite sure how exception messages work, I\u0027m not used to dealing with java that isn\u0027t just printing stuff on a console window. What should I do here? e.getMessage() or just leave it as-is? afaik, \"printing\" objects calls the toString() method, but I don\u0027t know what that returns for exceptions. Also, should I consolidate this into `catch (Exception e)`, and rely on the exception message to make it clear which exception it is?",
+      "parentUuid": "da87b5cf_ed8927cb",
+      "range": {
+        "startLine": 70,
+        "startChar": 27,
+        "endLine": 70,
+        "endChar": 84
+      },
+      "revId": "c817803f135e65b20ab33a726ed69a73d2ad5ed2",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da87b5cf_8d997b21",
         "filename": "src/com/android/server/telecom/SensitivePhoneNumbers.java",
         "patchSetId": 2
