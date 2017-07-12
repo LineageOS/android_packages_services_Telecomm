@@ -871,38 +871,6 @@ public class BasicCallTests extends TelecomSystemTest {
     }
 
     /**
-     * Ensure that when an incoming video call is missed, the video state history still includes
-     * video calling. This is important for the call log.
-     */
-    @LargeTest
-    public void testIncomingVideoCallMissedCheckVideoHistory() throws Exception {
-        IdPair ids = startIncomingPhoneCall("650-555-1212", mPhoneAccountA0.getAccountHandle(),
-                VideoProfile.STATE_BIDIRECTIONAL, mConnectionServiceFixtureA);
-        com.android.server.telecom.Call call = mTelecomSystem.getCallsManager().getCalls()
-                .iterator().next();
-
-        mConnectionServiceFixtureA.sendSetDisconnected(ids.mConnectionId, DisconnectCause.MISSED);
-
-        assertTrue(VideoProfile.isVideo(call.getVideoStateHistory()));
-    }
-
-    /**
-     * Ensure that when an incoming video call is rejected, the video state history still includes
-     * video calling. This is important for the call log.
-     */
-    @LargeTest
-    public void testIncomingVideoCallRejectedCheckVideoHistory() throws Exception {
-        IdPair ids = startIncomingPhoneCall("650-555-1212", mPhoneAccountA0.getAccountHandle(),
-                VideoProfile.STATE_BIDIRECTIONAL, mConnectionServiceFixtureA);
-        com.android.server.telecom.Call call = mTelecomSystem.getCallsManager().getCalls()
-                .iterator().next();
-
-        mConnectionServiceFixtureA.sendSetDisconnected(ids.mConnectionId, DisconnectCause.REJECTED);
-
-        assertTrue(VideoProfile.isVideo(call.getVideoStateHistory()));
-    }
-
-    /**
      * Test scenario where the user starts an outgoing video call with no selected PhoneAccount, and
      * then subsequently selects a PhoneAccount which does not support video calling.
      * @throws Exception
