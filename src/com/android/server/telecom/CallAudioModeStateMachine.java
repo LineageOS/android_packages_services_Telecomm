@@ -276,9 +276,10 @@ public class CallAudioModeStateMachine extends StateMachine {
                     // This happens when an IMS call is answered by the in-call UI. Special case
                     // that we have to deal with for some reason.
 
-                    // VOIP calls should never invoke this mechanism, so transition directly to
-                    // the sim call focus state.
-                    transitionTo(mSimCallFocusState);
+                    // The IMS audio routing may be via modem or via RTP stream. In case via RTP
+                    // stream, the state machine should transit to mVoipCallFocusState.
+                    transitionTo(args.foregroundCallIsVoip
+                            ? mVoipCallFocusState : mSimCallFocusState);
                     return HANDLED;
                 default:
                     // The forced focus switch commands are handled by BaseState.
