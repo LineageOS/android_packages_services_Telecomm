@@ -232,8 +232,10 @@ public class CallAudioManager extends CallsManagerListenerBase {
             }
         }
 
-        // Turn off mute when a new incoming call is answered.
-        mute(false /* shouldMute */);
+        // Turn off mute when a new incoming call is answered iff it's not a handover.
+        if (!call.isHandoverInProgress()) {
+            mute(false /* shouldMute */);
+        }
 
         maybeStopRingingAndCallWaitingForAnsweredOrRejectedCall(call);
     }
