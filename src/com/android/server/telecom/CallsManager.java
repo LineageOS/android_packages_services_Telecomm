@@ -1858,6 +1858,7 @@ public class CallsManager extends Call.ListenerBase
     void markCallAsDialing(Call call) {
         setCallState(call, CallState.DIALING, "dialing set explicitly");
         maybeMoveToSpeakerPhone(call);
+        maybeTurnOffMute(call);
     }
 
     void markCallAsPulling(Call call) {
@@ -2849,6 +2850,15 @@ public class CallsManager extends Call.ListenerBase
         if (call.getStartWithSpeakerphoneOn()) {
             setAudioRoute(CallAudioState.ROUTE_SPEAKER, null);
             call.setStartWithSpeakerphoneOn(false);
+        }
+    }
+
+    /**
+     * Checks to see if the call is an emergency call and if so, turn off mute.
+     */
+    private void maybeTurnOffMute(Call call) {
+        if (call.isEmergencyCall()) {
+            mute(false);
         }
     }
 
