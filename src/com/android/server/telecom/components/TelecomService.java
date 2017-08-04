@@ -25,6 +25,7 @@ import android.media.ToneGenerator;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.ServiceManager;
+import android.os.SystemClock;
 import android.telecom.Log;
 
 import com.android.internal.telephony.CallerInfoAsyncQuery;
@@ -33,6 +34,7 @@ import com.android.server.telecom.BluetoothAdapterProxy;
 import com.android.server.telecom.BluetoothPhoneServiceImpl;
 import com.android.server.telecom.CallerInfoAsyncQueryFactory;
 import com.android.server.telecom.CallsManager;
+import com.android.server.telecom.ClockProxy;
 import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.HeadsetMediaButton;
 import com.android.server.telecom.HeadsetMediaButtonFactory;
@@ -161,8 +163,18 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                             new AsyncRingtonePlayer(),
                             new PhoneNumberUtilsAdapterImpl(),
                             new IncomingCallNotifier(context),
-                            ToneGenerator::new
-                    ));
+                            ToneGenerator::new,
+                            new ClockProxy() {
+                                @Override
+                                public long currentTimeMillis() {
+                                    return System.currentTimeMillis();
+                                }
+
+                                @Override
+                                public long elapsedRealtime() {
+                                    return SystemClock.elapsedRealtime();
+                                }
+                            }));
         }
         if (BluetoothAdapter.getDefaultAdapter() != null) {
             context.startService(new Intent(context, BluetoothPhoneService.class));
