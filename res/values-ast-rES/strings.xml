@@ -55,10 +55,12 @@
          Each method for placing a call (SIM1, SIM2, SIP account, etc) has a phone-account.
          Phone-accounts that are created by third party apps can be disabled and enabled by user.
          [CHAR LIMIT=30] -->
+  <string name="enable_account_preference_title">Cuentes de llamaes</string>
   <!-- Message indicating that the user is not allowed to make non-emergency outgoing phone calls
          due to a user restriction -->
   <!-- Message indicating that the user is not allowed to make non-emergency outgoing phone calls
          due to the lack of the CALL_PHONE permission -->
+  <string name="outgoing_call_not_allowed_no_permission">Esta aplicación nun pue facer llamaes salientes ensin el permisu de Teléfonu.</string>
   <!-- Call failure message displayed in an error dialog used to indicate that a phone number was not provided -->
   <!-- Message shown when the user tries to make a video call when already in a video call. -->
   <!-- missing voicemail number -->
