@@ -64,11 +64,10 @@ import com.android.internal.telecom.IInCallAdapter;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.BluetoothPhoneServiceImpl;
 import com.android.server.telecom.CallAudioManager;
-import com.android.server.telecom.CallAudioRouteStateMachine;
-import com.android.server.telecom.CallerInfoAsyncQueryFactory;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.CallsManagerListenerBase;
+import com.android.server.telecom.ClockProxy;
 import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.HeadsetMediaButton;
 import com.android.server.telecom.HeadsetMediaButtonFactory;
@@ -83,7 +82,6 @@ import com.android.server.telecom.ProximitySensorManager;
 import com.android.server.telecom.ProximitySensorManagerFactory;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
-import com.android.server.telecom.callfiltering.AsyncBlockCheckFilter;
 import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.MissedCallNotifierImpl.MissedCallNotifierImplFactory;
@@ -107,6 +105,16 @@ public class TelecomSystemTest extends TelecomTestCase {
 
     static final int TEST_POLL_INTERVAL = 10;  // milliseconds
     static final int TEST_TIMEOUT = 1000;  // milliseconds
+
+    // Purposely keep the connect time (which is wall clock) and elapsed time (which is time since
+    // boot) different to test that wall clock time operations and elapsed time operations perform
+    // as they individually should.
+    static final long TEST_CREATE_TIME = 100;
+    static final long TEST_CREATE_ELAPSED_TIME = 200;
+    static final long TEST_CONNECT_TIME = 1000;
+    static final long TEST_CONNECT_ELAPSED_TIME = 2000;
+    static final long TEST_DISCONNECT_TIME = 8000;
+    static final long TEST_DISCONNECT_ELAPSED_TIME = 4000;
 
     public class HeadsetMediaButtonFactoryF implements HeadsetMediaButtonFactory  {
         @Override
@@ -197,6 +205,7 @@ public class TelecomSystemTest extends TelecomTestCase {
     @Mock AsyncRingtonePlayer mAsyncRingtonePlayer;
     @Mock InterruptionFilterProxy mInterruptionFilterProxy;
     @Mock IncomingCallNotifier mIncomingCallNotifier;
+    @Mock ClockProxy mClockProxy;
 
     final ComponentName mInCallServiceComponentNameX =
             new ComponentName(
@@ -394,7 +403,9 @@ public class TelecomSystemTest extends TelecomTestCase {
         when(mTimeoutsAdapter.getCallScreeningTimeoutMillis(any(ContentResolver.class)))
                 .thenReturn(TEST_TIMEOUT / 5L);
         mIncomingCallNotifier = mock(IncomingCallNotifier.class);
-
+        mClockProxy = mock(ClockProxy.class);
+        when(mClockProxy.currentTimeMillis()).thenReturn(TEST_CREATE_TIME);
+        when(mClockProxy.elapsedRealtime()).thenReturn(TEST_CREATE_ELAPSED_TIME);
         mTelecomSystem = new TelecomSystem(
                 mComponentContextFixture.getTestDouble(),
                 new MissedCallNotifierImplFactory() {
@@ -427,7 +438,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                 mAsyncRingtonePlayer,
                 mPhoneNumberUtilsAdapter,
                 mInterruptionFilterProxy,
-                mIncomingCallNotifier);
+                mIncomingCallNotifier,
+                mClockProxy);
 
         mComponentContextFixture.setTelecomManager(new TelecomManager(
                 mComponentContextFixture.getTestDouble(),
@@ -885,6 +897,8 @@ public class TelecomSystemTest extends TelecomTestCase {
 
         connectionServiceFixture.sendSetVideoState(ids.mConnectionId);
 
+        when(mClockProxy.currentTimeMillis()).thenReturn(TEST_CONNECT_TIME);
+        when(mClockProxy.elapsedRealtime()).thenReturn(TEST_CONNECT_ELAPSED_TIME);
         connectionServiceFixture.sendSetActive(ids.mConnectionId);
         assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
         assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureY.getCall(ids.mCallId).getState());
@@ -922,6 +936,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                     .answerVideo(eq(ids.mConnectionId), eq(videoState), any());
         }
 
+        when(mClockProxy.currentTimeMillis()).thenReturn(TEST_CONNECT_TIME);
+        when(mClockProxy.elapsedRealtime()).thenReturn(TEST_CONNECT_ELAPSED_TIME);
         connectionServiceFixture.sendSetActive(ids.mConnectionId);
         assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
         assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureY.getCall(ids.mCallId).getState());

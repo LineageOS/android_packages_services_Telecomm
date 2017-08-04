@@ -26,6 +26,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.os.Trace;
 import android.provider.ContactsContract.Contacts;
 import android.telecom.CallAudioState;
@@ -235,16 +236,37 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
     private String mViaNumber = "";
 
     /**
-     * The time this call was created. Beyond logging and such, may also be used for bookkeeping
-     * and specifically for marking certain call attempts as failed attempts.
+     * The wall clock time this call was created. Beyond logging and such, may also be used for
+     * bookkeeping and specifically for marking certain call attempts as failed attempts.
+     * Note: This timestamp should NOT be used for calculating call duration.
      */
-    private long mCreationTimeMillis = System.currentTimeMillis();
+    private long mCreationTimeMillis;
 
     /** The time this call was made active. */
     private long mConnectTimeMillis = 0;
 
-    /** The time this call was disconnected. */
+    /**
+     * The time, in millis, since boot when this call was connected.  This should ONLY be used when
+     * calculating the duration of the call.
+     *
+     * The reason for this is that the {@link SystemClock#elapsedRealtime()} is based on the
+     * elapsed time since the device was booted.  Changes to the system clock (e.g. due to NITZ
+     * time sync, time zone changes user initiated clock changes) would cause a duration calculated
+     * based on {@link #mConnectTimeMillis} to change based on the delta in the time.
+     * Using the {@link SystemClock#elapsedRealtime()} ensures that changes to the wall clock do
+     * not impact the call duration.
+     */
+    private long mConnectElapsedTimeMillis = 0;
+
+    /** The wall clock time this call was disconnected. */
     private long mDisconnectTimeMillis = 0;
+
+    /**
+     * The elapsed time since boot when this call was disconnected.  Recorded as the
+     * {@link SystemClock#elapsedRealtime()}.  This ensures that the call duration is not impacted
+     * by changes in the wall time clock.
+     */
+    private long mDisconnectElapsedTimeMillis = 0;
 
     /** The gateway information associated with this call. This stores the original call handle
      * that the user is attempting to connect to via the gateway, the actual handle to dial in
@@ -369,6 +391,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
     private final ConnectionServiceRepository mRepository;
     private final Context mContext;
     private final CallsManager mCallsManager;
+    private final ClockProxy mClockProxy;
     private final TelecomSystem.SyncRoot mLock;
     private final String mId;
     private String mConnectionId;
@@ -447,20 +470,19 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
 
     /**
      * Persists the specified parameters and initializes the new instance.
-     *
-     * @param context The context.
+     *  @param context The context.
      * @param repository The connection service repository.
      * @param handle The handle to dial.
      * @param gatewayInfo Gateway information to use for the call.
      * @param connectionManagerPhoneAccountHandle Account to use for the service managing the call.
-     *         This account must be one that was registered with the
-     *         {@link PhoneAccount#CAPABILITY_CONNECTION_MANAGER} flag.
+*         This account must be one that was registered with the
+*         {@link PhoneAccount#CAPABILITY_CONNECTION_MANAGER} flag.
      * @param targetPhoneAccountHandle Account information to use for the call. This account must be
-     *         one that was registered with the {@link PhoneAccount#CAPABILITY_CALL_PROVIDER} flag.
+*         one that was registered with the {@link PhoneAccount#CAPABILITY_CALL_PROVIDER} flag.
      * @param callDirection one of CALL_DIRECTION_INCOMING, CALL_DIRECTION_OUTGOING,
-     *         or CALL_DIRECTION_UNKNOWN.
+*         or CALL_DIRECTION_UNKNOWN.
      * @param shouldAttachToExistingConnection Set to true to attach the call to an existing
-     *         connection, regardless of whether it's incoming or outgoing.
+     * @param clockProxy
      */
     public Call(
             String callId,
@@ -477,7 +499,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
             PhoneAccountHandle targetPhoneAccountHandle,
             int callDirection,
             boolean shouldAttachToExistingConnection,
-            boolean isConference) {
+            boolean isConference,
+            ClockProxy clockProxy) {
         mId = callId;
         mConnectionId = callId;
         mState = isConference ? CallState.ACTIVE : CallState.NEW;
@@ -498,26 +521,27 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
                 || callDirection == CALL_DIRECTION_INCOMING;
         maybeLoadCannedSmsResponses();
         mAnalytics = new Analytics.CallInfo();
-
+        mClockProxy = clockProxy;
+        mCreationTimeMillis = mClockProxy.currentTimeMillis();
     }
 
     /**
      * Persists the specified parameters and initializes the new instance.
-     *
-     * @param context The context.
+     *  @param context The context.
      * @param repository The connection service repository.
      * @param handle The handle to dial.
      * @param gatewayInfo Gateway information to use for the call.
      * @param connectionManagerPhoneAccountHandle Account to use for the service managing the call.
-     *         This account must be one that was registered with the
-     *         {@link PhoneAccount#CAPABILITY_CONNECTION_MANAGER} flag.
+*         This account must be one that was registered with the
+*         {@link PhoneAccount#CAPABILITY_CONNECTION_MANAGER} flag.
      * @param targetPhoneAccountHandle Account information to use for the call. This account must be
-     *         one that was registered with the {@link PhoneAccount#CAPABILITY_CALL_PROVIDER} flag.
+*         one that was registered with the {@link PhoneAccount#CAPABILITY_CALL_PROVIDER} flag.
      * @param callDirection one of CALL_DIRECTION_INCOMING, CALL_DIRECTION_OUTGOING,
-     *         or CALL_DIRECTION_UNKNOWN
+*         or CALL_DIRECTION_UNKNOWN
      * @param shouldAttachToExistingConnection Set to true to attach the call to an existing
-     *         connection, regardless of whether it's incoming or outgoing.
+*         connection, regardless of whether it's incoming or outgoing.
      * @param connectTimeMillis The connection time of the call.
+     * @param clockProxy
      */
     Call(
             String callId,
@@ -535,13 +559,16 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
             int callDirection,
             boolean shouldAttachToExistingConnection,
             boolean isConference,
-            long connectTimeMillis) {
+            long connectTimeMillis,
+            long connectElapsedTimeMillis,
+            ClockProxy clockProxy) {
         this(callId, context, callsManager, lock, repository, contactsAsyncHelper,
                 callerInfoAsyncQueryFactory, phoneNumberUtilsAdapter, handle, gatewayInfo,
                 connectionManagerPhoneAccountHandle, targetPhoneAccountHandle, callDirection,
-                shouldAttachToExistingConnection, isConference);
+                shouldAttachToExistingConnection, isConference, clockProxy);
 
         mConnectTimeMillis = connectTimeMillis;
+        mConnectElapsedTimeMillis = connectElapsedTimeMillis;
         mAnalytics.setCallStartTime(connectTimeMillis);
     }
 
@@ -747,7 +774,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
                     // We check to see if mConnectTime is already set to prevent the
                     // call from resetting active time when it goes in and out of
                     // ACTIVE/ON_HOLD
-                    mConnectTimeMillis = System.currentTimeMillis();
+                    mConnectTimeMillis = mClockProxy.currentTimeMillis();
+                    mConnectElapsedTimeMillis = mClockProxy.elapsedRealtime();
                     mAnalytics.setCallStartTime(mConnectTimeMillis);
                 }
 
@@ -759,8 +787,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
 
                 // We're clearly not disconnected, so reset the disconnected time.
                 mDisconnectTimeMillis = 0;
+                mDisconnectElapsedTimeMillis = 0;
             } else if (mState == CallState.DISCONNECTED) {
-                mDisconnectTimeMillis = System.currentTimeMillis();
+                mDisconnectTimeMillis = mClockProxy.currentTimeMillis();
+                mDisconnectElapsedTimeMillis = mClockProxy.elapsedRealtime();
                 mAnalytics.setCallEndTime(mDisconnectTimeMillis);
                 setLocallyDisconnecting(false);
                 fixParentAfterDisconnect();
@@ -1092,9 +1122,11 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
     }
 
     /**
+     * Note: This method relies on {@link #mConnectElapsedTimeMillis} and
+     * {@link #mDisconnectElapsedTimeMillis} which are independent of the wall clock (which could
+     * change due to clock changes).
      * @return The "age" of this call object in milliseconds, which typically also represents the
-     *     period since this call was added to the set pending outgoing calls, see
-     *     mCreationTimeMillis.
+     *     period since this call was added to the set pending outgoing calls.
      */
     @VisibleForTesting
     public long getAgeMillis() {
@@ -1103,16 +1135,16 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
                  mDisconnectCause.getCode() == DisconnectCause.MISSED)) {
             // Rejected and missed calls have no age. They're immortal!!
             return 0;
-        } else if (mConnectTimeMillis == 0) {
+        } else if (mConnectElapsedTimeMillis == 0) {
             // Age is measured in the amount of time the call was active. A zero connect time
             // indicates that we never went active, so return 0 for the age.
             return 0;
-        } else if (mDisconnectTimeMillis == 0) {
+        } else if (mDisconnectElapsedTimeMillis == 0) {
             // We connected, but have not yet disconnected
-            return System.currentTimeMillis() - mConnectTimeMillis;
+            return mClockProxy.elapsedRealtime() - mConnectElapsedTimeMillis;
         }
 
-        return mDisconnectTimeMillis - mConnectTimeMillis;
+        return mDisconnectElapsedTimeMillis - mConnectElapsedTimeMillis;
     }
 
     /**
