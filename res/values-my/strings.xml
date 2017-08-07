@@ -49,8 +49,8 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"မူရင်း သတ်မှတ်ရန်"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"မလုပ်တော့"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> သည် ခေါ်ဆိုမှုများကို ဘက်စုံပြုလုပ်ထိန်းချုပ်သွားနိုင်မည်ဖြစ်သည်။ သင်ယုံကြည်သော အက်ပ်များကိုသာ မူရင်း Phone အက်ပ်အဖြစ် သတ်မှတ်သင့်ပါသည်။"</string>
-    <string name="blocked_numbers" msgid="2751843139572970579">"ပိတ်ဆို့ထားသည့် နံပါတ်များ"</string>
-    <string name="blocked_numbers_msg" msgid="1045015186124965643">"သင်သည် ဘလော့ခ်လုပ်ထားသော နံပါတ်များမှ ဖုန်းခေါ်ခြင်း (သို့) စာသားပို့ခြင်းတို့ကို လက်ခံရရှိမည် မဟုတ်ပါ။"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"ပိတ်ထားသည့် နံပါတ်များ"</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"ပိတ်ထားသော နံပါတ်များမှ ဖုန်းခေါ်ခြင်း (သို့) စာသားပို့ခြင်းတို့ကို သင်လက်ခံရရှိမည် မဟုတ်ပါ။"</string>
     <string name="block_number" msgid="1101252256321306179">"နံပါတ်တစ်ခု ထည့်ပါ"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ကို ပိတ်ဆို့မှုပြန်ဖွင့်မလား။"</string>
     <string name="unblock_button" msgid="3078048901972674170">"ပိတ်ဆို့မှုပြန်ဖွင့်ပါ"</string>
@@ -67,4 +67,20 @@
     <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"အရေးပေါ်နံပါတ်ကို  ပိတ်ဆို့၍ မရပါ။"</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> ကို ပိတ်ဆို့ထားပြီး ဖြစ်သည်။"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"ဖုန်းခေါ်ဆိုမှုပြုလုပ်ရန် ကိုယ်ရေးကိုယ်တာ ဖုန်းခေါ်ဆိုမှုစနစ်ကို အသုံးပြုခြင်း"</string>
+    <string name="notification_incoming_call" msgid="7713197997773986670">"<xliff:g id="CALL_FROM">%2$s</xliff:g> မှ <xliff:g id="CALL_VIA">%1$s</xliff:g> သုံးပြီး ခေါ်နေပါသည်"</string>
+    <string name="notification_incoming_video_call" msgid="6638486071698373893">"<xliff:g id="CALL_FROM">%2$s</xliff:g> မှ <xliff:g id="CALL_VIA">%1$s</xliff:g> သုံးပြီး ဗီဒီယိုဖြင့် ခေါ်နေပါသည်"</string>
+    <string name="answering_ends_other_call" msgid="8282145910153766401">"ဖုန်းကိုင်လိုက်လျှင် <xliff:g id="CALL_VIA">%1$s</xliff:g> သုံးပြီးပြောနေခြင်းကို ဖြတ်ပစ်ပါမည်"</string>
+    <string name="answering_ends_other_calls" msgid="1198589551399049197">"ဖုန်းကိုင်လိုက်လျှင် <xliff:g id="CALL_VIA">%1$s</xliff:g> သုံးပြီးပြောနေခြင်းများကိုဖြတ်ပစ်ပါမည်"</string>
+    <string name="answering_ends_other_video_call" msgid="8510410917384186360">"ဖုန်းကိုင်လိုက်လျှင် <xliff:g id="CALL_VIA">%1$s</xliff:g> ဗီဒီယိုပြောနေခြင်းကိုဖြတ်ပစ်ပါလိမ့်မည်"</string>
+    <string name="answering_ends_other_managed_call" msgid="5186137550267947785">"ဖုန်းကိုင်လိုက်လျှင် သင်ယခုပြောနေခြင်းကို ဖြတ်ပစ်ပါမည်"</string>
+    <string name="answering_ends_other_managed_calls" msgid="6429838309560397988">"ဖုန်းကိုင်လိုက်လျှင် သင်ယခုပြောနေခြင်းများကို ဖြတ်ပစ်ပါမည်"</string>
+    <string name="answering_ends_other_managed_video_call" msgid="1585423762458248435">"ဖုန်းကိုင်လိုက်လျှင် လက်ရှိဗီဒီယိုပြောနေခြင်းကိုဖြတ်ပစ်ပါမည်"</string>
+    <string name="answer_incoming_call" msgid="4140530013111794587">"ဖုန်းကိုင်ရန်"</string>
+    <string name="decline_incoming_call" msgid="806026168661598368">"ဖုန်းမကိုင်ရန်"</string>
+    <string name="cant_call_due_to_ongoing_call" msgid="4952615196237854748">"<xliff:g id="OTHER_CALL">%1$s</xliff:g> သုံးပြီးပြောနေသည့်အတွက် အထွက်ခေါ်ဆိုမှုကို မပြုလုပ်နိုင်ပါ။"</string>
+    <string name="cant_call_due_to_ongoing_calls" msgid="1380804892363503856">"<xliff:g id="OTHER_CALL">%1$s</xliff:g> သုံးပြီးပြောနေသည့်အတွက် အထွက်ခေါ်ဆိုမှုများကို မပြုလုပ်နိုင်ပါ။"</string>
+    <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"အခြားအက်ပ်သုံးပြီးပြောနေသည့်အတွက် အထွက်ခေါ်ဆိုမှုကို မပြုလုပ်နိုင်ပါ။"</string>
+    <string name="notification_channel_incoming_call" msgid="3513761697082968084">"အဝင်ဖုန်းခေါ်ဆိုမှုများ"</string>
+    <string name="notification_channel_missed_call" msgid="8727062678632713146">"လွတ်သွားသော ဖုန်းခေါ်ဆိုမှုများ"</string>
+    <string name="alert_outgoing_call" msgid="982908156825958001">"ဤခေါ်ဆိုမှု ပြုလုပ်ပါက <xliff:g id="OTHER_APP">%1$s</xliff:g> သုံးပြီးပြောနေခြင်းကို ဖြတ်ပစ်ပါမည်။"</string>
 </resources>

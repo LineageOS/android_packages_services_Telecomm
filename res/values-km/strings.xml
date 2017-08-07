@@ -37,7 +37,7 @@
     <string name="respond_via_sms_setting_summary" msgid="9150281183930613065"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="20379890418289778">"ឆ្លើយតប​រហ័ស"</string>
     <string name="respond_via_sms_confirmation_format" msgid="7229149977515784269">"បាន​ផ្ញើ​សារ​ទៅ <xliff:g id="PHONE_NUMBER">%s</xliff:g> ។"</string>
-    <string name="enable_account_preference_title" msgid="2021848090086481720">"គណនីហៅទូរស័ព្ទ"</string>
+    <string name="enable_account_preference_title" msgid="2021848090086481720">"គណនីហៅទូរសព្ទ"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="6872406278300131364">"អនុញ្ញាតតែការហៅពេលមានអាសន្នប៉ុណ្ណោះ"</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="1996571596464271228">"កម្មវិធីនេះមិនអាចធ្វើការហៅចេញដោយគ្មានការអនុញ្ញាត ទូរស័ព្ទ បានទេ។"</string>
     <string name="outgoing_call_error_no_phone_number_supplied" msgid="1940125199802007505">"ដើម្បីធ្វើការហៅ បញ្ចូលលេខដែលមានសុពលភាព។"</string>
@@ -67,4 +67,20 @@
     <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"មិន​អាច​​​ទប់ស្កាត់​លេខ​បន្ទាន់​បាន​ទេ។"</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> ត្រូវ​បាន​ទប់ស្កាត់​រួច​ហើយ។"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"កំពុងប្រើកម្មវិធីហៅផ្ទាល់ខ្លួនដើម្បីធ្វើការហៅទូរស័ព្ទ"</string>
+    <string name="notification_incoming_call" msgid="7713197997773986670">"ការ​ហៅ <xliff:g id="CALL_VIA">%1$s</xliff:g> ពី <xliff:g id="CALL_FROM">%2$s</xliff:g>"</string>
+    <string name="notification_incoming_video_call" msgid="6638486071698373893">"ការ​ហៅ​តាម​វីដេអូ <xliff:g id="CALL_VIA">%1$s</xliff:g> ពី <xliff:g id="CALL_FROM">%2$s</xliff:g>"</string>
+    <string name="answering_ends_other_call" msgid="8282145910153766401">"ការ​ឆ្លើយ​នឹង​បញ្ចប់​ការហៅ <xliff:g id="CALL_VIA">%1$s</xliff:g> របស់​អ្នក"</string>
+    <string name="answering_ends_other_calls" msgid="1198589551399049197">"ការ​ឆ្លើយ​នឹង​បញ្ចប់​ការហៅ <xliff:g id="CALL_VIA">%1$s</xliff:g> របស់​អ្នក"</string>
+    <string name="answering_ends_other_video_call" msgid="8510410917384186360">"ការ​ឆ្លើយ​នឹង​បញ្ចប់​ការ​ហៅ​តាម​វីដេអូ <xliff:g id="CALL_VIA">%1$s</xliff:g> របស់​អ្នក"</string>
+    <string name="answering_ends_other_managed_call" msgid="5186137550267947785">"ការ​ឆ្លើយ​នឹង​បញ្ចប់​ការ​ហៅ​ដែល​កំពុង​តែ​ដំណើរការ​របស់​អ្នក"</string>
+    <string name="answering_ends_other_managed_calls" msgid="6429838309560397988">"ការ​ឆ្លើយ​នឹង​បញ្ចប់​ការ​ហៅ​ដែល​កំពុង​តែ​ដំណើរការ​របស់​អ្នក"</string>
+    <string name="answering_ends_other_managed_video_call" msgid="1585423762458248435">"ការ​ឆ្លើយ​នឹង​បញ្ចប់​ការ​ហៅ​តាម​វីដេអូ​ដែល​កំពុង​តែ​ដំណើរការ​របស់​អ្នក"</string>
+    <string name="answer_incoming_call" msgid="4140530013111794587">"ឆ្លើយ"</string>
+    <string name="decline_incoming_call" msgid="806026168661598368">"បដិសេធ"</string>
+    <string name="cant_call_due_to_ongoing_call" msgid="4952615196237854748">"ការ​ហៅ​មិន​អាចធ្វើ​បាន​ទេ ដោយ​សារ​ការហៅ​ <xliff:g id="OTHER_CALL">%1$s</xliff:g> របស់​អ្នក។"</string>
+    <string name="cant_call_due_to_ongoing_calls" msgid="1380804892363503856">"ការ​ហៅ​មិន​អាច​ធ្វើ​បាន​ទេ ដោយ​សារ​ការ​ហៅ <xliff:g id="OTHER_CALL">%1$s</xliff:g> របស់​អ្នក។"</string>
+    <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"ការ​ហៅ​មិន​អាច​ធ្វើ​បាន​ទេ ដោយ​សារ​មាន​ការហៅ​មួយ​នៅ​ក្នុង​កម្មវិធី​ផ្សេង។"</string>
+    <string name="notification_channel_incoming_call" msgid="3513761697082968084">"ការ​ហៅ​ចូល"</string>
+    <string name="notification_channel_missed_call" msgid="8727062678632713146">"ការ​ហៅ​ដែល​មិន​បាន​ទទួល"</string>
+    <string name="alert_outgoing_call" msgid="982908156825958001">"ការ​ហៅ​ទូរសព្ទ​នេះ នឹង​បញ្ចប់​ការហៅ <xliff:g id="OTHER_APP">%1$s</xliff:g> របស់​អ្នក។"</string>
 </resources>
