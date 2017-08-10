@@ -430,7 +430,9 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     @VisibleForTesting
     public void startCallWaiting() {
-        mRinger.startCallWaiting(mRingingCalls.iterator().next());
+        if (mRingingCalls.size() == 1) {
+            mRinger.startCallWaiting(mRingingCalls.iterator().next());
+        }
     }
 
     @VisibleForTesting
