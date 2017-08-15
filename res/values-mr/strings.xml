@@ -57,7 +57,7 @@
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"यावरील कॉल आणि मजकूर अवरोधित करा"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"फोन नंबर"</string>
     <string name="block_button" msgid="8822290682524373357">"अवरोधित करा"</string>
-    <string name="non_primary_user" msgid="5180129233352533459">"फक्त डिव्हाइस मालक अवरोधित केलेले नंबर पाहू आणि व्यवस्थापित करू शकतो."</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"फक्त डीव्हाइस मालक अवरोधित केलेले नंबर पाहू आणि व्यवस्थापित करू शकतो."</string>
     <string name="delete_icon_description" msgid="8903995728252556724">"अनावरोधित करा"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"अवरोधित करणे तात्पुरते बंद आहे"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"आपण एखादा आणीबाणी नंबर डायल केला किंवा त्यावर मजकूर पाठविल्यानंतर, आणीबाणी सेवा आपल्याशी संपर्क साधू शकतात हे सुनिश्चित करण्यासाठी अवरोधित करणे बंद करते."</string>
