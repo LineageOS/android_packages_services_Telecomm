@@ -1375,7 +1375,7 @@ public class ConnectionServiceWrapper extends ServiceBinder {
             mPendingResponses.clear();
             for (int i = 0; i < responses.length; i++) {
                 responses[i].handleCreateConnectionFailure(
-                        new DisconnectCause(DisconnectCause.ERROR));
+                        new DisconnectCause(DisconnectCause.ERROR, "CS_DEATH"));
             }
         }
         mCallIdMapper.clear();
