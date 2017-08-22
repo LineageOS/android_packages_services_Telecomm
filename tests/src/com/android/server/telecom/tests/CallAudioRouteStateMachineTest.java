@@ -460,7 +460,7 @@ public class CallAudioRouteStateMachineTest
                 NONE, // speakerInteraction
                 NONE, // bluetoothInteraction
                 CallAudioRouteStateMachine.DISCONNECT_WIRED_HEADSET, // action
-                CallAudioState.ROUTE_EARPIECE, // expectedRoute
+                CallAudioState.ROUTE_BLUETOOTH, // expectedRoute
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH, // expectedAvailable
                 true, // doesDeviceSupportEarpiece
                 shouldRunWithFocus
