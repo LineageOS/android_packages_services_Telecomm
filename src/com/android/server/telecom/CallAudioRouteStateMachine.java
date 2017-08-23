@@ -36,6 +36,7 @@ import android.telecom.Log;
 import android.telecom.Logging.Session;
 import android.util.SparseArray;
 
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.IState;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.internal.util.State;
@@ -123,7 +124,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
     public static final int NO_INCLUDE_BLUETOOTH_IN_BASELINE = 0;
     public static final int INCLUDE_BLUETOOTH_IN_BASELINE = 1;
 
-    private static final SparseArray<String> AUDIO_ROUTE_TO_LOG_EVENT = new SparseArray<String>() {{
+    @VisibleForTesting
+    public static final SparseArray<String> AUDIO_ROUTE_TO_LOG_EVENT = new SparseArray<String>() {{
         put(CallAudioState.ROUTE_BLUETOOTH, LogUtils.Events.AUDIO_ROUTE_BT);
         put(CallAudioState.ROUTE_EARPIECE, LogUtils.Events.AUDIO_ROUTE_EARPIECE);
         put(CallAudioState.ROUTE_SPEAKER, LogUtils.Events.AUDIO_ROUTE_SPEAKER);
@@ -237,6 +239,10 @@ public class CallAudioRouteStateMachine extends StateMachine {
             super.enter();
             Log.addEvent(mCallsManager.getForegroundCall(), LogUtils.Events.AUDIO_ROUTE,
                     "Entering state " + getName());
+            if (isActive()) {
+                Log.addEvent(mCallsManager.getForegroundCall(),
+                        AUDIO_ROUTE_TO_LOG_EVENT.get(getRouteCode(), LogUtils.Events.AUDIO_ROUTE));
+            }
         }
 
         @Override
@@ -303,6 +309,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
         // Behavior will depend on whether the state is an active one or a quiescent one.
         abstract public void updateSystemAudioState();
         abstract public boolean isActive();
+        abstract public int getRouteCode();
     }
 
     class ActiveEarpieceRoute extends EarpieceRoute {
@@ -453,6 +460,11 @@ public class CallAudioRouteStateMachine extends StateMachine {
     }
 
     abstract class EarpieceRoute extends AudioState {
+        @Override
+        public int getRouteCode() {
+            return CallAudioState.ROUTE_EARPIECE;
+        }
+
         @Override
         public boolean processMessage(Message msg) {
             if (super.processMessage(msg) == HANDLED) {
@@ -631,6 +643,11 @@ public class CallAudioRouteStateMachine extends StateMachine {
     }
 
     abstract class HeadsetRoute extends AudioState {
+        @Override
+        public int getRouteCode() {
+            return CallAudioState.ROUTE_WIRED_HEADSET;
+        }
+
         @Override
         public boolean processMessage(Message msg) {
             if (super.processMessage(msg) == HANDLED) {
@@ -912,6 +929,11 @@ public class CallAudioRouteStateMachine extends StateMachine {
 
     abstract class BluetoothRoute extends AudioState {
         @Override
+        public int getRouteCode() {
+            return CallAudioState.ROUTE_BLUETOOTH;
+        }
+
+        @Override
         public boolean processMessage(Message msg) {
             if (super.processMessage(msg) == HANDLED) {
                 return HANDLED;
@@ -1097,6 +1119,11 @@ public class CallAudioRouteStateMachine extends StateMachine {
     }
 
     abstract class SpeakerRoute extends AudioState {
+        @Override
+        public int getRouteCode() {
+            return CallAudioState.ROUTE_SPEAKER;
+        }
+
         @Override
         public boolean processMessage(Message msg) {
             if (super.processMessage(msg) == HANDLED) {
@@ -1455,11 +1482,6 @@ public class CallAudioRouteStateMachine extends StateMachine {
             Log.i(this, "setSystemAudioState: changing from %s to %s", mLastKnownCallAudioState,
                     newCallAudioState);
             if (force || !newCallAudioState.equals(mLastKnownCallAudioState)) {
-                if (newCallAudioState.getRoute() != mLastKnownCallAudioState.getRoute()) {
-                    Log.addEvent(mCallsManager.getForegroundCall(),
-                            AUDIO_ROUTE_TO_LOG_EVENT.get(newCallAudioState.getRoute(),
-                                    LogUtils.Events.AUDIO_ROUTE));
-                }
 
                 mCallsManager.onCallAudioStateChanged(mLastKnownCallAudioState, newCallAudioState);
                 updateAudioForForegroundCall(newCallAudioState);
