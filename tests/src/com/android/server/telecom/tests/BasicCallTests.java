@@ -82,11 +82,22 @@ public class BasicCallTests extends TelecomSystemTest {
         assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
         assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureY.getCall(ids.mCallId).getState());
 
+        when(mClockProxy.currentTimeMillis()).thenReturn(TEST_DISCONNECT_TIME);
+        when(mClockProxy.elapsedRealtime()).thenReturn(TEST_DISCONNECT_ELAPSED_TIME);
         mConnectionServiceFixtureA.sendSetDisconnected(ids.mConnectionId, DisconnectCause.LOCAL);
         assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureX.getCall(ids.mCallId).getState());
         assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureY.getCall(ids.mCallId).getState());
+        assertEquals(TEST_CONNECT_TIME,
+                mInCallServiceFixtureX.getCall(ids.mCallId).getConnectTimeMillis());
+        assertEquals(TEST_CONNECT_TIME,
+                mInCallServiceFixtureY.getCall(ids.mCallId).getConnectTimeMillis());
+        assertEquals(TEST_CREATE_TIME,
+                mInCallServiceFixtureX.getCall(ids.mCallId).getCreationTimeMillis());
+        assertEquals(TEST_CREATE_TIME,
+                mInCallServiceFixtureY.getCall(ids.mCallId).getCreationTimeMillis());
+
         verifyNoBlockChecks();
     }
 
@@ -95,6 +106,8 @@ public class BasicCallTests extends TelecomSystemTest {
         IdPair ids = startAndMakeActiveOutgoingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
 
+        when(mClockProxy.currentTimeMillis()).thenReturn(TEST_DISCONNECT_TIME);
+        when(mClockProxy.elapsedRealtime()).thenReturn(TEST_DISCONNECT_ELAPSED_TIME);
         mConnectionServiceFixtureA.sendSetDisconnected(ids.mConnectionId, DisconnectCause.LOCAL);
         assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureX.getCall(ids.mCallId).getState());
@@ -219,6 +232,8 @@ public class BasicCallTests extends TelecomSystemTest {
         assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
         assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureY.getCall(ids.mCallId).getState());
 
+        when(mClockProxy.currentTimeMillis()).thenReturn(TEST_DISCONNECT_TIME);
+        when(mClockProxy.elapsedRealtime()).thenReturn(TEST_DISCONNECT_ELAPSED_TIME);
         mConnectionServiceFixtureA.sendSetDisconnected(ids.mConnectionId, DisconnectCause.LOCAL);
         assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureX.getCall(ids.mCallId).getState());
@@ -231,6 +246,8 @@ public class BasicCallTests extends TelecomSystemTest {
         IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
 
+        when(mClockProxy.currentTimeMillis()).thenReturn(TEST_DISCONNECT_TIME);
+        when(mClockProxy.elapsedRealtime()).thenReturn(TEST_DISCONNECT_ELAPSED_TIME);
         mConnectionServiceFixtureA.sendSetDisconnected(ids.mConnectionId, DisconnectCause.LOCAL);
         assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureX.getCall(ids.mCallId).getState());
@@ -290,6 +307,8 @@ public class BasicCallTests extends TelecomSystemTest {
         IdPair ids = outgoingCallPhoneAccountSelected(mPhoneAccountA0.getAccountHandle(),
                 startingNumConnections, startingNumCalls, mConnectionServiceFixtureA);
 
+        when(mClockProxy.currentTimeMillis()).thenReturn(TEST_DISCONNECT_TIME);
+        when(mClockProxy.elapsedRealtime()).thenReturn(TEST_DISCONNECT_ELAPSED_TIME);
         mConnectionServiceFixtureA.sendSetDisconnected(ids.mConnectionId, DisconnectCause.LOCAL);
         assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureX.getCall(ids.mCallId).getState());
@@ -341,6 +360,8 @@ public class BasicCallTests extends TelecomSystemTest {
 
     @LargeTest
     public void testIncomingCallCallerInfoLookupTimesOutIsAllowed() throws Exception {
+        when(mClockProxy.currentTimeMillis()).thenReturn(TEST_CREATE_TIME);
+        when(mClockProxy.elapsedRealtime()).thenReturn(TEST_CREATE_ELAPSED_TIME);
         Bundle extras = new Bundle();
         extras.putParcelable(
                 TelecomManager.EXTRA_INCOMING_CALL_ADDRESS,
@@ -377,6 +398,8 @@ public class BasicCallTests extends TelecomSystemTest {
         verify(mInCallServiceFixtureY.getTestDouble(), timeout(TEST_TIMEOUT))
                 .addCall(any(ParcelableCall.class));
 
+        when(mClockProxy.currentTimeMillis()).thenReturn(TEST_CONNECT_TIME);
+        when(mClockProxy.elapsedRealtime()).thenReturn(TEST_CONNECT_ELAPSED_TIME);
         disconnectCall(mInCallServiceFixtureX.mLatestCallId,
                 mConnectionServiceFixtureA.mLatestConnectionId);
     }
@@ -736,9 +759,15 @@ public class BasicCallTests extends TelecomSystemTest {
     }
 
     private void disconnectCall(String callId, String connectionId) throws Exception {
+        when(mClockProxy.currentTimeMillis()).thenReturn(TEST_DISCONNECT_TIME);
+        when(mClockProxy.elapsedRealtime()).thenReturn(TEST_DISCONNECT_ELAPSED_TIME);
         mConnectionServiceFixtureA.sendSetDisconnected(connectionId, DisconnectCause.LOCAL);
         assertEquals(Call.STATE_DISCONNECTED, mInCallServiceFixtureX.getCall(callId).getState());
         assertEquals(Call.STATE_DISCONNECTED, mInCallServiceFixtureY.getCall(callId).getState());
+        assertEquals(TEST_CREATE_TIME,
+                mInCallServiceFixtureX.getCall(callId).getCreationTimeMillis());
+        assertEquals(TEST_CREATE_TIME,
+                mInCallServiceFixtureY.getCall(callId).getCreationTimeMillis());
     }
 
     /**
