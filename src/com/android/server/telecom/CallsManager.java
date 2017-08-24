@@ -259,6 +259,7 @@ public class CallsManager extends Call.ListenerBase
     private final Timeouts.Adapter mTimeoutsAdapter;
     private final PhoneNumberUtilsAdapter mPhoneNumberUtilsAdapter;
     private final NotificationManager mNotificationManager;
+    private final ClockProxy mClockProxy;
     private final Set<Call> mLocallyDisconnectingCalls = new HashSet<>();
     private final Set<Call> mPendingCallsToDisconnect = new HashSet<>();
     /* Handler tied to thread in which CallManager was initialized. */
@@ -308,7 +309,8 @@ public class CallsManager extends Call.ListenerBase
             AsyncRingtonePlayer asyncRingtonePlayer,
             PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
             InterruptionFilterProxy interruptionFilterProxy,
-            EmergencyCallHelper emergencyCallHelper) {
+            EmergencyCallHelper emergencyCallHelper,
+            ClockProxy clockProxy) {
         mContext = context;
         mLock = lock;
         mPhoneNumberUtilsAdapter = phoneNumberUtilsAdapter;
@@ -375,6 +377,7 @@ public class CallsManager extends Call.ListenerBase
         mConnectionServiceRepository =
                 new ConnectionServiceRepository(mPhoneAccountRegistrar, mContext, mLock, this);
         mInCallWakeLockController = inCallWakeLockControllerFactory.create(context, this);
+        mClockProxy = clockProxy;
 
         mListeners.add(mInCallWakeLockController);
         mListeners.add(statusBarNotifier);
@@ -823,8 +826,8 @@ public class CallsManager extends Call.ListenerBase
                 phoneAccountHandle,
                 Call.CALL_DIRECTION_INCOMING /* callDirection */,
                 false /* forceAttachToExistingConnection */,
-                false /* isConference */
-        );
+                false, /* isConference */
+                mClockProxy);
 
         // Ensure new calls related to self-managed calls/connections are set as such.  This will
         // be overridden when the actual connection is returned in startCreateConnection, however
@@ -907,8 +910,8 @@ public class CallsManager extends Call.ListenerBase
                 // Use onCreateIncomingConnection in TelephonyConnectionService, so that we attach
                 // to the existing connection instead of trying to create a new one.
                 true /* forceAttachToExistingConnection */,
-                false /* isConference */
-        );
+                false, /* isConference */
+                mClockProxy);
         call.initAnalytics();
 
         setIntentExtrasAndStartTime(call, extras);
@@ -987,8 +990,8 @@ public class CallsManager extends Call.ListenerBase
                     null /* phoneAccountHandle */,
                     Call.CALL_DIRECTION_OUTGOING /* callDirection */,
                     false /* forceAttachToExistingConnection */,
-                    false /* isConference */
-            );
+                    false, /* isConference */
+                    mClockProxy);
             call.initAnalytics();
 
             // Ensure new calls related to self-managed calls/connections are set as such.  This
@@ -1946,6 +1949,10 @@ public class CallsManager extends Call.ListenerBase
                 parcelableConference.getConnectTimeMillis() ==
                         Conference.CONNECT_TIME_NOT_SPECIFIED ? 0 :
                         parcelableConference.getConnectTimeMillis();
+        long connectElapsedTime =
+                parcelableConference.getConnectElapsedTimeMillis() ==
+                        Conference.CONNECT_TIME_NOT_SPECIFIED ? 0 :
+                        parcelableConference.getConnectElapsedTimeMillis();
 
         Call call = new Call(
                 callId,
@@ -1963,7 +1970,9 @@ public class CallsManager extends Call.ListenerBase
                 Call.CALL_DIRECTION_UNDEFINED /* callDirection */,
                 false /* forceAttachToExistingConnection */,
                 true /* isConference */,
-                connectTime);
+                connectTime,
+                connectElapsedTime,
+                mClockProxy);
 
         setCallState(call, Call.getStateFromConnectionState(parcelableConference.getState()),
                 "new conference call");
@@ -2507,7 +2516,9 @@ public class CallsManager extends Call.ListenerBase
                 Call.CALL_DIRECTION_UNDEFINED /* callDirection */,
                 false /* forceAttachToExistingConnection */,
                 isDowngradedConference /* isConference */,
-                connection.getConnectTimeMillis() /* connectTimeMillis */);
+                connection.getConnectTimeMillis() /* connectTimeMillis */,
+                connection.getConnectElapsedTimeMillis(), /* connectElapsedTimeMillis */
+                mClockProxy);
 
         call.initAnalytics();
         call.getAnalytics().setCreatedFromExistingConnection(true);
