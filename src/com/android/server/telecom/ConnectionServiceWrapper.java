@@ -40,6 +40,7 @@ import android.telecom.PhoneAccountHandle;
 import android.telecom.StatusHints;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
+import android.telephony.TelephonyManager;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telecom.IConnectionService;
@@ -822,6 +823,29 @@ public class ConnectionServiceWrapper extends ServiceBinder {
                     Call call = mCallIdMapper.getCall(callId);
                     if (call != null) {
                         call.onRemoteRttRequest();
+                    }
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+                Log.endSession();
+            }
+        }
+
+        @Override
+        public void onPhoneAccountChanged(String callId, PhoneAccountHandle pHandle,
+                Session.Info sessionInfo) throws RemoteException {
+            // Check that the Calling Package matches PhoneAccountHandle's Component Package
+            if (pHandle != null) {
+                mAppOpsManager.checkPackage(Binder.getCallingUid(),
+                        pHandle.getComponentName().getPackageName());
+            }
+            Log.startSession(sessionInfo, "CSW.oPAC");
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        call.setTargetPhoneAccount(pHandle);
                     }
                 }
             } finally {
