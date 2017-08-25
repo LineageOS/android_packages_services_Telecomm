@@ -834,6 +834,11 @@ public class ConnectionServiceWrapper extends ServiceBinder {
         @Override
         public void onPhoneAccountChanged(String callId, PhoneAccountHandle pHandle,
                 Session.Info sessionInfo) throws RemoteException {
+            // Check that the Calling Package matches PhoneAccountHandle's Component Package
+            if (pHandle != null) {
+                mAppOpsManager.checkPackage(Binder.getCallingUid(),
+                        pHandle.getComponentName().getPackageName());
+            }
             Log.startSession(sessionInfo, "CSW.oPAC");
             long token = Binder.clearCallingIdentity();
             try {
