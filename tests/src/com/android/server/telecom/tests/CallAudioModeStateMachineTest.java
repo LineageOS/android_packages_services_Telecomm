@@ -18,6 +18,7 @@ package com.android.server.telecom.tests;
 
 import android.media.AudioManager;
 import android.os.HandlerThread;
+import android.telecom.TelecomManager;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.CallAudioManager;
@@ -49,6 +50,7 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
     @Mock private SystemStateHelper mSystemStateHelper;
     @Mock private AudioManager mAudioManager;
     @Mock private CallAudioManager mCallAudioManager;
+    @Mock private TelecomManager mTelecomManager;
 
     private HandlerThread mTestThread;
 
@@ -72,7 +74,7 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
     @Test
     public void testNoFocusWhenRingerSilenced() throws Throwable {
         CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mSystemStateHelper,
-                mAudioManager, mTestThread.getLooper());
+                mAudioManager, mTelecomManager, mTestThread.getLooper());
         sm.setCallAudioManager(mCallAudioManager);
         sm.sendMessage(CallAudioModeStateMachine.ABANDON_FOCUS_FOR_TESTING);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
@@ -104,7 +106,7 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
     @Test
     public void testNoRingWhenDeviceIsAtEar() {
         CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mSystemStateHelper,
-                mAudioManager, mTestThread.getLooper());
+                mAudioManager, mTelecomManager, mTestThread.getLooper());
         sm.setCallAudioManager(mCallAudioManager);
         sm.sendMessage(CallAudioModeStateMachine.ABANDON_FOCUS_FOR_TESTING);
         sm.sendMessage(CallAudioModeStateMachine.NEW_HOLDING_CALL, new Builder()
@@ -140,7 +142,7 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
     @Test
     public void testRegainFocusWhenHfpIsConnectedSilenced() throws Throwable {
         CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mSystemStateHelper,
-                mAudioManager, mTestThread.getLooper());
+                mAudioManager, mTelecomManager, mTestThread.getLooper());
         sm.setCallAudioManager(mCallAudioManager);
         sm.sendMessage(CallAudioModeStateMachine.ABANDON_FOCUS_FOR_TESTING);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
