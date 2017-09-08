@@ -18,9 +18,15 @@ package com.android.server.telecom;
 
 import android.media.AudioManager;
 import android.os.Message;
+import android.os.SystemProperties;
 import android.telecom.Log;
 import android.telecom.Logging.Runnable;
 import android.telecom.Logging.Session;
+import android.telecom.PhoneAccount;
+import android.telecom.PhoneAccountHandle;
+import android.telecom.TelecomManager;
+import android.telephony.SubscriptionManager;
+import android.telephony.TelephonyManager;
 import android.util.SparseArray;
 
 import com.android.internal.util.IState;
@@ -298,8 +304,28 @@ public class CallAudioModeStateMachine extends StateMachine {
         @Override
         public void enter() {
             Log.i(LOG_TAG, "Audio focus entering SIM CALL state");
+            boolean setMsimAudioParams = SystemProperties
+                    .getBoolean("ro.multisim.set_audio_params", false);
+            Call call = mCallAudioManager.getForegroundCall();
+
             mAudioManager.requestAudioFocusForCall(AudioManager.STREAM_VOICE_CALL,
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+
+            if (setMsimAudioParams && call != null && call.getTargetPhoneAccount() != null) {
+                PhoneAccountHandle handle = call.getTargetPhoneAccount();
+                PhoneAccount account = mTelecomManager.getPhoneAccount(handle);
+                int defaultDataSubId = SubscriptionManager.getDefaultDataSubscriptionId();
+                int subId = TelephonyManager.getDefault().getSubIdForPhoneAccount(account);
+                int phoneId = SubscriptionManager.getPhoneId(subId)
+                        ^ SubscriptionManager.getPhoneId(defaultDataSubId);
+                Log.d(LOG_TAG, "setAudioParameters phoneId=" + phoneId);
+                if (phoneId == 0) {
+                    mAudioManager.setParameters("phone_type=cp1");
+                } else if (phoneId == 1) {
+                    mAudioManager.setParameters("phone_type=cp2");
+                }
+            }
+
             mAudioManager.setMode(AudioManager.MODE_IN_CALL);
             mMostRecentMode = AudioManager.MODE_IN_CALL;
             mCallAudioManager.setCallAudioRouteFocusState(CallAudioRouteStateMachine.ACTIVE_FOCUS);
@@ -475,14 +501,16 @@ public class CallAudioModeStateMachine extends StateMachine {
     private final BaseState mOtherFocusState = new OtherFocusState();
 
     private final AudioManager mAudioManager;
+    private final TelecomManager mTelecomManager;
     private CallAudioManager mCallAudioManager;
 
     private int mMostRecentMode;
     private boolean mIsInitialized = false;
 
-    public CallAudioModeStateMachine(AudioManager audioManager) {
+    public CallAudioModeStateMachine(AudioManager audioManager, TelecomManager telecomManager) {
         super(CallAudioModeStateMachine.class.getSimpleName());
         mAudioManager = audioManager;
+        mTelecomManager = telecomManager;
         mMostRecentMode = AudioManager.MODE_NORMAL;
 
         addState(mUnfocusedState);
