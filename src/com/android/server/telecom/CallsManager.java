@@ -358,7 +358,8 @@ public class CallsManager extends Call.ListenerBase
 
         mCallAudioManager = new CallAudioManager(callAudioRouteStateMachine,
                 this,new CallAudioModeStateMachine((AudioManager)
-                        mContext.getSystemService(Context.AUDIO_SERVICE)),
+                        mContext.getSystemService(Context.AUDIO_SERVICE),
+                        (TelecomManager) mContext.getSystemService(Context.TELECOM_SERVICE)),
                 playerFactory, mRinger, new RingbackPlayer(playerFactory), mDtmfLocalTonePlayer);
 
         mHeadsetMediaButton = headsetMediaButtonFactory.create(context, this, mLock);
