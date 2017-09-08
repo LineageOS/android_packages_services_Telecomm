@@ -548,7 +548,8 @@ public class CallsManager extends Call.ListenerBase
                 mTimeoutsAdapter, mLock);
         mCallAudioManager = new CallAudioManager(callAudioRouteStateMachine,
                 this, callAudioModeStateMachineFactory.create(systemStateHelper,
-                (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE)),
+                        (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE),
+                        (TelecomManager) mContext.getSystemService(Context.TELECOM_SERVICE)),
                 playerFactory, mRinger, new RingbackPlayer(playerFactory),
                 bluetoothStateReceiver, mDtmfLocalTonePlayer);
 
