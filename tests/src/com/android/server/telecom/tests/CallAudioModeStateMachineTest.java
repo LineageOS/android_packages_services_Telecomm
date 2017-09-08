@@ -17,6 +17,7 @@
 package com.android.server.telecom.tests;
 
 import android.media.AudioManager;
+import android.telecom.TelecomManager;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -89,6 +90,7 @@ public class CallAudioModeStateMachineTest extends StateMachineTestBase<CallAudi
 
     @Mock private AudioManager mAudioManager;
     @Mock private CallAudioManager mCallAudioManager;
+    @Mock private TelecomManager mTelecomManager;
 
     @Override
     public void setUp() throws Exception {
@@ -104,7 +106,7 @@ public class CallAudioModeStateMachineTest extends StateMachineTestBase<CallAudi
 
     @SmallTest
     public void testNoFocusWhenRingerSilenced() throws Throwable {
-        CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mAudioManager);
+        CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mAudioManager, mTelecomManager);
         sm.setCallAudioManager(mCallAudioManager);
         sm.sendMessage(CallAudioModeStateMachine.ABANDON_FOCUS_FOR_TESTING);
         waitForStateMachineActionCompletion(sm, CallAudioModeStateMachine.RUN_RUNNABLE);
@@ -543,7 +545,7 @@ public class CallAudioModeStateMachineTest extends StateMachineTestBase<CallAudi
     @Override
     protected void runParametrizedTestCase(TestParameters _params) {
         ModeTestParameters params = (ModeTestParameters) _params;
-        CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mAudioManager);
+        CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mAudioManager, mTelecomManager);
         sm.setCallAudioManager(mCallAudioManager);
         sm.sendMessage(params.initialAudioState);
         waitForStateMachineActionCompletion(sm, CallAudioModeStateMachine.RUN_RUNNABLE);
