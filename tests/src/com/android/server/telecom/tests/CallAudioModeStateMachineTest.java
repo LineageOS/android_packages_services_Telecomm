@@ -17,6 +17,7 @@
 package com.android.server.telecom.tests;
 
 import android.media.AudioManager;
+import android.telecom.TelecomManager;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.CallAudioManager;
@@ -42,6 +43,7 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
 
     @Mock private AudioManager mAudioManager;
     @Mock private CallAudioManager mCallAudioManager;
+    @Mock private TelecomManager mTelecomManager;
 
     @Override
     @Before
@@ -52,7 +54,7 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testNoFocusWhenRingerSilenced() throws Throwable {
-        CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mAudioManager);
+        CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mAudioManager, mTelecomManager);
         sm.setCallAudioManager(mCallAudioManager);
         sm.sendMessage(CallAudioModeStateMachine.ABANDON_FOCUS_FOR_TESTING);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
@@ -84,7 +86,7 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testRegainFocusWhenHfpIsConnectedSilenced() throws Throwable {
-        CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mAudioManager);
+        CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mAudioManager, mTelecomManager);
         sm.setCallAudioManager(mCallAudioManager);
         sm.sendMessage(CallAudioModeStateMachine.ABANDON_FOCUS_FOR_TESTING);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
