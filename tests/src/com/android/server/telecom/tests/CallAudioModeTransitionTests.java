@@ -18,6 +18,7 @@ package com.android.server.telecom.tests;
 
 import android.content.Context;
 import android.media.AudioManager;
+import android.telecom.TelecomManager;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.CallAudioManager;
@@ -101,6 +102,7 @@ public class CallAudioModeTransitionTests extends TelecomTestCase {
     @Mock private SystemStateHelper mSystemStateHelper;
     @Mock private AudioManager mAudioManager;
     @Mock private CallAudioManager mCallAudioManager;
+    @Mock private TelecomManager mTelecomManager;
     private final ModeTestParameters mParams;
 
     @Override
@@ -117,7 +119,7 @@ public class CallAudioModeTransitionTests extends TelecomTestCase {
     @SmallTest
     public void modeTransitionTest() {
         CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mSystemStateHelper,
-                mAudioManager);
+                mAudioManager, mTelecomManager);
         sm.setCallAudioManager(mCallAudioManager);
         sm.sendMessage(mParams.initialAudioState);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
