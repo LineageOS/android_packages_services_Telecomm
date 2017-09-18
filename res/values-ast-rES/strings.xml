@@ -22,11 +22,12 @@
   <!-- Title used for the activity for placing a call. This name appears
          in activity disambig dialogs -->
   <!-- Name for an "unknown" caller. -->
+  <string name="unknown">Desconocíu</string>
   <!-- Notification strings -->
   <!-- Missed call notification label, used when there's exactly one missed call -->
   <!-- Missed work call notification label, used when there's exactly one missed call [CHAR LIMIT=NONE] -->
+  <string name="notification_missedWorkCallTitle">Perdióse la llamada\'l trabayu</string>
   <!-- Missed call notification label, used when there are two or more missed calls -->
-  <string name="notification_missedCallsTitle">Llamaes perdíes</string>
   <!-- Missed call notification message used when there are multiple missed calls -->
   <!-- Missed call notification message used for a single missed call, including
          the caller-id info from the missed call -->
@@ -55,14 +56,14 @@
          Each method for placing a call (SIM1, SIM2, SIP account, etc) has a phone-account.
          Phone-accounts that are created by third party apps can be disabled and enabled by user.
          [CHAR LIMIT=30] -->
-  <string name="enable_account_preference_title">Cuentes de llamaes</string>
   <!-- Message indicating that the user is not allowed to make non-emergency outgoing phone calls
          due to a user restriction -->
   <!-- Message indicating that the user is not allowed to make non-emergency outgoing phone calls
          due to the lack of the CALL_PHONE permission -->
-  <string name="outgoing_call_not_allowed_no_permission">Esta aplicación nun pue facer llamaes salientes ensin el permisu de Teléfonu.</string>
   <!-- Call failure message displayed in an error dialog used to indicate that a phone number was not provided -->
+  <string name="outgoing_call_error_no_phone_number_supplied">Pa facer una llamada, teclexa un númberu válidu.</string>
   <!-- Message shown when the user tries to make a video call when already in a video call. -->
+  <string name="duplicate_video_call_not_allowed">La llamada nun pue amestase nesti momentu.</string>
   <!-- missing voicemail number -->
   <!-- Title of the "Missing voicemail number" dialog -->
   <!-- Body text of the "Missing voicemail number" dialog -->
@@ -70,29 +71,44 @@
   <!-- Title of dialog used to comfirm whether the user intends to change the default dialer
             application [CHAR LIMIT=55]-->
   <!-- Confirmation text that a user taps on to change the Default Phone App-->
+  <string name="change_default_dialer_dialog_affirmative">Predeterminar</string>
   <!-- Cancel text that a user taps on to not change the Default Phone App-->
   <string name="change_default_dialer_dialog_negative">Encaboxar</string>
   <!-- Warning message indicating what may happen if a user allows a 3rd party app to become the default dialer.-->
   <!-- Blocked numbers -->
   <string name="blocked_numbers">Númberos bloquiaos</string>
   <!-- Text shown at the beginning of the blocked numbers screen to explain what the screen is about. -->
+  <string name="blocked_numbers_msg">Nun recibirás llames o mensaxes de númberos bloquiaos.</string>
   <!-- Button to add a blocked number. -->
+  <string name="block_number">Amestar un númberu</string>
   <!-- Body of dialog to confirm unblocking a number. -->
+  <string name="unblock_dialog_body">¿Desbloquiar <xliff:g id="number_to_block">%1$s</xliff:g>?</string>
   <!-- Button to unblock a number. -->
+  <string name="unblock_button">Desbloquiar</string>
   <!-- Body of dialog to block a number.  -->
+  <string name="add_blocked_dialog_body">Bloquiar llamaes y mensaxes de</string>
   <!-- Hint shown in the edit text box for adding a blocked number -->
+  <string name="add_blocked_number_hint">Númberu telefónicu</string>
   <!-- Button to block a number. -->
+  <string name="block_button">Bloquiar</string>
   <!-- String shown to users unable to manage blocked numbers because they are not owners of the
         device. -->
+  <string name="non_primary_user">Namái\'l dueñu\'l teléfonu pue ver y xestionar númberos bloquiaos.</string>
   <!-- Description of icon to delete blocked number. -->
+  <string name="delete_icon_description">Desbloquiar</string>
   <!-- Title for butter bar shown when call blocking is disabled. -->
   <!-- Explanation for butter bar shown when call blocking is disabled. -->
+  <string name="blocked_numbers_butter_bar_body">Dempués que marques o unvies un mensaxe a un númberu d\'emerxencies, desactivaráse\'l bloquéu p\'asegurar qu\'esos servicios puean contautate.</string>
   <!-- Button to re-enable blocking shown in butter bar shown when call blocking is disabled. -->
+  <string name="blocked_numbers_butter_bar_button">Reactivar agora</string>
   <!-- Message to show when a number is blocked. -->
+  <string name="blocked_numbers_number_blocked_message"><xliff:g id="blocked_number">%1$s</xliff:g> bloquiáu</string>
   <!-- Message to show when a number is unblocked. -->
+  <string name="blocked_numbers_number_unblocked_message"><xliff:g id="unblocked_number">%1$s</xliff:g> desbloquiáu</string>
   <!-- Message to show when a number cannot be blocked because it is associated with emergency services.. -->
   <string name="blocked_numbers_block_emergency_number_message">Nun pue bloquiase\'l númberu d\'emerxencies.</string>
   <!-- Message to show when a number is already blocked. -->
+  <string name="blocked_numbers_number_already_blocked_message"><xliff:g id="blocked_number">%1$s</xliff:g> yá ta bloquiáu.</string>
   <!-- DO NOT TRANSLATE. Label for test Subscription 0. -->
   <string name="test_account_0_label">Q Mobile</string>
   <!-- DO NOT TRANSLATE. Label for test Subscription 1. -->
@@ -111,4 +127,6 @@
   <string name="test_account_3_short_description">Chat with Chat Network users</string>
   <!-- DO NOT TRANSLATE. Hardcoded number used for restricted incoming phone numbers. -->
   <string name="handle_restricted">RESTRICTED</string>
+  <string name="toast_personal_call_msg">Usando\'l marcador personal pa llamar</string>
+  <string name="toast_make_video_call_failed">Nun pue facese una videollamada, formatu incorreutu de númberu</string>
 </resources>
