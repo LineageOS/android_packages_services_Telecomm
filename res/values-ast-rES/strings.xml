@@ -22,10 +22,10 @@
   <!-- Title used for the activity for placing a call. This name appears
          in activity disambig dialogs -->
   <!-- Name for an "unknown" caller. -->
+  <string name="unknown">Desconocíu</string>
   <!-- Notification strings -->
   <!-- Missed call notification label, used when there's exactly one missed call -->
   <!-- Missed call notification label, used when there are two or more missed calls -->
-  <string name="notification_missedCallsTitle">Llamaes perdíes</string>
   <!-- Missed call notification message used when there are multiple missed calls -->
   <!-- Missed call notification message used for a single missed call, including
          the caller-id info from the missed call -->
@@ -59,7 +59,9 @@
   <!-- Message indicating that the user is not allowed to make non-emergency outgoing phone calls
          due to the lack of the CALL_PHONE permission -->
   <!-- Call failure message displayed in an error dialog used to indicate that a phone number was not provided -->
+  <string name="outgoing_call_error_no_phone_number_supplied">Pa facer una llamada, teclexa un númberu válidu.</string>
   <!-- Message shown when the user tries to make a video call when already in a video call. -->
+  <string name="duplicate_video_call_not_allowed">La llamada nun pue amestase nesti momentu.</string>
   <!-- Message indicating video calls not allowed if user enabled TTY Mode -->
   <!-- missing voicemail number -->
   <!-- Title of the "Missing voicemail number" dialog -->
