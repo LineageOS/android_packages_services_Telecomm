@@ -756,6 +756,10 @@ public class InCallController extends CallsManagerListenerBase {
             // We are bound, and we are connected.
             adjustServiceBindingsForEmergency();
 
+            // This is in case an emergency call is added while there is an existing call.
+            mEmergencyCallHelper.maybeGrantTemporaryLocationPermission(call,
+                    mCallsManager.getCurrentUserHandle());
+
             Log.i(this, "onCallAdded: %s", call);
             // Track the call if we don't already know about it.
             addCall(call);
@@ -807,6 +811,8 @@ public class InCallController extends CallsManagerListenerBase {
                     // Check again to make sure there are no active calls.
                     if (mCallsManager.getCalls().isEmpty()) {
                         unbindFromServices();
+
+                        mEmergencyCallHelper.maybeRevokeTemporaryLocationPermission();
                     }
                 }
             }.prepare(), mTimeoutsAdapter.getCallRemoveUnbindInCallServicesDelay(
