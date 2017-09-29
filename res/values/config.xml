@@ -48,6 +48,6 @@
     <bool name="silence_incoming_when_different_service_and_maximum_ringing">false</bool>
 
     <!-- Determines if the granting temporary location permission to the default dialer
-         during an emergency call should be allowed.  The default is false. -->
-    <bool name="grant_location_permission_enabled">false</bool>
+         during an emergency call should be allowed. -->
+    <bool name="grant_location_permission_enabled">true</bool>
 </resources>
