@@ -116,9 +116,9 @@ public class CallIntentProcessor {
             clientExtras.putBoolean(TelephonyProperties.EXTRA_SKIP_SCHEMA_PARSING,
                     isSkipSchemaParsing);
             handle = Uri.fromParts(PhoneAccount.SCHEME_TEL, handle.toString(), null);
-        }
-
-        if (!PhoneAccount.SCHEME_VOICEMAIL.equals(scheme) && !isSkipSchemaParsing) {
+        } else if (PhoneAccount.SCHEME_SIP.equals(scheme)) {
+            handle = Uri.fromParts(PhoneAccount.SCHEME_SIP, uriString, null);
+        } else if (!PhoneAccount.SCHEME_VOICEMAIL.equals(scheme)) {
             handle = Uri.fromParts(PhoneNumberUtils.isUriNumber(uriString) ?
                     PhoneAccount.SCHEME_SIP : PhoneAccount.SCHEME_TEL, uriString, null);
         }
