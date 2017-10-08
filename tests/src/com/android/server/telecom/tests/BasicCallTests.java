@@ -920,4 +920,59 @@ public class BasicCallTests extends TelecomSystemTest {
         assert(!call.isVideoCallingSupported());
         assertEquals(VideoProfile.STATE_AUDIO_ONLY, call.getVideoState());
     }
+
+    /**
+     * Basic test to ensure that a self-managed ConnectionService can place a call.
+     * @throws Exception
+     */
+    @LargeTest
+    public void testSelfManagedOutgoing() throws Exception {
+        PhoneAccountHandle phoneAccountHandle = mPhoneAccountSelfManaged.getAccountHandle();
+        IdPair ids = startAndMakeActiveOutgoingCall("650-555-1212", phoneAccountHandle,
+                mConnectionServiceFixtureA);
+
+        // The InCallService should not know about the call since its self-managed.
+        assertNull(mInCallServiceFixtureX.getCall(ids.mCallId));
+    }
+
+    /**
+     * Basic test to ensure that a self-managed ConnectionService can add an incoming call.
+     * @throws Exception
+     */
+    @LargeTest
+    public void testSelfManagedIncoming() throws Exception {
+        PhoneAccountHandle phoneAccountHandle = mPhoneAccountSelfManaged.getAccountHandle();
+        IdPair ids = startAndMakeActiveIncomingCall("650-555-1212", phoneAccountHandle,
+                mConnectionServiceFixtureA);
+
+        // The InCallService should not know about the call since its self-managed.
+        assertNull(mInCallServiceFixtureX.getCall(ids.mCallId));
+    }
+
+    /**
+     * Basic test to ensure that when there are no calls, we permit outgoing calls by a self managed
+     * CS.
+     * @throws Exception
+     */
+    @LargeTest
+    public void testIsOutgoingCallPermitted() throws Exception {
+        assertTrue(mTelecomSystem.getTelecomServiceImpl().getBinder()
+                .isOutgoingCallPermitted(mPhoneAccountSelfManaged.getAccountHandle()));
+    }
+
+    /**
+     * Basic test to ensure that when there are other calls, we do not permit outgoing calls by a
+     * self managed CS.
+     * @throws Exception
+     */
+    @LargeTest
+    public void testIsOutgoingCallPermittedOngoing() throws Exception {
+        // Start a regular call; the self-managed CS can't make a call now.
+        IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
+                mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
+        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+
+        assertFalse(mTelecomSystem.getTelecomServiceImpl().getBinder()
+                .isOutgoingCallPermitted(mPhoneAccountSelfManaged.getAccountHandle()));
+    }
 }
