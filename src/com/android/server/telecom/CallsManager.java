@@ -2130,11 +2130,22 @@ public class CallsManager extends Call.ListenerBase
         return getFirstCallWithState(CallState.RINGING) != null;
     }
 
-    boolean onMediaButton(int type) {
+    @VisibleForTesting
+    public boolean onMediaButton(int type) {
         if (hasAnyCalls()) {
             Call ringingCall = getFirstCallWithState(CallState.RINGING);
             if (HeadsetMediaButton.SHORT_PRESS == type) {
                 if (ringingCall == null) {
+                    Call activeCall = getFirstCallWithState(CallState.ACTIVE);
+                    Call onHoldCall = getFirstCallWithState(CallState.ON_HOLD);
+                    if (activeCall != null && onHoldCall != null) {
+                        // Two calls, short-press -> switch calls
+                        Log.addEvent(onHoldCall, LogUtils.Events.INFO,
+                                "two calls, media btn short press - switch call.");
+                        unholdCall(onHoldCall);
+                        return true;
+                    }
+
                     Call callToHangup = getFirstCallWithState(CallState.RINGING, CallState.DIALING,
                             CallState.PULLING, CallState.ACTIVE, CallState.ON_HOLD);
                     Log.addEvent(callToHangup, LogUtils.Events.INFO,
@@ -2153,6 +2164,16 @@ public class CallsManager extends Call.ListenerBase
                             LogUtils.Events.INFO, "media btn long press - reject");
                     ringingCall.reject(false, null);
                 } else {
+                    Call activeCall = getFirstCallWithState(CallState.ACTIVE);
+                    Call onHoldCall = getFirstCallWithState(CallState.ON_HOLD);
+                    if (activeCall != null && onHoldCall != null) {
+                        // Two calls, long-press -> end current call
+                        Log.addEvent(activeCall, LogUtils.Events.INFO,
+                                "two calls, media btn long press - end current call.");
+                        disconnectCall(activeCall);
+                        return true;
+                    }
+
                     Log.addEvent(getForegroundCall(), LogUtils.Events.INFO,
                             "media btn long press - mute");
                     mCallAudioManager.toggleMute();
