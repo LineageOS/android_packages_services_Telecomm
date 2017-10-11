@@ -16,6 +16,24 @@
       "revId": "bb71b4f501bdbc282fc4c9ae9236d35866679af7",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "94c36ebc_e7f54554",
+        "filename": "src/com/android/server/telecom/ParcelableCallUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 1063
+      },
+      "writtenOn": "2017-10-11T13:32:29Z",
+      "side": 1,
+      "message": "Thanks, even though I\u0027m not done yet - this was supposed to be a draft :-)",
+      "parentUuid": "996154d8_78ed6734",
+      "revId": "bb71b4f501bdbc282fc4c9ae9236d35866679af7",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
