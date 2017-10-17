@@ -2260,7 +2260,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
             return;
         }
 
-        if (!handle.equals(mHandle)) {
+        if ((handle != null) && !handle.equals(mHandle)) {
             Log.i(this, "setCallerInfo received stale caller info for an old handle. Ignoring.");
             return;
         }
