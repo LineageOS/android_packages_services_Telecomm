@@ -3077,7 +3077,7 @@ public class CallsManager extends Call.ListenerBase
     */
     private void maybeShowErrorDialogOnDisconnect(Call call) {
         if (call.getState() == CallState.DISCONNECTED && (isPotentialMMICode(call.getHandle())
-                || isPotentialInCallMMICode(call.getHandle()))) {
+                || isPotentialInCallMMICode(call.getHandle())) && !mCalls.contains(call)) {
             DisconnectCause disconnectCause = call.getDisconnectCause();
             if (!TextUtils.isEmpty(disconnectCause.getDescription()) && (disconnectCause.getCode()
                     == DisconnectCause.ERROR)) {
