@@ -1864,7 +1864,7 @@ public class CallsManager extends Call.ListenerBase
                     Log.addEvent(callToHangup, LogUtils.Events.INFO,
                             "media btn short press - end call.");
                     if (callToHangup != null) {
-                        callToHangup.disconnect();
+                        disconnectCall(callToHangup);
                         return true;
                     }
                 } else {
