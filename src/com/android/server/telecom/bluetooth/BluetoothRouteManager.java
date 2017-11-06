@@ -36,6 +36,7 @@ import com.android.server.telecom.BluetoothHeadsetProxy;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -44,7 +45,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class BluetoothRouteManager extends StateMachine {
@@ -62,20 +64,19 @@ public class BluetoothRouteManager extends StateMachine {
          put(RUN_RUNNABLE, "RUN_RUNNABLE");
     }};
 
-    // Constants for compatiblity with current CARSM/CARPA
-    // TODO: delete and replace with new direct interface to CARPA.
-    public static final int BLUETOOTH_UNINITIALIZED = 0;
-    public static final int BLUETOOTH_DISCONNECTED = 1;
-    public static final int BLUETOOTH_DEVICE_CONNECTED = 2;
-    public static final int BLUETOOTH_AUDIO_PENDING = 3;
-    public static final int BLUETOOTH_AUDIO_CONNECTED = 4;
-
     public static final String AUDIO_OFF_STATE_NAME = "AudioOff";
     public static final String AUDIO_CONNECTING_STATE_NAME_PREFIX = "Connecting";
     public static final String AUDIO_CONNECTED_STATE_NAME_PREFIX = "Connected";
 
+    // Timeout for querying the current state from the state machine handler.
+    private static final int GET_STATE_TIMEOUT = 1000;
+
     public interface BluetoothStateListener {
-        void onBluetoothStateChange(int oldState, int newState);
+        void onBluetoothDeviceListChanged();
+        void onBluetoothDeviceAvailable();
+        void onBluetoothDeviceUnavailable();
+        void onBluetoothAudioConnected();
+        void onBluetoothAudioDisconnected();
     }
 
     // Broadcast receiver to receive audio state change broadcasts from the BT stack
@@ -144,6 +145,10 @@ public class BluetoothRouteManager extends StateMachine {
     // No args; only used internally
     public static final int CONNECTION_TIMEOUT = 300;
 
+    // Get the current state and send it through the BlockingQueue<IState> provided as the object
+    // arg.
+    public static final int GET_CURRENT_STATE = 400;
+
     // arg2: Runnable
     public static final int RUN_RUNNABLE = 9001;
 
@@ -165,6 +170,9 @@ public class BluetoothRouteManager extends StateMachine {
                 disconnectAudio();
             }
             cleanupStatesForDisconnectedDevices();
+            if (mListener != null) {
+                mListener.onBluetoothAudioDisconnected();
+            }
         }
 
         @Override
@@ -178,31 +186,15 @@ public class BluetoothRouteManager extends StateMachine {
             try {
                 switch (msg.what) {
                     case NEW_DEVICE_CONNECTED:
-                        // If the device isn't new, don't bother passing it up.
-                        if (addDevice((String) args.arg2)) {
-                            // TODO: replace with new interface
-                            if (mDeviceManager.getNumConnectedDevices() == 1) {
-                                mListener.onBluetoothStateChange(
-                                        BLUETOOTH_DISCONNECTED, BLUETOOTH_DEVICE_CONNECTED);
-                            }
-                        }
+                        addDevice((String) args.arg2);
                         break;
                     case LOST_DEVICE:
-                        // If the device has already been removed, don't bother passing it up.
-                        if (removeDevice((String) args.arg2)) {
-                            // TODO: replace with new interface
-                            if (mDeviceManager.getNumConnectedDevices() == 0) {
-                                mListener.onBluetoothStateChange(
-                                        BLUETOOTH_DEVICE_CONNECTED, BLUETOOTH_DISCONNECTED);
-                            }
-                        }
+                        removeDevice((String) args.arg2);
                         break;
                     case CONNECT_HFP:
                         String actualAddress = connectHfpAudio((String) args.arg2);
 
                         if (actualAddress != null) {
-                            mListener.onBluetoothStateChange(BLUETOOTH_DEVICE_CONNECTED,
-                                    BLUETOOTH_AUDIO_PENDING);
                             transitionTo(getConnectingStateForAddress(actualAddress,
                                     "AudioOff/CONNECT_HFP"));
                         } else {
@@ -218,8 +210,6 @@ public class BluetoothRouteManager extends StateMachine {
                         String retryAddress = connectHfpAudio((String) args.arg2, args.argi1);
 
                         if (retryAddress != null) {
-                            mListener.onBluetoothStateChange(BLUETOOTH_DEVICE_CONNECTED,
-                                    BLUETOOTH_AUDIO_PENDING);
                             transitionTo(getConnectingStateForAddress(retryAddress,
                                     "AudioOff/RETRY_HFP_CONNECTION"));
                         } else {
@@ -232,13 +222,15 @@ public class BluetoothRouteManager extends StateMachine {
                     case HFP_IS_ON:
                         String address = (String) args.arg2;
                         Log.w(LOG_TAG, "HFP audio unexpectedly turned on from device %s", address);
-                        mListener.onBluetoothStateChange(BLUETOOTH_DEVICE_CONNECTED,
-                                BLUETOOTH_AUDIO_CONNECTED);
                         transitionTo(getConnectedStateForAddress(address, "AudioOff/HFP_IS_ON"));
                         break;
                     case HFP_LOST:
                         Log.i(LOG_TAG, "Received HFP off for device %s while HFP off.",
                                 (String) args.arg2);
+                        break;
+                    case GET_CURRENT_STATE:
+                        BlockingQueue<IState> sink = (BlockingQueue<IState>) args.arg3;
+                        sink.offer(this);
                         break;
                 }
             } finally {
@@ -267,6 +259,8 @@ public class BluetoothRouteManager extends StateMachine {
             sendMessageDelayed(CONNECTION_TIMEOUT, args,
                     mTimeoutsAdapter.getBluetoothPendingTimeoutMillis(
                             mContext.getContentResolver()));
+            // Pretend like audio is connected when communicating w/ CARSM.
+            mListener.onBluetoothAudioConnected();
         }
 
         @Override
@@ -287,13 +281,7 @@ public class BluetoothRouteManager extends StateMachine {
                 switch (msg.what) {
                     case NEW_DEVICE_CONNECTED:
                         // If the device isn't new, don't bother passing it up.
-                        if (addDevice(address)) {
-                            // TODO: replace with new interface
-                            if (mDeviceManager.getNumConnectedDevices() == 1) {
-                                Log.w(LOG_TAG, "Newly connected device is only device" +
-                                        " while audio pending.");
-                            }
-                        }
+                        addDevice(address);
                         break;
                     case LOST_DEVICE:
                         removeDevice((String) args.arg2);
@@ -301,15 +289,9 @@ public class BluetoothRouteManager extends StateMachine {
                         if (Objects.equals(address, mDeviceAddress)) {
                             String newAddress = connectHfpAudio(null);
                             if (newAddress != null) {
-                                mListener.onBluetoothStateChange(BLUETOOTH_AUDIO_PENDING,
-                                        BLUETOOTH_AUDIO_PENDING);
                                 transitionTo(getConnectingStateForAddress(newAddress,
                                         "AudioConnecting/LOST_DEVICE"));
                             } else {
-                                int numConnectedDevices = mDeviceManager.getNumConnectedDevices();
-                                mListener.onBluetoothStateChange(BLUETOOTH_AUDIO_PENDING,
-                                        numConnectedDevices == 0 ? BLUETOOTH_DISCONNECTED :
-                                                BLUETOOTH_DEVICE_CONNECTED);
                                 transitionTo(mAudioOffState);
                             }
                         }
@@ -322,8 +304,6 @@ public class BluetoothRouteManager extends StateMachine {
                         String actualAddress = connectHfpAudio(address);
 
                         if (actualAddress != null) {
-                            mListener.onBluetoothStateChange(BLUETOOTH_AUDIO_PENDING,
-                                    BLUETOOTH_AUDIO_PENDING);
                             transitionTo(getConnectingStateForAddress(actualAddress,
                                     "AudioConnecting/CONNECT_HFP"));
                         } else {
@@ -333,8 +313,6 @@ public class BluetoothRouteManager extends StateMachine {
                         break;
                     case DISCONNECT_HFP:
                         disconnectAudio();
-                        mListener.onBluetoothStateChange(BLUETOOTH_AUDIO_PENDING,
-                                BLUETOOTH_DEVICE_CONNECTED);
                         transitionTo(mAudioOffState);
                         break;
                     case RETRY_HFP_CONNECTION:
@@ -353,7 +331,7 @@ public class BluetoothRouteManager extends StateMachine {
                     case CONNECTION_TIMEOUT:
                         Log.i(LOG_TAG, "Connection with device %s timed out.",
                                 mDeviceAddress);
-                        transitionToActualState(BLUETOOTH_AUDIO_PENDING);
+                        transitionToActualState();
                         break;
                     case HFP_IS_ON:
                         if (Objects.equals(mDeviceAddress, address)) {
@@ -365,18 +343,20 @@ public class BluetoothRouteManager extends StateMachine {
                             transitionTo(getConnectedStateForAddress(address,
                                     "AudioConnecting/HFP_IS_ON"));
                         }
-                        mListener.onBluetoothStateChange(BLUETOOTH_AUDIO_PENDING,
-                                BLUETOOTH_AUDIO_CONNECTED);
                         break;
                     case HFP_LOST:
                         if (Objects.equals(mDeviceAddress, address)) {
                             Log.i(LOG_TAG, "Connection with device %s failed.",
                                     mDeviceAddress);
-                            transitionToActualState(BLUETOOTH_AUDIO_PENDING);
+                            transitionToActualState();
                         } else {
                             Log.w(LOG_TAG, "Got HFP lost message for device %s while" +
                                     " connecting to %s.", address, mDeviceAddress);
                         }
+                        break;
+                    case GET_CURRENT_STATE:
+                        BlockingQueue<IState> sink = (BlockingQueue<IState>) args.arg3;
+                        sink.offer(this);
                         break;
                 }
             } finally {
@@ -406,6 +386,7 @@ public class BluetoothRouteManager extends StateMachine {
             // Remove and add to ensure that the device is at the top.
             mMostRecentlyUsedDevices.remove(mDeviceAddress);
             mMostRecentlyUsedDevices.add(mDeviceAddress);
+            mListener.onBluetoothAudioConnected();
         }
 
         @Override
@@ -420,30 +401,16 @@ public class BluetoothRouteManager extends StateMachine {
             try {
                 switch (msg.what) {
                     case NEW_DEVICE_CONNECTED:
-                        // If the device isn't new, don't bother passing it up.
-                        if (addDevice(address)) {
-                            // TODO: Replace with new interface
-                            if (mDeviceManager.getNumConnectedDevices() == 1) {
-                                Log.w(LOG_TAG, "Newly connected device is only" +
-                                        " device while audio connected.");
-                            }
-                        }
+                        addDevice(address);
                         break;
                     case LOST_DEVICE:
                         removeDevice((String) args.arg2);
-
                         if (Objects.equals(address, mDeviceAddress)) {
                             String newAddress = connectHfpAudio(null);
                             if (newAddress != null) {
-                                mListener.onBluetoothStateChange(BLUETOOTH_AUDIO_CONNECTED,
-                                        BLUETOOTH_AUDIO_PENDING);
                                 transitionTo(getConnectingStateForAddress(newAddress,
                                         "AudioConnected/LOST_DEVICE"));
                             } else {
-                                int numConnectedDevices = mDeviceManager.getNumConnectedDevices();
-                                mListener.onBluetoothStateChange(BLUETOOTH_AUDIO_CONNECTED,
-                                        numConnectedDevices == 0 ? BLUETOOTH_DISCONNECTED :
-                                                BLUETOOTH_DEVICE_CONNECTED);
                                 transitionTo(mAudioOffState);
                             }
                         }
@@ -456,8 +423,6 @@ public class BluetoothRouteManager extends StateMachine {
                         String actualAddress = connectHfpAudio(address);
 
                         if (actualAddress != null) {
-                            mListener.onBluetoothStateChange(BLUETOOTH_AUDIO_CONNECTED,
-                                    BLUETOOTH_AUDIO_PENDING);
                             transitionTo(getConnectingStateForAddress(address,
                                     "AudioConnected/CONNECT_HFP"));
                         } else {
@@ -467,8 +432,6 @@ public class BluetoothRouteManager extends StateMachine {
                         break;
                     case DISCONNECT_HFP:
                         disconnectAudio();
-                        mListener.onBluetoothStateChange(BLUETOOTH_AUDIO_CONNECTED,
-                                BLUETOOTH_DEVICE_CONNECTED);
                         transitionTo(mAudioOffState);
                         break;
                     case RETRY_HFP_CONNECTION:
@@ -477,8 +440,6 @@ public class BluetoothRouteManager extends StateMachine {
                         } else {
                             String retryAddress = connectHfpAudio(address, args.argi1);
                             if (retryAddress != null) {
-                                mListener.onBluetoothStateChange(BLUETOOTH_AUDIO_CONNECTED,
-                                        BLUETOOTH_AUDIO_PENDING);
                                 transitionTo(getConnectingStateForAddress(retryAddress,
                                         "AudioConnected/RETRY_HFP_CONNECTION"));
                             } else {
@@ -505,10 +466,8 @@ public class BluetoothRouteManager extends StateMachine {
                             String nextAddress = connectHfpAudio(null, mDeviceAddress);
                             if (nextAddress == null) {
                                 Log.i(LOG_TAG, "No suitable fallback device. Going to AUDIO_OFF.");
-                                transitionToActualState(BLUETOOTH_AUDIO_CONNECTED);
+                                transitionToActualState();
                             } else {
-                                mListener.onBluetoothStateChange(BLUETOOTH_AUDIO_CONNECTED,
-                                        BLUETOOTH_AUDIO_PENDING);
                                 transitionTo(getConnectingStateForAddress(nextAddress,
                                         "AudioConnected/HFP_LOST"));
                             }
@@ -516,6 +475,10 @@ public class BluetoothRouteManager extends StateMachine {
                             Log.w(LOG_TAG, "Got HFP lost message for device %s while" +
                                     " connected to %s.", address, mDeviceAddress);
                         }
+                        break;
+                    case GET_CURRENT_STATE:
+                        BlockingQueue<IState> sink = (BlockingQueue<IState>) args.arg3;
+                        sink.offer(this);
                         break;
                 }
             } finally {
@@ -593,20 +556,25 @@ public class BluetoothRouteManager extends StateMachine {
      * @return
      */
     public boolean isBluetoothAudioConnectedOrPending() {
-        IState[] state = new IState[] {null};
-        CountDownLatch latch = new CountDownLatch(1);
-        Runnable r = () -> {
-            state[0] = getCurrentState();
-            latch.countDown();
-        };
-        sendMessage(RUN_RUNNABLE, r);
+        SomeArgs args = SomeArgs.obtain();
+        args.arg1 = Log.createSubsession();
+        BlockingQueue<IState> stateQueue = new LinkedBlockingQueue<>();
+        // Use arg3 because arg2 is reserved for the device address
+        args.arg3 = stateQueue;
+        sendMessage(GET_CURRENT_STATE, args);
+
         try {
-            latch.await(1000, TimeUnit.MILLISECONDS);
+            IState currentState = stateQueue.poll(GET_STATE_TIMEOUT, TimeUnit.MILLISECONDS);
+            if (currentState == null) {
+                Log.w(LOG_TAG, "Failed to get a state from the state machine in time -- Handler " +
+                        "stuck?");
+                return false;
+            }
+            return currentState != mAudioOffState;
         } catch (InterruptedException e) {
             Log.w(LOG_TAG, "isBluetoothAudioConnectedOrPending -- interrupted getting state");
             return false;
         }
-        return (state[0] != null) && (state[0] != mAudioOffState);
     }
 
     /**
@@ -635,18 +603,32 @@ public class BluetoothRouteManager extends StateMachine {
         mListener = listener;
     }
 
-    public void onDeviceAdded(BluetoothDevice newDevice) {
+    public void onDeviceAdded(String newDeviceAddress) {
         SomeArgs args = SomeArgs.obtain();
         args.arg1 = Log.createSubsession();
-        args.arg2 = newDevice.getAddress();
+        args.arg2 = newDeviceAddress;
         sendMessage(NEW_DEVICE_CONNECTED, args);
+
+        mListener.onBluetoothDeviceListChanged();
+        if (getConnectedDevices().size() == 1) {
+            mListener.onBluetoothDeviceAvailable();
+        }
     }
 
-    public void onDeviceLost(BluetoothDevice lostDevice) {
+    public void onDeviceLost(String lostDeviceAddress) {
         SomeArgs args = SomeArgs.obtain();
         args.arg1 = Log.createSubsession();
-        args.arg2 = lostDevice.getAddress();
+        args.arg2 = lostDeviceAddress;
         sendMessage(LOST_DEVICE, args);
+
+        mListener.onBluetoothDeviceListChanged();
+        if (getConnectedDevices().size() == 0) {
+            mListener.onBluetoothDeviceUnavailable();
+        }
+    }
+
+    public Collection<BluetoothDevice> getConnectedDevices() {
+        return mDeviceManager.getConnectedDevices();
     }
 
     private String connectHfpAudio(String address) {
@@ -672,12 +654,7 @@ public class BluetoothRouteManager extends StateMachine {
      * connection was successful.
      */
     private String connectHfpAudio(String address, int retryCount, String excludeAddress) {
-        BluetoothHeadsetProxy bluetoothHeadset = mDeviceManager.getHeadsetService();
-        if (bluetoothHeadset == null) {
-            Log.i(this, "connectHfpAudio: no headset service available.");
-            return null;
-        }
-        List<BluetoothDevice> deviceList = bluetoothHeadset.getConnectedDevices();
+        Collection<BluetoothDevice> deviceList = getConnectedDevices();
         Optional<BluetoothDevice> matchingDevice = deviceList.stream()
                 .filter(d -> Objects.equals(d.getAddress(), address))
                 .findAny();
@@ -720,20 +697,15 @@ public class BluetoothRouteManager extends StateMachine {
         return preferredDevice;
     }
 
-    private void transitionToActualState(int currentBtState) {
+    private void transitionToActualState() {
         BluetoothDevice possiblyAlreadyConnectedDevice = getBluetoothAudioConnectedDevice();
         if (possiblyAlreadyConnectedDevice != null) {
             Log.i(LOG_TAG, "Device %s is already connected; going to AudioConnected.",
                     possiblyAlreadyConnectedDevice);
             transitionTo(getConnectedStateForAddress(
                     possiblyAlreadyConnectedDevice.getAddress(), "transitionToActualState"));
-            // TODO: replace with new interface
-            mListener.onBluetoothStateChange(currentBtState, BLUETOOTH_AUDIO_CONNECTED);
         } else {
             transitionTo(mAudioOffState);
-            mListener.onBluetoothStateChange(currentBtState,
-                    mDeviceManager.getNumConnectedDevices() > 0 ?
-                            BLUETOOTH_DEVICE_CONNECTED : BLUETOOTH_DISCONNECTED);
         }
     }
 
