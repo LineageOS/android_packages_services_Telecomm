@@ -71,7 +71,7 @@ public class BluetoothDeviceManager {
                                     mConnectedDevicesByAddress.values());
                             mConnectedDevicesByAddress.clear();
                             for (BluetoothDevice device : devicesToRemove) {
-                                mBluetoothRouteManager.onDeviceLost(device);
+                                mBluetoothRouteManager.onDeviceLost(device.getAddress());
                             }
                         }
                     } finally {
@@ -106,13 +106,13 @@ public class BluetoothDeviceManager {
                         if (bluetoothHeadsetState == BluetoothHeadset.STATE_CONNECTED) {
                             if (!mConnectedDevicesByAddress.containsKey(device.getAddress())) {
                                 mConnectedDevicesByAddress.put(device.getAddress(), device);
-                                mBluetoothRouteManager.onDeviceAdded(device);
+                                mBluetoothRouteManager.onDeviceAdded(device.getAddress());
                             }
                         } else if (bluetoothHeadsetState == BluetoothHeadset.STATE_DISCONNECTED
                                 || bluetoothHeadsetState == BluetoothHeadset.STATE_DISCONNECTING) {
                             if (mConnectedDevicesByAddress.containsKey(device.getAddress())) {
                                 mConnectedDevicesByAddress.remove(device.getAddress());
-                                mBluetoothRouteManager.onDeviceLost(device);
+                                mBluetoothRouteManager.onDeviceLost(device.getAddress());
                             }
                         }
                     }
@@ -149,6 +149,10 @@ public class BluetoothDeviceManager {
 
     public int getNumConnectedDevices() {
         return mConnectedDevicesByAddress.size();
+    }
+
+    public Collection<BluetoothDevice> getConnectedDevices() {
+        return mConnectedDevicesByAddress.values();
     }
 
     public String getMostRecentlyConnectedDevice(String excludeAddress) {
