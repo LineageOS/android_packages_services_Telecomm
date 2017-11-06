@@ -139,8 +139,8 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
                 buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device2));
         serviceListenerUnderTest.onServiceDisconnected(0);
 
-        verify(mRouteManager).onDeviceLost(device1);
-        verify(mRouteManager).onDeviceLost(device2);
+        verify(mRouteManager).onDeviceLost(device1.getAddress());
+        verify(mRouteManager).onDeviceLost(device2.getAddress());
         assertNull(mBluetoothDeviceManager.getHeadsetService());
         assertEquals(0, mBluetoothDeviceManager.getNumConnectedDevices());
     }
