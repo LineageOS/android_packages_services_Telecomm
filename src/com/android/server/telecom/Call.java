@@ -405,6 +405,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
     private Analytics.CallInfo mAnalytics;
 
     private boolean mWasConferencePreviouslyMerged = false;
+    private boolean mWasHighDefAudio = false;
 
     // For conferences which support merge/swap at their level, we retain a notion of an active
     // call. This is used for BluetoothPhoneService.  In order to support hold/merge, it must have
@@ -1328,6 +1329,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
             mConnectionProperties = connectionProperties;
             setRttStreams((mConnectionProperties & Connection.PROPERTY_IS_RTT) ==
                     Connection.PROPERTY_IS_RTT);
+            mWasHighDefAudio = (connectionProperties & Connection.PROPERTY_HIGH_DEF_AUDIO) ==
+                    Connection.PROPERTY_HIGH_DEF_AUDIO;
             boolean didRttChange =
                     (changedProperties & Connection.PROPERTY_IS_RTT) == Connection.PROPERTY_IS_RTT;
             for (Listener l : mListeners) {
@@ -2780,4 +2783,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         mVideoStateHistory |= mVideoState;
     }
 
+    /**
+     * Returns whether or not high definition audio was used.
+     *
+     * @return true if high definition audio was used during this call.
+     */
+    boolean wasHighDefAudio() {
+        return mWasHighDefAudio;
+    }
 }
