@@ -764,6 +764,80 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         assertTrue(accounts.get(5).getLabel().toString().equals("b"));
     }
 
+    /**
+     * Tests {@link PhoneAccountRegistrar#getCallCapablePhoneAccounts(String, boolean, UserHandle)}
+     * to ensure disabled accounts are filtered out of results when requested.
+     * @throws Exception
+     */
+    @MediumTest
+    public void testGetByEnabledState() throws Exception {
+        mComponentContextFixture.addConnectionService(makeQuickConnectionServiceComponentName(),
+                Mockito.mock(IConnectionService.class));
+        mRegistrar.registerPhoneAccount(makeQuickAccountBuilder("id1", 1)
+                .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER)
+                .build());
+
+        assertEquals(0, mRegistrar.getCallCapablePhoneAccounts(PhoneAccount.SCHEME_TEL,
+                false /* includeDisabled */, Process.myUserHandle()).size());
+        assertEquals(1, mRegistrar.getCallCapablePhoneAccounts(PhoneAccount.SCHEME_TEL,
+                true /* includeDisabled */, Process.myUserHandle()).size());
+    }
+
+    /**
+     * Tests {@link PhoneAccountRegistrar#getCallCapablePhoneAccounts(String, boolean, UserHandle)}
+     * to ensure scheme filtering operates.
+     * @throws Exception
+     */
+    @MediumTest
+    public void testGetByScheme() throws Exception {
+        mComponentContextFixture.addConnectionService(makeQuickConnectionServiceComponentName(),
+                Mockito.mock(IConnectionService.class));
+        registerAndEnableAccount(makeQuickAccountBuilder("id1", 1)
+                .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER)
+                .setSupportedUriSchemes(Arrays.asList(PhoneAccount.SCHEME_SIP))
+                .build());
+        registerAndEnableAccount(makeQuickAccountBuilder("id2", 2)
+                .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER)
+                .setSupportedUriSchemes(Arrays.asList(PhoneAccount.SCHEME_TEL))
+                .build());
+
+        assertEquals(1, mRegistrar.getCallCapablePhoneAccounts(PhoneAccount.SCHEME_SIP,
+                false /* includeDisabled */, Process.myUserHandle()).size());
+        assertEquals(1, mRegistrar.getCallCapablePhoneAccounts(PhoneAccount.SCHEME_TEL,
+                false /* includeDisabled */, Process.myUserHandle()).size());
+        assertEquals(2, mRegistrar.getCallCapablePhoneAccounts(null, false /* includeDisabled */,
+                Process.myUserHandle()).size());
+    }
+
+    /**
+     * Tests {@link PhoneAccountRegistrar#getCallCapablePhoneAccounts(String, boolean, UserHandle,
+     * int)} to ensure capability filtering operates.
+     * @throws Exception
+     */
+    @MediumTest
+    public void testGetByCapability() throws Exception {
+        mComponentContextFixture.addConnectionService(makeQuickConnectionServiceComponentName(),
+                Mockito.mock(IConnectionService.class));
+        registerAndEnableAccount(makeQuickAccountBuilder("id1", 1)
+                .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER
+                        | PhoneAccount.CAPABILITY_VIDEO_CALLING)
+                .setSupportedUriSchemes(Arrays.asList(PhoneAccount.SCHEME_SIP))
+                .build());
+        registerAndEnableAccount(makeQuickAccountBuilder("id2", 2)
+                .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER)
+                .setSupportedUriSchemes(Arrays.asList(PhoneAccount.SCHEME_SIP))
+                .build());
+
+        assertEquals(1, mRegistrar.getCallCapablePhoneAccounts(PhoneAccount.SCHEME_SIP,
+                false /* includeDisabled */, Process.myUserHandle()).size(),
+                PhoneAccount.CAPABILITY_VIDEO_CALLING);
+        assertEquals(2, mRegistrar.getCallCapablePhoneAccounts(PhoneAccount.SCHEME_SIP,
+                false /* includeDisabled */, Process.myUserHandle()).size(), 0 /* none extra */);
+        assertEquals(0, mRegistrar.getCallCapablePhoneAccounts(PhoneAccount.SCHEME_SIP,
+                false /* includeDisabled */, Process.myUserHandle()).size(),
+                PhoneAccount.CAPABILITY_RTT);
+    }
+
     private static ComponentName makeQuickConnectionServiceComponentName() {
         return new ComponentName(
                 "com.android.server.telecom.tests",
