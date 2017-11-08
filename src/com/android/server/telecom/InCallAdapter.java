@@ -268,13 +268,13 @@ class InCallAdapter extends IInCallAdapter.Stub {
     }
 
     @Override
-    public void setAudioRoute(int route) {
+    public void setAudioRoute(int route, String bluetoothAddress) {
         try {
             Log.startSession(LogUtils.Sessions.ICA_SET_AUDIO_ROUTE, mOwnerComponentName);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
-                    mCallsManager.setAudioRoute(route);
+                    mCallsManager.setAudioRoute(route, bluetoothAddress);
                 }
             } finally {
                 Binder.restoreCallingIdentity(token);

@@ -555,10 +555,10 @@ public class BasicCallTests extends TelecomSystemTest {
         verify(mAudioService, timeout(TEST_TIMEOUT))
                 .setMicrophoneMute(eq(false), any(String.class), any(Integer.class));
 
-        mInCallServiceFixtureX.mInCallAdapter.setAudioRoute(CallAudioState.ROUTE_SPEAKER);
+        mInCallServiceFixtureX.mInCallAdapter.setAudioRoute(CallAudioState.ROUTE_SPEAKER, null);
         verify(audioManager, timeout(TEST_TIMEOUT))
                 .setSpeakerphoneOn(true);
-        mInCallServiceFixtureX.mInCallAdapter.setAudioRoute(CallAudioState.ROUTE_EARPIECE);
+        mInCallServiceFixtureX.mInCallAdapter.setAudioRoute(CallAudioState.ROUTE_EARPIECE, null);
         verify(audioManager, timeout(TEST_TIMEOUT))
                 .setSpeakerphoneOn(false);
 
