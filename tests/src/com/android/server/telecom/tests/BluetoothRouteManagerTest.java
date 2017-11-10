@@ -153,7 +153,6 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
         public String messageDevice; // The device that should be specified in the message.
         public ListenerUpdate[] expectedListenerUpdates; // what the listener should expect.
         public int expectedBluetoothInteraction; // NONE, CONNECT, or DISCONNECT
-        // TODO: this will always be none for now. Change once BT changes their API.
         public String expectedConnectionAddress; // Expected device to connect to.
         public String expectedFinalStateName; // Expected name of the final state.
         public BluetoothDevice[] connectedDevices; // array of connected devices
@@ -230,7 +229,7 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
         setupConnectedDevices(new BluetoothDevice[]{device1}, null);
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
                 nullable(ContentResolver.class))).thenReturn(0L);
-        when(mHeadsetProxy.connectAudio()).thenReturn(false);
+        when(mHeadsetProxy.connectAudio(nullable(String.class))).thenReturn(false);
         executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, null);
         // Wait 3 times: for the first connection attempt, the retry attempt,
         // the second retry, and once more to make sure there are only three attempts.
@@ -238,8 +237,7 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
         waitForStateMachineActionCompletion(sm, BluetoothRouteManager.RUN_RUNNABLE);
         waitForStateMachineActionCompletion(sm, BluetoothRouteManager.RUN_RUNNABLE);
         waitForStateMachineActionCompletion(sm, BluetoothRouteManager.RUN_RUNNABLE);
-        // TODO: verify address
-        verify(mHeadsetProxy, times(3)).connectAudio();
+        verify(mHeadsetProxy, times(3)).connectAudio(device1.getAddress());
         assertEquals(BluetoothRouteManager.AUDIO_OFF_STATE_NAME, sm.getCurrentState().getName());
         sm.getHandler().removeMessages(BluetoothRouteManager.CONNECTION_TIMEOUT);
         sm.quitNow();
@@ -252,17 +250,16 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
         setupConnectedDevices(new BluetoothDevice[]{device1, device2}, null);
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
                 nullable(ContentResolver.class))).thenReturn(0L);
-        when(mHeadsetProxy.connectAudio()).thenReturn(false);
+        when(mHeadsetProxy.connectAudio(nullable(String.class))).thenReturn(false);
         executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, device2.getAddress());
         // Wait 3 times: the first connection attempt is accounted for in executeRoutingAction,
-        // so wait twice for the retry attempt, again to make sure there are only two attempts, and
-        // once more for good luck.
+        // so wait twice for the retry attempt, again to make sure there are only three attempts,
+        // and once more for good luck.
         waitForStateMachineActionCompletion(sm, BluetoothRouteManager.RUN_RUNNABLE);
         waitForStateMachineActionCompletion(sm, BluetoothRouteManager.RUN_RUNNABLE);
         waitForStateMachineActionCompletion(sm, BluetoothRouteManager.RUN_RUNNABLE);
         waitForStateMachineActionCompletion(sm, BluetoothRouteManager.RUN_RUNNABLE);
-        // TODO: verify address of device2
-        verify(mHeadsetProxy, times(3)).connectAudio();
+        verify(mHeadsetProxy, times(3)).connectAudio(device2.getAddress());
         assertEquals(BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX
                         + ":" + device1.getAddress(),
                 sm.getCurrentState().getName());
@@ -279,15 +276,13 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
                 BluetoothRouteManager.AUDIO_OFF_STATE_NAME, null);
         setupConnectedDevices(new BluetoothDevice[]{device3, device2, device1}, null);
         executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, device1.getAddress());
-        // TODO: verify address
-        verify(mHeadsetProxy, times(1)).connectAudio();
+        verify(mHeadsetProxy, times(1)).connectAudio(device1.getAddress());
 
         setupConnectedDevices(new BluetoothDevice[]{device3, device2, device1}, device1);
         executeRoutingAction(sm, BluetoothRouteManager.HFP_IS_ON, device1.getAddress());
 
         executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, device2.getAddress());
-        // TODO: verify address
-        verify(mHeadsetProxy, times(2)).connectAudio();
+        verify(mHeadsetProxy, times(1)).connectAudio(device2.getAddress());
 
         setupConnectedDevices(new BluetoothDevice[]{device3, device2, device1}, device2);
         executeRoutingAction(sm, BluetoothRouteManager.HFP_IS_ON, device2.getAddress());
@@ -295,7 +290,7 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
         setupConnectedDevices(new BluetoothDevice[]{device3, device1}, null);
         executeRoutingAction(sm, BluetoothRouteManager.LOST_DEVICE, device2.getAddress());
         // Verify that we've fallen back to device 1
-        verify(mHeadsetProxy, times(3)).connectAudio();
+        verify(mHeadsetProxy, times(2)).connectAudio(device1.getAddress());
         assertEquals(BluetoothRouteManager.AUDIO_CONNECTING_STATE_NAME_PREFIX
                         + ":" + device1.getAddress(),
                 sm.getCurrentState().getName());
@@ -309,7 +304,7 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
         setupConnectedDevices(new BluetoothDevice[]{device3}, null);
         executeRoutingAction(sm, BluetoothRouteManager.LOST_DEVICE, device1.getAddress());
         // Verify that we've fallen back to device 3
-        verify(mHeadsetProxy, times(4)).connectAudio();
+        verify(mHeadsetProxy, times(1)).connectAudio(device3.getAddress());
         assertEquals(BluetoothRouteManager.AUDIO_CONNECTING_STATE_NAME_PREFIX
                         + ":" + device3.getAddress(),
                 sm.getCurrentState().getName());
@@ -332,8 +327,7 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
                 BluetoothRouteManager.AUDIO_OFF_STATE_NAME, null);
         setupConnectedDevices(new BluetoothDevice[]{device3, device2, device1}, null);
         executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, device3.getAddress());
-        // TODO: verify address
-        verify(mHeadsetProxy, times(1)).connectAudio();
+        verify(mHeadsetProxy, times(1)).connectAudio(device3.getAddress());
 
         setupConnectedDevices(new BluetoothDevice[]{device3, device2, device1}, device3);
         executeRoutingAction(sm, BluetoothRouteManager.HFP_IS_ON, device3.getAddress());
@@ -342,7 +336,7 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
         setupConnectedDevices(new BluetoothDevice[]{device2, device1}, null);
         executeRoutingAction(sm, BluetoothRouteManager.LOST_DEVICE, device3.getAddress());
         // Verify that we've fallen back to device 2
-        verify(mHeadsetProxy, times(2)).connectAudio();
+        verify(mHeadsetProxy, times(1)).connectAudio(device2.getAddress());
         assertEquals(BluetoothRouteManager.AUDIO_CONNECTING_STATE_NAME_PREFIX
                         + ":" + device2.getAddress(),
                 sm.getCurrentState().getName());
@@ -356,7 +350,7 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
         setupConnectedDevices(new BluetoothDevice[]{device1}, null);
         executeRoutingAction(sm, BluetoothRouteManager.LOST_DEVICE, device2.getAddress());
         // Verify that we've fallen back to device 1
-        verify(mHeadsetProxy, times(3)).connectAudio();
+        verify(mHeadsetProxy, times(1)).connectAudio(device1.getAddress());
         assertEquals(BluetoothRouteManager.AUDIO_CONNECTING_STATE_NAME_PREFIX
                         + ":" + device1.getAddress(),
                 sm.getCurrentState().getName());
@@ -411,18 +405,17 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
             }
         }
 
-        // TODO: work the address in here
         switch (params.expectedBluetoothInteraction) {
             case NONE:
-                verify(mHeadsetProxy, never()).connectAudio();
+                verify(mHeadsetProxy, never()).connectAudio(nullable(String.class));
                 verify(mHeadsetProxy, never()).disconnectAudio();
                 break;
             case CONNECT:
-                verify(mHeadsetProxy).connectAudio();
+                verify(mHeadsetProxy).connectAudio(params.expectedConnectionAddress);
                 verify(mHeadsetProxy, never()).disconnectAudio();
                 break;
             case DISCONNECT:
-                verify(mHeadsetProxy, never()).connectAudio();
+                verify(mHeadsetProxy, never()).connectAudio(nullable(String.class));
                 verify(mHeadsetProxy).disconnectAudio();
                 break;
         }
@@ -465,7 +458,7 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
         waitForStateMachineActionCompletion(brm, CallAudioModeStateMachine.RUN_RUNNABLE);
     }
 
-    private BluetoothDevice makeBluetoothDevice(String address) {
+    public static BluetoothDevice makeBluetoothDevice(String address) {
         Parcel p1 = Parcel.obtain();
         p1.writeString(address);
         p1.setDataPosition(0);
@@ -483,7 +476,7 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
             mTimeoutsAdapter = mock(Timeouts.Adapter.class);
         }
         when(mDeviceManager.getHeadsetService()).thenReturn(mHeadsetProxy);
-        when(mHeadsetProxy.connectAudio()).thenReturn(true);
+        when(mHeadsetProxy.connectAudio(nullable(String.class))).thenReturn(true);
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
                 nullable(ContentResolver.class))).thenReturn(100000L);
         when(mTimeoutsAdapter.getBluetoothPendingTimeoutMillis(

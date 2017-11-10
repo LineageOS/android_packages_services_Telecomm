@@ -553,14 +553,15 @@ public class ConnectionServiceWrapper extends ServiceBinder {
         }
 
         @Override
-        public void setAudioRoute(String callId, int audioRoute, Session.Info sessionInfo) {
+        public void setAudioRoute(String callId, int audioRoute,
+                String bluetoothAddress, Session.Info sessionInfo) {
             Log.startSession(sessionInfo, "CSW.sAR");
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
                     logIncoming("setAudioRoute %s %s", callId,
                             CallAudioState.audioRouteToString(audioRoute));
-                    mCallsManager.setAudioRoute(audioRoute);
+                    mCallsManager.setAudioRoute(audioRoute, bluetoothAddress);
                 }
             } finally {
                 Binder.restoreCallingIdentity(token);

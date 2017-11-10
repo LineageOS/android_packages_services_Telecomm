@@ -386,13 +386,15 @@ public class CallAudioManager extends CallsManagerListenerBase {
      * Changed the audio route, for example from earpiece to speaker phone.
      *
      * @param route The new audio route to use. See {@link CallAudioState}.
+     * @param bluetoothAddress the address of the desired bluetooth device, if route is
+     * {@link CallAudioState#ROUTE_BLUETOOTH}.
      */
-    void setAudioRoute(int route) {
+    void setAudioRoute(int route, String bluetoothAddress) {
         Log.v(this, "setAudioRoute, route: %s", CallAudioState.audioRouteToString(route));
         switch (route) {
             case CallAudioState.ROUTE_BLUETOOTH:
                 mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
-                        CallAudioRouteStateMachine.USER_SWITCH_BLUETOOTH);
+                        CallAudioRouteStateMachine.USER_SWITCH_BLUETOOTH, 0, bluetoothAddress);
                 return;
             case CallAudioState.ROUTE_SPEAKER:
                 mCallAudioRouteStateMachine.sendMessageWithSessionInfo(

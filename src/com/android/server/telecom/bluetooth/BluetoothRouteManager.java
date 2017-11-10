@@ -61,6 +61,7 @@ public class BluetoothRouteManager extends StateMachine {
          put(HFP_IS_ON, "HFP_IS_ON");
          put(HFP_LOST, "HFP_LOST");
          put(CONNECTION_TIMEOUT, "CONNECTION_TIMEOUT");
+         put(GET_CURRENT_STATE, "GET_CURRENT_STATE");
          put(RUN_RUNNABLE, "RUN_RUNNABLE");
     }};
 
@@ -739,8 +740,7 @@ public class BluetoothRouteManager extends StateMachine {
             Log.w(this, "Trying to connect audio but no headset service exists.");
             return false;
         }
-        // TODO: update once connectAudio supports passing in a device.
-        return bluetoothHeadset.connectAudio();
+        return bluetoothHeadset.connectAudio(address);
     }
 
     private void disconnectAudio() {
