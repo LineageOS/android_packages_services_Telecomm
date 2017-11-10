@@ -69,12 +69,13 @@ public final class CallLogManager extends CallsManagerListenerBase {
          * @param creationDate Time when the call was created (milliseconds since epoch).
          * @param durationInMillis Duration of the call (milliseconds).
          * @param dataUsage Data usage in bytes, or null if not applicable.
+         * @param isRead Indicates if the entry has been read or not.
          * @param logCallCompletedListener optional callback called after the call is logged.
          */
         public AddCallArgs(Context context, CallerInfo callerInfo, String number,
                 String postDialDigits, String viaNumber, int presentation, int callType,
                 int features, PhoneAccountHandle accountHandle, long creationDate,
-                long durationInMillis, Long dataUsage, UserHandle initiatingUser,
+                long durationInMillis, Long dataUsage, UserHandle initiatingUser, boolean isRead,
                 @Nullable LogCallCompletedListener logCallCompletedListener) {
             this.context = context;
             this.callerInfo = callerInfo;
@@ -89,6 +90,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
             this.durationInSec = (int)(durationInMillis / 1000);
             this.dataUsage = dataUsage;
             this.initiatingUser = initiatingUser;
+            this.isRead = isRead;
             this.logCallCompletedListener = logCallCompletedListener;
         }
         // Since the members are accessed directly, we don't use the
@@ -106,6 +108,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
         public final int durationInSec;
         public final Long dataUsage;
         public final UserHandle initiatingUser;
+        public final boolean isRead;
 
         @Nullable
         public final LogCallCompletedListener logCallCompletedListener;
@@ -235,7 +238,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
         logCall(call.getCallerInfo(), logNumber, call.getPostDialDigits(), formattedViaNumber,
                 call.getHandlePresentation(), callLogType, callFeatures, accountHandle,
                 creationTime, age, callDataUsage, call.isEmergencyCall(), call.getInitiatingUser(),
-                logCallCompletedListener);
+                call.isSelfManaged(), logCallCompletedListener);
     }
 
     /**
@@ -253,6 +256,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
      * @param dataUsage The data usage for the call, null if not applicable.
      * @param isEmergency {@code true} if this is an emergency call, {@code false} otherwise.
      * @param logCallCompletedListener optional callback called after the call is logged.
+     * @param initiatingUser The user the call was initiated under.
+     * @param isSelfManaged {@code true} if this is a self-managed call, {@code false} otherwise.
      */
     private void logCall(
             CallerInfo callerInfo,
@@ -268,6 +273,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
             Long dataUsage,
             boolean isEmergency,
             UserHandle initiatingUser,
+            boolean isSelfManaged,
             @Nullable LogCallCompletedListener logCallCompletedListener) {
 
         // On some devices, to avoid accidental redialing of emergency numbers, we *never* log
@@ -289,12 +295,18 @@ public final class CallLogManager extends CallsManagerListenerBase {
         sendAddCallBroadcast(callType, duration);
 
         if (isOkToLogThisCall) {
-            Log.d(TAG, "Logging Calllog entry: " + callerInfo + ", "
+            Log.d(TAG, "Logging Call log entry: " + callerInfo + ", "
                     + Log.pii(number) + "," + presentation + ", " + callType
                     + ", " + start + ", " + duration);
+            boolean isRead = false;
+            if (isSelfManaged) {
+                // Mark self-managed calls are read since they're being handled by their own app.
+                // Their inclusion in the call log is informational only.
+                isRead = true;
+            }
             AddCallArgs args = new AddCallArgs(mContext, callerInfo, number, postDialDigits,
                     viaNumber, presentation, callType, features, accountHandle, start, duration,
-                    dataUsage, initiatingUser, logCallCompletedListener);
+                    dataUsage, initiatingUser, isRead, logCallCompletedListener);
             logCallAsync(args);
         } else {
           Log.d(TAG, "Not adding emergency call to call log.");
@@ -440,7 +452,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
             return Calls.addCall(c.callerInfo, c.context, c.number, c.postDialDigits, c.viaNumber,
                     c.presentation, c.callType, c.features, c.accountHandle, c.timestamp,
                     c.durationInSec, c.dataUsage, userToBeInserted == null,
-                    userToBeInserted);
+                    userToBeInserted, c.isRead);
         }
 
 
