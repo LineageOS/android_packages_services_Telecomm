@@ -328,7 +328,7 @@ public class AnalyticsTests extends TelecomSystemTest {
                         .getCallAudioRouteStateMachine().getHandler(),
                 TEST_TIMEOUT);
         audioRoutes.add(mInCallServiceFixtureX.mCallAudioState.getRoute());
-        mInCallServiceFixtureX.getInCallAdapter().setAudioRoute(CallAudioState.ROUTE_SPEAKER);
+        mInCallServiceFixtureX.getInCallAdapter().setAudioRoute(CallAudioState.ROUTE_SPEAKER, null);
         waitForHandlerAction(
                 mTelecomSystem.getCallsManager().getCallAudioManager()
                         .getCallAudioRouteStateMachine().getHandler(),
