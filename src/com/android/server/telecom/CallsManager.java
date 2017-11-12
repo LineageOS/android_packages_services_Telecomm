@@ -1647,8 +1647,8 @@ public class CallsManager extends Call.ListenerBase
       * Called by the in-call UI to change the audio route, for example to change from earpiece to
       * speaker phone.
       */
-    void setAudioRoute(int route) {
-        mCallAudioManager.setAudioRoute(route);
+    void setAudioRoute(int route, String bluetoothAddress) {
+        mCallAudioManager.setAudioRoute(route, bluetoothAddress);
     }
 
     /** Called by the in-call UI to turn the proximity sensor on. */
@@ -2685,7 +2685,7 @@ public class CallsManager extends Call.ListenerBase
             return;
         }
         if (call.getStartWithSpeakerphoneOn()) {
-            setAudioRoute(CallAudioState.ROUTE_SPEAKER);
+            setAudioRoute(CallAudioState.ROUTE_SPEAKER, null);
             call.setStartWithSpeakerphoneOn(false);
         }
     }
