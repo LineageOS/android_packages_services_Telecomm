@@ -236,6 +236,17 @@ public class TelecomSystem {
         EmergencyCallHelper emergencyCallHelper = new EmergencyCallHelper(mContext,
                 mContext.getResources().getString(R.string.ui_default_package), timeoutsAdapter);
 
+        InCallControllerFactory inCallControllerFactory = new InCallControllerFactory() {
+            @Override
+            public InCallController create(Context context, SyncRoot lock,
+                    CallsManager callsManager, SystemStateProvider systemStateProvider,
+                    DefaultDialerCache defaultDialerCache, Timeouts.Adapter timeoutsAdapter,
+                    EmergencyCallHelper emergencyCallHelper) {
+                return new InCallController(context, lock, callsManager, systemStateProvider,
+                        defaultDialerCache, timeoutsAdapter, emergencyCallHelper);
+            }
+        };
+
         mCallsManager = new CallsManager(
                 mContext,
                 mLock,
@@ -256,7 +267,8 @@ public class TelecomSystem {
                 phoneNumberUtilsAdapter,
                 emergencyCallHelper,
                 toneGeneratorFactory,
-                clockProxy);
+                clockProxy,
+                inCallControllerFactory);
 
         mIncomingCallNotifier = incomingCallNotifier;
         incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {
