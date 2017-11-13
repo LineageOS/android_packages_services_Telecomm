@@ -69,6 +69,7 @@ import com.android.server.telecom.ui.ConfirmCallDialogActivity;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -288,7 +289,8 @@ public class CallsManager extends Call.ListenerBase
     /**
      * Initializes the required Telecom components.
      */
-    CallsManager(
+    @VisibleForTesting
+    public CallsManager(
             Context context,
             TelecomSystem.SyncRoot lock,
             ContactsAsyncHelper contactsAsyncHelper,
@@ -308,7 +310,8 @@ public class CallsManager extends Call.ListenerBase
             PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
             EmergencyCallHelper emergencyCallHelper,
             InCallTonePlayer.ToneGeneratorFactory toneGeneratorFactory,
-            ClockProxy clockProxy) {
+            ClockProxy clockProxy,
+            InCallControllerFactory inCallControllerFactory) {
         mContext = context;
         mLock = lock;
         mPhoneNumberUtilsAdapter = phoneNumberUtilsAdapter;
@@ -353,8 +356,8 @@ public class CallsManager extends Call.ListenerBase
         SystemSettingsUtil systemSettingsUtil = new SystemSettingsUtil();
         RingtoneFactory ringtoneFactory = new RingtoneFactory(this, context);
         SystemVibrator systemVibrator = new SystemVibrator(context);
-        mInCallController = new InCallController(
-                context, mLock, this, systemStateProvider, defaultDialerCache, mTimeoutsAdapter,
+        mInCallController = inCallControllerFactory.create(context, mLock, this,
+                systemStateProvider, defaultDialerCache, mTimeoutsAdapter,
                 emergencyCallHelper);
         mRinger = new Ringer(playerFactory, context, systemSettingsUtil, asyncRingtonePlayer,
                 ringtoneFactory, systemVibrator, mInCallController);
@@ -1033,6 +1036,7 @@ public class CallsManager extends Call.ListenerBase
 
         PhoneAccount account =
                 mPhoneAccountRegistrar.getPhoneAccount(phoneAccountHandle, initiatingUser);
+        boolean isSelfManaged = account != null && account.isSelfManaged();
 
         // Create a call with original handle. The handle may be changed when the call is attached
         // to a connection service, but in most cases will remain the same.
@@ -1058,22 +1062,20 @@ public class CallsManager extends Call.ListenerBase
             // will be overridden when the actual connection is returned in startCreateConnection,
             // however doing this now ensures the logs and any other logic will treat this call as
             // self-managed from the moment it is created.
-            if (account != null) {
-                call.setIsSelfManaged(account.isSelfManaged());
-                if (call.isSelfManaged()) {
-                    // Self-managed calls will ALWAYS use voip audio mode.
-                    call.setIsVoipAudioMode(true);
-                }
+            call.setIsSelfManaged(isSelfManaged);
+            if (isSelfManaged) {
+                // Self-managed calls will ALWAYS use voip audio mode.
+                call.setIsVoipAudioMode(true);
             }
-
             call.setInitiatingUser(initiatingUser);
             isReusedCall = false;
         }
 
+        int videoState = VideoProfile.STATE_AUDIO_ONLY;
         if (extras != null) {
             // Set the video state on the call early so that when it is added to the InCall UI the
             // UI knows to configure itself as a video call immediately.
-            int videoState = extras.getInt(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
+            videoState = extras.getInt(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
                     VideoProfile.STATE_AUDIO_ONLY);
 
             // If this is an emergency video call, we need to check if the phone account supports
@@ -1101,44 +1103,13 @@ public class CallsManager extends Call.ListenerBase
             call.setVideoState(videoState);
         }
 
-        PhoneAccount targetPhoneAccount = mPhoneAccountRegistrar.getPhoneAccount(
-                phoneAccountHandle, initiatingUser);
-        boolean isSelfManaged = targetPhoneAccount != null && targetPhoneAccount.isSelfManaged();
-
-        List<PhoneAccountHandle> accounts;
-        if (!isSelfManaged) {
-            accounts = constructPossiblePhoneAccounts(handle, initiatingUser);
-            Log.v(this, "startOutgoingCall found accounts = " + accounts);
-
-            // Only dial with the requested phoneAccount if it is still valid. Otherwise treat this
-            // call as if a phoneAccount was not specified (does the default behavior instead).
-            // Note: We will not attempt to dial with a requested phoneAccount if it is disabled.
-            if (phoneAccountHandle != null) {
-                if (!accounts.contains(phoneAccountHandle)) {
-                    phoneAccountHandle = null;
-                }
-            }
-
-            if (phoneAccountHandle == null && accounts.size() > 0) {
-                // No preset account, check if default exists that supports the URI scheme for the
-                // handle and verify it can be used.
-                if (accounts.size() > 1) {
-                    PhoneAccountHandle defaultPhoneAccountHandle =
-                            mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(
-                                    handle.getScheme(), initiatingUser);
-                    if (defaultPhoneAccountHandle != null &&
-                            accounts.contains(defaultPhoneAccountHandle)) {
-                        phoneAccountHandle = defaultPhoneAccountHandle;
-                    }
-                } else {
-                    // Use the only PhoneAccount that is available
-                    phoneAccountHandle = accounts.get(0);
-                }
-            }
+        List<PhoneAccountHandle> potentialPhoneAccounts = findOutgoingCallPhoneAccount(
+                phoneAccountHandle, handle, VideoProfile.isVideo(videoState), initiatingUser);
+        if (potentialPhoneAccounts.size() == 1) {
+            phoneAccountHandle = potentialPhoneAccounts.get(0);
         } else {
-            accounts = Collections.EMPTY_LIST;
+            phoneAccountHandle = null;
         }
-
         call.setTargetPhoneAccount(phoneAccountHandle);
 
         boolean isPotentialInCallMMICode = isPotentialInCallMMICode(handle) && !isSelfManaged;
@@ -1159,15 +1130,17 @@ public class CallsManager extends Call.ListenerBase
             return null;
         }
 
-        boolean needsAccountSelection = phoneAccountHandle == null && accounts.size() > 1 &&
-                !call.isEmergencyCall() && !isSelfManaged;
+        boolean needsAccountSelection =
+                phoneAccountHandle == null && potentialPhoneAccounts.size() > 1
+                        && !call.isEmergencyCall() && !isSelfManaged;
 
         if (needsAccountSelection) {
             // This is the state where the user is expected to select an account
             call.setState(CallState.SELECT_PHONE_ACCOUNT, "needs account selection");
             // Create our own instance to modify (since extras may be Bundle.EMPTY)
             extras = new Bundle(extras);
-            extras.putParcelableList(android.telecom.Call.AVAILABLE_PHONE_ACCOUNTS, accounts);
+            extras.putParcelableList(android.telecom.Call.AVAILABLE_PHONE_ACCOUNTS,
+                    potentialPhoneAccounts);
         } else {
             PhoneAccount accountToUse =
                     mPhoneAccountRegistrar.getPhoneAccount(phoneAccountHandle, initiatingUser);
@@ -1209,6 +1182,82 @@ public class CallsManager extends Call.ListenerBase
         }
 
         return call;
+    }
+
+    /**
+     * Finds the {@link PhoneAccountHandle}(s) which could potentially be used to place an outgoing
+     * call.  Takes into account the following:
+     * 1. Any pre-chosen {@link PhoneAccountHandle} which was specified on the
+     * {@link Intent#ACTION_CALL} intent.  If one was chosen it will be used if possible.
+     * 2. Whether the call is a video call.  If the call being placed is a video call, an attempt is
+     * first made to consider video capable phone accounts.  If no video capable phone accounts are
+     * found, the usual non-video capable phone accounts will be considered.
+     * 3. Whether there is a user-chosen default phone account; that one will be used if possible.
+     *
+     * @param targetPhoneAccountHandle The pre-chosen {@link PhoneAccountHandle} passed in when the
+     *                                 call was placed.  Will be {@code null} if the
+     *                                 {@link Intent#ACTION_CALL} intent did not specify a target
+     *                                 phone account.
+     * @param handle The handle of the outgoing call; used to determine the SIP scheme when matching
+     *               phone accounts.
+     * @param isVideo {@code true} if the call is a video call, {@code false} otherwise.
+     * @param initiatingUser The {@link UserHandle} the call is placed on.
+     * @return
+     */
+    @VisibleForTesting
+    public List<PhoneAccountHandle> findOutgoingCallPhoneAccount(
+            PhoneAccountHandle targetPhoneAccountHandle, Uri handle, boolean isVideo,
+            UserHandle initiatingUser) {
+        boolean isSelfManaged = isSelfManaged(targetPhoneAccountHandle, initiatingUser);
+
+        List<PhoneAccountHandle> accounts;
+        if (!isSelfManaged) {
+            // Try to find a potential phone account, taking into account whether this is a video
+            // call.
+            accounts = constructPossiblePhoneAccounts(handle, initiatingUser, isVideo);
+            if (isVideo && accounts.size() == 0) {
+                // Placing a video call but no video capable accounts were found, so consider any
+                // call capable accounts (we can fallback to audio).
+                accounts = constructPossiblePhoneAccounts(handle, initiatingUser,
+                        false /* isVideo */);
+            }
+            Log.v(this, "findOutgoingCallPhoneAccount: accounts = " + accounts);
+
+            // Only dial with the requested phoneAccount if it is still valid. Otherwise treat this
+            // call as if a phoneAccount was not specified (does the default behavior instead).
+            // Note: We will not attempt to dial with a requested phoneAccount if it is disabled.
+            if (targetPhoneAccountHandle != null) {
+                if (!accounts.contains(targetPhoneAccountHandle)) {
+                    targetPhoneAccountHandle = null;
+                }
+            }
+
+            if (targetPhoneAccountHandle == null && accounts.size() > 0) {
+                // No preset account, check if default exists that supports the URI scheme for the
+                // handle and verify it can be used.
+                if (accounts.size() > 1) {
+                    PhoneAccountHandle defaultPhoneAccountHandle =
+                            mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(
+                                    handle.getScheme(), initiatingUser);
+                    if (defaultPhoneAccountHandle != null &&
+                            accounts.contains(defaultPhoneAccountHandle)) {
+                        accounts.clear();
+                        accounts.add(defaultPhoneAccountHandle);
+                    }
+                }
+            }
+        } else {
+            // Self-managed ConnectionServices can only have a single potential account.
+            accounts = Arrays.asList(targetPhoneAccountHandle);
+        }
+        return accounts;
+    }
+
+    private boolean isSelfManaged(PhoneAccountHandle targetPhoneAccountHandle,
+            UserHandle initiatingUser) {
+        PhoneAccount targetPhoneAccount = mPhoneAccountRegistrar.getPhoneAccount(
+                targetPhoneAccountHandle, initiatingUser);
+        return targetPhoneAccount != null && targetPhoneAccount.isSelfManaged();
     }
 
     /**
@@ -1566,12 +1615,17 @@ public class CallsManager extends Call.ListenerBase
     // Construct the list of possible PhoneAccounts that the outgoing call can use based on the
     // active calls in CallsManager. If any of the active calls are on a SIM based PhoneAccount,
     // then include only that SIM based PhoneAccount and any non-SIM PhoneAccounts, such as SIP.
-    private List<PhoneAccountHandle> constructPossiblePhoneAccounts(Uri handle, UserHandle user) {
+    @VisibleForTesting
+    public List<PhoneAccountHandle> constructPossiblePhoneAccounts(Uri handle, UserHandle user,
+            boolean isVideo) {
         if (handle == null) {
             return Collections.emptyList();
         }
+        // If we're specifically looking for video capable accounts, then include that capability,
+        // otherwise specify no additional capability constraints.
         List<PhoneAccountHandle> allAccounts =
-                mPhoneAccountRegistrar.getCallCapablePhoneAccounts(handle.getScheme(), false, user);
+                mPhoneAccountRegistrar.getCallCapablePhoneAccounts(handle.getScheme(), false, user,
+                        isVideo ? PhoneAccount.CAPABILITY_VIDEO_CALLING : 0 /* any */);
         // First check the Radio SIM Technology
         if(mRadioSimVariants == null) {
             TelephonyManager tm = (TelephonyManager) mContext.getSystemService(
@@ -2131,7 +2185,8 @@ public class CallsManager extends Call.ListenerBase
      *
      * @param call The call to add.
      */
-    private void addCall(Call call) {
+    @VisibleForTesting
+    public void addCall(Call call) {
         Trace.beginSection("addCall");
         Log.v(this, "addCall(%s)", call);
         call.addListener(this);
