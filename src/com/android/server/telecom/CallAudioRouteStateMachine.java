@@ -265,7 +265,6 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     } else {
                         removedRoutes |= ROUTE_BLUETOOTH;
                     }
-                    // TODO: update in-call app on the list of BT devices.
                     isHandled = HANDLED;
                     break;
                 case SWITCH_BASELINE_ROUTE:
@@ -276,6 +275,10 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     sendInternalMessage(calculateBaselineRouteMessage(true,
                             msg.arg1 == INCLUDE_BLUETOOTH_IN_BASELINE));
                     return HANDLED;
+                case USER_SWITCH_BLUETOOTH:
+                    // If the user tries to switch to BT, reset the explicitly-switched-away flag.
+                    mHasUserExplicitlyLeftBluetooth = false;
+                    return NOT_HANDLED;
                 case SWITCH_FOCUS:
                     mAudioFocusType = msg.arg1;
                     return NOT_HANDLED;
@@ -283,10 +286,12 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     return NOT_HANDLED;
             }
 
-            if (addedRoutes != 0 || removedRoutes != 0) {
+            if (addedRoutes != 0 || removedRoutes != 0
+                    || msg.what == BLUETOOTH_DEVICE_LIST_CHANGED) {
                 mAvailableRoutes = modifyRoutes(mAvailableRoutes, removedRoutes, addedRoutes, true);
                 mDeviceSupportedRoutes = modifyRoutes(mDeviceSupportedRoutes, removedRoutes,
                         addedRoutes, false);
+                updateSystemAudioState();
             }
 
             return isHandled;
@@ -467,18 +472,15 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     } else {
                         Log.i(this, "Not switching to BT route from earpiece because user has " +
                                 "explicitly disconnected.");
-                        updateSystemAudioState();
                     }
                     return HANDLED;
                 case DISCONNECT_BLUETOOTH:
-                    updateSystemAudioState();
                     // No change in audio route required
                     return HANDLED;
                 case DISCONNECT_WIRED_HEADSET:
                     Log.e(this, new IllegalStateException(),
                             "Wired headset should not go from connected to not when on " +
                             "earpiece");
-                    updateSystemAudioState();
                     return HANDLED;
                 case BT_AUDIO_DISCONNECTED:
                     // This may be sent as a confirmation by the BT stack after switch off BT.
@@ -657,8 +659,6 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 case CONNECT_WIRED_HEADSET:
                     Log.e(this, new IllegalStateException(),
                             "Wired headset should already be connected.");
-                    mAvailableRoutes |= ROUTE_WIRED_HEADSET;
-                    updateSystemAudioState();
                     return HANDLED;
                 case CONNECT_BLUETOOTH:
                     if (!mHasUserExplicitlyLeftBluetooth) {
@@ -666,11 +666,9 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     } else {
                         Log.i(this, "Not switching to BT route from headset because user has " +
                                 "explicitly disconnected.");
-                        updateSystemAudioState();
                     }
                     return HANDLED;
                 case DISCONNECT_BLUETOOTH:
-                    updateSystemAudioState();
                     // No change in audio route required
                     return HANDLED;
                 case DISCONNECT_WIRED_HEADSET:
@@ -975,7 +973,6 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     mWasOnSpeaker = false;
                     return HANDLED;
                 case DISCONNECT_WIRED_HEADSET:
-                    updateSystemAudioState();
                     // No change in audio route required
                     return HANDLED;
                 case CONNECT_DOCK:
@@ -1009,7 +1006,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
             setBluetoothOff();
             CallAudioState newState = new CallAudioState(mIsMuted, ROUTE_SPEAKER,
                     mAvailableRoutes, null, mBluetoothRouteManager.getConnectedDevices());
-            setSystemAudioState(newState);
+            setSystemAudioState(newState, true);
             updateInternalCallAudioState();
         }
 
@@ -1175,15 +1172,12 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     } else {
                         Log.i(this, "Not switching to BT route from speaker because user has " +
                                 "explicitly disconnected.");
-                        updateSystemAudioState();
                     }
                     return HANDLED;
                 case DISCONNECT_BLUETOOTH:
-                    updateSystemAudioState();
                     // No change in audio route required
                     return HANDLED;
                 case DISCONNECT_WIRED_HEADSET:
-                    updateSystemAudioState();
                     // No change in audio route required
                     return HANDLED;
                 case BT_AUDIO_DISCONNECTED:
