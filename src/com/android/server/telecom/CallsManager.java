@@ -2948,10 +2948,10 @@ public class CallsManager extends Call.ListenerBase
             // Only permit outgoing calls if there is no ongoing emergency calls and all other calls
             // are associated with the current PhoneAccountHandle.
             return !hasEmergencyCall() && (
-                    excludeCall.getHandoverSourceCall() != null ||
-                            (!hasMaximumSelfManagedCalls(excludeCall, phoneAccountHandle) &&
-                            !hasCallsForOtherPhoneAccount(phoneAccountHandle) &&
-                            !hasManagedCalls()));
+                    (excludeCall != null && excludeCall.getHandoverSourceCall() != null) || (
+                            !hasMaximumSelfManagedCalls(excludeCall, phoneAccountHandle)
+                                    && !hasCallsForOtherPhoneAccount(phoneAccountHandle)
+                                    && !hasManagedCalls()));
         }
     }
 
