@@ -22,6 +22,7 @@ import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.Ringtone;
 import android.os.Bundle;
+import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -78,8 +79,8 @@ public class RingerTest extends TelecomTestCase {
         assertFalse(mRingerUnderTest.startRinging(mockCall2, false));
         verify(mockTonePlayer, never()).stopTone();
         verify(mockRingtonePlayer, never()).play(any(RingtoneFactory.class), any(Call.class));
-        verify(mockVibrator, never()).vibrate(
-                any(long[].class), anyInt(), any(AudioAttributes.class));
+        verify(mockVibrator, never())
+                .vibrate(any(VibrationEffect.class), any(AudioAttributes.class));
     }
 
     @SmallTest
@@ -90,8 +91,8 @@ public class RingerTest extends TelecomTestCase {
         assertFalse(mRingerUnderTest.startRinging(mockCall2, false));
         verify(mockTonePlayer, never()).stopTone();
         verify(mockRingtonePlayer, never()).play(any(RingtoneFactory.class), any(Call.class));
-        verify(mockVibrator, never()).vibrate(
-                any(long[].class), anyInt(), any(AudioAttributes.class));
+        verify(mockVibrator, never())
+                .vibrate(any(VibrationEffect.class), any(AudioAttributes.class));
     }
 
     @SmallTest
@@ -103,8 +104,8 @@ public class RingerTest extends TelecomTestCase {
         assertTrue(mRingerUnderTest.startRinging(mockCall2, false));
         verify(mockTonePlayer, never()).stopTone();
         verify(mockRingtonePlayer, never()).play(any(RingtoneFactory.class), any(Call.class));
-        verify(mockVibrator, never()).vibrate(
-                any(long[].class), anyInt(), any(AudioAttributes.class));
+        verify(mockVibrator, never())
+                .vibrate(any(VibrationEffect.class), any(AudioAttributes.class));
     }
 
     @SmallTest
@@ -116,8 +117,8 @@ public class RingerTest extends TelecomTestCase {
         assertTrue(mRingerUnderTest.startRinging(mockCall2, true));
         verify(mockTonePlayer, never()).stopTone();
         verify(mockRingtonePlayer, never()).play(any(RingtoneFactory.class), any(Call.class));
-        verify(mockVibrator, never()).vibrate(
-                any(long[].class), anyInt(), any(AudioAttributes.class));
+        verify(mockVibrator, never())
+                .vibrate(any(VibrationEffect.class), any(AudioAttributes.class));
     }
 
     @SmallTest
@@ -132,8 +133,8 @@ public class RingerTest extends TelecomTestCase {
         assertFalse(mRingerUnderTest.startRinging(mockCall2, false));
         verify(mockTonePlayer).stopTone();
         verify(mockRingtonePlayer, never()).play(any(RingtoneFactory.class), any(Call.class));
-        verify(mockVibrator, never()).vibrate(
-                any(long[].class), anyInt(), any(AudioAttributes.class));
+        verify(mockVibrator, never())
+                .vibrate(any(VibrationEffect.class), any(AudioAttributes.class));
     }
 
     @SmallTest
@@ -145,8 +146,7 @@ public class RingerTest extends TelecomTestCase {
         assertFalse(mRingerUnderTest.startRinging(mockCall2, false));
         verify(mockTonePlayer).stopTone();
         verify(mockRingtonePlayer, never()).play(any(RingtoneFactory.class), any(Call.class));
-        verify(mockVibrator).vibrate(
-                any(long[].class), anyInt(), any(AudioAttributes.class));
+        verify(mockVibrator).vibrate(any(VibrationEffect.class), any(AudioAttributes.class));
     }
 
     @SmallTest
@@ -160,8 +160,7 @@ public class RingerTest extends TelecomTestCase {
         assertFalse(mRingerUnderTest.startRinging(mockCall2, false));
         verify(mockTonePlayer).stopTone();
         verify(mockRingtonePlayer, never()).play(any(RingtoneFactory.class), any(Call.class));
-        verify(mockVibrator).vibrate(
-                any(long[].class), anyInt(), any(AudioAttributes.class));
+        verify(mockVibrator).vibrate(any(VibrationEffect.class), any(AudioAttributes.class));
     }
 
     @SmallTest
@@ -172,8 +171,8 @@ public class RingerTest extends TelecomTestCase {
         assertTrue(mRingerUnderTest.startRinging(mockCall2, false));
         verify(mockTonePlayer).stopTone();
         verify(mockRingtonePlayer).play(any(RingtoneFactory.class), any(Call.class));
-        verify(mockVibrator, never()).vibrate(
-                any(long[].class), anyInt(), any(AudioAttributes.class));
+        verify(mockVibrator, never())
+                .vibrate(any(VibrationEffect.class), any(AudioAttributes.class));
     }
 
     @SmallTest
@@ -187,8 +186,8 @@ public class RingerTest extends TelecomTestCase {
         assertTrue(mRingerUnderTest.startRinging(mockCall2, true));
         verify(mockTonePlayer).stopTone();
         verify(mockRingtonePlayer, never()).play(any(RingtoneFactory.class), any(Call.class));
-        verify(mockVibrator, never()).vibrate(
-                any(long[].class), anyInt(), any(AudioAttributes.class));
+        verify(mockVibrator, never())
+                .vibrate(any(VibrationEffect.class), any(AudioAttributes.class));
     }
 
     @SmallTest
@@ -201,8 +200,8 @@ public class RingerTest extends TelecomTestCase {
         assertTrue(mRingerUnderTest.startRinging(mockCall2, true));
         verify(mockTonePlayer).stopTone();
         verify(mockRingtonePlayer, never()).play(any(RingtoneFactory.class), any(Call.class));
-        verify(mockVibrator, never()).vibrate(
-                any(long[].class), anyInt(), any(AudioAttributes.class));
+        verify(mockVibrator, never())
+                .vibrate(any(VibrationEffect.class), any(AudioAttributes.class));
     }
 
     private void ensureRingerIsAudible() {
