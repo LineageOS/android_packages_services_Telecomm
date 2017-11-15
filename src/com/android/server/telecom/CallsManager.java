@@ -1229,6 +1229,9 @@ public class CallsManager extends Call.ListenerBase
             if (targetPhoneAccountHandle != null) {
                 if (!accounts.contains(targetPhoneAccountHandle)) {
                     targetPhoneAccountHandle = null;
+                } else {
+                    // The target phone account is valid and was found.
+                    return Arrays.asList(targetPhoneAccountHandle);
                 }
             }
 
