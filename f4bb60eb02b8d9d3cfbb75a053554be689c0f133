@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "035e79ee_d0a90332",
+        "filename": "src/com/android/server/telecom/CallIntentProcessor.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 10067
+      },
+      "writtenOn": "2017-11-15T17:41:52Z",
+      "side": 1,
+      "message": "Does it have to be an `else if` case to isSkipSchemaParsing?",
+      "range": {
+        "startLine": 119,
+        "startChar": 9,
+        "endLine": 119,
+        "endChar": 60
+      },
+      "revId": "f4bb60eb02b8d9d3cfbb75a053554be689c0f133",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
