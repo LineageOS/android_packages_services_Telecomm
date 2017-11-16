@@ -2044,6 +2044,17 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
     }
 
     /**
+     * Initiates a handover of this Call to the {@link ConnectionService} identified
+     * by destAcct.
+     * @param destAcct ConnectionService to which the call should be handed over.
+     * @param videoState The video state desired after the handover.
+     * @param extras Extra information to be passed to ConnectionService
+     */
+    public void handoverTo(PhoneAccountHandle destAcct, int videoState, Bundle extras) {
+        // TODO: Call requestHandover(destAcct, videoState, extras);
+    }
+
+    /**
      * Sets this {@link Call} to has the specified {@code parentCall}.  Also sets the parent to
      * have this call as a child.
      * @param parentCall
