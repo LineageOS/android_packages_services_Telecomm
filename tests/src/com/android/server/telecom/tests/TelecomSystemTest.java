@@ -578,8 +578,13 @@ public class TelecomSystemTest extends TelecomTestCase {
         int startingNumConnections = connectionServiceFixture.mConnectionById.size();
         int startingNumCalls = mInCallServiceFixtureX.mCallById.size();
 
-        startOutgoingPhoneCallPendingCreateConnection(number, phoneAccountHandle,
+        String callId = startOutgoingPhoneCallPendingCreateConnection(number, phoneAccountHandle,
                 connectionServiceFixture, initiatingUser, videoState);
+        // Set the phone account if there is one specified
+        if (phoneAccountHandle != null) {
+            mInCallServiceFixtureX.getInCallAdapter().phoneAccountSelected(
+                    callId, phoneAccountHandle, false);
+        }
 
         return outgoingCallCreateConnectionComplete(startingNumConnections, startingNumCalls,
                 phoneAccountHandle, connectionServiceFixture);
