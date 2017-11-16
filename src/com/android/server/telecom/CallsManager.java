@@ -3325,4 +3325,8 @@ public class CallsManager extends Call.ListenerBase
         }
         return ;
     }
+
+    public void acceptHandover(Uri srcAddr, int videoState, PhoneAccountHandle destAcct) {
+        // TODO:
+    }
 }
