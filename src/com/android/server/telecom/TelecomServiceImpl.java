@@ -1082,6 +1082,42 @@ public class TelecomServiceImpl {
         }
 
         /**
+         * @see android.telecom.TelecomManager#acceptHandover
+         */
+        @Override
+        public void acceptHandover(Uri srcAddr, int videoState, PhoneAccountHandle destAcct) {
+            try {
+                Log.startSession("TSI.aHO");
+                synchronized (mLock) {
+                    Log.i(this, "Handover call to phoneAccountHandle %s",
+                            destAcct);
+                    if (destAcct != null && destAcct.getComponentName() != null) {
+                        mAppOpsManager.checkPackage(
+                                Binder.getCallingUid(),
+                                destAcct.getComponentName().getPackageName());
+                        enforceUserHandleMatchesCaller(destAcct);
+                        enforcePhoneAccountIsRegisteredEnabled(destAcct,
+                                Binder.getCallingUserHandle());
+                        if (isSelfManagedConnectionService(destAcct)) {
+                            // Self-managed phone account, ensure it has MANAGE_OWN_CALLS.
+                            mContext.enforceCallingOrSelfPermission(
+                                    android.Manifest.permission.MANAGE_OWN_CALLS,
+                                    "Self-managed phone accounts must have MANAGE_OWN_CALLS " +
+                                            "permission.");
+                        }
+
+                        mCallsManager.acceptHandover(srcAddr, videoState, destAcct);
+                    } else {
+                        Log.w(this, "Null phoneAccountHandle. Ignoring request " +
+                                "to handover the call");
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        /**
          * @see android.telecom.TelecomManager#addNewUnknownCall
          */
         @Override

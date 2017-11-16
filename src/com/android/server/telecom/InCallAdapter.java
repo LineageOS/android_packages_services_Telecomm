@@ -577,4 +577,27 @@ class InCallAdapter extends IInCallAdapter.Stub {
             Log.endSession();
         }
     }
+
+    @Override
+    public void handoverTo(String callId, PhoneAccountHandle destAcct, int videoState,
+                           Bundle extras) {
+        try {
+            Log.startSession("ICA.hT", mOwnerComponentName);
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        call.handoverTo(destAcct, videoState, extras);
+                    } else {
+                        Log.w(this, "handoverTo, unknown call id: %s", callId);
+                    }
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+        } finally {
+            Log.endSession();
+        }
+    }
 }
