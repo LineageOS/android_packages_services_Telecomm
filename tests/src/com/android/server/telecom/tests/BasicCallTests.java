@@ -858,26 +858,6 @@ public class BasicCallTests extends TelecomSystemTest {
                 .pullExternalCall(eq(ids.mConnectionId), any());
     }
 
-    @LargeTest
-    public void testEmergencyCallFailMoveToSecondSim() throws Exception {
-        IdPair ids = startAndMakeDialingEmergencyCall("650-555-1212",
-                mPhoneAccountE0.getAccountHandle(), mConnectionServiceFixtureA);
-        assertEquals(Call.STATE_DIALING, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
-        assertEquals(Call.STATE_DIALING, mInCallServiceFixtureY.getCall(ids.mCallId).getState());
-
-        // The Emergency Call has failed on the default SIM with an ERROR Disconnect Cause. Retry
-        // with the other SIM PhoneAccount
-        IdPair newIds = triggerEmergencyRedial(mPhoneAccountE1.getAccountHandle(),
-                mConnectionServiceFixtureA, ids);
-
-        // Call should be active on the E1 PhoneAccount
-        mConnectionServiceFixtureA.sendSetActive(newIds.mConnectionId);
-        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(newIds.mCallId).getState());
-        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureY.getCall(newIds.mCallId).getState());
-        assertEquals(mInCallServiceFixtureX.getCall(ids.mCallId).getAccountHandle(),
-                mPhoneAccountE1.getAccountHandle());
-    }
-
     /**
      * Test scenario where the user starts an outgoing video call with no selected PhoneAccount, and
      * then subsequently selects a PhoneAccount which supports video calling.
