@@ -315,6 +315,25 @@ public class CallsManagerTest extends TelecomTestCase {
         assertTrue(accounts.contains(SIM_1_HANDLE));
     }
 
+    /**
+     * Tests that we will use the provided target phone account if it exists.
+     * @throws Exception
+     */
+    @MediumTest
+    public void testUseSpecifiedAccount() throws Exception {
+        when(mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(any(), any())).thenReturn(
+                null);
+        when(mPhoneAccountRegistrar.getCallCapablePhoneAccounts(any(), anyBoolean(),
+                any(), anyInt())).thenReturn(
+                new ArrayList<>(Arrays.asList(SIM_1_HANDLE, SIM_2_HANDLE)));
+
+        List<PhoneAccountHandle> accounts = mCallsManager.findOutgoingCallPhoneAccount(
+                SIM_2_HANDLE, TEST_ADDRESS, false /* isVideo */, null /* userHandle */);
+
+        assertEquals(1, accounts.size());
+        assertTrue(accounts.contains(SIM_2_HANDLE));
+    }
+
     private void setupMsimAccounts() {
         TelephonyManager mockTelephonyManager = mComponentContextFixture.getTelephonyManager();
         when(mockTelephonyManager.getMultiSimConfiguration()).thenReturn(
