@@ -22,6 +22,24 @@
       "revId": "f4bb60eb02b8d9d3cfbb75a053554be689c0f133",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f135e4d9_73ed4588",
+        "filename": "src/com/android/server/telecom/CallIntentProcessor.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1063
+      },
+      "writtenOn": "2017-11-17T05:27:55Z",
+      "side": 1,
+      "message": "Aren\u0027t you essentially reconstructing handle here? That is, re-build it from its parts, so that the operation essentially is a no-op, which means that adding another condition to the SCHEME_VOICEMAIL check would work equally well?",
+      "parentUuid": "",
+      "revId": "f4bb60eb02b8d9d3cfbb75a053554be689c0f133",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
