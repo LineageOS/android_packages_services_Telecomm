@@ -578,13 +578,8 @@ public class TelecomSystemTest extends TelecomTestCase {
         int startingNumConnections = connectionServiceFixture.mConnectionById.size();
         int startingNumCalls = mInCallServiceFixtureX.mCallById.size();
 
-        String callId = startOutgoingPhoneCallPendingCreateConnection(number, phoneAccountHandle,
+        startOutgoingPhoneCallPendingCreateConnection(number, phoneAccountHandle,
                 connectionServiceFixture, initiatingUser, videoState);
-        // Set the phone account if there is one specified
-        if (phoneAccountHandle != null) {
-            mInCallServiceFixtureX.getInCallAdapter().phoneAccountSelected(
-                    callId, phoneAccountHandle, false);
-        }
 
         return outgoingCallCreateConnectionComplete(startingNumConnections, startingNumCalls,
                 phoneAccountHandle, connectionServiceFixture);
@@ -847,34 +842,35 @@ public class TelecomSystemTest extends TelecomTestCase {
         // is added, future interactions as triggered by the ConnectionService, through the various
         // test fixtures, will be synchronous.
 
-        if (!hasInCallAdapter
-                && phoneAccountHandle != mPhoneAccountSelfManaged.getAccountHandle()) {
-            verify(mInCallServiceFixtureX.getTestDouble(), timeout(TEST_TIMEOUT))
-                    .setInCallAdapter(any(IInCallAdapter.class));
-            verify(mInCallServiceFixtureY.getTestDouble(), timeout(TEST_TIMEOUT))
-                    .setInCallAdapter(any(IInCallAdapter.class));
+        if (phoneAccountHandle != mPhoneAccountSelfManaged.getAccountHandle()) {
+            if (!hasInCallAdapter) {
+                verify(mInCallServiceFixtureX.getTestDouble(), timeout(TEST_TIMEOUT))
+                        .setInCallAdapter(any(IInCallAdapter.class));
+                verify(mInCallServiceFixtureY.getTestDouble(), timeout(TEST_TIMEOUT))
+                        .setInCallAdapter(any(IInCallAdapter.class));
 
-            // Give the InCallService time to respond
-            assertTrueWithTimeout(new Predicate<Void>() {
-                @Override
-                public boolean apply(Void v) {
-                    return mInCallServiceFixtureX.mInCallAdapter != null;
-                }
-            });
+                // Give the InCallService time to respond
+                assertTrueWithTimeout(new Predicate<Void>() {
+                    @Override
+                    public boolean apply(Void v) {
+                        return mInCallServiceFixtureX.mInCallAdapter != null;
+                    }
+                });
 
-            assertTrueWithTimeout(new Predicate<Void>() {
-                @Override
-                public boolean apply(Void v) {
-                    return mInCallServiceFixtureY.mInCallAdapter != null;
-                }
-            });
+                assertTrueWithTimeout(new Predicate<Void>() {
+                    @Override
+                    public boolean apply(Void v) {
+                        return mInCallServiceFixtureY.mInCallAdapter != null;
+                    }
+                });
 
-            verify(mInCallServiceFixtureX.getTestDouble(), timeout(TEST_TIMEOUT))
-                    .addCall(any(ParcelableCall.class));
-            verify(mInCallServiceFixtureY.getTestDouble(), timeout(TEST_TIMEOUT))
-                    .addCall(any(ParcelableCall.class));
+                verify(mInCallServiceFixtureX.getTestDouble(), timeout(TEST_TIMEOUT))
+                        .addCall(any(ParcelableCall.class));
+                verify(mInCallServiceFixtureY.getTestDouble(), timeout(TEST_TIMEOUT))
+                        .addCall(any(ParcelableCall.class));
 
-            // Give the InCallService time to respond
+                // Give the InCallService time to respond
+            }
 
             assertTrueWithTimeout(new Predicate<Void>() {
                 @Override
@@ -883,18 +879,11 @@ public class TelecomSystemTest extends TelecomTestCase {
                             connectionServiceFixture.mConnectionById.size();
                 }
             });
-            assertTrueWithTimeout(new Predicate<Void>() {
-                @Override
-                public boolean apply(Void v) {
-                    return startingNumCalls + 1 == mInCallServiceFixtureX.mCallById.size();
-                }
-            });
-            assertTrueWithTimeout(new Predicate<Void>() {
-                @Override
-                public boolean apply(Void v) {
-                    return startingNumCalls + 1 == mInCallServiceFixtureY.mCallById.size();
-                }
-            });
+
+            mInCallServiceFixtureX.waitUntilNumCalls(startingNumCalls + 1);
+            mInCallServiceFixtureY.waitUntilNumCalls(startingNumCalls + 1);
+            assertEquals(startingNumCalls + 1, mInCallServiceFixtureX.mCallById.size());
+            assertEquals(startingNumCalls + 1, mInCallServiceFixtureY.mCallById.size());
 
             assertEquals(mInCallServiceFixtureX.mLatestCallId,
                     mInCallServiceFixtureY.mLatestCallId);
