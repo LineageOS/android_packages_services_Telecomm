@@ -55,6 +55,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.timeout;
@@ -1145,7 +1146,8 @@ public class CallAudioRouteStateMachineTest
 
     private void resetMocks() {
         reset(mockAudioManager, mockBluetoothRouteManager, mockCallsManager,
-                mockConnectionServiceWrapper, fakeCall);
+                mockConnectionServiceWrapper);
+        fakeCall = mock(Call.class);
         when(mockCallsManager.getForegroundCall()).thenReturn(fakeCall);
         when(fakeCall.getConnectionService()).thenReturn(mockConnectionServiceWrapper);
         when(fakeCall.isAlive()).thenReturn(true);
