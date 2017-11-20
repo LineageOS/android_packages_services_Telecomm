@@ -18,8 +18,11 @@ package com.android.server.telecom.tests;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyChar;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.ComponentName;
@@ -37,6 +40,7 @@ import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallerInfoAsyncQueryFactory;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.ClockProxy;
+import com.android.server.telecom.ConnectionServiceWrapper;
 import com.android.server.telecom.ContactsAsyncHelper;
 import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.EmergencyCallHelper;
@@ -59,6 +63,7 @@ import com.android.server.telecom.WiredHeadsetManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
@@ -332,6 +337,65 @@ public class CallsManagerTest extends TelecomTestCase {
 
         assertEquals(1, accounts.size());
         assertTrue(accounts.contains(SIM_2_HANDLE));
+    }
+
+    /**
+     * Verifies that an active call will result in playing a DTMF tone when requested.
+     * @throws Exception
+     */
+    @MediumTest
+    public void testPlayDtmfWhenActive() throws Exception {
+        Call callSpy = addSpyCall();
+        mCallsManager.playDtmfTone(callSpy, '1');
+        verify(callSpy).playDtmfTone(anyChar());
+    }
+
+    /**
+     * Verifies that DTMF requests are suppressed when a call is held.
+     * @throws Exception
+     */
+    @MediumTest
+    public void testSuppessDtmfWhenHeld() throws Exception {
+        Call callSpy = addSpyCall();
+        callSpy.setState(CallState.ON_HOLD, "test");
+
+        mCallsManager.playDtmfTone(callSpy, '1');
+        verify(callSpy, never()).playDtmfTone(anyChar());
+    }
+
+    /**
+     * Verifies that DTMF requests are suppressed when a call is held.
+     * @throws Exception
+     */
+    @MediumTest
+    public void testCancelDtmfWhenHeld() throws Exception {
+        Call callSpy = addSpyCall();
+        mCallsManager.playDtmfTone(callSpy, '1');
+        mCallsManager.markCallAsOnHold(callSpy);
+        verify(callSpy).stopDtmfTone();
+    }
+
+    private Call addSpyCall() {
+        Call ongoingCall = new Call("1", /* callId */
+                mComponentContextFixture.getTestDouble(),
+                mCallsManager,
+                mLock, /* ConnectionServiceRepository */
+                null,
+                mContactsAsyncHelper,
+                mCallerInfoAsyncQueryFactory,
+                mPhoneNumberUtilsAdapter,
+                TEST_ADDRESS,
+                null /* GatewayInfo */,
+                null /* connectionManagerPhoneAccountHandle */,
+                SIM_2_HANDLE,
+                Call.CALL_DIRECTION_INCOMING,
+                false /* shouldAttachToExistingConnection*/,
+                false /* isConference */,
+                mClockProxy);
+        ongoingCall.setState(CallState.ACTIVE, "just cuz");
+        Call callSpy = Mockito.spy(ongoingCall);
+        mCallsManager.addCall(callSpy);
+        return callSpy;
     }
 
     private void setupMsimAccounts() {

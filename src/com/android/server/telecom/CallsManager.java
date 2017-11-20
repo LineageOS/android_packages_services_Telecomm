@@ -1492,8 +1492,12 @@ public class CallsManager extends Call.ListenerBase
         if (!mCalls.contains(call)) {
             Log.i(this, "Request to play DTMF in a non-existent call %s", call);
         } else {
-            call.playDtmfTone(digit);
-            mDtmfLocalTonePlayer.playTone(call, digit);
+            if (call.getState() != CallState.ON_HOLD) {
+                call.playDtmfTone(digit);
+                mDtmfLocalTonePlayer.playTone(call, digit);
+            } else {
+                Log.i(this, "Request to play DTMF tone for held call %s", call.getId());
+            }
         }
     }
 
@@ -1791,7 +1795,8 @@ public class CallsManager extends Call.ListenerBase
         maybeMoveToSpeakerPhone(call);
     }
 
-    void markCallAsOnHold(Call call) {
+    @VisibleForTesting
+    public void markCallAsOnHold(Call call) {
         setCallState(call, CallState.ON_HOLD, "on-hold set explicitly");
     }
 
@@ -2262,6 +2267,12 @@ public class CallsManager extends Call.ListenerBase
         Log.i(this, "setCallState %s -> %s, call: %s", CallState.toString(oldState),
                 CallState.toString(newState), call);
         if (newState != oldState) {
+            // If the call switches to held state while a DTMF tone is playing, stop the tone to
+            // ensure that the tone generator stops playing the tone.
+            if (newState == CallState.ON_HOLD && call.isDtmfTonePlaying()) {
+                stopDtmfTone(call);
+            }
+
             // Unfortunately, in the telephony world the radio is king. So if the call notifies
             // us that the call is in a particular state, we allow it even if it doesn't make
             // sense (e.g., STATE_ACTIVE -> STATE_RINGING).
