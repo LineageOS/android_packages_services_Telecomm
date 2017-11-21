@@ -138,6 +138,10 @@ public class InCallServiceFixture implements TestFixture<IInCallService> {
         public IInterface queryLocalInterface(String descriptor) {
             return this;
         }
+
+        @Override
+        public void onHandoverFailed(String callId, int error) {}
+
     }
 
     private IInCallService.Stub mInCallServiceFake = new FakeInCallService();
