@@ -92,6 +92,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
     private static final int RTT_PIPE_WRITE_SIDE_INDEX = 1;
 
     private static final int INVALID_RTT_REQUEST_ID = -1;
+
+    private static final char NO_DTMF_TONE = '\0';
+
     /**
      * Listener for events on the call.
      */
@@ -403,6 +406,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
     private final String mId;
     private String mConnectionId;
     private Analytics.CallInfo mAnalytics;
+    private char mPlayingDtmfTone;
 
     private boolean mWasConferencePreviouslyMerged = false;
     private boolean mWasHighDefAudio = false;
@@ -1571,7 +1575,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
     /**
      * Plays the specified DTMF tone.
      */
-    void playDtmfTone(char digit) {
+    @VisibleForTesting
+    public void playDtmfTone(char digit) {
         if (mConnectionService == null) {
             Log.w(this, "playDtmfTone() request on a call without a connection service.");
         } else {
@@ -1579,12 +1584,14 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
             mConnectionService.playDtmfTone(this, digit);
             Log.addEvent(this, LogUtils.Events.START_DTMF, Log.pii(digit));
         }
+        mPlayingDtmfTone = digit;
     }
 
     /**
      * Stops playing any currently playing DTMF tone.
      */
-    void stopDtmfTone() {
+    @VisibleForTesting
+    public void stopDtmfTone() {
         if (mConnectionService == null) {
             Log.w(this, "stopDtmfTone() request on a call without a connection service.");
         } else {
@@ -1592,6 +1599,15 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
             Log.addEvent(this, LogUtils.Events.STOP_DTMF);
             mConnectionService.stopDtmfTone(this);
         }
+        mPlayingDtmfTone = NO_DTMF_TONE;
+    }
+
+    /**
+     * @return {@code true} if a DTMF tone has been started via {@link #playDtmfTone(char)} but has
+     * not been stopped via {@link #stopDtmfTone()}, {@code false} otherwise.
+     */
+    boolean isDtmfTonePlaying() {
+        return mPlayingDtmfTone != NO_DTMF_TONE;
     }
 
     /**
