@@ -54,9 +54,8 @@ import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
 
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
-import org.mockito.compat.ArgumentMatcher;
-import org.mockito.internal.matchers.VarargMatcher;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -108,22 +107,15 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         }
     }
 
-    private static class AnyStringIn extends ArgumentMatcher<String> {
+    private static class AnyStringIn implements ArgumentMatcher<String> {
         private Collection<String> mStrings;
         public AnyStringIn(Collection<String> strings) {
             this.mStrings = strings;
         }
 
         @Override
-        public boolean matchesObject(Object string) {
+        public boolean matches(String string) {
             return mStrings.contains(string);
-        }
-    }
-
-    private static class IntVarArgMatcher extends ArgumentMatcher<int[]> implements VarargMatcher {
-        @Override
-        public boolean matchesObject(Object argument) {
-            return true;
         }
     }
 
@@ -822,7 +814,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     public void testEndCallWithNoForegroundCall() throws Exception {
         Call call = mock(Call.class);
         when(call.getState()).thenReturn(CallState.ACTIVE);
-        when(mFakeCallsManager.getFirstCallWithState(argThat(new IntVarArgMatcher())))
+        when(mFakeCallsManager.getFirstCallWithState(any()))
                 .thenReturn(call);
         assertTrue(mTSIBinder.endCall());
         verify(call).disconnect();
