@@ -57,7 +57,7 @@
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"حظر المكالمات والرسائل النصية من"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"رقم الهاتف"</string>
     <string name="block_button" msgid="8822290682524373357">"حظر"</string>
-    <string name="non_primary_user" msgid="5180129233352533459">"يمكن لمالك الجهاز فقط الاطلاع على الأرقام المحظورة وإدارتها."</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"يمكن لمالك الجهاز فقط الاطّلاع على الأرقام المحظورة وإدارتها."</string>
     <string name="delete_icon_description" msgid="8903995728252556724">"إلغاء الحظر"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"تم إيقاف الحظر مؤقتًا"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"بعد الاتصال الهاتفي أو إرسال رسالة نصية إلى رقم طوارئ، يتم إيقاف تشغيل الحظر لضمان تمكن خدمات الطوارئ من الاتصال بك."</string>
