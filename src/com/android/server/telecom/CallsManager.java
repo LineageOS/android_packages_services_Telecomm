@@ -3198,6 +3198,21 @@ public class CallsManager extends Call.ListenerBase
     }
 
     /**
+     * Notifies the {@link android.telecom.ConnectionService} associated with a
+     * {@link PhoneAccountHandle} that the attempt to handover a call has failed.
+     *
+     * @param call The handover call
+     * @param reason The error reason code for handover failure
+     */
+    private void notifyHandoverFailed(Call call, int reason) {
+        ConnectionServiceWrapper service = call.getConnectionService();
+        service.handoverFailed(call, reason);
+        call.setDisconnectCause(new DisconnectCause(DisconnectCause.CANCELED));
+        call.disconnect();
+
+    }
+
+    /**
      * Called in response to a {@link Call} receiving a {@link Call#sendCallEvent(String, Bundle)}
      * of type {@link android.telecom.Call#EVENT_REQUEST_HANDOVER} indicating the
      * {@link android.telecom.InCallService} has requested a handover to another
@@ -3472,6 +3487,75 @@ public class CallsManager extends Call.ListenerBase
     }
 
     public void acceptHandover(Uri srcAddr, int videoState, PhoneAccountHandle destAcct) {
-        // TODO:
+
+        final String handleScheme = srcAddr.getSchemeSpecificPart();
+        Call fromCall = mCalls.stream()
+                .filter((c) -> mPhoneNumberUtilsAdapter.isSamePhoneNumber(
+                        c.getHandle().getSchemeSpecificPart(), handleScheme))
+                .findFirst()
+                .orElse(null);
+
+        Call call = new Call(
+                getNextCallId(),
+                mContext,
+                this,
+                mLock,
+                mConnectionServiceRepository,
+                mContactsAsyncHelper,
+                mCallerInfoAsyncQueryFactory,
+                mPhoneNumberUtilsAdapter,
+                srcAddr,
+                null /* gatewayInfo */,
+                null /* connectionManagerPhoneAccount */,
+                destAcct,
+                Call.CALL_DIRECTION_INCOMING /* callDirection */,
+                false /* forceAttachToExistingConnection */,
+                false, /* isConference */
+                mClockProxy);
+
+        if (fromCall == null || isHandoverInProgress() ||
+                !isHandoverFromPhoneAccountSupported(fromCall.getTargetPhoneAccount()) ||
+                !isHandoverToPhoneAccountSupported(destAcct) ||
+                hasEmergencyCall()) {
+            Log.w(this, "acceptHandover: Handover not supported");
+            notifyHandoverFailed(call,
+                    android.telecom.Call.Callback.HANDOVER_FAILURE_DEST_NOT_SUPPORTED);
+            return;
+        }
+
+        PhoneAccount phoneAccount = mPhoneAccountRegistrar.getPhoneAccountUnchecked(destAcct);
+        if (phoneAccount == null) {
+            Log.w(this, "acceptHandover: Handover not supported. phoneAccount = null");
+            notifyHandoverFailed(call,
+                    android.telecom.Call.Callback.HANDOVER_FAILURE_DEST_NOT_SUPPORTED);
+            return;
+        }
+        call.setIsSelfManaged(phoneAccount.isSelfManaged());
+        if (call.isSelfManaged() || (phoneAccount.getExtras() != null &&
+                phoneAccount.getExtras().getBoolean(
+                        PhoneAccount.EXTRA_ALWAYS_USE_VOIP_AUDIO_MODE))) {
+            call.setIsVoipAudioMode(true);
+        }
+        if (!phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_VIDEO_CALLING)) {
+            call.setVideoState(VideoProfile.STATE_AUDIO_ONLY);
+        } else {
+            call.setVideoState(videoState);
+        }
+
+        call.initAnalytics();
+        call.addListener(this);
+
+        fromCall.setHandoverDestinationCall(call);
+        call.setHandoverSourceCall(fromCall);
+        call.setHandoverState(HandoverState.HANDOVER_TO_STARTED);
+        fromCall.setHandoverState(HandoverState.HANDOVER_FROM_STARTED);
+
+        if (isSpeakerEnabledForVideoCalls() && VideoProfile.isVideo(videoState)) {
+            // Ensure when the call goes active that it will go to speakerphone if the
+            // handover to call is a video call.
+            call.setStartWithSpeakerphoneOn(true);
+        }
+
+        call.startCreateConnection(mPhoneAccountRegistrar);
     }
 }
