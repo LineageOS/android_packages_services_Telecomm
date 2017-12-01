@@ -853,6 +853,13 @@ public class ConnectionServiceWrapper extends ServiceBinder {
                 Log.endSession();
             }
         }
+
+        @Override
+        public void onConnectionServiceFocusReleased(Session.Info sessionInfo)
+                throws RemoteException {
+            // TODO(mpq): This method is added to avoid the compiled error. Add the real
+            // implementation once ag/3273964 done.
+        }
     }
 
     private final Adapter mAdapter = new Adapter();
