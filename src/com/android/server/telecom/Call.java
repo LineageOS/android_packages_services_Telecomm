@@ -134,7 +134,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         void onRttInitiationFailure(Call call, int reason);
         void onRemoteRttRequest(Call call, int requestId);
         void onHandoverRequested(Call call, PhoneAccountHandle handoverTo, int videoState,
-                                 Bundle extras);
+                                 Bundle extras, boolean isLegacy);
+        void onHandoverFailed(Call call, int error);
     }
 
     public abstract static class ListenerBase implements Listener {
@@ -208,7 +209,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         public void onRemoteRttRequest(Call call, int requestId) {}
         @Override
         public void onHandoverRequested(Call call, PhoneAccountHandle handoverTo, int videoState,
-                                        Bundle extras) {}
+                                        Bundle extras, boolean isLegacy) {}
+        @Override
+        public void onHandoverFailed(Call call, int error) {}
     }
 
     private final CallerInfoLookupHelper.OnQueryCompleteListener mCallerInfoQueryListener =
@@ -482,13 +485,13 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
 
     /**
      * When a call handover has been initiated via {@link #requestHandover(PhoneAccountHandle,
-     * int, Bundle)}, contains the call which this call is being handed over to.
+     * int, Bundle, boolean)}, contains the call which this call is being handed over to.
      */
     private Call mHandoverDestinationCall = null;
 
     /**
      * When a call handover has been initiated via {@link #requestHandover(PhoneAccountHandle,
-     * int, Bundle)}, contains the call which this call is being handed over from.
+     * int, Bundle, boolean)}, contains the call which this call is being handed over from.
      */
     private Call mHandoverSourceCall = null;
 
@@ -2048,7 +2051,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
                 if (handoverExtras instanceof Bundle) {
                     handoverExtrasBundle = (Bundle) handoverExtras;
                 }
-                requestHandover(phoneAccountHandle, videoState, handoverExtrasBundle);
+                requestHandover(phoneAccountHandle, videoState, handoverExtrasBundle, true);
             } else {
                 Log.addEvent(this, LogUtils.Events.CALL_EVENT, event);
                 mConnectionService.sendCallEvent(this, event, extras);
@@ -2067,7 +2070,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
      * @param extras Extra information to be passed to ConnectionService
      */
     public void handoverTo(PhoneAccountHandle destAcct, int videoState, Bundle extras) {
-        // TODO: Call requestHandover(destAcct, videoState, extras);
+        requestHandover(destAcct, videoState, extras, false);
     }
 
     /**
@@ -2739,6 +2742,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         }
     }
 
+    public void onHandoverFailed(int handoverError) {
+        for (Listener l : mListeners) {
+            l.onHandoverFailed(this, handoverError);
+        }
+    }
+
     public void setOriginalConnectionId(String originalConnectionId) {
         mOriginalConnectionId = originalConnectionId;
     }
@@ -2788,9 +2797,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
      *      {@link android.telecom.InCallService}.
      */
     private void requestHandover(PhoneAccountHandle handoverToHandle, int videoState,
-                                 Bundle extras) {
+                                 Bundle extras, boolean isLegacy) {
         for (Listener l : mListeners) {
-            l.onHandoverRequested(this, handoverToHandle, videoState, extras);
+            l.onHandoverRequested(this, handoverToHandle, videoState, extras, isLegacy);
         }
     }
 
