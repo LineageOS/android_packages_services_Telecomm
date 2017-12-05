@@ -22,6 +22,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
 import android.content.Context;
 import android.content.pm.UserInfo;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.IAudioService;
 import android.os.Binder;
@@ -68,6 +69,12 @@ import java.util.Objects;
  * mIsMuted: a boolean indicating whether the audio is muted
  */
 public class CallAudioRouteStateMachine extends StateMachine {
+
+    /** Values for CallAudioRouteStateMachine constructor's earPieceRouting arg. */
+    public static final int EARPIECE_FORCE_DISABLED = 0;
+    public static final int EARPIECE_FORCE_ENABLED  = 1;
+    public static final int EARPIECE_AUTO_DETECT    = 2;
+
     /** Direct the audio stream through the device's earpiece. */
     public static final int ROUTE_EARPIECE      = CallAudioState.ROUTE_EARPIECE;
 
@@ -1259,7 +1266,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
             WiredHeadsetManager wiredHeadsetManager,
             StatusBarNotifier statusBarNotifier,
             CallAudioManager.AudioServiceFactory audioServiceFactory,
-            boolean doesDeviceSupportEarpieceRoute) {
+            int earpieceControl) {
         super(NAME);
         addState(mActiveEarpieceRoute);
         addState(mActiveHeadsetRoute);
@@ -1278,7 +1285,16 @@ public class CallAudioRouteStateMachine extends StateMachine {
         mWiredHeadsetManager = wiredHeadsetManager;
         mStatusBarNotifier = statusBarNotifier;
         mAudioServiceFactory = audioServiceFactory;
-        mDoesDeviceSupportEarpieceRoute = doesDeviceSupportEarpieceRoute;
+        switch (earpieceControl) {
+            case EARPIECE_FORCE_DISABLED:
+                mDoesDeviceSupportEarpieceRoute = false;
+                break;
+            case EARPIECE_FORCE_ENABLED:
+                mDoesDeviceSupportEarpieceRoute = true;
+                break;
+            default:
+                mDoesDeviceSupportEarpieceRoute = checkForEarpieceSupport();
+        }
         mIsInbandRingSupported = BluetoothHeadset.isInbandRingingSupported(mContext);
         mLock = callsManager.getLock();
 
@@ -1602,14 +1618,15 @@ public class CallAudioRouteStateMachine extends StateMachine {
         return currentState.isActive();
     }
 
-    public static boolean doesDeviceSupportEarpieceRoute() {
-        String[] characteristics = SystemProperties.get("ro.build.characteristics").split(",");
-        for (String characteristic : characteristics) {
-            if ("watch".equals(characteristic)) {
-                return false;
+    private boolean checkForEarpieceSupport() {
+        AudioDeviceInfo[] deviceList = mAudioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+        for (AudioDeviceInfo device: deviceList) {
+            if (device.getType() == AudioDeviceInfo.TYPE_BUILTIN_EARPIECE) {
+                return true;
             }
         }
-        return true;
+        // No earpiece found
+        return false;
     }
 
     private int calculateBaselineRouteMessage(boolean isExplicitUserRequest,
