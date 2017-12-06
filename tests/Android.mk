@@ -41,7 +41,8 @@ LOCAL_RESOURCE_DIR := \
 
 LOCAL_JAVA_LIBRARIES := \
         android.test.mock \
-        legacy-android-test \
+        android.test.base \
+        android.test.runner \
         telephony-common
 
 LOCAL_AAPT_FLAGS := \
