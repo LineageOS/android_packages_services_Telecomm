@@ -45,6 +45,8 @@ LOCAL_JAVA_LIBRARIES := \
         android.test.runner \
         telephony-common
 
+LOCAL_USE_AAPT2 := true
+
 LOCAL_AAPT_FLAGS := \
     --auto-add-overlay \
     --extra-packages com.android.server.telecom:android.support.compat
