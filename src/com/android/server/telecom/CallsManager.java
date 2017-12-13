@@ -1614,6 +1614,14 @@ public class CallsManager extends Call.ListenerBase
     }
 
     @Override
+    public void onExtrasRemoved(Call c, int source, List<String> keys) {
+        if (source != Call.SOURCE_CONNECTION_SERVICE) {
+            return;
+        }
+        updateCanAddCall();
+    }
+
+    @Override
     public void onExtrasChanged(Call c, int source, Bundle extras) {
         if (source != Call.SOURCE_CONNECTION_SERVICE) {
             return;
