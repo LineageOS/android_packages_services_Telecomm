@@ -418,6 +418,17 @@ public class CallAudioManager extends CallsManagerListenerBase {
         }
     }
 
+    /**
+     * Switch call audio routing to the baseline route, including bluetooth headsets if there are
+     * any connected.
+     */
+    void switchBaseline() {
+        Log.i(this, "switchBaseline");
+        mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+                CallAudioRouteStateMachine.USER_SWITCH_BASELINE_ROUTE,
+                CallAudioRouteStateMachine.INCLUDE_BLUETOOTH_IN_BASELINE);
+    }
+
     void silenceRingers() {
         for (Call call : mRingingCalls) {
             call.silence();
