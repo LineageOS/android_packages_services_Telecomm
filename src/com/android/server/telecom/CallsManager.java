@@ -729,8 +729,12 @@ public class CallsManager extends Call.ListenerBase
      */
     @Override
     public void onHandoverRequested(Call call, PhoneAccountHandle handoverTo, int videoState,
-                                    Bundle extras) {
-        requestHandover(call, handoverTo, videoState, extras);
+                                    Bundle extras, boolean isLegacy) {
+        if (isLegacy) {
+            requestHandoverViaEvents(call, handoverTo, videoState, extras);
+        } else {
+            requestHandover(call, handoverTo, videoState, extras);
+        }
     }
 
     @VisibleForTesting
@@ -3215,8 +3219,9 @@ public class CallsManager extends Call.ListenerBase
      * @param initiatingExtras Extras associated with the handover, to be passed to the handover
      *               {@link android.telecom.ConnectionService}.
      */
-    private void requestHandover(Call handoverFromCall, PhoneAccountHandle handoverToHandle,
-                                 int videoState, Bundle initiatingExtras) {
+    private void requestHandoverViaEvents(Call handoverFromCall,
+                                          PhoneAccountHandle handoverToHandle,
+                                          int videoState, Bundle initiatingExtras) {
 
         boolean isHandoverFromSupported = isHandoverFromPhoneAccountSupported(
                 handoverFromCall.getTargetPhoneAccount());
@@ -3251,6 +3256,132 @@ public class CallsManager extends Call.ListenerBase
         placeOutgoingCall(handoverToCall, handoverToCall.getHandle(), null /* gatewayInfo */,
                 false /* startwithSpeaker */,
                 videoState);
+    }
+
+    /**
+     * Called in response to a {@link Call} receiving a {@link Call#handoverTo(PhoneAccountHandle,
+     * int, Bundle)} indicating the {@link android.telecom.InCallService} has requested a
+     * handover to another {@link android.telecom.ConnectionService}.
+     *
+     * We will explicitly disallow a handover when there is an emergency call present.
+     *
+     * @param handoverFromCall The {@link Call} to be handed over.
+     * @param handoverToHandle The {@link PhoneAccountHandle} to hand over the call to.
+     * @param videoState The desired video state of {@link Call} after handover.
+     * @param initiatingExtras Extras associated with the handover, to be passed to the handover
+     *               {@link android.telecom.ConnectionService}.
+     */
+    private void requestHandover(Call handoverFromCall, PhoneAccountHandle handoverToHandle,
+                                 int videoState, Bundle extras) {
+
+        // Send an error back if there are any ongoing emergency calls.
+        if (hasEmergencyCall()) {
+            handoverFromCall.onHandoverFailed(
+                    android.telecom.Call.Callback.HANDOVER_FAILURE_ONGOING_EMERG_CALL);
+            return;
+        }
+
+        // If source and destination phone accounts don't support handover, send an error back.
+        boolean isHandoverFromSupported = isHandoverFromPhoneAccountSupported(
+                handoverFromCall.getTargetPhoneAccount());
+        boolean isHandoverToSupported = isHandoverToPhoneAccountSupported(handoverToHandle);
+        if (!isHandoverFromSupported || !isHandoverToSupported) {
+            handoverFromCall.onHandoverFailed(
+                    android.telecom.Call.Callback.HANDOVER_FAILURE_DEST_NOT_SUPPORTED);
+            return;
+        }
+
+        Log.addEvent(handoverFromCall, LogUtils.Events.HANDOVER_REQUEST, handoverToHandle);
+
+        // Create a new instance of Call
+        PhoneAccount account =
+                mPhoneAccountRegistrar.getPhoneAccount(handoverToHandle, getCurrentUserHandle());
+        boolean isSelfManaged = account != null && account.isSelfManaged();
+
+        Call call = new Call(getNextCallId(), mContext,
+                this, mLock, mConnectionServiceRepository,
+                mContactsAsyncHelper, mCallerInfoAsyncQueryFactory, mPhoneNumberUtilsAdapter,
+                handoverFromCall.getHandle(), null,
+                null, null,
+                Call.CALL_DIRECTION_OUTGOING, false,
+                false, mClockProxy);
+        call.initAnalytics();
+
+        // Set self-managed and voipAudioMode if destination is self-managed CS
+        call.setIsSelfManaged(isSelfManaged);
+        if (isSelfManaged) {
+            call.setIsVoipAudioMode(true);
+        }
+        call.setInitiatingUser(getCurrentUserHandle());
+
+
+
+        // Ensure we don't try to place an outgoing call with video if video is not
+        // supported.
+        if (VideoProfile.isVideo(videoState) && account != null &&
+                !account.hasCapabilities(PhoneAccount.CAPABILITY_VIDEO_CALLING)) {
+            call.setVideoState(VideoProfile.STATE_AUDIO_ONLY);
+        } else {
+            call.setVideoState(videoState);
+        }
+
+        // Set target phone account to destAcct.
+        call.setTargetPhoneAccount(handoverToHandle);
+
+        if (account != null && account.getExtras() != null && account.getExtras()
+                    .getBoolean(PhoneAccount.EXTRA_ALWAYS_USE_VOIP_AUDIO_MODE)) {
+            Log.d(this, "requestHandover: defaulting to voip mode for call %s",
+                        call.getId());
+            call.setIsVoipAudioMode(true);
+        }
+
+        // Set call state to connecting
+        call.setState(
+                CallState.CONNECTING,
+                handoverToHandle == null ? "no-handle" : handoverToHandle.toString());
+        setIntentExtrasAndStartTime(call, extras);
+
+        // Add call to call tracker
+        if (!mCalls.contains(call)) {
+            addCall(call);
+        }
+
+        Log.addEvent(handoverFromCall, LogUtils.Events.START_HANDOVER,
+                "handOverFrom=%s, handOverTo=%s", handoverFromCall.getId(), call.getId());
+
+        handoverFromCall.setHandoverDestinationCall(call);
+        handoverFromCall.setHandoverState(HandoverState.HANDOVER_FROM_STARTED);
+        call.setHandoverState(HandoverState.HANDOVER_TO_STARTED);
+        call.setHandoverSourceCall(handoverFromCall);
+        call.setNewOutgoingCallIntentBroadcastIsDone();
+
+        // Auto-enable speakerphone if the originating intent specified to do so, if the call
+        // is a video call, of if using speaker when docked
+        final boolean useSpeakerWhenDocked = mContext.getResources().getBoolean(
+                R.bool.use_speaker_when_docked);
+        final boolean useSpeakerForDock = isSpeakerphoneEnabledForDock();
+        final boolean useSpeakerForVideoCall = isSpeakerphoneAutoEnabledForVideoCalls(videoState);
+        call.setStartWithSpeakerphoneOn(false || useSpeakerForVideoCall
+                || (useSpeakerWhenDocked && useSpeakerForDock));
+        call.setVideoState(videoState);
+
+        final boolean isOutgoingCallPermitted = isOutgoingCallPermitted(call,
+                call.getTargetPhoneAccount());
+
+        // If the account has been set, proceed to place the outgoing call.
+        if (call.isSelfManaged() && !isOutgoingCallPermitted) {
+            notifyCreateConnectionFailed(call.getTargetPhoneAccount(), call);
+        } else if (!call.isSelfManaged() && hasSelfManagedCalls() && !call.isEmergencyCall()) {
+            markCallDisconnectedDueToSelfManagedCall(call);
+        } else {
+            if (call.isEmergencyCall()) {
+                // Disconnect all self-managed calls to make priority for emergency call.
+                disconnectSelfManagedCalls();
+            }
+
+            call.startCreateConnection(mPhoneAccountRegistrar);
+        }
+
     }
 
     /**
