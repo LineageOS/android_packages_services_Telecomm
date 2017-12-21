@@ -230,7 +230,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
                 call.getDisconnectCause().getCode() == DisconnectCause.CALL_PULLED,
                 shouldSaveHdInfo(call, accountHandle),
                 (call.getConnectionProperties() & Connection.PROPERTY_ASSISTED_DIALING_USED) ==
-                        Connection.PROPERTY_ASSISTED_DIALING_USED);
+                        Connection.PROPERTY_ASSISTED_DIALING_USED,
+                call.wasEverRttCall());
         logCall(call.getCallerInfo(), logNumber, call.getPostDialDigits(), formattedViaNumber,
                 call.getHandlePresentation(), callLogType, callFeatures, accountHandle,
                 creationTime, age, callDataUsage, call.isEmergencyCall(), call.getInitiatingUser(),
@@ -310,7 +311,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
      * @return The call features.
      */
     private static int getCallFeatures(int videoState, boolean isPulledCall, boolean isStoreHd,
-                                       boolean isUsingAssistedDialing) {
+            boolean isUsingAssistedDialing, boolean isRtt) {
         int features = 0;
         if (VideoProfile.isVideo(videoState)) {
             features |= Calls.FEATURES_VIDEO;
@@ -323,6 +324,9 @@ public final class CallLogManager extends CallsManagerListenerBase {
         }
         if (isUsingAssistedDialing) {
             features |= Calls.FEATURES_ASSISTED_DIALING_USED;
+        }
+        if (isRtt) {
+            features |= Calls.FEATURES_RTT;
         }
         return features;
     }
