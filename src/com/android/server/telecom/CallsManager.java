@@ -3092,6 +3092,12 @@ public class CallsManager extends Call.ListenerBase
         mCalls.stream()
                 .filter(c -> c.isSelfManaged())
                 .forEach(c -> c.disconnect());
+
+        // When disconnecting all self-managed calls, switch audio routing back to the baseline
+        // route.  This ensures if, for example, the self-managed ConnectionService was routed to
+        // speakerphone that we'll switch back to earpiece for the managed call which necessitated
+        // disconnecting the self-managed calls.
+        mCallAudioManager.switchBaseline();
     }
 
     /**
