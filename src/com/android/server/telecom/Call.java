@@ -478,6 +478,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * Integer constant from {@link android.telecom.Call.RttCall}. Describes the current RTT mode.
      */
     private int mRttMode;
+    /**
+     * True if the call was ever an RTT call.
+     */
+    private boolean mWasEverRtt = false;
 
     /**
      * Integer indicating the remote RTT request ID that is pending a response from the user.
@@ -2389,6 +2393,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 && mConnectionServiceToInCallStreams != null;
         if (shouldBeRtt && !areStreamsInitialized) {
             try {
+                mWasEverRtt = true;
                 mInCallToConnectionServiceStreams = ParcelFileDescriptor.createReliablePipe();
                 mConnectionServiceToInCallStreams = ParcelFileDescriptor.createReliablePipe();
             } catch (IOException e) {
@@ -2446,6 +2451,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     public boolean isRttCall() {
         return (mConnectionProperties & Connection.PROPERTY_IS_RTT) == Connection.PROPERTY_IS_RTT;
+    }
+
+    public boolean wasEverRttCall() {
+        return mWasEverRtt;
     }
 
     public ParcelFileDescriptor getCsToInCallRttPipeForCs() {
