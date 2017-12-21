@@ -68,6 +68,7 @@ public class CallAudioRouteStateMachineTest
     private static final int NONE = 0;
     private static final int ON = 1;
     private static final int OFF = 2;
+    private static final int OPTIONAL = 3;
 
     private static final BluetoothDevice bluetoothDevice1 =
             BluetoothRouteManagerTest.makeBluetoothDevice("00:00:00:00:00:01");
@@ -561,7 +562,7 @@ public class CallAudioRouteStateMachineTest
                 "Connect headset during earpiece", // name
                 CallAudioState.ROUTE_EARPIECE, // initialRoute
                 CallAudioState.ROUTE_EARPIECE, // availableRoutes
-                NONE, // speakerInteraction
+                OPTIONAL, // speakerInteraction
                 NONE, // bluetoothInteraction
                 CallAudioRouteStateMachine.CONNECT_WIRED_HEADSET, // action
                 CallAudioState.ROUTE_WIRED_HEADSET, // expectedRoute
@@ -574,7 +575,7 @@ public class CallAudioRouteStateMachineTest
                 "Connect headset during bluetooth", // name
                 CallAudioState.ROUTE_BLUETOOTH, // initialRoute
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH, // availableRoutes
-                NONE, // speakerInteraction
+                OPTIONAL, // speakerInteraction
                 OFF, // bluetoothInteraction
                 CallAudioRouteStateMachine.CONNECT_WIRED_HEADSET, // action
                 CallAudioState.ROUTE_WIRED_HEADSET, // expectedRoute
@@ -600,7 +601,7 @@ public class CallAudioRouteStateMachineTest
                 "Disconnect headset during headset", // name
                 CallAudioState.ROUTE_WIRED_HEADSET, // initialRoute
                 CallAudioState.ROUTE_WIRED_HEADSET, // availableRoutes
-                NONE, // speakerInteraction
+                OPTIONAL, // speakerInteraction
                 NONE, // bluetoothInteraction
                 CallAudioRouteStateMachine.DISCONNECT_WIRED_HEADSET, // action
                 CallAudioState.ROUTE_EARPIECE, // expectedRoute
@@ -613,7 +614,7 @@ public class CallAudioRouteStateMachineTest
                 "Disconnect headset during headset with bluetooth available", // name
                 CallAudioState.ROUTE_WIRED_HEADSET, // initialRoute
                 CallAudioState.ROUTE_WIRED_HEADSET | CallAudioState.ROUTE_BLUETOOTH, // availableRou
-                NONE, // speakerInteraction
+                OPTIONAL, // speakerInteraction
                 ON, // bluetoothInteraction
                 CallAudioRouteStateMachine.DISCONNECT_WIRED_HEADSET, // action
                 CallAudioState.ROUTE_BLUETOOTH, // expectedRoute
@@ -626,7 +627,7 @@ public class CallAudioRouteStateMachineTest
                 "Disconnect headset during bluetooth", // name
                 CallAudioState.ROUTE_BLUETOOTH, // initialRoute
                 CallAudioState.ROUTE_WIRED_HEADSET | CallAudioState.ROUTE_BLUETOOTH, // availableRou
-                NONE, // speakerInteraction
+                OPTIONAL, // speakerInteraction
                 NONE, // bluetoothInteraction
                 CallAudioRouteStateMachine.DISCONNECT_WIRED_HEADSET, // action
                 CallAudioState.ROUTE_BLUETOOTH, // expectedRoute
@@ -639,7 +640,7 @@ public class CallAudioRouteStateMachineTest
                 "Disconnect headset during speakerphone", // name
                 CallAudioState.ROUTE_SPEAKER, // initialRoute
                 CallAudioState.ROUTE_WIRED_HEADSET, // availableRoutes
-                NONE, // speakerInteraction
+                OPTIONAL, // speakerInteraction
                 NONE, // bluetoothInteraction
                 CallAudioRouteStateMachine.DISCONNECT_WIRED_HEADSET, // action
                 CallAudioState.ROUTE_SPEAKER, // expectedRoute
@@ -652,7 +653,7 @@ public class CallAudioRouteStateMachineTest
                 "Disconnect headset during speakerphone with bluetooth available", // name
                 CallAudioState.ROUTE_SPEAKER, // initialRoute
                 CallAudioState.ROUTE_WIRED_HEADSET | CallAudioState.ROUTE_BLUETOOTH, // availableRou
-                NONE, // speakerInteraction
+                OPTIONAL, // speakerInteraction
                 NONE, // bluetoothInteraction
                 CallAudioRouteStateMachine.DISCONNECT_WIRED_HEADSET, // action
                 CallAudioState.ROUTE_SPEAKER, // expectedRoute
@@ -665,7 +666,7 @@ public class CallAudioRouteStateMachineTest
                 "Connect bluetooth during earpiece", // name
                 CallAudioState.ROUTE_EARPIECE, // initialRoute
                 CallAudioState.ROUTE_EARPIECE, // availableRoutes
-                NONE, // speakerInteraction
+                OPTIONAL, // speakerInteraction
                 ON, // bluetoothInteraction
                 CallAudioRouteStateMachine.CONNECT_BLUETOOTH, // action
                 CallAudioState.ROUTE_BLUETOOTH, // expectedRoute
@@ -678,7 +679,7 @@ public class CallAudioRouteStateMachineTest
                 "Connect bluetooth during wired headset", // name
                 CallAudioState.ROUTE_WIRED_HEADSET, // initialRoute
                 CallAudioState.ROUTE_WIRED_HEADSET, // availableRoutes
-                NONE, // speakerInteraction
+                OPTIONAL, // speakerInteraction
                 ON, // bluetoothInteraction
                 CallAudioRouteStateMachine.CONNECT_BLUETOOTH, // action
                 CallAudioState.ROUTE_BLUETOOTH, // expectedRoute
@@ -704,7 +705,7 @@ public class CallAudioRouteStateMachineTest
                 "Disconnect bluetooth during bluetooth without headset in", // name
                 CallAudioState.ROUTE_BLUETOOTH, // initialRoute
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH, // availableRoutes
-                NONE, // speakerInteraction
+                OPTIONAL, // speakerInteraction
                 OFF, // bluetoothInteraction
                 CallAudioRouteStateMachine.DISCONNECT_BLUETOOTH, // action
                 CallAudioState.ROUTE_EARPIECE, // expectedRoute
@@ -717,7 +718,7 @@ public class CallAudioRouteStateMachineTest
                 "Disconnect bluetooth during bluetooth without headset in, priority mode ", // name
                 CallAudioState.ROUTE_BLUETOOTH, // initialRoute
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH, // availableRoutes
-                NONE, // speakerInteraction
+                OPTIONAL, // speakerInteraction
                 OFF, // bluetoothInteraction
                 CallAudioRouteStateMachine.DISCONNECT_BLUETOOTH, // action
                 CallAudioState.ROUTE_EARPIECE, // expectedRoute
@@ -730,7 +731,7 @@ public class CallAudioRouteStateMachineTest
                 "Disconnect bluetooth during bluetooth with headset in", // name
                 CallAudioState.ROUTE_BLUETOOTH, // initialRoute
                 CallAudioState.ROUTE_WIRED_HEADSET | CallAudioState.ROUTE_BLUETOOTH, // availableRou
-                NONE, // speakerInteraction
+                OPTIONAL, // speakerInteraction
                 OFF, // bluetoothInteraction
                 CallAudioRouteStateMachine.DISCONNECT_BLUETOOTH, // action
                 CallAudioState.ROUTE_WIRED_HEADSET, // expectedRoute
@@ -743,7 +744,7 @@ public class CallAudioRouteStateMachineTest
                 "Disconnect bluetooth during speakerphone", // name
                 CallAudioState.ROUTE_SPEAKER, // initialRoute
                 CallAudioState.ROUTE_WIRED_HEADSET | CallAudioState.ROUTE_BLUETOOTH, // availableRou
-                NONE, // speakerInteraction
+                OPTIONAL, // speakerInteraction
                 NONE, // bluetoothInteraction
                 CallAudioRouteStateMachine.DISCONNECT_BLUETOOTH, // action
                 CallAudioState.ROUTE_SPEAKER, // expectedRoute
@@ -756,7 +757,7 @@ public class CallAudioRouteStateMachineTest
                 "Disconnect bluetooth during earpiece", // name
                 CallAudioState.ROUTE_EARPIECE, // initialRoute
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH, // availableRoutes
-                NONE, // speakerInteraction
+                OPTIONAL, // speakerInteraction
                 NONE, // bluetoothInteraction
                 CallAudioRouteStateMachine.DISCONNECT_BLUETOOTH, // action
                 CallAudioState.ROUTE_EARPIECE, // expectedRoute
@@ -808,7 +809,7 @@ public class CallAudioRouteStateMachineTest
                 "Switch to earpiece from bluetooth", // name
                 CallAudioState.ROUTE_BLUETOOTH, // initialRoute
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH, // availableRoutes
-                NONE, // speakerInteraction
+                OPTIONAL, // speakerInteraction
                 OFF, // bluetoothInteraction
                 CallAudioRouteStateMachine.SWITCH_EARPIECE, // action
                 CallAudioState.ROUTE_EARPIECE, // expectedRoute
@@ -873,7 +874,7 @@ public class CallAudioRouteStateMachineTest
                 "Switch to bluetooth from earpiece", // name
                 CallAudioState.ROUTE_EARPIECE, // initialRoute
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH, // availableRoutes
-                NONE, // speakerInteraction
+                OPTIONAL, // speakerInteraction
                 ON, // bluetoothInteraction
                 CallAudioRouteStateMachine.SWITCH_BLUETOOTH, // action
                 CallAudioState.ROUTE_BLUETOOTH, // expectedRoute
@@ -886,7 +887,7 @@ public class CallAudioRouteStateMachineTest
                 "Switch to bluetooth from wired headset", // name
                 CallAudioState.ROUTE_WIRED_HEADSET, // initialRoute
                 CallAudioState.ROUTE_WIRED_HEADSET | CallAudioState.ROUTE_BLUETOOTH, // availableRou
-                NONE, // speakerInteraction
+                OPTIONAL, // speakerInteraction
                 ON, // bluetoothInteraction
                 CallAudioRouteStateMachine.SWITCH_BLUETOOTH, // action
                 CallAudioState.ROUTE_BLUETOOTH, // expectedRoute
@@ -1022,6 +1023,10 @@ public class CallAudioRouteStateMachineTest
                 verify(mockBluetoothRouteManager, never())
                         .connectBluetoothAudio(nullable(String.class));
                 verify(mockBluetoothRouteManager).disconnectBluetoothAudio();
+                break;
+            case OPTIONAL:
+                // optional, don't test
+                break;
         }
 
         switch (params.speakerInteraction) {
@@ -1031,6 +1036,10 @@ public class CallAudioRouteStateMachineTest
             case ON: // fall through
             case OFF:
                 verify(mockAudioManager).setSpeakerphoneOn(params.speakerInteraction == ON);
+                break;
+            case OPTIONAL:
+                // optional, don't test
+                break;
         }
 
         // Verify the end state
