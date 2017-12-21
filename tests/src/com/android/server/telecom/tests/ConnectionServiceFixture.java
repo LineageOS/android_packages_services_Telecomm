@@ -363,6 +363,10 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         public IInterface queryLocalInterface(String descriptor) {
             return this;
         }
+
+        @Override
+        public void handoverFailed(String callId, ConnectionRequest request,
+                                   int error, Session.Info sessionInfo) {}
     }
 
     FakeConnectionServiceDelegate mConnectionServiceDelegate =
