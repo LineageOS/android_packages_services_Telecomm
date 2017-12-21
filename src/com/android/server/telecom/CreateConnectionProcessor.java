@@ -214,7 +214,19 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
                 mCall.setConnectionService(mService);
                 setTimeoutIfNeeded(mService, attempt);
 
-                mService.createConnection(mCall, this);
+                // Start to create the connection after the ConnectionService of the call has gained
+                // the focus.
+                mCall.getConnectionServiceFocusManager().requestFocus(
+                        mCall,
+                        new CallsManager.RequestCallback(new CallsManager.PendingAction() {
+                            @Override
+                            public void performAction() {
+                                Log.d(this, "perform create connection");
+                                mService.createConnection(
+                                        mCall,
+                                        CreateConnectionProcessor.this);
+                            }
+                        }));
             }
         } else {
             Log.v(this, "attemptNextPhoneAccount, no more accounts, failing");
