@@ -973,7 +973,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
     }
 
-    int getHandlePresentation() {
+    public int getHandlePresentation() {
         return mHandlePresentation;
     }
 
