@@ -1412,11 +1412,9 @@ public class CallAudioRouteStateMachine extends StateMachine {
     }
 
     private void setSpeakerphoneOn(boolean on) {
-        if (mAudioManager.isSpeakerphoneOn() != on) {
-            Log.i(this, "turning speaker phone %s", on);
-            mAudioManager.setSpeakerphoneOn(on);
-            mStatusBarNotifier.notifySpeakerphone(on);
-        }
+        Log.i(this, "turning speaker phone %s", on);
+        mAudioManager.setSpeakerphoneOn(on);
+        mStatusBarNotifier.notifySpeakerphone(on);
     }
 
     private void setBluetoothOn(String address) {
@@ -1640,6 +1638,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
         mDeviceSupportedRoutes = initState.getSupportedRouteMask();
         mAvailableRoutes = mDeviceSupportedRoutes & getCurrentCallSupportedRoutes();
         mIsMuted = initState.isMuted();
+        setSpeakerphoneOn(initState.getRoute() == CallAudioState.ROUTE_SPEAKER);
         setMuteOn(mIsMuted);
         mWasOnSpeaker = false;
         mHasUserExplicitlyLeftBluetooth = false;
