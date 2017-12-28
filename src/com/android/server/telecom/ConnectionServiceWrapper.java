@@ -1229,6 +1229,18 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         }
     }
 
+    /** @see IConnectionService#deflect(String, Uri , Session.Info) */
+    void deflect(Call call, Uri address) {
+        final String callId = mCallIdMapper.getCallId(call);
+        if (callId != null && isServiceValid("deflect")) {
+            try {
+                logOutgoing("deflect %s", callId);
+                mServiceInterface.deflect(callId, address, Log.getExternalSession());
+            } catch (RemoteException e) {
+            }
+        }
+    }
+
     /** @see IConnectionService#reject(String, Session.Info) */
     void reject(Call call, boolean rejectWithMessage, String message) {
         final String callId = mCallIdMapper.getCallId(call);
