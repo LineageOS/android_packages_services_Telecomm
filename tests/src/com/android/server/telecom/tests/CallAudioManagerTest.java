@@ -32,6 +32,10 @@ import com.android.server.telecom.InCallTonePlayer;
 import com.android.server.telecom.RingbackPlayer;
 import com.android.server.telecom.Ringer;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
@@ -39,6 +43,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
@@ -49,6 +55,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@RunWith(JUnit4.class)
 public class CallAudioManagerTest extends TelecomTestCase {
     @Mock private CallAudioRouteStateMachine mCallAudioRouteStateMachine;
     @Mock private CallsManager mCallsManager;
@@ -61,6 +68,7 @@ public class CallAudioManagerTest extends TelecomTestCase {
     private CallAudioManager mCallAudioManager;
 
     @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         doAnswer((invocation) -> {
@@ -82,6 +90,7 @@ public class CallAudioManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testUnmuteOfSecondIncomingCall() {
         // Start with a single incoming call.
         Call call = createIncomingCall();
@@ -145,6 +154,7 @@ public class CallAudioManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testSingleIncomingCallFlowWithoutMTSpeedUp() {
         Call call = createIncomingCall();
         when(call.can(android.telecom.Call.Details.CAPABILITY_SPEED_UP_MT_AUDIO))
@@ -180,6 +190,7 @@ public class CallAudioManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testSingleIncomingCallFlowWithMTSpeedUp() {
         Call call = createIncomingCall();
         when(call.can(android.telecom.Call.Details.CAPABILITY_SPEED_UP_MT_AUDIO))
@@ -213,6 +224,7 @@ public class CallAudioManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testSingleOutgoingCall() {
         Call call = mock(Call.class);
         when(call.getState()).thenReturn(CallState.CONNECTING);

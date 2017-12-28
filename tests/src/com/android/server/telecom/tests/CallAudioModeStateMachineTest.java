@@ -23,11 +23,16 @@ import android.test.suitebuilder.annotation.SmallTest;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioModeStateMachine;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -35,6 +40,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@RunWith(JUnit4.class)
 public class CallAudioModeStateMachineTest extends StateMachineTestBase<CallAudioModeStateMachine> {
     private static class ModeTestParameters extends TestParameters {
         public String name;
@@ -91,18 +97,21 @@ public class CallAudioModeStateMachineTest extends StateMachineTestBase<CallAudi
     @Mock private CallAudioManager mCallAudioManager;
 
     @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
     }
 
     @LargeTest
+    @Test
     public void testTransitions() throws Throwable {
         List<ModeTestParameters> testCases = generateTestCases();
         parametrizedTestStateMachine(testCases);
     }
 
     @SmallTest
+    @Test
     public void testNoFocusWhenRingerSilenced() throws Throwable {
         CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mAudioManager);
         sm.setCallAudioManager(mCallAudioManager);
