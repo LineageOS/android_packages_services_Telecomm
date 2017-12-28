@@ -16,6 +16,8 @@
 
 package com.android.server.telecom.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyChar;
@@ -62,6 +64,10 @@ import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.WiredHeadsetManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -71,6 +77,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+@RunWith(JUnit4.class)
 public class CallsManagerTest extends TelecomTestCase {
     private static final PhoneAccountHandle SIM_1_HANDLE = new PhoneAccountHandle(
             ComponentName.unflattenFromString("com.foo/.Blah"), "Sim1");
@@ -123,6 +130,7 @@ public class CallsManagerTest extends TelecomTestCase {
     private CallsManager mCallsManager;
 
     @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
@@ -168,6 +176,7 @@ public class CallsManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testConstructPossiblePhoneAccounts() throws Exception {
         // Should be empty since the URI is null.
         assertEquals(0, mCallsManager.constructPossiblePhoneAccounts(null, null, false).size());
@@ -179,6 +188,7 @@ public class CallsManagerTest extends TelecomTestCase {
      * @throws Exception
      */
     @MediumTest
+    @Test
     public void testConstructPossiblePhoneAccountsMultiSimActive() throws Exception {
         setupMsimAccounts();
 
@@ -212,6 +222,7 @@ public class CallsManagerTest extends TelecomTestCase {
      * @throws Exception
      */
     @MediumTest
+    @Test
     public void testConstructPossiblePhoneAccountsMultiSimIdle() throws Exception {
         setupMsimAccounts();
 
@@ -226,6 +237,7 @@ public class CallsManagerTest extends TelecomTestCase {
      * @throws Exception
      */
     @MediumTest
+    @Test
     public void testFindOutgoingCallPhoneAccountSelfManaged() throws Exception {
         List<PhoneAccountHandle> accounts = mCallsManager.findOutgoingCallPhoneAccount(
                 SELF_MANAGED_HANDLE, TEST_ADDRESS, false /* isVideo */, null /* userHandle */);
@@ -239,6 +251,7 @@ public class CallsManagerTest extends TelecomTestCase {
      * @throws Exception
      */
     @MediumTest
+    @Test
     public void testFindOutgoingCallAccountDefault() throws Exception {
         when(mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(any(), any())).thenReturn(
                 SIM_1_HANDLE);
@@ -260,6 +273,7 @@ public class CallsManagerTest extends TelecomTestCase {
      * @throws Exception
      */
     @MediumTest
+    @Test
     public void testFindOutgoingCallAccountNoDefault() throws Exception {
         when(mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(any(), any())).thenReturn(
                 null);
@@ -281,6 +295,7 @@ public class CallsManagerTest extends TelecomTestCase {
      * @throws Exception
      */
     @MediumTest
+    @Test
     public void testFindOutgoingCallAccountVideo() throws Exception {
         when(mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(any(), any())).thenReturn(
                 null);
@@ -301,6 +316,7 @@ public class CallsManagerTest extends TelecomTestCase {
      * @throws Exception
      */
     @MediumTest
+    @Test
     public void testFindOutgoingCallAccountVideoNotAvailable() throws Exception {
         when(mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(any(), any())).thenReturn(
                 null);
@@ -325,6 +341,7 @@ public class CallsManagerTest extends TelecomTestCase {
      * @throws Exception
      */
     @MediumTest
+    @Test
     public void testUseSpecifiedAccount() throws Exception {
         when(mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(any(), any())).thenReturn(
                 null);
@@ -344,6 +361,7 @@ public class CallsManagerTest extends TelecomTestCase {
      * @throws Exception
      */
     @MediumTest
+    @Test
     public void testPlayDtmfWhenActive() throws Exception {
         Call callSpy = addSpyCall();
         mCallsManager.playDtmfTone(callSpy, '1');
@@ -355,6 +373,7 @@ public class CallsManagerTest extends TelecomTestCase {
      * @throws Exception
      */
     @MediumTest
+    @Test
     public void testSuppessDtmfWhenHeld() throws Exception {
         Call callSpy = addSpyCall();
         callSpy.setState(CallState.ON_HOLD, "test");
@@ -368,6 +387,7 @@ public class CallsManagerTest extends TelecomTestCase {
      * @throws Exception
      */
     @MediumTest
+    @Test
     public void testCancelDtmfWhenHeld() throws Exception {
         Call callSpy = addSpyCall();
         mCallsManager.playDtmfTone(callSpy, '1');

@@ -23,10 +23,19 @@ import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.ConnectionServiceFocusManager;
 import com.android.server.telecom.ConnectionServiceFocusManager.*;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -34,6 +43,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@RunWith(JUnit4.class)
 public class ConnectionServiceFocusManagerTest extends TelecomTestCase {
 
     @Mock CallsManagerRequester mockCallsManagerRequester;
@@ -50,6 +60,7 @@ public class ConnectionServiceFocusManagerTest extends TelecomTestCase {
     private CallsManager.CallsManagerListener mCallsManagerListener;
 
     @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         mFocusManagerUT = new ConnectionServiceFocusManager(
@@ -63,6 +74,7 @@ public class ConnectionServiceFocusManagerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testRequestFocusWithoutActiveFocusExisted() {
         // GIVEN the ConnectionServiceFocusManager without focus ConnectionService.
 
@@ -74,6 +86,7 @@ public class ConnectionServiceFocusManagerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testRequestFocusWithActiveFocusExisted() {
         // GIVEN the ConnectionServiceFocusManager with the focus ConnectionService.
         requestFocus(mActiveCall, null);
@@ -106,6 +119,7 @@ public class ConnectionServiceFocusManagerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testRequestConnectionServiceSameAsFocusConnectionService() {
         // GIVEN the ConnectionServiceFocusManager with the focus ConnectionService.
         requestFocus(mActiveCall, null);
@@ -122,6 +136,7 @@ public class ConnectionServiceFocusManagerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testFocusConnectionServiceDoesNotRespondToFocusLost() {
         // GIVEN the ConnectionServiceFocusManager with the focus ConnectionService.
         requestFocus(mActiveCall, null);
@@ -148,6 +163,7 @@ public class ConnectionServiceFocusManagerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testNonFocusConnectionServiceReleased() {
         // GIVEN the ConnectionServiceFocusManager with the focus ConnectionService
         requestFocus(mActiveCall, null);
@@ -163,6 +179,7 @@ public class ConnectionServiceFocusManagerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testFocusConnectionServiceReleased() {
         // GIVEN the ConnectionServiceFocusManager with the focus ConnectionService
         requestFocus(mActiveCall, null);
@@ -179,6 +196,7 @@ public class ConnectionServiceFocusManagerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testCallStateChangedAffectCallFocus() {
         // GIVEN the ConnectionServiceFocusManager with the focus ConnectionService.
         CallFocus activeCall = createFakeCall(mActiveConnectionService, CallState.ACTIVE);
@@ -207,6 +225,7 @@ public class ConnectionServiceFocusManagerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testCallStateChangedDoesNotAffectCallFocusIfConnectionServiceIsDifferent() {
         // GIVEN the ConnectionServiceFocusManager with the focus ConnectionService
         requestFocus(mActiveCall, null);
@@ -229,6 +248,7 @@ public class ConnectionServiceFocusManagerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testFocusCallIsNullWhenRemoveTheFocusCall() {
         // GIVEN the ConnectionServiceFocusManager with the focus ConnectionService
         requestFocus(mActiveCall, null);
@@ -243,6 +263,7 @@ public class ConnectionServiceFocusManagerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testConnectionServiceFocusDeath() {
         // GIVEN the ConnectionServiceFocusManager with the focus ConnectionService
         requestFocus(mActiveCall, null);
@@ -259,6 +280,7 @@ public class ConnectionServiceFocusManagerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testNonExternalCallChangedToExternalCall() {
         // GIVEN the ConnectionServiceFocusManager with the focus ConnectionService.
         requestFocus(mActiveCall, null);
@@ -273,6 +295,7 @@ public class ConnectionServiceFocusManagerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testExternalCallChangedToNonExternalCall() {
         // GIVEN the ConnectionServiceFocusManager without focus ConnectionService
 

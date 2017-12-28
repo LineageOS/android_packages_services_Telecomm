@@ -37,6 +37,10 @@ import com.android.server.telecom.StatusBarNotifier;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.WiredHeadsetManager;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -49,7 +53,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.isNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.same;
@@ -63,6 +69,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@RunWith(JUnit4.class)
 public class CallAudioRouteStateMachineTest
         extends StateMachineTestBase<CallAudioRouteStateMachine> {
     private static final int NONE = 0;
@@ -162,6 +169,7 @@ public class CallAudioRouteStateMachineTest
     private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
 
     @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
@@ -187,6 +195,7 @@ public class CallAudioRouteStateMachineTest
     }
 
     @SmallTest
+    @Test
     public void testEarpieceAutodetect() {
         CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
                 mContext,
@@ -204,18 +213,21 @@ public class CallAudioRouteStateMachineTest
     }
 
     @LargeTest
+    @Test
     public void testStateMachineTransitionsWithFocus() throws Throwable {
         List<RoutingTestParameters> paramList = generateTransitionTests(true);
         parametrizedTestStateMachine(paramList);
     }
 
     @LargeTest
+    @Test
     public void testStateMachineTransitionsWithoutFocus() throws Throwable {
         List<RoutingTestParameters> paramList = generateTransitionTests(false);
         parametrizedTestStateMachine(paramList);
     }
 
     @MediumTest
+    @Test
     public void testSpeakerPersistence() {
         CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
                 mContext,
@@ -259,6 +271,7 @@ public class CallAudioRouteStateMachineTest
     }
 
     @MediumTest
+    @Test
     public void testUserBluetoothSwitchOff() {
         CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
                 mContext,
@@ -300,6 +313,7 @@ public class CallAudioRouteStateMachineTest
     }
 
     @MediumTest
+    @Test
     public void testUserBluetoothSwitchOffAndOnAgain() {
         CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
                 mContext,
@@ -371,6 +385,7 @@ public class CallAudioRouteStateMachineTest
     }
 
     @MediumTest
+    @Test
     public void testBluetoothRinging() {
         CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
                 mContext,
@@ -404,6 +419,7 @@ public class CallAudioRouteStateMachineTest
     }
 
     @MediumTest
+    @Test
     public void testConnectBluetoothDuringRinging() {
         CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
                 mContext,
@@ -449,6 +465,7 @@ public class CallAudioRouteStateMachineTest
     }
 
     @SmallTest
+    @Test
     public void testConnectSpecificBluetoothDevice() {
         CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
                 mContext,
@@ -496,6 +513,7 @@ public class CallAudioRouteStateMachineTest
     }
 
     @SmallTest
+    @Test
     public void testInitializationWithEarpieceNoHeadsetNoBluetooth() {
         CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_EARPIECE,
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER);
@@ -503,6 +521,7 @@ public class CallAudioRouteStateMachineTest
     }
 
     @SmallTest
+    @Test
     public void testInitializationWithEarpieceAndHeadsetNoBluetooth() {
         CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_WIRED_HEADSET,
                 CallAudioState.ROUTE_WIRED_HEADSET | CallAudioState.ROUTE_SPEAKER);
@@ -510,6 +529,7 @@ public class CallAudioRouteStateMachineTest
     }
 
     @SmallTest
+    @Test
     public void testInitializationWithEarpieceAndHeadsetAndBluetooth() {
         CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_BLUETOOTH,
                 CallAudioState.ROUTE_WIRED_HEADSET | CallAudioState.ROUTE_SPEAKER
@@ -518,6 +538,7 @@ public class CallAudioRouteStateMachineTest
     }
 
     @SmallTest
+    @Test
     public void testInitializationWithEarpieceAndBluetoothNoHeadset() {
         CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_BLUETOOTH,
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER
@@ -526,6 +547,7 @@ public class CallAudioRouteStateMachineTest
     }
 
     @SmallTest
+    @Test
     public void testInitializationWithNoEarpieceNoHeadsetNoBluetooth() {
         CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_SPEAKER,
                 CallAudioState.ROUTE_SPEAKER);
@@ -533,6 +555,7 @@ public class CallAudioRouteStateMachineTest
     }
 
     @SmallTest
+    @Test
     public void testInitializationWithHeadsetNoBluetoothNoEarpiece() {
         CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_WIRED_HEADSET,
                 CallAudioState.ROUTE_WIRED_HEADSET | CallAudioState.ROUTE_SPEAKER);
@@ -540,6 +563,7 @@ public class CallAudioRouteStateMachineTest
     }
 
     @SmallTest
+    @Test
     public void testInitializationWithHeadsetAndBluetoothNoEarpiece() {
         CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_BLUETOOTH,
                 CallAudioState.ROUTE_WIRED_HEADSET | CallAudioState.ROUTE_SPEAKER
@@ -548,6 +572,7 @@ public class CallAudioRouteStateMachineTest
     }
 
     @SmallTest
+    @Test
     public void testInitializationWithBluetoothNoHeadsetNoEarpiece() {
         CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_BLUETOOTH,
                 CallAudioState.ROUTE_SPEAKER | CallAudioState.ROUTE_BLUETOOTH);

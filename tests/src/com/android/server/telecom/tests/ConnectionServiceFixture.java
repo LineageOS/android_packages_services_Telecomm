@@ -26,6 +26,7 @@ import junit.framework.TestCase;
 import org.mockito.Mockito;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -75,6 +76,10 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         int mVideoState = INVALID_VIDEO_STATE;
         int mCapabilities = NOT_SPECIFIED;
         int mProperties = NOT_SPECIFIED;
+
+        public FakeConnectionServiceDelegate(Context base) {
+            attachBaseContext(base);
+        }
 
         @Override
         public Connection onCreateUnknownConnection(
@@ -377,10 +382,8 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
                                    int error, Session.Info sessionInfo) {}
     }
 
-    FakeConnectionServiceDelegate mConnectionServiceDelegate =
-            new FakeConnectionServiceDelegate();
-    private IConnectionService mConnectionServiceDelegateAdapter =
-            IConnectionService.Stub.asInterface(mConnectionServiceDelegate.onBind(null));
+    FakeConnectionServiceDelegate mConnectionServiceDelegate;
+    private IConnectionService mConnectionServiceDelegateAdapter;
 
     FakeConnectionService mConnectionService = new FakeConnectionService();
     private IConnectionService.Stub mConnectionServiceSpy = Mockito.spy(mConnectionService);
@@ -435,7 +438,11 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
     public final List<ComponentName> mRemoteConnectionServiceNames = new ArrayList<>();
     public final List<IBinder> mRemoteConnectionServices = new ArrayList<>();
 
-    public ConnectionServiceFixture() throws Exception { }
+    public ConnectionServiceFixture(Context context) throws Exception {
+        mConnectionServiceDelegate = new FakeConnectionServiceDelegate(context);
+        mConnectionServiceDelegateAdapter = IConnectionService.Stub.asInterface(
+                mConnectionServiceDelegate.onBind(null));
+    }
 
     @Override
     public IConnectionService getTestDouble() {
