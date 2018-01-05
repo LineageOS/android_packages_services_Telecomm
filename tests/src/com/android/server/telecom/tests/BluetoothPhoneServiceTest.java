@@ -78,6 +78,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     private static final int CALL_STATE_INCOMING = 4;
     private static final int CALL_STATE_WAITING = 5;
     private static final int CALL_STATE_IDLE = 6;
+    private static final int CALL_STATE_DISCONNECTED = 7;
     // Terminate all held or set UDUB("busy") to a waiting call
     private static final int CHLD_TYPE_RELEASEHELD = 0;
     // Terminate all active calls and accepts a waiting/held call
@@ -110,6 +111,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
         doReturn(null).when(mMockCallsManager).getHeldCall();
         doReturn(null).when(mMockCallsManager).getOutgoingCall();
         doReturn(0).when(mMockCallsManager).getNumHeldCalls();
+        doReturn(false).when(mMockCallsManager).hasOnlyDisconnectedCalls();
         mBluetoothPhoneService = new BluetoothPhoneServiceImpl(mContext, mLock, mMockCallsManager,
                 mock(BluetoothAdapterProxy.class), mMockPhoneAccountRegistrar);
 
@@ -817,6 +819,25 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    public void testOnCallStateChangedDisconnected() throws Exception {
+        Call disconnectedCall = createDisconnectedCall();
+        doReturn(true).when(mMockCallsManager).hasOnlyDisconnectedCalls();
+        mBluetoothPhoneService.mCallsManagerListener.onCallStateChanged(disconnectedCall,
+                CallState.DISCONNECTING, CallState.DISCONNECTED);
+        verify(mMockBluetoothHeadset).phoneStateChanged(eq(0), eq(0), eq(CALL_STATE_DISCONNECTED),
+                eq(""), eq(128));
+
+        doReturn(false).when(mMockCallsManager).hasOnlyDisconnectedCalls();
+        mBluetoothPhoneService.mCallsManagerListener.onDisconnectedTonePlaying(true);
+        verify(mMockBluetoothHeadset).phoneStateChanged(eq(0), eq(0), eq(CALL_STATE_DISCONNECTED),
+                eq(""), eq(128));
+
+        mBluetoothPhoneService.mCallsManagerListener.onDisconnectedTonePlaying(false);
+        verify(mMockBluetoothHeadset).phoneStateChanged(eq(0), eq(0), eq(CALL_STATE_IDLE),
+                eq(""), eq(128));
+    }
+
+    @MediumTest
     public void testOnCallStateChanged() throws Exception {
         Call ringingCall = createRingingCall();
         when(ringingCall.getHandle()).thenReturn(Uri.parse("tel:555-0000"));
@@ -926,6 +947,12 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     private Call createOutgoingCall() {
         Call call = mock(Call.class);
         when(mMockCallsManager.getOutgoingCall()).thenReturn(call);
+        return call;
+    }
+
+    private Call createDisconnectedCall() {
+        Call call = mock(Call.class);
+        when(mMockCallsManager.getFirstCallWithState(CallState.DISCONNECTED)).thenReturn(call);
         return call;
     }
 
