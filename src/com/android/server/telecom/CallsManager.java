@@ -119,6 +119,7 @@ public class CallsManager extends Call.ListenerBase
         void onSessionModifyRequestReceived(Call call, VideoProfile videoProfile);
         void onHoldToneRequested(Call call);
         void onExternalCallChanged(Call call, boolean isExternalCall);
+        void onDisconnectedTonePlaying(boolean isTonePlaying);
     }
 
     private static final String TAG = "CallsManager";
@@ -773,7 +774,11 @@ public class CallsManager extends Call.ListenerBase
         return false;
     }
 
-    boolean hasOnlyDisconnectedCalls() {
+    @VisibleForTesting
+    public boolean hasOnlyDisconnectedCalls() {
+        if (mCalls.size() == 0) {
+            return false;
+        }
         for (Call call : mCalls) {
             if (!call.isDisconnected()) {
                 return false;
@@ -1785,6 +1790,20 @@ public class CallsManager extends Call.ListenerBase
         Log.v(this, "onAudioStateChanged, audioState: %s -> %s", oldAudioState, newAudioState);
         for (CallsManagerListener listener : mListeners) {
             listener.onCallAudioStateChanged(oldAudioState, newAudioState);
+        }
+    }
+
+    /**
+     * Called when disconnect tone is started or stopped, including any InCallTone
+     * after disconnected call.
+     *
+     * @param isTonePlaying true if the disconnected tone is started, otherwise the disconnected
+     * tone is stopped.
+     */
+    void onDisconnectedTonePlaying(boolean isTonePlaying) {
+        Log.v(this, "onDisconnectedTonePlaying, %s", isTonePlaying ? "started" : "stopped");
+        for (CallsManagerListener listener : mListeners) {
+            listener.onDisconnectedTonePlaying(isTonePlaying);
         }
     }
 
