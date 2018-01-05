@@ -736,7 +736,7 @@ public class BasicCallTests extends TelecomSystemTest {
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
         assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
 
-        mInCallServiceFixtureX.mInCallAdapter.sendCallEvent(ids.mCallId, TEST_EVENT, null);
+        mInCallServiceFixtureX.mInCallAdapter.sendCallEvent(ids.mCallId, TEST_EVENT, 26, null);
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
                 .sendCallEvent(eq(ids.mConnectionId), eq(TEST_EVENT), isNull(Bundle.class), any());
     }
@@ -757,7 +757,7 @@ public class BasicCallTests extends TelecomSystemTest {
         testBundle.putString(TEST_BUNDLE_KEY, "TEST");
 
         ArgumentCaptor<Bundle> bundleArgumentCaptor = ArgumentCaptor.forClass(Bundle.class);
-        mInCallServiceFixtureX.mInCallAdapter.sendCallEvent(ids.mCallId, TEST_EVENT,
+        mInCallServiceFixtureX.mInCallAdapter.sendCallEvent(ids.mCallId, TEST_EVENT, 26,
                 testBundle);
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
                 .sendCallEvent(eq(ids.mConnectionId), eq(TEST_EVENT),
