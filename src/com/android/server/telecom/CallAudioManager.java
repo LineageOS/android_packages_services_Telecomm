@@ -56,6 +56,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     private Call mForegroundCall;
     private boolean mIsTonePlaying = false;
+    private boolean mIsDisconnectedTonePlaying = false;
     private InCallTonePlayer mHoldTonePlayer;
 
     public CallAudioManager(CallAudioRouteStateMachine callAudioRouteStateMachine,
@@ -519,6 +520,11 @@ public class CallAudioManager extends CallsManagerListenerBase {
                 isTonePlaying ? CallAudioModeStateMachine.TONE_STARTED_PLAYING
                         : CallAudioModeStateMachine.TONE_STOPPED_PLAYING,
                 makeArgsForModeStateMachine());
+
+        if (!isTonePlaying && mIsDisconnectedTonePlaying) {
+            mCallsManager.onDisconnectedTonePlaying(false);
+            mIsDisconnectedTonePlaying = false;
+        }
     }
 
     private void onCallLeavingState(Call call, int state) {
@@ -699,6 +705,8 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
             if (toneToPlay != InCallTonePlayer.TONE_INVALID) {
                 mPlayerFactory.createPlayer(toneToPlay).startTone();
+                mCallsManager.onDisconnectedTonePlaying(true);
+                mIsDisconnectedTonePlaying = true;
             }
         }
     }
