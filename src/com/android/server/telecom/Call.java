@@ -74,7 +74,8 @@ import java.util.concurrent.ConcurrentHashMap;
  *  connected etc).
  */
 @VisibleForTesting
-public class Call implements CreateConnectionResponse, EventManager.Loggable {
+public class Call implements CreateConnectionResponse, EventManager.Loggable,
+        ConnectionServiceFocusManager.CallFocus {
     public final static String CALL_ID_UNKNOWN = "-1";
     public final static long DATA_USAGE_NOT_SET = -1;
 
@@ -746,6 +747,11 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public ConnectionServiceFocusManager.ConnectionServiceFocus getConnectionServiceWrapper() {
+        return mConnectionService;
     }
 
     @VisibleForTesting

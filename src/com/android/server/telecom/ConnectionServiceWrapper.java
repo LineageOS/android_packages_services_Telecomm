@@ -64,7 +64,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * {@link IConnectionService}.
  */
 @VisibleForTesting
-public class ConnectionServiceWrapper extends ServiceBinder {
+public class ConnectionServiceWrapper extends ServiceBinder implements
+        ConnectionServiceFocusManager.ConnectionServiceFocus {
 
     private final class Adapter extends IConnectionServiceAdapter.Stub {
 
@@ -854,6 +855,13 @@ public class ConnectionServiceWrapper extends ServiceBinder {
                 Log.endSession();
             }
         }
+
+        @Override
+        public void onConnectionServiceFocusReleased(Session.Info sessionInfo)
+                throws RemoteException {
+            // TODO(mpq): This method is added to avoid the compiled error. Add the real
+            // implementation once ag/3273964 done.
+        }
     }
 
     private final Adapter mAdapter = new Adapter();
@@ -866,6 +874,8 @@ public class ConnectionServiceWrapper extends ServiceBinder {
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
     private final CallsManager mCallsManager;
     private final AppOpsManager mAppOpsManager;
+
+    private ConnectionServiceFocusManager.ConnectionServiceFocusListener mConnSvrFocusListener;
 
     /**
      * Creates a connection service.
@@ -1406,6 +1416,24 @@ public class ConnectionServiceWrapper extends ServiceBinder {
         mServiceInterface = null;
     }
 
+    @Override
+    public void connectionServiceFocusLost() {
+        // Immediately response to the Telecom that it has released the call resources.
+        // TODO(mpq): Change back to the default implementation once b/69651192 done.
+        if (mConnSvrFocusListener != null) {
+            mConnSvrFocusListener.onConnectionServiceReleased(this);
+        }
+    }
+
+    @Override
+    public void connectionServiceFocusGained() {}
+
+    @Override
+    public void setConnectionServiceFocusListener(
+            ConnectionServiceFocusManager.ConnectionServiceFocusListener listener) {
+        mConnSvrFocusListener = listener;
+    }
+
     private void handleCreateConnectionComplete(
             String callId,
             ConnectionRequest request,
@@ -1440,6 +1468,10 @@ public class ConnectionServiceWrapper extends ServiceBinder {
             }
         }
         mCallIdMapper.clear();
+
+        if (mConnSvrFocusListener != null) {
+            mConnSvrFocusListener.onConnectionServiceDeath(this);
+        }
     }
 
     private void logIncoming(String msg, Object... params) {

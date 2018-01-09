@@ -58,4 +58,16 @@ public abstract class TelecomTestCase extends AndroidTestCase {
             }
         }
     }
+
+    protected final void waitForHandlerActionDelayed(Handler h, long timeoutMillis, long delayMs) {
+        final CountDownLatch lock = new CountDownLatch(1);
+        h.postDelayed(lock::countDown, delayMs);
+        while (lock.getCount() > 0) {
+            try {
+                lock.await(timeoutMillis, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                // do nothing
+            }
+        }
+    }
 }
