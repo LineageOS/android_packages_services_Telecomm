@@ -190,7 +190,6 @@ public class LogUtils {
     public static void initLogging(Context context) {
         android.telecom.Log.setTag(TAG);
         android.telecom.Log.setSessionContext(context);
-        android.telecom.Log.initMd5Sum();
         for (EventManager.TimedEventPair p : Events.Timings.sTimedEvents) {
             android.telecom.Log.addRequestResponsePair(p);
         }
