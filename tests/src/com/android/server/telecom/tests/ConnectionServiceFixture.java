@@ -355,6 +355,14 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         }
 
         @Override
+        public void connectionServiceFocusLost(Session.Info sessionInfo) throws RemoteException {
+        }
+
+        @Override
+        public void connectionServiceFocusGained(Session.Info sessionInfo) throws RemoteException {
+        }
+
+        @Override
         public IBinder asBinder() {
             return this;
         }
