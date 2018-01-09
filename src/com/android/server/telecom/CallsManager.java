@@ -340,7 +340,7 @@ public class CallsManager extends Call.ListenerBase
                 wiredHeadsetManager,
                 statusBarNotifier,
                 audioServiceFactory,
-                CallAudioRouteStateMachine.doesDeviceSupportEarpieceRoute()
+                CallAudioRouteStateMachine.EARPIECE_AUTO_DETECT
         );
         callAudioRouteStateMachine.initialize();
 
