@@ -734,6 +734,22 @@ public class BluetoothRouteManager extends StateMachine {
         return null;
     }
 
+    /**
+     * Check if in-band ringing is currently enabled. In-band ringing could be disabled during an
+     * active connection.
+     *
+     * @return true if in-band ringing is enabled, false if in-band ringing is disabled
+     */
+    @VisibleForTesting
+    public boolean isInbandRingingEnabled() {
+        BluetoothHeadsetProxy bluetoothHeadset = mDeviceManager.getHeadsetService();
+        if (bluetoothHeadset == null) {
+            Log.i(this, "isInbandRingingEnabled: no headset service available.");
+            return false;
+        }
+        return bluetoothHeadset.isInbandRingingEnabled();
+    }
+
     private boolean connectAudio(String address) {
         BluetoothHeadsetProxy bluetoothHeadset = mDeviceManager.getHeadsetService();
         if (bluetoothHeadset == null) {
