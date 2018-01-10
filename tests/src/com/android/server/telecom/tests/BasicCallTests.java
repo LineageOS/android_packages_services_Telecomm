@@ -16,6 +16,10 @@
 
 package com.android.server.telecom.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -56,6 +60,11 @@ import com.android.internal.telephony.CallerInfo;
 
 import com.google.common.base.Predicate;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -69,11 +78,25 @@ import org.mockito.ArgumentCaptor;
 /**
  * Performs various basic call tests in Telecom.
  */
+@RunWith(JUnit4.class)
 public class BasicCallTests extends TelecomSystemTest {
     private static final String TEST_BUNDLE_KEY = "android.telecom.extra.TEST";
     private static final String TEST_EVENT = "android.telecom.event.TEST";
 
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+    }
+
     @LargeTest
+    @Test
     public void testSingleOutgoingCallLocalDisconnect() throws Exception {
         IdPair ids = startAndMakeActiveOutgoingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
@@ -102,6 +125,7 @@ public class BasicCallTests extends TelecomSystemTest {
     }
 
     @LargeTest
+    @Test
     public void testSingleOutgoingCallRemoteDisconnect() throws Exception {
         IdPair ids = startAndMakeActiveOutgoingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
@@ -123,6 +147,7 @@ public class BasicCallTests extends TelecomSystemTest {
      * @throws Exception
      */
     @LargeTest
+    @Test
     public void testTelecomManagerAcceptRingingCall() throws Exception {
         IdPair ids = startIncomingPhoneCall("650-555-1212", mPhoneAccountA0.getAccountHandle(),
                 mConnectionServiceFixtureA);
@@ -149,6 +174,7 @@ public class BasicCallTests extends TelecomSystemTest {
      * @throws Exception
      */
     @LargeTest
+    @Test
     public void testTelecomManagerAcceptRingingVideoCall() throws Exception {
         IdPair ids = startIncomingPhoneCall("650-555-1212", mPhoneAccountA0.getAccountHandle(),
                 VideoProfile.STATE_BIDIRECTIONAL, mConnectionServiceFixtureA);
@@ -177,6 +203,7 @@ public class BasicCallTests extends TelecomSystemTest {
      * @throws Exception
      */
     @LargeTest
+    @Test
     public void testTelecomManagerAcceptRingingVideoCallAsAudio() throws Exception {
         IdPair ids = startIncomingPhoneCall("650-555-1212", mPhoneAccountA0.getAccountHandle(),
                 VideoProfile.STATE_BIDIRECTIONAL, mConnectionServiceFixtureA);
@@ -204,6 +231,7 @@ public class BasicCallTests extends TelecomSystemTest {
      * @throws Exception
      */
     @LargeTest
+    @Test
     public void testTelecomManagerAcceptRingingInvalidVideoState() throws Exception {
         IdPair ids = startIncomingPhoneCall("650-555-1212", mPhoneAccountA0.getAccountHandle(),
                 VideoProfile.STATE_BIDIRECTIONAL, mConnectionServiceFixtureA);
@@ -225,6 +253,7 @@ public class BasicCallTests extends TelecomSystemTest {
     }
 
     @LargeTest
+    @Test
     public void testSingleIncomingCallLocalDisconnect() throws Exception {
         IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
@@ -242,6 +271,7 @@ public class BasicCallTests extends TelecomSystemTest {
     }
 
     @LargeTest
+    @Test
     public void testSingleIncomingCallRemoteDisconnect() throws Exception {
         IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
@@ -256,6 +286,7 @@ public class BasicCallTests extends TelecomSystemTest {
     }
 
     @LargeTest
+    @Test
     public void testIncomingEmergencyCallback() throws Exception {
         // Make an outgoing emergency call
         String phoneNumber = "650-555-1212";
@@ -279,15 +310,16 @@ public class BasicCallTests extends TelecomSystemTest {
                 .createConnection(any(PhoneAccountHandle.class), anyString(),
                         connectionRequestCaptor.capture(), eq(true), eq(false), any());
 
-        assert(connectionRequestCaptor.getValue().getExtras().containsKey(
+        assertTrue(connectionRequestCaptor.getValue().getExtras().containsKey(
             android.telecom.Call.EXTRA_LAST_EMERGENCY_CALLBACK_TIME_MILLIS));
         assertTrue(connectionRequestCaptor.getValue().getExtras().getLong(
             android.telecom.Call.EXTRA_LAST_EMERGENCY_CALLBACK_TIME_MILLIS, 0) > 0);
-        assert(connectionRequestCaptor.getValue().getExtras().containsKey(
+        assertTrue(connectionRequestCaptor.getValue().getExtras().containsKey(
             TelecomManager.EXTRA_INCOMING_CALL_ADDRESS));
     }
 
     @LargeTest
+    @Test
     public void testOutgoingCallAndSelectPhoneAccount() throws Exception {
         // Remove default PhoneAccount so that the Call moves into the correct
         // SELECT_PHONE_ACCOUNT state.
@@ -317,6 +349,7 @@ public class BasicCallTests extends TelecomSystemTest {
     }
 
     @LargeTest
+    @Test
     public void testIncomingCallFromContactWithSendToVoicemailIsRejected() throws Exception {
         Bundle extras = new Bundle();
         extras.putParcelable(
@@ -359,6 +392,7 @@ public class BasicCallTests extends TelecomSystemTest {
     }
 
     @LargeTest
+    @Test
     public void testIncomingCallCallerInfoLookupTimesOutIsAllowed() throws Exception {
         when(mClockProxy.currentTimeMillis()).thenReturn(TEST_CREATE_TIME);
         when(mClockProxy.elapsedRealtime()).thenReturn(TEST_CREATE_ELAPSED_TIME);
@@ -405,6 +439,7 @@ public class BasicCallTests extends TelecomSystemTest {
     }
 
     @LargeTest
+    @Test
     public void testIncomingCallFromBlockedNumberIsRejected() throws Exception {
         String phoneNumber = "650-555-1212";
         blockNumber(phoneNumber);
@@ -443,6 +478,7 @@ public class BasicCallTests extends TelecomSystemTest {
     }
 
     @LargeTest
+    @Test
     public void testIncomingCallBlockCheckTimesoutIsAllowed() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
         String phoneNumber = "650-555-1212";
@@ -490,20 +526,8 @@ public class BasicCallTests extends TelecomSystemTest {
                 });
     }
 
-    @MediumTest
-    public void testDeadlockOnOutgoingCall() throws Exception {
-        for (int i = 0; i < 100; i++) {
-            BasicCallTests test = new BasicCallTests();
-            test.setContext(getContext());
-            test.setTestContext(getTestContext());
-            test.setName(getName());
-            test.setUp();
-            test.do_testDeadlockOnOutgoingCall();
-            test.tearDown();
-        }
-    }
-
     @LargeTest
+    @Test
     public void testIncomingThenOutgoingCalls() throws Exception {
         // TODO: We have to use the same PhoneAccount for both; see http://b/18461539
         IdPair incoming = startAndMakeActiveIncomingCall("650-555-2323",
@@ -516,6 +540,7 @@ public class BasicCallTests extends TelecomSystemTest {
     }
 
     @LargeTest
+    @Test
     public void testOutgoingThenIncomingCalls() throws Exception {
         // TODO: We have to use the same PhoneAccount for both; see http://b/18461539
         IdPair outgoing = startAndMakeActiveOutgoingCall("650-555-1212",
@@ -537,6 +562,7 @@ public class BasicCallTests extends TelecomSystemTest {
     }
 
     @LargeTest
+    @Test
     public void testAudioManagerOperations() throws Exception {
         AudioManager audioManager = (AudioManager) mComponentContextFixture.getTestDouble()
                 .getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
@@ -598,11 +624,13 @@ public class BasicCallTests extends TelecomSystemTest {
     }
 
     @MediumTest
+    @Test
     public void testBasicConferenceCall() throws Exception {
         makeConferenceCall();
     }
 
     @MediumTest
+    @Test
     public void testAddCallToConference1() throws Exception {
         ParcelableCall conferenceCall = makeConferenceCall();
         IdPair callId3 = startAndMakeActiveOutgoingCall("650-555-1214",
@@ -620,6 +648,7 @@ public class BasicCallTests extends TelecomSystemTest {
     }
 
     @MediumTest
+    @Test
     public void testAddCallToConference2() throws Exception {
         ParcelableCall conferenceCall = makeConferenceCall();
         IdPair callId3 = startAndMakeActiveOutgoingCall("650-555-1214",
@@ -642,6 +671,7 @@ public class BasicCallTests extends TelecomSystemTest {
      * @throws Exception
      */
     @MediumTest
+    @Test
     public void testPullNonExternalCall() throws Exception {
         // TODO: Revisit this unit test once telecom support for filtering external calls from
         // InCall services is implemented.
@@ -662,6 +692,7 @@ public class BasicCallTests extends TelecomSystemTest {
      * @throws Exception
      */
     @MediumTest
+    @Test
     public void testSendConnectionEventNull() throws Exception {
         IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
@@ -677,6 +708,7 @@ public class BasicCallTests extends TelecomSystemTest {
      * @throws Exception
      */
     @MediumTest
+    @Test
     public void testSendConnectionEventNotNull() throws Exception {
         IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
@@ -698,6 +730,7 @@ public class BasicCallTests extends TelecomSystemTest {
      * @throws Exception
      */
     @MediumTest
+    @Test
     public void testSendCallEventNull() throws Exception {
         IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
@@ -714,6 +747,7 @@ public class BasicCallTests extends TelecomSystemTest {
      * @throws Exception
      */
     @MediumTest
+    @Test
     public void testSendCallEventNonNull() throws Exception {
         IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
@@ -776,6 +810,7 @@ public class BasicCallTests extends TelecomSystemTest {
      * property set.
      */
     @MediumTest
+    @Test
     public void testCdmaEnhancedPrivacyVoiceCall() throws Exception {
         mConnectionServiceFixtureA.mConnectionServiceDelegate.mProperties =
                 Connection.PROPERTY_HAS_CDMA_VOICE_PRIVACY;
@@ -794,6 +829,7 @@ public class BasicCallTests extends TelecomSystemTest {
      * when the Connection.PROPERTY_HAS_CDMA_VOICE_PRIVACY property is removed from the Connection.
      */
     @MediumTest
+    @Test
     public void testDropCdmaEnhancedPrivacyVoiceCall() throws Exception {
         mConnectionServiceFixtureA.mConnectionServiceDelegate.mProperties =
                 Connection.PROPERTY_HAS_CDMA_VOICE_PRIVACY;
@@ -815,6 +851,7 @@ public class BasicCallTests extends TelecomSystemTest {
      * @throws Exception
      */
     @LargeTest
+    @Test
     public void testPullExternalCall() throws Exception {
         // TODO: Revisit this unit test once telecom support for filtering external calls from
         // InCall services is implemented.
@@ -841,6 +878,7 @@ public class BasicCallTests extends TelecomSystemTest {
      * @throws Exception
      */
     @LargeTest
+    @Test
     public void testPullNonPullableExternalCall() throws Exception {
         // TODO: Revisit this unit test once telecom support for filtering external calls from
         // InCall services is implemented.
@@ -864,6 +902,7 @@ public class BasicCallTests extends TelecomSystemTest {
      * @throws Exception
      */
     @LargeTest
+    @Test
     public void testOutgoingCallSelectPhoneAccountVideo() throws Exception {
         startOutgoingPhoneCallPendingCreateConnection("650-555-1212",
                 null, mConnectionServiceFixtureA,
@@ -886,6 +925,7 @@ public class BasicCallTests extends TelecomSystemTest {
      */
     @FlakyTest
     @LargeTest
+    @Test
     public void testOutgoingCallSelectPhoneAccountNoVideo() throws Exception {
         startOutgoingPhoneCallPendingCreateConnection("650-555-1212",
                 null, mConnectionServiceFixtureA,
@@ -906,6 +946,7 @@ public class BasicCallTests extends TelecomSystemTest {
      * @throws Exception
      */
     @LargeTest
+    @Test
     public void testSelfManagedOutgoing() throws Exception {
         PhoneAccountHandle phoneAccountHandle = mPhoneAccountSelfManaged.getAccountHandle();
         IdPair ids = startAndMakeActiveOutgoingCall("650-555-1212", phoneAccountHandle,
@@ -920,6 +961,7 @@ public class BasicCallTests extends TelecomSystemTest {
      * @throws Exception
      */
     @LargeTest
+    @Test
     public void testSelfManagedIncoming() throws Exception {
         PhoneAccountHandle phoneAccountHandle = mPhoneAccountSelfManaged.getAccountHandle();
         IdPair ids = startAndMakeActiveIncomingCall("650-555-1212", phoneAccountHandle,
@@ -935,6 +977,7 @@ public class BasicCallTests extends TelecomSystemTest {
      * @throws Exception
      */
     @LargeTest
+    @Test
     public void testIsOutgoingCallPermitted() throws Exception {
         assertTrue(mTelecomSystem.getTelecomServiceImpl().getBinder()
                 .isOutgoingCallPermitted(mPhoneAccountSelfManaged.getAccountHandle()));
@@ -946,6 +989,7 @@ public class BasicCallTests extends TelecomSystemTest {
      * @throws Exception
      */
     @LargeTest
+    @Test
     public void testIsOutgoingCallPermittedOngoing() throws Exception {
         // Start a regular call; the self-managed CS can't make a call now.
         IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
@@ -962,6 +1006,7 @@ public class BasicCallTests extends TelecomSystemTest {
      * @throws Exception
      */
     @LargeTest
+    @Test
     public void testDisconnectSelfManaged() throws Exception {
         // Add a self-managed call.
         PhoneAccountHandle phoneAccountHandle = mPhoneAccountSelfManaged.getAccountHandle();

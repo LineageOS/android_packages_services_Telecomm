@@ -31,12 +31,20 @@ import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.bluetooth.BluetoothDeviceManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
+@RunWith(JUnit4.class)
 public class BluetoothDeviceManagerTest extends TelecomTestCase {
     @Mock BluetoothRouteManager mRouteManager;
     @Mock BluetoothHeadsetProxy mHeadsetProxy;
@@ -50,6 +58,8 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
     private BluetoothDevice device2;
     private BluetoothDevice device3;
 
+    @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         device1 = makeBluetoothDevice("00:00:00:00:00:01");
@@ -80,6 +90,7 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testSingleDeviceConnectAndDisconnect() {
         receiverUnderTest.onReceive(mContext,
                 buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device1));
@@ -93,6 +104,7 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testMultiDeviceConnectAndDisconnect() {
         receiverUnderTest.onReceive(mContext,
                 buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device1));
@@ -115,6 +127,7 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testExclusionaryGetRecentDevices() {
         receiverUnderTest.onReceive(mContext,
                 buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device1));
@@ -132,6 +145,7 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testHeadsetServiceDisconnect() {
         receiverUnderTest.onReceive(mContext,
                 buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device1));
