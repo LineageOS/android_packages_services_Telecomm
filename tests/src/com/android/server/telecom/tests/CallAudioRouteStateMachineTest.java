@@ -1165,9 +1165,7 @@ public class CallAudioRouteStateMachineTest
     }
 
     private void setInBandRing(boolean enabled) {
-        mComponentContextFixture.putBooleanResource(
-                com.android.internal.R.bool.config_bluetooth_hfp_inband_ringing_support,
-                enabled);
+        when(mockBluetoothRouteManager.isInbandRingingEnabled()).thenReturn(enabled);
     }
 
     private void resetMocks() {
