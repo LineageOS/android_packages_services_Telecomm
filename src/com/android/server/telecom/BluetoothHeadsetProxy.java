@@ -68,4 +68,8 @@ public class BluetoothHeadsetProxy {
     public boolean disconnectAudio() {
         return mBluetoothHeadset.disconnectAudio();
     }
+
+    public boolean isInbandRingingEnabled() {
+        return mBluetoothHeadset.isInbandRingingEnabled();
+    }
 }

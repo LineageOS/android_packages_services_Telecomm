@@ -19,7 +19,6 @@ package com.android.server.telecom;
 
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothHeadset;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.media.AudioDeviceInfo;
@@ -371,7 +370,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 case SWITCH_BLUETOOTH:
                 case USER_SWITCH_BLUETOOTH:
                     if ((mAvailableRoutes & ROUTE_BLUETOOTH) != 0) {
-                        if (mAudioFocusType == ACTIVE_FOCUS || mIsInbandRingSupported) {
+                        if (mAudioFocusType == ACTIVE_FOCUS
+                                || mBluetoothRouteManager.isInbandRingingEnabled()) {
                             String address = (msg.obj instanceof SomeArgs) ?
                                     (String) ((SomeArgs) msg.obj).arg2 : null;
                             // Omit transition to ActiveBluetoothRoute
@@ -568,7 +568,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 case SWITCH_BLUETOOTH:
                 case USER_SWITCH_BLUETOOTH:
                     if ((mAvailableRoutes & ROUTE_BLUETOOTH) != 0) {
-                        if (mAudioFocusType == ACTIVE_FOCUS || mIsInbandRingSupported) {
+                        if (mAudioFocusType == ACTIVE_FOCUS
+                                || mBluetoothRouteManager.isInbandRingingEnabled()) {
                             String address = (msg.obj instanceof SomeArgs) ?
                                     (String) ((SomeArgs) msg.obj).arg2 : null;
                             // Omit transition to ActiveBluetoothRoute until actual connection.
@@ -793,7 +794,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     if (msg.arg1 == NO_FOCUS) {
                         setBluetoothOff();
                         reinitialize();
-                    } else if (msg.arg1 == RINGING_FOCUS && !mIsInbandRingSupported) {
+                    } else if (msg.arg1 == RINGING_FOCUS
+                            && !mBluetoothRouteManager.isInbandRingingEnabled()) {
                         setBluetoothOff();
                         transitionTo(mRingingBluetoothRoute);
                     }
@@ -954,7 +956,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     if (msg.arg1 == ACTIVE_FOCUS) {
                         setBluetoothOn(null);
                     } else if (msg.arg1 == RINGING_FOCUS) {
-                        if (mIsInbandRingSupported) {
+                        if (mBluetoothRouteManager.isInbandRingingEnabled()) {
                             setBluetoothOn(null);
                         } else {
                             transitionTo(mRingingBluetoothRoute);
@@ -1065,7 +1067,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     String address = (msg.obj instanceof SomeArgs) ?
                             (String) ((SomeArgs) msg.obj).arg2 : null;
                     if ((mAvailableRoutes & ROUTE_BLUETOOTH) != 0) {
-                        if (mAudioFocusType == ACTIVE_FOCUS || mIsInbandRingSupported) {
+                        if (mAudioFocusType == ACTIVE_FOCUS
+                                || mBluetoothRouteManager.isInbandRingingEnabled()) {
                             // Omit transition to ActiveBluetoothRoute
                             setBluetoothOn(address);
                         } else {
@@ -1257,8 +1260,6 @@ public class CallAudioRouteStateMachine extends StateMachine {
     private CallAudioState mCurrentCallAudioState;
     private CallAudioState mLastKnownCallAudioState;
 
-    private final boolean mIsInbandRingSupported;
-
     public CallAudioRouteStateMachine(
             Context context,
             CallsManager callsManager,
@@ -1295,7 +1296,6 @@ public class CallAudioRouteStateMachine extends StateMachine {
             default:
                 mDoesDeviceSupportEarpieceRoute = checkForEarpieceSupport();
         }
-        mIsInbandRingSupported = BluetoothHeadset.isInbandRingingSupported(mContext);
         mLock = callsManager.getLock();
 
         mStateNameToRouteCode = new HashMap<>(8);
