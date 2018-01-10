@@ -20,7 +20,6 @@ import android.content.ComponentName;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Debug;
 import android.telecom.DisconnectCause;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
@@ -34,6 +33,11 @@ import com.android.server.telecom.CreateConnectionProcessor;
 import com.android.server.telecom.CreateConnectionResponse;
 import com.android.server.telecom.PhoneAccountRegistrar;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -51,6 +55,7 @@ import static org.mockito.Mockito.when;
 /**
  * Unit testing for CreateConnectionProcessor as well as CreateConnectionTimeout classes.
  */
+@RunWith(JUnit4.class)
 public class CreateConnectionProcessorTest extends TelecomTestCase {
 
     private static final String TEST_PACKAGE = "com.android.server.telecom.tests";
@@ -69,6 +74,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
     CreateConnectionProcessor mTestCreateConnectionProcessor;
 
     @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
@@ -80,12 +86,14 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
     }
 
     @Override
+    @After
     public void tearDown() throws Exception {
         mTestCreateConnectionProcessor = null;
         super.tearDown();
     }
 
     @SmallTest
+    @Test
     public void testSimPhoneAccountSuccess() throws Exception {
         PhoneAccountHandle pAHandle = getNewTargetPhoneAccountHandle("tel_acct");
         when(mMockCall.isEmergencyCall()).thenReturn(false);
@@ -106,6 +114,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testbadPhoneAccount() throws Exception {
         PhoneAccountHandle pAHandle = null;
         when(mMockCall.isEmergencyCall()).thenReturn(false);
@@ -124,6 +133,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testConnectionManagerSuccess() throws Exception {
         PhoneAccountHandle pAHandle = getNewTargetPhoneAccountHandle("tel_acct");
         when(mMockCall.isEmergencyCall()).thenReturn(false);
@@ -149,6 +159,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testConnectionManagerFailedFallToSim() throws Exception {
         PhoneAccountHandle pAHandle = getNewTargetPhoneAccountHandle("tel_acct");
         when(mMockCall.isEmergencyCall()).thenReturn(false);
@@ -184,6 +195,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testConnectionManagerFailedDoNotFallToSim() throws Exception {
         PhoneAccountHandle pAHandle = getNewTargetPhoneAccountHandle("tel_acct");
         when(mMockCall.isEmergencyCall()).thenReturn(false);
@@ -214,6 +226,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testEmergencyCallToSim() throws Exception {
         when(mMockCall.isEmergencyCall()).thenReturn(true);
         // Put in a regular phone account to be sure it doesn't call that
@@ -237,6 +250,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testEmergencyCallSimFailToConnectionManager() throws Exception {
         when(mMockCall.isEmergencyCall()).thenReturn(true);
         when(mMockCall.getHandle()).thenReturn(Uri.parse(""));
