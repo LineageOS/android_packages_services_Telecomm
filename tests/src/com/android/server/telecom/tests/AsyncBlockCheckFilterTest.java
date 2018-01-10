@@ -26,6 +26,10 @@ import com.android.server.telecom.callfiltering.BlockCheckerAdapter;
 import com.android.server.telecom.callfiltering.CallFilterResultCallback;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 
 import java.util.concurrent.CountDownLatch;
@@ -37,6 +41,7 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@RunWith(JUnit4.class)
 public class AsyncBlockCheckFilterTest extends TelecomTestCase {
     @Mock private Context mContext;
     @Mock private BlockCheckerAdapter mBlockCheckerAdapter;
@@ -62,6 +67,7 @@ public class AsyncBlockCheckFilterTest extends TelecomTestCase {
     private static final int TEST_TIMEOUT = 100;
 
     @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         when(mCall.getHandle()).thenReturn(TEST_HANDLE);
@@ -69,6 +75,7 @@ public class AsyncBlockCheckFilterTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testBlockNumber() {
         final CountDownLatch latch = new CountDownLatch(1);
         doAnswer(invocation -> {
@@ -83,6 +90,7 @@ public class AsyncBlockCheckFilterTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testDontBlockNumber() {
         final CountDownLatch latch = new CountDownLatch(1);
         doAnswer(invocation -> {

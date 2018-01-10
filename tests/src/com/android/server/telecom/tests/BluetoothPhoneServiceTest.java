@@ -22,12 +22,10 @@ import android.content.Intent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Debug;
 import android.telecom.Connection;
 import android.telecom.GatewayInfo;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
-import android.telecom.TelecomManager;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -42,12 +40,18 @@ import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.TelecomSystem;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -64,6 +68,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
+@RunWith(JUnit4.class)
 public class BluetoothPhoneServiceTest extends TelecomTestCase {
 
     private static final int TEST_DTMF_TONE = 0;
@@ -97,6 +102,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     @Mock BluetoothHeadsetProxy mMockBluetoothHeadset;
 
     @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
@@ -120,6 +126,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @Override
+    @After
     public void tearDown() throws Exception {
 
         mBluetoothPhoneService = null;
@@ -127,6 +134,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testHeadsetAnswerCall() throws Exception {
         Call mockCall = createRingingCall();
 
@@ -137,6 +145,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testHeadsetAnswerCallNull() throws Exception {
         when(mMockCallsManager.getRingingCall()).thenReturn(null);
 
@@ -147,6 +156,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testHeadsetHangupCall() throws Exception {
         Call mockCall = createForegroundCall();
 
@@ -157,6 +167,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testHeadsetHangupCallNull() throws Exception {
         when(mMockCallsManager.getForegroundCall()).thenReturn(null);
 
@@ -167,6 +178,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testHeadsetSendDTMF() throws Exception {
         Call mockCall = createForegroundCall();
 
@@ -178,6 +190,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testHeadsetSendDTMFNull() throws Exception {
         when(mMockCallsManager.getForegroundCall()).thenReturn(null);
 
@@ -189,6 +202,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testGetNetworkOperator() throws Exception {
         Call mockCall = createForegroundCall();
         PhoneAccount fakePhoneAccount = makeQuickAccount("id0", TEST_ACCOUNT_INDEX);
@@ -201,6 +215,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testGetNetworkOperatorNoPhoneAccount() throws Exception {
         when(mMockCallsManager.getForegroundCall()).thenReturn(null);
 
@@ -210,6 +225,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testGetSubscriberNumber() throws Exception {
         Call mockCall = createForegroundCall();
         PhoneAccount fakePhoneAccount = makeQuickAccount("id0", TEST_ACCOUNT_INDEX);
@@ -222,6 +238,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testGetSubscriberNumberFallbackToTelephony() throws Exception {
         Call mockCall = createForegroundCall();
         String fakeNumber = "8675309";
@@ -237,6 +254,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testListCurrentCallsOneCall() throws Exception {
         ArrayList<Call> calls = new ArrayList<>();
         Call activeCall = createActiveCall();
@@ -254,6 +272,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testConferenceInProgressCDMA() throws Exception {
         // If two calls are being conferenced and updateHeadsetWithCallState runs while this is
         // still occuring, it will look like there is an active and held call still while we are
@@ -304,6 +323,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testListCurrentCallsCdmaHold() throws Exception {
         // Call has been put into a CDMA "conference" with one call on hold.
         ArrayList<Call> calls = new ArrayList<>();
@@ -345,6 +365,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testListCurrentCallsCdmaConference() throws Exception {
         // Call is in a true CDMA conference
         ArrayList<Call> calls = new ArrayList<>();
@@ -386,6 +407,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testWaitingCallClccResponse() throws Exception {
         ArrayList<Call> calls = new ArrayList<>();
         when(mMockCallsManager.getCalls()).thenReturn(calls);
@@ -408,6 +430,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testNewCallClccResponse() throws Exception {
         ArrayList<Call> calls = new ArrayList<>();
         when(mMockCallsManager.getCalls()).thenReturn(calls);
@@ -423,6 +446,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testRingingCallClccResponse() throws Exception {
         ArrayList<Call> calls = new ArrayList<>();
         when(mMockCallsManager.getCalls()).thenReturn(calls);
@@ -443,6 +467,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testCallClccCache() throws Exception {
         ArrayList<Call> calls = new ArrayList<>();
         when(mMockCallsManager.getCalls()).thenReturn(calls);
@@ -477,6 +502,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testAlertingCallClccResponse() throws Exception {
         ArrayList<Call> calls = new ArrayList<>();
         when(mMockCallsManager.getCalls()).thenReturn(calls);
@@ -497,6 +523,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testHoldingCallClccResponse() throws Exception {
         ArrayList<Call> calls = new ArrayList<>();
         when(mMockCallsManager.getCalls()).thenReturn(calls);
@@ -526,6 +553,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testListCurrentCallsImsConference() throws Exception {
         ArrayList<Call> calls = new ArrayList<>();
         Call parentCall = createActiveCall();
@@ -544,6 +572,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testListCurrentCallsHeldImsCepConference() throws Exception {
         ArrayList<Call> calls = new ArrayList<>();
         Call parentCall = createHeldCall();
@@ -574,6 +603,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testQueryPhoneState() throws Exception {
         Call ringingCall = createRingingCall();
         when(ringingCall.getHandle()).thenReturn(Uri.parse("tel:5550000"));
@@ -585,6 +615,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testCDMAConferenceQueryState() throws Exception {
         Call parentConfCall = createActiveCall();
         final Call confCall1 = mock(Call.class);
@@ -605,6 +636,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testProcessChldTypeReleaseHeldRinging() throws Exception {
         Call ringingCall = createRingingCall();
 
@@ -615,6 +647,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testProcessChldTypeReleaseHeldHold() throws Exception {
         Call onHoldCall = createHeldCall();
 
@@ -625,6 +658,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testProcessChldReleaseActiveRinging() throws Exception {
         Call activeCall = createActiveCall();
         Call ringingCall = createRingingCall();
@@ -638,6 +672,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testProcessChldReleaseActiveHold() throws Exception {
         Call activeCall = createActiveCall();
         Call heldCall = createHeldCall();
@@ -651,6 +686,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testProcessChldHoldActiveRinging() throws Exception {
         Call ringingCall = createRingingCall();
 
@@ -662,6 +698,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testProcessChldHoldActiveUnhold() throws Exception {
         Call heldCall = createHeldCall();
 
@@ -673,6 +710,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testProcessChldHoldActiveHold() throws Exception {
         Call activeCall = createActiveCall();
         addCallCapability(activeCall, Connection.CAPABILITY_HOLD);
@@ -685,6 +723,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testProcessChldAddHeldToConfHolding() throws Exception {
         Call activeCall = createActiveCall();
         addCallCapability(activeCall, Connection.CAPABILITY_MERGE_CONFERENCE);
@@ -696,6 +735,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testProcessChldAddHeldToConf() throws Exception {
         Call activeCall = createActiveCall();
         removeCallCapability(activeCall, Connection.CAPABILITY_MERGE_CONFERENCE);
@@ -711,6 +751,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testProcessChldHoldActiveSwapConference() throws Exception {
         // Create an active CDMA Call with a call on hold and simulate a swapConference().
         Call parentCall = createActiveCall();
@@ -736,6 +777,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
 
     // Testing the CallsManager Listener Functionality on Bluetooth
     @MediumTest
+    @Test
     public void testOnCallAddedRinging() throws Exception {
         Call ringingCall = createRingingCall();
         when(ringingCall.getHandle()).thenReturn(Uri.parse("tel:555000"));
@@ -748,6 +790,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testOnCallAddedCdmaActiveHold() throws Exception {
         // Call has been put into a CDMA "conference" with one call on hold.
         Call parentCall = createActiveCall();
@@ -769,6 +812,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testOnCallRemoved() throws Exception {
         Call activeCall = createActiveCall();
         mBluetoothPhoneService.mCallsManagerListener.onCallAdded(activeCall);
@@ -780,6 +824,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testOnCallStateChangedConnectingCall() throws Exception {
         Call activeCall = mock(Call.class);
         Call connectingCall = mock(Call.class);
@@ -797,6 +842,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testOnCallStateChangedDialing() throws Exception {
         Call activeCall = createActiveCall();
 
@@ -808,6 +854,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testOnCallStateChangedAlerting() throws Exception {
         Call outgoingCall = createOutgoingCall();
 
@@ -819,6 +866,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testOnCallStateChangedDisconnected() throws Exception {
         Call disconnectedCall = createDisconnectedCall();
         doReturn(true).when(mMockCallsManager).hasOnlyDisconnectedCalls();
@@ -838,6 +886,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testOnCallStateChanged() throws Exception {
         Call ringingCall = createRingingCall();
         when(ringingCall.getHandle()).thenReturn(Uri.parse("tel:555-0000"));
@@ -858,6 +907,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testOnCallStateChangedGSMSwap() throws Exception {
         Call heldCall = createHeldCall();
         when(heldCall.getHandle()).thenReturn(Uri.parse("tel:555-0000"));
@@ -870,6 +920,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testOnIsConferencedChanged() throws Exception {
         // Start with two calls that are being merged into a CDMA conference call. The
         // onIsConferencedChanged method will be called multiple times during the call. Make sure
@@ -906,6 +957,7 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testBluetoothAdapterReceiver() throws Exception {
         Call ringingCall = createRingingCall();
         when(ringingCall.getHandle()).thenReturn(Uri.parse("tel:5550000"));
