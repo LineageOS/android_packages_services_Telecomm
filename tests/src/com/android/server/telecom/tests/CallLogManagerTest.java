@@ -48,9 +48,12 @@ import com.android.server.telecom.CallLogManager;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.MissedCallNotifier;
 import com.android.server.telecom.PhoneAccountRegistrar;
-import com.android.server.telecom.R;
 import com.android.server.telecom.TelephonyUtil;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -61,14 +64,18 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.util.Arrays;
-import java.util.Locale;
 
+@RunWith(JUnit4.class)
 public class CallLogManagerTest extends TelecomTestCase {
 
     private CallLogManager mCallLogManager;
@@ -103,6 +110,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     MissedCallNotifier mMissedCallNotifier;
 
     @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
@@ -153,6 +161,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testDontLogCancelledCall() {
         Call fakeCall = makeFakeCall(
                 DisconnectCause.CANCELED,
@@ -174,6 +183,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testDontLogChoosingAccountCall() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, CURRENT_USER_ID));
@@ -196,6 +206,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testDontLogCallsFromEmergencyAccount() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(EMERGENCY_ACCT_HANDLE, 0));
@@ -224,6 +235,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testLogCallDirectionOutgoing() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, CURRENT_USER_ID));
@@ -248,6 +260,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testLogCallDirectionIncoming() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, CURRENT_USER_ID));
@@ -272,6 +285,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testLogCallDirectionMissed() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, CURRENT_USER_ID));
@@ -300,6 +314,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testLogCallDirectionRejected() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, CURRENT_USER_ID));
@@ -325,6 +340,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testCreationTimeAndAge() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, CURRENT_USER_ID));
@@ -352,6 +368,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testLogPhoneAccountId() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, CURRENT_USER_ID));
@@ -375,6 +392,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testLogCorrectPhoneNumber() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, CURRENT_USER_ID));
@@ -401,6 +419,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testLogCallVideoFeatures() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, CURRENT_USER_ID));
@@ -425,6 +444,7 @@ public class CallLogManagerTest extends TelecomTestCase {
 
     @MediumTest
     @FlakyTest
+    @Test
     public void testLogCallDirectionOutgoingWithMultiUserCapability() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(mOtherUserAccountHandle,
@@ -457,6 +477,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testLogCallDirectionIncomingWithMultiUserCapability() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(mOtherUserAccountHandle,
@@ -489,6 +510,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testLogCallDirectionOutgoingWithMultiUserCapabilityFromManagedProfile() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(mManagedProfileAccountHandle,
@@ -519,6 +541,7 @@ public class CallLogManagerTest extends TelecomTestCase {
 
     @MediumTest
     @FlakyTest
+    @Test
     public void testLogCallDirectionOutgoingFromManagedProfile() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(mManagedProfileAccountHandle, 0));
@@ -548,6 +571,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @Test
     public void testLogCallDirectionIngoingFromManagedProfile() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(mManagedProfileAccountHandle, 0));
@@ -580,6 +604,7 @@ public class CallLogManagerTest extends TelecomTestCase {
      * Ensure call data usage is persisted to the call log when present in the call.
      */
     @MediumTest
+    @Test
     public void testLogCallDataUsageSet() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, CURRENT_USER_ID));
@@ -606,6 +631,7 @@ public class CallLogManagerTest extends TelecomTestCase {
      * Ensures call data usage is null in the call log when not set on the call.
      */
     @MediumTest
+    @Test
     public void testLogCallDataUsageNotSet() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, CURRENT_USER_ID));
@@ -629,6 +655,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testCountryIso_setCache() {
         Country testCountry = new Country(TEST_ISO, Country.COUNTRY_SOURCE_LOCALE);
         CountryDetector mockDetector = (CountryDetector) mContext.getSystemService(
@@ -641,6 +668,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testCountryIso_newCountryDetected() {
         Country testCountry = new Country(TEST_ISO, Country.COUNTRY_SOURCE_LOCALE);
         Country testCountry2 = new Country(TEST_ISO_2, Country.COUNTRY_SOURCE_LOCALE);

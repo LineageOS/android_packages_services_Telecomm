@@ -31,6 +31,10 @@ import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.bluetooth.BluetoothDeviceManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
@@ -38,6 +42,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -48,6 +53,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@RunWith(JUnit4.class)
 public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRouteManager> {
     private enum ListenerUpdate {
         DEVICE_LIST_CHANGED, DEVICE_AVAILABLE, DEVICE_UNAVAILABLE,
@@ -207,6 +213,7 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
     private BluetoothDevice device3;
 
     @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
@@ -217,12 +224,14 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
     }
 
     @LargeTest
+    @Test
     public void testTransitions() throws Throwable {
         List<BluetoothRouteTestParameters> testCases = generateTestCases();
         parametrizedTestStateMachine(testCases);
     }
 
     @SmallTest
+    @Test
     public void testConnectHfpRetryWhileNotConnected() {
         BluetoothRouteManager sm = setupStateMachine(
                 BluetoothRouteManager.AUDIO_OFF_STATE_NAME, null);
@@ -244,6 +253,7 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
     }
 
     @SmallTest
+    @Test
     public void testConnectHfpRetryWhileConnectedToAnotherDevice() {
         BluetoothRouteManager sm = setupStateMachine(
                 BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX, device1);
@@ -268,6 +278,7 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
     }
 
     @SmallTest
+    @Test
     public void testProperFallbackOrder1() {
         // Device 1, 2, 3 are connected in that order. Device 1 is activated, then device 2.
         // Disconnect device 2, verify fallback to device 1. Disconnect device 1, fallback to
@@ -319,6 +330,7 @@ public class BluetoothRouteManagerTest extends StateMachineTestBase<BluetoothRou
     }
 
     @SmallTest
+    @Test
     public void testProperFallbackOrder2() {
         // Device 1, 2, 3 are connected in that order. Device 3 is activated.
         // Disconnect device 3, verify fallback to device 2. Disconnect device 2, fallback to

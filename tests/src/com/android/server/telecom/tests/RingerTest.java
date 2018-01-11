@@ -34,8 +34,14 @@ import com.android.server.telecom.Ringer;
 import com.android.server.telecom.RingtoneFactory;
 import com.android.server.telecom.SystemSettingsUtil;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -43,6 +49,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@RunWith(JUnit4.class)
 public class RingerTest extends TelecomTestCase {
     @Mock InCallTonePlayer.Factory mockPlayerFactory;
     @Mock SystemSettingsUtil mockSystemSettingsUtil;
@@ -57,6 +64,9 @@ public class RingerTest extends TelecomTestCase {
 
     Ringer mRingerUnderTest;
     AudioManager mockAudioManager;
+
+    @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
@@ -72,6 +82,7 @@ public class RingerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testNoActionInTheaterMode() {
         // Start call waiting to make sure that it doesn't stop when we start ringing
         mRingerUnderTest.startCallWaiting(mockCall1);
@@ -84,6 +95,7 @@ public class RingerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testNoActionWhenDialerRings() {
         // Start call waiting to make sure that it doesn't stop when we start ringing
         mRingerUnderTest.startCallWaiting(mockCall1);
@@ -96,6 +108,7 @@ public class RingerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testAudioFocusStillAcquiredWhenDialerRings() {
         // Start call waiting to make sure that it doesn't stop when we start ringing
         mRingerUnderTest.startCallWaiting(mockCall1);
@@ -109,6 +122,7 @@ public class RingerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testNoActionWhenCallIsSelfManaged() {
         // Start call waiting to make sure that it doesn't stop when we start ringing
         mRingerUnderTest.startCallWaiting(mockCall1);
@@ -122,6 +136,7 @@ public class RingerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testCallWaitingButNoRingForSpecificContacts() {
         NotificationManager notificationManager =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -138,6 +153,7 @@ public class RingerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testVibrateButNoRingForNullRingtone() {
         mRingerUnderTest.startCallWaiting(mockCall1);
         when(mockRingtoneFactory.getRingtone(any(Call.class))).thenReturn(null);
@@ -150,6 +166,7 @@ public class RingerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testVibrateButNoRingForSilentRingtone() {
         mRingerUnderTest.startCallWaiting(mockCall1);
         Ringtone mockRingtone = mock(Ringtone.class);
@@ -164,6 +181,7 @@ public class RingerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testRingAndNoVibrate() {
         mRingerUnderTest.startCallWaiting(mockCall1);
         ensureRingerIsAudible();
@@ -176,6 +194,7 @@ public class RingerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testSilentRingWithHfpStillAcquiresFocus1() {
         mRingerUnderTest.startCallWaiting(mockCall1);
         Ringtone mockRingtone = mock(Ringtone.class);
@@ -191,6 +210,7 @@ public class RingerTest extends TelecomTestCase {
     }
 
     @SmallTest
+    @Test
     public void testSilentRingWithHfpStillAcquiresFocus2() {
         mRingerUnderTest.startCallWaiting(mockCall1);
         when(mockRingtoneFactory.getRingtone(any(Call.class))).thenReturn(null);
