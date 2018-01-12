@@ -185,6 +185,8 @@ public class TelecomSystem {
             AudioServiceFactory audioServiceFactory,
             BluetoothPhoneServiceImplFactory
                     bluetoothPhoneServiceImplFactory,
+            ConnectionServiceFocusManager.ConnectionServiceFocusManagerFactory
+                    connectionServiceFocusManagerFactory,
             Timeouts.Adapter timeoutsAdapter,
             AsyncRingtonePlayer asyncRingtonePlayer,
             PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
@@ -257,6 +259,7 @@ public class TelecomSystem {
                 headsetMediaButtonFactory,
                 proximitySensorManagerFactory,
                 inCallWakeLockControllerFactory,
+                connectionServiceFocusManagerFactory,
                 audioServiceFactory,
                 bluetoothRouteManager,
                 wiredHeadsetManager,

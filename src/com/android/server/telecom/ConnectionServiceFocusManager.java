@@ -20,6 +20,7 @@ import android.annotation.Nullable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.telecom.Log;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
@@ -28,8 +29,12 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ConnectionServiceFocusManager {
+    private static final String TAG = "ConnectionSvrFocusMgr";
 
-    private static final String TAG = "ConnectionServiceFocusManager";
+    /** Factory interface used to create the {@link ConnectionServiceFocusManager} instance. */
+    public interface ConnectionServiceFocusManagerFactory {
+        ConnectionServiceFocusManager create(CallsManagerRequester requester, Looper looper);
+    }
 
     /**
      * Interface used by ConnectionServiceFocusManager to communicate with
@@ -190,18 +195,22 @@ public class ConnectionServiceFocusManager {
 
     private final ConnectionServiceFocusListener mConnectionServiceFocusListener =
             new ConnectionServiceFocusListener() {
-        @Override
-        public void onConnectionServiceReleased(ConnectionServiceFocus connectionServiceFocus) {
-            mEventHandler.obtainMessage(MSG_RELEASE_CONNECTION_FOCUS, connectionServiceFocus)
-                    .sendToTarget();
-        }
+                @Override
+                public void onConnectionServiceReleased(
+                        ConnectionServiceFocus connectionServiceFocus) {
+                    mEventHandler
+                            .obtainMessage(MSG_RELEASE_CONNECTION_FOCUS, connectionServiceFocus)
+                            .sendToTarget();
+                }
 
-        @Override
-        public void onConnectionServiceDeath(ConnectionServiceFocus connectionServiceFocus) {
-            mEventHandler.obtainMessage(MSG_CONNECTION_SERVICE_DEATH, connectionServiceFocus)
-                    .sendToTarget();
-        }
-    };
+                @Override
+                public void onConnectionServiceDeath(
+                        ConnectionServiceFocus connectionServiceFocus) {
+                    mEventHandler
+                            .obtainMessage(MSG_CONNECTION_SERVICE_DEATH, connectionServiceFocus)
+                            .sendToTarget();
+                }
+            };
 
     private ConnectionServiceFocus mCurrentFocus;
     private CallFocus mCurrentFocusCall;
@@ -257,6 +266,7 @@ public class ConnectionServiceFocusManager {
                 connSvrFocus.connectionServiceFocusGained();
             }
             mCurrentFocus = connSvrFocus;
+            Log.d(this, "updateConnectionServiceFocus connSvr = %s", connSvrFocus);
         }
     }
 
@@ -276,10 +286,13 @@ public class ConnectionServiceFocusManager {
             for (CallFocus call : calls) {
                 if (call.getState() == PRIORITY_FOCUS_CALL_STATE[i]) {
                     mCurrentFocusCall = call;
+                    Log.d(this, "updateCurrentFocusCall %s", mCurrentFocusCall);
                     return;
                 }
             }
         }
+
+        Log.d(this, "updateCurrentFocusCall = null");
     }
 
     private void onRequestFocusDone(FocusRequest focusRequest) {
@@ -289,6 +302,7 @@ public class ConnectionServiceFocusManager {
     }
 
     private void handleRequestFocus(FocusRequest focusRequest) {
+        Log.d(this, "handleRequestFocus req = %s", focusRequest);
         if (mCurrentFocus == null
                 || mCurrentFocus.equals(focusRequest.call.getConnectionServiceWrapper())) {
             updateConnectionServiceFocus(focusRequest.call.getConnectionServiceWrapper());
@@ -304,6 +318,7 @@ public class ConnectionServiceFocusManager {
     }
 
     private void handleReleasedFocus(ConnectionServiceFocus connectionServiceFocus) {
+        Log.d(this, "handleReleasedFocus connSvr = %s", connectionServiceFocus);
         // The ConnectionService can call onConnectionServiceFocusReleased even if it's not the
         // current focus connection service, nothing will be changed in this case.
         if (Objects.equals(mCurrentFocus, connectionServiceFocus)) {
@@ -322,6 +337,7 @@ public class ConnectionServiceFocusManager {
     }
 
     private void handleReleasedFocusTimeout(FocusRequest focusRequest) {
+        Log.d(this, "handleReleasedFocusTimeout req = %s", focusRequest);
         mCallsManagerRequester.releaseConnectionService(mCurrentFocus);
         updateConnectionServiceFocus(focusRequest.call.getConnectionServiceWrapper());
         updateCurrentFocusCall();
@@ -330,6 +346,7 @@ public class ConnectionServiceFocusManager {
     }
 
     private void handleConnectionServiceDeath(ConnectionServiceFocus connectionServiceFocus) {
+        Log.d(this, "handleConnectionServiceDeath %s", connectionServiceFocus);
         if (Objects.equals(connectionServiceFocus, mCurrentFocus)) {
             updateConnectionServiceFocus(null);
             updateCurrentFocusCall();
@@ -337,6 +354,7 @@ public class ConnectionServiceFocusManager {
     }
 
     private void handleAddedCall(CallFocus call) {
+        Log.d(this, "handleAddedCall %s", call);
         if (!mCalls.contains(call)) {
             mCalls.add(call);
         }
@@ -346,6 +364,7 @@ public class ConnectionServiceFocusManager {
     }
 
     private void handleRemovedCall(CallFocus call) {
+        Log.d(this, "handleRemovedCall %s", call);
         mCalls.remove(call);
         if (call.equals(mCurrentFocusCall)) {
             updateCurrentFocusCall();
@@ -353,6 +372,11 @@ public class ConnectionServiceFocusManager {
     }
 
     private void handleCallStateChanged(CallFocus call, int oldState, int newState) {
+        Log.d(this,
+                "handleCallStateChanged %s, oldState = %d, newState = %d",
+                call,
+                oldState,
+                newState);
         if (mCalls.contains(call)
                 && Objects.equals(mCurrentFocus, call.getConnectionServiceWrapper())) {
             updateCurrentFocusCall();
