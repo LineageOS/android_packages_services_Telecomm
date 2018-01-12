@@ -396,7 +396,7 @@ class InCallAdapter extends IInCallAdapter.Stub {
     }
 
     @Override
-    public void sendCallEvent(String callId, String event, Bundle extras) {
+    public void sendCallEvent(String callId, String event, int targetSdkVer, Bundle extras) {
         try {
             Log.startSession("ICA.sCE", mOwnerComponentName);
             long token = Binder.clearCallingIdentity();
@@ -404,7 +404,7 @@ class InCallAdapter extends IInCallAdapter.Stub {
                 synchronized (mLock) {
                     Call call = mCallIdMapper.getCall(callId);
                     if (call != null) {
-                        call.sendCallEvent(event, extras);
+                        call.sendCallEvent(event, targetSdkVer, extras);
                     } else {
                         Log.w(this, "sendCallEvent, unknown call id: %s", callId);
                     }
