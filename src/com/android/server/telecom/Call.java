@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -2027,16 +2028,34 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     /**
-     * Sends a call event to the {@link ConnectionService} for this call.
-     *
-     * See {@link Call#sendCallEvent(String, Bundle)}.
+     * Sends a call event to the {@link ConnectionService} for this call. This function is
+     * called for event other than {@link Call#EVENT_REQUEST_HANDOVER}
      *
      * @param event The call event.
      * @param extras Associated extras.
      */
     public void sendCallEvent(String event, Bundle extras) {
+        sendCallEvent(event, 0/*For Event != EVENT_REQUEST_HANDOVER*/, extras);
+    }
+
+    /**
+     * Sends a call event to the {@link ConnectionService} for this call.
+     *
+     * See {@link Call#sendCallEvent(String, Bundle)}.
+     *
+     * @param event The call event.
+     * @param targetSdkVer SDK version of the app calling this api
+     * @param extras Associated extras.
+     */
+    public void sendCallEvent(String event, int targetSdkVer, Bundle extras) {
         if (mConnectionService != null) {
             if (android.telecom.Call.EVENT_REQUEST_HANDOVER.equals(event)) {
+                if (targetSdkVer > Build.VERSION_CODES.O_MR1) {
+                    Log.e(this, new Exception(), "sendCallEvent failed. Use public api handoverTo" +
+                            " for API > 27(O-MR1)");
+                    // TODO: Add "return" after DUO team adds new API support for handover
+                }
+
                 // Handover requests are targeted at Telecom, not the ConnectionService.
                 if (extras == null) {
                     Log.w(this, "sendCallEvent: %s event received with null extras.",
