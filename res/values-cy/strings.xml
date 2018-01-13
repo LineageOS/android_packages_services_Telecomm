@@ -18,12 +18,14 @@
   <!-- Official label of the Telecomm/Phone app, as seen in "Manage Applications"
          and other settings UIs. This is the "app name" used in notification, recents,
          and app info screens. -->
+  <string name="telecommAppLabel" product="default">Rheolaeth Galwadau</string>
   <!-- Title used for the activity for placing a call. This name appears
          in activity disambig dialogs -->
   <!-- Name for an "unknown" caller. -->
   <!-- Notification strings -->
   <!-- Missed call notification label, used when there's exactly one missed call -->
   <!-- Missed work call notification label, used when there's exactly one missed call [CHAR LIMIT=NONE] -->
+  <string name="notification_missedWorkCallTitle">Galwad gwaith wedi\'i methu</string>
   <!-- Missed call notification label, used when there are two or more missed calls -->
   <!-- Missed call notification message used when there are multiple missed calls -->
   <!-- Missed call notification message used for a single missed call, including
@@ -65,27 +67,48 @@
   <!-- Button label on the "Missing voicemail number" dialog -->
   <!-- Title of dialog used to comfirm whether the user intends to change the default dialer
             application [CHAR LIMIT=55]-->
+  <string name="change_default_dialer_dialog_title">Gosod <xliff:g id="new_app">%s</xliff:g> fel dy ap Ffôn arferol?</string>
   <!-- Confirmation text that a user taps on to change the Default Phone App-->
+  <string name="change_default_dialer_dialog_affirmative">Gosod fel Rhagosodiad</string>
   <!-- Cancel text that a user taps on to not change the Default Phone App-->
+  <string name="change_default_dialer_dialog_negative">Diddymu</string>
   <!-- Warning message indicating what may happen if a user allows a 3rd party app to become the default dialer.-->
+  <string name="change_default_dialer_warning_message">Bydd <xliff:g id="new_app">%s</xliff:g> yn medru gwneud a rheoli pob agwedd o alwadau. Dylid ond osod ap wyt ti\'n ymddiried ynddo fel dy ap Ffôn diofyn.</string>
   <!-- Blocked numbers -->
+  <string name="blocked_numbers">Rhifau wedi eu rhwystro</string>
   <!-- Text shown at the beginning of the blocked numbers screen to explain what the screen is about. -->
+  <string name="blocked_numbers_msg">Ni fyddi\'n derbyn galwadau na negesuon testun oddi wrth rifau wedi\'u rhwystro.</string>
   <!-- Button to add a blocked number. -->
+  <string name="block_number">Ychwanegu rhif</string>
   <!-- Body of dialog to confirm unblocking a number. -->
+  <string name="unblock_dialog_body">Dadrwystro <xliff:g id="number_to_block">%1$s</xliff:g>?</string>
   <!-- Button to unblock a number. -->
+  <string name="unblock_button">Dadrwystro</string>
   <!-- Body of dialog to block a number.  -->
+  <string name="add_blocked_dialog_body">Rhwystro galwadau a negesuon testun oddi wrth</string>
   <!-- Hint shown in the edit text box for adding a blocked number -->
+  <string name="add_blocked_number_hint">Rhif ffôn</string>
   <!-- Button to block a number. -->
+  <string name="block_button">Rhwystro</string>
   <!-- String shown to users unable to manage blocked numbers because they are not owners of the
         device. -->
+  <string name="non_primary_user">Dim ond perchennog y ddyfais gall gweld a rheoli rhifau wedi eu rhwystro.</string>
   <!-- Description of icon to delete blocked number. -->
+  <string name="delete_icon_description">Dadrwystro</string>
   <!-- Title for butter bar shown when call blocking is disabled. -->
+  <string name="blocked_numbers_butter_bar_title">Rhwystro wedi ei diffodd dros dro</string>
   <!-- Explanation for butter bar shown when call blocking is disabled. -->
+  <string name="blocked_numbers_butter_bar_body">Ar ôl deialu neu anfon neges at rif argyfwng, mae rhwystro yn cael ei diffodd i sicrhau bod modd i\'r gwasanaethau brys cysylltu â thi.</string>
   <!-- Button to re-enable blocking shown in butter bar shown when call blocking is disabled. -->
+  <string name="blocked_numbers_butter_bar_button">Ail-alluogi nawr</string>
   <!-- Message to show when a number is blocked. -->
+  <string name="blocked_numbers_number_blocked_message"><xliff:g id="blocked_number">%1$s</xliff:g> wedi\'i rwystro</string>
   <!-- Message to show when a number is unblocked. -->
+  <string name="blocked_numbers_number_unblocked_message"><xliff:g id="unblocked_number">%1$s</xliff:g> wedi\'i dadrwystro</string>
   <!-- Message to show when a number cannot be blocked because it is associated with emergency services.. -->
+  <string name="blocked_numbers_block_emergency_number_message">Amhosib rhwystro rhif argyfwng.</string>
   <!-- Message to show when a number is already blocked. -->
+  <string name="blocked_numbers_number_already_blocked_message">Mae <xliff:g id="blocked_number">%1$s</xliff:g> eisoes wedi ei rwystro.</string>
   <!-- DO NOT TRANSLATE. Label for test Subscription 0. -->
   <!-- DO NOT TRANSLATE. Label for test Subscription 1. -->
   <!-- DO NOT TRANSLATE. Label for test Subscription 2. -->
@@ -95,4 +118,6 @@
   <!-- DO NOT TRANSLATE. Short description for test Subscription 2. -->
   <!-- DO NOT TRANSLATE. Short description for test Subscription 3. -->
   <!-- DO NOT TRANSLATE. Hardcoded number used for restricted incoming phone numbers. -->
+  <string name="toast_personal_call_msg">Defnyddio\'r deialydd personol i wneud y galwad</string>
+  <string name="toast_make_video_call_failed">Methu gwneud galwad fideo - fformat rhif anghywir</string>
 </resources>
