@@ -24,6 +24,7 @@ import android.media.Ringtone;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.telecom.TelecomManager;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.AsyncRingtonePlayer;
@@ -87,6 +88,22 @@ public class RingerTest extends TelecomTestCase {
         // Start call waiting to make sure that it doesn't stop when we start ringing
         mRingerUnderTest.startCallWaiting(mockCall1);
         when(mockSystemSettingsUtil.isTheaterModeOn(any(Context.class))).thenReturn(true);
+        assertFalse(mRingerUnderTest.startRinging(mockCall2, false));
+        verify(mockTonePlayer, never()).stopTone();
+        verify(mockRingtonePlayer, never()).play(any(RingtoneFactory.class), any(Call.class));
+        verify(mockVibrator, never())
+                .vibrate(any(VibrationEffect.class), any(AudioAttributes.class));
+    }
+
+    @SmallTest
+    @Test
+    public void testNoActionWithExternalRinger() {
+        Bundle externalRingerExtra = new Bundle();
+        externalRingerExtra.putBoolean(TelecomManager.EXTRA_CALL_EXTERNAL_RINGER, true);
+        when(mockCall1.getIntentExtras()).thenReturn(externalRingerExtra);
+        when(mockCall2.getIntentExtras()).thenReturn(externalRingerExtra);
+        // Start call waiting to make sure that it doesn't stop when we start ringing
+        mRingerUnderTest.startCallWaiting(mockCall1);
         assertFalse(mRingerUnderTest.startRinging(mockCall2, false));
         verify(mockTonePlayer, never()).stopTone();
         verify(mockRingtonePlayer, never()).play(any(RingtoneFactory.class), any(Call.class));
