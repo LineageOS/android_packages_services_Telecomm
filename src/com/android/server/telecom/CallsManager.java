@@ -2997,8 +2997,11 @@ public class CallsManager extends Call.ListenerBase
         } else {
             // Only permit self-managed outgoing calls if there is no ongoing emergency calls and
             // the ongoing call can be held.
-            Call foregroundCall = getForegroundCall();
-            return !hasEmergencyCall() && (foregroundCall == null || canHold(foregroundCall));
+            Call activeCall = (Call) mConnectionSvrFocusMgr.getCurrentFocusCall();
+            return !hasEmergencyCall() &&
+                    ((excludeCall != null && excludeCall.getHandoverSourceCall() != null)
+                            || (!hasMaximumSelfManagedCalls(excludeCall, phoneAccountHandle)
+                                    && (activeCall == null || canHold(activeCall))));
         }
     }
 
