@@ -1763,8 +1763,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     /**
      * Puts the call on hold if it is currently active.
      */
-    @VisibleForTesting
-    public void hold() {
+    void hold() {
         if (mState == CallState.ACTIVE) {
             if (mConnectionService != null) {
                 mConnectionService.hold(this);
@@ -1779,8 +1778,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     /**
      * Releases the call from hold if it is currently active.
      */
-    @VisibleForTesting
-    public void unhold() {
+    void unhold() {
         if (mState == CallState.ON_HOLD) {
             if (mConnectionService != null) {
                 mConnectionService.unhold(this);
@@ -2800,10 +2798,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      */
     public String getOriginalConnectionId() {
         return mOriginalConnectionId;
-    }
-
-    ConnectionServiceFocusManager getConnectionServiceFocusManager() {
-        return mCallsManager.getConnectionServiceFocusManager();
     }
 
     /**

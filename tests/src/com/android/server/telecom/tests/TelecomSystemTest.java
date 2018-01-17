@@ -72,7 +72,6 @@ import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.CallsManagerListenerBase;
 import com.android.server.telecom.ClockProxy;
-import com.android.server.telecom.ConnectionServiceFocusManager;
 import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.HeadsetMediaButton;
 import com.android.server.telecom.HeadsetMediaButtonFactory;
@@ -445,14 +444,6 @@ public class TelecomSystemTest extends TelecomTestCase {
                             TelecomSystem.SyncRoot lock, CallsManager callsManager,
                             PhoneAccountRegistrar phoneAccountRegistrar) {
                         return mBluetoothPhoneServiceImpl;
-                    }
-                },
-                new ConnectionServiceFocusManager.ConnectionServiceFocusManagerFactory() {
-                    @Override
-                    public ConnectionServiceFocusManager create(
-                            ConnectionServiceFocusManager.CallsManagerRequester requester,
-                            Looper looper) {
-                        return new ConnectionServiceFocusManager(requester, looper);
                     }
                 },
                 mTimeoutsAdapter,
