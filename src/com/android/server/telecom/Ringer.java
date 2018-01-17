@@ -30,6 +30,8 @@ import android.os.Vibrator;
 
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.util.ArrayList;
+
 /**
  * Controls the ringtone player.
  */
@@ -238,11 +240,13 @@ public class Ringer {
     private boolean shouldRingForContact(Uri contactUri) {
         final NotificationManager manager =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        final Bundle extras = new Bundle();
+        final Bundle peopleExtras = new Bundle();
         if (contactUri != null) {
-            extras.putStringArray(Notification.EXTRA_PEOPLE, new String[] {contactUri.toString()});
+            ArrayList<Notification.Person> personList = new ArrayList<>();
+            personList.add(new Notification.Person().setUri(contactUri.toString()));
+            peopleExtras.putParcelableArrayList(Notification.EXTRA_PEOPLE_LIST, personList);
         }
-        return manager.matchesCallFilter(extras);
+        return manager.matchesCallFilter(peopleExtras);
     }
 
     private boolean hasExternalRinger(Call foregroundCall) {
