@@ -1790,7 +1790,8 @@ public class CallsManager extends Call.ListenerBase
      * @param isTonePlaying true if the disconnected tone is started, otherwise the disconnected
      * tone is stopped.
      */
-    void onDisconnectedTonePlaying(boolean isTonePlaying) {
+    @VisibleForTesting
+    public void onDisconnectedTonePlaying(boolean isTonePlaying) {
         Log.v(this, "onDisconnectedTonePlaying, %s", isTonePlaying ? "started" : "stopped");
         for (CallsManagerListener listener : mListeners) {
             listener.onDisconnectedTonePlaying(isTonePlaying);

@@ -48,7 +48,7 @@ public abstract class TelecomTestCase {
         mMockitoHelper.tearDown();
     }
 
-    protected final void waitForHandlerAction(Handler h, long timeoutMillis) {
+    protected static void waitForHandlerAction(Handler h, long timeoutMillis) {
         final CountDownLatch lock = new CountDownLatch(1);
         h.post(lock::countDown);
         while (lock.getCount() > 0) {
