@@ -859,17 +859,8 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         @Override
         public void onConnectionServiceFocusReleased(Session.Info sessionInfo)
                 throws RemoteException {
-            Log.startSession(sessionInfo, "CSW.oCSFR");
-            long token = Binder.clearCallingIdentity();
-            try {
-                synchronized (mLock) {
-                    mConnSvrFocusListener.onConnectionServiceReleased(
-                            ConnectionServiceWrapper.this);
-                }
-            } finally {
-                Binder.restoreCallingIdentity(token);
-                Log.endSession();
-            }
+            // TODO(mpq): This method is added to avoid the compiled error. Add the real
+            // implementation once ag/3273964 done.
         }
     }
 
@@ -1430,41 +1421,12 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         // Immediately response to the Telecom that it has released the call resources.
         // TODO(mpq): Change back to the default implementation once b/69651192 done.
         if (mConnSvrFocusListener != null) {
-            mConnSvrFocusListener.onConnectionServiceReleased(ConnectionServiceWrapper.this);
+            mConnSvrFocusListener.onConnectionServiceReleased(this);
         }
-        BindCallback callback = new BindCallback() {
-            @Override
-            public void onSuccess() {
-                try {
-                    mServiceInterface.connectionServiceFocusLost(Log.getExternalSession());
-                } catch (RemoteException ignored) {
-                    Log.d(this, "failed to inform the focus lost event");
-                }
-            }
-
-            @Override
-            public void onFailure() {}
-        };
-        mBinder.bind(callback, null /* null call */);
     }
 
     @Override
-    public void connectionServiceFocusGained() {
-        BindCallback callback = new BindCallback() {
-            @Override
-            public void onSuccess() {
-                try {
-                    mServiceInterface.connectionServiceFocusGained(Log.getExternalSession());
-                } catch (RemoteException ignored) {
-                    Log.d(this, "failed to inform the focus gained event");
-                }
-            }
-
-            @Override
-            public void onFailure() {}
-        };
-        mBinder.bind(callback, null /* null call */);
-    }
+    public void connectionServiceFocusGained() {}
 
     @Override
     public void setConnectionServiceFocusListener(
