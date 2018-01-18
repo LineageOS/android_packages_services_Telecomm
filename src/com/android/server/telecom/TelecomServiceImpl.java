@@ -1083,8 +1083,10 @@ public class TelecomServiceImpl {
             try {
                 Log.startSession("TSI.aHO");
                 synchronized (mLock) {
-                    Log.i(this, "Handover call to phoneAccountHandle %s",
+                    Log.i(this, "acceptHandover; srcAddr=%s, videoState=%s, dest=%s",
+                            Log.pii(srcAddr), VideoProfile.videoStateToString(videoState),
                             destAcct);
+
                     if (destAcct != null && destAcct.getComponentName() != null) {
                         mAppOpsManager.checkPackage(
                                 Binder.getCallingUid(),
@@ -1099,8 +1101,19 @@ public class TelecomServiceImpl {
                                     "Self-managed phone accounts must have MANAGE_OWN_CALLS " +
                                             "permission.");
                         }
+                        if (!enforceAcceptHandoverPermission(
+                                destAcct.getComponentName().getPackageName(),
+                                Binder.getCallingUid())) {
+                            throw new SecurityException("App must be granted runtime "
+                                    + "ACCEPT_HANDOVER permission.");
+                        }
 
-                        mCallsManager.acceptHandover(srcAddr, videoState, destAcct);
+                        long token = Binder.clearCallingIdentity();
+                        try {
+                            mCallsManager.acceptHandover(srcAddr, videoState, destAcct);
+                        } finally {
+                            Binder.restoreCallingIdentity(token);
+                        }
                     } else {
                         Log.w(this, "Null phoneAccountHandle. Ignoring request " +
                                 "to handover the call");
@@ -1439,6 +1452,24 @@ public class TelecomServiceImpl {
                         != AppOpsManager.MODE_ALLOWED) {
                 return false;
             }
+        }
+        return true;
+    }
+
+    /**
+     * @return {@code true} if the app has the handover permission and has received runtime
+     * permission to perform that operation, {@code false}.
+     * @throws SecurityException same as {@link Context#enforceCallingOrSelfPermission}
+     */
+    private boolean enforceAcceptHandoverPermission(String packageName, int uid) {
+        mContext.enforceCallingOrSelfPermission(Manifest.permission.ACCEPT_HANDOVER,
+                "App requires ACCEPT_HANDOVER permission to accept handovers.");
+
+        final int opCode = AppOpsManager.permissionToOpCode(Manifest.permission.ACCEPT_HANDOVER);
+        if (opCode != AppOpsManager.OP_ACCEPT_HANDOVER || (
+                mAppOpsManager.checkOp(opCode, uid, packageName)
+                        != AppOpsManager.MODE_ALLOWED)) {
+            return false;
         }
         return true;
     }
