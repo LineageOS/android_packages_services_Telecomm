@@ -1106,6 +1106,34 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         mBinder.bind(callback, call);
     }
 
+    void handoverComplete(final Call call) {
+        Log.d(this, "handoverComplete(%s) via %s.", call, getComponentName());
+        BindCallback callback = new BindCallback() {
+            @Override
+            public void onSuccess() {
+                final String callId = mCallIdMapper.getCallId(call);
+                // If still bound, tell the connection service create connection has failed.
+                if (callId != null && isServiceValid("handoverComplete")) {
+                    try {
+                        mServiceInterface.handoverComplete(
+                                callId,
+                                Log.getExternalSession());
+                    } catch (RemoteException e) {
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure() {
+                // Binding failed.
+                Log.w(this, "onFailure - could not bind to CS for call %s",
+                        call.getId());
+            }
+        };
+
+        mBinder.bind(callback, call);
+    }
+
     /** @see IConnectionService#abort(String, Session.Info)  */
     void abort(Call call) {
         // Clear out any pending outgoing call data
