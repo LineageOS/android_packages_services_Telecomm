@@ -782,18 +782,21 @@ public class BluetoothRouteManager extends StateMachine {
 
     @VisibleForTesting
     public void setInitialStateForTesting(String stateName, BluetoothDevice device) {
-        switch (stateName) {
-            case AUDIO_OFF_STATE_NAME:
-                transitionTo(mAudioOffState);
-                break;
-            case AUDIO_CONNECTING_STATE_NAME_PREFIX:
-                transitionTo(getConnectingStateForAddress(device.getAddress(),
-                        "setInitialStateForTesting"));
-                break;
-            case AUDIO_CONNECTED_STATE_NAME_PREFIX:
-                transitionTo(getConnectedStateForAddress(device.getAddress(),
-                        "setInitialStateForTesting"));
-                break;
-        }
+        sendMessage(RUN_RUNNABLE, (Runnable) () -> {
+            switch (stateName) {
+                case AUDIO_OFF_STATE_NAME:
+                    transitionTo(mAudioOffState);
+                    break;
+                case AUDIO_CONNECTING_STATE_NAME_PREFIX:
+                    transitionTo(getConnectingStateForAddress(device.getAddress(),
+                            "setInitialStateForTesting"));
+                    break;
+                case AUDIO_CONNECTED_STATE_NAME_PREFIX:
+                    transitionTo(getConnectedStateForAddress(device.getAddress(),
+                            "setInitialStateForTesting"));
+                    break;
+            }
+            Log.i(LOG_TAG, "transition for testing done: %s", stateName);
+        });
     }
 }
