@@ -380,6 +380,9 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         @Override
         public void handoverFailed(String callId, ConnectionRequest request,
                                    int error, Session.Info sessionInfo) {}
+
+        @Override
+        public void handoverComplete(String callId, Session.Info sessionInfo) {}
     }
 
     FakeConnectionServiceDelegate mConnectionServiceDelegate;
