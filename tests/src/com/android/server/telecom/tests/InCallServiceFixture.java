@@ -142,6 +142,8 @@ public class InCallServiceFixture implements TestFixture<IInCallService> {
         @Override
         public void onHandoverFailed(String callId, int error) {}
 
+        @Override
+        public void onHandoverComplete(String callId) {}
     }
 
     private IInCallService.Stub mInCallServiceFake = new FakeInCallService();

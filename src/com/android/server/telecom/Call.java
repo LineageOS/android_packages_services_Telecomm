@@ -138,6 +138,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         void onHandoverRequested(Call call, PhoneAccountHandle handoverTo, int videoState,
                                  Bundle extras, boolean isLegacy);
         void onHandoverFailed(Call call, int error);
+        void onHandoverComplete(Call call);
     }
 
     public abstract static class ListenerBase implements Listener {
@@ -214,6 +215,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                                         Bundle extras, boolean isLegacy) {}
         @Override
         public void onHandoverFailed(Call call, int error) {}
+        @Override
+        public void onHandoverComplete(Call call) {}
     }
 
     private final CallerInfoLookupHelper.OnQueryCompleteListener mCallerInfoQueryListener =
@@ -2778,7 +2781,26 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
     }
 
+    /**
+     * Notifies interested parties that the handover has completed.
+     * Notifies:
+     * 1. {@link InCallController} which communicates this to the
+     * {@link android.telecom.InCallService} via {@link Listener#onHandoverComplete()}.
+     * 2. {@link ConnectionServiceWrapper} which informs the {@link android.telecom.Connection} of
+     * the successful handover.
+     */
+    public void onHandoverComplete() {
+        Log.i(this, "onHandoverComplete; callId=%s", getId());
+        if (mConnectionService != null) {
+            mConnectionService.handoverComplete(this);
+        }
+        for (Listener l : mListeners) {
+            l.onHandoverComplete(this);
+        }
+    }
+
     public void onHandoverFailed(int handoverError) {
+        Log.i(this, "onHandoverFailed; callId=%s, handoverError=%d", getId(), handoverError);
         for (Listener l : mListeners) {
             l.onHandoverFailed(this, handoverError);
         }
