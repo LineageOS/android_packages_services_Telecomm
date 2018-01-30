@@ -2415,8 +2415,11 @@ public class CallsManager extends Call.ListenerBase
         // completed; this allows the InCallService to be notified that a handover it
         // initiated completed.
         call.onConnectionEvent(Connection.EVENT_HANDOVER_COMPLETE, null);
+        call.onHandoverComplete();
+
         // Inform the "to" ConnectionService that handover to it has completed.
         handoverTo.sendCallEvent(android.telecom.Call.EVENT_HANDOVER_COMPLETE, null);
+        handoverTo.onHandoverComplete();
         answerCall(handoverTo, handoverTo.getVideoState());
         call.markFinishedHandoverStateAndCleanup(HandoverState.HANDOVER_COMPLETE);
 
@@ -3227,15 +3230,19 @@ public class CallsManager extends Call.ListenerBase
     }
 
     private void setIntentExtrasAndStartTime(Call call, Bundle extras) {
-      // Create our own instance to modify (since extras may be Bundle.EMPTY)
-      extras = new Bundle(extras);
+        if (extras != null) {
+            // Create our own instance to modify (since extras may be Bundle.EMPTY)
+            extras = new Bundle(extras);
+        } else {
+            extras = new Bundle();
+        }
 
-      // Specifies the time telecom began routing the call. This is used by the dialer for
-      // analytics.
-      extras.putLong(TelecomManager.EXTRA_CALL_TELECOM_ROUTING_START_TIME_MILLIS,
+        // Specifies the time telecom began routing the call. This is used by the dialer for
+        // analytics.
+        extras.putLong(TelecomManager.EXTRA_CALL_TELECOM_ROUTING_START_TIME_MILLIS,
               SystemClock.elapsedRealtime());
 
-      call.setIntentExtras(extras);
+        call.setIntentExtras(extras);
     }
 
     /**
@@ -3272,7 +3279,6 @@ public class CallsManager extends Call.ListenerBase
         service.handoverFailed(call, reason);
         call.setDisconnectCause(new DisconnectCause(DisconnectCause.CANCELED));
         call.disconnect();
-
     }
 
     /**
@@ -3338,7 +3344,7 @@ public class CallsManager extends Call.ListenerBase
      * @param handoverFromCall The {@link Call} to be handed over.
      * @param handoverToHandle The {@link PhoneAccountHandle} to hand over the call to.
      * @param videoState The desired video state of {@link Call} after handover.
-     * @param initiatingExtras Extras associated with the handover, to be passed to the handover
+     * @param extras Extras associated with the handover, to be passed to the handover
      *               {@link android.telecom.ConnectionService}.
      */
     private void requestHandover(Call handoverFromCall, PhoneAccountHandle handoverToHandle,
@@ -3384,8 +3390,6 @@ public class CallsManager extends Call.ListenerBase
         }
         call.setInitiatingUser(getCurrentUserHandle());
 
-
-
         // Ensure we don't try to place an outgoing call with video if video is not
         // supported.
         if (VideoProfile.isVideo(videoState) && account != null &&
@@ -3409,6 +3413,14 @@ public class CallsManager extends Call.ListenerBase
         call.setState(
                 CallState.CONNECTING,
                 handoverToHandle == null ? "no-handle" : handoverToHandle.toString());
+
+        // Mark as handover so that the ConnectionService knows this is a handover request.
+        if (extras == null) {
+            extras = new Bundle();
+        }
+        extras.putBoolean(TelecomManager.EXTRA_IS_HANDOVER_CONNECTION, true);
+        extras.putParcelable(TelecomManager.EXTRA_HANDOVER_FROM_PHONE_ACCOUNT,
+                handoverFromCall.getTargetPhoneAccount());
         setIntentExtrasAndStartTime(call, extras);
 
         // Add call to call tracker
@@ -3618,6 +3630,14 @@ public class CallsManager extends Call.ListenerBase
             // handover to call is a video call.
             call.setStartWithSpeakerphoneOn(true);
         }
+
+        Bundle extras = call.getIntentExtras();
+        if (extras == null) {
+            extras = new Bundle();
+        }
+        extras.putBoolean(TelecomManager.EXTRA_IS_HANDOVER_CONNECTION, true);
+        extras.putParcelable(TelecomManager.EXTRA_HANDOVER_FROM_PHONE_ACCOUNT,
+                fromCall.getTargetPhoneAccount());
 
         call.startCreateConnection(mPhoneAccountRegistrar);
     }
