@@ -1293,7 +1293,13 @@ public class CallsManager extends Call.ListenerBase
         return accounts;
     }
 
-    private boolean isSelfManaged(PhoneAccountHandle targetPhoneAccountHandle,
+    /**
+     * Determines if a {@link PhoneAccountHandle} is for a self-managed ConnectionService.
+     * @param targetPhoneAccountHandle The phone account to check.
+     * @param initiatingUser The user associated with the account.
+     * @return {@code true} if the phone account is self-managed, {@code false} otherwise.
+     */
+    public boolean isSelfManaged(PhoneAccountHandle targetPhoneAccountHandle,
             UserHandle initiatingUser) {
         PhoneAccount targetPhoneAccount = mPhoneAccountRegistrar.getPhoneAccount(
                 targetPhoneAccountHandle, initiatingUser);
