@@ -434,6 +434,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     private boolean mIsWorkCall;
 
+    /**
+     * Tracks whether this {@link Call}'s {@link #getTargetPhoneAccount()} has
+     * {@link PhoneAccount#EXTRA_PLAY_CALL_RECORDING_TONE} set.
+     */
+    private boolean mUseCallRecordingTone;
+
     // Set to true once the NewOutgoingCallIntentBroadcast comes back and is processed.
     private boolean mIsNewOutgoingCallIntentBroadcastDone = false;
 
@@ -1077,7 +1083,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             for (Listener l : mListeners) {
                 l.onTargetPhoneAccountChanged(this);
             }
-            configureIsWorkCall();
+            configureCallAttributes();
         }
         checkIfVideoCapable();
     }
@@ -1132,6 +1138,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     public boolean isWorkCall() {
         return mIsWorkCall;
+    }
+
+    public boolean isUsingCallRecordingTone() {
+        return mUseCallRecordingTone;
     }
 
     public boolean isVideoCallingSupported() {
@@ -1201,9 +1211,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         return mHandoverState;
     }
 
-    private void configureIsWorkCall() {
+    private void configureCallAttributes() {
         PhoneAccountRegistrar phoneAccountRegistrar = mCallsManager.getPhoneAccountRegistrar();
         boolean isWorkCall = false;
+        boolean isCallRecordingToneSupported = false;
         PhoneAccount phoneAccount =
                 phoneAccountRegistrar.getPhoneAccountUnchecked(mTargetPhoneAccountHandle);
         if (phoneAccount != null) {
@@ -1216,8 +1227,14 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             if (userHandle != null) {
                 isWorkCall = UserUtil.isManagedProfile(mContext, userHandle);
             }
+
+            isCallRecordingToneSupported = (phoneAccount.hasCapabilities(
+                    PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION) && phoneAccount.getExtras() != null
+                    && phoneAccount.getExtras().getBoolean(
+                    PhoneAccount.EXTRA_PLAY_CALL_RECORDING_TONE, false));
         }
         mIsWorkCall = isWorkCall;
+        mUseCallRecordingTone = isCallRecordingToneSupported;
     }
 
     /**
