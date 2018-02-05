@@ -238,6 +238,7 @@ public class CallsManager extends Call.ListenerBase
     private final DtmfLocalTonePlayer mDtmfLocalTonePlayer;
     private final InCallController mInCallController;
     private final CallAudioManager mCallAudioManager;
+    private final CallRecordingTonePlayer mCallRecordingTonePlayer;
     private RespondViaSmsManager mRespondViaSmsManager;
     private final Ringer mRinger;
     private final InCallWakeLockController mInCallWakeLockController;
@@ -386,7 +387,8 @@ public class CallsManager extends Call.ListenerBase
                 emergencyCallHelper);
         mRinger = new Ringer(playerFactory, context, systemSettingsUtil, asyncRingtonePlayer,
                 ringtoneFactory, systemVibrator, mInCallController);
-
+        mCallRecordingTonePlayer = new CallRecordingTonePlayer(mContext,
+                (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE), mLock);
         mCallAudioManager = new CallAudioManager(callAudioRouteStateMachine,
                 this,new CallAudioModeStateMachine((AudioManager)
                         mContext.getSystemService(Context.AUDIO_SERVICE)),
@@ -394,7 +396,6 @@ public class CallsManager extends Call.ListenerBase
 
         mConnectionSvrFocusMgr = connectionServiceFocusManagerFactory.create(
                 mRequester, Looper.getMainLooper());
-
         mHeadsetMediaButton = headsetMediaButtonFactory.create(context, this, mLock);
         mTtyManager = new TtyManager(context, mWiredHeadsetManager);
         mProximitySensorManager = proximitySensorManagerFactory.create(context, this);
@@ -411,6 +412,7 @@ public class CallsManager extends Call.ListenerBase
         mListeners.add(mPhoneStateBroadcaster);
         mListeners.add(mInCallController);
         mListeners.add(mCallAudioManager);
+        mListeners.add(mCallRecordingTonePlayer);
         mListeners.add(missedCallNotifier);
         mListeners.add(mHeadsetMediaButton);
         mListeners.add(mProximitySensorManager);
