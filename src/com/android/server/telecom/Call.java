@@ -1809,6 +1809,31 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     /**
+     * Deflects the call if it is ringing.
+     *
+     * @param address address to be deflected to.
+     */
+    @VisibleForTesting
+    public void deflect(Uri address) {
+        // Check to verify that the call is still in the ringing state. A call can change states
+        // between the time the user hits 'deflect' and Telecomm receives the command.
+        if (isRinging("deflect")) {
+            // At this point, we are asking the connection service to deflect but we don't assume
+            // that it will work. Instead, we wait until confirmation from the connection service
+            // that the call is in a non-STATE_RINGING state before changing the UI. See
+            // {@link ConnectionServiceAdapter#setActive} and other set* methods.
+            mVideoStateHistory |= mVideoState;
+            if (mConnectionService != null) {
+                mConnectionService.deflect(this, address);
+            } else {
+                Log.e(this, new NullPointerException(),
+                        "deflect call failed due to null CS callId=%s", getId());
+            }
+            Log.addEvent(this, LogUtils.Events.REQUEST_DEFLECT, Log.pii(address));
+        }
+    }
+
+    /**
      * Rejects the call if it is ringing.
      *
      * @param rejectWithMessage Whether to send a text message as part of the call rejection.

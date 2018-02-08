@@ -276,6 +276,10 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         public void answer(String callId, Session.Info info) throws RemoteException { }
 
         @Override
+        public void deflect(String callId, Uri address, Session.Info info)
+                throws RemoteException { }
+
+        @Override
         public void reject(String callId, Session.Info info) throws RemoteException {
             rejectedCallIds.add(callId);
         }
