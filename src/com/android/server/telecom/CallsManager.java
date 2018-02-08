@@ -1449,6 +1449,20 @@ public class CallsManager extends Call.ListenerBase
     }
 
     /**
+     * Instructs Telecom to deflect the specified call. Intended to be invoked by the in-call
+     * app through {@link InCallAdapter} after Telecom notifies it of an incoming call followed by
+     * the user opting to deflect said call.
+     */
+    @VisibleForTesting
+    public void deflectCall(Call call, Uri address) {
+        if (!mCalls.contains(call)) {
+            Log.i(this, "Request to deflect a non-existent call %s", call);
+        } else {
+            call.deflect(address);
+        }
+    }
+
+    /**
      * Determines if the speakerphone should be automatically enabled for the call.  Speakerphone
      * should be enabled if the call is a video call and bluetooth or the wired headset are not in
      * use.
