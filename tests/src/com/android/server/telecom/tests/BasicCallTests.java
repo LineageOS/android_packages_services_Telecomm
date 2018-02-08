@@ -1026,4 +1026,46 @@ public class BasicCallTests extends TelecomSystemTest {
         assertEquals(CallAudioState.ROUTE_EARPIECE,
                 mInCallServiceFixtureX.mCallAudioState.getRoute());
     }
+
+    /**
+     * Tests the {@link Call#deflect} API.  Verifies that if a call is incoming,
+     * and deflect API is called, then request is made to the connection service.
+     *
+     * @throws Exception
+     */
+    @LargeTest
+    @Test
+    public void testDeflectCallWhenIncoming() throws Exception {
+        Uri deflectAddress = Uri.parse("tel:650-555-1214");
+        IdPair ids = startIncomingPhoneCall("650-555-1212", mPhoneAccountA0.getAccountHandle(),
+                mConnectionServiceFixtureA);
+
+        assertEquals(Call.STATE_RINGING, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+        assertEquals(Call.STATE_RINGING, mInCallServiceFixtureY.getCall(ids.mCallId).getState());
+        // Attempt to deflect the call and verify the API call makes it through
+        mInCallServiceFixtureX.mInCallAdapter.deflectCall(ids.mCallId, deflectAddress);
+        verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
+                .deflect(eq(ids.mConnectionId), eq(deflectAddress), any());
+        mInCallServiceFixtureX.mInCallAdapter.disconnectCall(ids.mCallId);
+    }
+
+    /**
+     * Tests the {@link Call#deflect} API.  Verifies that if a call is outgoing,
+     * and deflect API is called, then request is not made to the connection service.
+     * Ideally, deflect option should be displayed only if call is incoming/waiting.
+     *
+     * @throws Exception
+     */
+    @LargeTest
+    @Test
+    public void testDeflectCallWhenOutgoing() throws Exception {
+        Uri deflectAddress = Uri.parse("tel:650-555-1214");
+        IdPair ids = startOutgoingPhoneCall("650-555-1212", mPhoneAccountA0.getAccountHandle(),
+                mConnectionServiceFixtureA, Process.myUserHandle());
+        // Attempt to deflect the call and verify the API call does not make it through
+        mInCallServiceFixtureX.mInCallAdapter.deflectCall(ids.mCallId, deflectAddress);
+        verify(mConnectionServiceFixtureA.getTestDouble(), never())
+                .deflect(eq(ids.mConnectionId), eq(deflectAddress), any());
+        mInCallServiceFixtureX.mInCallAdapter.disconnectCall(ids.mCallId);
+    }
 }

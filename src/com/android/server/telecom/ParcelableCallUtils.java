@@ -301,7 +301,10 @@ public class ParcelableCallUtils {
         android.telecom.Call.Details.CAPABILITY_CANNOT_DOWNGRADE_VIDEO_TO_AUDIO,
 
         Connection.CAPABILITY_CAN_PULL_CALL,
-        android.telecom.Call.Details.CAPABILITY_CAN_PULL_CALL
+        android.telecom.Call.Details.CAPABILITY_CAN_PULL_CALL,
+
+        Connection.CAPABILITY_SUPPORT_DEFLECT,
+        android.telecom.Call.Details.CAPABILITY_SUPPORT_DEFLECT
     };
 
     private static int convertConnectionToCallCapabilities(int connectionCapabilities) {

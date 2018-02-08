@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.telecom.Log;
@@ -58,6 +59,29 @@ class InCallAdapter extends IInCallAdapter.Stub {
                         mCallsManager.answerCall(call, videoState);
                     } else {
                         Log.w(this, "answerCall, unknown call id: %s", callId);
+                    }
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+        } finally {
+            Log.endSession();
+        }
+    }
+
+    @Override
+    public void deflectCall(String callId, Uri address) {
+        try {
+            Log.startSession(LogUtils.Sessions.ICA_DEFLECT_CALL, mOwnerComponentName);
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    Log.i(this, "deflectCall - %s, %s ", callId, Log.pii(address));
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        mCallsManager.deflectCall(call, address);
+                    } else {
+                        Log.w(this, "deflectCall, unknown call id: %s", callId);
                     }
                 }
             } finally {
