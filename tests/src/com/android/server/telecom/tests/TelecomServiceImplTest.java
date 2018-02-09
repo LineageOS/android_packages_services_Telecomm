@@ -843,7 +843,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         Call call = mock(Call.class);
         when(call.getState()).thenReturn(CallState.RINGING);
         when(mFakeCallsManager.getForegroundCall()).thenReturn(call);
-        assertTrue(mTSIBinder.endCall());
+        assertTrue(mTSIBinder.endCall(null));
         verify(call).reject(false, null);
     }
 
@@ -853,7 +853,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         Call call = mock(Call.class);
         when(call.getState()).thenReturn(CallState.ACTIVE);
         when(mFakeCallsManager.getForegroundCall()).thenReturn(call);
-        assertTrue(mTSIBinder.endCall());
+        assertTrue(mTSIBinder.endCall(null));
         verify(call).disconnect();
     }
 
@@ -864,14 +864,14 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         when(call.getState()).thenReturn(CallState.ACTIVE);
         when(mFakeCallsManager.getFirstCallWithState(any()))
                 .thenReturn(call);
-        assertTrue(mTSIBinder.endCall());
+        assertTrue(mTSIBinder.endCall(null));
         verify(call).disconnect();
     }
 
     @SmallTest
     @Test
     public void testEndCallWithNoCalls() throws Exception {
-        assertFalse(mTSIBinder.endCall());
+        assertFalse(mTSIBinder.endCall(null));
     }
 
     @SmallTest

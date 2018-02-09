@@ -766,7 +766,7 @@ public class TelecomServiceImpl {
          * @see android.telecom.TelecomManager#endCall
          */
         @Override
-        public boolean endCall() {
+        public boolean endCall(String callingPackage) {
             try {
                 Log.startSession("TSI.eC");
                 synchronized (mLock) {
@@ -774,7 +774,7 @@ public class TelecomServiceImpl {
 
                     long token = Binder.clearCallingIdentity();
                     try {
-                        return endCallInternal();
+                        return endCallInternal(callingPackage);
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
@@ -1554,7 +1554,7 @@ public class TelecomServiceImpl {
         }
     }
 
-    private boolean endCallInternal() {
+    private boolean endCallInternal(String callingPackage) {
         // Always operate on the foreground call if one exists, otherwise get the first call in
         // priority order by call-state.
         Call call = mCallsManager.getForegroundCall();
@@ -1569,9 +1569,9 @@ public class TelecomServiceImpl {
 
         if (call != null) {
             if (call.getState() == CallState.RINGING) {
-                call.reject(false /* rejectWithMessage */, null);
+                call.reject(false /* rejectWithMessage */, null, callingPackage);
             } else {
-                call.disconnect();
+                call.disconnect(0 /* disconnectionTimeout */, callingPackage);
             }
             return true;
         }
