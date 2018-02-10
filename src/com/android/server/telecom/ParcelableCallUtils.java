@@ -342,7 +342,10 @@ public class ParcelableCallUtils {
         android.telecom.Call.Details.PROPERTY_SELF_MANAGED,
 
         Connection.PROPERTY_ASSISTED_DIALING_USED,
-        android.telecom.Call.Details.PROPERTY_ASSISTED_DIALING_USED
+        android.telecom.Call.Details.PROPERTY_ASSISTED_DIALING_USED,
+
+        Connection.PROPERTY_IS_RTT,
+        android.telecom.Call.Details.PROPERTY_RTT
     };
 
     private static int convertConnectionToCallProperties(int connectionProperties) {

@@ -60,7 +60,6 @@ import java.io.IOException;
 import java.lang.String;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
@@ -487,11 +486,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private ParcelFileDescriptor[] mConnectionServiceToInCallStreams;
 
     /**
-     * Abandoned RTT pipes, to be cleaned up when the call is removed
-     */
-    private Collection<ParcelFileDescriptor> mDiscardedRttFds = new LinkedList<>();
-
-    /**
      * True if we're supposed to start this call with RTT, either due to the master switch or due
      * to an extra.
      */
@@ -671,16 +665,33 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             mCallerInfo.cachedPhotoIcon = null;
             mCallerInfo.cachedPhoto = null;
         }
-        for (ParcelFileDescriptor fd : mDiscardedRttFds) {
-            if (fd != null) {
-                try {
-                    fd.close();
-                } catch (IOException e) {
-                    // ignore
+
+        Log.addEvent(this, LogUtils.Events.DESTROYED);
+    }
+
+    private void closeRttStreams() {
+        if (mConnectionServiceToInCallStreams != null) {
+            for (ParcelFileDescriptor fd : mConnectionServiceToInCallStreams) {
+                if (fd != null) {
+                    try {
+                        fd.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
                 }
             }
         }
-        Log.addEvent(this, LogUtils.Events.DESTROYED);
+        if (mInCallToConnectionServiceStreams != null) {
+            for (ParcelFileDescriptor fd : mInCallToConnectionServiceStreams) {
+                if (fd != null) {
+                    try {
+                        fd.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
+            }
+        }
     }
 
     /** {@inheritDoc} */
@@ -1308,12 +1319,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 && mDidRequestToStartWithRtt && !areRttStreamsInitialized()) {
             // If the phone account got set to an RTT capable one and we haven't set the streams
             // yet, do so now.
-            setRttStreams(true);
+            createRttStreams();
             Log.i(this, "Setting RTT streams after target phone account selected");
-        } else if (!isRttSupported && !isConnectionManagerRttSupported) {
-            // If the phone account got set to RTT-incapable, unset the streams.
-            Log.i(this, "Unsetting RTT streams after target phone account selected");
-            setRttStreams(false);
         }
     }
 
@@ -1418,8 +1425,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         if (changedProperties != 0) {
             int previousProperties = mConnectionProperties;
             mConnectionProperties = connectionProperties;
-            setRttStreams((mConnectionProperties & Connection.PROPERTY_IS_RTT) ==
-                    Connection.PROPERTY_IS_RTT);
+            if ((mConnectionProperties & Connection.PROPERTY_IS_RTT) ==
+                    Connection.PROPERTY_IS_RTT) {
+                createRttStreams();
+            }
             mWasHighDefAudio = (connectionProperties & Connection.PROPERTY_HIGH_DEF_AUDIO) ==
                     Connection.PROPERTY_HIGH_DEF_AUDIO;
             boolean didRttChange =
@@ -2525,7 +2534,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     public void sendRttRequest() {
-        setRttStreams(true);
+        createRttStreams();
         mConnectionService.startRtt(this, getInCallToCsRttPipeForCs(), getCsToInCallRttPipeForCs());
     }
 
@@ -2534,10 +2543,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 && mConnectionServiceToInCallStreams != null;
     }
 
-    public void setRttStreams(boolean shouldBeRtt) {
-        boolean areStreamsInitialized = areRttStreamsInitialized();
-        Log.i(this, "Setting RTT streams to %b, currently %b", shouldBeRtt, areStreamsInitialized);
-        if (shouldBeRtt && !areStreamsInitialized) {
+    public void createRttStreams() {
+        if (!areRttStreamsInitialized()) {
+            Log.i(this, "Initializing RTT streams");
             try {
                 mWasEverRtt = true;
                 mInCallToConnectionServiceStreams = ParcelFileDescriptor.createReliablePipe();
@@ -2545,16 +2553,11 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             } catch (IOException e) {
                 Log.e(this, e, "Failed to create pipes for RTT call.");
             }
-        } else if (!shouldBeRtt && areStreamsInitialized) {
-            closeRttPipes();
-            mInCallToConnectionServiceStreams = null;
-            mConnectionServiceToInCallStreams = null;
         }
     }
 
     public void onRttConnectionFailure(int reason) {
         Log.i(this, "Got RTT initiation failure with reason %d", reason);
-        setRttStreams(false);
         for (Listener l : mListeners) {
             l.onRttInitiationFailure(this, reason);
         }
@@ -2581,26 +2584,14 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             Log.w(this, "Response ID %d does not match expected %d", id, mPendingRttRequestId);
             return;
         }
-        setRttStreams(accept);
         if (accept) {
+            createRttStreams();
             Log.i(this, "RTT request %d accepted.", id);
             mConnectionService.respondToRttRequest(
                     this, getInCallToCsRttPipeForCs(), getCsToInCallRttPipeForCs());
         } else {
             Log.i(this, "RTT request %d rejected.", id);
             mConnectionService.respondToRttRequest(this, null, null);
-        }
-    }
-
-    public void closeRttPipes() {
-        // Defer closing until the call is destroyed
-        if (mInCallToConnectionServiceStreams != null) {
-            mDiscardedRttFds.add(mInCallToConnectionServiceStreams[0]);
-            mDiscardedRttFds.add(mInCallToConnectionServiceStreams[1]);
-        }
-        if (mConnectionServiceToInCallStreams != null) {
-            mDiscardedRttFds.add(mConnectionServiceToInCallStreams[0]);
-            mDiscardedRttFds.add(mConnectionServiceToInCallStreams[1]);
         }
     }
 
