@@ -48,6 +48,7 @@ import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
+import android.util.StatsLog;
 import android.os.UserHandle;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -924,6 +925,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 }
                 Log.addEvent(this, event, stringData);
             }
+            int statsdDisconnectCause = (newState == CallState.DISCONNECTED) ?
+                    getDisconnectCause().getCode() : DisconnectCause.UNKNOWN;
+            StatsLog.write(StatsLog.CALL_STATE_CHANGED, newState, statsdDisconnectCause,
+                    isSelfManaged(), isExternalCall());
         }
     }
 
@@ -1720,7 +1725,15 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      */
     @VisibleForTesting
     public void disconnect(long disconnectionTimeout) {
-        Log.addEvent(this, LogUtils.Events.REQUEST_DISCONNECT);
+        disconnect(disconnectionTimeout, "internal" /** callingPackage */);
+    }
+
+    /**
+     * Attempts to disconnect the call through the connection service.
+     */
+    @VisibleForTesting
+    public void disconnect(long disconnectionTimeout, String callingPackage) {
+        Log.addEvent(this, LogUtils.Events.REQUEST_DISCONNECT, callingPackage);
 
         // Track that the call is now locally disconnecting.
         setLocallyDisconnecting(true);
@@ -1841,6 +1854,17 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      */
     @VisibleForTesting
     public void reject(boolean rejectWithMessage, String textMessage) {
+        reject(rejectWithMessage, textMessage, "internal" /** callingPackage */);
+    }
+
+    /**
+     * Rejects the call if it is ringing.
+     *
+     * @param rejectWithMessage Whether to send a text message as part of the call rejection.
+     * @param textMessage An optional text message to send as part of the rejection.
+     */
+    @VisibleForTesting
+    public void reject(boolean rejectWithMessage, String textMessage, String callingPackage) {
         // Check to verify that the call is still in the ringing state. A call can change states
         // between the time the user hits 'reject' and Telecomm receives the command.
         if (isRinging("reject")) {
@@ -1853,8 +1877,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 Log.e(this, new NullPointerException(),
                         "reject call failed due to null CS callId=%s", getId());
             }
-            Log.addEvent(this, LogUtils.Events.REQUEST_REJECT);
-
+            Log.addEvent(this, LogUtils.Events.REQUEST_REJECT, callingPackage);
         }
     }
 
