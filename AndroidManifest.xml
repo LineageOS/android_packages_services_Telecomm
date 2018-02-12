@@ -88,7 +88,7 @@
          android:protectionLevel="signature"/>
 
     <application android:label="@string/telecommAppLabel"
-         android:icon="@mipmap/ic_launcher_phone"
+         android:icon="@mipmap/ic_launcher"
          android:supportsRtl="true"
          android:process="system"
          android:usesCleartextTraffic="false"
