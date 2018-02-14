@@ -745,6 +745,10 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     mBluetoothRouteManager.getConnectedDevices());
             setSystemAudioState(newState, true);
             updateInternalCallAudioState();
+            // Do not send RINGER_MODE_CHANGE if no Bluetooth SCO audio device is available
+            if (mBluetoothRouteManager.getBluetoothAudioConnectedDevice() != null) {
+                mCallAudioManager.onRingerModeChange();
+            }
         }
 
         @Override
@@ -770,7 +774,9 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case BT_AUDIO_CONNECTED:
-                    // Nothing to do
+                    // Send ringer mode change because we transit to ActiveBluetoothState even
+                    // when HFP is connecting
+                    mCallAudioManager.onRingerModeChange();
                     return HANDLED;
                 case SWITCH_BLUETOOTH:
                 case USER_SWITCH_BLUETOOTH:
@@ -1276,6 +1282,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
     private CallAudioState mCurrentCallAudioState;
     private CallAudioState mLastKnownCallAudioState;
 
+    private CallAudioManager mCallAudioManager;
+
     public CallAudioRouteStateMachine(
             Context context,
             CallsManager callsManager,
@@ -1330,6 +1338,10 @@ public class CallAudioRouteStateMachine extends StateMachine {
         mRouteCodeToQuiescentState.put(ROUTE_BLUETOOTH, mQuiescentBluetoothRoute);
         mRouteCodeToQuiescentState.put(ROUTE_SPEAKER, mQuiescentSpeakerRoute);
         mRouteCodeToQuiescentState.put(ROUTE_WIRED_HEADSET, mQuiescentHeadsetRoute);
+    }
+
+    public void setCallAudioManager(CallAudioManager callAudioManager) {
+        mCallAudioManager = callAudioManager;
     }
 
     /**
