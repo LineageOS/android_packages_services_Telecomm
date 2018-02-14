@@ -93,6 +93,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
         mPlayerFactory.setCallAudioManager(this);
         mCallAudioModeStateMachine.setCallAudioManager(this);
+        mCallAudioRouteStateMachine.setCallAudioManager(this);
     }
 
     @Override
@@ -383,6 +384,11 @@ public class CallAudioManager extends CallsManagerListenerBase {
         }
         mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
                 CallAudioRouteStateMachine.TOGGLE_MUTE);
+    }
+
+    @VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
+    public void onRingerModeChange() {
+        mCallAudioModeStateMachine.sendMessage(CallAudioModeStateMachine.RINGER_MODE_CHANGE);
     }
 
     @VisibleForTesting
