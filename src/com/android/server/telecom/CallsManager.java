@@ -915,11 +915,16 @@ public class CallsManager extends Call.ListenerBase
                 call.setIsVoipAudioMode(true);
             }
         }
-        if (extras.getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false)) {
+        if (isRttSettingOn() ||
+                extras.getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false)) {
+            Log.d(this, "Incoming call requesting RTT, rtt setting is %b", isRttSettingOn());
             if (phoneAccount != null &&
                     phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_RTT)) {
                 call.setRttStreams(true);
             }
+            // Even if the phone account doesn't support RTT yet, the connection manager might
+            // change that. Set this to check it later.
+            call.setRequestedToStartWithRtt();
         }
         // If the extras specifies a video state, set it on the call if the PhoneAccount supports
         // video.
@@ -1201,12 +1206,16 @@ public class CallsManager extends Call.ListenerBase
                     CallState.CONNECTING,
                     phoneAccountHandle == null ? "no-handle" : phoneAccountHandle.toString());
 
-            if (extras != null
-                    && extras.getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false)) {
+            if (isRttSettingOn() || (extras != null
+                    && extras.getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false))) {
+                Log.d(this, "Outgoing call requesting RTT, rtt setting is %b", isRttSettingOn());
                 if (accountToUse != null
                         && accountToUse.hasCapabilities(PhoneAccount.CAPABILITY_RTT)) {
                     call.setRttStreams(true);
                 }
+                // Even if the phone account doesn't support RTT yet, the connection manager might
+                // change that. Set this to check it later.
+                call.setRequestedToStartWithRtt();
             }
         }
         setIntentExtrasAndStartTime(call, extras);
@@ -1767,6 +1776,12 @@ public class CallsManager extends Call.ListenerBase
         mProximitySensorManager.turnOff(screenOnImmediately);
     }
 
+    private boolean isRttSettingOn() {
+        return Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.RTT_CALLING_MODE, TelecomManager.TTY_MODE_OFF)
+                != TelecomManager.TTY_MODE_OFF;
+    }
+
     void phoneAccountSelected(Call call, PhoneAccountHandle account, boolean setDefault) {
         if (!mCalls.contains(call)) {
             Log.i(this, "Attempted to add account to unknown call %s", call);
@@ -1780,12 +1795,17 @@ public class CallsManager extends Call.ListenerBase
                 Log.d("phoneAccountSelected: default to voip mode for call %s", call.getId());
                 call.setIsVoipAudioMode(true);
             }
-            if (call.getIntentExtras()
+            if (isRttSettingOn() || call.getIntentExtras()
                     .getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false)) {
+                Log.d(this, "Outgoing call after account selection requesting RTT," +
+                        " rtt setting is %b", isRttSettingOn());
                 if (realPhoneAccount != null
                         && realPhoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_RTT)) {
                     call.setRttStreams(true);
                 }
+                // Even if the phone account doesn't support RTT yet, the connection manager might
+                // change that. Set this to check it later.
+                call.setRequestedToStartWithRtt();
             }
 
             if (!call.isNewOutgoingCallIntentBroadcastDone()) {

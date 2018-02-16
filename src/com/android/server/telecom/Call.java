@@ -60,6 +60,7 @@ import java.io.IOException;
 import java.lang.String;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
@@ -484,6 +485,17 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      */
     private ParcelFileDescriptor[] mInCallToConnectionServiceStreams;
     private ParcelFileDescriptor[] mConnectionServiceToInCallStreams;
+
+    /**
+     * Abandoned RTT pipes, to be cleaned up when the call is removed
+     */
+    private Collection<ParcelFileDescriptor> mDiscardedRttFds = new LinkedList<>();
+
+    /**
+     * True if we're supposed to start this call with RTT, either due to the master switch or due
+     * to an extra.
+     */
+    private boolean mDidRequestToStartWithRtt = false;
     /**
      * Integer constant from {@link android.telecom.Call.RttCall}. Describes the current RTT mode.
      */
@@ -658,6 +670,15 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         if (mCallerInfo != null) {
             mCallerInfo.cachedPhotoIcon = null;
             mCallerInfo.cachedPhoto = null;
+        }
+        for (ParcelFileDescriptor fd : mDiscardedRttFds) {
+            if (fd != null) {
+                try {
+                    fd.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
         }
         Log.addEvent(this, LogUtils.Events.DESTROYED);
     }
@@ -1068,7 +1089,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 l.onConnectionManagerPhoneAccountChanged(this);
             }
         }
-
+        checkIfRttCapable();
     }
 
     @VisibleForTesting
@@ -1086,6 +1107,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             configureCallAttributes();
         }
         checkIfVideoCapable();
+        checkIfRttCapable();
     }
 
     public CharSequence getTargetPhoneAccountLabel() {
@@ -1261,6 +1283,37 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             // and the current call is configured to be a video call; downgrade to audio-only.
             setVideoState(VideoProfile.STATE_AUDIO_ONLY);
             Log.d(this, "checkIfVideoCapable: selected phone account doesn't support video.");
+        }
+    }
+
+    private void checkIfRttCapable() {
+        PhoneAccountRegistrar phoneAccountRegistrar = mCallsManager.getPhoneAccountRegistrar();
+        if (mTargetPhoneAccountHandle == null) {
+            return;
+        }
+
+        // Check both the target phone account and the connection manager phone account -- if
+        // either support RTT, just set the streams and have them set/unset the RTT property as
+        // needed.
+        PhoneAccount phoneAccount =
+                phoneAccountRegistrar.getPhoneAccountUnchecked(mTargetPhoneAccountHandle);
+        PhoneAccount connectionManagerPhoneAccount = phoneAccountRegistrar.getPhoneAccountUnchecked(
+                        mConnectionManagerPhoneAccountHandle);
+        boolean isRttSupported = phoneAccount != null && phoneAccount.hasCapabilities(
+                PhoneAccount.CAPABILITY_RTT);
+        boolean isConnectionManagerRttSupported = connectionManagerPhoneAccount != null
+                && connectionManagerPhoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_RTT);
+
+        if ((isConnectionManagerRttSupported || isRttSupported)
+                && mDidRequestToStartWithRtt && !areRttStreamsInitialized()) {
+            // If the phone account got set to an RTT capable one and we haven't set the streams
+            // yet, do so now.
+            setRttStreams(true);
+            Log.i(this, "Setting RTT streams after target phone account selected");
+        } else if (!isRttSupported && !isConnectionManagerRttSupported) {
+            // If the phone account got set to RTT-incapable, unset the streams.
+            Log.i(this, "Unsetting RTT streams after target phone account selected");
+            setRttStreams(false);
         }
     }
 
@@ -2457,6 +2510,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         return mSpeakerphoneOn;
     }
 
+    public void setRequestedToStartWithRtt() {
+        mDidRequestToStartWithRtt = true;
+    }
+
     public void stopRtt() {
         if (mConnectionService != null) {
             mConnectionService.stopRtt(this);
@@ -2472,9 +2529,14 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         mConnectionService.startRtt(this, getInCallToCsRttPipeForCs(), getCsToInCallRttPipeForCs());
     }
 
-    public void setRttStreams(boolean shouldBeRtt) {
-        boolean areStreamsInitialized = mInCallToConnectionServiceStreams != null
+    private boolean areRttStreamsInitialized() {
+        return mInCallToConnectionServiceStreams != null
                 && mConnectionServiceToInCallStreams != null;
+    }
+
+    public void setRttStreams(boolean shouldBeRtt) {
+        boolean areStreamsInitialized = areRttStreamsInitialized();
+        Log.i(this, "Setting RTT streams to %b, currently %b", shouldBeRtt, areStreamsInitialized);
         if (shouldBeRtt && !areStreamsInitialized) {
             try {
                 mWasEverRtt = true;
@@ -2491,6 +2553,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     public void onRttConnectionFailure(int reason) {
+        Log.i(this, "Got RTT initiation failure with reason %d", reason);
         setRttStreams(false);
         for (Listener l : mListeners) {
             l.onRttInitiationFailure(this, reason);
@@ -2530,7 +2593,15 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     public void closeRttPipes() {
-        // TODO: may defer this until call is removed?
+        // Defer closing until the call is destroyed
+        if (mInCallToConnectionServiceStreams != null) {
+            mDiscardedRttFds.add(mInCallToConnectionServiceStreams[0]);
+            mDiscardedRttFds.add(mInCallToConnectionServiceStreams[1]);
+        }
+        if (mConnectionServiceToInCallStreams != null) {
+            mDiscardedRttFds.add(mConnectionServiceToInCallStreams[0]);
+            mDiscardedRttFds.add(mConnectionServiceToInCallStreams[1]);
+        }
     }
 
     public boolean isRttCall() {
