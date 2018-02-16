@@ -37,7 +37,6 @@ LOCAL_PROTO_JAVA_OUTPUT_PARAMS := optional_field_style=accessors
 LOCAL_RESOURCE_DIR := \
     $(LOCAL_PATH)/res \
     $(LOCAL_PATH)/../res \
-    $(SUPPORT_LIBRARY_ROOT)/compat/res
 
 LOCAL_JAVA_LIBRARIES := \
         android.test.mock \
