@@ -13,6 +13,7 @@ LOCAL_PROTOC_FLAGS := --proto_path=$(LOCAL_PATH)/proto/
 LOCAL_PROTO_JAVA_OUTPUT_PARAMS := optional_field_style=accessors
 
 LOCAL_PACKAGE_NAME := Telecom
+LOCAL_PRIVATE_PLATFORM_APIS := true
 
 LOCAL_CERTIFICATE := platform
 LOCAL_PRIVILEGED_MODULE := true
