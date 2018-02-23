@@ -364,7 +364,13 @@ public class CallAudioManager extends CallsManagerListenerBase {
         return null;
     }
 
-    void toggleMute() {
+    @VisibleForTesting
+    public void toggleMute() {
+        // Don't mute if there are any emergency calls.
+        if (mCallsManager.hasEmergencyCall()) {
+            Log.v(this, "ignoring toggleMute for emergency call");
+            return;
+        }
         mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
                 CallAudioRouteStateMachine.TOGGLE_MUTE);
     }
