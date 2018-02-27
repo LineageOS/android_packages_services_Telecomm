@@ -55,6 +55,7 @@ LOCAL_JACK_FLAGS := --multi-dex native
 LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_PACKAGE_NAME := TelecomUnitTests
+LOCAL_PRIVATE_PLATFORM_APIS := true
 LOCAL_CERTIFICATE := platform
 
 LOCAL_MODULE_TAGS := tests
