@@ -21,6 +21,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.telecom.Log;
+import android.telecom.Logging.Session;
+import android.text.TextUtils;
+
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
@@ -157,7 +160,13 @@ public class ConnectionServiceFocusManager {
                         return;
                     }
 
-                    mEventHandler.obtainMessage(MSG_ADD_CALL, call).sendToTarget();
+                    mEventHandler
+                            .obtainMessage(MSG_ADD_CALL,
+                                    new MessageArgs(
+                                            Log.createSubsession(),
+                                            "CSFM.oCA",
+                                            call))
+                            .sendToTarget();
                 }
 
                 @Override
@@ -166,7 +175,13 @@ public class ConnectionServiceFocusManager {
                         return;
                     }
 
-                    mEventHandler.obtainMessage(MSG_REMOVE_CALL, call).sendToTarget();
+                    mEventHandler
+                            .obtainMessage(MSG_REMOVE_CALL,
+                                    new MessageArgs(
+                                            Log.createSubsession(),
+                                            "CSFM.oCR",
+                                            call))
+                            .sendToTarget();
                 }
 
                 @Override
@@ -175,16 +190,33 @@ public class ConnectionServiceFocusManager {
                         return;
                     }
 
-                    mEventHandler.obtainMessage(MSG_CALL_STATE_CHANGED, oldState, newState, call)
+                    mEventHandler
+                            .obtainMessage(MSG_CALL_STATE_CHANGED, oldState, newState,
+                                    new MessageArgs(
+                                            Log.createSubsession(),
+                                            "CSFM.oCSS",
+                                            call))
                             .sendToTarget();
                 }
 
                 @Override
                 public void onExternalCallChanged(Call call, boolean isExternalCall) {
                     if (isExternalCall) {
-                        mEventHandler.obtainMessage(MSG_REMOVE_CALL, call).sendToTarget();
+                        mEventHandler
+                                .obtainMessage(MSG_REMOVE_CALL,
+                                        new MessageArgs(
+                                                Log.createSubsession(),
+                                                "CSFM.oECC",
+                                                call))
+                                .sendToTarget();
                     } else {
-                        mEventHandler.obtainMessage(MSG_ADD_CALL, call).sendToTarget();
+                        mEventHandler
+                                .obtainMessage(MSG_ADD_CALL,
+                                        new MessageArgs(
+                                                Log.createSubsession(),
+                                                "CSFM.oECC",
+                                                call))
+                                .sendToTarget();
                     }
                 }
 
@@ -199,7 +231,11 @@ public class ConnectionServiceFocusManager {
                 public void onConnectionServiceReleased(
                         ConnectionServiceFocus connectionServiceFocus) {
                     mEventHandler
-                            .obtainMessage(MSG_RELEASE_CONNECTION_FOCUS, connectionServiceFocus)
+                            .obtainMessage(MSG_RELEASE_CONNECTION_FOCUS,
+                                    new MessageArgs(
+                                            Log.createSubsession(),
+                                            "CSFM.oCSR",
+                                            connectionServiceFocus))
                             .sendToTarget();
                 }
 
@@ -207,7 +243,11 @@ public class ConnectionServiceFocusManager {
                 public void onConnectionServiceDeath(
                         ConnectionServiceFocus connectionServiceFocus) {
                     mEventHandler
-                            .obtainMessage(MSG_CONNECTION_SERVICE_DEATH, connectionServiceFocus)
+                            .obtainMessage(MSG_CONNECTION_SERVICE_DEATH,
+                                    new MessageArgs(
+                                            Log.createSubsession(),
+                                            "CSFM.oCSD",
+                                            connectionServiceFocus))
                             .sendToTarget();
                 }
             };
@@ -233,8 +273,12 @@ public class ConnectionServiceFocusManager {
      * @param callback the callback associated with this request.
      */
     public void requestFocus(CallFocus focus, RequestFocusCallback callback) {
-        mEventHandler.obtainMessage(
-                MSG_REQUEST_FOCUS, new FocusRequest(focus, callback)).sendToTarget();
+        mEventHandler.obtainMessage(MSG_REQUEST_FOCUS,
+                new MessageArgs(
+                        Log.createSubsession(),
+                        "CSFM.rF",
+                        new FocusRequest(focus, callback)))
+                .sendToTarget();
     }
 
     /**
@@ -311,8 +355,12 @@ public class ConnectionServiceFocusManager {
         } else {
             mCurrentFocus.connectionServiceFocusLost();
             mCurrentFocusRequest = focusRequest;
-            Message msg = mEventHandler.obtainMessage(MSG_RELEASE_FOCUS_TIMEOUT);
-            msg.obj = focusRequest;
+            Message msg = mEventHandler.obtainMessage(
+                    MSG_RELEASE_FOCUS_TIMEOUT,
+                    new MessageArgs(
+                            Log.createSubsession(),
+                            "CSFM.hRF",
+                            focusRequest));
             mEventHandler.sendMessageDelayed(msg, RELEASE_FOCUS_TIMEOUT_MS);
         }
     }
@@ -390,28 +438,40 @@ public class ConnectionServiceFocusManager {
 
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_REQUEST_FOCUS:
-                    handleRequestFocus((FocusRequest) msg.obj);
-                    break;
-                case MSG_RELEASE_CONNECTION_FOCUS:
-                    handleReleasedFocus((ConnectionServiceFocus) msg.obj);
-                    break;
-                case MSG_RELEASE_FOCUS_TIMEOUT:
-                    handleReleasedFocusTimeout((FocusRequest) msg.obj);
-                    break;
-                case MSG_CONNECTION_SERVICE_DEATH:
-                    handleConnectionServiceDeath((ConnectionServiceFocus) msg.obj);
-                    break;
-                case MSG_ADD_CALL:
-                    handleAddedCall((CallFocus) msg.obj);
-                    break;
-                case MSG_REMOVE_CALL:
-                    handleRemovedCall((CallFocus) msg.obj);
-                    break;
-                case MSG_CALL_STATE_CHANGED:
-                    handleCallStateChanged((CallFocus) msg.obj, msg.arg1, msg.arg2);
-                    break;
+            Session session = ((MessageArgs) msg.obj).logSession;
+            String shortName = ((MessageArgs) msg.obj).shortName;
+            if (TextUtils.isEmpty(shortName)) {
+                shortName = "hM";
+            }
+            Log.continueSession(session, shortName);
+            Object msgObj = ((MessageArgs) msg.obj).obj;
+
+            try {
+                switch (msg.what) {
+                    case MSG_REQUEST_FOCUS:
+                        handleRequestFocus((FocusRequest) msgObj);
+                        break;
+                    case MSG_RELEASE_CONNECTION_FOCUS:
+                        handleReleasedFocus((ConnectionServiceFocus) msgObj);
+                        break;
+                    case MSG_RELEASE_FOCUS_TIMEOUT:
+                        handleReleasedFocusTimeout((FocusRequest) msgObj);
+                        break;
+                    case MSG_CONNECTION_SERVICE_DEATH:
+                        handleConnectionServiceDeath((ConnectionServiceFocus) msgObj);
+                        break;
+                    case MSG_ADD_CALL:
+                        handleAddedCall((CallFocus) msgObj);
+                        break;
+                    case MSG_REMOVE_CALL:
+                        handleRemovedCall((CallFocus) msgObj);
+                        break;
+                    case MSG_CALL_STATE_CHANGED:
+                        handleCallStateChanged((CallFocus) msgObj, msg.arg1, msg.arg2);
+                        break;
+                }
+            } finally {
+                Log.endSession();
             }
         }
     }
@@ -423,6 +483,18 @@ public class ConnectionServiceFocusManager {
         FocusRequest(CallFocus call, RequestFocusCallback callback) {
             this.call = call;
             this.callback = callback;
+        }
+    }
+
+    private static final class MessageArgs {
+        Session logSession;
+        String shortName;
+        Object obj;
+
+        MessageArgs(Session logSession, String shortName, Object obj) {
+            this.logSession = logSession;
+            this.shortName = shortName;
+            this.obj = obj;
         }
     }
 }
