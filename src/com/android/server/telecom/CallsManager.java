@@ -917,7 +917,7 @@ public class CallsManager extends Call.ListenerBase
         }
         if (isRttSettingOn() &&
                 extras.getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false)) {
-            Log.d(this, "Incoming call requesting RTT, rtt setting is %b", isRttSettingOn());
+            Log.i(this, "Incoming call requesting RTT, rtt setting is %b", isRttSettingOn());
             if (phoneAccount != null &&
                     phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_RTT)) {
                 call.createRttStreams();
