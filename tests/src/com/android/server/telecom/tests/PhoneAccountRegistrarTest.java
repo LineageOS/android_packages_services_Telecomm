@@ -59,6 +59,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -1036,9 +1037,10 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
             PhoneAccountRegistrar.State a, PhoneAccountRegistrar.State b) {
         assertEquals(a.defaultOutgoingAccountHandles.size(),
                 b.defaultOutgoingAccountHandles.size());
-        for (int i = 0; i < a.defaultOutgoingAccountHandles.size(); i++) {
-            assertDefaultPhoneAccountHandleEquals(a.defaultOutgoingAccountHandles.get(i),
-                    b.defaultOutgoingAccountHandles.get(i));
+        for (Map.Entry<UserHandle, DefaultPhoneAccountHandle> e :
+                a.defaultOutgoingAccountHandles.entrySet()) {
+            assertDefaultPhoneAccountHandleEquals(e.getValue(),
+                    b.defaultOutgoingAccountHandles.get(e.getKey()));
         }
         assertEquals(a.accounts.size(), b.accounts.size());
         for (int i = 0; i < a.accounts.size(); i++) {
