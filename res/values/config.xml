@@ -50,4 +50,9 @@
     <!-- Determines if the granting temporary location permission to the default dialer
          during an emergency call should be allowed.  The default is false. -->
     <bool name="grant_location_permission_enabled">false</bool>
+
+    <!-- When true, a simple full intensity on/off vibration pattern will be used when calls ring.
+         When false, a fancy vibration pattern which ramps up and down will be used.
+         Devices should overlay this value based on the type of vibration hardware they employ. -->
+    <bool name="use_simple_vibration_pattern">false</bool>
 </resources>
