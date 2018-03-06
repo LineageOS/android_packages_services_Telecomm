@@ -47,12 +47,26 @@ public class Ringer {
             255, // Peak
             0}; // pause before repetition
 
+    private static final long[] SIMPLE_VIBRATION_PATTERN = {
+            0, // No delay before starting
+            1000, // How long to vibrate
+            1000, // How long to wait before vibrating again
+    };
+
+    private static final int[] SIMPLE_VIBRATION_AMPLITUDE = {
+            0, // No delay before starting
+            255, // Vibrate full amplitude
+            0, // No amplitude while waiting
+    };
+
     /**
      * Indicates that vibration should be repeated at element 5 in the {@link #PULSE_AMPLITUDE} and
      * {@link #PULSE_PATTERN} arrays.  This means repetition will happen for the main ease-in/peak
      * pattern, but the priming + interval part will not be repeated.
      */
     private static final int REPEAT_VIBRATION_AT = 5;
+
+    private static final int REPEAT_SIMPLE_VIBRATION_AT = 1;
 
     private static final AudioAttributes VIBRATION_ATTRIBUTES = new AudioAttributes.Builder()
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
@@ -108,8 +122,13 @@ public class Ringer {
         mRingtoneFactory = ringtoneFactory;
         mInCallController = inCallController;
 
-        mVibrationEffect = VibrationEffect.createWaveform(PULSE_PATTERN, PULSE_AMPLITUDE,
-                REPEAT_VIBRATION_AT);
+        if (mContext.getResources().getBoolean(R.bool.use_simple_vibration_pattern)) {
+            mVibrationEffect = VibrationEffect.createWaveform(SIMPLE_VIBRATION_PATTERN,
+                    SIMPLE_VIBRATION_AMPLITUDE, REPEAT_SIMPLE_VIBRATION_AT);
+        } else {
+            mVibrationEffect = VibrationEffect.createWaveform(PULSE_PATTERN, PULSE_AMPLITUDE,
+                    REPEAT_VIBRATION_AT);
+        }
     }
 
     public boolean startRinging(Call foregroundCall, boolean isHfpDeviceAttached) {
