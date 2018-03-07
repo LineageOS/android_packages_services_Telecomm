@@ -19,6 +19,7 @@ package com.android.server.telecom;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.bluetooth.BluetoothDeviceManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
+import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
 import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
 import com.android.server.telecom.ui.IncomingCallNotifier;
@@ -229,6 +230,10 @@ public class TelecomSystem {
                 new BluetoothAdapterProxy(), mLock);
         BluetoothRouteManager bluetoothRouteManager = new BluetoothRouteManager(mContext, mLock,
                 bluetoothDeviceManager, new Timeouts.Adapter());
+        BluetoothStateReceiver bluetoothStateReceiver = new BluetoothStateReceiver(
+                bluetoothDeviceManager, bluetoothRouteManager);
+        mContext.registerReceiver(bluetoothStateReceiver, BluetoothStateReceiver.INTENT_FILTER);
+
         WiredHeadsetManager wiredHeadsetManager = new WiredHeadsetManager(mContext);
         SystemStateProvider systemStateProvider = new SystemStateProvider(mContext);
 
@@ -271,6 +276,7 @@ public class TelecomSystem {
                 emergencyCallHelper,
                 toneGeneratorFactory,
                 clockProxy,
+                bluetoothStateReceiver,
                 inCallControllerFactory);
 
         mIncomingCallNotifier = incomingCallNotifier;

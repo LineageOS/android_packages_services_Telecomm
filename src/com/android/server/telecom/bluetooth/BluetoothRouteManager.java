@@ -80,47 +80,6 @@ public class BluetoothRouteManager extends StateMachine {
         void onBluetoothAudioDisconnected();
     }
 
-    // Broadcast receiver to receive audio state change broadcasts from the BT stack
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.startSession("BRM.oR");
-            try {
-                String action = intent.getAction();
-
-                if (action.equals(BluetoothHeadset.ACTION_AUDIO_STATE_CHANGED)) {
-                    int bluetoothHeadsetAudioState =
-                            intent.getIntExtra(BluetoothHeadset.EXTRA_STATE,
-                                    BluetoothHeadset.STATE_AUDIO_DISCONNECTED);
-                    BluetoothDevice device =
-                            intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    if (device == null) {
-                        Log.w(BluetoothRouteManager.this, "Got null device from broadcast. " +
-                                "Ignoring.");
-                        return;
-                    }
-
-                    Log.i(BluetoothRouteManager.this, "Device %s transitioned to audio state %d",
-                            device.getAddress(), bluetoothHeadsetAudioState);
-                    Session session = Log.createSubsession();
-                    SomeArgs args = SomeArgs.obtain();
-                    args.arg1 = session;
-                    args.arg2 = device.getAddress();
-                    switch (bluetoothHeadsetAudioState) {
-                        case BluetoothHeadset.STATE_AUDIO_CONNECTED:
-                            sendMessage(HFP_IS_ON, args);
-                            break;
-                        case BluetoothHeadset.STATE_AUDIO_DISCONNECTED:
-                            sendMessage(HFP_LOST, args);
-                            break;
-                    }
-                }
-            } finally {
-                Log.endSession();
-            }
-        }
-    };
-
     /**
      * Constants representing messages sent to the state machine.
      * Messages are expected to be sent with {@link SomeArgs} as the obj.
@@ -510,9 +469,6 @@ public class BluetoothRouteManager extends StateMachine {
         mDeviceManager = deviceManager;
         mDeviceManager.setBluetoothRouteManager(this);
         mTimeoutsAdapter = timeoutsAdapter;
-
-        IntentFilter intentFilter = new IntentFilter(BluetoothHeadset.ACTION_AUDIO_STATE_CHANGED);
-        context.registerReceiver(mReceiver, intentFilter);
 
         mAudioOffState = new AudioOffState();
         addState(mAudioOffState);
