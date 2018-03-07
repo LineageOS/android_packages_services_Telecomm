@@ -261,6 +261,10 @@ abstract class ServiceBinder {
         mUserHandle = userHandle;
     }
 
+    final UserHandle getUserHandle() {
+        return mUserHandle;
+    }
+
     final void incrementAssociatedCallCount() {
         mAssociatedCallCount++;
         Log.v(this, "Call count increment %d, %s", mAssociatedCallCount,
