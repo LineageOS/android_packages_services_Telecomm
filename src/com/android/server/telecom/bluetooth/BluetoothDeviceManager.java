@@ -80,49 +80,6 @@ public class BluetoothDeviceManager {
                 }
            };
 
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.startSession("BM.oR");
-            try {
-                String action = intent.getAction();
-
-                if (action.equals(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)) {
-                    int bluetoothHeadsetState = intent.getIntExtra(BluetoothHeadset.EXTRA_STATE,
-                            BluetoothHeadset.STATE_DISCONNECTED);
-                    BluetoothDevice device =
-                            intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-                    if (device == null) {
-                        Log.w(BluetoothDeviceManager.this, "Got null device from broadcast. " +
-                                "Ignoring.");
-                        return;
-                    }
-
-                    Log.i(BluetoothDeviceManager.this, "Device %s changed state to %d",
-                            device.getAddress(), bluetoothHeadsetState);
-
-                    synchronized (mLock) {
-                        if (bluetoothHeadsetState == BluetoothHeadset.STATE_CONNECTED) {
-                            if (!mConnectedDevicesByAddress.containsKey(device.getAddress())) {
-                                mConnectedDevicesByAddress.put(device.getAddress(), device);
-                                mBluetoothRouteManager.onDeviceAdded(device.getAddress());
-                            }
-                        } else if (bluetoothHeadsetState == BluetoothHeadset.STATE_DISCONNECTED
-                                || bluetoothHeadsetState == BluetoothHeadset.STATE_DISCONNECTING) {
-                            if (mConnectedDevicesByAddress.containsKey(device.getAddress())) {
-                                mConnectedDevicesByAddress.remove(device.getAddress());
-                                mBluetoothRouteManager.onDeviceLost(device.getAddress());
-                            }
-                        }
-                    }
-                }
-            } finally {
-                Log.endSession();
-            }
-        }
-    };
-
     private final LinkedHashMap<String, BluetoothDevice> mConnectedDevicesByAddress =
             new LinkedHashMap<>();
     private final TelecomSystem.SyncRoot mLock;
@@ -138,9 +95,6 @@ public class BluetoothDeviceManager {
             bluetoothAdapter.getProfileProxy(context, mBluetoothProfileServiceListener,
                     BluetoothProfile.HEADSET);
         }
-        IntentFilter intentFilter =
-                new IntentFilter(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED);
-        context.registerReceiver(mReceiver, intentFilter);
     }
 
     public void setBluetoothRouteManager(BluetoothRouteManager brm) {
@@ -173,5 +127,23 @@ public class BluetoothDeviceManager {
 
     public void setHeadsetServiceForTesting(BluetoothHeadsetProxy bluetoothHeadset) {
         mBluetoothHeadsetService = bluetoothHeadset;
+    }
+
+    void onDeviceConnected(BluetoothDevice device) {
+        synchronized (mLock) {
+            if (!mConnectedDevicesByAddress.containsKey(device.getAddress())) {
+                mConnectedDevicesByAddress.put(device.getAddress(), device);
+                mBluetoothRouteManager.onDeviceAdded(device.getAddress());
+            }
+        }
+    }
+
+    void onDeviceDisconnected(BluetoothDevice device) {
+        synchronized (mLock) {
+            if (mConnectedDevicesByAddress.containsKey(device.getAddress())) {
+                mConnectedDevicesByAddress.remove(device.getAddress());
+                mBluetoothRouteManager.onDeviceLost(device.getAddress());
+            }
+        }
     }
 }

@@ -57,6 +57,7 @@ import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.telephony.TelephonyProperties;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
+import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
 import com.android.server.telecom.callfiltering.AsyncBlockCheckFilter;
 import com.android.server.telecom.callfiltering.BlockCheckerAdapter;
 import com.android.server.telecom.callfiltering.CallFilterResultCallback;
@@ -337,6 +338,7 @@ public class CallsManager extends Call.ListenerBase
             EmergencyCallHelper emergencyCallHelper,
             InCallTonePlayer.ToneGeneratorFactory toneGeneratorFactory,
             ClockProxy clockProxy,
+            BluetoothStateReceiver bluetoothStateReceiver,
             InCallControllerFactory inCallControllerFactory) {
         mContext = context;
         mLock = lock;
@@ -392,7 +394,8 @@ public class CallsManager extends Call.ListenerBase
         mCallAudioManager = new CallAudioManager(callAudioRouteStateMachine,
                 this,new CallAudioModeStateMachine((AudioManager)
                         mContext.getSystemService(Context.AUDIO_SERVICE)),
-                playerFactory, mRinger, new RingbackPlayer(playerFactory), mDtmfLocalTonePlayer);
+                playerFactory, mRinger, new RingbackPlayer(playerFactory),
+                bluetoothStateReceiver, mDtmfLocalTonePlayer);
 
         mConnectionSvrFocusMgr = connectionServiceFocusManagerFactory.create(
                 mRequester, Looper.getMainLooper());
