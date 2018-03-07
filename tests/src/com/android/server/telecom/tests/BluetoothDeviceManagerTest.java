@@ -30,6 +30,7 @@ import com.android.server.telecom.BluetoothHeadsetProxy;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.bluetooth.BluetoothDeviceManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
+import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -77,14 +78,8 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
                 serviceCaptor.capture(), eq(BluetoothProfile.HEADSET));
         serviceListenerUnderTest = serviceCaptor.getValue();
 
-        ArgumentCaptor<BroadcastReceiver> receiverCaptor =
-                ArgumentCaptor.forClass(BroadcastReceiver.class);
-        ArgumentCaptor<IntentFilter> intentFilterCaptor =
-                ArgumentCaptor.forClass(IntentFilter.class);
-        verify(mContext).registerReceiver(receiverCaptor.capture(), intentFilterCaptor.capture());
-        assertTrue(intentFilterCaptor.getValue().hasAction(
-                BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED));
-        receiverUnderTest = receiverCaptor.getValue();
+        receiverUnderTest = new BluetoothStateReceiver(mBluetoothDeviceManager,
+                null /* route mgr not needed here */);
 
         mBluetoothDeviceManager.setHeadsetServiceForTesting(mHeadsetProxy);
     }

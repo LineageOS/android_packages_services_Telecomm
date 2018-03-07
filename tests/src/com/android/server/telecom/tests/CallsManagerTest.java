@@ -72,6 +72,7 @@ import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.WiredHeadsetManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
+import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -140,6 +141,7 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private InCallControllerFactory mInCallControllerFactory;
     @Mock private InCallController mInCallController;
     @Mock private ConnectionServiceFocusManager mConnectionSvrFocusMgr;
+    @Mock private BluetoothStateReceiver mBluetoothStateReceiver;
 
     private CallsManager mCallsManager;
 
@@ -181,6 +183,7 @@ public class CallsManagerTest extends TelecomTestCase {
                 mEmergencyCallHelper,
                 mToneGeneratorFactory,
                 mClockProxy,
+                mBluetoothStateReceiver,
                 mInCallControllerFactory);
 
         when(mPhoneAccountRegistrar.getPhoneAccount(
