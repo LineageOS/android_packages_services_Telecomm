@@ -19,7 +19,10 @@ package com.android.server.telecom;
 
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.UserInfo;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
@@ -122,6 +125,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
     public static final int MUTE_ON = 3001;
     public static final int MUTE_OFF = 3002;
     public static final int TOGGLE_MUTE = 3003;
+    public static final int MUTE_EXTERNALLY_CHANGED = 3004;
 
     public static final int SWITCH_FOCUS = 4001;
 
@@ -1221,6 +1225,18 @@ public class CallAudioRouteStateMachine extends StateMachine {
         }
     }
 
+    private final BroadcastReceiver mMuteChangeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.startSession("CARSM.mCR");
+            if (AudioManager.ACTION_MICROPHONE_MUTE_CHANGED.equals(intent.getAction())) {
+                sendInternalMessage(MUTE_EXTERNALLY_CHANGED);
+            } else {
+                Log.w(this, "Received non-mute-change intent");
+            }
+        }
+    };
+
     private final ActiveEarpieceRoute mActiveEarpieceRoute = new ActiveEarpieceRoute();
     private final ActiveHeadsetRoute mActiveHeadsetRoute = new ActiveHeadsetRoute();
     private final ActiveBluetoothRoute mActiveBluetoothRoute = new ActiveBluetoothRoute();
@@ -1337,6 +1353,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
         mAvailableRoutes = mDeviceSupportedRoutes & getCurrentCallSupportedRoutes();
         mIsMuted = initState.isMuted();
         mWasOnSpeaker = false;
+        mContext.registerReceiver(mMuteChangeReceiver,
+                new IntentFilter(AudioManager.ACTION_MICROPHONE_MUTE_CHANGED));
 
         mStatusBarNotifier.notifyMute(initState.isMuted());
         mStatusBarNotifier.notifySpeakerphone(initState.getRoute() == CallAudioState.ROUTE_SPEAKER);
@@ -1373,27 +1391,20 @@ public class CallAudioRouteStateMachine extends StateMachine {
      */
     @Override
     protected void unhandledMessage(Message msg) {
-        CallAudioState newCallAudioState;
         switch (msg.what) {
             case MUTE_ON:
                 setMuteOn(true);
-                newCallAudioState = new CallAudioState(mIsMuted,
-                        mCurrentCallAudioState.getRoute(),
-                        mAvailableRoutes,
-                        mCurrentCallAudioState.getActiveBluetoothDevice(),
-                        mBluetoothRouteManager.getConnectedDevices());
-                setSystemAudioState(newCallAudioState);
-                updateInternalCallAudioState();
+                updateSystemMuteState();
                 return;
             case MUTE_OFF:
                 setMuteOn(false);
-                newCallAudioState = new CallAudioState(mIsMuted,
-                        mCurrentCallAudioState.getRoute(),
-                        mAvailableRoutes,
-                        mCurrentCallAudioState.getActiveBluetoothDevice(),
-                        mBluetoothRouteManager.getConnectedDevices());
-                setSystemAudioState(newCallAudioState);
-                updateInternalCallAudioState();
+                updateSystemMuteState();
+                return;
+            case MUTE_EXTERNALLY_CHANGED:
+                mIsMuted = mAudioManager.isMicrophoneMute();
+                if (isInActiveState()) {
+                    updateSystemMuteState();
+                }
                 return;
             case TOGGLE_MUTE:
                 if (mIsMuted) {
@@ -1474,7 +1485,6 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     // user and not the current foreground, which we want to avoid.
                     audio.setMicrophoneMute(
                             mute, mContext.getOpPackageName(), getCurrentUserId());
-                    mStatusBarNotifier.notifyMute(mute);
                 } catch (RemoteException e) {
                     Log.e(this, e, "Remote exception while toggling mute.");
                 }
@@ -1482,6 +1492,16 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 // our state corroborates AudioManager's state.
             }
         }
+    }
+
+    private void updateSystemMuteState() {
+        CallAudioState newCallAudioState = new CallAudioState(mIsMuted,
+                mCurrentCallAudioState.getRoute(),
+                mAvailableRoutes,
+                mCurrentCallAudioState.getActiveBluetoothDevice(),
+                mBluetoothRouteManager.getConnectedDevices());
+        setSystemAudioState(newCallAudioState);
+        updateInternalCallAudioState();
     }
 
     /**
@@ -1518,7 +1538,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
             Log.i(this, "setSystemAudioState: changing from %s to %s", mLastKnownCallAudioState,
                     newCallAudioState);
             if (force || !newCallAudioState.equals(mLastKnownCallAudioState)) {
-
+                mStatusBarNotifier.notifyMute(newCallAudioState.isMuted());
                 mCallsManager.onCallAudioStateChanged(mLastKnownCallAudioState, newCallAudioState);
                 updateAudioForForegroundCall(newCallAudioState);
                 mLastKnownCallAudioState = newCallAudioState;
