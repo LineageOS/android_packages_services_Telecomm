@@ -36,4 +36,14 @@ public class SystemSettingsUtil {
         return Settings.System.getInt(context.getContentResolver(),
                 Settings.System.VIBRATE_WHEN_RINGING, 0) != 0;
     }
+
+    public boolean isEnhancedCallBlockingEnabled(Context context) {
+        return Settings.System.getInt(context.getContentResolver(),
+                Settings.System.DEBUG_ENABLE_ENHANCED_CALL_BLOCKING, 0) != 0;
+    }
+
+    public boolean setEnhancedCallBlockingEnabled(Context context, boolean enabled) {
+        return Settings.System.putInt(context.getContentResolver(),
+                Settings.System.DEBUG_ENABLE_ENHANCED_CALL_BLOCKING, enabled ? 1 : 0);
+    }
 }
