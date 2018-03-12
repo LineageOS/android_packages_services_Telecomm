@@ -1602,8 +1602,16 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                 @Override
                 public void onSuccess() {
                     Log.d(this, "Adding simService %s", currentSimService.getComponentName());
-                    simServiceComponentNames.add(currentSimService.getComponentName());
-                    simServiceBinders.add(currentSimService.mServiceInterface.asBinder());
+                    if (currentSimService.mServiceInterface == null) {
+                        // The remote ConnectionService died, so do not add it.
+                        // We will still perform maybeComplete() and notify the caller with an empty
+                        // list of sim services via maybeComplete().
+                        Log.w(this, "queryRemoteConnectionServices: simService %s died - Skipping.",
+                                currentSimService.getComponentName());
+                    } else {
+                        simServiceComponentNames.add(currentSimService.getComponentName());
+                        simServiceBinders.add(currentSimService.mServiceInterface.asBinder());
+                    }
                     maybeComplete();
                 }
 
