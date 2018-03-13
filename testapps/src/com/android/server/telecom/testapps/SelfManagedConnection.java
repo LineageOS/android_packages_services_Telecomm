@@ -183,6 +183,9 @@ public class SelfManagedConnection extends Connection {
     }
 
     public void setConnectionDisconnected(int cause) {
+        NotificationManager notificationManager = mContext.getSystemService(
+                NotificationManager.class);
+        notificationManager.cancel(CALL_NOTIFICATION, mCallId);
         mMediaPlayer.stop();
         setDisconnected(new DisconnectCause(cause));
         destroy();
