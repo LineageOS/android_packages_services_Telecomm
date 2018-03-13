@@ -46,6 +46,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallLogManager;
 import com.android.server.telecom.CallState;
+import com.android.server.telecom.HandoverState;
 import com.android.server.telecom.MissedCallNotifier;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.TelephonyUtil;
@@ -83,6 +84,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     private PhoneAccountHandle mDefaultAccountHandle;
     private PhoneAccountHandle mOtherUserAccountHandle;
     private PhoneAccountHandle mManagedProfileAccountHandle;
+    private PhoneAccountHandle mSelfManagedAccountHandle;
 
     private static final Uri TEL_PHONEHANDLE = Uri.parse("tel:5555551234");
 
@@ -95,6 +97,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     private static final String POST_DIAL_STRING = ";12345";
     private static final String VIA_NUMBER_STRING = "5555555678";
     private static final String TEST_PHONE_ACCOUNT_ID= "testPhoneAccountId";
+    private static final String TEST_SELF_MGD_PHONE_ACCOUNT_ID= "testPhoneAccountId";
 
     private static final int TEST_TIMEOUT_MILLIS = 200;
     private static final int CURRENT_USER_ID = 0;
@@ -134,6 +137,12 @@ public class CallLogManagerTest extends TelecomTestCase {
                 new ComponentName("com.android.server.telecom.tests", "CallLogManagerTest"),
                 TEST_PHONE_ACCOUNT_ID,
                 UserHandle.of(MANAGED_USER_ID)
+        );
+
+        mSelfManagedAccountHandle = new PhoneAccountHandle(
+                new ComponentName("com.android.server.telecom.tests", "CallLogManagerSelfMgdTest"),
+                TEST_SELF_MGD_PHONE_ACCOUNT_ID,
+                UserHandle.of(CURRENT_USER_ID)
         );
 
         UserManager userManager = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
@@ -652,6 +661,37 @@ public class CallLogManagerTest extends TelecomTestCase {
         mCallLogManager.onCallStateChanged(fakeVideoCall, CallState.ACTIVE, CallState.DISCONNECTED);
         ContentValues insertedValues = verifyInsertionWithCapture(CURRENT_USER_ID);
         assertNull(insertedValues.getAsLong(CallLog.Calls.DATA_USAGE));
+    }
+
+    /**
+     * Ensures missed self-managed calls are marked as read..
+     */
+    @MediumTest
+    @Test
+    public void testLogMissedSelfManaged() {
+        when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
+                .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle,
+                        PhoneAccount.CAPABILITY_SELF_MANAGED));
+        Call fakeMissedCall = makeFakeCall(
+                DisconnectCause.MISSED, // disconnectCauseCode
+                false, // isConference
+                true, // isIncoming
+                1L, // creationTimeMillis
+                1000L, // ageMillis
+                TEL_PHONEHANDLE, // callHandle
+                mSelfManagedAccountHandle, // phoneAccountHandle
+                NO_VIDEO_STATE, // callVideoState
+                POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
+                UserHandle.of(CURRENT_USER_ID)
+        );
+        when(fakeMissedCall.isSelfManaged()).thenReturn(true);
+        when(fakeMissedCall.isLoggedSelfManaged()).thenReturn(true);
+        when(fakeMissedCall.getHandoverState()).thenReturn(HandoverState.HANDOVER_NONE);
+        mCallLogManager.onCallStateChanged(fakeMissedCall, CallState.ACTIVE,
+                CallState.DISCONNECTED);
+        ContentValues insertedValues = verifyInsertionWithCapture(CURRENT_USER_ID);
+        assertEquals(1, insertedValues.getAsInteger(Calls.IS_READ).intValue());
     }
 
     @SmallTest
