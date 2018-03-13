@@ -947,7 +947,7 @@ public class CallsManager extends Call.ListenerBase
                 call.setIsVoipAudioMode(true);
             }
         }
-        if (isRttSettingOn() &&
+        if (isRttSettingOn() ||
                 extras.getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false)) {
             Log.i(this, "Incoming call requesting RTT, rtt setting is %b", isRttSettingOn());
             if (phoneAccount != null &&
