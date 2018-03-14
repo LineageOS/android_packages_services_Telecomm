@@ -79,6 +79,7 @@ public class SelfManagedConnectionService extends ConnectionService {
         connection.setExtras(request.getExtras());
         if (isIncoming) {
             connection.setIsIncomingCallUiShowing(request.shouldShowIncomingCallUi());
+            connection.setRinging();
         }
         Bundle requestExtras = request.getExtras();
         if (requestExtras != null) {
