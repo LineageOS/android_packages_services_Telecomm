@@ -60,8 +60,18 @@ public class SelfManagedCallListAdapter extends BaseAdapter {
     };
 
     /**
-     * Listener used to handle tap of the "held" button for a connection.
+     * Listener used to handle tap of the "missed" button for a connection.
      */
+    private View.OnClickListener mMissedListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            View parent = (View) v.getParent().getParent();
+            SelfManagedConnection connection = (SelfManagedConnection) parent.getTag();
+            connection.setConnectionDisconnected(DisconnectCause.MISSED);
+            SelfManagedCallList.getInstance().removeConnection(connection);
+        }
+    };
+
     private View.OnClickListener mHeldListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -165,7 +175,7 @@ public class SelfManagedCallListAdapter extends BaseAdapter {
         }
         setInfoForRow(result, phoneAccountHandle.getId(), connection.getAddress().toString(),
                 android.telecom.Connection.stateToString(connection.getState()), audioRoute,
-                callType);
+                callType, connection.getState() == android.telecom.Connection.STATE_RINGING);
         result.setTag(connection);
         return result;
     }
@@ -177,7 +187,8 @@ public class SelfManagedCallListAdapter extends BaseAdapter {
     }
 
     private void setInfoForRow(View view, String accountName, String number,
-                               String status, String audioRoute, String callType) {
+                               String status, String audioRoute, String callType,
+            boolean isRinging) {
 
         TextView numberTextView = (TextView) view.findViewById(R.id.phoneNumber);
         TextView statusTextView = (TextView) view.findViewById(R.id.callState);
@@ -191,6 +202,11 @@ public class SelfManagedCallListAdapter extends BaseAdapter {
         speakerButton.setOnClickListener(mSpeakerListener);
         View earpieceButton = view.findViewById(R.id.earpieceButton);
         earpieceButton.setOnClickListener(mEarpieceListener);
+        View missedButton = view.findViewById(R.id.missedButton);
+        missedButton.setOnClickListener(mMissedListener);
+        missedButton.setVisibility(isRinging ? View.VISIBLE : View.GONE);
+        setHeldButton.setVisibility(!isRinging ? View.VISIBLE : View.GONE);
+        disconnectButton.setVisibility(!isRinging ? View.VISIBLE : View.GONE);
         numberTextView.setText(accountName + " - " + number + " (" + audioRoute + ")");
         statusTextView.setText(callType + " - Status: " + status);
     }
