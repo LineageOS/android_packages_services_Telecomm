@@ -179,6 +179,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
         put(MUTE_ON, "MUTE_ON");
         put(MUTE_OFF, "MUTE_OFF");
         put(TOGGLE_MUTE, "TOGGLE_MUTE");
+        put(MUTE_EXTERNALLY_CHANGED, "MUTE_EXTERNALLY_CHANGED");
 
         put(SWITCH_FOCUS, "SWITCH_FOCUS");
 
@@ -1230,7 +1231,13 @@ public class CallAudioRouteStateMachine extends StateMachine {
         public void onReceive(Context context, Intent intent) {
             Log.startSession("CARSM.mCR");
             if (AudioManager.ACTION_MICROPHONE_MUTE_CHANGED.equals(intent.getAction())) {
-                sendInternalMessage(MUTE_EXTERNALLY_CHANGED);
+                if (mCallsManager.hasEmergencyCall()) {
+                    Log.i(this, "Mute was externally changed when there's an emergency call. " +
+                            "Forcing mute back off.");
+                    sendInternalMessage(MUTE_OFF);
+                } else {
+                    sendInternalMessage(MUTE_EXTERNALLY_CHANGED);
+                }
             } else {
                 Log.w(this, "Received non-mute-change intent");
             }
