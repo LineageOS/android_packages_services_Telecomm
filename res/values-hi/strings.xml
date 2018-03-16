@@ -82,5 +82,19 @@
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"किसी दूसरे ऐप्लिकेशन में कॉल के कारण कॉल नहीं लगाया जा सकता."</string>
     <string name="notification_channel_incoming_call" msgid="3513761697082968084">"इनकमिंग कॉल"</string>
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"छूटे कॉल"</string>
+    <string name="notification_channel_call_blocking" msgid="2943358779746676070">"कॉल पर रोक"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"इस कॉल को करने से आपका <xliff:g id="OTHER_APP">%1$s</xliff:g> कॉल समाप्त हो जाएगा."</string>
+    <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"कॉल पर रोक"</string>
+    <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"वे नंबर जो संपर्कों में नहीं हैं"</string>
+    <string name="phone_settings_number_not_in_contact_summary_txt" msgid="9043147855140079119">"उन नंबरों पर रोक लगाएं, जो आपके संपर्क में मौजूद नहीं हैं"</string>
+    <string name="phone_settings_private_num_txt" msgid="8623574188879134262">"निजी"</string>
+    <string name="phone_settings_private_num_summary_txt" msgid="7516314821207782191">"अपना नंबर ज़ाहिर न करने वाले कॉलर पर रोक लगाएं"</string>
+    <string name="phone_settings_payphone_txt" msgid="2493356957416981318">"पे फ़ोन"</string>
+    <string name="phone_settings_payphone_summary_txt" msgid="6126709946103814653">"पे फ़ोन से आने वाले कॉल पर रोक लगाएं"</string>
+    <string name="phone_settings_unknown_txt" msgid="5836407031508172721">"अज्ञात"</string>
+    <string name="phone_settings_unknown_summary_txt" msgid="3457690230497753233">"अनजान कॉलर के कॉल पर रोक लगाएं"</string>
+    <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="628536625775266096">"कॉल पर रोक"</string>
+    <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"कॉल पर रोक लगाने की सुविधा बंद है"</string>
+    <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"आपातकालीन कॉल किया गया"</string>
+    <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="4083285098613193052">"आपातकालीन सहायता कर्मचारी आपसे संपर्क कर सकें, इसलिए कॉल पर रोक लगाने की सुविधा बंद कर दी गई है."</string>
 </resources>
