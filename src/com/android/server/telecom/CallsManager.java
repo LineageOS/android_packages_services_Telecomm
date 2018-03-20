@@ -3436,7 +3436,7 @@ public class CallsManager extends Call.ListenerBase
         // Send an error back if there are any ongoing emergency calls.
         if (hasEmergencyCall()) {
             handoverFromCall.onHandoverFailed(
-                    android.telecom.Call.Callback.HANDOVER_FAILURE_ONGOING_EMERG_CALL);
+                    android.telecom.Call.Callback.HANDOVER_FAILURE_ONGOING_EMERGENCY_CALL);
             return;
         }
 
