@@ -442,6 +442,7 @@ public class BasicCallTests extends TelecomSystemTest {
 
     @LargeTest
     @Test
+    @FlakyTest
     public void testIncomingCallFromBlockedNumberIsRejected() throws Exception {
         String phoneNumber = "650-555-1212";
         blockNumber(phoneNumber);
@@ -986,19 +987,37 @@ public class BasicCallTests extends TelecomSystemTest {
     }
 
     /**
-     * Basic test to ensure that when there are other calls, we do not permit outgoing calls by a
-     * self managed CS.
+     * Ensure if there is a holdable call ongoing we'll be able to place another call.
      * @throws Exception
      */
     @LargeTest
     @Test
-    public void testIsOutgoingCallPermittedOngoing() throws Exception {
-        // Start a regular call; the self-managed CS can't make a call now.
+    public void testIsOutgoingCallPermittedOngoingHoldable() throws Exception {
+        // Start a regular call; the self-managed CS can make a call now since ongoing call can be
+        // held
         IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
         assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
 
-        assertFalse(mTelecomSystem.getTelecomServiceImpl().getBinder()
+        assertTrue(mTelecomSystem.getTelecomServiceImpl().getBinder()
+                .isOutgoingCallPermitted(mPhoneAccountSelfManaged.getAccountHandle()));
+    }
+
+    /**
+     * Ensure if there is an unholdable call we can't place another call.
+     * @throws Exception
+     */
+    @LargeTest
+    @Test
+    public void testIsOutgoingCallPermittedOngoingUnHoldable() throws Exception {
+        // Start a regular call; the self-managed CS can't make a call now because the ongoing call
+        // can't be held.
+        mConnectionServiceFixtureA.mConnectionServiceDelegate.mCapabilities = 0;
+        IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
+                mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
+        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+
+        assertTrue(mTelecomSystem.getTelecomServiceImpl().getBinder()
                 .isOutgoingCallPermitted(mPhoneAccountSelfManaged.getAccountHandle()));
     }
 
@@ -1009,6 +1028,7 @@ public class BasicCallTests extends TelecomSystemTest {
      */
     @LargeTest
     @Test
+    @FlakyTest
     public void testDisconnectSelfManaged() throws Exception {
         // Add a self-managed call.
         PhoneAccountHandle phoneAccountHandle = mPhoneAccountSelfManaged.getAccountHandle();
