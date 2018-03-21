@@ -96,6 +96,8 @@ public class TelecomSystem {
                 .addDataAuthority(DialerCodeReceiver.TELECOM_SECRET_CODE_DEBUG_OFF, null);
         DIALER_SECRET_CODE_FILTER
                 .addDataAuthority(DialerCodeReceiver.TELECOM_SECRET_CODE_MARK, null);
+        DIALER_SECRET_CODE_FILTER
+                .addDataAuthority(DialerCodeReceiver.TELECOM_SECRET_CODE_MENU, null);
     }
 
     private static TelecomSystem INSTANCE = null;
