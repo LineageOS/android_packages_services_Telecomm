@@ -285,4 +285,10 @@
     <string name="phone_strings_emergency_call_made_dialog_title_txt">Emergency call made</string>
     <!-- Notification details that appear when the user taps the notification "phone_strings_call_blocking_turned_off_notification_text_txt". -->
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt">Call Blocking has been disabled to allow emergency responders to contact you.</string>
+    <!-- Window title used for the Telecom Developer Menu -->
+    <string name="developer_title">Telecom Developer Menu</string>
+    <!-- Label for a switch in the Telecom Developer Menu which is used to enable the enhanced call
+         blocking functionality (for test purposes).
+         DO NOT TRANSLATE -->
+    <string name="developer_enhanced_call_blocking" translatable="false">Enhanced Call Blocking</string>
 </resources>
