@@ -288,6 +288,10 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity android:name=".ui.TelecomDeveloperMenu"
+                android:label="@string/developer_title"
+                android:exported="false"
+                android:process=":ui" />
 
         <receiver android:name=".components.PrimaryCallReceiver"
                 android:exported="true"
