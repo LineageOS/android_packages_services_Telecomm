@@ -18,9 +18,11 @@ package com.android.server.telecom.tests;
 
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.res.Resources;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.Ringtone;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -45,6 +47,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -52,6 +55,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(JUnit4.class)
 public class RingerTest extends TelecomTestCase {
+    private static final Uri FAKE_RINGTONE_URI = Uri.parse("content://media/fake/audio/1729");
+
     @Mock InCallTonePlayer.Factory mockPlayerFactory;
     @Mock SystemSettingsUtil mockSystemSettingsUtil;
     @Mock AsyncRingtonePlayer mockRingtonePlayer;
@@ -179,7 +184,8 @@ public class RingerTest extends TelecomTestCase {
         assertFalse(mRingerUnderTest.startRinging(mockCall2, false));
         verify(mockTonePlayer).stopTone();
         verify(mockRingtonePlayer, never()).play(any(RingtoneFactory.class), any(Call.class));
-        verify(mockVibrator).vibrate(any(VibrationEffect.class), any(AudioAttributes.class));
+        verify(mockVibrator).vibrate(eq(mRingerUnderTest.mDefaultVibrationEffect),
+                any(AudioAttributes.class));
     }
 
     @SmallTest
@@ -194,7 +200,26 @@ public class RingerTest extends TelecomTestCase {
         assertFalse(mRingerUnderTest.startRinging(mockCall2, false));
         verify(mockTonePlayer).stopTone();
         verify(mockRingtonePlayer, never()).play(any(RingtoneFactory.class), any(Call.class));
-        verify(mockVibrator).vibrate(any(VibrationEffect.class), any(AudioAttributes.class));
+        verify(mockVibrator).vibrate(eq(mRingerUnderTest.mDefaultVibrationEffect),
+                any(AudioAttributes.class));
+    }
+
+    @SmallTest
+    @Test
+    public void testCustomVibrationForRingtone() {
+        Resources resources = mContext.getResources();
+        when(resources.getStringArray(com.android.internal.R.array.config_ringtoneEffectUris))
+                .thenReturn(new String[] { FAKE_RINGTONE_URI.toString() });
+        mRingerUnderTest.startCallWaiting(mockCall1);
+        Ringtone mockRingtone = mock(Ringtone.class);
+        when(mockRingtoneFactory.getRingtone(any(Call.class))).thenReturn(mockRingtone);
+        when(mockRingtone.getUri()).thenReturn(FAKE_RINGTONE_URI);
+        enableVibrationWhenRinging();
+        assertTrue(mRingerUnderTest.startRinging(mockCall2, false));
+        verify(mockTonePlayer).stopTone();
+        verify(mockRingtonePlayer).play(any(RingtoneFactory.class), any(Call.class));
+        verify(mockVibrator).vibrate(eq(VibrationEffect.get(FAKE_RINGTONE_URI, mContext)),
+                any(AudioAttributes.class));
     }
 
     @SmallTest
