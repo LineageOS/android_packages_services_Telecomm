@@ -97,4 +97,5 @@
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"அழைப்புத் தடுப்பு முடக்கப்பட்டுள்ளது"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"அவசர அழைப்பு செய்யப்பட்டது"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="4083285098613193052">"அவசரநிலையில் பதிலளிப்பவர்களை உங்களைத் தொடர்புகொள்வதற்கு அனுமதிக்க, அழைப்புத் தடுப்பு முடக்கப்பட்டுள்ளது."</string>
+    <string name="developer_title" msgid="1816273446906554627">"டெலிகாம் டெவெலப்பர் மெனு"</string>
 </resources>

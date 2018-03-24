@@ -97,4 +97,6 @@
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"Chaqiruvlarni bloklash funksiyasi yoqilmagan"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"Favqulodda chaqiruv qilindi"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="4083285098613193052">"Sizga favqulodda chiqiruv qilish imkoni bo‘lishi uchun chaqiruvlarni bloklash funksiyasi o‘chirib qo‘yilgan."</string>
+    <!-- no translation found for developer_title (1816273446906554627) -->
+    <skip />
 </resources>

@@ -97,4 +97,5 @@
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"חסימת השיחות הושבתה"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"בוצעה שיחת חירום"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="4083285098613193052">"חסימת השיחות הושבתה כדי לאפשר לצוותי עזרה ראשונה להתקשר אליך."</string>
+    <string name="developer_title" msgid="1816273446906554627">"תפריט למפתחי מערכות תקשורת"</string>
 </resources>
