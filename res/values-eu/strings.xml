@@ -97,4 +97,5 @@
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"Desgaitu da deiak blokeatzeko aukera"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"Larrialdi-deia egin da"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="4083285098613193052">"Desgaitu da deiak blokeatzeko aukera, larrialdietako zerbitzuak zurekin harremanetan jarri ahal daitezen."</string>
+    <string name="developer_title" msgid="1816273446906554627">"Telekomunikazioen garatzaileen menua"</string>
 </resources>
