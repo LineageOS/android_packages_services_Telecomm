@@ -17,6 +17,7 @@
 package com.android.server.telecom;
 
 import android.annotation.Nullable;
+import android.content.ComponentName;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -64,6 +65,12 @@ public class ConnectionServiceFocusManager {
          * @see {@link ConnectionServiceFocusListener}.
          */
         void setConnectionServiceFocusListener(ConnectionServiceFocusListener listener);
+
+        /**
+         * Get the {@link ComponentName} of the ConnectionService for logging purposes.
+         * @return the {@link ComponentName}.
+         */
+        ComponentName getComponentName();
     }
 
     /**
