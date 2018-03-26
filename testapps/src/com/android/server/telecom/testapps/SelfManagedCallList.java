@@ -40,6 +40,8 @@ public class SelfManagedCallList {
         public void onCreateIncomingConnectionFailed(ConnectionRequest request) {};
         public void onCreateOutgoingConnectionFailed(ConnectionRequest request) {};
         public void onConnectionListChanged() {};
+        public void onConnectionServiceFocusLost() {};
+        public void onConnectionServiceFocusGained() {};
     }
 
     public static String SELF_MANAGED_ACCOUNT_1 = "1";
@@ -133,6 +135,18 @@ public class SelfManagedCallList {
     public void notifyCreateOutgoingConnectionFailed(ConnectionRequest request) {
         if (mListener != null) {
             mListener.onCreateOutgoingConnectionFailed(request);
+        }
+    }
+
+    public void notifyConnectionServiceFocusGained() {
+        if (mListener != null) {
+            mListener.onConnectionServiceFocusGained();
+        }
+    }
+
+    public void notifyConnectionServiceFocusLost() {
+        if (mListener != null) {
+            mListener.onConnectionServiceFocusLost();
         }
     }
 
