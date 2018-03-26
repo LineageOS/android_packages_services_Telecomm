@@ -16,6 +16,9 @@
 
 package com.android.server.telecom.tests;
 
+import static android.provider.BlockedNumberContract.STATUS_BLOCKED_IN_LIST;
+import static android.provider.BlockedNumberContract.STATUS_NOT_BLOCKED;
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -79,7 +82,7 @@ public class AsyncBlockCheckFilterTest extends TelecomTestCase {
         super.setUp();
         when(mCall.getHandle()).thenReturn(TEST_HANDLE);
         mFilter = new AsyncBlockCheckFilter(mContext, mBlockCheckerAdapter,
-                mCallerInfoLookupHelper);
+                mCallerInfoLookupHelper, null);
     }
 
     @SmallTest
@@ -88,9 +91,9 @@ public class AsyncBlockCheckFilterTest extends TelecomTestCase {
         final CountDownLatch latch = new CountDownLatch(1);
         doAnswer(invocation -> {
             latch.countDown();
-            return true;
+            return STATUS_BLOCKED_IN_LIST;
         }).when(mBlockCheckerAdapter)
-                .isBlocked(any(Context.class), eq(TEST_HANDLE.getSchemeSpecificPart()),
+                .getBlockStatus(any(Context.class), eq(TEST_HANDLE.getSchemeSpecificPart()),
                         any(Bundle.class));
 
         setEnhancedBlockingEnabled(false);
@@ -107,9 +110,9 @@ public class AsyncBlockCheckFilterTest extends TelecomTestCase {
         final CountDownLatch latch = new CountDownLatch(1);
         doAnswer(invocation -> {
             latch.countDown();
-            return true;
+            return STATUS_BLOCKED_IN_LIST;
         }).when(mBlockCheckerAdapter)
-                .isBlocked(any(Context.class), eq(TEST_HANDLE.getSchemeSpecificPart()),
+                .getBlockStatus(any(Context.class), eq(TEST_HANDLE.getSchemeSpecificPart()),
                         any(Bundle.class));
 
         setEnhancedBlockingEnabled(true);
@@ -127,9 +130,9 @@ public class AsyncBlockCheckFilterTest extends TelecomTestCase {
         final CountDownLatch latch = new CountDownLatch(1);
         doAnswer(invocation -> {
             latch.countDown();
-            return false;
+            return STATUS_NOT_BLOCKED;
         }).when(mBlockCheckerAdapter)
-                .isBlocked(any(Context.class), eq(TEST_HANDLE.getSchemeSpecificPart()),
+                .getBlockStatus(any(Context.class), eq(TEST_HANDLE.getSchemeSpecificPart()),
                         any(Bundle.class));
 
         setEnhancedBlockingEnabled(false);
@@ -146,9 +149,9 @@ public class AsyncBlockCheckFilterTest extends TelecomTestCase {
         final CountDownLatch latch = new CountDownLatch(1);
         doAnswer(invocation -> {
             latch.countDown();
-            return false;
+            return STATUS_NOT_BLOCKED;
         }).when(mBlockCheckerAdapter)
-                .isBlocked(any(Context.class), eq(TEST_HANDLE.getSchemeSpecificPart()),
+                .getBlockStatus(any(Context.class), eq(TEST_HANDLE.getSchemeSpecificPart()),
                         any(Bundle.class));
 
         setEnhancedBlockingEnabled(true);
