@@ -1433,6 +1433,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             if ((mConnectionProperties & Connection.PROPERTY_IS_RTT) ==
                     Connection.PROPERTY_IS_RTT) {
                 createRttStreams();
+                if (isEmergencyCall()) {
+                    mCallsManager.setAudioRoute(CallAudioState.ROUTE_SPEAKER, null);
+                    mCallsManager.mute(false);
+                }
             }
             mWasHighDefAudio = (connectionProperties & Connection.PROPERTY_HIGH_DEF_AUDIO) ==
                     Connection.PROPERTY_HIGH_DEF_AUDIO;
