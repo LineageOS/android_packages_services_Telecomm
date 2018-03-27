@@ -835,6 +835,15 @@ public class CallsManager extends Call.ListenerBase
         return false;
     }
 
+    public boolean hasEmergencyRttCall() {
+        for (Call call : mCalls) {
+            if (call.isEmergencyCall() && call.isRttCall()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @VisibleForTesting
     public boolean hasOnlyDisconnectedCalls() {
         if (mCalls.size() == 0) {
@@ -1796,6 +1805,10 @@ public class CallsManager extends Call.ListenerBase
 
     /** Called by the in-call UI to change the mute state. */
     void mute(boolean shouldMute) {
+        if (hasEmergencyCall() && shouldMute) {
+            Log.i(this, "Refusing to turn on mute because we're in an emergency call");
+            shouldMute = false;
+        }
         mCallAudioManager.mute(shouldMute);
     }
 
@@ -1804,6 +1817,11 @@ public class CallsManager extends Call.ListenerBase
       * speaker phone.
       */
     void setAudioRoute(int route, String bluetoothAddress) {
+        if (hasEmergencyRttCall() && route != CallAudioState.ROUTE_SPEAKER) {
+            Log.i(this, "In an emergency RTT call. Forcing route to speaker.");
+            route = CallAudioState.ROUTE_SPEAKER;
+            bluetoothAddress = null;
+        }
         mCallAudioManager.setAudioRoute(route, bluetoothAddress);
     }
 
