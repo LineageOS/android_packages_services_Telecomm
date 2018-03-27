@@ -1734,20 +1734,28 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         disconnect(0);
     }
 
-    /**
-     * Attempts to disconnect the call through the connection service.
-     */
     @VisibleForTesting
-    public void disconnect(long disconnectionTimeout) {
-        disconnect(disconnectionTimeout, "internal" /** callingPackage */);
+    public void disconnect(String reason) {
+        disconnect(0, reason);
     }
 
     /**
      * Attempts to disconnect the call through the connection service.
      */
     @VisibleForTesting
-    public void disconnect(long disconnectionTimeout, String callingPackage) {
-        Log.addEvent(this, LogUtils.Events.REQUEST_DISCONNECT, callingPackage);
+    public void disconnect(long disconnectionTimeout) {
+        disconnect(disconnectionTimeout, "internal" /** reason */);
+    }
+
+    /**
+     * Attempts to disconnect the call through the connection service.
+     * @param reason the reason for the disconnect; used for logging purposes only.  In some cases
+     *               this can be a package name if the disconnect was initiated through an API such
+     *               as TelecomManager.
+     */
+    @VisibleForTesting
+    public void disconnect(long disconnectionTimeout, String reason) {
+        Log.addEvent(this, LogUtils.Events.REQUEST_DISCONNECT, reason);
 
         // Track that the call is now locally disconnecting.
         setLocallyDisconnecting(true);
@@ -1868,7 +1876,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      */
     @VisibleForTesting
     public void reject(boolean rejectWithMessage, String textMessage) {
-        reject(rejectWithMessage, textMessage, "internal" /** callingPackage */);
+        reject(rejectWithMessage, textMessage, "internal" /** reason */);
     }
 
     /**
@@ -1876,9 +1884,11 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      *
      * @param rejectWithMessage Whether to send a text message as part of the call rejection.
      * @param textMessage An optional text message to send as part of the rejection.
+     * @param reason The reason for the reject; used for logging purposes.  May be a package name
+     *               if the reject is initiated from an API such as TelecomManager.
      */
     @VisibleForTesting
-    public void reject(boolean rejectWithMessage, String textMessage, String callingPackage) {
+    public void reject(boolean rejectWithMessage, String textMessage, String reason) {
         // Check to verify that the call is still in the ringing state. A call can change states
         // between the time the user hits 'reject' and Telecomm receives the command.
         if (isRinging("reject")) {
@@ -1891,7 +1901,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 Log.e(this, new NullPointerException(),
                         "reject call failed due to null CS callId=%s", getId());
             }
-            Log.addEvent(this, LogUtils.Events.REQUEST_REJECT, callingPackage);
+            Log.addEvent(this, LogUtils.Events.REQUEST_REJECT, reason);
         }
     }
 
@@ -1900,6 +1910,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      */
     @VisibleForTesting
     public void hold() {
+        hold(null /* reason */);
+    }
+
+    public void hold(String reason) {
         if (mState == CallState.ACTIVE) {
             if (mConnectionService != null) {
                 mConnectionService.hold(this);
@@ -1907,7 +1921,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 Log.e(this, new NullPointerException(),
                         "hold call failed due to null CS callId=%s", getId());
             }
-            Log.addEvent(this, LogUtils.Events.REQUEST_HOLD);
+            Log.addEvent(this, LogUtils.Events.REQUEST_HOLD, reason);
         }
     }
 
@@ -1916,6 +1930,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      */
     @VisibleForTesting
     public void unhold() {
+        unhold(null /* reason */);
+    }
+
+    public void unhold(String reason) {
         if (mState == CallState.ON_HOLD) {
             if (mConnectionService != null) {
                 mConnectionService.unhold(this);
@@ -1923,7 +1941,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 Log.e(this, new NullPointerException(),
                         "unhold call failed due to null CS callId=%s", getId());
             }
-            Log.addEvent(this, LogUtils.Events.REQUEST_UNHOLD);
+            Log.addEvent(this, LogUtils.Events.REQUEST_UNHOLD, reason);
         }
     }
 
