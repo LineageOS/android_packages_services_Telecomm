@@ -309,7 +309,7 @@ abstract class ServiceBinder {
         }
     }
 
-    final ComponentName getComponentName() {
+    public final ComponentName getComponentName() {
         return mComponentName;
     }
 
