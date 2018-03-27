@@ -17,6 +17,7 @@
 package com.android.server.telecom;
 
 import static android.Manifest.permission.CALL_PHONE;
+import static android.Manifest.permission.CALL_PRIVILEGED;
 import static android.Manifest.permission.DUMP;
 import static android.Manifest.permission.MODIFY_PHONE_STATE;
 import static android.Manifest.permission.READ_PHONE_STATE;
@@ -1233,12 +1234,20 @@ public class TelecomServiceImpl {
 
                 final boolean hasCallPermission = mContext.checkCallingPermission(CALL_PHONE) ==
                         PackageManager.PERMISSION_GRANTED;
+                // The Emergency Dialer has call privileged permission and uses this to place
+                // emergency calls.  We ensure permission checks in
+                // NewOutgoingCallIntentBroadcaster#process pass by sending this to
+                // Telecom as an ACTION_CALL_PRIVILEGED intent (which makes sense since the
+                // com.android.phone process has that permission).
+                final boolean hasCallPrivilegedPermission = mContext.checkCallingPermission(
+                        CALL_PRIVILEGED) == PackageManager.PERMISSION_GRANTED;
 
                 synchronized (mLock) {
                     final UserHandle userHandle = Binder.getCallingUserHandle();
                     long token = Binder.clearCallingIdentity();
                     try {
-                        final Intent intent = new Intent(Intent.ACTION_CALL, handle);
+                        final Intent intent = new Intent(hasCallPrivilegedPermission ?
+                                Intent.ACTION_CALL_PRIVILEGED : Intent.ACTION_CALL, handle);
                         if (extras != null) {
                             extras.setDefusable(true);
                             intent.putExtras(extras);
@@ -1246,7 +1255,8 @@ public class TelecomServiceImpl {
                         mUserCallIntentProcessorFactory.create(mContext, userHandle)
                                 .processIntent(
                                         intent, callingPackage, isSelfManaged ||
-                                                (hasCallAppOp && hasCallPermission));
+                                                (hasCallAppOp && hasCallPermission),
+                                        true /* isLocalInvocation */);
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
