@@ -17,6 +17,7 @@
 package com.android.server.telecom.tests;
 
 import static android.Manifest.permission.CALL_PHONE;
+import static android.Manifest.permission.CALL_PRIVILEGED;
 import static android.Manifest.permission.MODIFY_PHONE_STATE;
 import static android.Manifest.permission.READ_PHONE_STATE;
 import static android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE;
@@ -91,6 +92,9 @@ import static org.mockito.Mockito.when;
 
 @RunWith(JUnit4.class)
 public class TelecomServiceImplTest extends TelecomTestCase {
+
+    public static final String TEST_PACKAGE = "com.test";
+
     public static class CallIntentProcessAdapterFake implements CallIntentProcessor.Adapter {
         @Override
         public void processOutgoingCallIntent(Context context, CallsManager callsManager,
@@ -645,6 +649,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 .thenReturn(AppOpsManager.MODE_ALLOWED);
         doReturn(PackageManager.PERMISSION_GRANTED)
                 .when(mContext).checkCallingPermission(CALL_PHONE);
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
 
         mTSIBinder.placeCall(handle, extras, DEFAULT_DIALER_PACKAGE);
         placeCallTestHelper(handle, extras, true);
@@ -660,6 +666,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 .thenReturn(AppOpsManager.MODE_IGNORED);
         doReturn(PackageManager.PERMISSION_GRANTED)
                 .when(mContext).checkCallingPermission(CALL_PHONE);
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
 
         mTSIBinder.placeCall(handle, extras, DEFAULT_DIALER_PACKAGE);
         placeCallTestHelper(handle, extras, false);
@@ -675,6 +683,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 .thenReturn(AppOpsManager.MODE_ALLOWED);
         doReturn(PackageManager.PERMISSION_DENIED)
                 .when(mContext).checkCallingPermission(CALL_PHONE);
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
 
         mTSIBinder.placeCall(handle, extras, DEFAULT_DIALER_PACKAGE);
         placeCallTestHelper(handle, extras, false);
@@ -684,7 +694,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
             boolean shouldNonEmergencyBeAllowed) {
         ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
         verify(mUserCallIntentProcessor).processIntent(intentCaptor.capture(), anyString(),
-                eq(shouldNonEmergencyBeAllowed));
+                eq(shouldNonEmergencyBeAllowed), eq(true));
         Intent capturedIntent = intentCaptor.getValue();
         assertEquals(Intent.ACTION_CALL, capturedIntent.getAction());
         assertEquals(expectedHandle, capturedIntent.getData());
@@ -707,7 +717,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         }
 
         verify(mUserCallIntentProcessor, never())
-                .processIntent(any(Intent.class), anyString(), anyBoolean());
+                .processIntent(any(Intent.class), anyString(), anyBoolean(), eq(true));
     }
 
     @SmallTest
@@ -843,8 +853,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         Call call = mock(Call.class);
         when(call.getState()).thenReturn(CallState.RINGING);
         when(mFakeCallsManager.getForegroundCall()).thenReturn(call);
-        assertTrue(mTSIBinder.endCall(null));
-        verify(call).reject(false, null);
+        assertTrue(mTSIBinder.endCall(TEST_PACKAGE));
+        verify(call).reject(eq(false), isNull(), eq(TEST_PACKAGE));
     }
 
     @SmallTest
@@ -853,8 +863,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         Call call = mock(Call.class);
         when(call.getState()).thenReturn(CallState.ACTIVE);
         when(mFakeCallsManager.getForegroundCall()).thenReturn(call);
-        assertTrue(mTSIBinder.endCall(null));
-        verify(call).disconnect();
+        assertTrue(mTSIBinder.endCall(TEST_PACKAGE));
+        verify(call).disconnect(eq(0L), eq(TEST_PACKAGE));
     }
 
     @SmallTest
@@ -864,8 +874,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         when(call.getState()).thenReturn(CallState.ACTIVE);
         when(mFakeCallsManager.getFirstCallWithState(any()))
                 .thenReturn(call);
-        assertTrue(mTSIBinder.endCall(null));
-        verify(call).disconnect();
+        assertTrue(mTSIBinder.endCall(TEST_PACKAGE));
+        verify(call).disconnect(eq(0L), eq(TEST_PACKAGE));
     }
 
     @SmallTest
