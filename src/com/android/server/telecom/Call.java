@@ -801,6 +801,18 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         return mState;
     }
 
+    /**
+     * Determines if this {@link Call} can receive call focus via the
+     * {@link ConnectionServiceFocusManager}.
+     * Only top-level calls and non-external calls are eligible.
+     * @return {@code true} if this call is focusable, {@code false} otherwise.
+     */
+    @Override
+    public boolean isFocusable() {
+        boolean isChild = getParentCall() != null;
+        return !isChild && !isExternalCall();
+    }
+
     private boolean shouldContinueProcessingAfterDisconnect() {
         // Stop processing once the call is active.
         if (!CreateConnectionTimeout.isCallBeingPlaced(this)) {
