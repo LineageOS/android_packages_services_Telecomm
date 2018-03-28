@@ -97,4 +97,5 @@
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"Se ha inhabilitado el bloqueo de llamadas"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"Se ha hecho una llamada de emergencia"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="4083285098613193052">"Se ha inhabilitado el bloqueo de llamadas para que los servicios de emergencia puedan ponerse en contacto contigo."</string>
+    <string name="developer_title" msgid="1816273446906554627">"Menú para desarrolladores de telecomunicaciones"</string>
 </resources>

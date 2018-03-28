@@ -97,4 +97,5 @@
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"통화 차단이 사용 중지됨"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"긴급 통화가 사용됨"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="4083285098613193052">"응급 구조 요원이 연락할 수 있도록 통화 차단이 사용 중지되었습니다."</string>
+    <string name="developer_title" msgid="1816273446906554627">"Telecom 개발자 메뉴"</string>
 </resources>

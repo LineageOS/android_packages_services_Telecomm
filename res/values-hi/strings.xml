@@ -97,4 +97,5 @@
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"कॉल पर रोक लगाने की सुविधा बंद है"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"आपातकालीन कॉल किया गया"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="4083285098613193052">"आपातकालीन सहायता कर्मचारी आपसे संपर्क कर सकें, इसलिए कॉल पर रोक लगाने की सुविधा बंद कर दी गई है."</string>
+    <string name="developer_title" msgid="1816273446906554627">"टेलीकॉम डेवलपर मेन्यू"</string>
 </resources>
