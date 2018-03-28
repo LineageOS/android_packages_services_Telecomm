@@ -97,4 +97,5 @@
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"Blocage des appels désactivé"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"Appel d\'urgence effectué"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="4083285098613193052">"Le blocage des appels a été désactivé pour permettre aux intervenants d\'urgence de communiquer avec vous."</string>
+    <string name="developer_title" msgid="1816273446906554627">"Menu Telecom Developer"</string>
 </resources>

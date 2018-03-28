@@ -97,4 +97,5 @@
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"Чалууну бөгөттөө өчүрүлдү"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"Шашылыш чалуу аткарылды"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="4083285098613193052">"Өзгөчө кырдаалдардагы кызматчылар сиз менен байланышуусу үчүн чалууну бөгөттөө функциясы өчүрүлгөн."</string>
+    <string name="developer_title" msgid="1816273446906554627">"Telecom иштеп чыгуучусунун менюсу"</string>
 </resources>
