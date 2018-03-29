@@ -1469,34 +1469,7 @@ public class CallsManager extends Call.ListenerBase
             // Hold or disconnect the active call and request call focus for the incoming call.
             Call activeCall = (Call) mConnectionSvrFocusMgr.getCurrentFocusCall();
             Log.d(this, "Incoming call = %s Ongoing call %s", call, activeCall);
-            if (activeCall != null && activeCall != call) {
-                // We purposely don't check if the active call CAN current hold, but rather we check
-                // whether it CAN support hold.  Consider this scenario:
-                // Call A - Active (CAPABILITY_SUPPORT_HOLD, but not CAPABILITY_HOLD)
-                // Call B - Held (CAPABILITY_SUPPORT_HOLD, but not CAPABILITY_HOLD)
-                // Call C - Incoming call
-                // In this scenario we are going to first disconnect the held call (Call B), which
-                // will mean that the active call (Call A) will now support hold.
-                if (supportsHold(activeCall)) {
-                    Call heldCall = getHeldCall();
-                    if (heldCall != null) {
-                        Log.i(this, "Disconnecting held call %s before holding active call.",
-                                heldCall);
-                        heldCall.disconnect();
-                    }
-
-                    Log.d(this, "Answer %s, hold %s", call, activeCall);
-                    activeCall.hold();
-                } else {
-                    // This call does not support hold. If it is from a different connection
-                    // service, then disconnect it, otherwise allow the connection service to
-                    // figure out the right states.
-                    if (activeCall.getConnectionService() != call.getConnectionService()) {
-                        activeCall.disconnect("Can't hold when answering " + call.getId());
-                    }
-                }
-            }
-
+            holdActiveCallForNewCall(call);
             mConnectionSvrFocusMgr.requestFocus(
                     call,
                     new RequestCallback(new ActionAnswerCall(call, videoState)));
@@ -1932,11 +1905,43 @@ public class CallsManager extends Call.ListenerBase
         maybeMoveToSpeakerPhone(call);
     }
 
-    void markCallAsActive(Call call) {
+    /**
+     * Returns true if the active call is held.
+     */
+    boolean holdActiveCallForNewCall(Call call) {
+        Call activeCall = (Call) mConnectionSvrFocusMgr.getCurrentFocusCall();
+        if (activeCall != null && activeCall != call) {
+            if (canHold(activeCall)) {
+                activeCall.hold();
+                return true;
+            } else if (supportsHold(call)) {
+                Call heldCall = getHeldCallByConnectionService(call.getConnectionService());
+                if (heldCall != null) {
+                    heldCall.disconnect();
+                    Log.i(this, "Disconnecting held call %s before holding active call.", heldCall);
+                }
+                activeCall.hold();
+                return true;
+            } else {
+                // This call does not support hold. If it is from a different connection
+                // service, then disconnect it, otherwise allow the connection service to
+                // figure out the right states.
+                if (activeCall.getConnectionService() != call.getConnectionService()) {
+                    activeCall.disconnect();
+                }
+            }
+        }
+        return false;
+    }
+
+    @VisibleForTesting
+    public void markCallAsActive(Call call) {
         if (call.isSelfManaged()) {
             // backward compatibility, the self-managed connection service will set the call state
-            // to active directly. We should request the call focus for self-managed call before
-            // the state change
+            // to active directly. We should hold or disconnect the current active call based on the
+            // holdability, and request the call focus for the self-managed call before the state
+            // change.
+            holdActiveCallForNewCall(call);
             mConnectionSvrFocusMgr.requestFocus(
                     call,
                     new RequestCallback(new ActionSetCallState(
@@ -2166,6 +2171,14 @@ public class CallsManager extends Call.ListenerBase
     @VisibleForTesting
     public Call getHeldCall() {
         return getFirstCallWithState(CallState.ON_HOLD);
+    }
+
+    public Call getHeldCallByConnectionService(ConnectionServiceWrapper connSvr) {
+        Optional<Call> heldCall = mCalls.stream()
+                .filter(call -> call.getConnectionService() == connSvr
+                        && call.getState() == CallState.ON_HOLD)
+                .findFirst();
+        return heldCall.isPresent() ? heldCall.get() : null;
     }
 
     @VisibleForTesting
