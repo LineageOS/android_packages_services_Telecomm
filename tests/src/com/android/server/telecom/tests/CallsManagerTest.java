@@ -23,8 +23,6 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyChar;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
@@ -421,6 +419,7 @@ public class CallsManagerTest extends TelecomTestCase {
         // GIVEN a CallsManager with ongoing call, and this call can be held
         Call ongoingCall = addSpyCall();
         doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
 
         // and a held call
@@ -430,11 +429,11 @@ public class CallsManagerTest extends TelecomTestCase {
         mCallsManager.unholdCall(heldCall);
 
         // THEN the ongoing call is held, and the focus request for incoming call is sent
-        verify(ongoingCall).hold();
+        verify(ongoingCall).hold(any());
         verifyFocusRequestAndExecuteCallback(heldCall);
 
         // and held call is unhold now
-        verify(heldCall).unhold();
+        verify(heldCall).unhold(any());
     }
 
     @SmallTest
@@ -446,6 +445,7 @@ public class CallsManagerTest extends TelecomTestCase {
         // GIVEN a CallsManager with ongoing call, and this call can not be held
         Call ongoingCall = addSpyCallWithConnectionService(connSvr1);
         doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
 
         // and a held call which has different ConnectionService
@@ -455,13 +455,14 @@ public class CallsManagerTest extends TelecomTestCase {
         mCallsManager.unholdCall(heldCall);
 
         // THEN the ongoing call is disconnected, and the focus request for incoming call is sent
-        verify(ongoingCall).disconnect();
+        verify(ongoingCall).disconnect(any());
         verifyFocusRequestAndExecuteCallback(heldCall);
 
         // and held call is unhold now
-        verify(heldCall).unhold();
+        verify(heldCall).unhold(any());
     }
 
+    @SmallTest
     @Test
     public void testUnholdCallWhenOngoingCallCanNotBeHeldAndHasSameConnectionService() {
         ConnectionServiceWrapper connSvr = Mockito.mock(ConnectionServiceWrapper.class);
@@ -469,6 +470,7 @@ public class CallsManagerTest extends TelecomTestCase {
         // GIVEN a CallsManager with ongoing call, and this call can not be held
         Call ongoingCall = addSpyCallWithConnectionService(connSvr);
         doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
 
         // and a held call which has different ConnectionService
@@ -478,11 +480,11 @@ public class CallsManagerTest extends TelecomTestCase {
         mCallsManager.unholdCall(heldCall);
 
         // THEN the ongoing call is held
-        verify(ongoingCall).hold();
+        verify(ongoingCall).hold(any());
         verifyFocusRequestAndExecuteCallback(heldCall);
 
         // and held call is unhold now
-        verify(heldCall).unhold();
+        verify(heldCall).unhold(any());
     }
 
     @SmallTest
@@ -491,6 +493,7 @@ public class CallsManagerTest extends TelecomTestCase {
         // GIVEN a CallsManager with ongoing call, and this call can be held
         Call ongoingCall = addSpyCall();
         doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
 
         // WHEN answer an incoming call
@@ -528,13 +531,14 @@ public class CallsManagerTest extends TelecomTestCase {
 
     @SmallTest
     @Test
-    public void testANswerCallWhenOngoingHasDifferentConnectionService() {
+    public void testAnswerCallWhenOngoingHasDifferentConnectionService() {
         ConnectionServiceWrapper connSvr1 = Mockito.mock(ConnectionServiceWrapper.class);
         ConnectionServiceWrapper connSvr2 = Mockito.mock(ConnectionServiceWrapper.class);
 
         // GIVEN a CallsManager with ongoing call, and this call can not be held
         Call ongoingCall = addSpyCallWithConnectionService(connSvr1);
         doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
 
         // WHEN answer an incoming call
@@ -546,6 +550,44 @@ public class CallsManagerTest extends TelecomTestCase {
         verifyFocusRequestAndExecuteCallback(incomingCall);
 
         // and the incoming call is answered.
+        verify(incomingCall).answer(VideoProfile.STATE_AUDIO_ONLY);
+    }
+
+    @SmallTest
+    @Test
+    public void testAnswerCallWhenMultipleHeldCallsExisted() {
+        ConnectionServiceWrapper connSvr1 = Mockito.mock(ConnectionServiceWrapper.class);
+        ConnectionServiceWrapper connSvr2 = Mockito.mock(ConnectionServiceWrapper.class);
+
+        // Given an ongoing call and held call with the ConnectionService connSvr1. The
+        // ConnectionService connSvr1 can handle one held call
+        Call ongoingCall = addSpyCallWithConnectionService(connSvr1);
+        doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        Call heldCall = addSpyCallWithConnectionService(connSvr1);
+        doReturn(CallState.ON_HOLD).when(heldCall).getState();
+
+        // and other held call has difference ConnectionService
+        Call heldCall2 = addSpyCallWithConnectionService(connSvr2);
+        doReturn(CallState.ON_HOLD).when(heldCall2).getState();
+
+        // WHEN answer an incoming call which ConnectionService is connSvr1
+        Call incomingCall = addSpyCallWithConnectionService(connSvr1);
+        mCallsManager.answerCall(incomingCall, VideoProfile.STATE_AUDIO_ONLY);
+
+        // THEN the previous held call is disconnected
+        verify(heldCall).disconnect();
+
+        // and the ongoing call is held
+        verify(ongoingCall).hold();
+
+        // and the heldCall2 is not disconnected
+        verify(heldCall2, never()).disconnect();
+
+        // and the focus request is sent
+        verifyFocusRequestAndExecuteCallback(incomingCall);
+
+        // and the incoming call is answered
         verify(incomingCall).answer(VideoProfile.STATE_AUDIO_ONLY);
     }
 
@@ -563,6 +605,83 @@ public class CallsManagerTest extends TelecomTestCase {
 
         // and the incoming call is answered.
         verify(incomingCall).answer(VideoProfile.STATE_AUDIO_ONLY);
+    }
+
+    @SmallTest
+    @Test
+    public void testSetActiveCallWhenOngoingCallCanNotBeHeldAndFromDifferentConnectionService() {
+        ConnectionServiceWrapper connSvr1 = Mockito.mock(ConnectionServiceWrapper.class);
+        ConnectionServiceWrapper connSvr2 = Mockito.mock(ConnectionServiceWrapper.class);
+
+        // GIVEN a CallsManager with ongoing call, and this call can not be held
+        Call ongoingCall = addSpyCallWithConnectionService(connSvr1);
+        doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        doReturn(ongoingCall).when(mConnectionSvrFocusMgr).getCurrentFocusCall();
+
+        // and a new self-managed call which has different ConnectionService
+        Call newCall = addSpyCallWithConnectionService(connSvr2);
+        doReturn(true).when(newCall).isSelfManaged();
+
+        // WHEN active the new call
+        mCallsManager.markCallAsActive(newCall);
+
+        // THEN the ongoing call is disconnected, and the focus request for the new call is sent
+        verify(ongoingCall).disconnect();
+        verifyFocusRequestAndExecuteCallback(newCall);
+
+        // and the new call is active
+        assertEquals(CallState.ACTIVE, newCall.getState());
+    }
+
+    @SmallTest
+    @Test
+    public void testSetActiveCallWhenOngoingCallCanNotBeHeldAndHasSameConnectionService() {
+        ConnectionServiceWrapper connSvr = Mockito.mock(ConnectionServiceWrapper.class);
+
+        // GIVEN a CallsManager with ongoing call, and this call can not be held
+        Call ongoingCall = addSpyCallWithConnectionService(connSvr);
+        doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
+
+        // and a new self-managed call which has the same ConnectionService
+        Call newCall = addSpyCallWithConnectionService(connSvr);
+        doReturn(true).when(newCall).isSelfManaged();
+
+        // WHEN active the new call
+        mCallsManager.markCallAsActive(newCall);
+
+        // THEN the ongoing call isn't disconnected
+        verify(ongoingCall, never()).disconnect();
+        verifyFocusRequestAndExecuteCallback(newCall);
+
+        // and the new call is active
+        assertEquals(CallState.ACTIVE, newCall.getState());
+    }
+
+    @SmallTest
+    @Test
+    public void testSetActiveCallWhenOngoingCallCanBeHeld() {
+        // GIVEN a CallsManager with ongoing call, and this call can be held
+        Call ongoingCall = addSpyCall();
+        doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        doReturn(ongoingCall).when(mConnectionSvrFocusMgr).getCurrentFocusCall();
+
+        // and a new self-managed call
+        Call newCall = addSpyCall();
+        doReturn(true).when(newCall).isSelfManaged();
+
+        // WHEN active the new call
+        mCallsManager.markCallAsActive(newCall);
+
+        // THEN the ongoing call is held
+        verify(ongoingCall).hold();
+        verifyFocusRequestAndExecuteCallback(newCall);
+
+        // and the new call is active
+        assertEquals(CallState.ACTIVE, newCall.getState());
     }
 
     private Call addSpyCallWithConnectionService(ConnectionServiceWrapper connSvr) {
