@@ -112,6 +112,11 @@ public class ConnectionServiceFocusManager {
          * @see {@link CallState}
          */
         int getState();
+
+        /**
+         * @return {@code True} if this call can receive focus, {@code false} otherwise.
+         */
+        boolean isFocusable();
     }
 
     /** Interface define a call back for focus request event. */
@@ -330,7 +335,8 @@ public class ConnectionServiceFocusManager {
 
         List<CallFocus> calls = mCalls
                 .stream()
-                .filter(call -> mCurrentFocus.equals(call.getConnectionServiceWrapper()))
+                .filter(call -> mCurrentFocus.equals(call.getConnectionServiceWrapper())
+                        && call.isFocusable())
                 .collect(Collectors.toList());
 
         for (int i = 0; i < PRIORITY_FOCUS_CALL_STATE.length; i++) {

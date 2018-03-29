@@ -307,6 +307,20 @@ public class ConnectionServiceFocusManagerTest extends TelecomTestCase {
         assertTrue(mFocusManagerUT.getAllCall().contains(mActiveCall));
     }
 
+    @SmallTest
+    @Test
+    public void testNonFocusableDoesntChangeFocus() {
+        // GIVEN the ConnectionServiceFocusManager with the focus ConnectionService
+        requestFocus(mActiveCall, null);
+
+        // WHEN a new non-focusable call is added.
+        when(mNewCall.isFocusable()).thenReturn(false);
+        mCallsManagerListener.onCallAdded((Call) mNewCall);
+
+        // THEN the call focus isn't changed.
+        assertEquals(mActiveCall, mFocusManagerUT.getCurrentFocusCall());
+    }
+
     private void requestFocus(CallFocus call, RequestFocusCallback callback) {
         mCallsManagerListener.onCallAdded((Call) call);
         mFocusManagerUT.requestFocus(call, callback);
@@ -344,6 +358,7 @@ public class ConnectionServiceFocusManagerTest extends TelecomTestCase {
         Call call = Mockito.mock(Call.class);
         when(call.getConnectionServiceWrapper()).thenReturn(connSvr);
         when(call.getState()).thenReturn(state);
+        when(call.isFocusable()).thenReturn(true);
         return call;
     }
 }
