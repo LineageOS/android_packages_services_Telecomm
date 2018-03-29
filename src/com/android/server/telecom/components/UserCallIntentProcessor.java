@@ -18,15 +18,14 @@ package com.android.server.telecom.components;
 
 import com.android.server.telecom.CallIntentProcessor;
 import com.android.server.telecom.R;
+import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.TelephonyUtil;
 import com.android.server.telecom.UserUtil;
 import com.android.settingslib.RestrictedLockUtils;
 import com.android.settingslib.RestrictedLockUtils.EnforcedAdmin;
 
-import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -37,7 +36,6 @@ import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 // TODO: Needed for move to system service: import com.android.internal.R;
 
@@ -72,9 +70,18 @@ public class UserCallIntentProcessor {
      * Processes intents sent to the activity.
      *
      * @param intent The intent.
+     * @param callingPackageName The package name of the calling app.
+     * @param canCallNonEmergency {@code true} if the caller is permitted to call non-emergency
+     *                            numbers.
+     * @param isLocalInvocation {@code true} if the caller is within the system service (i.e. the
+     *                            caller is {@link com.android.server.telecom.TelecomServiceImpl})
+     *                            and we can skip the re-broadcast of the intent to Telecom.
+     *                            When {@code false}, we need to re-broadcast the intent to Telcom
+     *                            to trampoline it to the system service where the Telecom
+     *                            service resides.
      */
     public void processIntent(Intent intent, String callingPackageName,
-            boolean canCallNonEmergency) {
+            boolean canCallNonEmergency, boolean isLocalInvocation) {
         // Ensure call intents are not processed on devices that are not capable of calling.
         if (!isVoiceCapable()) {
             return;
@@ -85,12 +92,13 @@ public class UserCallIntentProcessor {
         if (Intent.ACTION_CALL.equals(action) ||
                 Intent.ACTION_CALL_PRIVILEGED.equals(action) ||
                 Intent.ACTION_CALL_EMERGENCY.equals(action)) {
-            processOutgoingCallIntent(intent, callingPackageName, canCallNonEmergency);
+            processOutgoingCallIntent(intent, callingPackageName, canCallNonEmergency,
+                    isLocalInvocation);
         }
     }
 
     private void processOutgoingCallIntent(Intent intent, String callingPackageName,
-            boolean canCallNonEmergency) {
+            boolean canCallNonEmergency, boolean isLocalInvocation) {
         Uri handle = intent.getData();
         String scheme = handle.getScheme();
         String uriString = handle.getSchemeSpecificPart();
@@ -144,7 +152,7 @@ public class UserCallIntentProcessor {
         // Save the user handle of current user before forwarding the intent to primary user.
         intent.putExtra(CallIntentProcessor.KEY_INITIATING_USER, mUserHandle);
 
-        sendBroadcastToReceiver(intent);
+        sendIntentToDestination(intent, isLocalInvocation);
     }
 
     private boolean isDefaultOrSystemDialer(String callingPackageName) {
@@ -174,14 +182,28 @@ public class UserCallIntentProcessor {
     }
 
     /**
-     * Trampolines the intent to the broadcast receiver that runs only as the primary user.
+     * Potentially trampolines the intent to the broadcast receiver that runs only as the primary
+     * user.  If the caller is local to the Telecom service, we send the intent to Telecom without
+     * rebroadcasting it.
      */
-    private boolean sendBroadcastToReceiver(Intent intent) {
+    private boolean sendIntentToDestination(Intent intent, boolean isLocalInvocation) {
         intent.putExtra(CallIntentProcessor.KEY_IS_INCOMING_CALL, false);
         intent.setFlags(Intent.FLAG_RECEIVER_FOREGROUND);
         intent.setClass(mContext, PrimaryCallReceiver.class);
-        Log.d(this, "Sending broadcast as user to CallReceiver");
-        mContext.sendBroadcastAsUser(intent, UserHandle.SYSTEM);
+        if (isLocalInvocation) {
+            // We are invoking this from TelecomServiceImpl, so TelecomSystem is available.  Don't
+            // bother trampolining the intent, just sent it directly to the call intent processor.
+            // TODO: We should not be using an intent here; this whole flows needs cleanup.
+            Log.i(this, "sendIntentToDestination: send intent to Telecom directly.");
+            synchronized (TelecomSystem.getInstance().getLock()) {
+                TelecomSystem.getInstance().getCallIntentProcessor().processIntent(intent);
+            }
+        } else {
+            // We're calling from the UserCallActivity, so the TelecomSystem is not in the same
+            // process; we need to trampoline to TelecomSystem in the system server process.
+            Log.i(this, "sendIntentToDestination: trampoline to Telecom.");
+            mContext.sendBroadcastAsUser(intent, UserHandle.SYSTEM);
+        }
         return true;
     }
 
