@@ -16,6 +16,8 @@
 
 package com.android.server.telecom.tests;
 
+import static com.android.server.telecom.tests.TelecomSystemTest.TEST_TIMEOUT;
+
 import android.content.ComponentName;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
@@ -27,6 +29,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallIdMapper;
+import com.android.server.telecom.ConnectionServiceFocusManager;
 import com.android.server.telecom.ConnectionServiceRepository;
 import com.android.server.telecom.ConnectionServiceWrapper;
 import com.android.server.telecom.CreateConnectionProcessor;
@@ -40,15 +43,20 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -70,6 +78,8 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
     CreateConnectionResponse mMockCreateConnectionResponse;
     @Mock
     Call mMockCall;
+    @Mock
+    ConnectionServiceFocusManager mConnectionServiceFocusManager;
 
     CreateConnectionProcessor mTestCreateConnectionProcessor;
 
@@ -79,6 +89,22 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         super.setUp();
         MockitoAnnotations.initMocks(this);
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
+
+        when(mMockCall.getConnectionServiceFocusManager()).thenReturn(
+                mConnectionServiceFocusManager);
+        doAnswer(new Answer<Void>() {
+                     @Override
+                     public Void answer(InvocationOnMock invocation) {
+                         Object[] args = invocation.getArguments();
+                         ConnectionServiceFocusManager.CallFocus focus =
+                                 (ConnectionServiceFocusManager.CallFocus) args[0];
+                         ConnectionServiceFocusManager.RequestFocusCallback callback =
+                                 (ConnectionServiceFocusManager.RequestFocusCallback) args[1];
+                         callback.onRequestFocusDone(focus);
+                         return null;
+                     }
+                 }
+                ).when(mConnectionServiceFocusManager).requestFocus(any(), any());
 
         mTestCreateConnectionProcessor = new CreateConnectionProcessor(mMockCall,
                 mMockConnectionServiceRepository, mMockCreateConnectionResponse,
@@ -151,7 +177,8 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         verify(mMockCall).setConnectionManagerPhoneAccount(eq(callManagerPAHandle));
         verify(mMockCall).setTargetPhoneAccount(eq(pAHandle));
         verify(mMockCall).setConnectionService(eq(service));
-        verify(service).createConnection(eq(mMockCall), any(CreateConnectionResponse.class));
+        verify(service).createConnection(eq(mMockCall),
+                any(CreateConnectionResponse.class));
         // Notify successful connection to call
         CallIdMapper mockCallIdMapper = mock(CallIdMapper.class);
         mTestCreateConnectionProcessor.handleCreateConnectionSuccess(mockCallIdMapper, null);
@@ -177,6 +204,8 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         reset(mMockCall);
         reset(service);
 
+        when(mMockCall.getConnectionServiceFocusManager()).thenReturn(
+                mConnectionServiceFocusManager);
         // Notify that the ConnectionManager has denied the call.
         when(mMockCall.getConnectionManagerPhoneAccount()).thenReturn(callManagerPAHandle);
         when(mMockCall.getConnectionService()).thenReturn(service);
@@ -213,6 +242,8 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         reset(mMockCall);
         reset(service);
 
+        when(mMockCall.getConnectionServiceFocusManager()).thenReturn(
+                mConnectionServiceFocusManager);
         // Notify that the ConnectionManager has rejected the call.
         when(mMockCall.getConnectionManagerPhoneAccount()).thenReturn(callManagerPAHandle);
         when(mMockCall.getConnectionService()).thenReturn(service);
@@ -268,6 +299,9 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         mTestCreateConnectionProcessor.process();
         reset(mMockCall);
         reset(service);
+
+        when(mMockCall.getConnectionServiceFocusManager()).thenReturn(
+                mConnectionServiceFocusManager);
         when(mMockCall.isEmergencyCall()).thenReturn(true);
 
         // When Notify SIM connection fails, fall back to connection manager
