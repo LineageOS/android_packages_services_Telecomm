@@ -97,4 +97,5 @@
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"ಕರೆ ನಿರ್ಬಂಧಿಸುವಿಕೆಯನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"ತುರ್ತು ಕರೆ ಮಾಡಲಾಗಿದೆ"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="4083285098613193052">"ನಿಮ್ಮನ್ನು ಸಂಪರ್ಕಿಸುವುದಕ್ಕಾಗಿ ತುರ್ತಾಗಿ ಪ್ರತಿಕ್ರಿಯಿಸುವವರ ಸಂಖ್ಯೆಯನ್ನು ನಿರ್ಬಂಧಿಸುವುದನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ."</string>
+    <string name="developer_title" msgid="1816273446906554627">"ಟೆಲಿಕಾಂ ಡೆವಲಪರ್ ಮೆನು"</string>
 </resources>

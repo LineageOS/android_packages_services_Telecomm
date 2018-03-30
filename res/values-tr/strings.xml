@@ -97,4 +97,5 @@
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"Çağrı Engelleme devre dışı bırakıldı"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"Acil durum çağrısı yapıldı"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="4083285098613193052">"Acil durum müdahale ekibinin sizinle iletişime geçmesine olanak tanımak için Çağrı Engelleme devre dışı bırakıldı."</string>
+    <string name="developer_title" msgid="1816273446906554627">"Telekomünikasyon Geliştirici Menüsü"</string>
 </resources>

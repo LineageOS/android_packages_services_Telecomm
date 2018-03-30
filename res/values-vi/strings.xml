@@ -97,4 +97,5 @@
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"Đã tắt tính năng Chặn cuộc gọi"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"Đã thực hiện cuộc gọi khẩn cấp"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="4083285098613193052">"Đã tắt tính năng Chặn cuộc gọi để cho phép người trả lời khẩn cấp liên hệ với bạn."</string>
+    <string name="developer_title" msgid="1816273446906554627">"Menu nhà phát triển dịch vụ viễn thông"</string>
 </resources>

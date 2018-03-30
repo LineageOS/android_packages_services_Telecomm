@@ -97,4 +97,5 @@
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"कलमाथि रोक लगाउने सुविधालाई असक्षम पारियो"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"आपतकालीन कल गरियो"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="4083285098613193052">"आपतकालीन अवस्थामा उद्दार गर्ने मान्छेहरूलाई तपाईंलाई सम्पर्क गर्न दिन कलमाथि रोक लगाउने सुविधा असक्षम पारिएको छ।"</string>
+    <string name="developer_title" msgid="1816273446906554627">"टेलिकमको विकासकर्ताको मेनु"</string>
 </resources>

@@ -97,4 +97,5 @@
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"ඇමතුම් අවහිර කිරීම අබල කර ඇත"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"හදිසි ඇමතුම් ගැනීම"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="4083285098613193052">"හදිසි අමතන්නන්ට ඔබව සම්බන්ධ කර ගැනීමට ඉඩ දීමට ඇමතුම් අවහිර කිරීම අබල කර ඇත."</string>
+    <string name="developer_title" msgid="1816273446906554627">"ටෙලිකොම් සංවර්ධක මෙනුව"</string>
 </resources>

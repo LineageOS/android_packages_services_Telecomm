@@ -97,4 +97,5 @@
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"ਕਾਲ ਬਲਾਕਿੰਗ ਵਿਕਲਪ ਬੰਦ ਕੀਤਾ ਗਿਆ"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"ਸੰਕਟਕਾਲੀਨ ਕਾਲ ਕੀਤੀ ਗਈ"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="4083285098613193052">"ਸੰਕਟਕਾਲੀਨ ਸਥਿਤੀ ਵਿੱਚ ਮਦਦ ਕਰਨ ਵਾਲੇ ਵਿਅਕਤੀ ਨੂੰ ਤੁਹਾਨੂੰ ਸੰਪਰਕ ਕਰਨ ਦੇਣ ਲਈ ਕਾਲ ਬਲਾਕਿੰਗ ਵਿਕਲਪ ਬੰਦ ਕਰ ਦਿੱਤਾ ਗਿਆ ਹੈ।"</string>
+    <string name="developer_title" msgid="1816273446906554627">"ਟੈਲੀਕੋਮ ਵਿਕਾਸਕਾਰ ਮੀਨੂ"</string>
 </resources>
