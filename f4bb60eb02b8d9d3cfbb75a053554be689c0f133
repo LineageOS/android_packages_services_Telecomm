@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9123475f_4d23a404",
+        "filename": "src/com/android/server/telecom/CallIntentProcessor.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 18303
+      },
+      "writtenOn": "2018-03-31T08:53:25Z",
+      "side": 1,
+      "message": "Yes, the skip_schema_parsing takes priority. If not specified, we consider using SIP if a SIP number.",
+      "parentUuid": "035e79ee_d0a90332",
+      "range": {
+        "startLine": 119,
+        "startChar": 9,
+        "endLine": 119,
+        "endChar": 60
+      },
+      "revId": "f4bb60eb02b8d9d3cfbb75a053554be689c0f133",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f135e4d9_73ed4588",
         "filename": "src/com/android/server/telecom/CallIntentProcessor.java",
         "patchSetId": 2
@@ -37,6 +61,24 @@
       "side": 1,
       "message": "Aren\u0027t you essentially reconstructing handle here? That is, re-build it from its parts, so that the operation essentially is a no-op, which means that adding another condition to the SCHEME_VOICEMAIL check would work equally well?",
       "parentUuid": "",
+      "revId": "f4bb60eb02b8d9d3cfbb75a053554be689c0f133",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "beec9dbb_932908df",
+        "filename": "src/com/android/server/telecom/CallIntentProcessor.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 18303
+      },
+      "writtenOn": "2018-03-31T08:53:25Z",
+      "side": 1,
+      "message": "This check is equivalent to the old if. I have not changed the behavior, but just added a case for SIP in the middle.",
+      "parentUuid": "f135e4d9_73ed4588",
       "revId": "f4bb60eb02b8d9d3cfbb75a053554be689c0f133",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false

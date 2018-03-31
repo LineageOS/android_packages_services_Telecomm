@@ -22,6 +22,30 @@
       "revId": "e6525bcd165264920081cd32324dad6d209400ef",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "12a3dd83_60e7a28d",
+        "filename": "src/com/android/server/telecom/CallIntentProcessor.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 18303
+      },
+      "writtenOn": "2018-03-31T08:53:25Z",
+      "side": 0,
+      "message": "Yes, this is covered by \u0027else if\u0027 case at line 121",
+      "parentUuid": "f8517919_f0848e72",
+      "range": {
+        "startLine": 121,
+        "startChar": 57,
+        "endLine": 121,
+        "endChar": 81
+      },
+      "revId": "e6525bcd165264920081cd32324dad6d209400ef",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
