@@ -336,7 +336,10 @@ public class ParcelableCallUtils {
         android.telecom.Call.Details.PROPERTY_HAS_CDMA_VOICE_PRIVACY,
 
         Connection.PROPERTY_SELF_MANAGED,
-        android.telecom.Call.Details.PROPERTY_SELF_MANAGED
+        android.telecom.Call.Details.PROPERTY_SELF_MANAGED,
+
+        Connection.PROPERTY_ASSISTED_DIALING_USED,
+        android.telecom.Call.Details.PROPERTY_ASSISTED_DIALING_USED
     };
 
     private static int convertConnectionToCallProperties(int connectionProperties) {
