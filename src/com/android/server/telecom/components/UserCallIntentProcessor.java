@@ -103,9 +103,9 @@ public class UserCallIntentProcessor {
         String scheme = handle.getScheme();
         String uriString = handle.getSchemeSpecificPart();
 
-        if (!PhoneAccount.SCHEME_VOICEMAIL.equals(scheme)) {
-            handle = Uri.fromParts(PhoneNumberUtils.isUriNumber(uriString) ?
-                    PhoneAccount.SCHEME_SIP : PhoneAccount.SCHEME_TEL, uriString, null);
+        // Ensure sip URIs dialed using TEL scheme get converted to SIP scheme.
+        if (PhoneAccount.SCHEME_TEL.equals(scheme) && PhoneNumberUtils.isUriNumber(uriString)) {
+            handle = Uri.fromParts(PhoneAccount.SCHEME_SIP, uriString, null);
         }
 
         // Check DISALLOW_OUTGOING_CALLS restriction. Note: We are skipping this check in a managed
