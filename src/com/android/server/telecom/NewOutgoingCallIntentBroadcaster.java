@@ -144,6 +144,9 @@ public class NewOutgoingCallIntentBroadcaster {
                         return;
                     }
 
+                    // TODO: Remove the assumption that phone numbers are either SIP or TEL.
+                    // This does not impact self-managed ConnectionServices as they do not use the
+                    // NewOutgoingCallIntentBroadcaster.
                     Uri resultHandleUri = Uri.fromParts(
                             mPhoneNumberUtilsAdapter.isUriNumber(resultNumber) ?
                                     PhoneAccount.SCHEME_SIP : PhoneAccount.SCHEME_TEL,
@@ -219,73 +222,88 @@ public class NewOutgoingCallIntentBroadcaster {
             }
         }
 
-        String number = mPhoneNumberUtilsAdapter.getNumberFromIntent(intent, mContext);
-        if (TextUtils.isEmpty(number)) {
-            Log.w(this, "Empty number obtained from the call intent.");
-            return DisconnectCause.NO_PHONE_NUMBER_SUPPLIED;
-        }
-
-        boolean isUriNumber = mPhoneNumberUtilsAdapter.isUriNumber(number);
-        if (!isUriNumber) {
-            number = mPhoneNumberUtilsAdapter.convertKeypadLettersToDigits(number);
-            number = mPhoneNumberUtilsAdapter.stripSeparators(number);
-        }
-
-        final boolean isPotentialEmergencyNumber = isPotentialEmergencyNumber(number);
-        Log.v(this, "isPotentialEmergencyNumber = %s", isPotentialEmergencyNumber);
-
-        rewriteCallIntentAction(intent, isPotentialEmergencyNumber);
-        action = intent.getAction();
-        // True for certain types of numbers that are not intended to be intercepted or modified
-        // by third parties (e.g. emergency numbers).
-        boolean callImmediately = false;
-
-        if (Intent.ACTION_CALL.equals(action)) {
-            if (isPotentialEmergencyNumber) {
-                if (!mIsDefaultOrSystemPhoneApp) {
-                    Log.w(this, "Cannot call potential emergency number %s with CALL Intent %s "
-                            + "unless caller is system or default dialer.", number, intent);
-                    launchSystemDialer(intent.getData());
-                    return DisconnectCause.OUTGOING_CANCELED;
-                } else {
-                    callImmediately = true;
-                }
-            }
-        } else if (Intent.ACTION_CALL_EMERGENCY.equals(action)) {
-            if (!isPotentialEmergencyNumber) {
-                Log.w(this, "Cannot call non-potential-emergency number %s with EMERGENCY_CALL "
-                        + "Intent %s.", number, intent);
-                return DisconnectCause.OUTGOING_CANCELED;
-            }
-            callImmediately = true;
-        } else {
-            Log.w(this, "Unhandled Intent %s. Ignoring and not placing call.", intent);
-            return DisconnectCause.INVALID_NUMBER;
-        }
-
-        // True for all managed calls, false for self-managed calls.
-        boolean sendNewOutgoingCallBroadcast = true;
         PhoneAccountHandle targetPhoneAccount = mIntent.getParcelableExtra(
                 TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE);
+        boolean isSelfManaged = false;
         if (targetPhoneAccount != null) {
             PhoneAccount phoneAccount =
                     mCallsManager.getPhoneAccountRegistrar().getPhoneAccountUnchecked(
                             targetPhoneAccount);
-            if (phoneAccount != null && phoneAccount.isSelfManaged()) {
-                callImmediately = true;
-                sendNewOutgoingCallBroadcast = false;
-                Log.i(this, "Skipping NewOutgoingCallBroadcast for self-managed call.");
+            if (phoneAccount != null) {
+                isSelfManaged = phoneAccount.isSelfManaged();
             }
         }
 
-        if (callImmediately) {
+        String number = "";
+        // True for certain types of numbers that are not intended to be intercepted or modified
+        // by third parties (e.g. emergency numbers).
+        boolean callImmediately = false;
+        // True for all managed calls, false for self-managed calls.
+        boolean sendNewOutgoingCallBroadcast = true;
+        Uri callingAddress = handle;
+
+        if (!isSelfManaged) {
+            // Placing a managed call
+            number = mPhoneNumberUtilsAdapter.getNumberFromIntent(intent, mContext);
+            if (TextUtils.isEmpty(number)) {
+                Log.w(this, "Empty number obtained from the call intent.");
+                return DisconnectCause.NO_PHONE_NUMBER_SUPPLIED;
+            }
+
+            // TODO: Cleanup this dialing code; it makes the assumption that we're dialing with a
+            // SIP or TEL URI.
+            boolean isUriNumber = mPhoneNumberUtilsAdapter.isUriNumber(number);
+            if (!isUriNumber) {
+                number = mPhoneNumberUtilsAdapter.convertKeypadLettersToDigits(number);
+                number = mPhoneNumberUtilsAdapter.stripSeparators(number);
+            }
+
+            final boolean isPotentialEmergencyNumber = isPotentialEmergencyNumber(number);
+            Log.v(this, "isPotentialEmergencyNumber = %s", isPotentialEmergencyNumber);
+
+            rewriteCallIntentAction(intent, isPotentialEmergencyNumber);
+            action = intent.getAction();
+
+            if (Intent.ACTION_CALL.equals(action)) {
+                if (isPotentialEmergencyNumber) {
+                    if (!mIsDefaultOrSystemPhoneApp) {
+                        Log.w(this, "Cannot call potential emergency number %s with CALL Intent %s "
+                                + "unless caller is system or default dialer.", number, intent);
+                        launchSystemDialer(intent.getData());
+                        return DisconnectCause.OUTGOING_CANCELED;
+                    } else {
+                        callImmediately = true;
+                    }
+                }
+            } else if (Intent.ACTION_CALL_EMERGENCY.equals(action)) {
+                if (!isPotentialEmergencyNumber) {
+                    Log.w(this, "Cannot call non-potential-emergency number %s with EMERGENCY_CALL "
+                            + "Intent %s.", number, intent);
+                    return DisconnectCause.OUTGOING_CANCELED;
+                }
+                callImmediately = true;
+            } else {
+                Log.w(this, "Unhandled Intent %s. Ignoring and not placing call.", intent);
+                return DisconnectCause.INVALID_NUMBER;
+            }
+
+            // TODO: Support dialing using URIs instead of just assuming SIP or TEL.
             String scheme = isUriNumber ? PhoneAccount.SCHEME_SIP : PhoneAccount.SCHEME_TEL;
+            callingAddress = Uri.fromParts(scheme, number, null);
+        } else {
+            // Self-managed call.
+            callImmediately = true;
+            sendNewOutgoingCallBroadcast = false;
+            Log.i(this, "Skipping NewOutgoingCallBroadcast for self-managed call.");
+        }
+
+        if (callImmediately) {
             boolean speakerphoneOn = mIntent.getBooleanExtra(
                     TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE, false);
             int videoState = mIntent.getIntExtra(
                     TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
                     VideoProfile.STATE_AUDIO_ONLY);
-            placeOutgoingCallImmediately(mCall, Uri.fromParts(scheme, number, null), null,
+            placeOutgoingCallImmediately(mCall, callingAddress, null,
                     speakerphoneOn, videoState);
 
             // Don't return but instead continue and send the ACTION_NEW_OUTGOING_CALL broadcast
