@@ -516,6 +516,20 @@ public class CallsManager extends Call.ListenerBase
             return;
         }
 
+        // Check DISALLOW_OUTGOING_CALLS restriction.
+        // Only ecbm calls are allowed through when users with the DISALLOW_OUTGOING_CALLS
+        // restriction are the current user.
+        final UserManager userManager = (UserManager) mContext.getSystemService(
+                Context.USER_SERVICE);
+        if (userManager.hasUserRestriction(UserManager.DISALLOW_OUTGOING_CALLS,
+                mCurrentUserHandle)) {
+            Log.w(this, "Rejecting non-ecbm phone call due to DISALLOW_INCOMING_CALLS "
+                    + "restriction");
+            incomingCall.reject(false, null);
+            mCallLogManager.logCall(incomingCall, Calls.MISSED_TYPE, false /* showNotification */);
+            return;
+        }
+
         List<IncomingCallFilter.CallFilter> filters = new ArrayList<>();
         filters.add(new DirectToVoicemailCallFilter(mCallerInfoLookupHelper));
         filters.add(new AsyncBlockCheckFilter(mContext, new BlockCheckerAdapter(),
@@ -1813,8 +1827,8 @@ public class CallsManager extends Call.ListenerBase
     }
 
     private boolean isRttSettingOn() {
-        return Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.RTT_CALLING_MODE, 0) != 0;
+        return Settings.Secure.getInt(mContext.getContentResolver(),
+                Settings.Secure.RTT_CALLING_MODE, 0) != 0;
     }
 
     void phoneAccountSelected(Call call, PhoneAccountHandle account, boolean setDefault) {

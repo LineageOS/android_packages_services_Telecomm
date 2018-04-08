@@ -18,6 +18,7 @@ package com.android.server.telecom;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.Person;
 import android.content.Context;
 import android.os.VibrationEffect;
 import android.telecom.Log;
@@ -279,8 +280,8 @@ public class Ringer {
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         final Bundle peopleExtras = new Bundle();
         if (contactUri != null) {
-            ArrayList<Notification.Person> personList = new ArrayList<>();
-            personList.add(new Notification.Person().setUri(contactUri.toString()));
+            ArrayList<Person> personList = new ArrayList<>();
+            personList.add(new Person.Builder().setUri(contactUri.toString()).build());
             peopleExtras.putParcelableArrayList(Notification.EXTRA_PEOPLE_LIST, personList);
         }
         return manager.matchesCallFilter(peopleExtras);
