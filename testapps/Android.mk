@@ -17,8 +17,9 @@
 LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
+LOCAL_USE_AAPT2 := true
+LOCAL_STATIC_ANDROID_LIBRARIES := androidx.legacy_legacy-support-v4
 LOCAL_STATIC_JAVA_LIBRARIES := \
-        android-support-v4 \
         android-ex-camera2 \
         guava
 
