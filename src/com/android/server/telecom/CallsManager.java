@@ -1423,11 +1423,8 @@ public class CallsManager extends Call.ListenerBase
                 notifyCreateConnectionFailed(call.getTargetPhoneAccount(), call);
             } else {
                 if (call.isEmergencyCall()) {
-                    // Disconnect calls from other ConnectionServices other than the one the
-                    // emergency call targets.
-                    // Except, do not disconnect calls from the Connection Manager's
-                    // ConnectionService.
-                    disconnectCallsHaveDifferentConnectionService(call);
+                    // Drop any ongoing self-managed calls to make way for an emergency call.
+                    disconnectSelfManagedCalls("place emerg call" /* reason */);
                 }
 
                 call.startCreateConnection(mPhoneAccountRegistrar);
@@ -3246,16 +3243,6 @@ public class CallsManager extends Call.ListenerBase
         // speakerphone that we'll switch back to earpiece for the managed call which necessitated
         // disconnecting the self-managed calls.
         mCallAudioManager.switchBaseline();
-    }
-
-    private void disconnectCallsHaveDifferentConnectionService(Call exceptCall) {
-        String csPackage = exceptCall.getConnectionService() != null ?
-                exceptCall.getConnectionService().getComponentName().toShortString() : "null";
-        mCalls.stream().filter(c ->
-                c.getConnectionService() != exceptCall.getConnectionService()
-                        && c.getConnectionManagerPhoneAccount()
-                        != exceptCall.getConnectionManagerPhoneAccount())
-                .forEach(c -> c.disconnect("CS not " + csPackage));
     }
 
     /**
