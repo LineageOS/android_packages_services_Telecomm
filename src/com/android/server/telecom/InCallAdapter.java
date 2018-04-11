@@ -16,12 +16,9 @@
 
 package com.android.server.telecom;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
-import android.os.UserHandle;
-import android.os.UserManager;
 import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
 
@@ -35,16 +32,14 @@ import java.util.List;
  * binding to it. This adapter can receive commands and updates until the in-call app is unbound.
  */
 class InCallAdapter extends IInCallAdapter.Stub {
-    private final Context mContext;
     private final CallsManager mCallsManager;
     private final CallIdMapper mCallIdMapper;
     private final TelecomSystem.SyncRoot mLock;
     private final String mOwnerComponentName;
 
     /** Persists the specified parameters. */
-    public InCallAdapter(Context context, CallsManager callsManager, CallIdMapper callIdMapper,
+    public InCallAdapter(CallsManager callsManager, CallIdMapper callIdMapper,
             TelecomSystem.SyncRoot lock, String ownerComponentName) {
-        mContext = context;
         mCallsManager = callsManager;
         mCallIdMapper = callIdMapper;
         mLock = lock;
@@ -101,17 +96,12 @@ class InCallAdapter extends IInCallAdapter.Stub {
     public void rejectCall(String callId, boolean rejectWithMessage, String textMessage) {
         try {
             Log.startSession(LogUtils.Sessions.ICA_REJECT_CALL, mOwnerComponentName);
-            UserHandle callingUser = UserHandle.of(UserHandle.getUserId(Binder.getCallingUid()));
-            UserManager userManager = mContext.getSystemService(UserManager.class);
-
             // Check to make sure the in-call app's user isn't restricted from sending SMS. If so,
-            // silently drop the outgoing message.
-            if (rejectWithMessage && userManager.hasUserRestriction(
-                    UserManager.DISALLOW_SMS, callingUser)) {
+            // silently drop the outgoing message. Also drop message if the screen is locked.
+            if (!mCallsManager.isReplyWithSmsAllowed(Binder.getCallingUid())) {
                 rejectWithMessage = false;
                 textMessage = null;
             }
-
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
