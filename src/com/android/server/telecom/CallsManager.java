@@ -24,6 +24,7 @@ import android.content.pm.UserInfo;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
+import android.media.AudioSystem;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -1910,6 +1911,7 @@ public class CallsManager extends Call.ListenerBase
         setCallState(call, CallState.DIALING, "dialing set explicitly");
         maybeMoveToSpeakerPhone(call);
         maybeTurnOffMute(call);
+        ensureCallAudible();
     }
 
     void markCallAsPulling(Call call) {
@@ -1931,6 +1933,7 @@ public class CallsManager extends Call.ListenerBase
         } else {
             setCallState(call, CallState.ACTIVE, "active set explicitly");
             maybeMoveToSpeakerPhone(call);
+            ensureCallAudible();
         }
     }
 
@@ -2916,6 +2919,19 @@ public class CallsManager extends Call.ListenerBase
     private void maybeTurnOffMute(Call call) {
         if (call.isEmergencyCall()) {
             mute(false);
+        }
+    }
+
+    private void ensureCallAudible() {
+        AudioManager am = mContext.getSystemService(AudioManager.class);
+        if (am == null) {
+            Log.w(this, "ensureCallAudible: audio manager is null");
+            return;
+        }
+        if (am.getStreamVolume(AudioManager.STREAM_VOICE_CALL) == 0) {
+            Log.i(this, "ensureCallAudible: voice call stream has volume 0. Adjusting to default.");
+            am.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
+                    AudioSystem.getDefaultStreamVolume(AudioManager.STREAM_VOICE_CALL), 0);
         }
     }
 
