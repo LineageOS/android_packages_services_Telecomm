@@ -17,6 +17,7 @@
 package com.android.server.telecom;
 
 import android.app.ActivityManager;
+import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.pm.UserInfo;
@@ -513,20 +514,6 @@ public class CallsManager extends Call.ListenerBase
         if (incomingCall.hasProperty(Connection.PROPERTY_EMERGENCY_CALLBACK_MODE)) {
             Log.i(this, "Skipping call filtering due to ECBM");
             onCallFilteringComplete(incomingCall, new CallFilteringResult(true, false, true, true));
-            return;
-        }
-
-        // Check DISALLOW_OUTGOING_CALLS restriction.
-        // Only ecbm calls are allowed through when users with the DISALLOW_OUTGOING_CALLS
-        // restriction are the current user.
-        final UserManager userManager = (UserManager) mContext.getSystemService(
-                Context.USER_SERVICE);
-        if (userManager.hasUserRestriction(UserManager.DISALLOW_OUTGOING_CALLS,
-                mCurrentUserHandle)) {
-            Log.w(this, "Rejecting non-ecbm phone call due to DISALLOW_INCOMING_CALLS "
-                    + "restriction");
-            incomingCall.reject(false, null);
-            mCallLogManager.logCall(incomingCall, Calls.MISSED_TYPE, false /* showNotification */);
             return;
         }
 
@@ -3144,6 +3131,21 @@ public class CallsManager extends Call.ListenerBase
         }
     }
 
+    public boolean isReplyWithSmsAllowed(int uid) {
+        UserHandle callingUser = UserHandle.of(UserHandle.getUserId(uid));
+        UserManager userManager = mContext.getSystemService(UserManager.class);
+        KeyguardManager keyguardManager = mContext.getSystemService(KeyguardManager.class);
+
+        boolean isUserRestricted = userManager != null
+                && userManager.hasUserRestriction(UserManager.DISALLOW_SMS, callingUser);
+        boolean isLockscreenRestricted = keyguardManager != null
+                && keyguardManager.isDeviceLocked();
+        Log.d(this, "isReplyWithSmsAllowed: isUserRestricted: %s, isLockscreenRestricted: %s",
+                isUserRestricted, isLockscreenRestricted);
+
+        // TODO(hallliu): actually check the lockscreen once b/77731473 is fixed
+        return !isUserRestricted;
+    }
     /**
      * Blocks execution until all Telecom handlers have completed their current work.
      */
