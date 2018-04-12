@@ -134,6 +134,8 @@ public class LogUtils {
         public static final String ACCEPT_HANDOVER = "ACCEPT_HANDOVER";
         public static final String HANDOVER_COMPLETE = "HANDOVER_COMPLETE";
         public static final String HANDOVER_FAILED = "HANDOVER_FAILED";
+        public static final String START_RINBACK = "START_RINGBACK";
+        public static final String STOP_RINGBACK = "STOP_RINGBACK";
 
         public static class Timings {
             public static final String ACCEPT_TIMING = "accept";
