@@ -17,12 +17,14 @@
 package com.android.server.telecom;
 
 import android.app.ActivityManager;
+import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
+import android.media.AudioSystem;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -513,20 +515,6 @@ public class CallsManager extends Call.ListenerBase
         if (incomingCall.hasProperty(Connection.PROPERTY_EMERGENCY_CALLBACK_MODE)) {
             Log.i(this, "Skipping call filtering due to ECBM");
             onCallFilteringComplete(incomingCall, new CallFilteringResult(true, false, true, true));
-            return;
-        }
-
-        // Check DISALLOW_OUTGOING_CALLS restriction.
-        // Only ecbm calls are allowed through when users with the DISALLOW_OUTGOING_CALLS
-        // restriction are the current user.
-        final UserManager userManager = (UserManager) mContext.getSystemService(
-                Context.USER_SERVICE);
-        if (userManager.hasUserRestriction(UserManager.DISALLOW_OUTGOING_CALLS,
-                mCurrentUserHandle)) {
-            Log.w(this, "Rejecting non-ecbm phone call due to DISALLOW_INCOMING_CALLS "
-                    + "restriction");
-            incomingCall.reject(false, null);
-            mCallLogManager.logCall(incomingCall, Calls.MISSED_TYPE, false /* showNotification */);
             return;
         }
 
@@ -1909,6 +1897,7 @@ public class CallsManager extends Call.ListenerBase
         setCallState(call, CallState.DIALING, "dialing set explicitly");
         maybeMoveToSpeakerPhone(call);
         maybeTurnOffMute(call);
+        ensureCallAudible();
     }
 
     void markCallAsPulling(Call call) {
@@ -1962,6 +1951,7 @@ public class CallsManager extends Call.ListenerBase
         } else {
             setCallState(call, CallState.ACTIVE, "active set explicitly");
             maybeMoveToSpeakerPhone(call);
+            ensureCallAudible();
         }
     }
 
@@ -2958,6 +2948,19 @@ public class CallsManager extends Call.ListenerBase
         }
     }
 
+    private void ensureCallAudible() {
+        AudioManager am = mContext.getSystemService(AudioManager.class);
+        if (am == null) {
+            Log.w(this, "ensureCallAudible: audio manager is null");
+            return;
+        }
+        if (am.getStreamVolume(AudioManager.STREAM_VOICE_CALL) == 0) {
+            Log.i(this, "ensureCallAudible: voice call stream has volume 0. Adjusting to default.");
+            am.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
+                    AudioSystem.getDefaultStreamVolume(AudioManager.STREAM_VOICE_CALL), 0);
+        }
+    }
+
     /**
      * Creates a new call for an existing connection.
      *
@@ -3170,6 +3173,21 @@ public class CallsManager extends Call.ListenerBase
         }
     }
 
+    public boolean isReplyWithSmsAllowed(int uid) {
+        UserHandle callingUser = UserHandle.of(UserHandle.getUserId(uid));
+        UserManager userManager = mContext.getSystemService(UserManager.class);
+        KeyguardManager keyguardManager = mContext.getSystemService(KeyguardManager.class);
+
+        boolean isUserRestricted = userManager != null
+                && userManager.hasUserRestriction(UserManager.DISALLOW_SMS, callingUser);
+        boolean isLockscreenRestricted = keyguardManager != null
+                && keyguardManager.isDeviceLocked();
+        Log.d(this, "isReplyWithSmsAllowed: isUserRestricted: %s, isLockscreenRestricted: %s",
+                isUserRestricted, isLockscreenRestricted);
+
+        // TODO(hallliu): actually check the lockscreen once b/77731473 is fixed
+        return !isUserRestricted;
+    }
     /**
      * Blocks execution until all Telecom handlers have completed their current work.
      */
