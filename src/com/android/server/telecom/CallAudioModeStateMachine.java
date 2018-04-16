@@ -29,6 +29,12 @@ import com.android.internal.util.State;
 import com.android.internal.util.StateMachine;
 
 public class CallAudioModeStateMachine extends StateMachine {
+    public static class Factory {
+        public CallAudioModeStateMachine create(AudioManager am) {
+            return new CallAudioModeStateMachine(am);
+        }
+    }
+
     public static class MessageArgs {
         public boolean hasActiveOrDialingCalls;
         public boolean hasRingingCalls;

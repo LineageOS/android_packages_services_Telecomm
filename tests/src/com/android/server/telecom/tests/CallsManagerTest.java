@@ -43,6 +43,8 @@ import android.test.suitebuilder.annotation.SmallTest;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallAudioManager;
+import com.android.server.telecom.CallAudioModeStateMachine;
+import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallerInfoAsyncQueryFactory;
 import com.android.server.telecom.CallsManager;
@@ -139,6 +141,10 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private InCallControllerFactory mInCallControllerFactory;
     @Mock private InCallController mInCallController;
     @Mock private ConnectionServiceFocusManager mConnectionSvrFocusMgr;
+    @Mock private CallAudioRouteStateMachine mCallAudioRouteStateMachine;
+    @Mock private CallAudioRouteStateMachine.Factory mCallAudioRouteStateMachineFactory;
+    @Mock private CallAudioModeStateMachine mCallAudioModeStateMachine;
+    @Mock private CallAudioModeStateMachine.Factory mCallAudioModeStateMachineFactory;
     @Mock private BluetoothStateReceiver mBluetoothStateReceiver;
 
     private CallsManager mCallsManager;
@@ -156,6 +162,10 @@ public class CallsManagerTest extends TelecomTestCase {
                 mProximitySensorManager);
         when(mInCallControllerFactory.create(any(), any(), any(), any(), any(), any(),
                 any())).thenReturn(mInCallController);
+        when(mCallAudioRouteStateMachineFactory.create(any(), any(), any(), any(), any(), any(),
+                anyInt())).thenReturn(mCallAudioRouteStateMachine);
+        when(mCallAudioModeStateMachineFactory.create(any()))
+                .thenReturn(mCallAudioModeStateMachine);
         when(mClockProxy.currentTimeMillis()).thenReturn(System.currentTimeMillis());
         when(mClockProxy.elapsedRealtime()).thenReturn(SystemClock.elapsedRealtime());
         when(mConnSvrFocusManagerFactory.create(any(), any())).thenReturn(mConnectionSvrFocusMgr);
@@ -182,6 +192,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 mToneGeneratorFactory,
                 mClockProxy,
                 mBluetoothStateReceiver,
+                mCallAudioRouteStateMachineFactory,
+                mCallAudioModeStateMachineFactory,
                 mInCallControllerFactory);
 
         when(mPhoneAccountRegistrar.getPhoneAccount(
@@ -564,6 +576,9 @@ public class CallsManagerTest extends TelecomTestCase {
         Call ongoingCall = addSpyCallWithConnectionService(connSvr1);
         doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
         doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        doReturn(CallState.ACTIVE).when(ongoingCall).getState();
+        when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
+
         Call heldCall = addSpyCallWithConnectionService(connSvr1);
         doReturn(CallState.ON_HOLD).when(heldCall).getState();
 
@@ -573,6 +588,7 @@ public class CallsManagerTest extends TelecomTestCase {
 
         // WHEN answer an incoming call which ConnectionService is connSvr1
         Call incomingCall = addSpyCallWithConnectionService(connSvr1);
+        doReturn(true).when(incomingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         mCallsManager.answerCall(incomingCall, VideoProfile.STATE_AUDIO_ONLY);
 
         // THEN the previous held call is disconnected

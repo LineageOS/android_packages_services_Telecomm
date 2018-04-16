@@ -286,7 +286,9 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
 
         @Override
         public void rejectWithMessage(String callId, String message,
-                Session.Info info) throws RemoteException { }
+                Session.Info info) throws RemoteException {
+            rejectedCallIds.add(callId);
+        }
 
         @Override
         public void disconnect(String callId, Session.Info info) throws RemoteException { }

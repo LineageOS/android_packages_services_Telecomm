@@ -279,6 +279,8 @@ public class TelecomSystem {
                 toneGeneratorFactory,
                 clockProxy,
                 bluetoothStateReceiver,
+                new CallAudioRouteStateMachine.Factory(),
+                new CallAudioModeStateMachine.Factory(),
                 inCallControllerFactory);
 
         mIncomingCallNotifier = incomingCallNotifier;
