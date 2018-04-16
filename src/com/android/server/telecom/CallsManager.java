@@ -1829,8 +1829,8 @@ public class CallsManager extends Call.ListenerBase
     }
 
     private boolean isRttSettingOn() {
-        return Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.RTT_CALLING_MODE, 0) != 0;
+        return Settings.Secure.getInt(mContext.getContentResolver(),
+                Settings.Secure.RTT_CALLING_MODE, 0) != 0;
     }
 
     void phoneAccountSelected(Call call, PhoneAccountHandle account, boolean setDefault) {
