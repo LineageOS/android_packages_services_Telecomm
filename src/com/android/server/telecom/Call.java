@@ -1440,6 +1440,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             if ((mConnectionProperties & Connection.PROPERTY_IS_RTT) ==
                     Connection.PROPERTY_IS_RTT) {
                 createRttStreams();
+                mWasEverRtt = true;
                 if (isEmergencyCall()) {
                     mCallsManager.setAudioRoute(CallAudioState.ROUTE_SPEAKER, null);
                     mCallsManager.mute(false);
@@ -2582,7 +2583,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         if (!areRttStreamsInitialized()) {
             Log.i(this, "Initializing RTT streams");
             try {
-                mWasEverRtt = true;
                 mInCallToConnectionServiceStreams = ParcelFileDescriptor.createReliablePipe();
                 mConnectionServiceToInCallStreams = ParcelFileDescriptor.createReliablePipe();
             } catch (IOException e) {
