@@ -49,7 +49,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(JUnit4.class)
 public class AsyncBlockCheckFilterTest extends TelecomTestCase {
-    @Mock private Context mContext;
     @Mock private BlockCheckerAdapter mBlockCheckerAdapter;
     @Mock private Call mCall;
     @Mock private CallFilterResultCallback mCallback;

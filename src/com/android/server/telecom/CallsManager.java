@@ -363,6 +363,8 @@ public class CallsManager extends Call.ListenerBase
             InCallTonePlayer.ToneGeneratorFactory toneGeneratorFactory,
             ClockProxy clockProxy,
             BluetoothStateReceiver bluetoothStateReceiver,
+            CallAudioRouteStateMachine.Factory callAudioRouteStateMachineFactory,
+            CallAudioModeStateMachine.Factory callAudioModeStateMachineFactory,
             InCallControllerFactory inCallControllerFactory) {
         mContext = context;
         mLock = lock;
@@ -384,15 +386,16 @@ public class CallsManager extends Call.ListenerBase
 
         mDtmfLocalTonePlayer =
                 new DtmfLocalTonePlayer(new DtmfLocalTonePlayer.ToneGeneratorProxy());
-        CallAudioRouteStateMachine callAudioRouteStateMachine = new CallAudioRouteStateMachine(
-                context,
-                this,
-                bluetoothManager,
-                wiredHeadsetManager,
-                statusBarNotifier,
-                audioServiceFactory,
-                CallAudioRouteStateMachine.EARPIECE_AUTO_DETECT
-        );
+        CallAudioRouteStateMachine callAudioRouteStateMachine =
+                callAudioRouteStateMachineFactory.create(
+                        context,
+                        this,
+                        bluetoothManager,
+                        wiredHeadsetManager,
+                        statusBarNotifier,
+                        audioServiceFactory,
+                        CallAudioRouteStateMachine.EARPIECE_AUTO_DETECT
+                );
         callAudioRouteStateMachine.initialize();
 
         CallAudioRoutePeripheralAdapter callAudioRoutePeripheralAdapter =
@@ -416,7 +419,7 @@ public class CallsManager extends Call.ListenerBase
         mCallRecordingTonePlayer = new CallRecordingTonePlayer(mContext,
                 (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE), mLock);
         mCallAudioManager = new CallAudioManager(callAudioRouteStateMachine,
-                this,new CallAudioModeStateMachine((AudioManager)
+                this, callAudioModeStateMachineFactory.create((AudioManager)
                         mContext.getSystemService(Context.AUDIO_SERVICE)),
                 playerFactory, mRinger, new RingbackPlayer(playerFactory),
                 bluetoothStateReceiver, mDtmfLocalTonePlayer);
