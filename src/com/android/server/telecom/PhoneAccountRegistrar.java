@@ -135,7 +135,7 @@ public class PhoneAccountRegistrar {
         CharSequence getAppLabel(String packageName);
     }
 
-    private static final String FILE_NAME = "phone-account-registrar-state.xml";
+    public static final String FILE_NAME = "phone-account-registrar-state.xml";
     @VisibleForTesting
     public static final int EXPECTED_STATE_VERSION = 9;
 
