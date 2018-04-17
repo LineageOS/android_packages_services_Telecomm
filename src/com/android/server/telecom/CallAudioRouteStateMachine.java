@@ -72,6 +72,24 @@ import java.util.Objects;
  */
 public class CallAudioRouteStateMachine extends StateMachine {
 
+    public static class Factory {
+        public CallAudioRouteStateMachine create(
+                Context context,
+                CallsManager callsManager,
+                BluetoothRouteManager bluetoothManager,
+                WiredHeadsetManager wiredHeadsetManager,
+                StatusBarNotifier statusBarNotifier,
+                CallAudioManager.AudioServiceFactory audioServiceFactory,
+                int earpieceControl) {
+            return new CallAudioRouteStateMachine(context,
+                    callsManager,
+                    bluetoothManager,
+                    wiredHeadsetManager,
+                    statusBarNotifier,
+                    audioServiceFactory,
+                    earpieceControl);
+        }
+    }
     /** Values for CallAudioRouteStateMachine constructor's earPieceRouting arg. */
     public static final int EARPIECE_FORCE_DISABLED = 0;
     public static final int EARPIECE_FORCE_ENABLED  = 1;

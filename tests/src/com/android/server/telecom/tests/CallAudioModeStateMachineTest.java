@@ -33,6 +33,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -117,7 +118,7 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
         sm.sendMessage(CallAudioModeStateMachine.RINGER_MODE_CHANGE);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
 
-        verify(mCallAudioManager).startRinging();
+        verify(mCallAudioManager, times(2)).startRinging();
         verify(mAudioManager).requestAudioFocusForCall(AudioManager.STREAM_RING,
                 AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
         verify(mAudioManager).setMode(AudioManager.MODE_RINGTONE);
