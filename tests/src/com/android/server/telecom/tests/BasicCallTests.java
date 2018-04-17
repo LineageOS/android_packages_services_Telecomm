@@ -26,6 +26,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
@@ -549,8 +550,10 @@ public class BasicCallTests extends TelecomSystemTest {
         // TODO: We have to use the same PhoneAccount for both; see http://b/18461539
         IdPair outgoing = startAndMakeActiveOutgoingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         IdPair incoming = startAndMakeActiveIncomingCall("650-555-2323",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         verify(mConnectionServiceFixtureA.getTestDouble())
                 .hold(eq(outgoing.mConnectionId), any());
         mConnectionServiceFixtureA.mConnectionById.get(outgoing.mConnectionId).state =
@@ -586,10 +589,15 @@ public class BasicCallTests extends TelecomSystemTest {
                 .setMicrophoneMute(eq(false), any(String.class), any(Integer.class));
 
         mInCallServiceFixtureX.mInCallAdapter.setAudioRoute(CallAudioState.ROUTE_SPEAKER, null);
+        waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
+                .getCallAudioRouteStateMachine().getHandler(), TEST_TIMEOUT);
         verify(audioManager, timeout(TEST_TIMEOUT))
                 .setSpeakerphoneOn(true);
         mInCallServiceFixtureX.mInCallAdapter.setAudioRoute(CallAudioState.ROUTE_EARPIECE, null);
-        verify(audioManager, timeout(TEST_TIMEOUT))
+        waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
+                .getCallAudioRouteStateMachine().getHandler(), TEST_TIMEOUT);
+        // setSpeakerPhoneOn(false) gets called once during the call initiation phase
+        verify(audioManager, timeout(TEST_TIMEOUT).atLeast(2))
                 .setSpeakerphoneOn(false);
 
         mConnectionServiceFixtureA.
