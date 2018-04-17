@@ -303,6 +303,7 @@ abstract class ServiceBinder {
             mIsBindingAborted = true;
         } else {
             logServiceDisconnected("unbind");
+            unlinkDeathRecipient();
             mContext.unbindService(mServiceConnection);
             mServiceConnection = null;
             setBinder(null);
@@ -371,7 +372,23 @@ abstract class ServiceBinder {
      * Handles a service disconnection.
      */
     private void handleServiceDisconnected() {
+        unlinkDeathRecipient();
         setBinder(null);
+    }
+
+    /**
+     * Handles un-linking the death recipient from the service's binder.
+     */
+    private void unlinkDeathRecipient() {
+        if (mServiceDeathRecipient != null && mBinder != null) {
+            boolean unlinked = mBinder.unlinkToDeath(mServiceDeathRecipient, 0);
+            if (!unlinked) {
+                Log.i(this, "unlinkDeathRecipient: failed to unlink %s", mComponentName);
+            }
+            mServiceDeathRecipient = null;
+        } else {
+            Log.w(this, "unlinkDeathRecipient: death recipient is null.");
+        }
     }
 
     private void clearAbort() {
