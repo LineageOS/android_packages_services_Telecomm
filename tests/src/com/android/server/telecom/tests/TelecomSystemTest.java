@@ -458,14 +458,7 @@ public class TelecomSystemTest extends TelecomTestCase {
                         return mBluetoothPhoneServiceImpl;
                     }
                 },
-                new ConnectionServiceFocusManager.ConnectionServiceFocusManagerFactory() {
-                    @Override
-                    public ConnectionServiceFocusManager create(
-                            ConnectionServiceFocusManager.CallsManagerRequester requester,
-                            Looper looper) {
-                        return new ConnectionServiceFocusManager(requester, looper);
-                    }
-                },
+                ConnectionServiceFocusManager::new,
                 mTimeoutsAdapter,
                 mAsyncRingtonePlayer,
                 mPhoneNumberUtilsAdapter,
