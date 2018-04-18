@@ -163,15 +163,7 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                             phoneAccountRegistrar);
                                 }
                             },
-                            new ConnectionServiceFocusManager
-                                    .ConnectionServiceFocusManagerFactory() {
-                                @Override
-                                public ConnectionServiceFocusManager create(
-                                        ConnectionServiceFocusManager.CallsManagerRequester requester,
-                                        Looper looper) {
-                                    return new ConnectionServiceFocusManager(requester, looper);
-                                }
-                            },
+                            ConnectionServiceFocusManager::new,
                             new Timeouts.Adapter(),
                             new AsyncRingtonePlayer(),
                             new PhoneNumberUtilsAdapterImpl(),
