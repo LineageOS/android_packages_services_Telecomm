@@ -82,14 +82,14 @@ public class BluetoothDeviceManager {
 
     private final LinkedHashMap<String, BluetoothDevice> mConnectedDevicesByAddress =
             new LinkedHashMap<>();
-    private final TelecomSystem.SyncRoot mLock;
+
+    // This lock only protects internal state -- it doesn't lock on anything going into Telecom.
+    private final Object mLock = new Object();
 
     private BluetoothRouteManager mBluetoothRouteManager;
     private BluetoothHeadsetProxy mBluetoothHeadsetService;
 
-    public BluetoothDeviceManager(Context context, BluetoothAdapterProxy bluetoothAdapter,
-            TelecomSystem.SyncRoot lock) {
-        mLock = lock;
+    public BluetoothDeviceManager(Context context, BluetoothAdapterProxy bluetoothAdapter) {
 
         if (bluetoothAdapter != null) {
             bluetoothAdapter.getProfileProxy(context, mBluetoothProfileServiceListener,
