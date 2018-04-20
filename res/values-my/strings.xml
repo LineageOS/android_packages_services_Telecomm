@@ -18,7 +18,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="telecommAppLabel" product="default" msgid="382363169988504520">"ခေါ်ဆိုမှုစီမံခန့်ခွဲရေး"</string>
     <string name="userCallActivityLabel" product="default" msgid="5415173590855187131">"ဖုန်း"</string>
-    <string name="unknown" msgid="6878797917991465859">"အကြောင်းအရာ မသိရှိ"</string>
+    <string name="unknown" msgid="6878797917991465859">"မသိပါ"</string>
     <string name="notification_missedCallTitle" msgid="7554385905572364535">"လွဲသွားသော ဖုန်းခေါ်မှု"</string>
     <string name="notification_missedWorkCallTitle" msgid="6242489980390803090">"လွတ်သွားသည့် အလုပ်ဆိုင်ရာ ခ​ေါ်ဆိုမှု"</string>
     <string name="notification_missedCallsTitle" msgid="1361677948941502522">"လွဲသွားသော ဖုန်းခေါ်မှုများ"</string>
