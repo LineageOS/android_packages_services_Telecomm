@@ -98,6 +98,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -402,6 +403,15 @@ public class TelecomSystemTest extends TelecomTestCase {
     }
 
     private void setupTelecomSystem() throws Exception {
+        // Remove any cached PhoneAccount xml
+        File phoneAccountFile =
+                new File(mComponentContextFixture.getTestDouble()
+                        .getApplicationContext().getFilesDir(),
+                        PhoneAccountRegistrar.FILE_NAME);
+        if (phoneAccountFile.exists()) {
+            phoneAccountFile.delete();
+        }
+
         // Use actual implementations instead of mocking the interface out.
         HeadsetMediaButtonFactory headsetMediaButtonFactory =
                 spy(new HeadsetMediaButtonFactoryF());

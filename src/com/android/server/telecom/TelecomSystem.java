@@ -229,7 +229,7 @@ public class TelecomSystem {
                     }
                 });
         BluetoothDeviceManager bluetoothDeviceManager = new BluetoothDeviceManager(mContext,
-                new BluetoothAdapterProxy(), mLock);
+                new BluetoothAdapterProxy());
         BluetoothRouteManager bluetoothRouteManager = new BluetoothRouteManager(mContext, mLock,
                 bluetoothDeviceManager, new Timeouts.Adapter());
         BluetoothStateReceiver bluetoothStateReceiver = new BluetoothStateReceiver(

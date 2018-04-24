@@ -68,8 +68,7 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
         device3 = makeBluetoothDevice("00:00:00:00:00:03");
 
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
-        mBluetoothDeviceManager = new BluetoothDeviceManager(mContext, mAdapterProxy,
-                new TelecomSystem.SyncRoot() { });
+        mBluetoothDeviceManager = new BluetoothDeviceManager(mContext, mAdapterProxy);
         mBluetoothDeviceManager.setBluetoothRouteManager(mRouteManager);
 
         ArgumentCaptor<BluetoothProfile.ServiceListener> serviceCaptor =

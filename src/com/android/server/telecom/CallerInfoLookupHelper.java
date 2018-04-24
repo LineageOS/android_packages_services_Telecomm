@@ -117,7 +117,7 @@ public class CallerInfoLookupHelper {
             }
         }
 
-        mHandler.post(new Runnable("CILH.sL", mLock) {
+        mHandler.post(new Runnable("CILH.sL", null) {
             @Override
             public void loggedRun() {
                 Session continuedSession = Log.createSubsession();
@@ -171,7 +171,7 @@ public class CallerInfoLookupHelper {
     }
 
     private void startPhotoLookup(final Uri handle, final Uri contactPhotoUri) {
-        mHandler.post(new Runnable("CILH.sPL", mLock) {
+        mHandler.post(new Runnable("CILH.sPL", null) {
             @Override
             public void loggedRun() {
                 Session continuedSession = Log.createSubsession();

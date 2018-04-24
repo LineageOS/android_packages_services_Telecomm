@@ -30,10 +30,15 @@ import com.android.internal.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class ConnectionServiceFocusManager {
     private static final String TAG = "ConnectionSvrFocusMgr";
+    private static final int GET_CURRENT_FOCUS_TIMEOUT_MILLIS = 1000;
 
     /** Factory interface used to create the {@link ConnectionServiceFocusManager} instance. */
     public interface ConnectionServiceFocusManagerFactory {
@@ -298,8 +303,32 @@ public class ConnectionServiceFocusManager {
      * call is the current connection service focus. Also the state of the focus call must be one
      * of {@link #PRIORITY_FOCUS_CALL_STATE}.
      */
-    public CallFocus getCurrentFocusCall() {
-        return mCurrentFocusCall;
+    public @Nullable CallFocus getCurrentFocusCall() {
+        if (mEventHandler.getLooper().isCurrentThread()) {
+            // return synchronously if we're on the same thread.
+            return mCurrentFocusCall;
+        }
+        final BlockingQueue<Optional<CallFocus>> currentFocusedCallQueue =
+                new LinkedBlockingQueue<>(1);
+        mEventHandler.post(() -> {
+            currentFocusedCallQueue.offer(
+                    mCurrentFocusCall == null ? Optional.empty() : Optional.of(mCurrentFocusCall));
+        });
+        try {
+            Optional<CallFocus> syncCallFocus = currentFocusedCallQueue.poll(
+                    GET_CURRENT_FOCUS_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+            if (syncCallFocus != null) {
+                return syncCallFocus.orElse(null);
+            } else {
+                Log.w(TAG, "Timed out waiting for synchronous current focus. Returning possibly"
+                        + " inaccurate result");
+                return mCurrentFocusCall;
+            }
+        } catch (InterruptedException e) {
+            Log.w(TAG, "Interrupted when waiting for synchronous current focus."
+                    + " Returning possibly inaccurate result.");
+            return mCurrentFocusCall;
+        }
     }
 
     /** Returns the current connection service focus. */
