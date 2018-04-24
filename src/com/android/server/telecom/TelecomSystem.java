@@ -195,6 +195,7 @@ public class TelecomSystem {
             PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
             IncomingCallNotifier incomingCallNotifier,
             InCallTonePlayer.ToneGeneratorFactory toneGeneratorFactory,
+            CallAudioRouteStateMachine.Factory callAudioRouteStateMachineFactory,
             ClockProxy clockProxy) {
         mContext = context.getApplicationContext();
         LogUtils.initLogging(mContext);
@@ -279,7 +280,7 @@ public class TelecomSystem {
                 toneGeneratorFactory,
                 clockProxy,
                 bluetoothStateReceiver,
-                new CallAudioRouteStateMachine.Factory(),
+                callAudioRouteStateMachineFactory,
                 new CallAudioModeStateMachine.Factory(),
                 inCallControllerFactory);
 
