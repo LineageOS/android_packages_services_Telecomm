@@ -19,6 +19,7 @@ package com.android.server.telecom;
 import android.annotation.Nullable;
 import android.content.ComponentName;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.telecom.Log;
@@ -42,7 +43,7 @@ public class ConnectionServiceFocusManager {
 
     /** Factory interface used to create the {@link ConnectionServiceFocusManager} instance. */
     public interface ConnectionServiceFocusManagerFactory {
-        ConnectionServiceFocusManager create(CallsManagerRequester requester, Looper looper);
+        ConnectionServiceFocusManager create(CallsManagerRequester requester);
     }
 
     /**
@@ -276,10 +277,12 @@ public class ConnectionServiceFocusManager {
     private FocusManagerHandler mEventHandler;
 
     public ConnectionServiceFocusManager(
-            CallsManagerRequester callsManagerRequester, Looper looper) {
+            CallsManagerRequester callsManagerRequester) {
         mCallsManagerRequester = callsManagerRequester;
         mCallsManagerRequester.setCallsManagerListener(mCallsManagerListener);
-        mEventHandler = new FocusManagerHandler(looper);
+        HandlerThread handlerThread = new HandlerThread(TAG);
+        handlerThread.start();
+        mEventHandler = new FocusManagerHandler(handlerThread.getLooper());
         mCalls = new ArrayList<>();
     }
 
