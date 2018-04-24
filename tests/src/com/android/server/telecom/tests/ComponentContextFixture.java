@@ -190,6 +190,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
         public String getSystemServiceName(Class<?> svcClass) {
             if (svcClass == UserManager.class) {
                 return Context.USER_SERVICE;
+            } else if (svcClass == AudioManager.class) {
+                return Context.AUDIO_SERVICE;
             }
             throw new UnsupportedOperationException();
         }
