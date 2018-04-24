@@ -972,6 +972,8 @@ public class TelecomSystemTest extends TelecomTestCase {
 
             mInCallServiceFixtureX.mInCallAdapter
                     .answerCall(ids.mCallId, videoState);
+            // Wait on the main looper (due to the CS focus manager)
+            waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
 
             if (!VideoProfile.isVideo(videoState)) {
                 verify(connectionServiceFixture.getTestDouble(), timeout(TEST_TIMEOUT))
