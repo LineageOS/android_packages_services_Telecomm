@@ -3795,7 +3795,7 @@ public class CallsManager extends Call.ListenerBase
         call.startCreateConnection(mPhoneAccountRegistrar);
     }
 
-    ConnectionServiceFocusManager getConnectionServiceFocusManager() {
+    public ConnectionServiceFocusManager getConnectionServiceFocusManager() {
         return mConnectionSvrFocusMgr;
     }
 
