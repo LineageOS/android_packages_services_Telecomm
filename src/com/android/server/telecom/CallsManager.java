@@ -1469,8 +1469,21 @@ public class CallsManager extends Call.ListenerBase
             Call activeCall = (Call) mConnectionSvrFocusMgr.getCurrentFocusCall();
             Log.d(this, "Incoming call = %s Ongoing call %s", call, activeCall);
             if (activeCall != null && activeCall != call) {
-                // Hold the telephony call even if it doesn't have the hold capability.
-                if (canHold(activeCall)) {
+                // We purposely don't check if the active call CAN current hold, but rather we check
+                // whether it CAN support hold.  Consider this scenario:
+                // Call A - Active (CAPABILITY_SUPPORT_HOLD, but not CAPABILITY_HOLD)
+                // Call B - Held (CAPABILITY_SUPPORT_HOLD, but not CAPABILITY_HOLD)
+                // Call C - Incoming call
+                // In this scenario we are going to first disconnect the held call (Call B), which
+                // will mean that the active call (Call A) will now support hold.
+                if (supportsHold(activeCall)) {
+                    Call heldCall = getHeldCall();
+                    if (heldCall != null) {
+                        Log.i(this, "Disconnecting held call %s before holding active call.",
+                                heldCall);
+                        heldCall.disconnect();
+                    }
+
                     Log.d(this, "Answer %s, hold %s", call, activeCall);
                     activeCall.hold();
                 } else {
@@ -3773,6 +3786,10 @@ public class CallsManager extends Call.ListenerBase
 
     private boolean canHold(Call call) {
         return call.can(Connection.CAPABILITY_HOLD);
+    }
+
+    private boolean supportsHold(Call call) {
+        return call.can(Connection.CAPABILITY_SUPPORT_HOLD);
     }
 
     private final class ActionSetCallState implements PendingAction {
