@@ -771,14 +771,16 @@ public class TelecomSystemTest extends TelecomTestCase {
             ConnectionServiceFixture connectionServiceFixture) throws Exception {
 
         // Wait for the focus tracker.
-        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
+        waitForHandlerAction(mTelecomSystem.getCallsManager()
+                .getConnectionServiceFocusManager().getHandler(), TEST_TIMEOUT);
 
         verify(connectionServiceFixture.getTestDouble())
                 .createConnection(eq(phoneAccountHandle), anyString(), any(ConnectionRequest.class),
                         eq(false)/*isIncoming*/, anyBoolean(), any());
         // Wait for handleCreateConnectionComplete
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
-        assertEquals(startingNumConnections + 1, connectionServiceFixture.mConnectionById.size());
+        assertEquals(startingNumConnections + 1,
+                connectionServiceFixture.mConnectionById.size());
 
         // Wait for the callback in ConnectionService#onAdapterAttached to execute.
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
