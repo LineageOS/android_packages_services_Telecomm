@@ -69,6 +69,7 @@ import com.android.internal.telecom.IInCallAdapter;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.BluetoothPhoneServiceImpl;
 import com.android.server.telecom.CallAudioManager;
+import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.CallsManagerListenerBase;
@@ -85,8 +86,11 @@ import com.android.server.telecom.PhoneNumberUtilsAdapter;
 import com.android.server.telecom.PhoneNumberUtilsAdapterImpl;
 import com.android.server.telecom.ProximitySensorManager;
 import com.android.server.telecom.ProximitySensorManagerFactory;
+import com.android.server.telecom.StatusBarNotifier;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
+import com.android.server.telecom.WiredHeadsetManager;
+import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.MissedCallNotifierImpl.MissedCallNotifierImplFactory;
@@ -432,45 +436,39 @@ public class TelecomSystemTest extends TelecomTestCase {
         when(mClockProxy.elapsedRealtime()).thenReturn(TEST_CREATE_ELAPSED_TIME);
         mTelecomSystem = new TelecomSystem(
                 mComponentContextFixture.getTestDouble(),
-                new MissedCallNotifierImplFactory() {
-                    @Override
-                    public MissedCallNotifier makeMissedCallNotifierImpl(Context context,
-                            PhoneAccountRegistrar phoneAccountRegistrar,
-                            DefaultDialerCache defaultDialerCache) {
-                        return mMissedCallNotifier;
-                    }
-                },
+                (context, phoneAccountRegistrar, defaultDialerCache) -> mMissedCallNotifier,
                 mCallerInfoAsyncQueryFactoryFixture.getTestDouble(),
                 headsetMediaButtonFactory,
                 proximitySensorManagerFactory,
                 inCallWakeLockControllerFactory,
-                new CallAudioManager.AudioServiceFactory() {
-                    @Override
-                    public IAudioService getAudioService() {
-                        return mAudioService;
-                    }
-                },
-                new BluetoothPhoneServiceImpl.BluetoothPhoneServiceImplFactory() {
-                    @Override
-                    public BluetoothPhoneServiceImpl makeBluetoothPhoneServiceImpl(Context context,
-                            TelecomSystem.SyncRoot lock, CallsManager callsManager,
-                            PhoneAccountRegistrar phoneAccountRegistrar) {
-                        return mBluetoothPhoneServiceImpl;
-                    }
-                },
-                new ConnectionServiceFocusManager.ConnectionServiceFocusManagerFactory() {
-                    @Override
-                    public ConnectionServiceFocusManager create(
-                            ConnectionServiceFocusManager.CallsManagerRequester requester,
-                            Looper looper) {
-                        return new ConnectionServiceFocusManager(requester, looper);
-                    }
-                },
+                () -> mAudioService,
+                (context, lock, callsManager, phoneAccountRegistrar) -> mBluetoothPhoneServiceImpl,
+                ConnectionServiceFocusManager::new,
                 mTimeoutsAdapter,
                 mAsyncRingtonePlayer,
                 mPhoneNumberUtilsAdapter,
                 mIncomingCallNotifier,
                 (streamType, volume) -> mock(ToneGenerator.class),
+                new CallAudioRouteStateMachine.Factory() {
+                    @Override
+                    public CallAudioRouteStateMachine create(
+                            Context context,
+                            CallsManager callsManager,
+                            BluetoothRouteManager bluetoothManager,
+                            WiredHeadsetManager wiredHeadsetManager,
+                            StatusBarNotifier statusBarNotifier,
+                            CallAudioManager.AudioServiceFactory audioServiceFactory,
+                            int earpieceControl) {
+                        return new CallAudioRouteStateMachine(context,
+                                callsManager,
+                                bluetoothManager,
+                                wiredHeadsetManager,
+                                statusBarNotifier,
+                                audioServiceFactory,
+                                // Force enable an earpiece for the end-to-end tests
+                                CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED);
+                    }
+                },
                 mClockProxy);
 
         mComponentContextFixture.setTelecomManager(new TelecomManager(
@@ -773,14 +771,16 @@ public class TelecomSystemTest extends TelecomTestCase {
             ConnectionServiceFixture connectionServiceFixture) throws Exception {
 
         // Wait for the focus tracker.
-        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
+        waitForHandlerAction(mTelecomSystem.getCallsManager()
+                .getConnectionServiceFocusManager().getHandler(), TEST_TIMEOUT);
 
         verify(connectionServiceFixture.getTestDouble())
                 .createConnection(eq(phoneAccountHandle), anyString(), any(ConnectionRequest.class),
                         eq(false)/*isIncoming*/, anyBoolean(), any());
         // Wait for handleCreateConnectionComplete
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
-        assertEquals(startingNumConnections + 1, connectionServiceFixture.mConnectionById.size());
+        assertEquals(startingNumConnections + 1,
+                connectionServiceFixture.mConnectionById.size());
 
         // Wait for the callback in ConnectionService#onAdapterAttached to execute.
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);

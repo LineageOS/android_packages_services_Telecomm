@@ -426,8 +426,7 @@ public class CallsManager extends Call.ListenerBase
                 playerFactory, mRinger, new RingbackPlayer(playerFactory),
                 bluetoothStateReceiver, mDtmfLocalTonePlayer);
 
-        mConnectionSvrFocusMgr = connectionServiceFocusManagerFactory.create(
-                mRequester, Looper.getMainLooper());
+        mConnectionSvrFocusMgr = connectionServiceFocusManagerFactory.create(mRequester);
         mHeadsetMediaButton = headsetMediaButtonFactory.create(context, this, mLock);
         mTtyManager = new TtyManager(context, mWiredHeadsetManager);
         mProximitySensorManager = proximitySensorManagerFactory.create(context, this);
@@ -3796,7 +3795,7 @@ public class CallsManager extends Call.ListenerBase
         call.startCreateConnection(mPhoneAccountRegistrar);
     }
 
-    ConnectionServiceFocusManager getConnectionServiceFocusManager() {
+    public ConnectionServiceFocusManager getConnectionServiceFocusManager() {
         return mConnectionSvrFocusMgr;
     }
 
