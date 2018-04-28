@@ -964,10 +964,7 @@ public class CallsManager extends Call.ListenerBase
         if (isRttSettingOn() ||
                 extras.getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false)) {
             Log.i(this, "Incoming call requesting RTT, rtt setting is %b", isRttSettingOn());
-            if (phoneAccount != null &&
-                    phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_RTT)) {
-                call.createRttStreams();
-            }
+            call.createRttStreams();
             // Even if the phone account doesn't support RTT yet, the connection manager might
             // change that. Set this to check it later.
             call.setRequestedToStartWithRtt();
