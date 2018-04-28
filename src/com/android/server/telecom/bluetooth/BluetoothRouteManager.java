@@ -17,11 +17,7 @@
 package com.android.server.telecom.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothHeadset;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Message;
 import android.telecom.Log;
 import android.telecom.Logging.Session;
@@ -712,7 +708,19 @@ public class BluetoothRouteManager extends StateMachine {
             Log.w(this, "Trying to connect audio but no headset service exists.");
             return false;
         }
-        return bluetoothHeadset.connectAudio(address);
+        BluetoothDevice device = mDeviceManager.getDeviceFromAddress(address);
+        if (device == null) {
+            Log.w(this, "Attempting to turn on audio for a disconnected device");
+            return false;
+        }
+        if (!bluetoothHeadset.setActiveDevice(device)) {
+            Log.w(LOG_TAG, "Couldn't set active device to %s", address);
+            return false;
+        }
+        if (!bluetoothHeadset.isAudioOn()) {
+            return bluetoothHeadset.connectAudio();
+        }
+        return true;
     }
 
     private void disconnectAudio() {

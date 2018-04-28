@@ -789,7 +789,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case BT_AUDIO_CONNECTED:
-                    // Nothing to do
+                    // Update the in-call app on the new active BT device in case that changed.
+                    updateSystemAudioState();
                     return HANDLED;
                 case SWITCH_BLUETOOTH:
                 case USER_SWITCH_BLUETOOTH:
