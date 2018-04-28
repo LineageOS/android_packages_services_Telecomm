@@ -778,6 +778,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     // Send ringer mode change because we transit to ActiveBluetoothState even
                     // when HFP is connecting
                     mCallAudioManager.onRingerModeChange();
+                    // Update the in-call app on the new active BT device in case that changed.
+                    updateSystemAudioState();
                     return HANDLED;
                 case SWITCH_BLUETOOTH:
                 case USER_SWITCH_BLUETOOTH:
