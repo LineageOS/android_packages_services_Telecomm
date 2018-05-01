@@ -16,11 +16,16 @@
 
 package com.android.server.telecom.testapps;
 
+import static android.media.AudioAttributes.CONTENT_TYPE_SPEECH;
+import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
+
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -582,8 +587,16 @@ public class TestConnectionService extends ConnectionService {
     }
 
     private MediaPlayer createMediaPlayer() {
+        AudioAttributes attributes = new AudioAttributes.Builder()
+                .setUsage(USAGE_VOICE_COMMUNICATION)
+                .setContentType(CONTENT_TYPE_SPEECH)
+                .build();
+
+        final int audioSessionId = ((AudioManager) getSystemService(
+                Context.AUDIO_SERVICE)).generateAudioSessionId();
         // Prepare the media player to play a tone when there is a call.
-        MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.beep_boop);
+        MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.beep_boop, attributes,
+                audioSessionId);
         mediaPlayer.setLooping(true);
         return mediaPlayer;
     }
