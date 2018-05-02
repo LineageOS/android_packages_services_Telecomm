@@ -41,6 +41,7 @@ import java.util.Objects;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -73,7 +74,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         setupConnectedDevices(new BluetoothDevice[]{DEVICE1}, null);
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
                 nullable(ContentResolver.class))).thenReturn(0L);
-        when(mHeadsetProxy.connectAudio(nullable(String.class))).thenReturn(false);
+        when(mHeadsetProxy.connectAudio()).thenReturn(false);
         executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, null);
         // Wait 3 times: for the first connection attempt, the retry attempt,
         // the second retry, and once more to make sure there are only three attempts.
@@ -81,7 +82,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
-        verify(mHeadsetProxy, times(3)).connectAudio(DEVICE1.getAddress());
+        verifyConnectionAttempt(DEVICE1, 3);
         assertEquals(BluetoothRouteManager.AUDIO_OFF_STATE_NAME, sm.getCurrentState().getName());
         sm.getHandler().removeMessages(BluetoothRouteManager.CONNECTION_TIMEOUT);
         sm.quitNow();
@@ -95,7 +96,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         setupConnectedDevices(new BluetoothDevice[]{DEVICE1, DEVICE2}, null);
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
                 nullable(ContentResolver.class))).thenReturn(0L);
-        when(mHeadsetProxy.connectAudio(nullable(String.class))).thenReturn(false);
+        when(mHeadsetProxy.connectAudio()).thenReturn(false);
         executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, DEVICE2.getAddress());
         // Wait 3 times: the first connection attempt is accounted for in executeRoutingAction,
         // so wait twice for the retry attempt, again to make sure there are only three attempts,
@@ -104,7 +105,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
-        verify(mHeadsetProxy, times(3)).connectAudio(DEVICE2.getAddress());
+        verifyConnectionAttempt(DEVICE2, 3);
         assertEquals(BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX
                         + ":" + DEVICE1.getAddress(),
                 sm.getCurrentState().getName());
@@ -122,13 +123,13 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
                 BluetoothRouteManager.AUDIO_OFF_STATE_NAME, null);
         setupConnectedDevices(new BluetoothDevice[]{DEVICE3, DEVICE2, DEVICE1}, null);
         executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, DEVICE1.getAddress());
-        verify(mHeadsetProxy, times(1)).connectAudio(DEVICE1.getAddress());
+        verifyConnectionAttempt(DEVICE1, 1);
 
         setupConnectedDevices(new BluetoothDevice[]{DEVICE3, DEVICE2, DEVICE1}, DEVICE1);
         executeRoutingAction(sm, BluetoothRouteManager.HFP_IS_ON, DEVICE1.getAddress());
 
         executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, DEVICE2.getAddress());
-        verify(mHeadsetProxy, times(1)).connectAudio(DEVICE2.getAddress());
+        verifyConnectionAttempt(DEVICE2, 1);
 
         setupConnectedDevices(new BluetoothDevice[]{DEVICE3, DEVICE2, DEVICE1}, DEVICE2);
         executeRoutingAction(sm, BluetoothRouteManager.HFP_IS_ON, DEVICE2.getAddress());
@@ -136,7 +137,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         setupConnectedDevices(new BluetoothDevice[]{DEVICE3, DEVICE1}, null);
         executeRoutingAction(sm, BluetoothRouteManager.LOST_DEVICE, DEVICE2.getAddress());
         // Verify that we've fallen back to device 1
-        verify(mHeadsetProxy, times(2)).connectAudio(DEVICE1.getAddress());
+        verifyConnectionAttempt(DEVICE1, 2);
         assertEquals(BluetoothRouteManager.AUDIO_CONNECTING_STATE_NAME_PREFIX
                         + ":" + DEVICE1.getAddress(),
                 sm.getCurrentState().getName());
@@ -150,7 +151,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         setupConnectedDevices(new BluetoothDevice[]{DEVICE3}, null);
         executeRoutingAction(sm, BluetoothRouteManager.LOST_DEVICE, DEVICE1.getAddress());
         // Verify that we've fallen back to device 3
-        verify(mHeadsetProxy, times(1)).connectAudio(DEVICE3.getAddress());
+        verifyConnectionAttempt(DEVICE3, 1);
         assertEquals(BluetoothRouteManager.AUDIO_CONNECTING_STATE_NAME_PREFIX
                         + ":" + DEVICE3.getAddress(),
                 sm.getCurrentState().getName());
@@ -174,7 +175,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
                 BluetoothRouteManager.AUDIO_OFF_STATE_NAME, null);
         setupConnectedDevices(new BluetoothDevice[]{DEVICE3, DEVICE2, DEVICE1}, null);
         executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, DEVICE3.getAddress());
-        verify(mHeadsetProxy, times(1)).connectAudio(DEVICE3.getAddress());
+        verifyConnectionAttempt(DEVICE3, 1);
 
         setupConnectedDevices(new BluetoothDevice[]{DEVICE3, DEVICE2, DEVICE1}, DEVICE3);
         executeRoutingAction(sm, BluetoothRouteManager.HFP_IS_ON, DEVICE3.getAddress());
@@ -183,7 +184,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         setupConnectedDevices(new BluetoothDevice[]{DEVICE2, DEVICE1}, null);
         executeRoutingAction(sm, BluetoothRouteManager.LOST_DEVICE, DEVICE3.getAddress());
         // Verify that we've fallen back to device 2
-        verify(mHeadsetProxy, times(1)).connectAudio(DEVICE2.getAddress());
+        verifyConnectionAttempt(DEVICE2, 1);
         assertEquals(BluetoothRouteManager.AUDIO_CONNECTING_STATE_NAME_PREFIX
                         + ":" + DEVICE2.getAddress(),
                 sm.getCurrentState().getName());
@@ -197,7 +198,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         setupConnectedDevices(new BluetoothDevice[]{DEVICE1}, null);
         executeRoutingAction(sm, BluetoothRouteManager.LOST_DEVICE, DEVICE2.getAddress());
         // Verify that we've fallen back to device 1
-        verify(mHeadsetProxy, times(1)).connectAudio(DEVICE1.getAddress());
+        verifyConnectionAttempt(DEVICE1, 1);
         assertEquals(BluetoothRouteManager.AUDIO_CONNECTING_STATE_NAME_PREFIX
                         + ":" + DEVICE1.getAddress(),
                 sm.getCurrentState().getName());
@@ -235,6 +236,9 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
                     (String) invocation.getArguments()[0]);
             return first == null ? null : first.getAddress();
         }).when(mDeviceManager).getMostRecentlyConnectedDevice(nullable(String.class));
+        for (BluetoothDevice device : devices) {
+            when(mDeviceManager.getDeviceFromAddress(device.getAddress())).thenReturn(device);
+        }
     }
 
     static void executeRoutingAction(BluetoothRouteManager brm, int message, String
@@ -258,11 +262,17 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
     private void resetMocks() {
         reset(mDeviceManager, mListener, mHeadsetProxy, mTimeoutsAdapter);
         when(mDeviceManager.getHeadsetService()).thenReturn(mHeadsetProxy);
-        when(mHeadsetProxy.connectAudio(nullable(String.class))).thenReturn(true);
+        when(mHeadsetProxy.connectAudio()).thenReturn(true);
+        when(mHeadsetProxy.setActiveDevice(nullable(BluetoothDevice.class))).thenReturn(true);
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
                 nullable(ContentResolver.class))).thenReturn(100000L);
         when(mTimeoutsAdapter.getBluetoothPendingTimeoutMillis(
                 nullable(ContentResolver.class))).thenReturn(100000L);
+    }
+
+    private void verifyConnectionAttempt(BluetoothDevice device, int numTimes) {
+        verify(mHeadsetProxy, times(numTimes)).setActiveDevice(device);
+        verify(mHeadsetProxy, atLeast(numTimes)).connectAudio();
     }
 
     private static BluetoothDevice getFirstExcluding(
