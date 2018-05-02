@@ -60,9 +60,16 @@ public class BluetoothHeadsetProxy {
         return mBluetoothHeadset.isAudioConnected(device);
     }
 
-    public boolean connectAudio(String deviceAddress) {
-        // TODO: update once the BT stack has this api.
+    public boolean connectAudio() {
         return mBluetoothHeadset.connectAudio();
+    }
+
+    public boolean setActiveDevice(BluetoothDevice device) {
+        return mBluetoothHeadset.setActiveDevice(device);
+    }
+
+    public boolean isAudioOn() {
+        return mBluetoothHeadset.isAudioOn();
     }
 
     public boolean disconnectAudio() {
