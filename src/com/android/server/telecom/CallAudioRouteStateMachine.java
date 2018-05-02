@@ -30,7 +30,6 @@ import android.media.IAudioService;
 import android.os.Binder;
 import android.os.Message;
 import android.os.RemoteException;
-import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.telecom.CallAudioState;
 import android.telecom.Log;
