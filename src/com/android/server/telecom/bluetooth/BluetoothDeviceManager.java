@@ -129,6 +129,10 @@ public class BluetoothDeviceManager {
         mBluetoothHeadsetService = bluetoothHeadset;
     }
 
+    public BluetoothDevice getDeviceFromAddress(String address) {
+        return mConnectedDevicesByAddress.get(address);
+    }
+
     void onDeviceConnected(BluetoothDevice device) {
         synchronized (mLock) {
             if (!mConnectedDevicesByAddress.containsKey(device.getAddress())) {
