@@ -30,7 +30,6 @@ import android.media.IAudioService;
 import android.os.Binder;
 import android.os.Message;
 import android.os.RemoteException;
-import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.telecom.CallAudioState;
 import android.telecom.Log;
@@ -789,7 +788,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case BT_AUDIO_CONNECTED:
-                    // Nothing to do
+                    // Update the in-call app on the new active BT device in case that changed.
+                    updateSystemAudioState();
                     return HANDLED;
                 case SWITCH_BLUETOOTH:
                 case USER_SWITCH_BLUETOOTH:
