@@ -59,7 +59,7 @@
     <string name="block_button" msgid="8822290682524373357">"Vimba"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Umnikazi wedivayisi kuphela ongabuka aphinde aphathe izinombolo ezivinjelwe."</string>
     <string name="delete_icon_description" msgid="8903995728252556724">"Vulela"</string>
-    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Ukuvimble kuvaliwe okwesikhashana"</string>
+    <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Ukuvimbela kuvaliwe okwesikhashana"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Ngemuva kokudayela noma ubhalele inombolo yesimo esiphuthumayo, ukuvimbela kuvaliwe ukuqinisekisa amasevisi esimo esiphuthumayo angakwazi ukuxhumana nawe."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Nika amandla manje"</string>
     <string name="blocked_numbers_number_blocked_message" msgid="7678509606805029540">"I-<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> ivinjiwe"</string>
