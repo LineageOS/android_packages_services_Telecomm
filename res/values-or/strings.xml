@@ -45,14 +45,10 @@
     <string name="no_vm_number" msgid="4164780423805688336">"ହଜିଯାଇଥିବା ଭଏସମେଲ୍ ନମ୍ବର୍"</string>
     <string name="no_vm_number_msg" msgid="1300729501030053828">"SIM କାର୍ଡରେ କୌଣସି ଭଏସମେଲ୍ ନମ୍ବର୍ ଷ୍ଟୋର୍ କରାଯାଇନାହିଁ।"</string>
     <string name="add_vm_number_str" msgid="4676479471644687453">"ନମ୍ବର୍ ଯୋଡ଼ନ୍ତୁ"</string>
-    <!-- no translation found for change_default_dialer_dialog_title (9101655962941740507) -->
-    <skip />
-    <!-- no translation found for change_default_dialer_dialog_affirmative (8606546663509166276) -->
-    <skip />
-    <!-- no translation found for change_default_dialer_dialog_negative (9078144617060173845) -->
-    <skip />
-    <!-- no translation found for change_default_dialer_warning_message (1417671460801684999) -->
-    <skip />
+    <string name="change_default_dialer_dialog_title" msgid="9101655962941740507">"<xliff:g id="NEW_APP">%s</xliff:g>କୁ ଆପଣଙ୍କ ଫୋନ୍‌ର ଡିଫଲ୍ଟ ଆପ୍ କରିବେ?"</string>
+    <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"ଡିଫଲ୍ଟ ସେଟ୍ କରନ୍ତୁ"</string>
+    <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"କ୍ୟାନ୍ସଲ୍‍ କରନ୍ତୁ"</string>
+    <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> କଲ୍ କରିବା ଏବଂ କଲ୍‌ର ସମସ୍ତ ଦିଗକୁ ନିୟନ୍ତ୍ରଣ କରିବାରେ ସକ୍ଷମ ହେବ। କେବଳ ନିଜର ଭରସାଯୋଗ୍ୟ ଆପ୍‌କୁ ଡିଫଲ୍ଟ ଫୋନ୍ ଆପ୍ ଭାବେ ସେଟ୍ କରିବା ଉଚିତ୍।"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"ଅବରୋଧ କରାଯାଇଥିବା ନମ୍ବର୍"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"ଅବରୋଧ କରାଯାଇଥିବା ନମ୍ବର୍‌ରୁ ଆପଣ କଲ୍ କିମ୍ବା ଟେକ୍ସଟ୍ ଗ୍ରହଣ କରିପାରିବେ ନାହିଁ।"</string>
     <string name="block_number" msgid="1101252256321306179">"ଗୋଟିଏ ନମ୍ବର୍ ଯୋଡ଼ନ୍ତୁ"</string>
@@ -71,66 +67,35 @@
     <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"ଜରୁରିକାଳୀନ ନମ୍ବର୍‌କୁ ଅବରୋଧ କରିବାରେ ଅକ୍ଷମ।"</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g>କୁ ଅବରୋଧ କରାଯାଇସରିଛି।"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"କଲ୍ କରିବା ପାଇଁ ବ୍ୟକ୍ତିଗତ ଡାଏଲର୍‌କୁ ବ୍ୟବହାର କରନ୍ତୁ"</string>
-    <!-- no translation found for notification_incoming_call (7713197997773986670) -->
-    <skip />
-    <!-- no translation found for notification_incoming_video_call (6638486071698373893) -->
-    <skip />
-    <!-- no translation found for answering_ends_other_call (8282145910153766401) -->
-    <skip />
-    <!-- no translation found for answering_ends_other_calls (1198589551399049197) -->
-    <skip />
-    <!-- no translation found for answering_ends_other_video_call (8510410917384186360) -->
-    <skip />
-    <!-- no translation found for answering_ends_other_managed_call (5186137550267947785) -->
-    <skip />
-    <!-- no translation found for answering_ends_other_managed_calls (6429838309560397988) -->
-    <skip />
-    <!-- no translation found for answering_ends_other_managed_video_call (1585423762458248435) -->
-    <skip />
-    <!-- no translation found for answer_incoming_call (4140530013111794587) -->
-    <skip />
-    <!-- no translation found for decline_incoming_call (806026168661598368) -->
-    <skip />
-    <!-- no translation found for cant_call_due_to_ongoing_call (4952615196237854748) -->
-    <skip />
-    <!-- no translation found for cant_call_due_to_ongoing_calls (1380804892363503856) -->
-    <skip />
-    <!-- no translation found for cant_call_due_to_ongoing_unknown_call (149091978697302211) -->
-    <skip />
-    <!-- no translation found for notification_channel_incoming_call (3513761697082968084) -->
-    <skip />
-    <!-- no translation found for notification_channel_missed_call (8727062678632713146) -->
-    <skip />
-    <!-- no translation found for notification_channel_call_blocking (2943358779746676070) -->
-    <skip />
-    <!-- no translation found for alert_outgoing_call (982908156825958001) -->
-    <skip />
-    <!-- no translation found for phone_settings_call_blocking_txt (3976004073043846733) -->
-    <skip />
-    <!-- no translation found for phone_settings_number_not_in_contact_txt (3126829421867168652) -->
-    <skip />
-    <!-- no translation found for phone_settings_number_not_in_contact_summary_txt (9043147855140079119) -->
-    <skip />
-    <!-- no translation found for phone_settings_private_num_txt (8623574188879134262) -->
-    <skip />
-    <!-- no translation found for phone_settings_private_num_summary_txt (7516314821207782191) -->
-    <skip />
-    <!-- no translation found for phone_settings_payphone_txt (2493356957416981318) -->
-    <skip />
-    <!-- no translation found for phone_settings_payphone_summary_txt (6126709946103814653) -->
-    <skip />
-    <!-- no translation found for phone_settings_unknown_txt (5836407031508172721) -->
-    <skip />
-    <!-- no translation found for phone_settings_unknown_summary_txt (3457690230497753233) -->
-    <skip />
-    <!-- no translation found for phone_strings_call_blocking_turned_off_notification_title_txt (628536625775266096) -->
-    <skip />
-    <!-- no translation found for phone_strings_call_blocking_turned_off_notification_text_txt (6264230048947693941) -->
-    <skip />
-    <!-- no translation found for phone_strings_emergency_call_made_dialog_title_txt (7421611725400166580) -->
-    <skip />
-    <!-- no translation found for phone_strings_emergency_call_made_dialog_call_blocking_text_txt (4083285098613193052) -->
-    <skip />
-    <!-- no translation found for developer_title (1816273446906554627) -->
-    <skip />
+    <string name="notification_incoming_call" msgid="7713197997773986670">"<xliff:g id="CALL_FROM">%2$s</xliff:g> ଠାରୁ <xliff:g id="CALL_VIA">%1$s</xliff:g>କୁ କଲ୍ କରନ୍ତୁ"</string>
+    <string name="notification_incoming_video_call" msgid="6638486071698373893">"<xliff:g id="CALL_FROM">%2$s</xliff:g> ଠାରୁ <xliff:g id="CALL_VIA">%1$s</xliff:g> ଭିଡିଓ କଲ୍ କରନ୍ତୁ"</string>
+    <string name="answering_ends_other_call" msgid="8282145910153766401">"ଉତ୍ତର ଦେବାଦ୍ଵାରା ଆପଣଙ୍କର <xliff:g id="CALL_VIA">%1$s</xliff:g> କଲ୍ ସମାପ୍ତ ହୋ‌ଇଯିବ"</string>
+    <string name="answering_ends_other_calls" msgid="1198589551399049197">"ଉତ୍ତର ଦେବାଦ୍ଵାରା ଆପଣଙ୍କର <xliff:g id="CALL_VIA">%1$s</xliff:g> କଲ୍ ସମାପ୍ତ ହୋ‌ଇଯିବ"</string>
+    <string name="answering_ends_other_video_call" msgid="8510410917384186360">"ଉତ୍ତର ଦେବାଦ୍ଵାରା ଆପଣଙ୍କର <xliff:g id="CALL_VIA">%1$s</xliff:g> ଭିଡିଓ କଲ୍ ସମାପ୍ତ ହୋ‌ଇଯିବ"</string>
+    <string name="answering_ends_other_managed_call" msgid="5186137550267947785">"ଉତ୍ତର ଦେବାଦ୍ଵାରା ଆପଣଙ୍କର ଜାରି ରହିଥିବା କଲ୍ ସମାପ୍ତ ହୋ‌ଇଯିବ"</string>
+    <string name="answering_ends_other_managed_calls" msgid="6429838309560397988">"ଉତ୍ତର ଦେବାଦ୍ଵାରା ଆପଣଙ୍କର ଜାରି ରହିଥିବା କଲ୍ ସମାପ୍ତ ହୋ‌ଇଯିବ"</string>
+    <string name="answering_ends_other_managed_video_call" msgid="1585423762458248435">"ଉତ୍ତର ଦେବାଦ୍ଵାରା ଆପଣଙ୍କର ଜାରି ରହିଥିବା ଭିଡିଓ କଲ୍ ସମାପ୍ତ ହୋ‌ଇଯିବ"</string>
+    <string name="answer_incoming_call" msgid="4140530013111794587">"ଉତ୍ତର ଦିଅନ୍ତୁ"</string>
+    <string name="decline_incoming_call" msgid="806026168661598368">"ଅସ୍ୱୀକାର"</string>
+    <string name="cant_call_due_to_ongoing_call" msgid="4952615196237854748">"ଆପଣଙ୍କର <xliff:g id="OTHER_CALL">%1$s</xliff:g> କଲ୍ ହେତୁ କଲ୍ କରାଯାଇପାରିବ ନାହିଁ।"</string>
+    <string name="cant_call_due_to_ongoing_calls" msgid="1380804892363503856">"ଆପଣଙ୍କର <xliff:g id="OTHER_CALL">%1$s</xliff:g> କଲ୍ ହେତୁ କଲ୍ କରାଯାଇପାରିବ ନାହିଁ।"</string>
+    <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"ଅନ୍ୟ ଆପ୍‌ରେ କରାଯାଇଥିବା କଲ୍ ହେତୁ କଲ୍ କରାଯାଇପାରିବ ନାହିଁ।"</string>
+    <string name="notification_channel_incoming_call" msgid="3513761697082968084">"ଇନ୍‌କମିଙ୍ଗ କଲ୍"</string>
+    <string name="notification_channel_missed_call" msgid="8727062678632713146">"ମିସଡ୍ କଲ୍"</string>
+    <string name="notification_channel_call_blocking" msgid="2943358779746676070">"କଲ୍‌କୁ ଅବରୋଧ କରନ୍ତୁ"</string>
+    <string name="alert_outgoing_call" msgid="982908156825958001">"ଏହି କଲ୍‌କୁ ସ୍ଥାପନ କରିବା ଦ୍ଵାରା ଆପଣଙ୍କର <xliff:g id="OTHER_APP">%1$s</xliff:g> କଲ୍ ସମାପ୍ତ ହୋ‌ଇଯିବ।"</string>
+    <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"କଲ୍‌କୁ ଅବରୋଧ କରନ୍ତୁ"</string>
+    <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"ଯୋଗାଯୋଗରେ ନଥିବା ନମ୍ବର୍"</string>
+    <string name="phone_settings_number_not_in_contact_summary_txt" msgid="9043147855140079119">"ଆପଣଙ୍କ ଯୋଗାଯୋଗରେ ତାଲିକାଭୁକ୍ତ ହୋ‌ଇନଥିବା ନମ୍ବର୍‌କୁ ଅବରୋଧ କରନ୍ତୁ"</string>
+    <string name="phone_settings_private_num_txt" msgid="8623574188879134262">"ଗୋପନୀୟ"</string>
+    <string name="phone_settings_private_num_summary_txt" msgid="7516314821207782191">"ନିଜର ନମ୍ବର୍‌କୁ ପ୍ରକାଶ କରୁନଥିବା କଲ୍‌କର୍ତ୍ତାଙ୍କୁ ଅବରୋଧ କରନ୍ତୁ"</string>
+    <string name="phone_settings_payphone_txt" msgid="2493356957416981318">"ପେ-ଫୋନ୍"</string>
+    <string name="phone_settings_payphone_summary_txt" msgid="6126709946103814653">"ପେ-ଫୋନ୍‌ରୁ କଲ୍‌କୁ ଅବରୋଧ କରନ୍ତୁ"</string>
+    <string name="phone_settings_unknown_txt" msgid="5836407031508172721">"ଅଜଣା"</string>
+    <string name="phone_settings_unknown_summary_txt" msgid="3457690230497753233">"ଅଚିହ୍ନା କଲକର୍ତ୍ତାଙ୍କର କଲ୍‌କୁ ଅବରୋଧ କରନ୍ତୁ"</string>
+    <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="628536625775266096">"କଲ୍‌କୁ ଅବରୋଧ କରନ୍ତୁ"</string>
+    <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"କଲ୍ ଅବରୋଧ ସୁବିଧାକୁ ଅକ୍ଷମ କରାଯାଇଛି"</string>
+    <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"ଜରୁରିକାଳୀନ କଲ୍ କରାଗଲା"</string>
+    <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="4083285098613193052">"ଜରୁରିକାଳୀନ ସହାୟତା କର୍ମଚାରୀମାନେ ଆପଣଙ୍କୁ ଯୋଗଯୋଗ କରିବା ପାଇଁ କଲ୍ ଅବରୋଧକୁ ଅକ୍ଷମ କରାଯାଇଛି।"</string>
+    <string name="developer_title" msgid="1816273446906554627">"ଟେଲେକମ୍ ଡେଭେଲପର୍ ମେନୁ"</string>
 </resources>

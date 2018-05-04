@@ -25,7 +25,7 @@
     <string name="notification_missedCallsMsg" msgid="4575787816055205600">"<xliff:g id="NUM_MISSED_CALLS">%s</xliff:g>টি মিসড কল"</string>
     <string name="notification_missedCallTicker" msgid="504686252427747209">"<xliff:g id="MISSED_CALL_FROM">%s</xliff:g> এর থেকে মিসড কল"</string>
     <string name="notification_missedCall_call_back" msgid="2684890353590890187">"কল ব্যাক করুন"</string>
-    <string name="notification_missedCall_message" msgid="3049928912736917988">"বার্তা"</string>
+    <string name="notification_missedCall_message" msgid="3049928912736917988">"মেসেজ"</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"কল নিঃশব্দ করা আছে৷"</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"স্পীকারফোন সক্ষম করা আছে৷"</string>
     <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"এখন কথা বলতে পারছি না৷ কি খবর?"</string>

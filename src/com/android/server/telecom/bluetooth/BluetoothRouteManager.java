@@ -17,11 +17,7 @@
 package com.android.server.telecom.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothHeadset;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Message;
 import android.telecom.Log;
 import android.telecom.Logging.Session;
@@ -36,7 +32,9 @@ import com.android.server.telecom.BluetoothHeadsetProxy;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -567,7 +565,7 @@ public class BluetoothRouteManager extends StateMachine {
         sendMessage(NEW_DEVICE_CONNECTED, args);
 
         mListener.onBluetoothDeviceListChanged();
-        if (getConnectedDevices().size() == 1) {
+        if (mDeviceManager.getConnectedDevices().size() == 1) {
             mListener.onBluetoothDeviceAvailable();
         }
     }
@@ -579,13 +577,14 @@ public class BluetoothRouteManager extends StateMachine {
         sendMessage(LOST_DEVICE, args);
 
         mListener.onBluetoothDeviceListChanged();
-        if (getConnectedDevices().size() == 0) {
+        if (mDeviceManager.getConnectedDevices().size() == 0) {
             mListener.onBluetoothDeviceUnavailable();
         }
     }
 
     public Collection<BluetoothDevice> getConnectedDevices() {
-        return mDeviceManager.getConnectedDevices();
+        return Collections.unmodifiableCollection(
+                new ArrayList<>(mDeviceManager.getConnectedDevices()));
     }
 
     private String connectHfpAudio(String address) {
@@ -712,7 +711,20 @@ public class BluetoothRouteManager extends StateMachine {
             Log.w(this, "Trying to connect audio but no headset service exists.");
             return false;
         }
-        return bluetoothHeadset.connectAudio(address);
+        BluetoothDevice device = mDeviceManager.getDeviceFromAddress(address);
+        if (device == null) {
+            Log.w(this, "Attempting to turn on audio for a disconnected device");
+            return false;
+        }
+        boolean success = bluetoothHeadset.setActiveDevice(device);
+        if (!success) {
+            Log.w(LOG_TAG, "Couldn't set active device to %s", address);
+            return false;
+        }
+        if (!bluetoothHeadset.isAudioOn()) {
+            return bluetoothHeadset.connectAudio();
+        }
+        return true;
     }
 
     private void disconnectAudio() {
