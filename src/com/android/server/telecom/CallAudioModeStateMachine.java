@@ -295,14 +295,16 @@ public class CallAudioModeStateMachine extends StateMachine {
             boolean setMsimAudioParams = SystemProperties
                     .getBoolean("ro.multisim.set_audio_params", false);
             Call call = mCallAudioManager.getForegroundCall();
+            TelephonyManager tm = TelephonyManager.getDefault();
 
             mAudioManager.requestAudioFocusForCall(AudioManager.STREAM_VOICE_CALL,
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
 
-            if (call != null && call.getTargetPhoneAccount() != null && setMsimAudioParams) {
+            if (call != null && call.getTargetPhoneAccount() != null
+                    && setMsimAudioParams && tm.getSimCount() > 1) {
                 PhoneAccountHandle handle = call.getTargetPhoneAccount();
                 PhoneAccount account = mTelecomManager.getPhoneAccount(handle);
-                int subId = TelephonyManager.getDefault().getSubIdForPhoneAccount(account);
+                int subId = tm.getSubIdForPhoneAccount(account);
                 int phoneId = SubscriptionManager.getPhoneId(subId);
                 Log.d(LOG_TAG, "setAudioParameters phoneId=" + phoneId);
                 if (phoneId == 0) {
