@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe97ed8a_e78d9bf5",
+        "filename": "src/com/android/server/telecom/CallAudioModeStateMachine.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 2936
+      },
+      "writtenOn": "2018-05-06T02:18:58Z",
+      "side": 1,
+      "message": "Maybe explicitly compare against 2, since this only ever handles the 2 SIM case?",
+      "range": {
+        "startLine": 304,
+        "startChar": 45,
+        "endLine": 304,
+        "endChar": 65
+      },
+      "revId": "4308075eec6855168e7174ce58790eb2003696be",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
