@@ -22,6 +22,30 @@
       "revId": "4308075eec6855168e7174ce58790eb2003696be",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd23de3d_74b9f775",
+        "filename": "src/com/android/server/telecom/CallAudioModeStateMachine.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 11801
+      },
+      "writtenOn": "2018-05-06T02:35:39Z",
+      "side": 1,
+      "message": "makes sense. I probably won\u0027t get to this tonight, so if Bruno doesn\u0027t do this before my morning tomorrow, I will.",
+      "parentUuid": "fe97ed8a_e78d9bf5",
+      "range": {
+        "startLine": 304,
+        "startChar": 45,
+        "endLine": 304,
+        "endChar": 65
+      },
+      "revId": "4308075eec6855168e7174ce58790eb2003696be",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
