@@ -304,8 +304,10 @@ public class CallAudioModeStateMachine extends StateMachine {
                 PhoneAccount account = mTelecomManager.getPhoneAccount(handle);
                 int subId = TelephonyManager.getDefault().getSubIdForPhoneAccount(account);
                 int phoneId = SubscriptionManager.getPhoneId(subId);
+                boolean sim1IsAbsent = SubscriptionManager.getSimStateForSlotIndex(0) ==
+                        TelephonyManager.SIM_STATE_ABSENT);
                 Log.d(LOG_TAG, "setAudioParameters phoneId=" + phoneId);
-                if (phoneId == 0) {
+                if (phoneId == 0 || phoneId == 1 && sim1IsAbsent) {
                     mAudioManager.setParameters("phone_type=cp1");
                 } else if (phoneId == 1) {
                     mAudioManager.setParameters("phone_type=cp2");
