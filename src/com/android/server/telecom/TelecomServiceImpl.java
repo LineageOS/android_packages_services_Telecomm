@@ -771,7 +771,9 @@ public class TelecomServiceImpl {
             try {
                 Log.startSession("TSI.eC");
                 synchronized (mLock) {
-                    enforceModifyPermission();
+                    if (!enforceAnswerCallPermission(callingPackage, Binder.getCallingUid())) {
+                        throw new SecurityException("requires ANSWER_PHONE_CALLS permission");
+                    }
 
                     long token = Binder.clearCallingIdentity();
                     try {
