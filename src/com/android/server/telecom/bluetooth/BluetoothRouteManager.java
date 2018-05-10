@@ -72,8 +72,8 @@ public class BluetoothRouteManager extends StateMachine {
 
     public interface BluetoothStateListener {
         void onBluetoothDeviceListChanged();
-        void onBluetoothDeviceAvailable();
-        void onBluetoothDeviceUnavailable();
+        void onBluetoothActiveDevicePresent();
+        void onBluetoothActiveDeviceGone();
         void onBluetoothAudioConnected();
         void onBluetoothAudioDisconnected();
     }
@@ -243,15 +243,8 @@ public class BluetoothRouteManager extends StateMachine {
                         break;
                     case LOST_DEVICE:
                         removeDevice((String) args.arg2);
-
                         if (Objects.equals(address, mDeviceAddress)) {
-                            String newAddress = connectHfpAudio(null);
-                            if (newAddress != null) {
-                                transitionTo(getConnectingStateForAddress(newAddress,
-                                        "AudioConnecting/LOST_DEVICE"));
-                            } else {
-                                transitionTo(mAudioOffState);
-                            }
+                            transitionToActualState();
                         }
                         break;
                     case CONNECT_HFP:
@@ -364,13 +357,7 @@ public class BluetoothRouteManager extends StateMachine {
                     case LOST_DEVICE:
                         removeDevice((String) args.arg2);
                         if (Objects.equals(address, mDeviceAddress)) {
-                            String newAddress = connectHfpAudio(null);
-                            if (newAddress != null) {
-                                transitionTo(getConnectingStateForAddress(newAddress,
-                                        "AudioConnected/LOST_DEVICE"));
-                            } else {
-                                transitionTo(mAudioOffState);
-                            }
+                            transitionToActualState();
                         }
                         break;
                     case CONNECT_HFP:
@@ -421,14 +408,7 @@ public class BluetoothRouteManager extends StateMachine {
                     case HFP_LOST:
                         if (Objects.equals(mDeviceAddress, address)) {
                             Log.i(LOG_TAG, "HFP connection with device %s lost.", mDeviceAddress);
-                            String nextAddress = connectHfpAudio(null, mDeviceAddress);
-                            if (nextAddress == null) {
-                                Log.i(LOG_TAG, "No suitable fallback device. Going to AUDIO_OFF.");
-                                transitionToActualState();
-                            } else {
-                                transitionTo(getConnectingStateForAddress(nextAddress,
-                                        "AudioConnected/HFP_LOST"));
-                            }
+                            transitionToActualState();
                         } else {
                             Log.w(LOG_TAG, "Got HFP lost message for device %s while" +
                                     " connected to %s.", address, mDeviceAddress);
@@ -458,6 +438,8 @@ public class BluetoothRouteManager extends StateMachine {
 
     private BluetoothStateListener mListener;
     private BluetoothDeviceManager mDeviceManager;
+    // Tracks the active device in the BT stack.
+    private BluetoothDevice mActiveDeviceCache = null;
 
     public BluetoothRouteManager(Context context, TelecomSystem.SyncRoot lock,
             BluetoothDeviceManager deviceManager, Timeouts.Adapter timeoutsAdapter) {
@@ -565,9 +547,6 @@ public class BluetoothRouteManager extends StateMachine {
         sendMessage(NEW_DEVICE_CONNECTED, args);
 
         mListener.onBluetoothDeviceListChanged();
-        if (mDeviceManager.getConnectedDevices().size() == 1) {
-            mListener.onBluetoothDeviceAvailable();
-        }
     }
 
     public void onDeviceLost(String lostDeviceAddress) {
@@ -577,8 +556,17 @@ public class BluetoothRouteManager extends StateMachine {
         sendMessage(LOST_DEVICE, args);
 
         mListener.onBluetoothDeviceListChanged();
-        if (mDeviceManager.getConnectedDevices().size() == 0) {
-            mListener.onBluetoothDeviceUnavailable();
+    }
+
+    public void onActiveDeviceChanged(BluetoothDevice device) {
+        BluetoothDevice oldActiveDevice = mActiveDeviceCache;
+        mActiveDeviceCache = device;
+        if ((oldActiveDevice == null) ^ (device == null)) {
+            if (device == null) {
+                mListener.onBluetoothActiveDeviceGone();
+            } else {
+                mListener.onBluetoothActiveDevicePresent();
+            }
         }
     }
 
@@ -588,15 +576,7 @@ public class BluetoothRouteManager extends StateMachine {
     }
 
     private String connectHfpAudio(String address) {
-        return connectHfpAudio(address, 0, null);
-    }
-
-    private String connectHfpAudio(String address, int retryCount) {
-        return connectHfpAudio(address, retryCount, null);
-    }
-
-    private String connectHfpAudio(String address, String excludeAddress) {
-        return connectHfpAudio(address, 0, excludeAddress);
+        return connectHfpAudio(address, 0);
     }
 
     /**
@@ -605,23 +585,26 @@ public class BluetoothRouteManager extends StateMachine {
      * Telecom from within it.
      * @param address The address that should be tried first. May be null.
      * @param retryCount The number of times this connection attempt has been retried.
-     * @param excludeAddress Don't connect to this address.
      * @return The address of the device that's actually being connected to, or null if no
      * connection was successful.
      */
-    private String connectHfpAudio(String address, int retryCount, String excludeAddress) {
+    private String connectHfpAudio(String address, int retryCount) {
         Collection<BluetoothDevice> deviceList = getConnectedDevices();
         Optional<BluetoothDevice> matchingDevice = deviceList.stream()
                 .filter(d -> Objects.equals(d.getAddress(), address))
                 .findAny();
 
-        String actualAddress = matchingDevice.isPresent() ?
-                address : getPreferredDevice(excludeAddress);
+        String actualAddress = matchingDevice.isPresent()
+                ? address : getActiveDeviceAddress();
         if (!matchingDevice.isPresent()) {
             Log.i(this, "No device with address %s available. Using %s instead.",
                     address, actualAddress);
         }
-        if (actualAddress != null && !connectAudio(actualAddress)) {
+        if (actualAddress == null) {
+            Log.i(this, "No device specified and BT stack has no active device. Not connecting.");
+            return null;
+        }
+        if (!connectAudio(actualAddress)) {
             boolean shouldRetry = retryCount < MAX_CONNECTION_RETRIES;
             Log.w(LOG_TAG, "Could not connect to %s. Will %s", actualAddress,
                     shouldRetry ? "retry" : "not retry");
@@ -640,17 +623,8 @@ public class BluetoothRouteManager extends StateMachine {
         return actualAddress;
     }
 
-    private String getPreferredDevice(String excludeAddress) {
-        String preferredDevice = null;
-        for (String address : mMostRecentlyUsedDevices) {
-            if (!Objects.equals(excludeAddress, address)) {
-                preferredDevice = address;
-            }
-        }
-        if (preferredDevice == null) {
-            return mDeviceManager.getMostRecentlyConnectedDevice(excludeAddress);
-        }
-        return preferredDevice;
+    private String getActiveDeviceAddress() {
+        return mActiveDeviceCache == null ? null : mActiveDeviceCache.getAddress();
     }
 
     private void transitionToActualState() {
@@ -807,5 +781,10 @@ public class BluetoothRouteManager extends StateMachine {
                         "setInitialStateForTesting"));
                 break;
         }
+    }
+
+    @VisibleForTesting
+    public void setActiveDeviceCacheForTesting(BluetoothDevice device) {
+        mActiveDeviceCache = device;
     }
 }
