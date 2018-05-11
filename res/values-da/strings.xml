@@ -40,7 +40,7 @@
     <string name="enable_account_preference_title" msgid="2021848090086481720">"Opkaldskonti"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="6872406278300131364">"Kun nødopkald er tilladt."</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="1996571596464271228">"Denne app kan ikke foretage udgående opkald uden opkaldstilladelse."</string>
-    <string name="outgoing_call_error_no_phone_number_supplied" msgid="1940125199802007505">"Indtast et gyldigt nummer for at foretage et opkald."</string>
+    <string name="outgoing_call_error_no_phone_number_supplied" msgid="1940125199802007505">"Angiv et gyldigt nummer for at foretage et opkald."</string>
     <string name="duplicate_video_call_not_allowed" msgid="3749211605014548386">"Opkaldet kan ikke tilføjes på nuværende tidspunkt."</string>
     <string name="no_vm_number" msgid="4164780423805688336">"Telefonsvarernummer mangler"</string>
     <string name="no_vm_number_msg" msgid="1300729501030053828">"Der er ikke gemt noget telefonsvarernummer på SIM-kortet."</string>
