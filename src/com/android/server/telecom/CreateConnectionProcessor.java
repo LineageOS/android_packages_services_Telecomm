@@ -374,7 +374,8 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
                         PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS)) {
                     CallAttemptRecord callAttemptRecord = new CallAttemptRecord(callManagerHandle,
                             mPhoneAccountRegistrar.getOutgoingPhoneAccountForSchemeOfCurrentUser(
-                                    mCall.getHandle().getScheme()));
+                                    mCall.getHandle() == null
+                                            ? null : mCall.getHandle().getScheme()));
                     if (!mAttemptRecords.contains(callAttemptRecord)) {
                         Log.i(this, "Will try Connection Manager account %s for emergency",
                                 callManager);
