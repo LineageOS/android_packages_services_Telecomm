@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.AudioSystem;
+import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -2041,7 +2042,8 @@ public class CallsManager extends Call.ListenerBase
                 if (call.getConnectionService() == service) {
                     if (call.getState() != CallState.DISCONNECTED) {
                         markCallAsDisconnected(call, new DisconnectCause(DisconnectCause.ERROR,
-                                "CS_DEATH"));
+                                null /* message */, null /* description */, "CS_DEATH",
+                                ToneGenerator.TONE_PROP_PROMPT));
                     }
                     markCallAsRemoved(call);
                 }
