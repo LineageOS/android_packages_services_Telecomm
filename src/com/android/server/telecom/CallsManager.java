@@ -993,7 +993,9 @@ public class CallsManager extends Call.ListenerBase
                 final String handleScheme = handle.getSchemeSpecificPart();
                 Call fromCall = mCalls.stream()
                         .filter((c) -> mPhoneNumberUtilsAdapter.isSamePhoneNumber(
-                                c.getHandle().getSchemeSpecificPart(), handleScheme))
+                                (c.getHandle() == null
+                                        ? null : c.getHandle().getSchemeSpecificPart()),
+                                handleScheme))
                         .findFirst()
                         .orElse(null);
                 if (fromCall != null) {
@@ -1415,6 +1417,8 @@ public class CallsManager extends Call.ListenerBase
                 com.android.internal.R.bool.config_requireCallCapableAccountForHandle);
         final boolean isOutgoingCallPermitted = isOutgoingCallPermitted(call,
                 call.getTargetPhoneAccount());
+        final String callHandleScheme =
+                call.getHandle() == null ? null : call.getHandle().getScheme();
         if (call.getTargetPhoneAccount() != null || call.isEmergencyCall()) {
             // If the account has been set, proceed to place the outgoing call.
             // Otherwise the connection will be initiated when the account is set by the user.
@@ -1429,7 +1433,7 @@ public class CallsManager extends Call.ListenerBase
                 call.startCreateConnection(mPhoneAccountRegistrar);
             }
         } else if (mPhoneAccountRegistrar.getCallCapablePhoneAccounts(
-                requireCallCapableAccountByHandle ? call.getHandle().getScheme() : null, false,
+                requireCallCapableAccountByHandle ? callHandleScheme : null, false,
                 call.getInitiatingUser()).isEmpty()) {
             // If there are no call capable accounts, disconnect the call.
             markCallAsDisconnected(call, new DisconnectCause(DisconnectCause.CANCELED,
@@ -3712,11 +3716,11 @@ public class CallsManager extends Call.ListenerBase
     }
 
     public void acceptHandover(Uri srcAddr, int videoState, PhoneAccountHandle destAcct) {
-
         final String handleScheme = srcAddr.getSchemeSpecificPart();
         Call fromCall = mCalls.stream()
                 .filter((c) -> mPhoneNumberUtilsAdapter.isSamePhoneNumber(
-                        c.getHandle().getSchemeSpecificPart(), handleScheme))
+                        (c.getHandle() == null ? null : c.getHandle().getSchemeSpecificPart()),
+                        handleScheme))
                 .findFirst()
                 .orElse(null);
 

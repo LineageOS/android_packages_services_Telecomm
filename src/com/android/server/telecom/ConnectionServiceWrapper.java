@@ -89,6 +89,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         }
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -109,6 +112,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         // Log.w(this, "setActive, unknown call id: %s", msg.obj);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -129,6 +135,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         // Log.w(this, "setRinging, unknown call id: %s", msg.obj);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -148,6 +157,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         call.setVideoProvider(videoProvider);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -168,6 +180,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         // Log.w(this, "setDialing, unknown call id: %s", msg.obj);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -175,7 +190,7 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         }
 
         @Override
-	    public void setPulling(String callId, Session.Info sessionInfo) {
+        public void setPulling(String callId, Session.Info sessionInfo) {
             Log.startSession(sessionInfo, LogUtils.Sessions.CSW_SET_PULLING);
             long token = Binder.clearCallingIdentity();
             try {
@@ -186,6 +201,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         mCallsManager.markCallAsPulling(call);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -208,6 +226,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         // Log.w(this, "setDisconnected, unknown call id: %s", args.arg1);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -228,6 +249,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         // Log.w(this, "setOnHold, unknown call id: %s", msg.obj);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -249,6 +273,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         // Log.w(this, "setRingback, unknown call id: %s", args.arg1);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -272,6 +299,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         }
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -294,6 +324,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         // "setConnectionCapabilities, unknown call id: %s", msg.obj);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -313,6 +346,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         call.setConnectionProperties(connectionProperties);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -340,6 +376,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         // Log.w(this, "setIsConferenced, unknown call id: %s", args.arg1);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -363,6 +402,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         Log.w(this, "setConferenceMergeFailed, unknown call id: %s", callId);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -451,6 +493,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         }
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -472,6 +517,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         // Log.w(this, "onPostDialWait, unknown call id: %s", args.arg1);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -493,6 +541,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         // Log.w(this, "onPostDialChar, unknown call id: %s", args.arg1);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -511,6 +562,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                     ConnectionServiceWrapper.this
                             .queryRemoteConnectionServices(callingUserHandle, callback);
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -529,6 +583,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         call.setVideoState(videoState);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -547,6 +604,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         call.setIsVoipAudioMode(isVoip);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -564,6 +624,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                             CallAudioState.audioRouteToString(audioRoute));
                     mCallsManager.setAudioRoute(audioRoute, bluetoothAddress);
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -583,6 +646,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         call.setStatusHints(statusHints);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -601,6 +667,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         call.putExtras(Call.SOURCE_CONNECTION_SERVICE, extras);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -619,6 +688,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         call.removeExtras(Call.SOURCE_CONNECTION_SERVICE, keys);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -638,6 +710,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         call.setHandle(address, presentation);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -658,6 +733,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         call.setCallerDisplayName(callerDisplayName, presentation);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -687,6 +765,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         call.setConferenceableCalls(conferenceableCalls);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -694,8 +775,8 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         }
 
         @Override
-	public void addExistingConnection(String callId, ParcelableConnection connection,
-	        Session.Info sessionInfo) {
+        public void addExistingConnection(String callId, ParcelableConnection connection,
+                Session.Info sessionInfo) {
             Log.startSession(sessionInfo, "CSW.aEC");
             UserHandle userHandle = Binder.getCallingUserHandle();
             // Check that the Calling Package matches PhoneAccountHandle's Component Package
@@ -760,6 +841,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                                 "addExistingConnection.");
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -779,6 +863,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         call.onConnectionEvent(event, extras);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -803,6 +890,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         call.onRttConnectionFailure(reason);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -827,6 +917,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         call.onRemoteRttRequest();
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -850,6 +943,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         call.setTargetPhoneAccount(pHandle);
                     }
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
@@ -866,6 +962,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                     mConnSvrFocusListener.onConnectionServiceReleased(
                             ConnectionServiceWrapper.this);
                 }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
             } finally {
                 Binder.restoreCallingIdentity(token);
                 Log.endSession();
