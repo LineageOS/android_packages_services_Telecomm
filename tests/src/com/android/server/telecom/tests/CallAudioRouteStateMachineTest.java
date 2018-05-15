@@ -212,9 +212,9 @@ public class CallAudioRouteStateMachineTest extends TelecomSystemTest {
         verifyNewSystemCallAudioState(initState, expectedEndState);
         resetMocks();
         stateMachine.sendMessageWithSessionInfo(
-                CallAudioRouteStateMachine.DISCONNECT_BLUETOOTH);
+                CallAudioRouteStateMachine.BT_ACTIVE_DEVICE_GONE);
         stateMachine.sendMessageWithSessionInfo(
-                CallAudioRouteStateMachine.CONNECT_BLUETOOTH);
+                CallAudioRouteStateMachine.BT_ACTIVE_DEVICE_PRESENT);
 
         waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
         assertEquals(expectedEndState, stateMachine.getCurrentCallAudioState());
@@ -280,11 +280,11 @@ public class CallAudioRouteStateMachineTest extends TelecomSystemTest {
         verifyNewSystemCallAudioState(expectedMidState, expectedEndState);
 
         stateMachine.sendMessageWithSessionInfo(
-                CallAudioRouteStateMachine.DISCONNECT_BLUETOOTH);
+                CallAudioRouteStateMachine.BT_ACTIVE_DEVICE_GONE);
         when(mockBluetoothRouteManager.getBluetoothAudioConnectedDevice())
                 .thenReturn(null);
         stateMachine.sendMessageWithSessionInfo(
-                CallAudioRouteStateMachine.CONNECT_BLUETOOTH);
+                CallAudioRouteStateMachine.BT_ACTIVE_DEVICE_PRESENT);
 
         waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
         // second wait needed for the BT_AUDIO_CONNECTED message
@@ -359,7 +359,8 @@ public class CallAudioRouteStateMachineTest extends TelecomSystemTest {
                 .thenReturn(Collections.singletonList(bluetoothDevice1));
         stateMachine.sendMessageWithSessionInfo(
                 CallAudioRouteStateMachine.BLUETOOTH_DEVICE_LIST_CHANGED);
-        stateMachine.sendMessageWithSessionInfo(CallAudioRouteStateMachine.CONNECT_BLUETOOTH);
+        stateMachine.sendMessageWithSessionInfo(
+                CallAudioRouteStateMachine.BT_ACTIVE_DEVICE_PRESENT);
         waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
 
         verify(mockBluetoothRouteManager, never()).connectBluetoothAudio(null);
