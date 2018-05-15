@@ -52,15 +52,15 @@ public class CallAudioRoutePeripheralAdapter implements WiredHeadsetManager.List
     }
 
     @Override
-    public void onBluetoothDeviceAvailable() {
+    public void onBluetoothActiveDevicePresent() {
         mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
-                CallAudioRouteStateMachine.CONNECT_BLUETOOTH);
+                CallAudioRouteStateMachine.BT_ACTIVE_DEVICE_PRESENT);
     }
 
     @Override
-    public void onBluetoothDeviceUnavailable() {
+    public void onBluetoothActiveDeviceGone() {
         mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
-                CallAudioRouteStateMachine.DISCONNECT_BLUETOOTH);
+                CallAudioRouteStateMachine.BT_ACTIVE_DEVICE_GONE);
     }
 
     @Override
