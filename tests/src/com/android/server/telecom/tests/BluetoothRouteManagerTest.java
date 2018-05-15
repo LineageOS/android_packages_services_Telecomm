@@ -75,7 +75,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
                 nullable(ContentResolver.class))).thenReturn(0L);
         when(mHeadsetProxy.connectAudio()).thenReturn(false);
-        executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, null);
+        executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, DEVICE1.getAddress());
         // Wait 3 times: for the first connection attempt, the retry attempt,
         // the second retry, and once more to make sure there are only three attempts.
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
@@ -109,105 +109,6 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         assertEquals(BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX
                         + ":" + DEVICE1.getAddress(),
                 sm.getCurrentState().getName());
-        sm.getHandler().removeMessages(BluetoothRouteManager.CONNECTION_TIMEOUT);
-        sm.quitNow();
-    }
-
-    @SmallTest
-    @Test
-    public void testProperFallbackOrder1() {
-        // Device 1, 2, 3 are connected in that order. Device 1 is activated, then device 2.
-        // Disconnect device 2, verify fallback to device 1. Disconnect device 1, fallback to
-        // device 3.
-        BluetoothRouteManager sm = setupStateMachine(
-                BluetoothRouteManager.AUDIO_OFF_STATE_NAME, null);
-        setupConnectedDevices(new BluetoothDevice[]{DEVICE3, DEVICE2, DEVICE1}, null);
-        executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, DEVICE1.getAddress());
-        verifyConnectionAttempt(DEVICE1, 1);
-
-        setupConnectedDevices(new BluetoothDevice[]{DEVICE3, DEVICE2, DEVICE1}, DEVICE1);
-        executeRoutingAction(sm, BluetoothRouteManager.HFP_IS_ON, DEVICE1.getAddress());
-
-        executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, DEVICE2.getAddress());
-        verifyConnectionAttempt(DEVICE2, 1);
-
-        setupConnectedDevices(new BluetoothDevice[]{DEVICE3, DEVICE2, DEVICE1}, DEVICE2);
-        executeRoutingAction(sm, BluetoothRouteManager.HFP_IS_ON, DEVICE2.getAddress());
-        // Disconnect device 2
-        setupConnectedDevices(new BluetoothDevice[]{DEVICE3, DEVICE1}, null);
-        executeRoutingAction(sm, BluetoothRouteManager.LOST_DEVICE, DEVICE2.getAddress());
-        // Verify that we've fallen back to device 1
-        verifyConnectionAttempt(DEVICE1, 2);
-        assertEquals(BluetoothRouteManager.AUDIO_CONNECTING_STATE_NAME_PREFIX
-                        + ":" + DEVICE1.getAddress(),
-                sm.getCurrentState().getName());
-        setupConnectedDevices(new BluetoothDevice[]{DEVICE3, DEVICE1}, DEVICE1);
-        executeRoutingAction(sm, BluetoothRouteManager.HFP_IS_ON, DEVICE1.getAddress());
-        assertEquals(BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX
-                        + ":" + DEVICE1.getAddress(),
-                sm.getCurrentState().getName());
-
-        // Disconnect device 1
-        setupConnectedDevices(new BluetoothDevice[]{DEVICE3}, null);
-        executeRoutingAction(sm, BluetoothRouteManager.LOST_DEVICE, DEVICE1.getAddress());
-        // Verify that we've fallen back to device 3
-        verifyConnectionAttempt(DEVICE3, 1);
-        assertEquals(BluetoothRouteManager.AUDIO_CONNECTING_STATE_NAME_PREFIX
-                        + ":" + DEVICE3.getAddress(),
-                sm.getCurrentState().getName());
-        setupConnectedDevices(new BluetoothDevice[]{DEVICE3}, DEVICE3);
-        executeRoutingAction(sm, BluetoothRouteManager.HFP_IS_ON, DEVICE3.getAddress());
-        assertEquals(BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX
-                        + ":" + DEVICE3.getAddress(),
-                sm.getCurrentState().getName());
-
-        sm.getHandler().removeMessages(BluetoothRouteManager.CONNECTION_TIMEOUT);
-        sm.quitNow();
-    }
-
-    @SmallTest
-    @Test
-    public void testProperFallbackOrder2() {
-        // Device 1, 2, 3 are connected in that order. Device 3 is activated.
-        // Disconnect device 3, verify fallback to device 2. Disconnect device 2, fallback to
-        // device 1.
-        BluetoothRouteManager sm = setupStateMachine(
-                BluetoothRouteManager.AUDIO_OFF_STATE_NAME, null);
-        setupConnectedDevices(new BluetoothDevice[]{DEVICE3, DEVICE2, DEVICE1}, null);
-        executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, DEVICE3.getAddress());
-        verifyConnectionAttempt(DEVICE3, 1);
-
-        setupConnectedDevices(new BluetoothDevice[]{DEVICE3, DEVICE2, DEVICE1}, DEVICE3);
-        executeRoutingAction(sm, BluetoothRouteManager.HFP_IS_ON, DEVICE3.getAddress());
-
-        // Disconnect device 2
-        setupConnectedDevices(new BluetoothDevice[]{DEVICE2, DEVICE1}, null);
-        executeRoutingAction(sm, BluetoothRouteManager.LOST_DEVICE, DEVICE3.getAddress());
-        // Verify that we've fallen back to device 2
-        verifyConnectionAttempt(DEVICE2, 1);
-        assertEquals(BluetoothRouteManager.AUDIO_CONNECTING_STATE_NAME_PREFIX
-                        + ":" + DEVICE2.getAddress(),
-                sm.getCurrentState().getName());
-        setupConnectedDevices(new BluetoothDevice[]{DEVICE2, DEVICE1}, DEVICE2);
-        executeRoutingAction(sm, BluetoothRouteManager.HFP_IS_ON, DEVICE2.getAddress());
-        assertEquals(BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX
-                        + ":" + DEVICE2.getAddress(),
-                sm.getCurrentState().getName());
-
-        // Disconnect device 2
-        setupConnectedDevices(new BluetoothDevice[]{DEVICE1}, null);
-        executeRoutingAction(sm, BluetoothRouteManager.LOST_DEVICE, DEVICE2.getAddress());
-        // Verify that we've fallen back to device 1
-        verifyConnectionAttempt(DEVICE1, 1);
-        assertEquals(BluetoothRouteManager.AUDIO_CONNECTING_STATE_NAME_PREFIX
-                        + ":" + DEVICE1.getAddress(),
-                sm.getCurrentState().getName());
-        setupConnectedDevices(new BluetoothDevice[]{DEVICE1}, DEVICE1);
-        executeRoutingAction(sm, BluetoothRouteManager.HFP_IS_ON, DEVICE1.getAddress());
-        assertEquals(BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX
-                        + ":" + DEVICE1.getAddress(),
-                sm.getCurrentState().getName());
-
         sm.getHandler().removeMessages(BluetoothRouteManager.CONNECTION_TIMEOUT);
         sm.quitNow();
     }
