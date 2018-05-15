@@ -91,11 +91,11 @@ public class CallAudioRouteStateMachine extends StateMachine {
     /** Valid values for msg.what */
     public static final int CONNECT_WIRED_HEADSET = 1;
     public static final int DISCONNECT_WIRED_HEADSET = 2;
-    public static final int CONNECT_BLUETOOTH = 3;
-    public static final int DISCONNECT_BLUETOOTH = 4;
     public static final int CONNECT_DOCK = 5;
     public static final int DISCONNECT_DOCK = 6;
     public static final int BLUETOOTH_DEVICE_LIST_CHANGED = 7;
+    public static final int BT_ACTIVE_DEVICE_PRESENT = 8;
+    public static final int BT_ACTIVE_DEVICE_GONE = 9;
 
     public static final int SWITCH_EARPIECE = 1001;
     public static final int SWITCH_BLUETOOTH = 1002;
@@ -151,11 +151,11 @@ public class CallAudioRouteStateMachine extends StateMachine {
     private static final SparseArray<String> MESSAGE_CODE_TO_NAME = new SparseArray<String>() {{
         put(CONNECT_WIRED_HEADSET, "CONNECT_WIRED_HEADSET");
         put(DISCONNECT_WIRED_HEADSET, "DISCONNECT_WIRED_HEADSET");
-        put(CONNECT_BLUETOOTH, "CONNECT_BLUETOOTH");
-        put(DISCONNECT_BLUETOOTH, "DISCONNECT_BLUETOOTH");
         put(CONNECT_DOCK, "CONNECT_DOCK");
         put(DISCONNECT_DOCK, "DISCONNECT_DOCK");
         put(BLUETOOTH_DEVICE_LIST_CHANGED, "BLUETOOTH_DEVICE_LIST_CHANGED");
+        put(BT_ACTIVE_DEVICE_PRESENT, "BT_ACTIVE_DEVICE_PRESENT");
+        put(BT_ACTIVE_DEVICE_GONE, "BT_ACTIVE_DEVICE_GONE");
 
         put(SWITCH_EARPIECE, "SWITCH_EARPIECE");
         put(SWITCH_BLUETOOTH, "SWITCH_BLUETOOTH");
@@ -242,17 +242,14 @@ public class CallAudioRouteStateMachine extends StateMachine {
             int removedRoutes = 0;
             boolean isHandled = NOT_HANDLED;
 
+            Log.i(this, "Processing message %s",
+                    MESSAGE_CODE_TO_NAME.get(msg.what, Integer.toString(msg.what)));
             switch (msg.what) {
                 case CONNECT_WIRED_HEADSET:
                     Log.addEvent(mCallsManager.getForegroundCall(), LogUtils.Events.AUDIO_ROUTE,
                             "Wired headset connected");
                     removedRoutes |= ROUTE_EARPIECE;
                     addedRoutes |= ROUTE_WIRED_HEADSET;
-                    break;
-                case CONNECT_BLUETOOTH:
-                    Log.addEvent(mCallsManager.getForegroundCall(), LogUtils.Events.AUDIO_ROUTE,
-                            "Bluetooth connected");
-                    addedRoutes |= ROUTE_BLUETOOTH;
                     break;
                 case DISCONNECT_WIRED_HEADSET:
                     Log.addEvent(mCallsManager.getForegroundCall(), LogUtils.Events.AUDIO_ROUTE,
@@ -262,10 +259,13 @@ public class CallAudioRouteStateMachine extends StateMachine {
                         addedRoutes |= ROUTE_EARPIECE;
                     }
                     break;
-                case DISCONNECT_BLUETOOTH:
+                case BT_ACTIVE_DEVICE_PRESENT:
                     Log.addEvent(mCallsManager.getForegroundCall(), LogUtils.Events.AUDIO_ROUTE,
-                            "Bluetooth disconnected");
-                    removedRoutes |= ROUTE_BLUETOOTH;
+                            "Bluetooth active device present");
+                    break;
+                case BT_ACTIVE_DEVICE_GONE:
+                    Log.addEvent(mCallsManager.getForegroundCall(), LogUtils.Events.AUDIO_ROUTE,
+                            "Bluetooth active device gone");
                     break;
                 case BLUETOOTH_DEVICE_LIST_CHANGED:
                     Log.addEvent(mCallsManager.getForegroundCall(), LogUtils.Events.AUDIO_ROUTE,
@@ -493,7 +493,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 case CONNECT_WIRED_HEADSET:
                     sendInternalMessage(SWITCH_HEADSET);
                     return HANDLED;
-                case CONNECT_BLUETOOTH:
+                case BT_ACTIVE_DEVICE_PRESENT:
                     if (!mHasUserExplicitlyLeftBluetooth) {
                         sendInternalMessage(SWITCH_BLUETOOTH);
                     } else {
@@ -501,7 +501,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                                 "explicitly disconnected.");
                     }
                     return HANDLED;
-                case DISCONNECT_BLUETOOTH:
+                case BT_ACTIVE_DEVICE_GONE:
                     // No change in audio route required
                     return HANDLED;
                 case DISCONNECT_WIRED_HEADSET:
@@ -688,7 +688,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     Log.e(this, new IllegalStateException(),
                             "Wired headset should already be connected.");
                     return HANDLED;
-                case CONNECT_BLUETOOTH:
+                case BT_ACTIVE_DEVICE_PRESENT:
                     if (!mHasUserExplicitlyLeftBluetooth) {
                         sendInternalMessage(SWITCH_BLUETOOTH);
                     } else {
@@ -696,7 +696,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                                 "explicitly disconnected.");
                     }
                     return HANDLED;
-                case DISCONNECT_BLUETOOTH:
+                case BT_ACTIVE_DEVICE_GONE:
                     // No change in audio route required
                     return HANDLED;
                 case DISCONNECT_WIRED_HEADSET:
@@ -1000,12 +1000,11 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 case CONNECT_WIRED_HEADSET:
                     sendInternalMessage(SWITCH_HEADSET);
                     return HANDLED;
-                case CONNECT_BLUETOOTH:
-                    // We can't tell when a change in bluetooth state corresponds to an
-                    // actual connection or disconnection, so we'll just ignore it if we're already
-                    // in the bluetooth route.
+                case BT_ACTIVE_DEVICE_PRESENT:
+                    Log.w(this, "Bluetooth active device should not"
+                            + " have been null while we were in BT route.");
                     return HANDLED;
-                case DISCONNECT_BLUETOOTH:
+                case BT_ACTIVE_DEVICE_GONE:
                     sendInternalMessage(SWITCH_BASELINE_ROUTE, NO_INCLUDE_BLUETOOTH_IN_BASELINE);
                     mWasOnSpeaker = false;
                     return HANDLED;
@@ -1204,7 +1203,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 case CONNECT_WIRED_HEADSET:
                     sendInternalMessage(SWITCH_HEADSET);
                     return HANDLED;
-                case CONNECT_BLUETOOTH:
+                case BT_ACTIVE_DEVICE_PRESENT:
                     if (!mHasUserExplicitlyLeftBluetooth) {
                         sendInternalMessage(SWITCH_BLUETOOTH);
                     } else {
@@ -1212,7 +1211,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                                 "explicitly disconnected.");
                     }
                     return HANDLED;
-                case DISCONNECT_BLUETOOTH:
+                case BT_ACTIVE_DEVICE_GONE:
                     // No change in audio route required
                     return HANDLED;
                 case DISCONNECT_WIRED_HEADSET:

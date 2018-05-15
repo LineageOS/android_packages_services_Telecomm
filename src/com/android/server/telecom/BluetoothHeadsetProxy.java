@@ -68,6 +68,10 @@ public class BluetoothHeadsetProxy {
         return mBluetoothHeadset.setActiveDevice(device);
     }
 
+    public BluetoothDevice getActiveDevice() {
+        return mBluetoothHeadset.getActiveDevice();
+    }
+
     public boolean isAudioOn() {
         return mBluetoothHeadset.isAudioOn();
     }

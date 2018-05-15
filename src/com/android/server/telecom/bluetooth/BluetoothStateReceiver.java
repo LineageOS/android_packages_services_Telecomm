@@ -38,6 +38,7 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
         INTENT_FILTER = new IntentFilter();
         INTENT_FILTER.addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED);
         INTENT_FILTER.addAction(BluetoothHeadset.ACTION_AUDIO_STATE_CHANGED);
+        INTENT_FILTER.addAction(BluetoothHeadset.ACTION_ACTIVE_DEVICE_CHANGED);
     }
 
     // If not in a call, BSR won't listen to the Bluetooth stack's HFP on/off messages, since
@@ -50,64 +51,82 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
         Log.startSession("BSR.oR");
         try {
             String action = intent.getAction();
-
-            if (action.equals(BluetoothHeadset.ACTION_AUDIO_STATE_CHANGED)) {
-                if (!mIsInCall) {
-                    Log.i(LOG_TAG, "Ignoring BT audio state change since we're not in a call");
-                    return;
-                }
-                int bluetoothHeadsetAudioState =
-                        intent.getIntExtra(BluetoothHeadset.EXTRA_STATE,
-                                BluetoothHeadset.STATE_AUDIO_DISCONNECTED);
-                BluetoothDevice device =
-                        intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if (device == null) {
-                    Log.w(LOG_TAG, "Got null device from broadcast. " +
-                            "Ignoring.");
-                    return;
-                }
-
-                Log.i(LOG_TAG, "Device %s transitioned to audio state %d",
-                        device.getAddress(), bluetoothHeadsetAudioState);
-                Session session = Log.createSubsession();
-                SomeArgs args = SomeArgs.obtain();
-                args.arg1 = session;
-                args.arg2 = device.getAddress();
-                switch (bluetoothHeadsetAudioState) {
-                    case BluetoothHeadset.STATE_AUDIO_CONNECTED:
-                        mBluetoothRouteManager.sendMessage(HFP_IS_ON, args);
-                        break;
-                    case BluetoothHeadset.STATE_AUDIO_DISCONNECTED:
-                        mBluetoothRouteManager.sendMessage(HFP_LOST, args);
-                        break;
-                }
-            }
-
-            else if (action.equals(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)) {
-                int bluetoothHeadsetState = intent.getIntExtra(BluetoothHeadset.EXTRA_STATE,
-                        BluetoothHeadset.STATE_DISCONNECTED);
-                BluetoothDevice device =
-                        intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-                if (device == null) {
-                    Log.w(LOG_TAG, "Got null device from broadcast. " +
-                            "Ignoring.");
-                    return;
-                }
-
-                Log.i(LOG_TAG, "Device %s changed state to %d",
-                        device.getAddress(), bluetoothHeadsetState);
-
-                if (bluetoothHeadsetState == BluetoothHeadset.STATE_CONNECTED) {
-                    mBluetoothDeviceManager.onDeviceConnected(device);
-                } else if (bluetoothHeadsetState == BluetoothHeadset.STATE_DISCONNECTED
-                        || bluetoothHeadsetState == BluetoothHeadset.STATE_DISCONNECTING) {
-                    mBluetoothDeviceManager.onDeviceDisconnected(device);
-                }
+            switch (action) {
+                case BluetoothHeadset.ACTION_AUDIO_STATE_CHANGED:
+                    handleAudioStateChanged(intent);
+                    break;
+                case BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED:
+                    handleConnectionStateChanged(intent);
+                    break;
+                case BluetoothHeadset.ACTION_ACTIVE_DEVICE_CHANGED:
+                    handleActiveDeviceChanged(intent);
+                    break;
             }
         } finally {
             Log.endSession();
         }
+    }
+
+    private void handleAudioStateChanged(Intent intent) {
+        if (!mIsInCall) {
+            Log.i(LOG_TAG, "Ignoring BT audio state change since we're not in a call");
+            return;
+        }
+        int bluetoothHeadsetAudioState =
+                intent.getIntExtra(BluetoothHeadset.EXTRA_STATE,
+                        BluetoothHeadset.STATE_AUDIO_DISCONNECTED);
+        BluetoothDevice device =
+                intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+        if (device == null) {
+            Log.w(LOG_TAG, "Got null device from broadcast. " +
+                    "Ignoring.");
+            return;
+        }
+
+        Log.i(LOG_TAG, "Device %s transitioned to audio state %d",
+                device.getAddress(), bluetoothHeadsetAudioState);
+        Session session = Log.createSubsession();
+        SomeArgs args = SomeArgs.obtain();
+        args.arg1 = session;
+        args.arg2 = device.getAddress();
+        switch (bluetoothHeadsetAudioState) {
+            case BluetoothHeadset.STATE_AUDIO_CONNECTED:
+                mBluetoothRouteManager.sendMessage(HFP_IS_ON, args);
+                break;
+            case BluetoothHeadset.STATE_AUDIO_DISCONNECTED:
+                mBluetoothRouteManager.sendMessage(HFP_LOST, args);
+                break;
+        }
+    }
+
+    private void handleConnectionStateChanged(Intent intent) {
+        int bluetoothHeadsetState = intent.getIntExtra(BluetoothHeadset.EXTRA_STATE,
+                BluetoothHeadset.STATE_DISCONNECTED);
+        BluetoothDevice device =
+                intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+        if (device == null) {
+            Log.w(LOG_TAG, "Got null device from broadcast. " +
+                    "Ignoring.");
+            return;
+        }
+
+        Log.i(LOG_TAG, "Device %s changed state to %d",
+                device.getAddress(), bluetoothHeadsetState);
+
+        if (bluetoothHeadsetState == BluetoothHeadset.STATE_CONNECTED) {
+            mBluetoothDeviceManager.onDeviceConnected(device);
+        } else if (bluetoothHeadsetState == BluetoothHeadset.STATE_DISCONNECTED
+                || bluetoothHeadsetState == BluetoothHeadset.STATE_DISCONNECTING) {
+            mBluetoothDeviceManager.onDeviceDisconnected(device);
+        }
+    }
+
+    private void handleActiveDeviceChanged(Intent intent) {
+        BluetoothDevice device =
+                intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+        Log.i(LOG_TAG, "Device %s is now the preferred HFP device", device);
+        mBluetoothRouteManager.onActiveDeviceChanged(device);
     }
 
     public BluetoothStateReceiver(BluetoothDeviceManager deviceManager,
