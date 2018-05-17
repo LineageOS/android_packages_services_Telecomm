@@ -27,6 +27,7 @@ import android.content.IntentFilter;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -61,6 +62,11 @@ public class TestConnectionService extends ConnectionService {
     public static final String EXTRA_START_VIDEO_STATE = "extra_start_video_state";
 
     public static final String EXTRA_HANDLE = "extra_handle";
+
+    /**
+     * If an outgoing call ends with 2879 (BUSY), the test CS will indicate the call is busy.
+     */
+    public static final String BUSY_SUFFIX = "2879";
 
     private static final String LOG_TAG = TestConnectionService.class.getSimpleName();
 
@@ -209,8 +215,15 @@ public class TestConnectionService extends ConnectionService {
         void startOutgoing() {
             setDialing();
             mHandler.postDelayed(() -> {
-                setActive();
-                activateCall(TestConnection.this);
+                if (getAddress().getSchemeSpecificPart().endsWith(BUSY_SUFFIX)) {
+                    setDisconnected(new DisconnectCause(DisconnectCause.REMOTE, "Line busy",
+                            "Line busy", "Line busy", ToneGenerator.TONE_SUP_BUSY));
+                    destroyCall(this);
+                    destroy();
+                } else {
+                    setActive();
+                    activateCall(TestConnection.this);
+                }
             }, 4000);
             if (mOriginalRequest.isRequestingRtt()) {
                 Log.i(LOG_TAG, "Is RTT call. Starting chatbot service.");
