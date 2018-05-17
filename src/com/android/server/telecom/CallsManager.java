@@ -26,6 +26,7 @@ import android.content.pm.UserInfo;
 import android.media.AudioManager;
 import android.media.AudioSystem;
 import android.media.ToneGenerator;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -408,8 +409,12 @@ public class CallsManager extends Call.ListenerBase
                         wiredHeadsetManager,
                         mDockManager);
 
+        AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+        InCallTonePlayer.MediaPlayerFactory mediaPlayerFactory =
+                (resourceId, attributes) -> MediaPlayer.create(mContext, resourceId, attributes,
+                        audioManager.generateAudioSessionId());
         InCallTonePlayer.Factory playerFactory = new InCallTonePlayer.Factory(
-                callAudioRoutePeripheralAdapter, lock, toneGeneratorFactory);
+                callAudioRoutePeripheralAdapter, lock, toneGeneratorFactory, mediaPlayerFactory);
 
         SystemSettingsUtil systemSettingsUtil = new SystemSettingsUtil();
         RingtoneFactory ringtoneFactory = new RingtoneFactory(this, context);
@@ -420,8 +425,7 @@ public class CallsManager extends Call.ListenerBase
         mRinger = new Ringer(playerFactory, context, systemSettingsUtil, asyncRingtonePlayer,
                 ringtoneFactory, systemVibrator,
                 new Ringer.VibrationEffectProxy(), mInCallController);
-        mCallRecordingTonePlayer = new CallRecordingTonePlayer(mContext,
-                (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE), mLock);
+        mCallRecordingTonePlayer = new CallRecordingTonePlayer(mContext, audioManager, mLock);
         mCallAudioManager = new CallAudioManager(callAudioRouteStateMachine,
                 this, callAudioModeStateMachineFactory.create((AudioManager)
                         mContext.getSystemService(Context.AUDIO_SERVICE)),
