@@ -223,9 +223,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     "Entering state " + getName());
             if (isActive()) {
                 Log.addEvent(mCallsManager.getForegroundCall(),
-                        AUDIO_ROUTE_TO_LOG_EVENT.get(getRouteCode(), LogUtils.Events.AUDIO_ROUTE),
-                        getVolumeString()
-                );
+                        AUDIO_ROUTE_TO_LOG_EVENT.get(getRouteCode(), LogUtils.Events.AUDIO_ROUTE));
             }
         }
 
@@ -313,20 +311,6 @@ public class CallAudioRouteStateMachine extends StateMachine {
         abstract public void updateSystemAudioState();
         abstract public boolean isActive();
         abstract public int getRouteCode();
-
-        private String getVolumeString() {
-            if (mAudioManager == null) {
-                return "";
-            }
-            StringBuilder sb = new StringBuilder();
-            sb.append("Volume: rng=");
-            sb.append(mAudioManager.getStreamVolume(AudioManager.STREAM_RING));
-            sb.append(", call=");
-            sb.append(mAudioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL));
-            sb.append(", bt=");
-            sb.append(mAudioManager.getStreamVolume(AudioManager.STREAM_BLUETOOTH_SCO));
-            return sb.toString();
-        }
     }
 
     class ActiveEarpieceRoute extends EarpieceRoute {
