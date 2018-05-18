@@ -56,8 +56,8 @@ public class BluetoothHeadsetProxy {
         return mBluetoothHeadset.getConnectionState(device);
     }
 
-    public boolean isAudioConnected(BluetoothDevice device) {
-        return mBluetoothHeadset.isAudioConnected(device);
+    public int getAudioState(BluetoothDevice device) {
+        return mBluetoothHeadset.getAudioState(device);
     }
 
     public boolean connectAudio() {
