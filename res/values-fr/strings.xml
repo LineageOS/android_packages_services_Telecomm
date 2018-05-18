@@ -28,7 +28,7 @@
     <string name="notification_missedCall_message" msgid="3049928912736917988">"Message"</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"Son coupé"</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"Haut-parleur activé"</string>
-    <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"Peux pas parler. Quoi de neuf ?"</string>
+    <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"Je peux pas parler. Qu\'y a-t-il ?"</string>
     <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"Je te rappelle tout de suite."</string>
     <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"Je t\'appellerai plus tard."</string>
     <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"Peux pas parler. On se rappelle ?"</string>
@@ -54,7 +54,7 @@
     <string name="block_number" msgid="1101252256321306179">"Ajouter un numéro"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Débloquer <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Débloquer"</string>
-    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Bloquer les appels et les SMS provenant du numéro :"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Bloquer les appels et les SMS provenant du :"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Numéro de téléphone"</string>
     <string name="block_button" msgid="8822290682524373357">"Bloquer"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Seul le propriétaire de l\'appareil peut afficher et gérer les numéros bloqués."</string>
