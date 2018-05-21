@@ -1452,7 +1452,10 @@ public class CallAudioRouteStateMachine extends StateMachine {
             BluetoothDevice connectedDevice =
                     mBluetoothRouteManager.getBluetoothAudioConnectedDevice();
             if (address == null && connectedDevice != null) {
-                // null means connect to any device, so don't bother reconnecting
+                // null means connect to any device, so don't bother reconnecting. Also, send a
+                // message to ourselves telling us that BT audio is already connected.
+                Log.i(this, "HFP audio already on. Skipping connecting.");
+                sendInternalMessage(BT_AUDIO_CONNECTED);
                 return;
             }
             if (connectedDevice == null || !Objects.equals(address, connectedDevice.getAddress())) {
@@ -1630,7 +1633,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
         return UserHandle.USER_OWNER;
     }
 
-    private boolean isInActiveState() {
+    public boolean isInActiveState() {
         AudioState currentState = (AudioState) getCurrentState();
         if (currentState == null) {
             Log.w(this, "Current state is null, assuming inactive state");

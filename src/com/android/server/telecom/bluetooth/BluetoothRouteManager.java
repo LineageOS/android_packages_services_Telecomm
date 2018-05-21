@@ -17,6 +17,7 @@
 package com.android.server.telecom.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothHeadset;
 import android.content.Context;
 import android.os.Message;
 import android.telecom.Log;
@@ -653,7 +654,8 @@ public class BluetoothRouteManager extends StateMachine {
 
         for (int i = 0; i < deviceList.size(); i++) {
             BluetoothDevice device = deviceList.get(i);
-            boolean isAudioOn = bluetoothHeadset.isAudioConnected(device);
+            boolean isAudioOn = bluetoothHeadset.getAudioState(device)
+                    != BluetoothHeadset.STATE_AUDIO_DISCONNECTED;
             Log.v(this, "isBluetoothAudioConnected: ==> isAudioOn = " + isAudioOn
                     + "for headset: " + device);
             if (isAudioOn) {
