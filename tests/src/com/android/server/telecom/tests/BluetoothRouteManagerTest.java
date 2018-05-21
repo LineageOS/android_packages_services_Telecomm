@@ -17,6 +17,7 @@
 package com.android.server.telecom.tests;
 
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothHeadset;
 import android.content.ContentResolver;
 import android.os.Parcel;
 import android.telecom.Log;
@@ -130,7 +131,8 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         when(mDeviceManager.getConnectedDevices()).thenReturn(Arrays.asList(devices));
         when(mHeadsetProxy.getConnectedDevices()).thenReturn(Arrays.asList(devices));
         if (activeDevice != null) {
-            when(mHeadsetProxy.isAudioConnected(eq(activeDevice))).thenReturn(true);
+            when(mHeadsetProxy.getAudioState(eq(activeDevice)))
+                    .thenReturn(BluetoothHeadset.STATE_AUDIO_CONNECTED);
         }
         doAnswer(invocation -> {
             BluetoothDevice first = getFirstExcluding(devices,
