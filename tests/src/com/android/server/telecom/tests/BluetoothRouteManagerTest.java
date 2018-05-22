@@ -17,6 +17,7 @@
 package com.android.server.telecom.tests;
 
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothHeadset;
 import android.content.ContentResolver;
 import android.os.Parcel;
 import android.telecom.Log;
@@ -39,6 +40,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeast;
@@ -129,8 +131,11 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         when(mDeviceManager.getNumConnectedDevices()).thenReturn(devices.length);
         when(mDeviceManager.getConnectedDevices()).thenReturn(Arrays.asList(devices));
         when(mHeadsetProxy.getConnectedDevices()).thenReturn(Arrays.asList(devices));
+        when(mHeadsetProxy.getAudioState(any(BluetoothDevice.class)))
+                .thenReturn(BluetoothHeadset.STATE_AUDIO_DISCONNECTED);
         if (activeDevice != null) {
-            when(mHeadsetProxy.isAudioConnected(eq(activeDevice))).thenReturn(true);
+            when(mHeadsetProxy.getAudioState(eq(activeDevice)))
+                    .thenReturn(BluetoothHeadset.STATE_AUDIO_CONNECTED);
         }
         doAnswer(invocation -> {
             BluetoothDevice first = getFirstExcluding(devices,
