@@ -522,6 +522,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private int mHandoverState = HandoverState.HANDOVER_NONE;
 
     /**
+     * Indicates whether this call is using one of the
+     * {@link com.android.server.telecom.callfiltering.IncomingCallFilter.CallFilter} modules.
+     */
+    private boolean mIsUsingCallFiltering = false;
+
+    /**
      * Persists the specified parameters and initializes the new instance.
      *  @param context The context.
      * @param repository The connection service repository.
@@ -3048,5 +3054,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      */
     boolean wasHighDefAudio() {
         return mWasHighDefAudio;
+    }
+
+    public void setIsUsingCallFiltering(boolean isUsingCallFiltering) {
+        mIsUsingCallFiltering = isUsingCallFiltering;
     }
 }

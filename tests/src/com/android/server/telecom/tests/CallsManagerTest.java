@@ -700,6 +700,25 @@ public class CallsManagerTest extends TelecomTestCase {
         assertEquals(CallState.ACTIVE, newCall.getState());
     }
 
+    @SmallTest
+    @Test
+    public void testNoFilteringOfSelfManagedCalls() {
+        ConnectionServiceWrapper connSvr1 = Mockito.mock(ConnectionServiceWrapper.class);
+
+        // GIVEN an incoming call which is self managed.
+        Call incomingCall = addSpyCallWithConnectionService(connSvr1);
+        doReturn(false).when(incomingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(false).when(incomingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        doReturn(true).when(incomingCall).isSelfManaged();
+        doNothing().when(incomingCall).setState(anyInt(), any());
+
+        // WHEN the incoming call is successfully added.
+        mCallsManager.onSuccessfulIncomingCall(incomingCall);
+
+        // THEN the incoming call is not using call filtering
+        verify(incomingCall).setIsUsingCallFiltering(eq(false));
+    }
+
     private Call addSpyCallWithConnectionService(ConnectionServiceWrapper connSvr) {
         Call call = addSpyCall();
         doReturn(connSvr).when(call).getConnectionService();
