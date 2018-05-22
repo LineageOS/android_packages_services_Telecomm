@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
 
 import android.content.ComponentName;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.telecom.Connection;
 import android.telecom.PhoneAccount;
@@ -38,7 +39,6 @@ import android.telecom.PhoneAccountHandle;
 import android.telecom.VideoProfile;
 import android.telephony.TelephonyManager;
 import android.test.suitebuilder.annotation.MediumTest;
-
 import android.test.suitebuilder.annotation.SmallTest;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.Call;
@@ -710,6 +710,35 @@ public class CallsManagerTest extends TelecomTestCase {
         doReturn(false).when(incomingCall).can(Connection.CAPABILITY_HOLD);
         doReturn(false).when(incomingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         doReturn(true).when(incomingCall).isSelfManaged();
+        doNothing().when(incomingCall).setState(anyInt(), any());
+
+        // WHEN the incoming call is successfully added.
+        mCallsManager.onSuccessfulIncomingCall(incomingCall);
+
+        // THEN the incoming call is not using call filtering
+        verify(incomingCall).setIsUsingCallFiltering(eq(false));
+    }
+
+    @SmallTest
+    @Test
+    public void testNoFilteringOfCallsWhenPhoneAccountRequestsSkipped() {
+        ConnectionServiceWrapper connSvr1 = Mockito.mock(ConnectionServiceWrapper.class);
+
+        // GIVEN an incoming call which is from a PhoneAccount that requested to skip filtering.
+        Call incomingCall = addSpyCallWithConnectionService(connSvr1);
+        Bundle extras = new Bundle();
+        extras.putBoolean(PhoneAccount.EXTRA_SKIP_CALL_FILTERING, true);
+        PhoneAccount skipRequestedAccount = new PhoneAccount.Builder(SIM_2_HANDLE, "Skipper")
+            .setCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION
+                | PhoneAccount.CAPABILITY_CALL_PROVIDER)
+            .setExtras(extras)
+            .setIsEnabled(true)
+            .build();
+        when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(SIM_2_HANDLE))
+            .thenReturn(skipRequestedAccount);
+        doReturn(false).when(incomingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(false).when(incomingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        doReturn(false).when(incomingCall).isSelfManaged();
         doNothing().when(incomingCall).setState(anyInt(), any());
 
         // WHEN the incoming call is successfully added.
