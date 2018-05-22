@@ -440,6 +440,11 @@ public class TelecomServiceImpl {
                         if (account.hasCapabilities(PhoneAccount.CAPABILITY_MULTI_USER)) {
                             enforceRegisterMultiUser();
                         }
+                        Bundle extras = account.getExtras();
+                        if (extras != null
+                                && extras.getBoolean(PhoneAccount.EXTRA_SKIP_CALL_FILTERING)) {
+                            enforceRegisterSkipCallFiltering();
+                        }
                         enforceUserHandleMatchesCaller(account.getAccountHandle());
                         final long token = Binder.clearCallingIdentity();
                         try {
@@ -1668,6 +1673,13 @@ public class TelecomServiceImpl {
     private void enforceRegisterMultiUser() {
         if (!isCallerSystemApp()) {
             throw new SecurityException("CAPABILITY_MULTI_USER is only available to system apps.");
+        }
+    }
+
+    private void enforceRegisterSkipCallFiltering() {
+        if (!isCallerSystemApp()) {
+            throw new SecurityException(
+                "EXTRA_SKIP_CALL_FILTERING is only available to system apps.");
         }
     }
 
