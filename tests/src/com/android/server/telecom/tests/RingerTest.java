@@ -18,12 +18,12 @@ package com.android.server.telecom.tests;
 
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.res.Resources;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.Ringtone;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.telecom.TelecomManager;
@@ -42,20 +42,56 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Objects;
+
 @RunWith(JUnit4.class)
 public class RingerTest extends TelecomTestCase {
     private static final Uri FAKE_RINGTONE_URI = Uri.parse("content://media/fake/audio/1729");
+    private static class UriVibrationEffect extends VibrationEffect {
+        final Uri mUri;
+
+        private UriVibrationEffect(Uri uri) {
+            mUri = uri;
+        }
+
+        @Override
+        public void validate() {
+            // not needed
+        }
+
+        @Override
+        public long getDuration() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            // not needed
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            UriVibrationEffect that = (UriVibrationEffect) o;
+            return Objects.equals(mUri, that.mUri);
+        }
+    }
 
     @Mock InCallTonePlayer.Factory mockPlayerFactory;
     @Mock SystemSettingsUtil mockSystemSettingsUtil;
@@ -63,6 +99,7 @@ public class RingerTest extends TelecomTestCase {
     @Mock RingtoneFactory mockRingtoneFactory;
     @Mock Vibrator mockVibrator;
     @Mock InCallController mockInCallController;
+    @Spy Ringer.VibrationEffectProxy spyVibrationEffectProxy;
 
     @Mock InCallTonePlayer mockTonePlayer;
     @Mock Call mockCall1;
@@ -76,8 +113,10 @@ public class RingerTest extends TelecomTestCase {
     public void setUp() throws Exception {
         super.setUp();
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
-        mRingerUnderTest = new Ringer(mockPlayerFactory, mContext, mockSystemSettingsUtil,
-                mockRingtonePlayer, mockRingtoneFactory, mockVibrator, mockInCallController);
+        doAnswer(invocation -> {
+            Uri ringtoneUriForEffect = invocation.getArgument(0);
+            return new UriVibrationEffect(ringtoneUriForEffect);
+        }).when(spyVibrationEffectProxy).get(any(), any());
         when(mockPlayerFactory.createPlayer(anyInt())).thenReturn(mockTonePlayer);
         mockAudioManager =
                 (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
@@ -85,6 +124,9 @@ public class RingerTest extends TelecomTestCase {
         NotificationManager notificationManager =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         when(notificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
+        mRingerUnderTest = new Ringer(mockPlayerFactory, mContext, mockSystemSettingsUtil,
+                mockRingtonePlayer, mockRingtoneFactory, mockVibrator, spyVibrationEffectProxy,
+                mockInCallController);
     }
 
     @SmallTest
@@ -207,9 +249,6 @@ public class RingerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testCustomVibrationForRingtone() {
-        Resources resources = mContext.getResources();
-        when(resources.getStringArray(com.android.internal.R.array.config_ringtoneEffectUris))
-                .thenReturn(new String[] { FAKE_RINGTONE_URI.toString() });
         mRingerUnderTest.startCallWaiting(mockCall1);
         Ringtone mockRingtone = mock(Ringtone.class);
         when(mockRingtoneFactory.getRingtone(any(Call.class))).thenReturn(mockRingtone);
@@ -218,7 +257,7 @@ public class RingerTest extends TelecomTestCase {
         assertTrue(mRingerUnderTest.startRinging(mockCall2, false));
         verify(mockTonePlayer).stopTone();
         verify(mockRingtonePlayer).play(any(RingtoneFactory.class), any(Call.class));
-        verify(mockVibrator).vibrate(eq(VibrationEffect.get(FAKE_RINGTONE_URI, mContext)),
+        verify(mockVibrator).vibrate(eq(spyVibrationEffectProxy.get(FAKE_RINGTONE_URI, mContext)),
                 any(AudioAttributes.class));
     }
 
