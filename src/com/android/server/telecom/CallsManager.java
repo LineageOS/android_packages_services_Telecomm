@@ -425,8 +425,10 @@ public class CallsManager extends Call.ListenerBase
                 systemStateProvider, defaultDialerCache, mTimeoutsAdapter,
                 emergencyCallHelper);
         mRinger = new Ringer(playerFactory, context, systemSettingsUtil, asyncRingtonePlayer,
-                ringtoneFactory, systemVibrator, mInCallController);
-        mCallRecordingTonePlayer = new CallRecordingTonePlayer(mContext, audioManager, mLock);
+                ringtoneFactory, systemVibrator,
+                new Ringer.VibrationEffectProxy(), mInCallController);
+        mCallRecordingTonePlayer = new CallRecordingTonePlayer(mContext,
+                (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE), mLock);
         mCallAudioManager = new CallAudioManager(callAudioRouteStateMachine,
                 this, callAudioModeStateMachineFactory.create((AudioManager)
                         mContext.getSystemService(Context.AUDIO_SERVICE)),
