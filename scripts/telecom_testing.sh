@@ -121,7 +121,7 @@ _lite_test_general() {
   if [ $coverage = true ] && [ $project =~ "telecom" ] ; then
     e_options="${e_options} -e coverage 'true'"
   fi
-  adb shell am instrument ${e_options} -w "$package_prefix/$instrumentation"
+  adb shell am instrument --no-hidden-api-checks ${e_options} -w "$package_prefix/$instrumentation"
 
   # Code coverage only enabled for Telecom.
   if [ $coverage = true ] && [ $project =~ "telecom" ] ; then
