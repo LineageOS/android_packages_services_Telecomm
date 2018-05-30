@@ -1538,7 +1538,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
     public static boolean doesDeviceSupportEarpieceRoute() {
         String[] characteristics = SystemProperties.get("ro.build.characteristics").split(",");
         for (String characteristic : characteristics) {
-            if ("watch".equals(characteristic)) {
+            if ("watch".equals(characteristic) || "noearpiece".equals(characteristic)) {
                 return false;
             }
         }
