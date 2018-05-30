@@ -1925,12 +1925,28 @@ public class CallsManager extends Call.ListenerBase
             if (canHold(activeCall)) {
                 activeCall.hold();
                 return true;
-            } else if (supportsHold(call)) {
+            } else if (supportsHold(activeCall)
+                    && activeCall.getConnectionService() == call.getConnectionService()) {
+
+                // Handle the case where the active call and the new call are from the same CS, and
+                // the currently active call supports hold but cannot currently be held.
+                // In this case we'll look for the other held call for this connectionService and
+                // disconnect it prior to holding the active call.
+                // E.g.
+                // Call A - Held   (Supports hold, can't hold)
+                // Call B - Active (Supports hold, can't hold)
+                // Call C - Incoming
+                // Here we need to disconnect A prior to holding B so that C can be answered.
+                // This case is driven by telephony requirements ultimately.
                 Call heldCall = getHeldCallByConnectionService(call.getConnectionService());
                 if (heldCall != null) {
                     heldCall.disconnect();
-                    Log.i(this, "Disconnecting held call %s before holding active call.", heldCall);
+                    Log.i(this, "holdActiveCallForNewCall: Disconnect held call %s before "
+                                    + "holding active call %s.",
+                            heldCall.getId(), activeCall.getId());
                 }
+                Log.i(this, "holdActiveCallForNewCall: Holding active %s before making %s active.",
+                        activeCall.getId(), call.getId());
                 activeCall.hold();
                 return true;
             } else {
@@ -1938,6 +1954,8 @@ public class CallsManager extends Call.ListenerBase
                 // service, then disconnect it, otherwise allow the connection service to
                 // figure out the right states.
                 if (activeCall.getConnectionService() != call.getConnectionService()) {
+                    Log.i(this, "holdActiveCallForNewCall: disconnecting %s so that %s can be "
+                            + "made active.", activeCall.getId(), call.getId());
                     activeCall.disconnect();
                 }
             }
