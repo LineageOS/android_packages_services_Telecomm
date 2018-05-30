@@ -17,6 +17,7 @@
 package com.android.server.telecom.tests;
 
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothHeadset;
 import android.content.ContentResolver;
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -306,7 +307,8 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
         when(mHeadsetProxy.getConnectedDevices()).thenReturn(Arrays.asList(devices));
         when(mHeadsetProxy.getActiveDevice()).thenReturn(activeDevice);
         if (audioOnDevice != null) {
-            when(mHeadsetProxy.isAudioConnected(eq(audioOnDevice))).thenReturn(true);
+            when(mHeadsetProxy.getAudioState(eq(audioOnDevice)))
+                    .thenReturn(BluetoothHeadset.STATE_AUDIO_CONNECTED);
         }
         doAnswer(invocation -> {
             BluetoothDevice first = getFirstExcluding(devices,
