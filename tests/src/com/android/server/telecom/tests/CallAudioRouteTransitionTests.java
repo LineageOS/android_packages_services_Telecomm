@@ -152,6 +152,7 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
     @Mock WiredHeadsetManager mockWiredHeadsetManager;
     @Mock StatusBarNotifier mockStatusBarNotifier;
     @Mock Call fakeCall;
+    @Mock CallAudioManager mockCallAudioManager;
     private CallAudioManager.AudioServiceFactory mAudioServiceFactory;
     private static final int TEST_TIMEOUT = 500;
     private AudioManager mockAudioManager;
@@ -244,6 +245,7 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
                 mockStatusBarNotifier,
                 mAudioServiceFactory,
                 mParams.earpieceControl);
+        stateMachine.setCallAudioManager(mockCallAudioManager);
 
         setupMocksForParams(stateMachine, mParams);
 
@@ -332,6 +334,7 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
                 mockStatusBarNotifier,
                 mAudioServiceFactory,
                 mParams.earpieceControl);
+        stateMachine.setCallAudioManager(mockCallAudioManager);
 
         // Set up bluetooth and speakerphone state
         when(mockBluetoothRouteManager.isBluetoothAvailable()).thenReturn(

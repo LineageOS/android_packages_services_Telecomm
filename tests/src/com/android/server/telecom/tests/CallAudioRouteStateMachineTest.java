@@ -82,6 +82,7 @@ public class CallAudioRouteStateMachineTest extends TelecomSystemTest {
     @Mock WiredHeadsetManager mockWiredHeadsetManager;
     @Mock StatusBarNotifier mockStatusBarNotifier;
     @Mock Call fakeCall;
+    @Mock CallAudioManager mockCallAudioManager;
 
     private CallAudioManager.AudioServiceFactory mAudioServiceFactory;
     private static final int TEST_TIMEOUT = 500;
@@ -187,6 +188,7 @@ public class CallAudioRouteStateMachineTest extends TelecomSystemTest {
                 mockStatusBarNotifier,
                 mAudioServiceFactory,
                 CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED);
+        stateMachine.setCallAudioManager(mockCallAudioManager);
 
         when(mockBluetoothRouteManager.isBluetoothAudioConnectedOrPending()).thenReturn(false);
         when(mockBluetoothRouteManager.isBluetoothAvailable()).thenReturn(true);
@@ -229,6 +231,7 @@ public class CallAudioRouteStateMachineTest extends TelecomSystemTest {
                 mockStatusBarNotifier,
                 mAudioServiceFactory,
                 CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED);
+        stateMachine.setCallAudioManager(mockCallAudioManager);
         Collection<BluetoothDevice> availableDevices = Collections.singleton(bluetoothDevice1);
 
         when(mockBluetoothRouteManager.isBluetoothAudioConnectedOrPending()).thenReturn(false);
@@ -301,6 +304,7 @@ public class CallAudioRouteStateMachineTest extends TelecomSystemTest {
                 mockStatusBarNotifier,
                 mAudioServiceFactory,
                 CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED);
+        stateMachine.setCallAudioManager(mockCallAudioManager);
 
         when(mockBluetoothRouteManager.isBluetoothAudioConnectedOrPending()).thenReturn(false);
         when(mockBluetoothRouteManager.isBluetoothAvailable()).thenReturn(true);
@@ -335,6 +339,7 @@ public class CallAudioRouteStateMachineTest extends TelecomSystemTest {
                 mockStatusBarNotifier,
                 mAudioServiceFactory,
                 CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED);
+        stateMachine.setCallAudioManager(mockCallAudioManager);
         setInBandRing(false);
         when(mockBluetoothRouteManager.isBluetoothAudioConnectedOrPending()).thenReturn(false);
         when(mockBluetoothRouteManager.isBluetoothAvailable()).thenReturn(false);
@@ -369,6 +374,12 @@ public class CallAudioRouteStateMachineTest extends TelecomSystemTest {
                 CallAudioRouteStateMachine.ACTIVE_FOCUS);
         waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
         verify(mockBluetoothRouteManager, times(1)).connectBluetoothAudio(null);
+
+        when(mockBluetoothRouteManager.getBluetoothAudioConnectedDevice())
+                .thenReturn(bluetoothDevice1);
+        stateMachine.sendMessage(CallAudioRouteStateMachine.BT_AUDIO_CONNECTED);
+        waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
+        verify(mockCallAudioManager, times(1)).onRingerModeChange();
     }
 
     @SmallTest
@@ -382,6 +393,7 @@ public class CallAudioRouteStateMachineTest extends TelecomSystemTest {
                 mockStatusBarNotifier,
                 mAudioServiceFactory,
                 CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED);
+        stateMachine.setCallAudioManager(mockCallAudioManager);
         List<BluetoothDevice> availableDevices =
                 Arrays.asList(bluetoothDevice1, bluetoothDevice2, bluetoothDevice3);
 
