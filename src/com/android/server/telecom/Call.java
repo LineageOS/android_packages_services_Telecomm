@@ -1173,6 +1173,17 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             return false;
         }
 
+        if (getHandle() == null) {
+            // No point in logging a null-handle call. Some self-managed calls will have this.
+            return false;
+        }
+
+        if (!PhoneAccount.SCHEME_SIP.equals(getHandle().getScheme()) &&
+                !PhoneAccount.SCHEME_TEL.equals(getHandle().getScheme())) {
+            // Can't log schemes other than SIP or TEL for now.
+            return false;
+        }
+
         return phoneAccount.getExtras() != null && phoneAccount.getExtras().getBoolean(
                 PhoneAccount.EXTRA_LOG_SELF_MANAGED_CALLS, false);
     }
