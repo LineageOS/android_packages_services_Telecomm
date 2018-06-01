@@ -1456,6 +1456,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             if ((mConnectionProperties & Connection.PROPERTY_IS_RTT) ==
                     Connection.PROPERTY_IS_RTT) {
                 createRttStreams();
+                // Call startRtt to pass the RTT pipes down to the connection service.
+                // They already turned on the RTT property so no request should be sent.
+                mConnectionService.startRtt(this,
+                        getInCallToCsRttPipeForCs(), getCsToInCallRttPipeForCs());
                 mWasEverRtt = true;
                 if (isEmergencyCall()) {
                     mCallsManager.setAudioRoute(CallAudioState.ROUTE_SPEAKER, null);
