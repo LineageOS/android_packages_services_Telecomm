@@ -43,7 +43,7 @@
     <string name="outgoing_call_error_no_phone_number_supplied" msgid="1940125199802007505">"कॉल करण्यासाठी, एक वैध नंबर एंटर करा."</string>
     <string name="duplicate_video_call_not_allowed" msgid="3749211605014548386">"यावेळी कॉल जोडला जाऊ शकत नाही."</string>
     <string name="no_vm_number" msgid="4164780423805688336">"व्हॉइसमेल नंबर गहाळ"</string>
-    <string name="no_vm_number_msg" msgid="1300729501030053828">"सिम कार्डवर कोणताही व्हॉइसमेल नंबर संचयित केला नाही."</string>
+    <string name="no_vm_number_msg" msgid="1300729501030053828">"सिम कार्डवर कोणताही व्हॉइसमेल नंबर स्टोअर केला नाही."</string>
     <string name="add_vm_number_str" msgid="4676479471644687453">"नंबर जोडा"</string>
     <string name="change_default_dialer_dialog_title" msgid="9101655962941740507">"<xliff:g id="NEW_APP">%s</xliff:g> ला आपला डीफॉल्ट अॅप बनवायचा?"</string>
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"डीफॉल्ट म्हणून सेट करा"</string>
