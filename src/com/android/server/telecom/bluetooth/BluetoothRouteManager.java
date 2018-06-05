@@ -568,6 +568,10 @@ public class BluetoothRouteManager extends StateMachine {
         }
     }
 
+    public boolean hasBtActiveDevice() {
+        return mActiveDeviceCache != null;
+    }
+
     public Collection<BluetoothDevice> getConnectedDevices() {
         return mDeviceManager.getConnectedDevices();
     }
