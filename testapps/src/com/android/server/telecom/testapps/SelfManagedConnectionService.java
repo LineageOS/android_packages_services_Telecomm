@@ -83,7 +83,8 @@ public class SelfManagedConnectionService extends ConnectionService {
         connection.setListener(mCallList.getConnectionListener());
         connection.setConnectionProperties(Connection.PROPERTY_SELF_MANAGED);
         connection.setAddress(request.getAddress(), TelecomManager.PRESENTATION_ALLOWED);
-        connection.setAudioModeIsVoip(true);
+        // Purposely do not set the audio mode to voip since we expect this to be the default:
+        // connection.setAudioModeIsVoip(true);
         connection.setVideoState(request.getVideoState());
         Random random = new Random();
         connection.setCallerDisplayName(TEST_NAMES[random.nextInt(TEST_NAMES.length)],
