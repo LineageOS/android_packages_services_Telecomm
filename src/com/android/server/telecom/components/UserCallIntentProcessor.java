@@ -16,14 +16,7 @@
 
 package com.android.server.telecom.components;
 
-import com.android.server.telecom.CallIntentProcessor;
-import com.android.server.telecom.R;
-import com.android.server.telecom.TelecomSystem;
-import com.android.server.telecom.TelephonyUtil;
-import com.android.server.telecom.UserUtil;
-import com.android.settingslib.RestrictedLockUtils;
-import com.android.settingslib.RestrictedLockUtils.EnforcedAdmin;
-
+import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -36,6 +29,12 @@ import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
+
+import com.android.server.telecom.CallIntentProcessor;
+import com.android.server.telecom.R;
+import com.android.server.telecom.TelecomSystem;
+import com.android.server.telecom.TelephonyUtil;
+import com.android.server.telecom.UserUtil;
 
 // TODO: Needed for move to system service: import com.android.internal.R;
 
@@ -103,9 +102,9 @@ public class UserCallIntentProcessor {
         String scheme = handle.getScheme();
         String uriString = handle.getSchemeSpecificPart();
 
-        if (!PhoneAccount.SCHEME_VOICEMAIL.equals(scheme)) {
-            handle = Uri.fromParts(PhoneNumberUtils.isUriNumber(uriString) ?
-                    PhoneAccount.SCHEME_SIP : PhoneAccount.SCHEME_TEL, uriString, null);
+        // Ensure sip URIs dialed using TEL scheme get converted to SIP scheme.
+        if (PhoneAccount.SCHEME_TEL.equals(scheme) && PhoneNumberUtils.isUriNumber(uriString)) {
+            handle = Uri.fromParts(PhoneAccount.SCHEME_SIP, uriString, null);
         }
 
         // Check DISALLOW_OUTGOING_CALLS restriction. Note: We are skipping this check in a managed
@@ -126,8 +125,16 @@ public class UserCallIntentProcessor {
                     return;
                 } else if (userManager.hasUserRestriction(UserManager.DISALLOW_OUTGOING_CALLS,
                         mUserHandle)) {
-                    RestrictedLockUtils.sendShowAdminSupportDetailsIntent(mContext,
-                            EnforcedAdmin.MULTIPLE_ENFORCED_ADMIN);
+                    final DevicePolicyManager dpm =
+                            mContext.getSystemService(DevicePolicyManager.class);
+                    if (dpm == null) {
+                        return;
+                    }
+                    final Intent adminSupportIntent = dpm.createAdminSupportIntent(
+                            UserManager.DISALLOW_OUTGOING_CALLS);
+                    if (adminSupportIntent != null) {
+                        mContext.startActivity(adminSupportIntent);
+                    }
                     return;
                 }
             }

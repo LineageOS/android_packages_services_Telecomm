@@ -583,6 +583,7 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
                                     || TextUtils.isEmpty(handleString)) {
                                 handle = null;
                             } else {
+                                // TODO: Remove the assumption that numbers are SIP or TEL only.
                                 handle = Uri.fromParts(PhoneNumberUtils.isUriNumber(handleString) ?
                                         PhoneAccount.SCHEME_SIP : PhoneAccount.SCHEME_TEL,
                                                 handleString, null);

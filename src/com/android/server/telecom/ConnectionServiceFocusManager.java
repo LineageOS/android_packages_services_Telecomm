@@ -415,7 +415,7 @@ public class ConnectionServiceFocusManager {
         // The ConnectionService can call onConnectionServiceFocusReleased even if it's not the
         // current focus connection service, nothing will be changed in this case.
         if (Objects.equals(mCurrentFocus, connectionServiceFocus)) {
-            mEventHandler.removeMessages(MSG_RELEASE_FOCUS_TIMEOUT, mCurrentFocusRequest);
+            mEventHandler.removeMessages(MSG_RELEASE_FOCUS_TIMEOUT);
             ConnectionServiceFocus newCSF = null;
             if (mCurrentFocusRequest != null) {
                 newCSF = mCurrentFocusRequest.call.getConnectionServiceWrapper();

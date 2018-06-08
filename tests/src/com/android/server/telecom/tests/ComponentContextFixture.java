@@ -439,6 +439,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
         MockitoAnnotations.initMocks(this);
         when(mResources.getConfiguration()).thenReturn(mResourceConfiguration);
         when(mResources.getString(anyInt())).thenReturn("");
+        when(mResources.getStringArray(anyInt())).thenReturn(new String[0]);
         mResourceConfiguration.setLocale(Locale.TAIWAN);
 
         // TODO: Move into actual tests

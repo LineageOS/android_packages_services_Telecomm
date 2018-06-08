@@ -44,10 +44,10 @@ LOCAL_RESOURCE_DIR := \
     $(LOCAL_PATH)/../res
 
 LOCAL_JAVA_LIBRARIES := \
-        android.test.mock \
-        legacy-android-test \
-        android.test.runner \
-        telephony-common
+    android.test.mock \
+    android.test.base \
+    android.test.runner \
+    telephony-common
 
 LOCAL_USE_AAPT2 := true
 

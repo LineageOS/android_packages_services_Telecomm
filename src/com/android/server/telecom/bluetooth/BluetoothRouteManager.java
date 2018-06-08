@@ -692,7 +692,8 @@ public class BluetoothRouteManager extends StateMachine {
             Log.w(this, "Attempting to turn on audio for a disconnected device");
             return false;
         }
-        if (!bluetoothHeadset.setActiveDevice(device)) {
+        boolean success = bluetoothHeadset.setActiveDevice(device);
+        if (!success) {
             Log.w(LOG_TAG, "Couldn't set active device to %s", address);
             return false;
         }

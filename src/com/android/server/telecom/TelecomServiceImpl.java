@@ -983,15 +983,9 @@ public class TelecomServiceImpl {
         public boolean isTtySupported(String callingPackage) {
             try {
                 Log.startSession("TSI.iTS");
-                if (!isPrivilegedDialerCalling(callingPackage)) {
-                    try {
-                        enforceModifyPermission(
-                                "isTtySupported requires MODIFY_PHONE_STATE permission.");
-                    } catch (SecurityException e) {
-                        EventLog.writeEvent(0x534e4554, "62347125", "isTtySupported: " +
-                                callingPackage);
-                        throw e;
-                    }
+                if (!canReadPhoneState(callingPackage, "isTtySupported")) {
+                    throw new SecurityException("Only default dialer or an app with" +
+                            "READ_PRIVILEGED_PHONE_STATE or READ_PHONE_STATE can call this api");
                 }
 
                 synchronized (mLock) {

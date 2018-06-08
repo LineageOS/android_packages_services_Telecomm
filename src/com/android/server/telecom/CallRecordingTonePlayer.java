@@ -239,14 +239,11 @@ public class CallRecordingTonePlayer extends CallsManagerListenerBase {
         AudioDeviceInfo telephonyDevice = getTelephonyDevice(mAudioManager);
         if (telephonyDevice != null) {
             Log.i(this ,"startCallRecordingTone: playing call recording tone to remote end.");
-            /**
-             TODO: uncomment this in P release; API dependencies exist which are not met in AOSP.
             mRecordingTonePlayer = MediaPlayer.create(context, R.raw.record);
             mRecordingTonePlayer.setLooping(true);
             mRecordingTonePlayer.setPreferredDevice(telephonyDevice);
             mRecordingTonePlayer.setVolume(0.1f);
             mRecordingTonePlayer.start();
-             */
         } else {
             Log.w(this ,"startCallRecordingTone: can't find telephony audio device.");
         }
