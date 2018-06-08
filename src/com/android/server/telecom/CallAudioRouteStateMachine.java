@@ -1624,7 +1624,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
         int supportedRouteMask = calculateSupportedRoutes() & getCurrentCallSupportedRoutes();
         final int route;
 
-        if ((supportedRouteMask & ROUTE_BLUETOOTH) != 0) {
+        if ((supportedRouteMask & ROUTE_BLUETOOTH) != 0
+                && mBluetoothRouteManager.hasBtActiveDevice()) {
             route = ROUTE_BLUETOOTH;
         } else if ((supportedRouteMask & ROUTE_WIRED_HEADSET) != 0) {
             route = ROUTE_WIRED_HEADSET;
