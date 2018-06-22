@@ -961,6 +961,12 @@ public class InCallController extends CallsManagerListenerBase {
         updateCall(call);
     }
 
+    @Override
+    public void onIsVoipAudioModeChanged(Call call) {
+        Log.d(this, "onIsVoipAudioModeChanged %s", call);
+        updateCall(call);
+    }
+
     void bringToForeground(boolean showDialpad) {
         if (!mInCallServices.isEmpty()) {
             for (IInCallService inCallService : mInCallServices.values()) {
