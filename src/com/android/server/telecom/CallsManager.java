@@ -26,6 +26,7 @@ import android.content.pm.UserInfo;
 import android.media.AudioManager;
 import android.media.AudioSystem;
 import android.media.ToneGenerator;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -408,8 +409,12 @@ public class CallsManager extends Call.ListenerBase
                         wiredHeadsetManager,
                         mDockManager);
 
+        AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+        InCallTonePlayer.MediaPlayerFactory mediaPlayerFactory =
+                (resourceId, attributes) -> MediaPlayer.create(mContext, resourceId, attributes,
+                        audioManager.generateAudioSessionId());
         InCallTonePlayer.Factory playerFactory = new InCallTonePlayer.Factory(
-                callAudioRoutePeripheralAdapter, lock, toneGeneratorFactory);
+                callAudioRoutePeripheralAdapter, lock, toneGeneratorFactory, mediaPlayerFactory);
 
         SystemSettingsUtil systemSettingsUtil = new SystemSettingsUtil();
         RingtoneFactory ringtoneFactory = new RingtoneFactory(this, context);
@@ -420,8 +425,7 @@ public class CallsManager extends Call.ListenerBase
         mRinger = new Ringer(playerFactory, context, systemSettingsUtil, asyncRingtonePlayer,
                 ringtoneFactory, systemVibrator,
                 new Ringer.VibrationEffectProxy(), mInCallController);
-        mCallRecordingTonePlayer = new CallRecordingTonePlayer(mContext,
-                (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE), mLock);
+        mCallRecordingTonePlayer = new CallRecordingTonePlayer(mContext, audioManager, mLock);
         mCallAudioManager = new CallAudioManager(callAudioRouteStateMachine,
                 this, callAudioModeStateMachineFactory.create((AudioManager)
                         mContext.getSystemService(Context.AUDIO_SERVICE)),
@@ -1267,8 +1271,13 @@ public class CallsManager extends Call.ListenerBase
                     CallState.CONNECTING,
                     phoneAccountHandle == null ? "no-handle" : phoneAccountHandle.toString());
 
-            if (isRttSettingOn() || (extras != null
-                    && extras.getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false))) {
+            boolean isVoicemail = (call.getHandle() != null)
+                    && (PhoneAccount.SCHEME_VOICEMAIL.equals(call.getHandle().getScheme())
+                    || (accountToUse != null && mPhoneAccountRegistrar.isVoiceMailNumber(
+                    accountToUse.getAccountHandle(), call.getHandle().getSchemeSpecificPart())));
+
+            if (!isVoicemail && (isRttSettingOn() || (extras != null
+                    && extras.getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false)))) {
                 Log.d(this, "Outgoing call requesting RTT, rtt setting is %b", isRttSettingOn());
                 if (accountToUse != null
                         && accountToUse.hasCapabilities(PhoneAccount.CAPABILITY_RTT)) {
@@ -1851,8 +1860,15 @@ public class CallsManager extends Call.ListenerBase
                 Log.d("phoneAccountSelected: default to voip mode for call %s", call.getId());
                 call.setIsVoipAudioMode(true);
             }
-            if (isRttSettingOn() || call.getIntentExtras()
-                    .getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false)) {
+
+            boolean isVoicemail = (call.getHandle() != null)
+                    && (PhoneAccount.SCHEME_VOICEMAIL.equals(call.getHandle().getScheme())
+                    || (realPhoneAccount != null && mPhoneAccountRegistrar.isVoiceMailNumber(
+                    realPhoneAccount.getAccountHandle(),
+                    call.getHandle().getSchemeSpecificPart())));
+
+            if (!isVoicemail && (isRttSettingOn() || call.getIntentExtras()
+                    .getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false))) {
                 Log.d(this, "Outgoing call after account selection requesting RTT," +
                         " rtt setting is %b", isRttSettingOn());
                 if (realPhoneAccount != null
