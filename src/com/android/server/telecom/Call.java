@@ -943,6 +943,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 case CallState.RINGING:
                     event = LogUtils.Events.SET_RINGING;
                     break;
+                case CallState.ANSWERED:
+                    event = LogUtils.Events.SET_ANSWERED;
+                    break;
             }
             if (event != null) {
                 // The string data should be just the tag.
@@ -1980,6 +1983,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         switch (mState) {
             case CallState.NEW:
             case CallState.RINGING:
+            case CallState.ANSWERED:
             case CallState.DISCONNECTED:
             case CallState.ABORTED:
                 return false;
@@ -3049,13 +3053,13 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     /**
      * Sets the video history based on the state and state transitions of the call. Always add the
      * current video state to the video state history during a call transition except for the
-     * transitions DIALING->ACTIVE and RINGING->ACTIVE. In these cases, clear the history. If a
+     * transitions DIALING->ACTIVE and RINGING->ANSWERED. In these cases, clear the history. If a
      * call starts dialing/ringing as a VT call and gets downgraded to audio, we need to record
      * the history as an audio call.
      */
     private void updateVideoHistoryViaState(int oldState, int newState) {
-        if ((oldState == CallState.DIALING || oldState == CallState.RINGING)
-                && newState == CallState.ACTIVE) {
+        if ((oldState == CallState.DIALING && newState == CallState.ACTIVE)
+                || (oldState == CallState.RINGING && newState == CallState.ANSWERED)) {
             mVideoStateHistory = mVideoState;
         }
 
