@@ -28,6 +28,9 @@ import android.telecom.Logging.Session;
 
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Play a call-related tone (ringback, busy signal, etc.) either through ToneGenerator, or using a
  * media resource file.
@@ -347,17 +350,28 @@ public class InCallTonePlayer extends Thread {
                     .build();
             mToneMediaPlayer = mMediaPlayerFactory.get(toneResourceId, attributes);
             mToneMediaPlayer.setLooping(false);
+            int durationMillis = mToneMediaPlayer.getDuration();
+            final CountDownLatch toneLatch = new CountDownLatch(1);
             mToneMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
+                    Log.i(this, "playMediaTone: toneResourceId=%d completed.", toneResourceId);
                     synchronized (this) {
                         mState = STATE_OFF;
                     }
                     mToneMediaPlayer.release();
                     mToneMediaPlayer = null;
+                    toneLatch.countDown();
                 }
             });
             mToneMediaPlayer.start();
+            try {
+                // Wait for the tone to stop playing; timeout at 2x the length of the file just to
+                // be on the safe side.
+                toneLatch.await(durationMillis * 2, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException ie) {
+                Log.e(this, ie, "playMediaTone: tone playback interrupted.");
+            }
         }
 
     }
