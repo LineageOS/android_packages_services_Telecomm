@@ -33,9 +33,7 @@ import com.android.server.telecom.BluetoothHeadsetProxy;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -572,8 +570,7 @@ public class BluetoothRouteManager extends StateMachine {
     }
 
     public Collection<BluetoothDevice> getConnectedDevices() {
-        return Collections.unmodifiableCollection(
-                new ArrayList<>(mDeviceManager.getConnectedDevices()));
+        return mDeviceManager.getConnectedDevices();
     }
 
     private String connectHfpAudio(String address) {
