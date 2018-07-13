@@ -17,6 +17,10 @@
 package com.android.server.telecom.testapps;
 
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.media.AudioAttributes;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.telecom.ConnectionRequest;
@@ -100,6 +104,7 @@ public class SelfManagedCallingActivity extends Activity {
                         | WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES;
 
         getWindow().addFlags(flags);
+        configureNotificationChannel();
         setContentView(R.layout.self_managed_sample_main);
         mCheckIfPermittedBeforeCalling = (CheckBox) findViewById(
                 R.id.checkIfPermittedBeforeCalling);
@@ -195,5 +200,21 @@ public class SelfManagedCallingActivity extends Activity {
             extras.putBoolean(TelecomManager.EXTRA_IS_HANDOVER, true);
         }
         tm.addNewIncomingCall(getSelectedPhoneAccountHandle(), extras);
+    }
+
+    private void configureNotificationChannel() {
+        NotificationChannel channel = new NotificationChannel(
+                SelfManagedConnection.INCOMING_CALL_CHANNEL_ID, "Incoming Calls",
+                NotificationManager.IMPORTANCE_MAX);
+        channel.setShowBadge(false);
+        Uri ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+        channel.setSound(ringtoneUri, new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build());
+        channel.enableLights(true);
+
+        NotificationManager mgr = getSystemService(NotificationManager.class);
+        mgr.createNotificationChannel(channel);
     }
 }
