@@ -226,6 +226,8 @@ public class ParcelableCallUtils {
                 state = android.telecom.Call.STATE_HOLDING;
                 break;
             case CallState.RINGING:
+            case CallState.ANSWERED:
+                // TODO: does in-call UI need to see ANSWERED?
                 state = android.telecom.Call.STATE_RINGING;
                 break;
             case CallState.SELECT_PHONE_ACCOUNT:

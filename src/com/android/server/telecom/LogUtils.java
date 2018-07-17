@@ -65,6 +65,7 @@ public class LogUtils {
         public static final String SET_ACTIVE = "SET_ACTIVE";
         public static final String SET_HOLD = "SET_HOLD";
         public static final String SET_RINGING = "SET_RINGING";
+        public static final String SET_ANSWERED = "SET_ANSWERED";
         public static final String SET_DISCONNECTED = "SET_DISCONNECTED";
         public static final String SET_DISCONNECTING = "SET_DISCONNECTING";
         public static final String SET_SELECT_PHONE_ACCOUNT = "SET_SELECT_PHONE_ACCOUNT";

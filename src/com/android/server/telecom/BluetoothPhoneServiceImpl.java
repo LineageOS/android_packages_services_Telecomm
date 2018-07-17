@@ -875,6 +875,7 @@ public class BluetoothPhoneServiceImpl {
                 return CALL_STATE_HELD;
 
             case CallState.RINGING:
+            case CallState.ANSWERED:
                 if (isForegroundCall) {
                     return CALL_STATE_INCOMING;
                 } else {
