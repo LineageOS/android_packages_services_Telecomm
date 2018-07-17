@@ -1454,7 +1454,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         if (changedProperties != 0) {
             int previousProperties = mConnectionProperties;
             mConnectionProperties = connectionProperties;
-            if ((mConnectionProperties & Connection.PROPERTY_IS_RTT) ==
+            boolean didRttChange =
+                    (changedProperties & Connection.PROPERTY_IS_RTT) == Connection.PROPERTY_IS_RTT;
+            if (didRttChange && (mConnectionProperties & Connection.PROPERTY_IS_RTT) ==
                     Connection.PROPERTY_IS_RTT) {
                 createRttStreams();
                 // Call startRtt to pass the RTT pipes down to the connection service.
@@ -1469,8 +1471,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             }
             mWasHighDefAudio = (connectionProperties & Connection.PROPERTY_HIGH_DEF_AUDIO) ==
                     Connection.PROPERTY_HIGH_DEF_AUDIO;
-            boolean didRttChange =
-                    (changedProperties & Connection.PROPERTY_IS_RTT) == Connection.PROPERTY_IS_RTT;
             for (Listener l : mListeners) {
                 l.onConnectionPropertiesChanged(this, didRttChange);
             }
