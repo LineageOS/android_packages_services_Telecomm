@@ -86,7 +86,6 @@ public class CallAudioModeStateMachine extends StateMachine {
     public static final int NEW_ACTIVE_OR_DIALING_CALL = 2001;
     public static final int NEW_RINGING_CALL = 2002;
     public static final int NEW_HOLDING_CALL = 2003;
-    public static final int MT_AUDIO_SPEEDUP_FOR_RINGING_CALL = 2004;
 
     public static final int TONE_STARTED_PLAYING = 3001;
     public static final int TONE_STOPPED_PLAYING = 3002;
@@ -109,7 +108,6 @@ public class CallAudioModeStateMachine extends StateMachine {
         put(NEW_ACTIVE_OR_DIALING_CALL, "NEW_ACTIVE_OR_DIALING_CALL");
         put(NEW_RINGING_CALL, "NEW_RINGING_CALL");
         put(NEW_HOLDING_CALL, "NEW_HOLDING_CALL");
-        put(MT_AUDIO_SPEEDUP_FOR_RINGING_CALL, "MT_AUDIO_SPEEDUP_FOR_RINGING_CALL");
         put(TONE_STARTED_PLAYING, "TONE_STARTED_PLAYING");
         put(TONE_STOPPED_PLAYING, "TONE_STOPPED_PLAYING");
         put(FOREGROUND_VOIP_MODE_CHANGE, "FOREGROUND_VOIP_MODE_CHANGE");
@@ -278,15 +276,6 @@ public class CallAudioModeStateMachine extends StateMachine {
                     Log.w(LOG_TAG, "Call was surprisingly put into hold while ringing." +
                             " Args are: " + args.toString());
                     transitionTo(mOtherFocusState);
-                    return HANDLED;
-                case MT_AUDIO_SPEEDUP_FOR_RINGING_CALL:
-                    // This happens when an IMS call is answered by the in-call UI. Special case
-                    // that we have to deal with for some reason.
-
-                    // The IMS audio routing may be via modem or via RTP stream. In case via RTP
-                    // stream, the state machine should transit to mVoipCallFocusState.
-                    transitionTo(args.foregroundCallIsVoip
-                            ? mVoipCallFocusState : mSimCallFocusState);
                     return HANDLED;
                 case RINGER_MODE_CHANGE: {
                     Log.i(LOG_TAG, "RINGING state, received RINGER_MODE_CHANGE");

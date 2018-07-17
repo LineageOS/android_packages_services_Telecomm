@@ -193,12 +193,13 @@ public class CallsManager extends Call.ListenerBase
      */
     public static final int[] ONGOING_CALL_STATES =
             {CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING, CallState.PULLING, CallState.ACTIVE,
-                    CallState.ON_HOLD, CallState.RINGING};
+                    CallState.ON_HOLD, CallState.RINGING, CallState.ANSWERED};
 
     private static final int[] ANY_CALL_STATE =
             {CallState.NEW, CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING,
                     CallState.RINGING, CallState.ACTIVE, CallState.ON_HOLD, CallState.DISCONNECTED,
-                    CallState.ABORTED, CallState.DISCONNECTING, CallState.PULLING};
+                    CallState.ABORTED, CallState.DISCONNECTING, CallState.PULLING,
+                    CallState.ANSWERED};
 
     public static final String TELECOM_CALL_ID_PREFIX = "TC@";
 
@@ -2127,7 +2128,7 @@ public class CallsManager extends Call.ListenerBase
     }
 
     boolean hasRingingCall() {
-        return getFirstCallWithState(CallState.RINGING) != null;
+        return getFirstCallWithState(CallState.RINGING, CallState.ANSWERED) != null;
     }
 
     boolean onMediaButton(int type) {
@@ -2212,7 +2213,7 @@ public class CallsManager extends Call.ListenerBase
 
     @VisibleForTesting
     public Call getRingingCall() {
-        return getFirstCallWithState(CallState.RINGING);
+        return getFirstCallWithState(CallState.RINGING, CallState.ANSWERED);
     }
 
     public Call getActiveCall() {
@@ -2768,13 +2769,13 @@ public class CallsManager extends Call.ListenerBase
 
     private boolean hasMaximumManagedRingingCalls(Call exceptCall) {
         return MAXIMUM_RINGING_CALLS <= getNumCallsWithState(false /* isSelfManaged */, exceptCall,
-                null /* phoneAccountHandle */, CallState.RINGING);
+                null /* phoneAccountHandle */, CallState.RINGING, CallState.ANSWERED);
     }
 
     private boolean hasMaximumSelfManagedRingingCalls(Call exceptCall,
                                                       PhoneAccountHandle phoneAccountHandle) {
         return MAXIMUM_RINGING_CALLS <= getNumCallsWithState(true /* isSelfManaged */, exceptCall,
-                phoneAccountHandle, CallState.RINGING);
+                phoneAccountHandle, CallState.RINGING, CallState.ANSWERED);
     }
 
     private boolean hasMaximumOutgoingCalls(Call exceptCall) {
@@ -3916,6 +3917,7 @@ public class CallsManager extends Call.ListenerBase
             // We do not update the UI until we get confirmation of the answer() through
             // {@link #markCallAsActive}.
             mCall.answer(mVideoState);
+            setCallState(mCall, CallState.ANSWERED, "answered");
             if (isSpeakerphoneAutoEnabledForVideoCalls(mVideoState)) {
                 mCall.setStartWithSpeakerphoneOn(true);
             }
