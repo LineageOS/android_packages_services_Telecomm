@@ -3938,7 +3938,9 @@ public class CallsManager extends Call.ListenerBase
             // We do not update the UI until we get confirmation of the answer() through
             // {@link #markCallAsActive}.
             mCall.answer(mVideoState);
-            setCallState(mCall, CallState.ANSWERED, "answered");
+            if (mCall.getState() == CallState.RINGING) {
+                setCallState(mCall, CallState.ANSWERED, "answered");
+            }
             if (isSpeakerphoneAutoEnabledForVideoCalls(mVideoState)) {
                 mCall.setStartWithSpeakerphoneOn(true);
             }

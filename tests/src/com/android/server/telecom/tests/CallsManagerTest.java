@@ -626,6 +626,25 @@ public class CallsManagerTest extends TelecomTestCase {
 
     @SmallTest
     @Test
+    public void testAnswerAlreadyActiveCall() {
+        // GIVEN a CallsManager with no ongoing call.
+
+        // WHEN answer an already active call
+        Call incomingCall = addSpyCall();
+        mCallsManager.answerCall(incomingCall, VideoProfile.STATE_AUDIO_ONLY);
+
+        // THEN the focus request for incoming call is sent
+        verifyFocusRequestAndExecuteCallback(incomingCall);
+
+        // and the incoming call is answered.
+        verify(incomingCall).answer(VideoProfile.STATE_AUDIO_ONLY);
+
+        // and the incoming call's state is still ACTIVE
+        assertEquals(CallState.ACTIVE, incomingCall.getState());
+    }
+
+    @SmallTest
+    @Test
     public void testSetActiveCallWhenOngoingCallCanNotBeHeldAndFromDifferentConnectionService() {
         ConnectionServiceWrapper connSvr1 = Mockito.mock(ConnectionServiceWrapper.class);
         ConnectionServiceWrapper connSvr2 = Mockito.mock(ConnectionServiceWrapper.class);
