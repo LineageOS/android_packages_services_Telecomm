@@ -960,6 +960,12 @@ public class InCallController extends CallsManagerListenerBase {
         updateCall(call);
     }
 
+    @Override
+    public void onConnectionTimeChanged(Call call) {
+        Log.d(this, "onConnectionTimeChanged %s", call);
+        updateCall(call);
+    }
+
     void bringToForeground(boolean showDialpad) {
         if (!mInCallServices.isEmpty()) {
             for (IInCallService inCallService : mInCallServices.values()) {
