@@ -145,6 +145,26 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         }
 
         @Override
+        public void resetConnectionTime(String callId, Session.Info sessionInfo) {
+            Log.startSession(sessionInfo, "CSW.rCCT");
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    logIncoming("resetConnectionTime %s", callId);
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        mCallsManager.resetConnectionTime(call);
+                    } else {
+                        // Log.w(this, "resetConnectionTime, unknown call id: %s", msg.obj);
+                    }
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+                Log.endSession();
+            }
+        }
+
+        @Override
         public void setVideoProvider(String callId, IVideoProvider videoProvider,
                 Session.Info sessionInfo) {
             Log.startSession(sessionInfo, "CSW.sVP");
