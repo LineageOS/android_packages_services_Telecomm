@@ -2907,11 +2907,13 @@ public class CallsManager extends Call.ListenerBase
                 return false;
             }
 
-            // Disconnected the live call if the outgoing call is an emergency call.
-            if (isEmergency && !canHold(liveCall)) {
+            // If we have the max number of held managed calls and we're placing an emergency call,
+            // we'll disconnect the ongoing call if it cannot be held.
+            if (hasMaximumManagedHoldingCalls(call) && isEmergency && !canHold(liveCall)) {
                 call.getAnalytics().setCallIsAdditional(true);
                 liveCall.getAnalytics().setCallIsInterrupted(true);
-                liveCall.disconnect("emergency, can't hold");
+                liveCall.disconnect("disconnecting to make room for emergency call "
+                        + call.getId());
                 return true;
             }
 

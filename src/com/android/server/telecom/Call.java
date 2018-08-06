@@ -48,6 +48,7 @@ import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
+import android.util.StatsLog;
 import android.os.UserHandle;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -956,6 +957,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 }
                 Log.addEvent(this, event, stringData);
             }
+            int statsdDisconnectCause = (newState == CallState.DISCONNECTED) ?
+                    getDisconnectCause().getCode() : DisconnectCause.UNKNOWN;
+            StatsLog.write(StatsLog.CALL_STATE_CHANGED, newState, statsdDisconnectCause,
+                    isSelfManaged(), isExternalCall());
         }
     }
 

@@ -365,7 +365,8 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     @VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
     public void onRingerModeChange() {
-        mCallAudioModeStateMachine.sendMessage(CallAudioModeStateMachine.RINGER_MODE_CHANGE);
+        mCallAudioModeStateMachine.sendMessageWithArgs(
+                CallAudioModeStateMachine.RINGER_MODE_CHANGE, makeArgsForModeStateMachine());
     }
 
     @VisibleForTesting
