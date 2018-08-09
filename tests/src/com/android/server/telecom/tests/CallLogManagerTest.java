@@ -23,6 +23,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.IContentProvider;
 import android.content.pm.UserInfo;
+import android.content.res.Resources;
 import android.location.Country;
 import android.location.CountryDetector;
 import android.location.CountryListener;
@@ -211,6 +212,57 @@ public class CallLogManagerTest extends TelecomTestCase {
         );
         mCallLogManager.onCallStateChanged(fakeCall, CallState.SELECT_PHONE_ACCOUNT,
                 CallState.DISCONNECTED);
+        verifyNoInsertion();
+    }
+
+    @MediumTest
+    @Test
+    public void testDontLogUnloggableNumbers() {
+        // Set up the carrier config source
+        String number1 = "90000";
+        String number2 = "80000";
+        CarrierConfigManager mockCarrierConfigManager =
+                (CarrierConfigManager) mComponentContextFixture.getTestDouble()
+                        .getApplicationContext().getSystemService(Context.CARRIER_CONFIG_SERVICE);
+        PersistableBundle bundle = new PersistableBundle();
+        bundle.putStringArray(CarrierConfigManager.KEY_UNLOGGABLE_NUMBERS_STRING_ARRAY,
+                new String[] {number1});
+        when(mockCarrierConfigManager.getConfig()).thenReturn(bundle);
+
+        Resources mockResources = mContext.getResources();
+        when(mockResources.getStringArray(com.android.internal.R.array.unloggable_phone_numbers))
+                .thenReturn(new String[] {number2});
+
+        Call fakeCall1 = makeFakeCall(
+                DisconnectCause.OTHER, // disconnectCauseCode
+                false, // isConference
+                false, // isIncoming
+                1L, // creationTimeMillis
+                1000L, // ageMillis
+                Uri.parse("tel:" + number1),
+                EMERGENCY_ACCT_HANDLE, // phoneAccountHandle
+                NO_VIDEO_STATE, // callVideoState
+                POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
+                UserHandle.of(CURRENT_USER_ID)
+        );
+
+        Call fakeCall2 = makeFakeCall(
+                DisconnectCause.OTHER, // disconnectCauseCode
+                false, // isConference
+                false, // isIncoming
+                1L, // creationTimeMillis
+                1000L, // ageMillis
+                Uri.parse("tel:" + number2),
+                EMERGENCY_ACCT_HANDLE, // phoneAccountHandle
+                NO_VIDEO_STATE, // callVideoState
+                POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
+                UserHandle.of(CURRENT_USER_ID)
+        );
+
+        mCallLogManager.onCallStateChanged(fakeCall1, CallState.ACTIVE, CallState.DISCONNECTED);
+        mCallLogManager.onCallStateChanged(fakeCall2, CallState.ACTIVE, CallState.DISCONNECTED);
         verifyNoInsertion();
     }
 
