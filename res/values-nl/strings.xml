@@ -37,7 +37,7 @@
     <string name="respond_via_sms_setting_summary" msgid="9150281183930613065"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="20379890418289778">"Snelle reactie"</string>
     <string name="respond_via_sms_confirmation_format" msgid="7229149977515784269">"Bericht verzonden naar <xliff:g id="PHONE_NUMBER">%s</xliff:g>."</string>
-    <string name="enable_account_preference_title" msgid="2021848090086481720">"Oproepaccounts"</string>
+    <string name="enable_account_preference_title" msgid="2021848090086481720">"Gespreksaccounts"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="6872406278300131364">"Alleen noodoproepen zijn toegestaan."</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="1996571596464271228">"Deze app kan geen uitgaande gesprekken starten zonder telefoonrechten."</string>
     <string name="outgoing_call_error_no_phone_number_supplied" msgid="1940125199802007505">"Als je wilt bellen, moet je een geldig nummer invoeren."</string>

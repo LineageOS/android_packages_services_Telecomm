@@ -50,7 +50,7 @@
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"ยกเลิก"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> จะจัดการการโทรและควบคุมการติดต่อทุกด้าน โปรดติดตั้งเฉพาะแอปที่คุณไว้วางใจให้เป็นแอปโทรศัพท์เริ่มต้น"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"หมายเลขที่ถูกบล็อก"</string>
-    <string name="blocked_numbers_msg" msgid="1045015186124965643">"คุณจะไม่สามารถรับสายหรือข้อความจากหมายเลขที่บล็อกได้"</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"คุณจะไม่สามารถรับสายหรือข้อความจากหมายเลขที่บล็อก"</string>
     <string name="block_number" msgid="1101252256321306179">"เพิ่มหมายเลข"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"เลิกบล็อก <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ใช่ไหม"</string>
     <string name="unblock_button" msgid="3078048901972674170">"เลิกบล็อก"</string>

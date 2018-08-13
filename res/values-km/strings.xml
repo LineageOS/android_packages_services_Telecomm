@@ -28,7 +28,7 @@
     <string name="notification_missedCall_message" msgid="3049928912736917988">"សារ"</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"ការ​ហៅ​បិទ​សំឡេង។"</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"បាន​បើក​អូប៉ាល័រ​ទូរស័ព្ទ។"</string>
-    <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"មិន​អាច​និយាយ​បាន​ឥឡូវ​នេះ។ មានការអីដែរ?"</string>
+    <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"មិន​អាច​និយាយ​បានទេ ​ឥឡូវ​នេះ។ មានការអីដែរ?"</string>
     <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"ខ្ញុំ​នឹង​ហៅ​​​​ទៅ​អ្នក​​វិញ។"</string>
     <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"ខ្ញុំ​នឹង​ហៅ​ទៅ​អ្នក​នៅ​ពេល​ក្រោយ។"</string>
     <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"មិន​អាច​និយាយ​បាន​ទេ​ឥឡូវ​នេះ។ ហៅ​​​​មក​ខ្ញុំ​ពេល​ក្រោយ?"</string>
@@ -49,21 +49,21 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"កំណត់​លំនាំដើម"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"បោះបង់"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> នឹង​អាច​ដាក់ចុះ និង​ត្រួតពិនិត្យ​​ទិដ្ឋភាព​ការ​ហៅ​ទាំងអស់។ មាន​តែ​កម្មវិធី​ដែល​អ្នក​ទុកចិត្ត​ប៉ុណ្ណោះ​​អាច​​ត្រូវ​បាន​​កំណត់​ជា​កម្មវិធី​ទូរសព្ទ​លំនាំដើម។"</string>
-    <string name="blocked_numbers" msgid="2751843139572970579">"លេខដែល​បានរារាំង"</string>
-    <string name="blocked_numbers_msg" msgid="1045015186124965643">"អ្នក​នឹង​មិន​ទទួល​បាន​ការ​ហៅទូរសព្ទ ឬ​សារ​​ពី​លេខ​ដែល​បាន​​រារាំង​ឡើយ។"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"លេខដែល​បានទប់ស្កាត់"</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"អ្នក​នឹង​មិន​ទទួល​បាន​ការ​ហៅទូរសព្ទ ឬ​សារ​​ពី​លេខ​ដែល​បានទប់ស្កាត់ឡើយ។"</string>
     <string name="block_number" msgid="1101252256321306179">"បញ្ចូល​លេខ"</string>
-    <string name="unblock_dialog_body" msgid="1614238499771862793">"ឈប់រារាំង <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ឬ?"</string>
-    <string name="unblock_button" msgid="3078048901972674170">"ឈប់រារាំង"</string>
-    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"រារាំងការហៅ និងការផ្ញើសារពី"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"ឈប់ទប់ស្កាត់ <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ឬ?"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"ឈប់ទប់ស្កាត់"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"ទប់ស្កាត់ការហៅ និងការផ្ញើសារពី"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"លេខទូរសព្ទ"</string>
-    <string name="block_button" msgid="8822290682524373357">"រារាំង"</string>
+    <string name="block_button" msgid="8822290682524373357">"ទប់ស្កាត់"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"មានតែម្ចាស់ឧបករណ៍តែប៉ុណ្ណោះដែលអាចមើល និងគ្រប់គ្រងបញ្ជីរារាំងបាន"</string>
     <string name="delete_icon_description" msgid="8903995728252556724">"ឈប់​ទប់ស្កាត់"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"បាន​បិទ​ការ​ទប់ស្កាត់​​​ជា​បណ្ដោះអាសន្ន"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"បន្ទាប់​ពី​អ្នក​ចុច​ហៅ ឬ​ផ្ញើ​សារ​លេខ​​អាសន្ន ការ​ទប់ស្កាត់​​ត្រូវ​បាន​បិទ​​ដើម្បី​​ប្រាកដ​ថា​សេវាកម្ម​អាសន្ន​អាច​ទាក់ទង​អ្នក​បាន។"</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"បើក​ដំណើរការ​ឡើងវិញ​ឥឡូវនេះ"</string>
     <string name="blocked_numbers_number_blocked_message" msgid="7678509606805029540">"បាន​ទប់ស្កាត់ <xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g>"</string>
-    <string name="blocked_numbers_number_unblocked_message" msgid="977894647366750418">"បាន​អនុញ្ញាត <xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g>"</string>
+    <string name="blocked_numbers_number_unblocked_message" msgid="977894647366750418">"បានឈប់​ទប់ស្កាត់ <xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g>"</string>
     <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"មិន​អាច​​​ទប់ស្កាត់​លេខ​បន្ទាន់​បាន​ទេ។"</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> ត្រូវ​បាន​ទប់ស្កាត់​រួច​ហើយ។"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"កំពុងប្រើកម្មវិធីហៅផ្ទាល់ខ្លួនដើម្បីធ្វើការហៅទូរស័ព្ទ"</string>
