@@ -25,10 +25,10 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
     platform-test-annotations
 
 LOCAL_STATIC_ANDROID_LIBRARIES := \
-    android-support-core-ui \
-    android-support-core-utils \
-    android-support-compat \
-    android-support-fragment
+    androidx.legacy_legacy-support-core-ui \
+    androidx.legacy_legacy-support-core-utils \
+    androidx.core_core \
+    androidx.fragment_fragment
 
 LOCAL_SRC_FILES := \
     $(call all-java-files-under, src) \
