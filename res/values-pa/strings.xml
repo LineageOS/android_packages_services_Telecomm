@@ -67,7 +67,7 @@
     <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"ਐਮਰਜੈਂਸੀ ਨੰਬਰ ਨੂੰ ਬਲੌਕ ਕਰਨ ਵਿੱਚ ਅਸਮਰੱਥ।"</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> ਪਹਿਲਾਂ ਤੋਂ ਹੀ ਬਲੌਕ ਕੀਤਾ ਹੋਇਆ ਹੈ।"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"ਕਾਲ ਕਰਨ ਲਈ ਨਿੱਜੀ ਡਾਇਲਰ ਦੀ ਵਰਤੋਂ ਕਰਨੀ"</string>
-    <string name="notification_incoming_call" msgid="7713197997773986670">"<xliff:g id="CALL_FROM">%2$s</xliff:g> ਵੱਲੋਂ <xliff:g id="CALL_VIA">%1$s</xliff:g> ਕਾਲ"</string>
+    <string name="notification_incoming_call" msgid="7713197997773986670">"<xliff:g id="CALL_VIA">%1$s</xliff:g> ਕਾਲ ਕਰਤਾ <xliff:g id="CALL_FROM">%2$s</xliff:g>"</string>
     <string name="notification_incoming_video_call" msgid="6638486071698373893">"<xliff:g id="CALL_FROM">%2$s</xliff:g> ਵੱਲੋਂ <xliff:g id="CALL_VIA">%1$s</xliff:g> ਵੀਡੀਓ ਕਾਲ"</string>
     <string name="answering_ends_other_call" msgid="8282145910153766401">"ਜਵਾਬ ਦੇਣ ਨਾਲ ਤੁਹਾਡੀ <xliff:g id="CALL_VIA">%1$s</xliff:g> ਕਾਲ ਸਮਾਪਤ ਹੋ ਜਾਵੇਗੀ"</string>
     <string name="answering_ends_other_calls" msgid="1198589551399049197">"ਜਵਾਬ ਦੇਣ ਨਾਲ ਤੁਹਾਡੀਆਂ <xliff:g id="CALL_VIA">%1$s</xliff:g> ਕਾਲਾਂ ਸਮਾਪਤ ਹੋ ਜਾਣਗੀਆਂ"</string>
