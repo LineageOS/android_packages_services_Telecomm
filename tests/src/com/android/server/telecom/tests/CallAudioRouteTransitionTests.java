@@ -16,6 +16,18 @@
 
 package com.android.server.telecom.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.media.AudioManager;
@@ -26,7 +38,6 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallAudioManager;
-import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.ConnectionServiceWrapper;
@@ -41,6 +52,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
@@ -48,22 +60,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.nullable;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(Parameterized.class)
 public class CallAudioRouteTransitionTests extends TelecomTestCase {
@@ -265,9 +261,8 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
         }
         waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
 
-        // Reset mocks to discard stuff from initialization
-        resetMocks();
-        setupMocksForParams(stateMachine, mParams);
+        // Clear invocations on mocks to discard stuff from initialization
+        clearInvocations();
 
         sendActionToStateMachine(stateMachine);
 
@@ -778,16 +773,8 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
                 any(Call.class), any(CallAudioState.class));
     }
 
-    private void resetMocks() {
-        reset(mockAudioManager, mockBluetoothRouteManager, mockCallsManager,
+    private void clearInvocations() {
+        Mockito.clearInvocations(mockAudioManager, mockBluetoothRouteManager, mockCallsManager,
                 mockConnectionServiceWrapper);
-        fakeCall = mock(Call.class);
-        when(mockCallsManager.getForegroundCall()).thenReturn(fakeCall);
-        when(fakeCall.getConnectionService()).thenReturn(mockConnectionServiceWrapper);
-        when(fakeCall.isAlive()).thenReturn(true);
-        when(fakeCall.getSupportedAudioRoutes()).thenReturn(CallAudioState.ROUTE_ALL);
-        when(mockCallsManager.getLock()).thenReturn(mLock);
-        doNothing().when(mockConnectionServiceWrapper).onCallAudioStateChanged(any(Call.class),
-                any(CallAudioState.class));
     }
 }
