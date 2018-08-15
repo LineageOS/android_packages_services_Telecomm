@@ -13,6 +13,9 @@ message TelecomLog {
 
   // Timing information for the logging sessions
   repeated LogSessionTiming session_timings = 2;
+
+  // Hardware revision (EVT, DVT, PVT etc.)
+  optional string hardware_revision = 3;
 }
 
 message LogSessionTiming {
