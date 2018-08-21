@@ -2525,27 +2525,31 @@ public class CallsManager extends Call.ListenerBase
             // into a well-defined state machine.
             // TODO: Define expected state transitions here, and log when an
             // unexpected transition occurs.
-            call.setState(newState, tag);
-            maybeShowErrorDialogOnDisconnect(call);
+            if (call.setState(newState, tag)) {
+                maybeShowErrorDialogOnDisconnect(call);
 
-            Trace.beginSection("onCallStateChanged");
+                Trace.beginSection("onCallStateChanged");
 
-            maybeHandleHandover(call, newState);
+                maybeHandleHandover(call, newState);
 
-            // Only broadcast state change for calls that are being tracked.
-            if (mCalls.contains(call)) {
-                updateCanAddCall();
-                for (CallsManagerListener listener : mListeners) {
-                    if (LogUtils.SYSTRACE_DEBUG) {
-                        Trace.beginSection(listener.getClass().toString() + " onCallStateChanged");
-                    }
-                    listener.onCallStateChanged(call, oldState, newState);
-                    if (LogUtils.SYSTRACE_DEBUG) {
-                        Trace.endSection();
+                // Only broadcast state change for calls that are being tracked.
+                if (mCalls.contains(call)) {
+                    updateCanAddCall();
+                    for (CallsManagerListener listener : mListeners) {
+                        if (LogUtils.SYSTRACE_DEBUG) {
+                            Trace.beginSection(listener.getClass().toString() +
+                                    " onCallStateChanged");
+                        }
+                        listener.onCallStateChanged(call, oldState, newState);
+                        if (LogUtils.SYSTRACE_DEBUG) {
+                            Trace.endSection();
+                        }
                     }
                 }
+                Trace.endSection();
+            } else {
+                Log.i(this, "failed in setting the state to new state");
             }
-            Trace.endSection();
         }
     }
 
