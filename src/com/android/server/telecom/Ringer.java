@@ -167,7 +167,7 @@ public class Ringer {
 
         if (endEarly) {
             if (letDialerHandleRinging) {
-                Log.addEvent(foregroundCall, LogUtils.Events.SKIP_RINGING);
+                Log.addEvent(foregroundCall, LogUtils.Events.SKIP_RINGING, "Dialer handles");
             }
             Log.i(this, "Ending early -- isTheaterModeOn=%s, letDialerHandleRinging=%s, " +
                     "isSelfManaged=%s, hasExternalRinger=%s", isTheaterModeOn,
@@ -188,9 +188,11 @@ public class Ringer {
             mRingtonePlayer.play(mRingtoneFactory, foregroundCall);
             effect = getVibrationEffectForCall(mRingtoneFactory, foregroundCall);
         } else {
-            Log.i(this, "startRinging: skipping because ringer would not be audible. " +
+            String reason = String.format(
                     "isVolumeOverZero=%s, shouldRingForContact=%s, isRingtonePresent=%s",
                     isVolumeOverZero, shouldRingForContact, isRingtonePresent);
+            Log.i(this, "startRinging: skipping because ringer would not be audible. " + reason);
+            Log.addEvent(foregroundCall, LogUtils.Events.SKIP_RINGING, "Inaudible: " + reason);
             effect = mDefaultVibrationEffect;
         }
 
@@ -224,7 +226,7 @@ public class Ringer {
         }
 
         if (mInCallController.doesConnectedDialerSupportRinging()) {
-            Log.addEvent(call, LogUtils.Events.SKIP_RINGING);
+            Log.addEvent(call, LogUtils.Events.SKIP_RINGING, "Dialer handles");
             return;
         }
 
