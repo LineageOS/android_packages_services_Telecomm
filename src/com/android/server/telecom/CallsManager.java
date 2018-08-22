@@ -545,7 +545,7 @@ public class CallsManager extends Call.ListenerBase
         List<IncomingCallFilter.CallFilter> filters = new ArrayList<>();
         filters.add(new DirectToVoicemailCallFilter(mCallerInfoLookupHelper));
         filters.add(new AsyncBlockCheckFilter(mContext, new BlockCheckerAdapter(),
-                mCallerInfoLookupHelper));
+                mCallerInfoLookupHelper, null));
         filters.add(new CallScreeningServiceFilter(mContext, this, mPhoneAccountRegistrar,
                 mDefaultDialerCache, new ParcelableCallUtils.Converter(), mLock));
         new IncomingCallFilter(mContext, this, incomingCall, mLock,
