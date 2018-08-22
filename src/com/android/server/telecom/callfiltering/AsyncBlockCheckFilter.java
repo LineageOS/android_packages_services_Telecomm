@@ -40,17 +40,20 @@ public class AsyncBlockCheckFilter extends AsyncTask<String, Void, Boolean>
         implements IncomingCallFilter.CallFilter {
     private final Context mContext;
     private final BlockCheckerAdapter mBlockCheckerAdapter;
+    private final CallBlockListener mCallBlockListener;
     private Call mIncomingCall;
     private Session mBackgroundTaskSubsession;
     private Session mPostExecuteSubsession;
     private CallFilterResultCallback mCallback;
     private CallerInfoLookupHelper mCallerInfoLookupHelper;
+    private int mBlockStatus = BlockedNumberContract.STATUS_NOT_BLOCKED;
 
     public AsyncBlockCheckFilter(Context context, BlockCheckerAdapter blockCheckerAdapter,
-            CallerInfoLookupHelper callerInfoLookupHelper) {
+            CallerInfoLookupHelper callerInfoLookupHelper, CallBlockListener callBlockListener) {
         mContext = context;
         mBlockCheckerAdapter = blockCheckerAdapter;
         mCallerInfoLookupHelper = callerInfoLookupHelper;
+        mCallBlockListener = callBlockListener;
     }
 
     @Override
@@ -104,7 +107,8 @@ public class AsyncBlockCheckFilter extends AsyncTask<String, Void, Boolean>
                 extras.putBoolean(BlockedNumberContract.EXTRA_CONTACT_EXIST,
                         Boolean.valueOf(params[2]));
             }
-            return mBlockCheckerAdapter.isBlocked(mContext, params[0], extras);
+            mBlockStatus = mBlockCheckerAdapter.getBlockStatus(mContext, params[0], extras);
+            return mBlockStatus != BlockedNumberContract.STATUS_NOT_BLOCKED;
         } finally {
             Log.endSession();
         }
@@ -122,6 +126,12 @@ public class AsyncBlockCheckFilter extends AsyncTask<String, Void, Boolean>
                         false, //shouldAddToCallLog
                         false // shouldShowNotification
                 );
+                if (mCallBlockListener != null) {
+                    String number = mIncomingCall.getHandle() == null ? null
+                            : mIncomingCall.getHandle().getSchemeSpecificPart();
+                    mCallBlockListener.onCallBlocked(mBlockStatus, number,
+                            mIncomingCall.getInitiatingUser());
+                }
             } else {
                 result = new CallFilteringResult(
                         true, // shouldAllowCall
@@ -130,7 +140,9 @@ public class AsyncBlockCheckFilter extends AsyncTask<String, Void, Boolean>
                         true // shouldShowNotification
                 );
             }
-            Log.addEvent(mIncomingCall, LogUtils.Events.BLOCK_CHECK_FINISHED, result);
+            Log.addEvent(mIncomingCall, LogUtils.Events.BLOCK_CHECK_FINISHED,
+                    BlockedNumberContract.SystemContract.blockStatusToString(mBlockStatus) + " "
+                            + result);
             mCallback.onCallFilteringComplete(mIncomingCall, result);
         } finally {
             Log.endSession();
