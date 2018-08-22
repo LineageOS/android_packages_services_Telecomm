@@ -875,15 +875,17 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * (see {@link CallState}), in practice those expectations break down when cellular systems
      * misbehave and they do this very often. The result is that we do not enforce state transitions
      * and instead keep the code resilient to unexpected state changes.
+     * @return true indicates if setState succeeded in setting the state to newState,
+     * else it is failed, and the call is still in its original state.
      */
-    public void setState(int newState, String tag) {
+    public boolean setState(int newState, String tag) {
         if (mState != newState) {
             Log.v(this, "setState %s -> %s", mState, newState);
 
             if (newState == CallState.DISCONNECTED && shouldContinueProcessingAfterDisconnect()) {
                 Log.w(this, "continuing processing disconnected call with another service");
                 mCreateConnectionProcessor.continueProcessingIfPossible(this, mDisconnectCause);
-                return;
+                return false;
             }
 
             updateVideoHistoryViaState(mState, newState);
@@ -962,6 +964,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             StatsLog.write(StatsLog.CALL_STATE_CHANGED, newState, statsdDisconnectCause,
                     isSelfManaged(), isExternalCall());
         }
+        return true;
     }
 
     void setRingbackRequested(boolean ringbackRequested) {
