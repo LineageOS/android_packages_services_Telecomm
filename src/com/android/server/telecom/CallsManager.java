@@ -20,9 +20,9 @@ import android.app.ActivityManager;
 import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.pm.UserInfo;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.UserInfo;
 import android.media.AudioManager;
 import android.media.AudioSystem;
 import android.media.ToneGenerator;
@@ -47,11 +47,11 @@ import android.telecom.Connection;
 import android.telecom.DisconnectCause;
 import android.telecom.GatewayInfo;
 import android.telecom.Log;
+import android.telecom.Logging.Runnable;
 import android.telecom.ParcelableConference;
 import android.telecom.ParcelableConnection;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
-import android.telecom.Logging.Runnable;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.telephony.CarrierConfigManager;
@@ -521,12 +521,20 @@ public class CallsManager extends Call.ListenerBase
     @Override
     public void onSuccessfulIncomingCall(Call incomingCall) {
         Log.d(this, "onSuccessfulIncomingCall");
+        PhoneAccount phoneAccount = mPhoneAccountRegistrar.getPhoneAccountUnchecked(
+                incomingCall.getTargetPhoneAccount());
+        Bundle extras =
+            phoneAccount == null || phoneAccount.getExtras() == null
+                ? new Bundle()
+                : phoneAccount.getExtras();
         if (incomingCall.hasProperty(Connection.PROPERTY_EMERGENCY_CALLBACK_MODE) ||
-                incomingCall.isSelfManaged()) {
-            Log.i(this, "Skipping call filtering for %s (ecm=%b, selfMgd=%b)",
+                incomingCall.isSelfManaged() ||
+                extras.getBoolean(PhoneAccount.EXTRA_SKIP_CALL_FILTERING)) {
+            Log.i(this, "Skipping call filtering for %s (ecm=%b, selfMgd=%b, skipExtra=%b)",
                     incomingCall.getId(),
                     incomingCall.hasProperty(Connection.PROPERTY_EMERGENCY_CALLBACK_MODE),
-                    incomingCall.isSelfManaged());
+                    incomingCall.isSelfManaged(),
+                    extras.getBoolean(PhoneAccount.EXTRA_SKIP_CALL_FILTERING));
             onCallFilteringComplete(incomingCall, new CallFilteringResult(true, false, true, true));
             incomingCall.setIsUsingCallFiltering(false);
             return;
