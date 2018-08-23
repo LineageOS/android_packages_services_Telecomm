@@ -730,7 +730,7 @@ public class CallsManagerTest extends TelecomTestCase {
         doReturn(false).when(incomingCall).can(Connection.CAPABILITY_HOLD);
         doReturn(false).when(incomingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         doReturn(true).when(incomingCall).isSelfManaged();
-        doNothing().when(incomingCall).setState(anyInt(), any());
+        doReturn(true).when(incomingCall).setState(anyInt(), any());
 
         // WHEN the incoming call is successfully added.
         mCallsManager.onSuccessfulIncomingCall(incomingCall);
@@ -866,6 +866,35 @@ public class CallsManagerTest extends TelecomTestCase {
 
         // THEN the ongoing call is disconnected
         verify(ongoingCall).disconnect();
+    }
+
+    @SmallTest
+    @Test
+    public void testNoFilteringOfCallsWhenPhoneAccountRequestsSkipped() {
+        ConnectionServiceWrapper connSvr1 = Mockito.mock(ConnectionServiceWrapper.class);
+
+        // GIVEN an incoming call which is from a PhoneAccount that requested to skip filtering.
+        Call incomingCall = addSpyCallWithConnectionService(connSvr1);
+        Bundle extras = new Bundle();
+        extras.putBoolean(PhoneAccount.EXTRA_SKIP_CALL_FILTERING, true);
+        PhoneAccount skipRequestedAccount = new PhoneAccount.Builder(SIM_2_HANDLE, "Skipper")
+            .setCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION
+                | PhoneAccount.CAPABILITY_CALL_PROVIDER)
+            .setExtras(extras)
+            .setIsEnabled(true)
+            .build();
+        when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(SIM_2_HANDLE))
+            .thenReturn(skipRequestedAccount);
+        doReturn(false).when(incomingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(false).when(incomingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        doReturn(false).when(incomingCall).isSelfManaged();
+        doReturn(true).when(incomingCall).setState(anyInt(), any());
+
+        // WHEN the incoming call is successfully added.
+        mCallsManager.onSuccessfulIncomingCall(incomingCall);
+
+        // THEN the incoming call is not using call filtering
+        verify(incomingCall).setIsUsingCallFiltering(eq(false));
     }
 
     private Call addSpyCallWithConnectionService(ConnectionServiceWrapper connSvr) {
