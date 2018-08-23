@@ -730,7 +730,7 @@ public class CallsManagerTest extends TelecomTestCase {
         doReturn(false).when(incomingCall).can(Connection.CAPABILITY_HOLD);
         doReturn(false).when(incomingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         doReturn(true).when(incomingCall).isSelfManaged();
-        doNothing().when(incomingCall).setState(anyInt(), any());
+        doReturn(true).when(incomingCall).setState(anyInt(), any());
 
         // WHEN the incoming call is successfully added.
         mCallsManager.onSuccessfulIncomingCall(incomingCall);
@@ -859,7 +859,7 @@ public class CallsManagerTest extends TelecomTestCase {
         doReturn(false).when(incomingCall).can(Connection.CAPABILITY_HOLD);
         doReturn(false).when(incomingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         doReturn(false).when(incomingCall).isSelfManaged();
-        doNothing().when(incomingCall).setState(anyInt(), any());
+        doReturn(true).when(incomingCall).setState(anyInt(), any());
 
         // WHEN the incoming call is successfully added.
         mCallsManager.onSuccessfulIncomingCall(incomingCall);
