@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d17744d_862eb6d7",
+        "filename": "Android.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 13648
+      },
+      "writtenOn": "2018-08-24T15:43:28Z",
+      "side": 1,
+      "message": "In older patches, this was linking against org.lineageos.platform.sdk. That\u0027s not correct and now breaks build in P. See https://review.lineageos.org/#/c/LineageOS/android_packages_apps_AudioFX/+/224892/.",
+      "range": {
+        "startLine": 12,
+        "startChar": 31,
+        "endLine": 12,
+        "endChar": 62
+      },
+      "revId": "29fde7a15d3fefbbc993e36f733779fbab03da7f",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
