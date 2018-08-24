@@ -60,4 +60,13 @@
          between repeats of the ringtone.
          When false, the ringtone will be looping with no pause. -->
     <bool name="should_pause_between_ringtone_repeats">true</bool>
+
+    <!-- Threshold for the X+Y component of gravity needed for the device orientation to be
+         classified as being on a user's ear. -->
+    <item name="device_on_ear_xy_gravity_threshold" format="float" type="dimen">5.5</item>
+
+    <!-- Lower threshold for the Y-component of gravity needed for the device orientation to be
+         classified as being on a user's ear. If the Y-component is less than this negative value,
+         the device is probably upside-down and therefore not on a ear -->
+    <item name="device_on_ear_y_gravity_negative_threshold" format="float" type="dimen">-1</item>
 </resources>

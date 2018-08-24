@@ -238,7 +238,7 @@ public class TelecomSystem {
         mContext.registerReceiver(bluetoothStateReceiver, BluetoothStateReceiver.INTENT_FILTER);
 
         WiredHeadsetManager wiredHeadsetManager = new WiredHeadsetManager(mContext);
-        SystemStateProvider systemStateProvider = new SystemStateProvider(mContext);
+        SystemStateHelper systemStateHelper = new SystemStateHelper(mContext);
 
         mMissedCallNotifier = missedCallNotifierImplFactory
                 .makeMissedCallNotifierImpl(mContext, mPhoneAccountRegistrar, defaultDialerCache);
@@ -249,7 +249,7 @@ public class TelecomSystem {
         InCallControllerFactory inCallControllerFactory = new InCallControllerFactory() {
             @Override
             public InCallController create(Context context, SyncRoot lock,
-                    CallsManager callsManager, SystemStateProvider systemStateProvider,
+                    CallsManager callsManager, SystemStateHelper systemStateProvider,
                     DefaultDialerCache defaultDialerCache, Timeouts.Adapter timeoutsAdapter,
                     EmergencyCallHelper emergencyCallHelper) {
                 return new InCallController(context, lock, callsManager, systemStateProvider,
@@ -271,7 +271,7 @@ public class TelecomSystem {
                 audioServiceFactory,
                 bluetoothRouteManager,
                 wiredHeadsetManager,
-                systemStateProvider,
+                systemStateHelper,
                 defaultDialerCache,
                 timeoutsAdapter,
                 asyncRingtonePlayer,
