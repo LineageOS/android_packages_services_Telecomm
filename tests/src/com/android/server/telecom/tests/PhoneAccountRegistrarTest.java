@@ -882,6 +882,33 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
                 PhoneAccount.CAPABILITY_RTT);
     }
 
+    /**
+     * Tests {@link PhoneAccount#equals(Object)} operator.
+     * @throws Exception
+     */
+    @MediumTest
+    @Test
+    public void testPhoneAccountEquality() throws Exception {
+        PhoneAccountHandle handle = new PhoneAccountHandle(new ComponentName("foo", "bar"), "id");
+        PhoneAccount.Builder builder = new PhoneAccount.Builder(handle, "label");
+        builder.addSupportedUriScheme("tel");
+        builder.setAddress(Uri.fromParts("tel", "6505551212", null));
+        builder.setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER);
+        Bundle extras = new Bundle();
+        extras.putInt("INT", 1);
+        extras.putString("STR", "str");
+        builder.setExtras(extras);
+        builder.setGroupId("group");
+        builder.setHighlightColor(1);
+        builder.setShortDescription("short");
+        builder.setSubscriptionAddress(Uri.fromParts("tel", "6505551213", null));
+        builder.setSupportedAudioRoutes(2);
+
+        PhoneAccount account1 = builder.build();
+        PhoneAccount account2 = builder.build();
+        assertEquals(account1, account2);
+    }
+
     private static ComponentName makeQuickConnectionServiceComponentName() {
         return new ComponentName(
                 "com.android.server.telecom.tests",
