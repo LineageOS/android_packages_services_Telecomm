@@ -360,7 +360,7 @@ public class CallsManager extends Call.ListenerBase
             CallAudioManager.AudioServiceFactory audioServiceFactory,
             BluetoothRouteManager bluetoothManager,
             WiredHeadsetManager wiredHeadsetManager,
-            SystemStateProvider systemStateProvider,
+            SystemStateHelper systemStateHelper,
             DefaultDialerCache defaultDialerCache,
             Timeouts.Adapter timeoutsAdapter,
             AsyncRingtonePlayer asyncRingtonePlayer,
@@ -422,7 +422,7 @@ public class CallsManager extends Call.ListenerBase
         RingtoneFactory ringtoneFactory = new RingtoneFactory(this, context);
         SystemVibrator systemVibrator = new SystemVibrator(context);
         mInCallController = inCallControllerFactory.create(context, mLock, this,
-                systemStateProvider, defaultDialerCache, mTimeoutsAdapter,
+                systemStateHelper, defaultDialerCache, mTimeoutsAdapter,
                 emergencyCallHelper);
         mRinger = new Ringer(playerFactory, context, systemSettingsUtil, asyncRingtonePlayer,
                 ringtoneFactory, systemVibrator,
@@ -430,8 +430,8 @@ public class CallsManager extends Call.ListenerBase
         mCallRecordingTonePlayer = new CallRecordingTonePlayer(mContext,
                 (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE), mLock);
         mCallAudioManager = new CallAudioManager(callAudioRouteStateMachine,
-                this, callAudioModeStateMachineFactory.create((AudioManager)
-                        mContext.getSystemService(Context.AUDIO_SERVICE)),
+                this, callAudioModeStateMachineFactory.create(systemStateHelper,
+                (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE)),
                 playerFactory, mRinger, new RingbackPlayer(playerFactory),
                 bluetoothStateReceiver, mDtmfLocalTonePlayer);
 

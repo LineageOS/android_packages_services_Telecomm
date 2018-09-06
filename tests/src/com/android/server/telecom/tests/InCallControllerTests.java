@@ -50,7 +50,7 @@ import com.android.server.telecom.EmergencyCallHelper;
 import com.android.server.telecom.InCallController;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.R;
-import com.android.server.telecom.SystemStateProvider;
+import com.android.server.telecom.SystemStateHelper;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
 
@@ -88,7 +88,7 @@ public class InCallControllerTests extends TelecomTestCase {
     @Mock CallsManager mMockCallsManager;
     @Mock PhoneAccountRegistrar mMockPhoneAccountRegistrar;
     @Mock BluetoothHeadsetProxy mMockBluetoothHeadset;
-    @Mock SystemStateProvider mMockSystemStateProvider;
+    @Mock SystemStateHelper mMockSystemStateHelper;
     @Mock PackageManager mMockPackageManager;
     @Mock Call mMockCall;
     @Mock Resources mMockResources;
@@ -122,7 +122,7 @@ public class InCallControllerTests extends TelecomTestCase {
         mEmergencyCallHelper = new EmergencyCallHelper(mMockContext, SYS_PKG,
                 mTimeoutsAdapter);
         mInCallController = new InCallController(mMockContext, mLock, mMockCallsManager,
-                mMockSystemStateProvider, mDefaultDialerCache, mTimeoutsAdapter,
+                mMockSystemStateHelper, mDefaultDialerCache, mTimeoutsAdapter,
                 mEmergencyCallHelper);
     }
 

@@ -525,6 +525,10 @@ public class ComponentContextFixture implements TestFixture<Context> {
         });
     }
 
+    public void putFloatResource(int id, final float value) {
+        when(mResources.getFloat(eq(id))).thenReturn(value);
+    }
+
     public void putBooleanResource(int id, boolean value) {
         when(mResources.getBoolean(eq(id))).thenReturn(value);
     }

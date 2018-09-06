@@ -233,6 +233,10 @@ public class Ringer {
     }
 
     public void startCallWaiting(Call call) {
+        startCallWaiting(call, null);
+    }
+
+    public void startCallWaiting(Call call, String reason) {
         if (mSystemSettingsUtil.isTheaterModeOn(mContext)) {
             return;
         }
@@ -252,7 +256,7 @@ public class Ringer {
         stopRinging();
 
         if (mCallWaitingPlayer == null) {
-            Log.addEvent(call, LogUtils.Events.START_CALL_WAITING_TONE);
+            Log.addEvent(call, LogUtils.Events.START_CALL_WAITING_TONE, reason);
             mCallWaitingCall = call;
             mCallWaitingPlayer =
                     mPlayerFactory.createPlayer(InCallTonePlayer.TONE_CALL_WAITING);

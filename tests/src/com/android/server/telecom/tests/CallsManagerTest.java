@@ -68,7 +68,7 @@ import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.PhoneNumberUtilsAdapter;
 import com.android.server.telecom.ProximitySensorManager;
 import com.android.server.telecom.ProximitySensorManagerFactory;
-import com.android.server.telecom.SystemStateProvider;
+import com.android.server.telecom.SystemStateHelper;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.WiredHeadsetManager;
@@ -131,7 +131,7 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private CallAudioManager.AudioServiceFactory mAudioServiceFactory;
     @Mock private BluetoothRouteManager mBluetoothRouteManager;
     @Mock private WiredHeadsetManager mWiredHeadsetManager;
-    @Mock private SystemStateProvider mSystemStateProvider;
+    @Mock private SystemStateHelper mSystemStateHelper;
     @Mock private DefaultDialerCache mDefaultDialerCache;
     @Mock private Timeouts.Adapter mTimeoutsAdapter;
     @Mock private AsyncRingtonePlayer mAsyncRingtonePlayer;
@@ -165,7 +165,7 @@ public class CallsManagerTest extends TelecomTestCase {
                 any())).thenReturn(mInCallController);
         when(mCallAudioRouteStateMachineFactory.create(any(), any(), any(), any(), any(), any(),
                 anyInt())).thenReturn(mCallAudioRouteStateMachine);
-        when(mCallAudioModeStateMachineFactory.create(any()))
+        when(mCallAudioModeStateMachineFactory.create(any(), any()))
                 .thenReturn(mCallAudioModeStateMachine);
         when(mClockProxy.currentTimeMillis()).thenReturn(System.currentTimeMillis());
         when(mClockProxy.elapsedRealtime()).thenReturn(SystemClock.elapsedRealtime());
@@ -184,7 +184,7 @@ public class CallsManagerTest extends TelecomTestCase {
                 mAudioServiceFactory,
                 mBluetoothRouteManager,
                 mWiredHeadsetManager,
-                mSystemStateProvider,
+                mSystemStateHelper,
                 mDefaultDialerCache,
                 mTimeoutsAdapter,
                 mAsyncRingtonePlayer,
