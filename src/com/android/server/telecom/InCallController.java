@@ -47,7 +47,7 @@ import com.android.internal.annotations.VisibleForTesting;
 // TODO: Needed for move to system service: import com.android.internal.R;
 import com.android.internal.telecom.IInCallService;
 import com.android.internal.util.IndentingPrintWriter;
-import com.android.server.telecom.SystemStateProvider.SystemStateListener;
+import com.android.server.telecom.SystemStateHelper.SystemStateListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -729,7 +729,7 @@ public class InCallController extends CallsManagerListenerBase {
     private final Context mContext;
     private final TelecomSystem.SyncRoot mLock;
     private final CallsManager mCallsManager;
-    private final SystemStateProvider mSystemStateProvider;
+    private final SystemStateHelper mSystemStateHelper;
     private final Timeouts.Adapter mTimeoutsAdapter;
     private final DefaultDialerCache mDefaultDialerCache;
     private final EmergencyCallHelper mEmergencyCallHelper;
@@ -737,13 +737,13 @@ public class InCallController extends CallsManagerListenerBase {
     private NonUIInCallServiceConnectionCollection mNonUIInCallServiceConnections;
 
     public InCallController(Context context, TelecomSystem.SyncRoot lock, CallsManager callsManager,
-            SystemStateProvider systemStateProvider,
+            SystemStateHelper systemStateHelper,
             DefaultDialerCache defaultDialerCache, Timeouts.Adapter timeoutsAdapter,
             EmergencyCallHelper emergencyCallHelper) {
         mContext = context;
         mLock = lock;
         mCallsManager = callsManager;
-        mSystemStateProvider = systemStateProvider;
+        mSystemStateHelper = systemStateHelper;
         mTimeoutsAdapter = timeoutsAdapter;
         mDefaultDialerCache = defaultDialerCache;
         mEmergencyCallHelper = emergencyCallHelper;
@@ -753,7 +753,7 @@ public class InCallController extends CallsManagerListenerBase {
                 resources.getString(R.string.ui_default_package),
                 resources.getString(R.string.incall_default_class));
 
-        mSystemStateProvider.addListener(mSystemStateListener);
+        mSystemStateHelper.addListener(mSystemStateListener);
     }
 
     @Override
@@ -1227,7 +1227,7 @@ public class InCallController extends CallsManagerListenerBase {
     }
 
     private boolean shouldUseCarModeUI() {
-        return mSystemStateProvider.isCarMode();
+        return mSystemStateHelper.isCarMode();
     }
 
     /**

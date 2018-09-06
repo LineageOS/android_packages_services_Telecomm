@@ -30,8 +30,9 @@ import com.android.internal.util.StateMachine;
 
 public class CallAudioModeStateMachine extends StateMachine {
     public static class Factory {
-        public CallAudioModeStateMachine create(AudioManager am) {
-            return new CallAudioModeStateMachine(am);
+        public CallAudioModeStateMachine create(SystemStateHelper systemStateHelper,
+                AudioManager am) {
+            return new CallAudioModeStateMachine(systemStateHelper, am);
         }
     }
 
@@ -333,7 +334,7 @@ public class CallAudioModeStateMachine extends StateMachine {
                     return HANDLED;
                 case NEW_RINGING_CALL:
                     // Don't make a call ring over an active call, but do play a call waiting tone.
-                    mCallAudioManager.startCallWaiting();
+                    mCallAudioManager.startCallWaiting("call already active");
                     return HANDLED;
                 case NEW_HOLDING_CALL:
                     // Don't do anything now. Putting an active call on hold will be handled when
@@ -388,7 +389,7 @@ public class CallAudioModeStateMachine extends StateMachine {
                     return HANDLED;
                 case NEW_RINGING_CALL:
                     // Don't make a call ring over an active call, but do play a call waiting tone.
-                    mCallAudioManager.startCallWaiting();
+                    mCallAudioManager.startCallWaiting("call already active");
                     return HANDLED;
                 case NEW_HOLDING_CALL:
                     // Don't do anything now. Putting an active call on hold will be handled when
@@ -442,8 +443,14 @@ public class CallAudioModeStateMachine extends StateMachine {
                             ? mVoipCallFocusState : mSimCallFocusState);
                     return HANDLED;
                 case NEW_RINGING_CALL:
-                    // Apparently this is current behavior. Should this be the case?
-                    transitionTo(mRingingFocusState);
+                    // TODO: consider whether to move this into MessageArgs if more things start
+                    // to use it.
+                    if (args.hasHoldingCalls && mSystemStateHelper.isDeviceAtEar()) {
+                        mCallAudioManager.startCallWaiting(
+                                "Device is at ear with held call");
+                    } else {
+                        transitionTo(mRingingFocusState);
+                    }
                     return HANDLED;
                 case NEW_HOLDING_CALL:
                     // Do nothing.
@@ -470,14 +477,17 @@ public class CallAudioModeStateMachine extends StateMachine {
     private final BaseState mOtherFocusState = new OtherFocusState();
 
     private final AudioManager mAudioManager;
+    private final SystemStateHelper mSystemStateHelper;
     private CallAudioManager mCallAudioManager;
 
     private int mMostRecentMode;
     private boolean mIsInitialized = false;
 
-    public CallAudioModeStateMachine(AudioManager audioManager) {
+    public CallAudioModeStateMachine(SystemStateHelper systemStateHelper,
+            AudioManager audioManager) {
         super(CallAudioModeStateMachine.class.getSimpleName());
         mAudioManager = audioManager;
+        mSystemStateHelper = systemStateHelper;
         mMostRecentMode = AudioManager.MODE_NORMAL;
 
         addState(mUnfocusedState);
