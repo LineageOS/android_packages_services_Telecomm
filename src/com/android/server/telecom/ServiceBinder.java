@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Subclasses supply the service intent and component name and this class will invoke protected
  * methods when the class is bound, unbound, or upon failure.
  */
-abstract class ServiceBinder {
+public abstract class ServiceBinder {
 
     /**
      * Callback to notify after a binding succeeds or fails.
