@@ -105,6 +105,11 @@ public class RespondViaSmsManager extends CallsManagerListenerBase {
                 final ArrayList<String> textMessages = new ArrayList<>(
                         QuickResponseUtils.NUM_CANNED_RESPONSES);
 
+                // Where the user has changed a quick response back to the same text as the
+                // original text, clear the shared pref.  This ensures we always load the resource
+                // in the current active language.
+                QuickResponseUtils.maybeResetQuickResponses(context, prefs);
+
                 // Note the default values here must agree with the corresponding
                 // android:defaultValue attributes in respond_via_sms_settings.xml.
                 textMessages.add(0, prefs.getString(QuickResponseUtils.KEY_CANNED_RESPONSE_PREF_1,
