@@ -414,7 +414,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private final TelecomSystem.SyncRoot mLock;
     private final String mId;
     private String mConnectionId;
-    private Analytics.CallInfo mAnalytics;
+    private Analytics.CallInfo mAnalytics = new Analytics.CallInfo();
     private char mPlayingDtmfTone;
 
     private boolean mWasConferencePreviouslyMerged = false;
@@ -580,7 +580,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         mShouldAttachToExistingConnection = shouldAttachToExistingConnection
                 || callDirection == CALL_DIRECTION_INCOMING;
         maybeLoadCannedSmsResponses();
-        mAnalytics = new Analytics.CallInfo();
         mClockProxy = clockProxy;
         mCreationTimeMillis = mClockProxy.currentTimeMillis();
     }
@@ -657,6 +656,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 analyticsDirection = Analytics.UNKNOWN_DIRECTION;
         }
         mAnalytics = Analytics.initiateCallAnalytics(mId, analyticsDirection);
+        mAnalytics.setCallIsEmergency(mIsEmergencyCall);
         Log.addEvent(this, LogUtils.Events.CREATED);
     }
 
@@ -1033,6 +1033,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 mIsEmergencyCall = mHandle != null &&
                         mPhoneNumberUtilsAdapter.isLocalEmergencyNumber(mContext,
                                 mHandle.getSchemeSpecificPart());
+                mAnalytics.setCallIsEmergency(mIsEmergencyCall);
             }
             startCallerInfoLookup();
             for (Listener l : mListeners) {

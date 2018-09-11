@@ -160,6 +160,9 @@ public class Analytics {
         public void setCallIsAdditional(boolean isAdditional) {
         }
 
+        public void setCallIsEmergency(boolean isEmergency) {
+        }
+
         public void setCallIsInterrupted(boolean isInterrupted) {
         }
 
@@ -295,6 +298,12 @@ public class Analytics {
         }
 
         @Override
+        public void setCallIsEmergency(boolean isEmergency) {
+            Log.d(TAG, "setting call as emergency: " + isEmergency);
+            this.isEmergency = isEmergency;
+        }
+
+        @Override
         public void setCallDisconnectCause(DisconnectCause disconnectCause) {
             Log.d(TAG, "setting disconnectCause for call " + callId + " to " + disconnectCause);
             this.callTerminationReason = disconnectCause;
@@ -361,6 +370,7 @@ public class Analytics {
                     + "    direction: " + getCallDirectionString() + '\n'
                     + "    isAdditionalCall: " + isAdditionalCall + '\n'
                     + "    isInterrupted: " + isInterrupted + '\n'
+                    + "    isEmergency: " + isEmergency + '\n'
                     + "    callTechnologies: " + getCallTechnologiesAsString() + '\n'
                     + "    callTerminationReason: " + getCallDisconnectReasonString() + '\n'
                     + "    connectionService: " + connectionService + '\n'
