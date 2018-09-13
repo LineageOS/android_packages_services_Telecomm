@@ -19,8 +19,10 @@ package com.android.server.telecom.tests;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
 import android.content.ContentResolver;
+import android.telecom.Log;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import com.android.internal.os.SomeArgs;
 import com.android.server.telecom.BluetoothHeadsetProxy;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
@@ -243,6 +245,17 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
         setupConnectedDevices(mParams.connectedDevices,
                 mParams.audioOnDevice, mParams.activeDevice);
         sm.setActiveDeviceCacheForTesting(mParams.activeDevice);
+        if (mParams.initialDevice != null) {
+            doAnswer(invocation -> {
+                SomeArgs args = SomeArgs.obtain();
+                args.arg1 = Log.createSubsession();
+                args.arg2 = mParams.initialDevice.getAddress();
+                sm.sendMessage(BluetoothRouteManager.HFP_LOST, args);
+                when(mHeadsetProxy.getAudioState(eq(mParams.initialDevice)))
+                        .thenReturn(BluetoothHeadset.STATE_AUDIO_DISCONNECTED);
+                return true;
+            }).when(mHeadsetProxy).disconnectAudio();
+        }
 
         // Go through the utility methods for these two messages
         if (mParams.messageType == BluetoothRouteManager.NEW_DEVICE_CONNECTED) {
@@ -256,6 +269,8 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                     mParams.messageDevice == null ? null : mParams.messageDevice.getAddress());
         }
 
+        waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
+        waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
         assertEquals(mParams.expectedFinalStateName, sm.getCurrentState().getName());
 
