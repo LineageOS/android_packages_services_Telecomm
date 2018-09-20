@@ -26,7 +26,6 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
@@ -921,12 +920,12 @@ public class BasicCallTests extends TelecomSystemTest {
                 Process.myUserHandle(), VideoProfile.STATE_BIDIRECTIONAL);
         com.android.server.telecom.Call call = mTelecomSystem.getCallsManager().getCalls()
                 .iterator().next();
-        assert(call.isVideoCallingSupported());
+        assert(call.isVideoCallingSupportedByPhoneAccount());
         assertEquals(VideoProfile.STATE_BIDIRECTIONAL, call.getVideoState());
 
         // Change the phone account to one which supports video calling.
         call.setTargetPhoneAccount(mPhoneAccountA1.getAccountHandle());
-        assert(call.isVideoCallingSupported());
+        assert(call.isVideoCallingSupportedByPhoneAccount());
         assertEquals(VideoProfile.STATE_BIDIRECTIONAL, call.getVideoState());
     }
 
@@ -944,12 +943,12 @@ public class BasicCallTests extends TelecomSystemTest {
                 Process.myUserHandle(), VideoProfile.STATE_BIDIRECTIONAL);
         com.android.server.telecom.Call call = mTelecomSystem.getCallsManager().getCalls()
                 .iterator().next();
-        assert(call.isVideoCallingSupported());
+        assert(call.isVideoCallingSupportedByPhoneAccount());
         assertEquals(VideoProfile.STATE_BIDIRECTIONAL, call.getVideoState());
 
         // Change the phone account to one which does not support video calling.
         call.setTargetPhoneAccount(mPhoneAccountA2.getAccountHandle());
-        assert(!call.isVideoCallingSupported());
+        assert(!call.isVideoCallingSupportedByPhoneAccount());
         assertEquals(VideoProfile.STATE_AUDIO_ONLY, call.getVideoState());
     }
 
