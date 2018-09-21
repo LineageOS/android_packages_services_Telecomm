@@ -17,6 +17,7 @@
 package com.android.server.telecom.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -37,6 +38,7 @@ import android.os.SystemClock;
 import android.telecom.Connection;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
+import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.telephony.TelephonyManager;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -866,6 +868,32 @@ public class CallsManagerTest extends TelecomTestCase {
 
         // THEN the incoming call is not using call filtering
         verify(incomingCall).setIsUsingCallFiltering(eq(false));
+    }
+
+    @SmallTest
+    @Test
+    public void testIsInEmergencyCallNetwork() {
+        // Setup a call which the network identified as an emergency call.
+        Call ongoingCall = addSpyCall();
+        ongoingCall.setConnectionProperties(Connection.PROPERTY_NETWORK_IDENTIFIED_EMERGENCY_CALL);
+
+        assertFalse(ongoingCall.isEmergencyCall());
+        assertTrue(ongoingCall.isNetworkIdentifiedEmergencyCall());
+        assertTrue(mCallsManager.isInEmergencyCall());
+    }
+
+    @SmallTest
+    @Test
+    public void testIsInEmergencyCallLocal() {
+        // Setup a call which is considered emergency based on its phone number.
+        Call ongoingCall = addSpyCall();
+        when(mPhoneNumberUtilsAdapter.isLocalEmergencyNumber(any(), any())).thenReturn(true);
+        ongoingCall.setHandle(Uri.fromParts("tel", "5551212", null),
+                TelecomManager.PRESENTATION_ALLOWED);
+
+        assertTrue(ongoingCall.isEmergencyCall());
+        assertFalse(ongoingCall.isNetworkIdentifiedEmergencyCall());
+        assertTrue(mCallsManager.isInEmergencyCall());
     }
 
     private Call addSpyCallWithConnectionService(ConnectionServiceWrapper connSvr) {

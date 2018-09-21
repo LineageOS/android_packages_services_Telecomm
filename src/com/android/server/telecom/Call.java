@@ -1092,9 +1092,20 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         return mDisconnectCause;
     }
 
+    /**
+     * @return {@code true} if this is an outgoing call to emergency services. An outgoing call is
+     * identified as an emergency call by the dialer phone number.
+     */
     @VisibleForTesting
     public boolean isEmergencyCall() {
         return mIsEmergencyCall;
+    }
+
+    /**
+     * @return {@code true} if the network has identified this call as an emergency call.
+     */
+    public boolean isNetworkIdentifiedEmergencyCall() {
+        return hasProperty(Connection.PROPERTY_NETWORK_IDENTIFIED_EMERGENCY_CALL);
     }
 
     /**
@@ -1454,7 +1465,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
     }
 
-    void setConnectionProperties(int connectionProperties) {
+    public void setConnectionProperties(int connectionProperties) {
         Log.v(this, "setConnectionProperties: %s", Connection.propertiesToString(
                 connectionProperties));
 
