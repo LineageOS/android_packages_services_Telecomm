@@ -79,6 +79,10 @@
         a text response. [CHAR LIMIT=40] -->
     <string name="respond_via_sms_confirmation_format">Message sent to <xliff:g id="phone_number">%s</xliff:g>.</string>
 
+    <!-- "Respond via SMS": Error toast shown after failing to send
+        a text response. [CHAR LIMIT=40] -->
+    <string name="respond_via_sms_failure_format">Message failed to send to <xliff:g id="phone_number">%s</xliff:g>.</string>
+
     <!-- Title of settings screen that allows user to enable and disable phone-accounts.
          Each method for placing a call (SIM1, SIM2, SIP account, etc) has a phone-account.
          Phone-accounts that are created by third party apps can be disabled and enabled by user.
