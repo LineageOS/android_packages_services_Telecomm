@@ -1449,6 +1449,29 @@ public class TelecomServiceImpl {
                 Log.endSession();
             }
         }
+
+        /**
+         * See {@link TelecomManager#isInEmergencyCall()}
+         */
+        @Override
+        public boolean isInEmergencyCall() {
+            try {
+                Log.startSession("TSI.iIEC");
+                enforceModifyPermission();
+                synchronized (mLock) {
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        boolean isInEmergencyCall = mCallsManager.isInEmergencyCall();
+                        Log.i(this, "isInEmergencyCall: %b", isInEmergencyCall);
+                        return isInEmergencyCall;
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
     };
 
     /**

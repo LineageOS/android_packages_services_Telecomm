@@ -3991,4 +3991,14 @@ public class CallsManager extends Call.ListenerBase
             }
         }
     }
+
+    /**
+     * Determines if there is an ongoing emergency call. This can be either an outgoing emergency
+     * call, or a number which has been identified by the number as an emergency call.
+     * @return {@code true} if there is an ongoing emergency call, {@code false} otherwise.
+     */
+    public boolean isInEmergencyCall() {
+        return mCalls.stream().filter(c -> c.isEmergencyCall()
+                || c.isNetworkIdentifiedEmergencyCall()).count() > 0;
+    }
 }
