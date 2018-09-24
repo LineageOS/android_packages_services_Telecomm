@@ -347,7 +347,10 @@ public class ParcelableCallUtils {
         android.telecom.Call.Details.PROPERTY_ASSISTED_DIALING_USED,
 
         Connection.PROPERTY_IS_RTT,
-        android.telecom.Call.Details.PROPERTY_RTT
+        android.telecom.Call.Details.PROPERTY_RTT,
+
+        Connection.PROPERTY_NETWORK_IDENTIFIED_EMERGENCY_CALL,
+        android.telecom.Call.Details.PROPERTY_NETWORK_IDENTIFIED_EMERGENCY_CALL
     };
 
     private static int convertConnectionToCallProperties(int connectionProperties) {
