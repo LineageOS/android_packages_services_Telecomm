@@ -50,6 +50,7 @@ import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
 import android.util.StatsLog;
 import android.os.UserHandle;
+import android.widget.Toast;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telecom.IVideoProvider;
@@ -2272,10 +2273,20 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     public void sendCallEvent(String event, int targetSdkVer, Bundle extras) {
         if (mConnectionService != null) {
             if (android.telecom.Call.EVENT_REQUEST_HANDOVER.equals(event)) {
-                if (targetSdkVer > Build.VERSION_CODES.O_MR1) {
+                if (targetSdkVer > Build.VERSION_CODES.P) {
                     Log.e(this, new Exception(), "sendCallEvent failed. Use public api handoverTo" +
-                            " for API > 27(O-MR1)");
-                    // TODO: Add "return" after DUO team adds new API support for handover
+                            " for API > 28(P)");
+                    // Event-based Handover APIs are deprecated, so inform the user.
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(mContext, "WARNING: Event-based handover APIs are deprecated "
+                                            + "and will no longer function in Android Q.",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+                    // Uncomment and remove toast at feature complete: return;
                 }
 
                 // Handover requests are targeted at Telecom, not the ConnectionService.

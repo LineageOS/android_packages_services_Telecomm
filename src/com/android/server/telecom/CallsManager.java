@@ -3571,6 +3571,10 @@ public class CallsManager extends Call.ListenerBase
                 mCallAudioManager.getCallAudioState());
         Call handoverToCall = startOutgoingCall(handoverFromCall.getHandle(), handoverToHandle,
                 extras, getCurrentUserHandle(), null /* originalIntent */);
+        if (handoverToCall == null) {
+            handoverFromCall.sendCallEvent(android.telecom.Call.EVENT_HANDOVER_FAILED, null);
+            return;
+        }
         Log.addEvent(handoverFromCall, LogUtils.Events.START_HANDOVER,
                 "handOverFrom=%s, handOverTo=%s", handoverFromCall.getId(), handoverToCall.getId());
         handoverFromCall.setHandoverDestinationCall(handoverToCall);
