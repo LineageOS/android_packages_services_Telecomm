@@ -577,9 +577,14 @@ public class CallsManager extends Call.ListenerBase
                     rejectCallAndLog(incomingCall);
                 }
             } else if (hasMaximumManagedDialingCalls(incomingCall)) {
-                Log.i(this, "onCallFilteringCompleted: Call rejected! Exceeds maximum number of " +
-                        "dialing calls.");
-                rejectCallAndLog(incomingCall);
+                if (shouldSilenceInsteadOfReject(incomingCall)) {
+                    incomingCall.silence();
+                } else {
+
+                    Log.i(this, "onCallFilteringCompleted: Call rejected! Exceeds maximum number of " +
+                            "dialing calls.");
+                    rejectCallAndLog(incomingCall);
+                }
             } else {
                 addCall(incomingCall);
             }
@@ -604,16 +609,16 @@ public class CallsManager extends Call.ListenerBase
     }
 
     /**
-     * Whether allow (silence rather than reject) the incoming call if it has a different source
-     * (connection service) from the existing ringing call when reaching maximum ringing calls.
+     * In the event that the maximum supported calls of a given type is reached, the
+     * default behavior is to reject any additional calls of that type.  This checks
+     * if the device is configured to silence instead of reject the call, provided
+     * that the incoming call is from a different source (connection service).
      */
     private boolean shouldSilenceInsteadOfReject(Call incomingCall) {
         if (!mContext.getResources().getBoolean(
                 R.bool.silence_incoming_when_different_service_and_maximum_ringing)) {
             return false;
         }
-
-        Call ringingCall = null;
 
         for (Call call : mCalls) {
             // Only operate on top-level calls
@@ -625,8 +630,7 @@ public class CallsManager extends Call.ListenerBase
                 continue;
             }
 
-            if (CallState.RINGING == call.getState() &&
-                    call.getConnectionService() == incomingCall.getConnectionService()) {
+            if (call.getConnectionService() == incomingCall.getConnectionService()) {
                 return false;
             }
         }
