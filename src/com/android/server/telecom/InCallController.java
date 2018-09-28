@@ -716,11 +716,6 @@ public class InCallController extends CallsManagerListenerBase {
     /** The in-call app implementations, see {@link IInCallService}. */
     private final Map<InCallServiceInfo, IInCallService> mInCallServices = new ArrayMap<>();
 
-    /**
-     * The {@link ComponentName} of the bound In-Call UI Service.
-     */
-    private ComponentName mInCallUIComponentName;
-
     private final CallIdMapper mCallIdMapper = new CallIdMapper(Call::getId);
 
     /** The {@link ComponentName} of the default InCall UI. */
@@ -1463,18 +1458,42 @@ public class InCallController extends CallsManagerListenerBase {
         pw.decreaseIndent();
     }
 
+    /**
+     * @return The package name of the UI which is currently bound, or null if none.
+     */
+    private ComponentName getConnectedUi() {
+        InCallServiceInfo connectedUi = mInCallServices.keySet().stream().filter(
+                i -> i.getType() == IN_CALL_SERVICE_TYPE_DIALER_UI
+                        || i.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI)
+                .findAny()
+                .orElse(null);
+        if (connectedUi != null) {
+            return connectedUi.mComponentName;
+        }
+        return null;
+    }
+
     public boolean doesConnectedDialerSupportRinging() {
         String ringingPackage =  null;
-        if (mInCallUIComponentName != null) {
-            ringingPackage = mInCallUIComponentName.getPackageName().trim();
+
+        ComponentName connectedPackage = getConnectedUi();
+        if (connectedPackage != null) {
+            ringingPackage = connectedPackage.getPackageName().trim();
+            Log.d(this, "doesConnectedDialerSupportRinging: alreadyConnectedPackage=%s",
+                    ringingPackage);
         }
 
         if (TextUtils.isEmpty(ringingPackage)) {
             // The current in-call UI returned nothing, so lets use the default dialer.
-            ringingPackage = DefaultDialerManager.getDefaultDialerApplication(
-                    mContext, UserHandle.USER_CURRENT);
+            ringingPackage = mDefaultDialerCache.getDefaultDialerApplication(
+                    mCallsManager.getCurrentUserHandle().getIdentifier());
+            if (ringingPackage != null) {
+                Log.d(this, "doesConnectedDialerSupportRinging: notCurentlyConnectedPackage=%s",
+                        ringingPackage);
+            }
         }
         if (TextUtils.isEmpty(ringingPackage)) {
+            Log.w(this, "doesConnectedDialerSupportRinging: no default dialer found; oh no!");
             return false;
         }
 
@@ -1484,11 +1503,15 @@ public class InCallController extends CallsManagerListenerBase {
                 intent, PackageManager.GET_META_DATA,
                 mCallsManager.getCurrentUserHandle().getIdentifier());
         if (entries.isEmpty()) {
+            Log.w(this, "doesConnectedDialerSupportRinging: couldn't find dialer's package info"
+                    + " <sad trombone>");
             return false;
         }
 
         ResolveInfo info = entries.get(0);
         if (info.serviceInfo == null || info.serviceInfo.metaData == null) {
+            Log.w(this, "doesConnectedDialerSupportRinging: couldn't find dialer's metadata"
+                    + " <even sadder trombone>");
             return false;
         }
 
