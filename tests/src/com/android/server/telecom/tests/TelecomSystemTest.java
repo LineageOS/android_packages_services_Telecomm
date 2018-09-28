@@ -682,11 +682,6 @@ public class TelecomSystemTest extends TelecomTestCase {
         Context localAppContext = mComponentContextFixture.getTestDouble().getApplicationContext();
         new UserCallIntentProcessor(localAppContext, userHandle).processIntent(
                 actionCallIntent, null, true /* hasCallAppOp*/, false /* isLocal */);
-        // UserCallIntentProcessor's mContext.sendBroadcastAsUser(...) will call to an empty method
-        // as to not actually try to send an intent to PrimaryCallReceiver. We verify that it was
-        // called correctly in order to continue.
-        verify(localAppContext).sendBroadcastAsUser(actionCallIntent, UserHandle.SYSTEM);
-        mTelecomSystem.getCallIntentProcessor().processIntent(actionCallIntent);
         // Wait for handler to start CallerInfo lookup.
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         // Send the CallerInfo lookup reply.
