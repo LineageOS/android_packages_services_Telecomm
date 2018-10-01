@@ -332,6 +332,7 @@ public class TelecomSystem {
                 },
                 defaultDialerCache,
                 new TelecomServiceImpl.SubscriptionManagerAdapterImpl(),
+                new TelecomServiceImpl.SettingsSecureAdapterImpl(),
                 mLock);
         Log.endSession();
     }
