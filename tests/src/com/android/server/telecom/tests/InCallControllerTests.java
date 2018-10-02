@@ -50,6 +50,7 @@ import com.android.server.telecom.EmergencyCallHelper;
 import com.android.server.telecom.InCallController;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.R;
+import com.android.server.telecom.RoleManagerAdapter;
 import com.android.server.telecom.SystemStateHelper;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
@@ -65,11 +66,15 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -95,12 +100,17 @@ public class InCallControllerTests extends TelecomTestCase {
     @Mock MockContext mMockContext;
     @Mock Timeouts.Adapter mTimeoutsAdapter;
     @Mock DefaultDialerCache mDefaultDialerCache;
+    @Mock RoleManagerAdapter mMockRoleManagerAdapter;
 
     private static final int CURRENT_USER_ID = 900973;
     private static final String DEF_PKG = "defpkg";
     private static final String DEF_CLASS = "defcls";
     private static final String SYS_PKG = "syspkg";
     private static final String SYS_CLASS = "syscls";
+    private static final String COMPANION_PKG = "cpnpkg";
+    private static final String COMPANION_CLASS = "cpncls";
+    private static final String CAR_PKG = "carpkg";
+    private static final String CAR_CLASS = "carcls";
     private static final PhoneAccountHandle PA_HANDLE =
             new PhoneAccountHandle(new ComponentName("pa_pkg", "pa_cls"), "pa_id");
 
@@ -121,9 +131,17 @@ public class InCallControllerTests extends TelecomTestCase {
         doReturn(true).when(mMockResources).getBoolean(R.bool.grant_location_permission_enabled);
         mEmergencyCallHelper = new EmergencyCallHelper(mMockContext, SYS_PKG,
                 mTimeoutsAdapter);
+        when(mMockCallsManager.getRoleManagerAdapter()).thenReturn(mMockRoleManagerAdapter);
         mInCallController = new InCallController(mMockContext, mLock, mMockCallsManager,
                 mMockSystemStateHelper, mDefaultDialerCache, mTimeoutsAdapter,
                 mEmergencyCallHelper);
+        // Companion Apps don't have CONTROL_INCALL_EXPERIENCE permission.
+        when(mMockPackageManager.checkPermission(
+                matches(Manifest.permission.CONTROL_INCALL_EXPERIENCE),
+                matches(COMPANION_PKG))).thenReturn(PackageManager.PERMISSION_DENIED);
+        when(mMockPackageManager.checkPermission(
+                matches(Manifest.permission.CONTROL_INCALL_EXPERIENCE),
+                matches(CAR_PKG))).thenReturn(PackageManager.PERMISSION_DENIED);
     }
 
     @Override
@@ -493,6 +511,103 @@ public class InCallControllerTests extends TelecomTestCase {
         verify(mockInCallService).addCall(any(ParcelableCall.class));
     }
 
+    /**
+     * Ensures that the {@link InCallController} will bind to an {@link InCallService} which
+     * supports third party companion calls.
+     */
+    @MediumTest
+    public void doNotTestBindToService_Companion() throws Exception {
+        setupMocks(true /* isExternalCall */);
+        setupMockPackageManager(true /* default */, true /* system */, true /* external calls */);
+
+        List<String> companionAppsList = new ArrayList<>();
+        companionAppsList.add(COMPANION_PKG);
+        companionAppsList.add(COMPANION_PKG);
+        when(mMockRoleManagerAdapter.getCallCompanionApps()).thenReturn(companionAppsList);
+        mInCallController.bindToServices(mMockCall);
+
+        // Query for the different InCallServices
+        ArgumentCaptor<Intent> queryIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mMockPackageManager, times(6)).queryIntentServicesAsUser(
+                queryIntentCaptor.capture(),
+                eq(PackageManager.GET_META_DATA), eq(CURRENT_USER_ID));
+        // Verify call for default dialer InCallService
+        assertEquals(DEF_PKG, queryIntentCaptor.getAllValues().get(0).getPackage());
+        // Verify call for system dialer InCallService
+        assertEquals(null, queryIntentCaptor.getAllValues().get(1).getPackage());
+        // Verify call for car mode ui InCallServices
+        assertEquals(null, queryIntentCaptor.getAllValues().get(2).getPackage());
+        // Verify call for non-UI InCallServices
+        assertEquals(null, queryIntentCaptor.getAllValues().get(3).getPackage());
+        // Verify call for companion InCallServices
+        assertEquals(COMPANION_PKG, queryIntentCaptor.getAllValues().get(4).getPackage());
+        assertEquals(COMPANION_PKG, queryIntentCaptor.getAllValues().get(5).getPackage());
+
+        // Bind InCallServices
+        ArgumentCaptor<Intent> bindIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mMockContext, times(3)).bindServiceAsUser(
+                bindIntentCaptor.capture(),
+                any(ServiceConnection.class),
+                eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE),
+                eq(UserHandle.CURRENT));
+        // Verify bind dialer
+        Intent bindIntent = bindIntentCaptor.getAllValues().get(0);
+        assertEquals(InCallService.SERVICE_INTERFACE, bindIntent.getAction());
+        assertEquals(DEF_PKG, bindIntent.getComponent().getPackageName());
+        assertEquals(DEF_CLASS, bindIntent.getComponent().getClassName());
+        // Verify bind companion apps
+        bindIntent = bindIntentCaptor.getAllValues().get(1);
+        assertEquals(InCallService.SERVICE_INTERFACE, bindIntent.getAction());
+        assertEquals(COMPANION_PKG, bindIntent.getComponent().getPackageName());
+        assertEquals(COMPANION_CLASS, bindIntent.getComponent().getClassName());
+        bindIntent = bindIntentCaptor.getAllValues().get(2);
+        assertEquals(InCallService.SERVICE_INTERFACE, bindIntent.getAction());
+        assertEquals(COMPANION_PKG, bindIntent.getComponent().getPackageName());
+        assertEquals(COMPANION_CLASS, bindIntent.getComponent().getClassName());
+    }
+
+    /**
+     * Ensures that the {@link InCallController} will bind to an {@link InCallService} which
+     * supports third party car mode ui calls
+     */
+    @MediumTest
+    public void doNotTestBindToService_CarModeUI() throws Exception {
+        setupMocks(true /* isExternalCall */);
+        setupMockPackageManager(true /* default */, true /* system */, true /* external calls */);
+
+        when(mMockRoleManagerAdapter.getCarModeDialerApp()).thenReturn(CAR_PKG);
+        // Enable car mode
+        when(mMockSystemStateHelper.isCarMode()).thenReturn(true);
+        mInCallController.bindToServices(mMockCall);
+
+        // Query for the different InCallServices
+        ArgumentCaptor<Intent> queryIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mMockPackageManager, times(4)).queryIntentServicesAsUser(
+                queryIntentCaptor.capture(),
+                eq(PackageManager.GET_META_DATA), eq(CURRENT_USER_ID));
+        // Verify call for default dialer InCallService
+        assertEquals(DEF_PKG, queryIntentCaptor.getAllValues().get(0).getPackage());
+        // Verify call for system dialer InCallService
+        assertEquals(null, queryIntentCaptor.getAllValues().get(1).getPackage());
+        // Verify call for car mode ui InCallServices
+        assertEquals(CAR_PKG, queryIntentCaptor.getAllValues().get(2).getPackage());
+        // Verify call for non-UI InCallServices
+        assertEquals(null, queryIntentCaptor.getAllValues().get(3).getPackage());
+
+        // Bind InCallServices
+        ArgumentCaptor<Intent> bindIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mMockContext, times(1)).bindServiceAsUser(
+                bindIntentCaptor.capture(),
+                any(ServiceConnection.class),
+                eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE),
+                eq(UserHandle.CURRENT));
+        // Verify bind car mode ui
+        Intent bindIntent = bindIntentCaptor.getAllValues().get(0);
+        assertEquals(InCallService.SERVICE_INTERFACE, bindIntent.getAction());
+        assertEquals(CAR_PKG, bindIntent.getComponent().getPackageName());
+        assertEquals(CAR_CLASS, bindIntent.getComponent().getClassName());
+    }
+
     private void setupMocks(boolean isExternalCall) {
         when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
@@ -521,11 +636,36 @@ public class InCallControllerTests extends TelecomTestCase {
         }};
     }
 
+    private ResolveInfo getCarModeResolveinfo(final boolean includeExternalCalls) {
+        return new ResolveInfo() {{
+            serviceInfo = new ServiceInfo();
+            serviceInfo.packageName = CAR_PKG;
+            serviceInfo.name = CAR_CLASS;
+            serviceInfo.permission = Manifest.permission.BIND_INCALL_SERVICE;
+            serviceInfo.metaData = new Bundle();
+            serviceInfo.metaData.putBoolean(
+                    TelecomManager.METADATA_IN_CALL_SERVICE_CAR_MODE_UI, true);
+            if (includeExternalCalls) {
+                serviceInfo.metaData.putBoolean(
+                        TelecomManager.METADATA_INCLUDE_EXTERNAL_CALLS, true);
+            }
+        }};
+    }
+
     private ResolveInfo getSysResolveinfo() {
         return new ResolveInfo() {{
             serviceInfo = new ServiceInfo();
             serviceInfo.packageName = SYS_PKG;
             serviceInfo.name = SYS_CLASS;
+            serviceInfo.permission = Manifest.permission.BIND_INCALL_SERVICE;
+        }};
+    }
+
+    private ResolveInfo getCompanionResolveinfo() {
+        return new ResolveInfo() {{
+            serviceInfo = new ServiceInfo();
+            serviceInfo.packageName = COMPANION_PKG;
+            serviceInfo.name = COMPANION_CLASS;
             serviceInfo.permission = Manifest.permission.BIND_INCALL_SERVICE;
         }};
     }
@@ -545,14 +685,20 @@ public class InCallControllerTests extends TelecomTestCase {
                 }
                 LinkedList<ResolveInfo> resolveInfo = new LinkedList<ResolveInfo>();
                 if (!TextUtils.isEmpty(packageName)) {
-                    if ((TextUtils.isEmpty(packageName) || packageName.equals(DEF_PKG)) &&
-                            useDefaultDialer) {
+                    if (packageName.equals(DEF_PKG) && useDefaultDialer) {
                         resolveInfo.add(getDefResolveInfo(includeExternalCalls));
                     }
 
-                    if ((TextUtils.isEmpty(packageName) || packageName.equals(SYS_PKG)) &&
-                           useSystemDialer) {
+                    if (packageName.equals(SYS_PKG) && useSystemDialer) {
                         resolveInfo.add(getSysResolveinfo());
+                    }
+
+                    if (packageName.equals(COMPANION_PKG)) {
+                        resolveInfo.add(getCompanionResolveinfo());
+                    }
+
+                    if (packageName.equals(CAR_PKG)) {
+                        resolveInfo.add(getCarModeResolveinfo(includeExternalCalls));
                     }
                 }
                 return resolveInfo;

@@ -73,7 +73,9 @@ public class RoleManagerAdapterImpl implements RoleManagerAdapter {
 
     @Override
     public List<String> getCallCompanionApps() {
-        List<String> callCompanionApps = getRoleManagerCallCompanionApps();
+        List<String> callCompanionApps = new ArrayList<>();
+        // List from RoleManager is not resizable. AbstractList.add action is not supported.
+        callCompanionApps.addAll(getRoleManagerCallCompanionApps());
         callCompanionApps.addAll(mOverrideCallCompanionApps);
         return callCompanionApps;
     }
