@@ -29,7 +29,6 @@ import com.android.server.telecom.CallAudioManager.AudioServiceFactory;
 import com.android.server.telecom.DefaultDialerCache.DefaultDialerManagerAdapter;
 
 import android.Manifest;
-import android.app.role.RoleManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
