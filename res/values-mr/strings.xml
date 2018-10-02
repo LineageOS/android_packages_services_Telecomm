@@ -49,16 +49,16 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"डीफॉल्ट म्हणून सेट करा"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"रद्द करा"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> कॉल करण्यात आणि त्याचे सर्व पैलू नियंत्रित करण्‍यात सक्षम असेल. ज्या अॅप्सवर आपला विश्वास आहे फक्त त्यांंनाच आपला डीफॉल्ट फोन अॅप म्हणून सेट करावे."</string>
-    <string name="blocked_numbers" msgid="2751843139572970579">"अवरोधित केलेले नंबर"</string>
-    <string name="blocked_numbers_msg" msgid="1045015186124965643">"आपल्याला अवरोधित नंबरवरून कॉल किंवा मजकूर प्राप्त होणार नाहीत."</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"ब्लॉक केलेले नंबर"</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"तुम्हाला ब्लॉक केलेल्या नंबरवरून कॉल किंवा मजकूर येणार नाहीत."</string>
     <string name="block_number" msgid="1101252256321306179">"एक नंबर जोडा"</string>
-    <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> अनावरोधित करायचा?"</string>
-    <string name="unblock_button" msgid="3078048901972674170">"अनावरोधित करा"</string>
-    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"यावरील कॉल आणि मजकूर अवरोधित करा"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> अनब्लॉक करायचा?"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"ब्लॉक करा"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"यावरील कॉल आणि मजकूर ब्लॉक करा"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"फोन नंबर"</string>
     <string name="block_button" msgid="8822290682524373357">"अवरोधित करा"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"फक्त डिव्हाइस मालक अवरोधित केलेले नंबर पाहू आणि व्यवस्थापित करू शकतो."</string>
-    <string name="delete_icon_description" msgid="8903995728252556724">"अनावरोधित करा"</string>
+    <string name="delete_icon_description" msgid="8903995728252556724">"ब्लॉक करा"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"अवरोधित करणे तात्पुरते बंद आहे"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"आपण एखादा आणीबाणी नंबर डायल केला किंवा त्यावर मजकूर पाठविल्यानंतर, आणीबाणी सेवा आपल्याशी संपर्क साधू शकतात हे सुनिश्चित करण्यासाठी अवरोधित करणे बंद करते."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"आता पुन्हा-सक्षम करा"</string>

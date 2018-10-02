@@ -52,7 +52,7 @@
     <string name="blocked_numbers" msgid="2751843139572970579">"Блокирани броеви"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Нема да добивате повици или SMS од блокирани броеви."</string>
     <string name="block_number" msgid="1101252256321306179">"Додај број"</string>
-    <string name="unblock_dialog_body" msgid="1614238499771862793">"Одблокирајте го <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"Да се одблокира <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Одблокирај"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Блокирај повици и пораки од"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Телефонски број"</string>
@@ -63,7 +63,7 @@
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Откако ќе повикате или ќе испратите SMS на број за итни случаи, блокирањето се исклучува за да може да ве контактираат службите за итни случаи."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Овозможи сега повторно"</string>
     <string name="blocked_numbers_number_blocked_message" msgid="7678509606805029540">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> е блокиран"</string>
-    <string name="blocked_numbers_number_unblocked_message" msgid="977894647366750418">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> е деблокиран"</string>
+    <string name="blocked_numbers_number_unblocked_message" msgid="977894647366750418">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> е одблокиран"</string>
     <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"Бројот за итни случаи не може да се блокира."</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> е веќе блокиран."</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Користење на личниот бирач за остварување повик"</string>
