@@ -295,12 +295,6 @@
                 android:exported="false"
                 android:process=":ui" />
 
-        <receiver android:name=".components.PrimaryCallReceiver"
-                android:exported="true"
-                android:permission="android.permission.MODIFY_PHONE_STATE"
-                android:process="system">
-        </receiver>
-
         <service android:name=".components.BluetoothPhoneService"
                 android:singleUser="true"
                 android:process="system">
