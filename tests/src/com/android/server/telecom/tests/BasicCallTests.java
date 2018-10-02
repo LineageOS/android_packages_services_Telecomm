@@ -1053,8 +1053,13 @@ public class BasicCallTests extends TelecomSystemTest {
                 mConnectionServiceFixtureA);
 
         // Should have reverted back to earpiece.
-        assertEquals(CallAudioState.ROUTE_EARPIECE,
-                mInCallServiceFixtureX.mCallAudioState.getRoute());
+        assertTrueWithTimeout(new Predicate<Void>() {
+            @Override
+            public boolean apply(Void aVoid) {
+                return mInCallServiceFixtureX.mCallAudioState.getRoute()
+                        == CallAudioState.ROUTE_EARPIECE;
+            }
+        });
     }
 
     /**
