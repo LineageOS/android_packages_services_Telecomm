@@ -189,14 +189,13 @@ public class UserCallIntentProcessor {
     }
 
     /**
-     * Potentially trampolines the intent to the broadcast receiver that runs only as the primary
-     * user.  If the caller is local to the Telecom service, we send the intent to Telecom without
-     * rebroadcasting it.
+     * Potentially trampolines the intent to Telecom via TelecomServiceImpl.
+     * If the caller is local to the Telecom service, we send the intent to Telecom without
+     * sending it through TelecomServiceImpl.
      */
     private boolean sendIntentToDestination(Intent intent, boolean isLocalInvocation) {
         intent.putExtra(CallIntentProcessor.KEY_IS_INCOMING_CALL, false);
         intent.setFlags(Intent.FLAG_RECEIVER_FOREGROUND);
-        intent.setClass(mContext, PrimaryCallReceiver.class);
         if (isLocalInvocation) {
             // We are invoking this from TelecomServiceImpl, so TelecomSystem is available.  Don't
             // bother trampolining the intent, just sent it directly to the call intent processor.
@@ -209,7 +208,8 @@ public class UserCallIntentProcessor {
             // We're calling from the UserCallActivity, so the TelecomSystem is not in the same
             // process; we need to trampoline to TelecomSystem in the system server process.
             Log.i(this, "sendIntentToDestination: trampoline to Telecom.");
-            mContext.sendBroadcastAsUser(intent, UserHandle.SYSTEM);
+            TelecomManager tm = (TelecomManager) mContext.getSystemService(Context.TELECOM_SERVICE);
+            tm.handleCallIntent(intent);
         }
         return true;
     }

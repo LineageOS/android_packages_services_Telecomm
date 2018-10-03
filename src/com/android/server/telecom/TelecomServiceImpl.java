@@ -1472,6 +1472,33 @@ public class TelecomServiceImpl {
                 Log.endSession();
             }
         }
+
+        /**
+         * See {@link TelecomManager#handleCallIntent(Intent)} ()}
+         */
+        @Override
+        public void handleCallIntent(Intent intent) {
+            try {
+                Log.startSession("TSI.hCI");
+                synchronized (mLock) {
+                    int callingUid = Binder.getCallingUid();
+
+                    long token = Binder.clearCallingIdentity();
+                    if (callingUid != Process.myUid()) {
+                        throw new SecurityException("handleCallIntent is for Telecom only");
+                    }
+                    try {
+                        Log.i(this, "handleCallIntent: handling call intent");
+                        mCallIntentProcessorAdapter.processOutgoingCallIntent(mContext,
+                                mCallsManager, intent);
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
     };
 
     /**
