@@ -141,6 +141,7 @@ public class CallsManager extends Call.ListenerBase
         void onExternalCallChanged(Call call, boolean isExternalCall);
         void onDisconnectedTonePlaying(boolean isTonePlaying);
         void onConnectionTimeChanged(Call call);
+        void onConferenceStateChanged(Call call, boolean isConference);
     }
 
     /** Interface used to define the action which is executed delay under some condition. */
@@ -799,6 +800,15 @@ public class CallsManager extends Call.ListenerBase
         updateCanAddCall();
         for (CallsManagerListener listener : mListeners) {
             listener.onIsConferencedChanged(call);
+        }
+    }
+
+    @Override
+    public void onConferenceStateChanged(Call call, boolean isConference) {
+        // Conference changed whether it is treated as a conference or not.
+        updateCanAddCall();
+        for (CallsManagerListener listener : mListeners) {
+            listener.onConferenceStateChanged(call, isConference);
         }
     }
 
