@@ -137,6 +137,14 @@ public class LogUtils {
         public static final String HANDOVER_FAILED = "HANDOVER_FAILED";
         public static final String START_RINBACK = "START_RINGBACK";
         public static final String STOP_RINGBACK = "STOP_RINGBACK";
+        public static final String REDIRECTION_BOUND_USER = "REDIRECTION_BOUND_USER";
+        public static final String REDIRECTION_BOUND_CARRIER = "REDIRECTION_BOUND_CARRIER";
+        public static final String REDIRECTION_SENT_USER = "REDIRECTION_SENT_USER";
+        public static final String REDIRECTION_SENT_CARRIER = "REDIRECTION_SENT_CARRIER";
+        public static final String REDIRECTION_COMPLETED_USER = "REDIRECTION_COMPLETED_USER";
+        public static final String REDIRECTION_COMPLETED_CARRIER = "REDIRECTION_COMPLETED_CARRIER";
+        public static final String REDIRECTION_TIMED_OUT_USER = "REDIRECTION_TIMED_OUT_USER";
+        public static final String REDIRECTION_TIMED_OUT_CARRIER = "REDIRECTION_TIMED_OUT_CARRIER";
 
         public static class Timings {
             public static final String ACCEPT_TIMING = "accept";
