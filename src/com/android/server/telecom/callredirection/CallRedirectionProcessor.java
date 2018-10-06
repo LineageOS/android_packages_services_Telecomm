@@ -16,26 +16,22 @@
 
 package com.android.server.telecom.callredirection;
 
-import android.Manifest;
-import android.app.AppOpsManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.telecom.CallRedirectionService;
+import android.telecom.GatewayInfo;
 import android.telecom.Log;
 import android.telecom.Logging.Runnable;
 import android.telecom.PhoneAccountHandle;
-import android.telephony.CarrierConfigManager;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telecom.ICallRedirectionAdapter;
 import com.android.internal.telecom.ICallRedirectionService;
@@ -45,8 +41,6 @@ import com.android.server.telecom.LogUtils;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
-
-import java.util.List;
 
 /**
  * A single instance of call redirection processor that handles the call redirection with
@@ -98,10 +92,14 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
         private void onServiceBound(ICallRedirectionService service) {
             mService = service;
             try {
-                mService.placeCall(new CallRedirectionAdapter(), mHandle, mPhoneAccountHandle);
+                mHandle = mCallRedirectionProcessorHelper.formatNumberForRedirection(mHandle);
+                // Telecom does not perform user interactions for carrier call redirection.
+                mService.placeCall(new CallRedirectionAdapter(), mHandle, mPhoneAccountHandle,
+                        mAllowInteractiveResponse
+                                && mServiceType.equals(SERVICE_TYPE_USER_DEFINED));
                 Log.addEvent(mCall, mServiceType.equals(SERVICE_TYPE_USER_DEFINED)
                         ? LogUtils.Events.REDIRECTION_SENT_USER
-                        : LogUtils.Events.REDIRECTION_SENT_CARRIER);
+                        : LogUtils.Events.REDIRECTION_SENT_CARRIER, mComponentName);
                 Log.d(this, "Requested placeCall with [handle]" + Log.pii(mHandle)
                         + " [phoneAccountHandle]" + mPhoneAccountHandle);
             } catch (RemoteException e) {
@@ -189,16 +187,20 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
             }
 
             @Override
-            public void redirectCall(Uri handle, PhoneAccountHandle targetPhoneAccount) {
+            public void redirectCall(Uri handle, PhoneAccountHandle targetPhoneAccount,
+                                     boolean confirmFirst) {
                 Log.startSession("CRA.rC");
                 long token = Binder.clearCallingIdentity();
                 try {
                     synchronized (mTelecomLock) {
                         mHandle = handle;
                         mPhoneAccountHandle = targetPhoneAccount;
+                        mUiAction = (confirmFirst && mServiceType.equals(SERVICE_TYPE_USER_DEFINED)
+                                && mAllowInteractiveResponse)
+                                ? UI_TYPE_USER_DEFINED_ASK_FOR_CONFIRM : mUiAction;
                         Log.d(this, "Received redirectCall with [handle]" + Log.pii(mHandle)
                                 + " [phoneAccountHandle]" + mPhoneAccountHandle + " from "
-                                + mServiceType + " call" + " redirection service");
+                                + mServiceType + " call redirection service");
                         finishCallRedirection();
                     }
                 } finally {
@@ -212,14 +214,23 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
     private final Context mContext;
     private final CallsManager mCallsManager;
     private final Call mCall;
-    private final PhoneAccountRegistrar mPhoneAccountRegistrar;
+    private final boolean mAllowInteractiveResponse;
+    private final GatewayInfo mGatewayInfo;
+    private final boolean mSpeakerphoneOn;
+    private final int mVideoState;
     private final Timeouts.Adapter mTimeoutsAdapter;
     private final TelecomSystem.SyncRoot mTelecomLock;
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     private CallRedirectionAttempt mAttempt;
+    private CallRedirectionProcessorHelper mCallRedirectionProcessorHelper;
+
     public static final String SERVICE_TYPE_CARRIER = "carrier";
     public static final String SERVICE_TYPE_USER_DEFINED = "user_defined";
+    public static final String UI_TYPE_NO_ACTION = "no_action";
+    public static final String UI_TYPE_USER_DEFINED_TIMEOUT = "user_defined_timeout";
+    public static final String UI_TYPE_USER_DEFINED_ASK_FOR_CONFIRM
+            = "user_defined_ask_for_confirm";
 
     private PhoneAccountHandle mPhoneAccountHandle;
     private Uri mHandle;
@@ -228,6 +239,10 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
      * Indicates if Telecom should cancel the call when the whole call redirection finishes.
      */
     private boolean mShouldCancelCall = false;
+    /**
+     * Indicates Telecom should handle different types of UI if need.
+     */
+    private String mUiAction = UI_TYPE_NO_ACTION;
     /**
      * Indicates if Telecom is waiting for a callback from a user-defined
      * {@link CallRedirectionService}.
@@ -243,19 +258,28 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
             Context context,
             CallsManager callsManager,
             Call call,
-            PhoneAccountRegistrar phoneAccountRegistrar,
             Uri handle,
-            PhoneAccountHandle phoneAccountHandle,
-            Timeouts.Adapter timeoutsAdapter,
-            TelecomSystem.SyncRoot lock) {
+            PhoneAccountRegistrar phoneAccountRegistrar,
+            GatewayInfo gatewayInfo,
+            boolean speakerphoneOn,
+            int videoState) {
         mContext = context;
         mCallsManager = callsManager;
         mCall = call;
-        mPhoneAccountRegistrar = phoneAccountRegistrar;
         mHandle = handle;
-        mPhoneAccountHandle = phoneAccountHandle;
-        mTimeoutsAdapter = timeoutsAdapter;
-        mTelecomLock = lock;
+        mPhoneAccountHandle = call.getTargetPhoneAccount();
+        mGatewayInfo = gatewayInfo;
+        mSpeakerphoneOn = speakerphoneOn;
+        mVideoState = videoState;
+        mTimeoutsAdapter = callsManager.getTimeoutsAdapter();
+        mTelecomLock = callsManager.getLock();
+        /**
+         * The current rule to decide whether the implemented {@link CallRedirectionService} should
+         * allow interactive responses with users is only based on whether it is in car mode.
+         */
+        mAllowInteractiveResponse = !callsManager.getSystemStateHelper().isCarMode();
+        mCallRedirectionProcessorHelper = new CallRedirectionProcessorHelper(
+                context, callsManager, phoneAccountRegistrar);
     }
 
     @Override
@@ -264,11 +288,15 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
         mHandler.post(new Runnable("CRP.oCRC", mTelecomLock) {
             @Override
             public void loggedRun() {
+                mHandle = mCallRedirectionProcessorHelper.processNumberWhenRedirectionComplete(
+                        mHandle);
                 if (mIsUserDefinedRedirectionPending) {
                     Log.addEvent(mCall, LogUtils.Events.REDIRECTION_COMPLETED_USER);
                     mIsUserDefinedRedirectionPending = false;
                     if (mShouldCancelCall) {
-                        // TODO mCallsManager.onCallRedirectionComplete
+                        mCallsManager.onCallRedirectionComplete(mCall, mHandle,
+                                mPhoneAccountHandle, mGatewayInfo, mSpeakerphoneOn, mVideoState,
+                                mShouldCancelCall, mUiAction);
                     } else {
                         performCarrierCallRedirection();
                     }
@@ -276,23 +304,33 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
                 if (mIsCarrierRedirectionPending) {
                     Log.addEvent(mCall, LogUtils.Events.REDIRECTION_COMPLETED_CARRIER);
                     mIsCarrierRedirectionPending = false;
-                    // TODO mCallsManager.onCallRedirectionComplete
+                    mCallsManager.onCallRedirectionComplete(mCall, mHandle,
+                            mPhoneAccountHandle, mGatewayInfo, mSpeakerphoneOn, mVideoState,
+                            mShouldCancelCall, mUiAction);
                 }
             }
         }.prepare());
     }
 
-    /*
+    /**
      * The entry to perform call redirection of the call from (@link CallsManager)
      */
     public void performCallRedirection() {
-        performUserDefinedCallRedirection();
+        // If the Gateway Info is set with intent, do not perform call redirection.
+        if (mGatewayInfo != null) {
+            mCallsManager.onCallRedirectionComplete(mCall, mHandle, mPhoneAccountHandle,
+                    mGatewayInfo, mSpeakerphoneOn, mVideoState, mShouldCancelCall, mUiAction);
+        } else {
+            mCallRedirectionProcessorHelper.storePostDialDigits(mHandle);
+            performUserDefinedCallRedirection();
+        }
     }
 
     private void performUserDefinedCallRedirection() {
         Log.d(this, "performUserDefinedCallRedirection");
-        ComponentName componentName = getUserDefinedCallRedirectionService(mContext);
-        if (componentName != null && canBindToCallRedirectionService(mContext, componentName)) {
+        ComponentName componentName =
+                mCallRedirectionProcessorHelper.getUserDefinedCallRedirectionService();
+        if (componentName != null) {
             mAttempt = new CallRedirectionAttempt(componentName, SERVICE_TYPE_USER_DEFINED);
             mAttempt.process();
             mIsUserDefinedRedirectionPending = true;
@@ -306,9 +344,10 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
 
     private void performCarrierCallRedirection() {
         Log.d(this, "performCarrierCallRedirection");
-        ComponentName componentName = getCarrierCallRedirectionService(
-            mContext, mPhoneAccountHandle);
-        if (componentName != null && canBindToCallRedirectionService(mContext, componentName)) {
+        ComponentName componentName =
+                mCallRedirectionProcessorHelper.getCarrierCallRedirectionService(
+                        mPhoneAccountHandle);
+        if (componentName != null) {
             mAttempt = new CallRedirectionAttempt(componentName, SERVICE_TYPE_CARRIER);
             mAttempt.process();
             mIsCarrierRedirectionPending = true;
@@ -316,7 +355,9 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
         } else {
             Log.i(this, "There are no carrier call redirection services installed on this"
                     + " device.");
-            // TODO return to CallsManager.onCallRedirectionComplete
+            mCallsManager.onCallRedirectionComplete(mCall, mHandle,
+                    mPhoneAccountHandle, mGatewayInfo, mSpeakerphoneOn, mVideoState,
+                    mShouldCancelCall, mUiAction);
         }
     }
 
@@ -333,77 +374,49 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
                         serviceType.equals(SERVICE_TYPE_USER_DEFINED) ?
                                 mIsUserDefinedRedirectionPending : mIsCarrierRedirectionPending;
                 if (isCurrentRedirectionPending) {
-                    Log.i(CallRedirectionProcessor.this,
-                            serviceType + "call redirection has timed out.");
+                    Log.i(this, serviceType + " call redirection has timed out.");
                     Log.addEvent(mCall, serviceType.equals(SERVICE_TYPE_USER_DEFINED)
                             ? LogUtils.Events.REDIRECTION_TIMED_OUT_USER
                             : LogUtils.Events.REDIRECTION_TIMED_OUT_CARRIER);
+                    if (serviceType.equals(SERVICE_TYPE_USER_DEFINED)) {
+                        mUiAction = UI_TYPE_USER_DEFINED_TIMEOUT;
+                        mShouldCancelCall = true;
+                    }
                     onCallRedirectionComplete(mCall);
                 }
             }
         }.prepare(), timeout);
     }
 
-    private ComponentName getUserDefinedCallRedirectionService(Context context) {
-        // TODO get service component name from settings default value:
-        // android.provider.Settings#CALL_REDIRECTION_DEFAULT_APPLICATION
-        return null;
-    }
-
-    private ComponentName getCarrierCallRedirectionService(Context context, PhoneAccountHandle
-            targetPhoneAccountHandle) {
-        CarrierConfigManager configManager = (CarrierConfigManager)
-                context.getSystemService(Context.CARRIER_CONFIG_SERVICE);
-        if (configManager == null) {
-            Log.i(this, "Cannot get CarrierConfigManager.");
-            return null;
-        }
-        PersistableBundle pb = configManager.getConfigForSubId(mPhoneAccountRegistrar
-                .getSubscriptionIdForPhoneAccount(targetPhoneAccountHandle));
-        if (pb == null) {
-            Log.i(this, "Cannot get PersistableBundle.");
-            return null;
-        }
-        String componentNameString = pb.getString(
-            CarrierConfigManager.KEY_CALL_REDIRECTION_SERVICE_COMPONENT_NAME_STRING);
-        return new ComponentName(context, componentNameString);
-    }
-
-    private boolean canBindToCallRedirectionService(Context context, ComponentName componentName) {
-        Intent intent = new Intent(CallRedirectionService.SERVICE_INTERFACE);
-        intent.setComponent(componentName);
-        List<ResolveInfo> entries = mContext.getPackageManager().queryIntentServicesAsUser(
-                intent, 0, mCallsManager.getCurrentUserHandle().getIdentifier());
-        if (entries.isEmpty()) {
-            Log.i(this, "There are no call redirection services installed on this device.");
-            return false;
-        } else if (entries.size() != 1) {
-            Log.i(this, "There are multiple call redirection services installed on this device.");
-            return false;
-        } else {
-            ResolveInfo entry = entries.get(0);
-            if (entry.serviceInfo.permission == null || !entry.serviceInfo.permission.equals(
-                    Manifest.permission.BIND_CALL_REDIRECTION_SERVICE)) {
-                Log.w(this, "CallRedirectionService must require BIND_CALL_REDIRECTION_SERVICE"
-                        + " permission: " + entry.serviceInfo.packageName);
-                return false;
-            }
-            AppOpsManager appOps = (AppOpsManager) context.getSystemService(
-                Context.APP_OPS_SERVICE);
-            if (appOps.noteOp(AppOpsManager.OP_PROCESS_OUTGOING_CALLS, Binder.getCallingUid(),
-                    entry.serviceInfo.packageName) != AppOpsManager.MODE_ALLOWED) {
-                Log.w(this, "App Ops does not allow " + entry.serviceInfo.packageName);
-                return false;
-            }
-        }
-        return true;
+    /**
+     * Checks if Telecom can make call redirection with any available call redirection service.
+     *
+     * @return {@code true} if it can; {@code false} otherwise.
+     */
+    public boolean canMakeCallRedirectionWithService() {
+        boolean canMakeCallRedirectionWithService =
+                mCallRedirectionProcessorHelper.getUserDefinedCallRedirectionService() != null
+                        || mCallRedirectionProcessorHelper.getCarrierCallRedirectionService(
+                                mPhoneAccountHandle) != null;
+        Log.w(this, "Can make call redirection with any available service: "
+                + canMakeCallRedirectionWithService);
+        return canMakeCallRedirectionWithService;
     }
 
     /**
-     * Returns the handler for testing purposes.
+     * Returns the handler, for testing purposes.
      */
     @VisibleForTesting
     public Handler getHandler() {
         return mHandler;
+    }
+
+    /**
+     * Set CallRedirectionProcessorHelper for testing purposes.
+     */
+    @VisibleForTesting
+    public void setCallRedirectionServiceHelper(
+            CallRedirectionProcessorHelper callRedirectionProcessorHelper) {
+        mCallRedirectionProcessorHelper = callRedirectionProcessorHelper;
     }
 }
