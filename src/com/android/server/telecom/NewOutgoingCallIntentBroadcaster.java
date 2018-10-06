@@ -37,6 +37,7 @@ import android.telephony.DisconnectCause;
 import android.text.TextUtils;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.server.telecom.callredirection.CallRedirectionProcessor;
 
 // TODO: Needed for move to system service: import com.android.internal.R;
 
@@ -240,6 +241,8 @@ public class NewOutgoingCallIntentBroadcaster {
         boolean callImmediately = false;
         // True for all managed calls, false for self-managed calls.
         boolean sendNewOutgoingCallBroadcast = true;
+        // True for requesting call redirection, false for not requesting it.
+        boolean requestCallRedirection = true;
         Uri callingAddress = handle;
 
         if (!isSelfManaged) {
@@ -294,6 +297,7 @@ public class NewOutgoingCallIntentBroadcaster {
             // Self-managed call.
             callImmediately = true;
             sendNewOutgoingCallBroadcast = false;
+            requestCallRedirection = false;
             Log.i(this, "Skipping NewOutgoingCallBroadcast for self-managed call.");
         }
 
@@ -312,10 +316,33 @@ public class NewOutgoingCallIntentBroadcaster {
             // initiate the call again because of the presence of the EXTRA_ALREADY_CALLED extra.
         }
 
+        boolean callRedirectionWithService = false;
+        if (requestCallRedirection) {
+            CallRedirectionProcessor callRedirectionProcessor = new CallRedirectionProcessor(
+                    mContext, mCallsManager, mCall, callingAddress,
+                    mCallsManager.getPhoneAccountRegistrar(),
+                    getGateWayInfoFromIntent(intent, handle),
+                    intent.getBooleanExtra(TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE,
+                            false),
+                    intent.getIntExtra(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
+                            VideoProfile.STATE_AUDIO_ONLY));
+            /**
+             * If there is an available {@link android.telecom.CallRedirectionService}, use the
+             * {@link CallRedirectionProcessor} to perform call redirection instead of using
+             * broadcasting.
+             */
+            callRedirectionWithService = callRedirectionProcessor
+                    .canMakeCallRedirectionWithService();
+            if (callRedirectionWithService) {
+                callRedirectionProcessor.performCallRedirection();
+            }
+        }
+
         if (sendNewOutgoingCallBroadcast) {
             UserHandle targetUser = mCall.getInitiatingUser();
             Log.i(this, "Sending NewOutgoingCallBroadcast for %s to %s", mCall, targetUser);
-            broadcastIntent(intent, number, !callImmediately, targetUser);
+            broadcastIntent(intent, number,
+                    !callImmediately && !callRedirectionWithService, targetUser);
         }
         return DisconnectCause.NOT_DISCONNECTED;
     }
