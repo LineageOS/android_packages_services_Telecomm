@@ -37,6 +37,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.NewOutgoingCallIntentBroadcaster;
+import com.android.server.telecom.RoleManagerAdapter;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.PhoneNumberUtilsAdapter;
 import com.android.server.telecom.PhoneNumberUtilsAdapterImpl;
@@ -84,6 +85,7 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
     @Mock private SystemStateHelper mSystemStateHelper;
     @Mock private UserHandle mUserHandle;
     @Mock private PhoneAccountRegistrar mPhoneAccountRegistrar;
+    @Mock private RoleManagerAdapter mRoleManagerAdapter;
 
     private PhoneNumberUtilsAdapter mPhoneNumberUtilsAdapterSpy;
 
@@ -98,6 +100,7 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
         when(mCallsManager.getSystemStateHelper()).thenReturn(mSystemStateHelper);
         when(mCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
         when(mCallsManager.getPhoneAccountRegistrar()).thenReturn(mPhoneAccountRegistrar);
+        when(mCallsManager.getRoleManagerAdapter()).thenReturn(mRoleManagerAdapter);
         when(mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(
                 any(PhoneAccountHandle.class))).thenReturn(-1);
         when(mSystemStateHelper.isCarMode()).thenReturn(false);
