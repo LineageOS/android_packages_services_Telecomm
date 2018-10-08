@@ -536,6 +536,18 @@ public class BluetoothRouteManager extends StateMachine {
         sendMessage(DISCONNECT_HFP, args);
     }
 
+    public void disconnectSco() {
+        mDeviceManager.disconnectSco();
+    }
+
+    public void cacheHearingAidDevice() {
+        mDeviceManager.cacheHearingAidDevice();
+    }
+
+    public void restoreHearingAidDevice() {
+        mDeviceManager.restoreHearingAidDevice();
+    }
+
     public void setListener(BluetoothStateListener listener) {
         mListener = listener;
     }

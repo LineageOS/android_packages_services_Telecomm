@@ -108,6 +108,7 @@ public class BluetoothDeviceManager {
     private BluetoothRouteManager mBluetoothRouteManager;
     private BluetoothHeadsetProxy mBluetoothHeadsetService;
     private BluetoothHearingAid mBluetoothHearingAidService;
+    private BluetoothDevice mBluetoothHearingAidActiveDeviceCache;
 
     public BluetoothDeviceManager(Context context, BluetoothAdapterProxy bluetoothAdapter) {
         if (bluetoothAdapter != null) {
@@ -224,6 +225,10 @@ public class BluetoothDeviceManager {
                 }
             }
         }
+        disconnectSco();
+    }
+
+    public void disconnectSco() {
         if (mBluetoothHeadsetService == null) {
             Log.w(this, "Trying to disconnect audio but no headset service exists.");
         } else {
@@ -261,4 +266,22 @@ public class BluetoothDeviceManager {
             return false;
         }
     }
+
+    public void cacheHearingAidDevice() {
+        if (mBluetoothHearingAidService != null) {
+             for (BluetoothDevice device : mBluetoothHearingAidService.getActiveDevices()) {
+                 if (device != null) {
+                     mBluetoothHearingAidActiveDeviceCache = device;
+                 }
+             }
+        }
+    }
+
+    public void restoreHearingAidDevice() {
+        if (mBluetoothHearingAidActiveDeviceCache != null && mBluetoothHearingAidService != null) {
+            mBluetoothHearingAidService.setActiveDevice(mBluetoothHearingAidActiveDeviceCache);
+            mBluetoothHearingAidActiveDeviceCache = null;
+        }
+    }
+
 }
