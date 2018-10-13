@@ -148,52 +148,67 @@
   <!-- The "label" of the Notification for an incoming ringing call.
          call_via refers to the name of the app the incoming call is coming from.
          Example: Duo call from John Smith[CHAR LIMIT=60] -->
+  <string name="notification_incoming_call">Galwad <xliff:g id="call_via">%1$s</xliff:g> oddi wrth <xliff:g id="call_from">%2$s</xliff:g></string>
   <!-- The "label" of the Notification for an incoming ringing video call.
          call_via refers to the name of the app the incoming video call is coming from.
          Example: Duo video call from John Smith[CHAR LIMIT=60] -->
+  <string name="notification_incoming_video_call">Galwad fideo <xliff:g id="call_via">%1$s</xliff:g> oddi wrth <xliff:g id="call_from">%2$s</xliff:g></string>
   <!-- The "details" of a Notification for an incoming call which will cause an ongoing call to be
          disconnected.  This message is the part of the notification that informs the user that
          answering the current ringing call will cause a call from another app to be disconnected.
          Example: Answering will end your Duo call [CHAR LIMIT=60] -->
+  <string name="answering_ends_other_call">Bydd ateb yn dod a dy alwad <xliff:g id="call_via">%1$s</xliff:g> i ben.</string>
   <!-- The "details" of a Notification for an incoming call which will cause other ongoing calls
          to be disconnected.  This message is the part of the notification that informs the user
          answering the current ringing call will cause calls from another app to be disconnected.
          Example: Answering will end your Duo call [CHAR LIMIT=60] -->
+  <string name="answering_ends_other_calls">Bydd ateb yn dod a dy alwadau <xliff:g id="call_via">%1$s</xliff:g> i ben.</string>
   <!-- The "details" of a Notification for an incoming call which will cause an ongoing video call
          to be disconnected.  This message is the part of the notification that informs the user
          that answering the current ringing call will cause a video call from another app to be
          disconnected.
          Example: Answering will end your Duo video call [CHAR LIMIT=60] -->
+  <string name="answering_ends_other_video_call">Bydd ateb yn dod a dy alwad fideo <xliff:g id="call_via">%1$s</xliff:g> i ben.</string>
   <!-- The "details" of a Notification for an incoming call which will cause an ongoing call
          to be disconnected.  This message is the part of the notification that informs the user
          that answering the current ringing call will cause an ongoing call to be disconnected.
          Similar to answering_ends_other_call, except does not specify which app.
          [CHAR LIMIT=60] -->
+  <string name="answering_ends_other_managed_call">Bydd ateb yn dod a dy alwad presennol i ben.</string>
   <!-- The "details" of a Notification for an incoming call which will cause an ongoing call
          to be disconnected.  This message is the part of the notification that informs the user
          that answering the current ringing call will cause an ongoing call to be disconnected.
          Similar to answering_ends_other_call, except does not specify which app.
          [CHAR LIMIT=60] -->
+  <string name="answering_ends_other_managed_calls">Bydd ateb yn dod a dy alwadau presennol i ben.</string>
   <!-- The "details" of a Notification for an incoming call which will cause an ongoing video call
          to be disconnected.  This message is the part of the notification that informs the user
          that answering the current ringing call will cause an ongoing video call to be
          disconnected.
          Similar to answering_ends_other_video_call, except does not specify which app.
          [CHAR LIMIT=60] -->
+  <string name="answering_ends_other_managed_video_call">Bydd ateb yn dod a dy alwad fideo presennol i ben.</string>
   <!-- The "answer" button for an incoming call. [CHAR LIMIT=60] -->
+  <string name="answer_incoming_call">Ateb</string>
   <!-- The "decline" button for an incoming call. [CHAR LIMIT=60] -->
+  <string name="decline_incoming_call">Gwrthod</string>
   <!-- Error message shown to the user when an outgoing call cannot be placed due to an ongoing
          phone call in a third-party app.  For example:
          Call cannot be placed due to your Duo call. [CHAR LIMIT=none] -->
+  <string name="cant_call_due_to_ongoing_call">Ni ellir wneud y galwad oherwydd dy alwad <xliff:g id="other_call">%1$s</xliff:g>.</string>
   <!-- Error message shown to the user when an outgoing call cannot be placed due to ongoing
          phone calls in a third-party app.  For example:
          Call cannot be placed due to your Duo calls. [CHAR LIMIT=none] -->
+  <string name="cant_call_due_to_ongoing_calls">Ni ellir wneud y galwad oherwydd dy alwadau <xliff:g id="other_call">%1$s</xliff:g>.</string>
   <!-- Error message shown to the user when an outgoing call cannot be placed due to an ongoing
          phone call in a third-party app.  Unlike cant_call_due_to_ongoing_call, this is used when
          the name of the other app is not known. [CHAR LIMIT=none] -->
+  <string name="cant_call_due_to_ongoing_unknown_call">Ni ellir gwneud galwad tra bod galwad ar y gweill mewn ap arall.</string>
   <!-- Notification channel name for a channel containing incoming call notifications. -->
+  <string name="notification_channel_incoming_call">Galwadau i mewn</string>
   <!-- Notification channel name for a channel containing missed call notifications. -->
   <string name="notification_channel_missed_call">Galwadau wedi eu methu</string>
   <!-- Alert dialog content used to inform the user that placing a new outgoing call will end the
          ongoing call in the app "other_app". -->
+  <string name="alert_outgoing_call">Bydd gwneud yr alwad hon yn dod a dy alwad <xliff:g id="other_app">%1$s</xliff:g> i ben.</string>
 </resources>
