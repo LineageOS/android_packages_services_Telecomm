@@ -22,6 +22,7 @@ import android.telecom.Conference;
 import android.telecom.Connection;
 import android.telecom.InCallService;
 import android.telecom.ParcelableCall;
+import android.support.test.filters.FlakyTest;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 
@@ -398,6 +399,7 @@ public class CallExtrasTest extends TelecomSystemTest {
      * @throws Exception
      */
     @LargeTest
+    @FlakyTest(bugId = 117751305)
     @Test
     public void testConferenceExtraOperations() throws Exception {
         ParcelableCall call = makeConferenceCall();
