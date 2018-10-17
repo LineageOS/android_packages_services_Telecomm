@@ -538,6 +538,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     }
 
     @MediumTest
+    @FlakyTest(bugId = 117751305)
     @Test
     public void testLogCallDirectionIncomingWithMultiUserCapability() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
