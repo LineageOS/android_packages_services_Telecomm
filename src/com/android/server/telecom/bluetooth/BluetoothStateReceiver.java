@@ -29,8 +29,8 @@ import android.telecom.Logging.Session;
 
 import com.android.internal.os.SomeArgs;
 
-import static com.android.server.telecom.bluetooth.BluetoothRouteManager.HFP_IS_ON;
-import static com.android.server.telecom.bluetooth.BluetoothRouteManager.HFP_LOST;
+import static com.android.server.telecom.bluetooth.BluetoothRouteManager.BT_AUDIO_IS_ON;
+import static com.android.server.telecom.bluetooth.BluetoothRouteManager.BT_AUDIO_LOST;
 
 
 public class BluetoothStateReceiver extends BroadcastReceiver {
@@ -97,10 +97,10 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
         args.arg2 = device.getAddress();
         switch (bluetoothHeadsetAudioState) {
             case BluetoothHeadset.STATE_AUDIO_CONNECTED:
-                mBluetoothRouteManager.sendMessage(HFP_IS_ON, args);
+                mBluetoothRouteManager.sendMessage(BT_AUDIO_IS_ON, args);
                 break;
             case BluetoothHeadset.STATE_AUDIO_DISCONNECTED:
-                mBluetoothRouteManager.sendMessage(HFP_LOST, args);
+                mBluetoothRouteManager.sendMessage(BT_AUDIO_LOST, args);
                 break;
         }
     }
@@ -144,10 +144,10 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
             SomeArgs args = SomeArgs.obtain();
             args.arg1 = session;
             if (device == null) {
-                mBluetoothRouteManager.sendMessage(HFP_LOST, args);
+                mBluetoothRouteManager.sendMessage(BT_AUDIO_LOST, args);
             } else {
                 args.arg2 = device.getAddress();
-                mBluetoothRouteManager.sendMessage(HFP_IS_ON, args);
+                mBluetoothRouteManager.sendMessage(BT_AUDIO_IS_ON, args);
             }
         }
     }

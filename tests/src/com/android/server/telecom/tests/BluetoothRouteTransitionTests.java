@@ -265,7 +265,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                 SomeArgs args = SomeArgs.obtain();
                 args.arg1 = Log.createSubsession();
                 args.arg2 = mParams.initialDevice.getAddress();
-                sm.sendMessage(BluetoothRouteManager.HFP_LOST, args);
+                sm.sendMessage(BluetoothRouteManager.BT_AUDIO_LOST, args);
                 when(mHeadsetProxy.getAudioState(eq(mParams.initialDevice)))
                         .thenReturn(BluetoothHeadset.STATE_AUDIO_DISCONNECTED);
                 return true;
@@ -403,7 +403,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                 .setInitialDevice(DEVICE2)
                 .setAudioOnDevice(DEVICE2)
                 .setConnectedDevices(DEVICE2, DEVICE1)
-                .setMessageType(BluetoothRouteManager.HFP_IS_ON)
+                .setMessageType(BluetoothRouteManager.BT_AUDIO_IS_ON)
                 .setMessageDevice(DEVICE2)
                 .setExpectedListenerUpdates(ListenerUpdate.AUDIO_CONNECTED)
                 .setExpectedBluetoothInteraction(NONE)
@@ -417,7 +417,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                 .setInitialBluetoothState(BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX)
                 .setInitialDevice(DEVICE2)
                 .setConnectedDevices(DEVICE2)
-                .setMessageType(BluetoothRouteManager.HFP_LOST)
+                .setMessageType(BluetoothRouteManager.BT_AUDIO_LOST)
                 .setMessageDevice(DEVICE2)
                 .setExpectedListenerUpdates(ListenerUpdate.AUDIO_DISCONNECTED)
                 .setExpectedBluetoothInteraction(NONE)
@@ -431,7 +431,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                 .setInitialBluetoothState(BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX)
                 .setInitialDevice(DEVICE2)
                 .setConnectedDevices(DEVICE2, DEVICE1, DEVICE3)
-                .setMessageType(BluetoothRouteManager.HFP_LOST)
+                .setMessageType(BluetoothRouteManager.BT_AUDIO_LOST)
                 .setMessageDevice(DEVICE2)
                 .setExpectedListenerUpdates(ListenerUpdate.AUDIO_DISCONNECTED)
                 .setExpectedBluetoothInteraction(NONE)
@@ -516,7 +516,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                 .setInitialDevice(DEVICE2)
                 .setConnectedDevices(DEVICE2, DEVICE1)
                 .setAudioOnDevice(DEVICE1)
-                .setMessageType(BluetoothRouteManager.HFP_IS_ON)
+                .setMessageType(BluetoothRouteManager.BT_AUDIO_IS_ON)
                 .setMessageDevice(DEVICE1)
                 .setExpectedListenerUpdates(ListenerUpdate.AUDIO_CONNECTED)
                 .setExpectedBluetoothInteraction(NONE)
@@ -578,7 +578,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                 .setInitialBluetoothState(BluetoothRouteManager.AUDIO_OFF_STATE_NAME)
                 .setInitialDevice(null)
                 .setConnectedDevices(DEVICE2, DEVICE3)
-                .setMessageType(BluetoothRouteManager.HFP_IS_ON)
+                .setMessageType(BluetoothRouteManager.BT_AUDIO_IS_ON)
                 .setMessageDevice(DEVICE3)
                 .setExpectedListenerUpdates(ListenerUpdate.AUDIO_CONNECTED)
                 .setExpectedBluetoothInteraction(NONE)

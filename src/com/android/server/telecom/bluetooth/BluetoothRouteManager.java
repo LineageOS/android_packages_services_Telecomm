@@ -38,7 +38,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -56,8 +55,8 @@ public class BluetoothRouteManager extends StateMachine {
          put(CONNECT_HFP, "CONNECT_HFP");
          put(DISCONNECT_HFP, "DISCONNECT_HFP");
          put(RETRY_HFP_CONNECTION, "RETRY_HFP_CONNECTION");
-         put(HFP_IS_ON, "HFP_IS_ON");
-         put(HFP_LOST, "HFP_LOST");
+         put(BT_AUDIO_IS_ON, "BT_AUDIO_IS_ON");
+         put(BT_AUDIO_LOST, "BT_AUDIO_LOST");
          put(CONNECTION_TIMEOUT, "CONNECTION_TIMEOUT");
          put(GET_CURRENT_STATE, "GET_CURRENT_STATE");
          put(RUN_RUNNABLE, "RUN_RUNNABLE");
@@ -96,9 +95,9 @@ public class BluetoothRouteManager extends StateMachine {
     public static final int RETRY_HFP_CONNECTION = 102;
 
     // arg2: the address of the device that is on
-    public static final int HFP_IS_ON = 200;
-    // arg2: the address of the device that lost HFP
-    public static final int HFP_LOST = 201;
+    public static final int BT_AUDIO_IS_ON = 200;
+    // arg2: the address of the device that lost BT audio
+    public static final int BT_AUDIO_LOST = 201;
 
     // No args; only used internally
     public static final int CONNECTION_TIMEOUT = 300;
@@ -178,12 +177,13 @@ public class BluetoothRouteManager extends StateMachine {
                     case CONNECTION_TIMEOUT:
                         // Ignore.
                         break;
-                    case HFP_IS_ON:
+                    case BT_AUDIO_IS_ON:
                         String address = (String) args.arg2;
                         Log.w(LOG_TAG, "HFP audio unexpectedly turned on from device %s", address);
-                        transitionTo(getConnectedStateForAddress(address, "AudioOff/HFP_IS_ON"));
+                        transitionTo(getConnectedStateForAddress(address,
+                                "AudioOff/BT_AUDIO_IS_ON"));
                         break;
-                    case HFP_LOST:
+                    case BT_AUDIO_LOST:
                         Log.i(LOG_TAG, "Received HFP off for device %s while HFP off.",
                                 (String) args.arg2);
                         break;
@@ -284,7 +284,7 @@ public class BluetoothRouteManager extends StateMachine {
                                 mDeviceAddress);
                         transitionToActualState();
                         break;
-                    case HFP_IS_ON:
+                    case BT_AUDIO_IS_ON:
                         if (Objects.equals(mDeviceAddress, address)) {
                             Log.i(LOG_TAG, "HFP connection success for device %s.", mDeviceAddress);
                             transitionTo(mAudioConnectedStates.get(mDeviceAddress));
@@ -292,10 +292,10 @@ public class BluetoothRouteManager extends StateMachine {
                             Log.w(LOG_TAG, "In connecting state for device %s but %s" +
                                     " is now connected", mDeviceAddress, address);
                             transitionTo(getConnectedStateForAddress(address,
-                                    "AudioConnecting/HFP_IS_ON"));
+                                    "AudioConnecting/BT_AUDIO_IS_ON"));
                         }
                         break;
-                    case HFP_LOST:
+                    case BT_AUDIO_LOST:
                         if (Objects.equals(mDeviceAddress, address)) {
                             Log.i(LOG_TAG, "Connection with device %s failed.",
                                     mDeviceAddress);
@@ -394,17 +394,18 @@ public class BluetoothRouteManager extends StateMachine {
                     case CONNECTION_TIMEOUT:
                         Log.w(LOG_TAG, "Received CONNECTION_TIMEOUT while connected.");
                         break;
-                    case HFP_IS_ON:
+                    case BT_AUDIO_IS_ON:
                         if (Objects.equals(mDeviceAddress, address)) {
-                            Log.i(LOG_TAG, "Received redundant HFP_IS_ON for %s", mDeviceAddress);
+                            Log.i(LOG_TAG,
+                                    "Received redundant BT_AUDIO_IS_ON for %s", mDeviceAddress);
                         } else {
                             Log.w(LOG_TAG, "In connected state for device %s but %s" +
                                     " is now connected", mDeviceAddress, address);
                             transitionTo(getConnectedStateForAddress(address,
-                                    "AudioConnected/HFP_IS_ON"));
+                                    "AudioConnected/BT_AUDIO_IS_ON"));
                         }
                         break;
-                    case HFP_LOST:
+                    case BT_AUDIO_LOST:
                         if (Objects.equals(mDeviceAddress, address)) {
                             Log.i(LOG_TAG, "HFP connection with device %s lost.", mDeviceAddress);
                             transitionToActualState();
