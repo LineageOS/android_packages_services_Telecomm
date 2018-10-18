@@ -28,6 +28,7 @@ import android.media.AudioSystem;
 import android.media.ToneGenerator;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -48,6 +49,7 @@ import android.telecom.DisconnectCause;
 import android.telecom.GatewayInfo;
 import android.telecom.Log;
 import android.telecom.Logging.Runnable;
+import android.telecom.Logging.Session;
 import android.telecom.ParcelableConference;
 import android.telecom.ParcelableConnection;
 import android.telecom.PhoneAccount;
@@ -58,6 +60,7 @@ import android.telephony.CarrierConfigManager;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Pair;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telephony.AsyncEmergencyContactNotifier;
@@ -332,14 +335,32 @@ public class CallsManager extends Call.ListenerBase
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.startSession("CM.CCCR");
             String action = intent.getAction();
             if (CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED.equals(action)
                     || SystemContract.ACTION_BLOCK_SUPPRESSION_STATE_CHANGED.equals(action)) {
-                BlockedNumbersUtil.updateEmergencyCallNotification(context,
-                        SystemContract.shouldShowEmergencyCallNotification(context));
-             }
+                new UpdateEmergencyCallNotificationTask().doInBackground(
+                        Pair.create(context, Log.createSubsession()));
+            }
         }
     };
+
+    private static class UpdateEmergencyCallNotificationTask
+            extends AsyncTask<Pair<Context, Session>, Void, Void> {
+        @SafeVarargs
+        @Override
+        protected final Void doInBackground(Pair<Context, Session>... args) {
+            if (args == null || args.length != 1 || args[0] == null) {
+                Log.e(this, new IllegalArgumentException(), "Incorrect invocation");
+                return null;
+            }
+            Log.continueSession(args[0].second, "CM.UECNT");
+            Context context = args[0].first;
+            BlockedNumbersUtil.updateEmergencyCallNotification(context,
+                    SystemContract.shouldShowEmergencyCallNotification(context));
+            return null;
+        }
+    }
 
     /**
      * Initializes the required Telecom components.
