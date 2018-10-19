@@ -408,6 +408,7 @@ public class BluetoothPhoneServiceImpl {
                 public void onServiceConnected(int profile, BluetoothProfile proxy) {
                     synchronized (mLock) {
                         setBluetoothHeadset(new BluetoothHeadsetProxy((BluetoothHeadset) proxy));
+                        updateHeadsetWithCallState(true /* force */);
                     }
                 }
 
