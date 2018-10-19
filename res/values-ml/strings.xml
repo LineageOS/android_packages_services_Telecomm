@@ -37,6 +37,7 @@
     <string name="respond_via_sms_setting_summary" msgid="9150281183930613065"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="20379890418289778">"ദ്രുത പ്രതികരണം"</string>
     <string name="respond_via_sms_confirmation_format" msgid="7229149977515784269">"<xliff:g id="PHONE_NUMBER">%s</xliff:g> എന്നതിലേക്ക് സന്ദേശമയച്ചു."</string>
+    <string name="respond_via_sms_failure_format" msgid="90791421289769504">"<xliff:g id="PHONE_NUMBER">%s</xliff:g> എന്ന നമ്പറിലേക്ക് സന്ദേശം അയക്കുന്നതിൽ പരാജയപ്പെട്ടു."</string>
     <string name="enable_account_preference_title" msgid="2021848090086481720">"കോളിംഗ് അക്കൗണ്ട്"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="6872406278300131364">"അടിയന്തിര കോളുകൾ മാത്രമേ അനുവദിച്ചിട്ടുള്ളൂ."</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="1996571596464271228">"ഫോൺ അനുമതിയില്ലാതെ ഈ അപ്ലിക്കേഷന് ഔട്ട്‌ഗോയിംഗ് കോളുകൾ വിളിക്കാൻ കഴിയില്ല."</string>

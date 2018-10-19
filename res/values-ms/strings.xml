@@ -29,7 +29,7 @@
     <string name="accessibility_call_muted" msgid="2776111226185342220">"Panggilan diredam."</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"Telefon pembesar suara didayakan."</string>
     <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"Sedang sibuk. Ada apa?"</string>
-    <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"Saya akn segera hubungi awak nanti."</string>
+    <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"Saya akan hubungi awak semula."</string>
     <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"Saya akan hubungi awak kemudian."</string>
     <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"Sedang sibuk. Telefon saya nanti?"</string>
     <string name="respond_via_sms_setting_title" msgid="3754000371039709383">"Respons pantas"</string>
@@ -37,6 +37,7 @@
     <string name="respond_via_sms_setting_summary" msgid="9150281183930613065"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="20379890418289778">"Respons pantas"</string>
     <string name="respond_via_sms_confirmation_format" msgid="7229149977515784269">"Mesej dihantar ke <xliff:g id="PHONE_NUMBER">%s</xliff:g>."</string>
+    <string name="respond_via_sms_failure_format" msgid="90791421289769504">"Mesej gagal dihantar kepada <xliff:g id="PHONE_NUMBER">%s</xliff:g>."</string>
     <string name="enable_account_preference_title" msgid="2021848090086481720">"Akaun panggilan"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="6872406278300131364">"Panggilan kecemasan sahaja dibenarkan."</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="1996571596464271228">"Aplikasi ini tidak boleh membuat panggilan keluar tanpa kebenaran Telefon."</string>

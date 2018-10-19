@@ -37,6 +37,7 @@
     <string name="respond_via_sms_setting_summary" msgid="9150281183930613065"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="20379890418289778">"Respuesta rápida"</string>
     <string name="respond_via_sms_confirmation_format" msgid="7229149977515784269">"Mensaje enviado a <xliff:g id="PHONE_NUMBER">%s</xliff:g>"</string>
+    <string name="respond_via_sms_failure_format" msgid="90791421289769504">"No se ha podido enviar el mensaje al <xliff:g id="PHONE_NUMBER">%s</xliff:g>."</string>
     <string name="enable_account_preference_title" msgid="2021848090086481720">"Cuentas de llamadas"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="6872406278300131364">"Solo se permiten llamadas de emergencia."</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="1996571596464271228">"Esta aplicación no puede hacer llamadas sin permiso del teléfono."</string>
@@ -54,7 +55,7 @@
     <string name="block_number" msgid="1101252256321306179">"Añadir un número"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"¿Desbloquear el número <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Desbloquear"</string>
-    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Bloquear llamadas y mensajes de texto de"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Bloquear llamadas y mensajes de texto del"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Número de teléfono"</string>
     <string name="block_button" msgid="8822290682524373357">"Bloquear"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Solo el propietario del dispositivo puede ver y administrar los números bloqueados."</string>

@@ -37,6 +37,7 @@
     <string name="respond_via_sms_setting_summary" msgid="9150281183930613065"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="20379890418289778">"Хуткі адказ"</string>
     <string name="respond_via_sms_confirmation_format" msgid="7229149977515784269">"Паведамленне адпраўлена на нумар <xliff:g id="PHONE_NUMBER">%s</xliff:g>."</string>
+    <string name="respond_via_sms_failure_format" msgid="90791421289769504">"Не ўдалося адправіць паведамленне на <xliff:g id="PHONE_NUMBER">%s</xliff:g>."</string>
     <string name="enable_account_preference_title" msgid="2021848090086481720">"Уліковыя запісы для выклікаў"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="6872406278300131364">"Дазволены толькі экстранныя выклікі."</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="1996571596464271228">"Гэта праграма не можа рабіць выходныя выклікі без дазволу тэлефона."</string>

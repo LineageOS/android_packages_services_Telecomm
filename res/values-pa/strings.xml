@@ -37,6 +37,7 @@
     <string name="respond_via_sms_setting_summary" msgid="9150281183930613065"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="20379890418289778">"ਤਤਕਾਲ ਜਵਾਬ"</string>
     <string name="respond_via_sms_confirmation_format" msgid="7229149977515784269">"ਸੁਨੇਹਾ <xliff:g id="PHONE_NUMBER">%s</xliff:g> ਨੂੰ ਭੇਜਿਆ ਗਿਆ।"</string>
+    <string name="respond_via_sms_failure_format" msgid="90791421289769504">"<xliff:g id="PHONE_NUMBER">%s</xliff:g> \'ਤੇ ਸੁਨੇਹਾ ਭੇਜਣਾ ਅਸਫਲ ਰਿਹਾ।"</string>
     <string name="enable_account_preference_title" msgid="2021848090086481720">"ਕਾਲਿੰਗ ਖਾਤੇ"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="6872406278300131364">"ਸਿਰਫ਼ ਸੰਕਟ ਕਾਲਾਂ ਨੂੰ ਮਨਜ਼ੂਰੀ ਹੈ।"</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="1996571596464271228">"ਇਹ ਐਪਲੀਕੇਸ਼ਨ ਫੋਨ ਅਨੁਮਤੀ ਦੇ ਬਿਨਾਂ ਆਉਟਗੋਇੰਗ ਕਾਲਾਂ ਨਹੀਂ ਕਰ ਸਕਦੀ।"</string>
@@ -67,7 +68,7 @@
     <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"ਐਮਰਜੈਂਸੀ ਨੰਬਰ ਨੂੰ ਬਲੌਕ ਕਰਨ ਵਿੱਚ ਅਸਮਰੱਥ।"</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> ਪਹਿਲਾਂ ਤੋਂ ਹੀ ਬਲੌਕ ਕੀਤਾ ਹੋਇਆ ਹੈ।"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"ਕਾਲ ਕਰਨ ਲਈ ਨਿੱਜੀ ਡਾਇਲਰ ਦੀ ਵਰਤੋਂ ਕਰਨੀ"</string>
-    <string name="notification_incoming_call" msgid="7713197997773986670">"<xliff:g id="CALL_FROM">%2$s</xliff:g> ਵੱਲੋਂ <xliff:g id="CALL_VIA">%1$s</xliff:g> ਕਾਲ"</string>
+    <string name="notification_incoming_call" msgid="7713197997773986670">"<xliff:g id="CALL_VIA">%1$s</xliff:g> ਕਾਲ ਕਰਤਾ <xliff:g id="CALL_FROM">%2$s</xliff:g>"</string>
     <string name="notification_incoming_video_call" msgid="6638486071698373893">"<xliff:g id="CALL_FROM">%2$s</xliff:g> ਵੱਲੋਂ <xliff:g id="CALL_VIA">%1$s</xliff:g> ਵੀਡੀਓ ਕਾਲ"</string>
     <string name="answering_ends_other_call" msgid="8282145910153766401">"ਜਵਾਬ ਦੇਣ ਨਾਲ ਤੁਹਾਡੀ <xliff:g id="CALL_VIA">%1$s</xliff:g> ਕਾਲ ਸਮਾਪਤ ਹੋ ਜਾਵੇਗੀ"</string>
     <string name="answering_ends_other_calls" msgid="1198589551399049197">"ਜਵਾਬ ਦੇਣ ਨਾਲ ਤੁਹਾਡੀਆਂ <xliff:g id="CALL_VIA">%1$s</xliff:g> ਕਾਲਾਂ ਸਮਾਪਤ ਹੋ ਜਾਣਗੀਆਂ"</string>

@@ -37,6 +37,7 @@
     <string name="respond_via_sms_setting_summary" msgid="9150281183930613065"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="20379890418289778">"Hurtigt svar"</string>
     <string name="respond_via_sms_confirmation_format" msgid="7229149977515784269">"Beskeden er sendt til <xliff:g id="PHONE_NUMBER">%s</xliff:g>."</string>
+    <string name="respond_via_sms_failure_format" msgid="90791421289769504">"Beskeden kunne ikke sendes til <xliff:g id="PHONE_NUMBER">%s</xliff:g>."</string>
     <string name="enable_account_preference_title" msgid="2021848090086481720">"Opkaldskonti"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="6872406278300131364">"Kun nødopkald er tilladt."</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="1996571596464271228">"Denne app kan ikke foretage udgående opkald uden opkaldstilladelse."</string>
@@ -85,7 +86,7 @@
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Opkaldsblokering"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Hvis du foretager dette opkald, afsluttes dit opkald i <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Opkaldsblokering"</string>
-    <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Numre er ikke i Kontaktpersoner"</string>
+    <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Numre er ikke i Kontakter"</string>
     <string name="phone_settings_number_not_in_contact_summary_txt" msgid="9043147855140079119">"Bloker numre, som ikke er i dine kontaktpersoner"</string>
     <string name="phone_settings_private_num_txt" msgid="8623574188879134262">"Privat"</string>
     <string name="phone_settings_private_num_summary_txt" msgid="7516314821207782191">"Bloker opkald fra personer, der ringer fra hemmeligt nummer"</string>
