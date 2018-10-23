@@ -238,7 +238,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".components.PhoneAccountBroadcastReceiver"
+        <receiver android:name=".components.AppUninstallBroadcastReceiver"
                 android:process="system">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_FULLY_REMOVED" />
