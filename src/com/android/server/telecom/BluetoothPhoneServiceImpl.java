@@ -514,8 +514,6 @@ public class BluetoothPhoneServiceImpl {
                 mCallsManager.disconnectCall(activeCall);
                 if (ringingCall != null) {
                     mCallsManager.answerCall(ringingCall, VideoProfile.STATE_AUDIO_ONLY);
-                } else if (heldCall != null) {
-                    mCallsManager.unholdCall(heldCall);
                 }
                 return true;
             }
