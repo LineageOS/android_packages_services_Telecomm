@@ -681,7 +681,8 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
                 CHLD_TYPE_RELEASEACTIVE_ACCEPTHELD);
 
         verify(mMockCallsManager).disconnectCall(eq(activeCall));
-        verify(mMockCallsManager).unholdCall(eq(heldCall));
+        // Call unhold will occur as part of CallsManager auto-unholding the background call on its
+        // own.
         assertEquals(didProcess, true);
     }
 
