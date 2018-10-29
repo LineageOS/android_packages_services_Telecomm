@@ -79,6 +79,8 @@ public class TelecomServiceImpl {
 
     private static final String TIME_LINE_ARG = "timeline";
     private static final int DEFAULT_VIDEO_STATE = -1;
+    private static final String PERMISSION_HANDLE_CALL_INTENT =
+            "android.permission.HANDLE_CALL_INTENT";
 
     private final ITelecomService.Stub mBinderImpl = new ITelecomService.Stub() {
         @Override
@@ -1481,12 +1483,10 @@ public class TelecomServiceImpl {
             try {
                 Log.startSession("TSI.hCI");
                 synchronized (mLock) {
-                    int callingUid = Binder.getCallingUid();
+                    mContext.enforceCallingOrSelfPermission(PERMISSION_HANDLE_CALL_INTENT,
+                            "handleCallIntent is for internal use only.");
 
                     long token = Binder.clearCallingIdentity();
-                    if (callingUid != Process.myUid()) {
-                        throw new SecurityException("handleCallIntent is for Telecom only");
-                    }
                     try {
                         Log.i(this, "handleCallIntent: handling call intent");
                         mCallIntentProcessorAdapter.processOutgoingCallIntent(mContext,
