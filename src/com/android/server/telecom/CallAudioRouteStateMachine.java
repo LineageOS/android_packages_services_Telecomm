@@ -308,6 +308,12 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     mHasUserExplicitlyLeftBluetooth = false;
                     return NOT_HANDLED;
                 case SWITCH_FOCUS:
+                    // Perform BT hearing aid active device caching/restoration
+                    if (mAudioFocusType != NO_FOCUS && msg.arg1 == NO_FOCUS) {
+                        mBluetoothRouteManager.restoreHearingAidDevice();
+                    } else if (mAudioFocusType == NO_FOCUS && msg.arg1 != NO_FOCUS) {
+                        mBluetoothRouteManager.cacheHearingAidDevice();
+                    }
                     mAudioFocusType = msg.arg1;
                     return NOT_HANDLED;
                 default:
@@ -806,7 +812,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     return HANDLED;
                 case SWITCH_FOCUS:
                     if (msg.arg1 == NO_FOCUS) {
-                        setBluetoothOff();
+                        // Only disconnect SCO audio here instead of routing away from BT entirely.
+                        mBluetoothRouteManager.disconnectSco();
                         reinitialize();
                     } else if (msg.arg1 == RINGING_FOCUS
                             && !mBluetoothRouteManager.isInbandRingingEnabled()) {
@@ -1268,7 +1275,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
      */
     private int mDeviceSupportedRoutes;
     private int mAvailableRoutes;
-    private int mAudioFocusType;
+    private int mAudioFocusType = NO_FOCUS;
     private boolean mWasOnSpeaker;
     private boolean mIsMuted;
 
