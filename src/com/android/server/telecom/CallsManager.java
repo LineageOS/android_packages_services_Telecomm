@@ -1713,7 +1713,7 @@ public class CallsManager extends Call.ListenerBase
         } else {
             Call activeCall = (Call) mConnectionSvrFocusMgr.getCurrentFocusCall();
             String activeCallId = null;
-            if (activeCall != null) {
+            if (activeCall != null && !activeCall.isLocallyDisconnecting()) {
                 activeCallId = activeCall.getId();
                 if (canHold(activeCall)) {
                     activeCall.hold("Swap to " + call.getId());
