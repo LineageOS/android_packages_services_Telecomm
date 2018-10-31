@@ -186,6 +186,10 @@ public class BluetoothDeviceManager {
         synchronized (mLock) {
             LinkedHashMap<String, BluetoothDevice> targetDeviceMap;
             if (isHearingAid) {
+                if (mBluetoothHearingAidService == null) {
+                    Log.w(this, "Hearing aid service null when receiving device added broadcast");
+                    return;
+                }
                 long hiSyncId = mBluetoothHearingAidService.getHiSyncId(device);
                 mHearingAidDeviceSyncIds.put(device, hiSyncId);
                 targetDeviceMap = mHearingAidDevicesByAddress;
