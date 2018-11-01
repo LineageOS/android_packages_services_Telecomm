@@ -102,6 +102,10 @@ public class ParcelableCallUtils {
             properties |= android.telecom.Call.Details.PROPERTY_ENTERPRISE_CALL;
         }
 
+        if (call.getIsVoipAudioMode()) {
+            properties |= android.telecom.Call.Details.PROPERTY_VOIP_AUDIO_MODE;
+        }
+
         // If this is a single-SIM device, the "default SIM" will always be the only SIM.
         boolean isDefaultSmsAccount = phoneAccountRegistrar != null &&
                 phoneAccountRegistrar.isUserSelectedSmsPhoneAccount(call.getTargetPhoneAccount());
