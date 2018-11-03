@@ -388,8 +388,8 @@ public class TelecomSystemTest extends TelecomTestCase {
 
         IInCallAdapter inCallAdapter = mInCallServiceFixtureX.getInCallAdapter();
         inCallAdapter.conference(callId1.mCallId, callId2.mCallId);
-        // Wait for wacky non-deterministic behavior
-        Thread.sleep(200);
+        // Wait for the handler in ConnectionService
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         ParcelableCall call1 = mInCallServiceFixtureX.getCall(callId1.mCallId);
         ParcelableCall call2 = mInCallServiceFixtureX.getCall(callId2.mCallId);
         // Check that the two calls end up with a parent in the end
