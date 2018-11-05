@@ -81,11 +81,14 @@ public class AppUninstallBroadcastReceiver extends BroadcastReceiver {
     }
 
     private void handleUninstallOfCallScreeningService(Context context, String packageName) {
+        ComponentName componentName = null;
         String defaultCallScreeningApp = Settings.Secure
             .getStringForUser(context.getContentResolver(),
                 Settings.Secure.CALL_SCREENING_DEFAULT_COMPONENT, UserHandle.USER_CURRENT);
 
-        ComponentName componentName = ComponentName.unflattenFromString(defaultCallScreeningApp);
+        if (defaultCallScreeningApp != null) {
+            componentName = ComponentName.unflattenFromString(defaultCallScreeningApp);
+        }
 
         if (componentName != null && componentName.getPackageName().equals(packageName)) {
             Settings.Secure.putStringForUser(context.getContentResolver(),
