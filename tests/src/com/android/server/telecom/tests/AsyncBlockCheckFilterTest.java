@@ -74,7 +74,7 @@ public class AsyncBlockCheckFilterTest extends TelecomTestCase {
     );
 
     private static final Uri TEST_HANDLE = Uri.parse("tel:1235551234");
-    private static final int TEST_TIMEOUT = 100;
+    private static final int TEST_TIMEOUT = 1000;
 
     @Override
     @Before
