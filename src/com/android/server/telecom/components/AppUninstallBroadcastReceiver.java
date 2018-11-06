@@ -19,9 +19,12 @@ package com.android.server.telecom.components;
 import com.android.server.telecom.PhoneAccountRegistrar;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.UserHandle;
+import android.provider.Settings;
 import android.telecom.TelecomManager;
 
 import java.lang.String;
@@ -30,14 +33,20 @@ import java.lang.String;
  * Captures {@code android.intent.action.ACTION_PACKAGE_FULLY_REMOVED} intents and triggers the
  * removal of associated {@link android.telecom.PhoneAccount}s via the
  * {@link com.android.telecom.PhoneAccountRegistrar}.
+ *
  * Note: This class listens for the {@code PACKAGE_FULLY_REMOVED} intent rather than
  * {@code PACKAGE_REMOVED} as {@code PACKAGE_REMOVED} is triggered on re-installation of the same
  * package, where {@code PACKAGE_FULLY_REMOVED} is triggered only when an application is completely
- * uninstalled.  This is desirable as we do not wish to un-register all
+ * uninstalled.
+ *
+ * This is desirable as we do not wish to un-register all
  * {@link android.telecom.PhoneAccount}s associated with a package being re-installed to ensure
  * the enabled state of the accounts is retained.
+ *
+ * When default call screening application is removed, set
+ * {@link Settings.Secure.CALL_SCREENING_DEFAULT_APPLICATION} as null into provider.
  */
-public class PhoneAccountBroadcastReceiver extends BroadcastReceiver {
+public class AppUninstallBroadcastReceiver extends BroadcastReceiver {
     /**
      * Receives the intents the class is configured to received.
      *
@@ -54,6 +63,7 @@ public class PhoneAccountBroadcastReceiver extends BroadcastReceiver {
 
             String packageName = uri.getSchemeSpecificPart();
             handlePackageRemoved(context, packageName);
+            handleUninstallOfCallScreeningService(context, packageName);
         }
     }
 
@@ -67,6 +77,22 @@ public class PhoneAccountBroadcastReceiver extends BroadcastReceiver {
         final TelecomManager telecomManager = TelecomManager.from(context);
         if (telecomManager != null) {
             telecomManager.clearAccountsForPackage(packageName);
+        }
+    }
+
+    private void handleUninstallOfCallScreeningService(Context context, String packageName) {
+        ComponentName componentName = null;
+        String defaultCallScreeningApp = Settings.Secure
+            .getStringForUser(context.getContentResolver(),
+                Settings.Secure.CALL_SCREENING_DEFAULT_COMPONENT, UserHandle.USER_CURRENT);
+
+        if (defaultCallScreeningApp != null) {
+            componentName = ComponentName.unflattenFromString(defaultCallScreeningApp);
+        }
+
+        if (componentName != null && componentName.getPackageName().equals(packageName)) {
+            Settings.Secure.putStringForUser(context.getContentResolver(),
+                Settings.Secure.CALL_SCREENING_DEFAULT_COMPONENT, null, UserHandle.USER_CURRENT);
         }
     }
 }

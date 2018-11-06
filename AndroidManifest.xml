@@ -238,7 +238,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".components.PhoneAccountBroadcastReceiver"
+        <receiver android:name=".components.AppUninstallBroadcastReceiver"
                 android:process="system">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_FULLY_REMOVED" />
@@ -296,6 +296,15 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <activity android:name="com.android.server.telecom.components.ChangeDefaultCallScreeningApp"
+            android:label="@string/change_default_dialer_dialog_title"
+            android:excludeFromRecents="true"
+            android:theme="@*android:style/Theme.Material.Light.Dialog.Alert"
+            android:priority="1000"
+            android:process=":ui">
+        </activity>
+
         <activity android:name=".ui.TelecomDeveloperMenu"
                 android:label="@string/developer_title"
                 android:exported="false"
