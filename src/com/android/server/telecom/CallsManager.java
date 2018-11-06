@@ -1250,8 +1250,13 @@ public class CallsManager extends Call.ListenerBase
                     CallState.CONNECTING,
                     phoneAccountHandle == null ? "no-handle" : phoneAccountHandle.toString());
 
-            if (isRttSettingOn() || (extras != null
-                    && extras.getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false))) {
+            boolean isVoicemail = (call.getHandle() != null)
+                    && (PhoneAccount.SCHEME_VOICEMAIL.equals(call.getHandle().getScheme())
+                    || (accountToUse != null && mPhoneAccountRegistrar.isVoiceMailNumber(
+                    accountToUse.getAccountHandle(), call.getHandle().getSchemeSpecificPart())));
+
+            if (!isVoicemail && (isRttSettingOn() || (extras != null
+                    && extras.getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false)))) {
                 Log.d(this, "Outgoing call requesting RTT, rtt setting is %b", isRttSettingOn());
                 if (accountToUse != null
                         && accountToUse.hasCapabilities(PhoneAccount.CAPABILITY_RTT)) {
@@ -1834,8 +1839,15 @@ public class CallsManager extends Call.ListenerBase
                 Log.d("phoneAccountSelected: default to voip mode for call %s", call.getId());
                 call.setIsVoipAudioMode(true);
             }
-            if (isRttSettingOn() || call.getIntentExtras()
-                    .getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false)) {
+
+            boolean isVoicemail = (call.getHandle() != null)
+                    && (PhoneAccount.SCHEME_VOICEMAIL.equals(call.getHandle().getScheme())
+                    || (realPhoneAccount != null && mPhoneAccountRegistrar.isVoiceMailNumber(
+                    realPhoneAccount.getAccountHandle(),
+                    call.getHandle().getSchemeSpecificPart())));
+
+            if (!isVoicemail && (isRttSettingOn() || call.getIntentExtras()
+                    .getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false))) {
                 Log.d(this, "Outgoing call after account selection requesting RTT," +
                         " rtt setting is %b", isRttSettingOn());
                 if (realPhoneAccount != null
