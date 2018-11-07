@@ -100,7 +100,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     public static class CallIntentProcessAdapterFake implements CallIntentProcessor.Adapter {
         @Override
         public void processOutgoingCallIntent(Context context, CallsManager callsManager,
-                Intent intent) {
+                Intent intent, String callingPackage) {
 
         }
 

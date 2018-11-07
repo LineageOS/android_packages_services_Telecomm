@@ -1164,10 +1164,11 @@ public class CallsManager extends Call.ListenerBase
      * @param extras The optional extras Bundle passed with the intent used for the incoming call.
      * @param initiatingUser {@link UserHandle} of user that place the outgoing call.
      * @param originalIntent
+     * @param callingPackage the package name of the app which initiated the outgoing call.
      */
     @VisibleForTesting
     public Call startOutgoingCall(Uri handle, PhoneAccountHandle phoneAccountHandle, Bundle extras,
-            UserHandle initiatingUser, Intent originalIntent) {
+            UserHandle initiatingUser, Intent originalIntent, String callingPackage) {
         boolean isReusedCall = true;
         Call call = reuseOutgoingCall(handle);
 
@@ -1193,7 +1194,7 @@ public class CallsManager extends Call.ListenerBase
                     false /* forceAttachToExistingConnection */,
                     false, /* isConference */
                     mClockProxy);
-            call.initAnalytics();
+            call.initAnalytics(callingPackage);
 
             // Ensure new calls related to self-managed calls/connections are set as such.  This
             // will be overridden when the actual connection is returned in startCreateConnection,
@@ -3324,7 +3325,7 @@ public class CallsManager extends Call.ListenerBase
 
     /**
      * Used to confirm creation of an outgoing call which was marked as pending confirmation in
-     * {@link #startOutgoingCall(Uri, PhoneAccountHandle, Bundle, UserHandle, Intent)}.
+     * {@link #startOutgoingCall(Uri, PhoneAccountHandle, Bundle, UserHandle, Intent, String)}.
      * Called via {@link TelecomBroadcastIntentProcessor} for a call which was confirmed via
      * {@link ConfirmCallDialogActivity}.
      * @param callId The call ID of the call to confirm.
@@ -3349,7 +3350,7 @@ public class CallsManager extends Call.ListenerBase
 
     /**
      * Used to cancel an outgoing call which was marked as pending confirmation in
-     * {@link #startOutgoingCall(Uri, PhoneAccountHandle, Bundle, UserHandle, Intent)}.
+     * {@link #startOutgoingCall(Uri, PhoneAccountHandle, Bundle, UserHandle, Intent, String)}.
      * Called via {@link TelecomBroadcastIntentProcessor} for a call which was confirmed via
      * {@link ConfirmCallDialogActivity}.
      * @param callId The call ID of the call to cancel.
@@ -3365,7 +3366,7 @@ public class CallsManager extends Call.ListenerBase
     }
 
     /**
-     * Called from {@link #startOutgoingCall(Uri, PhoneAccountHandle, Bundle, UserHandle, Intent)} when
+     * Called from {@link #startOutgoingCall(Uri, PhoneAccountHandle, Bundle, UserHandle, Intent, String)} when
      * a managed call is added while there are ongoing self-managed calls.  Starts
      * {@link ConfirmCallDialogActivity} to prompt the user to see if they wish to place the
      * outgoing call or not.
@@ -3596,7 +3597,8 @@ public class CallsManager extends Call.ListenerBase
         extras.putParcelable(TelecomManager.EXTRA_CALL_AUDIO_STATE,
                 mCallAudioManager.getCallAudioState());
         Call handoverToCall = startOutgoingCall(handoverFromCall.getHandle(), handoverToHandle,
-                extras, getCurrentUserHandle(), null /* originalIntent */);
+                extras, getCurrentUserHandle(), null /* originalIntent */,
+                null /* callingPackage */);
         if (handoverToCall == null) {
             handoverFromCall.sendCallEvent(android.telecom.Call.EVENT_HANDOVER_FAILED, null);
             return;
