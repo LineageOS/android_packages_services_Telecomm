@@ -24,10 +24,15 @@ import android.content.ServiceConnection;
 import android.content.pm.ResolveInfo;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.provider.CallLog;
+import android.provider.Settings;
 import android.telecom.CallScreeningService;
 import android.telecom.Log;
+import android.telecom.TelecomManager;
+import android.telephony.CarrierConfigManager;
 import android.text.TextUtils;
 
 import com.android.internal.telecom.ICallScreeningAdapter;
@@ -39,6 +44,7 @@ import com.android.server.telecom.LogUtils;
 import com.android.server.telecom.ParcelableCallUtils;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.TelecomServiceImpl;
+import com.android.server.telecom.TelecomServiceImpl.SettingsSecureAdapter;
 import com.android.server.telecom.TelecomSystem;
 
 import java.util.List;
@@ -108,20 +114,26 @@ public class CallScreeningServiceFilter implements IncomingCallFilter.CallFilter
                 String callId,
                 boolean shouldReject,
                 boolean shouldAddToCallLog,
-                boolean shouldShowNotification) {
+                boolean shouldShowNotification,
+                ComponentName componentName) {
             Log.startSession("CSCR.dC");
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mTelecomLock) {
+                    boolean isServiceRequestingLogging = isLoggable(componentName,
+                        shouldAddToCallLog);
                     Log.i(this, "disallowCall(%s), shouldReject: %b, shouldAddToCallLog: %b, "
-                                    + "shouldShowNotification: %b", callId, shouldReject,
-                            shouldAddToCallLog, shouldShowNotification);
+                            + "shouldShowNotification: %b", callId, shouldReject,
+                        isServiceRequestingLogging, shouldShowNotification);
                     if (mCall != null && mCall.getId().equals(callId)) {
                         mResult = new CallFilteringResult(
-                                false, // shouldAllowCall
-                                shouldReject, //shouldReject
-                                shouldAddToCallLog, //shouldAddToCallLog
-                                shouldShowNotification // shouldShowNotification
+                            false, // shouldAllowCall
+                            shouldReject, //shouldReject
+                            isServiceRequestingLogging, //shouldAddToCallLog
+                            shouldShowNotification, // shouldShowNotification
+                            CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE, //callBlockReason
+                            componentName.getPackageName(), //callScreeningAppName
+                            componentName.flattenToString() //callScreeningComponentName
                         );
                     } else {
                         Log.w(this, "disallowCall, unknown call id: %s", callId);
@@ -141,6 +153,7 @@ public class CallScreeningServiceFilter implements IncomingCallFilter.CallFilter
     private final DefaultDialerCache mDefaultDialerCache;
     private final ParcelableCallUtils.Converter mParcelableCallUtilsConverter;
     private final TelecomSystem.SyncRoot mTelecomLock;
+    private final SettingsSecureAdapter mSettingsSecureAdapter;
 
     private Call mCall;
     private CallFilterResultCallback mCallback;
@@ -161,13 +174,15 @@ public class CallScreeningServiceFilter implements IncomingCallFilter.CallFilter
             PhoneAccountRegistrar phoneAccountRegistrar,
             DefaultDialerCache defaultDialerCache,
             ParcelableCallUtils.Converter parcelableCallUtilsConverter,
-            TelecomSystem.SyncRoot lock) {
+            TelecomSystem.SyncRoot lock,
+            SettingsSecureAdapter settingsSecureAdapter) {
         mContext = context;
         mPhoneAccountRegistrar = phoneAccountRegistrar;
         mCallsManager = callsManager;
         mDefaultDialerCache = defaultDialerCache;
         mParcelableCallUtilsConverter = parcelableCallUtilsConverter;
         mTelecomLock = lock;
+        mSettingsSecureAdapter = settingsSecureAdapter;
     }
 
     @Override
@@ -260,5 +275,57 @@ public class CallScreeningServiceFilter implements IncomingCallFilter.CallFilter
             Log.e(this, e, "Failed to set the call screening adapter.");
             finishCallScreening();
         }
+    }
+
+    private boolean isLoggable(ComponentName componentName, boolean shouldAddToCallLog) {
+        if (isCarrierCallScreeningApp(componentName)) {
+            return shouldAddToCallLog;
+        } else if (isDefaultDialer(componentName) || isUserChosenCallScreeningApp(componentName)) {
+            return true;
+        }
+
+        return shouldAddToCallLog;
+    }
+
+    private boolean isCarrierCallScreeningApp(ComponentName componentName) {
+        String carrierCallScreeningApp = null;
+        CarrierConfigManager configManager = (CarrierConfigManager) mContext
+            .getSystemService(Context.CARRIER_CONFIG_SERVICE);
+        PersistableBundle configBundle = configManager.getConfig();
+        if (configBundle != null) {
+            carrierCallScreeningApp = configBundle
+                .getString(CarrierConfigManager.KEY_CARRIER_CALL_SCREENING_APP_STRING);
+        }
+
+        if (!TextUtils.isEmpty(carrierCallScreeningApp) && carrierCallScreeningApp
+            .equals(componentName.flattenToString())) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isDefaultDialer(ComponentName componentName) {
+        String defaultDialer = TelecomManager.from(mContext).getDefaultDialerPackage();
+
+        if (!TextUtils.isEmpty(defaultDialer) && defaultDialer
+            .equals(componentName.getPackageName())) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isUserChosenCallScreeningApp(ComponentName componentName) {
+        String defaultCallScreeningApplication = mSettingsSecureAdapter
+            .getStringForUser(mContext.getContentResolver(),
+                Settings.Secure.CALL_SCREENING_DEFAULT_COMPONENT, UserHandle.USER_CURRENT);
+
+        if (!TextUtils.isEmpty(defaultCallScreeningApplication) && defaultCallScreeningApplication
+            .equals(componentName.flattenToString())) {
+            return true;
+        }
+
+        return false;
     }
 }
