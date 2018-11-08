@@ -569,7 +569,8 @@ public class CallsManager extends Call.ListenerBase
         filters.add(new AsyncBlockCheckFilter(mContext, new BlockCheckerAdapter(),
                 mCallerInfoLookupHelper, null));
         filters.add(new CallScreeningServiceFilter(mContext, this, mPhoneAccountRegistrar,
-                mDefaultDialerCache, new ParcelableCallUtils.Converter(), mLock));
+            mDefaultDialerCache, new ParcelableCallUtils.Converter(), mLock,
+            new TelecomServiceImpl.SettingsSecureAdapterImpl()));
         new IncomingCallFilter(mContext, this, incomingCall, mLock,
                 mTimeoutsAdapter, filters).performFiltering();
     }
@@ -595,7 +596,7 @@ public class CallsManager extends Call.ListenerBase
                 } else {
                     Log.i(this, "onCallFilteringCompleted: Call rejected! " +
                             "Exceeds maximum number of ringing calls.");
-                    rejectCallAndLog(incomingCall);
+                    rejectCallAndLog(incomingCall, result);
                 }
             } else if (hasMaximumManagedDialingCalls(incomingCall)) {
                 if (shouldSilenceInsteadOfReject(incomingCall)) {
@@ -604,7 +605,7 @@ public class CallsManager extends Call.ListenerBase
 
                     Log.i(this, "onCallFilteringCompleted: Call rejected! Exceeds maximum number of " +
                             "dialing calls.");
-                    rejectCallAndLog(incomingCall);
+                    rejectCallAndLog(incomingCall, result);
                 }
             } else {
                 addCall(incomingCall);
@@ -619,8 +620,8 @@ public class CallsManager extends Call.ListenerBase
                 if (result.shouldShowNotification) {
                     Log.w(this, "onCallScreeningCompleted: blocked call, showing notification.");
                 }
-                mCallLogManager.logCall(incomingCall, Calls.MISSED_TYPE,
-                        result.shouldShowNotification);
+                mCallLogManager.logCall(incomingCall, Calls.BLOCKED_TYPE,
+                        result.shouldShowNotification, result);
             } else if (result.shouldShowNotification) {
                 Log.i(this, "onCallScreeningCompleted: blocked call, showing notification.");
                 mMissedCallNotifier.showMissedCallNotification(
@@ -2442,7 +2443,7 @@ public class CallsManager extends Call.ListenerBase
      * Reject an incoming call and manually add it to the Call Log.
      * @param incomingCall Incoming call that has been rejected
      */
-    private void rejectCallAndLog(Call incomingCall) {
+    private void rejectCallAndLog(Call incomingCall, CallFilteringResult result) {
         if (incomingCall.getConnectionService() != null) {
             // Only reject the call if it has not already been destroyed.  If a call ends while
             // incoming call filtering is taking place, it is possible that the call has already
@@ -2457,7 +2458,7 @@ public class CallsManager extends Call.ListenerBase
         // call notifier and the call logger manually.
         // Do we need missed call notification for direct to Voicemail calls?
         mCallLogManager.logCall(incomingCall, Calls.MISSED_TYPE,
-                true /*showNotificationForMissedCall*/);
+                true /*showNotificationForMissedCall*/, result);
     }
 
     /**
