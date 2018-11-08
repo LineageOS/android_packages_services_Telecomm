@@ -49,14 +49,16 @@ public class InCallTonePlayer extends Thread {
         private final TelecomSystem.SyncRoot mLock;
         private final ToneGeneratorFactory mToneGeneratorFactory;
         private final MediaPlayerFactory mMediaPlayerFactory;
+        private final AudioManagerAdapter mAudioManagerAdapter;
 
-        Factory(CallAudioRoutePeripheralAdapter callAudioRoutePeripheralAdapter,
+        public Factory(CallAudioRoutePeripheralAdapter callAudioRoutePeripheralAdapter,
                 TelecomSystem.SyncRoot lock, ToneGeneratorFactory toneGeneratorFactory,
-                MediaPlayerFactory mediaPlayerFactory) {
+                MediaPlayerFactory mediaPlayerFactory, AudioManagerAdapter audioManagerAdapter) {
             mCallAudioRoutePeripheralAdapter = callAudioRoutePeripheralAdapter;
             mLock = lock;
             mToneGeneratorFactory = toneGeneratorFactory;
             mMediaPlayerFactory = mediaPlayerFactory;
+            mAudioManagerAdapter = audioManagerAdapter;
         }
 
         public void setCallAudioManager(CallAudioManager callAudioManager) {
@@ -66,7 +68,7 @@ public class InCallTonePlayer extends Thread {
         public InCallTonePlayer createPlayer(int tone) {
             return new InCallTonePlayer(tone, mCallAudioManager,
                     mCallAudioRoutePeripheralAdapter, mLock, mToneGeneratorFactory,
-                    mMediaPlayerFactory);
+                    mMediaPlayerFactory, mAudioManagerAdapter);
         }
     }
 
@@ -76,6 +78,10 @@ public class InCallTonePlayer extends Thread {
 
     public interface MediaPlayerFactory {
         MediaPlayer get (int resourceId, AudioAttributes attributes);
+    }
+
+    public interface AudioManagerAdapter {
+        boolean isVolumeOverZero();
     }
 
     // The possible tones that we can play.
@@ -140,6 +146,7 @@ public class InCallTonePlayer extends Thread {
 
     private final ToneGeneratorFactory mToneGenerator;
     private final MediaPlayerFactory mMediaPlayerFactory;
+    private final AudioManagerAdapter mAudioManagerAdapter;
 
     /**
      * Initializes the tone player. Private; use the {@link Factory} to create tone players.
@@ -152,7 +159,8 @@ public class InCallTonePlayer extends Thread {
             CallAudioRoutePeripheralAdapter callAudioRoutePeripheralAdapter,
             TelecomSystem.SyncRoot lock,
             ToneGeneratorFactory toneGeneratorFactory,
-            MediaPlayerFactory mediaPlayerFactor) {
+            MediaPlayerFactory mediaPlayerFactor,
+            AudioManagerAdapter audioManagerAdapter) {
         mState = STATE_OFF;
         mToneId = toneId;
         mCallAudioManager = callAudioManager;
@@ -160,6 +168,7 @@ public class InCallTonePlayer extends Thread {
         mLock = lock;
         mToneGenerator = toneGeneratorFactory;
         mMediaPlayerFactory = mediaPlayerFactor;
+        mAudioManagerAdapter = audioManagerAdapter;
     }
 
     /** {@inheritDoc} */
@@ -378,6 +387,12 @@ public class InCallTonePlayer extends Thread {
 
     @VisibleForTesting
     public void startTone() {
+        // Skip playing the end call tone if the volume is silenced.
+        if (mToneId == TONE_CALL_ENDED && !mAudioManagerAdapter.isVolumeOverZero()) {
+            Log.i(this, "startTone: skip end-call tone as device is silenced.");
+            return;
+        }
+
         sTonesPlaying++;
         if (sTonesPlaying == 1) {
             mCallAudioManager.setIsTonePlaying(true);
