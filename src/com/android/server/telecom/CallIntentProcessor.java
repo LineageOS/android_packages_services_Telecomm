@@ -28,7 +28,7 @@ import android.widget.Toast;
 public class CallIntentProcessor {
     public interface Adapter {
         void processOutgoingCallIntent(Context context, CallsManager callsManager,
-                Intent intent);
+                Intent intent, String callingPackage);
         void processIncomingCallIntent(CallsManager callsManager, Intent intent);
         void processUnknownCallIntent(CallsManager callsManager, Intent intent);
     }
@@ -36,8 +36,9 @@ public class CallIntentProcessor {
     public static class AdapterImpl implements Adapter {
         @Override
         public void processOutgoingCallIntent(Context context, CallsManager callsManager,
-                Intent intent) {
-            CallIntentProcessor.processOutgoingCallIntent(context, callsManager, intent);
+                Intent intent, String callingPackage) {
+            CallIntentProcessor.processOutgoingCallIntent(context, callsManager, intent,
+                    callingPackage);
         }
 
         @Override
@@ -73,7 +74,7 @@ public class CallIntentProcessor {
         this.mCallsManager = callsManager;
     }
 
-    public void processIntent(Intent intent) {
+    public void processIntent(Intent intent, String callingPackage) {
         final boolean isUnknownCall = intent.getBooleanExtra(KEY_IS_UNKNOWN_CALL, false);
         Log.i(this, "onReceive - isUnknownCall: %s", isUnknownCall);
 
@@ -81,7 +82,7 @@ public class CallIntentProcessor {
         if (isUnknownCall) {
             processUnknownCallIntent(mCallsManager, intent);
         } else {
-            processOutgoingCallIntent(mContext, mCallsManager, intent);
+            processOutgoingCallIntent(mContext, mCallsManager, intent, callingPackage);
         }
         Trace.endSection();
     }
@@ -91,11 +92,13 @@ public class CallIntentProcessor {
      * Processes CALL, CALL_PRIVILEGED, and CALL_EMERGENCY intents.
      *
      * @param intent Call intent containing data about the handle to call.
+     * @param callingPackage The package which initiated the outgoing call (if known).
      */
     static void processOutgoingCallIntent(
             Context context,
             CallsManager callsManager,
-            Intent intent) {
+            Intent intent,
+            String callingPackage) {
 
         Uri handle = intent.getData();
         String scheme = handle.getScheme();
@@ -145,7 +148,7 @@ public class CallIntentProcessor {
         // Send to CallsManager to ensure the InCallUI gets kicked off before the broadcast returns
         Call call = callsManager
                 .startOutgoingCall(handle, phoneAccountHandle, clientExtras, initiatingUser,
-                        intent);
+                        intent, callingPackage);
 
         if (call != null) {
             sendNewOutgoingCallIntent(context, call, callsManager, intent);
