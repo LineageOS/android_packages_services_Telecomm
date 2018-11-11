@@ -1657,7 +1657,7 @@ public class TelecomServiceImpl {
                     try {
                         Log.i(this, "handleCallIntent: handling call intent");
                         mCallIntentProcessorAdapter.processOutgoingCallIntent(mContext,
-                                mCallsManager, intent);
+                                mCallsManager, intent, null /* callingPackage */);
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }

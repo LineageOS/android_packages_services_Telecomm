@@ -536,12 +536,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * @param handle The handle to dial.
      * @param gatewayInfo Gateway information to use for the call.
      * @param connectionManagerPhoneAccountHandle Account to use for the service managing the call.
-*         This account must be one that was registered with the
-*         {@link PhoneAccount#CAPABILITY_CONNECTION_MANAGER} flag.
+     *         This account must be one that was registered with the
+     *           {@link PhoneAccount#CAPABILITY_CONNECTION_MANAGER} flag.
      * @param targetPhoneAccountHandle Account information to use for the call. This account must be
-*         one that was registered with the {@link PhoneAccount#CAPABILITY_CALL_PROVIDER} flag.
+     *         one that was registered with the {@link PhoneAccount#CAPABILITY_CALL_PROVIDER} flag.
      * @param callDirection one of CALL_DIRECTION_INCOMING, CALL_DIRECTION_OUTGOING,
-*         or CALL_DIRECTION_UNKNOWN.
+     *         or CALL_DIRECTION_UNKNOWN.
      * @param shouldAttachToExistingConnection Set to true to attach the call to an existing
      * @param clockProxy
      */
@@ -643,6 +643,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     public void initAnalytics() {
+        initAnalytics(null);
+    }
+
+    public void initAnalytics(String callingPackage) {
         int analyticsDirection;
         switch (mCallDirection) {
             case CALL_DIRECTION_OUTGOING:
@@ -658,7 +662,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
         mAnalytics = Analytics.initiateCallAnalytics(mId, analyticsDirection);
         mAnalytics.setCallIsEmergency(mIsEmergencyCall);
-        Log.addEvent(this, LogUtils.Events.CREATED);
+        Log.addEvent(this, LogUtils.Events.CREATED, callingPackage);
     }
 
     public Analytics.CallInfo getAnalytics() {
