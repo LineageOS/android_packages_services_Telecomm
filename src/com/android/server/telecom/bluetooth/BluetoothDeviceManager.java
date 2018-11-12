@@ -194,6 +194,10 @@ public class BluetoothDeviceManager {
                 mHearingAidDeviceSyncIds.put(device, hiSyncId);
                 targetDeviceMap = mHearingAidDevicesByAddress;
             } else {
+                if (mBluetoothHeadsetService == null) {
+                    Log.w(this, "Headset service null when receiving device added broadcast");
+                    return;
+                }
                 targetDeviceMap = mHfpDevicesByAddress;
             }
             if (!targetDeviceMap.containsKey(device.getAddress())) {
