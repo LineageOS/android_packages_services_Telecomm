@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"ডিফ\'ল্ট ছেট কৰক"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"বাতিল কৰক"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g>এ কল কৰা লগতে কলৰ সকলো দিশ নিয়ন্ত্ৰণ কৰিবলৈ সক্ষম হ\'ব। কেৱল আপুনি সম্পূৰ্ণৰূপে বিশ্বাস কৰা এপক হে আপোনাৰ ডিফ\'ল্ট ফ\'ন এপ্ হিচাপে চিহ্নিত কৰা উচিত।"</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"<xliff:g id="NEW_APP">%s</xliff:g>ক আপোনাৰ ডিফ\'ল্ট কল স্ক্ৰীণ কৰা এপ্ হিচাপে ছেট কৰিবনে?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g>য়ে আৰু কল স্ক্ৰীণ কৰিব নোৱাৰিব।"</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g>য়ে আপোনাৰ সম্পৰ্কসূচীত নথকা কল কৰোঁতাৰ বিষয়ে তথ্য চাব আৰু এই কলবোৰ অৱৰোধ কৰিব পাৰিব। আপুনি বিশ্বাস কৰা এপবোৰহে ডিফ\'ল্ট কল স্ক্ৰীণ কৰা এপ্ হিচাপে ছেট কৰা উচিত।"</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"ডিফ\'ল্ট ছেট কৰক"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"বাতিল কৰক"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"অৱৰোধ কৰা নম্বৰসমূহ"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"আপুনি অৱৰোধ কৰা নম্বৰসমূহৰ পৰা আৰু কল বা বাৰ্তা লাভ নকৰে।"</string>
     <string name="block_number" msgid="1101252256321306179">"নম্বৰ যোগ কৰক"</string>

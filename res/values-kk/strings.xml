@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Әдепкі ретінде орнату"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Тоқтату"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> қоңыраулардың барлық аспектілерін бақылайтын болады. Тек қана өзіңіз сенетін қолданбаларды ғана әдепкі ретінде орнатқан дұрыс."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"<xliff:g id="NEW_APP">%s</xliff:g> әдепкі қоңырауды тексеру қолданбасы болсын ба?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> қоңырауларды тексере алмайтын болады."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> контактілер тізімінде жоқ қоңырау шалушылар туралы ақпаратты көріп, бұндай қоңырауларды бөгей алады. Әдепкі қоңырауды тексеру қолданбасы ретінде тек өзіңіз сенетін қолданбаларды ғана орнатқан дұрыс."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"Әдепкі ретінде орнату"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Жабу"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Бөгелген нөмірлер"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Тыйым салынған нөмірлерден қоңыраулар немесе мәтіндік хабарлар алмайсыз."</string>
     <string name="block_number" msgid="1101252256321306179">"Нөмір қосу"</string>

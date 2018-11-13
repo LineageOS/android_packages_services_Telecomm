@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"ഡിഫോൾട്ട് ഫോൺ ആപ്പ് സജ്ജമാക്കുക"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"റദ്ദാക്കുക"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> ആപ്പിന് എല്ലാ തരത്തിലുമുള്ള കോളുകൾ ചെയ്യാനും നിയന്ത്രിക്കാനുമാവും. നിങ്ങൾക്ക് വിശ്വാസമുള്ള ആപ്‌സിനെ മാത്രമേ ഡിഫോൾട്ട് ഫോൺ ആപ്പായി സജ്ജമാക്കാവൂ."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"<xliff:g id="NEW_APP">%s</xliff:g> എന്നതിനെ നിങ്ങളുടെ ഡിഫോൾട്ട് കോൾ സ്‌ക്രീനിംഗ് ആപ്പ് ആക്കണോ?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> എന്നതിന് ഇനിയങ്ങോട്ട് കോളുകൾ സ്‌ക്രീൻ ചെയ്യാനാവില്ല."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g>-ന് നിങ്ങളുടെ കോൺടാക്റ്റുകളിൽ ഇല്ലാത്ത വിളിക്കുന്ന ആളുടെ, വിവരങ്ങൾ കാണാനും, ആ കോളുകളെ ബ്ലോക്കുചെയ്യാനുമാവും. വിശ്വസിക്കാവുന്ന ആപ്പുകൾ മാത്രം ഡിഫോൾട്ട് കോൾ സ്‌ക്രീനിംഗ് ആപ്പായി സജ്ജീകരിക്കുക."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"ഡിഫോൾട്ട് കോൾ സ്‌ക്രീനിംഗ് ആപ്പ് സജ്ജീകരിക്കുക"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"റദ്ദാക്കുക"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"ബ്ലോക്കുചെയ്ത നമ്പറുകൾ"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"ബ്ലോക്കുചെയ്‌ത നമ്പറുകളിൽ നിന്ന് നിങ്ങൾക്ക് കോളുകളോ സന്ദേശങ്ങളോ ലഭിക്കില്ല."</string>
     <string name="block_number" msgid="1101252256321306179">"ഒരു നമ്പർ ചേർക്കുക"</string>

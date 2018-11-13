@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"設為預設電話應用程式"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"取消"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"這樣一來，<xliff:g id="NEW_APP">%s</xliff:g> 將能撥打電話及控管所有通話設定。請務必只將您信任的應用程式設為預設電話應用程式。"</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"要將「<xliff:g id="NEW_APP">%s</xliff:g>」設為預設來電過濾應用程式嗎？"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"「<xliff:g id="OLD_APP">%s</xliff:g>」將無法再過濾來電。"</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"「<xliff:g id="NEW_APP">%s</xliff:g>」將可查看聯絡人以外的來電者資訊及封鎖這些人的來電。請務必只將你信任的應用程式設為預設來電過濾應用程式。"</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"設為預設來電過濾應用程式"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"取消"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"已封鎖的號碼"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"您不會收到已封鎖號碼的來電或簡訊。"</string>
     <string name="block_number" msgid="1101252256321306179">"新增號碼"</string>

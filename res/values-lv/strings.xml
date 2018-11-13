@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Iestatīt kā noklusējumu"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Atcelt"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"Lietotne <xliff:g id="NEW_APP">%s</xliff:g> varēs veikt zvanus un kontrolēt visas zvanu funkcijas. Tālruņa noklusējuma lietotnes iestatīšanai izmantojiet tikai uzticamas lietotnes."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"Iestatīt <xliff:g id="NEW_APP">%s</xliff:g> kā zvanu pārvaldības noklusējuma lietotni?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"Lietotne <xliff:g id="OLD_APP">%s</xliff:g> vairs nevarēs pārvaldīt zvanus."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"Lietotne <xliff:g id="NEW_APP">%s</xliff:g> varēs skatīt informāciju par zvanītājiem, kas nav jūsu kontaktpersonu sarakstā, kā arī varēs bloķēt zvanus no šiem zvanītājiem. Zvanu pārvaldības noklusējuma lietotnes iestatīšanai izmantojiet tikai uzticamas lietotnes."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"Iestatīt kā noklusējumu"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Atcelt"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Bloķētie numuri"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Jūs nesaņemsiet zvanus vai īsziņas no bloķētajiem numuriem."</string>
     <string name="block_number" msgid="1101252256321306179">"Pievienot numuru"</string>

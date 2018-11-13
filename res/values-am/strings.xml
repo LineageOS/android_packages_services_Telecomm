@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"ነባሪ አዘጋጅ"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"ይቅር"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> ጥሪዎች ማድረግ እና ሁሉንም የጥሪ ገጽታዎች መቆጣጠር ይችላል። ነባሪ መተግበሪያ መደረግ ያለባቸው እርስዎ የሚያምኗቸው መተግበሪያዎች ብቻ መሆን አለባቸው።"</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"<xliff:g id="NEW_APP">%s</xliff:g>ን የእርስዎ ነባሪ የጥሪ ማጣሪያ መተግበሪያ ይደረግ?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> ከእንግዲህ ወዲያ ጥሪዎችን ማጣራት አይችልም።"</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> በእርስዎ እውቂያዎች ውስጥ ስለ ደዋዮች መረጃዎችን ማየት እና እነዚህን ጥሪዎች ማገድ ይችላል። እርስዎ የሚያምኗቸው መተግበሪያዎች ብቻ እንደ ነባሪ የጥሪ ማጣሪያ መተግበሪያ መዘጋጀት አለባቸው።"</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"ነባሪ ያዘጋጁ"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"ይቅር"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"የታገዱ ቁጥሮች"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"ከታገዱ ቁጥሮች ጥሪዎች ወይም ጽሑፎች አይቀበሉም።"</string>
     <string name="block_number" msgid="1101252256321306179">"ቁጥር ያክሉ"</string>

@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"ડિફૉલ્ટ સેટ કરો"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"રદ કરો"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g>, કૉલ્સ કરવામાં અને કૉલ્સના તમામ પાસાઓને નિયંત્રિત કરવામાં સમર્થ હશે. તમે વિશ્વાસ કરો છો તે જ ઍપ્લિકેશનોને ડિફૉલ્ટ ફોન ઍપ્લિકેશન તરીકે સેટ કરો."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"<xliff:g id="NEW_APP">%s</xliff:g>ને તમારી ડિફૉલ્ટ કૉલ સ્ક્રીનિંગ ઍપ બનાવીએ?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> હવે કૉલને સ્ક્રીન કરી શકશે નહીં."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> તમારા સંપર્કોમાં ન હોય એવા કૉલર વિશેની માહિતી જોઈ શકશે અને આ કૉલને બ્લૉક કરી શકશે. માત્ર તમે જેના પર વિશ્વાસ કરતા હોય તે ઍપને જ ડિફૉલ્ટ કૉલ સ્ક્રીનિંગ ઍપ તરીકે સેટ કરવી જોઈએ."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"ડિફૉલ્ટ સેટ કરો"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"રદ કરો"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"અવરોધિત નંબરો"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"તમે અવરોધિત નંબરોથી કૉલ્સ અથવા ટેક્સ્ટ પ્રાપ્ત કરશો નહીં."</string>
     <string name="block_number" msgid="1101252256321306179">"એક નંબર ઉમેરો"</string>

@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Imposta come predefinita"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Annulla"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> potrà effettuare e controllare tutti gli aspetti delle chiamate. L\'app predefinita del telefono dovrebbe essere un\'app di cui ti fidi."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"Rendere <xliff:g id="NEW_APP">%s</xliff:g> l\'app predefinita di filtro delle chiamate?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> non potrà più filtrare le chiamate."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> potrà visualizzare informazioni sui chiamanti non presenti nei tuoi contatti e bloccare queste chiamate. L\'app predefinita di filtro delle chiamate dovrebbe essere un\'app di cui ti fidi."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"Imposta come predefinita"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Annulla"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Numeri bloccati"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Non riceverai chiamate o SMS da numeri bloccati."</string>
     <string name="block_number" msgid="1101252256321306179">"Aggiungi un numero"</string>

@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Magtakda ng Default"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Kanselahin"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"Ang <xliff:g id="NEW_APP">%s</xliff:g> ay magagawang tumawag at kontrolin ang lahat ng aspeto ng tawag. Mga app na pinagkakatiwalaan mo lang ang dapat itakda bilang default na app na Telepono."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"Itakda ang <xliff:g id="NEW_APP">%s</xliff:g> na default mong app ng pag-screen sa tawag?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"Hindi na makakapag-screen ng mga tawag ang <xliff:g id="OLD_APP">%s</xliff:g>."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"Makakakita ang <xliff:g id="NEW_APP">%s</xliff:g> ng impormasyon tungkol sa mga tumatawag na wala sa iyong mga contact at maba-block nito ang mga tawag na ito. Ang mga app lang na pinagkakatiwalaan mo ang dapat itakda bilang default na app ng pag-screen sa tawag."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"Itakda ang Default"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Kanselahin"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Mga naka-block na numero"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Hindi ka makakatanggap ng mga tawag o mga text mula sa mga naka-block na numero."</string>
     <string name="block_number" msgid="1101252256321306179">"Magdagdag ng numero"</string>
