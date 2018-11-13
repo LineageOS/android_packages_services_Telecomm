@@ -815,7 +815,7 @@ public class PhoneAccountRegistrar {
         sb.append("[").append(account1.getAccountHandle());
         appendDiff(sb, "addr", Log.piiHandle(account1.getAddress()),
                 Log.piiHandle(account2.getAddress()));
-        appendDiff(sb, "cap", account1.getCapabilities(), account2.getCapabilities());
+        appendDiff(sb, "cap", account1.capabilitiesToString(), account2.capabilitiesToString());
         appendDiff(sb, "hl", account1.getHighlightColor(), account2.getHighlightColor());
         appendDiff(sb, "lbl", account1.getLabel(), account2.getLabel());
         appendDiff(sb, "desc", account1.getShortDescription(), account2.getShortDescription());
