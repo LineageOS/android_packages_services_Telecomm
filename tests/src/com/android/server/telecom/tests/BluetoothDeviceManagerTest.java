@@ -108,6 +108,20 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
 
     @SmallTest
     @Test
+    public void testAddDeviceFailsWhenServicesAreNull() {
+        mBluetoothDeviceManager.setHeadsetServiceForTesting(null);
+        mBluetoothDeviceManager.setHearingAidServiceForTesting(null);
+
+        receiverUnderTest.onReceive(mContext,
+                buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device1, false));
+        receiverUnderTest.onReceive(mContext,
+                buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device2, true));
+
+        assertEquals(0, mBluetoothDeviceManager.getNumConnectedDevices());
+    }
+    
+    @SmallTest
+    @Test
     public void testMultiDeviceConnectAndDisconnect() {
         receiverUnderTest.onReceive(mContext,
                 buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device1, false));
