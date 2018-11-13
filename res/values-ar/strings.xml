@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"التحديد كتطبيق تلقائي"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"إلغاء"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"سيتمكن <xliff:g id="NEW_APP">%s</xliff:g> من إجراء المكالمات والتحكم في كل جوانبها. يمكن فقط تعيين التطبيقات التي تثق بها كتطبيق الهاتف التلقائي."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"هل تريد جعل <xliff:g id="NEW_APP">%s</xliff:g> تطبيق رَصْد المكالمات التلقائي في جهازك؟"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"لن يتمكَّن <xliff:g id="OLD_APP">%s</xliff:g> من رَصْد المُكالمات بعد ذلك."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"سيتمكَّن <xliff:g id="NEW_APP">%s</xliff:g> من الاطّلاع على معلومات عن المتصّلين الذين ليسوا ضمن جهات اتصالك وحظر المُكالمات الواردة منهم. يمكن فقط تحديد التطبيقات التي تثق بها كتطبيقات تلقائية لرَصْد المُكالمات."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"التحديد كتطبيق تلقائي"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"إلغاء"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"الأرقام المحظورة"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"لن تتلقى أي مكالمات أو مراسلات نصية من الأرقام المحظورة."</string>
     <string name="block_number" msgid="1101252256321306179">"إضافة رقم"</string>

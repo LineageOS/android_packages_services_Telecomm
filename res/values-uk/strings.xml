@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Установити за умовчанням"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Скасувати"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"За допомогою додатка <xliff:g id="NEW_APP">%s</xliff:g> ви зможете здійснювати та контролювати виклики. Лише довірені додатки можна встановлювати як додатки для викликів за умовчанням."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"Використовувати <xliff:g id="NEW_APP">%s</xliff:g> для керування викликами за умовчанням?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> більше не керуватиме викликами."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> знатиме, коли вам телефонуватимуть люди, яких немає у вашому списку контактів, і зможе блокувати такі виклики. Для керування викликами за умовчанням слід вибирати лише додатки, яким ви довіряєте."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"Установити за умовчанням"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Скасувати"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Заблоковані номери"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Ви не отримуватимете виклики й повідомлення із заблокованих номерів."</string>
     <string name="block_number" msgid="1101252256321306179">"Додати номер"</string>

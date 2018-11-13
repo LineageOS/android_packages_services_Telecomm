@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Définir l\'application par défaut"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Annuler"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> sera en mesure de passer des appels et d\'en contrôler tous les détails. Ne définissez qu\'une application de confiance comme application de téléphone par défaut."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"Utiliser <xliff:g id="NEW_APP">%s</xliff:g> comme appli de filtrage d\'appels par défaut ?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> ne sera plus en mesure de filtrer les appels."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> sera en mesure de voir les informations sur les appelants qui ne figurent pas dans vos contacts et de bloquer leurs appels. Seules les applications auxquelles vous faites confiance doivent être définies comme application de filtrage d\'appels par défaut."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"Définir l\'application par défaut"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Annuler"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Numéros bloqués"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Vous ne recevrez plus les appels ni les SMS émis depuis les numéros bloqués."</string>
     <string name="block_number" msgid="1101252256321306179">"Ajouter un numéro"</string>

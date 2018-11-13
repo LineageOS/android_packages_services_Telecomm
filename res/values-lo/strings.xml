@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"ຕັ້ງເປັນຄ່າເລີ່ມຕົ້ນ"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"ຍົກເລີກ"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> ຈະສາມາດໂທ ແລະ ຄວບຄຸມທຸກແງ່ມຸມຂອງການໂທຕ່າງໆໄດ້. ທ່ານຄວນຕັ້ງໃຫ້ແອັບໂທລະສັບທີ່ທ່ານໄວ້ໃຈໄດ້ເທົ່ານັ້ນເປັນແອັບເລີ່ມຕົ້ນ."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"ຕັ້ງ <xliff:g id="NEW_APP">%s</xliff:g> ເປັນແອັບກວດສອບການໂທເລີ່ມຕົ້ນຂອງທ່ານບໍ?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> ຈະບໍ່ສາມາດກວດສອບການສາຍໄດ້ອີກຕໍ່ໄປ."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> ຈະສາມາດເບິ່ງເຫັນຂໍ້ມູນກ່ຽວກັບຜູ້ໂທທີ່ບໍ່ໄດ້ຢູ່ໃນລາຍຊື່ຜູ້ຕິດຕໍ່ຂອງທ່ານ ແລະ ຈະສາມາດບລັອກສາຍເຫຼົ່ານີ້ໄດ້. ທ່ານຄວນຕັ້ງແອັບກວດສອບການໂທເລີ່ມຕົ້ນທີ່ທ່ານເຊື່ອຖືເທົ່ານັ້ນ."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"ຕັ້ງເປັນຄ່າເລີ່ມຕົ້ນ"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"ຍົກເລີກ"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"ເບີໂທລະສັບທີ່ບລັອກໄວ້"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"ທ່ານຈະບໍ່ໄດ້ຮັບສາຍ ຫຼື ຂໍ້ຄວາມຈາກເບີທີ່ບລັອກໄວ້."</string>
     <string name="block_number" msgid="1101252256321306179">"ເພີ່ມເບີໂທລະສັບ"</string>

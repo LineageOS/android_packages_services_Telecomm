@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"မူရင်း သတ်မှတ်ရန်"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"မလုပ်တော့"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> သည် ခေါ်ဆိုမှုများကို ဘက်စုံပြုလုပ်ထိန်းချုပ်သွားနိုင်မည်ဖြစ်သည်။ သင်ယုံကြည်သော အက်ပ်များကိုသာ မူရင်း Phone အက်ပ်အဖြစ် သတ်မှတ်သင့်ပါသည်။"</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"<xliff:g id="NEW_APP">%s</xliff:g> ကို သင့်မူရင်း ခေါ်ဆိုမှုပြသသောအက်ပ်အဖြစ် သတ်မှတ်မလား။"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> က ဖုန်းခေါ်ဆိုမှုများကို ပြသနိုင်တော့မည် မဟုတ်ပါ။"</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> သည် သင့်အဆက်အသွယ်များတွင် မပါဝင်သော ခေါ်ဆိုသူများ၏ အချက်အလက်များကို ကြည့်ရှုနိုင်မည်ဖြစ်ပြီး အဆိုပါ ခေါ်ဆိုမှုများကို ပိတ်နိုင်ပါမည်။ သင်ယုံကြည်သော အက်ပ်များကိုသာ မူရင်း ခေါ်ဆိုမှုပြသသောအက်ပ်အဖြစ် သတ်မှတ်သင့်ပါသည်။"</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"မူရင်းအဖြစ် သတ်မှတ်မည်"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"မလုပ်တော့"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"ပိတ်ထားသည့် နံပါတ်များ"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"ပိတ်ထားသော နံပါတ်များမှ ဖုန်းခေါ်ခြင်း (သို့) စာသားပို့ခြင်းတို့ကို သင်လက်ခံရရှိမည် မဟုတ်ပါ။"</string>
     <string name="block_number" msgid="1101252256321306179">"နံပါတ်တစ်ခု ထည့်ပါ"</string>

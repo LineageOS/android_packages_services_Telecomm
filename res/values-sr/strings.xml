@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Постави као подразумевано"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Откажи"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> ће моћи да упућује позиве и контролише све њихове аспекте. Апликацију подесите као подразумевану за телефонирање само ако је сматрате поузданом."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"Подесити <xliff:g id="NEW_APP">%s</xliff:g> као подраз. апликацију за управљање позивима?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> више неће моћи да управља долазним позивима."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> ће моћи да види информације о позиваоцима који вам нису у контактима и да блокира њихове позиве. Апликацију подесите као подразумевану за управљање долазним позивима само ако је сматрате поузданом."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"Подеси као подразумевану"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Откажи"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Блокирани бројеви"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Нећете примати позиве ни SMS-ове са блокираних бројева."</string>
     <string name="block_number" msgid="1101252256321306179">"Додај број"</string>

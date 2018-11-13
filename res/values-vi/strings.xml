@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Đặt làm mặc định"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Hủy"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> sẽ có thể đặt và kiểm soát mọi khía cạnh của cuộc gọi. Chỉ nên đặt những ứng dụng mà bạn tin cậy làm ứng dụng Điện thoại mặc định."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"Đặt <xliff:g id="NEW_APP">%s</xliff:g> làm ứng dụng sàng lọc cuộc gọi mặc định?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> sẽ không thể sàng lọc cuộc gọi nữa."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> có thể thấy thông tin về người gọi không có trong danh bạ của bạn và chặn những cuộc gọi này. Chỉ nên đặt những ứng dụng mà bạn tin cậy làm ứng dụng sàng lọc cuộc gọi mặc định."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"Đặt làm mặc định"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Hủy"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Số bị chặn"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Bạn sẽ không nhận được cuộc gọi hoặc tin nhắn từ các số bị chặn."</string>
     <string name="block_number" msgid="1101252256321306179">"Thêm số điện thoại"</string>

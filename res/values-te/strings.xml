@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"డిఫాల్ట్‌గా సెట్ చేయండి"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"రద్దు చేయి"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> అన్ని రకాల కాల్‌లను చేయగలదు మరియు సంబంధిత అన్ని అంశాలను నియంత్రించగలదు. మీరు విశ్వసించే అనువర్తనాలను మాత్రమే డిఫాల్ట్ ఫోన్ అనువర్తనంగా సెట్ చేయాలి."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"<xliff:g id="NEW_APP">%s</xliff:g>ని మీ డిఫాల్ట్ కాల్ స్క్రీనింగ్ యాప్‌గా సెట్ చేయాలా?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> ఇకపై స్క్రీన్ కాల్‌లను చేయలేదు."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> మీ పరిచయాలలో లేని కాలర్‌ల గురించిన సమాచారాన్ని చూడగలుగుతుంది మరియు ఈ కాల్‌లను బ్లాక్ చేయగలుగుతుంది. మీరు విశ్వసించే యాప్‌లను మాత్రమే డిఫాల్ట్ కాల్ స్క్రీన్ యాప్‌గా సెట్ చేయాలి."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"డిఫాల్ట్‌గా సెట్ చేయి"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"రద్దు చేయి"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"బ్లాక్ చేయబడిన నంబర్‌లు"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"మీరు బ్లాక్ చేయబడిన నంబర్‌ల నుండి కాల్‌లు లేదా వచన సందేశాలను స్వీకరించరు."</string>
     <string name="block_number" msgid="1101252256321306179">"నంబర్‌ను జోడించండి"</string>

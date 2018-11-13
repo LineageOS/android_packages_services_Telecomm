@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Setha okuzenzakalelayo"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Khansela"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> Uzokwazi ukubeka nokulawula zonke izinto zamakholi. Izinhlelo zokusebenza kuphela ozithembayo ezingasethwa njengohlelo lokusebenza oluzenzakalelayo lefoni."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"Yenza i-<xliff:g id="NEW_APP">%s</xliff:g> uhlelo lwakho lokusebenza lokuhlola ikholi?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> ngeke isakwazi ukuhlola amakholi."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> izokwazi ukubona ulwazi mayelana nabashayayo abangekho koxhumana nabo futhi izokwai ukuvimbela lawo makholi. Izinhlelo zokusebenza kuphela ozethembayo okufanele zisethwe njengohlelo lokusebenza lokulola oluzenzakalelayo."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"Setha okuzenzakalelayo"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Khansela"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Izinombolo ezivinjiwe"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Ngeke uthole amakholi noma imibhalo kusuka kuzinombolo ezivinjelwe."</string>
     <string name="block_number" msgid="1101252256321306179">"Engeza inombolo"</string>

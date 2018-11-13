@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"ตั้งเป็นค่าเริ่มต้น"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"ยกเลิก"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> จะจัดการการโทรและควบคุมการติดต่อทุกด้าน โปรดติดตั้งเฉพาะแอปที่คุณไว้วางใจให้เป็นแอปโทรศัพท์เริ่มต้น"</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"ต้องการตั้ง <xliff:g id="NEW_APP">%s</xliff:g> เป็นแอปสกรีนสายเรียกเข้าเริ่มต้นหรือไม่"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> จะสกรีนสายเรียกเข้าไม่ได้อีก"</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> จะดูข้อมูลเกี่ยวกับผู้โทรที่ไม่ได้อยู่ในรายชื่อติดต่อของคุณและจะบล็อกการโทรเหล่านี้ได้ คุณควรตั้งเฉพาะแอปที่คุณเชื่อถือเป็นแอปสกรีนสายเรียกเข้าเริ่มต้นเท่านั้น"</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"ตั้งเป็นค่าเริ่มต้น"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"ยกเลิก"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"หมายเลขที่ถูกบล็อก"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"คุณจะไม่สามารถรับสายหรือข้อความจากหมายเลขที่บล็อก"</string>
     <string name="block_number" msgid="1101252256321306179">"เพิ่มหมายเลข"</string>
