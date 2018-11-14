@@ -108,8 +108,9 @@ public class CallerInfoLookupHelper {
                     Log.i(this, "There is a previously incomplete query for handle %s. Adding to " +
                             "listeners for this query.", Log.piiHandle(handle));
                     info.listeners.add(listener);
-                    return;
                 }
+                // Since we have a pending query for this handle already, don't re-query it.
+                return;
             } else {
                 CallerInfoQueryInfo info = new CallerInfoQueryInfo();
                 info.listeners.add(listener);
