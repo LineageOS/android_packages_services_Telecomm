@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"设为默认电话应用"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"取消"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> 将可用于拨打电话和全面管理通话。请务必仅将您信任的应用设为默认电话应用。"</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"要将<xliff:g id="NEW_APP">%s</xliff:g>设为默认选接电话应用吗？"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g>将无法再选接电话。"</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g>将能查看不在通讯录内的来电者信息，并屏蔽这些通话。您应仅将受信应用设为默认选接电话应用。"</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"设为默认"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"取消"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"已屏蔽的号码"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"您不会收到来自已屏蔽的号码的来电或短信。"</string>
     <string name="block_number" msgid="1101252256321306179">"添加电话号码"</string>

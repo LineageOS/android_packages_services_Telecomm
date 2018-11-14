@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Fanya iwe Chaguo-Msingi"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Ghairi"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> itaweza kupiga simu na kudhibiti kila kipengele cha simu. Unastahili kuweka programu unazoziamini tu kama programu chaguomsingi ya kupiga simu."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"Je, unaweka <xliff:g id="NEW_APP">%s</xliff:g> iwe programu chaguomsingi ya kuchuja simu?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> haitaweza tena kuchuja simu."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> itaweza kuona maelezo kuhusu wapigaji simu ambao hawako kwenye anwani zako na kuzuia simu zao. Unapaswa kuweka programu unazoamini pekee kuwa programu chaguomsingi ya kuchuja simu."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"Weka iwe Chaguomsingi"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Ghairi"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Nambari zilizozuiwa"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Hutapokea simu au SMS kutoka kwa nambari zilizozuiwa."</string>
     <string name="block_number" msgid="1101252256321306179">"Ongeza nambari"</string>

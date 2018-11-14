@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Nastavit jako výchozí"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Zrušit"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"Aplikace <xliff:g id="NEW_APP">%s</xliff:g> bude moci uskutečňovat hovory a spravovat všechny jejich aspekty. Jako výchozí aplikaci na telefonování byste měli nastavit jen aplikaci, které věříte."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"Nastavit <xliff:g id="NEW_APP">%s</xliff:g> jako výchozí aplikaci na prověřování hovorů?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"Aplikace <xliff:g id="OLD_APP">%s</xliff:g> už nebude moct prověřovat hovory."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"Aplikace <xliff:g id="NEW_APP">%s</xliff:g> bude moct zobrazit informace o volajících, které nemáte v kontaktech, a bude tyto hovory moct zablokovat. Jako výchozí aplikaci na prověřování hovorů byste měli nastavit jen aplikaci, které věříte."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"Nastavit jako výchozí"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Zrušit"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Blokovaná čísla"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Ze zablokovaných čísel už nebudete přijímat hovory ani zprávy SMS."</string>
     <string name="block_number" msgid="1101252256321306179">"Přidat číslo"</string>

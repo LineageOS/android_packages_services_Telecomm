@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"ڈیفالٹ سیٹ کریں"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"منسوخ کریں"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> کال کرنے اور اس کے باقی تمام پہلوؤں کو کنٹرول کر پائے گی۔ صرف ان ایپس کو بطور ڈیفالٹ فون ایپ سیٹ کرنا چاہئیے جن پر آپ کو اعتماد ہے۔"</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"<xliff:g id="NEW_APP">%s</xliff:g> کو آپ کی ڈیفالٹ کال اسکریننگ ایپ بنائيں؟"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> اب آپ کی کالز نہیں دیکھ سکے گی۔"</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> ان کالرز کی معلومات دیکھ سکے گی جو آپ کے رابطوں میں نہیں ہیں اور ان کالز کو مسدود کر سکے گی۔ صرف وہی ایپس ڈیفالٹ کال اسکریننگ ایپ کے طور پر سیٹ کی جائیں گی جن پر آپ کو اعتماد ہے۔"</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"ڈیفالٹ سیٹ کریں"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"منسوخ کریں"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"مسدود کردہ نمبرز"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"آپ مسدود کردہ نمبروں سے کالیں یا متنی پیغامات وصول نہیں کریں گے۔"</string>
     <string name="block_number" msgid="1101252256321306179">"ایک نمبر شامل کریں"</string>

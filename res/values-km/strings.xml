@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"កំណត់​លំនាំដើម"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"បោះបង់"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> នឹង​អាច​ដាក់ចុះ និង​ត្រួតពិនិត្យ​​ទិដ្ឋភាព​ការ​ហៅ​ទាំងអស់។ មាន​តែ​កម្មវិធី​ដែល​អ្នក​ទុកចិត្ត​ប៉ុណ្ណោះ​​អាច​​ត្រូវ​បាន​​កំណត់​ជា​កម្មវិធី​ទូរសព្ទ​លំនាំដើម។"</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"កំណត់ <xliff:g id="NEW_APP">%s</xliff:g> ជា​កម្មវិធី​ត្រួតពិនិត្យ​ការ​ហៅ​ទូរសព្ទ​លំនាំដើម​របស់​អ្នក​ដែរ​ឬ​ទេ?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> នឹង​លែង​អាច​ត្រួតពិនិត្យ​ការ​ហៅ​ទូរសព្ទ​បាន​ទៀត​ហើយ។"</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> នឹង​អាច​មើល​ឃើញ​ព័ត៌មាន​អំពីអ្នកហៅ​ទូរសព្ទ​​ដែល​មិន​នៅ​ក្នុង​ទំនាក់ទំនង​របស់​អ្នក​​ ហើយ​នឹង​អាច​ទប់ស្កាត់​ការ​ហៅ​​ទូរសព្ទ​ទាំង​នេះ​បាន។ មាន​តែ​កម្មវិធី​ដែល​អ្នក​ទុកចិត្ត​ប៉ុណ្ណោះ​គួរ​ត្រូវ​បាន​កំណត់​ជា​កម្មវិធីត្រួតពិនិត្យ​ការ​ហៅ​ទូរសព្ទ​លំនាំដើម។"</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"កំណត់​លំនាំដើម"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"បោះបង់"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"លេខដែល​បានទប់ស្កាត់"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"អ្នក​នឹង​មិន​ទទួល​បាន​ការ​ហៅទូរសព្ទ ឬ​សារ​​ពី​លេខ​ដែល​បានទប់ស្កាត់ឡើយ។"</string>
     <string name="block_number" msgid="1101252256321306179">"បញ្ចូល​លេខ"</string>

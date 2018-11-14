@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Vendos të parazgjedhurën"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Anulo"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> do të mund të bëjë dhe kontrollojë të gjitha aspektet e telefonatave. Vetëm aplikacionet të cilave u beson duhet të caktohen si aplikacioni Telefon i parazgjedhur."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"Të bëhet <xliff:g id="NEW_APP">%s</xliff:g> aplikacioni i parazgjedhur për filtrimin?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> nuk do të mund të filtrojë më telefonatat."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> do të mund të shikojë informacione për telefonuesit që nuk janë në kontaktet e tua dhe do të mund t\'i bllokojë këto telefonata. Vetëm aplikacionet që i beson duhet të caktohen si aplikacioni i parazgjedhur për filtrimin e telefonatave."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"Cakto parazgjedhjen"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Anulo"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Numrat e bllokuar"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Nuk do të marrësh telefonata ose mesazhe me tekst nga numrat e bllokuar."</string>
     <string name="block_number" msgid="1101252256321306179">"Shto një numër"</string>

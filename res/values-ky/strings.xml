@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Демейки шартта колдонуу"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Жокко чыгаруу"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> колдонмосу аркылуу чалып, алардын параметрлерин жөндөй аласыз. Демейки чалуулар үчүн ишеничтүү колдонмолорду гана пайдалануу керек."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"<xliff:g id="NEW_APP">%s</xliff:g> колднмсн демейки чалуулар башкаруу колднмсу кыласызбы?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> колдонмосу кирүүчү чалууларды башкара албай калат."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> колдонмосу байланыштарыңызда болбогон чалуучулардын маалыматтарын көрүп, чалууларды бөгөттөй алат. Демейки кирүүчү чалууларды башкаруу үчүн ишеничтүү колдонмолорду гана пайдалануу керек."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"Демейки шартта колдонуу"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Жок"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Бөгөттөлгөн номерлер"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Бөгөттөлгөн номерлерден эч ким чалып же билдирүү жөнөтө албайт."</string>
     <string name="block_number" msgid="1101252256321306179">"Номер кошуу"</string>

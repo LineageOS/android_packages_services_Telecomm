@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Predefinir"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Cancelar"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"A aplicação <xliff:g id="NEW_APP">%s</xliff:g> poderá efetuar chamadas e controlar todos os aspetos das mesmas. Apenas as aplicações em que confia devem ser escolhidas como a aplicação de telefone predefinida."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"Predefinir <xliff:g id="NEW_APP">%s</xliff:g> como a sua aplicação Telefone?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> deixará de poder filtrar as chamadas."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> poderá ver informações sobre os autores das chamadas que não se encontrem nos seus contactos e poderá bloquear estas chamadas. Apenas deve predefinir como aplicação de filtro de chamadas as aplicações nas quais confia."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"Predefinir"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Cancelar"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Números bloqueados"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Não irá receber chamadas ou mensagens de texto de números bloqueados."</string>
     <string name="block_number" msgid="1101252256321306179">"Adicionar um número"</string>
