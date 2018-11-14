@@ -73,7 +73,7 @@ import com.android.server.telecom.callfiltering.AsyncBlockCheckFilter;
 import com.android.server.telecom.callfiltering.BlockCheckerAdapter;
 import com.android.server.telecom.callfiltering.CallFilterResultCallback;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
-import com.android.server.telecom.callfiltering.CallScreeningServiceFilter;
+import com.android.server.telecom.callfiltering.CallScreeningServiceController;
 import com.android.server.telecom.callfiltering.DirectToVoicemailCallFilter;
 import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.components.ErrorDialogActivity;
@@ -568,9 +568,9 @@ public class CallsManager extends Call.ListenerBase
         filters.add(new DirectToVoicemailCallFilter(mCallerInfoLookupHelper));
         filters.add(new AsyncBlockCheckFilter(mContext, new BlockCheckerAdapter(),
                 mCallerInfoLookupHelper, null));
-        filters.add(new CallScreeningServiceFilter(mContext, this, mPhoneAccountRegistrar,
-            mDefaultDialerCache, new ParcelableCallUtils.Converter(), mLock,
-            new TelecomServiceImpl.SettingsSecureAdapterImpl()));
+        filters.add(new CallScreeningServiceController(mContext, this, mPhoneAccountRegistrar,
+                new ParcelableCallUtils.Converter(), mLock,
+                new TelecomServiceImpl.SettingsSecureAdapterImpl(), mCallerInfoLookupHelper));
         new IncomingCallFilter(mContext, this, incomingCall, mLock,
                 mTimeoutsAdapter, filters).performFiltering();
     }
