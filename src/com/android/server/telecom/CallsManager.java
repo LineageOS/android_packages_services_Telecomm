@@ -1529,6 +1529,9 @@ public class CallsManager extends Call.ListenerBase
                 return CompletableFuture.completedFuture(Arrays.asList(targetPhoneAccountHandle));
             }
         }
+        if (accounts.isEmpty() || accounts.size() == 1) {
+            return CompletableFuture.completedFuture(accounts);
+        }
 
         // Do the query for whether there's a preferred contact
         final CompletableFuture<PhoneAccountHandle> userPreferredAccountForContact =
@@ -1538,8 +1541,17 @@ public class CallsManager extends Call.ListenerBase
                 new CallerInfoLookupHelper.OnQueryCompleteListener() {
                     @Override
                     public void onCallerInfoQueryComplete(Uri handle, CallerInfo info) {
-                        // TODO: construct the acct handle from caller info
-                        userPreferredAccountForContact.complete(null);
+                        if (info.preferredPhoneAccountComponent != null &&
+                                info.preferredPhoneAccountId != null &&
+                                !info.preferredPhoneAccountId.isEmpty()) {
+                            PhoneAccountHandle contactDefaultHandle = new PhoneAccountHandle(
+                                    info.preferredPhoneAccountComponent,
+                                    info.preferredPhoneAccountId,
+                                    initiatingUser);
+                            userPreferredAccountForContact.complete(contactDefaultHandle);
+                        } else {
+                            userPreferredAccountForContact.complete(null);
+                        }
                     }
 
                     @Override
@@ -1551,9 +1563,6 @@ public class CallsManager extends Call.ListenerBase
         return userPreferredAccountForContact.thenApply(phoneAccountHandle -> {
             if (phoneAccountHandle != null) {
                 return Collections.singletonList(phoneAccountHandle);
-            }
-            if (possibleAccounts.isEmpty() || possibleAccounts.size() == 1) {
-                return possibleAccounts;
             }
             // No preset account, check if default exists that supports the URI scheme for the
             // handle and verify it can be used.
