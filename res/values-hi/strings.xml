@@ -50,9 +50,9 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"डिफ़ॉल्ट सेट करें"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"अभी नहीं"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> कॉल करने और कॉल से संबंधित सभी पहलुओं को नियंत्रित कर पाएगा. केवल उन्हीं ऐप्लिकेशन को डिफ़ॉल्ट फ़ोन ऐप्लिकेशन के रूप में सेट करना चाहिए जिन पर आप विश्वास करते हैं."</string>
-    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"<xliff:g id="NEW_APP">%s</xliff:g> को अपना डिफ़ॉल्ट कॉल स्क्रीन करने वाला ऐप बनाएं?"</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"<xliff:g id="NEW_APP">%s</xliff:g> को, कॉल स्क्रीन करने वाला अपना डिफ़ॉल्ट ऐप बनाएं?"</string>
     <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> अब कॉल को स्क्रीन नहीं कर पाएगा."</string>
-    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> आपके उन कॉल करने वालों की जानकारी देख पाएगा जो आपकी संपर्क सूची में नहीं हैं और उन कॉल को ब्लॉक कर पाएगा. केवल उन्हीं ऐप्लिकेशन को डिफ़ॉल्ट कॉल स्क्रीन करने वाले ऐप्लिकेशन के रूप में सेट करना चाहिए जिन पर आप भरोसा करते हैं."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> आपके उन कॉल करने वालों की जानकारी देख पाएगा जो आपकी संपर्क सूची में नहीं हैं और उन कॉल को ब्लॉक कर पाएगा. सिर्फ़ उन्हीं ऐप्लिकेशन को डिफ़ॉल्ट कॉल स्क्रीन करने वाले ऐप्लिकेशन के रूप में सेट करना चाहिए जिन पर आप भरोसा करते हैं."</string>
     <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"डिफ़ॉल्ट सेट करें"</string>
     <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"अभी नहीं"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"अवरोधित नंबर"</string>
