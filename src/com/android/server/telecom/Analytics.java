@@ -16,6 +16,8 @@
 
 package com.android.server.telecom;
 
+import android.os.SystemProperties;
+
 import android.telecom.Connection;
 import android.telecom.DisconnectCause;
 import android.telecom.Logging.EventManager;
@@ -583,6 +585,7 @@ public class Analytics {
                             .setSessionEntryPoint(timing.getKey())
                             .setTimeMillis(timing.getTime()))
                     .toArray(TelecomLogClass.LogSessionTiming[]::new);
+            result.setHardwareRevision(SystemProperties.get("ro.boot.revision", ""));
             if (args.length > 1 && CLEAR_ANALYTICS_ARG.equals(args[1])) {
                 sCallIdToInfo.clear();
                 sSessionTimings.clear();
@@ -628,6 +631,7 @@ public class Analytics {
                     .filter(e -> sSessionIdToLogSession.containsKey(e.getKey()))
                     .forEach(e -> writer.printf("%s: %.2f\n",
                             sSessionIdToLogSession.get(e.getKey()), e.getValue()));
+            writer.println("Hardware Version: " + SystemProperties.get("ro.boot.revision", ""));
         }
     }
 
