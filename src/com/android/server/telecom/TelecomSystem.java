@@ -29,6 +29,7 @@ import com.android.server.telecom.CallAudioManager.AudioServiceFactory;
 import com.android.server.telecom.DefaultDialerCache.DefaultDialerManagerAdapter;
 
 import android.Manifest;
+import android.app.role.RoleManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -257,6 +258,9 @@ public class TelecomSystem {
             }
         };
 
+        RoleManagerAdapter roleManagerAdapter = new RoleManagerAdapterImpl(
+                (RoleManager) mContext.getSystemService(Context.ROLE_SERVICE));
+
         mCallsManager = new CallsManager(
                 mContext,
                 mLock,
@@ -282,7 +286,8 @@ public class TelecomSystem {
                 bluetoothStateReceiver,
                 callAudioRouteStateMachineFactory,
                 new CallAudioModeStateMachine.Factory(),
-                inCallControllerFactory);
+                inCallControllerFactory,
+                roleManagerAdapter);
 
         mIncomingCallNotifier = incomingCallNotifier;
         incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {

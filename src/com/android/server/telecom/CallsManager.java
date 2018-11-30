@@ -287,6 +287,7 @@ public class CallsManager extends Call.ListenerBase
     /* Handler tied to thread in which CallManager was initialized. */
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final EmergencyCallHelper mEmergencyCallHelper;
+    private final RoleManagerAdapter mRoleManagerAdapter;
 
     private final ConnectionServiceFocusManager.CallsManagerRequester mRequester =
             new ConnectionServiceFocusManager.CallsManagerRequester() {
@@ -392,7 +393,8 @@ public class CallsManager extends Call.ListenerBase
             BluetoothStateReceiver bluetoothStateReceiver,
             CallAudioRouteStateMachine.Factory callAudioRouteStateMachineFactory,
             CallAudioModeStateMachine.Factory callAudioModeStateMachineFactory,
-            InCallControllerFactory inCallControllerFactory) {
+            InCallControllerFactory inCallControllerFactory,
+            RoleManagerAdapter roleManagerAdapter) {
         mContext = context;
         mLock = lock;
         mPhoneNumberUtilsAdapter = phoneNumberUtilsAdapter;
@@ -466,6 +468,7 @@ public class CallsManager extends Call.ListenerBase
                 new ConnectionServiceRepository(mPhoneAccountRegistrar, mContext, mLock, this);
         mInCallWakeLockController = inCallWakeLockControllerFactory.create(context, this);
         mClockProxy = clockProxy;
+        mRoleManagerAdapter = roleManagerAdapter;
 
         mListeners.add(mInCallWakeLockController);
         mListeners.add(statusBarNotifier);
@@ -513,6 +516,10 @@ public class CallsManager extends Call.ListenerBase
 
     public CallerInfoLookupHelper getCallerInfoLookupHelper() {
         return mCallerInfoLookupHelper;
+    }
+
+    public RoleManagerAdapter getRoleManagerAdapter() {
+        return mRoleManagerAdapter;
     }
 
     @Override
@@ -3197,6 +3204,7 @@ public class CallsManager extends Call.ListenerBase
     public void onUserSwitch(UserHandle userHandle) {
         mCurrentUserHandle = userHandle;
         mMissedCallNotifier.setCurrentUserHandle(userHandle);
+        mRoleManagerAdapter.setCurrentUserHandle(userHandle);
         final UserManager userManager = UserManager.get(mContext);
         List<UserInfo> profiles = userManager.getEnabledProfiles(userHandle.getIdentifier());
         for (UserInfo profile : profiles) {
@@ -3469,6 +3477,14 @@ public class CallsManager extends Call.ListenerBase
             pw.println("mConnectionServiceRepository:");
             pw.increaseIndent();
             mConnectionServiceRepository.dump(pw);
+            pw.decreaseIndent();
+        }
+
+        if (mRoleManagerAdapter != null && mRoleManagerAdapter instanceof RoleManagerAdapterImpl) {
+            RoleManagerAdapterImpl impl = (RoleManagerAdapterImpl) mRoleManagerAdapter;
+            pw.println("mRoleManager:");
+            pw.increaseIndent();
+            impl.dump(pw);
             pw.decreaseIndent();
         }
     }
