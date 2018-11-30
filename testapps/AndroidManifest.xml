@@ -238,5 +238,19 @@
         <receiver android:exported="false"
             android:process="com.android.server.telecom.testapps.SelfMangingCallingApp"
             android:name="com.android.server.telecom.testapps.SelfManagedCallNotificationReceiver" />
+
+        <service
+            android:name=".TestCallScreeningService"
+            android:permission="android.permission.BIND_SCREENING_SERVICE">
+            <intent-filter>
+                <action android:name="android.telecom.CallScreeningService"/>
+            </intent-filter>
+        </service>
+
+        <activity android:name=".CallScreeningActivity"
+                  android:configChanges="orientation|screenSize|keyboardHidden"
+                  android:excludeFromRecents="true"
+                  android:launchMode="singleInstance">
+        </activity>
     </application>
 </manifest>

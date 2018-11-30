@@ -17,6 +17,7 @@
 package com.android.server.telecom.components;
 
 import android.app.Service;
+import android.app.role.RoleManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
@@ -50,6 +51,8 @@ import com.android.server.telecom.ProximitySensorManagerFactory;
 import com.android.server.telecom.InCallWakeLockController;
 import com.android.server.telecom.ProximitySensorManager;
 import com.android.server.telecom.R;
+import com.android.server.telecom.RoleManagerAdapter;
+import com.android.server.telecom.RoleManagerAdapterImpl;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.TelecomWakeLock;
 import com.android.server.telecom.Timeouts;
@@ -185,7 +188,9 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                 public long elapsedRealtime() {
                                     return SystemClock.elapsedRealtime();
                                 }
-                            }));
+                            },
+                            new RoleManagerAdapterImpl(
+                                    (RoleManager) context.getSystemService(Context.ROLE_SERVICE))));
         }
         if (BluetoothAdapter.getDefaultAdapter() != null) {
             context.startService(new Intent(context, BluetoothPhoneService.class));

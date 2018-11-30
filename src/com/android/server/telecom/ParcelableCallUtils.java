@@ -18,11 +18,13 @@ package com.android.server.telecom;
 
 import android.net.Uri;
 import android.telecom.Connection;
+import android.telecom.DisconnectCause;
 import android.telecom.ParcelableCall;
 import android.telecom.ParcelableRttCall;
 import android.telecom.TelecomManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -36,6 +38,10 @@ public class ParcelableCallUtils {
                 PhoneAccountRegistrar phoneAccountRegistrar) {
             return ParcelableCallUtils.toParcelableCall(
                     call, includeVideoProvider, phoneAccountRegistrar, false, false);
+        }
+
+        public ParcelableCall toParcelableCallForScreening(Call call) {
+            return ParcelableCallUtils.toParcelableCallForScreening(call);
         }
     }
 
@@ -188,6 +194,53 @@ public class ParcelableCallUtils {
                 conferenceableCallIds,
                 call.getIntentExtras(),
                 call.getExtras(),
+                call.getCreationTimeMillis());
+    }
+
+    /**
+     * Creates a ParcelableCall with the bare minimum properties required for a
+     * {@link android.telecom.CallScreeningService}.  We ONLY expose the following:
+     * <ul>
+     *     <li>Call Id (not exposed to public, but needed to associated calls)</li>
+     *     <li>Call state</li>
+     *     <li>Creation time</li>
+     *     <li>Connection time</li>
+     *     <li>Handle (phone number)</li>
+     *     <li>Handle (phone number) presentation</li>
+     * </ul>
+     * All other fields are nulled or set to 0 values.
+     * @param call The telecom call to send to a call screening service.
+     * @return Minimal {@link ParcelableCall} to send to the call screening service.
+     */
+    public static ParcelableCall toParcelableCallForScreening(Call call) {
+        Uri handle = call.getHandlePresentation() == TelecomManager.PRESENTATION_ALLOWED ?
+                call.getHandle() : null;
+        return new ParcelableCall(
+                call.getId(),
+                getParcelableState(call, false /* supportsExternalCalls */),
+                new DisconnectCause(DisconnectCause.UNKNOWN),
+                null, /* cannedSmsResponses */
+                0, /* capabilities */
+                0, /* properties */
+                0, /* supportedAudioRoutes */
+                call.getConnectTimeMillis(),
+                handle,
+                call.getHandlePresentation(),
+                null, /* callerDisplayName */
+                0 /* callerDisplayNamePresentation */,
+                null, /* gatewayInfo */
+                null, /* targetPhoneAccount */
+                false, /* includeVideoProvider */
+                null, /* videoProvider */
+                false, /* includeRttCall */
+                null, /* rttCall */
+                null, /* parentCallId */
+                null, /* childCallIds */
+                null, /* statusHints */
+                0, /* videoState */
+                Collections.emptyList(), /* conferenceableCallIds */
+                null, /* intentExtras */
+                null, /* callExtras */
                 call.getCreationTimeMillis());
     }
 
