@@ -436,8 +436,10 @@ public class CallsManager extends Call.ListenerBase
 
         AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         InCallTonePlayer.MediaPlayerFactory mediaPlayerFactory =
-                (resourceId, attributes) -> MediaPlayer.create(mContext, resourceId, attributes,
-                        audioManager.generateAudioSessionId());
+                (resourceId, attributes) ->
+                        new InCallTonePlayer.MediaPlayerAdapterImpl(
+                                MediaPlayer.create(mContext, resourceId, attributes,
+                                        audioManager.generateAudioSessionId()));
         InCallTonePlayer.Factory playerFactory = new InCallTonePlayer.Factory(
                 callAudioRoutePeripheralAdapter, lock, toneGeneratorFactory, mediaPlayerFactory,
                 () -> audioManager.getStreamVolume(AudioManager.STREAM_RING) > 0);
