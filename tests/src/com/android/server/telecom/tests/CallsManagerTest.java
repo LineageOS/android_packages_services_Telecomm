@@ -70,6 +70,7 @@ import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.PhoneNumberUtilsAdapter;
 import com.android.server.telecom.ProximitySensorManager;
 import com.android.server.telecom.ProximitySensorManagerFactory;
+import com.android.server.telecom.RoleManagerAdapter;
 import com.android.server.telecom.SystemStateHelper;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
@@ -149,6 +150,7 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private CallAudioModeStateMachine mCallAudioModeStateMachine;
     @Mock private CallAudioModeStateMachine.Factory mCallAudioModeStateMachineFactory;
     @Mock private BluetoothStateReceiver mBluetoothStateReceiver;
+    @Mock private RoleManagerAdapter mRoleManagerAdapter;
 
     private CallsManager mCallsManager;
 
@@ -172,6 +174,7 @@ public class CallsManagerTest extends TelecomTestCase {
         when(mClockProxy.currentTimeMillis()).thenReturn(System.currentTimeMillis());
         when(mClockProxy.elapsedRealtime()).thenReturn(SystemClock.elapsedRealtime());
         when(mConnSvrFocusManagerFactory.create(any())).thenReturn(mConnectionSvrFocusMgr);
+        doNothing().when(mRoleManagerAdapter).setCurrentUserHandle(any());
         mCallsManager = new CallsManager(
                 mComponentContextFixture.getTestDouble().getApplicationContext(),
                 mLock,
@@ -197,7 +200,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 mBluetoothStateReceiver,
                 mCallAudioRouteStateMachineFactory,
                 mCallAudioModeStateMachineFactory,
-                mInCallControllerFactory);
+                mInCallControllerFactory,
+                mRoleManagerAdapter);
 
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SELF_MANAGED_HANDLE), any())).thenReturn(SELF_MANAGED_ACCOUNT);

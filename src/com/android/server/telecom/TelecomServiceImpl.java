@@ -39,6 +39,7 @@ import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 import android.os.UserHandle;
@@ -1658,6 +1659,71 @@ public class TelecomServiceImpl {
                         Log.i(this, "handleCallIntent: handling call intent");
                         mCallIntentProcessorAdapter.processOutgoingCallIntent(mContext,
                                 mCallsManager, intent, null /* callingPackage */);
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        @Override
+        public void setTestDefaultCallScreeningApp(String packageName) {
+            try {
+                Log.startSession("TSI.sTDCSA");
+                enforceModifyPermission();
+                if (!Build.IS_USERDEBUG) {
+                    throw new SecurityException("Test-only API.");
+                }
+                synchronized (mLock) {
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        mCallsManager.getRoleManagerAdapter().setTestDefaultCallScreeningApp(
+                                packageName);
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        @Override
+        public void addOrRemoveTestCallCompanionApp(String packageName, boolean isAdded) {
+            try {
+                Log.startSession("TSI.aORTCCA");
+                enforceModifyPermission();
+                if (!Build.IS_USERDEBUG) {
+                    throw new SecurityException("Test-only API.");
+                }
+                synchronized (mLock) {
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        mCallsManager.getRoleManagerAdapter().addOrRemoveTestCallCompanionApp(
+                                packageName, isAdded);
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        @Override
+        public void setTestAutoModeApp(String packageName) {
+            try {
+                Log.startSession("TSI.sTAMA");
+                enforceModifyPermission();
+                if (!Build.IS_USERDEBUG) {
+                    throw new SecurityException("Test-only API.");
+                }
+                synchronized (mLock) {
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        mCallsManager.getRoleManagerAdapter().setTestAutoModeApp(packageName);
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
