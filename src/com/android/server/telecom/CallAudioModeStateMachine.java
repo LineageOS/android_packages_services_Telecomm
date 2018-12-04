@@ -302,10 +302,18 @@ public class CallAudioModeStateMachine extends StateMachine {
             if (call != null && call.getTargetPhoneAccount() != null && setMsimAudioParams) {
                 PhoneAccountHandle handle = call.getTargetPhoneAccount();
                 PhoneAccount account = mTelecomManager.getPhoneAccount(handle);
-                int defaultDataSubId = SubscriptionManager.getDefaultDataSubscriptionId();
-                int subId = TelephonyManager.getDefault().getSubIdForPhoneAccount(account);
-                int phoneId = SubscriptionManager.getPhoneId(subId)
-                        ^ SubscriptionManager.getPhoneId(defaultDataSubId);
+                TelephonyManager tm = TelephonyManager.getDefault();
+                boolean audioFollowDefaultSim = SystemProperties
+                        .getBoolean("ro.multisim.audio_follow_default_sim", true);
+                int subId = tm.getSubIdForPhoneAccount(account);
+                int phoneId = SubscriptionManager.getPhoneId(subId);
+
+                if (audioFollowDefaultSim ||
+                        tm.getSimState(0) != TelephonyManager.SIM_STATE_READY) {
+                    int defaultDataSubId = SubscriptionManager.getDefaultDataSubscriptionId();
+                    phoneId ^= SubscriptionManager.getPhoneId(defaultDataSubId);
+                }
+
                 Log.d(LOG_TAG, "setAudioParameters phoneId=" + phoneId);
                 if (phoneId == 0) {
                     mAudioManager.setParameters("phone_type=cp1");
