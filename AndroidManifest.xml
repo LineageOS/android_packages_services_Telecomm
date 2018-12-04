@@ -297,18 +297,10 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.android.server.telecom.components.ChangeDefaultCallScreeningApp"
-            android:label="@string/change_default_dialer_dialog_title"
-            android:excludeFromRecents="true"
-            android:theme="@*android:style/Theme.Material.Light.Dialog.Alert"
-            android:priority="1000"
-            android:process=":ui">
-        </activity>
-
         <activity android:name=".ui.TelecomDeveloperMenu"
-                android:label="@string/developer_title"
-                android:exported="false"
-                android:process=":ui" />
+                  android:label="@string/developer_title"
+                  android:exported="false"
+                  android:process=":ui" />
 
         <service android:name=".components.BluetoothPhoneService"
                 android:singleUser="true"
