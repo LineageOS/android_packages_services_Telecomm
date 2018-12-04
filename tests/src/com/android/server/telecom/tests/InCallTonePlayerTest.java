@@ -19,6 +19,7 @@ package com.android.server.telecom.tests;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -56,7 +57,35 @@ public class InCallTonePlayerTest extends TelecomTestCase {
     @Mock
     private InCallTonePlayer.ToneGeneratorFactory mToneGeneratorFactory;
 
-    private MediaPlayer mMediaPlayer;
+    private InCallTonePlayer.MediaPlayerAdapter mMediaPlayerAdapter =
+            new InCallTonePlayer.MediaPlayerAdapter() {
+        private MediaPlayer.OnCompletionListener mListener;
+
+        @Override
+        public void setLooping(boolean isLooping) {
+            // Do nothing.
+        }
+
+        @Override
+        public void setOnCompletionListener(MediaPlayer.OnCompletionListener listener) {
+            mListener = listener;
+        }
+
+        @Override
+        public void start() {
+            mListener.onCompletion(null);
+        }
+
+        @Override
+        public void release() {
+            // Do nothing.
+        }
+
+        @Override
+        public int getDuration() {
+            return 0;
+        }
+    };
 
     @Mock
     private InCallTonePlayer.MediaPlayerFactory mMediaPlayerFactory;
@@ -71,14 +100,13 @@ public class InCallTonePlayerTest extends TelecomTestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
+
+        when(mToneGeneratorFactory.get(anyInt(), anyInt())).thenReturn(mToneGenerator);
+        when(mMediaPlayerFactory.get(anyInt(), any())).thenReturn(mMediaPlayerAdapter);
+
         mFactory = new InCallTonePlayer.Factory(mCallAudioRoutePeripheralAdapter, mLock,
                 mToneGeneratorFactory, mMediaPlayerFactory, mAudioManagerAdapter);
         mFactory.setCallAudioManager(mCallAudioManager);
-
-        when(mToneGeneratorFactory.get(anyInt(), anyInt())).thenReturn(mToneGenerator);
-
-        mMediaPlayer = new MediaPlayer();
-        when(mMediaPlayerFactory.get(anyInt(), any())).thenReturn(mMediaPlayer);
     }
 
     @SmallTest
@@ -102,6 +130,6 @@ public class InCallTonePlayerTest extends TelecomTestCase {
 
         // Verify we did play a tone.
         verify(mCallAudioManager).setIsTonePlaying(eq(true));
-        verify(mMediaPlayerFactory ,timeout(5000)).get(anyInt(), any());
+        verify(mMediaPlayerFactory, timeout(5000)).get(anyInt(), any());
     }
 }
