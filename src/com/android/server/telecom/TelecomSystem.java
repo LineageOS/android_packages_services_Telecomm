@@ -257,6 +257,8 @@ public class TelecomSystem {
             }
         };
 
+        RoleManagerAdapter roleManagerAdapter = new RoleManagerAdapterImpl();
+
         mCallsManager = new CallsManager(
                 mContext,
                 mLock,
@@ -282,7 +284,8 @@ public class TelecomSystem {
                 bluetoothStateReceiver,
                 callAudioRouteStateMachineFactory,
                 new CallAudioModeStateMachine.Factory(),
-                inCallControllerFactory);
+                inCallControllerFactory,
+                roleManagerAdapter);
 
         mIncomingCallNotifier = incomingCallNotifier;
         incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {
