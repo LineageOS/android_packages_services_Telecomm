@@ -76,8 +76,49 @@ public class InCallTonePlayer extends Thread {
         ToneGenerator get (int streamType, int volume);
     }
 
+    public interface MediaPlayerAdapter {
+        void setLooping(boolean isLooping);
+        void setOnCompletionListener(MediaPlayer.OnCompletionListener listener);
+        void start();
+        void release();
+        int getDuration();
+    }
+
+    public static class MediaPlayerAdapterImpl implements MediaPlayerAdapter {
+        private MediaPlayer mMediaPlayer;
+
+        public MediaPlayerAdapterImpl(MediaPlayer mediaPlayer) {
+            mMediaPlayer = mediaPlayer;
+        }
+
+        @Override
+        public void setLooping(boolean isLooping) {
+            mMediaPlayer.setLooping(isLooping);
+        }
+
+        @Override
+        public void setOnCompletionListener(MediaPlayer.OnCompletionListener listener) {
+            mMediaPlayer.setOnCompletionListener(listener);
+        }
+
+        @Override
+        public void start() {
+            mMediaPlayer.start();
+        }
+
+        @Override
+        public void release() {
+            mMediaPlayer.release();
+        }
+
+        @Override
+        public int getDuration() {
+            return mMediaPlayer.getDuration();
+        }
+    }
+
     public interface MediaPlayerFactory {
-        MediaPlayer get (int resourceId, AudioAttributes attributes);
+        MediaPlayerAdapter get (int resourceId, AudioAttributes attributes);
     }
 
     public interface AudioManagerAdapter {
@@ -136,7 +177,7 @@ public class InCallTonePlayer extends Thread {
     private int mState;
 
     /** For tones which are not generated using ToneGenerator. */
-    private MediaPlayer mToneMediaPlayer = null;
+    private MediaPlayerAdapter mToneMediaPlayer = null;
 
     /** Telecom lock object. */
     private final TelecomSystem.SyncRoot mLock;
