@@ -22,6 +22,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.media.AudioManager;
 import android.media.AudioSystem;
@@ -579,7 +581,21 @@ public class CallsManager extends Call.ListenerBase
                 mCallerInfoLookupHelper, null));
         filters.add(new CallScreeningServiceController(mContext, this, mPhoneAccountRegistrar,
                 new ParcelableCallUtils.Converter(), mLock,
-                new TelecomServiceImpl.SettingsSecureAdapterImpl(), mCallerInfoLookupHelper));
+                new TelecomServiceImpl.SettingsSecureAdapterImpl(), mCallerInfoLookupHelper,
+                new CallScreeningServiceController.AppLabelProxy() {
+                    @Override
+                    public String getAppLabel(String packageName) {
+                        PackageManager pm = mContext.getPackageManager();
+                        try {
+                            ApplicationInfo info = pm.getApplicationInfo(packageName, 0);
+                            return (String) pm.getApplicationLabel(info);
+                        } catch (PackageManager.NameNotFoundException nnfe) {
+                            Log.w(this, "Could not determine package name.");
+                        }
+
+                        return null;
+                    }
+                }));
         new IncomingCallFilter(mContext, this, incomingCall, mLock,
                 mTimeoutsAdapter, filters).performFiltering();
     }
