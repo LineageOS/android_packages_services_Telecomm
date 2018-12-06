@@ -469,6 +469,11 @@ public class InCallTonePlayer extends Thread {
         }
     }
 
+    @VisibleForTesting
+    public void cleanup() {
+        sTonesPlaying = 0;
+    }
+
     private void cleanUpTonePlayer() {
         // Release focus on the main thread.
         mMainThreadHandler.post(new Runnable("ICTP.cUTP", mLock) {
