@@ -148,6 +148,7 @@ public class CallsManager extends Call.ListenerBase
         void performAction();
     }
 
+    /** An executor that starts a log session before executing a runnable */
     private class LoggedHandlerExecutor implements Executor {
         private Handler mHandler;
         private String mSessionName;
@@ -1336,15 +1337,15 @@ public class CallsManager extends Call.ListenerBase
                         return CompletableFuture.completedFuture(
                                 Collections.singletonList(suggestion));
                     }
-                    // todo: call onsuggestphoneaccount and bring back the list of suggestions
-                    // from there. For now just map all the accounts to suggest_none
-                    List<PhoneAccountSuggestion> suggestions =
+                    return CompletableFuture.completedFuture(
                             potentialPhoneAccounts.stream().map(phoneAccountHandle ->
-                                    new PhoneAccountSuggestion(phoneAccountHandle,
-                                            PhoneAccountSuggestion.REASON_NONE, false)
-                            ).collect(Collectors.toList());
-
-                    return CompletableFuture.completedFuture(suggestions);
+                            new PhoneAccountSuggestion(phoneAccountHandle,
+                                    PhoneAccountSuggestion.REASON_NONE, false)
+                    ).collect(Collectors.toList()));
+                    /* TODO -- turn this on after tests/debugging are done
+                    return PhoneAccountSuggestionHelper.bindAndGetSuggestions(mContext,
+                            finalCall.getHandle(), potentialPhoneAccounts);
+                            */
                 }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.cOCSS"));
 
 

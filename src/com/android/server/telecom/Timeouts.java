@@ -58,6 +58,10 @@ public final class Timeouts {
         public long getCarrierCallRedirectionTimeoutMillis(ContentResolver cr) {
             return Timeouts.getCarrierCallRedirectionTimeoutMillis(cr);
         }
+
+        public long getPhoneAccountSuggestionServiceTimeout(ContentResolver cr) {
+            return Timeouts.getPhoneAccountSuggestionServiceTimeout(cr);
+        }
     }
 
     /** A prefix to use for all keys so to not clobber the global namespace. */
@@ -149,6 +153,14 @@ public final class Timeouts {
      */
     public static long getRetryBluetoothConnectAudioBackoffMillis(ContentResolver contentResolver) {
         return get(contentResolver, "retry_bluetooth_connect_audio_backoff_millis", 500L);
+    }
+
+    /**
+     * Returns the amount of time to wait for the phone account suggestion service to reply.
+     */
+    public static long getPhoneAccountSuggestionServiceTimeout(ContentResolver contentResolver) {
+        return get(contentResolver, "phone_account_suggestion_service_timeout",
+                5000L /* 5 seconds */);
     }
 
     /**
