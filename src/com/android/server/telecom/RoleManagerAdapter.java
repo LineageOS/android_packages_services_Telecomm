@@ -27,6 +27,21 @@ import java.util.List;
 public interface RoleManagerAdapter {
     /**
      * Returns the package name of the app which fills the {@link android.app.role.RoleManager} call
+     * redirection role.
+     * @return the package name of the app filling the role, {@code null} otherwise}.
+     */
+    String getDefaultCallRedirectionApp();
+
+    /**
+     * Override the {@link android.app.role.RoleManager} call redirection app with another value.
+     * Used for testing purposes only.
+     * @param packageName Package name of the app to fill the call redirection role.  Where
+     *                    {@code null}, the override is removed.
+     */
+    void setTestDefaultCallRedirectionApp(String packageName);
+
+    /**
+     * Returns the package name of the app which fills the {@link android.app.role.RoleManager} call
      * screening role.
      * @return the package name of the app filling the role, {@code null} otherwise}.
      */
