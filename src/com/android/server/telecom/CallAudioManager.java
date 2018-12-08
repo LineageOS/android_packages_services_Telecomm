@@ -727,9 +727,11 @@ public class CallAudioManager extends CallsManagerListenerBase {
             Log.d(this, "Found a disconnected call with tone to play %d.", toneToPlay);
 
             if (toneToPlay != InCallTonePlayer.TONE_INVALID) {
-                mPlayerFactory.createPlayer(toneToPlay).startTone();
-                mCallsManager.onDisconnectedTonePlaying(true);
-                mIsDisconnectedTonePlaying = true;
+                boolean didToneStart = mPlayerFactory.createPlayer(toneToPlay).startTone();
+                if (didToneStart) {
+                    mCallsManager.onDisconnectedTonePlaying(true);
+                    mIsDisconnectedTonePlaying = true;
+                }
             }
         }
     }

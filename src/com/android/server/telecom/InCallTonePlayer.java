@@ -427,11 +427,11 @@ public class InCallTonePlayer extends Thread {
     }
 
     @VisibleForTesting
-    public void startTone() {
+    public boolean startTone() {
         // Skip playing the end call tone if the volume is silenced.
         if (mToneId == TONE_CALL_ENDED && !mAudioManagerAdapter.isVolumeOverZero()) {
             Log.i(this, "startTone: skip end-call tone as device is silenced.");
-            return;
+            return false;
         }
 
         sTonesPlaying++;
@@ -447,6 +447,7 @@ public class InCallTonePlayer extends Thread {
         }
 
         super.start();
+        return true;
     }
 
     @Override
