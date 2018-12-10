@@ -123,6 +123,7 @@ public class RingerTest extends TelecomTestCase {
         when(mockAudioManager.getRingerModeInternal()).thenReturn(AudioManager.RINGER_MODE_NORMAL);
         NotificationManager notificationManager =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        when(mockTonePlayer.startTone()).thenReturn(true);
         when(notificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
         mRingerUnderTest = new Ringer(mockPlayerFactory, mContext, mockSystemSettingsUtil,
                 mockRingtonePlayer, mockRingtoneFactory, mockVibrator, spyVibrationEffectProxy,
