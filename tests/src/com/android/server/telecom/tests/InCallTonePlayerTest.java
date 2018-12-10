@@ -16,6 +16,8 @@
 
 package com.android.server.telecom.tests;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -114,7 +116,7 @@ public class InCallTonePlayerTest extends TelecomTestCase {
     public void testNoEndCallToneInSilence() {
         when(mAudioManagerAdapter.isVolumeOverZero()).thenReturn(false);
         InCallTonePlayer player = mFactory.createPlayer(InCallTonePlayer.TONE_CALL_ENDED);
-        player.startTone();
+        assertFalse(player.startTone());
 
         // Verify we didn't play a tone.
         verify(mCallAudioManager, never()).setIsTonePlaying(eq(true));
@@ -126,7 +128,7 @@ public class InCallTonePlayerTest extends TelecomTestCase {
     public void testEndCallToneWhenNotSilenced() {
         when(mAudioManagerAdapter.isVolumeOverZero()).thenReturn(true);
         InCallTonePlayer player = mFactory.createPlayer(InCallTonePlayer.TONE_CALL_ENDED);
-        player.startTone();
+        assertTrue(player.startTone());
 
         // Verify we did play a tone.
         verify(mCallAudioManager).setIsTonePlaying(eq(true));

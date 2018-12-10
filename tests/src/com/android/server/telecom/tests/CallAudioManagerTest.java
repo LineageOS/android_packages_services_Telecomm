@@ -77,7 +77,7 @@ public class CallAudioManagerTest extends TelecomTestCase {
             InCallTonePlayer mockInCallTonePlayer = mock(InCallTonePlayer.class);
             doAnswer((invocation2) -> {
                 mCallAudioManager.setIsTonePlaying(true);
-                return null;
+                return true;
             }).when(mockInCallTonePlayer).startTone();
             return mockInCallTonePlayer;
         }).when(mPlayerFactory).createPlayer(anyInt());
