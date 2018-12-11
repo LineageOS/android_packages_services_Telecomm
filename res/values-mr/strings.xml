@@ -46,13 +46,13 @@
     <string name="no_vm_number" msgid="4164780423805688336">"व्हॉइसमेल नंबर गहाळ"</string>
     <string name="no_vm_number_msg" msgid="1300729501030053828">"सिम कार्डवर कोणताही व्हॉइसमेल नंबर स्टोअर केला नाही."</string>
     <string name="add_vm_number_str" msgid="4676479471644687453">"नंबर जोडा"</string>
-    <string name="change_default_dialer_dialog_title" msgid="9101655962941740507">"<xliff:g id="NEW_APP">%s</xliff:g> ला तुमचा डीफॉल्ट अॅप बनवायचा?"</string>
+    <string name="change_default_dialer_dialog_title" msgid="9101655962941740507">"<xliff:g id="NEW_APP">%s</xliff:g> ला तुमचा डीफॉल्ट अ‍ॅप बनवायचा?"</string>
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"डीफॉल्ट म्हणून सेट करा"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"रद्द करा"</string>
-    <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> कॉल करण्यात आणि त्याचे सर्व पैलू नियंत्रित करण्‍यात सक्षम असेल. ज्या अॅप्सवर तुमचा विश्वास आहे फक्त त्यांंनाच तुमचा डीफॉल्ट फोन अॅप म्हणून सेट करावे."</string>
-    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"<xliff:g id="NEW_APP">%s</xliff:g> ला तुमचे डीफॉल्ट कॉल स्क्रीनिंग अॅप बनवा?"</string>
+    <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> कॉल करण्यात आणि त्याचे सर्व पैलू नियंत्रित करण्‍यात सक्षम असेल. ज्या अ‍ॅप्सवर तुमचा विश्वास आहे फक्त त्यांंनाच तुमचा डीफॉल्ट फोन अ‍ॅप म्हणून सेट करावे."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"<xliff:g id="NEW_APP">%s</xliff:g> ला तुमचे डीफॉल्ट कॉल स्क्रीनिंग अ‍ॅप बनवा?"</string>
     <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> यापुढे स्क्रीन कॉल करता येणार नाहीत"</string>
-    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> तुमच्या संपर्कांमध्ये नसलेल्या कॉल करणार्‍याविषयी माहिती पाहू शकेल आणि हे कॉल ब्लॉक करू शकेल. फक्त तुमचा विश्वास असलेल्या अॅप्स डीफॉल्ट कॉल स्क्रीनिंग अॅप म्हणून सेट केले जाणे आवश्यक आहे."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> तुमच्या संपर्कांमध्ये नसलेल्या कॉल करणार्‍याविषयी माहिती पाहू शकेल आणि हे कॉल ब्लॉक करू शकेल. फक्त तुमचा विश्वास असलेल्या अ‍ॅप्स डीफॉल्ट कॉल स्क्रीनिंग अ‍ॅप म्हणून सेट केले जाणे आवश्यक आहे."</string>
     <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"डीफॉल्ट सेट करा"</string>
     <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"रद्द करा"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"ब्लॉक केलेले नंबर"</string>
