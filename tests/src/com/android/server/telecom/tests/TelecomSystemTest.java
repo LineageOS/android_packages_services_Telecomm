@@ -568,8 +568,11 @@ public class TelecomSystemTest extends TelecomTestCase {
             ConnectionServiceFixture connectionServiceFixture)
             throws Exception {
 
-        return startOutgoingPhoneCallPendingCreateConnection(number, null,
-                connectionServiceFixture, Process.myUserHandle(), VideoProfile.STATE_AUDIO_ONLY);
+        startOutgoingPhoneCallWaitForBroadcaster(number, null,
+                connectionServiceFixture, Process.myUserHandle(), VideoProfile.STATE_AUDIO_ONLY,
+                false /*isEmergency*/);
+
+        return mInCallServiceFixtureX.mLatestCallId;
     }
 
     protected IdPair outgoingCallPhoneAccountSelected(PhoneAccountHandle phoneAccountHandle,
@@ -694,13 +697,17 @@ public class TelecomSystemTest extends TelecomTestCase {
         // Send the CallerInfo lookup reply.
         mCallerInfoAsyncQueryFactoryFixture.mRequests.forEach(
                 CallerInfoAsyncQueryFactoryFixture.Request::reply);
+        if (phoneAccountHandle != null) {
+            mTelecomSystem.getCallsManager().getLatestPostSelectionProcessingFuture().join();
+        }
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
 
         boolean isSelfManaged = phoneAccountHandle == mPhoneAccountSelfManaged.getAccountHandle();
         if (!hasInCallAdapter && !isSelfManaged) {
-            verify(mInCallServiceFixtureX.getTestDouble())
+            verify(mInCallServiceFixtureX.getTestDouble(), timeout(TEST_TIMEOUT))
                     .setInCallAdapter(
                             any(IInCallAdapter.class));
-            verify(mInCallServiceFixtureY.getTestDouble())
+            verify(mInCallServiceFixtureY.getTestDouble(), timeout(TEST_TIMEOUT))
                     .setInCallAdapter(
                             any(IInCallAdapter.class));
         }
@@ -712,7 +719,13 @@ public class TelecomSystemTest extends TelecomTestCase {
             int videoState) throws Exception {
         startOutgoingPhoneCallWaitForBroadcaster(number,phoneAccountHandle,
                 connectionServiceFixture, initiatingUser, videoState, false /*isEmergency*/);
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
 
+        verifyAndProcessOutgoingCallBroadcast(phoneAccountHandle);
+        return mInCallServiceFixtureX.mLatestCallId;
+    }
+
+    protected void verifyAndProcessOutgoingCallBroadcast(PhoneAccountHandle phoneAccountHandle) {
         ArgumentCaptor<Intent> newOutgoingCallIntent =
                 ArgumentCaptor.forClass(Intent.class);
         ArgumentCaptor<BroadcastReceiver> newOutgoingCallReceiver =
@@ -741,7 +754,6 @@ public class TelecomSystemTest extends TelecomTestCase {
                     newOutgoingCallIntent.getValue());
         }
 
-        return mInCallServiceFixtureX.mLatestCallId;
     }
 
     // When Telecom is redialing due to an error, we need to make sure the number of connections
