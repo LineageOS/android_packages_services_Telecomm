@@ -243,6 +243,10 @@ public class TelecomSystem {
         mMissedCallNotifier = missedCallNotifierImplFactory
                 .makeMissedCallNotifierImpl(mContext, mPhoneAccountRegistrar, defaultDialerCache);
 
+        CallerInfoLookupHelper callerInfoLookupHelper =
+                new CallerInfoLookupHelper(context, callerInfoAsyncQueryFactory,
+                        mContactsAsyncHelper, mLock);
+
         EmergencyCallHelper emergencyCallHelper = new EmergencyCallHelper(mContext,
                 mContext.getResources().getString(R.string.ui_default_package), timeoutsAdapter);
 
@@ -262,8 +266,7 @@ public class TelecomSystem {
         mCallsManager = new CallsManager(
                 mContext,
                 mLock,
-                mContactsAsyncHelper,
-                callerInfoAsyncQueryFactory,
+                callerInfoLookupHelper,
                 mMissedCallNotifier,
                 mPhoneAccountRegistrar,
                 headsetMediaButtonFactory,
