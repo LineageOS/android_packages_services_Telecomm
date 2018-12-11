@@ -864,20 +864,6 @@ public class TelecomSystemTest extends TelecomTestCase {
         //Wait for/Verify call blocking happened asynchronously
         incomingCallAddedLatch.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
 
-        // Do the blocked number check only for non-self-managed calls
-        PhoneAccount pa = mTelecomSystem.getPhoneAccountRegistrar()
-                .getPhoneAccount(phoneAccountHandle, phoneAccountHandle.getUserHandle());
-        if (!pa.hasCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED)) {
-            IContentProvider blockedNumberProvider =
-                    mSpyContext.getContentResolver().acquireProvider(
-                            BlockedNumberContract.AUTHORITY);
-            verify(blockedNumberProvider, timeout(TEST_TIMEOUT)).call(
-                    anyString(),
-                    eq(BlockedNumberContract.SystemContract.METHOD_SHOULD_SYSTEM_BLOCK_NUMBER),
-                    eq(number),
-                    isNotNull(Bundle.class));
-        }
-
         // For the case of incoming calls, Telecom connecting the InCall services and adding the
         // Call is triggered by the async completion of the CallerInfoAsyncQuery. Once the Call
         // is added, future interactions as triggered by the ConnectionService, through the various
