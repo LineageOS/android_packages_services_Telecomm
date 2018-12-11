@@ -338,6 +338,9 @@ public class BasicCallTests extends TelecomSystemTest {
                 mInCallServiceFixtureY.getCall(callId).getState());
         mInCallServiceFixtureX.mInCallAdapter.phoneAccountSelected(callId,
                 mPhoneAccountA0.getAccountHandle(), false);
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
+        verifyAndProcessOutgoingCallBroadcast(mPhoneAccountA0.getAccountHandle());
 
         IdPair ids = outgoingCallPhoneAccountSelected(mPhoneAccountA0.getAccountHandle(),
                 startingNumConnections, startingNumCalls, mConnectionServiceFixtureA);

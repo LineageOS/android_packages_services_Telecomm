@@ -531,7 +531,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     /**
      * Persists the specified parameters and initializes the new instance.
-     *  @param context The context.
+     * @param context The context.
      * @param repository The connection service repository.
      * @param handle The handle to dial.
      * @param gatewayInfo Gateway information to use for the call.
@@ -551,8 +551,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             CallsManager callsManager,
             TelecomSystem.SyncRoot lock,
             ConnectionServiceRepository repository,
-            ContactsAsyncHelper contactsAsyncHelper,
-            CallerInfoAsyncQueryFactory callerInfoAsyncQueryFactory,
             PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
             Uri handle,
             GatewayInfo gatewayInfo,
@@ -587,7 +585,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     /**
      * Persists the specified parameters and initializes the new instance.
-     *  @param context The context.
+     * @param context The context.
      * @param repository The connection service repository.
      * @param handle The handle to dial.
      * @param gatewayInfo Gateway information to use for the call.
@@ -609,8 +607,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             CallsManager callsManager,
             TelecomSystem.SyncRoot lock,
             ConnectionServiceRepository repository,
-            ContactsAsyncHelper contactsAsyncHelper,
-            CallerInfoAsyncQueryFactory callerInfoAsyncQueryFactory,
             PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
             Uri handle,
             GatewayInfo gatewayInfo,
@@ -622,8 +618,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             long connectTimeMillis,
             long connectElapsedTimeMillis,
             ClockProxy clockProxy) {
-        this(callId, context, callsManager, lock, repository, contactsAsyncHelper,
-                callerInfoAsyncQueryFactory, phoneNumberUtilsAdapter, handle, gatewayInfo,
+        this(callId, context, callsManager, lock, repository,
+                phoneNumberUtilsAdapter, handle, gatewayInfo,
                 connectionManagerPhoneAccountHandle, targetPhoneAccountHandle, callDirection,
                 shouldAttachToExistingConnection, isConference, clockProxy);
 
