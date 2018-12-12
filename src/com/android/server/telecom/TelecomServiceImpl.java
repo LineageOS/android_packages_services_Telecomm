@@ -1669,6 +1669,28 @@ public class TelecomServiceImpl {
         }
 
         @Override
+        public void setTestDefaultCallRedirectionApp(String packageName) {
+            try {
+                Log.startSession("TSI.sTDCRA");
+                enforceModifyPermission();
+                if (!Build.IS_USERDEBUG) {
+                    throw new SecurityException("Test-only API.");
+                }
+                synchronized (mLock) {
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        mCallsManager.getRoleManagerAdapter().setTestDefaultCallRedirectionApp(
+                                packageName);
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        @Override
         public void setTestDefaultCallScreeningApp(String packageName) {
             try {
                 Log.startSession("TSI.sTDCSA");
