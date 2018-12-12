@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
 
 public class RoleManagerAdapterImpl implements RoleManagerAdapter {
     // TODO: replace with actual role manager const.
+    private static final String ROLE_CALL_REDIRECTION = "android.app.role.PROXY_CALLING_APP";
+    // TODO: replace with actual role manager const.
     private static final String ROLE_CAR_MODE_DIALER = "android.app.role.ROLE_CAR_MODE_DIALER";
     // TODO: replace with actual role manager const.
     private static final String ROLE_CALL_SCREENING = "android.app.role.CALL_SCREENING";
@@ -34,6 +36,7 @@ public class RoleManagerAdapterImpl implements RoleManagerAdapter {
     private static final String ROLE_CALL_COMPANION_APP =
             "android.app.role.ROLE_CALL_COMPANION_APP";
 
+    private String mOverrideDefaultCallRedirectionApp = null;
     private String mOverrideDefaultCallScreeningApp = null;
     private String mOverrideDefaultCarModeApp = null;
     private List<String> mOverrideCallCompanionApps = new ArrayList<>();
@@ -42,6 +45,19 @@ public class RoleManagerAdapterImpl implements RoleManagerAdapter {
 
     public RoleManagerAdapterImpl(RoleManager roleManager) {
         mRoleManager = roleManager;
+    }
+
+    @Override
+    public String getDefaultCallRedirectionApp() {
+        if (mOverrideDefaultCallRedirectionApp != null) {
+            return mOverrideDefaultCallRedirectionApp;
+        }
+        return getRoleManagerCallRedirectionApp();
+    }
+
+    @Override
+    public void setTestDefaultCallRedirectionApp(String packageName) {
+        mOverrideDefaultCallRedirectionApp = packageName;
     }
 
     @Override
@@ -91,6 +107,11 @@ public class RoleManagerAdapterImpl implements RoleManagerAdapter {
         mCurrentUserHandle = currentUserHandle;
     }
 
+    private String getRoleManagerCallRedirectionApp() {
+        // TODO: Link in RoleManager
+        return null;
+    }
+
     private String getRoleManagerCallScreeningApp() {
         List<String> roleHolders = mRoleManager.getRoleHoldersAsUser(ROLE_CALL_SCREENING,
                 mCurrentUserHandle);
@@ -119,6 +140,15 @@ public class RoleManagerAdapterImpl implements RoleManagerAdapter {
      * @param pw The {@code IndentingPrintWriter} to write the state to.
      */
     public void dump(IndentingPrintWriter pw) {
+        pw.print("DefaultCallRedirectionApp: ");
+        if (mOverrideDefaultCallRedirectionApp != null) {
+            pw.print("(override ");
+            pw.print(mOverrideDefaultCallRedirectionApp);
+            pw.print(") ");
+            pw.print(getRoleManagerCallRedirectionApp());
+        }
+        pw.println();
+
         pw.print("DefaultCallScreeningApp: ");
         if (mOverrideDefaultCallScreeningApp != null) {
             pw.print("(override ");
