@@ -35,8 +35,10 @@ import static org.mockito.Mockito.when;
 import android.content.ComponentName;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Process;
 import android.os.SystemClock;
 import android.telecom.Connection;
+import android.telecom.Log;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
@@ -44,6 +46,8 @@ import android.telecom.VideoProfile;
 import android.telephony.TelephonyManager;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
+
+import com.android.internal.telephony.CallerInfo;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallAudioManager;
@@ -95,7 +99,9 @@ import org.mockito.stubbing.Answer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RunWith(JUnit4.class)
 public class CallsManagerTest extends TelecomTestCase {
@@ -122,6 +128,13 @@ public class CallsManagerTest extends TelecomTestCase {
             .setIsEnabled(true)
             .build();
     private static final Uri TEST_ADDRESS = Uri.parse("tel:555-1212");
+    private static final Uri TEST_ADDRESS2 = Uri.parse("tel:555-1213");
+    private static final Uri TEST_ADDRESS3 = Uri.parse("tel:555-1214");
+    private static final Map<Uri, PhoneAccountHandle> CONTACT_PREFERRED_ACCOUNT =
+            new HashMap<Uri, PhoneAccountHandle>() {{
+                put(TEST_ADDRESS2, SIM_1_HANDLE);
+                put(TEST_ADDRESS3, SIM_2_HANDLE);
+    }};
 
     private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
     @Mock private CallerInfoLookupHelper mCallerInfoLookupHelper;
@@ -272,7 +285,13 @@ public class CallsManagerTest extends TelecomTestCase {
         doAnswer(invocation -> {
             Uri handle = invocation.getArgument(0);
             CallerInfoLookupHelper.OnQueryCompleteListener listener = invocation.getArgument(1);
-            listener.onCallerInfoQueryComplete(handle, null);
+            CallerInfo info = new CallerInfo();
+            if (CONTACT_PREFERRED_ACCOUNT.get(handle) != null) {
+                PhoneAccountHandle pah = CONTACT_PREFERRED_ACCOUNT.get(handle);
+                info.preferredPhoneAccountComponent = pah.getComponentName();
+                info.preferredPhoneAccountId = pah.getId();
+            }
+            listener.onCallerInfoQueryComplete(handle, info);
             return null;
         }).when(mCallerInfoLookupHelper).startLookup(any(Uri.class),
                 any(CallerInfoLookupHelper.OnQueryCompleteListener.class));
@@ -411,6 +430,27 @@ public class CallsManagerTest extends TelecomTestCase {
 
         assertEquals(1, accounts.size());
         assertTrue(accounts.contains(SIM_2_HANDLE));
+    }
+
+    /**
+     * Tests that we will use the provided target phone account if it exists.
+     * @throws Exception
+     */
+    @MediumTest
+    @Test
+    public void testUseContactSpecificAcct() throws Exception {
+        setupCallerInfoLookupHelper();
+        when(mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(any(), any())).thenReturn(
+                null);
+        when(mPhoneAccountRegistrar.getCallCapablePhoneAccounts(any(), anyBoolean(),
+                any(), anyInt())).thenReturn(
+                new ArrayList<>(Arrays.asList(SIM_1_HANDLE, SIM_2_HANDLE)));
+
+        List<PhoneAccountHandle> accounts = mCallsManager.findOutgoingCallPhoneAccount(
+                null, TEST_ADDRESS2, false /* isVideo */, Process.myUserHandle()).get();
+
+        assertEquals(1, accounts.size());
+        assertTrue(accounts.contains(SIM_1_HANDLE));
     }
 
     /**
