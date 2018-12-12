@@ -332,6 +332,8 @@ public class BasicCallTests extends TelecomSystemTest {
         int startingNumCalls = mInCallServiceFixtureX.mCallById.size();
         String callId = startOutgoingPhoneCallWithNoPhoneAccount("650-555-1212",
                 mConnectionServiceFixtureA);
+        mTelecomSystem.getCallsManager().getLatestPreAccountSelectionFuture().join();
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         assertEquals(Call.STATE_SELECT_PHONE_ACCOUNT,
                 mInCallServiceFixtureX.getCall(callId).getState());
         assertEquals(Call.STATE_SELECT_PHONE_ACCOUNT,
