@@ -36,6 +36,7 @@ import android.media.MediaPlayer;
 import android.media.ToneGenerator;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -98,6 +99,8 @@ public class InCallTonePlayerTest extends TelecomTestCase {
     @Mock
     private CallAudioManager mCallAudioManager;
 
+    private InCallTonePlayer mInCallTonePlayer;
+
     @Override
     @Before
     public void setUp() throws Exception {
@@ -109,14 +112,21 @@ public class InCallTonePlayerTest extends TelecomTestCase {
         mFactory = new InCallTonePlayer.Factory(mCallAudioRoutePeripheralAdapter, mLock,
                 mToneGeneratorFactory, mMediaPlayerFactory, mAudioManagerAdapter);
         mFactory.setCallAudioManager(mCallAudioManager);
+        mInCallTonePlayer = mFactory.createPlayer(InCallTonePlayer.TONE_CALL_ENDED);
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+        mInCallTonePlayer.cleanup();
     }
 
     @SmallTest
     @Test
     public void testNoEndCallToneInSilence() {
         when(mAudioManagerAdapter.isVolumeOverZero()).thenReturn(false);
-        InCallTonePlayer player = mFactory.createPlayer(InCallTonePlayer.TONE_CALL_ENDED);
-        assertFalse(player.startTone());
+        assertFalse(mInCallTonePlayer.startTone());
 
         // Verify we didn't play a tone.
         verify(mCallAudioManager, never()).setIsTonePlaying(eq(true));
@@ -127,11 +137,10 @@ public class InCallTonePlayerTest extends TelecomTestCase {
     @Test
     public void testEndCallToneWhenNotSilenced() {
         when(mAudioManagerAdapter.isVolumeOverZero()).thenReturn(true);
-        InCallTonePlayer player = mFactory.createPlayer(InCallTonePlayer.TONE_CALL_ENDED);
-        assertTrue(player.startTone());
+        assertTrue(mInCallTonePlayer.startTone());
 
         // Verify we did play a tone.
-        verify(mCallAudioManager).setIsTonePlaying(eq(true));
         verify(mMediaPlayerFactory, timeout(5000)).get(anyInt(), any());
+        verify(mCallAudioManager).setIsTonePlaying(eq(true));
     }
 }
