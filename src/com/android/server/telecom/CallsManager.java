@@ -266,6 +266,8 @@ public class CallsManager extends Call.ListenerBase
     // Instance variables for testing -- we keep the latest copy of the outgoing call futures
     // here so that we can wait on them in tests
     private CompletableFuture<Call> mLatestPostSelectionProcessingFuture;
+    private CompletableFuture<Pair<Call, List<PhoneAccountSuggestion>>>
+            mLatestPreAccountSelectionFuture;
 
     /**
      * The current telecom call ID.  Used when creating new instances of {@link Call}.  Should
@@ -1374,6 +1376,7 @@ public class CallsManager extends Call.ListenerBase
         // the account suggestion stage and the make room for call stage.
         CompletableFuture<Pair<Call, List<PhoneAccountSuggestion>>> preSelectStage =
                 makeRoomForCall.thenCombine(suggestionFuture, Pair::create);
+        mLatestPreAccountSelectionFuture = preSelectStage;
 
         // This future takes the list of suggested accounts and the call and determines if more
         // user interaction in the form of a phone account selection screen is needed. If so, it
@@ -2462,6 +2465,11 @@ public class CallsManager extends Call.ListenerBase
     @VisibleForTesting
     public CompletableFuture<Call> getLatestPostSelectionProcessingFuture() {
         return mLatestPostSelectionProcessingFuture;
+    }
+
+    @VisibleForTesting
+    public CompletableFuture getLatestPreAccountSelectionFuture() {
+        return mLatestPreAccountSelectionFuture;
     }
 
     /**
