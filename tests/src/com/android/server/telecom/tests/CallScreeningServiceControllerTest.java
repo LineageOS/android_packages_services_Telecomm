@@ -39,6 +39,7 @@ import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.ParcelableCallUtils;
 import com.android.server.telecom.PhoneAccountRegistrar;
+import com.android.server.telecom.RoleManagerAdapter;
 import com.android.server.telecom.TelecomServiceImpl;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.callfiltering.CallFilterResultCallback;
@@ -71,12 +72,21 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
     @Mock Call mCall;
     @Mock private CallFilterResultCallback mCallback;
     @Mock CallsManager mCallsManager;
+    @Mock RoleManagerAdapter mRoleManagerAdapter;
     @Mock CarrierConfigManager mCarrierConfigManager;
     @Mock private TelecomManager mTelecomManager;
     @Mock PackageManager mPackageManager;
     @Mock ParcelableCallUtils.Converter mParcelableCallUtilsConverter;
     @Mock PhoneAccountRegistrar mPhoneAccountRegistrar;
     @Mock private CallerInfoLookupHelper mCallerInfoLookupHelper;
+
+    CallScreeningServiceController.AppLabelProxy mAppLabelProxy =
+            new CallScreeningServiceController.AppLabelProxy() {
+        @Override
+        public String getAppLabel(String packageName) {
+            return APP_NAME;
+        }
+    };
 
     private ResolveInfo mResolveInfo;
     private TelecomServiceImpl.SettingsSecureAdapter mSettingsSecureAdapter =
@@ -88,6 +98,7 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
     private static final String DEFAULT_DIALER_PACKAGE = "com.android.dialer";
     private static final String PKG_NAME = "com.android.services.telecom.tests";
     private static final String CLS_NAME = "CallScreeningService";
+    private static final String APP_NAME = "Screeny McScreenface";
     private static final ComponentName CARRIER_DEFINED_CALL_SCREENING = new ComponentName(
             "com.android.carrier", "com.android.carrier.callscreeningserviceimpl");
     private static final ComponentName DEFAULT_DIALER_CALL_SCREENING = new ComponentName(
@@ -120,6 +131,10 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        when(mRoleManagerAdapter.getCallCompanionApps()).thenReturn(Collections.emptyList());
+        when(mRoleManagerAdapter.getDefaultCallScreeningApp()).thenReturn(null);
+        when(mRoleManagerAdapter.getCarModeDialerApp()).thenReturn(null);
+        when(mCallsManager.getRoleManagerAdapter()).thenReturn(mRoleManagerAdapter);
         when(mCallsManager.getCurrentUserHandle()).thenReturn(UserHandle.CURRENT);
         when(mContext.getPackageManager()).thenReturn(mPackageManager);
         when(mCall.getId()).thenReturn(CALL_ID);
@@ -147,10 +162,12 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testAllAllowCall() {
+        when(mRoleManagerAdapter.getDefaultCallScreeningApp()).thenReturn(
+                USER_CHOSEN_CALL_SCREENING.getPackageName());
         CallScreeningServiceController controller = new CallScreeningServiceController(mContext,
-                mCallsManager,
-                mPhoneAccountRegistrar, mParcelableCallUtilsConverter, mLock,
-                mSettingsSecureAdapter, mCallerInfoLookupHelper);
+                mCallsManager, mPhoneAccountRegistrar,
+                mParcelableCallUtilsConverter, mLock,
+                mSettingsSecureAdapter, mCallerInfoLookupHelper, mAppLabelProxy);
 
         controller.startFilterLookup(mCall, mCallback);
 
@@ -181,7 +198,7 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
         CallScreeningServiceController controller = new CallScreeningServiceController(mContext,
                 mCallsManager,
                 mPhoneAccountRegistrar, mParcelableCallUtilsConverter, mLock,
-                mSettingsSecureAdapter, mCallerInfoLookupHelper);
+                mSettingsSecureAdapter, mCallerInfoLookupHelper, mAppLabelProxy);
 
         controller.startFilterLookup(mCall, mCallback);
 
@@ -207,7 +224,7 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
         CallScreeningServiceController controller = new CallScreeningServiceController(mContext,
                 mCallsManager,
                 mPhoneAccountRegistrar, mParcelableCallUtilsConverter, mLock,
-                mSettingsSecureAdapter, mCallerInfoLookupHelper);
+                mSettingsSecureAdapter, mCallerInfoLookupHelper, mAppLabelProxy);
 
         controller.startFilterLookup(mCall, mCallback);
 
@@ -217,7 +234,7 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
                 false, // shouldAddToCallLog
                 true, // shouldShowNotification
                 CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE,
-                CARRIER_DEFINED_CALL_SCREENING.getPackageName(),
+                APP_NAME,
                 CARRIER_DEFINED_CALL_SCREENING.flattenToString()
         ), CARRIER_DEFINED_CALL_SCREENING.getPackageName());
 
@@ -232,7 +249,7 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
                 false, // shouldAddToCallLog
                 true, // shouldShowNotification
                 CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE, //callBlockReason
-                CARRIER_DEFINED_CALL_SCREENING.getPackageName(), //callScreeningAppName
+                APP_NAME, //callScreeningAppName
                 CARRIER_DEFINED_CALL_SCREENING.flattenToString() //callScreeningComponentName
         )));
     }
@@ -240,10 +257,12 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testDefaultDialerRejectCall() {
+        when(mRoleManagerAdapter.getDefaultCallScreeningApp()).thenReturn(
+                USER_CHOSEN_CALL_SCREENING.getPackageName());
         CallScreeningServiceController controller = new CallScreeningServiceController(mContext,
                 mCallsManager,
                 mPhoneAccountRegistrar, mParcelableCallUtilsConverter, mLock,
-                mSettingsSecureAdapter, mCallerInfoLookupHelper);
+                mSettingsSecureAdapter, mCallerInfoLookupHelper, mAppLabelProxy);
 
         controller.startFilterLookup(mCall, mCallback);
 
@@ -261,7 +280,7 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
                 false, // shouldAddToCallLog
                 true, // shouldShowNotification
                 CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE,
-                DEFAULT_DIALER_CALL_SCREENING.getPackageName(),
+                APP_NAME,
                 DEFAULT_DIALER_CALL_SCREENING.flattenToString()
         ), DEFAULT_DIALER_CALL_SCREENING.getPackageName());
 
@@ -276,7 +295,7 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
                 false, // shouldAddToCallLog
                 true, // shouldShowNotification
                 CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE, //callBlockReason
-                DEFAULT_DIALER_CALL_SCREENING.getPackageName(), //callScreeningAppName
+                APP_NAME, //callScreeningAppName
                 DEFAULT_DIALER_CALL_SCREENING.flattenToString() //callScreeningComponentName
         )));
     }
@@ -284,10 +303,12 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testUserChosenRejectCall() {
+        when(mRoleManagerAdapter.getDefaultCallScreeningApp()).thenReturn(
+                USER_CHOSEN_CALL_SCREENING.getPackageName());
         CallScreeningServiceController controller = new CallScreeningServiceController(mContext,
                 mCallsManager,
                 mPhoneAccountRegistrar, mParcelableCallUtilsConverter, mLock,
-                mSettingsSecureAdapter, mCallerInfoLookupHelper);
+                mSettingsSecureAdapter, mCallerInfoLookupHelper, mAppLabelProxy);
 
         controller.startFilterLookup(mCall, mCallback);
 
@@ -307,7 +328,7 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
                 false, // shouldAddToCallLog
                 true, // shouldShowNotification
                 CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE,
-                USER_CHOSEN_CALL_SCREENING.getPackageName(),
+                APP_NAME,
                 USER_CHOSEN_CALL_SCREENING.flattenToString()
         ), USER_CHOSEN_CALL_SCREENING.getPackageName());
 
@@ -322,7 +343,7 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
                 false, // shouldAddToCallLog
                 true, // shouldShowNotification
                 CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE, //callBlockReason
-                USER_CHOSEN_CALL_SCREENING.getPackageName(), //callScreeningAppName
+                APP_NAME, //callScreeningAppName
                 USER_CHOSEN_CALL_SCREENING.flattenToString() //callScreeningComponentName
         )));
     }

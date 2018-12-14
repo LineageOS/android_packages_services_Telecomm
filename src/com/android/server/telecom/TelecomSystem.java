@@ -196,7 +196,8 @@ public class TelecomSystem {
             IncomingCallNotifier incomingCallNotifier,
             InCallTonePlayer.ToneGeneratorFactory toneGeneratorFactory,
             CallAudioRouteStateMachine.Factory callAudioRouteStateMachineFactory,
-            ClockProxy clockProxy) {
+            ClockProxy clockProxy,
+            RoleManagerAdapter roleManagerAdapter) {
         mContext = context.getApplicationContext();
         LogUtils.initLogging(mContext);
         DefaultDialerManagerAdapter defaultDialerAdapter =
@@ -260,8 +261,6 @@ public class TelecomSystem {
                         defaultDialerCache, timeoutsAdapter, emergencyCallHelper);
             }
         };
-
-        RoleManagerAdapter roleManagerAdapter = new RoleManagerAdapterImpl();
 
         mCallsManager = new CallsManager(
                 mContext,

@@ -18,6 +18,7 @@ package com.android.server.telecom.callfiltering;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -50,6 +51,14 @@ import com.android.server.telecom.TelecomSystem;
 public class CallScreeningServiceController implements IncomingCallFilter.CallFilter,
         CallScreeningServiceFilter.CallScreeningFilterResultCallback {
 
+    /**
+     * Abstracts away dependency on the {@link PackageManager} required to fetch the label for an
+     * app.
+     */
+    public interface AppLabelProxy {
+        String getAppLabel(String packageName);
+    }
+
     private final Context mContext;
     private final CallsManager mCallsManager;
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
@@ -57,6 +66,7 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
     private final TelecomSystem.SyncRoot mTelecomLock;
     private final TelecomServiceImpl.SettingsSecureAdapter mSettingsSecureAdapter;
     private final CallerInfoLookupHelper mCallerInfoLookupHelper;
+    private final AppLabelProxy mAppLabelProxy;
 
     private final int CARRIER_CALL_FILTERING_TIMED_OUT = 2000; // 2 seconds
     private final int CALL_FILTERING_TIMED_OUT = 4500; // 4.5 seconds
@@ -85,7 +95,8 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
             ParcelableCallUtils.Converter parcelableCallUtilsConverter,
             TelecomSystem.SyncRoot lock,
             TelecomServiceImpl.SettingsSecureAdapter settingsSecureAdapter,
-            CallerInfoLookupHelper callerInfoLookupHelper) {
+            CallerInfoLookupHelper callerInfoLookupHelper,
+            AppLabelProxy appLabelProxy) {
         mContext = context;
         mCallsManager = callsManager;
         mPhoneAccountRegistrar = phoneAccountRegistrar;
@@ -93,6 +104,7 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
         mTelecomLock = lock;
         mSettingsSecureAdapter = settingsSecureAdapter;
         mCallerInfoLookupHelper = callerInfoLookupHelper;
+        mAppLabelProxy = appLabelProxy;
     }
 
     @Override
@@ -119,8 +131,8 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
     }
 
     @Override
-    public void onCallScreeningFilterComplete(Call call, CallFilteringResult result, String
-            packageName) {
+    public void onCallScreeningFilterComplete(Call call, CallFilteringResult result,
+            String packageName) {
         synchronized (mTelecomLock) {
             mResult = result.combine(mResult);
             if (!TextUtils.isEmpty(packageName) && packageName.equals(getCarrierPackageName())) {
@@ -154,7 +166,7 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
             bindDefaultDialerAndUserChosenService();
         } else {
             createCallScreeningServiceFilter().startCallScreeningFilter(mCall, this,
-                    carrierPackageName);
+                    carrierPackageName, mAppLabelProxy.getAppLabel(carrierPackageName));
         }
 
         // Carrier filtering timed out
@@ -176,7 +188,8 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
                 mIsDefaultDialerFinished = true;
             } else {
                 createCallScreeningServiceFilter().startCallScreeningFilter(mCall,
-                        CallScreeningServiceController.this, dialerPackageName);
+                        CallScreeningServiceController.this, dialerPackageName,
+                        mAppLabelProxy.getAppLabel(dialerPackageName));
             }
 
             String userChosenPackageName = getUserChosenPackageName();
@@ -184,7 +197,8 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
                 mIsUserChosenFinished = true;
             } else {
                 createCallScreeningServiceFilter().startCallScreeningFilter(mCall,
-                        CallScreeningServiceController.this, userChosenPackageName);
+                        CallScreeningServiceController.this, userChosenPackageName,
+                        mAppLabelProxy.getAppLabel(userChosenPackageName));
             }
 
             if (mIsDefaultDialerFinished && mIsUserChosenFinished) {
@@ -250,15 +264,6 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
     }
 
     private String getUserChosenPackageName() {
-        ComponentName componentName = null;
-        String defaultCallScreeningApplication = mSettingsSecureAdapter.getStringForUser(mContext
-                .getContentResolver(), Settings.Secure.CALL_SCREENING_DEFAULT_COMPONENT,
-                UserHandle.USER_CURRENT);
-
-        if (!TextUtils.isEmpty(defaultCallScreeningApplication)) {
-            componentName = ComponentName.unflattenFromString(defaultCallScreeningApplication);
-        }
-
-        return componentName != null ? componentName.getPackageName() : null;
+        return mCallsManager.getRoleManagerAdapter().getDefaultCallScreeningApp();
     }
 }

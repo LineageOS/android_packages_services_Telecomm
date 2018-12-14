@@ -86,6 +86,7 @@ import com.android.server.telecom.PhoneNumberUtilsAdapter;
 import com.android.server.telecom.PhoneNumberUtilsAdapterImpl;
 import com.android.server.telecom.ProximitySensorManager;
 import com.android.server.telecom.ProximitySensorManagerFactory;
+import com.android.server.telecom.RoleManagerAdapter;
 import com.android.server.telecom.StatusBarNotifier;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
@@ -104,6 +105,7 @@ import org.mockito.stubbing.Answer;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -213,6 +215,7 @@ public class TelecomSystemTest extends TelecomTestCase {
     @Mock AsyncRingtonePlayer mAsyncRingtonePlayer;
     @Mock IncomingCallNotifier mIncomingCallNotifier;
     @Mock ClockProxy mClockProxy;
+    @Mock RoleManagerAdapter mRoleManagerAdapter;
 
     final ComponentName mInCallServiceComponentNameX =
             new ComponentName(
@@ -434,6 +437,9 @@ public class TelecomSystemTest extends TelecomTestCase {
         mClockProxy = mock(ClockProxy.class);
         when(mClockProxy.currentTimeMillis()).thenReturn(TEST_CREATE_TIME);
         when(mClockProxy.elapsedRealtime()).thenReturn(TEST_CREATE_ELAPSED_TIME);
+        when(mRoleManagerAdapter.getCallCompanionApps()).thenReturn(Collections.emptyList());
+        when(mRoleManagerAdapter.getDefaultCallScreeningApp()).thenReturn(null);
+        when(mRoleManagerAdapter.getCarModeDialerApp()).thenReturn(null);
         mTelecomSystem = new TelecomSystem(
                 mComponentContextFixture.getTestDouble(),
                 (context, phoneAccountRegistrar, defaultDialerCache) -> mMissedCallNotifier,
@@ -469,7 +475,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                                 CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED);
                     }
                 },
-                mClockProxy);
+                mClockProxy,
+                mRoleManagerAdapter);
 
         mComponentContextFixture.setTelecomManager(new TelecomManager(
                 mComponentContextFixture.getTestDouble(),
