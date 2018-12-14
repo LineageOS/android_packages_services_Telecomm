@@ -32,6 +32,7 @@ import android.os.SystemClock;
 import android.os.Trace;
 import android.provider.ContactsContract.Contacts;
 import android.telecom.CallAudioState;
+import android.telecom.CallIdentification;
 import android.telecom.Conference;
 import android.telecom.ConnectionService;
 import android.telecom.DisconnectCause;
@@ -141,6 +142,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                                  Bundle extras, boolean isLegacy);
         void onHandoverFailed(Call call, int error);
         void onHandoverComplete(Call call);
+        void onCallIdentificationChanged(Call call);
     }
 
     public abstract static class ListenerBase implements Listener {
@@ -219,6 +221,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         public void onHandoverFailed(Call call, int error) {}
         @Override
         public void onHandoverComplete(Call call) {}
+        @Override
+        public void onCallIdentificationChanged(Call call) {}
     }
 
     private final CallerInfoLookupHelper.OnQueryCompleteListener mCallerInfoQueryListener =
@@ -528,6 +532,11 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * {@link com.android.server.telecom.callfiltering.IncomingCallFilter.CallFilter} modules.
      */
     private boolean mIsUsingCallFiltering = false;
+
+    /**
+     * {@link CallIdentification} provided by a {@link android.telecom.CallScreeningService}.
+     */
+    private CallIdentification mCallIdentification = null;
 
     /**
      * Persists the specified parameters and initializes the new instance.
@@ -3124,5 +3133,28 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     public void setIsUsingCallFiltering(boolean isUsingCallFiltering) {
         mIsUsingCallFiltering = isUsingCallFiltering;
+    }
+
+    /**
+     * Update the {@link CallIdentification} for a call.
+     * @param callIdentification the {@link CallIdentification}.
+     */
+    public void setCallIdentification(CallIdentification callIdentification) {
+        if (callIdentification != null) {
+            Log.addEvent(this, LogUtils.Events.CALL_IDENTIFICATION_SET,
+                    callIdentification.getCallScreeningPackageName());
+        }
+        mCallIdentification = callIdentification;
+
+        for (Listener l : mListeners) {
+            l.onCallIdentificationChanged(this);
+        }
+    }
+
+    /**
+     * @return Call identification returned by a {@link android.telecom.CallScreeningService}.
+     */
+    public CallIdentification getCallIdentification() {
+        return mCallIdentification;
     }
 }

@@ -194,7 +194,8 @@ public class ParcelableCallUtils {
                 conferenceableCallIds,
                 call.getIntentExtras(),
                 call.getExtras(),
-                call.getCreationTimeMillis());
+                call.getCreationTimeMillis(),
+                call.getCallIdentification());
     }
 
     /**
@@ -241,7 +242,8 @@ public class ParcelableCallUtils {
                 Collections.emptyList(), /* conferenceableCallIds */
                 null, /* intentExtras */
                 null, /* callExtras */
-                call.getCreationTimeMillis());
+                call.getCreationTimeMillis(),
+                null /* callIdentification */);
     }
 
     private static int getParcelableState(Call call, boolean supportsExternalCalls) {
