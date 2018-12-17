@@ -41,9 +41,20 @@ public class TestCallScreeningService extends CallScreeningService {
         sTestCallScreeningService = this;
 
         mDetails = callDetails;
-        Intent errorIntent = new Intent(this, CallScreeningActivity.class);
-        errorIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(errorIntent);
+        if (callDetails.getCallDirection() == Call.Details.DIRECTION_INCOMING) {
+            Intent errorIntent = new Intent(this, CallScreeningActivity.class);
+            errorIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(errorIntent);
+        } else {
+            CallIdentification callIdentification = new CallIdentification.Builder()
+                    .setNuisanceConfidence(CallIdentification.CONFIDENCE_NOT_NUISANCE)
+                    .setName("Janes's Laundry")
+                    .setDescription("1255 DirtySocks Lane")
+                    .setDetails("Open 16 hrs")
+                    .setPhoto(Icon.createWithResource(this, R.drawable.ic_android_black_24dp))
+                    .build();
+            provideCallIdentification(mDetails, callIdentification);
+        }
     }
 
     public void blockCall() {
