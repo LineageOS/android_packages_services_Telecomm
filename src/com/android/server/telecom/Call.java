@@ -673,6 +673,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             mCallerInfo.cachedPhotoIcon = null;
             mCallerInfo.cachedPhoto = null;
         }
+        closeRttStreams();
 
         Log.addEvent(this, LogUtils.Events.DESTROYED);
     }
