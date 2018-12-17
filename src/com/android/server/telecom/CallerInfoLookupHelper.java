@@ -27,6 +27,7 @@ import android.telecom.Log;
 import android.telecom.Logging.Runnable;
 import android.telecom.Logging.Session;
 import android.text.TextUtils;
+import android.util.Pair;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telephony.CallerInfo;
@@ -37,6 +38,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class CallerInfoLookupHelper {
     public interface OnQueryCompleteListener {
@@ -75,6 +77,47 @@ public class CallerInfoLookupHelper {
         mContactsAsyncHelper = contactsAsyncHelper;
         mContext = context;
         mLock = lock;
+    }
+
+    /**
+     * Generates a CompletableFuture which performs a contacts lookup asynchronously.  The future
+     * returns a {@link Pair} containing the original handle which is being looked up and any
+     * {@link CallerInfo} which was found.
+     * @param handle
+     * @return {@link CompletableFuture} to perform the contacts lookup.
+     */
+    public CompletableFuture<Pair<Uri, CallerInfo>> startLookup(final Uri handle) {
+        // Create the returned future and
+        final CompletableFuture<Pair<Uri, CallerInfo>> callerInfoFuture = new CompletableFuture<>();
+
+        final String number = handle.getSchemeSpecificPart();
+        if (TextUtils.isEmpty(number)) {
+            // Nothing to do here, just finish.
+            Log.d(CallerInfoLookupHelper.this, "onCallerInfoQueryComplete - no number; end early");
+            callerInfoFuture.complete(new Pair<>(handle, null));
+            return callerInfoFuture;
+        }
+
+        // Setup a query complete listener which will get the results of the contacts lookup.
+        OnQueryCompleteListener listener = new OnQueryCompleteListener() {
+            @Override
+            public void onCallerInfoQueryComplete(Uri handle, CallerInfo info) {
+                Log.d(CallerInfoLookupHelper.this, "onCallerInfoQueryComplete - found info for %s",
+                        Log.piiHandle(handle));
+                // Got something, so complete the future.
+                callerInfoFuture.complete(new Pair<>(handle, info));
+            }
+
+            @Override
+            public void onContactPhotoQueryComplete(Uri handle, CallerInfo info) {
+                // No-op for now; not something this future cares about.
+            }
+        };
+
+        // Start async lookup.
+        startLookup(handle, listener);
+
+        return callerInfoFuture;
     }
 
     public void startLookup(final Uri handle, OnQueryCompleteListener listener) {

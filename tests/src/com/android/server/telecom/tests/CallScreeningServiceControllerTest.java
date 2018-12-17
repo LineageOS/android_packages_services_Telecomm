@@ -35,6 +35,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.internal.telephony.CallerInfo;
 import com.android.server.telecom.Call;
+import com.android.server.telecom.CallScreeningServiceHelper;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.ParcelableCallUtils;
@@ -80,8 +81,8 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
     @Mock PhoneAccountRegistrar mPhoneAccountRegistrar;
     @Mock private CallerInfoLookupHelper mCallerInfoLookupHelper;
 
-    CallScreeningServiceController.AppLabelProxy mAppLabelProxy =
-            new CallScreeningServiceController.AppLabelProxy() {
+    CallScreeningServiceHelper.AppLabelProxy mAppLabelProxy =
+            new CallScreeningServiceHelper.AppLabelProxy() {
         @Override
         public String getAppLabel(String packageName) {
             return APP_NAME;
@@ -292,7 +293,7 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
         verify(mCallback).onCallFilteringComplete(eq(mCall), eq(new CallFilteringResult(
                 false, // shouldAllowCall
                 true, // shouldReject
-                false, // shouldAddToCallLog
+                true, // shouldAddToCallLog (we don't allow services to skip call log)
                 true, // shouldShowNotification
                 CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE, //callBlockReason
                 APP_NAME, //callScreeningAppName
@@ -340,7 +341,7 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
         verify(mCallback).onCallFilteringComplete(eq(mCall), eq(new CallFilteringResult(
                 false, // shouldAllowCall
                 true, // shouldReject
-                false, // shouldAddToCallLog
+                true, // shouldAddToCallLog (we don't allow services to skip call log)
                 true, // shouldShowNotification
                 CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE, //callBlockReason
                 APP_NAME, //callScreeningAppName

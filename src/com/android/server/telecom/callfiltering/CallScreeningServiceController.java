@@ -18,14 +18,11 @@ package com.android.server.telecom.callfiltering;
 
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PersistableBundle;
-import android.os.UserHandle;
 import android.provider.CallLog;
-import android.provider.Settings;
 import android.telecom.Log;
 import android.telecom.Logging.Runnable;
 import android.telecom.TelecomManager;
@@ -34,6 +31,7 @@ import android.text.TextUtils;
 
 import com.android.internal.telephony.CallerInfo;
 import com.android.server.telecom.Call;
+import com.android.server.telecom.CallScreeningServiceHelper;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.LogUtils;
@@ -51,14 +49,6 @@ import com.android.server.telecom.TelecomSystem;
 public class CallScreeningServiceController implements IncomingCallFilter.CallFilter,
         CallScreeningServiceFilter.CallScreeningFilterResultCallback {
 
-    /**
-     * Abstracts away dependency on the {@link PackageManager} required to fetch the label for an
-     * app.
-     */
-    public interface AppLabelProxy {
-        String getAppLabel(String packageName);
-    }
-
     private final Context mContext;
     private final CallsManager mCallsManager;
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
@@ -66,7 +56,7 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
     private final TelecomSystem.SyncRoot mTelecomLock;
     private final TelecomServiceImpl.SettingsSecureAdapter mSettingsSecureAdapter;
     private final CallerInfoLookupHelper mCallerInfoLookupHelper;
-    private final AppLabelProxy mAppLabelProxy;
+    private final CallScreeningServiceHelper.AppLabelProxy mAppLabelProxy;
 
     private final int CARRIER_CALL_FILTERING_TIMED_OUT = 2000; // 2 seconds
     private final int CALL_FILTERING_TIMED_OUT = 4500; // 4.5 seconds
@@ -96,7 +86,7 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
             TelecomSystem.SyncRoot lock,
             TelecomServiceImpl.SettingsSecureAdapter settingsSecureAdapter,
             CallerInfoLookupHelper callerInfoLookupHelper,
-            AppLabelProxy appLabelProxy) {
+            CallScreeningServiceHelper.AppLabelProxy appLabelProxy) {
         mContext = context;
         mCallsManager = callsManager;
         mPhoneAccountRegistrar = phoneAccountRegistrar;
@@ -144,6 +134,8 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
                 }
             } else if (!TextUtils.isEmpty(packageName) &&
                     packageName.equals(getDefaultDialerPackageName())) {
+                // Default dialer defined CallScreeningService cannot skip the call log.
+                mResult.shouldAddToCallLog = true;
                 mIsDefaultDialerFinished = true;
                 if (result.mCallBlockReason == CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE ||
                         mIsUserChosenFinished) {
@@ -151,6 +143,8 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
                 }
             } else if (!TextUtils.isEmpty(packageName) &&
                     packageName.equals(getUserChosenPackageName())) {
+                // User defined CallScreeningService cannot skip the call log.
+                mResult.shouldAddToCallLog = true;
                 mIsUserChosenFinished = true;
                 if (mIsDefaultDialerFinished) {
                     finishCallScreening();
