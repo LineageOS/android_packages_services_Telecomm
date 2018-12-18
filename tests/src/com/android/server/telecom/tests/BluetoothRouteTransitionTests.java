@@ -539,6 +539,18 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                 .build());
 
         result.add(new BluetoothRouteTestParametersBuilder()
+                .setName("Audio disconnect comes with a null device")
+                .setInitialBluetoothState(BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX)
+                .setInitialDevice(DEVICE2)
+                .setConnectedDevices(DEVICE2)
+                .setMessageType(BluetoothRouteManager.BT_AUDIO_LOST)
+                .setMessageDevice(null)
+                .setExpectedListenerUpdates(ListenerUpdate.AUDIO_DISCONNECTED)
+                .setExpectedBluetoothInteraction(NONE)
+                .setExpectedFinalStateName(BluetoothRouteManager.AUDIO_OFF_STATE_NAME)
+                .build());
+
+        result.add(new BluetoothRouteTestParametersBuilder()
                 .setName("Device gets disconnected while pending. No fallback.")
                 .setInitialBluetoothState(BluetoothRouteManager.AUDIO_CONNECTING_STATE_NAME_PREFIX)
                 .setInitialDevice(DEVICE2)
