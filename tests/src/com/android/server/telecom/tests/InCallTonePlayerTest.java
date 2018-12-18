@@ -34,6 +34,7 @@ import com.android.server.telecom.TelecomSystem;
 
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
+import android.test.FlakyTest;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.After;
@@ -133,6 +134,7 @@ public class InCallTonePlayerTest extends TelecomTestCase {
         verify(mMediaPlayerFactory, never()).get(anyInt(), any());
     }
 
+    @FlakyTest
     @SmallTest
     @Test
     public void testEndCallToneWhenNotSilenced() {
