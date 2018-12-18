@@ -170,6 +170,10 @@ public class AsyncRingtonePlayer {
             handleRepeat();
         } else {
             mRingtone.setLooping(true);
+            if (mRingtone.isPlaying()) {
+                Log.d(this, "Ringtone already playing.");
+                return;
+            }
             mRingtone.play();
             Log.i(this, "Play ringtone, looping.");
         }
