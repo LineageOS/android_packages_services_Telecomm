@@ -148,6 +148,7 @@ public class CallsManager extends Call.ListenerBase
         void performAction();
     }
 
+    /** An executor that starts a log session before executing a runnable */
     private class LoggedHandlerExecutor implements Executor {
         private Handler mHandler;
         private String mSessionName;
@@ -1336,15 +1337,8 @@ public class CallsManager extends Call.ListenerBase
                         return CompletableFuture.completedFuture(
                                 Collections.singletonList(suggestion));
                     }
-                    // todo: call onsuggestphoneaccount and bring back the list of suggestions
-                    // from there. For now just map all the accounts to suggest_none
-                    List<PhoneAccountSuggestion> suggestions =
-                            potentialPhoneAccounts.stream().map(phoneAccountHandle ->
-                                    new PhoneAccountSuggestion(phoneAccountHandle,
-                                            PhoneAccountSuggestion.REASON_NONE, false)
-                            ).collect(Collectors.toList());
-
-                    return CompletableFuture.completedFuture(suggestions);
+                    return PhoneAccountSuggestionHelper.bindAndGetSuggestions(mContext,
+                            finalCall.getHandle(), potentialPhoneAccounts);
                 }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.cOCSS"));
 
 
@@ -1430,6 +1424,9 @@ public class CallsManager extends Call.ListenerBase
                             newExtras.putParcelableList(
                                     android.telecom.Call.AVAILABLE_PHONE_ACCOUNTS,
                                     accountsFromSuggestions);
+                            newExtras.putParcelableList(
+                                    android.telecom.Call.EXTRA_SUGGESTED_PHONE_ACCOUNTS,
+                                    accountSuggestions);
                             // Set a future in place so that we can proceed once the dialer replies.
                             mPendingAccountSelection = new CompletableFuture<>();
                             callToPlace.setIntentExtras(newExtras);
