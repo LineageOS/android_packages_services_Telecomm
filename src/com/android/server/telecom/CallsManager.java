@@ -1337,15 +1337,8 @@ public class CallsManager extends Call.ListenerBase
                         return CompletableFuture.completedFuture(
                                 Collections.singletonList(suggestion));
                     }
-                    return CompletableFuture.completedFuture(
-                            potentialPhoneAccounts.stream().map(phoneAccountHandle ->
-                            new PhoneAccountSuggestion(phoneAccountHandle,
-                                    PhoneAccountSuggestion.REASON_NONE, false)
-                    ).collect(Collectors.toList()));
-                    /* TODO -- turn this on after tests/debugging are done
                     return PhoneAccountSuggestionHelper.bindAndGetSuggestions(mContext,
                             finalCall.getHandle(), potentialPhoneAccounts);
-                            */
                 }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.cOCSS"));
 
 
@@ -1431,6 +1424,9 @@ public class CallsManager extends Call.ListenerBase
                             newExtras.putParcelableList(
                                     android.telecom.Call.AVAILABLE_PHONE_ACCOUNTS,
                                     accountsFromSuggestions);
+                            newExtras.putParcelableList(
+                                    android.telecom.Call.EXTRA_SUGGESTED_PHONE_ACCOUNTS,
+                                    accountSuggestions);
                             // Set a future in place so that we can proceed once the dialer replies.
                             mPendingAccountSelection = new CompletableFuture<>();
                             callToPlace.setIntentExtras(newExtras);
