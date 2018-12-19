@@ -1754,6 +1754,23 @@ public class TelecomServiceImpl {
                 Log.endSession();
             }
         }
+
+        @Override
+        public void setTestPhoneAcctSuggestionComponent(String flattenedComponentName) {
+            try {
+                Log.startSession("TSI.sPASA");
+                enforceModifyPermission();
+                if (Binder.getCallingUid() != Process.SHELL_UID
+                        && Binder.getCallingUid() != Process.ROOT_UID) {
+                    throw new SecurityException("Shell-only API.");
+                }
+                synchronized (mLock) {
+                    PhoneAccountSuggestionHelper.setOverrideServiceName(flattenedComponentName);
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
     };
 
     /**
