@@ -1226,7 +1226,8 @@ public class InCallController extends CallsManagerListenerBase {
                         serviceInfo.metaData.getBoolean(
                                 TelecomManager.METADATA_INCLUDE_SELF_MANAGED_CALLS, false);
 
-                int currentType = getInCallServiceType(entry.serviceInfo, packageManager);
+                int currentType = getInCallServiceType(entry.serviceInfo, packageManager,
+                        packageName);
                 if (requestedType == 0 || requestedType == currentType) {
                     if (requestedType == IN_CALL_SERVICE_TYPE_NON_UI) {
                         // We enforce the rule that self-managed calls are not supported by non-ui
@@ -1250,7 +1251,8 @@ public class InCallController extends CallsManagerListenerBase {
     /**
      * Returns the type of InCallService described by the specified serviceInfo.
      */
-    private int getInCallServiceType(ServiceInfo serviceInfo, PackageManager packageManager) {
+    private int getInCallServiceType(ServiceInfo serviceInfo, PackageManager packageManager,
+            String packageName) {
         // Verify that the InCallService requires the BIND_INCALL_SERVICE permission which
         // enforces that only Telecom can bind to it.
         boolean hasServiceBindPermission = serviceInfo.permission != null &&
@@ -1268,12 +1270,12 @@ public class InCallController extends CallsManagerListenerBase {
         }
 
         // Check to see if the service holds permissions or metadata for third party apps.
-        boolean hasInCallServiceUIMetadata = serviceInfo.metaData != null &&
-                serviceInfo.metaData.containsKey(TelecomManager.METADATA_IN_CALL_SERVICE_UI);
+        boolean isUIService = serviceInfo.metaData != null &&
+                serviceInfo.metaData.getBoolean(TelecomManager.METADATA_IN_CALL_SERVICE_UI);
         boolean isThirdPartyCompanionApp = packageManager.checkPermission(
                 Manifest.permission.CALL_COMPANION_APP,
                 serviceInfo.packageName) == PackageManager.PERMISSION_GRANTED &&
-                !hasInCallServiceUIMetadata;
+                !isUIService;
 
         // Check to see if the service is a car-mode UI type by checking that it has the
         // CONTROL_INCALL_EXPERIENCE (to verify it is a system app) and that it has the
@@ -1286,16 +1288,17 @@ public class InCallController extends CallsManagerListenerBase {
                         TelecomManager.METADATA_IN_CALL_SERVICE_CAR_MODE_UI, false) &&
                 (hasControlInCallPermission || isThirdPartyCompanionApp);
         if (isCarModeUIService) {
-            return IN_CALL_SERVICE_TYPE_CAR_MODE_UI;
+            // ThirdPartyInCallService shouldn't be used when role manager hasn't assigned any car
+            // mode role holders, i.e. packageName is null.
+            if (isUIService || (isThirdPartyCompanionApp && packageName != null)) {
+                return IN_CALL_SERVICE_TYPE_CAR_MODE_UI;
+            }
         }
 
         // Check to see that it is the default dialer package
         boolean isDefaultDialerPackage = Objects.equals(serviceInfo.packageName,
                 mDefaultDialerCache.getDefaultDialerApplication(
                     mCallsManager.getCurrentUserHandle().getIdentifier()));
-        boolean isUIService = serviceInfo.metaData != null &&
-                serviceInfo.metaData.getBoolean(
-                        TelecomManager.METADATA_IN_CALL_SERVICE_UI, false);
         if (isDefaultDialerPackage && isUIService) {
             return IN_CALL_SERVICE_TYPE_DIALER_UI;
         }
