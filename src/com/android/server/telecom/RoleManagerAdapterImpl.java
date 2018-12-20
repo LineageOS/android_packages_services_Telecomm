@@ -26,15 +26,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RoleManagerAdapterImpl implements RoleManagerAdapter {
-    // TODO: replace with actual role manager const.
     private static final String ROLE_CALL_REDIRECTION_APP = "android.app.role.PROXY_CALLING_APP";
-    // TODO: replace with actual role manager const.
-    private static final String ROLE_CAR_MODE_DIALER = "android.app.role.ROLE_CAR_MODE_DIALER";
-    // TODO: replace with actual role manager const.
+    private static final String ROLE_CAR_MODE_DIALER = "android.app.role.CAR_MODE_DIALER_APP";
     private static final String ROLE_CALL_SCREENING = "android.app.role.CALL_SCREENING_APP";
-    // TODO: replace with actual role manager const.
     private static final String ROLE_CALL_COMPANION_APP =
-            "android.app.role.ROLE_CALL_COMPANION_APP";
+            "android.app.role.CALL_COMPANION_APP";
 
     private String mOverrideDefaultCallRedirectionApp = null;
     private String mOverrideDefaultCallScreeningApp = null;
@@ -152,7 +148,7 @@ public class RoleManagerAdapterImpl implements RoleManagerAdapter {
         pw.println();
 
         pw.print("DefaultCarModeDialerApp: ");
-        if (mOverrideDefaultCallScreeningApp != null) {
+        if (mOverrideDefaultCarModeApp != null) {
             pw.print("(override ");
             pw.print(mOverrideDefaultCarModeApp);
             pw.print(") ");
@@ -161,7 +157,7 @@ public class RoleManagerAdapterImpl implements RoleManagerAdapter {
         pw.println();
 
         pw.print("DefaultCallCompanionApps: ");
-        if (mOverrideDefaultCallScreeningApp != null) {
+        if (mOverrideCallCompanionApps != null) {
             pw.print("(override ");
             pw.print(mOverrideCallCompanionApps.stream().collect(Collectors.joining(", ")));
             pw.print(") ");
