@@ -21,7 +21,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -34,7 +33,7 @@ import com.android.server.telecom.TelecomSystem;
 
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
-import android.test.FlakyTest;
+import android.support.test.filters.FlakyTest;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.After;

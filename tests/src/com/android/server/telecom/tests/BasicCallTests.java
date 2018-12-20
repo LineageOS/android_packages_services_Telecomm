@@ -1116,6 +1116,7 @@ public class BasicCallTests extends TelecomSystemTest {
      */
     @LargeTest
     @Test
+    @FlakyTest
     public void testUnmuteDuringEmergencyCall() throws Exception {
         // Make an outgoing call and turn ON mute.
         IdPair outgoingCall = startAndMakeActiveOutgoingCall("650-555-1212",
