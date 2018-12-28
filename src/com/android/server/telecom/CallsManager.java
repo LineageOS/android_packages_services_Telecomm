@@ -2443,6 +2443,7 @@ public class CallsManager extends Call.ListenerBase
     public Call getHeldCallByConnectionService(ConnectionServiceWrapper connSvr) {
         Optional<Call> heldCall = mCalls.stream()
                 .filter(call -> call.getConnectionService() == connSvr
+                        && call.getParentCall() == null
                         && call.getState() == CallState.ON_HOLD)
                 .findFirst();
         return heldCall.isPresent() ? heldCall.get() : null;
