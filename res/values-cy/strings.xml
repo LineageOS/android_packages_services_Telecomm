@@ -130,6 +130,7 @@
     <!-- Message to show when a number is blocked. -->
     <string name="blocked_numbers_number_blocked_message"><xliff:g id="blocked_number">%1$s</xliff:g> wedi\'i rwystro</string>
     <!-- Message to show when a number is unblocked. -->
+    <string name="blocked_numbers_number_unblocked_message"><xliff:g id="unblocked_number">%1$s</xliff:g> wedi\'i dadrwystro</string>
     <!-- Message to show when a number cannot be blocked because it is associated with emergency services.. -->
     <string name="blocked_numbers_block_emergency_number_message">Amhosib rhwystro rhif argyfwng.</string>
     <!-- Message to show when a number is already blocked. -->
