@@ -187,7 +187,7 @@ public final class Timeouts {
      */
     public static long getUserDefinedCallRedirectionTimeoutMillis(ContentResolver contentResolver) {
         return get(contentResolver, "user_defined_call_redirection_timeout",
-            3000L /* 3 seconds */);
+            5000L /* 5 seconds */);
     }
 
     /**
@@ -196,6 +196,6 @@ public final class Timeouts {
      * @param contentResolver The content resolved.
      */
     public static long getCarrierCallRedirectionTimeoutMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "carrier_call_redirection_timeout", 3000L /* 3 seconds */);
+        return get(contentResolver, "carrier_call_redirection_timeout", 5000L /* 5 seconds */);
     }
 }
