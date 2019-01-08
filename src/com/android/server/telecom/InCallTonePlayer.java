@@ -16,10 +16,13 @@
 
 package com.android.server.telecom;
 
+import android.annotation.Nullable;
+import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.telecom.Log;
@@ -87,33 +90,51 @@ public class InCallTonePlayer extends Thread {
     public static class MediaPlayerAdapterImpl implements MediaPlayerAdapter {
         private MediaPlayer mMediaPlayer;
 
-        public MediaPlayerAdapterImpl(MediaPlayer mediaPlayer) {
+        /**
+         * Create new media player adapter backed by a real mediaplayer.
+         * Note: Its possible for the mediaplayer to be null if
+         * {@link MediaPlayer#create(Context, Uri)} fails for some reason; in this case we can
+         * continue but not bother playing the audio.
+         * @param mediaPlayer The media player.
+         */
+        public MediaPlayerAdapterImpl(@Nullable MediaPlayer mediaPlayer) {
             mMediaPlayer = mediaPlayer;
         }
 
         @Override
         public void setLooping(boolean isLooping) {
-            mMediaPlayer.setLooping(isLooping);
+            if (mMediaPlayer != null) {
+                mMediaPlayer.setLooping(isLooping);
+            }
         }
 
         @Override
         public void setOnCompletionListener(MediaPlayer.OnCompletionListener listener) {
-            mMediaPlayer.setOnCompletionListener(listener);
+            if (mMediaPlayer != null) {
+                mMediaPlayer.setOnCompletionListener(listener);
+            }
         }
 
         @Override
         public void start() {
-            mMediaPlayer.start();
+            if (mMediaPlayer != null) {
+                mMediaPlayer.start();
+            }
         }
 
         @Override
         public void release() {
-            mMediaPlayer.release();
+            if (mMediaPlayer != null) {
+                mMediaPlayer.release();
+            }
         }
 
         @Override
         public int getDuration() {
-            return mMediaPlayer.getDuration();
+            if (mMediaPlayer != null) {
+                return mMediaPlayer.getDuration();
+            }
+            return 0;
         }
     }
 
