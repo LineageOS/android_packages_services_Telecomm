@@ -472,7 +472,10 @@ public class TelecomServiceImpl {
                                 && extras.getBoolean(PhoneAccount.EXTRA_SKIP_CALL_FILTERING)) {
                             enforceRegisterSkipCallFiltering();
                         }
-                        enforceUserHandleMatchesCaller(account.getAccountHandle());
+                        final int callingUid = Binder.getCallingUid();
+                        if (callingUid != Process.SHELL_UID) {
+                            enforceUserHandleMatchesCaller(account.getAccountHandle());
+                        }
                         final long token = Binder.clearCallingIdentity();
                         try {
                             mPhoneAccountRegistrar.registerPhoneAccount(account);
