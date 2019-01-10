@@ -26,6 +26,7 @@ import android.telecom.TelecomManager;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.Ringtone;
+import android.media.VolumeShaper;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -82,10 +83,16 @@ public class Ringer {
 
     private static final int REPEAT_SIMPLE_VIBRATION_AT = 1;
 
+    private static final int DEFAULT_RAMPING_RINGER_DURATION = 15000;  // 15 seconds
+
+    private static int rampingRingerDuration = -1;
+
     private static final AudioAttributes VIBRATION_ATTRIBUTES = new AudioAttributes.Builder()
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
             .build();
+
+    private static VolumeShaper.Configuration volumeShaperConfig;
 
     /**
      * Used to keep ordering of unanswered incoming calls. There can easily exist multiple incoming
@@ -197,7 +204,26 @@ public class Ringer {
             // call (for the purposes of direct-to-voicemail), the information about custom
             // ringtones should be available by the time this code executes. We can safely
             // request the custom ringtone from the call and expect it to be current.
-            mRingtonePlayer.play(mRingtoneFactory, foregroundCall);
+            if (mSystemSettingsUtil.applyRampingRinger(mContext)
+                || mSystemSettingsUtil.enableRampingRingerFromDeviceConfig()) {
+                Log.i(this, "start ramping ringer.");
+                int previousRampingRingerDuration = rampingRingerDuration;
+                rampingRingerDuration =
+                    mSystemSettingsUtil.getRampingRingerDuration() > 0
+                        ? mSystemSettingsUtil.getRampingRingerDuration()
+                        : DEFAULT_RAMPING_RINGER_DURATION;
+                if ((rampingRingerDuration != previousRampingRingerDuration)
+                    || volumeShaperConfig == null) {
+                    volumeShaperConfig = new VolumeShaper.Configuration.Builder()
+                        .setDuration(rampingRingerDuration)
+                        .setCurve(new float[] {0.f, 1.f}, new float[] {0.f, 1.f})
+                        .setInterpolatorType(VolumeShaper.Configuration.INTERPOLATOR_TYPE_LINEAR)
+                        .build();
+                }
+                mRingtonePlayer.play(mRingtoneFactory, foregroundCall, volumeShaperConfig);
+            } else {
+                mRingtonePlayer.play(mRingtoneFactory, foregroundCall, null);
+            }
             effect = getVibrationEffectForCall(mRingtoneFactory, foregroundCall);
         } else {
             String reason = String.format(

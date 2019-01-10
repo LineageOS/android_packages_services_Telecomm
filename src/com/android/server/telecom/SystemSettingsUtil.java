@@ -17,7 +17,9 @@
 package com.android.server.telecom;
 
 import android.content.Context;
+import android.provider.DeviceConfig;
 import android.provider.Settings;
+import android.telecom.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -46,4 +48,44 @@ public class SystemSettingsUtil {
         return Settings.System.putInt(context.getContentResolver(),
                 Settings.System.DEBUG_ENABLE_ENHANCED_CALL_BLOCKING, enabled ? 1 : 0);
     }
+
+    public boolean applyRampingRinger(Context context) {
+        return Settings.Global.getInt(context.getContentResolver(),
+            Settings.Global.APPLY_RAMPING_RINGER, 0) == 1;
+    }
+
+    public boolean enableRampingRingerFromDeviceConfig() {
+        String enableRampingRinger = DeviceConfig.getProperty(
+            DeviceConfig.Telephony.NAMESPACE,
+            DeviceConfig.Telephony.PROPERTY_ENABLE_RAMPING_RINGER);
+        if (enableRampingRinger == null) {
+            Log.i(this, "DeviceConfig.Telephony.PROPERTY_ENABLE_RAMPING_RINGER is null");
+            return false;
+        }
+        try {
+            return Boolean.valueOf(enableRampingRinger);
+        } catch (Exception e) {
+            Log.wtf(this,
+                "Error paring DeviceConfig.Telephony.PROPERTY_ENABLE_RAMPING_RINGER: " + e);
+            return false;
+        }
+    }
+
+    public int getRampingRingerDuration() {
+        String rampingRingerDuration = DeviceConfig.getProperty(
+            DeviceConfig.Telephony.NAMESPACE,
+            DeviceConfig.Telephony.PROPERTY_RAMPING_RINGER_DURATION);
+        if (rampingRingerDuration == null) {
+            Log.i(this, "DeviceConfig.Telephony.PROPERTY_RAMPING_RINGER_DURATION is null");
+            return -1;
+        }
+        try {
+            return Integer.parseInt(rampingRingerDuration);
+        } catch (Exception e) {
+            Log.wtf(this,
+                "Error paring DeviceConfig.Telephony.PROPERTY_RAMPING_RINGER_DURATION: " + e);
+            return -1;
+        }
+    }
 }
+
