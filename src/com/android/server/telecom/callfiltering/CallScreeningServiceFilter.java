@@ -40,6 +40,7 @@ import android.text.TextUtils;
 import com.android.internal.telecom.ICallScreeningAdapter;
 import com.android.internal.telecom.ICallScreeningService;
 import com.android.server.telecom.Call;
+import com.android.server.telecom.CallScreeningServiceHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.LogUtils;
 import com.android.server.telecom.ParcelableCallUtils;
@@ -220,7 +221,12 @@ public class CallScreeningServiceFilter {
         mCallback = callback;
         mPackageName = packageName;
         mAppName = appName;
-        if (!bindService()) {
+
+        mConnection = new CallScreeningServiceConnection();
+        if (!CallScreeningServiceHelper.bindCallScreeningService(mContext,
+                mCallsManager.getCurrentUserHandle(),
+                mPackageName,
+                mConnection)) {
             Log.i(this, "Could not bind to call screening service");
             finishCallScreening();
         }
@@ -233,58 +239,16 @@ public class CallScreeningServiceFilter {
 
             if (mConnection != null) {
                 // We still need to call unbind even if the service disconnected.
-                mContext.unbindService(mConnection);
+                try {
+                    mContext.unbindService(mConnection);
+                } catch (IllegalArgumentException ie) {
+                    Log.e(this, ie, "Unbind error");
+                }
                 mConnection = null;
             }
             mService = null;
             mHasFinished = true;
         }
-    }
-
-    private boolean bindService() {
-        if (TextUtils.isEmpty(mPackageName)) {
-            Log.i(this, "PackageName is empty. Not performing call screening.");
-            return false;
-        }
-
-        Intent intent = new Intent(CallScreeningService.SERVICE_INTERFACE)
-                .setPackage(mPackageName);
-        List<ResolveInfo> entries = mContext.getPackageManager().queryIntentServicesAsUser(
-                intent, 0, mCallsManager.getCurrentUserHandle().getIdentifier());
-        if (entries.isEmpty()) {
-            Log.i(this, mPackageName + "is no call screening services installed on this device.");
-            return false;
-        }
-
-        ResolveInfo entry = entries.get(0);
-        if (entry.serviceInfo == null) {
-            Log.w(this, mPackageName + " call screening service has invalid service info");
-            return false;
-        }
-
-        if (entry.serviceInfo.permission == null || !entry.serviceInfo.permission.equals(
-                Manifest.permission.BIND_SCREENING_SERVICE)) {
-            Log.w(this, "CallScreeningService must require BIND_SCREENING_SERVICE permission: " +
-                    entry.serviceInfo.packageName);
-            return false;
-        }
-
-        ComponentName componentName =
-                new ComponentName(entry.serviceInfo.packageName, entry.serviceInfo.name);
-        Log.addEvent(mCall, LogUtils.Events.BIND_SCREENING, componentName);
-        intent.setComponent(componentName);
-        ServiceConnection connection = new CallScreeningServiceConnection();
-        if (mContext.bindServiceAsUser(
-                intent,
-                connection,
-                Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE,
-                UserHandle.CURRENT)) {
-            Log.d(this, "bindService, found service, waiting for it to connect");
-            mConnection = connection;
-            return true;
-        }
-
-        return false;
     }
 
     private void onServiceBound(ICallScreeningService service) {

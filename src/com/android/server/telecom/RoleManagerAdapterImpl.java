@@ -26,11 +26,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RoleManagerAdapterImpl implements RoleManagerAdapter {
-    private static final String ROLE_CALL_REDIRECTION_APP = "android.app.role.PROXY_CALLING_APP";
-    private static final String ROLE_CAR_MODE_DIALER = "android.app.role.CAR_MODE_DIALER_APP";
-    private static final String ROLE_CALL_SCREENING = "android.app.role.CALL_SCREENING_APP";
-    private static final String ROLE_CALL_COMPANION_APP =
-            "android.app.role.CALL_COMPANION_APP";
+    private static final String ROLE_CALL_REDIRECTION_APP = RoleManager.ROLE_PROXY_CALLING_APP;
+    private static final String ROLE_CAR_MODE_DIALER = RoleManager.ROLE_CAR_MODE_DIALER_APP;
+    private static final String ROLE_CALL_SCREENING = RoleManager.ROLE_CALL_SCREENING_APP;
+    private static final String ROLE_CALL_COMPANION_APP = RoleManager.ROLE_CALL_COMPANION_APP;
 
     private String mOverrideDefaultCallRedirectionApp = null;
     private String mOverrideDefaultCallScreeningApp = null;

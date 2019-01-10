@@ -16,6 +16,10 @@
 
 package com.android.server.telecom;
 
+import static android.telecom.Call.Details.DIRECTION_INCOMING;
+import static android.telecom.Call.Details.DIRECTION_OUTGOING;
+import static android.telecom.Call.Details.DIRECTION_UNKNOWN;
+
 import android.net.Uri;
 import android.telecom.Connection;
 import android.telecom.DisconnectCause;
@@ -167,6 +171,14 @@ public class ParcelableCallUtils {
         }
 
         ParcelableRttCall rttCall = includeRttCall ? getParcelableRttCall(call) : null;
+        int callDirection;
+        if (call.isIncoming()) {
+            callDirection = DIRECTION_INCOMING;
+        } else if (call.isUnknown()) {
+            callDirection = DIRECTION_UNKNOWN;
+        } else {
+            callDirection = DIRECTION_OUTGOING;
+        }
 
         return new ParcelableCall(
                 call.getId(),
@@ -195,7 +207,8 @@ public class ParcelableCallUtils {
                 call.getIntentExtras(),
                 call.getExtras(),
                 call.getCreationTimeMillis(),
-                call.getCallIdentification());
+                call.getCallIdentification(),
+                callDirection);
     }
 
     /**
@@ -203,7 +216,7 @@ public class ParcelableCallUtils {
      * {@link android.telecom.CallScreeningService}.  We ONLY expose the following:
      * <ul>
      *     <li>Call Id (not exposed to public, but needed to associated calls)</li>
-     *     <li>Call state</li>
+     *     <li>Call directoin</li>
      *     <li>Creation time</li>
      *     <li>Connection time</li>
      *     <li>Handle (phone number)</li>
@@ -216,6 +229,14 @@ public class ParcelableCallUtils {
     public static ParcelableCall toParcelableCallForScreening(Call call) {
         Uri handle = call.getHandlePresentation() == TelecomManager.PRESENTATION_ALLOWED ?
                 call.getHandle() : null;
+        int callDirection;
+        if (call.isIncoming()) {
+            callDirection = DIRECTION_INCOMING;
+        } else if (call.isUnknown()) {
+            callDirection = DIRECTION_UNKNOWN;
+        } else {
+            callDirection = DIRECTION_OUTGOING;
+        }
         return new ParcelableCall(
                 call.getId(),
                 getParcelableState(call, false /* supportsExternalCalls */),
@@ -243,7 +264,8 @@ public class ParcelableCallUtils {
                 null, /* intentExtras */
                 null, /* callExtras */
                 call.getCreationTimeMillis(),
-                null /* callIdentification */);
+                null /* callIdentification */,
+                callDirection);
     }
 
     private static int getParcelableState(Call call, boolean supportsExternalCalls) {
