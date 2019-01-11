@@ -31,6 +31,9 @@ import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.nano.TelecomLogClass;
 
 import java.io.PrintWriter;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,6 +42,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
 
 import static android.telecom.ParcelableCallAnalytics.AnalyticsEvent;
@@ -578,8 +582,11 @@ public class Analytics {
     public static final long MILLIS_IN_1_SECOND = ParcelableCallAnalytics.MILLIS_IN_1_SECOND;
 
     public static final int MAX_NUM_CALLS_TO_STORE = 100;
+    public static final int MAX_NUM_DUMP_TIMES_TO_STORE = 100;
 
     private static final Object sLock = new Object(); // Coarse lock for all of analytics
+    private static final LinkedBlockingDeque<Long> sDumpTimes =
+            new LinkedBlockingDeque<>(MAX_NUM_DUMP_TIMES_TO_STORE);
     private static final Map<String, CallInfoImpl> sCallIdToInfo = new HashMap<>();
     private static final LinkedList<String> sActiveCallIds = new LinkedList<>();
     private static final List<SessionTiming> sSessionTimings = new LinkedList<>();
@@ -625,6 +632,7 @@ public class Analytics {
         TelecomLogClass.TelecomLog result = new TelecomLogClass.TelecomLog();
 
         synchronized (sLock) {
+            noteDumpTime();
             result.callLogs = sCallIdToInfo.values().stream()
                     .map(CallInfoImpl::toProto)
                     .toArray(TelecomLogClass.CallLog[]::new);
@@ -680,12 +688,29 @@ public class Analytics {
                     .forEach(e -> writer.printf("%s: %.2f\n",
                             sSessionIdToLogSession.get(e.getKey()), e.getValue()));
             writer.println("Hardware Version: " + SystemProperties.get("ro.boot.revision", ""));
+            writer.println("Past analytics dumps: ");
+            writer.increaseIndent();
+            for (long time : sDumpTimes) {
+                writer.println(Instant.ofEpochMilli(time).atZone(ZoneOffset.UTC));
+            }
+            writer.decreaseIndent();
         }
     }
 
     public static void reset() {
         synchronized (sLock) {
             sCallIdToInfo.clear();
+        }
+    }
+
+    public static void noteDumpTime() {
+        if (sDumpTimes.remainingCapacity() == 0) {
+            sDumpTimes.removeLast();
+        }
+        try {
+            sDumpTimes.addFirst(System.currentTimeMillis());
+        } catch (IllegalStateException e) {
+            Log.w(TAG, "Failed to note dump time -- full");
         }
     }
 
