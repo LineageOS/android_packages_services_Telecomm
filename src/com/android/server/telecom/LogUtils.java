@@ -111,6 +111,7 @@ public class LogUtils {
         public static final String CONTROLLER_SCREENING_COMPLETED =
                 "CONTROLLER_SCREENING_COMPLETED";
         public static final String SCREENING_COMPLETED = "SCREENING_COMPLETED";
+        public static final String CALL_IDENTIFICATION_SET = "CALL_IDENTIFICATION_SET";
         public static final String BLOCK_CHECK_INITIATED = "BLOCK_CHECK_INITIATED";
         public static final String BLOCK_CHECK_FINISHED = "BLOCK_CHECK_FINISHED";
         public static final String DIRECT_TO_VM_INITIATED = "DIRECT_TO_VM_INITIATED";
