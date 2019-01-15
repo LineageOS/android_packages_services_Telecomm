@@ -27,11 +27,11 @@ import java.util.stream.Collectors;
 
 public class RoleManagerAdapterImpl implements RoleManagerAdapter {
     // TODO: replace with actual role manager const.
-    private static final String ROLE_CALL_REDIRECTION = "android.app.role.PROXY_CALLING_APP";
+    private static final String ROLE_CALL_REDIRECTION_APP = "android.app.role.PROXY_CALLING_APP";
     // TODO: replace with actual role manager const.
     private static final String ROLE_CAR_MODE_DIALER = "android.app.role.ROLE_CAR_MODE_DIALER";
     // TODO: replace with actual role manager const.
-    private static final String ROLE_CALL_SCREENING = "android.app.role.CALL_SCREENING";
+    private static final String ROLE_CALL_SCREENING = "android.app.role.CALL_SCREENING_APP";
     // TODO: replace with actual role manager const.
     private static final String ROLE_CALL_COMPANION_APP =
             "android.app.role.ROLE_CALL_COMPANION_APP";
@@ -105,11 +105,6 @@ public class RoleManagerAdapterImpl implements RoleManagerAdapter {
         mCurrentUserHandle = currentUserHandle;
     }
 
-    private String getRoleManagerCallRedirectionApp() {
-        // TODO: Link in RoleManager
-        return null;
-    }
-
     private String getRoleManagerCallScreeningApp() {
         // TODO: Link in RoleManager
         return null;
@@ -123,6 +118,11 @@ public class RoleManagerAdapterImpl implements RoleManagerAdapter {
     private List<String> getRoleManagerCallCompanionApps() {
         // TODO: Link in RoleManager
         return Collections.emptyList();
+    }
+
+    private String getRoleManagerCallRedirectionApp() {
+        // TODO: Link in RoleManager
+        return null;
     }
 
     /**
