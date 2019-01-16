@@ -35,10 +35,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.location.Country;
+import android.location.CountryDetector;
 import android.net.Uri;
+import android.os.Process;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
+import android.telephony.PhoneNumberUtils;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -115,6 +120,7 @@ public class TelecomSystem {
     private final TelecomServiceImpl mTelecomServiceImpl;
     private final ContactsAsyncHelper mContactsAsyncHelper;
     private final DialerCodeReceiver mDialerCodeReceiver;
+    private final NuisanceCallReporter mNuisanceCallReporter;
 
     private boolean mIsBootComplete = false;
 
@@ -128,6 +134,7 @@ public class TelecomSystem {
                     UserHandle currentUserHandle = new UserHandle(userHandleId);
                     mPhoneAccountRegistrar.setCurrentUserHandle(currentUserHandle);
                     mCallsManager.onUserSwitch(currentUserHandle);
+                    mNuisanceCallReporter.setCurrentUserHandle(currentUserHandle);
                 }
             } finally {
                 Log.endSession();
@@ -326,6 +333,41 @@ public class TelecomSystem {
         mContext.registerReceiver(mDialerCodeReceiver, DIALER_SECRET_CODE_FILTER,
                 Manifest.permission.CONTROL_INCALL_EXPERIENCE, null);
 
+        mNuisanceCallReporter = new NuisanceCallReporter(mContext,
+                new NuisanceCallReporter.PhoneNumberUtilsProxy() {
+                    @Override
+                    public String formatNumberToE164(String number) {
+                        final CountryDetector detector =
+                                (CountryDetector) context.getSystemService(
+                                        Context.COUNTRY_DETECTOR);
+                        if (detector != null) {
+                            final Country country = detector.detectCountry();
+                            if (country != null) {
+                                String countryIso = country.getCountryIso();
+                                return PhoneNumberUtils.formatNumberToE164(number,
+                                        countryIso);
+                            }
+                        }
+                        return number;
+                    }
+                },
+                new NuisanceCallReporter.PhoneAccountRegistrarProxy() {
+                    @Override
+                    public boolean isSelfManagedConnectionService(
+                            PhoneAccountHandle handle) {
+                        // Sync access to the PhoneAccountRegistrar on Telecom lock.
+                        synchronized (mLock) {
+                            return mPhoneAccountRegistrar.isSelfManagedPhoneAccount(handle);
+                        }
+                    }
+                });
+
+        // There is no USER_SWITCHED broadcast for user 0, handle it here explicitly.
+        final UserManager userManager = UserManager.get(mContext);
+        if (userManager.isPrimaryUser()) {
+            mNuisanceCallReporter.setCurrentUserHandle(Process.myUserHandle());
+        }
+
         mTelecomServiceImpl = new TelecomServiceImpl(
                 mContext, mCallsManager, mPhoneAccountRegistrar,
                 new CallIntentProcessor.AdapterImpl(),
@@ -338,6 +380,7 @@ public class TelecomSystem {
                 defaultDialerCache,
                 new TelecomServiceImpl.SubscriptionManagerAdapterImpl(),
                 new TelecomServiceImpl.SettingsSecureAdapterImpl(),
+                mNuisanceCallReporter,
                 mLock);
         Log.endSession();
     }

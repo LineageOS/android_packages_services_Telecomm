@@ -239,6 +239,13 @@
             android:process="com.android.server.telecom.testapps.SelfMangingCallingApp"
             android:name="com.android.server.telecom.testapps.SelfManagedCallNotificationReceiver" />
 
+        <receiver android:exported="true"
+                  android:name="com.android.server.telecom.testapps.NuisanceReportReceiver">
+            <intent-filter>
+                <action android:name="android.telecom.action.NUISANCE_CALL_STATUS_CHANGED" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name=".TestCallScreeningService"
             android:permission="android.permission.BIND_SCREENING_SERVICE">

@@ -51,6 +51,7 @@ import com.android.server.telecom.CallIntentProcessor;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.DefaultDialerCache;
+import com.android.server.telecom.NuisanceCallReporter;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.TelecomServiceImpl;
 import com.android.server.telecom.TelecomSystem;
@@ -166,6 +167,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     private TelecomServiceImpl.SettingsSecureAdapter mSettingsSecureAdapter =
         spy(new SettingsSecureAdapterFake());
     @Mock private UserCallIntentProcessor mUserCallIntentProcessor;
+    @Mock private NuisanceCallReporter mNuisanceCallReporter;
 
     private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
 
@@ -208,6 +210,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 mDefaultDialerCache,
                 mSubscriptionManagerAdapter,
                 mSettingsSecureAdapter,
+                mNuisanceCallReporter,
                 mLock);
         mTSIBinder = telecomServiceImpl.getBinder();
         mComponentContextFixture.setTelecomManager(mTelecomManager);
