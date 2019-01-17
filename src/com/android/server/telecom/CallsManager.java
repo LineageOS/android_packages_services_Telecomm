@@ -299,6 +299,7 @@ public class CallsManager extends Call.ListenerBase
             new ConcurrentHashMap<CallsManagerListener, Boolean>(16, 0.9f, 1));
     private final HeadsetMediaButton mHeadsetMediaButton;
     private final WiredHeadsetManager mWiredHeadsetManager;
+    private final SystemStateHelper mSystemStateHelper;
     private final BluetoothRouteManager mBluetoothRouteManager;
     private final DockManager mDockManager;
     private final TtyManager mTtyManager;
@@ -436,6 +437,7 @@ public class CallsManager extends Call.ListenerBase
         mMissedCallNotifier = missedCallNotifier;
         StatusBarNotifier statusBarNotifier = new StatusBarNotifier(context, this);
         mWiredHeadsetManager = wiredHeadsetManager;
+        mSystemStateHelper = systemStateHelper;
         mDefaultDialerCache = defaultDialerCache;
         mBluetoothRouteManager = bluetoothManager;
         mDockManager = new DockManager(context);
@@ -1606,6 +1608,57 @@ public class CallsManager extends Call.ListenerBase
         return targetPhoneAccount != null && targetPhoneAccount.isSelfManaged();
     }
 
+    public void onCallRedirectionComplete(Call call, Uri handle,
+                                          PhoneAccountHandle phoneAccountHandle,
+                                          GatewayInfo gatewayInfo, boolean speakerphoneOn,
+                                          int videoState, boolean shouldCancelCall,
+                                          String uiAction) {
+        Log.i(this, "onCallRedirectionComplete for Call %s with handle %s" +
+                        " and phoneAccountHandle %s", call, handle, phoneAccountHandle);
+
+        boolean endEarly = false;
+        String disconnectReason = "";
+
+        if (shouldCancelCall) {
+            Log.w(this, "onCallRedirectionComplete: call is canceled");
+            endEarly = true;
+            disconnectReason = "Canceled from Call Redirection Service";
+            // TODO show UI uiAction is CallRedirectionProcessor#UI_TYPE_USER_DEFINED_TIMEOUT
+        } else if (handle == null) {
+            Log.w(this, "onCallRedirectionComplete: handle is null");
+            endEarly = true;
+            disconnectReason = "Null handle from Call Redirection Service";
+        } else if (phoneAccountHandle == null) {
+            Log.w(this, "onCallRedirectionComplete: phoneAccountHandle is null");
+            endEarly = true;
+            disconnectReason = "Null phoneAccountHandle from Call Redirection Service";
+        } else if (mPhoneNumberUtilsAdapter.isPotentialLocalEmergencyNumber(mContext,
+                handle.getSchemeSpecificPart())) {
+            Log.w(this, "onCallRedirectionComplete: emergency number %s is redirected from Call"
+                    + " Redirection Service", handle.getSchemeSpecificPart());
+            endEarly = true;
+            disconnectReason = "Emergency number is redirected from Call Redirection Service";
+        }
+        if (endEarly) {
+            if (call != null) {
+                call.disconnect(disconnectReason);
+            }
+            return;
+        }
+
+        // If this call is already disconnected then we have nothing more to do.
+        if (call.isDisconnected()) {
+            Log.w(this, "onCallRedirectionComplete: Call has already been disconnected,"
+                    + " ignore the call redirection %s", call);
+            return;
+        }
+
+        // TODO show UI uiAction is CallRedirectionProcessor#UI_TYPE_USER_DEFINED_ASK_FOR_CONFIRM
+
+        call.setTargetPhoneAccount(phoneAccountHandle);
+        placeOutgoingCall(call, handle, gatewayInfo, speakerphoneOn, videoState);
+    }
+
     /**
      * Attempts to issue/connect the specified call.
      *
@@ -2590,7 +2643,8 @@ public class CallsManager extends Call.ListenerBase
      *
      * @return The {@link PhoneAccountRegistrar}.
      */
-    PhoneAccountRegistrar getPhoneAccountRegistrar() {
+    @VisibleForTesting
+    public PhoneAccountRegistrar getPhoneAccountRegistrar() {
         return mPhoneAccountRegistrar;
     }
 
@@ -3385,6 +3439,14 @@ public class CallsManager extends Call.ListenerBase
 
     public TelecomSystem.SyncRoot getLock() {
         return mLock;
+    }
+
+    public Timeouts.Adapter getTimeoutsAdapter() {
+        return mTimeoutsAdapter;
+    }
+
+    public SystemStateHelper getSystemStateHelper() {
+        return mSystemStateHelper;
     }
 
     private void reloadMissedCallsOfUser(UserHandle userHandle) {
