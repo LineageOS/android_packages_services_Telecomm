@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.UserHandle;
 import android.telecom.GatewayInfo;
+import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.telephony.DisconnectCause;
@@ -36,8 +37,10 @@ import android.test.suitebuilder.annotation.SmallTest;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.NewOutgoingCallIntentBroadcaster;
+import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.PhoneNumberUtilsAdapter;
 import com.android.server.telecom.PhoneNumberUtilsAdapterImpl;
+import com.android.server.telecom.SystemStateHelper;
 import com.android.server.telecom.TelecomSystem;
 
 import org.junit.Before;
@@ -78,6 +81,9 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
 
     @Mock private CallsManager mCallsManager;
     @Mock private Call mCall;
+    @Mock private SystemStateHelper mSystemStateHelper;
+    @Mock private UserHandle mUserHandle;
+    @Mock private PhoneAccountRegistrar mPhoneAccountRegistrar;
 
     private PhoneNumberUtilsAdapter mPhoneNumberUtilsAdapterSpy;
 
@@ -89,6 +95,12 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
         mPhoneNumberUtilsAdapterSpy = spy(new PhoneNumberUtilsAdapterImpl());
         when(mCall.getInitiatingUser()).thenReturn(UserHandle.CURRENT);
         when(mCallsManager.getLock()).thenReturn(new TelecomSystem.SyncRoot() { });
+        when(mCallsManager.getSystemStateHelper()).thenReturn(mSystemStateHelper);
+        when(mCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
+        when(mCallsManager.getPhoneAccountRegistrar()).thenReturn(mPhoneAccountRegistrar);
+        when(mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(
+                any(PhoneAccountHandle.class))).thenReturn(-1);
+        when(mSystemStateHelper.isCarMode()).thenReturn(false);
     }
 
     @SmallTest
