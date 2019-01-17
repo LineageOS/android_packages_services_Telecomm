@@ -21,6 +21,8 @@ import android.content.Intent;
 import android.os.UserHandle;
 import android.telecom.Log;
 
+import android.telecom.VideoProfile;
+import com.android.server.telecom.ui.CallRedirectionConfirmDialogActivity;
 import com.android.server.telecom.ui.ConfirmCallDialogActivity;
 
 public final class TelecomBroadcastIntentProcessor {
@@ -63,6 +65,20 @@ public final class TelecomBroadcastIntentProcessor {
      */
     public static final String ACTION_CANCEL_CALL =
             "com.android.server.telecom.CANCEL_CALL";
+
+    /**
+     * The action used to proceed with a redirected call being confirmed via
+     * {@link com.android.server.telecom.ui.CallRedirectionConfirmDialogActivity}.
+     */
+    public static final String ACTION_PLACE_REDIRECTED_CALL =
+            "com.android.server.telecom.PROCEED_WITH_REDIRECTED_CALL";
+
+    /**
+     * The action used to cancel a redirected call being confirmed via
+     * {@link com.android.server.telecom.ui.CallRedirectionConfirmDialogActivity}.
+     */
+    public static final String ACTION_CANCEL_REDIRECTED_CALL =
+            "com.android.server.telecom.CANCEL_REDIRECTED_CALL";
 
     public static final String EXTRA_USERHANDLE = "userhandle";
 
@@ -152,6 +168,25 @@ public final class TelecomBroadcastIntentProcessor {
                 String callId = intent.getStringExtra(
                         ConfirmCallDialogActivity.EXTRA_OUTGOING_CALL_ID);
                 mCallsManager.cancelPendingCall(callId);
+            } finally {
+                Log.endSession();
+            }
+        } else if (ACTION_PLACE_REDIRECTED_CALL.equals(action)) {
+            Log.startSession("TBIP.aPRC");
+            try {
+                mCallsManager.placeRedirectedOutgoingCallAfterUserInteraction(
+                        intent.getStringExtra(CallRedirectionConfirmDialogActivity
+                                .EXTRA_REDIRECTION_OUTGOING_CALL_ID));
+            } finally {
+                Log.endSession();
+            }
+        } else if (ACTION_CANCEL_REDIRECTED_CALL.equals(action)) {
+            Log.startSession("TBIP.aCRC");
+            try {
+                mCallsManager.cancelRedirectedOutgoingCallAfterUserInteraction(
+                        intent.getStringExtra(CallRedirectionConfirmDialogActivity
+                                .EXTRA_REDIRECTION_OUTGOING_CALL_ID)
+                );
             } finally {
                 Log.endSession();
             }

@@ -189,7 +189,7 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                     return SystemClock.elapsedRealtime();
                                 }
                             },
-                            new RoleManagerAdapterImpl(
+                            new RoleManagerAdapterImpl(context,
                                     (RoleManager) context.getSystemService(Context.ROLE_SERVICE))));
         }
         if (BluetoothAdapter.getDefaultAdapter() != null) {
