@@ -90,6 +90,10 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"છૂટેલા કૉલ"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"કૉલ બ્લૉક કરી રહ્યાં છીએ"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"આ કૉલ કરવાથી તમારો <xliff:g id="OTHER_APP">%1$s</xliff:g> કૉલ સમાપ્ત થઈ જશે."</string>
+    <!-- no translation found for alert_redirect_outgoing_call (1267579501303765238) -->
+    <skip />
+    <!-- no translation found for alert_redirect_outgoing_call_timeout (7268954889515301158) -->
+    <skip />
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"કૉલ બ્લૉક કરી રહ્યાં છીએ"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"સંપર્કોમાં આ નંબર નથી"</string>
     <string name="phone_settings_number_not_in_contact_summary_txt" msgid="9043147855140079119">"તમારા સંપર્કોમાં જે નંબર સૂચિબદ્ધ ન હોય તેને બ્લૉક કરો"</string>
