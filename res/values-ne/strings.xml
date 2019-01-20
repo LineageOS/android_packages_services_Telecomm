@@ -41,7 +41,7 @@
     <string name="enable_account_preference_title" msgid="2021848090086481720">"कलिङ खाताहरू"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="6872406278300131364">"आपतकालीन कलहरूलाई मात्र अनुमति दिइएको छ।"</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="1996571596464271228">"यो अनुप्रयोगले फोनको अनुमति बिना बहिर्गमन कलहरू गर्न सक्दैन।"</string>
-    <string name="outgoing_call_error_no_phone_number_supplied" msgid="1940125199802007505">"एक कल गर्नको लागि, एक वैध नम्बर प्रविष्ट गर्नुहोस्।"</string>
+    <string name="outgoing_call_error_no_phone_number_supplied" msgid="1940125199802007505">"एक कल गर्नको लागि, एक वैध नम्बर प्रविष्टि गर्नुहोस्।"</string>
     <string name="duplicate_video_call_not_allowed" msgid="3749211605014548386">"यस समयमा कल थप गर्न सकिँदैन।"</string>
     <string name="no_vm_number" msgid="4164780423805688336">"भ्वाइसमेल नम्बर हराइरहेको छ"</string>
     <string name="no_vm_number_msg" msgid="1300729501030053828">"SIM कार्डमा कुनै पनि भ्वाइसमेल नम्बर भण्डारण भएको छैन।"</string>
@@ -90,6 +90,10 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"छुटेका कलहरू"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"कलमाथि रोक लगाउने सुविधा"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"यो कल गर्नुले तपाईंको <xliff:g id="OTHER_APP">%1$s</xliff:g> कल अन्त्य गर्दछ।"</string>
+    <!-- no translation found for alert_redirect_outgoing_call (1267579501303765238) -->
+    <skip />
+    <!-- no translation found for alert_redirect_outgoing_call_timeout (7268954889515301158) -->
+    <skip />
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"कलमाथि रोक लगाउने सुविधा"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"सम्पर्क सूचीहरूमा नरहेका नम्बरहरू"</string>
     <string name="phone_settings_number_not_in_contact_summary_txt" msgid="9043147855140079119">"आफ्नो सम्पर्क सूचीहरूमा सूचीबद्ध नगरिएका नम्बरहरूमाथि रोक लगाउनुहोस्"</string>

@@ -90,6 +90,10 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"تماس‌های بی‌پاسخ"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"مسدود کردن تماس"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"اگر این تماس را برقرار کنید، تماس <xliff:g id="OTHER_APP">%1$s</xliff:g> شما قطع می‌شود."</string>
+    <!-- no translation found for alert_redirect_outgoing_call (1267579501303765238) -->
+    <skip />
+    <!-- no translation found for alert_redirect_outgoing_call_timeout (7268954889515301158) -->
+    <skip />
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"مسدود کردن تماس"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"شماره‌هایی که در «مخاطبین» نیستند"</string>
     <string name="phone_settings_number_not_in_contact_summary_txt" msgid="9043147855140079119">"مسدود کردن شماره‌هایی که در «مخاطبین» شما نیستند"</string>
