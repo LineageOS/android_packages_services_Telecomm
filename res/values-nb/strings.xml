@@ -90,6 +90,8 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Tapte anrop"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Anropsblokkering"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Samtalen din i <xliff:g id="OTHER_APP">%1$s</xliff:g> avsluttes hvis du foretar dette anropet."</string>
+    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"Tillat <xliff:g id="OTHER_APP">%1$s</xliff:g> å utføre anrop med et annet nummer eller en annen konto."</string>
+    <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"Anrop kan ikke utføres av <xliff:g id="OTHER_APP">%1$s</xliff:g>. Prøv å bruke en annen app for viderekobling av anrop eller ta kontakt med utvikleren for å få hjelp."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Anropsblokkering"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Numre som ikke står i Kontakter"</string>
     <string name="phone_settings_number_not_in_contact_summary_txt" msgid="9043147855140079119">"Blokkér numre som ikke står i kontaktene mine"</string>
