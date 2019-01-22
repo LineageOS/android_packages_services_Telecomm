@@ -990,6 +990,27 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                 Log.endSession();
             }
         }
+
+        @Override
+        public void setConferenceState(String callId, boolean isConference,
+                Session.Info sessionInfo) throws RemoteException {
+            Log.startSession(sessionInfo, "CSW.sCS");
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        call.setConferenceState(isConference);
+                    }
+                }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
+            } finally {
+                Binder.restoreCallingIdentity(token);
+                Log.endSession();
+            }
+        }
     }
 
     private final Adapter mAdapter = new Adapter();

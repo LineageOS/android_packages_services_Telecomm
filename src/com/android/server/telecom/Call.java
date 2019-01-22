@@ -132,6 +132,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         void onConnectionManagerPhoneAccountChanged(Call call);
         void onPhoneAccountChanged(Call call);
         void onConferenceableCallsChanged(Call call);
+        void onConferenceStateChanged(Call call, boolean isConference);
         boolean onCanceledViaNewOutgoingCallBroadcast(Call call, long disconnectionTimeout);
         void onHoldToneRequested(Call call);
         void onConnectionEvent(Call call, String event, Bundle extras);
@@ -200,6 +201,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         public void onPhoneAccountChanged(Call call) {}
         @Override
         public void onConferenceableCallsChanged(Call call) {}
+        @Override
+        public void onConferenceStateChanged(Call call, boolean isConference) {}
         @Override
         public boolean onCanceledViaNewOutgoingCallBroadcast(Call call, long disconnectionTimeout) {
             return false;
@@ -1472,7 +1475,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                         "capable when not supported by the phone account.");
                 connectionCapabilities = removeVideoCapabilities(connectionCapabilities);
             }
-
             int previousCapabilities = mConnectionCapabilities;
             mConnectionCapabilities = connectionCapabilities;
             for (Listener l : mListeners) {
@@ -3104,6 +3106,20 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                                  Bundle extras, boolean isLegacy) {
         for (Listener l : mListeners) {
             l.onHandoverRequested(this, handoverToHandle, videoState, extras, isLegacy);
+        }
+    }
+
+    /**
+     * Sets whether this {@link Call} is a conference or not.
+     * @param isConference
+     */
+    public void setConferenceState(boolean isConference) {
+        mIsConference = isConference;
+        Log.addEvent(this, LogUtils.Events.CONF_STATE_CHANGED, "isConference=" + isConference);
+        // Ultimately CallsManager needs to know so it can update the "add call" state and inform
+        // the UI to update itself.
+        for (Listener l : mListeners) {
+            l.onConferenceStateChanged(this, isConference);
         }
     }
 
