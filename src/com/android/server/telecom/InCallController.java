@@ -972,6 +972,12 @@ public class InCallController extends CallsManagerListenerBase {
         updateCall(call);
     }
 
+    @Override
+    public void onConferenceStateChanged(Call call, boolean isConference) {
+        Log.d(this, "onConferenceStateChanged %s ,isConf=%b", call, isConference);
+        updateCall(call);
+    }
+
     void bringToForeground(boolean showDialpad) {
         if (!mInCallServices.isEmpty()) {
             for (IInCallService inCallService : mInCallServices.values()) {
