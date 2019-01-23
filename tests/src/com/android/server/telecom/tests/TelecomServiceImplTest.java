@@ -22,6 +22,8 @@ import static android.Manifest.permission.MODIFY_PHONE_STATE;
 import static android.Manifest.permission.READ_PHONE_STATE;
 import static android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE;
 
+import android.annotation.MainThread;
+import android.annotation.WorkerThread;
 import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.content.ComponentName;
@@ -271,7 +273,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 makeMultiUserPhoneAccount(TEL_PA_HANDLE_16).build());
 
         PhoneAccountHandle returnedHandle
-                = mTSIBinder.getUserSelectedOutgoingPhoneAccount();
+                = mTSIBinder.getUserSelectedOutgoingPhoneAccount(
+                        TEL_PA_HANDLE_16.getComponentName().getPackageName());
         assertEquals(TEL_PA_HANDLE_16, returnedHandle);
     }
 

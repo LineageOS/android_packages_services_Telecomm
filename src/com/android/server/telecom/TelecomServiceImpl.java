@@ -137,10 +137,14 @@ public class TelecomServiceImpl {
         }
 
         @Override
-        public PhoneAccountHandle getUserSelectedOutgoingPhoneAccount() {
+        public PhoneAccountHandle getUserSelectedOutgoingPhoneAccount(String callingPackage) {
             synchronized (mLock) {
                 try {
                     Log.startSession("TSI.gUSOPA");
+                    if (!isDialerOrPrivileged(callingPackage, "getDefaultOutgoingPhoneAccount")) {
+                        throw new SecurityException("Only the default dialer, or caller with "
+                                + "READ_PRIVILEGED_PHONE_STATE can call this method.");
+                    }
                     final UserHandle callingUserHandle = Binder.getCallingUserHandle();
                     return mPhoneAccountRegistrar.getUserSelectedOutgoingPhoneAccount(
                             callingUserHandle);
@@ -1907,6 +1911,19 @@ public class TelecomServiceImpl {
             return mAppOpsManager.noteOp(AppOpsManager.OP_READ_PHONE_STATE,
                     Binder.getCallingUid(), callingPackage) == AppOpsManager.MODE_ALLOWED;
         }
+    }
+
+    private boolean isDialerOrPrivileged(String callingPackage, String message) {
+        // The system/default dialer can always read phone state - so that emergency calls will
+        // still work.
+        if (isPrivilegedDialerCalling(callingPackage)) {
+            return true;
+        }
+
+        mContext.enforceCallingOrSelfPermission(READ_PRIVILEGED_PHONE_STATE, message);
+        // SKIP checking run-time OP_READ_PHONE_STATE since caller or self has PRIVILEGED
+        // permission
+        return true;
     }
 
     private boolean isSelfManagedConnectionService(PhoneAccountHandle phoneAccountHandle) {
