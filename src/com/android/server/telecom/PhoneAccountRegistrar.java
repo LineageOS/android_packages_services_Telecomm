@@ -332,7 +332,7 @@ public class PhoneAccountRegistrar {
                 int subId = getSubscriptionIdForPhoneAccount(accountHandle);
                 mSubscriptionManager.setDefaultVoiceSubId(subId);
             }
-
+            Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s", accountHandle);
             mState.defaultOutgoingAccountHandles
                     .put(userHandle, new DefaultPhoneAccountHandle(userHandle, accountHandle,
                             account.getGroupId()));
