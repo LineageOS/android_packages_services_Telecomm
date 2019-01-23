@@ -95,6 +95,7 @@ public class LogUtils {
         public static final String ADD_CHILD = "ADD_CHILD";
         public static final String REMOVE_CHILD = "REMOVE_CHILD";
         public static final String SET_PARENT = "SET_PARENT";
+        public static final String CONF_STATE_CHANGED = "CONF_STATE_CHANGED";
         public static final String MUTE = "MUTE";
         public static final String UNMUTE = "UNMUTE";
         public static final String AUDIO_ROUTE = "AUDIO_ROUTE";
