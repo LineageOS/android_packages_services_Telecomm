@@ -54,6 +54,20 @@ public class TestDialerActivity extends Activity {
             }
         });
 
+        findViewById(R.id.report_nuisance_button).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                reportNuisance(true);
+            }
+        });
+
+        findViewById(R.id.report_not_nuisance_button).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                reportNuisance(false);
+            }
+        });
+
         mNumberView = (EditText) findViewById(R.id.number);
         mRttCheckbox = (CheckBox) findViewById(R.id.call_with_rtt_checkbox);
         updateMutableUi();
@@ -139,5 +153,12 @@ public class TestDialerActivity extends Activity {
         intentExtras.putBundle(TelecomManager.EXTRA_OUTGOING_CALL_EXTRAS, extras);
         Log.i("Santos xtr", intentExtras.toString());
         return intentExtras;
+    }
+
+    private void reportNuisance(boolean isNuisance) {
+        final TelecomManager telecomManager =
+                (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
+        telecomManager.reportNuisanceCallStatus(Uri.fromParts(PhoneAccount.SCHEME_TEL,
+                mNumberView.getText().toString(), null), isNuisance);
     }
 }
