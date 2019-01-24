@@ -60,7 +60,7 @@ import static org.mockito.Mockito.when;
 public class BluetoothRouteTransitionTests extends TelecomTestCase {
     private enum ListenerUpdate {
         DEVICE_LIST_CHANGED, ACTIVE_DEVICE_PRESENT, ACTIVE_DEVICE_GONE,
-        AUDIO_CONNECTED, AUDIO_DISCONNECTED
+        AUDIO_CONNECTED, AUDIO_DISCONNECTED, UNEXPECTED_STATE_CHANGE
     }
 
     private static class BluetoothRouteTestParametersBuilder {
@@ -561,6 +561,19 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                         ListenerUpdate.DEVICE_LIST_CHANGED)
                 .setExpectedBluetoothInteraction(NONE)
                 .setExpectedFinalStateName(BluetoothRouteManager.AUDIO_OFF_STATE_NAME)
+                .build());
+
+        result.add(new BluetoothRouteTestParametersBuilder()
+                .setName("Device gets audio-off while in another device's audio on state")
+                .setInitialBluetoothState(BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX)
+                .setInitialDevice(DEVICE2)
+                .setConnectedDevices(DEVICE2, DEVICE1)
+                .setMessageType(BluetoothRouteManager.BT_AUDIO_LOST)
+                .setMessageDevice(DEVICE1)
+                .setExpectedListenerUpdates(ListenerUpdate.UNEXPECTED_STATE_CHANGE)
+                .setExpectedBluetoothInteraction(NONE)
+                .setExpectedFinalStateName(BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX
+                        + ":" + DEVICE2)
                 .build());
 
         result.add(new BluetoothRouteTestParametersBuilder()

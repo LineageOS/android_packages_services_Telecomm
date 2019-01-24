@@ -22,6 +22,8 @@ import static android.Manifest.permission.MODIFY_PHONE_STATE;
 import static android.Manifest.permission.READ_PHONE_STATE;
 import static android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE;
 
+import android.annotation.MainThread;
+import android.annotation.WorkerThread;
 import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.content.ComponentName;
@@ -49,6 +51,7 @@ import com.android.server.telecom.CallIntentProcessor;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.DefaultDialerCache;
+import com.android.server.telecom.NuisanceCallReporter;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.TelecomServiceImpl;
 import com.android.server.telecom.TelecomSystem;
@@ -164,6 +167,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     private TelecomServiceImpl.SettingsSecureAdapter mSettingsSecureAdapter =
         spy(new SettingsSecureAdapterFake());
     @Mock private UserCallIntentProcessor mUserCallIntentProcessor;
+    @Mock private NuisanceCallReporter mNuisanceCallReporter;
 
     private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
 
@@ -206,6 +210,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 mDefaultDialerCache,
                 mSubscriptionManagerAdapter,
                 mSettingsSecureAdapter,
+                mNuisanceCallReporter,
                 mLock);
         mTSIBinder = telecomServiceImpl.getBinder();
         mComponentContextFixture.setTelecomManager(mTelecomManager);
@@ -271,7 +276,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 makeMultiUserPhoneAccount(TEL_PA_HANDLE_16).build());
 
         PhoneAccountHandle returnedHandle
-                = mTSIBinder.getUserSelectedOutgoingPhoneAccount();
+                = mTSIBinder.getUserSelectedOutgoingPhoneAccount(
+                        TEL_PA_HANDLE_16.getComponentName().getPackageName());
         assertEquals(TEL_PA_HANDLE_16, returnedHandle);
     }
 

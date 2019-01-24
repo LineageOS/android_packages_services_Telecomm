@@ -16,12 +16,14 @@
 
 package com.android.server.telecom;
 
+import android.annotation.Nullable;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.media.Ringtone;
+import android.media.VolumeShaper;
 import android.net.Uri;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -52,7 +54,8 @@ public class RingtoneFactory {
         mCallsManager = callsManager;
     }
 
-    public Ringtone getRingtone(Call incomingCall) {
+    public Ringtone getRingtone(Call incomingCall,
+            @Nullable VolumeShaper.Configuration volumeShaperConfig) {
         // Use the default ringtone of the work profile if the contact is a work profile contact.
         Context userContext = isWorkContact(incomingCall) ?
                 getWorkProfileContextForUser(mCallsManager.getCurrentUserHandle()) :
@@ -62,7 +65,7 @@ public class RingtoneFactory {
 
         if(ringtoneUri != null && userContext != null) {
             // Ringtone URI is explicitly specified. First, try to create a Ringtone with that.
-            ringtone = RingtoneManager.getRingtone(userContext, ringtoneUri);
+            ringtone = RingtoneManager.getRingtone(userContext, ringtoneUri, volumeShaperConfig);
         }
         if(ringtone == null) {
             // Contact didn't specify ringtone or custom Ringtone creation failed. Get default
@@ -78,12 +81,17 @@ public class RingtoneFactory {
             if (defaultRingtoneUri == null) {
                 return null;
             }
-            ringtone = RingtoneManager.getRingtone(contextToUse, defaultRingtoneUri);
+            ringtone = RingtoneManager.getRingtone(
+                contextToUse, defaultRingtoneUri, volumeShaperConfig);
         }
         if (ringtone != null) {
             ringtone.setStreamType(AudioManager.STREAM_RING);
         }
         return ringtone;
+    }
+
+    public Ringtone getRingtone(Call incomingCall) {
+        return getRingtone(incomingCall, null);
     }
 
     private Context getWorkProfileContextForUser(UserHandle userHandle) {

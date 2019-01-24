@@ -17,6 +17,7 @@
 package com.android.server.telecom;
 
 import android.Manifest;
+import android.annotation.NonNull;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -332,7 +333,7 @@ public class PhoneAccountRegistrar {
                 int subId = getSubscriptionIdForPhoneAccount(accountHandle);
                 mSubscriptionManager.setDefaultVoiceSubId(subId);
             }
-
+            Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s", accountHandle);
             mState.defaultOutgoingAccountHandles
                     .put(userHandle, new DefaultPhoneAccountHandle(userHandle, accountHandle,
                             account.getGroupId()));
@@ -648,6 +649,21 @@ public class PhoneAccountRegistrar {
     public List<PhoneAccountHandle> getPhoneAccountsForPackage(String packageName,
             UserHandle userHandle) {
         return getPhoneAccountHandles(0, null, packageName, false, userHandle);
+    }
+
+    /**
+     * Determines if a {@link PhoneAccountHandle} is for a self-managed {@link ConnectionService}.
+     * @param handle The handle.
+     * @return {@code true} if for a self-managed {@link ConnectionService}, {@code false}
+     * otherwise.
+     */
+    public boolean isSelfManagedPhoneAccount(@NonNull PhoneAccountHandle handle) {
+        PhoneAccount account = getPhoneAccountUnchecked(handle);
+        if (account == null) {
+            return false;
+        }
+
+        return account.isSelfManaged();
     }
 
     // TODO: Should we implement an artificial limit for # of accounts associated with a single

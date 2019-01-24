@@ -16,7 +16,9 @@
 
 package com.android.server.telecom;
 
+import android.annotation.Nullable;
 import android.media.Ringtone;
+import android.media.VolumeShaper;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -67,13 +69,20 @@ public class AsyncRingtonePlayer {
         mShouldPauseBetweenRepeat = shouldPauseBetweenRepeat;
     }
 
-    /** Plays the ringtone. */
-    public void play(RingtoneFactory factory, Call incomingCall) {
+    /** Plays the ringtone with ramping ringer if required. */
+    public void play(RingtoneFactory factory, Call incomingCall,
+            @Nullable VolumeShaper.Configuration volumeShaperConfig) {
         Log.d(this, "Posting play.");
         SomeArgs args = SomeArgs.obtain();
         args.arg1 = factory;
         args.arg2 = incomingCall;
+        args.arg3 = volumeShaperConfig;
         postMessage(EVENT_PLAY, true /* shouldCreateHandler */, args);
+    }
+
+    /** Plays the ringtone. */
+    public void play(RingtoneFactory factory, Call incomingCall) {
+        play(factory, incomingCall, null);
     }
 
     /** Stops playing the ringtone. */
@@ -136,6 +145,7 @@ public class AsyncRingtonePlayer {
     private void handlePlay(SomeArgs args) {
         RingtoneFactory factory = (RingtoneFactory) args.arg1;
         Call incomingCall = (Call) args.arg2;
+        VolumeShaper.Configuration volumeShaperConfig = (VolumeShaper.Configuration) args.arg3;
         args.recycle();
         // don't bother with any of this if there is an EVENT_STOP waiting.
         if (mHandler.hasMessages(EVENT_STOP)) {
@@ -153,7 +163,7 @@ public class AsyncRingtonePlayer {
         Log.i(this, "Play ringtone.");
 
         if (mRingtone == null) {
-            mRingtone = factory.getRingtone(incomingCall);
+            mRingtone = factory.getRingtone(incomingCall, volumeShaperConfig);
             if (mRingtone == null) {
                 Uri ringtoneUri = incomingCall.getRingtone();
                 String ringtoneUriString = (ringtoneUri == null) ? "null" :
@@ -183,7 +193,6 @@ public class AsyncRingtonePlayer {
         if (mRingtone == null) {
             return;
         }
-
         if (mRingtone.isPlaying()) {
             Log.d(this, "Ringtone already playing.");
         } else {

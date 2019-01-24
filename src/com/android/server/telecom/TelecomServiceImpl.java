@@ -137,10 +137,14 @@ public class TelecomServiceImpl {
         }
 
         @Override
-        public PhoneAccountHandle getUserSelectedOutgoingPhoneAccount() {
+        public PhoneAccountHandle getUserSelectedOutgoingPhoneAccount(String callingPackage) {
             synchronized (mLock) {
                 try {
                     Log.startSession("TSI.gUSOPA");
+                    if (!isDialerOrPrivileged(callingPackage, "getDefaultOutgoingPhoneAccount")) {
+                        throw new SecurityException("Only the default dialer, or caller with "
+                                + "READ_PRIVILEGED_PHONE_STATE can call this method.");
+                    }
                     final UserHandle callingUserHandle = Binder.getCallingUserHandle();
                     return mPhoneAccountRegistrar.getUserSelectedOutgoingPhoneAccount(
                             callingUserHandle);
@@ -1505,6 +1509,36 @@ public class TelecomServiceImpl {
         }
 
         /**
+         * See {@link TelecomManager#reportNuisanceCallStatus(Uri, boolean)}
+         */
+        @Override
+        public void reportNuisanceCallStatus(Uri handle, boolean isNuisance,
+                String callingPackage) {
+            try {
+                Log.startSession("TSI.rNCS");
+                if (!isPrivilegedDialerCalling(callingPackage)) {
+                    throw new SecurityException(
+                            "Only the default dialer can report nuisance call status");
+                }
+
+                long token = Binder.clearCallingIdentity();
+                try {
+                    String callScreeningPackageName =
+                            mCallsManager.getRoleManagerAdapter().getDefaultCallScreeningApp();
+
+                    if (!TextUtils.isEmpty(callScreeningPackageName)) {
+                        mNuisanceCallReporter.reportNuisanceCallStatus(callScreeningPackageName,
+                                handle, isNuisance);
+                    }
+                } finally {
+                    Binder.restoreCallingIdentity(token);
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        /**
          * See {@link TelecomManager#handleCallIntent(Intent)} ()}
          */
         @Override
@@ -1677,6 +1711,7 @@ public class TelecomServiceImpl {
     private AppOpsManager mAppOpsManager;
     private PackageManager mPackageManager;
     private CallsManager mCallsManager;
+    private final NuisanceCallReporter mNuisanceCallReporter;
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
     private final CallIntentProcessor.Adapter mCallIntentProcessorAdapter;
     private final UserCallIntentProcessorFactory mUserCallIntentProcessorFactory;
@@ -1694,6 +1729,7 @@ public class TelecomServiceImpl {
             DefaultDialerCache defaultDialerCache,
             SubscriptionManagerAdapter subscriptionManagerAdapter,
             SettingsSecureAdapter settingsSecureAdapter,
+            NuisanceCallReporter nuisanceCallReporter,
             TelecomSystem.SyncRoot lock) {
         mContext = context;
         mAppOpsManager = (AppOpsManager) mContext.getSystemService(Context.APP_OPS_SERVICE);
@@ -1708,6 +1744,7 @@ public class TelecomServiceImpl {
         mCallIntentProcessorAdapter = callIntentProcessorAdapter;
         mSubscriptionManagerAdapter = subscriptionManagerAdapter;
         mSettingsSecureAdapter = settingsSecureAdapter;
+        mNuisanceCallReporter = nuisanceCallReporter;
     }
 
     public ITelecomService.Stub getBinder() {
@@ -1910,6 +1947,19 @@ public class TelecomServiceImpl {
             return mAppOpsManager.noteOp(AppOpsManager.OP_READ_PHONE_STATE,
                     Binder.getCallingUid(), callingPackage) == AppOpsManager.MODE_ALLOWED;
         }
+    }
+
+    private boolean isDialerOrPrivileged(String callingPackage, String message) {
+        // The system/default dialer can always read phone state - so that emergency calls will
+        // still work.
+        if (isPrivilegedDialerCalling(callingPackage)) {
+            return true;
+        }
+
+        mContext.enforceCallingOrSelfPermission(READ_PRIVILEGED_PHONE_STATE, message);
+        // SKIP checking run-time OP_READ_PHONE_STATE since caller or self has PRIVILEGED
+        // permission
+        return true;
     }
 
     private boolean isSelfManagedConnectionService(PhoneAccountHandle phoneAccountHandle) {
