@@ -21,6 +21,7 @@ import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.Ringtone;
+import android.media.VolumeShaper;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -257,7 +258,7 @@ public class RingerTest extends TelecomTestCase {
         enableVibrationWhenRinging();
         assertTrue(mRingerUnderTest.startRinging(mockCall2, false));
         verify(mockTonePlayer).stopTone();
-        verify(mockRingtonePlayer).play(any(RingtoneFactory.class), any(Call.class));
+        verify(mockRingtonePlayer).play(any(RingtoneFactory.class), any(Call.class), eq(null));
         verify(mockVibrator).vibrate(eq(spyVibrationEffectProxy.get(FAKE_RINGTONE_URI, mContext)),
                 any(AudioAttributes.class));
     }
@@ -270,9 +271,21 @@ public class RingerTest extends TelecomTestCase {
         enableVibrationOnlyWhenNotRinging();
         assertTrue(mRingerUnderTest.startRinging(mockCall2, false));
         verify(mockTonePlayer).stopTone();
-        verify(mockRingtonePlayer).play(any(RingtoneFactory.class), any(Call.class));
+        verify(mockRingtonePlayer).play(any(RingtoneFactory.class), any(Call.class), eq(null));
         verify(mockVibrator, never())
                 .vibrate(any(VibrationEffect.class), any(AudioAttributes.class));
+    }
+
+    @SmallTest
+    @Test
+    public void testRingWithRampingRinger() {
+        mRingerUnderTest.startCallWaiting(mockCall1);
+        ensureRingerIsAudible();
+        enableRampingRinger();
+        assertTrue(mRingerUnderTest.startRinging(mockCall2, false));
+        verify(mockTonePlayer).stopTone();
+        verify(mockRingtonePlayer).play(
+            any(RingtoneFactory.class), any(Call.class), any(VolumeShaper.Configuration.class));
     }
 
     @SmallTest
@@ -321,5 +334,9 @@ public class RingerTest extends TelecomTestCase {
     private void enableVibrationOnlyWhenNotRinging() {
         when(mockVibrator.hasVibrator()).thenReturn(true);
         when(mockSystemSettingsUtil.canVibrateWhenRinging(any(Context.class))).thenReturn(false);
+    }
+
+    private void enableRampingRinger() {
+        when(mockSystemSettingsUtil.applyRampingRinger(any(Context.class))).thenReturn(true);
     }
 }
