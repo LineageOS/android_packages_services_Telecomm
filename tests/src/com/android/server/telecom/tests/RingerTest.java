@@ -282,6 +282,7 @@ public class RingerTest extends TelecomTestCase {
         mRingerUnderTest.startCallWaiting(mockCall1);
         ensureRingerIsAudible();
         enableRampingRinger();
+        enableRampingRingerFromDeviceConfig();
         assertTrue(mRingerUnderTest.startRinging(mockCall2, false));
         verify(mockTonePlayer).stopTone();
         verify(mockRingtonePlayer).play(
@@ -338,5 +339,9 @@ public class RingerTest extends TelecomTestCase {
 
     private void enableRampingRinger() {
         when(mockSystemSettingsUtil.applyRampingRinger(any(Context.class))).thenReturn(true);
+    }
+
+    private void enableRampingRingerFromDeviceConfig() {
+        when(mockSystemSettingsUtil.enableRampingRingerFromDeviceConfig()).thenReturn(true);
     }
 }

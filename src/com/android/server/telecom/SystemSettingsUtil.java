@@ -57,16 +57,16 @@ public class SystemSettingsUtil {
     public boolean enableRampingRingerFromDeviceConfig() {
         String enableRampingRinger = DeviceConfig.getProperty(
             DeviceConfig.Telephony.NAMESPACE,
-            DeviceConfig.Telephony.PROPERTY_ENABLE_RAMPING_RINGER);
+            DeviceConfig.Telephony.RAMPING_RINGER_ENABLED);
         if (enableRampingRinger == null) {
-            Log.i(this, "DeviceConfig.Telephony.PROPERTY_ENABLE_RAMPING_RINGER is null");
+            Log.i(this, "Telephony.RAMPING_RINGER_ENABLED is null");
             return false;
         }
         try {
             return Boolean.valueOf(enableRampingRinger);
         } catch (Exception e) {
             Log.wtf(this,
-                "Error paring DeviceConfig.Telephony.PROPERTY_ENABLE_RAMPING_RINGER: " + e);
+                "Error parsing Telephony.RAMPING_RINGER_ENABLED: " + e);
             return false;
         }
     }
@@ -74,17 +74,35 @@ public class SystemSettingsUtil {
     public int getRampingRingerDuration() {
         String rampingRingerDuration = DeviceConfig.getProperty(
             DeviceConfig.Telephony.NAMESPACE,
-            DeviceConfig.Telephony.PROPERTY_RAMPING_RINGER_DURATION);
+            DeviceConfig.Telephony.RAMPING_RINGER_DURATION);
         if (rampingRingerDuration == null) {
-            Log.i(this, "DeviceConfig.Telephony.PROPERTY_RAMPING_RINGER_DURATION is null");
+            Log.i(this, "Telephony.RAMPING_RINGER_DURATION is null");
             return -1;
         }
         try {
             return Integer.parseInt(rampingRingerDuration);
         } catch (Exception e) {
             Log.wtf(this,
-                "Error paring DeviceConfig.Telephony.PROPERTY_RAMPING_RINGER_DURATION: " + e);
+                "Error parsing Telephony.RAMPING_RINGER_DURATION: " + e);
             return -1;
+        }
+    }
+
+    public int getRampingRingerVibrationDuration() {
+        String rampingRingerVibrationDuration = DeviceConfig.getProperty(
+            DeviceConfig.Telephony.NAMESPACE,
+            DeviceConfig.Telephony.RAMPING_RINGER_VIBRATION_DURATION);
+        if (rampingRingerVibrationDuration == null) {
+            Log.i(this,
+                "Telephony.RAMPING_RINGER_VIBRATION_DURATION is null");
+            return 0;
+        }
+        try {
+            return Integer.parseInt(rampingRingerVibrationDuration);
+        } catch (Exception e) {
+            Log.wtf(this,
+                "Error parsing Telephony.RAMPING_RINGER_VIBRATION_DURATION: " + e);
+            return 0;
         }
     }
 }
