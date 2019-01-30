@@ -90,10 +90,8 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"মিছ্ড কল"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"কল অৱৰোধ"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"এই কলটো কৰিলে আপোনাৰ <xliff:g id="OTHER_APP">%1$s</xliff:g> কলটোৰ অন্ত পৰিব।"</string>
-    <!-- no translation found for alert_redirect_outgoing_call (1267579501303765238) -->
-    <skip />
-    <!-- no translation found for alert_redirect_outgoing_call_timeout (7268954889515301158) -->
-    <skip />
+    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"বেলেগ এটা নম্বৰ বা একাউণ্ট ব্যৱহাৰ কৰি <xliff:g id="OTHER_APP">%1$s</xliff:g>ক কল কৰিবলৈ অনুমতি দিয়ক।"</string>
+    <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g>এ কলটো কৰিব পৰা নাই। বেলেগ এটা কল ৰিডাইৰেক্ট কৰা এপ্ ব্যৱহাৰ কৰি চাওক বা বিকাশকৰ্তাৰ সৈতে যোগাযোগ কৰক।"</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"কল অৱৰোধ"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"আপোনাৰ সর্ম্পকসূচীত নথকা"</string>
     <string name="phone_settings_number_not_in_contact_summary_txt" msgid="9043147855140079119">"আপোনাৰ সর্ম্পকসূচীত নথকা নম্বৰ অৱৰোধ কৰক"</string>
