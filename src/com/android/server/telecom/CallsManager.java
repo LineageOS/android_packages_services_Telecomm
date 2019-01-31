@@ -46,6 +46,7 @@ import android.provider.BlockedNumberContract.SystemContract;
 import android.provider.CallLog.Calls;
 import android.provider.Settings;
 import android.telecom.CallAudioState;
+import android.telecom.CallIdentification;
 import android.telecom.Conference;
 import android.telecom.Connection;
 import android.telecom.DisconnectCause;
@@ -614,7 +615,7 @@ public class CallsManager extends Call.ListenerBase
         filters.add(new CallScreeningServiceController(mContext, this, mPhoneAccountRegistrar,
                 new ParcelableCallUtils.Converter(), mLock,
                 new TelecomServiceImpl.SettingsSecureAdapterImpl(), mCallerInfoLookupHelper,
-                new CallScreeningServiceController.AppLabelProxy() {
+                new CallScreeningServiceHelper.AppLabelProxy() {
                     @Override
                     public String getAppLabel(String packageName) {
                         PackageManager pm = mContext.getPackageManager();
@@ -1447,6 +1448,34 @@ public class CallsManager extends Call.ListenerBase
                             return mPendingAccountSelection;
                         }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.dSPA"));
 
+        // Potentially perform call identification for dialed TEL scheme numbers.
+        if (PhoneAccount.SCHEME_TEL.equals(handle.getScheme())) {
+            // Perform an asynchronous contacts lookup in this stage; ensure post-dial digits are
+            // not included.
+            CompletableFuture<Pair<Uri, CallerInfo>> contactLookupFuture =
+                    mCallerInfoLookupHelper.startLookup(Uri.fromParts(handle.getScheme(),
+                            PhoneNumberUtils.extractNetworkPortion(handle.getSchemeSpecificPart()),
+                            null));
+
+            // Once the phone account selection stage has completed, we can handle the results from
+            // that with the contacts lookup in order to determine if we should lookup bind to the
+            // CallScreeningService in order for it to potentially provide caller ID.
+            dialerSelectPhoneAccountFuture.thenAcceptBothAsync(contactLookupFuture,
+                    (callPhoneAccountHandlePair, uriCallerInfoPair) -> {
+                        Call theCall = callPhoneAccountHandlePair.first;
+                        boolean isInContacts = uriCallerInfoPair.second != null
+                                && uriCallerInfoPair.second.contactExists;
+                        Log.d(CallsManager.this, "outgoingCallIdStage: isInContacts=%s",
+                                isInContacts);
+
+                        // We only want to provide a CallScreeningService with a call if its not in
+                        // contacts.
+                        if (!isInContacts) {
+                            performCallIdentification(theCall);
+                        }
+            }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.pCSB"));
+        }
+
         // Finally, after all user interaction is complete, we execute this code to finish setting
         // up the outgoing call. The inner method always returns a completed future containing the
         // call that we've finished setting up.
@@ -1506,6 +1535,50 @@ public class CallsManager extends Call.ListenerBase
                     return CompletableFuture.completedFuture(callToUse);
                 }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.pASP"));
         return mLatestPostSelectionProcessingFuture;
+    }
+
+    /**
+     * Performs call identification for an outgoing phone call.
+     * @param theCall The outgoing call to perform identification.
+     */
+    private void performCallIdentification(Call theCall) {
+        // Find the user chosen call screening app.
+        String callScreeningApp =
+                mRoleManagerAdapter.getDefaultCallScreeningApp();
+
+        CompletableFuture<CallIdentification> future =
+                new CallScreeningServiceHelper(mContext,
+                mLock,
+                callScreeningApp,
+                new ParcelableCallUtils.Converter(),
+                mCurrentUserHandle,
+                theCall,
+                new CallScreeningServiceHelper.AppLabelProxy() {
+                    @Override
+                    public String getAppLabel(String packageName) {
+                        PackageManager pm = mContext.getPackageManager();
+                        try {
+                            ApplicationInfo info = pm.getApplicationInfo(
+                                    packageName, 0);
+                            return (String) pm.getApplicationLabel(info);
+                        } catch (PackageManager.NameNotFoundException nnfe) {
+                            Log.w(this, "Could not determine package name.");
+                        }
+
+                        return null;
+                    }
+                }).process();
+
+        // When we are done, apply call identification to the call.
+        future.thenApply(v -> {
+            Log.i(CallsManager.this, "setting caller ID: %s", v);
+            if (v != null) {
+                synchronized (mLock) {
+                    theCall.setCallIdentification(v);
+                }
+            }
+            return null;
+        });
     }
 
     /**
