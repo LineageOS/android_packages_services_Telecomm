@@ -1432,6 +1432,7 @@ public class CallsManager extends Call.ListenerBase
                             if (accountSuggestions == null || accountSuggestions.isEmpty()) {
                                 Log.i(CallsManager.this, "Aborting call since there are no"
                                         + " available accounts.");
+                                showErrorMessage(R.string.cant_call_due_to_no_supported_service);
                                 return CompletableFuture.completedFuture(null);
                             }
                             boolean needsAccountSelection = accountSuggestions.size() > 1
@@ -4552,5 +4553,17 @@ public class CallsManager extends Call.ListenerBase
     public boolean isInEmergencyCall() {
         return mCalls.stream().filter(c -> c.isEmergencyCall()
                 || c.isNetworkIdentifiedEmergencyCall()).count() > 0;
+    }
+
+    /**
+     * Trigger display of an error message to the user; we do this outside of dialer for calls which
+     * fail to be created and added to Dialer.
+     * @param messageId The string resource id.
+     */
+    private void showErrorMessage(int messageId) {
+        final Intent errorIntent = new Intent(mContext, ErrorDialogActivity.class);
+        errorIntent.putExtra(ErrorDialogActivity.ERROR_MESSAGE_ID_EXTRA, messageId);
+        errorIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mContext.startActivityAsUser(errorIntent, UserHandle.CURRENT);
     }
 }
