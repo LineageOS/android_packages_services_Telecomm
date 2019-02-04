@@ -604,10 +604,54 @@ public class InCallControllerTests extends TelecomTestCase {
                 eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE),
                 eq(UserHandle.CURRENT));
         // Verify bind car mode ui
+        assertEquals(1, bindIntentCaptor.getAllValues().size());
         Intent bindIntent = bindIntentCaptor.getAllValues().get(0);
         assertEquals(InCallService.SERVICE_INTERFACE, bindIntent.getAction());
         assertEquals(CAR_PKG, bindIntent.getComponent().getPackageName());
         assertEquals(CAR_CLASS, bindIntent.getComponent().getClassName());
+    }
+
+    @MediumTest
+    @Test
+    public void testNoBindToInvalidService_CarModeUI() throws Exception {
+        setupMocks(true /* isExternalCall */);
+        setupMockPackageManager(true /* default */, true /* system */, true /* external calls */);
+
+        when(mMockRoleManagerAdapter.getCarModeDialerApp()).thenReturn(CAR_PKG);
+        when(mMockPackageManager.checkPermission(
+                matches(Manifest.permission.CALL_COMPANION_APP),
+                matches(CAR_PKG))).thenReturn(PackageManager.PERMISSION_DENIED);
+        // Enable car mode
+        when(mMockSystemStateHelper.isCarMode()).thenReturn(true);
+        mInCallController.bindToServices(mMockCall);
+
+        // Query for the different InCallServices
+        ArgumentCaptor<Intent> queryIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mMockPackageManager, times(4)).queryIntentServicesAsUser(
+                queryIntentCaptor.capture(),
+                eq(PackageManager.GET_META_DATA), eq(CURRENT_USER_ID));
+        // Verify call for default dialer InCallService
+        assertEquals(DEF_PKG, queryIntentCaptor.getAllValues().get(0).getPackage());
+        // Verify call for system dialer InCallService
+        assertEquals(null, queryIntentCaptor.getAllValues().get(1).getPackage());
+        // Verify call for invalid car mode ui InCallServices
+        assertEquals(CAR_PKG, queryIntentCaptor.getAllValues().get(2).getPackage());
+        // Verify call for non-UI InCallServices
+        assertEquals(null, queryIntentCaptor.getAllValues().get(3).getPackage());
+
+        // Bind InCallServices
+        ArgumentCaptor<Intent> bindIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mMockContext, times(1)).bindServiceAsUser(
+                bindIntentCaptor.capture(),
+                any(ServiceConnection.class),
+                eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE),
+                eq(UserHandle.CURRENT));
+        // Verify bind to default package, instead of the invalid car mode ui.
+        assertEquals(1, bindIntentCaptor.getAllValues().size());
+        Intent bindIntent = bindIntentCaptor.getAllValues().get(0);
+        assertEquals(InCallService.SERVICE_INTERFACE, bindIntent.getAction());
+        assertEquals(DEF_PKG, bindIntent.getComponent().getPackageName());
+        assertEquals(DEF_CLASS, bindIntent.getComponent().getClassName());
     }
 
     private void setupMocks(boolean isExternalCall) {
