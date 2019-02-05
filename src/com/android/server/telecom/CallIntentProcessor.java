@@ -178,12 +178,15 @@ public class CallIntentProcessor {
         NewOutgoingCallIntentBroadcaster broadcaster = new NewOutgoingCallIntentBroadcaster(
                 context, callsManager, call, intent, callsManager.getPhoneNumberUtilsAdapter(),
                 isPrivilegedDialer);
-        final int result = broadcaster.processIntent();
-        final boolean success = result == DisconnectCause.NOT_DISCONNECTED;
 
-        if (!success && call != null) {
-            disconnectCallAndShowErrorDialog(context, call, result);
+        // If the broadcaster comes back with an immediate error, disconnect and show a dialog.
+        NewOutgoingCallIntentBroadcaster.CallDisposition disposition = broadcaster.evaluateCall();
+        if (disposition.disconnectCause != DisconnectCause.NOT_DISCONNECTED) {
+            disconnectCallAndShowErrorDialog(context, call, disposition.disconnectCause);
+            return;
         }
+
+        broadcaster.processCall(disposition);
     }
 
     /**

@@ -102,7 +102,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -148,27 +147,6 @@ public class CallsManager extends Call.ListenerBase
     /** Interface used to define the action which is executed delay under some condition. */
     interface PendingAction {
         void performAction();
-    }
-
-    /** An executor that starts a log session before executing a runnable */
-    private class LoggedHandlerExecutor implements Executor {
-        private Handler mHandler;
-        private String mSessionName;
-
-        public LoggedHandlerExecutor(Handler handler, String sessionName) {
-            mHandler = handler;
-            mSessionName = sessionName;
-        }
-
-        @Override
-        public void execute(java.lang.Runnable command) {
-            mHandler.post(new Runnable(mSessionName, mLock) {
-                @Override
-                public void loggedRun() {
-                    command.run();
-                }
-            }.prepare());
-        }
     }
 
     private static final String TAG = "CallsManager";
@@ -1319,7 +1297,7 @@ public class CallsManager extends Call.ListenerBase
                 CompletableFuture.completedFuture((Void) null).thenComposeAsync((x) ->
                                 findOutgoingCallPhoneAccount(requestedAccountHandle, handle,
                                         VideoProfile.isVideo(finalVideoState), initiatingUser),
-                        new LoggedHandlerExecutor(outgoingCallHandler, "CM.fOCP"));
+                        new LoggedHandlerExecutor(outgoingCallHandler, "CM.fOCP", mLock));
 
         // This is a block of code that executes after the list of potential phone accts has been
         // retrieved.
@@ -1333,7 +1311,7 @@ public class CallsManager extends Call.ListenerBase
                         phoneAccountHandle = null;
                     }
                     finalCall.setTargetPhoneAccount(phoneAccountHandle);
-                }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.sOCPA"));
+                }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.sOCPA", mLock));
 
 
         // This composes the future containing the potential phone accounts with code that queries
@@ -1352,7 +1330,7 @@ public class CallsManager extends Call.ListenerBase
                     }
                     return PhoneAccountSuggestionHelper.bindAndGetSuggestions(mContext,
                             finalCall.getHandle(), potentialPhoneAccounts);
-                }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.cOCSS"));
+                }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.cOCSS", mLock));
 
 
         // This future checks the status of existing calls and attempts to make room for the
@@ -1393,7 +1371,7 @@ public class CallsManager extends Call.ListenerBase
                         return CompletableFuture.completedFuture(null);
                     }
                     return CompletableFuture.completedFuture(finalCall);
-        }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.dSMCP"));
+        }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.dSMCP", mLock));
 
         // The outgoing call can be placed, go forward. This future glues together the results of
         // the account suggestion stage and the make room for call stage.
@@ -1447,7 +1425,7 @@ public class CallsManager extends Call.ListenerBase
 
                             addCall(callToPlace);
                             return mPendingAccountSelection;
-                        }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.dSPA"));
+                        }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.dSPA", mLock));
 
         // Potentially perform call identification for dialed TEL scheme numbers.
         if (PhoneAccount.SCHEME_TEL.equals(handle.getScheme())) {
@@ -1474,7 +1452,7 @@ public class CallsManager extends Call.ListenerBase
                         if (!isInContacts) {
                             performCallIdentification(theCall);
                         }
-            }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.pCSB"));
+            }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.pCSB", mLock));
         }
 
         // Finally, after all user interaction is complete, we execute this code to finish setting
@@ -1534,7 +1512,7 @@ public class CallsManager extends Call.ListenerBase
                         addCall(callToUse);
                     }
                     return CompletableFuture.completedFuture(callToUse);
-                }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.pASP"));
+                }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.pASP", mLock));
         return mLatestPostSelectionProcessingFuture;
     }
 
