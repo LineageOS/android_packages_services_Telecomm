@@ -29,6 +29,7 @@ import android.provider.CallLog;
 import android.telecom.CallScreeningService;
 import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
+import android.text.TextUtils;
 
 import java.util.Arrays;
 
@@ -112,8 +113,9 @@ public class NuisanceCallReporter {
      * or rejected call.
      */
     private static final String NUMBER_WHERE_CLAUSE =
-            CallLog.Calls.CACHED_NORMALIZED_NUMBER + " = ? AND " + CallLog.Calls.TYPE
-                    + " IN (" + CallLog.Calls.INCOMING_TYPE + "," + CallLog.Calls.MISSED_TYPE + ","
+            "(" + CallLog.Calls.CACHED_NORMALIZED_NUMBER + " = ? OR "
+                    + CallLog.Calls.NUMBER + " = ?) AND " + CallLog.Calls.TYPE + " IN ("
+                    + CallLog.Calls.INCOMING_TYPE + "," + CallLog.Calls.MISSED_TYPE + ","
                     + CallLog.Calls.BLOCKED_TYPE + "," + CallLog.Calls.REJECTED_TYPE + ")";
 
     /**
@@ -169,7 +171,7 @@ public class NuisanceCallReporter {
 
     private void maybeSendNuisanceReport(@NonNull NuisanceReport nuisanceReport) {
         Uri callsUri = CallLog.Calls.CONTENT_URI;
-        if (mCurrentUserHandle == null) {
+        if (mCurrentUserHandle == null || nuisanceReport.handle == null) {
             return;
         }
 
@@ -178,13 +180,17 @@ public class NuisanceCallReporter {
 
         String normalizedNumber = mPhoneNumberUtilsProxy.formatNumberToE164(
                 nuisanceReport.handle.getSchemeSpecificPart());
-
+        if (TextUtils.isEmpty(normalizedNumber)) {
+            normalizedNumber = nuisanceReport.handle.getSchemeSpecificPart();
+        }
+        Log.d(this, "maybeSendNuisanceReport:  rawNumber=%s, number=%s, isNuisance=%b",
+                Log.piiHandle(nuisanceReport.handle), Log.piiHandle(normalizedNumber),
+                nuisanceReport.isNuisance);
         // Query the call log for the most recent information about this call.
         Cursor cursor = mContext.getContentResolver().query(callsUri, CALL_LOG_PROJECTION,
-                NUMBER_WHERE_CLAUSE, new String[] { normalizedNumber },
+                NUMBER_WHERE_CLAUSE, new String[] { normalizedNumber,
+                        nuisanceReport.handle.getSchemeSpecificPart() },
                 CallLog.Calls.DEFAULT_SORT_ORDER);
-        Log.d(this, "maybeSendNuisanceReport:  number=%s, isNuisance=%b",
-                Log.piiHandle(normalizedNumber), nuisanceReport.isNuisance);
         if (cursor != null) {
             try {
                 while (cursor.moveToNext()) {
