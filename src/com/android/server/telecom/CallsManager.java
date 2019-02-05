@@ -1268,6 +1268,7 @@ public class CallsManager extends Call.ListenerBase
             }
         }
         setIntentExtrasAndStartTime(call, extras);
+        setCallSourceToAnalytics(call, originalIntent);
 
         if ((isPotentialMMICode(handle) || isPotentialInCallMMICode) && !needsAccountSelection) {
             // Do not add the call if it is a potential MMI code.
@@ -3428,6 +3429,18 @@ public class CallsManager extends Call.ListenerBase
               SystemClock.elapsedRealtime());
 
         call.setIntentExtras(extras);
+    }
+
+    private void setCallSourceToAnalytics(Call call, Intent originalIntent) {
+        if (originalIntent == null) {
+            return;
+        }
+
+        int callSource = originalIntent.getIntExtra(TelecomManager.EXTRA_CALL_SOURCE,
+                Analytics.CALL_SOURCE_UNSPECIFIED);
+
+        // Call source is only used by metrics, so we simply set it to Analytics directly.
+        call.getAnalytics().setCallSource(callSource);
     }
 
     /**

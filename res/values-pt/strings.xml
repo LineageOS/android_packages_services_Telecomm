@@ -43,7 +43,7 @@
     <string name="outgoing_call_error_no_phone_number_supplied" msgid="1940125199802007505">"Para realizar uma chamada, digite um número válido."</string>
     <string name="duplicate_video_call_not_allowed" msgid="3749211605014548386">"No momento, não é possível adicionar a chamada."</string>
     <string name="no_vm_number" msgid="4164780423805688336">"Número correio de voz ausente"</string>
-    <string name="no_vm_number_msg" msgid="1300729501030053828">"Não há um número correio de voz armazenado no cartão SIM."</string>
+    <string name="no_vm_number_msg" msgid="1300729501030053828">"Não há um número correio de voz armazenado no chip."</string>
     <string name="add_vm_number_str" msgid="4676479471644687453">"Adicionar número"</string>
     <string name="change_default_dialer_dialog_title" msgid="9101655962941740507">"Usar o <xliff:g id="NEW_APP">%s</xliff:g> como seu app de telefone padrão?"</string>
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Definir padrão"</string>

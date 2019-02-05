@@ -52,7 +52,7 @@
     <string name="blocked_numbers" msgid="2751843139572970579">"Blokeatutako zenbakiak"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Ez duzu jasoko deirik edo testu-mezurik blokeatutako zenbakietatik."</string>
     <string name="block_number" msgid="1101252256321306179">"Gehitu zenbakia"</string>
-    <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> desblokeatu?"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> desblokeatu nahi duzu?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Desblokeatu"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Blokeatu zenbaki honetatik jasotzen diren deiak eta testu-mezuak:"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Telefono-zenbakia"</string>
