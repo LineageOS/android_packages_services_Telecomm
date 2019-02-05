@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import android.content.Intent;
 import android.os.UserHandle;
 
 import java.util.List;
@@ -25,6 +26,14 @@ import java.util.List;
  * and remove direct dependencies.
  */
 public interface RoleManagerAdapter {
+
+    /**
+     * The name of the dialer role.
+     *
+     * @see Intent#ACTION_DIAL
+     */
+    String ROLE_DIALER = "android.app.role.DIALER";
+
     /**
      * Returns the package name of the app which fills the {@link android.app.role.RoleManager} call
      * redirection role.
