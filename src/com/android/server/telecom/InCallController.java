@@ -750,7 +750,7 @@ public class InCallController extends CallsManagerListenerBase {
 
         Resources resources = mContext.getResources();
         mSystemInCallComponentName = new ComponentName(
-                resources.getString(R.string.ui_default_package),
+                TelecomServiceImpl.getSystemDialerPackage(mContext),
                 resources.getString(R.string.incall_default_class));
 
         mSystemStateHelper.addListener(mSystemStateListener);
