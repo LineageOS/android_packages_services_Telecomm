@@ -161,22 +161,11 @@ public final class CallLogManager extends CallsManagerListenerBase {
                 newState == CallState.DISCONNECTED || newState == CallState.ABORTED;
         boolean isCallCanceled = isNewlyDisconnected && disconnectCause == DisconnectCause.CANCELED;
 
-        // Log newly disconnected calls only if:
-        // 1) It was not in the "choose account" phase when disconnected
-        // 2) It is a conference call
-        // 3) Call was not explicitly canceled
-        // 4) Call is not an external call
-        // 5) Call is not a self-managed call OR call is a self-managed call which has indicated it
-        //    should be logged in its PhoneAccount
-        if (isNewlyDisconnected &&
-                (oldState != CallState.SELECT_PHONE_ACCOUNT &&
-                        !call.isConference() &&
-                        !isCallCanceled) &&
-                !call.isExternalCall() &&
-                (!call.isSelfManaged() ||
-                        (call.isLoggedSelfManaged() &&
-                                (call.getHandoverState() == HandoverState.HANDOVER_NONE ||
-                                call.getHandoverState() == HandoverState.HANDOVER_COMPLETE)))) {
+        if (!isNewlyDisconnected) {
+            return;
+        }
+
+        if (shouldLogDisconnectedCall(call, oldState, isCallCanceled)) {
             int type;
             if (!call.isIncoming()) {
                 type = Calls.OUTGOING_TYPE;
@@ -194,6 +183,60 @@ public final class CallLogManager extends CallsManagerListenerBase {
             boolean showNotification = !call.isSelfManaged();
             logCall(call, type, showNotification, null /*result*/);
         }
+    }
+
+    /**
+     * Log newly disconnected calls only if all of below conditions are met:
+     * 1) Call was NOT in the "choose account" phase when disconnected
+     * 2) Call is NOT a conference call
+     * 3) Call is NOT simulating a single party conference.
+     * 4) Call was NOT explicitly canceled, except for disconnecting from a conference.
+     * 5) Call is NOT an external call
+     * 6) Call is NOT disconnected because of merging into a conference.
+     * 7) Call is NOT a self-managed call OR call is a self-managed call which has indicated it
+     *    should be logged in its PhoneAccount
+     */
+    private boolean shouldLogDisconnectedCall(Call call, int oldState, boolean isCallCanceled) {
+        // 1) "Choose account" phase when disconnected
+        if (oldState == CallState.SELECT_PHONE_ACCOUNT) {
+            return false;
+        }
+        // 2) A conference call
+        if (call.isConference()) {
+            return false;
+        }
+
+        DisconnectCause cause = call.getDisconnectCause();
+        if (isCallCanceled) {
+            // 3) No log when disconnecting to simulate a single party conference.
+            if (cause != null
+                    && DisconnectCause.REASON_EMULATING_SINGLE_CALL.equals(cause.getReason())) {
+                return false;
+            }
+            // 4) Explicitly canceled
+            // Conference children connections only have CAPABILITY_DISCONNECT_FROM_CONFERENCE.
+            // Log them when they are disconnected from conference.
+            return Connection.can(call.getConnectionCapabilities(),
+                    Connection.CAPABILITY_DISCONNECT_FROM_CONFERENCE);
+        }
+        // 5) An external call
+        if (call.isExternalCall()) {
+            return false;
+        }
+
+        // 6) Call merged into conferences.
+        if (cause != null && android.telephony.DisconnectCause.toString(
+                android.telephony.DisconnectCause.IMS_MERGED_SUCCESSFULLY)
+                .equals(cause.getReason())) {
+            return false;
+        }
+
+        boolean shouldCallSelfManagedLogged = call.isLoggedSelfManaged()
+                && (call.getHandoverState() == HandoverState.HANDOVER_NONE
+                || call.getHandoverState() == HandoverState.HANDOVER_COMPLETE);
+        // 7) Call is NOT a self-managed call OR call is a self-managed call which has indicated it
+        //    should be logged in its PhoneAccount
+        return !call.isSelfManaged() || shouldCallSelfManagedLogged;
     }
 
     void logCall(Call call, int type, boolean showNotificationForMissedCall, CallFilteringResult
