@@ -85,7 +85,7 @@
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Opkaldsblokering"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Hvis du foretager dette opkald, afsluttes dit opkald i <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Opkaldsblokering"</string>
-    <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Numre er ikke i Kontaktpersoner"</string>
+    <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Numre er ikke i Kontakter"</string>
     <string name="phone_settings_number_not_in_contact_summary_txt" msgid="9043147855140079119">"Bloker numre, som ikke er i dine kontaktpersoner"</string>
     <string name="phone_settings_private_num_txt" msgid="8623574188879134262">"Privat"</string>
     <string name="phone_settings_private_num_summary_txt" msgid="7516314821207782191">"Bloker opkald fra personer, der ringer fra hemmeligt nummer"</string>

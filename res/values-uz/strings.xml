@@ -68,7 +68,7 @@
     <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> raqami allaqachon bloklangan."</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Qo‘ng‘iroq qilish uchun shaxsiy raqam tergichdan foydalanilmoqda"</string>
     <string name="notification_incoming_call" msgid="7713197997773986670">"<xliff:g id="CALL_FROM">%2$s</xliff:g> <xliff:g id="CALL_VIA">%1$s</xliff:g> orqali chaqirmoqda"</string>
-    <string name="notification_incoming_video_call" msgid="6638486071698373893">"<xliff:g id="CALL_FROM">%2$s</xliff:g> <xliff:g id="CALL_VIA">%1$s</xliff:g> orqali video qo‘ng‘iroq qilmoqda"</string>
+    <string name="notification_incoming_video_call" msgid="6638486071698373893">"<xliff:g id="CALL_FROM">%2$s</xliff:g> <xliff:g id="CALL_VIA">%1$s</xliff:g> orqali video chaqiruv"</string>
     <string name="answering_ends_other_call" msgid="8282145910153766401">"Chaqiruvga javob berilsa, <xliff:g id="CALL_VIA">%1$s</xliff:g> qo‘ng‘irog‘i tugatiladi."</string>
     <string name="answering_ends_other_calls" msgid="1198589551399049197">"Chaqiruvga javob berilsa, <xliff:g id="CALL_VIA">%1$s</xliff:g> qo‘ng‘iroqlari tugatiladi."</string>
     <string name="answering_ends_other_video_call" msgid="8510410917384186360">"Chaqiruvga javob berilsa, <xliff:g id="CALL_VIA">%1$s</xliff:g> video suhbati tugatiladi."</string>
