@@ -516,10 +516,9 @@ public class TelecomSystemTest extends TelecomTestCase {
     }
 
     private void setupInCallServices() throws Exception {
-        mComponentContextFixture.putStringArrayResource(
-                com.android.internal.R.array.config_defaultRoleHolders,
-                new String[] { RoleManagerAdapter.ROLE_DIALER + ": "
-                        + mInCallServiceComponentNameX.getPackageName() });
+        mComponentContextFixture.putResource(
+                com.android.server.telecom.R.string.ui_default_package,
+                mInCallServiceComponentNameX.getPackageName());
         mComponentContextFixture.putResource(
                 com.android.server.telecom.R.string.incall_default_class,
                 mInCallServiceComponentNameX.getClassName());

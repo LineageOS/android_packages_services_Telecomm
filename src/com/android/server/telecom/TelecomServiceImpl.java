@@ -28,13 +28,14 @@ import static android.Manifest.permission.WRITE_SECURE_SETTINGS;
 import android.Manifest;
 import android.app.ActivityManager;
 import android.app.AppOpsManager;
-import android.app.role.RoleManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Binder;
@@ -43,6 +44,7 @@ import android.os.Bundle;
 import android.os.Process;
 import android.os.UserHandle;
 import android.provider.Settings;
+import android.telecom.CallScreeningService;
 import android.telecom.Log;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
@@ -55,9 +57,7 @@ import android.text.TextUtils;
 import android.util.EventLog;
 
 import com.android.internal.telecom.ITelecomService;
-import com.android.internal.util.ArrayUtils;
 import com.android.internal.util.IndentingPrintWriter;
-import com.android.internal.util.Preconditions;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
 import com.android.server.telecom.settings.BlockedNumbersActivity;
 
@@ -676,7 +676,7 @@ public class TelecomServiceImpl {
                 // No need to synchronize
                 Resources resources = mContext.getResources();
                 return new ComponentName(
-                        TelecomServiceImpl.getSystemDialerPackage(mContext),
+                        resources.getString(R.string.ui_default_package),
                         resources.getString(R.string.dialer_default_class));
             } finally {
                 Log.endSession();
@@ -712,7 +712,7 @@ public class TelecomServiceImpl {
         public String getSystemDialerPackage() {
             try {
                 Log.startSession("TSI.gSDP");
-                return TelecomServiceImpl.getSystemDialerPackage(mContext);
+                return mContext.getResources().getString(R.string.ui_default_package);
             } finally {
                 Log.endSession();
             }
@@ -1745,15 +1745,6 @@ public class TelecomServiceImpl {
         mSubscriptionManagerAdapter = subscriptionManagerAdapter;
         mSettingsSecureAdapter = settingsSecureAdapter;
         mNuisanceCallReporter = nuisanceCallReporter;
-    }
-
-    public static String getSystemDialerPackage(Context context) {
-        String[] holders = context.getResources().getStringArray(
-                com.android.internal.R.array.config_defaultRoleHolders);
-        return TextUtils.withoutPrefix(RoleManagerAdapter.ROLE_DIALER + ": ",
-                Preconditions.checkNotNull(
-                        ArrayUtils.find(holders, s -> s.startsWith(RoleManagerAdapter.ROLE_DIALER)),
-                        "No system dialer configured"));
     }
 
     public ITelecomService.Stub getBinder() {
