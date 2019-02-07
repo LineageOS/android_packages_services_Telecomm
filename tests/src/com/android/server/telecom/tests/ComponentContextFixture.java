@@ -546,6 +546,10 @@ public class ComponentContextFixture implements TestFixture<Context> {
         when(mResources.getBoolean(eq(id))).thenReturn(value);
     }
 
+    public void putStringArrayResource(int id, String[] value) {
+        when(mResources.getStringArray(eq(id))).thenReturn(value);
+    }
+
     public void setTelecomManager(TelecomManager telecomManager) {
         mTelecomManager = telecomManager;
     }
