@@ -464,7 +464,7 @@ public class NewOutgoingCallIntentBroadcaster {
         Intent systemDialerIntent = new Intent();
         final Resources resources = mContext.getResources();
         systemDialerIntent.setClassName(
-                TelecomServiceImpl.getSystemDialerPackage(mContext),
+                resources.getString(R.string.ui_default_package),
                 resources.getString(R.string.dialer_default_class));
         systemDialerIntent.setAction(Intent.ACTION_DIAL);
         systemDialerIntent.setData(handle);
