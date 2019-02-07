@@ -256,7 +256,7 @@ public class TelecomSystem {
                         mContactsAsyncHelper, mLock);
 
         EmergencyCallHelper emergencyCallHelper = new EmergencyCallHelper(mContext,
-                TelecomServiceImpl.getSystemDialerPackage(mContext), timeoutsAdapter);
+                mContext.getResources().getString(R.string.ui_default_package), timeoutsAdapter);
 
         InCallControllerFactory inCallControllerFactory = new InCallControllerFactory() {
             @Override
