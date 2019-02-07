@@ -243,7 +243,7 @@ public class SelfManagedCallingActivity extends Activity {
 
     private void requestCallScreeningRole() {
         RoleManager roleManager = (RoleManager) getSystemService(ROLE_SERVICE);
-        Intent intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING_APP);
+        Intent intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING);
         startActivityForResult(intent, REQUEST_ID);
     }
 }
