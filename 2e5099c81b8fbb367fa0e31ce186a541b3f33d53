@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "69cb0bbc_ab7a963b",
+        "filename": "src/com/android/server/telecom/CallAudioModeStateMachine.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 11801
+      },
+      "writtenOn": "2019-02-08T21:05:33Z",
+      "side": 1,
+      "message": "I\u0027m not sure about this.",
+      "range": {
+        "startLine": 311,
+        "startChar": 42,
+        "endLine": 311,
+        "endChar": 98
+      },
+      "revId": "2e5099c81b8fbb367fa0e31ce186a541b3f33d53",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": true
+    }
+  ]
+}
