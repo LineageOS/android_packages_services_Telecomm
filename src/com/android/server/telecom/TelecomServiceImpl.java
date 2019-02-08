@@ -28,7 +28,6 @@ import static android.Manifest.permission.WRITE_SECURE_SETTINGS;
 import android.Manifest;
 import android.app.ActivityManager;
 import android.app.AppOpsManager;
-import android.app.role.RoleManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -55,9 +54,7 @@ import android.text.TextUtils;
 import android.util.EventLog;
 
 import com.android.internal.telecom.ITelecomService;
-import com.android.internal.util.ArrayUtils;
 import com.android.internal.util.IndentingPrintWriter;
-import com.android.internal.util.Preconditions;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
 import com.android.server.telecom.settings.BlockedNumbersActivity;
 
@@ -1748,12 +1745,7 @@ public class TelecomServiceImpl {
     }
 
     public static String getSystemDialerPackage(Context context) {
-        String[] holders = context.getResources().getStringArray(
-                com.android.internal.R.array.config_defaultRoleHolders);
-        return TextUtils.withoutPrefix(RoleManagerAdapter.ROLE_DIALER + ": ",
-                Preconditions.checkNotNull(
-                        ArrayUtils.find(holders, s -> s.startsWith(RoleManagerAdapter.ROLE_DIALER)),
-                        "No system dialer configured"));
+        return context.getResources().getString(com.android.internal.R.string.config_defaultDialer);
     }
 
     public ITelecomService.Stub getBinder() {

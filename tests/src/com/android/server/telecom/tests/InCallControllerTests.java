@@ -125,9 +125,8 @@ public class InCallControllerTests extends TelecomTestCase {
         MockitoAnnotations.initMocks(this);
         when(mMockCall.getAnalytics()).thenReturn(new Analytics.CallInfo());
         doReturn(mMockResources).when(mMockContext).getResources();
-        doReturn(new String[] { RoleManagerAdapter.ROLE_DIALER + ": " + SYS_PKG })
-                .when(mMockResources)
-                .getString(com.android.internal.R.array.config_defaultRoleHolders);
+        doReturn(SYS_PKG).when(mMockResources).getString(
+                com.android.internal.R.string.config_defaultDialer);
         doReturn(SYS_CLASS).when(mMockResources).getString(R.string.incall_default_class);
         doReturn(true).when(mMockResources).getBoolean(R.bool.grant_location_permission_enabled);
         mEmergencyCallHelper = new EmergencyCallHelper(mMockContext, SYS_PKG,
