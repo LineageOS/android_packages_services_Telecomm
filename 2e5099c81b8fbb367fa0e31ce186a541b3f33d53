@@ -22,6 +22,24 @@
       "revId": "2e5099c81b8fbb367fa0e31ce186a541b3f33d53",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7394f80d_f71c8916",
+        "filename": "src/com/android/server/telecom/CallAudioModeStateMachine.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 15173
+      },
+      "writtenOn": "2019-02-08T21:16:32Z",
+      "side": 1,
+      "message": "Tester verifies that it\u0027s required for call audio with preferred sim2 and sim1 removed",
+      "parentUuid": "69cb0bbc_ab7a963b",
+      "revId": "2e5099c81b8fbb367fa0e31ce186a541b3f33d53",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
