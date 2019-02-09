@@ -123,6 +123,12 @@ public class CallIntentProcessor {
             clientExtras = new Bundle();
         }
 
+        if (intent.hasExtra(TelecomManager.EXTRA_IS_USER_INTENT_EMERGENCY_CALL)) {
+            clientExtras.putBoolean(TelecomManager.EXTRA_IS_USER_INTENT_EMERGENCY_CALL,
+                    intent.getBooleanExtra(TelecomManager.EXTRA_IS_USER_INTENT_EMERGENCY_CALL,
+                            false));
+        }
+
         // Ensure call subject is passed on to the connection service.
         if (intent.hasExtra(TelecomManager.EXTRA_CALL_SUBJECT)) {
             String callsubject = intent.getStringExtra(TelecomManager.EXTRA_CALL_SUBJECT);
