@@ -83,8 +83,7 @@
     <string name="answering_ends_other_managed_video_call" msgid="1585423762458248435">"उत्तर देने से आपका जारी वीडियो कॉल समाप्त हो जाएगा"</string>
     <string name="answer_incoming_call" msgid="4140530013111794587">"उत्तर दें"</string>
     <string name="decline_incoming_call" msgid="806026168661598368">"अस्वीकार करें"</string>
-    <!-- no translation found for cant_call_due_to_no_supported_service (5128162419227548372) -->
-    <skip />
+    <string name="cant_call_due_to_no_supported_service" msgid="5128162419227548372">"कॉल नहीं किया जा सकता क्योंकि कॉल करने के लिए ऐसा कोई खाता नहीं है जिस पर इस तरह के कॉल की सुविधा हो."</string>
     <string name="cant_call_due_to_ongoing_call" msgid="4952615196237854748">"आपके <xliff:g id="OTHER_CALL">%1$s</xliff:g> कॉल के कारण कॉल नहीं लगाया जा सकता."</string>
     <string name="cant_call_due_to_ongoing_calls" msgid="1380804892363503856">"आपके <xliff:g id="OTHER_CALL">%1$s</xliff:g> कॉल के कारण कॉल नहीं लगाया जा सकता."</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"किसी दूसरे ऐप्लिकेशन में कॉल के कारण कॉल नहीं लगाया जा सकता."</string>
