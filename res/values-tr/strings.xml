@@ -83,8 +83,7 @@
     <string name="answering_ends_other_managed_video_call" msgid="1585423762458248435">"Cevapladığınızda, devam eden görüntülü görüşme sona erecek"</string>
     <string name="answer_incoming_call" msgid="4140530013111794587">"Cevapla"</string>
     <string name="decline_incoming_call" msgid="806026168661598368">"Reddet"</string>
-    <!-- no translation found for cant_call_due_to_no_supported_service (5128162419227548372) -->
-    <skip />
+    <string name="cant_call_due_to_no_supported_service" msgid="5128162419227548372">"Bu tür görüşmeleri destekleyen bir arama hesabı olmadığı için arama yapılamıyor."</string>
     <string name="cant_call_due_to_ongoing_call" msgid="4952615196237854748">"Devam eden <xliff:g id="OTHER_CALL">%1$s</xliff:g> çağrınız nedeniyle telefon araması yapılamıyor."</string>
     <string name="cant_call_due_to_ongoing_calls" msgid="1380804892363503856">"Devam eden <xliff:g id="OTHER_CALL">%1$s</xliff:g> çağrılarınız nedeniyle telefon araması yapılamıyor."</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"Başka bir uygulamada devam eden çağrınız nedeniyle telefon araması yapılamıyor."</string>

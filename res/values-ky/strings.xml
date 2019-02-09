@@ -83,8 +83,7 @@
     <string name="answering_ends_other_managed_video_call" msgid="1585423762458248435">"Чалууга жооп берсеңиз, учурдагы видео чалууңуз бүтүп калат"</string>
     <string name="answer_incoming_call" msgid="4140530013111794587">"Жооп берүү"</string>
     <string name="decline_incoming_call" msgid="806026168661598368">"Четке кагуу"</string>
-    <!-- no translation found for cant_call_due_to_no_supported_service (5128162419227548372) -->
-    <skip />
+    <string name="cant_call_due_to_no_supported_service" msgid="5128162419227548372">"Бул түрдөгү чалуударды колдоого алган чалуу аккаунттары жок болгондуктан, чалуу аткарылбай койду."</string>
     <string name="cant_call_due_to_ongoing_call" msgid="4952615196237854748">"Учурда <xliff:g id="OTHER_CALL">%1$s</xliff:g> чалууңуздан улам, башка жерге чала албайсыз."</string>
     <string name="cant_call_due_to_ongoing_calls" msgid="1380804892363503856">"Учурда <xliff:g id="OTHER_CALL">%1$s</xliff:g> чалууларыңуздан улам, башка жерге чала албайсыз."</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"Башка колдонмодо чалып жатасыз, ошондуктан чала албайсыз."</string>
