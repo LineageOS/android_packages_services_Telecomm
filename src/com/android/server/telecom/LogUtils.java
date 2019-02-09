@@ -150,6 +150,8 @@ public class LogUtils {
             public static final String BLOCK_CHECK_FINISHED_TIMING = "block_check_finished";
             public static final String FILTERING_COMPLETED_TIMING = "filtering_completed";
             public static final String FILTERING_TIMED_OUT_TIMING = "filtering_timed_out";
+            public static final String START_CONNECTION_TO_REQUEST_DISCONNECT_TIMING =
+                    "start_connection_to_request_disconnect";
 
             private static final TimedEventPair[] sTimedEvents = {
                     new TimedEventPair(REQUEST_ACCEPT, SET_ACTIVE, ACCEPT_TIMING),
@@ -170,6 +172,8 @@ public class LogUtils {
                             FILTERING_COMPLETED_TIMING),
                     new TimedEventPair(FILTERING_INITIATED, FILTERING_TIMED_OUT,
                             FILTERING_TIMED_OUT_TIMING, 6000L),
+                    new TimedEventPair(START_CONNECTION, REQUEST_DISCONNECT,
+                            START_CONNECTION_TO_REQUEST_DISCONNECT_TIMING),
             };
         }
     }
