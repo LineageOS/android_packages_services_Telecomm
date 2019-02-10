@@ -141,7 +141,7 @@ public class DefaultDialerCache {
         mContext = context;
         mDefaultDialerManagerAdapter = defaultDialerManagerAdapter;
         mLock = lock;
-        mSystemDialerName = mContext.getResources().getString(R.string.ui_default_package);
+        mSystemDialerName = TelecomServiceImpl.getSystemDialerPackage(mContext);
 
         IntentFilter packageIntentFilter = new IntentFilter();
         packageIntentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);

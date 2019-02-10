@@ -34,8 +34,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Binder;
@@ -44,7 +42,6 @@ import android.os.Bundle;
 import android.os.Process;
 import android.os.UserHandle;
 import android.provider.Settings;
-import android.telecom.CallScreeningService;
 import android.telecom.Log;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
@@ -676,7 +673,7 @@ public class TelecomServiceImpl {
                 // No need to synchronize
                 Resources resources = mContext.getResources();
                 return new ComponentName(
-                        resources.getString(R.string.ui_default_package),
+                        TelecomServiceImpl.getSystemDialerPackage(mContext),
                         resources.getString(R.string.dialer_default_class));
             } finally {
                 Log.endSession();
@@ -712,7 +709,7 @@ public class TelecomServiceImpl {
         public String getSystemDialerPackage() {
             try {
                 Log.startSession("TSI.gSDP");
-                return mContext.getResources().getString(R.string.ui_default_package);
+                return TelecomServiceImpl.getSystemDialerPackage(mContext);
             } finally {
                 Log.endSession();
             }
@@ -1745,6 +1742,10 @@ public class TelecomServiceImpl {
         mSubscriptionManagerAdapter = subscriptionManagerAdapter;
         mSettingsSecureAdapter = settingsSecureAdapter;
         mNuisanceCallReporter = nuisanceCallReporter;
+    }
+
+    public static String getSystemDialerPackage(Context context) {
+        return context.getResources().getString(com.android.internal.R.string.config_defaultDialer);
     }
 
     public ITelecomService.Stub getBinder() {

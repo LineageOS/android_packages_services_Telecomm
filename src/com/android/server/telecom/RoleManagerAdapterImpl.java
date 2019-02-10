@@ -30,10 +30,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RoleManagerAdapterImpl implements RoleManagerAdapter {
-    private static final String ROLE_CALL_REDIRECTION_APP = RoleManager.ROLE_PROXY_CALLING_APP;
-    private static final String ROLE_CAR_MODE_DIALER = RoleManager.ROLE_CAR_MODE_DIALER_APP;
-    private static final String ROLE_CALL_SCREENING = RoleManager.ROLE_CALL_SCREENING_APP;
-    private static final String ROLE_CALL_COMPANION_APP = RoleManager.ROLE_CALL_COMPANION_APP;
+    private static final String ROLE_CALL_REDIRECTION_APP = RoleManager.ROLE_CALL_REDIRECTION;
+    private static final String ROLE_CAR_MODE_DIALER = RoleManager.ROLE_CAR_MODE_DIALER;
+    private static final String ROLE_CALL_SCREENING = RoleManager.ROLE_CALL_SCREENING;
+    private static final String ROLE_CALL_COMPANION_APP = RoleManager.ROLE_CALL_COMPANION;
 
     private String mOverrideDefaultCallRedirectionApp = null;
     private String mOverrideDefaultCallScreeningApp = null;
