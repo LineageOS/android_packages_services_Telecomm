@@ -26,7 +26,7 @@
     <string name="notification_missedCallTicker" msgid="504686252427747209">"<xliff:g id="MISSED_CALL_FROM">%s</xliff:g> এর থেকে মিসড কল"</string>
     <string name="notification_missedCall_call_back" msgid="2684890353590890187">"কল ব্যাক করুন"</string>
     <string name="notification_missedCall_message" msgid="3049928912736917988">"মেসেজ"</string>
-    <string name="accessibility_call_muted" msgid="2776111226185342220">"কল নিঃশব্দ করা আছে৷"</string>
+    <string name="accessibility_call_muted" msgid="2776111226185342220">"কল মিউট করা আছে৷"</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"স্পীকারফোন সক্ষম করা আছে৷"</string>
     <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"এখন কথা বলতে পারছি না৷ কি খবর?"</string>
     <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"আমি আপনাকে কিছুক্ষণ পরেই কল করছি৷"</string>
@@ -49,12 +49,12 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"ডিফল্ট হিসাবে সেট করুন"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"বাতিল করুন"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> কল করতে এবং কলের সমগ্র বৈশিষ্ট্য নিয়ন্ত্রণ করতে সক্ষম হবে৷ শুধুমাত্র আপনি যে অ্যাপ্সকে বিশ্বাস করেন সেগুলিকেই ডিফল্ট ফোন অ্যাপ হিসাবে সেট করা উচিৎ৷"</string>
-    <string name="blocked_numbers" msgid="2751843139572970579">"অবরুদ্ধ নম্বরগুলি"</string>
-    <string name="blocked_numbers_msg" msgid="1045015186124965643">"অবরুদ্ধ নম্বরগুলি থেকে আপনি কল বা এসএমএস পাবেন না।"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"ব্লক করা নম্বরগুলি"</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"ব্লক করা নম্বরগুলি থেকে আপনি কল বা এসএমএস পাবেন না।"</string>
     <string name="block_number" msgid="1101252256321306179">"একটি নম্বর যোগ করুন"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> অবরোধ মুক্ত করবেন?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"অবরোধ মুক্ত করুন"</string>
-    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"এর থেকে কল এবং এসএমএস অবরোধ করুন"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"এর থেকে কল এবং এসএমএস ব্লক করুন"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"ফোন নম্বর"</string>
     <string name="block_button" msgid="8822290682524373357">"অবরোধ করুন"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"শুধুমাত্র ডিভাইসের মালিক এই অবরুদ্ধ নম্বরগুলিকে দেখতে এবং পরিচালনা করতে পারেন৷"</string>

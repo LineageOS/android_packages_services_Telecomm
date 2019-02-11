@@ -143,6 +143,9 @@ public class Analytics {
                         ParcelableCallAnalytics.EventTiming.FILTERING_COMPLETED_TIMING);
                 put(LogUtils.Events.Timings.FILTERING_TIMED_OUT_TIMING,
                         ParcelableCallAnalytics.EventTiming.FILTERING_TIMED_OUT_TIMING);
+                put(LogUtils.Events.Timings.START_CONNECTION_TO_REQUEST_DISCONNECT_TIMING,
+                        ParcelableCallAnalytics.EventTiming.
+                                START_CONNECTION_TO_REQUEST_DISCONNECT_TIMING);
             }};
 
     public static final Map<Integer, String> sSessionIdToLogSession = new HashMap<>();
@@ -191,6 +194,9 @@ public class Analytics {
 
         public void addCallProperties(int properties) {
         }
+
+        public void setCallSource(int callSource) {
+        }
     }
 
     /**
@@ -224,6 +230,7 @@ public class Analytics {
         public List<TelecomLogClass.VideoEvent> videoEvents;
         public List<TelecomLogClass.InCallServiceInfo> inCallServiceInfos;
         public int callProperties = 0;
+        public int callSource = CALL_SOURCE_UNSPECIFIED;
 
         private long mTimeOfLastVideoEvent = -1;
 
@@ -253,6 +260,7 @@ public class Analytics {
             this.isVideo = other.isVideo;
             this.videoEvents = other.videoEvents;
             this.callProperties = other.callProperties;
+            this.callSource = other.callSource;
 
             if (other.callTerminationReason != null) {
                 this.callTerminationReason = new DisconnectCause(
@@ -356,6 +364,11 @@ public class Analytics {
         }
 
         @Override
+        public void setCallSource(int callSource) {
+            this.callSource = callSource;
+        }
+
+        @Override
         public String toString() {
             return "{\n"
                     + "    startTime: " + startTime + '\n'
@@ -370,6 +383,7 @@ public class Analytics {
                     + "    inCallServices: " + getInCallServicesString() + '\n'
                     + "    callProperties: " + Connection.propertiesToStringShort(callProperties)
                     + '\n'
+                    + "    callSource: " + getCallSourceString() + '\n'
                     + "}\n";
         }
 
@@ -412,6 +426,8 @@ public class Analytics {
                             videoEventProto.getVideoState())
                     ).collect(Collectors.toList()));
 
+            result.setCallSource(analyticsProto.getCallSource());
+
             return result;
         }
 
@@ -438,7 +454,8 @@ public class Analytics {
                     .setIsCreatedFromExistingConnection(createdFromExistingConnection)
                     .setIsEmergencyCall(isEmergency)
                     .setIsVideoCall(isVideo)
-                    .setConnectionProperties(callProperties);
+                    .setConnectionProperties(callProperties)
+                    .setCallSource(callSource);
 
             result.connectionService = new String[] {connectionService};
             if (callEvents != null) {
@@ -502,6 +519,19 @@ public class Analytics {
             s.append("]");
             return s.toString();
         }
+
+        private String getCallSourceString() {
+            switch (callSource) {
+                case CALL_SOURCE_UNSPECIFIED:
+                    return "UNSPECIFIED";
+                case CALL_SOURCE_EMERGENCY_DIALPAD:
+                    return "EMERGENCY_DIALPAD";
+                case CALL_SOURCE_EMERGENCY_SHORTCUT:
+                    return "EMERGENCY_SHORTCUT";
+                default:
+                    return "UNSPECIFIED";
+            }
+        }
     }
     public static final String TAG = "TelecomAnalytics";
 
@@ -516,6 +546,14 @@ public class Analytics {
     public static final int IMS_PHONE = ParcelableCallAnalytics.IMS_PHONE;
     public static final int SIP_PHONE = ParcelableCallAnalytics.SIP_PHONE;
     public static final int THIRD_PARTY_PHONE = ParcelableCallAnalytics.THIRD_PARTY_PHONE;
+
+    // Constants for call source
+    public static final int CALL_SOURCE_UNSPECIFIED =
+            ParcelableCallAnalytics.CALL_SOURCE_UNSPECIFIED;
+    public static final int CALL_SOURCE_EMERGENCY_DIALPAD =
+            ParcelableCallAnalytics.CALL_SOURCE_EMERGENCY_DIALPAD;
+    public static final int CALL_SOURCE_EMERGENCY_SHORTCUT =
+            ParcelableCallAnalytics.CALL_SOURCE_EMERGENCY_SHORTCUT;
 
     // Constants for video events
     public static final int SEND_LOCAL_SESSION_MODIFY_REQUEST =

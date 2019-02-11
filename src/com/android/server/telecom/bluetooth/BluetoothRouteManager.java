@@ -597,13 +597,19 @@ public class BluetoothRouteManager extends StateMachine {
 
         String actualAddress = matchingDevice.isPresent()
                 ? address : getActiveDeviceAddress();
+        if (actualAddress == null) {
+            Log.i(this, "No device specified and BT stack has no active device."
+                    + " Using arbitrary device");
+            if (deviceList.size() > 0) {
+                actualAddress = deviceList.iterator().next().getAddress();
+            } else {
+                Log.i(this, "No devices available at all. Not connecting.");
+                return null;
+            }
+        }
         if (!matchingDevice.isPresent()) {
             Log.i(this, "No device with address %s available. Using %s instead.",
                     address, actualAddress);
-        }
-        if (actualAddress == null) {
-            Log.i(this, "No device specified and BT stack has no active device. Not connecting.");
-            return null;
         }
         if (!connectAudio(actualAddress)) {
             boolean shouldRetry = retryCount < MAX_CONNECTION_RETRIES;
