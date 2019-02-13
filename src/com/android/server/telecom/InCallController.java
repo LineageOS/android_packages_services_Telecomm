@@ -797,7 +797,8 @@ public class InCallController extends CallsManagerListenerBase {
 
                 ParcelableCall parcelableCall = ParcelableCallUtils.toParcelableCall(call,
                         true /* includeVideoProvider */, mCallsManager.getPhoneAccountRegistrar(),
-                        info.isExternalCallsSupported(), includeRttCall);
+                        info.isExternalCallsSupported(), includeRttCall,
+                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI);
                 try {
                     inCallService.addCall(parcelableCall);
                 } catch (RemoteException ignored) {
@@ -861,7 +862,8 @@ public class InCallController extends CallsManagerListenerBase {
 
                 ParcelableCall parcelableCall = ParcelableCallUtils.toParcelableCall(call,
                         true /* includeVideoProvider */, mCallsManager.getPhoneAccountRegistrar(),
-                        info.isExternalCallsSupported(), includeRttCall);
+                        info.isExternalCallsSupported(), includeRttCall,
+                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI);
                 try {
                     inCallService.addCall(parcelableCall);
                 } catch (RemoteException ignored) {
@@ -872,15 +874,7 @@ public class InCallController extends CallsManagerListenerBase {
             // The call was regular but it is now external.  We must now remove it from any
             // InCallServices which do not support external calls.
             // Remove the call by sending a call update indicating the call was disconnected.
-            ParcelableCall parcelableCall = ParcelableCallUtils.toParcelableCall(
-                    call,
-                    false /* includeVideoProvider */,
-                    mCallsManager.getPhoneAccountRegistrar(),
-                    false /* supportsExternalCalls */,
-                    android.telecom.Call.STATE_DISCONNECTED /* overrideState */,
-                    false /* includeRttCall */);
-
-            Log.i(this, "Removing external call %s ==> %s", call, parcelableCall);
+            Log.i(this, "Removing external call %", call);
             for (Map.Entry<InCallServiceInfo, IInCallService> entry : mInCallServices.entrySet()) {
                 InCallServiceInfo info = entry.getKey();
                 if (info.isExternalCallsSupported()) {
@@ -891,6 +885,16 @@ public class InCallController extends CallsManagerListenerBase {
 
                 componentsUpdated.add(info.getComponentName());
                 IInCallService inCallService = entry.getValue();
+
+                ParcelableCall parcelableCall = ParcelableCallUtils.toParcelableCall(
+                        call,
+                        false /* includeVideoProvider */,
+                        mCallsManager.getPhoneAccountRegistrar(),
+                        false /* supportsExternalCalls */,
+                        android.telecom.Call.STATE_DISCONNECTED /* overrideState */,
+                        false /* includeRttCall */,
+                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI
+                        );
 
                 try {
                     inCallService.updateCall(parcelableCall);
@@ -1387,7 +1391,8 @@ public class InCallController extends CallsManagerListenerBase {
                         true /* includeVideoProvider */,
                         mCallsManager.getPhoneAccountRegistrar(),
                         info.isExternalCallsSupported(),
-                        includeRttCall));
+                        includeRttCall,
+                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI));
             } catch (RemoteException ignored) {
             }
         }
@@ -1449,7 +1454,8 @@ public class InCallController extends CallsManagerListenerBase {
                         videoProviderChanged /* includeVideoProvider */,
                         mCallsManager.getPhoneAccountRegistrar(),
                         info.isExternalCallsSupported(),
-                        rttInfoChanged && info.equals(mInCallServiceConnection.getInfo()));
+                        rttInfoChanged && info.equals(mInCallServiceConnection.getInfo()),
+                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI);
                 ComponentName componentName = info.getComponentName();
                 IInCallService inCallService = entry.getValue();
                 componentsUpdated.add(componentName);

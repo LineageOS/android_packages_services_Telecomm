@@ -2065,7 +2065,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * @param source The source of the extras addition.
      * @param extras The extras.
      */
-    void putExtras(int source, Bundle extras) {
+    public void putExtras(int source, Bundle extras) {
         if (extras == null) {
             return;
         }
