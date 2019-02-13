@@ -311,6 +311,38 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
         }
     }
 
+    // This function is used after previous attempts to find emergency PSTN connections
+    // do not find any SIM phone accounts with emergency capability.
+    // It attempts to add any accounts with CAPABILITY_PLACE_EMERGENCY_CALLS even if
+    // accounts are not SIM accounts.
+    private void adjustAttemptsForEmergencyNoSimRequired(
+            PhoneAccountHandle preferredPAH,
+            List<PhoneAccount> allAccounts) {
+        // First, possibly add the phone account that the user prefers.
+        PhoneAccount preferredPA = mPhoneAccountRegistrar.getPhoneAccountUnchecked(preferredPAH);
+        if (preferredPA != null
+                && preferredPA.hasCapabilities(PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS)) {
+            Log.i(this, "Will try account %s for emergency", preferredPA.getAccountHandle());
+            mAttemptRecords.add(new CallAttemptRecord(preferredPAH, preferredPAH));
+        }
+
+        // Next, add all phone accounts which can place emergency calls.
+        // If preferredPA already has an emergency PhoneAccount, do not add others since the
+        // emergency call be redialed in Telephony.
+        if (mAttemptRecords.isEmpty()) {
+            for (PhoneAccount phoneAccount : allAccounts) {
+                if (phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS)) {
+                    PhoneAccountHandle phoneAccountHandle = phoneAccount.getAccountHandle();
+                    Log.i(this, "Will try account %s for emergency", phoneAccountHandle);
+                    mAttemptRecords.add(
+                            new CallAttemptRecord(phoneAccountHandle, phoneAccountHandle));
+                    // Add only one emergency PhoneAccount to the attempt list.
+                    break;
+                }
+            }
+        }
+    }
+
     // If we are possibly attempting to call a local emergency number, ensure that the
     // plain PSTN connection services are listed, and nothing else.
     private void adjustAttemptsForEmergency(PhoneAccountHandle preferredPAH) {
@@ -382,6 +414,12 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
                         mAttemptRecords.add(callAttemptRecord);
                     }
                 }
+            }
+
+            if (mAttemptRecords.isEmpty()) {
+                // Last best-effort attempt: choose any account with emergency capability even without
+                // sim capability.
+                adjustAttemptsForEmergencyNoSimRequired(preferredPAH, allAccounts);
             }
         }
     }
