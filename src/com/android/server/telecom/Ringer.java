@@ -223,7 +223,16 @@ public class Ringer {
         Ringtone ringtone = factory.getRingtone(call);
         Uri ringtoneUri = ringtone != null ? ringtone.getUri() : null;
         if (ringtoneUri != null) {
-            effect = mVibrationEffectProxy.get(ringtoneUri, mContext);
+            try {
+                effect = mVibrationEffectProxy.get(ringtoneUri, mContext);
+            } catch (IllegalArgumentException iae) {
+                // Deep in the bowels of the VibrationEffect class it is possible for an
+                // IllegalArgumentException to be thrown if there is an invalid URI specified in the
+                // device config, or a content provider failure.  Rather than crashing the Telecom
+                // process we will just use the default vibration effect.
+                Log.e(this, iae, "getVibrationEffectForCall: failed to get vibration effect");
+                effect = null;
+            }
         }
 
         if (effect == null) {
