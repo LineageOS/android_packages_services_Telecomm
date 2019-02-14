@@ -1442,6 +1442,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 }
                 return;
             case UPDATE_SYSTEM_AUDIO_ROUTE:
+                updateInternalCallAudioState();
                 updateRouteForForegroundCall();
                 resendSystemAudioState();
                 return;
