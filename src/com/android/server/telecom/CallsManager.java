@@ -66,7 +66,6 @@ import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Pair;
-import android.widget.Toast;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telephony.AsyncEmergencyContactNotifier;
@@ -632,11 +631,11 @@ public class CallsManager extends Call.ListenerBase
                 new TelecomServiceImpl.SettingsSecureAdapterImpl(), mCallerInfoLookupHelper,
                 new CallScreeningServiceHelper.AppLabelProxy() {
                     @Override
-                    public String getAppLabel(String packageName) {
+                    public CharSequence getAppLabel(String packageName) {
                         PackageManager pm = mContext.getPackageManager();
                         try {
                             ApplicationInfo info = pm.getApplicationInfo(packageName, 0);
-                            return (String) pm.getApplicationLabel(info);
+                            return pm.getApplicationLabel(info);
                         } catch (PackageManager.NameNotFoundException nnfe) {
                             Log.w(this, "Could not determine package name.");
                         }
@@ -1571,12 +1570,12 @@ public class CallsManager extends Call.ListenerBase
                 theCall,
                 new CallScreeningServiceHelper.AppLabelProxy() {
                     @Override
-                    public String getAppLabel(String packageName) {
+                    public CharSequence getAppLabel(String packageName) {
                         PackageManager pm = mContext.getPackageManager();
                         try {
                             ApplicationInfo info = pm.getApplicationInfo(
                                     packageName, 0);
-                            return (String) pm.getApplicationLabel(info);
+                            return pm.getApplicationLabel(info);
                         } catch (PackageManager.NameNotFoundException nnfe) {
                             Log.w(this, "Could not determine package name.");
                         }
