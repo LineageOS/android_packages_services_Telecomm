@@ -438,6 +438,11 @@ public class VideoProviderProxy extends Connection.VideoProvider {
             logFromInCall("sendSessionModifyRequest: from=" + fromProfile + " to=" + toProfile);
             Log.addEvent(mCall, LogUtils.Events.SEND_VIDEO_REQUEST,
                     VideoProfile.videoStateToString(toProfile.getVideoState()));
+            if (!VideoProfile.isVideo(fromProfile.getVideoState())
+                    && VideoProfile.isVideo(toProfile.getVideoState())) {
+                // Upgrading to video; change to speaker potentially.
+                mCall.maybeEnableSpeakerForVideoUpgrade(toProfile.getVideoState());
+            }
             mCall.getAnalytics().addVideoEvent(
                     Analytics.SEND_LOCAL_SESSION_MODIFY_REQUEST,
                     toProfile.getVideoState());
