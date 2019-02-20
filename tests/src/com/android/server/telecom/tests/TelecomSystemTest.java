@@ -739,6 +739,7 @@ public class TelecomSystemTest extends TelecomTestCase {
                             any(UserHandle.class),
                             anyString(),
                             anyInt(),
+                            any(Bundle.class),
                             newOutgoingCallReceiver.capture(),
                             nullable(Handler.class),
                             anyInt(),
