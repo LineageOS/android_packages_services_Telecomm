@@ -16,6 +16,8 @@
 
 package com.android.server.telecom.tests;
 
+import static junit.framework.TestCase.fail;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -102,9 +104,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(JUnit4.class)
 public class CallsManagerTest extends TelecomTestCase {
+    private static final int TEST_TIMEOUT = 5000;  // milliseconds
     private static final PhoneAccountHandle SIM_1_HANDLE = new PhoneAccountHandle(
             ComponentName.unflattenFromString("com.foo/.Blah"), "Sim1");
     private static final PhoneAccountHandle SIM_2_HANDLE = new PhoneAccountHandle(
@@ -958,6 +963,67 @@ public class CallsManagerTest extends TelecomTestCase {
         assertTrue(ongoingCall.isEmergencyCall());
         assertFalse(ongoingCall.isNetworkIdentifiedEmergencyCall());
         assertTrue(mCallsManager.isInEmergencyCall());
+    }
+
+    /**
+     * Verifies that changes to a {@link PhoneAccount}'s
+     * {@link PhoneAccount#CAPABILITY_VIDEO_CALLING} capability will be reflected on a call.
+     * @throws Exception
+     */
+    @SmallTest
+    @Test
+    public void testPhoneAccountVideoAvailability() throws InterruptedException {
+        Call ongoingCall = addSpyCall(); // adds to SIM_2_ACCT
+        LinkedBlockingQueue<Integer> capabilitiesQueue = new LinkedBlockingQueue<>(1);
+        ongoingCall.addListener(new Call.ListenerBase() {
+            @Override
+            public void onConnectionCapabilitiesChanged(Call call) {
+                try {
+                    Log.i("TYLER", "Listener got " + call.getConnectionCapabilities());
+                    capabilitiesQueue.put(call.getConnectionCapabilities());
+                } catch (InterruptedException e) {
+                    fail();
+                }
+            }
+        });
+
+        // Lets make the phone account video capable.
+        PhoneAccount videoCapableAccount = new PhoneAccount.Builder(SIM_2_ACCOUNT)
+                .setCapabilities(SIM_2_ACCOUNT.getCapabilities()
+                        | PhoneAccount.CAPABILITY_VIDEO_CALLING)
+                .build();
+        mCallsManager.getPhoneAccountListener().onPhoneAccountChanged(mPhoneAccountRegistrar,
+                videoCapableAccount);
+        // Absorb first update; it'll be from when phone account changed initially (since we force
+        // a capabilities update.
+        int newCapabilities = capabilitiesQueue.poll(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
+
+        // Lets pretend the ConnectionService made it video capable as well.
+        ongoingCall.setConnectionCapabilities(
+                Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL);
+        newCapabilities = capabilitiesQueue.poll(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
+        assertTrue(Connection.can(newCapabilities,
+                Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL));
+        assertTrue(ongoingCall.isVideoCallingSupportedByPhoneAccount());
+
+        // Fire a changed event for the phone account making it not capable.
+        mCallsManager.getPhoneAccountListener().onPhoneAccountChanged(mPhoneAccountRegistrar,
+                SIM_2_ACCOUNT);
+        newCapabilities = capabilitiesQueue.poll(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
+        assertFalse(Connection.can(newCapabilities,
+                Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL));
+        assertFalse(ongoingCall.isVideoCallingSupportedByPhoneAccount());
+
+        // Fire a change for an unrelated phone account.
+        PhoneAccount anotherVideoCapableAcct = new PhoneAccount.Builder(SIM_1_ACCOUNT)
+                .setCapabilities(SIM_2_ACCOUNT.getCapabilities()
+                        | PhoneAccount.CAPABILITY_VIDEO_CALLING)
+                .build();
+        mCallsManager.getPhoneAccountListener().onPhoneAccountChanged(mPhoneAccountRegistrar,
+                anotherVideoCapableAcct);
+        // Call still should not be video capable
+        assertFalse(Connection.can(ongoingCall.getConnectionCapabilities(),
+                Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL));
     }
 
     private Call addSpyCallWithConnectionService(ConnectionServiceWrapper connSvr) {
