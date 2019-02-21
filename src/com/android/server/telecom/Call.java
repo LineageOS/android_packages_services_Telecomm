@@ -1251,6 +1251,23 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     /**
+     * Sets whether video calling is supported by the current phone account. Since video support
+     * can change during a call, this method facilitates updating call video state.
+     * @param isVideoCallingSupported Sets whether video calling is supported.
+     */
+    public void setVideoCallingSupportedByPhoneAccount(boolean isVideoCallingSupported) {
+        if (mIsVideoCallingSupportedByPhoneAccount == isVideoCallingSupported) {
+            return;
+        }
+        Log.i(this, "setVideoCallingSupportedByPhoneAccount: isSupp=%b", isVideoCallingSupported);
+        mIsVideoCallingSupportedByPhoneAccount = isVideoCallingSupported;
+
+        // Force an update of the connection capabilities so that the dialer is informed of the new
+        // video capabilities based on the phone account's support for video.
+        setConnectionCapabilities(getConnectionCapabilities(), true /* force */);
+    }
+
+    /**
      * @return {@code true} if the {@link Call} locally supports video.
      */
     public boolean isLocallyVideoCapable() {
@@ -1363,8 +1380,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
         PhoneAccount phoneAccount =
                 phoneAccountRegistrar.getPhoneAccountUnchecked(mTargetPhoneAccountHandle);
-        mIsVideoCallingSupportedByPhoneAccount = phoneAccount != null && phoneAccount.hasCapabilities(
-                    PhoneAccount.CAPABILITY_VIDEO_CALLING);
+        mIsVideoCallingSupportedByPhoneAccount = phoneAccount != null &&
+                phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_VIDEO_CALLING);
 
         if (!mIsVideoCallingSupportedByPhoneAccount && VideoProfile.isVideo(getVideoState())) {
             // The PhoneAccount for the Call was set to one which does not support video calling,
@@ -1455,7 +1472,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         mConnectElapsedTimeMillis = connectElapsedTimeMillis;
     }
 
-    int getConnectionCapabilities() {
+    public int getConnectionCapabilities() {
         return mConnectionCapabilities;
     }
 
@@ -1463,7 +1480,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         return mConnectionProperties;
     }
 
-    void setConnectionCapabilities(int connectionCapabilities) {
+    public void setConnectionCapabilities(int connectionCapabilities) {
         setConnectionCapabilities(connectionCapabilities, false /* forceUpdate */);
     }
 

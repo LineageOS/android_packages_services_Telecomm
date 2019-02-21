@@ -126,6 +126,8 @@ public class PhoneAccountRegistrar {
                                              PhoneAccountHandle handle) {}
         public void onPhoneAccountUnRegistered(PhoneAccountRegistrar registrar,
                                              PhoneAccountHandle handle) {}
+        public void onPhoneAccountChanged(PhoneAccountRegistrar registrar,
+                PhoneAccount phoneAccount) {}
     }
 
     /**
@@ -743,6 +745,8 @@ public class PhoneAccountRegistrar {
         fireAccountsChanged();
         if (isNewAccount) {
             fireAccountRegistered(account.getAccountHandle());
+        } else {
+            fireAccountChanged(account);
         }
     }
 
@@ -801,6 +805,12 @@ public class PhoneAccountRegistrar {
     private void fireAccountRegistered(PhoneAccountHandle handle) {
         for (Listener l : mListeners) {
             l.onPhoneAccountRegistered(this, handle);
+        }
+    }
+
+    private void fireAccountChanged(PhoneAccount account) {
+        for (Listener l : mListeners) {
+            l.onPhoneAccountChanged(this, account);
         }
     }
 

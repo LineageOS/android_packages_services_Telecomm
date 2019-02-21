@@ -308,6 +308,13 @@ public class ComponentContextFixture implements TestFixture<Context> {
         }
 
         @Override
+        public void sendOrderedBroadcastAsUser(Intent intent, UserHandle user,
+                String receiverPermission, int appOp, Bundle options,
+                BroadcastReceiver resultReceiver, Handler scheduler, int initialCode,
+                String initialData, Bundle initialExtras) {
+        }
+
+        @Override
         public Context createPackageContextAsUser(String packageName, int flags, UserHandle user)
                 throws PackageManager.NameNotFoundException {
             return this;
