@@ -37,7 +37,6 @@
     <string name="respond_via_sms_setting_summary" msgid="9150281183930613065"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="20379890418289778">"Tezkor javob"</string>
     <string name="respond_via_sms_confirmation_format" msgid="7229149977515784269">"Xabar <xliff:g id="PHONE_NUMBER">%s</xliff:g>ga jo‘natildi."</string>
-    <string name="respond_via_sms_failure_format" msgid="90791421289769504">"Xabar <xliff:g id="PHONE_NUMBER">%s</xliff:g> raqamiga yuborilmadi."</string>
     <string name="enable_account_preference_title" msgid="2021848090086481720">"Chaqiruv uchun hisoblar"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="6872406278300131364">"Faqat favqulodda qo‘ng‘iroqlarga ruxsat berilgan."</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="1996571596464271228">"Bu ilova Telefon ruxsatnomasisiz chiquvchi qo‘ng‘iroqlarni amalga oshira olmaydi."</string>
@@ -69,7 +68,7 @@
     <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> raqami allaqachon bloklangan."</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Qo‘ng‘iroq qilish uchun shaxsiy raqam tergichdan foydalanilmoqda"</string>
     <string name="notification_incoming_call" msgid="7713197997773986670">"<xliff:g id="CALL_FROM">%2$s</xliff:g> <xliff:g id="CALL_VIA">%1$s</xliff:g> orqali chaqirmoqda"</string>
-    <string name="notification_incoming_video_call" msgid="6638486071698373893">"<xliff:g id="CALL_FROM">%2$s</xliff:g> <xliff:g id="CALL_VIA">%1$s</xliff:g> orqali video chaqiruv"</string>
+    <string name="notification_incoming_video_call" msgid="6638486071698373893">"<xliff:g id="CALL_FROM">%2$s</xliff:g> <xliff:g id="CALL_VIA">%1$s</xliff:g> orqali video qo‘ng‘iroq qilmoqda"</string>
     <string name="answering_ends_other_call" msgid="8282145910153766401">"Chaqiruvga javob berilsa, <xliff:g id="CALL_VIA">%1$s</xliff:g> qo‘ng‘irog‘i tugatiladi."</string>
     <string name="answering_ends_other_calls" msgid="1198589551399049197">"Chaqiruvga javob berilsa, <xliff:g id="CALL_VIA">%1$s</xliff:g> qo‘ng‘iroqlari tugatiladi."</string>
     <string name="answering_ends_other_video_call" msgid="8510410917384186360">"Chaqiruvga javob berilsa, <xliff:g id="CALL_VIA">%1$s</xliff:g> video suhbati tugatiladi."</string>
@@ -83,20 +82,5 @@
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"Boshqa ilovadagi joriy qo‘ng‘iroq tufayli boshqa raqamni chaqirib bo‘lmaydi."</string>
     <string name="notification_channel_incoming_call" msgid="3513761697082968084">"Kiruvchi chaqiruvlar"</string>
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Javobsiz chaqiruvlar"</string>
-    <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Chaqiruvlarni bloklash"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Bu qo‘ng‘iroqni amalga oshirsangiz, <xliff:g id="OTHER_APP">%1$s</xliff:g> qo‘ng‘irog‘i tugatiladi."</string>
-    <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Chaqiruvlarni bloklash"</string>
-    <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Notanish raqamlar"</string>
-    <string name="phone_settings_number_not_in_contact_summary_txt" msgid="9043147855140079119">"Kontaktlaringizga kiritilmagan notanish raqamlarni bloklash"</string>
-    <string name="phone_settings_private_num_txt" msgid="8623574188879134262">"Yashirin raqamlar"</string>
-    <string name="phone_settings_private_num_summary_txt" msgid="7516314821207782191">"Yashirin raqamlardan keluvchi chaqiruvlarni bloklash"</string>
-    <string name="phone_settings_payphone_txt" msgid="2493356957416981318">"Taksofon"</string>
-    <string name="phone_settings_payphone_summary_txt" msgid="6126709946103814653">"Taksofondan keluvchi chaqiruvlarni bloklash"</string>
-    <string name="phone_settings_unknown_txt" msgid="5836407031508172721">"Notanish raqamlar"</string>
-    <string name="phone_settings_unknown_summary_txt" msgid="3457690230497753233">"Aniqlanmagan raqamlardan keluvchi chaqiruvlarni bloklash"</string>
-    <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="628536625775266096">"Chaqiruvlarni bloklash"</string>
-    <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"Chaqiruvlarni bloklash funksiyasi yoqilmagan"</string>
-    <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"Favqulodda chaqiruv qilindi"</string>
-    <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="4083285098613193052">"Sizga favqulodda chiqiruv qilish imkoni bo‘lishi uchun chaqiruvlarni bloklash funksiyasi o‘chirib qo‘yilgan."</string>
-    <string name="developer_title" msgid="1816273446906554627">"Telecom dasturchisi menyusi"</string>
 </resources>
