@@ -84,7 +84,7 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
     CallScreeningServiceHelper.AppLabelProxy mAppLabelProxy =
             new CallScreeningServiceHelper.AppLabelProxy() {
         @Override
-        public String getAppLabel(String packageName) {
+        public CharSequence getAppLabel(String packageName) {
             return APP_NAME;
         }
     };
