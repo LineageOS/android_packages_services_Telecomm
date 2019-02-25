@@ -51,7 +51,7 @@ public class CallScreeningServiceHelper {
      * app.
      */
     public interface AppLabelProxy {
-        String getAppLabel(String packageName);
+        CharSequence getAppLabel(String packageName);
     }
 
     /**

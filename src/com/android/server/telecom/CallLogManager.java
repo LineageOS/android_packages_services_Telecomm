@@ -82,7 +82,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
                 int features, PhoneAccountHandle accountHandle, long creationDate,
                 long durationInMillis, Long dataUsage, UserHandle initiatingUser, boolean isRead,
                 @Nullable LogCallCompletedListener logCallCompletedListener, int callBlockReason,
-                String callScreeningAppName, String callScreeningComponentName,
+                CharSequence callScreeningAppName, String callScreeningComponentName,
                 CallIdentification callIdentification) {
             this.context = context;
             this.callerInfo = callerInfo;
@@ -125,7 +125,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
         public final LogCallCompletedListener logCallCompletedListener;
 
         public final int callBockReason;
-        public final String callScreeningAppName;
+        public final CharSequence callScreeningAppName;
         public final String callScreeningComponentName;
 
         public final CallIdentification callIdentification;
@@ -359,7 +359,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
             boolean isSelfManaged,
             @Nullable LogCallCompletedListener logCallCompletedListener,
             int callBlockReason,
-            String callScreeningAppName,
+            CharSequence callScreeningAppName,
             String callScreeningComponentName,
             @Nullable CallIdentification callIdentification) {
 

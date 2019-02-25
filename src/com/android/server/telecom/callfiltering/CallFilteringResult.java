@@ -26,7 +26,7 @@ public class CallFilteringResult {
     public boolean shouldAddToCallLog;
     public boolean shouldShowNotification;
     public int mCallBlockReason = CallLog.Calls.BLOCK_REASON_NOT_BLOCKED;
-    public String mCallScreeningAppName = null;
+    public CharSequence mCallScreeningAppName = null;
     public String mCallScreeningComponentName = null;
 
     public CallFilteringResult(boolean shouldAllowCall, boolean shouldReject, boolean
@@ -38,8 +38,8 @@ public class CallFilteringResult {
     }
 
     public CallFilteringResult(boolean shouldAllowCall, boolean shouldReject, boolean
-            shouldAddToCallLog, boolean shouldShowNotification, int callBlockReason, String
-            callScreeningAppName, String callScreeningComponentName) {
+            shouldAddToCallLog, boolean shouldShowNotification, int callBlockReason,
+            CharSequence callScreeningAppName, String callScreeningComponentName) {
         this.shouldAllowCall = shouldAllowCall;
         this.shouldReject = shouldReject;
         this.shouldAddToCallLog = shouldAddToCallLog;
@@ -104,7 +104,7 @@ public class CallFilteringResult {
     }
 
     private CallFilteringResult getCombinedCallFilteringResult(CallFilteringResult other,
-        int callBlockReason, String callScreeningAppName, String callScreeningComponentName) {
+        int callBlockReason, CharSequence callScreeningAppName, String callScreeningComponentName) {
         return new CallFilteringResult(
             shouldAllowCall && other.shouldAllowCall,
             shouldReject || other.shouldReject,

@@ -184,7 +184,7 @@ public class CallScreeningServiceFilter {
     private ICallScreeningService mService;
     private ServiceConnection mConnection;
     private String mPackageName;
-    private String mAppName;
+    private CharSequence mAppName;
     private boolean mHasFinished = false;
 
     private CallFilteringResult mResult = new CallFilteringResult(
@@ -211,7 +211,7 @@ public class CallScreeningServiceFilter {
     public void startCallScreeningFilter(Call call,
                                          CallScreeningFilterResultCallback callback,
                                          String packageName,
-                                         String appName) {
+                                         CharSequence appName) {
         if (mHasFinished) {
             Log.w(this, "Attempting to reuse CallScreeningServiceFilter. Ignoring.");
             return;
