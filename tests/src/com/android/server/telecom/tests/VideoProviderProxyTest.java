@@ -19,6 +19,7 @@ package com.android.server.telecom.tests;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -62,6 +63,7 @@ public class VideoProviderProxyTest extends TelecomTestCase {
         doNothing().when(mIBinder).linkToDeath(any(), anyInt());
         when(mCall.getAnalytics()).thenReturn(mCallInfo);
         doNothing().when(mCallInfo).addVideoEvent(anyInt(), anyInt());
+        doNothing().when(mCall).maybeEnableSpeakerForVideoUpgrade(anyInt());
         mVideoProviderProxy = new VideoProviderProxy(mLock, mVideoProvider, mCall,
                 mCurrentUserProxy);
         mVideoProviderProxy.addListener(mListener);
@@ -115,5 +117,18 @@ public class VideoProviderProxyTest extends TelecomTestCase {
         ArgumentCaptor<VideoProfile> capturedProfile = ArgumentCaptor.forClass(VideoProfile.class);
         verify(mListener).onSessionModifyRequestReceived(any(), capturedProfile.capture());
         assertEquals(VideoProfile.STATE_BIDIRECTIONAL, capturedProfile.getValue().getVideoState());
+    }
+
+    /**
+     * Tests the case where dialer requests an upgrade to video; we should try to change to speaker.
+     * @throws Exception
+     */
+    @SmallTest
+    @Test
+    public void testTryToEnableSpeakerOnVideoUpgrade() throws Exception {
+        mVideoProviderProxy.onSendSessionModifyRequest(
+                new VideoProfile(VideoProfile.STATE_AUDIO_ONLY),
+                new VideoProfile(VideoProfile.STATE_BIDIRECTIONAL));
+        verify(mCall).maybeEnableSpeakerForVideoUpgrade(eq(VideoProfile.STATE_BIDIRECTIONAL));
     }
 }
