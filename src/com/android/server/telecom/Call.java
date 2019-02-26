@@ -3195,4 +3195,18 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     public CallIdentification getCallIdentification() {
         return mCallIdentification;
     }
+
+    /**
+     * When upgrading a call to video via
+     * {@link VideoProviderProxy#onSendSessionModifyRequest(VideoProfile, VideoProfile)}, if the
+     * upgrade is from audio to video, potentially auto-engage the speakerphone.
+     * @param newVideoState The proposed new video state for the call.
+     */
+    public void maybeEnableSpeakerForVideoUpgrade(@VideoProfile.VideoState int newVideoState) {
+        if (mCallsManager.isSpeakerphoneAutoEnabledForVideoCalls(newVideoState)) {
+            Log.i(this, "maybeEnableSpeakerForVideoCall; callId=%s, auto-enable speaker for call"
+                            + " upgraded to video.");
+            mCallsManager.setAudioRoute(CallAudioState.ROUTE_SPEAKER, null);
+        }
+    }
 }
