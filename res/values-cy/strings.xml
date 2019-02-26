@@ -136,14 +136,23 @@
     <!-- Message to show when a number is already blocked. -->
     <string name="blocked_numbers_number_already_blocked_message">Mae <xliff:g id="blocked_number">%1$s</xliff:g> eisoes wedi ei rwystro.</string>
     <!-- DO NOT TRANSLATE. Label for test Subscription 0. -->
+    <string name="test_account_0_label">Q Mobile</string>
     <!-- DO NOT TRANSLATE. Label for test Subscription 1. -->
+    <string name="test_account_1_label">Market Wireless</string>
     <!-- DO NOT TRANSLATE. Label for test Subscription 2. -->
+    <string name="test_account_2_label">Sonoma Circles Talk Plus</string>
     <!-- DO NOT TRANSLATE. Label for test Subscription 3. -->
+    <string name="test_account_3_label">Bay Voice Chat Pro</string>
     <!-- DO NOT TRANSLATE. Short description for test Subscription 0. -->
+    <string name="test_account_0_short_description">Account with Q Mobile</string>
     <!-- DO NOT TRANSLATE. Short description for test Subscription 1. -->
+    <string name="test_account_1_short_description">Account with Market Wireless</string>
     <!-- DO NOT TRANSLATE. Short description for test Subscription 2. -->
+    <string name="test_account_2_short_description">Talk to everyone in your Circles!</string>
     <!-- DO NOT TRANSLATE. Short description for test Subscription 3. -->
+    <string name="test_account_3_short_description">Chat with Chat Network users</string>
     <!-- DO NOT TRANSLATE. Hardcoded number used for restricted incoming phone numbers. -->
+    <string name="handle_restricted">CYFYNGEDIG</string>
     <string name="toast_personal_call_msg">Defnyddio\'r deialydd personol i wneud y galwad</string>
     <!-- The "label" of the Notification for an incoming ringing call.
          call_via refers to the name of the app the incoming call is coming from.
@@ -209,21 +218,34 @@
     <!-- Notification channel name for a channel containing missed call notifications. -->
     <string name="notification_channel_missed_call">Galwadau wedi eu methu</string>
     <!-- Notification channel name for a channel containing call blocking notifications. -->
+    <string name="notification_channel_call_blocking">Rhwystro Galwadau</string>
     <!-- Alert dialog content used to inform the user that placing a new outgoing call will end the
          ongoing call in the app "other_app". -->
     <string name="alert_outgoing_call">Bydd gwneud yr alwad hon yn dod a dy alwad <xliff:g id="other_app">%1$s</xliff:g> i ben.</string>
     <!-- The name of a feature available under the Call settings. -->
+    <string name="phone_settings_call_blocking_txt">Rhwystro Galwadau</string>
     <!-- Call type to be blocked. See the explanatory text "phone_settings_number_not_in_contact_summary_txt". -->
+    <string name="phone_settings_number_not_in_contact_txt">Rhifau dim yng Nghysylltiadau</string>
     <!-- Explanatory text under the call type "phone_settings_number_not_in_contact_txt". -->
+    <string name="phone_settings_number_not_in_contact_summary_txt">Rhwystro rhifau na sydd yn dy Gysylltiadau</string>
     <!-- Call type to be blocked. See the explanatory text "phone_settings_private_num_summary_txt". This is also called Anonymous or Withheld depending on region. -->
+    <string name="phone_settings_private_num_txt">Preifat</string>
     <!-- Explanatory text under the call type "phone_settings_payphone_summary_txt". -->
+    <string name="phone_settings_private_num_summary_txt">Rhwystro galwyr na sy\'n datgelu eu rhif</string>
     <!-- Call type to be blocked. See the explanatory text "phone_settings_private_num_summary_txt".  -->
+    <string name="phone_settings_payphone_txt">Ffôn cyhoeddus</string>
     <!-- Explanatory text under the call type "phone_settings_payphone_txt". -->
+    <string name="phone_settings_payphone_summary_txt">Rhwystro galwadau o ffonau cyhoeddus</string>
     <!-- Call type to be blocked. See the explanatory text "phone_settings_unknown_summary_txt".  -->
     <string name="phone_settings_unknown_txt">Anhysybys</string>
     <!-- Explanatory text under the call type "phone_settings_unknown_txt". This occurs when no caller ID information unavailable (e.g., international calls, IP phones that operators cannot identify the caller) -->
+    <string name="phone_settings_unknown_summary_txt">Rhwystro galwadau gan bobol anhysbys</string>
     <!-- Notification. Make this translation consistent with "phone_settings_call_blocking_txt". -->
+    <string name="phone_strings_call_blocking_turned_off_notification_title_txt">Rhwystro Galwadau</string>
     <!-- Notification that appears when the feature Call Blocking has been disabled. -->
+    <string name="phone_strings_call_blocking_turned_off_notification_text_txt">Analluogwyd Rhwystro Galwadau</string>
     <!-- Title of the dialog "phone_strings_emergency_call_made_dialog_text_txt". -->
+    <string name="phone_strings_emergency_call_made_dialog_title_txt">Wedi gwneud galwad brys</string>
     <!-- Notification details that appear when the user taps the notification "phone_strings_call_blocking_turned_off_notification_text_txt". -->
+    <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt">Mae Rhwystro Galwadau wedi ei analluogi i ganiatáu’r gwasanaethau brys i gysylltu â thi.</string>
 </resources>
