@@ -507,7 +507,7 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
                 CallAudioState.ROUTE_BLUETOOTH, // initialRoute
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH, // availableRoutes
                 OPTIONAL, // speakerInteraction
-                OFF, // bluetoothInteraction
+                NONE, // bluetoothInteraction
                 SPECIAL_DISCONNECT_BT_ACTION, // action
                 CallAudioState.ROUTE_EARPIECE, // expectedRoute
                 CallAudioState.ROUTE_EARPIECE, // expectedAvailableRoutes
@@ -519,7 +519,7 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
                 CallAudioState.ROUTE_BLUETOOTH, // initialRoute
                 CallAudioState.ROUTE_WIRED_HEADSET | CallAudioState.ROUTE_BLUETOOTH, // availableRou
                 OPTIONAL, // speakerInteraction
-                OFF, // bluetoothInteraction
+                NONE, // bluetoothInteraction
                 SPECIAL_DISCONNECT_BT_ACTION, // action
                 CallAudioState.ROUTE_WIRED_HEADSET, // expectedRoute
                 CallAudioState.ROUTE_WIRED_HEADSET, // expectedAvailableRoutes
@@ -711,7 +711,7 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
                 CallAudioState.ROUTE_BLUETOOTH, // initialRoute
                 CallAudioState.ROUTE_BLUETOOTH,  // availableRoutes
                 ON, // speakerInteraction
-                OFF, // bluetoothInteraction
+                NONE, // bluetoothInteraction
                 SPECIAL_DISCONNECT_BT_ACTION, // action
                 CallAudioState.ROUTE_SPEAKER, // expectedRoute
                 CallAudioState.ROUTE_SPEAKER, // expectedAvailableRoutes
@@ -723,7 +723,7 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
                 CallAudioState.ROUTE_BLUETOOTH, // initialRoute
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH, // availableRoutes
                 OPTIONAL, // speakerInteraction
-                OFF, // bluetoothInteraction
+                NONE, // bluetoothInteraction
                 CallAudioRouteStateMachine.BT_ACTIVE_DEVICE_GONE, // action
                 CallAudioState.ROUTE_EARPIECE, // expectedRoute
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH, // expectedAvailabl
