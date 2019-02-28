@@ -1662,6 +1662,14 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         if (connection.getState() == Connection.STATE_DISCONNECTED) {
             // A connection that begins in the DISCONNECTED state is an indication of
             // failure to connect; we handle all failures uniformly
+            Call foundCall = mCallIdMapper.getCall(callId);
+            if (foundCall != null) {
+                // The post-dial digits are created when the call is first created.  Normally
+                // the ConnectionService is responsible for stripping them from the address, but
+                // since a failed connection will not have done this, we could end up with duplicate
+                // post-dial digits.
+                foundCall.clearPostDialDigits();
+            }
             removeCall(callId, connection.getDisconnectCause());
         } else {
             // Successful connection
