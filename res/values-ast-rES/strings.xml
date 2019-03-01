@@ -15,167 +15,60 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- Official label of the Telecomm/Phone app, as seen in "Manage Applications"
-         and other settings UIs. This is the "app name" used in notification, recents,
-         and app info screens. -->
     <string name="telecommAppLabel" product="default">Xestión de llamaes</string>
-    <!-- Title used for the activity for placing a call. This name appears
-         in activity disambig dialogs -->
-    <!-- Name for an "unknown" caller. -->
+    <string name="userCallActivityLabel" product="default">Teléfonu</string>
     <string name="unknown">Desconocíu</string>
-    <!-- Notification strings -->
-    <!-- Missed call notification label, used when there's exactly one missed call -->
-    <!-- Missed work call notification label, used when there's exactly one missed call [CHAR LIMIT=NONE] -->
+    <string name="notification_missedCallTitle">Llamada perdida</string>
     <string name="notification_missedWorkCallTitle">Perdióse la llamada\'l trabayu</string>
-    <!-- Missed call notification label, used when there are two or more missed calls -->
-    <!-- Missed call notification message used when there are multiple missed calls -->
-    <!-- Missed call notification message used for a single missed call, including
-         the caller-id info from the missed call -->
-    <!-- Message for "call back" Action, which is displayed in the missed call notificaiton.
-         The user will be able to call back to the person or the phone number.
-         [CHAR LIMIT=18] -->
-    <!-- Message for "reply via sms" action, which is displayed in the missed call notification.
-         The user will be able to send text messages using the phone number.
-         [CHAR LIMIT=18] -->
-    <!-- Content description of the call muted notification icon for
-         accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
-    <!-- Content description of the speakerphone enabled notification icon for
-         accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
-    <!-- Canned response for the "Respond via SMS" feature for incoming calls. [CHAR LIMIT=35] -->
-    <!-- Canned response for the "Respond via SMS" feature for incoming calls. [CHAR LIMIT=35] -->
-    <!-- Canned response for the "Respond via SMS" feature for incoming calls. [CHAR LIMIT=35] -->
-    <!-- Canned response for the "Respond via SMS" feature for incoming calls. [CHAR LIMIT=35] -->
-    <!-- Title of settings screen for managing the "Respond via SMS" feature. [CHAR LIMIT=30] -->
-    <!-- Slightly more verbose title of settings screen for managing the
-         "Respond via SMS" feature. [CHAR LIMIT=30] -->
-    <!-- Settings summary string for the "Respond via SMS" feature. [CHAR LIMIT=40] -->
-    <!-- Dialog title when changing a string for the "Respond via SMS" feature. [CHAR LIMIT=30] -->
-    <!-- "Respond via SMS": Confirmation message shown after sending
-        a text response. [CHAR LIMIT=40] -->
-    <!-- Title of settings screen that allows user to enable and disable phone-accounts.
-         Each method for placing a call (SIM1, SIM2, SIP account, etc) has a phone-account.
-         Phone-accounts that are created by third party apps can be disabled and enabled by user.
-         [CHAR LIMIT=30] -->
-    <!-- Message indicating that the user is not allowed to make non-emergency outgoing phone calls
-         due to a user restriction -->
-    <!-- Message indicating that the user is not allowed to make non-emergency outgoing phone calls
-         due to the lack of the CALL_PHONE permission -->
-    <!-- Call failure message displayed in an error dialog used to indicate that a phone number was not provided -->
+    <string name="notification_missedCallsTitle">Llamaes perdíes</string>
+    <string name="notification_missedCallsMsg"><xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> llamaes perdíes</string>
+    <string name="notification_missedCallTicker">Llamada perdida de <xliff:g id="MISSED_CALL_FROM">%s</xliff:g></string>
+    <string name="notification_missedCall_call_back">Llamar</string>
+    <string name="notification_missedCall_message">Mensaxe</string>
+    <string name="accessibility_call_muted">Llamada silenciada.</string>
+    <string name="accessibility_speakerphone_enabled">Altavoz habilitáu.</string>
+    <string name="respond_via_sms_canned_response_1">Nun puedo falar. ¿Ye importante?</string>
+    <string name="respond_via_sms_canned_response_2">Llámote namái pueda.</string>
+    <string name="respond_via_sms_canned_response_3">Llámote dempués.</string>
+    <string name="respond_via_sms_canned_response_4">Nun puedo falar. Llámesme llueu?</string>
+    <string name="respond_via_sms_setting_title">Rempuestes rápides</string>
+    <string name="respond_via_sms_setting_title_2">Editar rempuestes rápides</string>
+    <string name="respond_via_sms_edittext_dialog_title">Rempuesta rápida</string>
+    <string name="respond_via_sms_confirmation_format">Mensaxe unviáu a <xliff:g id="PHONE_NUMBER">%s</xliff:g>.</string>
+    <string name="enable_account_preference_title">Cuentes de llamaes</string>
+    <string name="outgoing_call_not_allowed_user_restriction">Namái s\'almiten llames d\'emerxencia.</string>
+    <string name="outgoing_call_not_allowed_no_permission">Esta aplicación nun pue facer llamaes salientes ensin el permisu de Teléfonu.</string>
     <string name="outgoing_call_error_no_phone_number_supplied">Pa facer una llamada, teclexa un númberu válidu.</string>
-    <!-- Message shown when the user tries to make a video call when already in a video call. -->
     <string name="duplicate_video_call_not_allowed">La llamada nun pue amestase nesti momentu.</string>
-    <!-- missing voicemail number -->
-    <!-- Title of the "Missing voicemail number" dialog -->
-    <!-- Body text of the "Missing voicemail number" dialog -->
-    <!-- Button label on the "Missing voicemail number" dialog -->
-    <!-- Title of dialog used to comfirm whether the user intends to change the default dialer
-            application [CHAR LIMIT=55]-->
-    <!-- Confirmation text that a user taps on to change the Default Phone App-->
+    <string name="no_vm_number">Falta\'l númberu del buzón de voz</string>
+    <string name="no_vm_number_msg">Nun s\'almacenó nengún númberu de buzón de voz na tarxeta SIM.</string>
+    <string name="add_vm_number_str">Amestar númberu</string>
     <string name="change_default_dialer_dialog_affirmative">Predeterminar</string>
-    <!-- Cancel text that a user taps on to not change the Default Phone App-->
     <string name="change_default_dialer_dialog_negative">Encaboxar</string>
-    <!-- Warning message indicating what may happen if a user allows a 3rd party app to become the default dialer.-->
-    <!-- Blocked numbers -->
     <string name="blocked_numbers">Númberos bloquiaos</string>
-    <!-- Text shown at the beginning of the blocked numbers screen to explain what the screen is about. -->
     <string name="blocked_numbers_msg">Nun recibirás llames o mensaxes de númberos bloquiaos.</string>
-    <!-- Button to add a blocked number. -->
     <string name="block_number">Amestar un númberu</string>
-    <!-- Body of dialog to confirm unblocking a number. -->
     <string name="unblock_dialog_body">¿Desbloquiar <xliff:g id="number_to_block">%1$s</xliff:g>?</string>
-    <!-- Button to unblock a number. -->
     <string name="unblock_button">Desbloquiar</string>
-    <!-- Body of dialog to block a number.  -->
     <string name="add_blocked_dialog_body">Bloquiar llamaes y mensaxes de</string>
-    <!-- Hint shown in the edit text box for adding a blocked number -->
     <string name="add_blocked_number_hint">Númberu telefónicu</string>
-    <!-- Button to block a number. -->
     <string name="block_button">Bloquiar</string>
-    <!-- String shown to users unable to manage blocked numbers because they are not owners of the
-        device. -->
     <string name="non_primary_user">Namái\'l dueñu\'l teléfonu pue ver y xestionar númberos bloquiaos.</string>
-    <!-- Description of icon to delete blocked number. -->
     <string name="delete_icon_description">Desbloquiar</string>
-    <!-- Title for butter bar shown when call blocking is disabled. -->
-    <!-- Explanation for butter bar shown when call blocking is disabled. -->
     <string name="blocked_numbers_butter_bar_body">Dempués que marques o unvies un mensaxe a un númberu d\'emerxencies, desactivaráse\'l bloquéu p\'asegurar qu\'esos servicios puean contautate.</string>
-    <!-- Button to re-enable blocking shown in butter bar shown when call blocking is disabled. -->
     <string name="blocked_numbers_butter_bar_button">Reactivar agora</string>
-    <!-- Message to show when a number is blocked. -->
     <string name="blocked_numbers_number_blocked_message"><xliff:g id="blocked_number">%1$s</xliff:g> bloquiáu</string>
-    <!-- Message to show when a number is unblocked. -->
     <string name="blocked_numbers_number_unblocked_message"><xliff:g id="unblocked_number">%1$s</xliff:g> desbloquiáu</string>
-    <!-- Message to show when a number cannot be blocked because it is associated with emergency services.. -->
     <string name="blocked_numbers_block_emergency_number_message">Nun pue bloquiase\'l númberu d\'emerxencies.</string>
-    <!-- Message to show when a number is already blocked. -->
     <string name="blocked_numbers_number_already_blocked_message"><xliff:g id="blocked_number">%1$s</xliff:g> yá ta bloquiáu.</string>
-    <!-- DO NOT TRANSLATE. Label for test Subscription 0. -->
     <string name="test_account_0_label">Q Mobile</string>
-    <!-- DO NOT TRANSLATE. Label for test Subscription 1. -->
     <string name="test_account_1_label">Market Wireless</string>
-    <!-- DO NOT TRANSLATE. Label for test Subscription 2. -->
     <string name="test_account_2_label">Sonoma Circles Talk Plus</string>
-    <!-- DO NOT TRANSLATE. Label for test Subscription 3. -->
     <string name="test_account_3_label">Bay Voice Chat Pro</string>
-    <!-- DO NOT TRANSLATE. Short description for test Subscription 0. -->
     <string name="test_account_0_short_description">Account with Q Mobile</string>
-    <!-- DO NOT TRANSLATE. Short description for test Subscription 1. -->
     <string name="test_account_1_short_description">Account with Market Wireless</string>
-    <!-- DO NOT TRANSLATE. Short description for test Subscription 2. -->
     <string name="test_account_2_short_description">Talk to everyone in your Circles!</string>
-    <!-- DO NOT TRANSLATE. Short description for test Subscription 3. -->
     <string name="test_account_3_short_description">Chat with Chat Network users</string>
-    <!-- DO NOT TRANSLATE. Hardcoded number used for restricted incoming phone numbers. -->
     <string name="handle_restricted">RESTRICTED</string>
     <string name="toast_personal_call_msg">Usando\'l marcador personal pa llamar</string>
-    <!-- The "label" of the Notification for an incoming ringing call.
-         call_via refers to the name of the app the incoming call is coming from.
-         Example: Duo call from John Smith[CHAR LIMIT=60] -->
-    <!-- The "label" of the Notification for an incoming ringing video call.
-         call_via refers to the name of the app the incoming video call is coming from.
-         Example: Duo video call from John Smith[CHAR LIMIT=60] -->
-    <!-- The "details" of a Notification for an incoming call which will cause an ongoing call to be
-         disconnected.  This message is the part of the notification that informs the user that
-         answering the current ringing call will cause a call from another app to be disconnected.
-         Example: Answering will end your Duo call [CHAR LIMIT=60] -->
-    <!-- The "details" of a Notification for an incoming call which will cause other ongoing calls
-         to be disconnected.  This message is the part of the notification that informs the user
-         answering the current ringing call will cause calls from another app to be disconnected.
-         Example: Answering will end your Duo call [CHAR LIMIT=60] -->
-    <!-- The "details" of a Notification for an incoming call which will cause an ongoing video call
-         to be disconnected.  This message is the part of the notification that informs the user
-         that answering the current ringing call will cause a video call from another app to be
-         disconnected.
-         Example: Answering will end your Duo video call [CHAR LIMIT=60] -->
-    <!-- The "details" of a Notification for an incoming call which will cause an ongoing call
-         to be disconnected.  This message is the part of the notification that informs the user
-         that answering the current ringing call will cause an ongoing call to be disconnected.
-         Similar to answering_ends_other_call, except does not specify which app.
-         [CHAR LIMIT=60] -->
-    <!-- The "details" of a Notification for an incoming call which will cause an ongoing call
-         to be disconnected.  This message is the part of the notification that informs the user
-         that answering the current ringing call will cause an ongoing call to be disconnected.
-         Similar to answering_ends_other_call, except does not specify which app.
-         [CHAR LIMIT=60] -->
-    <!-- The "details" of a Notification for an incoming call which will cause an ongoing video call
-         to be disconnected.  This message is the part of the notification that informs the user
-         that answering the current ringing call will cause an ongoing video call to be
-         disconnected.
-         Similar to answering_ends_other_video_call, except does not specify which app.
-         [CHAR LIMIT=60] -->
-    <!-- The "answer" button for an incoming call. [CHAR LIMIT=60] -->
-    <!-- The "decline" button for an incoming call. [CHAR LIMIT=60] -->
-    <!-- Error message shown to the user when an outgoing call cannot be placed due to an ongoing
-         phone call in a third-party app.  For example:
-         Call cannot be placed due to your Duo call. [CHAR LIMIT=none] -->
-    <!-- Error message shown to the user when an outgoing call cannot be placed due to ongoing
-         phone calls in a third-party app.  For example:
-         Call cannot be placed due to your Duo calls. [CHAR LIMIT=none] -->
-    <!-- Error message shown to the user when an outgoing call cannot be placed due to an ongoing
-         phone call in a third-party app.  Unlike cant_call_due_to_ongoing_call, this is used when
-         the name of the other app is not known. [CHAR LIMIT=none] -->
-    <!-- Notification channel name for a channel containing incoming call notifications. -->
-    <!-- Notification channel name for a channel containing missed call notifications. -->
-    <!-- Alert dialog content used to inform the user that placing a new outgoing call will end the
-         ongoing call in the app "other_app". -->
 </resources>
