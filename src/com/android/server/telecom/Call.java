@@ -385,6 +385,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     /** Whether this call is requesting that Telecom play the ringback tone on its behalf. */
     private boolean mRingbackRequested = false;
 
+    /** Whether this call is requesting to be silently ringing. */
+    private boolean mSilentRingingRequested = false;
+
     /** Whether direct-to-voicemail query is pending. */
     private boolean mDirectToVoicemailQueryPending;
 
@@ -984,6 +987,18 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     boolean isRingbackRequested() {
         return mRingbackRequested;
+    }
+
+    public void setSilentRingingRequested(boolean silentRingingRequested) {
+        mSilentRingingRequested = silentRingingRequested;
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(android.telecom.Call.EXTRA_SILENT_RINGING_REQUESTED,
+                silentRingingRequested);
+        putExtras(SOURCE_CONNECTION_SERVICE, bundle);
+    }
+
+    public boolean isSilentRingingRequested() {
+        return mSilentRingingRequested;
     }
 
     @VisibleForTesting

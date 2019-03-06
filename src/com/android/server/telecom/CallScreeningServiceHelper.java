@@ -64,6 +64,11 @@ public class CallScreeningServiceHelper {
         }
 
         @Override
+        public void silenceCall(String s) throws RemoteException {
+            // no-op; we don't allow this on outgoing calls.
+        }
+
+        @Override
         public void disallowCall(String s, boolean b, boolean b1, boolean b2,
                 ComponentName componentName) throws RemoteException {
             // no-op; we don't allow this on outgoing calls.
