@@ -102,6 +102,7 @@ public class CallScreeningServiceFilter {
                         mResult = new CallFilteringResult(
                                 true, // shouldAllowCall
                                 false, //shouldReject
+                                false, //shouldSilence
                                 true, //shouldAddToCallLog
                                 true // shouldShowNotification
                         );
@@ -136,6 +137,7 @@ public class CallScreeningServiceFilter {
                         mResult = new CallFilteringResult(
                                 false, // shouldAllowCall
                                 shouldReject, //shouldReject
+                                false, // shouldSilenceCall
                                 isServiceRequestingLogging, //shouldAddToCallLog
                                 shouldShowNotification, // shouldShowNotification
                                 CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE, //callBlockReason
@@ -144,6 +146,32 @@ public class CallScreeningServiceFilter {
                         );
                     } else {
                         Log.w(this, "disallowCall, unknown call id: %s", callId);
+                    }
+                    finishCallScreening();
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+                Log.endSession();
+            }
+        }
+
+        @Override
+        public void silenceCall(String callId) {
+            Log.startSession("CSCR.sC");
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mTelecomLock) {
+                    Log.d(this, "silenceCall(%s)", callId);
+                    if (mCall != null && mCall.getId().equals(callId)) {
+                        mResult = new CallFilteringResult(
+                                true, // shouldAllowCall
+                                false, //shouldReject
+                                true, //shouldSilence
+                                true, //shouldAddToCallLog
+                                true // shouldShowNotification
+                        );
+                    } else {
+                        Log.w(this, "silenceCall, unknown call id: %s", callId);
                     }
                     finishCallScreening();
                 }
