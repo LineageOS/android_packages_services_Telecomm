@@ -1513,8 +1513,10 @@ public class CallsManager extends Call.ListenerBase
                             false)))) {
                         Log.d(this, "Outgoing call requesting RTT, rtt setting is %b",
                                 isRttSettingOn());
-                        if (accountToUse != null
-                                && accountToUse.hasCapabilities(PhoneAccount.CAPABILITY_RTT)) {
+                        if (callToUse.isEmergencyCall() || (accountToUse != null
+                                && accountToUse.hasCapabilities(PhoneAccount.CAPABILITY_RTT))) {
+                            // If the call requested RTT and it's an emergency call, ignore the
+                            // capability and hope that the modem will deal with it somehow.
                             callToUse.createRttStreams();
                         }
                         // Even if the phone account doesn't support RTT yet,
