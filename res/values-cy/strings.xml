@@ -73,7 +73,7 @@
     <string name="test_account_2_short_description">Talk to everyone in your Circles!</string>
     <string name="test_account_3_short_description">Chat with Chat Network users</string>
     <string name="handle_restricted">CYFYNGEDIG</string>
-    <string name="toast_personal_call_msg">Defnyddio\'r deialydd personol i wneud y galwad</string>
+    <string name="toast_personal_call_msg">Defnyddio\'r deialydd personol i wneud yr alwad</string>
     <string name="notification_incoming_call">Galwad <xliff:g id="call_via">%1$s</xliff:g> oddi wrth <xliff:g id="call_from">%2$s</xliff:g></string>
     <string name="notification_incoming_video_call">Galwad fideo <xliff:g id="call_via">%1$s</xliff:g> oddi wrth <xliff:g id="call_from">%2$s</xliff:g></string>
     <string name="answering_ends_other_call">Bydd ateb yn dod a dy alwad <xliff:g id="call_via">%1$s</xliff:g> i ben.</string>
@@ -84,8 +84,8 @@
     <string name="answering_ends_other_managed_video_call">Bydd ateb yn dod a dy alwad fideo presennol i ben.</string>
     <string name="answer_incoming_call">Ateb</string>
     <string name="decline_incoming_call">Gwrthod</string>
-    <string name="cant_call_due_to_ongoing_call">Ni ellir wneud y galwad oherwydd dy alwad <xliff:g id="other_call">%1$s</xliff:g>.</string>
-    <string name="cant_call_due_to_ongoing_calls">Ni ellir wneud y galwad oherwydd dy alwadau <xliff:g id="other_call">%1$s</xliff:g>.</string>
+    <string name="cant_call_due_to_ongoing_call">Ni ellir wneud yr alwad oherwydd dy alwad <xliff:g id="other_call">%1$s</xliff:g>.</string>
+    <string name="cant_call_due_to_ongoing_calls">Ni ellir wneud yr alwad oherwydd dy alwadau <xliff:g id="other_call">%1$s</xliff:g>.</string>
     <string name="cant_call_due_to_ongoing_unknown_call">Ni ellir gwneud galwad tra bod galwad ar y gweill mewn ap arall.</string>
     <string name="notification_channel_incoming_call">Galwadau i mewn</string>
     <string name="notification_channel_missed_call">Galwadau wedi eu methu</string>
