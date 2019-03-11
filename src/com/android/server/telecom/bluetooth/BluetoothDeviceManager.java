@@ -73,12 +73,14 @@ public class BluetoothDeviceManager {
                                         "Lost BluetoothHeadset service. " +
                                                 "Removing all tracked devices.");
                                 lostServiceDevices = mHfpDevicesByAddress;
+                                mBluetoothRouteManager.onActiveDeviceChanged(null, false);
                             } else if (profile == BluetoothProfile.HEARING_AID) {
                                 mBluetoothHearingAidService = null;
                                 Log.i(BluetoothDeviceManager.this,
                                         "Lost BluetoothHearingAid service. " +
                                                 "Removing all tracked devices.");
                                 lostServiceDevices = mHearingAidDevicesByAddress;
+                                mBluetoothRouteManager.onActiveDeviceChanged(null, true);
                             } else {
                                 return;
                             }

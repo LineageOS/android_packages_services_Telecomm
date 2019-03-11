@@ -40,6 +40,7 @@ import org.mockito.Mock;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -161,11 +162,31 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
                 buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device2, true));
         serviceListenerUnderTest.onServiceDisconnected(BluetoothProfile.HEADSET);
 
+        verify(mRouteManager).onActiveDeviceChanged(isNull(), eq(false));
         verify(mRouteManager).onDeviceLost(device1.getAddress());
         verify(mRouteManager).onDeviceLost(device3.getAddress());
         verify(mRouteManager, never()).onDeviceLost(device2.getAddress());
         assertNull(mBluetoothDeviceManager.getHeadsetService());
         assertEquals(1, mBluetoothDeviceManager.getNumConnectedDevices());
+    }
+
+    @SmallTest
+    @Test
+    public void testHearingAidServiceDisconnect() {
+        receiverUnderTest.onReceive(mContext,
+                buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device1, false));
+        receiverUnderTest.onReceive(mContext,
+                buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device3, false));
+        receiverUnderTest.onReceive(mContext,
+                buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device2, true));
+        serviceListenerUnderTest.onServiceDisconnected(BluetoothProfile.HEARING_AID);
+
+        verify(mRouteManager).onActiveDeviceChanged(isNull(), eq(true));
+        verify(mRouteManager).onDeviceLost(device2.getAddress());
+        verify(mRouteManager, never()).onDeviceLost(device1.getAddress());
+        verify(mRouteManager, never()).onDeviceLost(device3.getAddress());
+        assertNull(mBluetoothDeviceManager.getHearingAidService());
+        assertEquals(2, mBluetoothDeviceManager.getNumConnectedDevices());
     }
 
     @SmallTest
