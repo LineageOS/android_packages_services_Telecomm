@@ -914,6 +914,18 @@ public class CallsManager extends Call.ListenerBase
     }
 
     @Override
+    public void onCallHoldFailed(Call call) {
+        // Normally, we don't care whether a call hold has failed. However, if a call was held in
+        // order to answer an incoming call, that incoming call needs to be brought out of the
+        // ANSWERED state so that the user can try the operation again.
+        for (Call call1 : mCalls) {
+            if (call1 != call && call1.getState() == CallState.ANSWERED) {
+                setCallState(call1, CallState.RINGING, "hold failed on other call");
+            }
+        }
+    }
+
+    @Override
     public UserHandle getCurrentUserHandle() {
         return mCurrentUserHandle;
     }
