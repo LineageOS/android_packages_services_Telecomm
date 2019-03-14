@@ -450,6 +450,7 @@ public class BluetoothRouteManager extends StateMachine {
     // Tracks the active devices in the BT stack (HFP or hearing aid).
     private BluetoothDevice mHfpActiveDeviceCache = null;
     private BluetoothDevice mHearingAidActiveDeviceCache = null;
+    private BluetoothDevice mMostRecentlyReportedActiveDevice = null;
 
     public BluetoothRouteManager(Context context, TelecomSystem.SyncRoot lock,
             BluetoothDeviceManager deviceManager, Timeouts.Adapter timeoutsAdapter) {
@@ -588,6 +589,9 @@ public class BluetoothRouteManager extends StateMachine {
         } else {
             mHfpActiveDeviceCache = device;
         }
+
+        if (device != null) mMostRecentlyReportedActiveDevice = device;
+
         boolean isActiveDevicePresent = mHearingAidActiveDeviceCache != null
                 || mHfpActiveDeviceCache != null;
 
@@ -690,30 +694,38 @@ public class BluetoothRouteManager extends StateMachine {
         BluetoothHeadsetProxy bluetoothHeadset = mDeviceManager.getHeadsetService();
         BluetoothHearingAid bluetoothHearingAid = mDeviceManager.getHearingAidService();
 
+        BluetoothDevice hfpActiveDevice = null;
+        BluetoothDevice hearingAidActiveDevice = null;
+
         if (bluetoothHeadset == null && bluetoothHearingAid == null) {
             Log.i(this, "getBluetoothAudioConnectedDevice: no service available.");
             return null;
         }
 
         if (bluetoothHeadset != null) {
-            for (BluetoothDevice device : bluetoothHeadset.getConnectedDevices()) {
-                boolean isAudioOn = bluetoothHeadset.getAudioState(device)
-                        != BluetoothHeadset.STATE_AUDIO_DISCONNECTED;
-                Log.v(this, "isBluetoothAudioConnected: ==> isAudioOn = " + isAudioOn
-                        + "for headset: " + device);
-                if (isAudioOn) {
-                    return device;
-                }
-            }
+            hfpActiveDevice = bluetoothHeadset.getActiveDevice();
         }
+
         if (bluetoothHearingAid != null) {
             for (BluetoothDevice device : bluetoothHearingAid.getActiveDevices()) {
                 if (device != null) {
-                    return device;
+                    hearingAidActiveDevice = device;
+                    break;
                 }
             }
         }
-        return null;
+
+        // Return the active device reported by either HFP or hearing aid. If both are reporting
+        // active devices, go with the most recent one as reported by the receiver.
+        if (hfpActiveDevice != null) {
+            if (hearingAidActiveDevice != null) {
+                Log.i(this, "Both HFP and hearing aid are reporting active devices. Going with"
+                        + " the most recently reported active device: %s");
+                return mMostRecentlyReportedActiveDevice;
+            }
+            return hfpActiveDevice;
+        }
+        return hearingAidActiveDevice;
     }
 
     /**
