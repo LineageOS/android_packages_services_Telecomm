@@ -928,6 +928,18 @@ public class CallsManager extends Call.ListenerBase
     }
 
     @Override
+    public void onCallHoldFailed(Call call) {
+        // Normally, we don't care whether a call hold has failed. However, if a call was held in
+        // order to answer an incoming call, that incoming call needs to be brought out of the
+        // ANSWERED state so that the user can try the operation again.
+        for (Call call1 : mCalls) {
+            if (call1 != call && call1.getState() == CallState.ANSWERED) {
+                setCallState(call1, CallState.RINGING, "hold failed on other call");
+            }
+        }
+    }
+
+    @Override
     public UserHandle getCurrentUserHandle() {
         return mCurrentUserHandle;
     }
@@ -3983,43 +3995,8 @@ public class CallsManager extends Call.ListenerBase
                                           PhoneAccountHandle handoverToHandle,
                                           int videoState, Bundle initiatingExtras) {
 
-        boolean isHandoverFromSupported = isHandoverFromPhoneAccountSupported(
-                handoverFromCall.getTargetPhoneAccount());
-        boolean isHandoverToSupported = isHandoverToPhoneAccountSupported(handoverToHandle);
-
-        if (!isHandoverFromSupported || !isHandoverToSupported || hasEmergencyCall()) {
-            handoverFromCall.sendCallEvent(android.telecom.Call.EVENT_HANDOVER_FAILED, null);
-            return;
-        }
-
-        Log.addEvent(handoverFromCall, LogUtils.Events.HANDOVER_REQUEST, handoverToHandle);
-
-        Bundle extras = new Bundle();
-        extras.putBoolean(TelecomManager.EXTRA_IS_HANDOVER, true);
-        extras.putParcelable(TelecomManager.EXTRA_HANDOVER_FROM_PHONE_ACCOUNT,
-                handoverFromCall.getTargetPhoneAccount());
-        extras.putInt(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE, videoState);
-        if (initiatingExtras != null) {
-            extras.putAll(initiatingExtras);
-        }
-        extras.putParcelable(TelecomManager.EXTRA_CALL_AUDIO_STATE,
-                mCallAudioManager.getCallAudioState());
-        Call handoverToCall = createHandoverCall(handoverFromCall.getHandle(), handoverToHandle,
-                extras, getCurrentUserHandle());
-        if (handoverToCall == null) {
-            handoverFromCall.sendCallEvent(android.telecom.Call.EVENT_HANDOVER_FAILED, null);
-            return;
-        }
-        Log.addEvent(handoverFromCall, LogUtils.Events.START_HANDOVER,
-                "handOverFrom=%s, handOverTo=%s", handoverFromCall.getId(), handoverToCall.getId());
-        handoverFromCall.setHandoverDestinationCall(handoverToCall);
-        handoverFromCall.setHandoverState(HandoverState.HANDOVER_FROM_STARTED);
-        handoverToCall.setHandoverState(HandoverState.HANDOVER_TO_STARTED);
-        handoverToCall.setHandoverSourceCall(handoverFromCall);
-        handoverToCall.setNewOutgoingCallIntentBroadcastIsDone();
-        placeOutgoingCall(handoverToCall, handoverToCall.getHandle(), null /* gatewayInfo */,
-                false /* startwithSpeaker */,
-                videoState);
+        handoverFromCall.sendCallEvent(android.telecom.Call.EVENT_HANDOVER_FAILED, null);
+        Log.addEvent(handoverFromCall, LogUtils.Events.HANDOVER_REQUEST, "legacy request denied");
     }
 
     public Call createHandoverCall(Uri handle, PhoneAccountHandle handoverToHandle,

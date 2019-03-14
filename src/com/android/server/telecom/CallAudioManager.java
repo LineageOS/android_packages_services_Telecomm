@@ -534,6 +534,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
                 onCallLeavingActiveDialingOrConnecting();
                 break;
             case CallState.RINGING:
+            case CallState.ANSWERED:
                 onCallLeavingRinging();
                 break;
             case CallState.ON_HOLD:
