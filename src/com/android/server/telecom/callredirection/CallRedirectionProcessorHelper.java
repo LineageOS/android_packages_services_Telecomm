@@ -17,7 +17,6 @@
 package com.android.server.telecom.callredirection;
 
 import android.Manifest;
-import android.app.AppOpsManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -119,13 +118,6 @@ public class CallRedirectionProcessorHelper {
                 Manifest.permission.BIND_CALL_REDIRECTION_SERVICE)) {
             Log.w(this, "CallRedirectionService must require BIND_CALL_REDIRECTION_SERVICE"
                     + " permission: " + entry.serviceInfo.packageName);
-            return null;
-        }
-        AppOpsManager appOps = (AppOpsManager) mContext.getSystemService(
-                Context.APP_OPS_SERVICE);
-        if (appOps.noteOpNoThrow(AppOpsManager.OP_PROCESS_OUTGOING_CALLS, Binder.getCallingUid(),
-                entry.serviceInfo.packageName) != AppOpsManager.MODE_ALLOWED) {
-            Log.w(this, "App Ops does not allow " + entry.serviceInfo.packageName);
             return null;
         }
         return new ComponentName(entry.serviceInfo.packageName, entry.serviceInfo.name);
