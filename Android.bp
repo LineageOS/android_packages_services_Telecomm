@@ -27,7 +27,7 @@ android_test {
         "android-ex-camera2",
         "guava",
         "mockito-target-inline",
-        "android-support-test",
+        "androidx.test.rules",
         "platform-test-annotations",
         "androidx.legacy_legacy-support-core-ui",
         "androidx.legacy_legacy-support-core-utils",
