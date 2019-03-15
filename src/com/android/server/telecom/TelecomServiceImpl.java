@@ -1523,10 +1523,8 @@ public class TelecomServiceImpl {
                     String callScreeningPackageName =
                             mCallsManager.getRoleManagerAdapter().getDefaultCallScreeningApp();
 
-                    if (!TextUtils.isEmpty(callScreeningPackageName)) {
-                        mNuisanceCallReporter.reportNuisanceCallStatus(callScreeningPackageName,
-                                handle, isNuisance);
-                    }
+                    mNuisanceCallReporter.reportNuisanceCallStatus(callScreeningPackageName,
+                            handle, isNuisance);
                 } finally {
                     Binder.restoreCallingIdentity(token);
                 }
