@@ -136,7 +136,7 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
         boolean isHearingAid =
                 BluetoothHearingAid.ACTION_ACTIVE_DEVICE_CHANGED.equals(intent.getAction());
         Log.i(LOG_TAG, "Device %s is now the preferred BT device for %s", device,
-                isHearingAid ? "heading aid" : "HFP");
+                isHearingAid ? "hearing aid" : "HFP");
 
         mBluetoothRouteManager.onActiveDeviceChanged(device, isHearingAid);
         if (isHearingAid) {

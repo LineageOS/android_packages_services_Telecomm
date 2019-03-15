@@ -265,9 +265,8 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                 SomeArgs args = SomeArgs.obtain();
                 args.arg1 = Log.createSubsession();
                 args.arg2 = mParams.initialDevice.getAddress();
+                when(mHeadsetProxy.getActiveDevice()).thenReturn(null);
                 sm.sendMessage(BluetoothRouteManager.BT_AUDIO_LOST, args);
-                when(mHeadsetProxy.getAudioState(eq(mParams.initialDevice)))
-                        .thenReturn(BluetoothHeadset.STATE_AUDIO_DISCONNECTED);
                 return true;
             }).when(mDeviceManager).disconnectAudio();
         }
@@ -278,9 +277,14 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
             sm.onActiveDeviceChanged(mParams.messageDevice,
                     mParams.hearingAidBtDevices.contains(mParams.messageDevice));
         } else if (mParams.messageType == BluetoothRouteManager.LOST_DEVICE) {
-            sm.onDeviceLost(mParams.messageDevice.getAddress());
             sm.onActiveDeviceChanged(null,
                     mParams.hearingAidBtDevices.contains(mParams.messageDevice));
+            if (mParams.hearingAidBtDevices.contains(mParams.messageDevice)) {
+                when(mBluetoothHearingAid.getActiveDevices()).thenReturn(Arrays.asList(null, null));
+            } else {
+                when(mHeadsetProxy.getActiveDevice()).thenReturn(null);
+            }
+            sm.onDeviceLost(mParams.messageDevice.getAddress());
         } else {
             executeRoutingAction(sm, mParams.messageType,
                     mParams.messageDevice == null ? null : mParams.messageDevice.getAddress());
@@ -335,11 +339,8 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
         when(mDeviceManager.getConnectedDevices()).thenReturn(Arrays.asList(devices));
         when(mHeadsetProxy.getConnectedDevices()).thenReturn(Arrays.asList(devices));
         when(mHeadsetProxy.getActiveDevice()).thenReturn(activeDevice);
-        when(mHeadsetProxy.getAudioState(any(BluetoothDevice.class)))
-                .thenReturn(BluetoothHeadset.STATE_AUDIO_DISCONNECTED);
         if (audioOnDevice != null) {
-            when(mHeadsetProxy.getAudioState(eq(audioOnDevice)))
-                    .thenReturn(BluetoothHeadset.STATE_AUDIO_CONNECTED);
+            when(mHeadsetProxy.getActiveDevice()).thenReturn(audioOnDevice);
         }
     }
 
