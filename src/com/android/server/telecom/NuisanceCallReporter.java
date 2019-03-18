@@ -17,8 +17,10 @@
 package com.android.server.telecom;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.content.ComponentName;
 import android.content.ContentProvider;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -26,6 +28,7 @@ import android.net.Uri;
 import android.os.Process;
 import android.os.UserHandle;
 import android.provider.CallLog;
+import android.telecom.CallIdentification;
 import android.telecom.CallScreeningService;
 import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
@@ -155,8 +158,13 @@ public class NuisanceCallReporter {
      * @param handle the handle of the call to report nuisance status on.
      * @param isNuisance {@code true} if the call is a nuisance call, {@code false} otherwise.
      */
-    public void reportNuisanceCallStatus(@NonNull String callScreeningPackageName,
+    public void reportNuisanceCallStatus(@Nullable String callScreeningPackageName,
             @NonNull Uri handle, boolean isNuisance) {
+        updateNuisanceStatusInCallLog(handle, isNuisance);
+
+        if (callScreeningPackageName == null) {
+            return;
+        }
 
         // Don't report the nuisance status to a call screening app if it has not provided any
         // caller id info in the past.
@@ -178,11 +186,7 @@ public class NuisanceCallReporter {
         ContentProvider.maybeAddUserId(CallLog.Calls.CONTENT_URI,
                 mCurrentUserHandle.getIdentifier());
 
-        String normalizedNumber = mPhoneNumberUtilsProxy.formatNumberToE164(
-                nuisanceReport.handle.getSchemeSpecificPart());
-        if (TextUtils.isEmpty(normalizedNumber)) {
-            normalizedNumber = nuisanceReport.handle.getSchemeSpecificPart();
-        }
+        String normalizedNumber = getNormalizedNumberFromHandle(nuisanceReport.handle);
         Log.d(this, "maybeSendNuisanceReport:  rawNumber=%s, number=%s, isNuisance=%b",
                 Log.piiHandle(nuisanceReport.handle), Log.piiHandle(normalizedNumber),
                 nuisanceReport.isNuisance);
@@ -222,6 +226,15 @@ public class NuisanceCallReporter {
         }
     }
 
+    private String getNormalizedNumberFromHandle(Uri handle) {
+        String normalizedNumber = mPhoneNumberUtilsProxy.formatNumberToE164(
+                handle.getSchemeSpecificPart());
+        if (TextUtils.isEmpty(normalizedNumber)) {
+            return handle.getSchemeSpecificPart();
+        }
+        return normalizedNumber;
+    }
+
     /**
      * Determines if a {@link CallScreeningService} has provided
      * {@link android.telecom.CallIdentification} for calls in the past.
@@ -236,6 +249,18 @@ public class NuisanceCallReporter {
                 CallLog.Calls.DEFAULT_SORT_ORDER + " LIMIT 1");
 
         return cursor.getCount() > 0;
+    }
+
+    private void updateNuisanceStatusInCallLog(Uri handle, boolean isNuisance) {
+        ContentValues values = new ContentValues();
+        values.put(CallLog.Calls.CALL_ID_NUISANCE_CONFIDENCE,
+                isNuisance ? CallIdentification.CONFIDENCE_NUISANCE
+                        : CallIdentification.CONFIDENCE_NOT_NUISANCE);
+
+        String normalizedNumber = getNormalizedNumberFromHandle(handle);
+        mContext.getContentResolver().update(CallLog.Calls.CONTENT_URI,
+                values, NUMBER_WHERE_CLAUSE,
+                new String[] { normalizedNumber, handle.getSchemeSpecificPart() });
     }
 
     private void sendNuisanceReportIntent(@NonNull NuisanceReport nuisanceReport, long duration,
