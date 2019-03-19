@@ -23,6 +23,7 @@ import android.text.TextUtils;
 public class CallFilteringResult {
     public boolean shouldAllowCall;
     public boolean shouldReject;
+    public boolean shouldSilence;
     public boolean shouldAddToCallLog;
     public boolean shouldShowNotification;
     public int mCallBlockReason = CallLog.Calls.BLOCK_REASON_NOT_BLOCKED;
@@ -33,6 +34,7 @@ public class CallFilteringResult {
             shouldAddToCallLog, boolean shouldShowNotification) {
         this.shouldAllowCall = shouldAllowCall;
         this.shouldReject = shouldReject;
+        this.shouldSilence = false;
         this.shouldAddToCallLog = shouldAddToCallLog;
         this.shouldShowNotification = shouldShowNotification;
     }
@@ -42,6 +44,29 @@ public class CallFilteringResult {
             CharSequence callScreeningAppName, String callScreeningComponentName) {
         this.shouldAllowCall = shouldAllowCall;
         this.shouldReject = shouldReject;
+        this.shouldSilence = false;
+        this.shouldAddToCallLog = shouldAddToCallLog;
+        this.shouldShowNotification = shouldShowNotification;
+        this.mCallBlockReason = callBlockReason;
+        this.mCallScreeningAppName = callScreeningAppName;
+        this.mCallScreeningComponentName = callScreeningComponentName;
+    }
+
+    public CallFilteringResult(boolean shouldAllowCall, boolean shouldReject, boolean
+            shouldSilence, boolean shouldAddToCallLog, boolean shouldShowNotification) {
+        this.shouldAllowCall = shouldAllowCall;
+        this.shouldReject = shouldReject;
+        this.shouldSilence = shouldSilence;
+        this.shouldAddToCallLog = shouldAddToCallLog;
+        this.shouldShowNotification = shouldShowNotification;
+    }
+
+    public CallFilteringResult(boolean shouldAllowCall, boolean shouldReject, boolean
+            shouldSilence, boolean shouldAddToCallLog, boolean shouldShowNotification, int
+            callBlockReason, CharSequence callScreeningAppName, String callScreeningComponentName) {
+        this.shouldAllowCall = shouldAllowCall;
+        this.shouldReject = shouldReject;
+        this.shouldSilence = shouldSilence;
         this.shouldAddToCallLog = shouldAddToCallLog;
         this.shouldShowNotification = shouldShowNotification;
         this.mCallBlockReason = callBlockReason;
@@ -87,6 +112,7 @@ public class CallFilteringResult {
         return new CallFilteringResult(
             shouldAllowCall && other.shouldAllowCall,
             shouldReject || other.shouldReject,
+            shouldSilence || other.shouldSilence,
             shouldAddToCallLog && other.shouldAddToCallLog,
             shouldShowNotification && other.shouldShowNotification);
     }
@@ -108,6 +134,7 @@ public class CallFilteringResult {
         return new CallFilteringResult(
             shouldAllowCall && other.shouldAllowCall,
             shouldReject || other.shouldReject,
+            shouldSilence|| other.shouldSilence,
             shouldAddToCallLog && other.shouldAddToCallLog,
             shouldShowNotification && other.shouldShowNotification,
             callBlockReason,
@@ -125,6 +152,7 @@ public class CallFilteringResult {
 
         if (shouldAllowCall != that.shouldAllowCall) return false;
         if (shouldReject != that.shouldReject) return false;
+        if (shouldSilence != that.shouldSilence) return false;
         if (shouldAddToCallLog != that.shouldAddToCallLog) return false;
         if (shouldShowNotification != that.shouldShowNotification) return false;
         if (mCallBlockReason != that.mCallBlockReason) return false;
@@ -150,6 +178,7 @@ public class CallFilteringResult {
     public int hashCode() {
         int result = (shouldAllowCall ? 1 : 0);
         result = 31 * result + (shouldReject ? 1 : 0);
+        result = 31 * result + (shouldSilence ? 1 : 0);
         result = 31 * result + (shouldAddToCallLog ? 1 : 0);
         result = 31 * result + (shouldShowNotification ? 1 : 0);
         return result;
@@ -163,6 +192,8 @@ public class CallFilteringResult {
             sb.append("Allow");
         } else if (shouldReject) {
             sb.append("Reject");
+        } else if (shouldSilence) {
+            sb.append("Silence");
         } else {
             sb.append("Ignore");
         }

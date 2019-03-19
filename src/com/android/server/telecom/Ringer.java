@@ -199,6 +199,7 @@ public class Ringer {
         boolean shouldRingForContact = shouldRingForContact(foregroundCall.getContactUri());
         boolean isRingtonePresent = !(mRingtoneFactory.getRingtone(foregroundCall) == null);
         boolean isSelfManaged = foregroundCall.isSelfManaged();
+        boolean isSilentRingingRequested = foregroundCall.isSilentRingingRequested();
 
         boolean isRingerAudible = isVolumeOverZero && shouldRingForContact && isRingtonePresent;
         boolean hasExternalRinger = hasExternalRinger(foregroundCall);
@@ -214,15 +215,20 @@ public class Ringer {
         boolean isTheaterModeOn = mSystemSettingsUtil.isTheaterModeOn(mContext);
         boolean letDialerHandleRinging = mInCallController.doesConnectedDialerSupportRinging();
         boolean endEarly = isTheaterModeOn || letDialerHandleRinging || isSelfManaged ||
-                hasExternalRinger;
+                hasExternalRinger || isSilentRingingRequested;
 
         if (endEarly) {
             if (letDialerHandleRinging) {
                 Log.addEvent(foregroundCall, LogUtils.Events.SKIP_RINGING, "Dialer handles");
             }
+            if (isSilentRingingRequested) {
+                Log.addEvent(foregroundCall, LogUtils.Events.SKIP_RINGING, "Silent ringing "
+                        + "requested");
+            }
             Log.i(this, "Ending early -- isTheaterModeOn=%s, letDialerHandleRinging=%s, " +
-                    "isSelfManaged=%s, hasExternalRinger=%s", isTheaterModeOn,
-                    letDialerHandleRinging, isSelfManaged, hasExternalRinger);
+                            "isSelfManaged=%s, hasExternalRinger=%s, silentRingingRequested=%s",
+                    isTheaterModeOn, letDialerHandleRinging, isSelfManaged, hasExternalRinger,
+                    isSilentRingingRequested);
             return shouldAcquireAudioFocus;
         }
 
