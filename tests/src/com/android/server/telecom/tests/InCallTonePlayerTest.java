@@ -26,15 +26,16 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.media.MediaPlayer;
+import android.media.ToneGenerator;
+import android.test.suitebuilder.annotation.SmallTest;
+
+import androidx.test.filters.FlakyTest;
+
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioRoutePeripheralAdapter;
 import com.android.server.telecom.InCallTonePlayer;
 import com.android.server.telecom.TelecomSystem;
-
-import android.media.MediaPlayer;
-import android.media.ToneGenerator;
-import android.support.test.filters.FlakyTest;
-import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
