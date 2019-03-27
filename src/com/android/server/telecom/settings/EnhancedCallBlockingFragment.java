@@ -16,12 +16,16 @@
 
 package com.android.server.telecom.settings;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
 import android.provider.BlockedNumberContract.SystemContract;
+import android.telephony.CarrierConfigManager;
+import android.telephony.SubscriptionManager;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,6 +45,26 @@ public class EnhancedCallBlockingFragment extends PreferenceFragment
         setOnPreferenceChangeListener(SystemContract.ENHANCED_SETTING_KEY_BLOCK_PRIVATE);
         setOnPreferenceChangeListener(SystemContract.ENHANCED_SETTING_KEY_BLOCK_PAYPHONE);
         setOnPreferenceChangeListener(SystemContract.ENHANCED_SETTING_KEY_BLOCK_UNKNOWN);
+        if (!showPayPhoneBlocking()) {
+            Preference payPhoneOption = getPreferenceScreen().findPreference(SystemContract.ENHANCED_SETTING_KEY_BLOCK_PAYPHONE);
+            getPreferenceScreen().removePreference(payPhoneOption);
+        }
+    }
+
+    private boolean showPayPhoneBlocking() {
+        CarrierConfigManager configManager =
+                (CarrierConfigManager) getContext()
+                        .getSystemService(Context.CARRIER_CONFIG_SERVICE);
+        if (configManager == null) {
+            return false;
+        }
+
+        int subId = SubscriptionManager.getDefaultVoiceSubscriptionId();
+        PersistableBundle b = configManager.getConfigForSubId(subId);
+        if (b == null) {
+            return false;
+        }
+        return b.getBoolean(CarrierConfigManager.KEY_SHOW_BLOCKING_PAY_PHONE_OPTION_BOOL);
     }
 
     /**
@@ -59,7 +83,9 @@ public class EnhancedCallBlockingFragment extends PreferenceFragment
 
         updateEnhancedBlockPref(SystemContract.ENHANCED_SETTING_KEY_BLOCK_UNREGISTERED);
         updateEnhancedBlockPref(SystemContract.ENHANCED_SETTING_KEY_BLOCK_PRIVATE);
-        updateEnhancedBlockPref(SystemContract.ENHANCED_SETTING_KEY_BLOCK_PAYPHONE);
+        if (showPayPhoneBlocking()) {
+            updateEnhancedBlockPref(SystemContract.ENHANCED_SETTING_KEY_BLOCK_PAYPHONE);
+        }
         updateEnhancedBlockPref(SystemContract.ENHANCED_SETTING_KEY_BLOCK_UNKNOWN);
     }
 
