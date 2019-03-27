@@ -34,7 +34,6 @@ import android.os.Trace;
 import android.os.UserHandle;
 import android.telecom.CallAudioState;
 import android.telecom.ConnectionService;
-import android.telecom.DefaultDialerManager;
 import android.telecom.InCallService;
 import android.telecom.Log;
 import android.telecom.Logging.Runnable;
@@ -717,6 +716,7 @@ public class InCallController extends CallsManagerListenerBase {
     private static final int IN_CALL_SERVICE_TYPE_SYSTEM_UI = 2;
     private static final int IN_CALL_SERVICE_TYPE_CAR_MODE_UI = 3;
     private static final int IN_CALL_SERVICE_TYPE_NON_UI = 4;
+    private static final int IN_CALL_SERVICE_TYPE_COMPANION = 5;
 
     /** The in-call app implementations, see {@link IInCallService}. */
     private final Map<InCallServiceInfo, IInCallService> mInCallServices = new ArrayMap<>();
@@ -1146,6 +1146,17 @@ public class InCallController extends CallsManagerListenerBase {
         for (InCallServiceInfo serviceInfo : nonUIInCallComponents) {
             nonUIInCalls.add(new InCallServiceBindingConnection(serviceInfo));
         }
+        List<String> callCompanionApps = mCallsManager
+                .getRoleManagerAdapter().getCallCompanionApps();
+        if (callCompanionApps != null && !callCompanionApps.isEmpty()) {
+            for(String pkg : callCompanionApps) {
+                InCallServiceInfo info = getInCallServiceComponent(pkg,
+                        IN_CALL_SERVICE_TYPE_COMPANION);
+                if (info != null) {
+                    nonUIInCalls.add(new InCallServiceBindingConnection(info));
+                }
+            }
+        }
         mNonUIInCallServiceConnections = new NonUIInCallServiceConnectionCollection(nonUIInCalls);
         mNonUIInCallServiceConnections.connect(call);
     }
@@ -1159,9 +1170,10 @@ public class InCallController extends CallsManagerListenerBase {
     }
 
     private InCallServiceInfo getCarModeComponent() {
-        // Seems strange to cast a String to null, but the signatures of getInCallServiceComponent
-        // differ in the types of the first parameter, and passing in null is inherently ambiguous.
-        return getInCallServiceComponent((String) null, IN_CALL_SERVICE_TYPE_CAR_MODE_UI);
+        // The signatures of getInCallServiceComponent differ in the types of the first parameter,
+        // and passing in null is inherently ambiguous. (If no car mode component found)
+        String defaultCarMode = mCallsManager.getRoleManagerAdapter().getCarModeDialerApp();
+        return getInCallServiceComponent(defaultCarMode, IN_CALL_SERVICE_TYPE_CAR_MODE_UI);
     }
 
     private InCallServiceInfo getInCallServiceComponent(ComponentName componentName, int type) {
@@ -1216,7 +1228,6 @@ public class InCallController extends CallsManagerListenerBase {
                 PackageManager.GET_META_DATA,
                 mCallsManager.getCurrentUserHandle().getIdentifier())) {
             ServiceInfo serviceInfo = entry.serviceInfo;
-
             if (serviceInfo != null) {
                 boolean isExternalCallsSupported = serviceInfo.metaData != null &&
                         serviceInfo.metaData.getBoolean(
@@ -1266,6 +1277,14 @@ public class InCallController extends CallsManagerListenerBase {
             return IN_CALL_SERVICE_TYPE_SYSTEM_UI;
         }
 
+        // Check to see if the service holds permissions or metadata for third party apps.
+        boolean hasInCallServiceUIMetadata = serviceInfo.metaData != null &&
+                serviceInfo.metaData.containsKey(TelecomManager.METADATA_IN_CALL_SERVICE_UI);
+        boolean isThirdPartyCompanionApp = packageManager.checkPermission(
+                Manifest.permission.CALL_COMPANION_APP,
+                serviceInfo.packageName) == PackageManager.PERMISSION_GRANTED &&
+                !hasInCallServiceUIMetadata;
+
         // Check to see if the service is a car-mode UI type by checking that it has the
         // CONTROL_INCALL_EXPERIENCE (to verify it is a system app) and that it has the
         // car-mode UI metadata.
@@ -1275,7 +1294,7 @@ public class InCallController extends CallsManagerListenerBase {
         boolean isCarModeUIService = serviceInfo.metaData != null &&
                 serviceInfo.metaData.getBoolean(
                         TelecomManager.METADATA_IN_CALL_SERVICE_CAR_MODE_UI, false) &&
-                hasControlInCallPermission;
+                (hasControlInCallPermission || isThirdPartyCompanionApp);
         if (isCarModeUIService) {
             return IN_CALL_SERVICE_TYPE_CAR_MODE_UI;
         }
@@ -1293,8 +1312,14 @@ public class InCallController extends CallsManagerListenerBase {
 
         // Also allow any in-call service that has the control-experience permission (to ensure
         // that it is a system app) and doesn't claim to show any UI.
-        if (hasControlInCallPermission && !isUIService) {
-            return IN_CALL_SERVICE_TYPE_NON_UI;
+        if (!isUIService) {
+            if (hasControlInCallPermission && !isThirdPartyCompanionApp) {
+                return IN_CALL_SERVICE_TYPE_NON_UI;
+            }
+            // Third party companion alls without CONTROL_INCALL_EXPERIENCE permission.
+            if (!hasControlInCallPermission && isThirdPartyCompanionApp) {
+                return IN_CALL_SERVICE_TYPE_COMPANION;
+            }
         }
 
         // Anything else that remains, we will not bind to.
