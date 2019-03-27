@@ -26,9 +26,11 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import android.Manifest;
 import android.app.AppOpsManager;
 import android.app.NotificationManager;
 import android.app.StatusBarManager;
+// import android.app.role.RoleManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -71,6 +73,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
@@ -181,6 +184,9 @@ public class ComponentContextFixture implements TestFixture<Context> {
                     return mCarrierConfigManager;
                 case Context.COUNTRY_DETECTOR:
                     return mCountryDetector;
+                // TODO: RoleManager not ready yet, uncomment when it's merged into aosp.
+                // case Context.ROLE_SERVICE:
+                //     return mRoleManager;
                 default:
                     return null;
             }
@@ -432,6 +438,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
     private final Map<String, IContentProvider> mIContentProviderByUri = new HashMap<>();
     private final Configuration mResourceConfiguration = new Configuration();
     private final ApplicationInfo mTestApplicationInfo = new ApplicationInfo();
+    // private final RoleManager mRoleManager = mock(RoleManager.class);
 
     private TelecomManager mTelecomManager = null;
 
@@ -462,6 +469,11 @@ public class ComponentContextFixture implements TestFixture<Context> {
                         (Integer) invocation.getArguments()[1]);
             }
         }).when(mPackageManager).queryIntentServicesAsUser((Intent) any(), anyInt(), anyInt());
+
+        // By default, tests use non-ui apps instead of 3rd party companion apps.
+        when(mPackageManager.checkPermission(
+                matches(Manifest.permission.CALL_COMPANION_APP), anyString()))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
 
         when(mTelephonyManager.getSubIdForPhoneAccount((PhoneAccount) any())).thenReturn(1);
 
