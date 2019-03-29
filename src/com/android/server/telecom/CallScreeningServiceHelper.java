@@ -28,7 +28,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
-import android.telecom.CallIdentification;
 import android.telecom.CallScreeningService;
 import android.telecom.Log;
 import android.telecom.Logging.Session;
@@ -69,28 +68,6 @@ public class CallScreeningServiceHelper {
                 ComponentName componentName) throws RemoteException {
             // no-op; we don't allow this on outgoing calls.
         }
-
-        @Override
-        public void provideCallIdentification(String callId, CallIdentification callIdentification)
-                throws RemoteException {
-            Log.startSession("CSA.pCI");
-            long token = Binder.clearCallingIdentity();
-            try {
-                synchronized (mTelecomLock) {
-                    if (mCall != null && mCall.getId().equals(callId)) {
-                        Log.i(TAG, "provideCallIdentification - got call ID");
-                        callIdentification.setCallScreeningAppName(mAppLabelProxy.getAppLabel(
-                                mPackageName));
-                        callIdentification.setCallScreeningPackageName(mPackageName);
-                        mFuture.complete(callIdentification);
-                    }
-                }
-            } finally {
-                Binder.restoreCallingIdentity(token);
-                Log.endSession();
-            }
-            mFuture.complete(null);
-        }
     }
 
     private final ParcelableCallUtils.Converter mParcelableCallUtilsConverter;
@@ -100,7 +77,7 @@ public class CallScreeningServiceHelper {
     private final Context mContext;
     private final AppLabelProxy mAppLabelProxy;
     private final Session mLoggingSession;
-    private CompletableFuture<CallIdentification> mFuture;
+    private CompletableFuture mFuture;
     private String mPackageName;
 
     public CallScreeningServiceHelper(Context context, TelecomSystem.SyncRoot telecomLock,
@@ -120,18 +97,18 @@ public class CallScreeningServiceHelper {
      * Builds a {@link CompletableFuture} which performs a bind to a {@link CallScreeningService}
      * @return
      */
-    public CompletableFuture<CallIdentification> process() {
+    public CompletableFuture process() {
         Log.d(this, "process");
         return bindAndGetCallIdentification();
     }
 
-    public CompletableFuture<CallIdentification> bindAndGetCallIdentification() {
+    public CompletableFuture bindAndGetCallIdentification() {
         Log.d(this, "bindAndGetCallIdentification");
         if (mPackageName == null) {
             return CompletableFuture.completedFuture(null);
         }
 
-        mFuture = new CompletableFuture<>();
+        mFuture = new CompletableFuture();
 
         ServiceConnection serviceConnection = new ServiceConnection() {
             @Override
