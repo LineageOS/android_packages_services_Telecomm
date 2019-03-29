@@ -74,10 +74,6 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
     }
 
     private void handleAudioStateChanged(Intent intent) {
-        if (!mIsInCall) {
-            Log.i(LOG_TAG, "Ignoring BT audio state change since we're not in a call");
-            return;
-        }
         int bluetoothHeadsetAudioState =
                 intent.getIntExtra(BluetoothHeadset.EXTRA_STATE,
                         BluetoothHeadset.STATE_AUDIO_DISCONNECTED);
@@ -97,6 +93,10 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
         args.arg2 = device.getAddress();
         switch (bluetoothHeadsetAudioState) {
             case BluetoothHeadset.STATE_AUDIO_CONNECTED:
+                if (!mIsInCall) {
+                    Log.i(LOG_TAG, "Ignoring BT audio on since we're not in a call");
+                    return;
+                }
                 mBluetoothRouteManager.sendMessage(BT_AUDIO_IS_ON, args);
                 break;
             case BluetoothHeadset.STATE_AUDIO_DISCONNECTED:
