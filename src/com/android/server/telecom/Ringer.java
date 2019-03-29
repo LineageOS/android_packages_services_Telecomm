@@ -291,16 +291,17 @@ public class Ringer {
             effect = mDefaultVibrationEffect;
         }
 
-        if (mSystemSettingsUtil.applyRampingRinger(mContext)
-            && mSystemSettingsUtil.enableRampingRingerFromDeviceConfig()
-            && effect != null) {
-            Log.i(this, "start vibration for ramping ringer.");
-            mVibrator.vibrate(effect);
-            mIsVibrating = true;
-        } else if (shouldVibrate(mContext, foregroundCall)
-                   && !mIsVibrating && shouldRingForContact) {
-            Log.i(this, "start normal vibration.");
-            mVibrator.vibrate(effect, VIBRATION_ATTRIBUTES);
+        if (shouldVibrate(mContext, foregroundCall)
+            && !mIsVibrating && shouldRingForContact) {
+            if (mSystemSettingsUtil.applyRampingRinger(mContext)
+                && mSystemSettingsUtil.enableRampingRingerFromDeviceConfig()
+                && isRingerAudible) {
+                Log.i(this, "start vibration for ramping ringer.");
+                mVibrator.vibrate(effect);
+            } else {
+                Log.i(this, "start normal vibration.");
+                mVibrator.vibrate(effect, VIBRATION_ATTRIBUTES);
+            }
             mIsVibrating = true;
         } else if (mIsVibrating) {
             Log.addEvent(foregroundCall, LogUtils.Events.SKIP_VIBRATION, "already vibrating");
@@ -473,6 +474,8 @@ public class Ringer {
         if (!mVibrator.hasVibrator()) {
             return false;
         }
-        return mSystemSettingsUtil.canVibrateWhenRinging(context);
+        return mSystemSettingsUtil.canVibrateWhenRinging(context)
+            || (mSystemSettingsUtil.applyRampingRinger(context)
+                && mSystemSettingsUtil.enableRampingRingerFromDeviceConfig());
     }
 }
