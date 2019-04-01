@@ -2360,31 +2360,33 @@ public class CallsManager extends Call.ListenerBase
      * Removes an existing disconnected call, and notifies the in-call app.
      */
     void markCallAsRemoved(Call call) {
-        call.maybeCleanupHandover();
-        removeCall(call);
-        Call foregroundCall = mCallAudioManager.getPossiblyHeldForegroundCall();
-        if (mLocallyDisconnectingCalls.contains(call)) {
-            boolean isDisconnectingChildCall = call.isDisconnectingChildCall();
-            Log.v(this, "markCallAsRemoved: isDisconnectingChildCall = "
-                + isDisconnectingChildCall + "call -> %s", call);
-            mLocallyDisconnectingCalls.remove(call);
-            // Auto-unhold the foreground call due to a locally disconnected call, except if the
-            // call which was disconnected is a member of a conference (don't want to auto un-hold
-            // the conference if we remove a member of the conference).
-            if (!isDisconnectingChildCall && foregroundCall != null
-                    && foregroundCall.getState() == CallState.ON_HOLD) {
+        mInCallController.getBindingFuture().thenRunAsync(() -> {
+            call.maybeCleanupHandover();
+            removeCall(call);
+            Call foregroundCall = mCallAudioManager.getPossiblyHeldForegroundCall();
+            if (mLocallyDisconnectingCalls.contains(call)) {
+                boolean isDisconnectingChildCall = call.isDisconnectingChildCall();
+                Log.v(this, "markCallAsRemoved: isDisconnectingChildCall = "
+                        + isDisconnectingChildCall + "call -> %s", call);
+                mLocallyDisconnectingCalls.remove(call);
+                // Auto-unhold the foreground call due to a locally disconnected call, except if the
+                // call which was disconnected is a member of a conference (don't want to auto
+                // un-hold the conference if we remove a member of the conference).
+                if (!isDisconnectingChildCall && foregroundCall != null
+                        && foregroundCall.getState() == CallState.ON_HOLD) {
+                    foregroundCall.unhold();
+                }
+            } else if (foregroundCall != null &&
+                    !foregroundCall.can(Connection.CAPABILITY_SUPPORT_HOLD) &&
+                    foregroundCall.getState() == CallState.ON_HOLD) {
+
+                // The new foreground call is on hold, however the carrier does not display the hold
+                // button in the UI.  Therefore, we need to auto unhold the held call since the user
+                // has no means of unholding it themselves.
+                Log.i(this, "Auto-unholding held foreground call (call doesn't support hold)");
                 foregroundCall.unhold();
             }
-        } else if (foregroundCall != null &&
-                !foregroundCall.can(Connection.CAPABILITY_SUPPORT_HOLD)  &&
-                foregroundCall.getState() == CallState.ON_HOLD) {
-
-            // The new foreground call is on hold, however the carrier does not display the hold
-            // button in the UI.  Therefore, we need to auto unhold the held call since the user has
-            // no means of unholding it themselves.
-            Log.i(this, "Auto-unholding held foreground call (call doesn't support hold)");
-            foregroundCall.unhold();
-        }
+        }, new LoggedHandlerExecutor(mHandler, "CM.mCAR", mLock));
     }
 
     /**
