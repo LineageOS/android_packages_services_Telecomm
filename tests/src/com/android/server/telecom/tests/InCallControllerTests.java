@@ -70,10 +70,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
@@ -606,6 +608,57 @@ public class InCallControllerTests extends TelecomTestCase {
         assertEquals(InCallService.SERVICE_INTERFACE, bindIntent.getAction());
         assertEquals(CAR_PKG, bindIntent.getComponent().getPackageName());
         assertEquals(CAR_CLASS, bindIntent.getComponent().getClassName());
+    }
+
+    /**
+     * Make sure the InCallController completes its binding future when the in call service
+     * finishes binding.
+     */
+    @MediumTest
+    @Test
+    public void testBindingFuture() throws Exception {
+        when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
+        when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
+        when(mMockCallsManager.hasEmergencyCall()).thenReturn(false);
+        when(mMockCall.isIncoming()).thenReturn(false);
+        when(mMockCall.isExternalCall()).thenReturn(false);
+        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID)).thenReturn(DEF_PKG);
+        when(mMockContext.bindServiceAsUser(nullable(Intent.class),
+                nullable(ServiceConnection.class), anyInt(), nullable(UserHandle.class)))
+                .thenReturn(true);
+        when(mTimeoutsAdapter.getCallRemoveUnbindInCallServicesDelay(
+                nullable(ContentResolver.class))).thenReturn(500L);
+
+        when(mMockCallsManager.getCalls()).thenReturn(Collections.singletonList(mMockCall));
+        setupMockPackageManager(true /* default */, true /* system */, false /* external calls */);
+        mInCallController.bindToServices(mMockCall);
+
+        ArgumentCaptor<Intent> bindIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        ArgumentCaptor<ServiceConnection> serviceConnectionCaptor =
+                ArgumentCaptor.forClass(ServiceConnection.class);
+        verify(mMockContext, times(1)).bindServiceAsUser(
+                bindIntentCaptor.capture(),
+                serviceConnectionCaptor.capture(),
+                eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE),
+                eq(UserHandle.CURRENT));
+
+        CompletableFuture<Boolean> bindTimeout = mInCallController.getBindingFuture();
+
+        assertFalse(bindTimeout.isDone());
+
+        // Start the connection, make sure we don't unbind, and make sure that we don't send
+        // anything to the in-call service yet.
+        ServiceConnection serviceConnection = serviceConnectionCaptor.getValue();
+        ComponentName defDialerComponentName = new ComponentName(DEF_PKG, DEF_CLASS);
+        IBinder mockBinder = mock(IBinder.class);
+        IInCallService mockInCallService = mock(IInCallService.class);
+        when(mockBinder.queryLocalInterface(anyString())).thenReturn(mockInCallService);
+
+        serviceConnection.onServiceConnected(defDialerComponentName, mockBinder);
+        verify(mockInCallService).setInCallAdapter(nullable(IInCallAdapter.class));
+
+        // Make sure that the future completed without timing out.
+        assertTrue(bindTimeout.getNow(false));
     }
 
     private void setupMocks(boolean isExternalCall) {
