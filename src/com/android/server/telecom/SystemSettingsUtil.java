@@ -17,6 +17,7 @@
 package com.android.server.telecom;
 
 import android.content.Context;
+import android.media.AudioManager;
 import android.provider.DeviceConfig;
 import android.provider.Settings;
 import android.telecom.Log;
@@ -111,6 +112,10 @@ public class SystemSettingsUtil {
                 "Error parsing Telephony.RAMPING_RINGER_VIBRATION_DURATION: " + e);
             return 0;
         }
+    }
+
+    public boolean isHapticPlaybackSupported(Context context) {
+        return context.getSystemService(AudioManager.class).isHapticPlaybackSupported();
     }
 }
 
