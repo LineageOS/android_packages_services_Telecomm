@@ -697,11 +697,6 @@ public class InCallController extends CallsManagerListenerBase {
         public void onRemoteRttRequest(Call call, int requestId) {
             notifyRemoteRttRequest(call, requestId);
         }
-
-        @Override
-        public void onCallIdentificationChanged(Call call) {
-            updateCall(call);
-        }
     };
 
     private final SystemStateListener mSystemStateListener = new SystemStateListener() {

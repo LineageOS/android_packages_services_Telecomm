@@ -27,7 +27,6 @@ import android.os.Looper;
 import android.os.UserHandle;
 import android.os.PersistableBundle;
 import android.provider.CallLog.Calls;
-import android.telecom.CallIdentification;
 import android.telecom.Connection;
 import android.telecom.DisconnectCause;
 import android.telecom.Log;
@@ -82,8 +81,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
                 int features, PhoneAccountHandle accountHandle, long creationDate,
                 long durationInMillis, Long dataUsage, UserHandle initiatingUser, boolean isRead,
                 @Nullable LogCallCompletedListener logCallCompletedListener, int callBlockReason,
-                CharSequence callScreeningAppName, String callScreeningComponentName,
-                CallIdentification callIdentification) {
+                CharSequence callScreeningAppName, String callScreeningComponentName) {
             this.context = context;
             this.callerInfo = callerInfo;
             this.number = number;
@@ -102,7 +100,6 @@ public final class CallLogManager extends CallsManagerListenerBase {
             this.callBockReason = callBlockReason;
             this.callScreeningAppName = callScreeningAppName;
             this.callScreeningComponentName = callScreeningComponentName;
-            this.callIdentification = callIdentification;
         }
         // Since the members are accessed directly, we don't use the
         // mXxxx notation.
@@ -127,8 +124,6 @@ public final class CallLogManager extends CallsManagerListenerBase {
         public final int callBockReason;
         public final CharSequence callScreeningAppName;
         public final String callScreeningComponentName;
-
-        public final CallIdentification callIdentification;
     }
 
     private static final String TAG = CallLogManager.class.getSimpleName();
@@ -300,22 +295,20 @@ public final class CallLogManager extends CallsManagerListenerBase {
                         Connection.PROPERTY_ASSISTED_DIALING_USED,
                 call.wasEverRttCall());
 
-        CallIdentification callIdentification = call.getCallIdentification();
-
         if (callLogType == Calls.BLOCKED_TYPE) {
             logCall(call.getCallerInfo(), logNumber, call.getPostDialDigits(), formattedViaNumber,
                     call.getHandlePresentation(), callLogType, callFeatures, accountHandle,
                     creationTime, age, callDataUsage, call.isEmergencyCall(),
                     call.getInitiatingUser(), call.isSelfManaged(), logCallCompletedListener,
                     result.mCallBlockReason, result.mCallScreeningAppName,
-                    result.mCallScreeningComponentName, callIdentification);
+                    result.mCallScreeningComponentName);
         } else {
             logCall(call.getCallerInfo(), logNumber, call.getPostDialDigits(), formattedViaNumber,
                     call.getHandlePresentation(), callLogType, callFeatures, accountHandle,
                     creationTime, age, callDataUsage, call.isEmergencyCall(),
                     call.getInitiatingUser(), call.isSelfManaged(), logCallCompletedListener,
                     Calls.BLOCK_REASON_NOT_BLOCKED, null /*callScreeningAppName*/,
-                    null /*callScreeningComponentName*/, callIdentification);
+                    null /*callScreeningComponentName*/);
         }
     }
 
@@ -339,8 +332,6 @@ public final class CallLogManager extends CallsManagerListenerBase {
      * @param callBlockReason The reason why the call is blocked.
      * @param callScreeningAppName The call screening application name which block the call.
      * @param callScreeningComponentName The call screening component name which block the call.
-     * @param callIdentification Call identification information, if provided by a call screening
-     *                           service.
      */
     private void logCall(
             CallerInfo callerInfo,
@@ -360,8 +351,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
             @Nullable LogCallCompletedListener logCallCompletedListener,
             int callBlockReason,
             CharSequence callScreeningAppName,
-            String callScreeningComponentName,
-            @Nullable CallIdentification callIdentification) {
+            String callScreeningComponentName) {
 
         // On some devices, to avoid accidental redialing of emergency numbers, we *never* log
         // emergency calls to the Call Log.  (This behavior is set on a per-product basis, based
@@ -395,7 +385,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
             AddCallArgs args = new AddCallArgs(mContext, callerInfo, number, postDialDigits,
                     viaNumber, presentation, callType, features, accountHandle, start, duration,
                     dataUsage, initiatingUser, isRead, logCallCompletedListener, callBlockReason,
-                    callScreeningAppName, callScreeningComponentName, callIdentification);
+                    callScreeningAppName, callScreeningComponentName);
             logCallAsync(args);
         } else {
           Log.d(TAG, "Not adding emergency call to call log.");
@@ -557,7 +547,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
                     c.presentation, c.callType, c.features, c.accountHandle, c.timestamp,
                     c.durationInSec, c.dataUsage, userToBeInserted == null,
                     userToBeInserted, c.isRead, c.callBockReason, c.callScreeningAppName,
-                    c.callScreeningComponentName, c.callIdentification);
+                    c.callScreeningComponentName);
         }
 
 
