@@ -31,9 +31,7 @@ import java.util.stream.Collectors;
 
 public class RoleManagerAdapterImpl implements RoleManagerAdapter {
     private static final String ROLE_CALL_REDIRECTION_APP = RoleManager.ROLE_CALL_REDIRECTION;
-    private static final String ROLE_CAR_MODE_DIALER = RoleManager.ROLE_CAR_MODE_DIALER;
     private static final String ROLE_CALL_SCREENING = RoleManager.ROLE_CALL_SCREENING;
-    private static final String ROLE_CALL_COMPANION_APP = RoleManager.ROLE_CALL_COMPANION;
 
     private String mOverrideDefaultCallRedirectionApp = null;
     private String mOverrideDefaultCallScreeningApp = null;
@@ -77,8 +75,6 @@ public class RoleManagerAdapterImpl implements RoleManagerAdapter {
     @Override
     public List<String> getCallCompanionApps() {
         List<String> callCompanionApps = new ArrayList<>();
-        // List from RoleManager is not resizable. AbstractList.add action is not supported.
-        callCompanionApps.addAll(getRoleManagerCallCompanionApps());
         callCompanionApps.addAll(mOverrideCallCompanionApps);
         return callCompanionApps;
     }
@@ -119,17 +115,14 @@ public class RoleManagerAdapterImpl implements RoleManagerAdapter {
         return roleHolders.get(0);
     }
 
+    // TODO in R: query and return car mode apps
     private String getRoleManagerCarModeDialerApp() {
-        List<String> roleHolders = mRoleManager.getRoleHoldersAsUser(ROLE_CAR_MODE_DIALER,
-                mCurrentUserHandle);
-        if (roleHolders == null || roleHolders.isEmpty()) {
-            return null;
-        }
-        return roleHolders.get(0);
+        return null;
     }
 
+    // TODO in R: Use companion app manager
     private List<String> getRoleManagerCallCompanionApps() {
-        return mRoleManager.getRoleHoldersAsUser(ROLE_CALL_COMPANION_APP, mCurrentUserHandle);
+        return new ArrayList<>();
     }
 
     private String getRoleManagerCallRedirectionApp() {
