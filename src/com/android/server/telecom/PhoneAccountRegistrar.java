@@ -312,6 +312,11 @@ public class PhoneAccountRegistrar {
         if (userHandle == null) {
             return;
         }
+        DefaultPhoneAccountHandle currentDefaultInfo =
+                mState.defaultOutgoingAccountHandles.get(userHandle);
+        PhoneAccountHandle currentDefaultPhoneAccount = currentDefaultInfo == null ? null :
+                currentDefaultInfo.phoneAccountHandle;
+        boolean isSimAccount = false;
         if (accountHandle == null) {
             // Asking to clear the default outgoing is a valid request
             mState.defaultOutgoingAccountHandles.remove(userHandle);
@@ -332,13 +337,31 @@ public class PhoneAccountRegistrar {
             if (account.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
                 // If the account selected is a SIM account, propagate down to the subscription
                 // record.
-                int subId = getSubscriptionIdForPhoneAccount(accountHandle);
-                mSubscriptionManager.setDefaultVoiceSubId(subId);
+                isSimAccount = true;
             }
+
             Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s", accountHandle);
             mState.defaultOutgoingAccountHandles
                     .put(userHandle, new DefaultPhoneAccountHandle(userHandle, accountHandle,
                             account.getGroupId()));
+        }
+
+        // Potentially update the default voice subid in SubscriptionManager.
+        if (!Objects.equals(currentDefaultPhoneAccount, accountHandle)) {
+            int newSubId = accountHandle == null ? SubscriptionManager.INVALID_SUBSCRIPTION_ID :
+                    getSubscriptionIdForPhoneAccount(accountHandle);
+            if (isSimAccount || accountHandle == null) {
+                int currentVoiceSubId = mSubscriptionManager.getDefaultVoiceSubscriptionId();
+                if (newSubId != currentVoiceSubId) {
+                    Log.i(this, "setUserSelectedOutgoingPhoneAccount: update voice sub; "
+                            + "account=%s, subId=%d", accountHandle, newSubId);
+                    mSubscriptionManager.setDefaultVoiceSubId(newSubId);
+                }
+            } else {
+                Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s is not a sub", accountHandle);
+            }
+        } else {
+            Log.i(this, "setUserSelectedOutgoingPhoneAccount: no change to voice sub");
         }
 
         write();
