@@ -21,7 +21,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.telecom.Call;
-import android.telecom.CallIdentification;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -111,20 +110,10 @@ public class CallListAdapter extends BaseAdapter {
 
         state.setText(getStateString(call));
 
-        CallIdentification callIdentification = call.getDetails().getCallIdentification();
-        if (callIdentification != null) {
-            callIdName.setText(callIdentification.getName());
-            callIdDescription.setText(callIdentification.getDescription());
-            callIdDetails.setText(callIdentification.getDetails());
-            callIdType.setText("Call Type: " + callIdentification.getNuisanceConfidence());
-            callIdPhoto.setImageIcon(callIdentification.getPhoto());
-        }
-
         Log.i(TAG, "Call found: " + ((handle == null) ? "null" : handle.getSchemeSpecificPart())
                 + ", " + durationMs);
         Log.i(TAG, "Call extras: " + extrasToString(call.getDetails().getExtras()));
         Log.i(TAG, "Call intent extras: " + extrasToString(call.getDetails().getIntentExtras()));
-
 
         return convertView;
     }

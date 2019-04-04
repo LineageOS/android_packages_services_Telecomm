@@ -54,6 +54,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Binds to {@link IInCallService} and provides the service to {@link CallsManager} through which it
@@ -695,11 +697,6 @@ public class InCallController extends CallsManagerListenerBase {
         public void onRemoteRttRequest(Call call, int requestId) {
             notifyRemoteRttRequest(call, requestId);
         }
-
-        @Override
-        public void onCallIdentificationChanged(Call call) {
-            updateCall(call);
-        }
     };
 
     private final SystemStateListener mSystemStateListener = new SystemStateListener() {
@@ -735,6 +732,10 @@ public class InCallController extends CallsManagerListenerBase {
     private final EmergencyCallHelper mEmergencyCallHelper;
     private CarSwappingInCallServiceConnection mInCallServiceConnection;
     private NonUIInCallServiceConnectionCollection mNonUIInCallServiceConnections;
+
+    // Future that's in a completed state unless we're in the middle of binding to a service.
+    // The future will complete with true if binding succeeds, false if it timed out.
+    private CompletableFuture<Boolean> mBindingFuture = CompletableFuture.completedFuture(true);
 
     public InCallController(Context context, TelecomSystem.SyncRoot lock, CallsManager callsManager,
             SystemStateHelper systemStateHelper,
@@ -1134,6 +1135,10 @@ public class InCallController extends CallsManagerListenerBase {
             // Only connect to the non-ui InCallServices if we actually connected to the main UI
             // one.
             connectToNonUiInCallServices(call);
+            mBindingFuture = new CompletableFuture<Boolean>().completeOnTimeout(false,
+                    mTimeoutsAdapter.getCallRemoveUnbindInCallServicesDelay(
+                            mContext.getContentResolver()),
+                    TimeUnit.MILLISECONDS);
         } else {
             Log.i(this, "bindToServices: current UI doesn't support call; not binding.");
         }
@@ -1401,6 +1406,7 @@ public class InCallController extends CallsManagerListenerBase {
             inCallService.onCanAddCallChanged(mCallsManager.canAddCall());
         } catch (RemoteException ignored) {
         }
+        mBindingFuture.complete(true);
         Log.i(this, "%s calls sent to InCallService.", numCallsSent);
         Trace.endSection();
         return true;
@@ -1485,6 +1491,14 @@ public class InCallController extends CallsManagerListenerBase {
      */
     private boolean isBoundAndConnectedToServices() {
         return mInCallServiceConnection != null && mInCallServiceConnection.isConnected();
+    }
+
+    /**
+     * @return A future that is pending whenever we are in the middle of binding to an
+     *         incall service.
+     */
+    public CompletableFuture<Boolean> getBindingFuture() {
+        return mBindingFuture;
     }
 
     /**

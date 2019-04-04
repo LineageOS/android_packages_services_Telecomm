@@ -46,7 +46,6 @@ import android.provider.BlockedNumberContract.SystemContract;
 import android.provider.CallLog.Calls;
 import android.provider.Settings;
 import android.telecom.CallAudioState;
-import android.telecom.CallIdentification;
 import android.telecom.Conference;
 import android.telecom.Connection;
 import android.telecom.DisconnectCause;
@@ -1491,7 +1490,7 @@ public class CallsManager extends Call.ListenerBase
                         // We only want to provide a CallScreeningService with a call if its not in
                         // contacts.
                         if (!isInContacts) {
-                            performCallIdentification(theCall);
+                            bindForOutgoingCallerId(theCall);
                         }
             }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.pCSB", mLock));
         }
@@ -1563,12 +1562,12 @@ public class CallsManager extends Call.ListenerBase
      * Performs call identification for an outgoing phone call.
      * @param theCall The outgoing call to perform identification.
      */
-    private void performCallIdentification(Call theCall) {
+    private void bindForOutgoingCallerId(Call theCall) {
         // Find the user chosen call screening app.
         String callScreeningApp =
                 mRoleManagerAdapter.getDefaultCallScreeningApp();
 
-        CompletableFuture<CallIdentification> future =
+        CompletableFuture future =
                 new CallScreeningServiceHelper(mContext,
                 mLock,
                 callScreeningApp,
@@ -1590,15 +1589,8 @@ public class CallsManager extends Call.ListenerBase
                         return null;
                     }
                 }).process();
-
-        // When we are done, apply call identification to the call.
-        future.thenApply(v -> {
-            Log.i(CallsManager.this, "setting caller ID: %s", v);
-            if (v != null) {
-                synchronized (mLock) {
-                    theCall.setCallIdentification(v);
-                }
-            }
+        future.thenApply( v -> {
+            Log.i(this, "Outgoing caller ID complete");
             return null;
         });
     }
@@ -2447,31 +2439,33 @@ public class CallsManager extends Call.ListenerBase
      * Removes an existing disconnected call, and notifies the in-call app.
      */
     void markCallAsRemoved(Call call) {
-        call.maybeCleanupHandover();
-        removeCall(call);
-        Call foregroundCall = mCallAudioManager.getPossiblyHeldForegroundCall();
-        if (mLocallyDisconnectingCalls.contains(call)) {
-            boolean isDisconnectingChildCall = call.isDisconnectingChildCall();
-            Log.v(this, "markCallAsRemoved: isDisconnectingChildCall = "
-                + isDisconnectingChildCall + "call -> %s", call);
-            mLocallyDisconnectingCalls.remove(call);
-            // Auto-unhold the foreground call due to a locally disconnected call, except if the
-            // call which was disconnected is a member of a conference (don't want to auto un-hold
-            // the conference if we remove a member of the conference).
-            if (!isDisconnectingChildCall && foregroundCall != null
-                    && foregroundCall.getState() == CallState.ON_HOLD) {
+        mInCallController.getBindingFuture().thenRunAsync(() -> {
+            call.maybeCleanupHandover();
+            removeCall(call);
+            Call foregroundCall = mCallAudioManager.getPossiblyHeldForegroundCall();
+            if (mLocallyDisconnectingCalls.contains(call)) {
+                boolean isDisconnectingChildCall = call.isDisconnectingChildCall();
+                Log.v(this, "markCallAsRemoved: isDisconnectingChildCall = "
+                        + isDisconnectingChildCall + "call -> %s", call);
+                mLocallyDisconnectingCalls.remove(call);
+                // Auto-unhold the foreground call due to a locally disconnected call, except if the
+                // call which was disconnected is a member of a conference (don't want to auto
+                // un-hold the conference if we remove a member of the conference).
+                if (!isDisconnectingChildCall && foregroundCall != null
+                        && foregroundCall.getState() == CallState.ON_HOLD) {
+                    foregroundCall.unhold();
+                }
+            } else if (foregroundCall != null &&
+                    !foregroundCall.can(Connection.CAPABILITY_SUPPORT_HOLD) &&
+                    foregroundCall.getState() == CallState.ON_HOLD) {
+
+                // The new foreground call is on hold, however the carrier does not display the hold
+                // button in the UI.  Therefore, we need to auto unhold the held call since the user
+                // has no means of unholding it themselves.
+                Log.i(this, "Auto-unholding held foreground call (call doesn't support hold)");
                 foregroundCall.unhold();
             }
-        } else if (foregroundCall != null &&
-                !foregroundCall.can(Connection.CAPABILITY_SUPPORT_HOLD)  &&
-                foregroundCall.getState() == CallState.ON_HOLD) {
-
-            // The new foreground call is on hold, however the carrier does not display the hold
-            // button in the UI.  Therefore, we need to auto unhold the held call since the user has
-            // no means of unholding it themselves.
-            Log.i(this, "Auto-unholding held foreground call (call doesn't support hold)");
-            foregroundCall.unhold();
-        }
+        }, new LoggedHandlerExecutor(mHandler, "CM.mCAR", mLock));
     }
 
     /**

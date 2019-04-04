@@ -29,6 +29,16 @@ import com.android.internal.annotations.VisibleForTesting;
 @VisibleForTesting
 public class SystemSettingsUtil {
 
+    /** Flag for ringer ramping time in milliseconds. */
+    private static final String RAMPING_RINGER_DURATION_MILLIS = "ramping_ringer_duration";
+
+    /** Flag for vibration time in milliseconds before ramping ringer starts. */
+    private static final String RAMPING_RINGER_VIBRATION_DURATION =
+            "ramping_ringer_vibration_duration";
+
+    /** Flag for whether or not to apply ramping ringer on incoming phone calls. */
+    private static final String RAMPING_RINGER_ENABLED = "ramping_ringer_enabled";
+
     public boolean isTheaterModeOn(Context context) {
         return Settings.Global.getInt(context.getContentResolver(), Settings.Global.THEATER_MODE_ON,
                 0) == 1;
@@ -51,59 +61,22 @@ public class SystemSettingsUtil {
 
     public boolean applyRampingRinger(Context context) {
         return Settings.Global.getInt(context.getContentResolver(),
-            Settings.Global.APPLY_RAMPING_RINGER, 0) == 1;
+                Settings.Global.APPLY_RAMPING_RINGER, 0) == 1;
     }
 
     public boolean enableRampingRingerFromDeviceConfig() {
-        String enableRampingRinger = DeviceConfig.getProperty(
-            DeviceConfig.Telephony.NAMESPACE,
-            DeviceConfig.Telephony.RAMPING_RINGER_ENABLED);
-        if (enableRampingRinger == null) {
-            Log.i(this, "Telephony.RAMPING_RINGER_ENABLED is null");
-            return false;
-        }
-        try {
-            return Boolean.valueOf(enableRampingRinger);
-        } catch (Exception e) {
-            Log.wtf(this,
-                "Error parsing Telephony.RAMPING_RINGER_ENABLED: " + e);
-            return false;
-        }
-    }
+        return DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_TELEPHONY, RAMPING_RINGER_ENABLED,
+                false);
+   }
 
     public int getRampingRingerDuration() {
-        String rampingRingerDuration = DeviceConfig.getProperty(
-            DeviceConfig.Telephony.NAMESPACE,
-            DeviceConfig.Telephony.RAMPING_RINGER_DURATION);
-        if (rampingRingerDuration == null) {
-            Log.i(this, "Telephony.RAMPING_RINGER_DURATION is null");
-            return -1;
-        }
-        try {
-            return Integer.parseInt(rampingRingerDuration);
-        } catch (Exception e) {
-            Log.wtf(this,
-                "Error parsing Telephony.RAMPING_RINGER_DURATION: " + e);
-            return -1;
-        }
+	return DeviceConfig.getInt(DeviceConfig.NAMESPACE_TELEPHONY,
+                RAMPING_RINGER_DURATION_MILLIS, -1);
     }
 
     public int getRampingRingerVibrationDuration() {
-        String rampingRingerVibrationDuration = DeviceConfig.getProperty(
-            DeviceConfig.Telephony.NAMESPACE,
-            DeviceConfig.Telephony.RAMPING_RINGER_VIBRATION_DURATION);
-        if (rampingRingerVibrationDuration == null) {
-            Log.i(this,
-                "Telephony.RAMPING_RINGER_VIBRATION_DURATION is null");
-            return 0;
-        }
-        try {
-            return Integer.parseInt(rampingRingerVibrationDuration);
-        } catch (Exception e) {
-            Log.wtf(this,
-                "Error parsing Telephony.RAMPING_RINGER_VIBRATION_DURATION: " + e);
-            return 0;
-        }
+        return DeviceConfig.getInt(DeviceConfig.NAMESPACE_TELEPHONY, 
+                RAMPING_RINGER_VIBRATION_DURATION, 0);
     }
 }
 

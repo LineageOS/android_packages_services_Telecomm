@@ -19,7 +19,6 @@ package com.android.server.telecom.testapps;
 import android.content.Intent;
 import android.graphics.drawable.Icon;
 import android.telecom.Call;
-import android.telecom.CallIdentification;
 import android.telecom.CallScreeningService;
 import android.telecom.Log;
 
@@ -45,15 +44,6 @@ public class TestCallScreeningService extends CallScreeningService {
             Intent errorIntent = new Intent(this, CallScreeningActivity.class);
             errorIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(errorIntent);
-        } else {
-            CallIdentification callIdentification = new CallIdentification.Builder()
-                    .setNuisanceConfidence(CallIdentification.CONFIDENCE_NOT_NUISANCE)
-                    .setName("Janes's Laundry")
-                    .setDescription("1255 DirtySocks Lane")
-                    .setDetails("Open 16 hrs")
-                    .setPhoto(Icon.createWithResource(this, R.drawable.ic_android_black_24dp))
-                    .build();
-            provideCallIdentification(mDetails, callIdentification);
         }
     }
 
@@ -69,15 +59,6 @@ public class TestCallScreeningService extends CallScreeningService {
     }
 
     public void allowCall() {
-        // Provide call identification
-        CallIdentification callIdentification = new CallIdentification.Builder()
-                .setNuisanceConfidence(CallIdentification.CONFIDENCE_NOT_NUISANCE)
-                .setName("Joe's Laundry")
-                .setDescription("1234 DirtySocks Lane")
-                .setDetails("Open 24 hrs")
-                .setPhoto(Icon.createWithResource(this, R.drawable.ic_android_black_24dp))
-                .build();
-        provideCallIdentification(mDetails, callIdentification);
         CallScreeningService.CallResponse
                 response = new CallScreeningService.CallResponse.Builder()
                 .setDisallowCall(false)
