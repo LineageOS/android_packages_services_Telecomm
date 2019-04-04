@@ -46,7 +46,6 @@ import android.provider.BlockedNumberContract.SystemContract;
 import android.provider.CallLog.Calls;
 import android.provider.Settings;
 import android.telecom.CallAudioState;
-import android.telecom.CallIdentification;
 import android.telecom.Conference;
 import android.telecom.Connection;
 import android.telecom.DisconnectCause;
@@ -1473,7 +1472,7 @@ public class CallsManager extends Call.ListenerBase
                         // We only want to provide a CallScreeningService with a call if its not in
                         // contacts.
                         if (!isInContacts) {
-                            performCallIdentification(theCall);
+                            bindForOutgoingCallerId(theCall);
                         }
             }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.pCSB", mLock));
         }
@@ -1545,12 +1544,12 @@ public class CallsManager extends Call.ListenerBase
      * Performs call identification for an outgoing phone call.
      * @param theCall The outgoing call to perform identification.
      */
-    private void performCallIdentification(Call theCall) {
+    private void bindForOutgoingCallerId(Call theCall) {
         // Find the user chosen call screening app.
         String callScreeningApp =
                 mRoleManagerAdapter.getDefaultCallScreeningApp();
 
-        CompletableFuture<CallIdentification> future =
+        CompletableFuture future =
                 new CallScreeningServiceHelper(mContext,
                 mLock,
                 callScreeningApp,
@@ -1572,15 +1571,8 @@ public class CallsManager extends Call.ListenerBase
                         return null;
                     }
                 }).process();
-
-        // When we are done, apply call identification to the call.
-        future.thenApply(v -> {
-            Log.i(CallsManager.this, "setting caller ID: %s", v);
-            if (v != null) {
-                synchronized (mLock) {
-                    theCall.setCallIdentification(v);
-                }
-            }
+        future.thenApply( v -> {
+            Log.i(this, "Outgoing caller ID complete");
             return null;
         });
     }
