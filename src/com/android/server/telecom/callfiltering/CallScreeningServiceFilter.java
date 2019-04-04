@@ -29,7 +29,6 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.CallLog;
 import android.provider.Settings;
-import android.telecom.CallIdentification;
 import android.telecom.CallScreeningService;
 import android.telecom.Log;
 import android.telecom.ParcelableCall;
@@ -146,25 +145,6 @@ public class CallScreeningServiceFilter {
                         Log.w(this, "disallowCall, unknown call id: %s", callId);
                     }
                     finishCallScreening();
-                }
-            } finally {
-                Binder.restoreCallingIdentity(token);
-                Log.endSession();
-            }
-        }
-
-        @Override
-        public void provideCallIdentification(String callId,
-                CallIdentification callIdentification) {
-            Log.startSession("CSCR.pCI");
-            long token = Binder.clearCallingIdentity();
-            try {
-                synchronized (mTelecomLock) {
-                    if (mCall != null && mCall.getId().equals(callId)) {
-                        callIdentification.setCallScreeningAppName(mAppName);
-                        callIdentification.setCallScreeningPackageName(mPackageName);
-                        mCall.setCallIdentification(callIdentification);
-                    }
                 }
             } finally {
                 Binder.restoreCallingIdentity(token);
