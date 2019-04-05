@@ -25,7 +25,6 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.PersistableBundle;
-import android.provider.Settings;
 import android.telecom.CallRedirectionService;
 import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
@@ -56,19 +55,15 @@ public class CallRedirectionProcessorHelper {
     }
 
     @VisibleForTesting
-    // TODO integarte with RoleManager functions
     public ComponentName getUserDefinedCallRedirectionService() {
-        String componentNameString = Settings.Secure.getStringForUser(
-                mContext.getContentResolver(),
-                Settings.Secure.CALL_REDIRECTION_DEFAULT_APPLICATION,
-                mCallsManager.getCurrentUserHandle().getIdentifier());
-        if (TextUtils.isEmpty(componentNameString)) {
-            Log.i(this, "Default user-defined call redirection is empty. Not performing call"
-                    + " redirection.");
+        String packageName = mCallsManager.getRoleManagerAdapter().getDefaultCallRedirectionApp();
+        if (TextUtils.isEmpty(packageName)) {
+            Log.i(this, "PackageName is empty. Not performing user-defined call redirection.");
             return null;
         }
-        return getComponentName(componentNameString,
-                CallRedirectionProcessor.SERVICE_TYPE_USER_DEFINED);
+        Intent intent = new Intent(CallRedirectionService.SERVICE_INTERFACE)
+                .setPackage(packageName);
+        return getComponentName(intent, CallRedirectionProcessor.SERVICE_TYPE_CARRIER);
     }
 
     @VisibleForTesting
@@ -92,11 +87,6 @@ public class CallRedirectionProcessorHelper {
             Log.i(this, "Cannot get carrier componentNameString.");
             return null;
         }
-        return getComponentName(componentNameString,
-                CallRedirectionProcessor.SERVICE_TYPE_CARRIER);
-    }
-
-    protected ComponentName getComponentName(String componentNameString, String serviceType) {
         ComponentName componentName = ComponentName.unflattenFromString(componentNameString);
         if (componentName == null) {
             Log.w(this, "ComponentName is null from string: " + componentNameString);
@@ -104,6 +94,10 @@ public class CallRedirectionProcessorHelper {
         }
         Intent intent = new Intent(CallRedirectionService.SERVICE_INTERFACE);
         intent.setComponent(componentName);
+        return getComponentName(intent, CallRedirectionProcessor.SERVICE_TYPE_CARRIER);
+    }
+
+    protected ComponentName getComponentName(Intent intent, String serviceType) {
         List<ResolveInfo> entries = mContext.getPackageManager().queryIntentServicesAsUser(
                 intent, 0, mCallsManager.getCurrentUserHandle().getIdentifier());
         if (entries.isEmpty()) {
@@ -134,7 +128,7 @@ public class CallRedirectionProcessorHelper {
             Log.w(this, "App Ops does not allow " + entry.serviceInfo.packageName);
             return null;
         }
-        return componentName;
+        return new ComponentName(entry.serviceInfo.packageName, entry.serviceInfo.name);
     }
 
     /**

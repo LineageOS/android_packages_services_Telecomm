@@ -259,5 +259,19 @@
                   android:excludeFromRecents="true"
                   android:launchMode="singleInstance">
         </activity>
+
+        <service
+                android:name=".TestCallRedirectionService"
+                android:permission="android.permission.BIND_CALL_REDIRECTION_SERVICE">
+            <intent-filter>
+                <action android:name="android.telecom.CallRedirectionService"/>
+            </intent-filter>
+        </service>
+
+        <activity android:name=".CallRedirectionActivity"
+                  android:configChanges="orientation|screenSize|keyboardHidden"
+                  android:excludeFromRecents="true"
+                  android:launchMode="singleInstance">
+        </activity>
     </application>
 </manifest>

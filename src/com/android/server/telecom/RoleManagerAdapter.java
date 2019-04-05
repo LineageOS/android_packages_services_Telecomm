@@ -87,4 +87,11 @@ public interface RoleManagerAdapter {
      * @param currentUserHandle The new user handle.
      */
     void setCurrentUserHandle(UserHandle currentUserHandle);
+
+    /**
+     * Returns the application label that corresponds to the given package name.
+     * @param packageName A valid package name.
+     * @return Application label for the given package name, or null if not found.
+     */
+    String getApplicationLabelForPackageName(String packageName);
 }

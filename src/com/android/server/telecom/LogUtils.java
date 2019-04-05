@@ -149,6 +149,9 @@ public class LogUtils {
         public static final String REDIRECTION_COMPLETED_CARRIER = "REDIRECTION_COMPLETED_CARRIER";
         public static final String REDIRECTION_TIMED_OUT_USER = "REDIRECTION_TIMED_OUT_USER";
         public static final String REDIRECTION_TIMED_OUT_CARRIER = "REDIRECTION_TIMED_OUT_CARRIER";
+        public static final String REDIRECTION_USER_CONFIRMATION = "REDIRECTION_USER_CONFIRMATION";
+        public static final String REDIRECTION_USER_CONFIRMED = "REDIRECTION_USER_CONFIRMED";
+        public static final String REDIRECTION_USER_CANCELLED = "REDIRECTION_USER_CANCELLED";
 
         public static class Timings {
             public static final String ACCEPT_TIMING = "accept";
