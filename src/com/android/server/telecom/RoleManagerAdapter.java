@@ -65,15 +65,12 @@ public interface RoleManagerAdapter {
     void setTestDefaultCallScreeningApp(String packageName);
 
     /**
-     * Retrieves a list of package names of the app(s) which fill the
-     * {@link android.app.role.RoleManager} companion device role.
-     * @return List of package names filling the role, or empty list if there are none.
+     * @return List of package names of companion apps, or empty list if there are none.
      */
     List<String> getCallCompanionApps();
 
     /**
-     * Set a package to be added to the list of the {@link android.app.role.RoleManager} companion
-     * apps.  Used for testing purposes only.
+     * Set a package to be added to the list of the companion apps. Used for testing purposes only.
      * @param packageName Package name of the app to be added or removed as an override call
      *                    companion app.
      * @param isAdded {@code true} if the specified package should be added, {@code false} if it
@@ -82,17 +79,13 @@ public interface RoleManagerAdapter {
     void addOrRemoveTestCallCompanionApp(String packageName, boolean isAdded);
 
     /**
-     * Returns the package name of the app which fills the {@link android.app.role.RoleManager}
-     * projection mode role.
-     * @return Package name of the car more app or {@code null} if there are no apps that fill this
-     * role.
+     * @return Package name of the car more app or {@code null} if there are no apps that match.
      */
     String getCarModeDialerApp();
 
     /**
-     * Override the {@link android.app.role.RoleManager} automotive app with another value.
-     * Used for testing purposes only.
-     * @param packageName Package name of the app to fill the automotive app role.  Where
+     * Override the automotive app with another value. Used for testing purposes only.
+     * @param packageName Package name of the automotive app. Where
      *                    {@code null}, the override is removed.
      */
     void setTestAutoModeApp(String packageName);
