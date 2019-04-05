@@ -42,7 +42,7 @@ public class CallRedirectionProcessorHelper {
     private final Context mContext;
     private final CallsManager mCallsManager;
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
-    private String mOriginalPostDialDigits = null;
+    private String mOriginalPostDialDigits = "";
 
     public CallRedirectionProcessorHelper(
             Context context,
@@ -62,7 +62,7 @@ public class CallRedirectionProcessorHelper {
         }
         Intent intent = new Intent(CallRedirectionService.SERVICE_INTERFACE)
                 .setPackage(packageName);
-        return getComponentName(intent, CallRedirectionProcessor.SERVICE_TYPE_CARRIER);
+        return getComponentName(intent, CallRedirectionProcessor.SERVICE_TYPE_USER_DEFINED);
     }
 
     @VisibleForTesting
@@ -136,7 +136,10 @@ public class CallRedirectionProcessorHelper {
 
     protected void storePostDialDigits(Uri handle) {
         String number = handle.getSchemeSpecificPart();
-        mOriginalPostDialDigits += PhoneNumberUtils.extractPostDialPortion(number);
+        String postDialPortion = PhoneNumberUtils.extractPostDialPortion(number);
+        if (postDialPortion != null) {
+            mOriginalPostDialDigits = postDialPortion;
+        }
         Log.i(this, "storePostDialDigits, stored post dial digits: "
                 + Log.pii(mOriginalPostDialDigits));
     }
