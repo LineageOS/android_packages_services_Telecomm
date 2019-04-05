@@ -54,6 +54,17 @@ public class RingtoneFactory {
         mCallsManager = callsManager;
     }
 
+    /**
+     * Determines if a ringtone has haptic channels.
+     * @param ringtone The ringtone URI.
+     * @return {@code true} if there is a haptic channel, {@code false} otherwise.
+     */
+    public boolean hasHapticChannels(Ringtone ringtone) {
+        boolean hasHapticChannels = RingtoneManager.hasHapticChannels(ringtone.getUri());
+        Log.i(this, "hasHapticChannels %s -> %b", ringtone.getUri(), hasHapticChannels);
+        return hasHapticChannels;
+    }
+
     public Ringtone getRingtone(Call incomingCall,
             @Nullable VolumeShaper.Configuration volumeShaperConfig) {
         // Use the default ringtone of the work profile if the contact is a work profile contact.
