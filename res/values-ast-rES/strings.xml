@@ -43,8 +43,10 @@
     <string name="no_vm_number">Falta\'l númberu del buzón de voz</string>
     <string name="no_vm_number_msg">Nun s\'almacenó nengún númberu de buzón de voz na tarxeta SIM.</string>
     <string name="add_vm_number_str">Amestar númberu</string>
+    <string name="change_default_dialer_dialog_title">¿Predeterminar la to aplicación de teléfonu <xliff:g id="new_app">%s</xliff:g>?</string>
     <string name="change_default_dialer_dialog_affirmative">Predeterminar</string>
     <string name="change_default_dialer_dialog_negative">Encaboxar</string>
+    <string name="change_default_dialer_warning_message"><xliff:g id="new_app">%s</xliff:g> sedrá a allugar y controlar tolos aspeutos de les llamaes. Namái deberíen predeterminase como aplicación de teléfonu les aplicaciones nes que t\'enfotes.</string>
     <string name="blocked_numbers">Númberos bloquiaos</string>
     <string name="blocked_numbers_msg">Nun recibirás llames o mensaxes de númberos bloquiaos.</string>
     <string name="block_number">Amestar un númberu</string>
@@ -55,6 +57,7 @@
     <string name="block_button">Bloquiar</string>
     <string name="non_primary_user">Namái\'l dueñu\'l teléfonu pue ver y xestionar númberos bloquiaos.</string>
     <string name="delete_icon_description">Desbloquiar</string>
+    <string name="blocked_numbers_butter_bar_title">Bloquéu desactiváu temporalmente</string>
     <string name="blocked_numbers_butter_bar_body">Dempués que marques o unvies un mensaxe a un númberu d\'emerxencies, desactivaráse\'l bloquéu p\'asegurar qu\'esos servicios puean contautate.</string>
     <string name="blocked_numbers_butter_bar_button">Reactivar agora</string>
     <string name="blocked_numbers_number_blocked_message"><xliff:g id="blocked_number">%1$s</xliff:g> bloquiáu</string>
@@ -72,5 +75,13 @@
     <string name="handle_restricted">RESTRICTED</string>
     <string name="toast_personal_call_msg">Usando\'l marcador personal pa llamar</string>
     <string name="notification_channel_missed_call">Llamaes perdíes</string>
+    <string name="notification_channel_call_blocking">Bloquéu de Llamaes</string>
+    <string name="phone_settings_call_blocking_txt">Bloquéu de Llamaes</string>
+    <string name="phone_settings_number_not_in_contact_txt">Los númberos nun tán en Contautos</string>
+    <string name="phone_settings_private_num_txt">Priváu</string>
+    <string name="phone_settings_payphone_txt">Teléfonu públicu</string>
+    <string name="phone_settings_payphone_summary_txt">Torgar llamaes de teléfonos de pagu</string>
     <string name="phone_settings_unknown_txt">Desconocíu</string>
+    <string name="phone_settings_unknown_summary_txt">Torgar llamaes de contautos ensin identificar</string>
+    <string name="phone_strings_call_blocking_turned_off_notification_title_txt">Bloquéu de Llamaes</string>
 </resources>
