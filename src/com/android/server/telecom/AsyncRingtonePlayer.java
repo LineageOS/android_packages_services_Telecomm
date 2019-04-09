@@ -218,7 +218,7 @@ public class AsyncRingtonePlayer {
                     Log.i(this, "handlePlay: muting haptic channel");
                     mRingtone.setAudioAttributes(
                             new AudioAttributes.Builder()
-                                .setMuteHapticChannels(true)
+                                .setHapticChannelsMuted(true)
                                 .build());
                 }
                 mHapticsFuture.complete(hasHaptics);
