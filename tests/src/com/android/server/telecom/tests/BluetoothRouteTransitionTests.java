@@ -341,6 +341,8 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
         when(mHeadsetProxy.getActiveDevice()).thenReturn(activeDevice);
         if (audioOnDevice != null) {
             when(mHeadsetProxy.getActiveDevice()).thenReturn(audioOnDevice);
+            when(mHeadsetProxy.getAudioState(audioOnDevice))
+                    .thenReturn(BluetoothHeadset.STATE_AUDIO_CONNECTED);
         }
     }
 
