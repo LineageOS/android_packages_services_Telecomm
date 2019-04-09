@@ -21,8 +21,17 @@ corresponding patch in AOSP. The link should be formatted as follows:
 If it's infeasible for the change to be included in AOSP (for example, if a
 change contains confidential or security-sensitive information), please state
 that it's infeasible and provide reasoning as follows:
- 
+
   AOSP: Infeasible <your reasoning here>
+
+If you need to cherry-pick your change from an internal branch to AOSP before
+uploading, you can do so locally by adding the internal branch as a remote in
+AOSP:
+  git remote add goog-master /path/to/your/remote/branch/.git
+starting a new branch in AOSP:
+  repo start <your-branch-name>-cp
+then fetching and cherry-picking the change:
+  git fetch goog-master your-branch-name && git cherry-pick FETCH_HEAD
 """
 
 def main():
