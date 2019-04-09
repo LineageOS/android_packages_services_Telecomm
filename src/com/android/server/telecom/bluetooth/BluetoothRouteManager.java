@@ -694,7 +694,7 @@ public class BluetoothRouteManager extends StateMachine {
         BluetoothHeadsetProxy bluetoothHeadset = mDeviceManager.getHeadsetService();
         BluetoothHearingAid bluetoothHearingAid = mDeviceManager.getHearingAidService();
 
-        BluetoothDevice hfpActiveDevice = null;
+        BluetoothDevice hfpAudioOnDevice = null;
         BluetoothDevice hearingAidActiveDevice = null;
 
         if (bluetoothHeadset == null && bluetoothHearingAid == null) {
@@ -703,7 +703,12 @@ public class BluetoothRouteManager extends StateMachine {
         }
 
         if (bluetoothHeadset != null) {
-            hfpActiveDevice = bluetoothHeadset.getActiveDevice();
+            hfpAudioOnDevice = bluetoothHeadset.getActiveDevice();
+
+            if (bluetoothHeadset.getAudioState(hfpAudioOnDevice)
+                    == BluetoothHeadset.STATE_AUDIO_DISCONNECTED) {
+                hfpAudioOnDevice = null;
+            }
         }
 
         if (bluetoothHearingAid != null) {
@@ -717,13 +722,13 @@ public class BluetoothRouteManager extends StateMachine {
 
         // Return the active device reported by either HFP or hearing aid. If both are reporting
         // active devices, go with the most recent one as reported by the receiver.
-        if (hfpActiveDevice != null) {
+        if (hfpAudioOnDevice != null) {
             if (hearingAidActiveDevice != null) {
                 Log.i(this, "Both HFP and hearing aid are reporting active devices. Going with"
                         + " the most recently reported active device: %s");
                 return mMostRecentlyReportedActiveDevice;
             }
-            return hfpActiveDevice;
+            return hfpAudioOnDevice;
         }
         return hearingAidActiveDevice;
     }

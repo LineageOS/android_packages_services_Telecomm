@@ -114,6 +114,22 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
 
     @SmallTest
     @Test
+    public void testAudioOnDeviceWithScoOffActiveDevice() {
+        BluetoothRouteManager sm = setupStateMachine(
+                BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX, DEVICE1);
+        setupConnectedDevices(new BluetoothDevice[]{DEVICE1}, null, DEVICE1, null);
+        when(mHeadsetProxy.getAudioState(DEVICE1))
+                .thenReturn(BluetoothHeadset.STATE_AUDIO_DISCONNECTED);
+        executeRoutingAction(sm, BluetoothRouteManager.BT_AUDIO_LOST, DEVICE1.getAddress());
+
+        verifyConnectionAttempt(DEVICE1, 0);
+        assertEquals(BluetoothRouteManager.AUDIO_OFF_STATE_NAME,
+                sm.getCurrentState().getName());
+        sm.quitNow();
+    }
+
+    @SmallTest
+    @Test
     public void testConnectHfpRetryWhileConnectedToAnotherDevice() {
         BluetoothRouteManager sm = setupStateMachine(
                 BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX, DEVICE1);
@@ -164,6 +180,8 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         when(mDeviceManager.getConnectedDevices()).thenReturn(allDevices);
         when(mHeadsetProxy.getConnectedDevices()).thenReturn(Arrays.asList(hfpDevices));
         when(mHeadsetProxy.getActiveDevice()).thenReturn(hfpActiveDevice);
+        when(mHeadsetProxy.getAudioState(hfpActiveDevice))
+                .thenReturn(BluetoothHeadset.STATE_AUDIO_CONNECTED);
 
         when(mBluetoothHearingAid.getConnectedDevices())
                 .thenReturn(Arrays.asList(hearingAidDevices));
