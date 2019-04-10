@@ -81,7 +81,8 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
             if (mContext.bindServiceAsUser(
                     intent,
                     connection,
-                    Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE,
+                    Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE
+                    | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS,
                     UserHandle.CURRENT)) {
                 Log.d(this, "bindService, found " + mServiceType + " call redirection service,"
                         + " waiting for it to connect");
@@ -92,15 +93,15 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
         private void onServiceBound(ICallRedirectionService service) {
             mService = service;
             try {
-                mHandle = mCallRedirectionProcessorHelper.formatNumberForRedirection(mHandle);
                 // Telecom does not perform user interactions for carrier call redirection.
-                mService.placeCall(new CallRedirectionAdapter(), mHandle, mPhoneAccountHandle,
-                        mAllowInteractiveResponse
+                mService.placeCall(new CallRedirectionAdapter(), mProcessedDestinationUri,
+                        mPhoneAccountHandle, mAllowInteractiveResponse
                                 && mServiceType.equals(SERVICE_TYPE_USER_DEFINED));
                 Log.addEvent(mCall, mServiceType.equals(SERVICE_TYPE_USER_DEFINED)
                         ? LogUtils.Events.REDIRECTION_SENT_USER
                         : LogUtils.Events.REDIRECTION_SENT_CARRIER, mComponentName);
-                Log.d(this, "Requested placeCall with [handle]" + Log.pii(mHandle)
+                Log.d(this, "Requested placeCall with [Destination Uri] "
+                        + Log.pii(mProcessedDestinationUri)
                         + " [phoneAccountHandle]" + mPhoneAccountHandle);
             } catch (RemoteException e) {
                 Log.e(this, e, "Failed to request with the found " + mServiceType + " call"
@@ -187,19 +188,22 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
             }
 
             @Override
-            public void redirectCall(Uri handle, PhoneAccountHandle targetPhoneAccount,
+            public void redirectCall(Uri gatewayUri, PhoneAccountHandle targetPhoneAccount,
                                      boolean confirmFirst) {
                 Log.startSession("CRA.rC");
                 long token = Binder.clearCallingIdentity();
                 try {
                     synchronized (mTelecomLock) {
-                        mHandle = handle;
+                        mRedirectionGatewayInfo = mCallRedirectionProcessorHelper
+                                .getGatewayInfoFromGatewayUri(mComponentName.getPackageName(),
+                                        gatewayUri, mDestinationUri);
                         mPhoneAccountHandle = targetPhoneAccount;
                         mUiAction = (confirmFirst && mServiceType.equals(SERVICE_TYPE_USER_DEFINED)
                                 && mAllowInteractiveResponse)
                                 ? UI_TYPE_USER_DEFINED_ASK_FOR_CONFIRM : mUiAction;
-                        Log.d(this, "Received redirectCall with [handle]" + Log.pii(mHandle)
-                                + " [phoneAccountHandle]" + mPhoneAccountHandle + " from "
+                        Log.d(this, "Received redirectCall with [gatewayUri]"
+                                + Log.pii(gatewayUri) + " [phoneAccountHandle]"
+                                + mPhoneAccountHandle + "[confirmFirst]" + confirmFirst + " from "
                                 + mServiceType + " call redirection service");
                         finishCallRedirection();
                     }
@@ -215,7 +219,7 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
     private final CallsManager mCallsManager;
     private final Call mCall;
     private final boolean mAllowInteractiveResponse;
-    private final GatewayInfo mGatewayInfo;
+    private GatewayInfo mRedirectionGatewayInfo;
     private final boolean mSpeakerphoneOn;
     private final int mVideoState;
     private final Timeouts.Adapter mTimeoutsAdapter;
@@ -233,7 +237,12 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
             = "user_defined_ask_for_confirm";
 
     private PhoneAccountHandle mPhoneAccountHandle;
-    private Uri mHandle;
+    private Uri mDestinationUri;
+    /**
+     * Try to send the implemented service with processed destination uri by formatting it to E.164
+     * and removing post dial digits.
+     */
+    private Uri mProcessedDestinationUri;
 
     /**
      * Indicates if Telecom should cancel the call when the whole call redirection finishes.
@@ -266,9 +275,9 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
         mContext = context;
         mCallsManager = callsManager;
         mCall = call;
-        mHandle = handle;
+        mDestinationUri = handle;
         mPhoneAccountHandle = call.getTargetPhoneAccount();
-        mGatewayInfo = gatewayInfo;
+        mRedirectionGatewayInfo = gatewayInfo;
         mSpeakerphoneOn = speakerphoneOn;
         mVideoState = videoState;
         mTimeoutsAdapter = callsManager.getTimeoutsAdapter();
@@ -280,6 +289,8 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
         mAllowInteractiveResponse = !callsManager.getSystemStateHelper().isCarMode();
         mCallRedirectionProcessorHelper = new CallRedirectionProcessorHelper(
                 context, callsManager, phoneAccountRegistrar);
+        mProcessedDestinationUri = mCallRedirectionProcessorHelper.formatNumberForRedirection(
+                mDestinationUri);
     }
 
     @Override
@@ -288,15 +299,13 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
         mHandler.post(new Runnable("CRP.oCRC", mTelecomLock) {
             @Override
             public void loggedRun() {
-                mHandle = mCallRedirectionProcessorHelper.processNumberWhenRedirectionComplete(
-                        mHandle);
                 if (mIsUserDefinedRedirectionPending) {
                     Log.addEvent(mCall, LogUtils.Events.REDIRECTION_COMPLETED_USER);
                     mIsUserDefinedRedirectionPending = false;
                     if (mShouldCancelCall) {
-                        mCallsManager.onCallRedirectionComplete(mCall, mHandle,
-                                mPhoneAccountHandle, mGatewayInfo, mSpeakerphoneOn, mVideoState,
-                                mShouldCancelCall, mUiAction);
+                        mCallsManager.onCallRedirectionComplete(mCall, mDestinationUri,
+                                mPhoneAccountHandle, mRedirectionGatewayInfo, mSpeakerphoneOn,
+                                mVideoState, mShouldCancelCall, mUiAction);
                     } else {
                         performCarrierCallRedirection();
                     }
@@ -304,9 +313,9 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
                 if (mIsCarrierRedirectionPending) {
                     Log.addEvent(mCall, LogUtils.Events.REDIRECTION_COMPLETED_CARRIER);
                     mIsCarrierRedirectionPending = false;
-                    mCallsManager.onCallRedirectionComplete(mCall, mHandle,
-                            mPhoneAccountHandle, mGatewayInfo, mSpeakerphoneOn, mVideoState,
-                            mShouldCancelCall, mUiAction);
+                    mCallsManager.onCallRedirectionComplete(mCall, mDestinationUri,
+                            mPhoneAccountHandle, mRedirectionGatewayInfo, mSpeakerphoneOn,
+                            mVideoState, mShouldCancelCall, mUiAction);
                 }
             }
         }.prepare());
@@ -316,12 +325,12 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
      * The entry to perform call redirection of the call from (@link CallsManager)
      */
     public void performCallRedirection() {
-        // If the Gateway Info is set with intent, do not perform call redirection.
-        if (mGatewayInfo != null) {
-            mCallsManager.onCallRedirectionComplete(mCall, mHandle, mPhoneAccountHandle,
-                    mGatewayInfo, mSpeakerphoneOn, mVideoState, mShouldCancelCall, mUiAction);
+        // If the Gateway Info is set with intent, do not request more call redirection.
+        if (mRedirectionGatewayInfo != null) {
+            mCallsManager.onCallRedirectionComplete(mCall, mDestinationUri, mPhoneAccountHandle,
+                    mRedirectionGatewayInfo, mSpeakerphoneOn, mVideoState, mShouldCancelCall,
+                    mUiAction);
         } else {
-            mCallRedirectionProcessorHelper.storePostDialDigits(mHandle);
             performUserDefinedCallRedirection();
         }
     }
@@ -355,8 +364,8 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
         } else {
             Log.i(this, "There are no carrier call redirection services installed on this"
                     + " device.");
-            mCallsManager.onCallRedirectionComplete(mCall, mHandle,
-                    mPhoneAccountHandle, mGatewayInfo, mSpeakerphoneOn, mVideoState,
+            mCallsManager.onCallRedirectionComplete(mCall, mDestinationUri,
+                    mPhoneAccountHandle, mRedirectionGatewayInfo, mSpeakerphoneOn, mVideoState,
                     mShouldCancelCall, mUiAction);
         }
     }
@@ -398,7 +407,7 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
                 mCallRedirectionProcessorHelper.getUserDefinedCallRedirectionService() != null
                         || mCallRedirectionProcessorHelper.getCarrierCallRedirectionService(
                                 mPhoneAccountHandle) != null;
-        Log.w(this, "Can make call redirection with any available service: "
+        Log.i(this, "Can make call redirection with any available service: "
                 + canMakeCallRedirectionWithService);
         return canMakeCallRedirectionWithService;
     }
