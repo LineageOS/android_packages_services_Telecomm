@@ -27,6 +27,7 @@ import android.os.IBinder;
 import android.os.UserHandle;
 import android.telecom.GatewayInfo;
 import android.telecom.PhoneAccountHandle;
+import android.telephony.TelephonyManager;
 import com.android.internal.telecom.ICallRedirectionService;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallsManager;
@@ -66,6 +67,7 @@ public class CallRedirectionProcessorTest extends TelecomTestCase {
     @Mock private Call mCall;
 
     @Mock private PackageManager mPackageManager;
+    @Mock private TelephonyManager mTelephonyManager;
     @Mock private IBinder mBinder;
     @Mock private ICallRedirectionService mCallRedirectionService;
 
@@ -118,6 +120,8 @@ public class CallRedirectionProcessorTest extends TelecomTestCase {
                 .thenReturn(CARRIER_SHORT_TIMEOUT_MS);
         when(mCallsManager.getLock()).thenReturn(mLock);
         when(mCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
+        when(mContext.getSystemService(Context.TELEPHONY_SERVICE)).thenReturn(mTelephonyManager);
+        when(mTelephonyManager.getNetworkCountryIso()).thenReturn("");
         when(mContext.bindServiceAsUser(nullable(Intent.class), nullable(ServiceConnection.class),
                 anyInt(), eq(UserHandle.CURRENT))).thenReturn(true);
     }
