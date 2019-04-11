@@ -52,7 +52,8 @@ public class CallRedirectionConfirmDialogActivity extends Activity {
                 R.string.alert_redirect_outgoing_call, redirectionAppName);
         final AlertDialog confirmDialog = new AlertDialog.Builder(this)
                 .setMessage(message)
-                .setPositiveButton("Call", new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.alert_place_redirect_outgoing_call,
+                        redirectionAppName), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Intent proceedWithRedirectedCall = new Intent(
@@ -67,7 +68,22 @@ public class CallRedirectionConfirmDialogActivity extends Activity {
                         finish();
                     }
                 })
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.alert_place_unredirect_outgoing_call,
+                        redirectionAppName), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent proceedWithoutRedirectedCall = new Intent(
+                                TelecomBroadcastIntentProcessor.ACTION_PLACE_UNREDIRECTED_CALL,
+                                null, CallRedirectionConfirmDialogActivity.this,
+                                TelecomBroadcastReceiver.class);
+                        proceedWithoutRedirectedCall.putExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID,
+                                getIntent().getStringExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID));
+                        sendBroadcast(proceedWithoutRedirectedCall);
+                        dialog.dismiss();
+                        finish();
+                    }
+                })
+                .setNeutralButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Intent cancelRedirectedCall = new Intent(
@@ -96,7 +112,9 @@ public class CallRedirectionConfirmDialogActivity extends Activity {
                     }
                 })
                 .create();
-
         confirmDialog.show();
+        confirmDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setAllCaps(false);
+        confirmDialog.getButton(DialogInterface.BUTTON_POSITIVE).setAllCaps(false);
+        confirmDialog.getButton(DialogInterface.BUTTON_NEUTRAL).setAllCaps(false);
     }
 }
