@@ -440,7 +440,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
     private final ApplicationInfo mTestApplicationInfo = new ApplicationInfo();
     // private final RoleManager mRoleManager = mock(RoleManager.class);
 
-    private TelecomManager mTelecomManager = null;
+    private TelecomManager mTelecomManager = mock(TelecomManager.class);
 
     public ComponentContextFixture() {
         MockitoAnnotations.initMocks(this);
