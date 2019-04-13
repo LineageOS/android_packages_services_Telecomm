@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"ਪੂਰਵ-ਨਿਰਧਾਰਤ ਸੈੱਟ ਕਰੋ"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"ਰੱਦ ਕਰੋ"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> ਕਾਲਾਂ ਕਰ ਸਕੇਗੀ ਅਤੇ ਕਾਲਾਂ ਦੇ ਸਾਰੇ ਪੱਖਾਂ ਨੂੰ ਕੰਟਰੋਲ ਕਰ ਸਕੇਗੀ। ਸਿਰਫ਼ ਉਹਨਾਂ ਐਪਾਂ ਨੂੰ ਪੂਰਵ-ਨਿਰਧਾਰਤ ਫ਼ੋਨ ਐਪ ਵਜੋਂ ਸੈੱਟ ਕਰਨਾ ਚਾਹੀਦਾ ਹੈ ਜਿੰਨ੍ਹਾਂ \'ਤੇ ਤੁਸੀਂ ਭਰੋਸਾ ਕਰਦੇ ਹੋ।"</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"ਕੀ <xliff:g id="NEW_APP">%s</xliff:g> ਨੂੰ ਆਪਣੀ ਪੂਰਵ-ਨਿਰਧਾਰਤ ਕਾਲ ਸਕ੍ਰੀਨਿੰਗ ਐਪ ਬਣਾਉਣਾ ਹੈ?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> ਹੁਣ ਕਾਲਾਂ ਦੀ ਨਿਗਰਾਨੀ ਨਹੀਂ ਕਰ ਸਕੇਗੀ।"</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> ਉਹਨਾਂ ਕਾਲਰਾਂ ਬਾਰੇ ਜਾਣਕਾਰੀ ਦੇਖ ਸਕੇਗੀ ਜੋ ਤੁਹਾਡੇ ਸੰਪਰਕਾਂ ਵਿੱਚ ਨਹੀਂ ਹਨ ਅਤੇ ਉਹਨਾਂ ਕਾਲਾਂ ਨੂੰ ਬਲਾਕ ਕਰ ਸਕੇਗੀ। ਸਿਰਫ਼ ਉਹਨਾਂ ਐਪਾਂ ਨੂੰ ਪੂਰਵ-ਨਿਰਧਾਰਤ ਸਕ੍ਰੀਨਿੰਗ ਐਪ ਵਜੋਂ ਸੈੱਟ ਕਰਨਾ ਚਾਹੀਦਾ ਹੈ ਜਿਨ੍ਹਾਂ \'ਤੇ ਤੁਸੀਂ ਭਰੋਸਾ ਕਰਦੇ ਹੋ।"</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"ਪੂਰਵ-ਨਿਰਧਾਰਤ ਸੈੱਟ ਕਰੋ"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"ਰੱਦ ਕਰੋ"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"ਬਲੌਕ ਕੀਤੇ ਗਏ ਨੰਬਰ"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"ਤੁਹਾਨੂੰ ਬਲੌਕ ਕੀਤੇ ਨੰਬਰਾਂ ਤੋਂ ਕਾਲਾਂ ਜਾਂ ਲਿਖਤ ਸੁਨੇਹੇ ਪ੍ਰਾਪਤ ਨਹੀਂ ਹੋਣਗੇ।"</string>
     <string name="block_number" msgid="1101252256321306179">"ਇੱਕ ਨੰਬਰ ਸ਼ਾਮਲ ਕਰੋ"</string>
@@ -78,6 +83,7 @@
     <string name="answering_ends_other_managed_video_call" msgid="1585423762458248435">"ਜਵਾਬ ਦੇਣ ਨਾਲ ਤੁਹਾਡੀ ਜਾਰੀ ਵੀਡੀਓ ਕਾਲ ਸਮਾਪਤ ਹੋ ਜਾਵੇਗੀ"</string>
     <string name="answer_incoming_call" msgid="4140530013111794587">"ਜਵਾਬ ਦਿਓ"</string>
     <string name="decline_incoming_call" msgid="806026168661598368">"ਅਸਵੀਕਾਰ ਕਰੋ"</string>
+    <string name="cant_call_due_to_no_supported_service" msgid="5128162419227548372">"ਕਾਲ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ ਕਿਉਂਕਿ ਇੱਥੇ ਅਜਿਹੇ ਕੋਈ ਕਾਲਿੰਗ ਖਾਤੇ ਨਹੀਂ ਹਨ ਜਿਨ੍ਹਾਂ ਵਿੱਚ ਇਸ ਕਿਸਮ ਦੀਆਂ ਕਾਲਾਂ ਦੀ ਸੁਵਿਧਾ ਹੋਵੇ।"</string>
     <string name="cant_call_due_to_ongoing_call" msgid="4952615196237854748">"ਤੁਹਾਡੀ <xliff:g id="OTHER_CALL">%1$s</xliff:g> ਕਾਲ ਦੇ ਕਾਰਨ ਕਾਲ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ।"</string>
     <string name="cant_call_due_to_ongoing_calls" msgid="1380804892363503856">"ਤੁਹਾਡੀਆਂ <xliff:g id="OTHER_CALL">%1$s</xliff:g> ਕਾਲਾਂ ਦੇ ਕਾਰਨ ਕਾਲ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ।"</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"ਕਿਸੇ ਹੋਰ ਐਪ ਵਿੱਚ ਇੱਕ ਕਾਲ ਹੋਣ ਦੇ ਕਾਰਨ ਕਾਲ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ।"</string>
@@ -85,6 +91,8 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"ਖੁੰਝੀਆਂ ਕਾਲਾਂ"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"ਕਾਲ ਬਲਾਕਿੰਗ"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"ਇਹ ਕਾਲ ਕਰਨ ਨਾਲ ਤੁਹਾਡੀ <xliff:g id="OTHER_APP">%1$s</xliff:g> ਕਾਲ ਸਮਾਪਤ ਹੋ ਜਾਵੇਗੀ।"</string>
+    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"<xliff:g id="OTHER_APP">%1$s</xliff:g> ਨੂੰ ਕਾਲ ਕਰਨ ਲਈ ਕਿਸੇ ਵੱਖਰੇ ਨੰਬਰ ਜਾਂ ਖਾਤੇ ਦੀ ਵਰਤੋਂ ਕਰਨ ਦਿਓ।"</string>
+    <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> ਤੋਂ ਕਾਲ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ। ਕਾਲ ਨੂੰ ਰੀਡਾਇਰੈਕਟ ਕਰਨ ਲਈ ਕੋਈ ਵੱਖਰੀ ਐਪ ਵਰਤ ਕੇ ਦੇਖੋ ਜਾਂ ਮਦਦ ਲਈ ਵਿਕਾਸਕਾਰ ਨਾਲ ਸੰਪਰਕ ਕਰਨ ਦੀ ਕੋਸ਼ਿਸ਼ ਕਰੋ।"</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"ਕਾਲ ਬਲਾਕਿੰਗ"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"ਨੰਬਰ ਜੋ ਤੁਹਾਡੇ ਸੰਪਰਕਾਂ ਵਿੱਚ ਨਹੀਂ ਹਨ"</string>
     <string name="phone_settings_number_not_in_contact_summary_txt" msgid="9043147855140079119">"ਉਹ ਨੰਬਰ ਬਲਾਕ ਕਰੋ ਜੋ ਤੁਹਾਡੇ ਸੰਪਰਕਾਂ ਵਿੱਚ ਨਹੀਂ ਹਨ"</string>

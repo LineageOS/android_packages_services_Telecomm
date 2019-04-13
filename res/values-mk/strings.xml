@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Поставете стандардна"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Откажете"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> ќе може да ги поставува и контролира сите аспекти на повикувањето. Само апликации на кои им веруваш треба да се поставуваат како стандардната апликација Телефон."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"Да се направи <xliff:g id="NEW_APP">%s</xliff:g> стандардна аплик. за анализирање повици?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> веќе нема да може да анализира повици."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> ќе може да гледа информации за повикувачи што не се во вашите контакти и ќе може да ги блокира таквите повици. Само доверливи апликации треба да се постават како стандардни апликации за анализирање повици."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"Постави стандардна"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Откажи"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Блокирани броеви"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Нема да добивате повици или SMS од блокирани броеви."</string>
     <string name="block_number" msgid="1101252256321306179">"Додај број"</string>
@@ -78,6 +83,7 @@
     <string name="answering_ends_other_managed_video_call" msgid="1585423762458248435">"Ако одговорите, ќе се прекине вашиот тековен видеоповик"</string>
     <string name="answer_incoming_call" msgid="4140530013111794587">"Одговорете"</string>
     <string name="decline_incoming_call" msgid="806026168661598368">"Одбијте"</string>
+    <string name="cant_call_due_to_no_supported_service" msgid="5128162419227548372">"Повикот не може да се воспостави затоа што нема сметки за повикување што поддржуваат ваков тип повици."</string>
     <string name="cant_call_due_to_ongoing_call" msgid="4952615196237854748">"Не може да се воспостави повик поради вашиот повик на <xliff:g id="OTHER_CALL">%1$s</xliff:g>."</string>
     <string name="cant_call_due_to_ongoing_calls" msgid="1380804892363503856">"Не може да се воспостави повик поради вашите повици на <xliff:g id="OTHER_CALL">%1$s</xliff:g>."</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"Не може да се воспостави повик поради вашиот повик на друга апликација."</string>
@@ -85,6 +91,8 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Пропуштени повици"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Блокирање повици"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Ако се воспостави повиков, вашиот повик на <xliff:g id="OTHER_APP">%1$s</xliff:g> ќе заврши."</string>
+    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"Дозволи <xliff:g id="OTHER_APP">%1$s</xliff:g> да воспостави повик со друг број или сметка."</string>
+    <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"Не може да се воспостави повик со <xliff:g id="OTHER_APP">%1$s</xliff:g>. Обидете се со друга апликација за пренасочување повици или пак, контактирајте со програмерот за помош."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Блокирање повици"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Броеви што не се наведени во „Контакти“"</string>
     <string name="phone_settings_number_not_in_contact_summary_txt" msgid="9043147855140079119">"Блокирани броеви што не се наведени во вашите „Контакти“"</string>

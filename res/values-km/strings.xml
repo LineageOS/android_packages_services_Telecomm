@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"កំណត់​លំនាំដើម"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"បោះបង់"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> នឹង​អាច​ដាក់ចុះ និង​ត្រួតពិនិត្យ​​ទិដ្ឋភាព​ការ​ហៅ​ទាំងអស់។ មាន​តែ​កម្មវិធី​ដែល​អ្នក​ទុកចិត្ត​ប៉ុណ្ណោះ​​អាច​​ត្រូវ​បាន​​កំណត់​ជា​កម្មវិធី​ទូរសព្ទ​លំនាំដើម។"</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"កំណត់ <xliff:g id="NEW_APP">%s</xliff:g> ជា​កម្មវិធី​ត្រួតពិនិត្យ​ការ​ហៅ​ទូរសព្ទ​លំនាំដើម​របស់​អ្នក​ដែរ​ឬ​ទេ?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> នឹង​លែង​អាច​ត្រួតពិនិត្យ​ការ​ហៅ​ទូរសព្ទ​បាន​ទៀត​ហើយ។"</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> នឹង​អាច​មើល​ឃើញ​ព័ត៌មាន​អំពីអ្នកហៅ​ទូរសព្ទ​​ដែល​មិន​នៅ​ក្នុង​ទំនាក់ទំនង​របស់​អ្នក​​ ហើយ​នឹង​អាច​ទប់ស្កាត់​ការ​ហៅ​​ទូរសព្ទ​ទាំង​នេះ​បាន។ មាន​តែ​កម្មវិធី​ដែល​អ្នក​ទុកចិត្ត​ប៉ុណ្ណោះ​គួរ​ត្រូវ​បាន​កំណត់​ជា​កម្មវិធីត្រួតពិនិត្យ​ការ​ហៅ​ទូរសព្ទ​លំនាំដើម។"</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"កំណត់​លំនាំដើម"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"បោះបង់"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"លេខដែល​បានទប់ស្កាត់"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"អ្នក​នឹង​មិន​ទទួល​បាន​ការ​ហៅទូរសព្ទ ឬ​សារ​​ពី​លេខ​ដែល​បានទប់ស្កាត់ឡើយ។"</string>
     <string name="block_number" msgid="1101252256321306179">"បញ្ចូល​លេខ"</string>
@@ -78,6 +83,7 @@
     <string name="answering_ends_other_managed_video_call" msgid="1585423762458248435">"ការ​ឆ្លើយ​នឹង​បញ្ចប់​ការ​ហៅ​តាម​វីដេអូ​ដែល​កំពុង​តែ​ដំណើរការ​របស់​អ្នក"</string>
     <string name="answer_incoming_call" msgid="4140530013111794587">"ឆ្លើយ"</string>
     <string name="decline_incoming_call" msgid="806026168661598368">"បដិសេធ"</string>
+    <string name="cant_call_due_to_no_supported_service" msgid="5128162419227548372">"មិន​អាច​ធ្វើ​ការ​ហៅ​ទូរសព្ទ​បាន​ទេ ពីព្រោះ​មិនមាន​គណនី​ហៅ​ទូរសព្ទ​ដែល​អាច​ប្រើបាន​ជាមួយ​ការ​ហៅ​ប្រភេទ​នេះ​ទេ។"</string>
     <string name="cant_call_due_to_ongoing_call" msgid="4952615196237854748">"ការ​ហៅ​មិន​អាចធ្វើ​បាន​ទេ ដោយ​សារ​ការហៅ​ <xliff:g id="OTHER_CALL">%1$s</xliff:g> របស់​អ្នក។"</string>
     <string name="cant_call_due_to_ongoing_calls" msgid="1380804892363503856">"ការ​ហៅ​មិន​អាច​ធ្វើ​បាន​ទេ ដោយ​សារ​ការ​ហៅ <xliff:g id="OTHER_CALL">%1$s</xliff:g> របស់​អ្នក។"</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"ការ​ហៅ​មិន​អាច​ធ្វើ​បាន​ទេ ដោយ​សារ​មាន​ការហៅ​មួយ​នៅ​ក្នុង​កម្មវិធី​ផ្សេង។"</string>
@@ -85,6 +91,8 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"ការ​ហៅ​ដែល​មិន​បាន​ទទួល"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"ការទប់ស្កាត់ការហៅ"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"ការ​ហៅ​ទូរសព្ទ​នេះ នឹង​បញ្ចប់​ការហៅ <xliff:g id="OTHER_APP">%1$s</xliff:g> របស់​អ្នក។"</string>
+    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"អនុញ្ញាតឲ្យ <xliff:g id="OTHER_APP">%1$s</xliff:g> ធ្វើ​ការ​ហៅ​ទូរសព្ទ​ ដោយ​ប្រើប្រាស់​គណនី ឬ​លេខ​ផ្សេង។"</string>
+    <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"មិន​អាច​ធ្វើ​ការ​ហៅ​ទូរសព្ទ​តាម <xliff:g id="OTHER_APP">%1$s</xliff:g> បាន​ទេ។ សាកល្បង​ប្រើប្រាស់​កម្មវិធី​បញ្ជូន​បន្ត​ការ​ហៅ​ទូរសព្ទផ្សេងទៀត ឬ​ទាក់ទង​អ្នក​អភិវឌ្ឍន៍​ដើម្បីទទួលបានជំនួយ។"</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"ការទប់ស្កាត់ការហៅ"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"លេខ​មិន​នៅ​ក្នុង​ទំនាក់ទំនង"</string>
     <string name="phone_settings_number_not_in_contact_summary_txt" msgid="9043147855140079119">"ទប់ស្កាត់​លេខ​ដែល​មិនស្ថិត​​នៅ​ក្នុង​បញ្ជី​ទំនាក់ទំនង​របស់​អ្នក"</string>

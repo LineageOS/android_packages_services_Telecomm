@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"ડિફૉલ્ટ સેટ કરો"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"રદ કરો"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g>, કૉલ્સ કરવામાં અને કૉલ્સના તમામ પાસાઓને નિયંત્રિત કરવામાં સમર્થ હશે. તમે વિશ્વાસ કરો છો તે જ ઍપ્લિકેશનોને ડિફૉલ્ટ ફોન ઍપ્લિકેશન તરીકે સેટ કરો."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"<xliff:g id="NEW_APP">%s</xliff:g>ને તમારી ડિફૉલ્ટ કૉલ સ્ક્રીનિંગ ઍપ બનાવીએ?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> હવે કૉલને સ્ક્રીન કરી શકશે નહીં."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> તમારા સંપર્કોમાં ન હોય એવા કૉલર વિશેની માહિતી જોઈ શકશે અને આ કૉલને બ્લૉક કરી શકશે. માત્ર તમે જેના પર વિશ્વાસ કરતા હોય તે ઍપને જ ડિફૉલ્ટ કૉલ સ્ક્રીનિંગ ઍપ તરીકે સેટ કરવી જોઈએ."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"ડિફૉલ્ટ સેટ કરો"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"રદ કરો"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"અવરોધિત નંબરો"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"તમે અવરોધિત નંબરોથી કૉલ્સ અથવા ટેક્સ્ટ પ્રાપ્ત કરશો નહીં."</string>
     <string name="block_number" msgid="1101252256321306179">"એક નંબર ઉમેરો"</string>
@@ -78,6 +83,7 @@
     <string name="answering_ends_other_managed_video_call" msgid="1585423762458248435">"જવાબ આપવાથી તમારો ચાલુ વિડિઓ કૉલ સમાપ્ત થશે"</string>
     <string name="answer_incoming_call" msgid="4140530013111794587">"જવાબ આપો"</string>
     <string name="decline_incoming_call" msgid="806026168661598368">"નકારો"</string>
+    <string name="cant_call_due_to_no_supported_service" msgid="5128162419227548372">"કૉલ કરી શકાતો નથી કારણ કે આ પ્રકારના કૉલની સુવિધા આપતા હોય એવા કોઈ કૉલિંગ એકાઉન્ટ નથી."</string>
     <string name="cant_call_due_to_ongoing_call" msgid="4952615196237854748">"તમારા <xliff:g id="OTHER_CALL">%1$s</xliff:g> કૉલને કારણે કૉલ કરી શકતાં નથી."</string>
     <string name="cant_call_due_to_ongoing_calls" msgid="1380804892363503856">"તમારા <xliff:g id="OTHER_CALL">%1$s</xliff:g> કૉલને કારણે કૉલ કરી શકતાં નથી."</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"અન્ય ઍપ્લિકેશનમાં કૉલને કારણે કૉલ કરી શકતાં નથી."</string>
@@ -85,6 +91,8 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"છૂટેલા કૉલ"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"કૉલ બ્લૉક કરી રહ્યાં છીએ"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"આ કૉલ કરવાથી તમારો <xliff:g id="OTHER_APP">%1$s</xliff:g> કૉલ સમાપ્ત થઈ જશે."</string>
+    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"<xliff:g id="OTHER_APP">%1$s</xliff:g>ને કોઈ અલગ નંબર અથવા એકાઉન્ટનો ઉપયોગ કરીને કૉલ કરવાની મંજૂરી આપો."</string>
+    <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> દ્વારા કૉલ કરી શકાશે નહીં. સહાય માટે કોઈ અલગ કૉલ રીડાયરેક્ટ કરનારી ઍપનો ઉપયોગ કરવાનો અથવા ડેવલપરનો સંપર્ક કરવાનો પ્રયાસ કરો."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"કૉલ બ્લૉક કરી રહ્યાં છીએ"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"સંપર્કોમાં આ નંબર નથી"</string>
     <string name="phone_settings_number_not_in_contact_summary_txt" msgid="9043147855140079119">"તમારા સંપર્કોમાં જે નંબર સૂચિબદ્ધ ન હોય તેને બ્લૉક કરો"</string>

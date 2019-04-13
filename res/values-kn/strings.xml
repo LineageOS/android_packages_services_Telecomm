@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"ಡಿಫಾಲ್ಟ್ ಹೊಂದಿಸಿ"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"ರದ್ದುಮಾಡಿ"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> ಗೆ ನಿಮ್ಮ ಕರೆಗಳ ಎಲ್ಲಾ ಅಂಶಗಳನ್ನು ನಿಯಂತ್ರಿಸಲು ಮತ್ತು ಕರೆಗಳನ್ನು ಮಾಡಲು ಸಾಧ್ಯವಾಗುತ್ತದೆ. ನೀವು ವಿಶ್ವಾಸವಿರಿಸಿರುವಂತಹ ಅಪ್ಲಿಕೇಶನ್‌ಗಳನ್ನು ಮಾತ್ರ ನಿಮ್ಮ ಡಿಫಾಲ್ಟ್ ಅಪ್ಲಿಕೇಶನ್ ಆಗಿ ಹೊಂದಿಸಬೇಕು."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"<xliff:g id="NEW_APP">%s</xliff:g> ನಿಮ್ಮ ಡೀಫಾಲ್ಟ್ ಕರೆ ಸ್ಕ್ರೀನಿಂಗ್ ಆ್ಯಪ್‌ ಆಗಿ ಮಾಡಬೇಕೇ?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> ಇನ್ನು ಮುಂದೆ ಕರೆಗಳನ್ನು ಸ್ಕ್ರೀನ್‌ ಮಾಡಲು ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> ಗೆ ನಿಮ್ಮ ಸಂಪರ್ಕಗಳಲ್ಲಿ ಇಲ್ಲದ ಕರೆದಾರರ ಬಗ್ಗೆ ಮಾಹಿತಿಯನ್ನು ನೋಡಲು ಮತ್ತು ಈ ಕರೆಗಳನ್ನು ಬ್ಲಾಕ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗುತ್ತದೆ. ನೀವು ವಿಶ್ವಾಸವಿರಿಸಿರುವಂತಹ ಆ್ಯಪ್‌ಗಳನ್ನು ಮಾತ್ರ ನಿಮ್ಮ ಡೀಫಾಲ್ಟ್ ಕರೆ ಸ್ಕ್ರೀನಿಂಗ್ ಆ್ಯಪ್‌ ಆಗಿ ಹೊಂದಿಸಬೇಕು."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"ಡೀಫಾಲ್ಟ್ ಹೊಂದಿಸಿ"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"ರದ್ದುಮಾಡಿ"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"ನಿರ್ಬಂಧಿಸಲಾದ ಸಂಖ್ಯೆಗಳು"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"ನಿರ್ಬಂಧಿಸಲಾದ ಸಂಖ್ಯೆಗಳಿಂದ ಕರೆಗಳು ಅಥವಾ ಪಠ್ಯ ಸಂದೇಶಗಳನ್ನು ನೀವು ಸ್ವೀಕರಿಸುವುದಿಲ್ಲ."</string>
     <string name="block_number" msgid="1101252256321306179">"ಸಂಖ್ಯೆ ಸೇರಿಸಿ"</string>
@@ -78,6 +83,7 @@
     <string name="answering_ends_other_managed_video_call" msgid="1585423762458248435">"ಕರೆಗೆ ಉತ್ತರಿಸುವುದರಿಂದ ನಿಮ್ಮ ಚಾಲ್ತಿಯಲ್ಲಿರುವ ವೀಡಿಯೊ ಕರೆಯು ಅಂತ್ಯಗೊಳ್ಳುತ್ತದೆ"</string>
     <string name="answer_incoming_call" msgid="4140530013111794587">"ಉತ್ತರ"</string>
     <string name="decline_incoming_call" msgid="806026168661598368">"ನಿರಾಕರಿಸಿ"</string>
+    <string name="cant_call_due_to_no_supported_service" msgid="5128162419227548372">"ಈ ಪ್ರಕಾರದ ಕರೆಗಳನ್ನು ಬೆಂಬಲಿಸುವ ಯಾವುದೇ ಕರೆಮಾಡುವಿಕೆ ಖಾತೆಗಳು ಇಲ್ಲದಿರುವ ಕಾರಣ ಕರೆಮಾಡಲು ಸಾಧ್ಯವಾಗುತ್ತಿಲ್ಲ."</string>
     <string name="cant_call_due_to_ongoing_call" msgid="4952615196237854748">"ನಿಮ್ಮ <xliff:g id="OTHER_CALL">%1$s</xliff:g> ಕರೆ ಇರುವ ಕಾರಣ ಕರೆ ಮಾಡಲು ಸಾಧ್ಯವಾಗಿಲ್ಲ."</string>
     <string name="cant_call_due_to_ongoing_calls" msgid="1380804892363503856">"ನಿಮ್ಮ <xliff:g id="OTHER_CALL">%1$s</xliff:g> ಕರೆಗಳ ಕಾರಣ ಕರೆ ಮಾಡಲು ಸಾಧ್ಯವಾಗಿಲ್ಲ."</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"ಬೇರೊಂದು ಅಪ್ಲಿಕೇಶನ್‍ನಲ್ಲಿ ಕರೆಯಲ್ಲಿರುವುದರಿಂದ ಕರೆ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ."</string>
@@ -85,6 +91,8 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"ಮಿಸ್ಡ್‌ ಕರೆಗಳು"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"ಕರೆ ನಿರ್ಬಂಧಿಸುವಿಕೆ"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"ಈ ಕರೆಯನ್ನು ಮಾಡುವುದರಿಂದ ನಿಮ್ಮ <xliff:g id="OTHER_APP">%1$s</xliff:g> ಕರೆಯು ಅಂತ್ಯಗೊಳ್ಳುತ್ತದೆ."</string>
+    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"ಬೇರೆ ಸಂಖ್ಯೆ ಅಥವಾ ಖಾತೆಯನ್ನು ಬಳಸಿಕೊಂಡು <xliff:g id="OTHER_APP">%1$s</xliff:g> ಆ್ಯಪ್‌ಗೆ ಕರೆ ಮಾಡಲು ಅನುಮತಿಸಿ."</string>
+    <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"ಕರೆಯನ್ನು <xliff:g id="OTHER_APP">%1$s</xliff:g> ಮೂಲಕ ನಿಯೋಜಿಸಲಾಗುವುದಿಲ್ಲ. ಕರೆ ಮರುನಿರ್ದೇಶಿಸುವ ಬೇರೆ ಆ್ಯಪ್‌ ಅನ್ನು ಬಳಸುವ ಮೂಲಕ ಅಥವಾ ಸಹಾಯಕ್ಕಾಗಿ ಡೆವಲಪರ್ ಅನ್ನು ಸಂಪರ್ಕಿಸುವ ಮೂಲಕ ಪ್ರಯತ್ನಿಸಿ."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"ಕರೆ ನಿರ್ಬಂಧಿಸುವಿಕೆ"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"ಸಂಖ್ಯೆಗಳು ಸಂಪರ್ಕದಲ್ಲಿಲ್ಲ"</string>
     <string name="phone_settings_number_not_in_contact_summary_txt" msgid="9043147855140079119">"ನಿಮ್ಮ ಸಂಪರ್ಕಗಳಲ್ಲಿ ಪಟ್ಟಿ ಮಾಡಿರದ ಸಂಪರ್ಕಗಳನ್ನು ನಿರ್ಬಂಧಿಸಿ"</string>

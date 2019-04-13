@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Tetapkan Lalai"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Batal"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> akan dapat membuat dan mengawal semua aspek panggilan. Hanya apl yang anda percayai sahaja yang seharusnya ditetapkan sebagai apl Telefon lalai."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"Jadikan <xliff:g id="NEW_APP">%s</xliff:g> apl penyaringan panggilan lalai anda?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> tidak lagi dapat menyaring panggilan."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> akan dapat melihat maklumat tentang pemanggil yang tidak disenaraikan dalam kenalan anda dan dapat menyekat panggilan ini. Hanya apl yang anda percayai harus ditetapkan sebagai apl penyaringan panggilan lalai."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"Tetapkan Lalai"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Batal"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Nombor yang disekat"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Anda tidak akan menerima panggilan atau teks daripada nombor yang disekat."</string>
     <string name="block_number" msgid="1101252256321306179">"Tambahkan nombor"</string>
@@ -78,6 +83,7 @@
     <string name="answering_ends_other_managed_video_call" msgid="1585423762458248435">"Menjawab akan menamatkan panggilan video semasa anda"</string>
     <string name="answer_incoming_call" msgid="4140530013111794587">"Jawab"</string>
     <string name="decline_incoming_call" msgid="806026168661598368">"Tolak"</string>
+    <string name="cant_call_due_to_no_supported_service" msgid="5128162419227548372">"Panggilan tidak dapat dibuat kerana tiada akaun panggilan yang menyokong panggilan jenis ini."</string>
     <string name="cant_call_due_to_ongoing_call" msgid="4952615196237854748">"Panggilan tidak dapat dibuat disebabkan panggilan <xliff:g id="OTHER_CALL">%1$s</xliff:g> anda."</string>
     <string name="cant_call_due_to_ongoing_calls" msgid="1380804892363503856">"Panggilan tidak dapat dibuat disebabkan panggilan <xliff:g id="OTHER_CALL">%1$s</xliff:g> anda."</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"Panggilan tidak dapat dibuat disebabkan panggilan dalam apl lain."</string>
@@ -85,6 +91,8 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Panggilan tidak dijawab"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Sekatan Panggilan"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Membuat panggilan ini akan menamatkan panggilan <xliff:g id="OTHER_APP">%1$s</xliff:g> anda."</string>
+    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"Benarkan <xliff:g id="OTHER_APP">%1$s</xliff:g> membuat panggilan menggunakan nombor atau akaun yang lain."</string>
+    <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"Panggilan tidak boleh dibuat oleh <xliff:g id="OTHER_APP">%1$s</xliff:g>. Cuba gunakan apl pengubahhalaan panggilan yang lain atau hubungi pembangun untuk mendapatkan bantuan."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Sekatan Panggilan"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Nombor bukan dalam Kenalan"</string>
     <string name="phone_settings_number_not_in_contact_summary_txt" msgid="9043147855140079119">"Sekat nombor yang tidak disenaraikan dalam Kenalan anda"</string>

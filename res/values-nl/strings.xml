@@ -27,7 +27,7 @@
     <string name="notification_missedCall_call_back" msgid="2684890353590890187">"Terugbellen"</string>
     <string name="notification_missedCall_message" msgid="3049928912736917988">"Bericht"</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"Gesprek gedempt."</string>
-    <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"Telefoonluidspreker is ingeschakeld."</string>
+    <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"Luidspreker is aan."</string>
     <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"Kan nu niet opnemen. Alles goed?"</string>
     <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"Ik bel je zo terug."</string>
     <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"Ik bel je later."</string>
@@ -50,6 +50,11 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Standaard instellen"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Annuleren"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> kan gesprekken plaatsen en alle aspecten hiervan beheren. Stel alleen apps in als je standaard telefoon-app als je ze vertrouwt."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"<xliff:g id="NEW_APP">%s</xliff:g> instellen als standaard app voor gesprekken screenen?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> kan geen gesprekken meer screenen."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> kan informatie bekijken over bellers die niet in je contacten staan en kan deze gesprekken blokkeren. Stel alleen vertrouwde apps in als standaard app voor gesprekken screenen."</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"Standaard instellen"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Annuleren"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Geblokkeerde nummers"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Je ontvangt geen gesprekken of sms\'jes van geblokkeerde nummers."</string>
     <string name="block_number" msgid="1101252256321306179">"Een nummer toevoegen"</string>
@@ -78,6 +83,7 @@
     <string name="answering_ends_other_managed_video_call" msgid="1585423762458248435">"Als je opneemt, wordt je actieve videogesprek beëindigd"</string>
     <string name="answer_incoming_call" msgid="4140530013111794587">"Beantwoorden"</string>
     <string name="decline_incoming_call" msgid="806026168661598368">"Weigeren"</string>
+    <string name="cant_call_due_to_no_supported_service" msgid="5128162419227548372">"Gesprek kan niet worden geplaatst omdat er geen gespreksaccounts zijn die gesprekken van dit type ondersteunen."</string>
     <string name="cant_call_due_to_ongoing_call" msgid="4952615196237854748">"Gesprek kan niet worden gestart vanwege je <xliff:g id="OTHER_CALL">%1$s</xliff:g>-gesprek."</string>
     <string name="cant_call_due_to_ongoing_calls" msgid="1380804892363503856">"Gesprek kan niet worden gestart vanwege je <xliff:g id="OTHER_CALL">%1$s</xliff:g>-gesprekken."</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"Gesprek kan niet worden gestart vanwege een gesprek in een andere app."</string>
@@ -85,6 +91,8 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Gemiste gesprekken"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Gesprekken blokkeren"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Als je dit gesprek start, wordt je <xliff:g id="OTHER_APP">%1$s</xliff:g>-gesprek beëindigd."</string>
+    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"Sta <xliff:g id="OTHER_APP">%1$s</xliff:g> toe om een gesprek te plaatsen via een ander nummer of account."</string>
+    <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> kan geen gesprek plaatsen. Probeer een andere app om gesprekken om te leiden of neem voor hulp contact op met de ontwikkelaar."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Gesprekken blokkeren"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Nummers die niet op je contactenlijst staan"</string>
     <string name="phone_settings_number_not_in_contact_summary_txt" msgid="9043147855140079119">"Blokkeer nummers die niet op je contactenlijst staan"</string>
