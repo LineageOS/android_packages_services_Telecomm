@@ -198,9 +198,11 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
                                 .getGatewayInfoFromGatewayUri(mComponentName.getPackageName(),
                                         gatewayUri, mDestinationUri);
                         mPhoneAccountHandle = targetPhoneAccount;
+                        // If carrier redirects call, we should skip to notify users about
+                        // the user-defined call redirection service.
                         mUiAction = (confirmFirst && mServiceType.equals(SERVICE_TYPE_USER_DEFINED)
                                 && mAllowInteractiveResponse)
-                                ? UI_TYPE_USER_DEFINED_ASK_FOR_CONFIRM : mUiAction;
+                                ? UI_TYPE_USER_DEFINED_ASK_FOR_CONFIRM : UI_TYPE_NO_ACTION;
                         Log.d(this, "Received redirectCall with [gatewayUri]"
                                 + Log.pii(gatewayUri) + " [phoneAccountHandle]"
                                 + mPhoneAccountHandle + "[confirmFirst]" + confirmFirst + " from "
@@ -325,11 +327,9 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
      * The entry to perform call redirection of the call from (@link CallsManager)
      */
     public void performCallRedirection() {
-        // If the Gateway Info is set with intent, do not request more call redirection.
+        // If the Gateway Info is set with intent, only request with carrier call redirection.
         if (mRedirectionGatewayInfo != null) {
-            mCallsManager.onCallRedirectionComplete(mCall, mDestinationUri, mPhoneAccountHandle,
-                    mRedirectionGatewayInfo, mSpeakerphoneOn, mVideoState, mShouldCancelCall,
-                    mUiAction);
+            performCarrierCallRedirection();
         } else {
             performUserDefinedCallRedirection();
         }
