@@ -254,7 +254,13 @@ public class CallsManager extends Call.ListenerBase
      * Cached latest pending redirected call information which require user-intervention in order
      * to be placed. Used by {@link #onCallRedirectionComplete}.
      */
-    private final Map<String, Runnable> mPendingRedirectionOutgoingCallInfo =
+    private final Map<String, Runnable> mPendingRedirectedOutgoingCallInfo =
+            new ConcurrentHashMap<>();
+    /**
+     * Cached latest pending Unredirected call information which require user-intervention in order
+     * to be placed. Used by {@link #onCallRedirectionComplete}.
+     */
+    private final Map<String, Runnable> mPendingUnredirectedOutgoingCallInfo =
             new ConcurrentHashMap<>();
 
     private CompletableFuture<Call> mPendingCallConfirm;
@@ -1711,7 +1717,7 @@ public class CallsManager extends Call.ListenerBase
                                           int videoState, boolean shouldCancelCall,
                                           String uiAction) {
         Log.i(this, "onCallRedirectionComplete for Call %s with handle %s" +
-                        " and phoneAccountHandle %s", call, handle, phoneAccountHandle);
+                " and phoneAccountHandle %s", call, handle, phoneAccountHandle);
 
         boolean endEarly = false;
         String disconnectReason = "";
@@ -1767,7 +1773,7 @@ public class CallsManager extends Call.ListenerBase
             Log.addEvent(call, LogUtils.Events.REDIRECTION_USER_CONFIRMATION);
             mPendingRedirectedOutgoingCall = call;
 
-            mPendingRedirectionOutgoingCallInfo.put(call.getId(),
+            mPendingRedirectedOutgoingCallInfo.put(call.getId(),
                     new Runnable("CM.oCRC", mLock) {
                         @Override
                         public void loggedRun() {
@@ -1778,8 +1784,18 @@ public class CallsManager extends Call.ListenerBase
                         }
                     });
 
+            mPendingUnredirectedOutgoingCallInfo.put(call.getId(),
+                    new Runnable("CM.oCRC", mLock) {
+                        @Override
+                        public void loggedRun() {
+                            call.setTargetPhoneAccount(phoneAccountHandle);
+                            placeOutgoingCall(call, handle, null, speakerphoneOn,
+                                    videoState);
+                        }
+                    });
+
             Log.i(this, "onCallRedirectionComplete: UI_TYPE_USER_DEFINED_ASK_FOR_CONFIRM "
-                    + "callId=%s, callRedirectionAppName=%s",
+                            + "callId=%s, callRedirectionAppName=%s",
                     call.getId(), callRedirectionApp);
 
             Intent confirmIntent = new Intent(mContext,
@@ -1797,31 +1813,27 @@ public class CallsManager extends Call.ListenerBase
         }
     }
 
-    public void placeRedirectedOutgoingCallAfterUserInteraction(String callId) {
-        Log.i(this, "placeRedirectedOutgoingCallAfterUserInteraction for Call ID %s", callId);
+    public void processRedirectedOutgoingCallAfterUserInteraction(String callId, String action) {
+        Log.i(this, "processRedirectedOutgoingCallAfterUserInteraction for Call ID %s", callId);
         if (mPendingRedirectedOutgoingCall != null && mPendingRedirectedOutgoingCall.getId()
                 .equals(callId)) {
-            mHandler.post(mPendingRedirectionOutgoingCallInfo.get(callId).prepare());
+            if (action.equals(TelecomBroadcastIntentProcessor.ACTION_PLACE_REDIRECTED_CALL)) {
+                mHandler.post(mPendingRedirectedOutgoingCallInfo.get(callId).prepare());
+            } else if (action.equals(
+                    TelecomBroadcastIntentProcessor.ACTION_PLACE_UNREDIRECTED_CALL)) {
+                mHandler.post(mPendingUnredirectedOutgoingCallInfo.get(callId).prepare());
+            } else if (action.equals(
+                    TelecomBroadcastIntentProcessor.ACTION_CANCEL_REDIRECTED_CALL)) {
+                Log.addEvent(mPendingRedirectedOutgoingCall,
+                        LogUtils.Events.REDIRECTION_USER_CANCELLED);
+                mPendingRedirectedOutgoingCall.disconnect("User canceled the redirected call.");
+            }
             mPendingRedirectedOutgoingCall = null;
-            mPendingRedirectionOutgoingCallInfo.remove(callId);
+            mPendingRedirectedOutgoingCallInfo.remove(callId);
+            mPendingUnredirectedOutgoingCallInfo.remove(callId);
         } else {
-            Log.w(this, "placeRedirectedOutgoingCallAfterUserInteraction for non-matched Call ID "
+            Log.w(this, "processRedirectedOutgoingCallAfterUserInteraction for non-matched Call ID"
                     + " %s with handle %s and phoneAccountHandle %s", callId);
-        }
-    }
-
-    public void cancelRedirectedOutgoingCallAfterUserInteraction(String callId) {
-        Log.i(this, "cancelRedirectedOutgoingCallAfterUserInteraction for Call ID %s", callId);
-        if (mPendingRedirectedOutgoingCall != null && mPendingRedirectedOutgoingCall.getId()
-                .equals(callId)) {
-            Log.addEvent(mPendingRedirectedOutgoingCall,
-                    LogUtils.Events.REDIRECTION_USER_CANCELLED);
-            mPendingRedirectedOutgoingCall.disconnect("User canceled the redirected call.");
-            mPendingRedirectedOutgoingCall = null;
-            mPendingRedirectionOutgoingCallInfo.remove(callId);
-        } else {
-            Log.w(this, "cancelRedirectedOutgoingCallAfterUserInteraction for non-matched Call"
-                    + " ID ", callId);
         }
     }
 
