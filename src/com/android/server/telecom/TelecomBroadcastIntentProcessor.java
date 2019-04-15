@@ -21,7 +21,6 @@ import android.content.Intent;
 import android.os.UserHandle;
 import android.telecom.Log;
 
-import android.telecom.VideoProfile;
 import com.android.server.telecom.ui.CallRedirectionConfirmDialogActivity;
 import com.android.server.telecom.ui.ConfirmCallDialogActivity;
 
@@ -72,6 +71,13 @@ public final class TelecomBroadcastIntentProcessor {
      */
     public static final String ACTION_PLACE_REDIRECTED_CALL =
             "com.android.server.telecom.PROCEED_WITH_REDIRECTED_CALL";
+
+    /**
+     * The action used to confirm to proceed the call without redirection via
+     * {@link com.android.server.telecom.ui.CallRedirectionConfirmDialogActivity}.
+     */
+    public static final String ACTION_PLACE_UNREDIRECTED_CALL =
+            "com.android.server.telecom.PROCEED_WITH_UNREDIRECTED_CALL";
 
     /**
      * The action used to cancel a redirected call being confirmed via
@@ -174,19 +180,30 @@ public final class TelecomBroadcastIntentProcessor {
         } else if (ACTION_PLACE_REDIRECTED_CALL.equals(action)) {
             Log.startSession("TBIP.aPRC");
             try {
-                mCallsManager.placeRedirectedOutgoingCallAfterUserInteraction(
+                mCallsManager.processRedirectedOutgoingCallAfterUserInteraction(
                         intent.getStringExtra(CallRedirectionConfirmDialogActivity
-                                .EXTRA_REDIRECTION_OUTGOING_CALL_ID));
+                                .EXTRA_REDIRECTION_OUTGOING_CALL_ID),
+                        ACTION_PLACE_REDIRECTED_CALL);
+            } finally {
+                Log.endSession();
+            }
+        } else if (ACTION_PLACE_UNREDIRECTED_CALL.equals(action)) {
+            Log.startSession("TBIP.aPUC");
+            try {
+                mCallsManager.processRedirectedOutgoingCallAfterUserInteraction(
+                        intent.getStringExtra(CallRedirectionConfirmDialogActivity
+                                .EXTRA_REDIRECTION_OUTGOING_CALL_ID),
+                        ACTION_PLACE_UNREDIRECTED_CALL);
             } finally {
                 Log.endSession();
             }
         } else if (ACTION_CANCEL_REDIRECTED_CALL.equals(action)) {
             Log.startSession("TBIP.aCRC");
             try {
-                mCallsManager.cancelRedirectedOutgoingCallAfterUserInteraction(
+                mCallsManager.processRedirectedOutgoingCallAfterUserInteraction(
                         intent.getStringExtra(CallRedirectionConfirmDialogActivity
-                                .EXTRA_REDIRECTION_OUTGOING_CALL_ID)
-                );
+                                .EXTRA_REDIRECTION_OUTGOING_CALL_ID),
+                        ACTION_CANCEL_REDIRECTED_CALL);
             } finally {
                 Log.endSession();
             }
