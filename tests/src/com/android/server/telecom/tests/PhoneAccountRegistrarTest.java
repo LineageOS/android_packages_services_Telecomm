@@ -41,6 +41,7 @@ import android.telecom.Log;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
+import android.test.suitebuilder.annotation.SmallTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Xml;
 
@@ -908,6 +909,37 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         PhoneAccount account1 = builder.build();
         PhoneAccount account2 = builder.build();
         assertEquals(account1, account2);
+    }
+
+    /**
+     * Tests {@link PhoneAccountHandle#areFromSamePackage(PhoneAccountHandle,
+     * PhoneAccountHandle)} comparison.
+     */
+    @SmallTest
+    @Test
+    public void testSamePhoneAccountHandlePackage() {
+        PhoneAccountHandle a = new PhoneAccountHandle(new ComponentName("packageA", "class1"),
+                "id1");
+        PhoneAccountHandle b = new PhoneAccountHandle(new ComponentName("packageA", "class2"),
+                "id2");
+        PhoneAccountHandle c = new PhoneAccountHandle(new ComponentName("packageA", "class1"),
+                "id3");
+        PhoneAccountHandle d = new PhoneAccountHandle(new ComponentName("packageB", "class1"),
+                "id1");
+
+        assertTrue(PhoneAccountHandle.areFromSamePackage(null, null));
+        assertTrue(PhoneAccountHandle.areFromSamePackage(a, b));
+        assertTrue(PhoneAccountHandle.areFromSamePackage(a, c));
+        assertTrue(PhoneAccountHandle.areFromSamePackage(b, c));
+        assertFalse(PhoneAccountHandle.areFromSamePackage(a, d));
+        assertFalse(PhoneAccountHandle.areFromSamePackage(b, d));
+        assertFalse(PhoneAccountHandle.areFromSamePackage(c, d));
+        assertFalse(PhoneAccountHandle.areFromSamePackage(a, null));
+        assertFalse(PhoneAccountHandle.areFromSamePackage(b, null));
+        assertFalse(PhoneAccountHandle.areFromSamePackage(c, null));
+        assertFalse(PhoneAccountHandle.areFromSamePackage(null, d));
+        assertFalse(PhoneAccountHandle.areFromSamePackage(null, d));
+        assertFalse(PhoneAccountHandle.areFromSamePackage(null, d));
     }
 
     private static ComponentName makeQuickConnectionServiceComponentName() {
