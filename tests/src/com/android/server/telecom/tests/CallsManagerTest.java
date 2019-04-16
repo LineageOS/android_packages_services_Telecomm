@@ -56,14 +56,12 @@ import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.CallState;
-import com.android.server.telecom.CallerInfoAsyncQueryFactory;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.ClockProxy;
 import com.android.server.telecom.ConnectionServiceFocusManager;
 import com.android.server.telecom.ConnectionServiceFocusManager.ConnectionServiceFocusManagerFactory;
 import com.android.server.telecom.ConnectionServiceWrapper;
-import com.android.server.telecom.ContactsAsyncHelper;
 import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.EmergencyCallHelper;
 import com.android.server.telecom.HeadsetMediaButton;
@@ -114,6 +112,8 @@ public class CallsManagerTest extends TelecomTestCase {
             ComponentName.unflattenFromString("com.foo/.Blah"), "Sim1");
     private static final PhoneAccountHandle SIM_2_HANDLE = new PhoneAccountHandle(
             ComponentName.unflattenFromString("com.foo/.Blah"), "Sim2");
+    private static final PhoneAccountHandle VOIP_1_HANDLE = new PhoneAccountHandle(
+            ComponentName.unflattenFromString("com.voip/.Stuff"), "Voip1");
     private static final PhoneAccountHandle SELF_MANAGED_HANDLE = new PhoneAccountHandle(
             ComponentName.unflattenFromString("com.foo/.Self"), "Self");
     private static final PhoneAccount SIM_1_ACCOUNT = new PhoneAccount.Builder(SIM_1_HANDLE, "Sim1")
@@ -141,6 +141,7 @@ public class CallsManagerTest extends TelecomTestCase {
                 put(TEST_ADDRESS3, SIM_2_HANDLE);
     }};
 
+    private static int sCallId = 1;
     private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
     @Mock private CallerInfoLookupHelper mCallerInfoLookupHelper;
     @Mock private MissedCallNotifier mMissedCallNotifier;
@@ -523,17 +524,14 @@ public class CallsManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testUnholdCallWhenOngoingCallCanNotBeHeldAndFromDifferentConnectionService() {
-        ConnectionServiceWrapper connSvr1 = Mockito.mock(ConnectionServiceWrapper.class);
-        ConnectionServiceWrapper connSvr2 = Mockito.mock(ConnectionServiceWrapper.class);
-
         // GIVEN a CallsManager with ongoing call, and this call can not be held
-        Call ongoingCall = addSpyCallWithConnectionService(connSvr1);
+        Call ongoingCall = addSpyCall(SIM_1_HANDLE);
         doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
         doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
 
         // and a held call which has different ConnectionService
-        Call heldCall = addSpyCallWithConnectionService(connSvr2);
+        Call heldCall = addSpyCall(VOIP_1_HANDLE);
 
         // WHEN unhold the held call
         mCallsManager.unholdCall(heldCall);
@@ -548,17 +546,39 @@ public class CallsManagerTest extends TelecomTestCase {
 
     @SmallTest
     @Test
-    public void testUnholdCallWhenOngoingCallCanNotBeHeldAndHasSameConnectionService() {
-        ConnectionServiceWrapper connSvr = Mockito.mock(ConnectionServiceWrapper.class);
+    public void testUnholdCallWhenOngoingEmergCallCanNotBeHeldAndFromDifferentConnectionService() {
+        // GIVEN a CallsManager with ongoing call, and this call can not be held, but it also an
+        // emergency call.
+        Call ongoingCall = addSpyCall(SIM_1_HANDLE);
+        doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        doReturn(true).when(ongoingCall).isEmergencyCall();
+        when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
 
+        // and a held call which has different ConnectionService
+        Call heldCall = addSpyCall(VOIP_1_HANDLE);
+
+        // WHEN unhold the held call
+        mCallsManager.unholdCall(heldCall);
+
+        // THEN the ongoing call will not be disconnected (because its an emergency call)
+        verify(ongoingCall, never()).disconnect(any());
+
+        // and held call is not un-held
+        verify(heldCall, never()).unhold(any());
+    }
+
+    @SmallTest
+    @Test
+    public void testUnholdCallWhenOngoingCallCanNotBeHeldAndHasSameConnectionService() {
         // GIVEN a CallsManager with ongoing call, and this call can not be held
-        Call ongoingCall = addSpyCallWithConnectionService(connSvr);
+        Call ongoingCall = addSpyCall(SIM_1_HANDLE);
         doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
         doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
 
-        // and a held call which has different ConnectionService
-        Call heldCall = addSpyCallWithConnectionService(connSvr);
+        // and a held call which has the same ConnectionService
+        Call heldCall = addSpyCall(SIM_2_HANDLE);
 
         // WHEN unhold the held call
         mCallsManager.unholdCall(heldCall);
@@ -595,15 +615,13 @@ public class CallsManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testAnswerCallWhenOngoingHasSameConnectionService() {
-        ConnectionServiceWrapper connSvr = Mockito.mock(ConnectionServiceWrapper.class);
-
         // GIVEN a CallsManager with ongoing call, and this call can not be held
-        Call ongoingCall = addSpyCallWithConnectionService(connSvr);
+        Call ongoingCall = addSpyCall(SIM_1_HANDLE);
         doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
         when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
 
         // WHEN answer an incoming call
-        Call incomingCall = addSpyCallWithConnectionService(connSvr);
+        Call incomingCall = addSpyCall(VOIP_1_HANDLE);
         mCallsManager.answerCall(incomingCall, VideoProfile.STATE_AUDIO_ONLY);
 
         // THEN nothing happened on the ongoing call and the focus request for incoming call is sent
@@ -616,17 +634,14 @@ public class CallsManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testAnswerCallWhenOngoingHasDifferentConnectionService() {
-        ConnectionServiceWrapper connSvr1 = Mockito.mock(ConnectionServiceWrapper.class);
-        ConnectionServiceWrapper connSvr2 = Mockito.mock(ConnectionServiceWrapper.class);
-
         // GIVEN a CallsManager with ongoing call, and this call can not be held
-        Call ongoingCall = addSpyCallWithConnectionService(connSvr1);
+        Call ongoingCall = addSpyCall(SIM_1_HANDLE);
         doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
         doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
 
         // WHEN answer an incoming call
-        Call incomingCall = addSpyCallWithConnectionService(connSvr2);
+        Call incomingCall = addSpyCall(VOIP_1_HANDLE);
         mCallsManager.answerCall(incomingCall, VideoProfile.STATE_AUDIO_ONLY);
 
         // THEN the ongoing call is disconnected and the focus request for incoming call is sent
@@ -639,27 +654,46 @@ public class CallsManagerTest extends TelecomTestCase {
 
     @SmallTest
     @Test
-    public void testAnswerCallWhenMultipleHeldCallsExisted() {
-        ConnectionServiceWrapper connSvr1 = Mockito.mock(ConnectionServiceWrapper.class);
-        ConnectionServiceWrapper connSvr2 = Mockito.mock(ConnectionServiceWrapper.class);
+    public void testAnswerCallWhenOngoingHasDifferentConnectionServiceButIsEmerg() {
+        // GIVEN a CallsManager with ongoing call, and this call can not be held
+        Call ongoingCall = addSpyCall(SIM_1_HANDLE);
+        doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        doReturn(true).when(ongoingCall).isEmergencyCall();
+        when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
 
+        // WHEN answer an incoming call
+        Call incomingCall = addSpyCall(VOIP_1_HANDLE);
+        mCallsManager.answerCall(incomingCall, VideoProfile.STATE_AUDIO_ONLY);
+
+        // THEN the ongoing call is not disconnected
+        verify(ongoingCall, never()).disconnect();
+
+        // and the incoming call is not answered, but is rejected instead.
+        verify(incomingCall, never()).answer(VideoProfile.STATE_AUDIO_ONLY);
+        verify(incomingCall).reject(eq(false), any(), any());
+    }
+
+    @SmallTest
+    @Test
+    public void testAnswerCallWhenMultipleHeldCallsExisted() {
         // Given an ongoing call and held call with the ConnectionService connSvr1. The
         // ConnectionService connSvr1 can handle one held call
-        Call ongoingCall = addSpyCallWithConnectionService(connSvr1);
+        Call ongoingCall = addSpyCall(SIM_1_HANDLE);
         doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
         doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         doReturn(CallState.ACTIVE).when(ongoingCall).getState();
         when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
 
-        Call heldCall = addSpyCallWithConnectionService(connSvr1);
+        Call heldCall = addSpyCall(SIM_1_HANDLE);
         doReturn(CallState.ON_HOLD).when(heldCall).getState();
 
         // and other held call has difference ConnectionService
-        Call heldCall2 = addSpyCallWithConnectionService(connSvr2);
+        Call heldCall2 = addSpyCall(VOIP_1_HANDLE);
         doReturn(CallState.ON_HOLD).when(heldCall2).getState();
 
         // WHEN answer an incoming call which ConnectionService is connSvr1
-        Call incomingCall = addSpyCallWithConnectionService(connSvr1);
+        Call incomingCall = addSpyCall(SIM_1_HANDLE);
         doReturn(true).when(incomingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         mCallsManager.answerCall(incomingCall, VideoProfile.STATE_AUDIO_ONLY);
 
@@ -717,17 +751,14 @@ public class CallsManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testSetActiveCallWhenOngoingCallCanNotBeHeldAndFromDifferentConnectionService() {
-        ConnectionServiceWrapper connSvr1 = Mockito.mock(ConnectionServiceWrapper.class);
-        ConnectionServiceWrapper connSvr2 = Mockito.mock(ConnectionServiceWrapper.class);
-
         // GIVEN a CallsManager with ongoing call, and this call can not be held
-        Call ongoingCall = addSpyCallWithConnectionService(connSvr1);
+        Call ongoingCall = addSpyCall(SIM_1_HANDLE);
         doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
         doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         doReturn(ongoingCall).when(mConnectionSvrFocusMgr).getCurrentFocusCall();
 
         // and a new self-managed call which has different ConnectionService
-        Call newCall = addSpyCallWithConnectionService(connSvr2);
+        Call newCall = addSpyCall(VOIP_1_HANDLE);
         doReturn(true).when(newCall).isSelfManaged();
 
         // WHEN active the new call
@@ -744,16 +775,14 @@ public class CallsManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testSetActiveCallWhenOngoingCallCanNotBeHeldAndHasSameConnectionService() {
-        ConnectionServiceWrapper connSvr = Mockito.mock(ConnectionServiceWrapper.class);
-
         // GIVEN a CallsManager with ongoing call, and this call can not be held
-        Call ongoingCall = addSpyCallWithConnectionService(connSvr);
+        Call ongoingCall = addSpyCall(SIM_1_HANDLE);
         doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
         doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
 
         // and a new self-managed call which has the same ConnectionService
-        Call newCall = addSpyCallWithConnectionService(connSvr);
+        Call newCall = addSpyCall(SIM_1_HANDLE);
         doReturn(true).when(newCall).isSelfManaged();
 
         // WHEN active the new call
@@ -794,10 +823,8 @@ public class CallsManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testNoFilteringOfSelfManagedCalls() {
-        ConnectionServiceWrapper connSvr1 = Mockito.mock(ConnectionServiceWrapper.class);
-
         // GIVEN an incoming call which is self managed.
-        Call incomingCall = addSpyCallWithConnectionService(connSvr1);
+        Call incomingCall = addSpyCall(SELF_MANAGED_HANDLE);
         doReturn(false).when(incomingCall).can(Connection.CAPABILITY_HOLD);
         doReturn(false).when(incomingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         doReturn(true).when(incomingCall).isSelfManaged();
@@ -913,10 +940,8 @@ public class CallsManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testNoFilteringOfCallsWhenPhoneAccountRequestsSkipped() {
-        ConnectionServiceWrapper connSvr1 = Mockito.mock(ConnectionServiceWrapper.class);
-
         // GIVEN an incoming call which is from a PhoneAccount that requested to skip filtering.
-        Call incomingCall = addSpyCallWithConnectionService(connSvr1);
+        Call incomingCall = addSpyCall(SIM_1_HANDLE);
         Bundle extras = new Bundle();
         extras.putBoolean(PhoneAccount.EXTRA_SKIP_CALL_FILTERING, true);
         PhoneAccount skipRequestedAccount = new PhoneAccount.Builder(SIM_2_HANDLE, "Skipper")
@@ -925,7 +950,7 @@ public class CallsManagerTest extends TelecomTestCase {
             .setExtras(extras)
             .setIsEnabled(true)
             .build();
-        when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(SIM_2_HANDLE))
+        when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(SIM_1_HANDLE))
             .thenReturn(skipRequestedAccount);
         doReturn(false).when(incomingCall).can(Connection.CAPABILITY_HOLD);
         doReturn(false).when(incomingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
@@ -1026,14 +1051,12 @@ public class CallsManagerTest extends TelecomTestCase {
                 Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL));
     }
 
-    private Call addSpyCallWithConnectionService(ConnectionServiceWrapper connSvr) {
-        Call call = addSpyCall();
-        doReturn(connSvr).when(call).getConnectionService();
-        return call;
+    private Call addSpyCall() {
+        return addSpyCall(SIM_2_HANDLE);
     }
 
-    private Call addSpyCall() {
-        Call ongoingCall = new Call("1", /* callId */
+    private Call addSpyCall(PhoneAccountHandle targetPhoneAccount) {
+        Call ongoingCall = new Call(String.format("TC@%d", sCallId++), /* callId */
                 mComponentContextFixture.getTestDouble(),
                 mCallsManager,
                 mLock, /* ConnectionServiceRepository */
@@ -1042,7 +1065,7 @@ public class CallsManagerTest extends TelecomTestCase {
                 TEST_ADDRESS,
                 null /* GatewayInfo */,
                 null /* connectionManagerPhoneAccountHandle */,
-                SIM_2_HANDLE,
+                targetPhoneAccount,
                 Call.CALL_DIRECTION_INCOMING,
                 false /* shouldAttachToExistingConnection*/,
                 false /* isConference */,
