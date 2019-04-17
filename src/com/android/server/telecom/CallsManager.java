@@ -2154,8 +2154,17 @@ public class CallsManager extends Call.ListenerBase
                     // This call does not support hold. If it is from a different connection
                     // service, then disconnect it, otherwise invoke call.hold() and allow the
                     // connection service to handle the situation.
-                    if (activeCall.getConnectionService() != call.getConnectionService()) {
-                        activeCall.disconnect("Swap to " + call.getId());
+                    if (!PhoneAccountHandle.areFromSamePackage(activeCall.getTargetPhoneAccount(),
+                            call.getTargetPhoneAccount())) {
+                        if (!activeCall.isEmergencyCall()) {
+                            activeCall.disconnect("Swap to " + call.getId());
+                        } else {
+                            Log.w(this, "unholdCall: % is an emergency call, aborting swap to %s",
+                                    activeCall.getId(), call.getId());
+                            // Don't unhold the call as requested; we don't want to drop an
+                            // emergency call.
+                            return;
+                        }
                     } else {
                         activeCall.hold("Swap to " + call.getId());
                     }
@@ -2373,7 +2382,8 @@ public class CallsManager extends Call.ListenerBase
                 activeCall.hold();
                 return true;
             } else if (supportsHold(activeCall)
-                    && activeCall.getConnectionService() == call.getConnectionService()) {
+                    && PhoneAccountHandle.areFromSamePackage(activeCall.getTargetPhoneAccount(),
+                        call.getTargetPhoneAccount())) {
 
                 // Handle the case where the active call and the new call are from the same CS, and
                 // the currently active call supports hold but cannot currently be held.
@@ -2385,7 +2395,7 @@ public class CallsManager extends Call.ListenerBase
                 // Call C - Incoming
                 // Here we need to disconnect A prior to holding B so that C can be answered.
                 // This case is driven by telephony requirements ultimately.
-                Call heldCall = getHeldCallByConnectionService(call.getConnectionService());
+                Call heldCall = getHeldCallByConnectionService(call.getTargetPhoneAccount());
                 if (heldCall != null) {
                     heldCall.disconnect();
                     Log.i(this, "holdActiveCallForNewCall: Disconnect held call %s before "
@@ -2400,10 +2410,21 @@ public class CallsManager extends Call.ListenerBase
                 // This call does not support hold. If it is from a different connection
                 // service, then disconnect it, otherwise allow the connection service to
                 // figure out the right states.
-                if (activeCall.getConnectionService() != call.getConnectionService()) {
+                if (!PhoneAccountHandle.areFromSamePackage(activeCall.getTargetPhoneAccount(),
+                        call.getTargetPhoneAccount())) {
                     Log.i(this, "holdActiveCallForNewCall: disconnecting %s so that %s can be "
                             + "made active.", activeCall.getId(), call.getId());
-                    activeCall.disconnect();
+                    if (!activeCall.isEmergencyCall()) {
+                        activeCall.disconnect();
+                    } else {
+                        // It's not possible to hold the active call, and its an emergency call so
+                        // we will silently reject the incoming call instead of answering it.
+                        Log.w(this, "holdActiveCallForNewCall: rejecting incoming call %s as "
+                                + "the active call is an emergency call and it cannot be held.",
+                                call.getId());
+                        call.reject(false /* rejectWithMessage */, "" /* message */,
+                                "active emergency call can't be held");
+                    }
                 }
             }
         }
@@ -2674,9 +2695,10 @@ public class CallsManager extends Call.ListenerBase
         return getFirstCallWithState(CallState.ON_HOLD);
     }
 
-    public Call getHeldCallByConnectionService(ConnectionServiceWrapper connSvr) {
+    public Call getHeldCallByConnectionService(PhoneAccountHandle targetPhoneAccount) {
         Optional<Call> heldCall = mCalls.stream()
-                .filter(call -> call.getConnectionService() == connSvr
+                .filter(call -> PhoneAccountHandle.areFromSamePackage(call.getTargetPhoneAccount(),
+                        targetPhoneAccount)
                         && call.getParentCall() == null
                         && call.getState() == CallState.ON_HOLD)
                 .findFirst();
@@ -3394,7 +3416,8 @@ public class CallsManager extends Call.ListenerBase
             // First thing, if we are trying to make a call with the same phone account as the live
             // call, then allow it so that the connection service can make its own decision about
             // how to handle the new call relative to the current one.
-            if (Objects.equals(liveCallPhoneAccount, call.getTargetPhoneAccount())) {
+            if (PhoneAccountHandle.areFromSamePackage(liveCallPhoneAccount,
+                    call.getTargetPhoneAccount())) {
                 Log.i(this, "makeRoomForOutgoingCall: phoneAccount matches.");
                 call.getAnalytics().setCallIsAdditional(true);
                 liveCall.getAnalytics().setCallIsInterrupted(true);
