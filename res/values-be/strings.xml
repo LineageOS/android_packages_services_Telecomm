@@ -91,7 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Прапушчаныя выклікі"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Блакіраванне выклікаў"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Калі зрабіць гэты выклік, ваш выклік праз праграму <xliff:g id="OTHER_APP">%1$s</xliff:g> скончыцца."</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"Дазвольце праграме \"<xliff:g id="OTHER_APP">%1$s</xliff:g>\" зрабіць выклік, выкарыстоўваючы іншы нумар ці ўліковы запіс."</string>
+    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"Дазволіць праграме \"<xliff:g id="OTHER_APP">%1$s</xliff:g>\" зрабіць выклік, выкарыстоўваючы іншы нумар?"</string>
+    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"Выклікаць па нумары \"<xliff:g id="OTHER_APP">%1$s</xliff:g>\""</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"Выклікаць без нумара \"<xliff:g id="OTHER_APP">%1$s</xliff:g>\""</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"Не ўдалося зрабіць выклік праз праграму \"<xliff:g id="OTHER_APP">%1$s</xliff:g>\". Скарыстайце іншую праграму для перанакіравання выклікаў або звярніцеся да распрацоўшчыка па дапамогу."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Блакіраванне выклікаў"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Нумары не ў спісе кантактаў"</string>

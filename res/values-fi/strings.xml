@@ -91,7 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Vastaamattomat puhelut"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Puhelujen esto"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Tämän puhelun soittaminen päättää puhelun sovelluksessa <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"Salli sovelluksen <xliff:g id="OTHER_APP">%1$s</xliff:g> soittaa puhelu toisella numerolla tai tilillä."</string>
+    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"Saako <xliff:g id="OTHER_APP">%1$s</xliff:g> soittaa puhelun toisella numerolla?"</string>
+    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"Soita sovelluksella <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"Soita ilman sovellusta <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> ei voi soittaa puhelua. Kokeile jotakin toista soitonsiirtosovellusta tai ota yhteyttä kehittäjään."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Puhelujen esto"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Numerot eivät ole yhteystiedoissa"</string>

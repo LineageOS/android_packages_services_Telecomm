@@ -91,7 +91,12 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"ការ​ហៅ​ដែល​មិន​បាន​ទទួល"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"ការទប់ស្កាត់ការហៅ"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"ការ​ហៅ​ទូរសព្ទ​នេះ នឹង​បញ្ចប់​ការហៅ <xliff:g id="OTHER_APP">%1$s</xliff:g> របស់​អ្នក។"</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"អនុញ្ញាតឲ្យ <xliff:g id="OTHER_APP">%1$s</xliff:g> ធ្វើ​ការ​ហៅ​ទូរសព្ទ​ ដោយ​ប្រើប្រាស់​គណនី ឬ​លេខ​ផ្សេង។"</string>
+    <!-- no translation found for alert_redirect_outgoing_call (4889719903221558265) -->
+    <skip />
+    <!-- no translation found for alert_place_redirect_outgoing_call (2933497123177272389) -->
+    <skip />
+    <!-- no translation found for alert_place_unredirect_outgoing_call (1965085446236238714) -->
+    <skip />
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"មិន​អាច​ធ្វើ​ការ​ហៅ​ទូរសព្ទ​តាម <xliff:g id="OTHER_APP">%1$s</xliff:g> បាន​ទេ។ សាកល្បង​ប្រើប្រាស់​កម្មវិធី​បញ្ជូន​បន្ត​ការ​ហៅ​ទូរសព្ទផ្សេងទៀត ឬ​ទាក់ទង​អ្នក​អភិវឌ្ឍន៍​ដើម្បីទទួលបានជំនួយ។"</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"ការទប់ស្កាត់ការហៅ"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"លេខ​មិន​នៅ​ក្នុង​ទំនាក់ទំនង"</string>

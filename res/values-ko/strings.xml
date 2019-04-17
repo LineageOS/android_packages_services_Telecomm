@@ -91,7 +91,12 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"부재중 전화"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"통화 차단"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"이 전화를 걸면 현재 <xliff:g id="OTHER_APP">%1$s</xliff:g>에서 진행 중인 통화가 종료됩니다."</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"<xliff:g id="OTHER_APP">%1$s</xliff:g> 앱이 다른 번호나 계정을 사용하여 전화를 걸도록 허용합니다."</string>
+    <!-- no translation found for alert_redirect_outgoing_call (4889719903221558265) -->
+    <skip />
+    <!-- no translation found for alert_place_redirect_outgoing_call (2933497123177272389) -->
+    <skip />
+    <!-- no translation found for alert_place_unredirect_outgoing_call (1965085446236238714) -->
+    <skip />
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> 앱으로는 전화를 걸 수 없습니다. 다른 통화 리디렉션 앱을 사용하거나 개발자에게 도움을 요청해 보세요."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"통화 차단"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"연락처에 없는 번호"</string>

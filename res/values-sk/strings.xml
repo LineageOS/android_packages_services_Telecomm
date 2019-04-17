@@ -91,7 +91,12 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Zmeškané hovory"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Blokovanie hovorov"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Ak uskutočníte tento hovor, hovor cez <xliff:g id="OTHER_APP">%1$s</xliff:g> bude ukončený."</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"Ak chcete uskutočniť hovor pomocou iného čísla alebo účtu, povoľte aplikáciu <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
+    <!-- no translation found for alert_redirect_outgoing_call (4889719903221558265) -->
+    <skip />
+    <!-- no translation found for alert_place_redirect_outgoing_call (2933497123177272389) -->
+    <skip />
+    <!-- no translation found for alert_place_unredirect_outgoing_call (1965085446236238714) -->
+    <skip />
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"Aplikácia <xliff:g id="OTHER_APP">%1$s</xliff:g> nemôže uskutočniť hovor. Skúste použiť inú aplikáciu na presmerovanie hovorov alebo kontaktujte vývojára a požiadajte o pomoc."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Blokovanie hovorov"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Čísla, ktoré nie sú v kontaktoch"</string>

@@ -91,7 +91,12 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"ಮಿಸ್ಡ್‌ ಕರೆಗಳು"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"ಕರೆ ನಿರ್ಬಂಧಿಸುವಿಕೆ"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"ಈ ಕರೆಯನ್ನು ಮಾಡುವುದರಿಂದ ನಿಮ್ಮ <xliff:g id="OTHER_APP">%1$s</xliff:g> ಕರೆಯು ಅಂತ್ಯಗೊಳ್ಳುತ್ತದೆ."</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"ಬೇರೆ ಸಂಖ್ಯೆ ಅಥವಾ ಖಾತೆಯನ್ನು ಬಳಸಿಕೊಂಡು <xliff:g id="OTHER_APP">%1$s</xliff:g> ಆ್ಯಪ್‌ಗೆ ಕರೆ ಮಾಡಲು ಅನುಮತಿಸಿ."</string>
+    <!-- no translation found for alert_redirect_outgoing_call (4889719903221558265) -->
+    <skip />
+    <!-- no translation found for alert_place_redirect_outgoing_call (2933497123177272389) -->
+    <skip />
+    <!-- no translation found for alert_place_unredirect_outgoing_call (1965085446236238714) -->
+    <skip />
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"ಕರೆಯನ್ನು <xliff:g id="OTHER_APP">%1$s</xliff:g> ಮೂಲಕ ನಿಯೋಜಿಸಲಾಗುವುದಿಲ್ಲ. ಕರೆ ಮರುನಿರ್ದೇಶಿಸುವ ಬೇರೆ ಆ್ಯಪ್‌ ಅನ್ನು ಬಳಸುವ ಮೂಲಕ ಅಥವಾ ಸಹಾಯಕ್ಕಾಗಿ ಡೆವಲಪರ್ ಅನ್ನು ಸಂಪರ್ಕಿಸುವ ಮೂಲಕ ಪ್ರಯತ್ನಿಸಿ."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"ಕರೆ ನಿರ್ಬಂಧಿಸುವಿಕೆ"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"ಸಂಖ್ಯೆಗಳು ಸಂಪರ್ಕದಲ್ಲಿಲ್ಲ"</string>

@@ -91,7 +91,12 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"未接來電"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"來電封鎖"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"撥打這通電話將結束你的「<xliff:g id="OTHER_APP">%1$s</xliff:g>」通話。"</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"允許「<xliff:g id="OTHER_APP">%1$s</xliff:g>」使用其他號碼或帳戶撥打電話。"</string>
+    <!-- no translation found for alert_redirect_outgoing_call (4889719903221558265) -->
+    <skip />
+    <!-- no translation found for alert_place_redirect_outgoing_call (2933497123177272389) -->
+    <skip />
+    <!-- no translation found for alert_place_unredirect_outgoing_call (1965085446236238714) -->
+    <skip />
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"無法使用「<xliff:g id="OTHER_APP">%1$s</xliff:g>」撥打電話。請嘗試使用其他的通話轉接應用程式，或向開發人員尋求協助。"</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"來電封鎖"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"不屬於聯絡人的號碼"</string>

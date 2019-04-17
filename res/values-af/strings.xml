@@ -91,7 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Gemiste oproepe"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Oproepblokkering"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"As jy hierdie oproep maak, sal dit jou <xliff:g id="OTHER_APP">%1$s</xliff:g>-oproep beëindig."</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"Laat <xliff:g id="OTHER_APP">%1$s</xliff:g> toe om \'n oproep te maak deur \'n ander nommer of rekening te gebruik."</string>
+    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"Laat <xliff:g id="OTHER_APP">%1$s</xliff:g> toe om oproep te maak deur \'n ander nommer te gebruik?"</string>
+    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"Bel met <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"Bel sonder <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"Oproep kan nie deur <xliff:g id="OTHER_APP">%1$s</xliff:g> geplaas word nie. Probeer om \'n ander oproepherlei-toepassing te gebruik of die ontwikkelaar vir hulp te kontak."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Oproepblokkering"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Nommers nie in Kontakte nie"</string>
