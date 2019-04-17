@@ -19,6 +19,7 @@ package com.android.server.telecom;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.media.Ringtone;
@@ -81,7 +82,10 @@ public class RingtoneFactory {
             ringtone = RingtoneManager.getRingtone(contextToUse, defaultRingtoneUri);
         }
         if (ringtone != null) {
-            ringtone.setStreamType(AudioManager.STREAM_RING);
+            ringtone.setAudioAttributes(new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build());
         }
         return ringtone;
     }
