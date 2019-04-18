@@ -26,17 +26,20 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.telecom.Connection;
 import android.telecom.Log;
 import android.telecom.PhoneAccount;
+import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.telephony.PhoneConstants;
 import com.android.server.telecom.CallsManager.CallsManagerListener;
 
 import java.util.Collection;
@@ -255,6 +258,42 @@ public class BluetoothPhoneServiceImpl {
                     Log.endSession();
                 }
             }
+        }
+
+       /**
+        * isHighDefCallInProgress
+        * Returns true if there is any Call is in Progress with High Definition
+        *               quality
+        *         false otherwise.
+        */
+        @Override
+        public boolean isHighDefCallInProgress() {
+            boolean isHighDef = false;
+            Call ringingCall = mCallsManager.getRingingOrSimulatedRingingCall();
+            Call dialingCall = mCallsManager.getOutgoingCall();
+            Call activeCall = mCallsManager.getActiveCall();
+
+            /* If its an incoming call we will have codec info in dialing state */
+            if (ringingCall != null) {
+                isHighDef = ringingCall.hasProperty(Connection.PROPERTY_HIGH_DEF_AUDIO);
+            } else if (dialingCall != null) { /* CS dialing call has codec info in dialing state */
+                Bundle extras = dialingCall.getExtras();
+                if (extras != null) {
+                    int phoneType = extras.getInt(TelecomManager.EXTRA_CALL_TECHNOLOGY_TYPE);
+                    if (phoneType == PhoneConstants.PHONE_TYPE_GSM
+                            || phoneType == PhoneConstants.PHONE_TYPE_CDMA) {
+                        isHighDef = dialingCall.hasProperty(Connection.PROPERTY_HIGH_DEF_AUDIO);
+                    /* For IMS calls codec info is not present in dialing state */
+                    } else if (phoneType == PhoneConstants.PHONE_TYPE_IMS
+                            || phoneType == PhoneConstants.PHONE_TYPE_CDMA_LTE) {
+                        isHighDef = true;
+                    }
+                }
+            } else if (activeCall != null) {
+                isHighDef = activeCall.hasProperty(Connection.PROPERTY_HIGH_DEF_AUDIO);
+            }
+            Log.i(TAG, "isHighDefCallInProgress: Call is High Def " + isHighDef);
+            return isHighDef;
         }
 
         @Override
@@ -852,7 +891,7 @@ public class BluetoothPhoneServiceImpl {
         int bluetoothCallState = CALL_STATE_IDLE;
         if (ringingCall != null && !ringingCall.isSilentRingingRequested()) {
             bluetoothCallState = CALL_STATE_INCOMING;
-        } else if (dialingCall != null) {
+        } else if (dialingCall != null && dialingCall.getState() == CallState.DIALING) {
             bluetoothCallState = CALL_STATE_ALERTING;
         } else if (hasOnlyDisconnectedCalls || mIsDisconnectedTonePlaying) {
             // Keep the DISCONNECTED state until the disconnect tone's playback is done
