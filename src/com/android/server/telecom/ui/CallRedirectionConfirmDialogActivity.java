@@ -24,8 +24,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.telecom.Log;
+import android.view.LayoutInflater;
+import android.view.View.OnClickListener;
+import android.view.View;
+import android.widget.Button;
 
 /**
  * Dialog activity used when there is an ongoing call redirected by the call redirection service.
@@ -48,73 +54,83 @@ public class CallRedirectionConfirmDialogActivity extends Activity {
 
     private void showDialog(final CharSequence redirectionAppName) {
         Log.i(this, "showDialog: confirming redirection with %s", redirectionAppName);
-        CharSequence message = getString(
-                R.string.alert_redirect_outgoing_call, redirectionAppName);
-        final AlertDialog confirmDialog = new AlertDialog.Builder(this)
-                .setMessage(message)
-                .setPositiveButton(getString(R.string.alert_place_redirect_outgoing_call,
-                        redirectionAppName), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent proceedWithRedirectedCall = new Intent(
-                                TelecomBroadcastIntentProcessor
-                                        .ACTION_PLACE_REDIRECTED_CALL, null,
-                                CallRedirectionConfirmDialogActivity.this,
-                                TelecomBroadcastReceiver.class);
-                        proceedWithRedirectedCall.putExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID,
-                                getIntent().getStringExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID));
-                        sendBroadcast(proceedWithRedirectedCall);
-                        dialog.dismiss();
-                        finish();
-                    }
-                })
-                .setNegativeButton(getString(R.string.alert_place_unredirect_outgoing_call,
-                        redirectionAppName), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent proceedWithoutRedirectedCall = new Intent(
-                                TelecomBroadcastIntentProcessor.ACTION_PLACE_UNREDIRECTED_CALL,
-                                null, CallRedirectionConfirmDialogActivity.this,
-                                TelecomBroadcastReceiver.class);
-                        proceedWithoutRedirectedCall.putExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID,
-                                getIntent().getStringExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID));
-                        sendBroadcast(proceedWithoutRedirectedCall);
-                        dialog.dismiss();
-                        finish();
-                    }
-                })
-                .setNeutralButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent cancelRedirectedCall = new Intent(
-                                TelecomBroadcastIntentProcessor.ACTION_CANCEL_REDIRECTED_CALL,
-                                null, CallRedirectionConfirmDialogActivity.this,
-                                TelecomBroadcastReceiver.class);
-                        cancelRedirectedCall.putExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID,
-                                getIntent().getStringExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID));
-                        sendBroadcast(cancelRedirectedCall);
-                        dialog.dismiss();
-                        finish();
-                    }
-                })
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        Intent cancelRedirectedCall = new Intent(
-                                TelecomBroadcastIntentProcessor.ACTION_CANCEL_REDIRECTED_CALL,
-                                null, CallRedirectionConfirmDialogActivity.this,
-                                TelecomBroadcastReceiver.class);
-                        cancelRedirectedCall.putExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID,
-                                getIntent().getStringExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID));
-                        sendBroadcast(cancelRedirectedCall);
-                        dialog.dismiss();
-                        finish();
-                    }
-                })
-                .create();
+
+        final AlertDialog confirmDialog = new AlertDialog.Builder(this).create();
+        LayoutInflater layoutInflater = LayoutInflater.from(this);
+        View dialogView = layoutInflater.inflate(R.layout.call_redirection_confirm_dialog, null);
+
+        Button buttonFirstLine = (Button) dialogView.findViewById(R.id.buttonFirstLine);
+        buttonFirstLine.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent proceedWithoutRedirectedCall = new Intent(
+                        TelecomBroadcastIntentProcessor.ACTION_PLACE_UNREDIRECTED_CALL,
+                        null, CallRedirectionConfirmDialogActivity.this,
+                        TelecomBroadcastReceiver.class);
+                proceedWithoutRedirectedCall.putExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID,
+                        getIntent().getStringExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID));
+                sendBroadcast(proceedWithoutRedirectedCall);
+                confirmDialog.dismiss();
+                finish();
+            }
+        });
+
+        Button buttonSecondLine = (Button) dialogView.findViewById(R.id.buttonSecondLine);
+        buttonSecondLine.setText(getString(R.string.alert_place_outgoing_call_with_redirection,
+                redirectionAppName));
+        buttonSecondLine.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent proceedWithRedirectedCall = new Intent(
+                        TelecomBroadcastIntentProcessor
+                                .ACTION_PLACE_REDIRECTED_CALL, null,
+                        CallRedirectionConfirmDialogActivity.this,
+                        TelecomBroadcastReceiver.class);
+                proceedWithRedirectedCall.putExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID,
+                        getIntent().getStringExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID));
+                sendBroadcast(proceedWithRedirectedCall);
+                confirmDialog.dismiss();
+                finish();
+            }
+        });
+
+        Button buttonThirdLine = (Button) dialogView.findViewById(R.id.buttonThirdLine);
+        buttonThirdLine.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                Intent cancelRedirectedCall = new Intent(
+                        TelecomBroadcastIntentProcessor.ACTION_CANCEL_REDIRECTED_CALL,
+                        null, CallRedirectionConfirmDialogActivity.this,
+                        TelecomBroadcastReceiver.class);
+                cancelRedirectedCall.putExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID,
+                        getIntent().getStringExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID));
+                sendBroadcast(cancelRedirectedCall);
+                confirmDialog.dismiss();
+                finish();
+            }
+        });
+
+        confirmDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                Intent cancelRedirectedCall = new Intent(
+                        TelecomBroadcastIntentProcessor.ACTION_CANCEL_REDIRECTED_CALL,
+                        null, CallRedirectionConfirmDialogActivity.this,
+                        TelecomBroadcastReceiver.class);
+                cancelRedirectedCall.putExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID,
+                        getIntent().getStringExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID));
+                sendBroadcast(cancelRedirectedCall);
+                dialog.dismiss();
+                finish();
+            }
+        });
+
+        confirmDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        confirmDialog.setCancelable(false);
+        confirmDialog.setCanceledOnTouchOutside(false);
+
+        confirmDialog.setView(dialogView);
+
         confirmDialog.show();
-        confirmDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setAllCaps(false);
-        confirmDialog.getButton(DialogInterface.BUTTON_POSITIVE).setAllCaps(false);
-        confirmDialog.getButton(DialogInterface.BUTTON_NEUTRAL).setAllCaps(false);
     }
 }
