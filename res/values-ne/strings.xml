@@ -91,7 +91,12 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"छुटेका कलहरू"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"कलमाथि रोक लगाउने सुविधा"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"यो कल गर्नुले तपाईंको <xliff:g id="OTHER_APP">%1$s</xliff:g> कल अन्त्य गर्दछ।"</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"कुनै अर्को नम्बर वा खाता प्रयोग गरी <xliff:g id="OTHER_APP">%1$s</xliff:g> लाई कल गर्ने अनुमति दिनुहोस्।"</string>
+    <!-- no translation found for alert_redirect_outgoing_call (4889719903221558265) -->
+    <skip />
+    <!-- no translation found for alert_place_redirect_outgoing_call (2933497123177272389) -->
+    <skip />
+    <!-- no translation found for alert_place_unredirect_outgoing_call (1965085446236238714) -->
+    <skip />
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> प्रयोग गरेर कल गर्न सकिएन। कुनै अर्को रिडिरेक्टिङ अनुप्रयोगको प्रयोग वा मद्दतका लागि विकासकर्तासँग सम्पर्क गरी हेर्नुहोस्।"</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"कलमाथि रोक लगाउने सुविधा"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"सम्पर्क सूचीहरूमा नरहेका नम्बरहरू"</string>

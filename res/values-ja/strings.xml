@@ -63,7 +63,7 @@
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"次の発信元からの通話とテキスト メッセージをブロック"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"電話番号"</string>
     <string name="block_button" msgid="8822290682524373357">"ブロック"</string>
-    <string name="non_primary_user" msgid="5180129233352533459">"ブロックした番号を表示、管理できるのは端末の所有者のみです。"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"ブロックした番号を表示、管理できるのはデバイスの所有者のみです。"</string>
     <string name="delete_icon_description" msgid="8903995728252556724">"ブロックを解除"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"ブロックが一時的に OFF になっています"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"緊急通報番号に電話をかけたり、テキスト メッセージを送信したりすると、ブロックが OFF になり、緊急通報受理機関からの通話を着信できるようになります。"</string>
@@ -91,7 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"不在着信"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"着信のブロック"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"この通話を発信すると、<xliff:g id="OTHER_APP">%1$s</xliff:g> の通話が終了します。"</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"別の電話番号またはアカウントを使用して <xliff:g id="OTHER_APP">%1$s</xliff:g> から通話を発信することを許可してください。"</string>
+    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"<xliff:g id="OTHER_APP">%1$s</xliff:g> から別の電話番号を使用して通話を発信することを許可しますか？"</string>
+    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"<xliff:g id="OTHER_APP">%1$s</xliff:g> から通話を発信"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"<xliff:g id="OTHER_APP">%1$s</xliff:g> を使用せずに通話を発信"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> から通話を発信することができません。別の通話転送アプリを使用するか、デベロッパーに問い合わせてみてください。"</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"着信のブロック"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"連絡帳にない番号"</string>

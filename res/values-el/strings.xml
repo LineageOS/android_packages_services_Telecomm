@@ -91,7 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Αναπάντητες κλήσεις"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Φραγή κλήσεων"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Εάν πραγματοποιήσετε αυτήν την κλήση, η κλήση σας μέσω <xliff:g id="OTHER_APP">%1$s</xliff:g> θα τερματιστεί."</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"Να επιτραπεί στην εφαρμογή <xliff:g id="OTHER_APP">%1$s</xliff:g> η πραγματοποίηση κλήσης χρησιμοποιώντας διαφορετικό αριθμό ή λογαριασμό."</string>
+    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"Να επιτραπεί στο <xliff:g id="OTHER_APP">%1$s</xliff:g> η πραγματοποίηση κλήσης με διαφορετικό αριθμό;"</string>
+    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"Κλήση μέσω <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"Κλήση εκτός <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"Δεν είναι δυνατή η πραγματοποίηση κλήσης από την εφαρμογή <xliff:g id="OTHER_APP">%1$s</xliff:g>. Δοκιμάστε να χρησιμοποιήσετε μια άλλη εφαρμογή ανακατεύθυνσης κλήσεων ή να επικοινωνήσετε με τον προγραμματιστή της εφαρμογής για βοήθεια."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Φραγή κλήσεων"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Αριθμοί που δεν βρίσκονται στις Επαφές"</string>

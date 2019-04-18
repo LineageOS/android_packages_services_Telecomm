@@ -91,7 +91,12 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"सुटलेले कॉल"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"कॉल ब्‍लॉक करणे"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"हा कॉल केल्याने तुमचा <xliff:g id="OTHER_APP">%1$s</xliff:g> कॉल समाप्त होईल."</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"वेगळा नंबर किंवा खाते वापरून कॉल करण्याची <xliff:g id="OTHER_APP">%1$s</xliff:g> ला अनुमती द्या."</string>
+    <!-- no translation found for alert_redirect_outgoing_call (4889719903221558265) -->
+    <skip />
+    <!-- no translation found for alert_place_redirect_outgoing_call (2933497123177272389) -->
+    <skip />
+    <!-- no translation found for alert_place_unredirect_outgoing_call (1965085446236238714) -->
+    <skip />
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> द्वारे कॉल केला जाऊ शकत नाही. वेगळे कॉल रीडिरेक्टिंग अ‍ॅप वापरण्याचा किंवा मदतीसाठी डेव्हलपरशी संपर्क साधण्याचा प्रयत्न करा."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"कॉल ब्‍लॉक करणे"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"संपर्कांमध्‍ये क्रमांक नाहीत"</string>
