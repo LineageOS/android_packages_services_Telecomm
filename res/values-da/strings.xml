@@ -91,7 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Ubesvarede opkald"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Opkaldsblokering"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Hvis du foretager dette opkald, afsluttes dit opkald i <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"Tillad, at <xliff:g id="OTHER_APP">%1$s</xliff:g> kan foretage opkald ved at bruge et andet nummer eller en anden konto."</string>
+    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"Vil du tillade, at <xliff:g id="OTHER_APP">%1$s</xliff:g> kan foretage opkald ved at bruge et andet nummer?"</string>
+    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"Ring med <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"Ring uden <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> kan ikke foretage opkaldet. Prøv at bruge en anden app til omdirigering af opkald eller kontakte udvikleren for at få hjælp."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Opkaldsblokering"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Numre er ikke i Kontakter"</string>

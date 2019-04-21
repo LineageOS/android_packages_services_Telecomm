@@ -91,7 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Propušteni pozivi"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Blokiranje poziva"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Upućivanjem ovog poziva prekinut ćete poziv u aplikaciji <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"Omogućite aplikaciji <xliff:g id="OTHER_APP">%1$s</xliff:g> upućivanje poziva na drugi broj ili račun."</string>
+    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"Želite li aplikaciji <xliff:g id="OTHER_APP">%1$s</xliff:g> dopustiti upućivanje poziva pomoću drugog broja?"</string>
+    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"Poziv putem aplikacije <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"Nazovi bez aplikacije <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"Aplikacija <xliff:g id="OTHER_APP">%1$s</xliff:g> ne može uputiti poziv. Pokušajte s drugom aplikacijom za preusmjeravanje poziva ili se obratite razvojnom programeru za pomoć."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Blokiranje poziva"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Brojevi koji nisu u kontaktima"</string>

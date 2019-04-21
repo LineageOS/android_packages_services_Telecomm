@@ -91,7 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Gemiste gesprekken"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Gesprekken blokkeren"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Als je dit gesprek start, wordt je <xliff:g id="OTHER_APP">%1$s</xliff:g>-gesprek beëindigd."</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"Sta <xliff:g id="OTHER_APP">%1$s</xliff:g> toe om een gesprek te plaatsen via een ander nummer of account."</string>
+    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"Toestaan dat <xliff:g id="OTHER_APP">%1$s</xliff:g> belt via een ander nummer?"</string>
+    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"Bellen met <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"Bellen zonder <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> kan geen gesprek plaatsen. Probeer een andere app om gesprekken om te leiden of neem voor hulp contact op met de ontwikkelaar."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Gesprekken blokkeren"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Nummers die niet op je contactenlijst staan"</string>
