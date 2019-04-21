@@ -91,7 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Пропуснати обаждания"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Блокиране на обажданията"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Ако извършите това обаждане, обаждането ви през <xliff:g id="OTHER_APP">%1$s</xliff:g> ще прекъсне."</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"Разрешаване на <xliff:g id="OTHER_APP">%1$s</xliff:g> да извърши обаждането с друг номер или профил."</string>
+    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"Да се разреши ли на <xliff:g id="OTHER_APP">%1$s</xliff:g> да извърши обаждането с друг номер?"</string>
+    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"Обаждане чрез <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"Обаждане без <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"Не може да се извърши от <xliff:g id="OTHER_APP">%1$s</xliff:g>. Опитайте да използвате друго приложение за пренасочване на обаждания или се обърнете за помощ към програмиста."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Блокиране на обажданията"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Номера, които не са в контактите"</string>
