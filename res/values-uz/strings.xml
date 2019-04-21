@@ -91,12 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Javobsiz chaqiruvlar"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Chaqiruvlarni bloklash"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Bu qo‘ng‘iroqni amalga oshirsangiz, <xliff:g id="OTHER_APP">%1$s</xliff:g> qo‘ng‘irog‘i tugatiladi."</string>
-    <!-- no translation found for alert_redirect_outgoing_call (4889719903221558265) -->
-    <skip />
-    <!-- no translation found for alert_place_redirect_outgoing_call (2933497123177272389) -->
-    <skip />
-    <!-- no translation found for alert_place_unredirect_outgoing_call (1965085446236238714) -->
-    <skip />
+    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"Boshqa raqamdan telefon qilish uchun <xliff:g id="OTHER_APP">%1$s</xliff:g> ishlatilsinmi?"</string>
+    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"<xliff:g id="OTHER_APP">%1$s</xliff:g> ishlatilsin"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"<xliff:g id="OTHER_APP">%1$s</xliff:g> ishlatilmasin"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"Chaqiruvlar uchun <xliff:g id="OTHER_APP">%1$s</xliff:g> ilovasidan foydalanish imkonsiz. Chaqiruvlarni uzatish uchun boshqa ilovadan foydalaning yoki dasturchiga yordam uchun murojaat qiling."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Chaqiruvlarni bloklash"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Notanish raqamlar"</string>

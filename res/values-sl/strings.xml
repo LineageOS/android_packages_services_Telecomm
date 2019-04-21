@@ -91,12 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Neodgovorjeni klici"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Blokiranje klicev"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Če opravite ta klic, bo končan klic prek aplikacije <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
-    <!-- no translation found for alert_redirect_outgoing_call (4889719903221558265) -->
-    <skip />
-    <!-- no translation found for alert_place_redirect_outgoing_call (2933497123177272389) -->
-    <skip />
-    <!-- no translation found for alert_place_unredirect_outgoing_call (1965085446236238714) -->
-    <skip />
+    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"Omogočite aplikaciji <xliff:g id="OTHER_APP">%1$s</xliff:g>, da klic vzpostavi prek druge številke."</string>
+    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"Pokliči z aplikacijo <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"Pokliči brez aplikacije <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"V aplikaciji <xliff:g id="OTHER_APP">%1$s</xliff:g> ni mogoče opraviti klica. Uporabite drugo aplikacijo za preusmerjanje klicev ali se za pomoč obrnite na razvijalca."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Blokiranje klicev"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Številke, ki niso v stikih"</string>

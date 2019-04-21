@@ -91,12 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"సమాధానం ఇవ్వని కాల్‌లు"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"కాల్ బ్లాక్ చేయడం"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"ఈ కాల్ చేయడం వలన మీ <xliff:g id="OTHER_APP">%1$s</xliff:g> కాల్ ముగుస్తుంది."</string>
-    <!-- no translation found for alert_redirect_outgoing_call (4889719903221558265) -->
-    <skip />
-    <!-- no translation found for alert_place_redirect_outgoing_call (2933497123177272389) -->
-    <skip />
-    <!-- no translation found for alert_place_unredirect_outgoing_call (1965085446236238714) -->
-    <skip />
+    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"వేరొక నంబర్‌ను ఉపయోగించి కాల్ చేయడానికి <xliff:g id="OTHER_APP">%1$s</xliff:g>ను అనుమతించాలా?"</string>
+    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"<xliff:g id="OTHER_APP">%1$s</xliff:g> ద్వారా కాల్ చేయి"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"<xliff:g id="OTHER_APP">%1$s</xliff:g> లేకుండా కాల్ చేయి"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> ద్వారా కాల్ చేయలేము. వేరే కాల్ మళ్లింపు యాప్ ఉపయోగించండి లేదా సహాయం కోసం డెవలపర్‌ను సంప్రదించడానికి ప్రయత్నించండి."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"కాల్ బ్లాక్ చేయడం"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"పరిచయాలలో లేని నంబర్‌లు"</string>

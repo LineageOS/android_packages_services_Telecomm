@@ -91,12 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"মিছ্ড কল"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"কল অৱৰোধ"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"এই কলটো কৰিলে আপোনাৰ <xliff:g id="OTHER_APP">%1$s</xliff:g> কলটোৰ অন্ত পৰিব।"</string>
-    <!-- no translation found for alert_redirect_outgoing_call (4889719903221558265) -->
-    <skip />
-    <!-- no translation found for alert_place_redirect_outgoing_call (2933497123177272389) -->
-    <skip />
-    <!-- no translation found for alert_place_unredirect_outgoing_call (1965085446236238714) -->
-    <skip />
+    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"<xliff:g id="OTHER_APP">%1$s</xliff:g>ক অন্য এটা নম্বৰ ব্যৱহাৰ কৰি কল কৰিবলৈ অনুমতি দিবনে?"</string>
+    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"<xliff:g id="OTHER_APP">%1$s</xliff:g>ৰ জৰিয়তে কল কৰক"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"<xliff:g id="OTHER_APP">%1$s</xliff:g>ৰ অবিহনেই কল কৰক"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g>এ কলটো কৰিব পৰা নাই। বেলেগ এটা কল ৰিডাইৰেক্ট কৰা এপ্ ব্যৱহাৰ কৰি চাওক বা বিকাশকৰ্তাৰ সৈতে যোগাযোগ কৰক।"</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"কল অৱৰোধ"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"আপোনাৰ সর্ম্পকসূচীত নথকা"</string>

@@ -91,12 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Połączenia nieodebrane"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Blokowanie połączeń"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Jeśli zadzwonisz, połączenie w aplikacji <xliff:g id="OTHER_APP">%1$s</xliff:g> zostanie zakończone."</string>
-    <!-- no translation found for alert_redirect_outgoing_call (4889719903221558265) -->
-    <skip />
-    <!-- no translation found for alert_place_redirect_outgoing_call (2933497123177272389) -->
-    <skip />
-    <!-- no translation found for alert_place_unredirect_outgoing_call (1965085446236238714) -->
-    <skip />
+    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"Zezwolić aplikacji <xliff:g id="OTHER_APP">%1$s</xliff:g> na nawiązanie połączenia przy użyciu innego numeru?"</string>
+    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"Zadzwoń przy użyciu aplikacji <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"Zadzwoń bez aplikacji <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"Aplikacja <xliff:g id="OTHER_APP">%1$s</xliff:g> nie może nawiązać połączenia. Skorzystaj z innej aplikacji do przekierowywania połączeń lub skontaktuj się z deweloperem i poproś o pomoc."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Blokowanie połączeń"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Numery spoza Kontaktów"</string>

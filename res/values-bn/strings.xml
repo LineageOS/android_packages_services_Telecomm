@@ -91,12 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"মিস করা কল"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"কল ব্লক করা"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"এই কলটির উত্তর দেওয়া হলে তা আপনার <xliff:g id="OTHER_APP">%1$s</xliff:g> কলটি কেটে যাবে৷"</string>
-    <!-- no translation found for alert_redirect_outgoing_call (4889719903221558265) -->
-    <skip />
-    <!-- no translation found for alert_place_redirect_outgoing_call (2933497123177272389) -->
-    <skip />
-    <!-- no translation found for alert_place_unredirect_outgoing_call (1965085446236238714) -->
-    <skip />
+    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"অন্য কোনও নম্বর থেকে কল করার জন্য <xliff:g id="OTHER_APP">%1$s</xliff:g>-কে অনুমতি দেবেন?"</string>
+    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"<xliff:g id="OTHER_APP">%1$s</xliff:g> ব্যবহার করে কল করুন"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"<xliff:g id="OTHER_APP">%1$s</xliff:g> ব্যবহার না করে কল করুন"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g>-এর মাধ্যমে কল করা যায়নি। অন্য একটি কল রিডাইরেক্ট করার অ্যাপ ব্যবহার করে দেখুন অথবা সহয়তার জন্য ডেভেলপারের সাথে যোগাযোগ করুন।"</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"কল ব্লক করা"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"পরিচিতিতে নেই এমন নম্বর"</string>

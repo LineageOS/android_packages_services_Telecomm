@@ -91,12 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"છૂટેલા કૉલ"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"કૉલ બ્લૉક કરી રહ્યાં છીએ"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"આ કૉલ કરવાથી તમારો <xliff:g id="OTHER_APP">%1$s</xliff:g> કૉલ સમાપ્ત થઈ જશે."</string>
-    <!-- no translation found for alert_redirect_outgoing_call (4889719903221558265) -->
-    <skip />
-    <!-- no translation found for alert_place_redirect_outgoing_call (2933497123177272389) -->
-    <skip />
-    <!-- no translation found for alert_place_unredirect_outgoing_call (1965085446236238714) -->
-    <skip />
+    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"<xliff:g id="OTHER_APP">%1$s</xliff:g>ને કોઈ અલગ નંબરનો ઉપયોગ કરીને કૉલ કરવાની મંજૂરી આપીએ?"</string>
+    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"<xliff:g id="OTHER_APP">%1$s</xliff:g> વડે કૉલ કરો"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"<xliff:g id="OTHER_APP">%1$s</xliff:g> વિના કૉલ કરો"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> દ્વારા કૉલ કરી શકાશે નહીં. સહાય માટે કોઈ અલગ કૉલ રીડાયરેક્ટ કરનારી ઍપનો ઉપયોગ કરવાનો અથવા ડેવલપરનો સંપર્ક કરવાનો પ્રયાસ કરો."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"કૉલ બ્લૉક કરી રહ્યાં છીએ"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"સંપર્કોમાં આ નંબર નથી"</string>
