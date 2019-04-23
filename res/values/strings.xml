@@ -282,13 +282,13 @@
     <string name="alert_outgoing_call">Placing this call will end your <xliff:g id="other_app">%1$s</xliff:g> call.</string>
 
     <!-- Alert dialog content used to ask the user to confirm if they want to place a new outgoing call redirected by the app "other_app". -->
-    <string name="alert_redirect_outgoing_call">Allow <xliff:g id="other_app">%1$s</xliff:g> to place call using a different number?</string>
+    <string name="alert_redirect_outgoing_call_or_not">Choose how to place this call</string>
 
     <!-- A button in the alert dialog "alert_redirect_outgoing_call" to place the call with the redirected number provided by App. -->
-    <string name="alert_place_redirect_outgoing_call">Call with <xliff:g id="other_app">%1$s</xliff:g></string>
+    <string name="alert_place_outgoing_call_with_redirection">Redirect call using <xliff:g id="other_app">%1$s</xliff:g></string>
 
     <!-- A button in the alert dialog "alert_redirect_outgoing_call" to place the call without the redirected number provided by App. -->
-    <string name="alert_place_unredirect_outgoing_call">Call without <xliff:g id="other_app">%1$s</xliff:g></string>
+    <string name="alert_place_unredirect_outgoing_call">Call using my phone number</string>
 
     <!-- Alert dialog content used to tell the user the call is canceled because no response from the call redirection app "other_app". -->
     <string name="alert_redirect_outgoing_call_timeout">Call can\'t be placed by <xliff:g id="other_app">%1$s</xliff:g>. Try using a different call redirecting app or contacting the developer for help.</string>
