@@ -27,4 +27,9 @@
     <!--follows dialer color-->
     <color name="notification_action_answer">#097138</color>
     <color name="notification_action_decline">#A52714</color>
+
+    <color name="call_redirection_dialog_icon_tint_color">#4089F4</color>
+    <color name="call_redirection_dialog_text_color">#212121</color>
+    <color name="call_redirection_dialog_view_divider_color">#B8B8B8</color>
+
 </resources>

@@ -41,6 +41,8 @@ public class TestCallRedirectionService extends CallRedirectionService {
                     "com.android.server.telecom.testapps.TestCallRedirectionService"),
             "TELECOM_TEST_APP_PHONE_ACCOUNT_ID");
 
+    private PhoneAccountHandle mDestinationPhoneAccount = SAMPLE_PHONE_ACCOUNT;
+
     /**
      * Handles request from the system to redirect an outgoing call.
      */
@@ -49,7 +51,7 @@ public class TestCallRedirectionService extends CallRedirectionService {
                             boolean allowInteractiveResponse) {
         Log.i(this, "onPlaceCall: received call %s", handle);
         sTestCallRedirectionService = this;
-
+        mDestinationPhoneAccount = initialPhoneAccount;
         Intent intent = new Intent(this, CallRedirectionActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
@@ -57,6 +59,6 @@ public class TestCallRedirectionService extends CallRedirectionService {
 
     public void tryRedirectCallAndAskToConfirm() {
         // Provide call identification
-        redirectCall(SAMPLE_HANDLE, SAMPLE_PHONE_ACCOUNT, true);
+        redirectCall(SAMPLE_HANDLE, mDestinationPhoneAccount, true);
     }
 }
