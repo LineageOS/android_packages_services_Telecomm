@@ -355,7 +355,7 @@ public class Ringer {
                     && mSystemSettingsUtil.enableRampingRingerFromDeviceConfig()
                     && isRingerAudible) {
                 Log.i(this, "start vibration for ramping ringer.");
-                mVibrator.vibrate(effect);
+                mVibrator.vibrate(effect, VIBRATION_ATTRIBUTES);
                 mIsVibrating = true;
             } else {
                 Log.i(this, "start normal vibration.");
@@ -373,11 +373,22 @@ public class Ringer {
         }
         List<Long> rampingRingerVibrationPatternList = new ArrayList<>();
         List<Integer> rampingRingerVibrationAmplitudeList = new ArrayList<>();
+        long[] rampingRingerPulsePattern;
+        int[] rampingRingerPulseAmplitude;
+        if (mContext.getResources().getBoolean(R.bool.use_simple_vibration_pattern)) {
+            rampingRingerPulsePattern = SIMPLE_VIBRATION_PATTERN;
+            rampingRingerPulseAmplitude = SIMPLE_VIBRATION_AMPLITUDE;
+            Log.i(this, "Start vibration for ramping ringer with simple vibration pattern.");
+        } else {
+            rampingRingerPulsePattern = PULSE_RAMPING_PATTERN;
+            rampingRingerPulseAmplitude = PULSE_RAMPING_AMPLITUDE;
+            Log.i(this, "Start vibration for ramping ringer with normal vibration pattern.");
+        }
         while (vibrationSeconds > 0) {
             rampingRingerVibrationPatternList.addAll(
-                Arrays.stream(PULSE_RAMPING_PATTERN).boxed().collect(Collectors.toList()));
+                Arrays.stream(rampingRingerPulsePattern).boxed().collect(Collectors.toList()));
             rampingRingerVibrationAmplitudeList.addAll(
-                Arrays.stream(PULSE_RAMPING_AMPLITUDE).boxed().collect(Collectors.toList()));
+                Arrays.stream(rampingRingerPulseAmplitude).boxed().collect(Collectors.toList()));
             vibrationSeconds -= 2;
         }
         // remove the last second of pause
