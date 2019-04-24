@@ -214,12 +214,14 @@ public class AsyncRingtonePlayer {
 
                 Log.i(this, "handlePlay: hasHaptics=%b, isVibrationEnabled=%b", hasHaptics,
                         isVibrationEnabled);
-                if (!isVibrationEnabled && hasHaptics) {
-                    Log.i(this, "handlePlay: muting haptic channel");
+                if (hasHaptics) {
+                    AudioAttributes attributes = mRingtone.getAudioAttributes();
+                    Log.d(this, "handlePlay: %s haptic channel",
+                            (isVibrationEnabled ? "unmuting" : "muting"));
                     mRingtone.setAudioAttributes(
-                            new AudioAttributes.Builder()
-                                .setHapticChannelsMuted(true)
-                                .build());
+                            new AudioAttributes.Builder(attributes)
+                                    .setHapticChannelsMuted(!isVibrationEnabled)
+                                    .build());
                 }
                 mHapticsFuture.complete(hasHaptics);
                 mHapticsFuture = null;
