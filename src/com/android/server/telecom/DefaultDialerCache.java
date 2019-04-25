@@ -133,13 +133,16 @@ public class DefaultDialerCache {
     private final DefaultDialerManagerAdapter mDefaultDialerManagerAdapter;
     private final TelecomSystem.SyncRoot mLock;
     private final String mSystemDialerName;
+    private final RoleManagerAdapter mRoleManagerAdapter;
     private SparseArray<String> mCurrentDefaultDialerPerUser = new SparseArray<>();
 
     public DefaultDialerCache(Context context,
             DefaultDialerManagerAdapter defaultDialerManagerAdapter,
+            RoleManagerAdapter roleManagerAdapter,
             TelecomSystem.SyncRoot lock) {
         mContext = context;
         mDefaultDialerManagerAdapter = defaultDialerManagerAdapter;
+        mRoleManagerAdapter = roleManagerAdapter;
         mLock = lock;
         mSystemDialerName = TelecomServiceImpl.getSystemDialerPackage(mContext);
 
@@ -173,12 +176,15 @@ public class DefaultDialerCache {
             return null;
         }
 
-        synchronized (mLock) {
-            String defaultDialer = mCurrentDefaultDialerPerUser.get(userId);
-            if (defaultDialer != null) {
-                return defaultDialer;
-            }
-        }
+        // TODO: Re-enable this when we are able to use the cache once more.  RoleManager does not
+        // provide a means for being informed when the role holder changes at the current time.
+        //
+        //synchronized (mLock) {
+        //    String defaultDialer = mCurrentDefaultDialerPerUser.get(userId);
+        //    if (defaultDialer != null) {
+        //        return defaultDialer;
+        //    }
+        //}
         return refreshCacheForUser(userId);
     }
 
@@ -206,7 +212,7 @@ public class DefaultDialerCache {
 
     private String refreshCacheForUser(int userId) {
         String currentDefaultDialer =
-                mDefaultDialerManagerAdapter.getDefaultDialerApplication(mContext, userId);
+                mRoleManagerAdapter.getDefaultDialerApp(userId);
         synchronized (mLock) {
             mCurrentDefaultDialerPerUser.put(userId, currentDefaultDialer);
         }
