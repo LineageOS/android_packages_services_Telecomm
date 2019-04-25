@@ -891,11 +891,16 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      */
     public boolean setState(int newState, String tag) {
         if (mState != newState) {
-            Log.v(this, "setState %s -> %s", mState, newState);
+            Log.v(this, "setState %s -> %s", CallState.toString(mState),
+                    CallState.toString(newState));
 
             if (newState == CallState.DISCONNECTED && shouldContinueProcessingAfterDisconnect()) {
                 Log.w(this, "continuing processing disconnected call with another service");
                 mCreateConnectionProcessor.continueProcessingIfPossible(this, mDisconnectCause);
+                return false;
+            } else if (newState == CallState.ANSWERED && mState == CallState.ACTIVE) {
+                Log.w(this, "setState %s -> %s; call already active.", CallState.toString(mState),
+                        CallState.toString(newState));
                 return false;
             }
 
