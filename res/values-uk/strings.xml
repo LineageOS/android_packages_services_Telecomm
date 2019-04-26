@@ -91,9 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Пропущені виклики"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Блокування викликів"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Якщо здійснити цей виклик, буде завершено виклик у додатку <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
-    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"Дозволити додатку <xliff:g id="OTHER_APP">%1$s</xliff:g> зателефонувати з іншого номера?"</string>
-    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"Зателефонувати з додатка <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
-    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"Зателефонувати, не використовуючи додаток <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"Виберіть, як здійснити цей виклик"</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"Переспрямувати через додаток <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"Телефонувати зі свого номера"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"Не вдається здійснити виклик у додатку <xliff:g id="OTHER_APP">%1$s</xliff:g>. Спробуйте інший додаток для переспрямування викликів або зверніться по допомогу до розробника."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Блокування викликів"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Номери, які не входять до списку контактів"</string>

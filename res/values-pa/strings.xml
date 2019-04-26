@@ -91,9 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"ਖੁੰਝੀਆਂ ਕਾਲਾਂ"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"ਕਾਲ ਬਲਾਕਿੰਗ"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"ਇਹ ਕਾਲ ਕਰਨ ਨਾਲ ਤੁਹਾਡੀ <xliff:g id="OTHER_APP">%1$s</xliff:g> ਕਾਲ ਸਮਾਪਤ ਹੋ ਜਾਵੇਗੀ।"</string>
-    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"ਕੀ <xliff:g id="OTHER_APP">%1$s</xliff:g> ਨੂੰ ਕਾਲ ਕਰਨ ਲਈ ਕਿਸੇ ਵੱਖਰੇ ਨੰਬਰ ਦੀ ਵਰਤੋਂ ਕਰਨ ਦੇਣੀ ਹੈ?"</string>
-    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"<xliff:g id="OTHER_APP">%1$s</xliff:g> ਨਾਲ ਕਾਲ ਕਰੋ"</string>
-    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"<xliff:g id="OTHER_APP">%1$s</xliff:g> ਤੋਂ ਬਿਨ੍ਹਾਂ ਕਾਲ ਕਰੋ"</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"ਚੁਣੋ ਕਿ ਕਾਲ ਕਿਵੇਂ ਕਰਨੀ ਹੈ"</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"<xliff:g id="OTHER_APP">%1$s</xliff:g> ਦੀ ਵਰਤੋਂ ਕਰਕੇ ਕਾਲ ਰੀਡਾਇਰੈਕਟ ਕਰੋ"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"ਮੇਰਾ ਫ਼ੋਨ ਨੰਬਰ ਵਰਤ ਕੇ ਕਾਲ ਕਰੋ"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> ਤੋਂ ਕਾਲ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ। ਕਾਲ ਨੂੰ ਰੀਡਾਇਰੈਕਟ ਕਰਨ ਲਈ ਕੋਈ ਵੱਖਰੀ ਐਪ ਵਰਤ ਕੇ ਦੇਖੋ ਜਾਂ ਮਦਦ ਲਈ ਵਿਕਾਸਕਾਰ ਨਾਲ ਸੰਪਰਕ ਕਰਨ ਦੀ ਕੋਸ਼ਿਸ਼ ਕਰੋ।"</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"ਕਾਲ ਬਲਾਕਿੰਗ"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"ਨੰਬਰ ਜੋ ਤੁਹਾਡੇ ਸੰਪਰਕਾਂ ਵਿੱਚ ਨਹੀਂ ਹਨ"</string>

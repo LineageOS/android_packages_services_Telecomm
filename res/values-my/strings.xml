@@ -91,9 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"လွတ်သွားသော ဖုန်းခေါ်ဆိုမှုများ"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"ခေါ်ဆိုမှု ပိတ်ခြင်း"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"ဤခေါ်ဆိုမှု ပြုလုပ်ပါက <xliff:g id="OTHER_APP">%1$s</xliff:g> သုံးပြီးပြောနေခြင်းကို ဖြတ်ပစ်ပါမည်။"</string>
-    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"အခြားနံပါတ်ဖြင့် ဖုန်းခေါ်ရန် <xliff:g id="OTHER_APP">%1$s</xliff:g> ကို ခွင့်ပြုမလား။"</string>
-    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"<xliff:g id="OTHER_APP">%1$s</xliff:g> ဖြင့် ဖုန်းခေါ်ရန်"</string>
-    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"<xliff:g id="OTHER_APP">%1$s</xliff:g> ကို မသုံးဘဲ ဖုန်းခေါ်ရန်"</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"ဤခေါ်ဆိုမှု ပြုလုပ်ပုံကို ရွေးချယ်ပါ"</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"ခေါ်ဆိုမှုကို <xliff:g id="OTHER_APP">%1$s</xliff:g> ဖြင့် တစ်ဆင့်ပြန်ညွှန်ရန်"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"ကျွန်ုပ်၏ ဖုန်းနံပါတ်ဖြင့် ဖုန်းခေါ်ရန်"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> ဖြင့်ဖုန်းခေါ်ဆို၍မရပါ။ ဖုန်းခေါ်ဆိုမှု တစ်ဆင့်ပြန်ညွှန်ပြသည့် အခြားအက်ပ်ကို အသုံးပြုပါ (သို့) အကူအညီအတွက် ဆော့ဖ်ဝဲအင်ဂျင်နီယာကို ဆက်သွယ်ပါ။"</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"ခေါ်ဆိုမှု ပိတ်ခြင်း"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"\'အဆက်အသွယ်များ\' ထဲတွင် မရှိသော နံပါတ်များ"</string>

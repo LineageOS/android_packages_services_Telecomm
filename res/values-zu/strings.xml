@@ -91,9 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Amakholi akuphuthile"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Ukuvimbela ikholi"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Ukwenza le kholi kuzoqeda enye ikholi yakho ye-<xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
-    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"Vumela <xliff:g id="OTHER_APP">%1$s</xliff:g> ukubeka ikholi usebenzisa inombolo ehlukile?"</string>
-    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"Shaya nge-<xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
-    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"Shaya ngaphandle kwe-<xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"Khetha ukuthi uyibeka kanjani le kholi"</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"Qondisa kabusha ikholi usebenzisa i-<xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"Shaya usebenzisa inombolo yami yefoni"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"Ikholi ayikwazi ukwenziwa i-<xliff:g id="OTHER_APP">%1$s</xliff:g>. Zama ukusebenzisa uhlelo lokusebenza oluhlukile lokuqondisa kabusha ikholi noma uxhumane nonjiniyela ukuze uthole usizo."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Ukuvimbela ikholi"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Inombolo ayikho koxhumana nabo"</string>
