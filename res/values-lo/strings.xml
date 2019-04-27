@@ -91,9 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"ສາຍບໍ່ໄດ້ຮັບ"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"ການບລັອກສາຍ"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"ການໂທສາຍນີ້ຈະເປັນການສິ້ນສຸດສາຍ <xliff:g id="OTHER_APP">%1$s</xliff:g> ຂອງທ່ານ."</string>
-    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"ອະນຸຍາດໃຫ້ <xliff:g id="OTHER_APP">%1$s</xliff:g> ໂທໂດຍໃຊ້ເບີອື່ນບໍ?"</string>
-    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"ໂທດ້ວຍ <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
-    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"ໂທໂດຍບໍ່ໃຊ້ <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"ເລືອກວິທີໂທສາຍນີ້"</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"ປ່ຽນເສັ້ນທາງການໂທໂດຍໃຊ້ <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"ໂທໂດຍໃຊ້ເບີໂທລະສັບຂອງຂ້ອຍ"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"ບໍ່ສາມາດໂທດ້ວຍແອັບ <xliff:g id="OTHER_APP">%1$s</xliff:g> ໄດ້. ກະລຸນາລອງໃຊ້ແອັບການປ່ຽນເສັ້ນທາງການໂທອື່ນ ຫຼື ຕິດຕໍ່ຫາຜູ້ພັດທະນາສຳລັບຄວາມຊ່ວຍເຫຼືອ."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"ການບລັອກສາຍ"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"ເບີໂທບໍ່ໄດ້ຢູ່ໃນລາຍຊື່ຜູ້ຕິດຕໍ່"</string>

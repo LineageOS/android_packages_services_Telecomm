@@ -91,9 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"छूटे कॉल"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"कॉल पर रोक"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"इस कॉल को करने से आपका <xliff:g id="OTHER_APP">%1$s</xliff:g> कॉल खत्म हो जाएगा."</string>
-    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"<xliff:g id="OTHER_APP">%1$s</xliff:g> को किसी और नंबर का इस्तेमाल करके कॉल करने की अनुमति दें."</string>
-    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"<xliff:g id="OTHER_APP">%1$s</xliff:g> से कॉल करें"</string>
-    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"<xliff:g id="OTHER_APP">%1$s</xliff:g> के बिना कॉल करें"</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"चुनें कि आप इस कॉल को कैसे करना चाहते हैं"</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"<xliff:g id="OTHER_APP">%1$s</xliff:g> का इस्तेमाल करके कॉल को दूसरे नंबर पर भेजें"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"मेरे फ़ोन नंबर का इस्तेमाल करके कॉल करें"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> के ज़रिए कॉल नहीं किया जा सकता. कॉल को रीडायरेक्ट करने वाले दूसरे ऐप्लिकेशन का इस्तेमाल करके देखें या मदद के लिए डेवलपर से संपर्क करने की कोशिश करें."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"कॉल पर रोक"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"वे नंबर जो संपर्कों में नहीं हैं"</string>

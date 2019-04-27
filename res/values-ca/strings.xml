@@ -91,9 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Trucades perdudes"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Bloqueig de trucades"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"En fer aquesta trucada, finalitzarà la de l\'aplicació <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
-    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"Vols permetre que <xliff:g id="OTHER_APP">%1$s</xliff:g> faci la trucada amb un altre número?"</string>
-    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"Truca amb <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
-    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"Truca sense <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"Tria com vols fer aquesta trucada"</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"Desvia la trucada amb <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"Truca amb el meu número de telèfon"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> no pot fer la trucada. Prova d\'utilitzar una altra aplicació de redirecció de trucades o bé contacta amb el desenvolupador per obtenir ajuda."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Bloqueig de trucades"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Números que no surten a Contactes"</string>
