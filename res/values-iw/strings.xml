@@ -91,9 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"שיחות שלא נענו"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"חסימת שיחות"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"ביצוע השיחה הזו יסיים את השיחה ב-<xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
-    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"השיחה תנותב דרך <xliff:g id="OTHER_APP">%1$s</xliff:g> באמצעות מספר. להמשיך?"</string>
-    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"כן, שיחה דרך <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
-    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"לא, שיחה בלי <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"איך להתקשר?"</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"ניתוב דרך <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"ממספר הטלפון שלי"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"אי אפשר להתקשר דרך <xliff:g id="OTHER_APP">%1$s</xliff:g>. אפשר לנסות אפליקציה אחרת לניתוב שיחות או לפנות למפתח האפליקציה לקבלת עזרה."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"חסימת שיחות"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"מספרים שאינם באנשי הקשר"</string>

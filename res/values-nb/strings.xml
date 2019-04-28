@@ -91,9 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Tapte anrop"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Anropsblokkering"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Samtalen din i <xliff:g id="OTHER_APP">%1$s</xliff:g> avsluttes hvis du foretar dette anropet."</string>
-    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"Vil du tillate at <xliff:g id="OTHER_APP">%1$s</xliff:g> ringer med et annet nummer?"</string>
-    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"Ring med <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
-    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"Ring uten <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"Velg hvordan du vil ringe"</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"Viderekoble anropet med <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"Ring med telefonnummeret mitt"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"Anrop kan ikke utføres av <xliff:g id="OTHER_APP">%1$s</xliff:g>. Prøv å bruke en annen app for viderekobling av anrop eller ta kontakt med utvikleren for å få hjelp."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Anropsblokkering"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Numre som ikke står i Kontakter"</string>

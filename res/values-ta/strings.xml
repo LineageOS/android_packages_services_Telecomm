@@ -91,9 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"தவறிய அழைப்புகள்"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"அழைப்புத் தடுப்பு"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"புதிய அழைப்பைச் செய்தால், செயலில் உள்ள <xliff:g id="OTHER_APP">%1$s</xliff:g> அழைப்பு துண்டிக்கப்படும்."</string>
-    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"வேறு எண்ணைப் பயன்படுத்தி அழைக்க <xliff:g id="OTHER_APP">%1$s</xliff:g>ஐ அனுமதிக்கவா?"</string>
-    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"<xliff:g id="OTHER_APP">%1$s</xliff:g> மூலம் அழை"</string>
-    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"<xliff:g id="OTHER_APP">%1$s</xliff:g>ஐப் பயன்படுத்தாமல் அழை"</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"இந்த அழைப்பை எவ்வாறு மேற்கொள்ள வேண்டும் எனத் தேர்ந்தெடுக்கவும்"</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"<xliff:g id="OTHER_APP">%1$s</xliff:g>ஐப் பயன்படுத்தி அழைப்பைத் திருப்பி விடு"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"எனது மொபைல் எண்ணைப் பயன்படுத்தி அழை"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> மூலம் அழைக்க முடியாது. அழைப்பைத் திருப்பிவிடுவதற்கான வேறொரு ஆப்ஸைப் பயன்படுத்திப் பார்க்கவும் அல்லது டெவெலப்பரைத் தொடர்பு கொண்டு, உதவி பெறவும்."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"அழைப்புத் தடுப்பு"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"தொடர்புகளில் இல்லாத எண்கள்"</string>
