@@ -91,9 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Simu ambazo hukujibu"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Kuzuia Simu"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Ukipiga simu hii, simu yako kwenye <xliff:g id="OTHER_APP">%1$s</xliff:g> itakatwa."</string>
-    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"Je, ungependa kuruhusu <xliff:g id="OTHER_APP">%1$s</xliff:g> ipige simu kwa kutumia nambari tofauti?"</string>
-    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"Piga simu ukitumia <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
-    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"Piga simu bila kutumia <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"Chagua jinsi utakavyopiga simu hii"</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"Elekeza simu ukitumia <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"Piga simu ukitumia nambari yangu ya simu"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> imeshindwa kupiga simu. Jaribu kutumia programu nyingine inayoelekeza simu kwingine au uwasiliane na msanidi programu kwa usaidizi."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Kuzuia Simu"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Nambari ambazo haziko kwenye Anwani"</string>

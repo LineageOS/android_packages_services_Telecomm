@@ -91,9 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"المكالمات الفائتة"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"حظر المكالمات"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"يؤدي إجراء هذه المكالمة إلى إنهاء مكالمة <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
-    <string name="alert_redirect_outgoing_call" msgid="4889719903221558265">"هل تريد السماح لتطبيق <xliff:g id="OTHER_APP">%1$s</xliff:g> بإجراء المكالمة باستخدام رقم مختلف؟"</string>
-    <string name="alert_place_redirect_outgoing_call" msgid="2933497123177272389">"الاتصال باستخدام <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
-    <string name="alert_place_unredirect_outgoing_call" msgid="1965085446236238714">"الاتصال بدون استخدام <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"اختيار كيفية إجراء هذه المكالمة"</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"إعادة توجيه المكالمة باستخدام <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"الاتصال باستخدام رقم هاتفي"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"لا يمكن إجراء المكالمة بواسطة <xliff:g id="OTHER_APP">%1$s</xliff:g>. يمكنك تجربة استخدام تطبيق آخر لإعادة توجيه المكالمة أو الاتصال بمطور البرنامج للحصول على مساعدة."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"حظر المكالمات"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"الأرقام غير المسردة في \"جهات الاتصال\""</string>
