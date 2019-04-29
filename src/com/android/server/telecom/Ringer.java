@@ -273,11 +273,11 @@ public class Ringer {
                     mSystemSettingsUtil.getRampingRingerVibrationDuration() >= 0
                     ? mSystemSettingsUtil.getRampingRingerVibrationDuration() / 1000
                     : 0;
-                if (mRampingRingerVibrationDuration != previousRampingRingerVibrationDuration) {
-                    mRampingRingerVibrationEffect =
-                        createRampingRingerVibrationEffect(mRampingRingerVibrationDuration);
+                if (mSystemSettingsUtil.enableAudioCoupledVibrationForRampingRinger()) {
+                    effect = getVibrationEffectForCall(mRingtoneFactory, foregroundCall);
+                } else {
+                    effect = mDefaultVibrationEffect;
                 }
-                effect = mRampingRingerVibrationEffect;
 
                 // configure volume shaper for ramping ringer
                 int previousRampingRingerDuration = mRampingRingerDuration;
@@ -365,45 +365,6 @@ public class Ringer {
         } else if (mIsVibrating) {
             Log.addEvent(foregroundCall, LogUtils.Events.SKIP_VIBRATION, "already vibrating");
         }
-    }
-
-    private VibrationEffect createRampingRingerVibrationEffect(int vibrationSeconds) {
-        if (vibrationSeconds < 1) {  // vibration duration has to be at least 1 second long.
-            return null;
-        }
-        List<Long> rampingRingerVibrationPatternList = new ArrayList<>();
-        List<Integer> rampingRingerVibrationAmplitudeList = new ArrayList<>();
-        long[] rampingRingerPulsePattern;
-        int[] rampingRingerPulseAmplitude;
-        if (mContext.getResources().getBoolean(R.bool.use_simple_vibration_pattern)) {
-            rampingRingerPulsePattern = SIMPLE_VIBRATION_PATTERN;
-            rampingRingerPulseAmplitude = SIMPLE_VIBRATION_AMPLITUDE;
-            Log.i(this, "Start vibration for ramping ringer with simple vibration pattern.");
-        } else {
-            rampingRingerPulsePattern = PULSE_RAMPING_PATTERN;
-            rampingRingerPulseAmplitude = PULSE_RAMPING_AMPLITUDE;
-            Log.i(this, "Start vibration for ramping ringer with normal vibration pattern.");
-        }
-        while (vibrationSeconds > 0) {
-            rampingRingerVibrationPatternList.addAll(
-                Arrays.stream(rampingRingerPulsePattern).boxed().collect(Collectors.toList()));
-            rampingRingerVibrationAmplitudeList.addAll(
-                Arrays.stream(rampingRingerPulseAmplitude).boxed().collect(Collectors.toList()));
-            vibrationSeconds -= 2;
-        }
-        // remove the last second of pause
-        if (vibrationSeconds < 0) {
-            rampingRingerVibrationPatternList.remove(
-                rampingRingerVibrationPatternList.size() - 1);
-            rampingRingerVibrationAmplitudeList.remove(
-                rampingRingerVibrationAmplitudeList.size() - 1);
-        }
-        long[] rampingRingerVibrationPatternArray =
-            rampingRingerVibrationPatternList.stream().mapToLong(i -> i).toArray();
-        int[] rampingRingerVibrationAmplitudeArray =
-            rampingRingerVibrationAmplitudeList.stream().mapToInt(i -> i).toArray();
-        return VibrationEffect.createWaveform(rampingRingerVibrationPatternArray,
-            rampingRingerVibrationAmplitudeArray, -1 /* not repeat */);
     }
 
     private VibrationEffect getVibrationEffectForCall(RingtoneFactory factory, Call call) {
