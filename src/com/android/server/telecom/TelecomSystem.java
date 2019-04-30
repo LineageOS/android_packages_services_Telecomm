@@ -209,7 +209,7 @@ public class TelecomSystem {
                 new DefaultDialerCache.DefaultDialerManagerAdapterImpl();
 
         DefaultDialerCache defaultDialerCache = new DefaultDialerCache(mContext,
-                defaultDialerAdapter, mLock);
+                defaultDialerAdapter, roleManagerAdapter, mLock);
 
         Log.startSession("TS.init");
         mPhoneAccountRegistrar = new PhoneAccountRegistrar(mContext, defaultDialerCache,
