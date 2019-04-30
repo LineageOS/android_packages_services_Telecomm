@@ -17,20 +17,14 @@
 package com.android.server.telecom;
 
 // TODO: Needed for move to system service: import com.android.internal.R;
-import com.android.internal.os.SomeArgs;
-
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.telecom.Connection;
 import android.telecom.Log;
 import android.telecom.Response;
@@ -217,8 +211,8 @@ public class RespondViaSmsManager extends CallsManagerListenerBase {
                     !TextUtils.isEmpty(contactName) ? contactName : phoneNumber,
                     messageParts.size());
             context.registerReceiver(receiver, new IntentFilter(ACTION_MESSAGE_SENT));
-            smsManager.sendMultipartTextMessage(phoneNumber, null, messageParts,
-                    sentIntents/*sentIntent*/, null /*deliveryIntent*/);
+            smsManager.sendMultipartTextMessageExternal(phoneNumber, null, messageParts,
+                    sentIntents/*sentIntent*/, null /*deliveryIntent*/, context.getOpPackageName());
         } catch (IllegalArgumentException e) {
             Log.w(RespondViaSmsManager.this, "Couldn't send SMS message: " +
                     e.getMessage());
