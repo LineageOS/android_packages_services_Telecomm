@@ -1633,6 +1633,28 @@ public class TelecomServiceImpl {
                 Log.endSession();
             }
         }
+
+        @Override
+        public void setTestDefaultDialer(String packageName) {
+            try {
+                Log.startSession("TSI.sTDD");
+                enforceModifyPermission();
+                if (Binder.getCallingUid() != Process.SHELL_UID
+                        && Binder.getCallingUid() != Process.ROOT_UID) {
+                    throw new SecurityException("Shell-only API.");
+                }
+                synchronized (mLock) {
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        mCallsManager.getRoleManagerAdapter().setTestDefaultDialer(packageName);
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
     };
 
     /**
@@ -1976,8 +1998,17 @@ public class TelecomServiceImpl {
 
     private boolean isPrivilegedDialerCalling(String callingPackage) {
         mAppOpsManager.checkPackage(Binder.getCallingUid(), callingPackage);
-        return mDefaultDialerCache.isDefaultOrSystemDialer(
-                callingPackage, Binder.getCallingUserHandle().getIdentifier());
+
+        // Note: Important to clear the calling identity since the code below calls into RoleManager
+        // to check who holds the dialer role, and that requires MANAGE_ROLE_HOLDERS permission
+        // which is a system permission.
+        long token = Binder.clearCallingIdentity();
+        try {
+            return mDefaultDialerCache.isDefaultOrSystemDialer(
+                    callingPackage, Binder.getCallingUserHandle().getIdentifier());
+        } finally {
+            Binder.restoreCallingIdentity(token);
+        }
     }
 
     private TelephonyManager getTelephonyManager() {

@@ -65,6 +65,21 @@ public interface RoleManagerAdapter {
     void setTestDefaultCallScreeningApp(String packageName);
 
     /**
+     * Returns the package name of the app which fills the {@link android.app.role.RoleManager}
+     * {@link android.app.role.RoleManager#ROLE_DIALER} role.
+     * @return the package name of the app filling the role, {@code null} otherwise}.
+     */
+    String getDefaultDialerApp(int user);
+
+    /**
+     * Override the {@link android.app.role.RoleManager} default dialer app with another value.
+     * Used for testing purposes only.
+     * @param packageName Package name of the app to fill the default dialer role.  Where
+     *                    {@code null}, the override is removed.
+     */
+    void setTestDefaultDialer(String packageName);
+
+    /**
      * @return List of package names of companion apps, or empty list if there are none.
      */
     List<String> getCallCompanionApps();

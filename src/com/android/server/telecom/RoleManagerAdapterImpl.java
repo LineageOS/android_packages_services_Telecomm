@@ -32,10 +32,12 @@ import java.util.stream.Collectors;
 public class RoleManagerAdapterImpl implements RoleManagerAdapter {
     private static final String ROLE_CALL_REDIRECTION_APP = RoleManager.ROLE_CALL_REDIRECTION;
     private static final String ROLE_CALL_SCREENING = RoleManager.ROLE_CALL_SCREENING;
+    private static final String ROLE_DIALER = RoleManager.ROLE_DIALER;
 
     private String mOverrideDefaultCallRedirectionApp = null;
     private String mOverrideDefaultCallScreeningApp = null;
     private String mOverrideDefaultCarModeApp = null;
+    private String mOverrideDefaultDialerApp = null;
     private List<String> mOverrideCallCompanionApps = new ArrayList<>();
     private Context mContext;
     private RoleManager mRoleManager;
@@ -70,6 +72,19 @@ public class RoleManagerAdapterImpl implements RoleManagerAdapter {
     @Override
     public void setTestDefaultCallScreeningApp(String packageName) {
         mOverrideDefaultCallScreeningApp = packageName;
+    }
+
+    @Override
+    public String getDefaultDialerApp(int user) {
+        if (mOverrideDefaultDialerApp != null) {
+            return mOverrideDefaultDialerApp;
+        }
+        return getRoleManagerDefaultDialerApp(user);
+    }
+
+    @Override
+    public void setTestDefaultDialer(String packageName) {
+        mOverrideDefaultDialerApp = packageName;
     }
 
     @Override
@@ -109,6 +124,15 @@ public class RoleManagerAdapterImpl implements RoleManagerAdapter {
     private String getRoleManagerCallScreeningApp() {
         List<String> roleHolders = mRoleManager.getRoleHoldersAsUser(ROLE_CALL_SCREENING,
                 mCurrentUserHandle);
+        if (roleHolders == null || roleHolders.isEmpty()) {
+            return null;
+        }
+        return roleHolders.get(0);
+    }
+
+    private String getRoleManagerDefaultDialerApp(int user) {
+        List<String> roleHolders = mRoleManager.getRoleHoldersAsUser(ROLE_DIALER,
+                new UserHandle(user));
         if (roleHolders == null || roleHolders.isEmpty()) {
             return null;
         }
