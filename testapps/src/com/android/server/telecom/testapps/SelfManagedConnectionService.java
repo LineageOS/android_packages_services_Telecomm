@@ -104,6 +104,8 @@ public class SelfManagedConnectionService extends ConnectionService {
         if (isIncoming) {
             connection.setIsIncomingCallUiShowing(request.shouldShowIncomingCallUi());
             connection.setRinging();
+        } else {
+            connection.setDialing();
         }
         Bundle requestExtras = request.getExtras();
         if (requestExtras != null) {
