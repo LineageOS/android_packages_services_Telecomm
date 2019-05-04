@@ -2518,7 +2518,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * networks at least), so we still enable this feature even though
      * SMSes to that number will silently fail.
      */
-    boolean isRespondViaSmsCapable() {
+    public boolean isRespondViaSmsCapable() {
         if (mState != CallState.RINGING) {
             return false;
         }
