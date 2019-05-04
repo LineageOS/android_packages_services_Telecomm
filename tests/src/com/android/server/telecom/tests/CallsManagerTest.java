@@ -115,7 +115,7 @@ public class CallsManagerTest extends TelecomTestCase {
     private static final PhoneAccountHandle VOIP_1_HANDLE = new PhoneAccountHandle(
             ComponentName.unflattenFromString("com.voip/.Stuff"), "Voip1");
     private static final PhoneAccountHandle SELF_MANAGED_HANDLE = new PhoneAccountHandle(
-            ComponentName.unflattenFromString("com.foo/.Self"), "Self");
+            ComponentName.unflattenFromString("com.baz/.Self"), "Self");
     private static final PhoneAccount SIM_1_ACCOUNT = new PhoneAccount.Builder(SIM_1_HANDLE, "Sim1")
             .setCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION
                     | PhoneAccount.CAPABILITY_CALL_PROVIDER)
@@ -818,6 +818,39 @@ public class CallsManagerTest extends TelecomTestCase {
 
         // and the new call is active
         assertEquals(CallState.ACTIVE, newCall.getState());
+    }
+
+    @SmallTest
+    @Test
+    public void testDisconnectDialingCallOnIncoming() {
+        // GIVEN a CallsManager with a self-managed call which is dialing, and this call can be held
+        Call ongoingCall = addSpyCall(SELF_MANAGED_HANDLE);
+        ongoingCall.setState(CallState.DIALING, "test");
+        doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        doReturn(true).when(ongoingCall).isSelfManaged();
+        doReturn(ongoingCall).when(mConnectionSvrFocusMgr).getCurrentFocusCall();
+
+        // and a new incoming managed call
+        Call newCall = addSpyCall();
+        doReturn(false).when(newCall).isRespondViaSmsCapable();
+        newCall.setState(CallState.RINGING, "test");
+
+        // WHEN answering the new call
+        mCallsManager.answerCall(newCall, VideoProfile.STATE_AUDIO_ONLY);
+
+        // THEN the ongoing call is disconnected
+        verify(ongoingCall).disconnect();
+
+        // AND focus is requested for the new call
+        ArgumentCaptor<CallsManager.RequestCallback> requestCaptor =
+                ArgumentCaptor.forClass(CallsManager.RequestCallback.class);
+        verify(mConnectionSvrFocusMgr).requestFocus(eq(newCall), requestCaptor.capture());
+        // since we're mocking the focus manager, we'll just pretend it did its thing.
+        requestCaptor.getValue().onRequestFocusDone(newCall);
+
+        // and the new call is marked answered
+        assertEquals(CallState.ANSWERED, newCall.getState());
     }
 
     @SmallTest
