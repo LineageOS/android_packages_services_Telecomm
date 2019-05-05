@@ -45,7 +45,7 @@ def main():
       _check_aosp_message(commit_line)
 
   print(ERROR_MESSAGE)
-  sys.exit(1)
+  sys.exit(0)
 
 def _is_in_aosp():
   branch_info = subprocess.check_output(["git", "branch", "-vv"])
@@ -59,7 +59,7 @@ def _check_aosp_message(aosp_line):
     sys.exit(0)
 
   print(ERROR_MESSAGE)
-  sys.exit(1)
+  sys.exit(0)
 
 if __name__ == '__main__':
   main()
