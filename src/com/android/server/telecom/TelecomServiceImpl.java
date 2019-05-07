@@ -395,19 +395,27 @@ public class TelecomServiceImpl {
         }
 
         @Override
-        public PhoneAccountHandle getSimCallManager() {
-            try {
-                Log.startSession("TSI.gSCM");
-                long token = Binder.clearCallingIdentity();
-                int user;
+        public PhoneAccountHandle getSimCallManager(int subId) {
+            synchronized (mLock) {
                 try {
-                    user = ActivityManager.getCurrentUser();
-                    return getSimCallManagerForUser(user);
+                    Log.startSession("TSI.gSCM");
+                    final int user = ActivityManager.getCurrentUser();
+                    final int callingUid = Binder.getCallingUid();
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        if (user != ActivityManager.getCurrentUser()) {
+                            enforceCrossUserPermission(callingUid);
+                        }
+                        return mPhoneAccountRegistrar.getSimCallManager(subId, UserHandle.of(user));
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                } catch (Exception e) {
+                    Log.e(this, e, "getSimCallManager");
+                    throw e;
                 } finally {
-                    Binder.restoreCallingIdentity(token);
+                    Log.endSession();
                 }
-            } finally {
-                Log.endSession();
             }
         }
 
