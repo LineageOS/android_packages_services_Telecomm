@@ -27,7 +27,7 @@
     <string name="notification_missedCall_call_back" msgid="2684890353590890187">"Terugbellen"</string>
     <string name="notification_missedCall_message" msgid="3049928912736917988">"Bericht"</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"Gesprek gedempt."</string>
-    <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"Telefoonluidspreker is ingeschakeld."</string>
+    <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"Luidspreker is aan."</string>
     <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"Kan nu niet opnemen. Alles goed?"</string>
     <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"Ik bel je zo terug."</string>
     <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"Ik bel je later."</string>
