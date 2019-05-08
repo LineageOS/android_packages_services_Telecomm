@@ -160,7 +160,8 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
             bindDefaultDialerAndUserChosenService();
         } else {
             createCallScreeningServiceFilter().startCallScreeningFilter(mCall, this,
-                    carrierPackageName, mAppLabelProxy.getAppLabel(carrierPackageName));
+                    carrierPackageName, mAppLabelProxy.getAppLabel(carrierPackageName),
+                    CallScreeningServiceFilter.CALL_SCREENING_FILTER_TYPE_CARRIER);
         }
 
         // Carrier filtering timed out
@@ -178,12 +179,16 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
     private void bindDefaultDialerAndUserChosenService() {
         if (mIsCarrierFinished) {
             String dialerPackageName = getDefaultDialerPackageName();
+            String systemDialerPackageName = getSystemDialerPackageName();
             if (TextUtils.isEmpty(dialerPackageName)) {
                 mIsDefaultDialerFinished = true;
             } else {
+                int dialerType = dialerPackageName.equals(systemDialerPackageName) ?
+                        CallScreeningServiceFilter.CALL_SCREENING_FILTER_TYPE_SYSTEM_DIALER :
+                        CallScreeningServiceFilter.CALL_SCREENING_FILTER_TYPE_DEFAULT_DIALER;
                 createCallScreeningServiceFilter().startCallScreeningFilter(mCall,
                         CallScreeningServiceController.this, dialerPackageName,
-                        mAppLabelProxy.getAppLabel(dialerPackageName));
+                        mAppLabelProxy.getAppLabel(dialerPackageName), dialerType);
             }
 
             String userChosenPackageName = getUserChosenPackageName();
@@ -192,7 +197,8 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
             } else {
                 createCallScreeningServiceFilter().startCallScreeningFilter(mCall,
                         CallScreeningServiceController.this, userChosenPackageName,
-                        mAppLabelProxy.getAppLabel(userChosenPackageName));
+                        mAppLabelProxy.getAppLabel(userChosenPackageName),
+                        CallScreeningServiceFilter.CALL_SCREENING_FILTER_TYPE_USER_SELECTED);
             }
 
             if (mIsDefaultDialerFinished && mIsUserChosenFinished) {
@@ -255,6 +261,10 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
 
     private String getDefaultDialerPackageName() {
         return TelecomManager.from(mContext).getDefaultDialerPackage();
+    }
+
+    private String getSystemDialerPackageName() {
+        return TelecomManager.from(mContext).getSystemDialerPackage();
     }
 
     private String getUserChosenPackageName() {
