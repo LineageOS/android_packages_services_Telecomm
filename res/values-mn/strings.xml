@@ -37,7 +37,6 @@
     <string name="respond_via_sms_setting_summary" msgid="9150281183930613065"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="20379890418289778">"Шуурхай хариу"</string>
     <string name="respond_via_sms_confirmation_format" msgid="7229149977515784269">"Зурвасыг <xliff:g id="PHONE_NUMBER">%s</xliff:g> руу илгээв."</string>
-    <string name="respond_via_sms_failure_format" msgid="90791421289769504">"<xliff:g id="PHONE_NUMBER">%s</xliff:g> руу зурвас илгээж чадсангүй."</string>
     <string name="enable_account_preference_title" msgid="2021848090086481720">"Дуудлагын эрхтэй бүртгэлүүд"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="6872406278300131364">"Зөвхөн яаралтай тусламжийн дуудлага хийх боломжтой."</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="1996571596464271228">"Энэ апп нь утасны зөвшөөрөлгүйгээр дуудлага хийх боломжгүй."</string>
@@ -50,11 +49,6 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Өгөгдмөл болгох"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Цуцлах"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> бүх төрлийн дуудлага хийх, хянах боломжтой болно. Зөвхөн өөрийн итгэдэг апп-г өгөгдмөл Утасны апп-р тохируулах нь зүйтэй."</string>
-    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"<xliff:g id="NEW_APP">%s</xliff:g>-г үндсэн дуудлага шүүх аппаа болгох уу?"</string>
-    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> цаашид дуудлага шүүх боломжгүй болсон."</string>
-    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> таны харилцагчид дунд байхгүй дуудлага хийгчдийн тухай мэдээллийг харах боломжтой бөгөөд тэдгээр дуудлагыг блоклох боломжтой. Зөвхөн өөрийн итгэдэг аппыг үндсэн дуудлага шүүх аппаар тохируулах нь зүйтэй."</string>
-    <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"Үндсэн болгох"</string>
-    <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Болих"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Блоклосон дугаар"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Та хориглосон дугаараас дуудлага, мессеж хүлээн авахгүй."</string>
     <string name="block_number" msgid="1101252256321306179">"Дугаар нэмэх"</string>
@@ -83,28 +77,10 @@
     <string name="answering_ends_other_managed_video_call" msgid="1585423762458248435">"Хариулбал таны одоогийн видео дуудлагыг таслах болно"</string>
     <string name="answer_incoming_call" msgid="4140530013111794587">"Хариулах"</string>
     <string name="decline_incoming_call" msgid="806026168661598368">"Татгалзах"</string>
-    <string name="cant_call_due_to_no_supported_service" msgid="5128162419227548372">"Энэ төрлийн дуудлага дэмждэг дуудлагын бүртгэл байхгүй тул дуудлага хийх боломжгүй байна."</string>
     <string name="cant_call_due_to_ongoing_call" msgid="4952615196237854748">"Таны <xliff:g id="OTHER_CALL">%1$s</xliff:g> дуудлагаас шалтгаалан дуудлага хийх боломжгүй байна."</string>
     <string name="cant_call_due_to_ongoing_calls" msgid="1380804892363503856">"Таны <xliff:g id="OTHER_CALL">%1$s</xliff:g> дуудлагаас шалтгаалан дуудлага хийх боломжгүй байна."</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="149091978697302211">"Өөр апп доторх дуудлагаас шалтгаалан дуудлага хийх боломжгүй байна."</string>
     <string name="notification_channel_incoming_call" msgid="3513761697082968084">"Ирж буй дуудлага"</string>
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Аваагүй дуудлага"</string>
-    <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Дуудлага хориглох"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Энэ дуудлагыг хийснээр таны <xliff:g id="OTHER_APP">%1$s</xliff:g> дуудлагыг дуусгана."</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"Өөр дугаар эсвэл бүртгэл ашиглан дуудлага хийхийн тулд <xliff:g id="OTHER_APP">%1$s</xliff:g>-г зөвшөөрнө үү."</string>
-    <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> дуудлага байршуулах боломжгүй. Тусламж авахын тулд өөр дуудлага дахин чиглүүлэх аппыг ашиглах эсвэл хөгжүүлэгчтэй холбогдоно уу."</string>
-    <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Дуудлага хориглох"</string>
-    <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Харилцагчид дотор байхгүй дугаарууд"</string>
-    <string name="phone_settings_number_not_in_contact_summary_txt" msgid="9043147855140079119">"Өөрийн Харилцагчид дотор байхгүй дугааруудыг хориглох"</string>
-    <string name="phone_settings_private_num_txt" msgid="8623574188879134262">"Хувийн"</string>
-    <string name="phone_settings_private_num_summary_txt" msgid="7516314821207782191">"Дугаараа нууцалсан дуудлагыг хориглох"</string>
-    <string name="phone_settings_payphone_txt" msgid="2493356957416981318">"Төлбөртэй утас"</string>
-    <string name="phone_settings_payphone_summary_txt" msgid="6126709946103814653">"Төлбөртэй утаснаас залгасан дуудлагуудыг хориглох"</string>
-    <string name="phone_settings_unknown_txt" msgid="5836407031508172721">"Тодорхойгүй"</string>
-    <string name="phone_settings_unknown_summary_txt" msgid="3457690230497753233">"Тодорхойгүй дугаараас ирсэн дуудлагуудыг хориглох"</string>
-    <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="628536625775266096">"Дуудлага хориглох"</string>
-    <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"Дуудлага хориглохыг идэвхгүй болгосон"</string>
-    <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"Яаралтай тусламжийн дуудлага хийсэн"</string>
-    <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="4083285098613193052">"Яаралтай тусламжийнханд тантай холбогдохыг зөвшөөрөхийн тулд дуудлага хориглохыг идэвхгүй болгосон."</string>
-    <string name="developer_title" msgid="1816273446906554627">"Телеком хөгжүүлэгчийн цэс"</string>
 </resources>
