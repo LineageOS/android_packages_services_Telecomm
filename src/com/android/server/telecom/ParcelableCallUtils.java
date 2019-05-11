@@ -52,6 +52,17 @@ public class ParcelableCallUtils {
         EXTRA_KEYS_TO_SANITIZE.add(android.telecom.Connection.EXTRA_SIP_INVITE);
     }
 
+    /**
+     * A list of extra keys which should be added to {@link ParcelableCall} when it is being
+     * generated for the purpose of sending to a CallScreeningService which has access to these
+     * restricted keys.
+     */
+    private static List<String> RESTRICTED_CALL_SCREENING_EXTRA_KEYS;
+    static {
+        RESTRICTED_CALL_SCREENING_EXTRA_KEYS = new ArrayList<>();
+        RESTRICTED_CALL_SCREENING_EXTRA_KEYS.add(android.telecom.Connection.EXTRA_SIP_INVITE);
+    }
+
     public static class Converter {
         public ParcelableCall toParcelableCall(Call call, boolean includeVideoProvider,
                 PhoneAccountRegistrar phoneAccountRegistrar) {
@@ -59,8 +70,10 @@ public class ParcelableCallUtils {
                     call, includeVideoProvider, phoneAccountRegistrar, false, false, false);
         }
 
-        public ParcelableCall toParcelableCallForScreening(Call call) {
-            return ParcelableCallUtils.toParcelableCallForScreening(call);
+        public ParcelableCall toParcelableCallForScreening(Call call,
+                boolean areRestrictedExtrasIncluded) {
+            return ParcelableCallUtils.toParcelableCallForScreening(call,
+                    areRestrictedExtrasIncluded);
         }
     }
 
@@ -256,10 +269,17 @@ public class ParcelableCallUtils {
      *     <li>Handle (phone number) presentation</li>
      * </ul>
      * All other fields are nulled or set to 0 values.
+     * Where the call screening service is part of the system dialer, the
+     * {@link Connection#EXTRA_SIP_INVITE} header information is also sent to the call screening
+     * service (since the system dialer has access to this anyways).
      * @param call The telecom call to send to a call screening service.
+     * @param areRestrictedExtrasIncluded {@code true} if the set of restricted extras defined in
+     *                                    {@link #RESTRICTED_CALL_SCREENING_EXTRA_KEYS} are to
+     *                                    be included in the parceled call, {@code false} otherwise.
      * @return Minimal {@link ParcelableCall} to send to the call screening service.
      */
-    public static ParcelableCall toParcelableCallForScreening(Call call) {
+    public static ParcelableCall toParcelableCallForScreening(Call call,
+            boolean areRestrictedExtrasIncluded) {
         Uri handle = call.getHandlePresentation() == TelecomManager.PRESENTATION_ALLOWED ?
                 call.getHandle() : null;
         int callDirection;
@@ -270,6 +290,13 @@ public class ParcelableCallUtils {
         } else {
             callDirection = DIRECTION_OUTGOING;
         }
+        Bundle callExtras;
+        if (areRestrictedExtrasIncluded) {
+            callExtras = sanitizeRestrictedCallExtras(call.getExtras());
+        } else {
+            callExtras = new Bundle();
+        }
+
         return new ParcelableCall(
                 call.getId(),
                 getParcelableState(call, false /* supportsExternalCalls */),
@@ -295,7 +322,7 @@ public class ParcelableCallUtils {
                 0, /* videoState */
                 Collections.emptyList(), /* conferenceableCallIds */
                 null, /* intentExtras */
-                null, /* callExtras */
+                callExtras, /* callExtras */
                 call.getCreationTimeMillis(),
                 callDirection);
     }
@@ -303,7 +330,7 @@ public class ParcelableCallUtils {
     /**
      * Sanitize the extras bundle passed in, removing keys which should not be sent to non-system
      * dialer apps.
-     * @param extras Extras bundle to sanitize.
+     * @param oldExtras Extras bundle to sanitize.
      * @return The sanitized extras bundle.
      */
     private static Bundle sanitizeExtras(Bundle oldExtras) {
@@ -320,6 +347,28 @@ public class ParcelableCallUtils {
         while (toCheck.hasNext()) {
             String extraKey = toCheck.next();
             if (TextUtils.isEmpty(extraKey) || !extraKey.startsWith("android.")) {
+                toCheck.remove();
+            }
+        }
+        return extras;
+    }
+
+    /**
+     * Sanitize the extras bundle passed in, removing keys which should not be sent to call
+     * screening services which have access to the restricted extras.
+     * @param oldExtras Extras bundle to sanitize.
+     * @return The sanitized extras bundle.
+     */
+    private static Bundle sanitizeRestrictedCallExtras(Bundle oldExtras) {
+        if (oldExtras == null) {
+            return new Bundle();
+        }
+        Bundle extras = new Bundle(oldExtras);
+        Iterator<String> toCheck = extras.keySet().iterator();
+        while (toCheck.hasNext()) {
+            String extraKey = toCheck.next();
+            if (TextUtils.isEmpty(extraKey)
+                    || !RESTRICTED_CALL_SCREENING_EXTRA_KEYS.contains(extraKey)) {
                 toCheck.remove();
             }
         }
