@@ -583,7 +583,7 @@ public class BluetoothPhoneServiceImpl {
      */
     private void sendClccForCall(Call call, boolean shouldLog) {
         boolean isForeground = mCallsManager.getForegroundCall() == call;
-        int state = convertCallState(call.getState(), isForeground);
+        int state = getBtCallState(call, isForeground);
         boolean isPartOfConference = false;
         boolean isConferenceWithNoChildren = call.isConference() && call
                 .can(Connection.CAPABILITY_CONFERENCE_HAS_NO_CHILDREN);
@@ -707,7 +707,8 @@ public class BluetoothPhoneServiceImpl {
         String ringingAddress = null;
         int ringingAddressType = 128;
         String ringingName = null;
-        if (ringingCall != null && ringingCall.getHandle() != null) {
+        if (ringingCall != null && ringingCall.getHandle() != null
+            && !ringingCall.isSilentRingingRequested()) {
             ringingAddress = ringingCall.getHandle().getSchemeSpecificPart();
             if (ringingAddress != null) {
                 ringingAddressType = PhoneNumberUtils.toaFromString(ringingAddress);
@@ -831,7 +832,6 @@ public class BluetoothPhoneServiceImpl {
     }
 
     private int getBluetoothCallStateForUpdate() {
-        CallsManager callsManager = mCallsManager;
         Call ringingCall = mCallsManager.getRingingCall();
         Call dialingCall = mCallsManager.getOutgoingCall();
         boolean hasOnlyDisconnectedCalls = mCallsManager.hasOnlyDisconnectedCalls();
@@ -846,7 +846,7 @@ public class BluetoothPhoneServiceImpl {
         // bluetooth devices (like not getting out of ringing state after answering a call).
         //
         int bluetoothCallState = CALL_STATE_IDLE;
-        if (ringingCall != null) {
+        if (ringingCall != null && !ringingCall.isSilentRingingRequested()) {
             bluetoothCallState = CALL_STATE_INCOMING;
         } else if (dialingCall != null) {
             bluetoothCallState = CALL_STATE_ALERTING;
@@ -857,8 +857,8 @@ public class BluetoothPhoneServiceImpl {
         return bluetoothCallState;
     }
 
-    private int convertCallState(int callState, boolean isForegroundCall) {
-        switch (callState) {
+    private int getBtCallState(Call call, boolean isForeground) {
+        switch (call.getState()) {
             case CallState.NEW:
             case CallState.ABORTED:
             case CallState.DISCONNECTED:
@@ -885,7 +885,9 @@ public class BluetoothPhoneServiceImpl {
 
             case CallState.RINGING:
             case CallState.ANSWERED:
-                if (isForegroundCall) {
+                if (call.isSilentRingingRequested()) {
+                    return CALL_STATE_IDLE;
+                } else if (isForeground) {
                     return CALL_STATE_INCOMING;
                 } else {
                     return CALL_STATE_WAITING;
