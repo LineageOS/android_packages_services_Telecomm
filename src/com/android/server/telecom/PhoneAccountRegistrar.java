@@ -374,16 +374,20 @@ public class PhoneAccountRegistrar {
     }
 
     public ComponentName getSystemSimCallManagerComponent() {
+        return getSystemSimCallManagerComponent(SubscriptionManager.getDefaultSubscriptionId());
+    }
+
+    public ComponentName getSystemSimCallManagerComponent(int subId) {
         String defaultSimCallManager = null;
         CarrierConfigManager configManager = (CarrierConfigManager) mContext.getSystemService(
                 Context.CARRIER_CONFIG_SERVICE);
-        PersistableBundle configBundle = configManager.getConfig();
+        PersistableBundle configBundle = configManager.getConfigForSubId(subId);
         if (configBundle != null) {
             defaultSimCallManager = configBundle.getString(
                     CarrierConfigManager.KEY_DEFAULT_SIM_CALL_MANAGER_STRING);
         }
         return TextUtils.isEmpty(defaultSimCallManager)
-            ?  null : ComponentName.unflattenFromString(defaultSimCallManager);
+                ?  null : ComponentName.unflattenFromString(defaultSimCallManager);
     }
 
     public PhoneAccountHandle getSimCallManagerOfCurrentUser() {
@@ -391,8 +395,10 @@ public class PhoneAccountRegistrar {
     }
 
     /**
-     * Returns the {@link PhoneAccountHandle} corresponding to the currently active SIM Call
-     * Manager. SIM Call Manager returned corresponds to the following priority order:
+     * Returns the {@link PhoneAccountHandle} corresponding to the SIM Call Manager associated with
+     * the default Telephony Subscription ID (see
+     * {@link SubscriptionManager#getDefaultSubscriptionId()}). SIM Call Manager returned
+     * corresponds to the following priority order:
      * 1. If a SIM Call Manager {@link PhoneAccount} is registered for the same package as the
      * default dialer, then that one is returned.
      * 2. If there is a SIM Call Manager {@link PhoneAccount} registered which matches the
@@ -400,12 +406,22 @@ public class PhoneAccountRegistrar {
      * 3. Otherwise, we return null.
      */
     public PhoneAccountHandle getSimCallManager(UserHandle userHandle) {
+        return getSimCallManager(SubscriptionManager.getDefaultSubscriptionId(), userHandle);
+    }
+
+    /**
+     * Queries the SIM call manager associated with a specific subscription ID.
+     *
+     * @see #getSimCallManager(UserHandle) for more information.
+     */
+    public PhoneAccountHandle getSimCallManager(int subId, UserHandle userHandle) {
+
         // Get the default dialer in case it has a connection manager associated with it.
         String dialerPackage = mDefaultDialerCache
                 .getDefaultDialerApplication(userHandle.getIdentifier());
 
         // Check carrier config.
-        ComponentName systemSimCallManagerComponent = getSystemSimCallManagerComponent();
+        ComponentName systemSimCallManagerComponent = getSystemSimCallManagerComponent(subId);
 
         PhoneAccountHandle dialerSimCallManager = null;
         PhoneAccountHandle systemSimCallManager = null;
