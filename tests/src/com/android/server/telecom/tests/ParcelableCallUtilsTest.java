@@ -112,6 +112,32 @@ public class ParcelableCallUtilsTest extends TelecomTestCase {
         assertTrue(parceledExtras.containsKey(Connection.EXTRA_CALL_SUBJECT));
     }
 
+    @SmallTest
+    @Test
+    public void testParcelForSystemCallScreening() {
+        mCall.putExtras(Call.SOURCE_CONNECTION_SERVICE, getSomeExtras());
+        ParcelableCall call = ParcelableCallUtils.toParcelableCallForScreening(mCall,
+                true /* isPartOfSystemDialer */);
+
+        Bundle parceledExtras = call.getExtras();
+        assertTrue(parceledExtras.containsKey(Connection.EXTRA_SIP_INVITE));
+        assertFalse(parceledExtras.containsKey("SomeExtra"));
+        assertFalse(parceledExtras.containsKey(Connection.EXTRA_CALL_SUBJECT));
+    }
+
+    @SmallTest
+    @Test
+    public void testParcelForSystemNonSystemCallScreening() {
+        mCall.putExtras(Call.SOURCE_CONNECTION_SERVICE, getSomeExtras());
+        ParcelableCall call = ParcelableCallUtils.toParcelableCallForScreening(mCall,
+                false /* isPartOfSystemDialer */);
+
+        Bundle parceledExtras = call.getExtras();
+        assertFalse(parceledExtras.containsKey(Connection.EXTRA_SIP_INVITE));
+        assertFalse(parceledExtras.containsKey("SomeExtra"));
+        assertFalse(parceledExtras.containsKey(Connection.EXTRA_CALL_SUBJECT));
+    }
+
     private Bundle getSomeExtras() {
         Bundle extras = new Bundle();
         extras.putString(Connection.EXTRA_SIP_INVITE, "scary data");

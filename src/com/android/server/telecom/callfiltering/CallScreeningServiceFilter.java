@@ -16,12 +16,9 @@
 
 package com.android.server.telecom.callfiltering;
 
-import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.ResolveInfo;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.PersistableBundle;
@@ -29,9 +26,7 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.CallLog;
 import android.provider.Settings;
-import android.telecom.CallScreeningService;
 import android.telecom.Log;
-import android.telecom.ParcelableCall;
 import android.telecom.TelecomManager;
 import android.telephony.CarrierConfigManager;
 import android.text.TextUtils;
@@ -47,13 +42,16 @@ import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.TelecomServiceImpl.SettingsSecureAdapter;
 import com.android.server.telecom.TelecomSystem;
 
-import java.util.List;
-
 /**
  * Binds to {@link ICallScreeningService} to allow call blocking. A single instance of this class
  * handles a single call.
  */
 public class CallScreeningServiceFilter {
+
+    public static final int CALL_SCREENING_FILTER_TYPE_USER_SELECTED = 1;
+    public static final int CALL_SCREENING_FILTER_TYPE_DEFAULT_DIALER = 2;
+    public static final int CALL_SCREENING_FILTER_TYPE_SYSTEM_DIALER = 3;
+    public static final int CALL_SCREENING_FILTER_TYPE_CARRIER = 4;
 
     public interface CallScreeningFilterResultCallback {
         void onCallScreeningFilterComplete(Call call, CallFilteringResult result, String
@@ -194,6 +192,7 @@ public class CallScreeningServiceFilter {
     private String mPackageName;
     private CharSequence mAppName;
     private boolean mHasFinished = false;
+    private int mCallScreeningServiceType;
 
     private CallFilteringResult mResult = new CallFilteringResult(
             true, // shouldAllowCall
@@ -217,9 +216,10 @@ public class CallScreeningServiceFilter {
     }
 
     public void startCallScreeningFilter(Call call,
-                                         CallScreeningFilterResultCallback callback,
-                                         String packageName,
-                                         CharSequence appName) {
+            CallScreeningFilterResultCallback callback,
+            String packageName,
+            CharSequence appName,
+            int callScreeningServiceType) {
         if (mHasFinished) {
             Log.w(this, "Attempting to reuse CallScreeningServiceFilter. Ignoring.");
             return;
@@ -229,6 +229,7 @@ public class CallScreeningServiceFilter {
         mCallback = callback;
         mPackageName = packageName;
         mAppName = appName;
+        mCallScreeningServiceType = callScreeningServiceType;
 
         mConnection = new CallScreeningServiceConnection();
         if (!CallScreeningServiceHelper.bindCallScreeningService(mContext,
@@ -262,9 +263,15 @@ public class CallScreeningServiceFilter {
     private void onServiceBound(ICallScreeningService service) {
         mService = service;
         try {
+            boolean isSystemDialer =
+                    mCallScreeningServiceType
+                            == CallScreeningServiceFilter.CALL_SCREENING_FILTER_TYPE_SYSTEM_DIALER;
             // Important: Only send a minimal subset of the call to the screening service.
+            // We will send some of the call extras to the call screening service which the system
+            // dialer implements.
             mService.screenCall(new CallScreeningAdapter(),
-                    mParcelableCallUtilsConverter.toParcelableCallForScreening(mCall));
+                    mParcelableCallUtilsConverter.toParcelableCallForScreening(mCall,
+                            isSystemDialer));
         } catch (RemoteException e) {
             Log.e(this, e, "Failed to set the call screening adapter.");
             finishCallScreening();
