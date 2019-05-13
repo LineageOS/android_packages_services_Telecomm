@@ -136,6 +136,11 @@ public class BluetoothDeviceManager {
 
     void onDeviceConnected(BluetoothDevice device) {
         synchronized (mLock) {
+            if (mBluetoothHeadsetService == null) {
+                Log.w(this, "Headset service null when receiving device added broadcast");
+                return;
+            }
+
             if (!mConnectedDevicesByAddress.containsKey(device.getAddress())) {
                 mConnectedDevicesByAddress.put(device.getAddress(), device);
                 mBluetoothRouteManager.onDeviceAdded(device.getAddress());

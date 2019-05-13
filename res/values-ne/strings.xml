@@ -40,7 +40,7 @@
     <string name="enable_account_preference_title" msgid="2021848090086481720">"कलिङ खाताहरू"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="6872406278300131364">"आपतकालीन कलहरूलाई मात्र अनुमति दिइएको छ।"</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="1996571596464271228">"यो अनुप्रयोगले फोनको अनुमति बिना बहिर्गमन कलहरू गर्न सक्दैन।"</string>
-    <string name="outgoing_call_error_no_phone_number_supplied" msgid="1940125199802007505">"एक कल गर्नको लागि, एक वैध नम्बर प्रविष्ट गर्नुहोस्।"</string>
+    <string name="outgoing_call_error_no_phone_number_supplied" msgid="1940125199802007505">"एक कल गर्नको लागि, एक वैध नम्बर प्रविष्टि गर्नुहोस्।"</string>
     <string name="duplicate_video_call_not_allowed" msgid="3749211605014548386">"यस समयमा कल थप गर्न सकिँदैन।"</string>
     <string name="no_vm_number" msgid="4164780423805688336">"भ्वाइसमेल नम्बर हराइरहेको छ"</string>
     <string name="no_vm_number_msg" msgid="1300729501030053828">"SIM कार्डमा कुनै पनि भ्वाइसमेल नम्बर भण्डारण भएको छैन।"</string>
