@@ -3275,25 +3275,30 @@ public class CallsManager extends Call.ListenerBase
     }
 
     /**
-     * Given a {@link PhoneAccountHandle} determines if there are calls owned by any other
-     * {@link PhoneAccountHandle}.
+     * Given a {@link PhoneAccountHandle} determines if there are other unholdable calls owned by
+     * another connection service.
      * @param phoneAccountHandle The {@link PhoneAccountHandle} to check.
-     * @return {@code true} if there are other calls, {@code false} otherwise.
+     * @return {@code true} if there are other unholdable calls, {@code false} otherwise.
      */
-    public boolean hasCallsForOtherPhoneAccount(PhoneAccountHandle phoneAccountHandle) {
-        return getNumCallsForOtherPhoneAccount(phoneAccountHandle) > 0;
+    public boolean hasUnholdableCallsForOtherConnectionService(
+            PhoneAccountHandle phoneAccountHandle) {
+        return getNumUnholdableCallsForOtherConnectionService(phoneAccountHandle) > 0;
     }
 
     /**
-     * Determines the number of calls present for PhoneAccounts other than the one specified.
+     * Determines the number of unholdable calls present in a connection service other than the one
+     * the passed phone account belonds to.
      * @param phoneAccountHandle The handle of the PhoneAccount.
-     * @return Number of calls owned by other PhoneAccounts.
+     * @return Number of unholdable calls owned by other connection service.
      */
-    public int getNumCallsForOtherPhoneAccount(PhoneAccountHandle phoneAccountHandle) {
+    public int getNumUnholdableCallsForOtherConnectionService(
+            PhoneAccountHandle phoneAccountHandle) {
         return (int) mCalls.stream().filter(call ->
-                !phoneAccountHandle.equals(call.getTargetPhoneAccount()) &&
-                        call.getParentCall() == null &&
-                        !call.isExternalCall()).count();
+                !phoneAccountHandle.getComponentName().equals(
+                        call.getTargetPhoneAccount().getComponentName())
+                        && call.getParentCall() == null
+                        && !call.isExternalCall()
+                        && !canHold(call)).count();
     }
 
     /**
@@ -3345,9 +3350,9 @@ public class CallsManager extends Call.ListenerBase
      * @return {@code true} if the system incoming call UI should be shown, {@code false} otherwise.
      */
     public boolean shouldShowSystemIncomingCallUi(Call incomingCall) {
-        return incomingCall.isIncoming() && incomingCall.isSelfManaged() &&
-                hasCallsForOtherPhoneAccount(incomingCall.getTargetPhoneAccount()) &&
-                incomingCall.getHandoverSourceCall() == null;
+        return incomingCall.isIncoming() && incomingCall.isSelfManaged()
+                && hasUnholdableCallsForOtherConnectionService(incomingCall.getTargetPhoneAccount())
+                && incomingCall.getHandoverSourceCall() == null;
     }
 
     private boolean makeRoomForOutgoingCall(Call call, boolean isEmergency) {
