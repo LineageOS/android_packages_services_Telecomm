@@ -212,7 +212,10 @@ public final class CallLogManager extends CallsManagerListenerBase {
             // Conference children connections only have CAPABILITY_DISCONNECT_FROM_CONFERENCE.
             // Log them when they are disconnected from conference.
             return Connection.can(call.getConnectionCapabilities(),
-                    Connection.CAPABILITY_DISCONNECT_FROM_CONFERENCE);
+                    Connection.CAPABILITY_DISCONNECT_FROM_CONFERENCE)
+                    // Sometimes conference participants don't look like merged due to special
+                    // carrier requirements, e.g. could be one active and the other on hold.
+                    || oldState == CallState.ACTIVE || oldState == CallState.ON_HOLD;
         }
         // 5) An external call
         if (call.isExternalCall()) {
