@@ -396,8 +396,8 @@ public class TelecomServiceImpl {
             synchronized (mLock) {
                 try {
                     Log.startSession("TSI.gSCM");
-                    final int user = ActivityManager.getCurrentUser();
                     final int callingUid = Binder.getCallingUid();
+                    final int user = UserHandle.getUserId(callingUid);
                     long token = Binder.clearCallingIdentity();
                     try {
                         if (user != ActivityManager.getCurrentUser()) {
