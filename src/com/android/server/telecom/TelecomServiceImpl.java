@@ -396,8 +396,8 @@ public class TelecomServiceImpl {
             synchronized (mLock) {
                 try {
                     Log.startSession("TSI.gSCM");
-                    final int user = ActivityManager.getCurrentUser();
                     final int callingUid = Binder.getCallingUid();
+                    final int user = UserHandle.getUserId(callingUid);
                     long token = Binder.clearCallingIdentity();
                     try {
                         if (user != ActivityManager.getCurrentUser()) {
@@ -1805,6 +1805,11 @@ public class TelecomServiceImpl {
         }
 
         if (call != null) {
+            if (call.isEmergencyCall()) {
+                android.util.EventLog.writeEvent(0x534e4554, "132438333", -1, "");
+                return false;
+            }
+
             if (call.getState() == CallState.RINGING) {
                 call.reject(false /* rejectWithMessage */, null, callingPackage);
             } else {
