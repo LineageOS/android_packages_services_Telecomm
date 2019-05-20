@@ -306,18 +306,6 @@
                   android:process=":ui">
         </activity>
 
-        <activity android:name=".components.ChangeDefaultDialerDialog"
-                  android:label="@string/change_default_dialer_dialog_title"
-                  android:excludeFromRecents="true"
-                  android:theme="@*android:style/Theme.Material.Light.Dialog.Alert"
-                  android:priority="1000"
-                  android:process=":ui" >
-            <intent-filter>
-                <action android:name="android.telecom.action.CHANGE_DEFAULT_DIALER" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
         <activity android:name=".ui.TelecomDeveloperMenu"
                   android:label="@string/developer_title"
                   android:exported="false"
