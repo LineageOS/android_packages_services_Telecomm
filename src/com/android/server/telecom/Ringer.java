@@ -208,6 +208,14 @@ public class Ringer {
             return false;
         }
 
+        if (foregroundCall.getState() != CallState.RINGING) {
+            // Its possible for bluetooth to connect JUST as a call goes active, which would mean
+            // the call would start ringing again.
+            Log.i(this, "startRinging called for non-ringing foreground callid=%s",
+                    foregroundCall.getId());
+            return false;
+        }
+
         AudioManager audioManager =
                 (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         boolean isVolumeOverZero = audioManager.getStreamVolume(AudioManager.STREAM_RING) > 0;
