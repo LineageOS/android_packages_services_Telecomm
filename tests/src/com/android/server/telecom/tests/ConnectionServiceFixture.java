@@ -574,7 +574,7 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
                 public IBinder asBinder() {
                     return this;
                 }
-            }, null /*Session.Info*/);
+            }, "" /* callingPackage */, null /*Session.Info*/);
         }
     }
 
