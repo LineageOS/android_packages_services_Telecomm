@@ -572,15 +572,16 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
 
         @Override
         public void queryRemoteConnectionServices(RemoteServiceCallback callback,
-                Session.Info sessionInfo) {
+                String callingPackage, Session.Info sessionInfo) {
             final UserHandle callingUserHandle = Binder.getCallingUserHandle();
             Log.startSession(sessionInfo, "CSW.qRCS");
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
-                    logIncoming("queryRemoteConnectionServices %s", callback);
+                    logIncoming("queryRemoteConnectionServices callingPackage=" + callingPackage);
                     ConnectionServiceWrapper.this
-                            .queryRemoteConnectionServices(callingUserHandle, callback);
+                            .queryRemoteConnectionServices(callingUserHandle, callingPackage,
+                                    callback);
                 }
             } catch (Throwable t) {
                 Log.e(ConnectionServiceWrapper.this, t, "");
@@ -1711,21 +1712,26 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
     }
 
     private void queryRemoteConnectionServices(final UserHandle userHandle,
-            final RemoteServiceCallback callback) {
-        // Only give remote connection services to this connection service if it is listed as
-        // the connection manager.
-        PhoneAccountHandle simCallManager = mPhoneAccountRegistrar.getSimCallManager(userHandle);
-        Log.d(this, "queryRemoteConnectionServices finds simCallManager = %s", simCallManager);
-        if (simCallManager == null ||
-                !simCallManager.getComponentName().equals(getComponentName())) {
-            noRemoteServices(callback);
-            return;
-        }
-
-        // Make a list of ConnectionServices that are listed as being associated with SIM accounts
+            final String callingPackage, final RemoteServiceCallback callback) {
+        boolean isCallerConnectionManager = false;
+        // For each Sim ConnectionService, use its subid to find the correct connection manager for
+        // that ConnectionService; return those Sim ConnectionServices which match the connection
+        // manager.
         final Set<ConnectionServiceWrapper> simServices = Collections.newSetFromMap(
                 new ConcurrentHashMap<ConnectionServiceWrapper, Boolean>(8, 0.9f, 1));
         for (PhoneAccountHandle handle : mPhoneAccountRegistrar.getSimPhoneAccounts(userHandle)) {
+            int subId = mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(handle);
+            PhoneAccountHandle connectionMgrHandle = mPhoneAccountRegistrar.getSimCallManager(subId,
+                    userHandle);
+            if (connectionMgrHandle == null
+                    || !connectionMgrHandle.getComponentName().getPackageName().equals(
+                            callingPackage)) {
+                Log.v(this, "queryRemoteConnectionServices: callingPackage=%s skipped; "
+                                + "doesn't match mgr %s for tfa %s",
+                        callingPackage, connectionMgrHandle, handle);
+                continue;
+            }
+            isCallerConnectionManager = true;
             ConnectionServiceWrapper service = mConnectionServiceRepository.getService(
                     handle.getComponentName(), handle.getUserHandle());
             if (service != null) {
@@ -1733,10 +1739,17 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
             }
         }
 
+        // Bail early if the caller isn't the sim connection mgr.
+        if (!isCallerConnectionManager) {
+            Log.d(this, "queryRemoteConnectionServices: none; not sim call mgr.");
+            noRemoteServices(callback);
+            return;
+        }
+
         final List<ComponentName> simServiceComponentNames = new ArrayList<>();
         final List<IBinder> simServiceBinders = new ArrayList<>();
 
-        Log.v(this, "queryRemoteConnectionServices, simServices = %s", simServices);
+        Log.i(this, "queryRemoteConnectionServices, simServices = %s", simServices);
 
         for (ConnectionServiceWrapper simService : simServices) {
             if (simService == this) {
@@ -1749,7 +1762,8 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
             currentSimService.mBinder.bind(new BindCallback() {
                 @Override
                 public void onSuccess() {
-                    Log.d(this, "Adding simService %s", currentSimService.getComponentName());
+                    Log.d(this, "queryRemoteConnectionServices: Adding simService %s",
+                            currentSimService.getComponentName());
                     if (currentSimService.mServiceInterface == null) {
                         // The remote ConnectionService died, so do not add it.
                         // We will still perform maybeComplete() and notify the caller with an empty
@@ -1765,7 +1779,8 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
 
                 @Override
                 public void onFailure() {
-                    Log.d(this, "Failed simService %s", currentSimService.getComponentName());
+                    Log.d(this, "queryRemoteConnectionServices: Failed simService %s",
+                            currentSimService.getComponentName());
                     // We know maybeComplete() will always be a no-op from now on, so go ahead and
                     // signal failure of the entire request
                     noRemoteServices(callback);
@@ -1787,12 +1802,21 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         try {
             callback.onResult(componentNames, binders);
         } catch (RemoteException e) {
-            Log.e(this, e, "Contacting ConnectionService %s",
+            Log.e(this, e, "setRemoteServices: Contacting ConnectionService %s",
                     ConnectionServiceWrapper.this.getComponentName());
         }
     }
 
     private void noRemoteServices(RemoteServiceCallback callback) {
         setRemoteServices(callback, Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[ConnectionServiceWrapper componentName=");
+        sb.append(mComponentName);
+        sb.append("]");
+        return sb.toString();
     }
 }
