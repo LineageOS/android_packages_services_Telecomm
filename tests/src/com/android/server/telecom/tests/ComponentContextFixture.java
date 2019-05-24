@@ -199,6 +199,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
                 return Context.ROLE_SERVICE;
             } else if (svcClass == AudioManager.class) {
                 return Context.AUDIO_SERVICE;
+            } else if (svcClass == TelephonyManager.class) {
+                return Context.TELEPHONY_SERVICE;
             }
             throw new UnsupportedOperationException();
         }
@@ -483,7 +485,11 @@ public class ComponentContextFixture implements TestFixture<Context> {
                 matches(Manifest.permission.CALL_COMPANION_APP), anyString()))
                 .thenReturn(PackageManager.PERMISSION_DENIED);
 
-        when(mTelephonyManager.getSubIdForPhoneAccount((PhoneAccount) any())).thenReturn(1);
+        // Used in CreateConnectionProcessor to rank emergency numbers by viability.
+        // For the test, make them all equal to INVALID so that the preferred PhoneAccount will be
+        // chosen.
+        when(mTelephonyManager.getSubIdForPhoneAccount((PhoneAccount) any())).thenReturn(
+                SubscriptionManager.INVALID_SUBSCRIPTION_ID);
 
         when(mTelephonyManager.getNetworkOperatorName()).thenReturn("label1");
         when(mTelephonyManager.getMultiSimConfiguration()).thenReturn(
@@ -502,6 +508,11 @@ public class ComponentContextFixture implements TestFixture<Context> {
 
         doReturn(null).when(mApplicationContextSpy).registerReceiver(any(BroadcastReceiver.class),
                 any(IntentFilter.class));
+
+        // Make sure we do not hide PII during testing.
+        Log.setTag("TelecomTEST");
+        Log.setIsExtendedLoggingEnabled(true);
+        Log.VERBOSE = true;
     }
 
     @Override
