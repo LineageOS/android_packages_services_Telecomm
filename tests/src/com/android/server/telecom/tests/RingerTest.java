@@ -32,6 +32,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.Call;
+import com.android.server.telecom.CallState;
 import com.android.server.telecom.InCallController;
 import com.android.server.telecom.InCallTonePlayer;
 import com.android.server.telecom.Ringer;
@@ -140,6 +141,8 @@ public class RingerTest extends TelecomTestCase {
         mRingerUnderTest = new Ringer(mockPlayerFactory, mContext, mockSystemSettingsUtil,
                 mockRingtonePlayer, mockRingtoneFactory, mockVibrator, spyVibrationEffectProxy,
                 mockInCallController);
+        when(mockCall1.getState()).thenReturn(CallState.RINGING);
+        when(mockCall2.getState()).thenReturn(CallState.RINGING);
         mRingerUnderTest.setBlockOnRingingFuture(mRingCompletionFuture);
     }
 
