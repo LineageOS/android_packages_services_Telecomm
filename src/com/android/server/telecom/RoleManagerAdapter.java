@@ -20,6 +20,8 @@ import android.content.Intent;
 import android.os.UserHandle;
 
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.function.IntConsumer;
 
 /**
  * Provides a means of wrapping {@code RoleManager} operations which Telecom uses to aid in testing
@@ -70,6 +72,12 @@ public interface RoleManagerAdapter {
      * @return the package name of the app filling the role, {@code null} otherwise}.
      */
     String getDefaultDialerApp(int user);
+
+    /**
+     * Observe changes to the package name of the app which fills the
+     * {@link android.app.role.RoleManager} {@link android.app.role.RoleManager#ROLE_DIALER} role.
+     */
+    void observeDefaultDialerApp(Executor executor, IntConsumer observer);
 
     /**
      * Override the {@link android.app.role.RoleManager} default dialer app with another value.
