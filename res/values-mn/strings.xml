@@ -56,7 +56,7 @@
     <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"Үндсэн болгох"</string>
     <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Болих"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Блоклосон дугаар"</string>
-    <string name="blocked_numbers_msg" msgid="1045015186124965643">"Та хориглосон дугаараас дуудлага, мессеж хүлээн авахгүй."</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"Та блоклосон дугаараас дуудлага, мессеж хүлээн авахгүй."</string>
     <string name="block_number" msgid="1101252256321306179">"Дугаар нэмэх"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>-г блокоос гаргах уу?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Блокоос гаргах"</string>
@@ -103,7 +103,7 @@
     <string name="phone_settings_payphone_txt" msgid="2493356957416981318">"Төлбөртэй утас"</string>
     <string name="phone_settings_payphone_summary_txt" msgid="6126709946103814653">"Төлбөртэй утаснаас залгасан дуудлагуудыг хориглох"</string>
     <string name="phone_settings_unknown_txt" msgid="5836407031508172721">"Тодорхойгүй"</string>
-    <string name="phone_settings_unknown_summary_txt" msgid="3457690230497753233">"Тодорхойгүй дугаараас ирсэн дуудлагуудыг хориглох"</string>
+    <string name="phone_settings_unknown_summary_txt" msgid="3457690230497753233">"Тодорхойгүй дугаараас ирсэн дуудлагуудыг блоклох"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="628536625775266096">"Дуудлага хориглох"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"Дуудлага хориглохыг идэвхгүй болгосон"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"Яаралтай тусламжийн дуудлага хийсэн"</string>
