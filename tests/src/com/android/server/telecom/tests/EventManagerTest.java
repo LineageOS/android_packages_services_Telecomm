@@ -230,6 +230,10 @@ public class EventManagerTest extends TelecomTestCase {
         if (Build.IS_USER) {
             return;
         }
+        // Cache old setting for verbose
+        boolean verboseBeforeTest = Log.VERBOSE;
+        // testing PII, so turn off verbose.
+        Log.VERBOSE = false;
         assertEquals("tel:**********12",
                 Log.piiHandle(Uri.fromParts("tel", "+16505551212", null)));
         assertEquals("tel:*****12",
@@ -238,5 +242,7 @@ public class EventManagerTest extends TelecomTestCase {
                 Log.piiHandle(Uri.fromParts("tel", "411", null)));
         assertEquals("tel:1",
                 Log.piiHandle(Uri.fromParts("tel", "1", null)));
+        // Restore old config.
+        Log.VERBOSE = verboseBeforeTest;
     }
 }

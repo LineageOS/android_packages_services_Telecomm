@@ -56,11 +56,11 @@
     <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"ડિફૉલ્ટ સેટ કરો"</string>
     <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"રદ કરો"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"અવરોધિત નંબરો"</string>
-    <string name="blocked_numbers_msg" msgid="1045015186124965643">"તમે અવરોધિત નંબરોથી કૉલ્સ અથવા ટેક્સ્ટ પ્રાપ્ત કરશો નહીં."</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"બ્લૉક કરેલા નંબર પરથી કૉલ અથવા ટેક્સ્ટ તમને આવશે નહિ."</string>
     <string name="block_number" msgid="1101252256321306179">"એક નંબર ઉમેરો"</string>
-    <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ને અનાવરોધિત કરીએ?"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ને બ્લૉક કરીએ?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"અનાવરોધિત કરો"</string>
-    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"આ નંબરના કૉલ્સ અને ટેક્સ્ટને અવરોધિત કરો"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"આ નંબરના કૉલ અને ટેક્સ્ટને અવરોધિત કરો"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"ફોન નંબર"</string>
     <string name="block_button" msgid="8822290682524373357">"અવરોધિત કરો"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"ફક્ત ઉપકરણના માલિક અવરોધિત નંબરોને જોઈ અને સંચાલિત કરી શકે છે."</string>
