@@ -57,7 +57,7 @@
     <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Откажи"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Блокирани бројеви"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Нећете примати позиве ни SMS-ове са блокираних бројева."</string>
-    <string name="block_number" msgid="1101252256321306179">"Додај број"</string>
+    <string name="block_number" msgid="1101252256321306179">"Додајте број"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Желите ли да деблокирате <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Деблокирај"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Блокирајте позиве и SMS-ове од"</string>
