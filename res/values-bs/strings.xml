@@ -60,7 +60,7 @@
     <string name="block_number" msgid="1101252256321306179">"Dodaj broj"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Deblokirati <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Deblokiraj"</string>
-    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Blokiraj pozive i poruke od"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Blokirajte pozive i SMS-ove od"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Broj telefona"</string>
     <string name="block_button" msgid="8822290682524373357">"Blokiraj"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Samo vlasnik uređaja može pregledati i upravljati blokiranim brojevima."</string>
@@ -102,7 +102,7 @@
     <string name="phone_settings_private_num_summary_txt" msgid="7516314821207782191">"Blokirajte pozivaoce koji ne otkrivaju svoj broj"</string>
     <string name="phone_settings_payphone_txt" msgid="2493356957416981318">"Telefonska govornica"</string>
     <string name="phone_settings_payphone_summary_txt" msgid="6126709946103814653">"Blokirajte pozive s telefonskih govornica"</string>
-    <string name="phone_settings_unknown_txt" msgid="5836407031508172721">"Nepoznat"</string>
+    <string name="phone_settings_unknown_txt" msgid="5836407031508172721">"Nepoznato"</string>
     <string name="phone_settings_unknown_summary_txt" msgid="3457690230497753233">"Blokirajte pozive neidentificiranih pozivalaca"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="628536625775266096">"Blokiranje poziva"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"Blokiranje poziva je onemogućeno"</string>
