@@ -101,9 +101,9 @@
     <string name="phone_settings_private_num_txt" msgid="8623574188879134262">"Privat"</string>
     <string name="phone_settings_private_num_summary_txt" msgid="7516314821207782191">"Anrufer mit unterdrückter Nummer werden blockiert"</string>
     <string name="phone_settings_payphone_txt" msgid="2493356957416981318">"Öffentliche Telefone"</string>
-    <string name="phone_settings_payphone_summary_txt" msgid="6126709946103814653">"Anrufe von öffentlichen Telefonen werden blockiert"</string>
+    <string name="phone_settings_payphone_summary_txt" msgid="6126709946103814653">"Anrufe von öffentlichen Telefonen blockieren"</string>
     <string name="phone_settings_unknown_txt" msgid="5836407031508172721">"Unbekannt"</string>
-    <string name="phone_settings_unknown_summary_txt" msgid="3457690230497753233">"Anrufe von nicht identifizierten Anrufern werden blockiert"</string>
+    <string name="phone_settings_unknown_summary_txt" msgid="3457690230497753233">"Anrufe von nicht identifizierten Anrufern blockieren"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="628536625775266096">"Anrufblockierung"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"Anrufblockierung deaktiviert"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"Notruf abgesetzt"</string>
