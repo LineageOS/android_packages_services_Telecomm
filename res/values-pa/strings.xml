@@ -55,21 +55,21 @@
     <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> ਉਹਨਾਂ ਕਾਲਰਾਂ ਬਾਰੇ ਜਾਣਕਾਰੀ ਦੇਖ ਸਕੇਗੀ ਜੋ ਤੁਹਾਡੇ ਸੰਪਰਕਾਂ ਵਿੱਚ ਨਹੀਂ ਹਨ ਅਤੇ ਉਹਨਾਂ ਕਾਲਾਂ ਨੂੰ ਬਲਾਕ ਕਰ ਸਕੇਗੀ। ਸਿਰਫ਼ ਉਹਨਾਂ ਐਪਾਂ ਨੂੰ ਪੂਰਵ-ਨਿਰਧਾਰਤ ਸਕ੍ਰੀਨਿੰਗ ਐਪ ਵਜੋਂ ਸੈੱਟ ਕਰਨਾ ਚਾਹੀਦਾ ਹੈ ਜਿਨ੍ਹਾਂ \'ਤੇ ਤੁਸੀਂ ਭਰੋਸਾ ਕਰਦੇ ਹੋ।"</string>
     <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"ਪੂਰਵ-ਨਿਰਧਾਰਤ ਸੈੱਟ ਕਰੋ"</string>
     <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"ਰੱਦ ਕਰੋ"</string>
-    <string name="blocked_numbers" msgid="2751843139572970579">"ਬਲੌਕ ਕੀਤੇ ਗਏ ਨੰਬਰ"</string>
-    <string name="blocked_numbers_msg" msgid="1045015186124965643">"ਤੁਹਾਨੂੰ ਬਲੌਕ ਕੀਤੇ ਨੰਬਰਾਂ ਤੋਂ ਕਾਲਾਂ ਜਾਂ ਲਿਖਤ ਸੁਨੇਹੇ ਪ੍ਰਾਪਤ ਨਹੀਂ ਹੋਣਗੇ।"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"ਬਲਾਕ ਕੀਤੇ ਗਏ ਨੰਬਰ"</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"ਤੁਹਾਨੂੰ ਬਲਾਕ ਕੀਤੇ ਨੰਬਰਾਂ ਤੋਂ ਕਾਲਾਂ ਜਾਂ ਲਿਖਤ ਸੁਨੇਹੇ ਪ੍ਰਾਪਤ ਨਹੀਂ ਹੋਣਗੇ।"</string>
     <string name="block_number" msgid="1101252256321306179">"ਇੱਕ ਨੰਬਰ ਸ਼ਾਮਲ ਕਰੋ"</string>
-    <string name="unblock_dialog_body" msgid="1614238499771862793">"ਕੀ <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ਨੂੰ ਅਣਬਲੌਕ ਕਰਨਾ ਹੈ?"</string>
-    <string name="unblock_button" msgid="3078048901972674170">"ਅਣਬਲੌਕ ਕਰੋ"</string>
-    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"ਇਸ ਨੰਬਰ ਤੋਂ ਕਾਲਾਂ ਅਤੇ ਲਿਖਤੀ ਸੁਨੇਹਿਆਂ ਨੂੰ ਬਲੌਕ ਕਰੋ"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"ਕੀ <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ਨੂੰ ਅਣਬਲਾਕ ਕਰਨਾ ਹੈ?"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"ਅਣਬਲਾਕ ਕਰੋ"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"ਇਸ ਨੰਬਰ ਤੋਂ ਕਾਲਾਂ ਅਤੇ ਲਿਖਤੀ ਸੁਨੇਹਿਆਂ ਨੂੰ ਬਲਾਕ ਕਰੋ"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"ਫ਼ੋਨ ਨੰਬਰ"</string>
-    <string name="block_button" msgid="8822290682524373357">"ਬਲੌਕ ਕਰੋ"</string>
+    <string name="block_button" msgid="8822290682524373357">"ਬਲਾਕ ਕਰੋ"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"ਸਿਰਫ਼ ਡੀਵਾਈਸ ਮਾਲਕ ਹੀ ਬਲੌਕ ਕੀਤੇ ਗਏ ਨੰਬਰਾਂ ਨੂੰ  ਦੇਖ  ਅਤੇ ਪ੍ਰਬੰਧਿਤ ਕਰ ਸਕਦਾ ਹੈ।"</string>
-    <string name="delete_icon_description" msgid="8903995728252556724">"ਅਨਬਲੌਕ ਕਰੋ"</string>
+    <string name="delete_icon_description" msgid="8903995728252556724">"ਅਣਬਲਾਕ ਕਰੋ"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"ਬਲੌਕਿੰਗ ਆਰਜ਼ੀ ਤੌਰ \'ਤੇ ਬੰਦ ਹੈ"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"ਤੁਹਾਡੇ ਵੱਲੋਂ ਇੱਕ ਐਮਰਜੈਂਸੀ ਨੰਬਰ ਨੂੰ ਡਾਇਲ ਕੀਤੇ ਜਾਣ ਜਾਂ ਲਿਖਤ ਸੁਨੇਹਾ ਭੇਜੇ ਜਾਣ ਤੋਂ ਬਾਅਦ, ਇਹ ਯਕੀਨੀ ਬਣਾਉਣ ਲਈ ਬਲੌਕਿੰਗ ਨੂੰ ਬੰਦ ਕੀਤਾ ਜਾਂਦਾ ਹੈ ਕਿ ਐਮਰਜੈਂਸੀ ਸੇਵਾਵਾਂ ਤੁਹਾਨੂੰ ਸੰਪਰਕ ਕਰ ਸਕਣ।"</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"ਹੁਣੇ ਦੁਬਾਰਾ ਯੋਗ ਬਣਾਓ"</string>
-    <string name="blocked_numbers_number_blocked_message" msgid="7678509606805029540">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> ਬਲੌਕ ਕੀਤਾ ਗਿਆ"</string>
-    <string name="blocked_numbers_number_unblocked_message" msgid="977894647366750418">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> ਅਣਬਲੌਕ ਕੀਤਾ ਗਿਆ"</string>
+    <string name="blocked_numbers_number_blocked_message" msgid="7678509606805029540">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> ਬਲਾਕ ਕੀਤਾ ਗਿਆ"</string>
+    <string name="blocked_numbers_number_unblocked_message" msgid="977894647366750418">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> ਅਣਬਲਾਕ ਕੀਤਾ ਗਿਆ"</string>
     <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"ਐਮਰਜੈਂਸੀ ਨੰਬਰ ਨੂੰ ਬਲੌਕ ਕਰਨ ਵਿੱਚ ਅਸਮਰੱਥ।"</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> ਪਹਿਲਾਂ ਤੋਂ ਹੀ ਬਲੌਕ ਕੀਤਾ ਹੋਇਆ ਹੈ।"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"ਕਾਲ ਕਰਨ ਲਈ ਨਿੱਜੀ ਡਾਇਲਰ ਦੀ ਵਰਤੋਂ ਕਰਨੀ"</string>
