@@ -56,9 +56,9 @@
     <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"डिफ़ॉल्ट सेट करें"</string>
     <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"अभी नहीं"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"अवरोधित नंबर"</string>
-    <string name="blocked_numbers_msg" msgid="1045015186124965643">"आपको ब्लॉक किए गए नंबर से कॉल या मैसेज नहीं मिलेंगे."</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"ब्लॉक किए गए नंबर से आपको कॉल या मैसेज नहीं मिलेंगे."</string>
     <string name="block_number" msgid="1101252256321306179">"नंबर जोड़ें"</string>
-    <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> को अनवरोधित करें?"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> को अनब्लॉक करें?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"अनवरोधित करें"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"इसके कॉल और मैसेज रोकें"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"फ़ोन नंबर"</string>

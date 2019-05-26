@@ -55,20 +55,20 @@
     <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g>-ന് നിങ്ങളുടെ കോൺടാക്റ്റുകളിൽ ഇല്ലാത്ത വിളിക്കുന്ന ആളുടെ, വിവരങ്ങൾ കാണാനും, ആ കോളുകളെ ബ്ലോക്കുചെയ്യാനുമാവും. വിശ്വസിക്കാവുന്ന ആപ്പുകൾ മാത്രം ഡിഫോൾട്ട് കോൾ സ്‌ക്രീനിംഗ് ആപ്പായി സജ്ജീകരിക്കുക."</string>
     <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"ഡിഫോൾട്ട് കോൾ സ്‌ക്രീനിംഗ് ആപ്പ് സജ്ജീകരിക്കുക"</string>
     <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"റദ്ദാക്കുക"</string>
-    <string name="blocked_numbers" msgid="2751843139572970579">"ബ്ലോക്കുചെയ്ത നമ്പറുകൾ"</string>
-    <string name="blocked_numbers_msg" msgid="1045015186124965643">"ബ്ലോക്കുചെയ്‌ത നമ്പറുകളിൽ നിന്ന് നിങ്ങൾക്ക് കോളുകളോ സന്ദേശങ്ങളോ ലഭിക്കില്ല."</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"ബ്ലോക്ക് ചെയ്‍ത നമ്പറുകൾ"</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"ബ്ലോക്ക് ചെയ്‌ത നമ്പറുകളിൽ നിന്ന് നിങ്ങൾക്ക് കോളുകളോ സന്ദേശങ്ങളോ ലഭിക്കില്ല."</string>
     <string name="block_number" msgid="1101252256321306179">"ഒരു നമ്പർ ചേർക്കുക"</string>
-    <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> അൺബ്ലോക്കുചെയ്യണോ?"</string>
-    <string name="unblock_button" msgid="3078048901972674170">"അൺബ്ലോക്കുചെയ്യുക"</string>
-    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"ഇനിപ്പറയുന്നതിൽ നിന്നുള്ള കോളുകളും ടെക്സ്റ്റുകളും ബ്ലോക്കുചെയ്യുക"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> അൺബ്ലോക്ക് ചെയ്യണോ?"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"അൺബ്ലോക്ക് ചെയ്യുക"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"ഈ നമ്പറിൽ നിന്നുള്ള കോളുകളും ടെക്സ്റ്റുകളും ബ്ലോക്ക് ചെയ്യുക"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"ഫോൺ നമ്പർ"</string>
     <string name="block_button" msgid="8822290682524373357">"ബ്ലോക്കുചെയ്യുക"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"ബ്ലോക്കുചെയ്ത നമ്പറുകൾ ഉപകരണ ഉടമയ്ക്ക് മാത്രമേ കാണാനും മാനേജുചെയ്യാനും കഴിയൂ."</string>
-    <string name="delete_icon_description" msgid="8903995728252556724">"അൺബ്ലോക്കുചെയ്യുക"</string>
+    <string name="delete_icon_description" msgid="8903995728252556724">"അൺബ്ലോക്ക് ചെയ്യുക"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"ബ്ലോക്കുചെയ്യൽ താൽക്കാലികമായി ഓഫാണ്"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"നിങ്ങൾ ഒരു എമർജൻസി നമ്പർ ഡയൽ ചെയ്‌ത് കഴിയുമ്പോഴോ അതിലേക്ക് സന്ദേശമയച്ചുകഴിയുമ്പോഴോ, എമർജൻസി സേവനങ്ങൾ നിങ്ങളിലേക്ക് എത്തുമെന്ന് ഉറപ്പാക്കാൻ കോൾ ബ്ലോക്കിംഗ് ഓഫാക്കും."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"ഇപ്പോൾ വീണ്ടും പ്രവർത്തനക്ഷമമാക്കുക"</string>
-    <string name="blocked_numbers_number_blocked_message" msgid="7678509606805029540">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> ബ്ലോക്കുചെയ്‌തു"</string>
+    <string name="blocked_numbers_number_blocked_message" msgid="7678509606805029540">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> ബ്ലോക്ക് ചെയ്‌തു"</string>
     <string name="blocked_numbers_number_unblocked_message" msgid="977894647366750418">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> അൺബ്ലോക്കുചെയ്‌തു"</string>
     <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"അടിയന്തര നമ്പർ ബ്ലോക്കുചെയ്യാനാകുന്നില്ല."</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> മുമ്പേതന്നെ ബ്ലോക്കുചെയ്‌തതാണ്."</string>
