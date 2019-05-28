@@ -40,6 +40,10 @@ public class SystemSettingsUtil {
     /** Flag for whether or not to apply ramping ringer on incoming phone calls. */
     private static final String RAMPING_RINGER_ENABLED = "ramping_ringer_enabled";
 
+    /** Flag for whether or not to support audio coupled haptics in ramping ringer. */
+    private static final String RAMPING_RINGER_AUDIO_COUPLED_VIBRATION_ENABLED =
+            "ramping_ringer_audio_coupled_vibration_enabled";
+
     public boolean isTheaterModeOn(Context context) {
         return Settings.Global.getInt(context.getContentResolver(), Settings.Global.THEATER_MODE_ON,
                 0) == 1;
@@ -68,7 +72,12 @@ public class SystemSettingsUtil {
     public boolean enableRampingRingerFromDeviceConfig() {
         return DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_TELEPHONY, RAMPING_RINGER_ENABLED,
                 false);
-   }
+    }
+
+    public boolean enableAudioCoupledVibrationForRampingRinger() {
+        return DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_TELEPHONY,
+                RAMPING_RINGER_AUDIO_COUPLED_VIBRATION_ENABLED, false);
+    }
 
     public int getRampingRingerDuration() {
 	return DeviceConfig.getInt(DeviceConfig.NAMESPACE_TELEPHONY,
