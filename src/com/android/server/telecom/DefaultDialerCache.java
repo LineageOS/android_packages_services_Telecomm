@@ -35,6 +35,8 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.IndentingPrintWriter;
 
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.function.IntConsumer;
 
 public class DefaultDialerCache {
     public interface DefaultDialerManagerAdapter {
@@ -190,6 +192,10 @@ public class DefaultDialerCache {
 
     public String getDefaultDialerApplication() {
         return getDefaultDialerApplication(mContext.getUserId());
+    }
+
+    public void observeDefaultDialerApplication(Executor executor, IntConsumer observer) {
+        mRoleManagerAdapter.observeDefaultDialerApp(executor, observer);
     }
 
     public boolean isDefaultOrSystemDialer(String packageName, int userId) {

@@ -22,8 +22,6 @@ import static android.Manifest.permission.MODIFY_PHONE_STATE;
 import static android.Manifest.permission.READ_PHONE_STATE;
 import static android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE;
 
-import android.annotation.MainThread;
-import android.annotation.WorkerThread;
 import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.content.ComponentName;
@@ -68,6 +66,8 @@ import org.mockito.Mock;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.function.IntConsumer;
 
 import static android.Manifest.permission.REGISTER_SIM_SUBSCRIPTION;
 import static android.Manifest.permission.WRITE_SECURE_SETTINGS;
@@ -84,13 +84,13 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -161,6 +161,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     private CallIntentProcessor.Adapter mCallIntentProcessorAdapter =
             spy(new CallIntentProcessAdapterFake());
     @Mock private DefaultDialerCache mDefaultDialerCache;
+    private IntConsumer mDefaultDialerObserver;
     private TelecomServiceImpl.SubscriptionManagerAdapter mSubscriptionManagerAdapter =
             spy(new SubscriptionManagerAdapterFake());
     private TelecomServiceImpl.SettingsSecureAdapter mSettingsSecureAdapter =
@@ -194,6 +195,11 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         doReturn(mContext).when(mContext).getApplicationContext();
         doNothing().when(mContext).sendBroadcastAsUser(any(Intent.class), any(UserHandle.class),
                 anyString());
+        doAnswer(invocation -> {
+            mDefaultDialerObserver = invocation.getArgument(1);
+            return null;
+        }).when(mDefaultDialerCache).observeDefaultDialerApplication(any(Executor.class),
+                any(IntConsumer.class));
         TelecomServiceImpl telecomServiceImpl = new TelecomServiceImpl(
                 mContext,
                 mFakeCallsManager,
@@ -750,8 +756,14 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         String packageName = "sample.package";
         int currentUser = ActivityManager.getCurrentUser();
 
-        when(mDefaultDialerCache.setDefaultDialer(eq(packageName), eq(currentUser)))
-                .thenReturn(true);
+        String[] defaultDialer = new String[1];
+        doAnswer(invocation -> {
+            defaultDialer[0] = packageName;
+            mDefaultDialerObserver.accept(currentUser);
+            return true;
+        }).when(mDefaultDialerCache).setDefaultDialer(eq(packageName), eq(currentUser));
+        doAnswer(invocation -> defaultDialer[0]).when(mDefaultDialerCache)
+                .getDefaultDialerApplication(eq(currentUser));
 
         mTSIBinder.setDefaultDialer(packageName);
 
