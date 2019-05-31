@@ -2814,6 +2814,8 @@ public class CallsManager extends Call.ListenerBase
 
         setCallState(call, Call.getStateFromConnectionState(parcelableConference.getState()),
                 "new conference call");
+        call.setHandle(parcelableConference.getHandle(),
+                parcelableConference.getHandlePresentation());
         call.setConnectionCapabilities(parcelableConference.getConnectionCapabilities());
         call.setConnectionProperties(parcelableConference.getConnectionProperties());
         call.setVideoState(parcelableConference.getVideoState());
