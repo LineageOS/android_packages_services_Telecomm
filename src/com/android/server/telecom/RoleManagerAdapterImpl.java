@@ -27,6 +27,8 @@ import com.android.internal.util.IndentingPrintWriter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.function.IntConsumer;
 import java.util.stream.Collectors;
 
 public class RoleManagerAdapterImpl implements RoleManagerAdapter {
@@ -80,6 +82,12 @@ public class RoleManagerAdapterImpl implements RoleManagerAdapter {
             return mOverrideDefaultDialerApp;
         }
         return getRoleManagerDefaultDialerApp(user);
+    }
+
+    @Override
+    public void observeDefaultDialerApp(Executor executor, IntConsumer observer) {
+        mRoleManager.addOnRoleHoldersChangedListenerAsUser(executor, (roleName, user) ->
+                observer.accept(user.getIdentifier()), UserHandle.ALL);
     }
 
     @Override
