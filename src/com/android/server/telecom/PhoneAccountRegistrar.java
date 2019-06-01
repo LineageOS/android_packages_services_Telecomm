@@ -472,17 +472,32 @@ public class PhoneAccountRegistrar {
         if (userHandle == null) {
             userHandle = call.getTargetPhoneAccount().getUserHandle();
         }
-        int subId = getSubscriptionIdForPhoneAccount(call.getTargetPhoneAccount());
+        PhoneAccountHandle targetPhoneAccount = call.getTargetPhoneAccount();
+        Log.d(this, "getSimCallManagerFromCall: callId=%s, targetPhac=%s",
+                call.getId(), targetPhoneAccount);
+        return getSimCallManagerFromHandle(targetPhoneAccount,userHandle);
+    }
+
+    /**
+     * Given a target phone account and user, determines the sim call manager (if any) which is
+     * associated with that {@link PhoneAccountHandle}.
+     * @param targetPhoneAccount The target phone account to check.
+     * @param userHandle The user handle.
+     * @return The {@link PhoneAccountHandle} of the connection manager.
+     */
+    public PhoneAccountHandle getSimCallManagerFromHandle(PhoneAccountHandle targetPhoneAccount,
+            UserHandle userHandle) {
+        int subId = getSubscriptionIdForPhoneAccount(targetPhoneAccount);
         if (SubscriptionManager.isValidSubscriptionId(subId)
                  && subId != SubscriptionManager.DEFAULT_SUBSCRIPTION_ID) {
             PhoneAccountHandle callManagerHandle = getSimCallManager(subId, userHandle);
-            Log.d(this, "getSimCallManagerFromCall: callId=%s, targetPhac=%s, subId=%d, scm=%s",
-                    call.getId(), call.getTargetPhoneAccount(), subId, callManagerHandle);
+            Log.d(this, "getSimCallManagerFromHandle: targetPhac=%s, subId=%d, scm=%s",
+                    targetPhoneAccount, subId, callManagerHandle);
             return callManagerHandle;
         } else {
             PhoneAccountHandle callManagerHandle = getSimCallManager(userHandle);
-            Log.d(this, "getSimCallManagerFromCall: callId=%s, targetPhac=%s, subId(d)=%d, scm=%s",
-                    call.getId(), call.getTargetPhoneAccount(), subId, callManagerHandle);
+            Log.d(this, "getSimCallManagerFromHandle: targetPhac=%s, subId(d)=%d, scm=%s",
+                    targetPhoneAccount, subId, callManagerHandle);
             return callManagerHandle;
         }
     }
