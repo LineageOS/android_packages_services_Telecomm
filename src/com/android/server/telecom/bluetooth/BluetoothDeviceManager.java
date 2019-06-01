@@ -142,7 +142,10 @@ public class BluetoothDeviceManager {
     // Same as getConnectedDevices except it filters out the hearing aid devices that are linked
     // together by their hiSyncId.
     public Collection<BluetoothDevice> getUniqueConnectedDevices() {
-        ArrayList<BluetoothDevice> result = new ArrayList<>(mHfpDevicesByAddress.values());
+        ArrayList<BluetoothDevice> result;
+        synchronized (mLock) {
+            result = new ArrayList<>(mHfpDevicesByAddress.values());
+        }
         Set<Long> seenHiSyncIds = new LinkedHashSet<>();
         // Add the left-most active device to the seen list so that we match up with the list
         // generated in BluetoothRouteManager.

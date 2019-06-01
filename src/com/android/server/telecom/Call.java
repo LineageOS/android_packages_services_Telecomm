@@ -399,6 +399,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     private boolean mIsConference = false;
 
+    private boolean mHadChildren = false;
+
     private final boolean mShouldAttachToExistingConnection;
 
     private Call mParentCall = null;
@@ -1009,6 +1011,13 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     @VisibleForTesting
     public boolean isConference() {
         return mIsConference;
+    }
+
+    /**
+     * @return {@code true} if this call had children at some point, {@code false} otherwise.
+     */
+    public boolean hadChildren() {
+        return mHadChildren;
     }
 
     public Uri getHandle() {
@@ -2476,6 +2485,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     private void addChildCall(Call call) {
         if (!mChildCalls.contains(call)) {
+            mHadChildren = true;
             // Set the pseudo-active call to the latest child added to the conference.
             // See definition of mConferenceLevelActiveCall for more detail.
             mConferenceLevelActiveCall = call;

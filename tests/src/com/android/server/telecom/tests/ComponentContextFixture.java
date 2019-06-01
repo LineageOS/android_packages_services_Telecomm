@@ -72,6 +72,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Matchers.anyString;
@@ -97,6 +98,13 @@ public class ComponentContextFixture implements TestFixture<Context> {
         @Override
         public PackageManager getPackageManager() {
             return mPackageManager;
+        }
+
+        @Override
+        public Executor getMainExecutor() {
+            // TODO: This doesn't actually execute anything as we don't need to do so for now, but
+            //  future users might need it.
+            return mMainExecutor;
         }
 
         @Override
@@ -436,6 +444,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
     private final Resources mResources = mock(Resources.class);
     private final Context mApplicationContextSpy = spy(mApplicationContext);
     private final PackageManager mPackageManager = mock(PackageManager.class);
+    private final Executor mMainExecutor = mock(Executor.class);
     private final AudioManager mAudioManager = spy(new FakeAudioManager(mContext));
     private final TelephonyManager mTelephonyManager = mock(TelephonyManager.class);
     private final AppOpsManager mAppOpsManager = mock(AppOpsManager.class);
