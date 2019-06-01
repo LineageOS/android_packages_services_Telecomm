@@ -1071,10 +1071,9 @@ public class TelecomServiceImpl {
                             phoneAccountHandle);
                     if (phoneAccountHandle != null &&
                             phoneAccountHandle.getComponentName() != null) {
-                        // TODO(sail): Add unit tests for adding incoming calls from a SIM call
-                        // manager.
-                        if (isCallerSimCallManager() && TelephonyUtil.isPstnComponentName(
-                                phoneAccountHandle.getComponentName())) {
+                        if (isCallerSimCallManager(phoneAccountHandle)
+                                && TelephonyUtil.isPstnComponentName(
+                                        phoneAccountHandle.getComponentName())) {
                             Log.v(this, "Allowing call manager to add incoming call with PSTN" +
                                     " handle");
                         } else {
@@ -1992,11 +1991,12 @@ public class TelecomServiceImpl {
                 Binder.getCallingUid(), callingPackage) == AppOpsManager.MODE_ALLOWED;
     }
 
-    private boolean isCallerSimCallManager() {
+    private boolean isCallerSimCallManager(PhoneAccountHandle targetPhoneAccount) {
         long token = Binder.clearCallingIdentity();
         PhoneAccountHandle accountHandle = null;
         try {
-             accountHandle = mPhoneAccountRegistrar.getSimCallManagerOfCurrentUser();
+            accountHandle = mPhoneAccountRegistrar.getSimCallManagerFromHandle(targetPhoneAccount,
+                    mCallsManager.getCurrentUserHandle());
         } finally {
             Binder.restoreCallingIdentity(token);
         }
