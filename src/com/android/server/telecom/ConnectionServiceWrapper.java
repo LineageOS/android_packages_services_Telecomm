@@ -1729,9 +1729,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                 Log.v(this, "queryRemoteConnectionServices: callingPackage=%s skipped; "
                                 + "doesn't match mgr %s for tfa %s",
                         callingPackage, connectionMgrHandle, handle);
-                continue;
+            } else {
+                isCallerConnectionManager = true;
             }
-            isCallerConnectionManager = true;
             ConnectionServiceWrapper service = mConnectionServiceRepository.getService(
                     handle.getComponentName(), handle.getUserHandle());
             if (service != null) {
