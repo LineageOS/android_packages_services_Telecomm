@@ -112,6 +112,14 @@ public class CallScreeningServiceFilterTest extends TelecomTestCase {
             true // shouldShowNotification
     );
 
+    private static final CallFilteringResult PASS_RESULT_WITH_SILENCE = new CallFilteringResult(
+            true, // shouldAllowCall
+            false, // shouldReject
+            true, // shouldSilence
+            true, // shouldAddToCallLog
+            true // shouldShowNotification
+    );
+
     private CallScreeningServiceFilter mFilter;
 
     public static class SettingsSecureAdapterFake implements
@@ -216,6 +224,18 @@ public class CallScreeningServiceFilterTest extends TelecomTestCase {
         ICallScreeningAdapter csAdapter = getCallScreeningAdapter();
         csAdapter.allowCall(CALL_ID);
         verify(mCallback).onCallScreeningFilterComplete(eq(mCall), eq(PASS_RESULT), eq(PKG_NAME));
+    }
+
+    @SmallTest
+    @Test
+    public void testSilenceCall() throws Exception {
+        mFilter.startCallScreeningFilter(mCall, mCallback, PKG_NAME, APP_NAME);
+        ServiceConnection serviceConnection = verifyBindingIntent();
+        serviceConnection.onServiceConnected(COMPONENT_NAME, mBinder);
+        ICallScreeningAdapter csAdapter = getCallScreeningAdapter();
+        csAdapter.silenceCall(CALL_ID);
+        verify(mCallback).onCallScreeningFilterComplete(eq(mCall), eq(PASS_RESULT_WITH_SILENCE),
+                eq(PKG_NAME));
     }
 
     @SmallTest
