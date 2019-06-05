@@ -16,6 +16,8 @@
 
 package com.android.server.telecom;
 
+import static android.telephony.CarrierConfigManager.KEY_SUPPORT_IMS_CONFERENCE_EVENT_PACKAGE_BOOL;
+
 import android.annotation.Nullable;
 import android.content.Context;
 import android.content.Intent;
@@ -35,10 +37,12 @@ import android.telecom.PhoneAccountHandle;
 import android.telecom.VideoProfile;
 import android.telephony.CarrierConfigManager;
 import android.telephony.PhoneNumberUtils;
+import android.telephony.SubscriptionManager;
 
 // TODO: Needed for move to system service: import com.android.internal.R;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telephony.CallerInfo;
+import com.android.internal.telephony.SubscriptionController;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
 
 import java.util.Arrays;
@@ -129,6 +133,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
     private static final String TAG = CallLogManager.class.getSimpleName();
 
     private final Context mContext;
+    private final CarrierConfigManager mCarrierConfigManager;
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
     private final MissedCallNotifier mMissedCallNotifier;
     private static final String ACTION_CALLS_TABLE_ADD_ENTRY =
@@ -144,6 +149,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
     public CallLogManager(Context context, PhoneAccountRegistrar phoneAccountRegistrar,
             MissedCallNotifier missedCallNotifier) {
         mContext = context;
+        mCarrierConfigManager = (CarrierConfigManager) mContext
+                .getSystemService(Context.CARRIER_CONFIG_SERVICE);
         mPhoneAccountRegistrar = phoneAccountRegistrar;
         mMissedCallNotifier = missedCallNotifier;
         mLock = new Object();
@@ -194,6 +201,10 @@ public final class CallLogManager extends CallsManagerListenerBase {
      */
     @VisibleForTesting
     public boolean shouldLogDisconnectedCall(Call call, int oldState, boolean isCallCanceled) {
+        boolean shouldCallSelfManagedLogged = call.isLoggedSelfManaged()
+                && (call.getHandoverState() == HandoverState.HANDOVER_NONE
+                || call.getHandoverState() == HandoverState.HANDOVER_COMPLETE);
+
         // "Choose account" phase when disconnected
         if (oldState == CallState.SELECT_PHONE_ACCOUNT) {
             return false;
@@ -231,16 +242,31 @@ public final class CallLogManager extends CallsManagerListenerBase {
             return false;
         }
 
-        // Call merged into conferences.
+        // Call merged into conferences and marked with IMS_MERGED_SUCCESSFULLY.
+        // Return false if the conference supports the participants packets for the carrier.
+        // Otherwise, fall through. Merged calls would be associated with disconnected
+        // connections because of special carrier requirements. Those calls don't look like
+        // merged, e.g. could be one active and the other on hold.
         if (cause != null && android.telephony.DisconnectCause.toString(
                 android.telephony.DisconnectCause.IMS_MERGED_SUCCESSFULLY)
                 .equals(cause.getReason())) {
-            return false;
+            int subscriptionId = mPhoneAccountRegistrar
+                    .getSubscriptionIdForPhoneAccount(call.getTargetPhoneAccount());
+            // By default, the conference should return a list of participants.
+            if (subscriptionId == SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+                return false;
+            }
+
+            PersistableBundle b = mCarrierConfigManager.getConfigForSubId(subscriptionId);
+            if (b == null) {
+                return false;
+            }
+
+            if (b.getBoolean(KEY_SUPPORT_IMS_CONFERENCE_EVENT_PACKAGE_BOOL, true)) {
+                return false;
+            }
         }
 
-        boolean shouldCallSelfManagedLogged = call.isLoggedSelfManaged()
-                && (call.getHandoverState() == HandoverState.HANDOVER_NONE
-                || call.getHandoverState() == HandoverState.HANDOVER_COMPLETE);
         // Call is NOT a self-managed call OR call is a self-managed call which has indicated it
         // should be logged in its PhoneAccount
         return !call.isSelfManaged() || shouldCallSelfManagedLogged;
