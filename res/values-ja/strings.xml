@@ -57,7 +57,7 @@
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"次の発信元からの通話とテキスト メッセージをブロック"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"電話番号"</string>
     <string name="block_button" msgid="8822290682524373357">"ブロック"</string>
-    <string name="non_primary_user" msgid="5180129233352533459">"ブロックした番号を表示、管理できるのは端末の所有者のみです。"</string>
+    <string name="non_primary_user" msgid="5180129233352533459">"ブロックした番号を表示、管理できるのはデバイスの所有者のみです。"</string>
     <string name="delete_icon_description" msgid="8903995728252556724">"ブロックを解除"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"ブロックが一時的に OFF になっています"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"緊急通報番号に電話をかけたり、テキスト メッセージを送信したりすると、ブロックが OFF になり、緊急通報受理機関からの通話を着信できるようになります。"</string>

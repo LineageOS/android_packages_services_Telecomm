@@ -50,7 +50,7 @@
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"취소"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g>은(는) 모든 전화를 걸고 제어할 수 있습니다. 신뢰할 수 있는 앱만 기본 전화 앱으로 설정하세요."</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"차단된 번호"</string>
-    <string name="blocked_numbers_msg" msgid="1045015186124965643">"차단한 번호에서 걸려오는 전화나 문자를 더 이상 받지 않습니다."</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"차단한 번호에서 걸려오는 전화나 문자는 더 이상 수신되지 않습니다."</string>
     <string name="block_number" msgid="1101252256321306179">"번호 추가"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>번을 차단 해제하시겠습니까?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"차단 해제"</string>

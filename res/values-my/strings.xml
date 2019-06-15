@@ -49,7 +49,7 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"မူရင်း သတ်မှတ်ရန်"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"မလုပ်တော့"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> သည် ခေါ်ဆိုမှုများကို ဘက်စုံပြုလုပ်ထိန်းချုပ်သွားနိုင်မည်ဖြစ်သည်။ သင်ယုံကြည်သော အက်ပ်များကိုသာ မူရင်း Phone အက်ပ်အဖြစ် သတ်မှတ်သင့်ပါသည်။"</string>
-    <string name="blocked_numbers" msgid="2751843139572970579">"ပိတ်ထားသည့် နံပါတ်များ"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"ပိတ်ဆို့နံပါတ်များ"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"ပိတ်ထားသော နံပါတ်များမှ ဖုန်းခေါ်ခြင်း (သို့) စာသားပို့ခြင်းတို့ကို သင်လက်ခံရရှိမည် မဟုတ်ပါ။"</string>
     <string name="block_number" msgid="1101252256321306179">"နံပါတ်တစ်ခု ထည့်ပါ"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ကို ပိတ်ဆို့မှုပြန်ဖွင့်မလား။"</string>

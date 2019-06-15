@@ -38,7 +38,7 @@
     <string name="respond_via_sms_edittext_dialog_title" msgid="20379890418289778">"Жылдам жауап"</string>
     <string name="respond_via_sms_confirmation_format" msgid="7229149977515784269">"Хабар <xliff:g id="PHONE_NUMBER">%s</xliff:g> нөміріне жіберілді."</string>
     <string name="enable_account_preference_title" msgid="2021848090086481720">"Қоңырау шалу есептік жазбалары"</string>
-    <string name="outgoing_call_not_allowed_user_restriction" msgid="6872406278300131364">"Тек төтенше қоңырауларға рұқсат етілген."</string>
+    <string name="outgoing_call_not_allowed_user_restriction" msgid="6872406278300131364">"Құтқару қызметіне ғана қоңырау шалуға рұқсат етілген."</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="1996571596464271228">"\"Телефон\" рұқсатынсыз бұл қолданба шығыс қоңырауларды соға алмайды."</string>
     <string name="outgoing_call_error_no_phone_number_supplied" msgid="1940125199802007505">"Қоңырау шалу үшін жарамды нөмірді енгізіңіз."</string>
     <string name="duplicate_video_call_not_allowed" msgid="3749211605014548386">"Қоңырауды қазіргі уақытта қосу мүмкін емес."</string>
