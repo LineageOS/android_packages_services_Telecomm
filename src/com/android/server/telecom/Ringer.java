@@ -146,6 +146,8 @@ public class Ringer {
      */
     private CompletableFuture<Void> mBlockOnRingingFuture = null;
 
+    private CompletableFuture<Void> mVibrateFuture = CompletableFuture.completedFuture(null);
+
     private InCallTonePlayer mCallWaitingPlayer;
     private RingtoneFactory mRingtoneFactory;
 
@@ -324,8 +326,7 @@ public class Ringer {
         }
 
         if (hapticsFuture != null) {
-            CompletableFuture<Void> vibrateFuture =
-                    hapticsFuture.thenAccept(isUsingAudioCoupledHaptics -> {
+           mVibrateFuture = hapticsFuture.thenAccept(isUsingAudioCoupledHaptics -> {
                 if (!isUsingAudioCoupledHaptics || !mIsHapticPlaybackSupportedByDevice) {
                     Log.i(this, "startRinging: fileHasHaptics=%b, hapticsSupported=%b",
                             isUsingAudioCoupledHaptics, mIsHapticPlaybackSupportedByDevice);
@@ -337,10 +338,7 @@ public class Ringer {
                 }
             });
             if (mBlockOnRingingFuture != null) {
-                vibrateFuture.thenCompose( v -> {
-                    mBlockOnRingingFuture.complete(null);
-                    return null;
-                });
+                mVibrateFuture.whenComplete((v, e) -> mBlockOnRingingFuture.complete(null));
             }
         } else {
             if (mBlockOnRingingFuture != null) {
@@ -437,6 +435,12 @@ public class Ringer {
         }
 
         mRingtonePlayer.stop();
+
+        // If we haven't started vibrating because we were waiting for the haptics info, cancel
+        // it and don't vibrate at all.
+        if (mVibrateFuture != null) {
+            mVibrateFuture.cancel(true);
+        }
 
         if (mIsVibrating) {
             Log.addEvent(mVibratingCall, LogUtils.Events.STOP_VIBRATOR);
