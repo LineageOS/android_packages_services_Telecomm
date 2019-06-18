@@ -24,6 +24,7 @@ import android.media.Ringtone;
 import android.media.VolumeShaper;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Looper;
 import android.os.Parcel;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -298,6 +299,31 @@ public class RingerTest extends TelecomTestCase {
                 any(VolumeShaper.Configuration.class), anyBoolean());
         verify(mockVibrator).vibrate(eq(mRingerUnderTest.mDefaultVibrationEffect),
                 any(AudioAttributes.class));
+    }
+
+    @SmallTest
+    @Test
+    public void testStopRingingBeforeHapticsLookupComplete() throws Exception {
+        enableVibrationWhenRinging();
+        Ringtone mockRingtone = mock(Ringtone.class);
+        when(mockRingtoneFactory.getRingtone(nullable(Call.class))).thenReturn(mockRingtone);
+        when(mockAudioManager.getRingerModeInternal()).thenReturn(AudioManager.RINGER_MODE_NORMAL);
+
+        mRingerUnderTest.startRinging(mockCall1, false);
+        // Make sure we haven't started the vibrator yet, but have started ringing.
+        verify(mockRingtonePlayer).play(nullable(RingtoneFactory.class), nullable(Call.class),
+                nullable(VolumeShaper.Configuration.class), anyBoolean());
+        verify(mockVibrator, never()).vibrate(nullable(VibrationEffect.class),
+                nullable(AudioAttributes.class));
+        // Simulate something stopping the ringer
+        mRingerUnderTest.stopRinging();
+        verify(mockRingtonePlayer).stop();
+        verify(mockVibrator, never()).cancel();
+        // Simulate the haptics computation finishing
+        mFuture.complete(false);
+        // Then make sure that we don't actually start vibrating.
+        verify(mockVibrator, never()).vibrate(nullable(VibrationEffect.class),
+                nullable(AudioAttributes.class));
     }
 
     @SmallTest
