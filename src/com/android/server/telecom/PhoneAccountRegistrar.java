@@ -621,7 +621,7 @@ public class PhoneAccountRegistrar {
     public List<PhoneAccountHandle> getCallCapablePhoneAccounts(
             String uriScheme, boolean includeDisabledAccounts, UserHandle userHandle) {
         return getCallCapablePhoneAccounts(uriScheme, includeDisabledAccounts, userHandle,
-                0 /* capabilities */);
+                0 /* capabilities */, PhoneAccount.CAPABILITY_EMERGENCY_CALLS_ONLY);
     }
 
     /**
@@ -638,10 +638,10 @@ public class PhoneAccountRegistrar {
      */
     public List<PhoneAccountHandle> getCallCapablePhoneAccounts(
             String uriScheme, boolean includeDisabledAccounts, UserHandle userHandle,
-            int capabilities) {
+            int capabilities, int excludedCapabilities) {
         return getPhoneAccountHandles(
                 PhoneAccount.CAPABILITY_CALL_PROVIDER | capabilities,
-                PhoneAccount.CAPABILITY_EMERGENCY_CALLS_ONLY /*excludedCapabilities*/,
+                excludedCapabilities /*excludedCapabilities*/,
                 uriScheme, null, includeDisabledAccounts, userHandle);
     }
 
