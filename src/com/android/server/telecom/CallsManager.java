@@ -2207,10 +2207,10 @@ public class CallsManager extends Call.ListenerBase
         // If we're specifically looking for video capable accounts, then include that capability,
         // otherwise specify no additional capability constraints. When handling the emergency call,
         // it also needs to find the phone accounts excluded by CAPABILITY_EMERGENCY_CALLS_ONLY.
-        List<PhoneAccountHandle> allAccounts = isEmergency ?
-                mPhoneAccountRegistrar.getAllPhoneAccountHandles(user) :
+        List<PhoneAccountHandle> allAccounts =
                 mPhoneAccountRegistrar.getCallCapablePhoneAccounts(handle.getScheme(), false, user,
-                        isVideo ? PhoneAccount.CAPABILITY_VIDEO_CALLING : 0 /* any */);
+                        isVideo ? PhoneAccount.CAPABILITY_VIDEO_CALLING : 0 /* any */,
+                        isEmergency ? 0 : PhoneAccount.CAPABILITY_EMERGENCY_CALLS_ONLY);
         // First check the Radio SIM Technology
         if(mRadioSimVariants == null) {
             TelephonyManager tm = (TelephonyManager) mContext.getSystemService(
