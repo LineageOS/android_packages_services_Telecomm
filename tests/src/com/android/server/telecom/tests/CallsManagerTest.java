@@ -330,7 +330,7 @@ public class CallsManagerTest extends TelecomTestCase {
         when(mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(any(), any())).thenReturn(
                 SIM_1_HANDLE);
         when(mPhoneAccountRegistrar.getCallCapablePhoneAccounts(any(), anyBoolean(),
-                any(), anyInt())).thenReturn(
+                any(), anyInt(), anyInt())).thenReturn(
                 new ArrayList<>(Arrays.asList(SIM_1_HANDLE, SIM_2_HANDLE)));
 
         List<PhoneAccountHandle> accounts = mCallsManager.findOutgoingCallPhoneAccount(
@@ -354,7 +354,7 @@ public class CallsManagerTest extends TelecomTestCase {
         when(mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(any(), any())).thenReturn(
                 null);
         when(mPhoneAccountRegistrar.getCallCapablePhoneAccounts(any(), anyBoolean(),
-                any(), anyInt())).thenReturn(
+                any(), anyInt(), anyInt())).thenReturn(
                 new ArrayList<>(Arrays.asList(SIM_1_HANDLE, SIM_2_HANDLE)));
 
         List<PhoneAccountHandle> accounts = mCallsManager.findOutgoingCallPhoneAccount(
@@ -378,7 +378,7 @@ public class CallsManagerTest extends TelecomTestCase {
         when(mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(any(), any())).thenReturn(
                 null);
         when(mPhoneAccountRegistrar.getCallCapablePhoneAccounts(any(), anyBoolean(),
-                any(), eq(PhoneAccount.CAPABILITY_VIDEO_CALLING))).thenReturn(
+                any(), eq(PhoneAccount.CAPABILITY_VIDEO_CALLING), anyInt())).thenReturn(
                 new ArrayList<>(Arrays.asList(SIM_2_HANDLE)));
 
         List<PhoneAccountHandle> accounts = mCallsManager.findOutgoingCallPhoneAccount(
@@ -402,11 +402,11 @@ public class CallsManagerTest extends TelecomTestCase {
                 null);
         // When querying for video capable accounts, return nothing.
         when(mPhoneAccountRegistrar.getCallCapablePhoneAccounts(any(), anyBoolean(),
-                any(), eq(PhoneAccount.CAPABILITY_VIDEO_CALLING))).thenReturn(
+                any(), eq(PhoneAccount.CAPABILITY_VIDEO_CALLING), anyInt())).thenReturn(
                 Collections.emptyList());
         // When querying for non-video capable accounts, return one.
         when(mPhoneAccountRegistrar.getCallCapablePhoneAccounts(any(), anyBoolean(),
-                any(), eq(0 /* none specified */))).thenReturn(
+                any(), eq(0 /* none specified */), anyInt())).thenReturn(
                 new ArrayList<>(Arrays.asList(SIM_1_HANDLE)));
         List<PhoneAccountHandle> accounts = mCallsManager.findOutgoingCallPhoneAccount(
                 null /* phoneAcct */, TEST_ADDRESS, true /* isVideo */, false /* isEmergency */, null /* userHandle */)
@@ -428,7 +428,7 @@ public class CallsManagerTest extends TelecomTestCase {
         when(mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(any(), any())).thenReturn(
                 null);
         when(mPhoneAccountRegistrar.getCallCapablePhoneAccounts(any(), anyBoolean(),
-                any(), anyInt())).thenReturn(
+                any(), anyInt(), anyInt())).thenReturn(
                 new ArrayList<>(Arrays.asList(SIM_1_HANDLE, SIM_2_HANDLE)));
 
         List<PhoneAccountHandle> accounts = mCallsManager.findOutgoingCallPhoneAccount(
@@ -449,7 +449,7 @@ public class CallsManagerTest extends TelecomTestCase {
         when(mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(any(), any())).thenReturn(
                 null);
         when(mPhoneAccountRegistrar.getCallCapablePhoneAccounts(any(), anyBoolean(),
-                any(), anyInt())).thenReturn(
+                any(), anyInt(), anyInt())).thenReturn(
                 new ArrayList<>(Arrays.asList(SIM_1_HANDLE, SIM_2_HANDLE)));
 
         List<PhoneAccountHandle> accounts = mCallsManager.findOutgoingCallPhoneAccount(
@@ -1130,7 +1130,7 @@ public class CallsManagerTest extends TelecomTestCase {
         when(mockTelephonyManager.getMultiSimConfiguration()).thenReturn(
                 TelephonyManager.MultiSimVariants.DSDS);
         when(mPhoneAccountRegistrar.getCallCapablePhoneAccounts(any(), anyBoolean(),
-                any(), anyInt())).thenReturn(
+                any(), anyInt(), anyInt())).thenReturn(
                 new ArrayList<>(Arrays.asList(SIM_1_HANDLE, SIM_2_HANDLE)));
         when(mPhoneAccountRegistrar.getSimPhoneAccountsOfCurrentUser()).thenReturn(
                 new ArrayList<>(Arrays.asList(SIM_1_HANDLE, SIM_2_HANDLE)));
