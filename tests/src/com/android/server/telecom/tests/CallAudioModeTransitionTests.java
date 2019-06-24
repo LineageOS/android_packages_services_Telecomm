@@ -414,6 +414,82 @@ public class CallAudioModeTransitionTests extends TelecomTestCase {
         ));
 
         result.add(new ModeTestParameters(
+                "Swap between voip and sim calls - 1",
+                CallAudioModeStateMachine.ENTER_CALL_FOCUS_FOR_TESTING, // initialAudioState
+                CallAudioModeStateMachine.NEW_HOLDING_CALL, // messageType
+                new CallAudioModeStateMachine.MessageArgs(
+                        false, // hasActiveOrDialingCalls
+                        false, // hasRingingCalls
+                        true, // hasHoldingCalls
+                        false, // isTonePlaying
+                        true, // foregroundCallIsVoip
+                        null // session
+                ),
+                CallAudioModeStateMachine.COMMS_STATE_NAME, // expectedFinalStateName
+                FOCUS_VOICE, // expectedFocus
+                AudioManager.MODE_IN_COMMUNICATION, // expectedMode
+                NO_CHANGE, // expectedRingingInteraction
+                NO_CHANGE // expectedCallWaitingInteraction
+        ));
+
+        result.add(new ModeTestParameters(
+                "Swap between voip and sim calls - 2",
+                CallAudioModeStateMachine.ENTER_COMMS_FOCUS_FOR_TESTING, // initialAudioState
+                CallAudioModeStateMachine.NEW_HOLDING_CALL, // messageType
+                new CallAudioModeStateMachine.MessageArgs(
+                        false, // hasActiveOrDialingCalls
+                        false, // hasRingingCalls
+                        true, // hasHoldingCalls
+                        false, // isTonePlaying
+                        false, // foregroundCallIsVoip
+                        null // session
+                ),
+                CallAudioModeStateMachine.CALL_STATE_NAME, // expectedFinalStateName
+                FOCUS_VOICE, // expectedFocus
+                AudioManager.MODE_IN_CALL, // expectedMode
+                NO_CHANGE, // expectedRingingInteraction
+                NO_CHANGE // expectedCallWaitingInteraction
+        ));
+
+        result.add(new ModeTestParameters(
+                "Swap between voip and sim calls - 3",
+                CallAudioModeStateMachine.ENTER_COMMS_FOCUS_FOR_TESTING, // initialAudioState
+                CallAudioModeStateMachine.NEW_ACTIVE_OR_DIALING_CALL, // messageType
+                new CallAudioModeStateMachine.MessageArgs(
+                        false, // hasActiveOrDialingCalls
+                        false, // hasRingingCalls
+                        true, // hasHoldingCalls
+                        false, // isTonePlaying
+                        false, // foregroundCallIsVoip
+                        null // session
+                ),
+                CallAudioModeStateMachine.CALL_STATE_NAME, // expectedFinalStateName
+                FOCUS_VOICE, // expectedFocus
+                AudioManager.MODE_IN_CALL, // expectedMode
+                NO_CHANGE, // expectedRingingInteraction
+                NO_CHANGE // expectedCallWaitingInteraction
+        ));
+
+        result.add(new ModeTestParameters(
+                "Swap between voip and sim calls - 4",
+                CallAudioModeStateMachine.ENTER_CALL_FOCUS_FOR_TESTING, // initialAudioState
+                CallAudioModeStateMachine.NEW_HOLDING_CALL, // messageType
+                new CallAudioModeStateMachine.MessageArgs(
+                        false, // hasActiveOrDialingCalls
+                        false, // hasRingingCalls
+                        true, // hasHoldingCalls
+                        false, // isTonePlaying
+                        true, // foregroundCallIsVoip
+                        null // session
+                ),
+                CallAudioModeStateMachine.COMMS_STATE_NAME, // expectedFinalStateName
+                FOCUS_VOICE, // expectedFocus
+                AudioManager.MODE_IN_COMMUNICATION, // expectedMode
+                NO_CHANGE, // expectedRingingInteraction
+                NO_CHANGE // expectedCallWaitingInteraction
+        ));
+
+        result.add(new ModeTestParameters(
                 "Call is taken off hold - 1",
                 CallAudioModeStateMachine.ENTER_TONE_OR_HOLD_FOCUS_FOR_TESTING, // initialAudioState
                 CallAudioModeStateMachine.NO_MORE_HOLDING_CALLS, // messageType
