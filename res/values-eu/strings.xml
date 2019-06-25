@@ -24,12 +24,12 @@
     <string name="notification_missedCallsTitle" msgid="1361677948941502522">"Dei galduak"</string>
     <string name="notification_missedCallsMsg" msgid="4575787816055205600">"<xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> dei galdu"</string>
     <string name="notification_missedCallTicker" msgid="504686252427747209">"Deitzaile honen dei galdua: <xliff:g id="MISSED_CALL_FROM">%s</xliff:g>"</string>
-    <string name="notification_missedCall_call_back" msgid="2684890353590890187">"Erantzun deiari"</string>
+    <string name="notification_missedCall_call_back" msgid="2684890353590890187">"Itzuli deia"</string>
     <string name="notification_missedCall_message" msgid="3049928912736917988">"Mezua"</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"Deiaren audioa desaktibatu da."</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"Bozgorailua gaitu da."</string>
     <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"Ezin dut hitz egin. Arazoren bat al dago?"</string>
-    <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"Oraintxe deituko dizut bueltan."</string>
+    <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"Oraintxe itzuliko dizut deia."</string>
     <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"Geroago deituko dizut."</string>
     <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"Ezin dut hitz egin. Deitu geroago, mesedez."</string>
     <string name="respond_via_sms_setting_title" msgid="3754000371039709383">"Erantzun bizkorrak"</string>
