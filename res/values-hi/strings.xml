@@ -55,7 +55,7 @@
     <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> आपके उन कॉल करने वालों की जानकारी देख पाएगा जो आपकी संपर्क सूची में नहीं हैं और उन कॉल को ब्लॉक कर पाएगा. सिर्फ़ उन्हीं ऐप्लिकेशन को डिफ़ॉल्ट कॉल स्क्रीन करने वाले ऐप्लिकेशन के रूप में सेट करना चाहिए जिन पर आप भरोसा करते हैं."</string>
     <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"डिफ़ॉल्ट सेट करें"</string>
     <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"अभी नहीं"</string>
-    <string name="blocked_numbers" msgid="2751843139572970579">"अवरोधित नंबर"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"ब्लॉक किए गए नंबर"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"ब्लॉक किए गए नंबर से आपको कॉल या मैसेज नहीं मिलेंगे."</string>
     <string name="block_number" msgid="1101252256321306179">"नंबर जोड़ें"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> को अनब्लॉक करें?"</string>
