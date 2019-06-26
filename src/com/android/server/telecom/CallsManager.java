@@ -3528,7 +3528,7 @@ public class CallsManager extends Call.ListenerBase
                 null /* gatewayInfo */,
                 null /* connectionManagerPhoneAccount */,
                 connection.getPhoneAccount(), /* targetPhoneAccountHandle */
-                Call.CALL_DIRECTION_UNDEFINED /* callDirection */,
+                Call.getRemappedCallDirection(connection.getCallDirection()) /* callDirection */,
                 false /* forceAttachToExistingConnection */,
                 isDowngradedConference /* isConference */,
                 connection.getConnectTimeMillis() /* connectTimeMillis */,
