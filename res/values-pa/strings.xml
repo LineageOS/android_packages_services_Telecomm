@@ -55,7 +55,7 @@
     <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> ਉਹਨਾਂ ਕਾਲਰਾਂ ਬਾਰੇ ਜਾਣਕਾਰੀ ਦੇਖ ਸਕੇਗੀ ਜੋ ਤੁਹਾਡੇ ਸੰਪਰਕਾਂ ਵਿੱਚ ਨਹੀਂ ਹਨ ਅਤੇ ਉਹਨਾਂ ਕਾਲਾਂ ਨੂੰ ਬਲਾਕ ਕਰ ਸਕੇਗੀ। ਸਿਰਫ਼ ਉਹਨਾਂ ਐਪਾਂ ਨੂੰ ਪੂਰਵ-ਨਿਰਧਾਰਤ ਸਕ੍ਰੀਨਿੰਗ ਐਪ ਵਜੋਂ ਸੈੱਟ ਕਰਨਾ ਚਾਹੀਦਾ ਹੈ ਜਿਨ੍ਹਾਂ \'ਤੇ ਤੁਸੀਂ ਭਰੋਸਾ ਕਰਦੇ ਹੋ।"</string>
     <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"ਪੂਰਵ-ਨਿਰਧਾਰਤ ਸੈੱਟ ਕਰੋ"</string>
     <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"ਰੱਦ ਕਰੋ"</string>
-    <string name="blocked_numbers" msgid="2751843139572970579">"ਬਲਾਕ ਕੀਤੇ ਗਏ ਨੰਬਰ"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"ਬਲਾਕ ਕੀਤੇ ਨੰਬਰ"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"ਤੁਹਾਨੂੰ ਬਲਾਕ ਕੀਤੇ ਨੰਬਰਾਂ ਤੋਂ ਕਾਲਾਂ ਜਾਂ ਲਿਖਤ ਸੁਨੇਹੇ ਪ੍ਰਾਪਤ ਨਹੀਂ ਹੋਣਗੇ।"</string>
     <string name="block_number" msgid="1101252256321306179">"ਇੱਕ ਨੰਬਰ ਸ਼ਾਮਲ ਕਰੋ"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"ਕੀ <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ਨੂੰ ਅਣਬਲਾਕ ਕਰਨਾ ਹੈ?"</string>
