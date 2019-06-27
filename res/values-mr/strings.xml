@@ -28,10 +28,10 @@
     <string name="notification_missedCall_message" msgid="3049928912736917988">"मेसेज"</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"कॉल नि.शब्‍द केला."</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"स्‍पीकरफोन सक्षम केला."</string>
-    <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"आत्ता बोलू शकत नाही. काय चालले आहे?"</string>
-    <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"मी आपल्‍याला परत कॉल करेन."</string>
-    <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"मी आपल्‍याला नंतर कॉल करेन."</string>
-    <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"आत्ता बोलू शकत नाही. नंतर कॉल करा?"</string>
+    <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"आत्ता बोलू शकत नाही. कशासाठी कॉल केला होता?"</string>
+    <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"मी तुम्हाला परत कॉल करेन."</string>
+    <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"मी तुम्हाला नंतर कॉल करेन."</string>
+    <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"आत्ता बोलू शकत नाही. नंतर कॉल कराल?"</string>
     <string name="respond_via_sms_setting_title" msgid="3754000371039709383">"द्रुत प्रतिसाद"</string>
     <string name="respond_via_sms_setting_title_2" msgid="6104662227299493906">"द्रुत प्रतिसाद संपादित करा"</string>
     <string name="respond_via_sms_setting_summary" msgid="9150281183930613065"></string>

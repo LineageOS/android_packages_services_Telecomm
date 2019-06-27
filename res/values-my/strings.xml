@@ -55,7 +55,7 @@
     <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> သည် သင့်အဆက်အသွယ်များတွင် မပါဝင်သော ခေါ်ဆိုသူများ၏ အချက်အလက်များကို ကြည့်ရှုနိုင်မည်ဖြစ်ပြီး အဆိုပါ ခေါ်ဆိုမှုများကို ပိတ်နိုင်ပါမည်။ သင်ယုံကြည်သော အက်ပ်များကိုသာ မူရင်း ခေါ်ဆိုမှုပြသသောအက်ပ်အဖြစ် သတ်မှတ်သင့်ပါသည်။"</string>
     <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"မူရင်းအဖြစ် သတ်မှတ်မည်"</string>
     <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"မလုပ်တော့"</string>
-    <string name="blocked_numbers" msgid="2751843139572970579">"ပိတ်ဆို့နံပါတ်များ"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"ပိတ်ထားသည့် နံပါတ်များ"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"ပိတ်ထားသော နံပါတ်များမှ ဖုန်းခေါ်ခြင်း (သို့) စာသားပို့ခြင်းတို့ကို သင်လက်ခံရရှိမည် မဟုတ်ပါ။"</string>
     <string name="block_number" msgid="1101252256321306179">"နံပါတ်တစ်ခု ထည့်ပါ"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ကို ပိတ်ဆို့မှုပြန်ဖွင့်မလား။"</string>

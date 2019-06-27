@@ -50,9 +50,9 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"Indstil standard"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"Annuller"</string>
     <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"<xliff:g id="NEW_APP">%s</xliff:g> kan foretage og administrere alle aspekter af opkald. Du bør kun indstille en app til din standardapp til opkald, hvis du har tillid til den."</string>
-    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"Vil du gøre <xliff:g id="NEW_APP">%s</xliff:g> til din standardapp til opkaldsvalg?"</string>
-    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> kan ikke længere vælge opkald."</string>
-    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> kan se oplysninger om opringere, når de ikke er i dine kontakter, og kan blokere disse opkald. Du bør kun angive en app som din standardapp til opkaldsvalg, hvis du har tillid til den."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"Vil du gøre <xliff:g id="NEW_APP">%s</xliff:g> til din standardapp til screening?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> kan ikke længere screene opkald."</string>
+    <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> kan se oplysninger om opringere, når de ikke er i dine kontakter, og kan blokere disse opkald. Du bør kun angive en app som din standardapp til screening, hvis du har tillid til den."</string>
     <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"Angiv som standard"</string>
     <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Annuller"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Blokerede telefonnumre"</string>
