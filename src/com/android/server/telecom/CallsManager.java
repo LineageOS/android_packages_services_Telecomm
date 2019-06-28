@@ -4536,19 +4536,21 @@ public class CallsManager extends Call.ListenerBase
 
         @Override
         public void performAction() {
-            Log.d(this, "perform answer call for %s, videoState = %d", mCall, mVideoState);
-            for (CallsManagerListener listener : mListeners) {
-                listener.onIncomingCallAnswered(mCall);
-            }
+            synchronized (mLock) {
+                Log.d(this, "perform answer call for %s, videoState = %d", mCall, mVideoState);
+                for (CallsManagerListener listener : mListeners) {
+                    listener.onIncomingCallAnswered(mCall);
+                }
 
-            // We do not update the UI until we get confirmation of the answer() through
-            // {@link #markCallAsActive}.
-            mCall.answer(mVideoState);
-            if (mCall.getState() == CallState.RINGING) {
-                setCallState(mCall, CallState.ANSWERED, "answered");
-            }
-            if (isSpeakerphoneAutoEnabledForVideoCalls(mVideoState)) {
-                mCall.setStartWithSpeakerphoneOn(true);
+                // We do not update the UI until we get confirmation of the answer() through
+                // {@link #markCallAsActive}.
+                mCall.answer(mVideoState);
+                if (mCall.getState() == CallState.RINGING) {
+                    setCallState(mCall, CallState.ANSWERED, "answered");
+                }
+                if (isSpeakerphoneAutoEnabledForVideoCalls(mVideoState)) {
+                    mCall.setStartWithSpeakerphoneOn(true);
+                }
             }
         }
     }
