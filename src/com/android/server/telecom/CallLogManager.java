@@ -189,52 +189,61 @@ public final class CallLogManager extends CallsManagerListenerBase {
 
     /**
      * Log newly disconnected calls only if all of below conditions are met:
-     * 1) Call was NOT in the "choose account" phase when disconnected
-     * 2) Call is NOT a conference call
-     * 3) Call is NOT simulating a single party conference.
-     * 4) Call was NOT explicitly canceled, except for disconnecting from a conference.
-     * 5) Call is NOT an external call
-     * 6) Call is NOT disconnected because of merging into a conference.
-     * 7) Call is NOT a self-managed call OR call is a self-managed call which has indicated it
-     *    should be logged in its PhoneAccount
+     * Call was NOT in the "choose account" phase when disconnected
+     * Call is NOT a conference call which had children (unless it was remotely hosted).
+     * Call is NOT a child call from a conference which was remotely hosted.
+     * Call is NOT simulating a single party conference.
+     * Call was NOT explicitly canceled, except for disconnecting from a conference.
+     * Call is NOT an external call
+     * Call is NOT disconnected because of merging into a conference.
+     * Call is NOT a self-managed call OR call is a self-managed call which has indicated it
+     * should be logged in its PhoneAccount
      */
-    private boolean shouldLogDisconnectedCall(Call call, int oldState, boolean isCallCancelled) {
+    @VisibleForTesting
+    public boolean shouldLogDisconnectedCall(Call call, int oldState, boolean isCallCanceled) {
         boolean shouldCallSelfManagedLogged = call.isLoggedSelfManaged()
                 && (call.getHandoverState() == HandoverState.HANDOVER_NONE
                 || call.getHandoverState() == HandoverState.HANDOVER_COMPLETE);
 
-        // 1) "Choose account" phase when disconnected
+        // "Choose account" phase when disconnected
         if (oldState == CallState.SELECT_PHONE_ACCOUNT) {
             return false;
         }
-        // 2) A conference call
-        if (call.isConference()) {
+        // A conference call which had children should not be logged, unless it was remotely hosted.
+        if (call.isConference() && call.hadChildren() &&
+                !call.hasProperty(Connection.PROPERTY_REMOTELY_HOSTED)) {
+            return false;
+        }
+
+        // A child call of a conference which was remotely hosted; these didn't originate on this
+        // device and should not be logged.
+        if (call.getParentCall() != null && call.hasProperty(Connection.PROPERTY_REMOTELY_HOSTED)) {
             return false;
         }
 
         DisconnectCause cause = call.getDisconnectCause();
-        if (isCallCancelled) {
-            // 3) No log when disconnecting to simulate a single party conference.
+        if (isCallCanceled) {
+            // No log when disconnecting to simulate a single party conference.
             if (cause != null
                     && DisconnectCause.REASON_EMULATING_SINGLE_CALL.equals(cause.getReason())) {
                 return false;
             }
-            // 4) Explicitly canceled
+            // Explicitly canceled
             // Conference children connections only have CAPABILITY_DISCONNECT_FROM_CONFERENCE.
             // Log them when they are disconnected from conference.
             return Connection.can(call.getConnectionCapabilities(),
                     Connection.CAPABILITY_DISCONNECT_FROM_CONFERENCE);
         }
-        // 5) An external call
+        // An external call
         if (call.isExternalCall()) {
             return false;
         }
 
-        // 6) Call merged into conferences and marked with IMS_MERGED_SUCCESSFULLY.
-        //    Return false if the conference supports the participants packets for the carrier.
-        //    Otherwise, fall through. Merged calls would be associated with disconnected
-        //    connections because of special carrier requirements. Those calls don't look like
-        //    merged, e.g. could be one active and the other on hold.
+        // Call merged into conferences and marked with IMS_MERGED_SUCCESSFULLY.
+        // Return false if the conference supports the participants packets for the carrier.
+        // Otherwise, fall through. Merged calls would be associated with disconnected
+        // connections because of special carrier requirements. Those calls don't look like
+        // merged, e.g. could be one active and the other on hold.
         if (cause != null && android.telephony.DisconnectCause.toString(
                 android.telephony.DisconnectCause.IMS_MERGED_SUCCESSFULLY)
                 .equals(cause.getReason())) {
@@ -255,8 +264,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
             }
         }
 
-        // 7) Call is NOT a self-managed call OR call is a self-managed call which has indicated it
-        //    should be logged in its PhoneAccount
+        // Call is NOT a self-managed call OR call is a self-managed call which has indicated it
+        // should be logged in its PhoneAccount
         return !call.isSelfManaged() || shouldCallSelfManagedLogged;
     }
 

@@ -16,15 +16,26 @@
 
 package com.android.server.telecom;
 
+import android.content.Intent;
 import android.os.UserHandle;
 
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.function.IntConsumer;
 
 /**
  * Provides a means of wrapping {@code RoleManager} operations which Telecom uses to aid in testing
  * and remove direct dependencies.
  */
 public interface RoleManagerAdapter {
+
+    /**
+     * The name of the dialer role.
+     *
+     * @see Intent#ACTION_DIAL
+     */
+    String ROLE_DIALER = "android.app.role.DIALER";
+
     /**
      * Returns the package name of the app which fills the {@link android.app.role.RoleManager} call
      * redirection role.
@@ -54,6 +65,27 @@ public interface RoleManagerAdapter {
      *                    {@code null}, the override is removed.
      */
     void setTestDefaultCallScreeningApp(String packageName);
+
+    /**
+     * Returns the package name of the app which fills the {@link android.app.role.RoleManager}
+     * {@link android.app.role.RoleManager#ROLE_DIALER} role.
+     * @return the package name of the app filling the role, {@code null} otherwise}.
+     */
+    String getDefaultDialerApp(int user);
+
+    /**
+     * Observe changes to the package name of the app which fills the
+     * {@link android.app.role.RoleManager} {@link android.app.role.RoleManager#ROLE_DIALER} role.
+     */
+    void observeDefaultDialerApp(Executor executor, IntConsumer observer);
+
+    /**
+     * Override the {@link android.app.role.RoleManager} default dialer app with another value.
+     * Used for testing purposes only.
+     * @param packageName Package name of the app to fill the default dialer role.  Where
+     *                    {@code null}, the override is removed.
+     */
+    void setTestDefaultDialer(String packageName);
 
     /**
      * @return List of package names of companion apps, or empty list if there are none.

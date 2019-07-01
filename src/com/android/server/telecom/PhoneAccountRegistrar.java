@@ -451,14 +451,15 @@ public class PhoneAccountRegistrar {
 
         PhoneAccountHandle retval = dialerSimCallManager != null ?
                 dialerSimCallManager : systemSimCallManager;
-
-        Log.i(this, "SimCallManager queried, returning: %s", retval);
+        Log.i(this, "getSimCallManager: SimCallManager for subId %d queried, returning: %s",
+                subId, retval);
 
         return retval;
     }
 
     /**
-     * If it is a outgoing call, sim call manager of call-initiating user is returned.
+     * If it is a outgoing call, sim call manager associated with the target phone account of the
+     * call is returned (if one exists).
      * Otherwise, we return the sim call manager of the user associated with the
      * target phone account.
      * @return phone account handle of sim call manager based on the ongoing call.
@@ -471,7 +472,34 @@ public class PhoneAccountRegistrar {
         if (userHandle == null) {
             userHandle = call.getTargetPhoneAccount().getUserHandle();
         }
-        return getSimCallManager(userHandle);
+        PhoneAccountHandle targetPhoneAccount = call.getTargetPhoneAccount();
+        Log.d(this, "getSimCallManagerFromCall: callId=%s, targetPhac=%s",
+                call.getId(), targetPhoneAccount);
+        return getSimCallManagerFromHandle(targetPhoneAccount,userHandle);
+    }
+
+    /**
+     * Given a target phone account and user, determines the sim call manager (if any) which is
+     * associated with that {@link PhoneAccountHandle}.
+     * @param targetPhoneAccount The target phone account to check.
+     * @param userHandle The user handle.
+     * @return The {@link PhoneAccountHandle} of the connection manager.
+     */
+    public PhoneAccountHandle getSimCallManagerFromHandle(PhoneAccountHandle targetPhoneAccount,
+            UserHandle userHandle) {
+        int subId = getSubscriptionIdForPhoneAccount(targetPhoneAccount);
+        if (SubscriptionManager.isValidSubscriptionId(subId)
+                 && subId != SubscriptionManager.DEFAULT_SUBSCRIPTION_ID) {
+            PhoneAccountHandle callManagerHandle = getSimCallManager(subId, userHandle);
+            Log.d(this, "getSimCallManagerFromHandle: targetPhac=%s, subId=%d, scm=%s",
+                    targetPhoneAccount, subId, callManagerHandle);
+            return callManagerHandle;
+        } else {
+            PhoneAccountHandle callManagerHandle = getSimCallManager(userHandle);
+            Log.d(this, "getSimCallManagerFromHandle: targetPhac=%s, subId(d)=%d, scm=%s",
+                    targetPhoneAccount, subId, callManagerHandle);
+            return callManagerHandle;
+        }
     }
 
     /**

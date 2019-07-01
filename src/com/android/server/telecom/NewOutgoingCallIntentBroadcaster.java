@@ -19,6 +19,7 @@ package com.android.server.telecom;
 import android.app.AppOpsManager;
 
 import android.app.Activity;
+import android.app.BroadcastOptions;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -399,11 +400,14 @@ public class NewOutgoingCallIntentBroadcaster {
 
         checkAndCopyProviderExtras(originalCallIntent, broadcastIntent);
 
+        final BroadcastOptions options = BroadcastOptions.makeBasic();
+        options.setBackgroundActivityStartsAllowed(true);
         mContext.sendOrderedBroadcastAsUser(
                 broadcastIntent,
                 targetUser,
                 android.Manifest.permission.PROCESS_OUTGOING_CALLS,
                 AppOpsManager.OP_PROCESS_OUTGOING_CALLS,
+                options.toBundle(),
                 receiverRequired ? new NewOutgoingCallBroadcastIntentReceiver() : null,
                 null,  // scheduler
                 Activity.RESULT_OK,  // initialCode
@@ -488,7 +492,7 @@ public class NewOutgoingCallIntentBroadcaster {
         Intent systemDialerIntent = new Intent();
         final Resources resources = mContext.getResources();
         systemDialerIntent.setClassName(
-                resources.getString(R.string.ui_default_package),
+                TelecomServiceImpl.getSystemDialerPackage(mContext),
                 resources.getString(R.string.dialer_default_class));
         systemDialerIntent.setAction(Intent.ACTION_DIAL);
         systemDialerIntent.setData(handle);
