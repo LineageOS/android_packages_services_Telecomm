@@ -1806,7 +1806,15 @@ public class CallsManager extends Call.ListenerBase
             confirmIntent.putExtra(CallRedirectionConfirmDialogActivity.EXTRA_REDIRECTION_APP_NAME,
                     mRoleManagerAdapter.getApplicationLabelForPackageName(callRedirectionApp));
             confirmIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            mContext.startActivityAsUser(confirmIntent, UserHandle.CURRENT);
+
+            // A small delay to start the activity after any Dialer's In Call UI starts
+            mHandler.postDelayed(new Runnable("CM.oCRC", mLock) {
+                @Override
+                public void loggedRun() {
+                    mContext.startActivityAsUser(confirmIntent, UserHandle.CURRENT);
+                }
+            }.prepare(), 500 /* Milliseconds delay */);
+
         } else {
             call.setTargetPhoneAccount(phoneAccountHandle);
             placeOutgoingCall(call, handle, gatewayInfo, speakerphoneOn, videoState);
