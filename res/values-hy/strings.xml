@@ -52,18 +52,18 @@
     <string name="blocked_numbers" msgid="2751843139572970579">"Արգելափակված համարներ"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Արգելափակված համարներից զանգեր և SMS-ներ չեք ստանա:"</string>
     <string name="block_number" msgid="1101252256321306179">"Ավելացնել համար"</string>
-    <string name="unblock_dialog_body" msgid="1614238499771862793">"Արգելաբացե՞լ <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> համարը:"</string>
-    <string name="unblock_button" msgid="3078048901972674170">"Արգելաբացել"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"Արգելահանե՞լ <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> համարը:"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"Արգելահանել"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Արգելափակել զանգերն ու հաղորդագրությունները այս համարից"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Հեռախոսահամարը"</string>
     <string name="block_button" msgid="8822290682524373357">"Արգելափակել"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Միայն սարքի սեփականատերը կարող է դիտել և կառավարել արգելափակված համարները:"</string>
-    <string name="delete_icon_description" msgid="8903995728252556724">"Արգելաբացել"</string>
+    <string name="delete_icon_description" msgid="8903995728252556724">"Արգելահանել"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"Արգելափակումը ժամանակավորապես անջատվել է"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"Արտակարգ իրավիճակի հեռախոսահամար հավաքելուց հետո հեռախոսի արգելափակումը կանջատվի, որպեսզի արտակարգ իրավիճակների ծառայությունները կարողանան կապվել ձեզ հետ:"</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"Նորից միացնել"</string>
     <string name="blocked_numbers_number_blocked_message" msgid="7678509606805029540">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> համարն արգելափակվեց"</string>
-    <string name="blocked_numbers_number_unblocked_message" msgid="977894647366750418">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> արգելաբացվեց"</string>
+    <string name="blocked_numbers_number_unblocked_message" msgid="977894647366750418">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> արգելահանվեց"</string>
     <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"Արտակարգ իրավիճակների հեռախոսահամարը հնարավոր չէ արգելափակել:"</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> համարն արդեն արգելափակված է:"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"Զանգելու նպատակով անհատական համարհավաքիչի օգտագործում"</string>
