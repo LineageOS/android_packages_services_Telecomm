@@ -1836,7 +1836,7 @@ public class CallsManager extends Call.ListenerBase
             mPendingUnredirectedOutgoingCallInfo.remove(callId);
         } else {
             Log.w(this, "processRedirectedOutgoingCallAfterUserInteraction for non-matched Call ID"
-                    + " %s with handle %s and phoneAccountHandle %s", callId);
+                    + " %s", callId);
         }
     }
 

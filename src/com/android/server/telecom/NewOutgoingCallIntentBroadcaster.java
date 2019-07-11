@@ -287,6 +287,7 @@ public class NewOutgoingCallIntentBroadcaster {
                     return result;
                 } else {
                     result.callImmediately = true;
+                    result.requestRedirection = false;
                 }
             }
         } else if (Intent.ACTION_CALL_EMERGENCY.equals(action)) {
@@ -297,6 +298,7 @@ public class NewOutgoingCallIntentBroadcaster {
                 return result;
             }
             result.callImmediately = true;
+            result.requestRedirection = false;
         } else {
             Log.w(this, "Unhandled Intent %s. Ignoring and not placing call.", intent);
             result.disconnectCause = DisconnectCause.INVALID_NUMBER;
