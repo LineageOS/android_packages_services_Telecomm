@@ -327,18 +327,25 @@ public class CallAudioModeStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case NO_MORE_HOLDING_CALLS:
-                    // Do nothing.
+                    if (args.foregroundCallIsVoip) {
+                        transitionTo(mVoipCallFocusState);
+                    }
                     return HANDLED;
                 case NEW_ACTIVE_OR_DIALING_CALL:
-                    // Do nothing. Already active.
+                    if (args.foregroundCallIsVoip) {
+                        transitionTo(mVoipCallFocusState);
+                    }
                     return HANDLED;
                 case NEW_RINGING_CALL:
                     // Don't make a call ring over an active call, but do play a call waiting tone.
                     mCallAudioManager.startCallWaiting("call already active");
                     return HANDLED;
                 case NEW_HOLDING_CALL:
-                    // Don't do anything now. Putting an active call on hold will be handled when
+                    // Just check the voip mode. Putting an active call on hold will be handled when
                     // NO_MORE_ACTIVE_CALLS is processed.
+                    if (args.foregroundCallIsVoip) {
+                        transitionTo(mVoipCallFocusState);
+                    }
                     return HANDLED;
                 case FOREGROUND_VOIP_MODE_CHANGE:
                     if (args.foregroundCallIsVoip) {
@@ -382,18 +389,25 @@ public class CallAudioModeStateMachine extends StateMachine {
                     }
                     return HANDLED;
                 case NO_MORE_HOLDING_CALLS:
-                    // Do nothing.
+                    if (!args.foregroundCallIsVoip) {
+                        transitionTo(mSimCallFocusState);
+                    }
                     return HANDLED;
                 case NEW_ACTIVE_OR_DIALING_CALL:
-                    // Do nothing. Already active.
+                    if (!args.foregroundCallIsVoip) {
+                        transitionTo(mSimCallFocusState);
+                    }
                     return HANDLED;
                 case NEW_RINGING_CALL:
                     // Don't make a call ring over an active call, but do play a call waiting tone.
                     mCallAudioManager.startCallWaiting("call already active");
                     return HANDLED;
                 case NEW_HOLDING_CALL:
-                    // Don't do anything now. Putting an active call on hold will be handled when
+                    // Just check the voip mode. Putting an active call on hold will be handled when
                     // NO_MORE_ACTIVE_CALLS is processed.
+                    if (!args.foregroundCallIsVoip) {
+                        transitionTo(mSimCallFocusState);
+                    }
                     return HANDLED;
                 case FOREGROUND_VOIP_MODE_CHANGE:
                     if (!args.foregroundCallIsVoip) {

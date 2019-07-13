@@ -55,20 +55,20 @@
     <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"ଆପଣଙ୍କ ଯୋଗାଯୋଗରେ ନଥିବା କଲର୍‌ଙ୍କ ସମ୍ଵନ୍ଧରେ ସୂଚନା ଦେଖିବାକୁ <xliff:g id="NEW_APP">%s</xliff:g> ସକ୍ଷମ ହେବେ। କେବଳ ଆପଣ ବିଶ୍ଵାସ କରୁଥିବା ଆପ୍ସ ଡିଫଲ୍ଟ କଲ୍ ସ୍କ୍ରିନିଂ ଆପ୍ ଭାବରେ ସେଟ୍ ହେବା ଆବଶ୍ୟକ ଅଟେ।"</string>
     <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"ଡିଫଲ୍ଟ ସେଟ୍ କରନ୍ତୁ"</string>
     <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"ବାତିଲ୍‌ କରନ୍ତୁ"</string>
-    <string name="blocked_numbers" msgid="2751843139572970579">"ଅବରୋଧ କରାଯାଇଥିବା ନମ୍ବର୍"</string>
-    <string name="blocked_numbers_msg" msgid="1045015186124965643">"ଅବରୋଧ କରାଯାଇଥିବା ନମ୍ବର୍‌ରୁ ଆପଣ କଲ୍ କିମ୍ବା ଟେକ୍ସଟ୍ ଗ୍ରହଣ କରିପାରିବେ ନାହିଁ।"</string>
+    <string name="blocked_numbers" msgid="2751843139572970579">"ବ୍ଲକ୍ କରାଯାଇଥିବା ନମ୍ବର୍"</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"ବ୍ଲକ୍ କରାଯାଇଥିବା ନମ୍ବର୍‌ରୁ ଆପଣ କଲ୍ କିମ୍ବା ଟେକ୍ସଟ୍ ଗ୍ରହଣ କରିପାରିବେ ନାହିଁ।"</string>
     <string name="block_number" msgid="1101252256321306179">"ଗୋଟିଏ ନମ୍ବର୍ ଯୋଡ଼ନ୍ତୁ"</string>
-    <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>ରୁ ଅବରୋଧ ହଟାଇବେ?"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>ରୁ ବ୍ଲକ୍ ହଟାଇବେ?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"ଅବରୋଧ ହଟାନ୍ତୁ"</string>
-    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"ଏହାର କଲ୍ ଓ ଟେକ୍ସଟ୍‌କୁ ଅବରୋଧ କରନ୍ତୁ"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"ଏହାର କଲ୍ ଓ ଟେକ୍ସଟ୍‌କୁ ବ୍ଲକ୍ କରନ୍ତୁ"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"ଫୋନ୍ ନମ୍ଵର୍"</string>
-    <string name="block_button" msgid="8822290682524373357">"ଅବରୋଧ କରନ୍ତୁ"</string>
+    <string name="block_button" msgid="8822290682524373357">"ବ୍ଲକ୍ କରନ୍ତୁ"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"କେବଳ ଡିଭାଇସ୍‌ର ମାଲିକ ଅବରୋଧ କରାଯାଇଥିବା ନମ୍ବର୍‌କୁ ଦେଖିପାରିବେ ଓ ପରିଚାଳନା କରିପାରିବେ।"</string>
-    <string name="delete_icon_description" msgid="8903995728252556724">"ଅବରୋଧ ହଟାନ୍ତୁ"</string>
+    <string name="delete_icon_description" msgid="8903995728252556724">"ଅନବ୍ଲକ୍ କରନ୍ତୁ"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="438170866438793182">"ଅସ୍ଥାୟୀରୂପେ ଅବରୋଧ ଅଫ୍ ଅଛି"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="2223244484319442431">"ଆପଣ ଗୋଟିଏ ଜରୁରିକାଳୀନ ନମ୍ବର୍‌କୁ ଡାଏଲ୍ କିମ୍ବା ଟେକ୍ସଟ୍ କରିବା ପରେ, ଜରୁରିକାଳୀନ ସେବା ଆପଣଙ୍କୁ ଯୋଗାଯୋଗ କରିବାକୁ ସୁନିଶ୍ଚିତ କରିବା ପାଇଁ ଅବରୋଧକୁ ବନ୍ଦ କରିଦିଆଯାଇଥାଏ।"</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2197943354922010696">"ବର୍ତ୍ତମାନ ପୁନଃସକ୍ଷମ କରନ୍ତୁ"</string>
-    <string name="blocked_numbers_number_blocked_message" msgid="7678509606805029540">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> ଅବରୋଧ କରାଯାଇଛି"</string>
+    <string name="blocked_numbers_number_blocked_message" msgid="7678509606805029540">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> ବ୍ଲକ୍ କରାଯାଇଛି"</string>
     <string name="blocked_numbers_number_unblocked_message" msgid="977894647366750418">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> ଅବରୋଧ ହଟାଇଦିଆଯାଇଛି"</string>
     <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"ଜରୁରିକାଳୀନ ନମ୍ବର୍‌କୁ ଅବରୋଧ କରିବାରେ ଅକ୍ଷମ।"</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g>କୁ ଅବରୋଧ କରାଯାଇସରିଛି।"</string>
@@ -103,7 +103,7 @@
     <string name="phone_settings_payphone_txt" msgid="2493356957416981318">"ପେ-ଫୋନ୍"</string>
     <string name="phone_settings_payphone_summary_txt" msgid="6126709946103814653">"ପେ-ଫୋନ୍‌ରୁ କଲ୍‌କୁ ଅବରୋଧ କରନ୍ତୁ"</string>
     <string name="phone_settings_unknown_txt" msgid="5836407031508172721">"ଅଜଣା"</string>
-    <string name="phone_settings_unknown_summary_txt" msgid="3457690230497753233">"ଅଚିହ୍ନା କଲକର୍ତ୍ତାଙ୍କର କଲ୍‌କୁ ଅବରୋଧ କରନ୍ତୁ"</string>
+    <string name="phone_settings_unknown_summary_txt" msgid="3457690230497753233">"ଅଜଣା କଲକର୍ତ୍ତାଙ୍କର କଲ୍‌କୁ ବ୍ଲକ୍ କରନ୍ତୁ"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="628536625775266096">"କଲ୍‌କୁ ଅବରୋଧ କରନ୍ତୁ"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"କଲ୍ ଅବରୋଧ ସୁବିଧାକୁ ଅକ୍ଷମ କରାଯାଇଛି"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"ଜରୁରିକାଳୀନ କଲ୍ କରାଗଲା"</string>

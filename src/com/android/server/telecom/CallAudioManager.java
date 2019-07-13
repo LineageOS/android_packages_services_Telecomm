@@ -431,35 +431,45 @@ public class CallAudioManager extends CallsManagerListenerBase {
     }
 
     void silenceRingers() {
-        for (Call call : mRingingCalls) {
-            call.silence();
-        }
+        synchronized (mCallsManager.getLock()) {
+            for (Call call : mRingingCalls) {
+                call.silence();
+            }
 
-        mRinger.stopRinging();
-        mRinger.stopCallWaiting();
+            mRinger.stopRinging();
+            mRinger.stopCallWaiting();
+        }
     }
 
     @VisibleForTesting
     public boolean startRinging() {
-        return mRinger.startRinging(mForegroundCall,
-                mCallAudioRouteStateMachine.isHfpDeviceAvailable());
+        synchronized (mCallsManager.getLock()) {
+            return mRinger.startRinging(mForegroundCall,
+                    mCallAudioRouteStateMachine.isHfpDeviceAvailable());
+        }
     }
 
     @VisibleForTesting
     public void startCallWaiting(String reason) {
-        if (mRingingCalls.size() == 1) {
-            mRinger.startCallWaiting(mRingingCalls.iterator().next(), reason);
+        synchronized (mCallsManager.getLock()) {
+            if (mRingingCalls.size() == 1) {
+                mRinger.startCallWaiting(mRingingCalls.iterator().next(), reason);
+            }
         }
     }
 
     @VisibleForTesting
     public void stopRinging() {
-        mRinger.stopRinging();
+        synchronized (mCallsManager.getLock()) {
+            mRinger.stopRinging();
+        }
     }
 
     @VisibleForTesting
     public void stopCallWaiting() {
-        mRinger.stopCallWaiting();
+        synchronized (mCallsManager.getLock()) {
+            mRinger.stopCallWaiting();
+        }
     }
 
     @VisibleForTesting
@@ -801,10 +811,12 @@ public class CallAudioManager extends CallsManagerListenerBase {
     private void maybeStopRingingAndCallWaitingForAnsweredOrRejectedCall(Call call) {
         // Check to see if the call being answered/rejected is the only ringing call, since this
         // will be called before the connection service acknowledges the state change.
-        if (mRingingCalls.size() == 0 ||
-                (mRingingCalls.size() == 1 && call == mRingingCalls.iterator().next())) {
-            mRinger.stopRinging();
-            mRinger.stopCallWaiting();
+        synchronized (mCallsManager.getLock()) {
+            if (mRingingCalls.size() == 0 ||
+                    (mRingingCalls.size() == 1 && call == mRingingCalls.iterator().next())) {
+                mRinger.stopRinging();
+                mRinger.stopCallWaiting();
+            }
         }
     }
 
