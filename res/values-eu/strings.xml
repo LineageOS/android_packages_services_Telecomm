@@ -102,7 +102,7 @@
     <string name="phone_settings_private_num_summary_txt" msgid="7516314821207782191">"Blokeatu zenbakia erakusten ez duten deitzaileak"</string>
     <string name="phone_settings_payphone_txt" msgid="2493356957416981318">"Telefono publikoa"</string>
     <string name="phone_settings_payphone_summary_txt" msgid="6126709946103814653">"Blokeatu telefono publikoen deiak"</string>
-    <string name="phone_settings_unknown_txt" msgid="5836407031508172721">"Ezezaguna"</string>
+    <string name="phone_settings_unknown_txt" msgid="5836407031508172721">"Ezezagunak"</string>
     <string name="phone_settings_unknown_summary_txt" msgid="3457690230497753233">"Blokeatu identifikatu gabeko deitzaileen deiak"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="628536625775266096">"Deiak blokeatzeko aukera"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"Desgaitu da deiak blokeatzeko aukera"</string>

@@ -29,7 +29,7 @@
     <string name="accessibility_call_muted" msgid="2776111226185342220">"Naka-mute ang tawag."</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"Pinapagana ang speakerphone."</string>
     <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"Di masagot ngayon. Ano\'ng meron?"</string>
-    <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"Tawagan kita muli."</string>
+    <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"Ako na lang ang tatawag sa \'yo."</string>
     <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"Tawagan kita mamaya."</string>
     <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"Di masagot ngayon. Tawag ka mamaya?"</string>
     <string name="respond_via_sms_setting_title" msgid="3754000371039709383">"Mga mabilisang tugon"</string>

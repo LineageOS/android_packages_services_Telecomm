@@ -28,8 +28,8 @@
     <string name="notification_missedCall_message" msgid="3049928912736917988">"Message"</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"Call muted."</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"Speakerphone enabled."</string>
-    <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"Can\'t talk now. What\'s up?"</string>
-    <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"I\'ll call you right back."</string>
+    <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"Can\'t talk now. What\'s going on?"</string>
+    <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"I\'ll call you back."</string>
     <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"I\'ll call you later."</string>
     <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"Can\'t talk now. Call me later?"</string>
     <string name="respond_via_sms_setting_title" msgid="3754000371039709383">"Quick responses"</string>

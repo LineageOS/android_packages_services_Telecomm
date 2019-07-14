@@ -30,7 +30,7 @@
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"扬声器已启用。"</string>
     <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"现在无法接听。有什么事吗？"</string>
     <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"我马上会打给你。"</string>
-    <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"我稍后会再打给你。"</string>
+    <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"我稍后给你回电。"</string>
     <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"现在无法接听。能稍后再打给我吗？"</string>
     <string name="respond_via_sms_setting_title" msgid="3754000371039709383">"快速回复"</string>
     <string name="respond_via_sms_setting_title_2" msgid="6104662227299493906">"修改快速回复"</string>
@@ -73,7 +73,7 @@
     <string name="blocked_numbers_block_emergency_number_message" msgid="917851876780698387">"无法屏蔽紧急服务号码。"</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="4392247814500811798">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> 已被屏蔽。"</string>
     <string name="toast_personal_call_msg" msgid="5115361633476779723">"使用个人拨号器拨打电话"</string>
-    <string name="notification_incoming_call" msgid="7713197997773986670">"接到来自<xliff:g id="CALL_FROM">%2$s</xliff:g>的 <xliff:g id="CALL_VIA">%1$s</xliff:g> 通话邀请"</string>
+    <string name="notification_incoming_call" msgid="7713197997773986670">"<xliff:g id="CALL_FROM">%2$s</xliff:g>的 <xliff:g id="CALL_VIA">%1$s</xliff:g> 通话请求"</string>
     <string name="notification_incoming_video_call" msgid="6638486071698373893">"接到来自<xliff:g id="CALL_FROM">%2$s</xliff:g>的 <xliff:g id="CALL_VIA">%1$s</xliff:g> 视频通话邀请"</string>
     <string name="answering_ends_other_call" msgid="8282145910153766401">"如果接听此来电，您的 <xliff:g id="CALL_VIA">%1$s</xliff:g> 通话会中断。"</string>
     <string name="answering_ends_other_calls" msgid="1198589551399049197">"如果接听此来电，您的 <xliff:g id="CALL_VIA">%1$s</xliff:g> 通话会中断。"</string>
@@ -103,7 +103,7 @@
     <string name="phone_settings_payphone_txt" msgid="2493356957416981318">"公用电话"</string>
     <string name="phone_settings_payphone_summary_txt" msgid="6126709946103814653">"屏蔽公用电话来电"</string>
     <string name="phone_settings_unknown_txt" msgid="5836407031508172721">"未知"</string>
-    <string name="phone_settings_unknown_summary_txt" msgid="3457690230497753233">"屏蔽身份不明的来电者的电话"</string>
+    <string name="phone_settings_unknown_summary_txt" msgid="3457690230497753233">"屏蔽不明身份人员的来电"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="628536625775266096">"来电屏蔽"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"来电屏蔽功能已停用"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"已拨打紧急呼救电话"</string>
