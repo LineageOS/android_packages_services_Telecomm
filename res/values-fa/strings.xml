@@ -28,8 +28,8 @@
     <string name="notification_missedCall_message" msgid="3049928912736917988">"پیام"</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"تماس نادیده گرفته شد."</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"تلفن آیفون‌دار فعال شد."</string>
-    <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"اکنون نمی‌توانم صحبت کنم. موضوع چیست؟"</string>
-    <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"بی‌درنگ با شما تماس می‌گیرم."</string>
+    <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"الآن نمی‌توانم صحبت کنم. موضوع چیست؟"</string>
+    <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"همین حالا با شما تماس می‌گیرم.."</string>
     <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"بعداً با شما تماس می‌گیرم."</string>
     <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"اکنون نمی‌توانم صحبت کنم. بعداً به من زنگ می‌زنید؟"</string>
     <string name="respond_via_sms_setting_title" msgid="3754000371039709383">"پاسخ‌های سریع"</string>
@@ -103,7 +103,7 @@
     <string name="phone_settings_payphone_txt" msgid="2493356957416981318">"تلفن عمومی"</string>
     <string name="phone_settings_payphone_summary_txt" msgid="6126709946103814653">"مسدود کردن تماس‌ها از تلفن‌های عمومی"</string>
     <string name="phone_settings_unknown_txt" msgid="5836407031508172721">"ناشناس"</string>
-    <string name="phone_settings_unknown_summary_txt" msgid="3457690230497753233">"مسدودن تماس‌های تماس‌گیرندگان ناشناس"</string>
+    <string name="phone_settings_unknown_summary_txt" msgid="3457690230497753233">"مسدود کردن تماس‌های تماس‌گیرندگان ناشناس"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="628536625775266096">"مسدود کردن تماس"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"مسدود کردن تماس غیرفعال شد"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="7421611725400166580">"تماس اضطراری برقرار شد"</string>

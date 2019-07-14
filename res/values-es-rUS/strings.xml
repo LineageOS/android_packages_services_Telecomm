@@ -29,7 +29,7 @@
     <string name="accessibility_call_muted" msgid="2776111226185342220">"Llamada silenciada"</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"Altavoz habilitado"</string>
     <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"No puedo hablar ahora. ¿Todo bien?"</string>
-    <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"Te llamo en seguida."</string>
+    <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"Te llamo enseguida."</string>
     <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"Te llamo más tarde."</string>
     <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"No puedo hablar ahora. ¿Me llamas más tarde?"</string>
     <string name="respond_via_sms_setting_title" msgid="3754000371039709383">"Respuestas rápidas"</string>

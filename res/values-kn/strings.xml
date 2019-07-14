@@ -28,7 +28,7 @@
     <string name="notification_missedCall_message" msgid="3049928912736917988">"ಸಂದೇಶ"</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"ಕರೆಯನ್ನು ಮ್ಯೂಟ್ ಮಾಡಲಾಗಿದೆ."</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"ಸ್ಪೀಕರ್‌ಫೋನ್ ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ."</string>
-    <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"ಈಗ ಮಾತನಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ. ಏನು ವಿಷಯ?"</string>
+    <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"ಕ್ಷಮಿಸಿ, ಈಗ ಮಾತನಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ. ಸಮಾಚಾರವೇನು?"</string>
     <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"ನಾನು ಮರಳಿ ನಿಮಗೆ ಕರೆ ಮಾಡುತ್ತೇನೆ."</string>
     <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"ನಾನು ನಂತರ ನಿಮಗೆ ಕರೆ ಮಾಡುತ್ತೇನೆ."</string>
     <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"ಈಗ ಮಾತನಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ. ನಂತರ ಮಾಡುವಿರಾ?"</string>
