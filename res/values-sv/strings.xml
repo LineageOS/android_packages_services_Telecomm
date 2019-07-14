@@ -58,8 +58,8 @@
     <string name="blocked_numbers" msgid="2751843139572970579">"Blockerade nummer"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Du kommer inte ta emot samtal eller sms från blockerade nummer."</string>
     <string name="block_number" msgid="1101252256321306179">"Lägg till ett telefonnummer"</string>
-    <string name="unblock_dialog_body" msgid="1614238499771862793">"Vill du häva blockeringen av <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
-    <string name="unblock_button" msgid="3078048901972674170">"Häv blockering"</string>
+    <string name="unblock_dialog_body" msgid="1614238499771862793">"Vill du avblockera <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
+    <string name="unblock_button" msgid="3078048901972674170">"Avblockera"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Blockera samtal och sms från"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Telefonnummer"</string>
     <string name="block_button" msgid="8822290682524373357">"Blockera"</string>
