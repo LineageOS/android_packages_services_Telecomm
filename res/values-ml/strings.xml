@@ -28,7 +28,7 @@
     <string name="notification_missedCall_message" msgid="3049928912736917988">"സന്ദേശം"</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"കോൾ നിശബ്‌ദമാക്കി."</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"സ്‌പീക്കർഫോൺ പ്രവർത്തനക്ഷമമാക്കി."</string>
-    <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"ഇപ്പോൾ സംസാരിക്കാനാകില്ല. എന്തുചെയ്യുന്നു?"</string>
+    <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"ഇപ്പോൾ സംസാരിക്കാനാകില്ല. എന്താ വിളിച്ചത്?"</string>
     <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"ഞാൻ നിങ്ങളെ ഉടൻ തിരിച്ചുവിളിക്കാം."</string>
     <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"ഞാൻ നിങ്ങളെ പിന്നീട് വിളിക്കാം."</string>
     <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"ഇപ്പോൾ സംസാരിക്കാനാകില്ല. എന്നെ പിന്നീട് വിളിക്കാമോ?"</string>
