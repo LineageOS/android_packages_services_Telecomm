@@ -326,7 +326,7 @@ public class Ringer {
         }
 
         if (hapticsFuture != null) {
-           mVibrateFuture = hapticsFuture.thenAccept(isUsingAudioCoupledHaptics -> {
+            mVibrateFuture = hapticsFuture.thenAccept(isUsingAudioCoupledHaptics -> {
                 if (!isUsingAudioCoupledHaptics || !mIsHapticPlaybackSupportedByDevice) {
                     Log.i(this, "startRinging: fileHasHaptics=%b, hapticsSupported=%b",
                             isUsingAudioCoupledHaptics, mIsHapticPlaybackSupportedByDevice);
