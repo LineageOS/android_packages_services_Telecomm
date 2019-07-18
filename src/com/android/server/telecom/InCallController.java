@@ -543,9 +543,9 @@ public class InCallController extends CallsManagerListenerBase {
                 if (newConnection != mCurrentConnection) {
                     if (mIsConnected) {
                         mCurrentConnection.disconnect();
-                        int result = newConnection.connect(null);
-                        mIsConnected = result == CONNECTION_SUCCEEDED;
                     }
+                    int result = newConnection.connect(null);
+                    mIsConnected = result == CONNECTION_SUCCEEDED;
                     mCurrentConnection = newConnection;
                 }
             }
