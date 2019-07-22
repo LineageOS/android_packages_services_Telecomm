@@ -43,19 +43,38 @@ public class CallRedirectionConfirmDialogActivity extends Activity {
     public static final String EXTRA_REDIRECTION_APP_NAME =
             "android.telecom.extra.REDIRECTION_APP_NAME";
 
+    private String mCallId;
+    private AlertDialog mConfirmDialog;
+    /**
+     * Tracks whether the activity has stopped due to a loss of focus (e.g. use hitting the home
+     * button) or whether its going to stop because a button in the dialog was pressed.
+     */
+    private boolean mHasLostFocus = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(this, "CallRedirectionConfirmDialogActivity onCreate.");
         final CharSequence redirectionAppName = getIntent().getStringExtra(
                 EXTRA_REDIRECTION_APP_NAME);
+        mCallId = getIntent().getStringExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID);
         showDialog(redirectionAppName);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mHasLostFocus) {
+            Log.i(this, "onStop: dialog lost focus; canceling redirection for call %s", mCallId);
+            mConfirmDialog.dismiss();
+            cancelRedirection();
+        }
     }
 
     private void showDialog(final CharSequence redirectionAppName) {
         Log.i(this, "showDialog: confirming redirection with %s", redirectionAppName);
 
-        final AlertDialog confirmDialog = new AlertDialog.Builder(this).create();
+        mConfirmDialog = new AlertDialog.Builder(this).create();
         LayoutInflater layoutInflater = LayoutInflater.from(this);
         View dialogView = layoutInflater.inflate(R.layout.call_redirection_confirm_dialog, null);
 
@@ -67,10 +86,10 @@ public class CallRedirectionConfirmDialogActivity extends Activity {
                         TelecomBroadcastIntentProcessor.ACTION_PLACE_UNREDIRECTED_CALL,
                         null, CallRedirectionConfirmDialogActivity.this,
                         TelecomBroadcastReceiver.class);
-                proceedWithoutRedirectedCall.putExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID,
-                        getIntent().getStringExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID));
+                proceedWithoutRedirectedCall.putExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID, mCallId);
                 sendBroadcast(proceedWithoutRedirectedCall);
-                confirmDialog.dismiss();
+                mConfirmDialog.dismiss();
+                mHasLostFocus = false;
                 finish();
             }
         });
@@ -86,10 +105,10 @@ public class CallRedirectionConfirmDialogActivity extends Activity {
                                 .ACTION_PLACE_REDIRECTED_CALL, null,
                         CallRedirectionConfirmDialogActivity.this,
                         TelecomBroadcastReceiver.class);
-                proceedWithRedirectedCall.putExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID,
-                        getIntent().getStringExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID));
+                proceedWithRedirectedCall.putExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID, mCallId);
                 sendBroadcast(proceedWithRedirectedCall);
-                confirmDialog.dismiss();
+                mConfirmDialog.dismiss();
+                mHasLostFocus = false;
                 finish();
             }
         });
@@ -101,36 +120,42 @@ public class CallRedirectionConfirmDialogActivity extends Activity {
                         TelecomBroadcastIntentProcessor.ACTION_CANCEL_REDIRECTED_CALL,
                         null, CallRedirectionConfirmDialogActivity.this,
                         TelecomBroadcastReceiver.class);
-                cancelRedirectedCall.putExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID,
-                        getIntent().getStringExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID));
+                cancelRedirectedCall.putExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID, mCallId);
                 sendBroadcast(cancelRedirectedCall);
-                confirmDialog.dismiss();
+                mConfirmDialog.dismiss();
+                mHasLostFocus = false;
                 finish();
             }
         });
 
-        confirmDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+        mConfirmDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
-                Intent cancelRedirectedCall = new Intent(
-                        TelecomBroadcastIntentProcessor.ACTION_CANCEL_REDIRECTED_CALL,
-                        null, CallRedirectionConfirmDialogActivity.this,
-                        TelecomBroadcastReceiver.class);
-                cancelRedirectedCall.putExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID,
-                        getIntent().getStringExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID));
-                sendBroadcast(cancelRedirectedCall);
+                cancelRedirection();
                 dialog.dismiss();
+                mHasLostFocus = false;
                 finish();
             }
         });
 
-        confirmDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        mConfirmDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        confirmDialog.setCancelable(false);
-        confirmDialog.setCanceledOnTouchOutside(false);
+        mConfirmDialog.setCancelable(false);
+        mConfirmDialog.setCanceledOnTouchOutside(false);
+        mConfirmDialog.setView(dialogView);
 
-        confirmDialog.setView(dialogView);
+        mConfirmDialog.show();
+    }
 
-        confirmDialog.show();
+    /**
+     * Signals to Telecom that redirection of the call is to be cancelled.
+     */
+    private void cancelRedirection() {
+        Intent cancelRedirectedCall = new Intent(
+                TelecomBroadcastIntentProcessor.ACTION_CANCEL_REDIRECTED_CALL,
+                null, CallRedirectionConfirmDialogActivity.this,
+                TelecomBroadcastReceiver.class);
+        cancelRedirectedCall.putExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID, mCallId);
+        sendBroadcast(cancelRedirectedCall);
     }
 }
