@@ -316,9 +316,12 @@ public class TelecomSystem {
         mRespondViaSmsManager = new RespondViaSmsManager(mCallsManager, mLock);
         mCallsManager.setRespondViaSmsManager(mRespondViaSmsManager);
 
-        mContext.registerReceiver(mUserSwitchedReceiver, USER_SWITCHED_FILTER);
-        mContext.registerReceiver(mUserStartingReceiver, USER_STARTING_FILTER);
-        mContext.registerReceiver(mBootCompletedReceiver, BOOT_COMPLETE_FILTER);
+        mContext.registerReceiverAsUser(mUserSwitchedReceiver, UserHandle.ALL,
+                USER_SWITCHED_FILTER, null, null);
+        mContext.registerReceiverAsUser(mUserStartingReceiver, UserHandle.ALL,
+                USER_STARTING_FILTER, null, null);
+        mContext.registerReceiverAsUser(mBootCompletedReceiver, UserHandle.ALL,
+                BOOT_COMPLETE_FILTER, null, null);
 
         mBluetoothPhoneServiceImpl = bluetoothPhoneServiceImplFactory.makeBluetoothPhoneServiceImpl(
                 mContext, mLock, mCallsManager, mPhoneAccountRegistrar);
