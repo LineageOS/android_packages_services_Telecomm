@@ -16,6 +16,8 @@
 
 package com.android.server.telecom.components;
 
+import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
@@ -34,6 +36,8 @@ import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
+import android.view.WindowManager;
+import android.view.Window;
 
 import com.android.internal.app.AlertActivity;
 import com.android.internal.app.AlertController;
@@ -78,6 +82,21 @@ public class ChangeDefaultDialerDialog extends AlertActivity implements
                 setResult(RESULT_CANCELED);
                 break;
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        getWindow().addPrivateFlags(PRIVATE_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS);
+    }
+
+    @Override
+    public void onStop() {
+        final Window window = getWindow();
+        final WindowManager.LayoutParams attrs = window.getAttributes();
+        attrs.privateFlags &= ~PRIVATE_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
+        window.setAttributes(attrs);
+        super.onStop();
     }
 
     private boolean canChangeToProvidedPackage(String oldPackage, String newPackage) {
