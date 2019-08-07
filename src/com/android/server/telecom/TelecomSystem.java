@@ -28,6 +28,7 @@ import com.android.server.telecom.BluetoothPhoneServiceImpl.BluetoothPhoneServic
 import com.android.server.telecom.CallAudioManager.AudioServiceFactory;
 import com.android.server.telecom.DefaultDialerCache.DefaultDialerManagerAdapter;
 
+import android.app.ActivityManager;
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -322,6 +323,13 @@ public class TelecomSystem {
                 USER_STARTING_FILTER, null, null);
         mContext.registerReceiverAsUser(mBootCompletedReceiver, UserHandle.ALL,
                 BOOT_COMPLETE_FILTER, null, null);
+
+        // Set current user explicitly since USER_SWITCHED_FILTER intent can be missed at startup
+        synchronized(mLock) {
+            UserHandle currentUserHandle = UserHandle.of(ActivityManager.getCurrentUser());
+            mPhoneAccountRegistrar.setCurrentUserHandle(currentUserHandle);
+            mCallsManager.onUserSwitch(currentUserHandle);
+        }
 
         mBluetoothPhoneServiceImpl = bluetoothPhoneServiceImplFactory.makeBluetoothPhoneServiceImpl(
                 mContext, mLock, mCallsManager, mPhoneAccountRegistrar);
