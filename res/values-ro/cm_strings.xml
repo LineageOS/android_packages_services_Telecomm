@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Lista apelanților blocați</string>
-  <string name="blacklist_summary_disabled">Dezactivat</string>
-  <string name="blacklist_summary">Nu veți primi apeluri sau mesaje de la numere de telefon pe lista apelanților blocați</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">S-a blocat un apel de la %s</string>
-  <string name="blacklist_call_notification_private_number">S-a blocat un apel de la un nr. privat</string>
-  <string name="blacklist_call_notification_unknown_number">S-a blocat un apel de la un nr. necunoscut %s</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> apeluri au fost blocate</string>
-  <string name="blacklist_message_notification">S-a blocat un mesaj de la %s</string>
-  <string name="blacklist_message_notification_private_number">S-a blocat un mesaj de la un nr. privat</string>
-  <string name="blacklist_message_notification_unknown_number">S-a blocat un mesaj de la nr. necunoscut %s</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> mesaje au fost blocate</string>
-  <string name="blacklist_notification_list_private">Privat</string>
-  <string name="unblock_number">Deblocare</string>
-  <string name="unblock_contact">Deblocare contact</string>
-  <string name="call_waiting_dialog_title">Răspundeți %s</string>
-  <string name="call_waiting_dialog_hold_call">Puneți apelul curent pe așteptare</string>
-  <string name="call_waiting_dialog_end_call">Terminați apelul curent</string>
+    <string name="blacklist_title">Lista apelanților blocați</string>
+    <string name="blacklist_summary_disabled">Dezactivat</string>
+    <string name="blacklist_summary">Nu veți primi apeluri sau mesaje de la numere de telefon pe lista apelanților blocați</string>
+    <string name="blacklist_call_notification">S-a blocat un apel de la %s</string>
+    <string name="blacklist_call_notification_private_number">S-a blocat un apel de la un nr. privat</string>
+    <string name="blacklist_call_notification_unknown_number">S-a blocat un apel de la un nr. necunoscut %s</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> apeluri au fost blocate</string>
+    <string name="blacklist_message_notification">S-a blocat un mesaj de la %s</string>
+    <string name="blacklist_message_notification_private_number">S-a blocat un mesaj de la un nr. privat</string>
+    <string name="blacklist_message_notification_unknown_number">S-a blocat un mesaj de la nr. necunoscut %s</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> mesaje au fost blocate</string>
+    <string name="blacklist_notification_list_private">Privat</string>
+    <string name="unblock_number">Deblocare</string>
+    <string name="unblock_contact">Deblocare contact</string>
+    <string name="call_waiting_dialog_title">Răspundeți %s</string>
+    <string name="call_waiting_dialog_hold_call">Puneți apelul curent pe așteptare</string>
+    <string name="call_waiting_dialog_end_call">Terminați apelul curent</string>
 </resources>

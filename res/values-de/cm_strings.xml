@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Anrufer-Sperrliste</string>
-  <string name="blacklist_summary_disabled">Deaktiviert</string>
-  <string name="blacklist_summary">Sie werden keine Anrufe oder Nachrichten von Nummern aus der Sperrliste empfangen.</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">Ein Anruf von %s wurde blockiert.</string>
-  <string name="blacklist_call_notification_private_number">Ein Anruf mit unterdrückter Nummer wurde blockiert.</string>
-  <string name="blacklist_call_notification_unknown_number">Ein Anruf mit unbekannter Nummer %s wurde blockiert.</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> Anrufe wurden blockiert.</string>
-  <string name="blacklist_message_notification">Eine Nachricht von %s wurde blockiert.</string>
-  <string name="blacklist_message_notification_private_number">Eine Nachricht mit unterdrückter Nummer wurde blockiert.</string>
-  <string name="blacklist_message_notification_unknown_number">Eine Nachricht von unbekannter Nummer %s wurde blockiert.</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> Nachrichten wurden blockiert.</string>
-  <string name="blacklist_notification_list_private">Unterdrückte Nummer</string>
-  <string name="unblock_number">Sperre aufheben</string>
-  <string name="unblock_contact">Kontaktsperre aufheben</string>
-  <string name="call_waiting_dialog_title">%s annehmen</string>
-  <string name="call_waiting_dialog_hold_call">Aktuellen Anruf auf Halten legen</string>
-  <string name="call_waiting_dialog_end_call">Aktuellen Anruf beenden</string>
+    <string name="blacklist_title">Anrufer-Sperrliste</string>
+    <string name="blacklist_summary_disabled">Deaktiviert</string>
+    <string name="blacklist_summary">Sie werden keine Anrufe oder Nachrichten von Nummern aus der Sperrliste empfangen.</string>
+    <string name="blacklist_call_notification">Ein Anruf von %s wurde blockiert.</string>
+    <string name="blacklist_call_notification_private_number">Ein Anruf mit unterdrückter Nummer wurde blockiert.</string>
+    <string name="blacklist_call_notification_unknown_number">Ein Anruf mit unbekannter Nummer %s wurde blockiert.</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> Anrufe wurden blockiert.</string>
+    <string name="blacklist_message_notification">Eine Nachricht von %s wurde blockiert.</string>
+    <string name="blacklist_message_notification_private_number">Eine Nachricht mit unterdrückter Nummer wurde blockiert.</string>
+    <string name="blacklist_message_notification_unknown_number">Eine Nachricht von unbekannter Nummer %s wurde blockiert.</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> Nachrichten wurden blockiert.</string>
+    <string name="blacklist_notification_list_private">Unterdrückte Nummer</string>
+    <string name="unblock_number">Sperre aufheben</string>
+    <string name="unblock_contact">Kontaktsperre aufheben</string>
+    <string name="call_waiting_dialog_title">%s annehmen</string>
+    <string name="call_waiting_dialog_hold_call">Aktuellen Anruf auf Halten legen</string>
+    <string name="call_waiting_dialog_end_call">Aktuellen Anruf beenden</string>
 </resources>

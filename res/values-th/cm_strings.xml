@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">รายชื่อผู้โทรที่ถูกบล็อค</string>
-  <string name="blacklist_summary_disabled">ปิดแล้ว</string>
-  <string name="blacklist_summary">คุณจะไม่ได้รับสายหรือข้อความจากหมายเลขที่อยู่ในรายชื่อผู้โทรที่ถูกบล็อค</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">บล็อคสายเข้าจาก %s แล้ว</string>
-  <string name="blacklist_call_notification_private_number">บล็อคการโทรจากหมายเลขส่วนตัวแล้ว</string>
-  <string name="blacklist_call_notification_unknown_number">บล็อคการโทรจากหมายเลขที่ไม่รู้จัก %s</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> สายถูกบล็อค</string>
-  <string name="blacklist_message_notification">บล็อคข้อความจาก %s แล้ว</string>
-  <string name="blacklist_message_notification_private_number">บล็อคข้อความจากหมายเลขส่วนตัวแล้ว</string>
-  <string name="blacklist_message_notification_unknown_number">บล็อคข้อความจากหมายเลขที่ไม่รู้จัก %s แล้ว</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> ข้อความถูกบล็อค</string>
-  <string name="blacklist_notification_list_private">ส่วนตัว</string>
-  <string name="unblock_number">ปลดการบล็อค</string>
-  <string name="unblock_contact">ปลดบล็อคผู้ติดต่อ</string>
-  <string name="call_waiting_dialog_title">รับสาย %s</string>
-  <string name="call_waiting_dialog_hold_call">ให้ผู้โทรปัจจุบันรอสาย</string>
-  <string name="call_waiting_dialog_end_call">วางสายปัจจุบัน</string>
+    <string name="blacklist_title">รายชื่อผู้โทรที่ถูกบล็อค</string>
+    <string name="blacklist_summary_disabled">ปิดแล้ว</string>
+    <string name="blacklist_summary">คุณจะไม่ได้รับสายหรือข้อความจากหมายเลขที่อยู่ในรายชื่อผู้โทรที่ถูกบล็อค</string>
+    <string name="blacklist_call_notification">บล็อคสายเข้าจาก %s แล้ว</string>
+    <string name="blacklist_call_notification_private_number">บล็อคการโทรจากหมายเลขส่วนตัวแล้ว</string>
+    <string name="blacklist_call_notification_unknown_number">บล็อคการโทรจากหมายเลขที่ไม่รู้จัก %s</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> สายถูกบล็อค</string>
+    <string name="blacklist_message_notification">บล็อคข้อความจาก %s แล้ว</string>
+    <string name="blacklist_message_notification_private_number">บล็อคข้อความจากหมายเลขส่วนตัวแล้ว</string>
+    <string name="blacklist_message_notification_unknown_number">บล็อคข้อความจากหมายเลขที่ไม่รู้จัก %s แล้ว</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> ข้อความถูกบล็อค</string>
+    <string name="blacklist_notification_list_private">ส่วนตัว</string>
+    <string name="unblock_number">ปลดการบล็อค</string>
+    <string name="unblock_contact">ปลดบล็อคผู้ติดต่อ</string>
+    <string name="call_waiting_dialog_title">รับสาย %s</string>
+    <string name="call_waiting_dialog_hold_call">ให้ผู้โทรปัจจุบันรอสาย</string>
+    <string name="call_waiting_dialog_end_call">วางสายปัจจุบัน</string>
 </resources>

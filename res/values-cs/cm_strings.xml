@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Seznam blokovaných čísel</string>
-  <string name="blacklist_summary_disabled">Vypnuto</string>
-  <string name="blacklist_summary">Nebudou se přijímat příchozí hovory nebo zprávy od telefonní čísla na seznamu blokovaných čísel</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">Zablokovaný hovor od %s</string>
-  <string name="blacklist_call_notification_private_number">Zablokovaný hovor ze skrytého čísla</string>
-  <string name="blacklist_call_notification_unknown_number">Zablokovaný hovor z neznámého čísla %s</string>
-  <string name="blacklist_call_notification_multiple">Zablokovaných hovorů: <xliff:g id="count">%d</xliff:g></string>
-  <string name="blacklist_message_notification">Zablokovaná zpráva od %s</string>
-  <string name="blacklist_message_notification_private_number">Zablokovaná zpráva ze skrytého čísla</string>
-  <string name="blacklist_message_notification_unknown_number">Zablokovaná zpráva z neznámého čísla %s</string>
-  <string name="blacklist_message_notification_multiple">Blokovaných zpráv: <xliff:g id="count">%d</xliff:g></string>
-  <string name="blacklist_notification_list_private">Skryté</string>
-  <string name="unblock_number">Odblokovat</string>
-  <string name="unblock_contact">Odblokovat kontakt</string>
-  <string name="call_waiting_dialog_title">Přijmout %s</string>
-  <string name="call_waiting_dialog_hold_call">Podržet probíhající hovor</string>
-  <string name="call_waiting_dialog_end_call">Ukončit probíhající hovor</string>
+    <string name="blacklist_title">Seznam blokovaných čísel</string>
+    <string name="blacklist_summary_disabled">Vypnuto</string>
+    <string name="blacklist_summary">Nebudou se přijímat příchozí hovory nebo zprávy od telefonní čísla na seznamu blokovaných čísel</string>
+    <string name="blacklist_call_notification">Zablokovaný hovor od %s</string>
+    <string name="blacklist_call_notification_private_number">Zablokovaný hovor ze skrytého čísla</string>
+    <string name="blacklist_call_notification_unknown_number">Zablokovaný hovor z neznámého čísla %s</string>
+    <string name="blacklist_call_notification_multiple">Zablokovaných hovorů: <xliff:g id="count">%d</xliff:g></string>
+    <string name="blacklist_message_notification">Zablokovaná zpráva od %s</string>
+    <string name="blacklist_message_notification_private_number">Zablokovaná zpráva ze skrytého čísla</string>
+    <string name="blacklist_message_notification_unknown_number">Zablokovaná zpráva z neznámého čísla %s</string>
+    <string name="blacklist_message_notification_multiple">Blokovaných zpráv: <xliff:g id="count">%d</xliff:g></string>
+    <string name="blacklist_notification_list_private">Skryté</string>
+    <string name="unblock_number">Odblokovat</string>
+    <string name="unblock_contact">Odblokovat kontakt</string>
+    <string name="call_waiting_dialog_title">Přijmout %s</string>
+    <string name="call_waiting_dialog_hold_call">Podržet probíhající hovor</string>
+    <string name="call_waiting_dialog_end_call">Ukončit probíhající hovor</string>
 </resources>

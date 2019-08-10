@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Λίστα αποκλεισμένων καλούντων</string>
-  <string name="blacklist_summary_disabled">Απενεργοποιημένη</string>
-  <string name="blacklist_summary">Δε θα λαμβάνετε εισερχόμενες κλήσεις ή μηνύματα από τηλεφωνικούς αριθμούς στη λίστα αποκλεισμένων καλούντων</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">Απορρίφθηκε κλήση από %s</string>
-  <string name="blacklist_call_notification_private_number">Απορρίφθηκε κλήση από απόρρητο αριθμό</string>
-  <string name="blacklist_call_notification_unknown_number">Απορρίφθηκε κλήση από άγνωστο αριθμό %s</string>
-  <string name="blacklist_call_notification_multiple">Απορρίφθηκαν <xliff:g id="count">%d</xliff:g> κλήσεις</string>
-  <string name="blacklist_message_notification">Απορρίφθηκε μήνυμα από %s</string>
-  <string name="blacklist_message_notification_private_number">Απορρίφθηκε μήνυμα από απόρρητο αριθμό</string>
-  <string name="blacklist_message_notification_unknown_number">Απορρίφθηκε μήνυμα από άγνωστο αριθμό %s</string>
-  <string name="blacklist_message_notification_multiple">Απορρίφθηκαν <xliff:g id="count">%d</xliff:g> μηνύματα</string>
-  <string name="blacklist_notification_list_private">Απόρρητο</string>
-  <string name="unblock_number">Ακύρωση φραγής</string>
-  <string name="unblock_contact">Άρση αποκλεισμού επαφής</string>
-  <string name="call_waiting_dialog_title">Απάντηση %s</string>
-  <string name="call_waiting_dialog_hold_call">Βάλτε την τρέχουσα κλήση σε αναμονή</string>
-  <string name="call_waiting_dialog_end_call">Τερματισμός τρέχουσας κλήσης</string>
+    <string name="blacklist_title">Λίστα αποκλεισμένων καλούντων</string>
+    <string name="blacklist_summary_disabled">Απενεργοποιημένη</string>
+    <string name="blacklist_summary">Δε θα λαμβάνετε εισερχόμενες κλήσεις ή μηνύματα από τηλεφωνικούς αριθμούς στη λίστα αποκλεισμένων καλούντων</string>
+    <string name="blacklist_call_notification">Απορρίφθηκε κλήση από %s</string>
+    <string name="blacklist_call_notification_private_number">Απορρίφθηκε κλήση από απόρρητο αριθμό</string>
+    <string name="blacklist_call_notification_unknown_number">Απορρίφθηκε κλήση από άγνωστο αριθμό %s</string>
+    <string name="blacklist_call_notification_multiple">Απορρίφθηκαν <xliff:g id="count">%d</xliff:g> κλήσεις</string>
+    <string name="blacklist_message_notification">Απορρίφθηκε μήνυμα από %s</string>
+    <string name="blacklist_message_notification_private_number">Απορρίφθηκε μήνυμα από απόρρητο αριθμό</string>
+    <string name="blacklist_message_notification_unknown_number">Απορρίφθηκε μήνυμα από άγνωστο αριθμό %s</string>
+    <string name="blacklist_message_notification_multiple">Απορρίφθηκαν <xliff:g id="count">%d</xliff:g> μηνύματα</string>
+    <string name="blacklist_notification_list_private">Απόρρητο</string>
+    <string name="unblock_number">Ακύρωση φραγής</string>
+    <string name="unblock_contact">Άρση αποκλεισμού επαφής</string>
+    <string name="call_waiting_dialog_title">Απάντηση %s</string>
+    <string name="call_waiting_dialog_hold_call">Βάλτε την τρέχουσα κλήση σε αναμονή</string>
+    <string name="call_waiting_dialog_end_call">Τερματισμός τρέχουσας κλήσης</string>
 </resources>

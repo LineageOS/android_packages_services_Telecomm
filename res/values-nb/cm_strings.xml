@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Blokkert anropsliste</string>
-  <string name="blacklist_summary_disabled">Deaktivert</string>
-  <string name="blacklist_summary">Du vil ikke motta innkommende samtaler eller meldinger fra telefonnumre på listen over blokkerte telefonnummer</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">Blokkerte en samtale fra %s</string>
-  <string name="blacklist_call_notification_private_number">Blokkerte et anrop fra et skjult nummer</string>
-  <string name="blacklist_call_notification_unknown_number">Blokkert en samtale fra ukjent nummer %s</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> samtaler ble blokkert</string>
-  <string name="blacklist_message_notification">Blokkerte en melding fra %s</string>
-  <string name="blacklist_message_notification_private_number">Blokkerte en melding fra et skjult nummer</string>
-  <string name="blacklist_message_notification_unknown_number">Blokkerte en melding fra ukjent nummer %s</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> meldinger ble blokkert</string>
-  <string name="blacklist_notification_list_private">Privat</string>
-  <string name="unblock_number">Opphev blokkering</string>
-  <string name="unblock_contact">Oppheve blokkering av kontakt</string>
-  <string name="call_waiting_dialog_title">Svar %s</string>
-  <string name="call_waiting_dialog_hold_call">Sett samtalen på vent</string>
-  <string name="call_waiting_dialog_end_call">Avslutt gjeldende samtale</string>
+    <string name="blacklist_title">Blokkert anropsliste</string>
+    <string name="blacklist_summary_disabled">Deaktivert</string>
+    <string name="blacklist_summary">Du vil ikke motta innkommende samtaler eller meldinger fra telefonnumre på listen over blokkerte telefonnummer</string>
+    <string name="blacklist_call_notification">Blokkerte en samtale fra %s</string>
+    <string name="blacklist_call_notification_private_number">Blokkerte et anrop fra et skjult nummer</string>
+    <string name="blacklist_call_notification_unknown_number">Blokkert en samtale fra ukjent nummer %s</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> samtaler ble blokkert</string>
+    <string name="blacklist_message_notification">Blokkerte en melding fra %s</string>
+    <string name="blacklist_message_notification_private_number">Blokkerte en melding fra et skjult nummer</string>
+    <string name="blacklist_message_notification_unknown_number">Blokkerte en melding fra ukjent nummer %s</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> meldinger ble blokkert</string>
+    <string name="blacklist_notification_list_private">Privat</string>
+    <string name="unblock_number">Opphev blokkering</string>
+    <string name="unblock_contact">Oppheve blokkering av kontakt</string>
+    <string name="call_waiting_dialog_title">Svar %s</string>
+    <string name="call_waiting_dialog_hold_call">Sett samtalen på vent</string>
+    <string name="call_waiting_dialog_end_call">Avslutt gjeldende samtale</string>
 </resources>

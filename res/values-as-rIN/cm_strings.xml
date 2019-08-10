@@ -16,20 +16,18 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">অৱৰুদ্ধ কৰা কলাৰ সূচী</string>
-  <string name="blacklist_summary_disabled">নিস্ক্ৰিয় কৰা হল</string>
-  <string name="blacklist_summary">আপুনি কলাৰ সূচীত থকা ফোন নম্বৰৰ পৰা ইনকামিং কল বা বাৰ্তা প্ৰাপ্ত নকৰিব</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">%s ৰ পৰা কল অৱৰুদ্ধ কৰা হৈছে</string>
-  <string name="blacklist_call_notification_private_number">এটা ব্যক্তিগত নম্বৰৰ পৰা এটা কল অৱৰুদ্ধ কৰা হৈছে</string>
-  <string name="blacklist_call_notification_unknown_number">অজ্ঞাত নম্বৰ %s ৰ পৰা এটা কল অৱৰুদ্ধ কৰা হৈছে</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> কল অৱৰুদ্ধ কৰা হৈছে</string>
-  <string name="blacklist_message_notification">%s ৰ পৰা এটা বাৰ্তা অৱৰুদ্ধ কৰা হৈছে।</string>
-  <string name="blacklist_message_notification_private_number">এটা ব্যক্তিগত নম্বৰৰ পৰা এটা বাৰ্তা অৱৰুদ্ধ কৰা হৈছে।</string>
-  <string name="blacklist_message_notification_unknown_number">অজ্ঞাত নম্বৰ %s ৰ পৰা এটা বাৰ্তা অৱৰুদ্ধ কৰা হৈছে।</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> বাৰ্তা অৱৰুদ্ধ কৰা হৈছে।</string>
-  <string name="blacklist_notification_list_private">ব্যক্তিগত</string>
-  <string name="unblock_number">অনৱৰোধ কৰক</string>
-  <string name="unblock_contact">যোগাযোগ অনৱৰোধ কৰক</string>
+    <string name="blacklist_title">অৱৰুদ্ধ কৰা কলাৰ সূচী</string>
+    <string name="blacklist_summary_disabled">নিস্ক্ৰিয় কৰা হল</string>
+    <string name="blacklist_summary">আপুনি কলাৰ সূচীত থকা ফোন নম্বৰৰ পৰা ইনকামিং কল বা বাৰ্তা প্ৰাপ্ত নকৰিব</string>
+    <string name="blacklist_call_notification">%s ৰ পৰা কল অৱৰুদ্ধ কৰা হৈছে</string>
+    <string name="blacklist_call_notification_private_number">এটা ব্যক্তিগত নম্বৰৰ পৰা এটা কল অৱৰুদ্ধ কৰা হৈছে</string>
+    <string name="blacklist_call_notification_unknown_number">অজ্ঞাত নম্বৰ %s ৰ পৰা এটা কল অৱৰুদ্ধ কৰা হৈছে</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> কল অৱৰুদ্ধ কৰা হৈছে</string>
+    <string name="blacklist_message_notification">%s ৰ পৰা এটা বাৰ্তা অৱৰুদ্ধ কৰা হৈছে।</string>
+    <string name="blacklist_message_notification_private_number">এটা ব্যক্তিগত নম্বৰৰ পৰা এটা বাৰ্তা অৱৰুদ্ধ কৰা হৈছে।</string>
+    <string name="blacklist_message_notification_unknown_number">অজ্ঞাত নম্বৰ %s ৰ পৰা এটা বাৰ্তা অৱৰুদ্ধ কৰা হৈছে।</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> বাৰ্তা অৱৰুদ্ধ কৰা হৈছে।</string>
+    <string name="blacklist_notification_list_private">ব্যক্তিগত</string>
+    <string name="unblock_number">অনৱৰোধ কৰক</string>
+    <string name="unblock_contact">যোগাযোগ অনৱৰোধ কৰক</string>
 </resources>

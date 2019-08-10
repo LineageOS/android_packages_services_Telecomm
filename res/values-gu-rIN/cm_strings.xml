@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">બ્લોક કરેલ કૉલર સૂચી</string>
-  <string name="blacklist_summary_disabled">અક્ષમ</string>
-  <string name="blacklist_summary">તમારી બ્લૉક કરેલ કૉલર સૂચી પર રહેલ ફોન નંબરો પરથી ઇનકમિંગ કૉલ્સ અથવા સંદેશા તમે મેળવશો નહીં</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">%s તરફથી આવેલ કૉલ બ્લૉક કર્યો</string>
-  <string name="blacklist_call_notification_private_number">ખાનગી નંબર પરથી આવેલ કૉલ બ્લૉક કર્યો</string>
-  <string name="blacklist_call_notification_unknown_number">અજાણ્યા નંબર %s તરફથી આવેલ કૉલ બ્લૉક કર્યો</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> કૉલ બ્લૉક કરવામાં આવ્યાં</string>
-  <string name="blacklist_message_notification">%s તરફથી આવેલ સંદેશો બ્લૉક કર્યો</string>
-  <string name="blacklist_message_notification_private_number">ખાનગી નંબર પરથી આવેલ સંદેશો બ્લૉક કર્યો</string>
-  <string name="blacklist_message_notification_unknown_number">%s અજાણ્યા નંબર તરફથી આવેલ સંદેશો બ્લૉક કર્યો</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> સંદેશા બ્લૉક કરવામાં અવ્યાં</string>
-  <string name="blacklist_notification_list_private">ખાનગી</string>
-  <string name="unblock_number">અનાવરોધિત</string>
-  <string name="unblock_contact">સંપર્ક અનલૉક કરો</string>
-  <string name="call_waiting_dialog_title">જવાબ %s</string>
-  <string name="call_waiting_dialog_hold_call">વર્તમાન કોલને હોલ્ડ પર મૂકો</string>
-  <string name="call_waiting_dialog_end_call">વર્તમાન કોલની સમાપ્તિ કરો</string>
+    <string name="blacklist_title">બ્લોક કરેલ કૉલર સૂચી</string>
+    <string name="blacklist_summary_disabled">અક્ષમ</string>
+    <string name="blacklist_summary">તમારી બ્લૉક કરેલ કૉલર સૂચી પર રહેલ ફોન નંબરો પરથી ઇનકમિંગ કૉલ્સ અથવા સંદેશા તમે મેળવશો નહીં</string>
+    <string name="blacklist_call_notification">%s તરફથી આવેલ કૉલ બ્લૉક કર્યો</string>
+    <string name="blacklist_call_notification_private_number">ખાનગી નંબર પરથી આવેલ કૉલ બ્લૉક કર્યો</string>
+    <string name="blacklist_call_notification_unknown_number">અજાણ્યા નંબર %s તરફથી આવેલ કૉલ બ્લૉક કર્યો</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> કૉલ બ્લૉક કરવામાં આવ્યાં</string>
+    <string name="blacklist_message_notification">%s તરફથી આવેલ સંદેશો બ્લૉક કર્યો</string>
+    <string name="blacklist_message_notification_private_number">ખાનગી નંબર પરથી આવેલ સંદેશો બ્લૉક કર્યો</string>
+    <string name="blacklist_message_notification_unknown_number">%s અજાણ્યા નંબર તરફથી આવેલ સંદેશો બ્લૉક કર્યો</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> સંદેશા બ્લૉક કરવામાં અવ્યાં</string>
+    <string name="blacklist_notification_list_private">ખાનગી</string>
+    <string name="unblock_number">અનાવરોધિત</string>
+    <string name="unblock_contact">સંપર્ક અનલૉક કરો</string>
+    <string name="call_waiting_dialog_title">જવાબ %s</string>
+    <string name="call_waiting_dialog_hold_call">વર્તમાન કોલને હોલ્ડ પર મૂકો</string>
+    <string name="call_waiting_dialog_end_call">વર્તમાન કોલની સમાપ્તિ કરો</string>
 </resources>

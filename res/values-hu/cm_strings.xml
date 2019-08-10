@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Blokkolt hívók listája</string>
-  <string name="blacklist_summary_disabled">Letiltva</string>
-  <string name="blacklist_summary">Nem fog bejövő hívásokat és üzeneteket kapni a blokkolt hívó listán szereplő telefonszámokról</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">Blokkolt hívás a következő számról: %s</string>
-  <string name="blacklist_call_notification_private_number">Blokkolt szám nélküli hívás</string>
-  <string name="blacklist_call_notification_unknown_number">Blokkolt ismeretlen szám: %s</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> blokkolt hívás</string>
-  <string name="blacklist_message_notification">Blokkolt üzenet a következő számról: %s</string>
-  <string name="blacklist_message_notification_private_number">Blokkolt szám nélküli üzenet</string>
-  <string name="blacklist_message_notification_unknown_number">Blokkolt ismeretlen üzenet: %s</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> blokkolt üzenet</string>
-  <string name="blacklist_notification_list_private">Rejtett szám</string>
-  <string name="unblock_number">Eltávolítás</string>
-  <string name="unblock_contact">Kapcsolat blokkolásának feloldása</string>
-  <string name="call_waiting_dialog_title">Válasz %s</string>
-  <string name="call_waiting_dialog_hold_call">Aktuális hívás tartásba</string>
-  <string name="call_waiting_dialog_end_call">Aktuális hívás befejezése</string>
+    <string name="blacklist_title">Blokkolt hívók listája</string>
+    <string name="blacklist_summary_disabled">Letiltva</string>
+    <string name="blacklist_summary">Nem fog bejövő hívásokat és üzeneteket kapni a blokkolt hívó listán szereplő telefonszámokról</string>
+    <string name="blacklist_call_notification">Blokkolt hívás a következő számról: %s</string>
+    <string name="blacklist_call_notification_private_number">Blokkolt szám nélküli hívás</string>
+    <string name="blacklist_call_notification_unknown_number">Blokkolt ismeretlen szám: %s</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> blokkolt hívás</string>
+    <string name="blacklist_message_notification">Blokkolt üzenet a következő számról: %s</string>
+    <string name="blacklist_message_notification_private_number">Blokkolt szám nélküli üzenet</string>
+    <string name="blacklist_message_notification_unknown_number">Blokkolt ismeretlen üzenet: %s</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> blokkolt üzenet</string>
+    <string name="blacklist_notification_list_private">Rejtett szám</string>
+    <string name="unblock_number">Eltávolítás</string>
+    <string name="unblock_contact">Kapcsolat blokkolásának feloldása</string>
+    <string name="call_waiting_dialog_title">Válasz %s</string>
+    <string name="call_waiting_dialog_hold_call">Aktuális hívás tartásba</string>
+    <string name="call_waiting_dialog_end_call">Aktuális hívás befejezése</string>
 </resources>

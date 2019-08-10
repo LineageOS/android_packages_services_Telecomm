@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Список заблокованих абонентів</string>
-  <string name="blacklist_summary_disabled">Вимкнено</string>
-  <string name="blacklist_summary">Ви не будете отримувати вхідні дзвінки чи повідомлення від абонентів, які знаходяться у списку заблокованих</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">Виклик від %s заблоковано</string>
-  <string name="blacklist_call_notification_private_number">Виклик з приватного номера заблоковано</string>
-  <string name="blacklist_call_notification_unknown_number">Виклик з невідомого номера %s заблоковано</string>
-  <string name="blacklist_call_notification_multiple">Викликів заблоковано:<xliff:g id="count">%d</xliff:g></string>
-  <string name="blacklist_message_notification">Повідомлення від %s заблоковано</string>
-  <string name="blacklist_message_notification_private_number">Повідомлення з прихованого номера заблоковано</string>
-  <string name="blacklist_message_notification_unknown_number">Повідомлення з невідомого номера %s заблоковано</string>
-  <string name="blacklist_message_notification_multiple">Заблоковано повідомлень: <xliff:g id="count">%d</xliff:g></string>
-  <string name="blacklist_notification_list_private">Прихований номер</string>
-  <string name="unblock_number">Розблокувати</string>
-  <string name="unblock_contact">Розблокувати контакт</string>
-  <string name="call_waiting_dialog_title">Відповідь %s</string>
-  <string name="call_waiting_dialog_hold_call">Поставити поточний виклик на утримання</string>
-  <string name="call_waiting_dialog_end_call">Завершити поточний виклик</string>
+    <string name="blacklist_title">Список заблокованих абонентів</string>
+    <string name="blacklist_summary_disabled">Вимкнено</string>
+    <string name="blacklist_summary">Ви не будете отримувати вхідні дзвінки чи повідомлення від абонентів, які знаходяться у списку заблокованих</string>
+    <string name="blacklist_call_notification">Виклик від %s заблоковано</string>
+    <string name="blacklist_call_notification_private_number">Виклик з приватного номера заблоковано</string>
+    <string name="blacklist_call_notification_unknown_number">Виклик з невідомого номера %s заблоковано</string>
+    <string name="blacklist_call_notification_multiple">Викликів заблоковано:<xliff:g id="count">%d</xliff:g></string>
+    <string name="blacklist_message_notification">Повідомлення від %s заблоковано</string>
+    <string name="blacklist_message_notification_private_number">Повідомлення з прихованого номера заблоковано</string>
+    <string name="blacklist_message_notification_unknown_number">Повідомлення з невідомого номера %s заблоковано</string>
+    <string name="blacklist_message_notification_multiple">Заблоковано повідомлень: <xliff:g id="count">%d</xliff:g></string>
+    <string name="blacklist_notification_list_private">Прихований номер</string>
+    <string name="unblock_number">Розблокувати</string>
+    <string name="unblock_contact">Розблокувати контакт</string>
+    <string name="call_waiting_dialog_title">Відповідь %s</string>
+    <string name="call_waiting_dialog_hold_call">Поставити поточний виклик на утримання</string>
+    <string name="call_waiting_dialog_end_call">Завершити поточний виклик</string>
 </resources>

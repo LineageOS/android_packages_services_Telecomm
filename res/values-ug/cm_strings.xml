@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">چاقىرىش قارا تىزىملىكى</string>
-  <string name="blacklist_summary_disabled">چەكلەنگەن</string>
-  <string name="blacklist_summary">سىز قارا تىزىملىكتىكى نومۇردىن تېلېفون ياكى ئۇچۇر قۇبۇل قىلالمايسىز</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">%s نىڭ چاقىرىشىنى توستى</string>
-  <string name="blacklist_call_notification_private_number">شەخسىي نومۇردىن چاقىرىشنى توستى</string>
-  <string name="blacklist_call_notification_unknown_number">يوچۇن نومۇر %s نىڭ چاقىرىشىنى توستى</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> چاقىرىش توسۇلدى</string>
-  <string name="blacklist_message_notification">%s نىڭ ئۇچۇرىنى توستى</string>
-  <string name="blacklist_message_notification_private_number">شەخسىي نومۇردىن كەلگەن ئۇچۇرنى توستى</string>
-  <string name="blacklist_message_notification_unknown_number">يوچۇن نومۇر %s دىن كەلگەن بىر ئۇچۇرنى توستى</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> ئۇچۇر توسۇلدى</string>
-  <string name="blacklist_notification_list_private">شەخسىي</string>
-  <string name="unblock_number">توسما</string>
-  <string name="unblock_contact">ئالاقىداشنى قارا تىزىملىكتىن چىقىرۋېتىش</string>
-  <string name="call_waiting_dialog_title">%s گە جاۋاپ قايتۇرۇش</string>
-  <string name="call_waiting_dialog_hold_call">نۆۋەتتىكى سۆزلىشىشنى ساقلاپ قېلىش</string>
-  <string name="call_waiting_dialog_end_call">سۆزلىشىشنى تاماملاش</string>
+    <string name="blacklist_title">چاقىرىش قارا تىزىملىكى</string>
+    <string name="blacklist_summary_disabled">چەكلەنگەن</string>
+    <string name="blacklist_summary">سىز قارا تىزىملىكتىكى نومۇردىن تېلېفون ياكى ئۇچۇر قۇبۇل قىلالمايسىز</string>
+    <string name="blacklist_call_notification">%s نىڭ چاقىرىشىنى توستى</string>
+    <string name="blacklist_call_notification_private_number">شەخسىي نومۇردىن چاقىرىشنى توستى</string>
+    <string name="blacklist_call_notification_unknown_number">يوچۇن نومۇر %s نىڭ چاقىرىشىنى توستى</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> چاقىرىش توسۇلدى</string>
+    <string name="blacklist_message_notification">%s نىڭ ئۇچۇرىنى توستى</string>
+    <string name="blacklist_message_notification_private_number">شەخسىي نومۇردىن كەلگەن ئۇچۇرنى توستى</string>
+    <string name="blacklist_message_notification_unknown_number">يوچۇن نومۇر %s دىن كەلگەن بىر ئۇچۇرنى توستى</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> ئۇچۇر توسۇلدى</string>
+    <string name="blacklist_notification_list_private">شەخسىي</string>
+    <string name="unblock_number">توسما</string>
+    <string name="unblock_contact">ئالاقىداشنى قارا تىزىملىكتىن چىقىرۋېتىش</string>
+    <string name="call_waiting_dialog_title">%s گە جاۋاپ قايتۇرۇش</string>
+    <string name="call_waiting_dialog_hold_call">نۆۋەتتىكى سۆزلىشىشنى ساقلاپ قېلىش</string>
+    <string name="call_waiting_dialog_end_call">سۆزلىشىشنى تاماملاش</string>
 </resources>

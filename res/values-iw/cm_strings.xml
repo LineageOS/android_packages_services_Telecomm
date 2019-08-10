@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">רשימת המתקשרים החסומים</string>
-  <string name="blacklist_summary_disabled">מושבת</string>
-  <string name="blacklist_summary">לא יתקבלו שיחות נכנסות או הודעות ממספרי הטלפון הנמצאים ברשימת המתקשרים החסומים</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">נחסמה שיחה מ-%s</string>
-  <string name="blacklist_call_notification_private_number">נחסמה שיחה ממספר חסוי</string>
-  <string name="blacklist_call_notification_unknown_number">נחסמה שיחה ממספר לא ידוע %s</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> שיחות נחסמו</string>
-  <string name="blacklist_message_notification">נחסמה הודעה מ-%s</string>
-  <string name="blacklist_message_notification_private_number">נחסמה הודעה ממספר חסוי</string>
-  <string name="blacklist_message_notification_unknown_number">נחסמה הודעה ממספר לא ידוע %s</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> הודעות נחסמו</string>
-  <string name="blacklist_notification_list_private">חסוי</string>
-  <string name="unblock_number">בטל חסימה</string>
-  <string name="unblock_contact">בטל חסימת איש קשר</string>
-  <string name="call_waiting_dialog_title">לענות ל־ %s</string>
-  <string name="call_waiting_dialog_hold_call">העבר שיחה נוכחית להמתנה</string>
-  <string name="call_waiting_dialog_end_call">סיים שיחה נוכחית</string>
+    <string name="blacklist_title">רשימת המתקשרים החסומים</string>
+    <string name="blacklist_summary_disabled">מושבת</string>
+    <string name="blacklist_summary">לא יתקבלו שיחות נכנסות או הודעות ממספרי הטלפון הנמצאים ברשימת המתקשרים החסומים</string>
+    <string name="blacklist_call_notification">נחסמה שיחה מ-%s</string>
+    <string name="blacklist_call_notification_private_number">נחסמה שיחה ממספר חסוי</string>
+    <string name="blacklist_call_notification_unknown_number">נחסמה שיחה ממספר לא ידוע %s</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> שיחות נחסמו</string>
+    <string name="blacklist_message_notification">נחסמה הודעה מ-%s</string>
+    <string name="blacklist_message_notification_private_number">נחסמה הודעה ממספר חסוי</string>
+    <string name="blacklist_message_notification_unknown_number">נחסמה הודעה ממספר לא ידוע %s</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> הודעות נחסמו</string>
+    <string name="blacklist_notification_list_private">חסוי</string>
+    <string name="unblock_number">בטל חסימה</string>
+    <string name="unblock_contact">בטל חסימת איש קשר</string>
+    <string name="call_waiting_dialog_title">לענות ל־ %s</string>
+    <string name="call_waiting_dialog_hold_call">העבר שיחה נוכחית להמתנה</string>
+    <string name="call_waiting_dialog_end_call">סיים שיחה נוכחית</string>
 </resources>

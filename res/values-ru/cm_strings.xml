@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Чёрный список</string>
-  <string name="blacklist_summary_disabled">Отключен</string>
-  <string name="blacklist_summary">Вы не будете получать входящие вызовы или сообщения от телефонных номеров из черного списка</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">Вызов от %s отклонён</string>
-  <string name="blacklist_call_notification_private_number">Вызов со скрытого номера отклонён</string>
-  <string name="blacklist_call_notification_unknown_number">Вызов с неизвестного номера (%s) отклонён</string>
-  <string name="blacklist_call_notification_multiple">Отклонено вызовов: <xliff:g id="count">%d</xliff:g></string>
-  <string name="blacklist_message_notification">Сообщение от %s заблокировано</string>
-  <string name="blacklist_message_notification_private_number">Сообщение со скрытого номера заблокировано</string>
-  <string name="blacklist_message_notification_unknown_number">Сообщение от неизвестного номера %s заблокировано</string>
-  <string name="blacklist_message_notification_multiple">Заблокировано сообщений: <xliff:g id="count">%d</xliff:g></string>
-  <string name="blacklist_notification_list_private">Скрытый номер</string>
-  <string name="unblock_number">Разблокировать</string>
-  <string name="unblock_contact">Разблокировать контакт</string>
-  <string name="call_waiting_dialog_title">Ответ %s</string>
-  <string name="call_waiting_dialog_hold_call">Поставить текущ. вызов на удержание</string>
-  <string name="call_waiting_dialog_end_call">Завершить текущий вызов</string>
+    <string name="blacklist_title">Черный список</string>
+    <string name="blacklist_summary_disabled">Отключен</string>
+    <string name="blacklist_summary">Вы не будете получать входящие вызовы или сообщения от телефонных номеров из черного списка</string>
+    <string name="blacklist_call_notification">Вызов от %s отклонен</string>
+    <string name="blacklist_call_notification_private_number">Вызов со скрытого номера отклонен</string>
+    <string name="blacklist_call_notification_unknown_number">Вызов с неизвестного номера (%s) отклонен</string>
+    <string name="blacklist_call_notification_multiple">Отклонено вызовов: <xliff:g id="count">%d</xliff:g></string>
+    <string name="blacklist_message_notification">Сообщение от %s заблокировано</string>
+    <string name="blacklist_message_notification_private_number">Сообщение со скрытого номера заблокировано</string>
+    <string name="blacklist_message_notification_unknown_number">Сообщение от неизвестного номера %s заблокировано</string>
+    <string name="blacklist_message_notification_multiple">Заблокировано сообщений: <xliff:g id="count">%d</xliff:g></string>
+    <string name="blacklist_notification_list_private">Скрытый номер</string>
+    <string name="unblock_number">Разблокировать</string>
+    <string name="unblock_contact">Разблокировать контакт</string>
+    <string name="call_waiting_dialog_title">Ответ %s</string>
+    <string name="call_waiting_dialog_hold_call">Поставить текущ. вызов на удержание</string>
+    <string name="call_waiting_dialog_end_call">Завершить текущий вызов</string>
 </resources>

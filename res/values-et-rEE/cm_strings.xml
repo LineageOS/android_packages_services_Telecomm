@@ -16,19 +16,17 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Blokeeritud helistajate nimekiri</string>
-  <string name="blacklist_summary_disabled">Keelatud</string>
-  <string name="blacklist_summary">Te ei saa sissetulevaid kõnesid ega sõnumeid numbritelt, mis on blokeeritud helistajate nimekirjas</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">Blokeeritud kõne %s</string>
-  <string name="blacklist_call_notification_private_number">Blokeeritud kõne privaatselt numbrilt</string>
-  <string name="blacklist_call_notification_unknown_number">Blokeeritud kõne tundmatult numbrilt %s</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> kõnet on blokeeritud</string>
-  <string name="blacklist_message_notification">Blokeeritud sõnum %s</string>
-  <string name="blacklist_message_notification_private_number">Blokeeritud sõnum privaatselt numbrilt</string>
-  <string name="blacklist_message_notification_unknown_number">Blokeeritud sõnum tundmatult numbrilt %s</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> sõnumit on blokeeritud</string>
-  <string name="blacklist_notification_list_private">Privaatne</string>
-  <string name="unblock_number">Tühista blokeering</string>
+    <string name="blacklist_title">Blokeeritud helistajate nimekiri</string>
+    <string name="blacklist_summary_disabled">Keelatud</string>
+    <string name="blacklist_summary">Te ei saa sissetulevaid kõnesid ega sõnumeid numbritelt, mis on blokeeritud helistajate nimekirjas</string>
+    <string name="blacklist_call_notification">Blokeeritud kõne %s</string>
+    <string name="blacklist_call_notification_private_number">Blokeeritud kõne privaatselt numbrilt</string>
+    <string name="blacklist_call_notification_unknown_number">Blokeeritud kõne tundmatult numbrilt %s</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> kõnet on blokeeritud</string>
+    <string name="blacklist_message_notification">Blokeeritud sõnum %s</string>
+    <string name="blacklist_message_notification_private_number">Blokeeritud sõnum privaatselt numbrilt</string>
+    <string name="blacklist_message_notification_unknown_number">Blokeeritud sõnum tundmatult numbrilt %s</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> sõnumit on blokeeritud</string>
+    <string name="blacklist_notification_list_private">Privaatne</string>
+    <string name="unblock_number">Tühista blokeering</string>
 </resources>

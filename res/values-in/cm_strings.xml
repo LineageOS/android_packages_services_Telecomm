@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Daftar penelepon yang diblokir</string>
-  <string name="blacklist_summary_disabled">Dinonaktifkan</string>
-  <string name="blacklist_summary">Anda tidak akan menerima panggilan atau pesan dari nomor telepon yang ada di daftar penelepon yang diblokir</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">Memblokir panggilan dari %s</string>
-  <string name="blacklist_call_notification_private_number">Memblokir panggilan dari nomor pribadi</string>
-  <string name="blacklist_call_notification_unknown_number">Memblokir panggilan dari nomor tak dikenal %s</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count"> %d </xliff:g> panggilan diblokir</string>
-  <string name="blacklist_message_notification">Memblokir pesan dari %s</string>
-  <string name="blacklist_message_notification_private_number">Memblokir pesan dari nomor pribadi</string>
-  <string name="blacklist_message_notification_unknown_number">Memblokir pesan dari nomor tidak dikenal %s</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> pesan diblokir</string>
-  <string name="blacklist_notification_list_private">Pribadi</string>
-  <string name="unblock_number">Buka blokir</string>
-  <string name="unblock_contact">Buka kontak</string>
-  <string name="call_waiting_dialog_title">Jawab %s</string>
-  <string name="call_waiting_dialog_hold_call">Tahan panggilan aktif</string>
-  <string name="call_waiting_dialog_end_call">Akhiri panggilan aktif</string>
+    <string name="blacklist_title">Daftar penelepon yang diblokir</string>
+    <string name="blacklist_summary_disabled">Dinonaktifkan</string>
+    <string name="blacklist_summary">Anda tidak akan menerima panggilan atau pesan dari nomor telepon yang ada di daftar penelepon yang diblokir</string>
+    <string name="blacklist_call_notification">Memblokir panggilan dari %s</string>
+    <string name="blacklist_call_notification_private_number">Memblokir panggilan dari nomor pribadi</string>
+    <string name="blacklist_call_notification_unknown_number">Memblokir panggilan dari nomor tak dikenal %s</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count"> %d </xliff:g> panggilan diblokir</string>
+    <string name="blacklist_message_notification">Memblokir pesan dari %s</string>
+    <string name="blacklist_message_notification_private_number">Memblokir pesan dari nomor pribadi</string>
+    <string name="blacklist_message_notification_unknown_number">Memblokir pesan dari nomor tidak dikenal %s</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> pesan diblokir</string>
+    <string name="blacklist_notification_list_private">Pribadi</string>
+    <string name="unblock_number">Buka blokir</string>
+    <string name="unblock_contact">Buka kontak</string>
+    <string name="call_waiting_dialog_title">Jawab %s</string>
+    <string name="call_waiting_dialog_hold_call">Tahan panggilan aktif</string>
+    <string name="call_waiting_dialog_end_call">Akhiri panggilan aktif</string>
 </resources>

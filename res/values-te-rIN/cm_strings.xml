@@ -16,20 +16,18 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">నిరోధించబడిన కాలర్ జాబితా</string>
-  <string name="blacklist_summary_disabled">నిలిపివేయబడింది</string>
-  <string name="blacklist_summary">నిరోధించబడిన కాలర్ జాబితాలో ఉన్న ఫోన్ నంబర్ల నుండి మీరు ఇన్‌కమింగ్ కాల్స్ లేదా సందేశాలను అందుకోరు</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">%s నుండి కాల్ నిరోధించబడింది</string>
-  <string name="blacklist_call_notification_private_number">ఒక ప్రైవేట్ నంబరు నుండి కాల్ నిరోధించబడింది</string>
-  <string name="blacklist_call_notification_unknown_number">ఒక తెలియని నంబర్ %s నుండి కాల్ నిరోధించబడింది</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> కాల్స్ నిరోధించబడ్డాయి</string>
-  <string name="blacklist_message_notification">%s నుండి సందేశాన్ని నిరోధించుము</string>
-  <string name="blacklist_message_notification_private_number">ఒక ప్రైవేట్ నంబరు నుండి సందేశం నిరోధించబడింది</string>
-  <string name="blacklist_message_notification_unknown_number">ఒక తెలియని నంబర్ %s నుండి సందేశం నిరోధించబడింది</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> సందేశాలు నిరోధించబడ్డాయి</string>
-  <string name="blacklist_notification_list_private">ప్రైవేట్</string>
-  <string name="unblock_number">బ్లాక్ చేయవద్దు</string>
-  <string name="unblock_contact">కాంటాక్ట్ బ్లాక్ చేయవద్దు</string>
+    <string name="blacklist_title">నిరోధించబడిన కాలర్ జాబితా</string>
+    <string name="blacklist_summary_disabled">నిలిపివేయబడింది</string>
+    <string name="blacklist_summary">నిరోధించబడిన కాలర్ జాబితాలో ఉన్న ఫోన్ నంబర్ల నుండి మీరు ఇన్‌కమింగ్ కాల్స్ లేదా సందేశాలను అందుకోరు</string>
+    <string name="blacklist_call_notification">%s నుండి కాల్ నిరోధించబడింది</string>
+    <string name="blacklist_call_notification_private_number">ఒక ప్రైవేట్ నంబరు నుండి కాల్ నిరోధించబడింది</string>
+    <string name="blacklist_call_notification_unknown_number">ఒక తెలియని నంబర్ %s నుండి కాల్ నిరోధించబడింది</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> కాల్స్ నిరోధించబడ్డాయి</string>
+    <string name="blacklist_message_notification">%s నుండి సందేశాన్ని నిరోధించుము</string>
+    <string name="blacklist_message_notification_private_number">ఒక ప్రైవేట్ నంబరు నుండి సందేశం నిరోధించబడింది</string>
+    <string name="blacklist_message_notification_unknown_number">ఒక తెలియని నంబర్ %s నుండి సందేశం నిరోధించబడింది</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> సందేశాలు నిరోధించబడ్డాయి</string>
+    <string name="blacklist_notification_list_private">ప్రైవేట్</string>
+    <string name="unblock_number">బ్లాక్ చేయవద్దు</string>
+    <string name="unblock_contact">కాంటాక్ట్ బ్లాక్ చేయవద్దు</string>
 </resources>

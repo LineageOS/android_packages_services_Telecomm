@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Danh sách người gọi đã bị chặn</string>
-  <string name="blacklist_summary_disabled">Đã tắt</string>
-  <string name="blacklist_summary">Bạn sẽ không nhận được cuộc gọi hoặc tin nhắn đến từ số điện thoại trong danh sách chặn người gọi</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">Đã chặn một cuộc gọi từ %s</string>
-  <string name="blacklist_call_notification_private_number">Đã chặn một cuộc gọi từ một số riêng tư</string>
-  <string name="blacklist_call_notification_unknown_number">Đã chặn một cuộc gọi từ số không quen %s</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> cuộc gọi đã bị chặn</string>
-  <string name="blacklist_message_notification">Chặn tin nhắn từ %s</string>
-  <string name="blacklist_message_notification_private_number">Đã chặn một tin nhắn từ số riêng tư</string>
-  <string name="blacklist_message_notification_unknown_number">Đã chặn một tin nhắn từ số không quen %s</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> tin nhắn đã bị chặn</string>
-  <string name="blacklist_notification_list_private">Riêng tư</string>
-  <string name="unblock_number">Bỏ chặn</string>
-  <string name="unblock_contact">Bỏ chặn số liên lạc</string>
-  <string name="call_waiting_dialog_title">Trả lời %s</string>
-  <string name="call_waiting_dialog_hold_call">Giữ cuộc gọi hiện tại</string>
-  <string name="call_waiting_dialog_end_call">Kết thúc cuộc gọi hiện tại</string>
+    <string name="blacklist_title">Danh sách người gọi đã bị chặn</string>
+    <string name="blacklist_summary_disabled">Đã tắt</string>
+    <string name="blacklist_summary">Bạn sẽ không nhận được cuộc gọi hoặc tin nhắn đến từ số điện thoại trong danh sách chặn người gọi</string>
+    <string name="blacklist_call_notification">Đã chặn một cuộc gọi từ %s</string>
+    <string name="blacklist_call_notification_private_number">Đã chặn một cuộc gọi từ một số riêng tư</string>
+    <string name="blacklist_call_notification_unknown_number">Đã chặn một cuộc gọi từ số không quen %s</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> cuộc gọi đã bị chặn</string>
+    <string name="blacklist_message_notification">Chặn tin nhắn từ %s</string>
+    <string name="blacklist_message_notification_private_number">Đã chặn một tin nhắn từ số riêng tư</string>
+    <string name="blacklist_message_notification_unknown_number">Đã chặn một tin nhắn từ số không quen %s</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> tin nhắn đã bị chặn</string>
+    <string name="blacklist_notification_list_private">Riêng tư</string>
+    <string name="unblock_number">Bỏ chặn</string>
+    <string name="unblock_contact">Bỏ chặn số liên lạc</string>
+    <string name="call_waiting_dialog_title">Trả lời %s</string>
+    <string name="call_waiting_dialog_hold_call">Giữ cuộc gọi hiện tại</string>
+    <string name="call_waiting_dialog_end_call">Kết thúc cuộc gọi hiện tại</string>
 </resources>

@@ -16,19 +16,17 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Bloķēto zvanu saraksts</string>
-  <string name="blacklist_summary_disabled">Atslēgts</string>
-  <string name="blacklist_summary">Jūs nesaņemsiet ienākošos zvanus vai ziņas no telefona numura, kas ir pievienots bloķēto zvanu sarakstam</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">Bloķēts zvans no %s</string>
-  <string name="blacklist_call_notification_private_number">Bloķēts zvans no privāta numura</string>
-  <string name="blacklist_call_notification_unknown_number">Bloķēts zvans no nezināma numura %s</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> zvani tika bloķēti</string>
-  <string name="blacklist_message_notification">Bloķēta ziņa no %s</string>
-  <string name="blacklist_message_notification_private_number">Bloķēta ziņa no privāta numura</string>
-  <string name="blacklist_message_notification_unknown_number">Bloķēta ziņa no nezināma numura %s</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> ziņas tika bloķētas</string>
-  <string name="blacklist_notification_list_private">Privāts</string>
-  <string name="unblock_number">Atbloķēt</string>
+    <string name="blacklist_title">Bloķēto zvanu saraksts</string>
+    <string name="blacklist_summary_disabled">Atslēgts</string>
+    <string name="blacklist_summary">Jūs nesaņemsiet ienākošos zvanus vai ziņas no telefona numura, kas ir pievienots bloķēto zvanu sarakstam</string>
+    <string name="blacklist_call_notification">Bloķēts zvans no %s</string>
+    <string name="blacklist_call_notification_private_number">Bloķēts zvans no privāta numura</string>
+    <string name="blacklist_call_notification_unknown_number">Bloķēts zvans no nezināma numura %s</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> zvani tika bloķēti</string>
+    <string name="blacklist_message_notification">Bloķēta ziņa no %s</string>
+    <string name="blacklist_message_notification_private_number">Bloķēta ziņa no privāta numura</string>
+    <string name="blacklist_message_notification_unknown_number">Bloķēta ziņa no nezināma numura %s</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> ziņas tika bloķētas</string>
+    <string name="blacklist_notification_list_private">Privāts</string>
+    <string name="unblock_number">Atbloķēt</string>
 </resources>

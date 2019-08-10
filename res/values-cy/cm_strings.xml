@@ -16,6 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <!-- Blacklist notifications -->
+    <string name="blacklist_title">Rhestr galwyr wedi\'u rhwystro</string>
+    <string name="blacklist_summary_disabled">Analluogwyd</string>
+    <string name="blacklist_summary">Ni fyddi\'n derbyn galwadau na negeseuon oddi wrth rifau ffôn ar y rhestr galwyr wedi eu rhwystro</string>
+    <string name="blacklist_call_notification">Rhwystrwyd galwad oddi wrth %s</string>
+    <string name="blacklist_call_notification_private_number">Rhwystrwyd galwad oddi wrth rif preifat</string>
+    <string name="blacklist_call_notification_unknown_number">Rhwystrwyd galwad oddi wrth rif anhysbys %s</string>
+    <string name="blacklist_call_notification_multiple">Rhwystrwyd <xliff:g id="count">%d</xliff:g> galwad</string>
+    <string name="blacklist_message_notification">Rhwystrwyd neges oddi wrth %s</string>
+    <string name="blacklist_message_notification_private_number">Rhwystrwyd neges oddi wrth rif preifat</string>
+    <string name="blacklist_message_notification_unknown_number">Rhwystrwyd neges oddi wrth rif anhysbys %s</string>
+    <string name="blacklist_message_notification_multiple">Rhwystrwyd <xliff:g id="count">%d</xliff:g> neges</string>
+    <string name="blacklist_notification_list_private">Preifat</string>
+    <string name="unblock_number">Dadrwystro</string>
+    <string name="unblock_contact">Dadrwystro cyswllt</string>
+    <string name="call_waiting_dialog_title">Ateb %s</string>
+    <string name="call_waiting_dialog_hold_call">Rhoi\'r alwad bresennol i ddisgwyl</string>
+    <string name="call_waiting_dialog_end_call">Gorffen yr alwad bresennol</string>
 </resources>

@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Листа блокираних саговорника</string>
-  <string name="blacklist_summary_disabled">Онемогућено</string>
-  <string name="blacklist_summary">Нећеш примити позив или поруку са телефонског броја на листи блокираних саговорника</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">Блокирај позив од %s</string>
-  <string name="blacklist_call_notification_private_number">Блокирај позив са приватног броја</string>
-  <string name="blacklist_call_notification_unknown_number">Блокирај позив са непознатог броја %s</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> позиви су блокирани</string>
-  <string name="blacklist_message_notification">Блокирај поруку од %s</string>
-  <string name="blacklist_message_notification_private_number">Блокирај поруку са приватног броја</string>
-  <string name="blacklist_message_notification_unknown_number">Блокирај поруку са непознатог броја %s</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> поруке су блокиране</string>
-  <string name="blacklist_notification_list_private">Приватно</string>
-  <string name="unblock_number">Одблокирај</string>
-  <string name="unblock_contact">Деблокирај контакт</string>
-  <string name="call_waiting_dialog_title">Одговори %s</string>
-  <string name="call_waiting_dialog_hold_call">Стави тренутни позив на чекање</string>
-  <string name="call_waiting_dialog_end_call">Заврши тренутни позив</string>
+    <string name="blacklist_title">Листа блокираних саговорника</string>
+    <string name="blacklist_summary_disabled">Онемогућено</string>
+    <string name="blacklist_summary">Нећеш примити позив или поруку са телефонског броја на листи блокираних саговорника</string>
+    <string name="blacklist_call_notification">Блокирај позив од %s</string>
+    <string name="blacklist_call_notification_private_number">Блокирај позив са приватног броја</string>
+    <string name="blacklist_call_notification_unknown_number">Блокирај позив са непознатог броја %s</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> позиви су блокирани</string>
+    <string name="blacklist_message_notification">Блокирај поруку од %s</string>
+    <string name="blacklist_message_notification_private_number">Блокирај поруку са приватног броја</string>
+    <string name="blacklist_message_notification_unknown_number">Блокирај поруку са непознатог броја %s</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> поруке су блокиране</string>
+    <string name="blacklist_notification_list_private">Приватно</string>
+    <string name="unblock_number">Одблокирај</string>
+    <string name="unblock_contact">Деблокирај контакт</string>
+    <string name="call_waiting_dialog_title">Одговори %s</string>
+    <string name="call_waiting_dialog_hold_call">Стави тренутни позив на чекање</string>
+    <string name="call_waiting_dialog_end_call">Заврши тренутни позив</string>
 </resources>

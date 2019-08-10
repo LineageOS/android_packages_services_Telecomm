@@ -16,20 +16,18 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">തടഞ്ഞ കോളർ ലിസ്റ്റ്</string>
-  <string name="blacklist_summary_disabled">പ്രവർത്തനരഹിതമാക്കി</string>
-  <string name="blacklist_summary">തടഞ്ഞ കോളർ ലിസ്റ്റിലെ ഫോൺ നമ്പറുകളില്‍ നിന്ന് ഇൻകമിംഗ് കോളുകൾ അല്ലെങ്കിൽ സന്ദേശങ്ങൾ നിങ്ങള്‍ക്ക് ലഭിക്കില്ല</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">%s ല്‍ നിന്നുള്ള ഒരു കോൾ തടഞ്ഞു</string>
-  <string name="blacklist_call_notification_private_number">ഒരു സ്വകാര്യ നമ്പറിൽ നിന്നുള്ള ഒരു കോൾ തടഞ്ഞു</string>
-  <string name="blacklist_call_notification_unknown_number">അജ്ഞാത നമ്പര്‍ %s ല്‍ നിന്നുള്ള ഒരു കോൾ തടഞ്ഞു</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> കോളുകൾ തടഞ്ഞു</string>
-  <string name="blacklist_message_notification">%s ല്‍ നിന്നുള്ള ഒരു സന്ദേശം തടഞ്ഞു</string>
-  <string name="blacklist_message_notification_private_number">ഒരു സ്വകാര്യ നമ്പറിൽ നിന്നുള്ള ഒരു സന്ദേശം തടഞ്ഞു</string>
-  <string name="blacklist_message_notification_unknown_number">അജ്ഞാത നമ്പര്‍ %s ല്‍ നിന്നുള്ള ഒരു സന്ദേശം തടഞ്ഞു</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> സന്ദേശങ്ങൾ തടഞ്ഞു</string>
-  <string name="blacklist_notification_list_private">സ്വകാര്യ</string>
-  <string name="unblock_number">തടയരുത്</string>
-  <string name="unblock_contact">ബ്ലോക്ക്‌ ചെയ്യപ്പെട്ടിരിക്കുന്ന ആളെ അതിൽനിന്ന് ഒഴിവാക്കുക</string>
+    <string name="blacklist_title">തടഞ്ഞ കോളർ ലിസ്റ്റ്</string>
+    <string name="blacklist_summary_disabled">പ്രവർത്തനരഹിതമാക്കി</string>
+    <string name="blacklist_summary">തടഞ്ഞ കോളർ ലിസ്റ്റിലെ ഫോൺ നമ്പറുകളില്‍ നിന്ന് ഇൻകമിംഗ് കോളുകൾ അല്ലെങ്കിൽ സന്ദേശങ്ങൾ നിങ്ങള്‍ക്ക് ലഭിക്കില്ല</string>
+    <string name="blacklist_call_notification">%s ല്‍ നിന്നുള്ള ഒരു കോൾ തടഞ്ഞു</string>
+    <string name="blacklist_call_notification_private_number">ഒരു സ്വകാര്യ നമ്പറിൽ നിന്നുള്ള ഒരു കോൾ തടഞ്ഞു</string>
+    <string name="blacklist_call_notification_unknown_number">അജ്ഞാത നമ്പര്‍ %s ല്‍ നിന്നുള്ള ഒരു കോൾ തടഞ്ഞു</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> കോളുകൾ തടഞ്ഞു</string>
+    <string name="blacklist_message_notification">%s ല്‍ നിന്നുള്ള ഒരു സന്ദേശം തടഞ്ഞു</string>
+    <string name="blacklist_message_notification_private_number">ഒരു സ്വകാര്യ നമ്പറിൽ നിന്നുള്ള ഒരു സന്ദേശം തടഞ്ഞു</string>
+    <string name="blacklist_message_notification_unknown_number">അജ്ഞാത നമ്പര്‍ %s ല്‍ നിന്നുള്ള ഒരു സന്ദേശം തടഞ്ഞു</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> സന്ദേശങ്ങൾ തടഞ്ഞു</string>
+    <string name="blacklist_notification_list_private">സ്വകാര്യ</string>
+    <string name="unblock_number">തടയരുത്</string>
+    <string name="unblock_contact">ബ്ലോക്ക്‌ ചെയ്യപ്പെട്ടിരിക്കുന്ന ആളെ അതിൽനിന്ന് ഒഴിവാക്കുക</string>
 </resources>

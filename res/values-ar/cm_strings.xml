@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">قائمة المتصلين المحظورين</string>
-  <string name="blacklist_summary_disabled">معطل</string>
-  <string name="blacklist_summary">لن تتلقى المكالمات أو الرسائل الواردة من أرقام الهاتف في قائمة المتصلين المحظورين</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">تم حظر مكالمة من %s</string>
-  <string name="blacklist_call_notification_private_number">تم حظر مكالمة من رقم خاص</string>
-  <string name="blacklist_call_notification_unknown_number">تم حظر مكالمة هاتفية من عدد غير معروف %s</string>
-  <string name="blacklist_call_notification_multiple">تم حظر <xliff:g id="count">%d</xliff:g> مكالمات</string>
-  <string name="blacklist_message_notification">تم حظر رسالة من %s</string>
-  <string name="blacklist_message_notification_private_number">تم حظر رسالة من رقم خاص</string>
-  <string name="blacklist_message_notification_unknown_number">تم حظر رسالة من رقم غير معروف %s</string>
-  <string name="blacklist_message_notification_multiple">تم حظر <xliff:g id="count">%d</xliff:g> رسائل</string>
-  <string name="blacklist_notification_list_private">خاص</string>
-  <string name="unblock_number">إلغاء الحظر</string>
-  <string name="unblock_contact">إلغاء حظر جهة اتصال</string>
-  <string name="call_waiting_dialog_title">الإجابة %s</string>
-  <string name="call_waiting_dialog_hold_call">وضع المكالمة الحالية في الانتظار</string>
-  <string name="call_waiting_dialog_end_call">إنهاء المكالمة الحالية</string>
+    <string name="blacklist_title">قائمة المتصلين المحظورين</string>
+    <string name="blacklist_summary_disabled">معطل</string>
+    <string name="blacklist_summary">لن تتلقى المكالمات أو الرسائل الواردة من أرقام الهاتف في قائمة المتصلين المحظورين</string>
+    <string name="blacklist_call_notification">تم حظر مكالمة من %s</string>
+    <string name="blacklist_call_notification_private_number">تم حظر مكالمة من رقم خاص</string>
+    <string name="blacklist_call_notification_unknown_number">تم حظر مكالمة هاتفية من عدد غير معروف %s</string>
+    <string name="blacklist_call_notification_multiple">تم حظر <xliff:g id="count">%d</xliff:g> مكالمات</string>
+    <string name="blacklist_message_notification">تم حظر رسالة من %s</string>
+    <string name="blacklist_message_notification_private_number">تم حظر رسالة من رقم خاص</string>
+    <string name="blacklist_message_notification_unknown_number">تم حظر رسالة من رقم غير معروف %s</string>
+    <string name="blacklist_message_notification_multiple">تم حظر <xliff:g id="count">%d</xliff:g> رسائل</string>
+    <string name="blacklist_notification_list_private">خاص</string>
+    <string name="unblock_number">إلغاء الحظر</string>
+    <string name="unblock_contact">إلغاء حظر جهة اتصال</string>
+    <string name="call_waiting_dialog_title">الإجابة %s</string>
+    <string name="call_waiting_dialog_hold_call">وضع المكالمة الحالية في الانتظار</string>
+    <string name="call_waiting_dialog_end_call">إنهاء المكالمة الحالية</string>
 </resources>

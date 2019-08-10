@@ -16,20 +16,18 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">ನಿರ್ಬಂಧಿಸಿದ ಕರೆಮಾಡುವರ ಪಟ್ಟಿ</string>
-  <string name="blacklist_summary_disabled">ನಿಷ್ಕ್ರಿಯಗೊಂಡಿದೆ</string>
-  <string name="blacklist_summary">ನಿರ್ಬಂಧಿಸಿದ ಕರೆಮಾಡುವರ ಪಟ್ಟಿಯಲ್ಲಿರುವ ದೂರವಾಣಿ ಸಂಖ್ಯೆಗಳಿಂದ ಒಳಬರುವ ಕರೆಗಳನ್ನು ಮತ್ತು ಸಂದೇಶಗಳನ್ನು ನೀವು ಸ್ವೀಕರಿಸುವುದಿಲ್ಲ</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">%s ನಿಂದ ಒಂದು ಕರೆಯನ್ನು ನಿರ್ಭಂದಿಸಿದೆ</string>
-  <string name="blacklist_call_notification_private_number">ಖಾಸಗಿ ಸಂಖ್ಯೆಯಿಂದ ಒಂದು ಕರೆಯನ್ನು ನಿರ್ಬಂಧಿಸಿದೆ</string>
-  <string name="blacklist_call_notification_unknown_number">ಅಪರಿಚಿತ %s ಸಂಖ್ಯೆಯಿಂದ ಒಂದು ಕರೆಯನ್ನು ನಿರ್ಬಂಧಿಸಿದೆ</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> ಕರೆಗಳನ್ನು ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ</string>
-  <string name="blacklist_message_notification">%s ನಿಂದ ಒಂದು ಸಂದೇಶವನ್ನು ನಿರ್ಬಂಧಿಸಿದೆ</string>
-  <string name="blacklist_message_notification_private_number">ಖಾಸಗಿ ಸಂಖ್ಯೆಯಿಂದ ಒಂದು ಸಂದೇಶವನ್ನು ನಿರ್ಬಂಧಿಸಿದೆ</string>
-  <string name="blacklist_message_notification_unknown_number">ಅಪರಿಚಿತ %s ಸಂಖ್ಯೆಯಿಂದ ಒಂದು ಸಂದೇಶವನ್ನು ನಿರ್ಬಂಧಿಸಿದೆ</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> ಸಂದೇಶಗಳನ್ನು ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ</string>
-  <string name="blacklist_notification_list_private">ಖಾಸಗಿ</string>
-  <string name="unblock_number">ನಿರ್ಬಂಧ ತೆಗೆ</string>
-  <string name="unblock_contact">ಸಂಪರ್ಕ ಅನ್‌ಬ್ಲಾಕ್ ಮಾಡಿ</string>
+    <string name="blacklist_title">ನಿರ್ಬಂಧಿಸಿದ ಕರೆಮಾಡುವರ ಪಟ್ಟಿ</string>
+    <string name="blacklist_summary_disabled">ನಿಷ್ಕ್ರಿಯಗೊಂಡಿದೆ</string>
+    <string name="blacklist_summary">ನಿರ್ಬಂಧಿಸಿದ ಕರೆಮಾಡುವರ ಪಟ್ಟಿಯಲ್ಲಿರುವ ದೂರವಾಣಿ ಸಂಖ್ಯೆಗಳಿಂದ ಒಳಬರುವ ಕರೆಗಳನ್ನು ಮತ್ತು ಸಂದೇಶಗಳನ್ನು ನೀವು ಸ್ವೀಕರಿಸುವುದಿಲ್ಲ</string>
+    <string name="blacklist_call_notification">%s ನಿಂದ ಒಂದು ಕರೆಯನ್ನು ನಿರ್ಭಂದಿಸಿದೆ</string>
+    <string name="blacklist_call_notification_private_number">ಖಾಸಗಿ ಸಂಖ್ಯೆಯಿಂದ ಒಂದು ಕರೆಯನ್ನು ನಿರ್ಬಂಧಿಸಿದೆ</string>
+    <string name="blacklist_call_notification_unknown_number">ಅಪರಿಚಿತ %s ಸಂಖ್ಯೆಯಿಂದ ಒಂದು ಕರೆಯನ್ನು ನಿರ್ಬಂಧಿಸಿದೆ</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> ಕರೆಗಳನ್ನು ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ</string>
+    <string name="blacklist_message_notification">%s ನಿಂದ ಒಂದು ಸಂದೇಶವನ್ನು ನಿರ್ಬಂಧಿಸಿದೆ</string>
+    <string name="blacklist_message_notification_private_number">ಖಾಸಗಿ ಸಂಖ್ಯೆಯಿಂದ ಒಂದು ಸಂದೇಶವನ್ನು ನಿರ್ಬಂಧಿಸಿದೆ</string>
+    <string name="blacklist_message_notification_unknown_number">ಅಪರಿಚಿತ %s ಸಂಖ್ಯೆಯಿಂದ ಒಂದು ಸಂದೇಶವನ್ನು ನಿರ್ಬಂಧಿಸಿದೆ</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> ಸಂದೇಶಗಳನ್ನು ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ</string>
+    <string name="blacklist_notification_list_private">ಖಾಸಗಿ</string>
+    <string name="unblock_number">ನಿರ್ಬಂಧ ತೆಗೆ</string>
+    <string name="unblock_contact">ಸಂಪರ್ಕ ಅನ್‌ಬ್ಲಾಕ್ ಮಾಡಿ</string>
 </resources>

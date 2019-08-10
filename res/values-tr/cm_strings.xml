@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Engellenen arayan listesi</string>
-  <string name="blacklist_summary_disabled">Devre dışı</string>
-  <string name="blacklist_summary">Engellenen arayan listesindeki numaralardan gelen aramaları ya da mesajları almayacaksınız</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">%s kişisinden gelen bir arama engellendi</string>
-  <string name="blacklist_call_notification_private_number">Özel numaradan gelen bir arama engellendi</string>
-  <string name="blacklist_call_notification_unknown_number">Bilinmeyen bir numaradan \'%s\' gelen bir arama engellendi</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> arama engellendi</string>
-  <string name="blacklist_message_notification">%s kişisinin mesajı engellendi</string>
-  <string name="blacklist_message_notification_private_number">Özel numaradan gelen bir mesaj engellendi</string>
-  <string name="blacklist_message_notification_unknown_number">Bilinmeyen bir numaradan \'%s\' gelen bir mesaj engellendi</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> mesaj engellendi</string>
-  <string name="blacklist_notification_list_private">Özel</string>
-  <string name="unblock_number">Engeli kaldır</string>
-  <string name="unblock_contact">Kişinin engelini kaldır</string>
-  <string name="call_waiting_dialog_title">%s Cevap ver</string>
-  <string name="call_waiting_dialog_hold_call">Mevcut aramayı beklemeye al</string>
-  <string name="call_waiting_dialog_end_call">Geçerli aramayı sonlandır</string>
+    <string name="blacklist_title">Engellenen arayan listesi</string>
+    <string name="blacklist_summary_disabled">Devre dışı</string>
+    <string name="blacklist_summary">Engellenen arayan listesindeki numaralardan gelen aramaları ya da mesajları almayacaksınız</string>
+    <string name="blacklist_call_notification">%s kişisinden gelen bir arama engellendi</string>
+    <string name="blacklist_call_notification_private_number">Özel numaradan gelen bir arama engellendi</string>
+    <string name="blacklist_call_notification_unknown_number">Bilinmeyen bir numaradan \'%s\' gelen bir arama engellendi</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> arama engellendi</string>
+    <string name="blacklist_message_notification">%s kişisinin mesajı engellendi</string>
+    <string name="blacklist_message_notification_private_number">Özel numaradan gelen bir mesaj engellendi</string>
+    <string name="blacklist_message_notification_unknown_number">Bilinmeyen bir numaradan \'%s\' gelen bir mesaj engellendi</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> mesaj engellendi</string>
+    <string name="blacklist_notification_list_private">Özel</string>
+    <string name="unblock_number">Engeli kaldır</string>
+    <string name="unblock_contact">Kişinin engelini kaldır</string>
+    <string name="call_waiting_dialog_title">%s Cevap ver</string>
+    <string name="call_waiting_dialog_hold_call">Mevcut aramayı beklemeye al</string>
+    <string name="call_waiting_dialog_end_call">Geçerli aramayı sonlandır</string>
 </resources>

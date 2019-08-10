@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Estettyjen soittajien lista</string>
-  <string name="blacklist_summary_disabled">Pois käytöstä</string>
-  <string name="blacklist_summary">Tulevat puhelut ja viestit estettyjen soittajien listalla olevista puhelinnumeroista estetään</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">Estetty puhelu henkilöltä %s</string>
-  <string name="blacklist_call_notification_private_number">Estetty puhelu salaisesta numerosta</string>
-  <string name="blacklist_call_notification_unknown_number">Estetty puhelu tuntemattomasta numerosta %s</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> puhelua estetty</string>
-  <string name="blacklist_message_notification">Viesti numerosta %s estettiin</string>
-  <string name="blacklist_message_notification_private_number">Viesti salaisesta numerosta estettiin</string>
-  <string name="blacklist_message_notification_unknown_number">Viesti tuntemattomasta numerosta %s estettiin</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> viestiä estettiin</string>
-  <string name="blacklist_notification_list_private">Salainen</string>
-  <string name="unblock_number">Poista esto</string>
-  <string name="unblock_contact">Salli yhteystieto</string>
-  <string name="call_waiting_dialog_title">Vastaa numeroon %s</string>
-  <string name="call_waiting_dialog_hold_call">Aseta nykyinen puhelu pitoon</string>
-  <string name="call_waiting_dialog_end_call">Lopeta nykyinen puhelu</string>
+    <string name="blacklist_title">Estettyjen soittajien lista</string>
+    <string name="blacklist_summary_disabled">Pois käytöstä</string>
+    <string name="blacklist_summary">Tulevat puhelut ja viestit estettyjen soittajien listalla olevista puhelinnumeroista estetään</string>
+    <string name="blacklist_call_notification">Estetty puhelu henkilöltä %s</string>
+    <string name="blacklist_call_notification_private_number">Estetty puhelu salaisesta numerosta</string>
+    <string name="blacklist_call_notification_unknown_number">Estetty puhelu tuntemattomasta numerosta %s</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> puhelua estetty</string>
+    <string name="blacklist_message_notification">Viesti numerosta %s estettiin</string>
+    <string name="blacklist_message_notification_private_number">Viesti salaisesta numerosta estettiin</string>
+    <string name="blacklist_message_notification_unknown_number">Viesti tuntemattomasta numerosta %s estettiin</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> viestiä estettiin</string>
+    <string name="blacklist_notification_list_private">Salainen</string>
+    <string name="unblock_number">Poista esto</string>
+    <string name="unblock_contact">Salli yhteystieto</string>
+    <string name="call_waiting_dialog_title">Vastaa numeroon %s</string>
+    <string name="call_waiting_dialog_hold_call">Aseta nykyinen puhelu pitoon</string>
+    <string name="call_waiting_dialog_end_call">Lopeta nykyinen puhelu</string>
 </resources>

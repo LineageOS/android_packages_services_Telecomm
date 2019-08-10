@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Lista de chamadas bloqueadas</string>
-  <string name="blacklist_summary_disabled">Desativado</string>
-  <string name="blacklist_summary">Você não vai receber chamadas ou mensagens a partir de números de telefone na lista de chamadas bloqueadas</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">Uma chamada de %s foi bloqueada</string>
-  <string name="blacklist_call_notification_private_number">Uma chamada de um número privado foi bloqueada</string>
-  <string name="blacklist_call_notification_unknown_number">Uma chamada de um número desconhecido %s foi bloqueada</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> chamadas foram bloqueadas</string>
-  <string name="blacklist_message_notification">Uma mensagem de %s foi bloqueada</string>
-  <string name="blacklist_message_notification_private_number">Uma mensagem de um número privado foi bloqueada</string>
-  <string name="blacklist_message_notification_unknown_number">Uma mensagem de um número desconhecido %s foi bloqueada</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> mensagens foram bloqueadas</string>
-  <string name="blacklist_notification_list_private">Privado</string>
-  <string name="unblock_number">Desbloquear</string>
-  <string name="unblock_contact">Desbloquear contato</string>
-  <string name="call_waiting_dialog_title">Responder %s</string>
-  <string name="call_waiting_dialog_hold_call">Colocar a chamada atual em espera</string>
-  <string name="call_waiting_dialog_end_call">Encerrar chamada atual</string>
+    <string name="blacklist_title">Lista de chamadas bloqueadas</string>
+    <string name="blacklist_summary_disabled">Desativado</string>
+    <string name="blacklist_summary">Você não vai receber chamadas ou mensagens a partir de números de telefone na lista de chamadas bloqueadas</string>
+    <string name="blacklist_call_notification">Uma chamada de %s foi bloqueada</string>
+    <string name="blacklist_call_notification_private_number">Uma chamada de um número privado foi bloqueada</string>
+    <string name="blacklist_call_notification_unknown_number">Uma chamada de um número desconhecido %s foi bloqueada</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> chamadas foram bloqueadas</string>
+    <string name="blacklist_message_notification">Uma mensagem de %s foi bloqueada</string>
+    <string name="blacklist_message_notification_private_number">Uma mensagem de um número privado foi bloqueada</string>
+    <string name="blacklist_message_notification_unknown_number">Uma mensagem de um número desconhecido %s foi bloqueada</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> mensagens foram bloqueadas</string>
+    <string name="blacklist_notification_list_private">Privado</string>
+    <string name="unblock_number">Desbloquear</string>
+    <string name="unblock_contact">Desbloquear contato</string>
+    <string name="call_waiting_dialog_title">Responder %s</string>
+    <string name="call_waiting_dialog_hold_call">Colocar a chamada atual em espera</string>
+    <string name="call_waiting_dialog_end_call">Encerrar chamada atual</string>
 </resources>

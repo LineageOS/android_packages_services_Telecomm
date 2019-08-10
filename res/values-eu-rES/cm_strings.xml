@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Blokeatutako deitzaileen zerrenda</string>
-  <string name="blacklist_summary_disabled">Ezgaituta</string>
-  <string name="blacklist_summary">Ez duzu dei edo mezurik jasoko blokeatutako deitzaileen zerrendan dauden telefono zenbakietatik</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">%s(r)en dei bat blokeatu da</string>
-  <string name="blacklist_call_notification_private_number">Zenbaki pribatu baten deia blokeatu da</string>
-  <string name="blacklist_call_notification_unknown_number">%s zenbaki ezezagunaren dei bat blokeatu da</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> dei blokeatu dira</string>
-  <string name="blacklist_message_notification">%s(r)en mezu bat blokeatu da</string>
-  <string name="blacklist_message_notification_private_number">Zenbaki pribatu baten mezu bat blokeatu da</string>
-  <string name="blacklist_message_notification_unknown_number">%s zenbaki ezezagunaren mezu bat blokeatu da</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> mezu blokeatu dira</string>
-  <string name="blacklist_notification_list_private">Pribatua</string>
-  <string name="unblock_number">Desblokeatu</string>
-  <string name="unblock_contact">Desblokeatu kontaktua</string>
-  <string name="call_waiting_dialog_title">Erantzun %s</string>
-  <string name="call_waiting_dialog_hold_call">Jarri uneko deia zain</string>
-  <string name="call_waiting_dialog_end_call">Bukatu uneko deia</string>
+    <string name="blacklist_title">Blokeatutako deitzaileen zerrenda</string>
+    <string name="blacklist_summary_disabled">Ezgaituta</string>
+    <string name="blacklist_summary">Ez duzu dei edo mezurik jasoko blokeatutako deitzaileen zerrendan dauden telefono zenbakietatik</string>
+    <string name="blacklist_call_notification">%s(r)en dei bat blokeatu da</string>
+    <string name="blacklist_call_notification_private_number">Zenbaki pribatu baten deia blokeatu da</string>
+    <string name="blacklist_call_notification_unknown_number">%s zenbaki ezezagunaren dei bat blokeatu da</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> dei blokeatu dira</string>
+    <string name="blacklist_message_notification">%s(r)en mezu bat blokeatu da</string>
+    <string name="blacklist_message_notification_private_number">Zenbaki pribatu baten mezu bat blokeatu da</string>
+    <string name="blacklist_message_notification_unknown_number">%s zenbaki ezezagunaren mezu bat blokeatu da</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> mezu blokeatu dira</string>
+    <string name="blacklist_notification_list_private">Pribatua</string>
+    <string name="unblock_number">Desblokeatu</string>
+    <string name="unblock_contact">Desblokeatu kontaktua</string>
+    <string name="call_waiting_dialog_title">Erantzun %s</string>
+    <string name="call_waiting_dialog_hold_call">Jarri uneko deia zain</string>
+    <string name="call_waiting_dialog_end_call">Bukatu uneko deia</string>
 </resources>

@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Чорны спіс</string>
-  <string name="blacklist_summary_disabled">Адключаны</string>
-  <string name="blacklist_summary">Вы не будзеце атрымваць уваходныя выклікі ці паведамленні ад тэлефонных нумароў з чорнага спіса</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">Заблакаваны выклік: %s</string>
-  <string name="blacklist_call_notification_private_number">Заблакаваны выклік з прыватнага нумару</string>
-  <string name="blacklist_call_notification_unknown_number">Заблакаваны выклік з невядомага нумару: %s</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> выклікі адхілены</string>
-  <string name="blacklist_message_notification">Паведамленне ад %s заблакавана</string>
-  <string name="blacklist_message_notification_private_number">Заблакаванае паведамленне з прыватнага нумару</string>
-  <string name="blacklist_message_notification_unknown_number">Заблакаванае паведамленне з невядомага нумару %s</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> паведамленні адхілены</string>
-  <string name="blacklist_notification_list_private">Прыватны</string>
-  <string name="unblock_number">Разблакаваць</string>
-  <string name="unblock_contact">Разблакаваць кантакт</string>
-  <string name="call_waiting_dialog_title">Адказ %s</string>
-  <string name="call_waiting_dialog_hold_call">Утрымоўваць</string>
-  <string name="call_waiting_dialog_end_call">Скончыць размову</string>
+    <string name="blacklist_title">Чорны спіс</string>
+    <string name="blacklist_summary_disabled">Адключаны</string>
+    <string name="blacklist_summary">Вы не будзеце атрымваць уваходныя выклікі ці паведамленні ад тэлефонных нумароў з чорнага спіса</string>
+    <string name="blacklist_call_notification">Заблакаваны выклік: %s</string>
+    <string name="blacklist_call_notification_private_number">Заблакаваны выклік з прыватнага нумару</string>
+    <string name="blacklist_call_notification_unknown_number">Заблакаваны выклік з невядомага нумару: %s</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> выклікі адхілены</string>
+    <string name="blacklist_message_notification">Паведамленне ад %s заблакавана</string>
+    <string name="blacklist_message_notification_private_number">Заблакаванае паведамленне з прыватнага нумару</string>
+    <string name="blacklist_message_notification_unknown_number">Заблакаванае паведамленне з невядомага нумару %s</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> паведамленні адхілены</string>
+    <string name="blacklist_notification_list_private">Прыватны</string>
+    <string name="unblock_number">Разблакаваць</string>
+    <string name="unblock_contact">Разблакаваць кантакт</string>
+    <string name="call_waiting_dialog_title">Адказ %s</string>
+    <string name="call_waiting_dialog_hold_call">Утрымоўваць</string>
+    <string name="call_waiting_dialog_end_call">Скончыць размову</string>
 </resources>

@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Lista över blockerade nummer</string>
-  <string name="blacklist_summary_disabled">Inaktiverat</string>
-  <string name="blacklist_summary">Du kommer inte få inkommande samtal eller meddelanden från telefonnummer som är på listan över blockerade nummer</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">Blockerade samtal från %s</string>
-  <string name="blacklist_call_notification_private_number">Blockerade ett samtal från ett privat nummer</string>
-  <string name="blacklist_call_notification_unknown_number">Blockerade ett samtal från okänt nummer %s</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> samtal blockerades</string>
-  <string name="blacklist_message_notification">Blockerade ett meddelande från %s</string>
-  <string name="blacklist_message_notification_private_number">Blockerade meddelande från ett hemligt nummer</string>
-  <string name="blacklist_message_notification_unknown_number">Blockerade meddelande från okänt nummer %s</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> meddelanden har blockerats</string>
-  <string name="blacklist_notification_list_private">Privat</string>
-  <string name="unblock_number">Häv blockering</string>
-  <string name="unblock_contact">Avblockera kontakt</string>
-  <string name="call_waiting_dialog_title">Svara %s</string>
-  <string name="call_waiting_dialog_hold_call">Parkera pågående samtal</string>
-  <string name="call_waiting_dialog_end_call">Avsluta pågående samtal</string>
+    <string name="blacklist_title">Lista över blockerade nummer</string>
+    <string name="blacklist_summary_disabled">Inaktiverat</string>
+    <string name="blacklist_summary">Du kommer inte få inkommande samtal eller meddelanden från telefonnummer som är på listan över blockerade nummer</string>
+    <string name="blacklist_call_notification">Blockerade samtal från %s</string>
+    <string name="blacklist_call_notification_private_number">Blockerade ett samtal från ett privat nummer</string>
+    <string name="blacklist_call_notification_unknown_number">Blockerade ett samtal från okänt nummer %s</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> samtal blockerades</string>
+    <string name="blacklist_message_notification">Blockerade ett meddelande från %s</string>
+    <string name="blacklist_message_notification_private_number">Blockerade meddelande från ett hemligt nummer</string>
+    <string name="blacklist_message_notification_unknown_number">Blockerade meddelande från okänt nummer %s</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> meddelanden har blockerats</string>
+    <string name="blacklist_notification_list_private">Privat</string>
+    <string name="unblock_number">Häv blockering</string>
+    <string name="unblock_contact">Avblockera kontakt</string>
+    <string name="call_waiting_dialog_title">Svara %s</string>
+    <string name="call_waiting_dialog_hold_call">Parkera pågående samtal</string>
+    <string name="call_waiting_dialog_end_call">Avsluta pågående samtal</string>
 </resources>

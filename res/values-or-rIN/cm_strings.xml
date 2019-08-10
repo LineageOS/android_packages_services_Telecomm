@@ -16,20 +16,18 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">ଅବରୁ‍ଦ୍ଧ କରାଯାଇଥିବା କଲର୍‍ ତାଲିକା</string>
-  <string name="blacklist_summary_disabled">ଅକ୍ଷମ ହୋଇଛି</string>
-  <string name="blacklist_summary">ଆପଣ ଅବରୁ‍ଦ୍ଧ ହୋଇଥିବା କଲର୍‍ ତାଲିକାରେ ଥିବା ଫୋନ୍‍ ନମ୍ବରରୁ ଆସୁଥିବା କଲ୍‍ ବା ସଂଦେଶ ପ୍ରାପ୍ତ କରିବେ ନାହିଁ</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">%sୁ ଠାରୁ ଏକ କଲ୍‍ ଅବ୍ରୁ‍ଦ୍ଧ ହୋଇଛି</string>
-  <string name="blacklist_call_notification_private_number">ଏକ ବ୍ୟକ୍ତିଗତ ନମ୍ବରରୁ ଠାରୁ ଏକ କଲ୍‍ ଅବ୍ରୁ‍ଦ୍ଧ ହୋଇଛି</string>
-  <string name="blacklist_call_notification_unknown_number">ଅଞାତ ନମ୍ବର %sରୁ ଠାରୁ ଏକ କଲ୍‍ ଅବ୍ରୁ‍ଦ୍ଧ ହୋଇଛି</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> କଲ୍ଗୁଡିକ‍ ଅବ୍ରୁ‍ଦ୍ଧ ହୋଇଛି</string>
-  <string name="blacklist_message_notification">%sରୁ ଏକ ସଂଦେଶ ଅବରୁ‍ଦ୍ଧ ହୋଇଛି</string>
-  <string name="blacklist_message_notification_private_number">ଏକ ବ୍ୟକ୍ତିଗତ ନମ୍ବରରୁ ଏକ ସଂଦେଶ ଅବରୁ‍ଦ୍ଧ ହୋଇଛି</string>
-  <string name="blacklist_message_notification_unknown_number">ବ୍ୟକ୍ତିଗତ ନମ୍ବର %sରୁ ଏକ ସଂଦେଶ ଅବରୁ‍ଦ୍ଧ ହୋଇଛି</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> ସଂଦେଶଗୁଡିକ ଅବରୁ‍ଦ୍ଧ ହୋଇଛି</string>
-  <string name="blacklist_notification_list_private">ଗୋପନୀୟ</string>
-  <string name="unblock_number">ଅନାବରୋଧ</string>
-  <string name="unblock_contact">ସମ୍ପର୍କ ଅନ୍‍ବ୍ଲକ୍‍ କରନ୍ତୁ</string>
+    <string name="blacklist_title">ଅବରୁ‍ଦ୍ଧ କରାଯାଇଥିବା କଲର୍‍ ତାଲିକା</string>
+    <string name="blacklist_summary_disabled">ଅକ୍ଷମ ହୋଇଛି</string>
+    <string name="blacklist_summary">ଆପଣ ଅବରୁ‍ଦ୍ଧ ହୋଇଥିବା କଲର୍‍ ତାଲିକାରେ ଥିବା ଫୋନ୍‍ ନମ୍ବରରୁ ଆସୁଥିବା କଲ୍‍ ବା ସଂଦେଶ ପ୍ରାପ୍ତ କରିବେ ନାହିଁ</string>
+    <string name="blacklist_call_notification">%sୁ ଠାରୁ ଏକ କଲ୍‍ ଅବ୍ରୁ‍ଦ୍ଧ ହୋଇଛି</string>
+    <string name="blacklist_call_notification_private_number">ଏକ ବ୍ୟକ୍ତିଗତ ନମ୍ବରରୁ ଠାରୁ ଏକ କଲ୍‍ ଅବ୍ରୁ‍ଦ୍ଧ ହୋଇଛି</string>
+    <string name="blacklist_call_notification_unknown_number">ଅଞାତ ନମ୍ବର %sରୁ ଠାରୁ ଏକ କଲ୍‍ ଅବ୍ରୁ‍ଦ୍ଧ ହୋଇଛି</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> କଲ୍ଗୁଡିକ‍ ଅବ୍ରୁ‍ଦ୍ଧ ହୋଇଛି</string>
+    <string name="blacklist_message_notification">%sରୁ ଏକ ସଂଦେଶ ଅବରୁ‍ଦ୍ଧ ହୋଇଛି</string>
+    <string name="blacklist_message_notification_private_number">ଏକ ବ୍ୟକ୍ତିଗତ ନମ୍ବରରୁ ଏକ ସଂଦେଶ ଅବରୁ‍ଦ୍ଧ ହୋଇଛି</string>
+    <string name="blacklist_message_notification_unknown_number">ବ୍ୟକ୍ତିଗତ ନମ୍ବର %sରୁ ଏକ ସଂଦେଶ ଅବରୁ‍ଦ୍ଧ ହୋଇଛି</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> ସଂଦେଶଗୁଡିକ ଅବରୁ‍ଦ୍ଧ ହୋଇଛି</string>
+    <string name="blacklist_notification_list_private">ଗୋପନୀୟ</string>
+    <string name="unblock_number">ଅନାବରୋଧ</string>
+    <string name="unblock_contact">ସମ୍ପର୍କ ଅନ୍‍ବ୍ଲକ୍‍ କରନ୍ତୁ</string>
 </resources>

@@ -16,10 +16,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <!-- Blacklist notifications -->
-  <string name="unblock_contact">Desbloquear contacto</string>
-  <string name="call_waiting_dialog_title">Respuesta %s</string>
-  <string name="call_waiting_dialog_hold_call">Poner la llamada actual en espera</string>
-  <string name="call_waiting_dialog_end_call">Finalizar llamada actual</string>
+    <string name="unblock_contact">Desbloquear contacto</string>
+    <string name="call_waiting_dialog_title">Respuesta %s</string>
+    <string name="call_waiting_dialog_hold_call">Poner la llamada actual en espera</string>
+    <string name="call_waiting_dialog_end_call">Finalizar llamada actual</string>
 </resources>

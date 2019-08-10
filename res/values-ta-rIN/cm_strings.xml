@@ -16,20 +16,18 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">தடைசெய்யப்பட்ட அழைப்பாளர் பட்டியல்</string>
-  <string name="blacklist_summary_disabled">முடக்கப்பட்டது</string>
-  <string name="blacklist_summary">தடைசெய்யப்பட்ட அழைப்பாளர் பட்டியலில் இருந்து நீங்கள் அழைப்புகள் அல்லது மெசேஜ்களை பெற மாட்டீர்கள்</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">%s இல் இருந்து ஒரு அழைப்பு தடுக்கப்பட்டது</string>
-  <string name="blacklist_call_notification_private_number">ஒரு தனியார் எண்ணில் இருந்து ஒரு அழைப்பு தடுக்கப்பட்டது</string>
-  <string name="blacklist_call_notification_unknown_number">அறியப்படாத எண் %sஇல் இருந்து ஒரு அழைப்பு தடுக்கப்பட்டது</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> அழைப்புகள் தடுக்கப்பட்டன</string>
-  <string name="blacklist_message_notification">%sஇல் இருந்து ஒரு செய்தி தடுக்கப்பட்டது</string>
-  <string name="blacklist_message_notification_private_number">ஒரு தனியார் எண்ணில் இருந்து ஒரு செய்தி தடுக்கப்பட்டது</string>
-  <string name="blacklist_message_notification_unknown_number">அறியப்படாத எண் %sஇல் இருந்து ஒரு செய்தி தடுக்கப்பட்டது</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> செய்திகள் தடுக்கப்பட்டன</string>
-  <string name="blacklist_notification_list_private">தனியார்</string>
-  <string name="unblock_number">தடைநீக்கு</string>
-  <string name="unblock_contact">தொடர்பை தடைநீக்கு</string>
+    <string name="blacklist_title">தடைசெய்யப்பட்ட அழைப்பாளர் பட்டியல்</string>
+    <string name="blacklist_summary_disabled">முடக்கப்பட்டது</string>
+    <string name="blacklist_summary">தடைசெய்யப்பட்ட அழைப்பாளர் பட்டியலில் இருந்து நீங்கள் அழைப்புகள் அல்லது மெசேஜ்களை பெற மாட்டீர்கள்</string>
+    <string name="blacklist_call_notification">%s இல் இருந்து ஒரு அழைப்பு தடுக்கப்பட்டது</string>
+    <string name="blacklist_call_notification_private_number">ஒரு தனியார் எண்ணில் இருந்து ஒரு அழைப்பு தடுக்கப்பட்டது</string>
+    <string name="blacklist_call_notification_unknown_number">அறியப்படாத எண் %sஇல் இருந்து ஒரு அழைப்பு தடுக்கப்பட்டது</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> அழைப்புகள் தடுக்கப்பட்டன</string>
+    <string name="blacklist_message_notification">%sஇல் இருந்து ஒரு செய்தி தடுக்கப்பட்டது</string>
+    <string name="blacklist_message_notification_private_number">ஒரு தனியார் எண்ணில் இருந்து ஒரு செய்தி தடுக்கப்பட்டது</string>
+    <string name="blacklist_message_notification_unknown_number">அறியப்படாத எண் %sஇல் இருந்து ஒரு செய்தி தடுக்கப்பட்டது</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> செய்திகள் தடுக்கப்பட்டன</string>
+    <string name="blacklist_notification_list_private">தனியார்</string>
+    <string name="unblock_number">தடைநீக்கு</string>
+    <string name="unblock_contact">தொடர்பை தடைநீக்கு</string>
 </resources>

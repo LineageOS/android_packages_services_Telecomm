@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Zwarte lijst</string>
-  <string name="blacklist_summary_disabled">Uitgeschakeld</string>
-  <string name="blacklist_summary">U ontvangt geen inkomende oproepen of berichten van telefoonnummers op de zwarte lijst</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">Oproep geblokkeerd van %s</string>
-  <string name="blacklist_call_notification_private_number">Oproep geblokkeerd van afgeschermd nummer</string>
-  <string name="blacklist_call_notification_unknown_number">Oproep geblokkeerd van onbekend nummer %s</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> oproepen geblokkeerd</string>
-  <string name="blacklist_message_notification">Bericht van %s geblokkeerd</string>
-  <string name="blacklist_message_notification_private_number">Bericht van afgeschermd nummer geblokkeerd</string>
-  <string name="blacklist_message_notification_unknown_number">Bericht van onbekend nummer %s geblokkeerd</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> berichten geblokkeerd</string>
-  <string name="blacklist_notification_list_private">Afgeschermd</string>
-  <string name="unblock_number">Deblokkeren</string>
-  <string name="unblock_contact">Contact deblokkeren</string>
-  <string name="call_waiting_dialog_title">%s beantwoorden</string>
-  <string name="call_waiting_dialog_hold_call">Huidige gesprek in de wacht zetten</string>
-  <string name="call_waiting_dialog_end_call">Huidige gesprek beëindigen</string>
+    <string name="blacklist_title">Zwarte lijst</string>
+    <string name="blacklist_summary_disabled">Uitgeschakeld</string>
+    <string name="blacklist_summary">U ontvangt geen inkomende oproepen of berichten van telefoonnummers op de zwarte lijst</string>
+    <string name="blacklist_call_notification">Oproep geblokkeerd van %s</string>
+    <string name="blacklist_call_notification_private_number">Oproep geblokkeerd van afgeschermd nummer</string>
+    <string name="blacklist_call_notification_unknown_number">Oproep geblokkeerd van onbekend nummer %s</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> oproepen geblokkeerd</string>
+    <string name="blacklist_message_notification">Bericht van %s geblokkeerd</string>
+    <string name="blacklist_message_notification_private_number">Bericht van afgeschermd nummer geblokkeerd</string>
+    <string name="blacklist_message_notification_unknown_number">Bericht van onbekend nummer %s geblokkeerd</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> berichten geblokkeerd</string>
+    <string name="blacklist_notification_list_private">Afgeschermd</string>
+    <string name="unblock_number">Deblokkeren</string>
+    <string name="unblock_contact">Contact deblokkeren</string>
+    <string name="call_waiting_dialog_title">%s beantwoorden</string>
+    <string name="call_waiting_dialog_hold_call">Huidige gesprek in de wacht zetten</string>
+    <string name="call_waiting_dialog_end_call">Huidige gesprek beëindigen</string>
 </resources>

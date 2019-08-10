@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Seznam blokiranih klicateljev</string>
-  <string name="blacklist_summary_disabled">Onemogočeno</string>
-  <string name="blacklist_summary">Ne boste več prejemali dohodnih klicev in sporočil s telefonskih številk, ki so na seznamu blokiranih klicateljev</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">Blokiran klic iz %s</string>
-  <string name="blacklist_call_notification_private_number">Blokiran klic iz zasebne številke</string>
-  <string name="blacklist_call_notification_unknown_number">Blokiran klic iz neznane številke %s</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> klicev je bilo blokiranih</string>
-  <string name="blacklist_message_notification">Blokirano sporočilo iz %s</string>
-  <string name="blacklist_message_notification_private_number">Blokirano sporočilo iz zasebne številke</string>
-  <string name="blacklist_message_notification_unknown_number">Blokirano sporočilo iz neznane številke %s</string>
-  <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> sporočil je bilo blokiranih</string>
-  <string name="blacklist_notification_list_private">Zasebno</string>
-  <string name="unblock_number">Odblokiraj</string>
-  <string name="unblock_contact">Odblokiraj stik</string>
-  <string name="call_waiting_dialog_title">Odgovori %s</string>
-  <string name="call_waiting_dialog_hold_call">Daj trenutni klic na čakanje</string>
-  <string name="call_waiting_dialog_end_call">Končaj trenutni klic</string>
+    <string name="blacklist_title">Seznam blokiranih klicateljev</string>
+    <string name="blacklist_summary_disabled">Onemogočeno</string>
+    <string name="blacklist_summary">Ne boste več prejemali dohodnih klicev in sporočil s telefonskih številk, ki so na seznamu blokiranih klicateljev</string>
+    <string name="blacklist_call_notification">Blokiran klic iz %s</string>
+    <string name="blacklist_call_notification_private_number">Blokiran klic iz zasebne številke</string>
+    <string name="blacklist_call_notification_unknown_number">Blokiran klic iz neznane številke %s</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> klicev je bilo blokiranih</string>
+    <string name="blacklist_message_notification">Blokirano sporočilo iz %s</string>
+    <string name="blacklist_message_notification_private_number">Blokirano sporočilo iz zasebne številke</string>
+    <string name="blacklist_message_notification_unknown_number">Blokirano sporočilo iz neznane številke %s</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> sporočil je bilo blokiranih</string>
+    <string name="blacklist_notification_list_private">Zasebno</string>
+    <string name="unblock_number">Odblokiraj</string>
+    <string name="unblock_contact">Odblokiraj stik</string>
+    <string name="call_waiting_dialog_title">Odgovori %s</string>
+    <string name="call_waiting_dialog_hold_call">Daj trenutni klic na čakanje</string>
+    <string name="call_waiting_dialog_end_call">Končaj trenutni klic</string>
 </resources>

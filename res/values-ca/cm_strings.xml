@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">Llista de números bloquejats</string>
-  <string name="blacklist_summary_disabled">Desactivada</string>
-  <string name="blacklist_summary">No rebràs trucades entrants o missatges dels números de telèfon que siguin dins la llista de números bloquejats</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">S\'ha bloquejat una trucada de %s</string>
-  <string name="blacklist_call_notification_private_number">S\'ha bloquejat una trucada d\'un número privat</string>
-  <string name="blacklist_call_notification_unknown_number">S\'ha bloquejat una trucada d\'un número desconegut %s</string>
-  <string name="blacklist_call_notification_multiple">S\'han bloquejat <xliff:g id="count">%d</xliff:g> trucades</string>
-  <string name="blacklist_message_notification">S\'ha bloquejat un missatge de %s</string>
-  <string name="blacklist_message_notification_private_number">S\'ha bloquejat un missatge d\'un número privat</string>
-  <string name="blacklist_message_notification_unknown_number">S\'ha bloquejat un missatge d\'un número desconegut %s</string>
-  <string name="blacklist_message_notification_multiple">S\'han bloquejat <xliff:g id="count">%d</xliff:g> missatges</string>
-  <string name="blacklist_notification_list_private">Privat</string>
-  <string name="unblock_number">Desbloqueja</string>
-  <string name="unblock_contact">Desbloqueja el contacte</string>
-  <string name="call_waiting_dialog_title">Respondre %s</string>
-  <string name="call_waiting_dialog_hold_call">Posa la trucada actual en espera</string>
-  <string name="call_waiting_dialog_end_call">Finalitza la trucada actual</string>
+    <string name="blacklist_title">Llista de números bloquejats</string>
+    <string name="blacklist_summary_disabled">Desactivada</string>
+    <string name="blacklist_summary">No rebràs trucades entrants o missatges dels números de telèfon que siguin dins la llista de números bloquejats</string>
+    <string name="blacklist_call_notification">S\'ha bloquejat una trucada de %s</string>
+    <string name="blacklist_call_notification_private_number">S\'ha bloquejat una trucada d\'un número privat</string>
+    <string name="blacklist_call_notification_unknown_number">S\'ha bloquejat una trucada d\'un número desconegut %s</string>
+    <string name="blacklist_call_notification_multiple">S\'han bloquejat <xliff:g id="count">%d</xliff:g> trucades</string>
+    <string name="blacklist_message_notification">S\'ha bloquejat un missatge de %s</string>
+    <string name="blacklist_message_notification_private_number">S\'ha bloquejat un missatge d\'un número privat</string>
+    <string name="blacklist_message_notification_unknown_number">S\'ha bloquejat un missatge d\'un número desconegut %s</string>
+    <string name="blacklist_message_notification_multiple">S\'han bloquejat <xliff:g id="count">%d</xliff:g> missatges</string>
+    <string name="blacklist_notification_list_private">Privat</string>
+    <string name="unblock_number">Desbloqueja</string>
+    <string name="unblock_contact">Desbloqueja el contacte</string>
+    <string name="call_waiting_dialog_title">Respondre %s</string>
+    <string name="call_waiting_dialog_hold_call">Posa la trucada actual en espera</string>
+    <string name="call_waiting_dialog_end_call">Finalitza la trucada actual</string>
 </resources>

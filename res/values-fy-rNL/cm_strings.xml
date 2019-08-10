@@ -16,6 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <!-- Blacklist notifications -->
+    <string name="blacklist_title">Swarte list</string>
+    <string name="blacklist_summary_disabled">Utskeakele</string>
+    <string name="blacklist_summary">Jo ûntfange gjin ynkommende oproppen of berjochten fan telefoannûmers op de swarte list</string>
+    <string name="blacklist_call_notification">Oprop fan %s blokkearre</string>
+    <string name="blacklist_call_notification_private_number">Oprop fan ôfskerme nûmer blokkearre</string>
+    <string name="blacklist_call_notification_unknown_number">Oprop fan ûnbekend nûmer %s blokkearre</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d</xliff:g> oproppen blokkearre</string>
+    <string name="blacklist_message_notification">Berjocht fan %s blokkearre</string>
+    <string name="blacklist_message_notification_private_number">Berjocht fan ôfskerme nûmer blokkearre</string>
+    <string name="blacklist_message_notification_unknown_number">Berjocht fan ûnbekend nûmer %s blokkearre</string>
+    <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> berjochten blokkearre</string>
+    <string name="blacklist_notification_list_private">Ofskerme</string>
+    <string name="unblock_number">Deblokkearje</string>
+    <string name="unblock_contact">Kontakt deblokkearje</string>
+    <string name="call_waiting_dialog_title">%s beäntwurdzje</string>
+    <string name="call_waiting_dialog_hold_call">Aktuele petear yn de wacht sette</string>
+    <string name="call_waiting_dialog_end_call">Aktuele petear beëinigje</string>
 </resources>

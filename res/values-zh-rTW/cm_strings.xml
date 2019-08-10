@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">已封鎖來電名單</string>
-  <string name="blacklist_summary_disabled">停用</string>
-  <string name="blacklist_summary">您將不會收到任何在已封鎖來電者名單上的電話號碼的來電或簡訊</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">已封鎖來自 %s 的來電</string>
-  <string name="blacklist_call_notification_private_number">已封鎖來自私人號碼的來電</string>
-  <string name="blacklist_call_notification_unknown_number">已封鎖來自 %s 的未知號碼來電</string>
-  <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d 個</xliff:g> 來電已被封鎖</string>
-  <string name="blacklist_message_notification">已封鎖 %s 傳來的訊息</string>
-  <string name="blacklist_message_notification_private_number">已封鎖私人號碼傳來的訊息</string>
-  <string name="blacklist_message_notification_unknown_number">已封鎖未知號碼 %s 傳來的訊息</string>
-  <string name="blacklist_message_notification_multiple">已封鎖 <xliff:g id="count">%d</xliff:g> 則簡訊</string>
-  <string name="blacklist_notification_list_private">私人</string>
-  <string name="unblock_number">解除封鎖</string>
-  <string name="unblock_contact">解除封鎖聯絡人</string>
-  <string name="call_waiting_dialog_title">接聽 %s</string>
-  <string name="call_waiting_dialog_hold_call">將目前通話保留</string>
-  <string name="call_waiting_dialog_end_call">結束目前通話</string>
+    <string name="blacklist_title">已封鎖來電名單</string>
+    <string name="blacklist_summary_disabled">停用</string>
+    <string name="blacklist_summary">您將不會收到任何在已封鎖來電者名單上的電話號碼的來電或簡訊</string>
+    <string name="blacklist_call_notification">已封鎖來自 %s 的來電</string>
+    <string name="blacklist_call_notification_private_number">已封鎖來自私人號碼的來電</string>
+    <string name="blacklist_call_notification_unknown_number">已封鎖來自 %s 的未知號碼來電</string>
+    <string name="blacklist_call_notification_multiple"><xliff:g id="count">%d 個</xliff:g> 來電已被封鎖</string>
+    <string name="blacklist_message_notification">已封鎖 %s 傳來的訊息</string>
+    <string name="blacklist_message_notification_private_number">已封鎖私人號碼傳來的訊息</string>
+    <string name="blacklist_message_notification_unknown_number">已封鎖未知號碼 %s 傳來的訊息</string>
+    <string name="blacklist_message_notification_multiple">已封鎖 <xliff:g id="count">%d</xliff:g> 則簡訊</string>
+    <string name="blacklist_notification_list_private">私人</string>
+    <string name="unblock_number">解除封鎖</string>
+    <string name="unblock_contact">解除封鎖聯絡人</string>
+    <string name="call_waiting_dialog_title">接聽 %s</string>
+    <string name="call_waiting_dialog_hold_call">將目前通話保留</string>
+    <string name="call_waiting_dialog_end_call">結束目前通話</string>
 </resources>

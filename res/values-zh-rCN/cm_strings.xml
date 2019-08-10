@@ -16,23 +16,21 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Blacklist preferences -->
-  <string name="blacklist_title">呼叫黑名单列表</string>
-  <string name="blacklist_summary_disabled">已禁用</string>
-  <string name="blacklist_summary">您将不会接到来自来电黑名单列表中的电话或短信</string>
-  <!-- Blacklist notifications -->
-  <string name="blacklist_call_notification">阻止来自 %s 的来电</string>
-  <string name="blacklist_call_notification_private_number">阻挡了一个私人号码的来电</string>
-  <string name="blacklist_call_notification_unknown_number">阻止了未知号码 %s 的来电</string>
-  <string name="blacklist_call_notification_multiple">已阻止 <xliff:g id="count">%d</xliff:g> 通来电</string>
-  <string name="blacklist_message_notification">阻止来自 %s 的信息</string>
-  <string name="blacklist_message_notification_private_number">阻止来自于私人号码的信息</string>
-  <string name="blacklist_message_notification_unknown_number">阻止来自未知号码 %s 的信息</string>
-  <string name="blacklist_message_notification_multiple">已拦截 <xliff:g id="count">%d</xliff:g> 条信息</string>
-  <string name="blacklist_notification_list_private">私人号码</string>
-  <string name="unblock_number">取消阻止</string>
-  <string name="unblock_contact">取消阻止联系人</string>
-  <string name="call_waiting_dialog_title">接听 %s</string>
-  <string name="call_waiting_dialog_hold_call">保留当前通话</string>
-  <string name="call_waiting_dialog_end_call">结束当前通话</string>
+    <string name="blacklist_title">呼叫黑名单列表</string>
+    <string name="blacklist_summary_disabled">已禁用</string>
+    <string name="blacklist_summary">您将不会接到来自来电黑名单列表中的电话或短信</string>
+    <string name="blacklist_call_notification">阻止来自 %s 的来电</string>
+    <string name="blacklist_call_notification_private_number">阻挡了一个私人号码的来电</string>
+    <string name="blacklist_call_notification_unknown_number">阻止了未知号码 %s 的来电</string>
+    <string name="blacklist_call_notification_multiple">已阻止 <xliff:g id="count">%d</xliff:g> 通来电</string>
+    <string name="blacklist_message_notification">阻止来自 %s 的信息</string>
+    <string name="blacklist_message_notification_private_number">阻止来自于私人号码的信息</string>
+    <string name="blacklist_message_notification_unknown_number">阻止来自未知号码 %s 的信息</string>
+    <string name="blacklist_message_notification_multiple">已拦截 <xliff:g id="count">%d</xliff:g> 条信息</string>
+    <string name="blacklist_notification_list_private">私人号码</string>
+    <string name="unblock_number">取消阻止</string>
+    <string name="unblock_contact">取消阻止联系人</string>
+    <string name="call_waiting_dialog_title">接听 %s</string>
+    <string name="call_waiting_dialog_hold_call">保留当前通话</string>
+    <string name="call_waiting_dialog_end_call">结束当前通话</string>
 </resources>
