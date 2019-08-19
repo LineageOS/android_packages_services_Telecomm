@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.UserHandle;
 import android.telecom.GatewayInfo;
+import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
@@ -84,6 +85,7 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
     @Mock private Call mCall;
     @Mock private SystemStateHelper mSystemStateHelper;
     @Mock private UserHandle mUserHandle;
+    @Mock private PhoneAccount mPhoneAccount;
     @Mock private PhoneAccountRegistrar mPhoneAccountRegistrar;
     @Mock private RoleManagerAdapter mRoleManagerAdapter;
 
@@ -103,7 +105,24 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
         when(mCallsManager.getRoleManagerAdapter()).thenReturn(mRoleManagerAdapter);
         when(mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(
                 any(PhoneAccountHandle.class))).thenReturn(-1);
+        when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(
+            any(PhoneAccountHandle.class))).thenReturn(mPhoneAccount);
+        when(mPhoneAccount.isSelfManaged()).thenReturn(true);
         when(mSystemStateHelper.isCarMode()).thenReturn(false);
+    }
+
+    @SmallTest
+    @Test
+    public void testSelfManagedCall() {
+        Uri handle = Uri.parse("tel:6505551234");
+        Intent selfManagedCallIntent = buildIntent(handle, Intent.ACTION_CALL, null);
+        selfManagedCallIntent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE,
+                new PhoneAccountHandle(new ComponentName("fakeTestPackage", "fakeTestClass"),
+                        "id_tSMC"));
+        NewOutgoingCallIntentBroadcaster.CallDisposition callDisposition = processIntent(
+                selfManagedCallIntent, true);
+        assertEquals(false, callDisposition.requestRedirection);
+        assertEquals(DisconnectCause.NOT_DISCONNECTED, callDisposition.disconnectCause);
     }
 
     @SmallTest
@@ -123,9 +142,10 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
         Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse(voicemailNumber));
         intent.putExtra(TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE, true);
 
-        int result = processIntent(intent, true).disconnectCause;
-
-        assertEquals(DisconnectCause.NOT_DISCONNECTED, result);
+        NewOutgoingCallIntentBroadcaster.CallDisposition callDisposition = processIntent(
+                intent, true);
+        assertEquals(false, callDisposition.requestRedirection);
+        assertEquals(DisconnectCause.NOT_DISCONNECTED, callDisposition.disconnectCause);
         verify(mCallsManager).placeOutgoingCall(eq(mCall), eq(Uri.parse(voicemailNumber)),
                 nullable(GatewayInfo.class), eq(true), eq(VideoProfile.STATE_AUDIO_ONLY));
     }
@@ -275,9 +295,12 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
                 any(Context.class), eq(handle.getSchemeSpecificPart()));
         intent.putExtra(TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE, isSpeakerphoneOn);
         intent.putExtra(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE, videoState);
-        int result = processIntent(intent, true).disconnectCause;
 
-        assertEquals(DisconnectCause.NOT_DISCONNECTED, result);
+        NewOutgoingCallIntentBroadcaster.CallDisposition callDisposition = processIntent(
+            intent, true);
+        assertEquals(false, callDisposition.requestRedirection);
+        assertEquals(DisconnectCause.NOT_DISCONNECTED, callDisposition.disconnectCause);
+
         verify(mCallsManager).placeOutgoingCall(eq(mCall), eq(handle), isNull(GatewayInfo.class),
                 eq(isSpeakerphoneOn), eq(videoState));
 
@@ -404,9 +427,11 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
         intent.putExtra(TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE, isSpeakerphoneOn);
         intent.putExtra(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE, videoState);
 
-        int result = processIntent(intent, true).disconnectCause;
+        NewOutgoingCallIntentBroadcaster.CallDisposition callDisposition = processIntent(
+            intent, true);
+        assertEquals(true, callDisposition.requestRedirection);
+        assertEquals(DisconnectCause.NOT_DISCONNECTED, callDisposition.disconnectCause);
 
-        assertEquals(DisconnectCause.NOT_DISCONNECTED, result);
         Bundle expectedExtras = createNumberExtras(handle.getSchemeSpecificPart());
         if (expectedAdditionalExtras != null) {
             expectedExtras.putAll(expectedAdditionalExtras);
