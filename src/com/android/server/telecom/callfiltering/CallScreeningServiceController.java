@@ -253,7 +253,7 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
         PersistableBundle configBundle = configManager.getConfig();
         if (configBundle != null) {
             componentName = ComponentName.unflattenFromString(configBundle.getString
-                    (CarrierConfigManager.KEY_CARRIER_CALL_SCREENING_APP_STRING));
+                    (CarrierConfigManager.KEY_CARRIER_CALL_SCREENING_APP_STRING, ""));
         }
 
         return componentName != null ? componentName.getPackageName() : null;
