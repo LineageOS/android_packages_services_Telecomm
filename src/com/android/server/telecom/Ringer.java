@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.os.Vibrator;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.server.telecom.LogUtils.EventTimer;
 
 import java.util.ArrayList;
 
@@ -156,14 +157,32 @@ public class Ringer {
 
         AudioManager audioManager =
                 (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+        LogUtils.EventTimer timer = new EventTimer();
         boolean isVolumeOverZero = audioManager.getStreamVolume(AudioManager.STREAM_RING) > 0;
+        timer.record("isVolumeOverZero");
         boolean shouldRingForContact = shouldRingForContact(foregroundCall.getContactUri());
+        timer.record("shouldRingForContact");
         boolean isRingtonePresent = !(mRingtoneFactory.getRingtone(foregroundCall) == null);
+        timer.record("getRingtone");
         boolean isSelfManaged = foregroundCall.isSelfManaged();
+        timer.record("isSelfManaged");
         boolean isSilentRingingRequested = foregroundCall.isSilentRingingRequested();
+        timer.record("isSilentRingRequested");
 
         boolean isRingerAudible = isVolumeOverZero && shouldRingForContact && isRingtonePresent;
+        timer.record("isRingerAudible");
         boolean hasExternalRinger = hasExternalRinger(foregroundCall);
+        timer.record("hasExternalRinger");
+        // Don't do call waiting operations or vibration unless these are false.
+        boolean isTheaterModeOn = mSystemSettingsUtil.isTheaterModeOn(mContext);
+        timer.record("isTheaterModeOn");
+        boolean letDialerHandleRinging = mInCallController.doesConnectedDialerSupportRinging();
+        timer.record("letDialerHandleRinging");
+
+        Log.i(this, "startRinging timings: " + timer);
+        boolean endEarly = isTheaterModeOn || letDialerHandleRinging || isSelfManaged ||
+                hasExternalRinger || isSilentRingingRequested;
+
         // Acquire audio focus under any of the following conditions:
         // 1. Should ring for contact and there's an HFP device attached
         // 2. Volume is over zero, we should ring for the contact, and there's a audible ringtone
@@ -171,12 +190,6 @@ public class Ringer {
         // 3. The call is self-managed.
         boolean shouldAcquireAudioFocus =
                 isRingerAudible || (isHfpDeviceAttached && shouldRingForContact) || isSelfManaged;
-
-        // Don't do call waiting operations or vibration unless these are false.
-        boolean isTheaterModeOn = mSystemSettingsUtil.isTheaterModeOn(mContext);
-        boolean letDialerHandleRinging = mInCallController.doesConnectedDialerSupportRinging();
-        boolean endEarly = isTheaterModeOn || letDialerHandleRinging || isSelfManaged ||
-                hasExternalRinger || isSilentRingingRequested;
 
         if (endEarly) {
             if (letDialerHandleRinging) {
