@@ -17,8 +17,12 @@
 package com.android.server.telecom;
 
 import android.content.Context;
+import android.os.SystemClock;
 import android.telecom.Logging.EventManager;
 import android.telecom.Logging.EventManager.TimedEventPair;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Temporary location of new Logging class
@@ -30,6 +34,30 @@ public class LogUtils {
     private static final String LOGUTILS_TAG = "LogUtils";
 
     public static final boolean SYSTRACE_DEBUG = false; /* STOP SHIP if true */
+
+    public static class EventTimer {
+        private long mLastElapsedMillis;
+        private Map<String, Long> mTimings = new HashMap<>();
+
+        public EventTimer() {
+            mLastElapsedMillis = SystemClock.elapsedRealtime();
+        }
+
+        public void record(String label) {
+            long newElapsedMillis = SystemClock.elapsedRealtime();
+            mTimings.put(label, newElapsedMillis - mLastElapsedMillis);
+            mLastElapsedMillis = newElapsedMillis;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            for (Map.Entry<String, Long> entry : mTimings.entrySet()) {
+                sb.append(entry.getKey()).append(": ").append(entry.getValue()).append(", ");
+            }
+            return sb.toString();
+        }
+    }
 
     public static final class Sessions {
         public static final String ICA_ANSWER_CALL = "ICA.aC";
