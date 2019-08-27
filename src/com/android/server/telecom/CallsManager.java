@@ -400,6 +400,7 @@ public class CallsManager extends Call.ListenerBase
             Context context = args[0].first;
             BlockedNumbersUtil.updateEmergencyCallNotification(context,
                     SystemContract.shouldShowEmergencyCallNotification(context));
+            Log.endSession();
             return null;
         }
     }
