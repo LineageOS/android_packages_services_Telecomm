@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import android.app.role.RoleManager;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -25,26 +26,28 @@ import android.telecom.Log;
 import com.android.internal.util.IndentingPrintWriter;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.function.IntConsumer;
 import java.util.stream.Collectors;
 
 public class RoleManagerAdapterImpl implements RoleManagerAdapter {
-    private static final String ROLE_CALL_REDIRECTION_APP = "android.app.role.PROXY_CALLING_APP";
-    private static final String ROLE_CAR_MODE_DIALER = "android.app.role.CAR_MODE_DIALER_APP";
-    private static final String ROLE_CALL_SCREENING = "android.app.role.CALL_SCREENING_APP";
-    private static final String ROLE_CALL_COMPANION_APP =
-            "android.app.role.CALL_COMPANION_APP";
+    private static final String ROLE_CALL_REDIRECTION_APP = RoleManager.ROLE_CALL_REDIRECTION;
+    private static final String ROLE_CALL_SCREENING = RoleManager.ROLE_CALL_SCREENING;
+    private static final String ROLE_DIALER = RoleManager.ROLE_DIALER;
 
     private String mOverrideDefaultCallRedirectionApp = null;
     private String mOverrideDefaultCallScreeningApp = null;
     private String mOverrideDefaultCarModeApp = null;
+    private String mOverrideDefaultDialerApp = null;
     private List<String> mOverrideCallCompanionApps = new ArrayList<>();
     private Context mContext;
+    private RoleManager mRoleManager;
     private UserHandle mCurrentUserHandle;
 
-    public RoleManagerAdapterImpl(Context context) {
+    public RoleManagerAdapterImpl(Context context, RoleManager roleManager) {
         mContext = context;
+        mRoleManager = roleManager;
     }
 
     @Override
@@ -74,10 +77,27 @@ public class RoleManagerAdapterImpl implements RoleManagerAdapter {
     }
 
     @Override
+    public String getDefaultDialerApp(int user) {
+        if (mOverrideDefaultDialerApp != null) {
+            return mOverrideDefaultDialerApp;
+        }
+        return getRoleManagerDefaultDialerApp(user);
+    }
+
+    @Override
+    public void observeDefaultDialerApp(Executor executor, IntConsumer observer) {
+        mRoleManager.addOnRoleHoldersChangedListenerAsUser(executor, (roleName, user) ->
+                observer.accept(user.getIdentifier()), UserHandle.ALL);
+    }
+
+    @Override
+    public void setTestDefaultDialer(String packageName) {
+        mOverrideDefaultDialerApp = packageName;
+    }
+
+    @Override
     public List<String> getCallCompanionApps() {
         List<String> callCompanionApps = new ArrayList<>();
-        // List from RoleManager is not resizable. AbstractList.add action is not supported.
-        callCompanionApps.addAll(getRoleManagerCallCompanionApps());
         callCompanionApps.addAll(mOverrideCallCompanionApps);
         return callCompanionApps;
     }
@@ -110,23 +130,40 @@ public class RoleManagerAdapterImpl implements RoleManagerAdapter {
     }
 
     private String getRoleManagerCallScreeningApp() {
-        // TODO: Link in RoleManager
-        return null;
+        List<String> roleHolders = mRoleManager.getRoleHoldersAsUser(ROLE_CALL_SCREENING,
+                mCurrentUserHandle);
+        if (roleHolders == null || roleHolders.isEmpty()) {
+            return null;
+        }
+        return roleHolders.get(0);
     }
 
+    private String getRoleManagerDefaultDialerApp(int user) {
+        List<String> roleHolders = mRoleManager.getRoleHoldersAsUser(ROLE_DIALER,
+                new UserHandle(user));
+        if (roleHolders == null || roleHolders.isEmpty()) {
+            return null;
+        }
+        return roleHolders.get(0);
+    }
+
+    // TODO in R: query and return car mode apps
     private String getRoleManagerCarModeDialerApp() {
-        // TODO: Link in RoleManager
         return null;
     }
 
+    // TODO in R: Use companion app manager
     private List<String> getRoleManagerCallCompanionApps() {
-        // TODO: Link in RoleManager
-        return Collections.emptyList();
+        return new ArrayList<>();
     }
 
     private String getRoleManagerCallRedirectionApp() {
-        // TODO: Link in RoleManager
-        return null;
+        List<String> roleHolders = mRoleManager.getRoleHoldersAsUser(ROLE_CALL_REDIRECTION_APP,
+                mCurrentUserHandle);
+        if (roleHolders == null || roleHolders.isEmpty()) {
+            return null;
+        }
+        return roleHolders.get(0);
     }
 
     /**

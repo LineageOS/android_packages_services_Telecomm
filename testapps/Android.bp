@@ -17,7 +17,7 @@
 android_test {
     name: "TelecomTestApps",
     static_libs: [
-        "android-support-v4",
+        "androidx.legacy_legacy-support-v4",
         "android-ex-camera2",
         "guava",
     ],

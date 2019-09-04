@@ -517,7 +517,7 @@ public class TelecomSystemTest extends TelecomTestCase {
 
     private void setupInCallServices() throws Exception {
         mComponentContextFixture.putResource(
-                com.android.server.telecom.R.string.ui_default_package,
+                com.android.internal.R.string.config_defaultDialer,
                 mInCallServiceComponentNameX.getPackageName());
         mComponentContextFixture.putResource(
                 com.android.server.telecom.R.string.incall_default_class,
@@ -739,6 +739,7 @@ public class TelecomSystemTest extends TelecomTestCase {
                             any(UserHandle.class),
                             anyString(),
                             anyInt(),
+                            any(Bundle.class),
                             newOutgoingCallReceiver.capture(),
                             nullable(Handler.class),
                             anyInt(),

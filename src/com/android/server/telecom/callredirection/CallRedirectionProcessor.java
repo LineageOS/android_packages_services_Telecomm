@@ -81,7 +81,8 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
             if (mContext.bindServiceAsUser(
                     intent,
                     connection,
-                    Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE,
+                    Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE
+                    | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS,
                     UserHandle.CURRENT)) {
                 Log.d(this, "bindService, found " + mServiceType + " call redirection service,"
                         + " waiting for it to connect");

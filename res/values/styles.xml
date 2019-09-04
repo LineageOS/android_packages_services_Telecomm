@@ -15,7 +15,8 @@
 -->
 
 <resources>
-    <style name="Theme.Telecomm.Transparent" parent="@android:style/Theme.Material.Light">
+     <style name="Theme.Telecomm.Transparent" parent="@android:style/Theme.DeviceDefault.Light">
+        <item name="android:forceDarkAllowed">true</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowContentOverlay">@null</item>
@@ -25,7 +26,8 @@
         <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
     </style>
 
-    <style name="Theme.Telecom.DialerSettings" parent="@android:style/Theme.Material.Light">
+   <style name="Theme.Telecom.DialerSettings" parent="@android:style/Theme.DeviceDefault.Light">
+        <item name="android:forceDarkAllowed">true</item>
         <item name="android:tint">@color/blocked_numbers_secondary_text_color</item>
         <item name="android:actionBarStyle">@style/TelecomDialerSettingsActionBarStyle</item>
         <item name="android:actionOverflowButtonStyle">@style/TelecomDialerSettingsActionOverflowButtonStyle</item>
@@ -37,7 +39,8 @@
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
-    <style name="Theme.Telecom.BlockedNumbers" parent="@android:style/Theme.Material.Light">
+    <style name="Theme.Telecom.BlockedNumbers" parent="@android:style/Theme.DeviceDefault.Light">
+        <item name="android:forceDarkAllowed">true</item>
         <item name="android:tint">@color/blocked_numbers_secondary_text_color</item>
         <item name="android:actionBarStyle">@style/TelecomDialerSettingsActionBarStyle</item>
         <item name="android:colorPrimaryDark">@color/background_color</item>
@@ -50,7 +53,7 @@
         <item name="android:listDivider">@null</item>
     </style>
 
-    <style name="TelecomDialerSettingsActionBarStyle" parent="android:Widget.Material.ActionBar">
+    <style name="TelecomDialerSettingsActionBarStyle" parent="android:Widget.DeviceDefault.ActionBar">
         <item name="android:background">@color/background_color</item>
         <item name="android:titleTextStyle">@style/BlockedNumbersTextHead1</item>
         <item name="android:elevation">@dimen/dialer_settings_actionbar_elevation</item>
@@ -59,7 +62,7 @@
     </style>
 
     <style name="TelecomDialerSettingsActionOverflowButtonStyle"
-            parent="@android:style/Widget.Material.Light.ActionButton.Overflow">
+            parent="@android:style/Widget.DeviceDefault.Light.ActionButton.Overflow">
         <item name="android:src">@drawable/ic_more_vert_24dp</item>
     </style>
 
@@ -69,7 +72,7 @@
     </style>
 
     <style name="BlockedNumbersTextHead1"
-           parent="@android:style/TextAppearance.Material.Widget.ActionBar.Title">
+           parent="@android:style/TextAppearance.DeviceDefault.Widget.ActionBar.Title">
         <item name="android:textColor">@color/blocked_numbers_primary_text_color</item>
         <item name="android:textSize">@dimen/blocked_numbers_head1_font_size</item>
         <item name="android:fontFamily">sans-serif-regular</item>

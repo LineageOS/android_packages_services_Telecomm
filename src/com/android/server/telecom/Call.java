@@ -399,6 +399,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     private boolean mIsConference = false;
 
+    private boolean mHadChildren = false;
+
     private final boolean mShouldAttachToExistingConnection;
 
     private Call mParentCall = null;
@@ -891,11 +893,16 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      */
     public boolean setState(int newState, String tag) {
         if (mState != newState) {
-            Log.v(this, "setState %s -> %s", mState, newState);
+            Log.v(this, "setState %s -> %s", CallState.toString(mState),
+                    CallState.toString(newState));
 
             if (newState == CallState.DISCONNECTED && shouldContinueProcessingAfterDisconnect()) {
                 Log.w(this, "continuing processing disconnected call with another service");
                 mCreateConnectionProcessor.continueProcessingIfPossible(this, mDisconnectCause);
+                return false;
+            } else if (newState == CallState.ANSWERED && mState == CallState.ACTIVE) {
+                Log.w(this, "setState %s -> %s; call already active.", CallState.toString(mState),
+                        CallState.toString(newState));
                 return false;
             }
 
@@ -1004,6 +1011,13 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     @VisibleForTesting
     public boolean isConference() {
         return mIsConference;
+    }
+
+    /**
+     * @return {@code true} if this call had children at some point, {@code false} otherwise.
+     */
+    public boolean hadChildren() {
+        return mHadChildren;
     }
 
     public Uri getHandle() {
@@ -2471,6 +2485,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     private void addChildCall(Call call) {
         if (!mChildCalls.contains(call)) {
+            mHadChildren = true;
             // Set the pseudo-active call to the latest child added to the conference.
             // See definition of mConferenceLevelActiveCall for more detail.
             mConferenceLevelActiveCall = call;
@@ -3202,5 +3217,24 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                             + " upgraded to video.");
             mCallsManager.setAudioRoute(CallAudioState.ROUTE_SPEAKER, null);
         }
+    }
+
+    /**
+     * Remaps the call direction as indicated by an {@link android.telecom.Call.Details} direction
+     * constant to the constants (e.g. {@link #CALL_DIRECTION_INCOMING}) used in this call class.
+     * @param direction The android.telecom.Call direction.
+     * @return The direction using the constants in this class.
+     */
+    public static int getRemappedCallDirection(
+            @android.telecom.Call.Details.CallDirection int direction) {
+        switch(direction) {
+            case android.telecom.Call.Details.DIRECTION_INCOMING:
+                return CALL_DIRECTION_INCOMING;
+            case android.telecom.Call.Details.DIRECTION_OUTGOING:
+                return CALL_DIRECTION_OUTGOING;
+            case android.telecom.Call.Details.DIRECTION_UNKNOWN:
+                return CALL_DIRECTION_UNDEFINED;
+        }
+        return CALL_DIRECTION_UNDEFINED;
     }
 }

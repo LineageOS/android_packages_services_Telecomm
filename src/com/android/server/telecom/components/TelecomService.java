@@ -17,6 +17,7 @@
 package com.android.server.telecom.components;
 
 import android.app.Service;
+import android.app.role.RoleManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
@@ -188,7 +189,8 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                     return SystemClock.elapsedRealtime();
                                 }
                             },
-                            new RoleManagerAdapterImpl(context)));
+                            new RoleManagerAdapterImpl(context,
+                                    (RoleManager) context.getSystemService(Context.ROLE_SERVICE))));
         }
         if (BluetoothAdapter.getDefaultAdapter() != null) {
             context.startService(new Intent(context, BluetoothPhoneService.class));

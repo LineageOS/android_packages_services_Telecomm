@@ -574,7 +574,7 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
                 public IBinder asBinder() {
                     return this;
                 }
-            }, null /*Session.Info*/);
+            }, "" /* callingPackage */, null /*Session.Info*/);
         }
     }
 
@@ -670,7 +670,11 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
                 c.connectTimeMillis,
                 c.connectElapsedTimeMillis,
                 c.statusHints,
-                c.extras);
+                c.extras,
+                null,
+                0,
+                null,
+                0);
     }
 
     private ParcelableConnection parcelable(ConnectionInfo c) {

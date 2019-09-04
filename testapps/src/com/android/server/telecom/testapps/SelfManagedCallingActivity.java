@@ -19,6 +19,8 @@ package com.android.server.telecom.testapps;
 import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.role.RoleManager;
+import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -48,11 +50,13 @@ import java.util.Objects;
  */
 public class SelfManagedCallingActivity extends Activity {
     private static final String TAG = "SelfMgCallActivity";
+    private static final int REQUEST_ID = 1;
     private SelfManagedCallList mCallList = SelfManagedCallList.getInstance();
     private CheckBox mCheckIfPermittedBeforeCalling;
     private Button mPlaceOutgoingCallButton;
     private Button mPlaceIncomingCallButton;
     private Button mHandoverFrom;
+    private Button mRequestCallScreeningRole;
     private RadioButton mUseAcct1Button;
     private RadioButton mUseAcct2Button;
     private CheckBox mHoldableCheckbox;
@@ -125,6 +129,10 @@ public class SelfManagedCallingActivity extends Activity {
         mHandoverFrom = (Button) findViewById(R.id.handoverFrom);
         mHandoverFrom.setOnClickListener((v -> {
             initiateHandover();
+        }));
+        mRequestCallScreeningRole = (Button) findViewById(R.id.requestCallScreeningRole);
+        mRequestCallScreeningRole.setOnClickListener((v -> {
+            requestCallScreeningRole();
         }));
 
         mUseAcct1Button = findViewById(R.id.useAcct1Button);
@@ -220,5 +228,22 @@ public class SelfManagedCallingActivity extends Activity {
 
         NotificationManager mgr = getSystemService(NotificationManager.class);
         mgr.createNotificationChannel(channel);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_ID) {
+            if (resultCode == android.app.Activity.RESULT_OK) {
+                Toast.makeText(this, "Call screening role granted.", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Call screening role NOT granted.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void requestCallScreeningRole() {
+        RoleManager roleManager = (RoleManager) getSystemService(ROLE_SERVICE);
+        Intent intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING);
+        startActivityForResult(intent, REQUEST_ID);
     }
 }

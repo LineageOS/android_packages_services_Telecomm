@@ -35,15 +35,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.location.Country;
-import android.location.CountryDetector;
 import android.net.Uri;
-import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
-import android.telephony.PhoneNumberUtils;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -209,7 +205,7 @@ public class TelecomSystem {
                 new DefaultDialerCache.DefaultDialerManagerAdapterImpl();
 
         DefaultDialerCache defaultDialerCache = new DefaultDialerCache(mContext,
-                defaultDialerAdapter, mLock);
+                defaultDialerAdapter, roleManagerAdapter, mLock);
 
         Log.startSession("TS.init");
         mPhoneAccountRegistrar = new PhoneAccountRegistrar(mContext, defaultDialerCache,
@@ -254,7 +250,7 @@ public class TelecomSystem {
                         mContactsAsyncHelper, mLock);
 
         EmergencyCallHelper emergencyCallHelper = new EmergencyCallHelper(mContext,
-                mContext.getResources().getString(R.string.ui_default_package), timeoutsAdapter);
+                TelecomServiceImpl.getSystemDialerPackage(mContext), timeoutsAdapter);
 
         InCallControllerFactory inCallControllerFactory = new InCallControllerFactory() {
             @Override
@@ -297,13 +293,17 @@ public class TelecomSystem {
         mIncomingCallNotifier = incomingCallNotifier;
         incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {
             @Override
-            public boolean hasCallsForOtherPhoneAccount(PhoneAccountHandle phoneAccountHandle) {
-                return mCallsManager.hasCallsForOtherPhoneAccount(phoneAccountHandle);
+            public boolean hasUnholdableCallsForOtherConnectionService(
+                    PhoneAccountHandle phoneAccountHandle) {
+                return mCallsManager.hasUnholdableCallsForOtherConnectionService(
+                        phoneAccountHandle);
             }
 
             @Override
-            public int getNumCallsForOtherPhoneAccount(PhoneAccountHandle phoneAccountHandle) {
-                return mCallsManager.getNumCallsForOtherPhoneAccount(phoneAccountHandle);
+            public int getNumUnholdableCallsForOtherConnectionService(
+                    PhoneAccountHandle phoneAccountHandle) {
+                return mCallsManager.getNumUnholdableCallsForOtherConnectionService(
+                        phoneAccountHandle);
             }
 
             @Override

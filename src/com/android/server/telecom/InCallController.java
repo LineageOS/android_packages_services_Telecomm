@@ -233,7 +233,8 @@ public class InCallController extends CallsManagerListenerBase {
             Log.i(this, "Attempting to bind to InCall %s, with %s", mInCallServiceInfo, intent);
             mIsConnected = true;
             if (!mContext.bindServiceAsUser(intent, mServiceConnection,
-                        Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE,
+                        Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE
+                        | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS,
                         UserHandle.CURRENT)) {
                 Log.w(this, "Failed to connect.");
                 mIsConnected = false;
@@ -751,7 +752,7 @@ public class InCallController extends CallsManagerListenerBase {
 
         Resources resources = mContext.getResources();
         mSystemInCallComponentName = new ComponentName(
-                resources.getString(R.string.ui_default_package),
+                TelecomServiceImpl.getSystemDialerPackage(mContext),
                 resources.getString(R.string.incall_default_class));
 
         mSystemStateHelper.addListener(mSystemStateListener);
@@ -1300,12 +1301,11 @@ public class InCallController extends CallsManagerListenerBase {
                 serviceInfo.packageName) == PackageManager.PERMISSION_GRANTED;
         boolean isCarModeUIService = serviceInfo.metaData != null &&
                 serviceInfo.metaData.getBoolean(
-                        TelecomManager.METADATA_IN_CALL_SERVICE_CAR_MODE_UI, false) &&
-                (hasControlInCallPermission || isThirdPartyCompanionApp);
+                        TelecomManager.METADATA_IN_CALL_SERVICE_CAR_MODE_UI, false);
         if (isCarModeUIService) {
             // ThirdPartyInCallService shouldn't be used when role manager hasn't assigned any car
             // mode role holders, i.e. packageName is null.
-            if (isUIService || (isThirdPartyCompanionApp && packageName != null)) {
+            if (hasControlInCallPermission || (isThirdPartyCompanionApp && packageName != null)) {
                 return IN_CALL_SERVICE_TYPE_CAR_MODE_UI;
             }
         }
@@ -1320,7 +1320,7 @@ public class InCallController extends CallsManagerListenerBase {
 
         // Also allow any in-call service that has the control-experience permission (to ensure
         // that it is a system app) and doesn't claim to show any UI.
-        if (!isUIService) {
+        if (!isUIService && !isCarModeUIService) {
             if (hasControlInCallPermission && !isThirdPartyCompanionApp) {
                 return IN_CALL_SERVICE_TYPE_NON_UI;
             }
