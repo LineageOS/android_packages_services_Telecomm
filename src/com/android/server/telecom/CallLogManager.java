@@ -604,7 +604,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
         Intent callAddIntent = new Intent(ACTION_CALLS_TABLE_ADD_ENTRY);
         callAddIntent.putExtra(CALL_TYPE, callType);
         callAddIntent.putExtra(CALL_DURATION, duration);
-        mContext.sendBroadcast(callAddIntent, PERMISSION_PROCESS_CALLLOG_INFO);
+        mContext.sendBroadcastAsUser(callAddIntent, UserHandle.SYSTEM,
+                PERMISSION_PROCESS_CALLLOG_INFO);
     }
 
     private String getCountryIsoFromCountry(Country country) {
