@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6dbc14d9_73d93b66",
+        "filename": "src/com/android/server/telecom/SensitivePhoneNumbers.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 11883
+      },
+      "writtenOn": "2019-09-07T17:04:26Z",
+      "side": 1,
+      "message": "if (subId \u003d\u003d SubscriptionManager.INVALID_SUBSCRIPTION_ID) {\n            subId \u003d SubscriptionManager.getDefaultSubscriptionId();\n        }",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 9
+      },
+      "revId": "789b1554ee044aa28fe6d9e47b67e4eb08318b9e",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": true
+    }
+  ]
+}
