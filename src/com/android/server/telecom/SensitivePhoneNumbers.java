@@ -95,14 +95,12 @@ public class SensitivePhoneNumbers {
         }
     }
 
-    public boolean isSensitiveNumber(Context context, String numberToCheck, String subId) {
+    public boolean isSensitiveNumber(Context context, String numberToCheck, int subId) {
         TelephonyManager telephonyManager = context.getSystemService(TelephonyManager.class);
 
         int subIdInt = SubscriptionManager.getDefaultSubscriptionId();
-        try {
-            subIdInt = Integer.valueOf(subId);
-        } catch (NumberFormatException e) {
-            Log.w(LOG_TAG, "Error parsing subId");
+        if (subId != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+            subIdInt = subId;
         }
 
         String networkUsed = telephonyManager.getNetworkOperator(subIdInt);
