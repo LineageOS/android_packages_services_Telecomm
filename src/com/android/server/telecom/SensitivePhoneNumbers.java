@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2017 The Android Open Source Project
- * Copyright (C) 2017 The LineageOS Project
+ * Copyright (C) 2017-2019 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,17 +95,14 @@ public class SensitivePhoneNumbers {
         }
     }
 
-    public boolean isSensitiveNumber(Context context, String numberToCheck, String subId) {
+    public boolean isSensitiveNumber(Context context, String numberToCheck, int subId) {
         TelephonyManager telephonyManager = context.getSystemService(TelephonyManager.class);
 
-        int subIdInt = SubscriptionManager.getDefaultSubscriptionId();
-        try {
-            subIdInt = Integer.valueOf(subId);
-        } catch (NumberFormatException e) {
-            Log.w(LOG_TAG, "Error parsing subId");
+        if (subId == SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+            subId = SubscriptionManager.getDefaultSubscriptionId();
         }
 
-        String networkUsed = telephonyManager.getNetworkOperator(subIdInt);
+        String networkUsed = telephonyManager.getNetworkOperator(subId);
         if (!TextUtils.isEmpty(networkUsed)) {
             String networkMCC = networkUsed.substring(0, 3);
             if (mSensitiveNumbersMap.containsKey(networkMCC)) {
