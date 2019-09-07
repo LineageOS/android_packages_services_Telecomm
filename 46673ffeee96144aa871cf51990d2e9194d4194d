@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2803e9f_2090a19b",
+        "filename": "src/com/android/server/telecom/SensitivePhoneNumbers.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 11883
+      },
+      "writtenOn": "2019-09-07T21:34:50Z",
+      "side": 1,
+      "message": "private boolean isSensitiveNumber(String numberToCheck, String mcc) {",
+      "range": {
+        "startLine": 128,
+        "startChar": 0,
+        "endLine": 129,
+        "endChar": 5
+      },
+      "revId": "46673ffeee96144aa871cf51990d2e9194d4194d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": true
+    }
+  ]
+}
