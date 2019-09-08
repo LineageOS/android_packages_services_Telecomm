@@ -37,8 +37,8 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import androidx.test.InstrumentationRegistry;
 
-import com.android.internal.telephony.CallerInfo;
-import com.android.internal.telephony.CallerInfoAsyncQuery;
+import android.telephony.CallerInfo;
+import android.telephony.CallerInfoAsyncQuery;
 import com.android.server.telecom.CallerInfoAsyncQueryFactory;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.ContactsAsyncHelper;
@@ -118,7 +118,7 @@ public class CallerInfoLookupHelperTest extends TelecomTestCase {
     public void testSimpleLookup() {
         CallerInfoLookupHelper.OnQueryCompleteListener listener = mock(
                 CallerInfoLookupHelper.OnQueryCompleteListener.class);
-        mCallerInfo1.contactDisplayPhotoUri = CONTACTS_PHOTO_URI;
+        mCallerInfo1.SetContactDisplayPhotoUri(CONTACTS_PHOTO_URI);
 
         mCallerInfoLookupHelper.startLookup(URI1, listener);
         waitForActionCompletion();
@@ -157,7 +157,7 @@ public class CallerInfoLookupHelperTest extends TelecomTestCase {
                 CallerInfoLookupHelper.OnQueryCompleteListener.class);
         CallerInfoLookupHelper.OnQueryCompleteListener otherListener = mock(
                 CallerInfoLookupHelper.OnQueryCompleteListener.class);
-        mCallerInfo1.contactDisplayPhotoUri = CONTACTS_PHOTO_URI;
+        mCallerInfo1.SetContactDisplayPhotoUri(CONTACTS_PHOTO_URI);
 
         mCallerInfoLookupHelper.startLookup(URI1, callListener);
         mCallerInfoLookupHelper.startLookup(URI1, otherListener);
@@ -198,7 +198,7 @@ public class CallerInfoLookupHelperTest extends TelecomTestCase {
                 CallerInfoLookupHelper.OnQueryCompleteListener.class);
         CallerInfoLookupHelper.OnQueryCompleteListener otherListener = mock(
                 CallerInfoLookupHelper.OnQueryCompleteListener.class);
-        mCallerInfo1.contactDisplayPhotoUri = CONTACTS_PHOTO_URI;
+        mCallerInfo1.SetContactDisplayPhotoUri(CONTACTS_PHOTO_URI);
 
         mCallerInfoLookupHelper.startLookup(URI1, callListener);
         waitForActionCompletion();

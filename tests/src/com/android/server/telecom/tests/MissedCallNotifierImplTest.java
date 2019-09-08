@@ -39,7 +39,7 @@ import android.telecom.TelecomManager;
 import android.telephony.TelephonyManager;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import com.android.internal.telephony.CallerInfo;
+import android.telephony.CallerInfo;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.Constants;
 import com.android.server.telecom.DefaultDialerCache;
