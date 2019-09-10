@@ -160,8 +160,8 @@ public class CallAudioModeStateMachine extends StateMachine {
         public void enter() {
             if (mIsInitialized) {
                 Log.i(LOG_TAG, "Abandoning audio focus: now UNFOCUSED");
-                mAudioManager.abandonAudioFocusForCall();
                 mAudioManager.setMode(AudioManager.MODE_NORMAL);
+                mAudioManager.abandonAudioFocusForCall();
 
                 mMostRecentMode = AudioManager.MODE_NORMAL;
                 mCallAudioManager.setCallAudioRouteFocusState(CallAudioRouteStateMachine.NO_FOCUS);
