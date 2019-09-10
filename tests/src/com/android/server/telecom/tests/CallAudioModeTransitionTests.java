@@ -18,12 +18,14 @@ package com.android.server.telecom.tests;
 
 import android.content.Context;
 import android.media.AudioManager;
+import android.os.HandlerThread;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.SystemStateHelper;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -102,11 +104,22 @@ public class CallAudioModeTransitionTests extends TelecomTestCase {
     @Mock private AudioManager mAudioManager;
     @Mock private CallAudioManager mCallAudioManager;
     private final ModeTestParameters mParams;
+    private HandlerThread mTestThread;
 
     @Override
     @Before
     public void setUp() throws Exception {
+        mTestThread = new HandlerThread("CallAudioModeStateMachineTest");
+        mTestThread.start();
         super.setUp();
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        mTestThread.quit();
+        mTestThread.join();
+        super.tearDown();
     }
 
     public CallAudioModeTransitionTests(ModeTestParameters params) {
@@ -117,7 +130,7 @@ public class CallAudioModeTransitionTests extends TelecomTestCase {
     @SmallTest
     public void modeTransitionTest() {
         CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mSystemStateHelper,
-                mAudioManager);
+                mAudioManager, mTestThread.getLooper());
         sm.setCallAudioManager(mCallAudioManager);
         sm.sendMessage(mParams.initialAudioState);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
@@ -178,8 +191,6 @@ public class CallAudioModeTransitionTests extends TelecomTestCase {
                 verify(mCallAudioManager).stopCallWaiting();
                 break;
         }
-
-        sm.quitNow();
     }
 
     @Parameterized.Parameters(name = "{0}")

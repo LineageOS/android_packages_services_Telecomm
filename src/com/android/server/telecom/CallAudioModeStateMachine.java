@@ -17,6 +17,7 @@
 package com.android.server.telecom;
 
 import android.media.AudioManager;
+import android.os.Looper;
 import android.os.Message;
 import android.telecom.Log;
 import android.telecom.Logging.Runnable;
@@ -490,6 +491,23 @@ public class CallAudioModeStateMachine extends StateMachine {
         mSystemStateHelper = systemStateHelper;
         mMostRecentMode = AudioManager.MODE_NORMAL;
 
+        createStates();
+    }
+
+    /**
+     * Used for testing
+     */
+    public CallAudioModeStateMachine(SystemStateHelper systemStateHelper,
+            AudioManager audioManager, Looper looper) {
+        super(CallAudioModeStateMachine.class.getSimpleName(), looper);
+        mAudioManager = audioManager;
+        mSystemStateHelper = systemStateHelper;
+        mMostRecentMode = AudioManager.MODE_NORMAL;
+
+        createStates();
+    }
+
+    private void createStates() {
         addState(mUnfocusedState);
         addState(mRingingFocusState);
         addState(mSimCallFocusState);
