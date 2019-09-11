@@ -27,6 +27,11 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Xml;
 
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.Phonenumber;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -98,14 +103,15 @@ public class SensitivePhoneNumbers {
     }
 
     public boolean isSensitiveNumber(Context context, String numberToCheck, int subId) {
-        SubscriptionManager subManager = context.getSystemService(SubscriptionManager.class);
+        String nationalNumber = formatNumberToNational(numberToCheck);
 
+        SubscriptionManager subManager = context.getSystemService(SubscriptionManager.class);
         List<SubscriptionInfo> list = subManager.getActiveSubscriptionInfoList();
         if (list != null) {
             // Test all subscriptions so an accidential use of a wrong sim also hides the number
             for (SubscriptionInfo subInfo : list) {
                 String mcc = String.valueOf(subInfo.getMcc());
-                if (isSensitiveNumber(numberToCheck, mcc)) {
+                if (isSensitiveNumber(nationalNumber, mcc)) {
                     return true;
                 }
             }
@@ -118,7 +124,7 @@ public class SensitivePhoneNumbers {
             String networkUsed = telephonyManager.getNetworkOperator(subId);
             if (!TextUtils.isEmpty(networkUsed)) {
                 String networkMCC = networkUsed.substring(0, 3);
-                return isSensitiveNumber(numberToCheck, networkMCC);
+                return isSensitiveNumber(nationalNumber, networkMCC);
             }
         }
 
@@ -136,5 +142,19 @@ public class SensitivePhoneNumbers {
             }
         }
         return false;
+    }
+
+    private String formatNumberToNational(String number) {
+        PhoneNumberUtil util = PhoneNumberUtil.getInstance();
+        try {
+            // PhoneNumberUtil only understands "+" instead of "00", so try making it such a number
+            if (number != null && number.startsWith("00") && number.length() > 2) {
+                number = "+" + number.substring(2);
+            }
+            Phonenumber.PhoneNumber num = util.parse(number, null);
+            return util.format(num, PhoneNumberFormat.NATIONAL);
+        } catch (NumberParseException e) {
+        }
+        return number;
     }
 }
