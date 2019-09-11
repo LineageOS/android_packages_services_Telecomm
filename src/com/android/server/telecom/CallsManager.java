@@ -2299,11 +2299,6 @@ public class CallsManager extends Call.ListenerBase
       * speaker phone.
       */
     void setAudioRoute(int route, String bluetoothAddress) {
-        if (hasEmergencyRttCall() && route != CallAudioState.ROUTE_SPEAKER) {
-            Log.i(this, "In an emergency RTT call. Forcing route to speaker.");
-            route = CallAudioState.ROUTE_SPEAKER;
-            bluetoothAddress = null;
-        }
         mCallAudioManager.setAudioRoute(route, bluetoothAddress);
     }
 
