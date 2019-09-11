@@ -27,3 +27,12 @@
 -keepclassmembers class ** {
     @android.arch.lifecycle.OnLifecycleEvent *;
 }
+
+-dontwarn org.lineageos.platform.internal.**
+-dontwarn com.google.i18n.phonenumbers.**
+-keep class org.lineageos.internal.telephony.SensitivePhoneNumbers {
+  *;
+}
+-keep class com.google.i18n.phonenumbers.PhoneNumberUtil** {
+  *;
+}
