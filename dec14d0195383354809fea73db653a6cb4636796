@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe4af521_600735b5",
+        "filename": "src/com/android/server/telecom/SensitivePhoneNumbers.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 11883
+      },
+      "writtenOn": "2019-09-11T16:31:40Z",
+      "side": 1,
+      "message": "Locale locale \u003d context.getResources().getConfiguration().locale;\n        String countryIso \u003d getCurrentCountryIso(context, locale);\n\n        PhoneNumber pn \u003d null;\n        try {\n            pn \u003d util.parse(number, countryIso);\n        } catch (NumberParseException e) {\n        }\n\n        if (pn !\u003d null) {\n            return util.format(num, PhoneNumberFormat.NATIONAL);\n       } else {\n            return null;\n        }",
+      "revId": "dec14d0195383354809fea73db653a6cb4636796",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": true
+    }
+  ]
+}
