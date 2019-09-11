@@ -27,3 +27,8 @@
 -keepclassmembers class ** {
     @android.arch.lifecycle.OnLifecycleEvent *;
 }
+
+-keep class com.android.server.telecom.SensitivePhoneNumbers {
+  *;
+}
+-dontwarn com.android.server.**
