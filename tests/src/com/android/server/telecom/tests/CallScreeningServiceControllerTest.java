@@ -356,6 +356,69 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
         )));
     }
 
+    /**
+     * This test verifies that where the default dialer role is filled by the same app as the caller
+     * id and spam role, we will only bind to that call screening service once.
+     */
+    @SmallTest
+    @Test
+    public void testOnlyBindOnce() {
+        // Assume the user chose the default dialer to also fill the caller id and spam role.
+        when(mRoleManagerAdapter.getDefaultCallScreeningApp()).thenReturn(
+                DEFAULT_DIALER_CALL_SCREENING.getPackageName());
+        CallScreeningServiceController controller = new CallScreeningServiceController(mContext,
+                mCallsManager,
+                mPhoneAccountRegistrar, mParcelableCallUtilsConverter, mLock,
+                mSettingsSecureAdapter, mCallerInfoLookupHelper, mAppLabelProxy);
+
+        controller.startFilterLookup(mCall, mCallback);
+
+        controller.onCallScreeningFilterComplete(mCall, PASS_RESULT,
+                CARRIER_DEFINED_CALL_SCREENING.getPackageName());
+
+        CallerInfoLookupHelper.OnQueryCompleteListener queryListener = verifyLookupStart();
+        CallerInfo callerInfo = new CallerInfo();
+        callerInfo.contactExists = false;
+        queryListener.onCallerInfoQueryComplete(TEST_HANDLE, callerInfo);
+
+        controller.onCallScreeningFilterComplete(mCall, new CallFilteringResult(
+                        false, // shouldAllowCall
+                        true, // shouldReject
+                        false, // shouldAddToCallLog
+                        true, // shouldShowNotification
+                        CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE,
+                        APP_NAME,
+                        DEFAULT_DIALER_CALL_SCREENING.flattenToString()
+                ),
+                DEFAULT_DIALER_CALL_SCREENING.getPackageName());
+        controller.onCallScreeningFilterComplete(mCall, new CallFilteringResult(
+                false, // shouldAllowCall
+                true, // shouldReject
+                false, // shouldAddToCallLog
+                true, // shouldShowNotification
+                CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE,
+                APP_NAME,
+                DEFAULT_DIALER_CALL_SCREENING.flattenToString()
+        ), USER_CHOSEN_CALL_SCREENING.getPackageName());
+
+        // Expect to bind twice; once to the carrier defined service, and then again to the default
+        // dialer.
+        verify(mContext, times(2)).bindServiceAsUser(any(Intent.class),
+                any(ServiceConnection.class),
+                eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE),
+                eq(UserHandle.CURRENT));
+
+        // Expect filtering to complete only a single time from the default dialer service.
+        verify(mCallback, times(1)).onCallFilteringComplete(eq(mCall), eq(new CallFilteringResult(
+                false, // shouldAllowCall
+                true, // shouldReject
+                true, // shouldAddToCallLog
+                true, // shouldShowNotification
+                CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE,
+                APP_NAME,
+                DEFAULT_DIALER_CALL_SCREENING.flattenToString()
+        )));    }
+
     private CallerInfoLookupHelper.OnQueryCompleteListener verifyLookupStart() {
         return verifyLookupStart(TEST_HANDLE);
     }
