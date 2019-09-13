@@ -137,6 +137,7 @@ public class LogUtils {
         public static final String BIND_SCREENING = "BIND_SCREENING";
         public static final String SCREENING_BOUND = "SCREENING_BOUND";
         public static final String SCREENING_SENT = "SCREENING_SENT";
+        public static final String SCREENING_SKIPPED = "SCREENING_SKIPPED";
         public static final String CONTROLLER_SCREENING_COMPLETED =
                 "CONTROLLER_SCREENING_COMPLETED";
         public static final String SCREENING_COMPLETED = "SCREENING_COMPLETED";
