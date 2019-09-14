@@ -49,7 +49,7 @@
     <string name="change_default_dialer_dialog_title" msgid="9101655962941740507">"<xliff:g id="NEW_APP">%s</xliff:g>ஐ இயல்புநிலை ஃபோன் பயன்பாடாக அமைக்கவா?"</string>
     <string name="change_default_dialer_dialog_affirmative" msgid="8606546663509166276">"இயல்புநிலையாக அமை"</string>
     <string name="change_default_dialer_dialog_negative" msgid="9078144617060173845">"ரத்துசெய்"</string>
-    <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"அழைப்புகளின் எல்லா அம்சங்களையும் <xliff:g id="NEW_APP">%s</xliff:g> ஆல் செயல்படுத்தவும் கட்டுப்படுத்தவும் முடியும். நீங்கள் நம்பகமானது என கருதும் பயன்பாடுகளை மட்டுமே இயல்புநிலை ஃபோன் பயன்பாடாக அமைக்க வேண்டும்."</string>
+    <string name="change_default_dialer_warning_message" msgid="1417671460801684999">"அழைப்புகளின் எல்லா அம்சங்களையும் <xliff:g id="NEW_APP">%s</xliff:g> ஆல் செயல்படுத்தவும் கட்டுப்படுத்தவும் முடியும். நீங்கள் நம்பகமானது என கருதும் ஆப்ஸை மட்டுமே இயல்புநிலை ஃபோன் பயன்பாடாக அமைக்க வேண்டும்."</string>
     <string name="change_default_call_screening_dialog_title" msgid="8714534302859934164">"<xliff:g id="NEW_APP">%s</xliff:g>ஐ இயல்பு அழைப்புச் சோதனை ஆப்ஸாக அமைக்கவா?"</string>
     <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="5128397581530600941">"<xliff:g id="OLD_APP">%s</xliff:g> ஆப்ஸால் இனி அழைப்புகளைச் சோதனைச் செய்ய முடியாது."</string>
     <string name="change_default_call_screening_warning_message" msgid="3881131132588596837">"<xliff:g id="NEW_APP">%s</xliff:g> ஆப்ஸால் உங்கள் தொடர்புகளில் இல்லாத அழைப்பாளர்களைப் பற்றிய தகவலைப் பார்க்க முடியும், மேலும் அவர்கள் செய்யும் அழைப்புகளைத் தடுக்கவும் முடியும். நீங்கள் நம்பும் ஆப்ஸை மட்டுமே இயல்பு அழைப்புச் சோதனை ஆப்ஸாக அமைக்க வேண்டும்."</string>
