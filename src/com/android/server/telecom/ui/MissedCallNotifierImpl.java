@@ -62,7 +62,7 @@ import android.text.BidiFormatter;
 import android.text.TextDirectionHeuristics;
 import android.text.TextUtils;
 
-import com.android.internal.telephony.CallerInfo;
+import android.telephony.CallerInfo;
 
 import java.lang.Override;
 import java.lang.String;
@@ -601,7 +601,7 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
                                                 return;
                                             }
                                             if (info == null ||
-                                                    info.contactDisplayPhotoUri == null) {
+                                                    info.getContactDisplayPhotoUri() == null) {
                                                 // If there is no photo or if the caller info is
                                                 // null, just show the notification.
                                                 CallInfo callInfo = callInfoFactory.makeCallInfo(

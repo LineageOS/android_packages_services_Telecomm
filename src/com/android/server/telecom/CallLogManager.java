@@ -41,8 +41,7 @@ import android.telephony.SubscriptionManager;
 
 // TODO: Needed for move to system service: import com.android.internal.R;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.telephony.CallerInfo;
-import com.android.internal.telephony.SubscriptionController;
+import android.telephony.CallerInfo;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
 
 import java.util.Arrays;
