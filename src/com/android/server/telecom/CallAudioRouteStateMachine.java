@@ -28,6 +28,7 @@ import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.IAudioService;
 import android.os.Binder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -1316,7 +1317,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
     private final WiredHeadsetManager mWiredHeadsetManager;
     private final StatusBarNotifier mStatusBarNotifier;
     private final CallAudioManager.AudioServiceFactory mAudioServiceFactory;
-    private final boolean mDoesDeviceSupportEarpieceRoute;
+    private boolean mDoesDeviceSupportEarpieceRoute;
     private final TelecomSystem.SyncRoot mLock;
     private boolean mHasUserExplicitlyLeftBluetooth = false;
 
@@ -1339,16 +1340,6 @@ public class CallAudioRouteStateMachine extends StateMachine {
             CallAudioManager.AudioServiceFactory audioServiceFactory,
             int earpieceControl) {
         super(NAME);
-        addState(mActiveEarpieceRoute);
-        addState(mActiveHeadsetRoute);
-        addState(mActiveBluetoothRoute);
-        addState(mActiveSpeakerRoute);
-        addState(mRingingBluetoothRoute);
-        addState(mQuiescentEarpieceRoute);
-        addState(mQuiescentHeadsetRoute);
-        addState(mQuiescentBluetoothRoute);
-        addState(mQuiescentSpeakerRoute);
-
         mContext = context;
         mCallsManager = callsManager;
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
@@ -1356,6 +1347,34 @@ public class CallAudioRouteStateMachine extends StateMachine {
         mWiredHeadsetManager = wiredHeadsetManager;
         mStatusBarNotifier = statusBarNotifier;
         mAudioServiceFactory = audioServiceFactory;
+        mLock = callsManager.getLock();
+
+        createStates(earpieceControl);
+    }
+
+    /** Used for testing only */
+    public CallAudioRouteStateMachine(
+            Context context,
+            CallsManager callsManager,
+            BluetoothRouteManager bluetoothManager,
+            WiredHeadsetManager wiredHeadsetManager,
+            StatusBarNotifier statusBarNotifier,
+            CallAudioManager.AudioServiceFactory audioServiceFactory,
+            int earpieceControl, Looper looper) {
+        super(NAME, looper);
+        mContext = context;
+        mCallsManager = callsManager;
+        mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+        mBluetoothRouteManager = bluetoothManager;
+        mWiredHeadsetManager = wiredHeadsetManager;
+        mStatusBarNotifier = statusBarNotifier;
+        mAudioServiceFactory = audioServiceFactory;
+        mLock = callsManager.getLock();
+
+        createStates(earpieceControl);
+    }
+
+    private void createStates(int earpieceControl) {
         switch (earpieceControl) {
             case EARPIECE_FORCE_DISABLED:
                 mDoesDeviceSupportEarpieceRoute = false;
@@ -1366,7 +1385,17 @@ public class CallAudioRouteStateMachine extends StateMachine {
             default:
                 mDoesDeviceSupportEarpieceRoute = checkForEarpieceSupport();
         }
-        mLock = callsManager.getLock();
+
+        addState(mActiveEarpieceRoute);
+        addState(mActiveHeadsetRoute);
+        addState(mActiveBluetoothRoute);
+        addState(mActiveSpeakerRoute);
+        addState(mRingingBluetoothRoute);
+        addState(mQuiescentEarpieceRoute);
+        addState(mQuiescentHeadsetRoute);
+        addState(mQuiescentBluetoothRoute);
+        addState(mQuiescentSpeakerRoute);
+
 
         mStateNameToRouteCode = new HashMap<>(8);
         mStateNameToRouteCode.put(mQuiescentEarpieceRoute.getName(), ROUTE_EARPIECE);

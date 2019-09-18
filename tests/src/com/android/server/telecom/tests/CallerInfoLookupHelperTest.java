@@ -44,6 +44,7 @@ import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.ContactsAsyncHelper;
 import com.android.server.telecom.TelecomSystem;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -100,6 +101,12 @@ public class CallerInfoLookupHelperTest extends TelecomTestCase {
             Drawable d = Drawable.createFromStream(is, CONTACTS_PHOTO_URI.toString());
             mBitmap = ((BitmapDrawable) d).getBitmap();
         }
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
     }
 
     @SmallTest

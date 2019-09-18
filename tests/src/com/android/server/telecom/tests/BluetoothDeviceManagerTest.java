@@ -31,6 +31,7 @@ import com.android.server.telecom.bluetooth.BluetoothDeviceManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -94,6 +95,12 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
 
         mBluetoothDeviceManager.setHeadsetServiceForTesting(mHeadsetProxy);
         mBluetoothDeviceManager.setHearingAidServiceForTesting(mBluetoothHearingAid);
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
     }
 
     @SmallTest

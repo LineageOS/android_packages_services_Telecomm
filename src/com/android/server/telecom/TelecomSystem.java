@@ -20,6 +20,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.bluetooth.BluetoothDeviceManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
+import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
 import com.android.server.telecom.ui.IncomingCallNotifier;
@@ -197,8 +198,11 @@ public class TelecomSystem {
             IncomingCallNotifier incomingCallNotifier,
             InCallTonePlayer.ToneGeneratorFactory toneGeneratorFactory,
             CallAudioRouteStateMachine.Factory callAudioRouteStateMachineFactory,
+            CallAudioModeStateMachine.Factory callAudioModeStateMachineFactory,
             ClockProxy clockProxy,
-            RoleManagerAdapter roleManagerAdapter) {
+            RoleManagerAdapter roleManagerAdapter,
+            IncomingCallFilter.Factory incomingCallFilterFactory,
+            ContactsAsyncHelper.Factory contactsAsyncHelperFactory) {
         mContext = context.getApplicationContext();
         LogUtils.initLogging(mContext);
         DefaultDialerManagerAdapter defaultDialerAdapter =
@@ -223,7 +227,7 @@ public class TelecomSystem {
                         return null;
                     }
                 });
-        mContactsAsyncHelper = new ContactsAsyncHelper(
+        mContactsAsyncHelper = contactsAsyncHelperFactory.create(
                 new ContactsAsyncHelper.ContentResolverAdapter() {
                     @Override
                     public InputStream openInputStream(Context context, Uri uri)
@@ -286,9 +290,10 @@ public class TelecomSystem {
                 clockProxy,
                 bluetoothStateReceiver,
                 callAudioRouteStateMachineFactory,
-                new CallAudioModeStateMachine.Factory(),
+                callAudioModeStateMachineFactory,
                 inCallControllerFactory,
-                roleManagerAdapter);
+                roleManagerAdapter,
+                incomingCallFilterFactory);
 
         mIncomingCallNotifier = incomingCallNotifier;
         incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {
