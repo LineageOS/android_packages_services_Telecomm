@@ -34,6 +34,7 @@ import com.android.server.telecom.Ringer;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -93,6 +94,12 @@ public class CallAudioManagerTest extends TelecomTestCase {
                 mRingbackPlayer,
                 mBluetoothStateReceiver,
                 mDtmfLocalTonePlayer);
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
     }
 
     @MediumTest
