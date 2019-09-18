@@ -33,6 +33,7 @@ android_library {
         "telecom_flags_core_java_lib",
         "modules-utils-handlerexecutor",
         "org.lineageos.lib.phone",
+        "org.lineageos.platform.internal",
     ],
     resource_dirs: ["res"],
     proto: {
