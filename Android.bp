@@ -2,6 +2,7 @@
 android_app {
     name: "Telecom",
     libs: ["telephony-common"],
+    static_libs: ["org.lineageos.platform.internal"],
     srcs: [
         "src/**/*.java",
         "proto/**/*.proto",
