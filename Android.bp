@@ -29,6 +29,7 @@ android_app {
         "androidx.annotation_annotation",
         "androidx.core_core",
         "org.lineageos.lib.phone",
+        "org.lineageos.platform.internal",
     ],
     libs: [
         "services",

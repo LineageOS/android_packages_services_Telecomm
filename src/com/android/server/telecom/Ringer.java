@@ -25,6 +25,7 @@ import android.annotation.NonNull;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Person;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.Ringtone;
@@ -44,6 +45,8 @@ import android.view.accessibility.AccessibilityManager;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.LogUtils.EventTimer;
+
+import lineageos.providers.LineageSettings;
 
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
@@ -357,6 +360,23 @@ public class Ringer {
                 } else {
                     if (DEBUG_RINGER) {
                         Log.i(this, "Create ringer with custom vibration effect");
+                    }
+                    final ContentResolver cr = mContext.getContentResolver();
+                    if (LineageSettings.System.getInt(cr,
+                            LineageSettings.System.INCREASING_RING, 0) != 0) {
+                        float startVolume = LineageSettings.System.getFloat(cr,
+                                LineageSettings.System.INCREASING_RING_START_VOLUME, 0.1f);
+                        int rampUpTime = LineageSettings.System.getInt(cr,
+                                LineageSettings.System.INCREASING_RING_RAMP_UP_TIME, 20);
+                        mVolumeShaperConfig =
+                                new VolumeShaper.Configuration.Builder()
+                                        .setDuration(rampUpTime * 1000)
+                                        .setCurve(
+                                                new float[]{0.f, 1.f},
+                                                new float[]{startVolume, 1.f})
+                                        .setInterpolatorType(
+                                                VolumeShaper.Configuration.INTERPOLATOR_TYPE_LINEAR)
+                                        .build();
                     }
                     // Ramping ringtone is not enabled.
                     useCustomVibrationEffect = true;
