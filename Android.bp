@@ -17,7 +17,10 @@ filegroup {
 // Build the Telecom service.
 android_app {
     name: "Telecom",
-    static_libs: ["org.lineageos.lib.phone"],
+    static_libs: [
+        "org.lineageos.lib.phone",
+        "org.lineageos.platform.internal",
+    ],
     srcs: [
         ":Telecom-srcs",
         "proto/**/*.proto",
