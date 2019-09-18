@@ -19,6 +19,7 @@ package com.android.server.telecom;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Person;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.os.VibrationEffect;
 import android.telecom.Log;
@@ -32,6 +33,8 @@ import android.os.Bundle;
 import android.os.Vibrator;
 
 import com.android.internal.annotations.VisibleForTesting;
+
+import lineageos.providers.LineageSettings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -113,6 +116,7 @@ public class Ringer {
     private static final int DEFAULT_RAMPING_RINGER_DURATION = 10000;  // 10 seconds
 
     private int mRampingRingerDuration = -1;  // ramping ringer duration in millisecond
+    private float mRampingRingerStartVolume = 0f;
 
     // vibration duration before ramping ringer in second
     private int mRampingRingerVibrationDuration = 0;
@@ -311,9 +315,29 @@ public class Ringer {
                 hapticsFuture = mRingtonePlayer.play(mRingtoneFactory, foregroundCall,
                         mVolumeShaperConfig, isVibratorEnabled);
             } else {
-                // Ramping ringtone is not enabled.
-                hapticsFuture = mRingtonePlayer.play(mRingtoneFactory, foregroundCall, null,
-                        isVibratorEnabled);
+                final ContentResolver cr = mContext.getContentResolver();
+                if (LineageSettings.System.getInt(cr,
+                        LineageSettings.System.INCREASING_RING, 0) != 0) {
+                    float startVolume = LineageSettings.System.getFloat(cr,
+                            LineageSettings.System.INCREASING_RING_START_VOLUME, 0.1f);
+                    int rampUpTime = LineageSettings.System.getInt(cr,
+                            LineageSettings.System.INCREASING_RING_RAMP_UP_TIME, 20);
+                    if (mVolumeShaperConfig == null
+                        || mRampingRingerDuration != rampUpTime
+                        || mRampingRingerStartVolume != startVolume) {
+                        mVolumeShaperConfig = new VolumeShaper.Configuration.Builder()
+                            .setDuration(rampUpTime * 1000)
+                            .setCurve(new float[] {0.f, 1.f}, new float[] {startVolume, 1.f})
+                            .setInterpolatorType(VolumeShaper.Configuration.INTERPOLATOR_TYPE_LINEAR)
+                            .build();
+                        mRampingRingerDuration = rampUpTime;
+                        mRampingRingerStartVolume = startVolume;
+                    }
+                } else {
+                    mVolumeShaperConfig = null;
+                }
+                hapticsFuture = mRingtonePlayer.play(mRingtoneFactory, foregroundCall,
+                        mVolumeShaperConfig, isVibratorEnabled);
                 effect = getVibrationEffectForCall(mRingtoneFactory, foregroundCall);
             }
         } else {
