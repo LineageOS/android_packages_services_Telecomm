@@ -166,6 +166,8 @@ public class InCallControllerTests extends TelecomTestCase {
     @Override
     @After
     public void tearDown() throws Exception {
+        mInCallController.getHandler().removeCallbacksAndMessages(null);
+        waitForHandlerAction(mInCallController.getHandler(), 1000);
         super.tearDown();
     }
 

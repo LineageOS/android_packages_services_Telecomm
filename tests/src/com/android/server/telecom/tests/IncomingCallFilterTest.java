@@ -19,6 +19,8 @@ package com.android.server.telecom.tests;
 import android.content.ContentResolver;
 import android.content.IContentProvider;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.CallLog;
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -29,6 +31,7 @@ import com.android.server.telecom.callfiltering.CallFilteringResult;
 import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.TelecomSystem;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -107,6 +110,7 @@ public class IncomingCallFilterTest extends TelecomTestCase {
             );
 
     private static final CallFilteringResult DEFAULT_RESULT = PASS_CALL_RESULT;
+    private Handler mHandler = new Handler(Looper.getMainLooper());
 
     @Override
     @Before
@@ -117,11 +121,19 @@ public class IncomingCallFilterTest extends TelecomTestCase {
         setTimeoutLength(LONG_TIMEOUT);
     }
 
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        mHandler.removeCallbacksAndMessages(null);
+        waitForHandlerAction(mHandler, 1000);
+        super.tearDown();
+    }
+
     @SmallTest
     @Test
     public void testAsyncBlockCallResultFilter() {
         IncomingCallFilter testFilter = new IncomingCallFilter(mContext, mResultCallback, mCall,
-                mLock, mTimeoutsAdapter, Collections.singletonList(mFilter1));
+                mLock, mTimeoutsAdapter, Collections.singletonList(mFilter1), mHandler);
         testFilter.performFiltering();
         verify(mFilter1).startFilterLookup(mCall, testFilter);
 
@@ -135,7 +147,7 @@ public class IncomingCallFilterTest extends TelecomTestCase {
     @Test
     public void testDirectToVoiceMailCallResultFilter() {
         IncomingCallFilter testFilter = new IncomingCallFilter(mContext, mResultCallback, mCall,
-                mLock, mTimeoutsAdapter, Collections.singletonList(mFilter1));
+                mLock, mTimeoutsAdapter, Collections.singletonList(mFilter1), mHandler);
         testFilter.performFiltering();
         verify(mFilter1).startFilterLookup(mCall, testFilter);
 
@@ -149,7 +161,7 @@ public class IncomingCallFilterTest extends TelecomTestCase {
     @Test
     public void testCallScreeningServiceBlockCallResultFilter() {
         IncomingCallFilter testFilter = new IncomingCallFilter(mContext, mResultCallback, mCall,
-                mLock, mTimeoutsAdapter, Collections.singletonList(mFilter1));
+                mLock, mTimeoutsAdapter, Collections.singletonList(mFilter1), mHandler);
         testFilter.performFiltering();
         verify(mFilter1).startFilterLookup(mCall, testFilter);
 
@@ -163,7 +175,7 @@ public class IncomingCallFilterTest extends TelecomTestCase {
     @Test
     public void testPassCallResultFilter() {
         IncomingCallFilter testFilter = new IncomingCallFilter(mContext, mResultCallback, mCall,
-                mLock, mTimeoutsAdapter, Collections.singletonList(mFilter1));
+                mLock, mTimeoutsAdapter, Collections.singletonList(mFilter1), mHandler);
         testFilter.performFiltering();
         verify(mFilter1).startFilterLookup(mCall, testFilter);
 
@@ -183,7 +195,7 @@ public class IncomingCallFilterTest extends TelecomTestCase {
                     add(mFilter4);
                 }};
         IncomingCallFilter testFilter = new IncomingCallFilter(mContext, mResultCallback, mCall,
-                mLock, mTimeoutsAdapter, filters);
+                mLock, mTimeoutsAdapter, filters, mHandler);
         testFilter.performFiltering();
         verify(mFilter1).startFilterLookup(mCall, testFilter);
         verify(mFilter2).startFilterLookup(mCall, testFilter);
@@ -217,7 +229,7 @@ public class IncomingCallFilterTest extends TelecomTestCase {
                     add(mFilter3);
                 }};
         IncomingCallFilter testFilter = new IncomingCallFilter(mContext, mResultCallback, mCall,
-                mLock, mTimeoutsAdapter, filters);
+                mLock, mTimeoutsAdapter, filters, mHandler);
         testFilter.performFiltering();
         verify(mFilter1).startFilterLookup(mCall, testFilter);
         verify(mFilter2).startFilterLookup(mCall, testFilter);
@@ -248,7 +260,7 @@ public class IncomingCallFilterTest extends TelecomTestCase {
                     add(mFilter2);
                 }};
         IncomingCallFilter testFilter = new IncomingCallFilter(mContext, mResultCallback, mCall,
-                mLock, mTimeoutsAdapter, filters);
+                mLock, mTimeoutsAdapter, filters, mHandler);
         testFilter.performFiltering();
         verify(mFilter1).startFilterLookup(mCall, testFilter);
         verify(mFilter2).startFilterLookup(mCall, testFilter);
@@ -274,7 +286,7 @@ public class IncomingCallFilterTest extends TelecomTestCase {
     public void testFilterTimeout() throws Exception {
         setTimeoutLength(SHORT_TIMEOUT);
         IncomingCallFilter testFilter = new IncomingCallFilter(mContext, mResultCallback, mCall,
-                mLock, mTimeoutsAdapter, Collections.singletonList(mFilter1));
+                mLock, mTimeoutsAdapter, Collections.singletonList(mFilter1), mHandler);
         testFilter.performFiltering();
         verify(mResultCallback, timeout((int) SHORT_TIMEOUT * 2)).onCallFilteringComplete(eq(mCall),
                 eq(DEFAULT_RESULT));
@@ -290,7 +302,7 @@ public class IncomingCallFilterTest extends TelecomTestCase {
     public void testFilterTimeoutDoesntTrip() throws Exception {
         setTimeoutLength(SHORT_TIMEOUT);
         IncomingCallFilter testFilter = new IncomingCallFilter(mContext, mResultCallback, mCall,
-                mLock, mTimeoutsAdapter, Collections.singletonList(mFilter1));
+                mLock, mTimeoutsAdapter, Collections.singletonList(mFilter1), mHandler);
         testFilter.performFiltering();
         testFilter.onCallFilteringComplete(mCall, PASS_CALL_RESULT);
         waitForHandlerAction(testFilter.getHandler(), SHORT_TIMEOUT * 2);

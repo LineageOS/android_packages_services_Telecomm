@@ -39,6 +39,7 @@ import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.callredirection.CallRedirectionProcessor;
 import com.android.server.telecom.callredirection.CallRedirectionProcessorHelper;
 
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -124,6 +125,12 @@ public class CallRedirectionProcessorTest extends TelecomTestCase {
         when(mTelephonyManager.getNetworkCountryIso()).thenReturn("");
         when(mContext.bindServiceAsUser(nullable(Intent.class), nullable(ServiceConnection.class),
                 anyInt(), eq(UserHandle.CURRENT))).thenReturn(true);
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
     }
 
     private void setIsInCarMode(boolean isInCarMode) {
