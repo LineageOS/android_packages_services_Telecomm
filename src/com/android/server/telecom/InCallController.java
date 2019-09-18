@@ -731,6 +731,7 @@ public class InCallController extends CallsManagerListenerBase {
     private final Timeouts.Adapter mTimeoutsAdapter;
     private final DefaultDialerCache mDefaultDialerCache;
     private final EmergencyCallHelper mEmergencyCallHelper;
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
     private CarSwappingInCallServiceConnection mInCallServiceConnection;
     private NonUIInCallServiceConnectionCollection mNonUIInCallServiceConnections;
 
@@ -817,8 +818,7 @@ public class InCallController extends CallsManagerListenerBase {
             /** Let's add a 2 second delay before we send unbind to the services to hopefully
              *  give them enough time to process all the pending messages.
              */
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.postDelayed(new Runnable("ICC.oCR", mLock) {
+            mHandler.postDelayed(new Runnable("ICC.oCR", mLock) {
                 @Override
                 public void loggedRun() {
                     // Check again to make sure there are no active calls.
@@ -1596,5 +1596,10 @@ public class InCallController extends CallsManagerListenerBase {
         }
         childCalls.addAll(parentCalls);
         return childCalls;
+    }
+
+    @VisibleForTesting
+    public Handler getHandler() {
+        return mHandler;
     }
 }

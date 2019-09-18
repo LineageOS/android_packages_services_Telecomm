@@ -35,6 +35,7 @@ import com.android.server.telecom.callfiltering.BlockCheckerAdapter;
 import com.android.server.telecom.callfiltering.CallFilterResultCallback;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -88,6 +89,12 @@ public class AsyncBlockCheckFilterTest extends TelecomTestCase {
         when(mCall.getHandle()).thenReturn(TEST_HANDLE);
         mFilter = new AsyncBlockCheckFilter(mContext, mBlockCheckerAdapter,
                 mCallerInfoLookupHelper, null);
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
     }
 
     @SmallTest

@@ -32,6 +32,7 @@ import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.PhoneNumberUtilsAdapter;
 import com.android.server.telecom.TelecomSystem;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,6 +77,12 @@ public class ParcelableCallUtilsTest extends TelecomTestCase {
                 false /* shouldAttachToExistingConnection */,
                 false /* isConference */,
                 mClockProxy /* ClockProxy */);
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
     }
 
     @SmallTest

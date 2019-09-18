@@ -39,6 +39,7 @@ import com.android.server.telecom.Call;
 import com.android.server.telecom.CallRecordingTonePlayer;
 import com.android.server.telecom.TelecomSystem;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -78,6 +79,12 @@ public class CallRecordingTonePlayerTest extends TelecomTestCase {
                 mComponentContextFixture.getTestDouble().getApplicationContext(),
                 mAudioManager, mSyncRoot);
         when(mAudioManager.getActiveRecordingConfigurations()).thenReturn(null);
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
     }
 
     /**

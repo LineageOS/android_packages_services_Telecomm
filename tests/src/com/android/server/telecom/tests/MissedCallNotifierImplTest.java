@@ -187,6 +187,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
     public void tearDown() throws Exception {
         TelecomSystem.setInstance(null);
         when(mTelecomSystem.isBootComplete()).thenReturn(false);
+        super.tearDown();
     }
 
     @SmallTest

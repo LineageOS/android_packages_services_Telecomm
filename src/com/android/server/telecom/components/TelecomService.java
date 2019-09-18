@@ -24,7 +24,6 @@ import android.content.Intent;
 import android.media.IAudioService;
 import android.media.ToneGenerator;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.PowerManager;
 import android.os.ServiceManager;
 import android.os.SystemClock;
@@ -34,15 +33,16 @@ import com.android.internal.telephony.CallerInfoAsyncQuery;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.BluetoothAdapterProxy;
 import com.android.server.telecom.BluetoothPhoneServiceImpl;
+import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.CallerInfoAsyncQueryFactory;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.ClockProxy;
 import com.android.server.telecom.ConnectionServiceFocusManager;
+import com.android.server.telecom.ContactsAsyncHelper;
 import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.HeadsetMediaButton;
 import com.android.server.telecom.HeadsetMediaButtonFactory;
-import com.android.server.telecom.InCallTonePlayer;
 import com.android.server.telecom.InCallWakeLockControllerFactory;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.PhoneAccountRegistrar;
@@ -51,11 +51,11 @@ import com.android.server.telecom.ProximitySensorManagerFactory;
 import com.android.server.telecom.InCallWakeLockController;
 import com.android.server.telecom.ProximitySensorManager;
 import com.android.server.telecom.R;
-import com.android.server.telecom.RoleManagerAdapter;
 import com.android.server.telecom.RoleManagerAdapterImpl;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.TelecomWakeLock;
 import com.android.server.telecom.Timeouts;
+import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.MissedCallNotifierImpl;
 import com.android.server.telecom.ui.NotificationChannelManager;
@@ -178,6 +178,7 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                             new IncomingCallNotifier(context),
                             ToneGenerator::new,
                             new CallAudioRouteStateMachine.Factory(),
+                            new CallAudioModeStateMachine.Factory(),
                             new ClockProxy() {
                                 @Override
                                 public long currentTimeMillis() {
@@ -190,7 +191,9 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                 }
                             },
                             new RoleManagerAdapterImpl(context,
-                                    (RoleManager) context.getSystemService(Context.ROLE_SERVICE))));
+                                    (RoleManager) context.getSystemService(Context.ROLE_SERVICE)),
+                            new IncomingCallFilter.Factory(),
+                            new ContactsAsyncHelper.Factory()));
         }
         if (BluetoothAdapter.getDefaultAdapter() != null) {
             context.startService(new Intent(context, BluetoothPhoneService.class));
