@@ -1565,7 +1565,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                         getInCallToCsRttPipeForCs(), getCsToInCallRttPipeForCs());
                 mWasEverRtt = true;
                 if (isEmergencyCall()) {
-                    mCallsManager.setAudioRoute(CallAudioState.ROUTE_SPEAKER, null);
                     mCallsManager.mute(false);
                 }
             }
