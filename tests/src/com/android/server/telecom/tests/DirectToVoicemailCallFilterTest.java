@@ -27,6 +27,7 @@ import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
 import com.android.server.telecom.callfiltering.DirectToVoicemailCallFilter;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,6 +51,12 @@ public class DirectToVoicemailCallFilterTest extends TelecomTestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
     }
 
     @SmallTest

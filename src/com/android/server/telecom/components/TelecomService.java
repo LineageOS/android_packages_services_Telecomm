@@ -33,11 +33,13 @@ import android.telephony.CallerInfoAsyncQuery;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.BluetoothAdapterProxy;
 import com.android.server.telecom.BluetoothPhoneServiceImpl;
+import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.CallerInfoAsyncQueryFactory;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.ClockProxy;
 import com.android.server.telecom.ConnectionServiceFocusManager;
+import com.android.server.telecom.ContactsAsyncHelper;
 import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.HeadsetMediaButton;
 import com.android.server.telecom.HeadsetMediaButtonFactory;
@@ -53,6 +55,7 @@ import com.android.server.telecom.RoleManagerAdapterImpl;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.TelecomWakeLock;
 import com.android.server.telecom.Timeouts;
+import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.MissedCallNotifierImpl;
 import com.android.server.telecom.ui.NotificationChannelManager;
@@ -175,6 +178,7 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                             new IncomingCallNotifier(context),
                             ToneGenerator::new,
                             new CallAudioRouteStateMachine.Factory(),
+                            new CallAudioModeStateMachine.Factory(),
                             new ClockProxy() {
                                 @Override
                                 public long currentTimeMillis() {
@@ -187,7 +191,9 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                 }
                             },
                             new RoleManagerAdapterImpl(context,
-                                    (RoleManager) context.getSystemService(Context.ROLE_SERVICE))));
+                                    (RoleManager) context.getSystemService(Context.ROLE_SERVICE)),
+                            new IncomingCallFilter.Factory(),
+                            new ContactsAsyncHelper.Factory()));
         }
         if (BluetoothAdapter.getDefaultAdapter() != null) {
             context.startService(new Intent(context, BluetoothPhoneService.class));
