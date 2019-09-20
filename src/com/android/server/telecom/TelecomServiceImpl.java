@@ -1376,10 +1376,13 @@ public class TelecomServiceImpl {
                 return;
             }
 
+
             if (args.length > 0 && Analytics.ANALYTICS_DUMPSYS_ARG.equals(args[0])) {
-                Analytics.dumpToEncodedProto(writer, args);
+                Binder.withCleanCallingIdentity(() ->
+                        Analytics.dumpToEncodedProto(mContext, writer, args));
                 return;
             }
+
             boolean isTimeLineView = (args.length > 0 && TIME_LINE_ARG.equalsIgnoreCase(args[0]));
 
             final IndentingPrintWriter pw = new IndentingPrintWriter(writer, "  ");
