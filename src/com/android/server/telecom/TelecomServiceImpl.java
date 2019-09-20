@@ -724,6 +724,27 @@ public class TelecomServiceImpl {
             }
         }
 
+        public void setSystemDialerPackage(String packageName) {
+            try {
+                Log.startSession("TSI.sTDD");
+                enforceModifyPermission();
+                if (Binder.getCallingUid() != Process.SHELL_UID
+                    && Binder.getCallingUid() != Process.ROOT_UID) {
+                    throw new SecurityException("Shell-only API.");
+                }
+                synchronized (mLock) {
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        TelecomServiceImpl.setSystemDialerPackage(packageName);;
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
         /**
          * @see android.telecom.TelecomManager#isInCall
          */
@@ -1709,6 +1730,9 @@ public class TelecomServiceImpl {
     private final SettingsSecureAdapter mSettingsSecureAdapter;
     private final TelecomSystem.SyncRoot mLock;
 
+    // Shell-command configured default System Dialer for testing. Must be null if not configured.
+    private static String mDefaultSystemDialerForTest;
+
     public TelecomServiceImpl(
             Context context,
             CallsManager callsManager,
@@ -1747,7 +1771,14 @@ public class TelecomServiceImpl {
     }
 
     public static String getSystemDialerPackage(Context context) {
+        if (mDefaultSystemDialerForTest != null) {
+            return mDefaultSystemDialerForTest;
+        }
         return context.getResources().getString(com.android.internal.R.string.config_defaultDialer);
+    }
+
+    private static void setSystemDialerPackage(String packageName) {
+        mDefaultSystemDialerForTest = packageName;
     }
 
     public ITelecomService.Stub getBinder() {
