@@ -431,6 +431,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     private boolean mWasConferencePreviouslyMerged = false;
     private boolean mWasHighDefAudio = false;
+    private boolean mWasWifi = false;
 
     // For conferences which support merge/swap at their level, we retain a notion of an active
     // call. This is used for BluetoothPhoneService.  In order to support hold/merge, it must have
@@ -1570,6 +1571,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             }
             mWasHighDefAudio = (connectionProperties & Connection.PROPERTY_HIGH_DEF_AUDIO) ==
                     Connection.PROPERTY_HIGH_DEF_AUDIO;
+            mWasWifi = (connectionProperties & Connection.PROPERTY_WIFI) > 0;
             for (Listener l : mListeners) {
                 l.onConnectionPropertiesChanged(this, didRttChange);
             }
@@ -3198,6 +3200,15 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      */
     boolean wasHighDefAudio() {
         return mWasHighDefAudio;
+    }
+
+    /**
+     * Returns wether or not Wifi call was used.
+     *
+     * @return true if wifi call was used during this call.
+     */
+    boolean wasWifi() {
+        return mWasWifi;
     }
 
     public void setIsUsingCallFiltering(boolean isUsingCallFiltering) {
