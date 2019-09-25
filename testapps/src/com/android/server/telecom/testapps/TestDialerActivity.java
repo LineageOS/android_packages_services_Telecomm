@@ -1,9 +1,14 @@
 package com.android.server.telecom.testapps;
 
+import static android.content.res.Configuration.UI_MODE_TYPE_CAR;
+
 import android.app.Activity;
+import android.app.UiModeManager;
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CallLog.Calls;
@@ -56,6 +61,18 @@ public class TestDialerActivity extends Activity {
 
         mNumberView = (EditText) findViewById(R.id.number);
         mRttCheckbox = (CheckBox) findViewById(R.id.call_with_rtt_checkbox);
+        findViewById(R.id.toggle_car_mode).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleCarMode();
+            }
+        });
+        findViewById(R.id.toggle_incallservice).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleInCallService();
+            }
+        });
         updateMutableUi();
     }
 
@@ -139,5 +156,30 @@ public class TestDialerActivity extends Activity {
         intentExtras.putBundle(TelecomManager.EXTRA_OUTGOING_CALL_EXTRAS, extras);
         Log.i("Santos xtr", intentExtras.toString());
         return intentExtras;
+    }
+
+    private void toggleCarMode() {
+        UiModeManager uiModeManager = (UiModeManager) getSystemService(UI_MODE_SERVICE);
+        boolean isCarMode = uiModeManager.getCurrentModeType() == UI_MODE_TYPE_CAR;
+        if (isCarMode) {
+            uiModeManager.disableCarMode(0);
+        } else {
+            uiModeManager.enableCarMode(0);
+        }
+    }
+
+    private void toggleInCallService() {
+        ComponentName uiComponent = new ComponentName(
+                TestInCallServiceImpl.class.getPackage().getName(),
+                TestInCallServiceImpl.class.getName());
+        boolean isEnabled = getPackageManager().getComponentEnabledSetting(uiComponent)
+                == PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
+        getPackageManager().setComponentEnabledSetting(uiComponent,
+                isEnabled ? PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+                        : PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                PackageManager.DONT_KILL_APP);
+        isEnabled = getPackageManager().getComponentEnabledSetting(uiComponent)
+                == PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
+        Toast.makeText(this, "Is UI enabled? " + isEnabled, Toast.LENGTH_LONG).show();
     }
 }
