@@ -59,4 +59,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/startCallWithRtt"/>
+    <Button
+        android:id="@+id/toggle_car_mode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Toggle Car mode" />
+    <Button
+        android:id="@+id/toggle_incallservice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Toggle InCallService" />
 </LinearLayout>
