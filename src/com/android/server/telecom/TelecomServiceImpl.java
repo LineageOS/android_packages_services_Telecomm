@@ -581,28 +581,28 @@ public class TelecomServiceImpl {
         public String getVoiceMailNumber(PhoneAccountHandle accountHandle, String callingPackage) {
             try {
                 Log.startSession("TSI.gVMN");
-                synchronized (mLock) {
-                    if (!canReadPhoneState(callingPackage, "getVoiceMailNumber")) {
+                if (!canReadPhoneState(callingPackage, "getVoiceMailNumber")) {
+                    return null;
+                }
+                try {
+                    final UserHandle callingUserHandle = Binder.getCallingUserHandle();
+                    if (!isPhoneAccountHandleVisibleToCallingUser(accountHandle,
+                            callingUserHandle)) {
+                        Log.d(this, "%s is not visible for the calling user [gVMN]",
+                                accountHandle);
                         return null;
                     }
-                    try {
-                        final UserHandle callingUserHandle = Binder.getCallingUserHandle();
-                        if (!isPhoneAccountHandleVisibleToCallingUser(accountHandle,
-                                callingUserHandle)) {
-                            Log.d(this, "%s is not visible for the calling user [gVMN]",
-                                    accountHandle);
-                            return null;
-                        }
-                        int subId = mSubscriptionManagerAdapter.getDefaultVoiceSubId();
+                    int subId = mSubscriptionManagerAdapter.getDefaultVoiceSubId();
+                    synchronized (mLock) {
                         if (accountHandle != null) {
                             subId = mPhoneAccountRegistrar
                                     .getSubscriptionIdForPhoneAccount(accountHandle);
                         }
-                        return getTelephonyManager().getVoiceMailNumber(subId);
-                    } catch (Exception e) {
-                        Log.e(this, e, "getSubscriptionIdForPhoneAccount");
-                        throw e;
                     }
+                    return getTelephonyManager().getVoiceMailNumber(subId);
+                } catch (Exception e) {
+                    Log.e(this, e, "getSubscriptionIdForPhoneAccount");
+                    throw e;
                 }
             } finally {
                 Log.endSession();
@@ -620,25 +620,26 @@ public class TelecomServiceImpl {
                     return null;
                 }
 
-                synchronized (mLock) {
-                    final UserHandle callingUserHandle = Binder.getCallingUserHandle();
-                    if (!isPhoneAccountHandleVisibleToCallingUser(accountHandle,
-                            callingUserHandle)) {
-                        Log.d(this, "%s is not visible for the calling user [gL1N]", accountHandle);
-                        return null;
-                    }
+                final UserHandle callingUserHandle = Binder.getCallingUserHandle();
+                if (!isPhoneAccountHandleVisibleToCallingUser(accountHandle,
+                        callingUserHandle)) {
+                    Log.d(this, "%s is not visible for the calling user [gL1N]", accountHandle);
+                    return null;
+                }
 
-                    long token = Binder.clearCallingIdentity();
-                    try {
-                        int subId = mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(
+                long token = Binder.clearCallingIdentity();
+                try {
+                    int subId;
+                    synchronized (mLock) {
+                        subId = mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(
                                 accountHandle);
-                        return getTelephonyManager().getLine1Number(subId);
-                    } catch (Exception e) {
-                        Log.e(this, e, "getSubscriptionIdForPhoneAccount");
-                        throw e;
-                    } finally {
-                        Binder.restoreCallingIdentity(token);
                     }
+                    return getTelephonyManager().getLine1Number(subId);
+                } catch (Exception e) {
+                    Log.e(this, e, "getSubscriptionIdForPhoneAccount");
+                    throw e;
+                } finally {
+                    Binder.restoreCallingIdentity(token);
                 }
             } finally {
                 Log.endSession();
@@ -929,21 +930,19 @@ public class TelecomServiceImpl {
         public boolean handlePinMmi(String dialString, String callingPackage) {
             try {
                 Log.startSession("TSI.hPM");
-                synchronized (mLock) {
-                    enforcePermissionOrPrivilegedDialer(MODIFY_PHONE_STATE, callingPackage);
+                enforcePermissionOrPrivilegedDialer(MODIFY_PHONE_STATE, callingPackage);
 
-                    // Switch identity so that TelephonyManager checks Telecom's permissions
-                    // instead.
-                    long token = Binder.clearCallingIdentity();
-                    boolean retval = false;
-                    try {
-                        retval = getTelephonyManager().handlePinMmi(dialString);
-                    } finally {
-                        Binder.restoreCallingIdentity(token);
-                    }
-
-                    return retval;
+                // Switch identity so that TelephonyManager checks Telecom's permissions
+                // instead.
+                long token = Binder.clearCallingIdentity();
+                boolean retval = false;
+                try {
+                    retval = getTelephonyManager().handlePinMmi(dialString);
+                } finally {
+                    Binder.restoreCallingIdentity(token);
                 }
+
+                return retval;
             }finally {
                 Log.endSession();
             }
@@ -957,29 +956,33 @@ public class TelecomServiceImpl {
                 String dialString, String callingPackage) {
             try {
                 Log.startSession("TSI.hPMFPA");
-                synchronized (mLock) {
-                    enforcePermissionOrPrivilegedDialer(MODIFY_PHONE_STATE, callingPackage);
 
-                    UserHandle callingUserHandle = Binder.getCallingUserHandle();
+                enforcePermissionOrPrivilegedDialer(MODIFY_PHONE_STATE, callingPackage);
+                UserHandle callingUserHandle = Binder.getCallingUserHandle();
+                synchronized (mLock) {
                     if (!isPhoneAccountHandleVisibleToCallingUser(accountHandle,
                             callingUserHandle)) {
-                        Log.d(this, "%s is not visible for the calling user [hMMI]", accountHandle);
+                        Log.d(this, "%s is not visible for the calling user [hMMI]",
+                                accountHandle);
                         return false;
                     }
-
-                    // Switch identity so that TelephonyManager checks Telecom's permissions
-                    // instead.
-                    long token = Binder.clearCallingIdentity();
-                    boolean retval = false;
-                    try {
-                        int subId = mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(
-                                accountHandle);
-                        retval = getTelephonyManager().handlePinMmiForSubscriber(subId, dialString);
-                    } finally {
-                        Binder.restoreCallingIdentity(token);
-                    }
-                    return retval;
                 }
+
+                // Switch identity so that TelephonyManager checks Telecom's permissions
+                // instead.
+                long token = Binder.clearCallingIdentity();
+                boolean retval = false;
+                int subId;
+                try {
+                    synchronized (mLock) {
+                        subId = mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(
+                                accountHandle);
+                    }
+                    retval = getTelephonyManager().handlePinMmiForSubscriber(subId, dialString);
+                } finally {
+                    Binder.restoreCallingIdentity(token);
+                }
+                return retval;
             }finally {
                 Log.endSession();
             }
@@ -993,28 +996,28 @@ public class TelecomServiceImpl {
                 String callingPackage) {
             try {
                 Log.startSession("TSI.aAUFPA");
+                enforcePermissionOrPrivilegedDialer(MODIFY_PHONE_STATE, callingPackage);
                 synchronized (mLock) {
-                    enforcePermissionOrPrivilegedDialer(MODIFY_PHONE_STATE, callingPackage);
                     if (!isPhoneAccountHandleVisibleToCallingUser(accountHandle,
                             Binder.getCallingUserHandle())) {
                         Log.d(this, "%s is not visible for the calling user [gA4PA]",
                                 accountHandle);
                         return null;
                     }
-                    // Switch identity so that TelephonyManager checks Telecom's permissions
-                    // instead.
-                    long token = Binder.clearCallingIdentity();
-                    String retval = "content://icc/adn/";
-                    try {
-                        long subId = mPhoneAccountRegistrar
-                                .getSubscriptionIdForPhoneAccount(accountHandle);
-                        retval = retval + "subId/" + subId;
-                    } finally {
-                        Binder.restoreCallingIdentity(token);
-                    }
-
-                    return Uri.parse(retval);
                 }
+                // Switch identity so that TelephonyManager checks Telecom's permissions
+                // instead.
+                long token = Binder.clearCallingIdentity();
+                String retval = "content://icc/adn/";
+                try {
+                    long subId = mPhoneAccountRegistrar
+                            .getSubscriptionIdForPhoneAccount(accountHandle);
+                    retval = retval + "subId/" + subId;
+                } finally {
+                    Binder.restoreCallingIdentity(token);
+                }
+
+                return Uri.parse(retval);
             } finally {
                 Log.endSession();
             }
@@ -1757,7 +1760,10 @@ public class TelecomServiceImpl {
 
     private boolean isPhoneAccountHandleVisibleToCallingUser(
             PhoneAccountHandle phoneAccountUserHandle, UserHandle callingUser) {
-        return mPhoneAccountRegistrar.getPhoneAccount(phoneAccountUserHandle, callingUser) != null;
+        synchronized (mLock) {
+            return mPhoneAccountRegistrar.getPhoneAccount(phoneAccountUserHandle, callingUser)
+                    != null;
+        }
     }
 
     private boolean isCallerSystemApp() {
