@@ -91,7 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"สายที่ไม่ได้รับ"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"การบล็อกสาย"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"การโทรออกนี้จะวางสายใน <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"อนุญาตให้ <xliff:g id="OTHER_APP">%1$s</xliff:g> โทรออกโดยใช้หมายเลขหรือบัญชีอื่น"</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"เลือกวิธีโทรออก"</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"โอนสายโดยใช้ <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"โทรออกโดยใช้หมายเลขโทรศัพท์ของฉัน"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> จะไม่รองรับการโทรออก ลองใช้แอปการเปลี่ยนเส้นทางการโทรอื่นหรือติดต่อนักพัฒนาซอฟต์แวร์เพื่อขอความช่วยเหลือ"</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"การบล็อกสาย"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"หมายเลขที่ไม่อยู่ในรายชื่อติดต่อ"</string>

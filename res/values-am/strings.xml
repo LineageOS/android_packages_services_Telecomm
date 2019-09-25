@@ -91,7 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"ያመለጡ ጥሪዎች"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"ጥሪን ማገድ"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"ይህን ጥሪ ማድረግ የ<xliff:g id="OTHER_APP">%1$s</xliff:g> ጥሪዎን ያቋርጣል።"</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"<xliff:g id="OTHER_APP">%1$s</xliff:g> ሌላ ቁጥር ወይም መለያ በመጠቀም ጥሪ እንዲያደርግ ይፍቀዱ።"</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"ይህን ጥሪ እንዴት እንደሚያደርጉ ይምረጡ"</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"<xliff:g id="OTHER_APP">%1$s</xliff:g>ን በመጠቀም አዘዋውር"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"የእኔን ስልክ ቁጥር በመጠቀም ደውል"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"ጥሪ በ <xliff:g id="OTHER_APP">%1$s</xliff:g> መደረግ አይችልም። ሌላ የጥሪ አቅጣጫ ማስቀየሪያ መተግበሪያ ለመጠቀም ወይም አልሚውን እገዛ ለመጠየቅ ይሞክሩ።"</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"ጥሪን ማገድ"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"ቁጥሮች በእውቂያዎች ውስጥ የሉም"</string>

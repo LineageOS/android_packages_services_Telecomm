@@ -60,7 +60,7 @@
     <string name="block_number" msgid="1101252256321306179">"Dodaj numer"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"Odblokować <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Odblokuj"</string>
-    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Blokuj połączenia i SMS-y z:"</string>
+    <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Blokuj połączenia i SMS-y z numeru:"</string>
     <string name="add_blocked_number_hint" msgid="6847675097085433553">"Numer telefonu"</string>
     <string name="block_button" msgid="8822290682524373357">"Zablokuj"</string>
     <string name="non_primary_user" msgid="5180129233352533459">"Tylko właściciel urządzenia może przeglądać zablokowane numery i nimi zarządzać."</string>
@@ -91,7 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Połączenia nieodebrane"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Blokowanie połączeń"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Jeśli zadzwonisz, połączenie w aplikacji <xliff:g id="OTHER_APP">%1$s</xliff:g> zostanie zakończone."</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"Zezwalaj aplikacji <xliff:g id="OTHER_APP">%1$s</xliff:g> na nawiązywanie połączeń przy użyciu innego numeru lub konta."</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"Wybierz, jak chcesz zadzwonić"</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"Przekieruj połączenie za pomocą aplikacji <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"Zadzwoń z mojego numeru telefonu"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"Aplikacja <xliff:g id="OTHER_APP">%1$s</xliff:g> nie może nawiązać połączenia. Skorzystaj z innej aplikacji do przekierowywania połączeń lub skontaktuj się z deweloperem i poproś o pomoc."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Blokowanie połączeń"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Numery spoza Kontaktów"</string>

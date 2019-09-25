@@ -39,7 +39,7 @@
     <string name="respond_via_sms_confirmation_format" msgid="7229149977515784269">"Хабар <xliff:g id="PHONE_NUMBER">%s</xliff:g> нөміріне жіберілді."</string>
     <string name="respond_via_sms_failure_format" msgid="90791421289769504">"<xliff:g id="PHONE_NUMBER">%s</xliff:g> нөміріне хабар жіберілмеді."</string>
     <string name="enable_account_preference_title" msgid="2021848090086481720">"Қоңырау шалу есептік жазбалары"</string>
-    <string name="outgoing_call_not_allowed_user_restriction" msgid="6872406278300131364">"Тек төтенше қоңырауларға рұқсат етілген."</string>
+    <string name="outgoing_call_not_allowed_user_restriction" msgid="6872406278300131364">"Құтқару қызметіне ғана қоңырау шалуға рұқсат етілген."</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="1996571596464271228">"\"Телефон\" рұқсатынсыз бұл қолданба шығыс қоңырауларды соға алмайды."</string>
     <string name="outgoing_call_error_no_phone_number_supplied" msgid="1940125199802007505">"Қоңырау шалу үшін жарамды нөмірді енгізіңіз."</string>
     <string name="duplicate_video_call_not_allowed" msgid="3749211605014548386">"Қоңырауды қазіргі уақытта қосу мүмкін емес."</string>
@@ -91,7 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Қабылданбаған қоңыраулар"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Қоңырауды бөгеу"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Жаңа қоңырау шалу <xliff:g id="OTHER_APP">%1$s</xliff:g> қоңырауын тоқтатады."</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"<xliff:g id="OTHER_APP">%1$s</xliff:g> қолданбасының басқа нөмір немесе есептік жазба арқылы қоңырау шалуына рұқсат ету."</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"Қоңырау шалу әдісін таңдаңыз."</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"Қоңырау бағытын <xliff:g id="OTHER_APP">%1$s</xliff:g> арқылы ауыстыру"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"Телефон нөміріммен қоңырау шалу"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> арқылы қоңырау шалу мүмкін емес. Басқа қоңырау бағыттайтын қолданбаны пайдаланып көріңіз немесе әзірлеушіден көмек сұраңыз."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Қоңырауды бөгеу"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Контактілерде жоқ нөмірлер"</string>
