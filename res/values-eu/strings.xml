@@ -24,12 +24,12 @@
     <string name="notification_missedCallsTitle" msgid="1361677948941502522">"Dei galduak"</string>
     <string name="notification_missedCallsMsg" msgid="4575787816055205600">"<xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> dei galdu"</string>
     <string name="notification_missedCallTicker" msgid="504686252427747209">"Deitzaile honen dei galdua: <xliff:g id="MISSED_CALL_FROM">%s</xliff:g>"</string>
-    <string name="notification_missedCall_call_back" msgid="2684890353590890187">"Erantzun deiari"</string>
+    <string name="notification_missedCall_call_back" msgid="2684890353590890187">"Itzuli deia"</string>
     <string name="notification_missedCall_message" msgid="3049928912736917988">"Mezua"</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"Deiaren audioa desaktibatu da."</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"Bozgorailua gaitu da."</string>
     <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"Ezin dut hitz egin. Arazoren bat al dago?"</string>
-    <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"Oraintxe deituko dizut bueltan."</string>
+    <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"Oraintxe itzuliko dizut deia."</string>
     <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"Geroago deituko dizut."</string>
     <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"Ezin dut hitz egin. Deitu geroago, mesedez."</string>
     <string name="respond_via_sms_setting_title" msgid="3754000371039709383">"Erantzun bizkorrak"</string>
@@ -57,7 +57,7 @@
     <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"Utzi"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"Blokeatutako zenbakiak"</string>
     <string name="blocked_numbers_msg" msgid="1045015186124965643">"Ez duzu jasoko deirik edo testu-mezurik blokeatutako zenbakietatik."</string>
-    <string name="block_number" msgid="1101252256321306179">"Gehitu zenbakia"</string>
+    <string name="block_number" msgid="1101252256321306179">"Gehitu zenbaki bat"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> desblokeatu nahi duzu?"</string>
     <string name="unblock_button" msgid="3078048901972674170">"Desblokeatu"</string>
     <string name="add_blocked_dialog_body" msgid="9030243212265516828">"Blokeatu zenbaki honetatik jasotzen diren deiak eta testu-mezuak:"</string>
@@ -91,7 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Dei galduak"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Deiak blokeatzeko aukera"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Dei hau egiten baduzu, amaitu egingo da <xliff:g id="OTHER_APP">%1$s</xliff:g> aplikazioko deia."</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"Eman baimena <xliff:g id="OTHER_APP">%1$s</xliff:g> aplikazioari zenbaki edo kontu desberdin baten bidez deiak egiteko."</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"Aukeratu dei hau egiteko modua"</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"Birbideratu deia <xliff:g id="OTHER_APP">%1$s</xliff:g> aplikazioaren bidez"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"Erabili nire telefono-zenbakia deitzeko"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"<xliff:g id="OTHER_APP">%1$s</xliff:g> aplikazioak ezin du egin deia. Erabili deiak birbideratzeko beste aplikazio bat edo jarri harremanetan garatzailearekin laguntza lortzeko."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Deiak blokeatzeko aukera"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Kontaktuak zerbitzuan ez dauden zenbakiak"</string>
@@ -100,7 +102,7 @@
     <string name="phone_settings_private_num_summary_txt" msgid="7516314821207782191">"Blokeatu zenbakia erakusten ez duten deitzaileak"</string>
     <string name="phone_settings_payphone_txt" msgid="2493356957416981318">"Telefono publikoa"</string>
     <string name="phone_settings_payphone_summary_txt" msgid="6126709946103814653">"Blokeatu telefono publikoen deiak"</string>
-    <string name="phone_settings_unknown_txt" msgid="5836407031508172721">"Ezezaguna"</string>
+    <string name="phone_settings_unknown_txt" msgid="5836407031508172721">"Ezezagunak"</string>
     <string name="phone_settings_unknown_summary_txt" msgid="3457690230497753233">"Blokeatu identifikatu gabeko deitzaileen deiak"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="628536625775266096">"Deiak blokeatzeko aukera"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"Desgaitu da deiak blokeatzeko aukera"</string>
