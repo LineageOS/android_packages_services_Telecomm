@@ -446,6 +446,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private boolean mWasConferencePreviouslyMerged = false;
     private boolean mWasHighDefAudio = false;
     private boolean mWasWifi = false;
+    private boolean mWasVolte = false;
 
     // For conferences which support merge/swap at their level, we retain a notion of an active
     // call. This is used for BluetoothPhoneService.  In order to support hold/merge, it must have
@@ -2216,6 +2217,13 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         for (Listener l : mListeners) {
             l.onExtrasChanged(this, source, extras);
         }
+      
+        // If mExtra shows that the call using Volte, record it with mWasVolte
+        if (mExtras.containsKey(TelecomManager.EXTRA_CALL_NETWORK_TYPE) &&
+            mExtras.get(TelecomManager.EXTRA_CALL_NETWORK_TYPE)
+                    .equals(TelephonyManager.NETWORK_TYPE_LTE)) {
+            mWasVolte = true;
+        }
 
         // If the change originated from an InCallService, notify the connection service.
         if (source == SOURCE_INCALL_SERVICE) {
@@ -3301,7 +3309,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     /**
-     * Returns wether or not Wifi call was used.
+     * Returns whether or not Wifi call was used.
      *
      * @return true if wifi call was used during this call.
      */
@@ -3311,6 +3319,15 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     public void setIsUsingCallFiltering(boolean isUsingCallFiltering) {
         mIsUsingCallFiltering = isUsingCallFiltering;
+    }       
+          
+    /**
+     * Returns whether or not Volte call was used.
+     *
+     * @return true if Volte call was used during this call.
+     */
+    public boolean wasVolte() {
+        return mWasVolte;
     }
 
     /**
