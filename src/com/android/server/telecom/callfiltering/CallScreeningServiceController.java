@@ -195,10 +195,18 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
             if (TextUtils.isEmpty(userChosenPackageName)) {
                 mIsUserChosenFinished = true;
             } else {
-                createCallScreeningServiceFilter().startCallScreeningFilter(mCall,
-                        CallScreeningServiceController.this, userChosenPackageName,
-                        mAppLabelProxy.getAppLabel(userChosenPackageName),
-                        CallScreeningServiceFilter.CALL_SCREENING_FILTER_TYPE_USER_SELECTED);
+                // If the user chosen call screening service is the same as the default dialer, then
+                // we have already bound to it above and don't need to do so again here.
+                if (userChosenPackageName.equals(dialerPackageName)) {
+                    Log.addEvent(mCall, LogUtils.Events.SCREENING_SKIPPED,
+                            "user pkg same as dialer: " + userChosenPackageName);
+                    mIsUserChosenFinished = true;
+                } else {
+                    createCallScreeningServiceFilter().startCallScreeningFilter(mCall,
+                            CallScreeningServiceController.this, userChosenPackageName,
+                            mAppLabelProxy.getAppLabel(userChosenPackageName),
+                            CallScreeningServiceFilter.CALL_SCREENING_FILTER_TYPE_USER_SELECTED);
+                }
             }
 
             if (mIsDefaultDialerFinished && mIsUserChosenFinished) {
