@@ -47,6 +47,8 @@ import android.telecom.StatusHints;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.telephony.PhoneNumberUtils;
+import android.telephony.TelephonyManager;
+import android.telephony.emergency.EmergencyNumber;
 import android.text.TextUtils;
 import android.util.StatsLog;
 import android.os.UserHandle;
@@ -62,11 +64,13 @@ import java.io.IOException;
 import java.lang.String;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -335,6 +339,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private ConnectionServiceWrapper mConnectionService;
 
     private boolean mIsEmergencyCall;
+
+    // The Call is considered an emergency call for testing, but will not actually connect to
+    // emergency services.
+    private boolean mIsTestEmergencyCall;
 
     private boolean mSpeakerphoneOn;
 
@@ -1072,15 +1080,26 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             // call, it will remain so for the rest of it's lifetime.
             if (!mIsEmergencyCall) {
                 mIsEmergencyCall = mHandle != null &&
-                        mPhoneNumberUtilsAdapter.isLocalEmergencyNumber(mContext,
-                                mHandle.getSchemeSpecificPart());
+                        getTelephonyManager().isEmergencyNumber(mHandle.getSchemeSpecificPart());
                 mAnalytics.setCallIsEmergency(mIsEmergencyCall);
+            }
+            if (!mIsTestEmergencyCall) {
+                mIsTestEmergencyCall = mHandle != null &&
+                        isTestEmergencyCall(mHandle.getSchemeSpecificPart());
             }
             startCallerInfoLookup();
             for (Listener l : mListeners) {
                 l.onHandleChanged(this);
             }
         }
+    }
+
+    private boolean isTestEmergencyCall(String number) {
+        Map<Integer, List<EmergencyNumber>> eMap = getTelephonyManager().getEmergencyNumberList();
+        return eMap.values().stream().flatMap(Collection::stream)
+                .anyMatch(eNumber ->
+                        eNumber.isFromSources(EmergencyNumber.EMERGENCY_NUMBER_SOURCE_TEST) &&
+                                number.equals(eNumber.getNumber()));
     }
 
     public String getCallerDisplayName() {
@@ -1140,6 +1159,15 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     @VisibleForTesting
     public boolean isEmergencyCall() {
         return mIsEmergencyCall;
+    }
+
+    /**
+     * @return {@code true} if this an outgoing call to a test emergency number (and NOT to
+     * emergency services). Used for testing purposes to differentiate between a real and fake
+     * emergency call for safety reasons during testing.
+     */
+    public boolean isTestEmergencyCall() {
+        return mIsTestEmergencyCall;
     }
 
     /**
@@ -3159,6 +3187,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         for (Listener l : mListeners) {
             l.onHandoverRequested(this, handoverToHandle, videoState, extras, isLegacy);
         }
+    }
+
+    private TelephonyManager getTelephonyManager() {
+        return mContext.getSystemService(TelephonyManager.class);
     }
 
     /**

@@ -34,7 +34,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
@@ -679,11 +678,7 @@ public class TelecomServiceImpl {
         public ComponentName getDefaultPhoneApp() {
             try {
                 Log.startSession("TSI.gDPA");
-                // No need to synchronize
-                Resources resources = mContext.getResources();
-                return new ComponentName(
-                        TelecomServiceImpl.getSystemDialerPackage(mContext),
-                        resources.getString(R.string.dialer_default_class));
+                return mDefaultDialerCache.getSystemDialerComponent();
             } finally {
                 Log.endSession();
             }
@@ -718,24 +713,21 @@ public class TelecomServiceImpl {
         public String getSystemDialerPackage() {
             try {
                 Log.startSession("TSI.gSDP");
-                return TelecomServiceImpl.getSystemDialerPackage(mContext);
+                return mDefaultDialerCache.getSystemDialerApplication();
             } finally {
                 Log.endSession();
             }
         }
 
-        public void setSystemDialerPackage(String packageName) {
+        public void setSystemDialer(ComponentName testComponentName) {
             try {
-                Log.startSession("TSI.sTDD");
+                Log.startSession("TSI.sSD");
                 enforceModifyPermission();
-                if (Binder.getCallingUid() != Process.SHELL_UID
-                    && Binder.getCallingUid() != Process.ROOT_UID) {
-                    throw new SecurityException("Shell-only API.");
-                }
+                enforceShellOnly(Binder.getCallingUid(), "setSystemDialer");
                 synchronized (mLock) {
                     long token = Binder.clearCallingIdentity();
                     try {
-                        TelecomServiceImpl.setSystemDialerPackage(packageName);;
+                        mDefaultDialerCache.setSystemDialerComponentName(testComponentName);
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
@@ -1504,6 +1496,26 @@ public class TelecomServiceImpl {
             }
         }
 
+        @Override
+        public void setTestEmergencyPhoneAccountPackageNameFilter(String packageName) {
+            try {
+                Log.startSession("TSI.sTPAPNF");
+                enforceModifyPermission();
+                enforceShellOnly(Binder.getCallingUid(),
+                        "setTestEmergencyPhoneAccountPackageNameFilter");
+                synchronized (mLock) {
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        mPhoneAccountRegistrar.setTestPhoneAccountPackageNameFilter(packageName);
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
         /**
          * See {@link TelecomManager#isInEmergencyCall()}
          */
@@ -1528,10 +1540,10 @@ public class TelecomServiceImpl {
         }
 
         /**
-         * See {@link TelecomManager#handleCallIntent(Intent)} ()}
+         * See {@link TelecomManager#handleCallIntent(Intent, String)}
          */
         @Override
-        public void handleCallIntent(Intent intent) {
+        public void handleCallIntent(Intent intent, String callingPackage) {
             try {
                 Log.startSession("TSI.hCI");
                 synchronized (mLock) {
@@ -1542,7 +1554,7 @@ public class TelecomServiceImpl {
                     try {
                         Log.i(this, "handleCallIntent: handling call intent");
                         mCallIntentProcessorAdapter.processOutgoingCallIntent(mContext,
-                                mCallsManager, intent, null /* callingPackage */);
+                                mCallsManager, intent, callingPackage);
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
@@ -1730,9 +1742,6 @@ public class TelecomServiceImpl {
     private final SettingsSecureAdapter mSettingsSecureAdapter;
     private final TelecomSystem.SyncRoot mLock;
 
-    // Shell-command configured default System Dialer for testing. Must be null if not configured.
-    private static String mDefaultSystemDialerForTest;
-
     public TelecomServiceImpl(
             Context context,
             CallsManager callsManager,
@@ -1768,17 +1777,6 @@ public class TelecomServiceImpl {
                             defaultDialer);
             mContext.sendBroadcastAsUser(intent, UserHandle.of(userId));
         });
-    }
-
-    public static String getSystemDialerPackage(Context context) {
-        if (mDefaultSystemDialerForTest != null) {
-            return mDefaultSystemDialerForTest;
-        }
-        return context.getResources().getString(com.android.internal.R.string.config_defaultDialer);
-    }
-
-    private static void setSystemDialerPackage(String packageName) {
-        mDefaultSystemDialerForTest = packageName;
     }
 
     public ITelecomService.Stub getBinder() {
@@ -1967,6 +1965,15 @@ public class TelecomServiceImpl {
             throw new UnsupportedOperationException(
                     "System does not support feature " + feature);
         }
+    }
+
+    // to be used for TestApi methods that can only be called with SHELL UID.
+    private void enforceShellOnly(int callingUid, String message) {
+        if (callingUid == Process.SHELL_UID || callingUid == Process.ROOT_UID) {
+            return; // okay
+        }
+
+        throw new SecurityException(message + ": Only shell user can call it");
     }
 
     private boolean canReadPhoneState(String callingPackage, String message) {

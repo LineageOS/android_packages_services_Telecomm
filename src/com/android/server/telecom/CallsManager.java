@@ -1623,6 +1623,7 @@ public class CallsManager extends Call.ListenerBase
      * @param handle The handle of the outgoing call; used to determine the SIP scheme when matching
      *               phone accounts.
      * @param isVideo {@code true} if the call is a video call, {@code false} otherwise.
+     * @param isEmergency {@code true} if the call is an emergency call.
      * @param initiatingUser The {@link UserHandle} the call is placed on.
      * @return
      */
@@ -1753,7 +1754,7 @@ public class CallsManager extends Call.ListenerBase
             Log.w(this, "onCallRedirectionComplete: phoneAccountHandle is null");
             endEarly = true;
             disconnectReason = "Null phoneAccountHandle from Call Redirection Service";
-        } else if (mPhoneNumberUtilsAdapter.isPotentialLocalEmergencyNumber(mContext,
+        } else if (getTelephonyManager().isPotentialEmergencyNumber(
                 handle.getSchemeSpecificPart())) {
             Log.w(this, "onCallRedirectionComplete: emergency number %s is redirected from Call"
                     + " Redirection Service", handle.getSchemeSpecificPart());
@@ -2225,10 +2226,8 @@ public class CallsManager extends Call.ListenerBase
                         isEmergency ? 0 : PhoneAccount.CAPABILITY_EMERGENCY_CALLS_ONLY);
         // First check the Radio SIM Technology
         if(mRadioSimVariants == null) {
-            TelephonyManager tm = (TelephonyManager) mContext.getSystemService(
-                    Context.TELEPHONY_SERVICE);
             // Cache Sim Variants
-            mRadioSimVariants = tm.getMultiSimConfiguration();
+            mRadioSimVariants = getTelephonyManager().getMultiSimConfiguration();
         }
         // Only one SIM PhoneAccount can be active at one time for DSDS. Only that SIM PhoneAccount
         // Should be available if a call is already active on the SIM account.
@@ -2250,6 +2249,10 @@ public class CallsManager extends Call.ListenerBase
             }
         }
         return allAccounts;
+    }
+
+    private TelephonyManager getTelephonyManager() {
+        return mContext.getSystemService(TelephonyManager.class);
     }
 
     /**

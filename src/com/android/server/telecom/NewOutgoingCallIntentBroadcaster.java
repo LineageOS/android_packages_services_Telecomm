@@ -35,6 +35,7 @@ import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.telephony.DisconnectCause;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -76,6 +77,7 @@ public class NewOutgoingCallIntentBroadcaster {
     private final Context mContext;
     private final PhoneNumberUtilsAdapter mPhoneNumberUtilsAdapter;
     private final TelecomSystem.SyncRoot mLock;
+    private final DefaultDialerCache mDefaultDialerCache;
 
     /*
      * Whether or not the outgoing call intent originated from the default phone application. If
@@ -99,7 +101,7 @@ public class NewOutgoingCallIntentBroadcaster {
     @VisibleForTesting
     public NewOutgoingCallIntentBroadcaster(Context context, CallsManager callsManager, Call call,
             Intent intent, PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
-            boolean isDefaultPhoneApp) {
+            boolean isDefaultPhoneApp, DefaultDialerCache defaultDialerCache) {
         mContext = context;
         mCallsManager = callsManager;
         mCall = call;
@@ -107,6 +109,7 @@ public class NewOutgoingCallIntentBroadcaster {
         mPhoneNumberUtilsAdapter = phoneNumberUtilsAdapter;
         mIsDefaultOrSystemPhoneApp = isDefaultPhoneApp;
         mLock = mCallsManager.getLock();
+        mDefaultDialerCache = defaultDialerCache;
     }
 
     /**
@@ -137,8 +140,7 @@ public class NewOutgoingCallIntentBroadcaster {
                         disconnectTimeout = getDisconnectTimeoutFromApp(
                                 getResultExtras(false), disconnectTimeout);
                         endEarly = true;
-                    } else if (mPhoneNumberUtilsAdapter.isPotentialLocalEmergencyNumber(
-                            mContext, resultNumber)) {
+                    } else if (isPotentialEmergencyNumber(resultNumber)) {
                         Log.w(this, "Cannot modify outgoing call to emergency number %s.",
                                 resultNumber);
                         disconnectTimeout = 0;
@@ -492,10 +494,7 @@ public class NewOutgoingCallIntentBroadcaster {
 
     private void launchSystemDialer(Uri handle) {
         Intent systemDialerIntent = new Intent();
-        final Resources resources = mContext.getResources();
-        systemDialerIntent.setClassName(
-                TelecomServiceImpl.getSystemDialerPackage(mContext),
-                resources.getString(R.string.dialer_default_class));
+        systemDialerIntent.setComponent(mDefaultDialerCache.getSystemDialerComponent());
         systemDialerIntent.setAction(Intent.ACTION_DIAL);
         systemDialerIntent.setData(handle);
         systemDialerIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -519,8 +518,8 @@ public class NewOutgoingCallIntentBroadcaster {
      */
     private boolean isPotentialEmergencyNumber(String number) {
         Log.v(this, "Checking restrictions for number : %s", Log.pii(number));
-        return (number != null)
-                && mPhoneNumberUtilsAdapter.isPotentialLocalEmergencyNumber(mContext, number);
+        if (number == null) return false;
+        return mContext.getSystemService(TelephonyManager.class).isPotentialEmergencyNumber(number);
     }
 
     /**

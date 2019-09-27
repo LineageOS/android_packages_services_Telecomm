@@ -154,6 +154,7 @@ public class PhoneAccountRegistrar {
     private final AppLabelProxy mAppLabelProxy;
     private State mState;
     private UserHandle mCurrentUserHandle;
+    private String mTestPhoneAccountPackageNameFilter;
     private interface PhoneAccountRegistrarWriteLock {}
     private final PhoneAccountRegistrarWriteLock mWriteLock =
             new PhoneAccountRegistrarWriteLock() {};
@@ -455,6 +456,34 @@ public class PhoneAccountRegistrar {
                 subId, retval);
 
         return retval;
+    }
+
+    /**
+     * Sets a filter for which {@link PhoneAccount}s will be returned from
+     * {@link #filterRestrictedPhoneAccounts(List)}. If non-null, only {@link PhoneAccount}s
+     * with the package name packageNameFilter will be returned. If null, no filter is set.
+     * @param packageNameFilter The package name that will be used to filter only
+     * {@link PhoneAccount}s with the same package name.
+     */
+    public void setTestPhoneAccountPackageNameFilter(String packageNameFilter) {
+        mTestPhoneAccountPackageNameFilter = packageNameFilter;
+        Log.i(this, "filter set for PhoneAccounts, packageName=" + packageNameFilter);
+    }
+
+    /**
+     * Filter the given {@link List<PhoneAccount>} and keep only {@link PhoneAccount}s that have the
+     * #mTestPhoneAccountPackageNameFilter.
+     * @param accounts List of {@link PhoneAccount}s to filter.
+     * @return new list of filtered {@link PhoneAccount}s.
+     */
+    public List<PhoneAccount> filterRestrictedPhoneAccounts(List<PhoneAccount> accounts) {
+        if (TextUtils.isEmpty(mTestPhoneAccountPackageNameFilter)) {
+            return new ArrayList<>(accounts);
+        }
+        // Remove all PhoneAccounts that do not have the same package name as the filter.
+        return accounts.stream().filter(account -> mTestPhoneAccountPackageNameFilter.equals(
+                account.getAccountHandle().getComponentName().getPackageName()))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -1201,6 +1230,9 @@ public class PhoneAccountRegistrar {
             for (PhoneAccount phoneAccount : mState.accounts) {
                 pw.println(phoneAccount);
             }
+            pw.decreaseIndent();
+            pw.increaseIndent();
+            pw.println("test emergency PhoneAccount filter: " + mTestPhoneAccountPackageNameFilter);
             pw.decreaseIndent();
         }
     }
