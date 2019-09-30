@@ -1743,8 +1743,12 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
             }
             ConnectionServiceWrapper service = mConnectionServiceRepository.getService(
                     handle.getComponentName(), handle.getUserHandle());
-            if (service != null) {
+            if (service != null && service != this) {
                 simServices.add(service);
+            } else {
+                // This is unexpected, normally PhoneAccounts with CAPABILITY_CALL_PROVIDER are not
+                // also CAPABILITY_CONNECTION_MANAGER
+                Log.w(this, "call provider also detected as SIM call manager: " + service);
             }
         }
 
@@ -1761,11 +1765,6 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         Log.i(this, "queryRemoteConnectionServices, simServices = %s", simServices);
 
         for (ConnectionServiceWrapper simService : simServices) {
-            if (simService == this) {
-                // Only happens in the unlikely case that a SIM service is also a SIM call manager
-                continue;
-            }
-
             final ConnectionServiceWrapper currentSimService = simService;
 
             currentSimService.mBinder.bind(new BindCallback() {
