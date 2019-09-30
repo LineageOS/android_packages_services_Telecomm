@@ -374,12 +374,12 @@ public class Ringer {
                     && mSystemSettingsUtil.enableRampingRingerFromDeviceConfig()
                     && isRingerAudible) {
                 Log.i(this, "start vibration for ramping ringer.");
-                mVibrator.vibrate(effect, VIBRATION_ATTRIBUTES);
                 mIsVibrating = true;
+                mVibrator.vibrate(effect, VIBRATION_ATTRIBUTES);
             } else {
                 Log.i(this, "start normal vibration.");
-                mVibrator.vibrate(effect, VIBRATION_ATTRIBUTES);
                 mIsVibrating = true;
+                mVibrator.vibrate(effect, VIBRATION_ATTRIBUTES);
             }
         } else if (mIsVibrating) {
             Log.addEvent(foregroundCall, LogUtils.Events.SKIP_VIBRATION, "already vibrating");
