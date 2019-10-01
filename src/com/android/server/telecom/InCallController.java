@@ -721,9 +721,6 @@ public class InCallController extends CallsManagerListenerBase {
 
     private final CallIdMapper mCallIdMapper = new CallIdMapper(Call::getId);
 
-    /** The {@link ComponentName} of the default InCall UI. */
-    private final ComponentName mSystemInCallComponentName;
-
     private final Context mContext;
     private final TelecomSystem.SyncRoot mLock;
     private final CallsManager mCallsManager;
@@ -750,11 +747,6 @@ public class InCallController extends CallsManagerListenerBase {
         mTimeoutsAdapter = timeoutsAdapter;
         mDefaultDialerCache = defaultDialerCache;
         mEmergencyCallHelper = emergencyCallHelper;
-
-        Resources resources = mContext.getResources();
-        mSystemInCallComponentName = new ComponentName(
-                TelecomServiceImpl.getSystemDialerPackage(mContext),
-                resources.getString(R.string.incall_default_class));
 
         mSystemStateHelper.addListener(mSystemStateListener);
     }
@@ -1106,13 +1098,13 @@ public class InCallController extends CallsManagerListenerBase {
             Log.i(this, "defaultDialer: " + defaultDialerComponentInfo);
             if (defaultDialerComponentInfo != null &&
                     !defaultDialerComponentInfo.getComponentName().equals(
-                            mSystemInCallComponentName)) {
+                            mDefaultDialerCache.getSystemDialerComponent())) {
                 dialerInCall = new InCallServiceBindingConnection(defaultDialerComponentInfo);
             }
             Log.i(this, "defaultDialer: " + dialerInCall);
 
             InCallServiceInfo systemInCallInfo = getInCallServiceComponent(
-                    mSystemInCallComponentName, IN_CALL_SERVICE_TYPE_SYSTEM_UI);
+                    mDefaultDialerCache.getSystemDialerComponent(), IN_CALL_SERVICE_TYPE_SYSTEM_UI);
             EmergencyInCallServiceConnection systemInCall =
                     new EmergencyInCallServiceConnection(systemInCallInfo, dialerInCall);
             systemInCall.setHasEmergency(mCallsManager.hasEmergencyCall());
@@ -1120,7 +1112,8 @@ public class InCallController extends CallsManagerListenerBase {
             InCallServiceConnection carModeInCall = null;
             InCallServiceInfo carModeComponentInfo = getCarModeComponent();
             if (carModeComponentInfo != null &&
-                    !carModeComponentInfo.getComponentName().equals(mSystemInCallComponentName)) {
+                    !carModeComponentInfo.getComponentName().equals(
+                            mDefaultDialerCache.getSystemDialerComponent())) {
                 carModeInCall = new InCallServiceBindingConnection(carModeComponentInfo);
             }
 
@@ -1280,8 +1273,9 @@ public class InCallController extends CallsManagerListenerBase {
             return IN_CALL_SERVICE_TYPE_INVALID;
         }
 
-        if (mSystemInCallComponentName.getPackageName().equals(serviceInfo.packageName) &&
-                mSystemInCallComponentName.getClassName().equals(serviceInfo.name)) {
+        if (mDefaultDialerCache.getSystemDialerApplication().equals(serviceInfo.packageName) &&
+                mDefaultDialerCache.getSystemDialerComponent().getClassName()
+                        .equals(serviceInfo.name)) {
             return IN_CALL_SERVICE_TYPE_SYSTEM_UI;
         }
 
