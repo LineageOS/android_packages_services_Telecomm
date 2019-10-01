@@ -51,6 +51,7 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IInterface;
+import android.os.PersistableBundle;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.telecom.CallAudioState;
@@ -209,6 +210,10 @@ public class ComponentContextFixture implements TestFixture<Context> {
                 return Context.AUDIO_SERVICE;
             } else if (svcClass == TelephonyManager.class) {
                 return Context.TELEPHONY_SERVICE;
+            } else if (svcClass == CarrierConfigManager.class) {
+                return Context.CARRIER_CONFIG_SERVICE;
+            } else if (svcClass == SubscriptionManager.class) {
+                return Context.TELEPHONY_SUBSCRIPTION_SERVICE;
             }
             throw new UnsupportedOperationException();
         }
@@ -512,6 +517,9 @@ public class ComponentContextFixture implements TestFixture<Context> {
         }).when(mAppOpsManager).checkPackage(anyInt(), anyString());
 
         when(mNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
+
+        when(mCarrierConfigManager.getConfig()).thenReturn(new PersistableBundle());
+        when(mCarrierConfigManager.getConfigForSubId(anyInt())).thenReturn(new PersistableBundle());
 
         when(mUserManager.getSerialNumberForUser(any(UserHandle.class))).thenReturn(-1L);
 
