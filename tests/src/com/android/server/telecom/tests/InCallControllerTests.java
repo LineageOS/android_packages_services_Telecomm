@@ -148,7 +148,10 @@ public class InCallControllerTests extends TelecomTestCase {
                 com.android.internal.R.string.config_defaultDialer);
         doReturn(SYS_CLASS).when(mMockResources).getString(R.string.incall_default_class);
         doReturn(true).when(mMockResources).getBoolean(R.bool.grant_location_permission_enabled);
-        mEmergencyCallHelper = new EmergencyCallHelper(mMockContext, SYS_PKG,
+        when(mDefaultDialerCache.getSystemDialerApplication()).thenReturn(SYS_PKG);
+        when(mDefaultDialerCache.getSystemDialerComponent()).thenReturn(
+                new ComponentName(SYS_PKG, SYS_CLASS));
+        mEmergencyCallHelper = new EmergencyCallHelper(mMockContext, mDefaultDialerCache,
                 mTimeoutsAdapter);
         when(mMockCallsManager.getRoleManagerAdapter()).thenReturn(mMockRoleManagerAdapter);
         mInCallController = new InCallController(mMockContext, mLock, mMockCallsManager,

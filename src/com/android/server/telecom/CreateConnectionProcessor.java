@@ -383,6 +383,12 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
                 allAccounts.add(TelephonyUtil.getDefaultEmergencyPhoneAccount());
             }
 
+            // When testing emergency calls, we want the calls to go through to the test connection
+            // service, not the telephony ConnectionService.
+            if (mCall.isTestEmergencyCall()) {
+                allAccounts = mPhoneAccountRegistrar.filterRestrictedPhoneAccounts(allAccounts);
+            }
+
             // Get user preferred PA if it exists.
             PhoneAccount preferredPA = mPhoneAccountRegistrar.getPhoneAccountUnchecked(
                     preferredPAH);
