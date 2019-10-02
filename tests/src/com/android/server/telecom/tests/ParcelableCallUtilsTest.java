@@ -61,9 +61,10 @@ public class ParcelableCallUtilsTest extends TelecomTestCase {
         when(mCallsManager.getCallerInfoLookupHelper()).thenReturn(mCallerInfoLookupHelper);
         when(mCallsManager.getPhoneAccountRegistrar()).thenReturn(mPhoneAccountRegistrar);
         when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(any())).thenReturn(null);
-        when(mPhoneNumberUtilsAdapter.isLocalEmergencyNumber(any(), any())).thenReturn(false);
+        when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
+                .thenReturn(false);
         mCall = new Call("1",
-                null /* context */,
+                mContext /* context */,
                 mCallsManager,
                 mLock,
                 null /* ConnectionServiceRepository */,

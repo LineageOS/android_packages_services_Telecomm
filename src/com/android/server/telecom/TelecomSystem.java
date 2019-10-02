@@ -255,7 +255,7 @@ public class TelecomSystem {
                         mContactsAsyncHelper, mLock);
 
         EmergencyCallHelper emergencyCallHelper = new EmergencyCallHelper(mContext,
-                TelecomServiceImpl.getSystemDialerPackage(mContext), timeoutsAdapter);
+                defaultDialerCache, timeoutsAdapter);
 
         InCallControllerFactory inCallControllerFactory = new InCallControllerFactory() {
             @Override
@@ -338,7 +338,7 @@ public class TelecomSystem {
 
         mBluetoothPhoneServiceImpl = bluetoothPhoneServiceImplFactory.makeBluetoothPhoneServiceImpl(
                 mContext, mLock, mCallsManager, mPhoneAccountRegistrar);
-        mCallIntentProcessor = new CallIntentProcessor(mContext, mCallsManager);
+        mCallIntentProcessor = new CallIntentProcessor(mContext, mCallsManager, defaultDialerCache);
         mTelecomBroadcastIntentProcessor = new TelecomBroadcastIntentProcessor(
                 mContext, mCallsManager);
 
@@ -351,7 +351,7 @@ public class TelecomSystem {
         final UserManager userManager = UserManager.get(mContext);
         mTelecomServiceImpl = new TelecomServiceImpl(
                 mContext, mCallsManager, mPhoneAccountRegistrar,
-                new CallIntentProcessor.AdapterImpl(),
+                new CallIntentProcessor.AdapterImpl(defaultDialerCache),
                 new UserCallIntentProcessorFactory() {
                     @Override
                     public UserCallIntentProcessor create(Context context, UserHandle userHandle) {
