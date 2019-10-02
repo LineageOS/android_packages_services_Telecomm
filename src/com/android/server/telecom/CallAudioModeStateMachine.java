@@ -28,6 +28,7 @@ import com.android.internal.util.IState;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.internal.util.State;
 import com.android.internal.util.StateMachine;
+import com.android.server.telecom.CallAudioModeStateMachine.MessageArgs.Builder;
 
 public class CallAudioModeStateMachine extends StateMachine {
     public static class Factory {
@@ -45,7 +46,7 @@ public class CallAudioModeStateMachine extends StateMachine {
         public boolean foregroundCallIsVoip;
         public Session session;
 
-        public MessageArgs(boolean hasActiveOrDialingCalls, boolean hasRingingCalls,
+        private MessageArgs(boolean hasActiveOrDialingCalls, boolean hasRingingCalls,
                 boolean hasHoldingCalls, boolean isTonePlaying, boolean foregroundCallIsVoip,
                 Session session) {
             this.hasActiveOrDialingCalls = hasActiveOrDialingCalls;
@@ -54,10 +55,6 @@ public class CallAudioModeStateMachine extends StateMachine {
             this.isTonePlaying = isTonePlaying;
             this.foregroundCallIsVoip = foregroundCallIsVoip;
             this.session = session;
-        }
-
-        public MessageArgs() {
-            this.session = Log.createSubsession();
         }
 
         @Override
@@ -70,6 +67,50 @@ public class CallAudioModeStateMachine extends StateMachine {
                     ", foregroundCallIsVoip=" + foregroundCallIsVoip +
                     ", session=" + session +
                     '}';
+        }
+
+        public static class Builder {
+            private boolean mHasActiveOrDialingCalls;
+            private boolean mHasRingingCalls;
+            private boolean mHasHoldingCalls;
+            private boolean mIsTonePlaying;
+            private boolean mForegroundCallIsVoip;
+            private Session mSession;
+
+            public Builder setHasActiveOrDialingCalls(boolean hasActiveOrDialingCalls) {
+                mHasActiveOrDialingCalls = hasActiveOrDialingCalls;
+                return this;
+            }
+
+            public Builder setHasRingingCalls(boolean hasRingingCalls) {
+                mHasRingingCalls = hasRingingCalls;
+                return this;
+            }
+
+            public Builder setHasHoldingCalls(boolean hasHoldingCalls) {
+                mHasHoldingCalls = hasHoldingCalls;
+                return this;
+            }
+
+            public Builder setIsTonePlaying(boolean isTonePlaying) {
+                mIsTonePlaying = isTonePlaying;
+                return this;
+            }
+
+            public Builder setForegroundCallIsVoip(boolean foregroundCallIsVoip) {
+                mForegroundCallIsVoip = foregroundCallIsVoip;
+                return this;
+            }
+
+            public Builder setSession(Session session) {
+                mSession = session;
+                return this;
+            }
+
+            public MessageArgs build() {
+                return new MessageArgs(mHasActiveOrDialingCalls, mHasRingingCalls, mHasHoldingCalls,
+                        mIsTonePlaying, mForegroundCallIsVoip, mSession);
+            }
         }
     }
 
@@ -529,7 +570,10 @@ public class CallAudioModeStateMachine extends StateMachine {
         addState(mOtherFocusState);
         setInitialState(mUnfocusedState);
         start();
-        sendMessage(INITIALIZE, new MessageArgs());
+        sendMessage(INITIALIZE, new Builder().setHasActiveOrDialingCalls(
+                false).setHasRingingCalls(false).setHasHoldingCalls(false).setIsTonePlaying(
+                false).setForegroundCallIsVoip(false).setSession(
+                Log.createSubsession()).build());
     }
 
     public void setCallAudioManager(CallAudioManager callAudioManager) {
