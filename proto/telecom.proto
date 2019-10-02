@@ -16,6 +16,9 @@ message TelecomLog {
 
   // Hardware revision (EVT, DVT, PVT etc.)
   optional string hardware_revision = 3;
+
+  // Carrier ID that the device is associated to
+  optional int32 carrier_id = 4;
 }
 
 message LogSessionTiming {
