@@ -19,6 +19,7 @@ package com.android.server.telecom;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
 
@@ -316,6 +317,16 @@ class InCallAdapter extends IInCallAdapter.Stub {
         } finally {
             Log.endSession();
         }
+    }
+
+    @Override
+    public void enterBackgroundAudioProcessing(String callId) {
+        // TODO: implement this
+    }
+
+    @Override
+    public void exitBackgroundAudioProcessing(String callId, boolean shouldRing) {
+        // TODO: implement this
     }
 
     @Override
