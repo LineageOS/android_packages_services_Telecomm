@@ -23,6 +23,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioRouteStateMachine;
+import com.android.server.telecom.CallAudioModeStateMachine.MessageArgs.Builder;
 import com.android.server.telecom.SystemStateHelper;
 
 import org.junit.After;
@@ -79,15 +80,14 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
         resetMocks();
         when(mCallAudioManager.startRinging()).thenReturn(false);
 
-        sm.sendMessage(CallAudioModeStateMachine.NEW_RINGING_CALL,
-                new CallAudioModeStateMachine.MessageArgs(
-                        false, // hasActiveOrDialingCalls
-                        true, // hasRingingCalls
-                        false, // hasHoldingCalls
-                        false, // isTonePlaying
-                        false, // foregroundCallIsVoip
-                        null // session
-                ));
+        sm.sendMessage(CallAudioModeStateMachine.NEW_RINGING_CALL, new Builder()
+                .setHasActiveOrDialingCalls(false)
+                .setHasRingingCalls(true)
+                .setHasHoldingCalls(false)
+                .setIsTonePlaying(false)
+                .setForegroundCallIsVoip(false)
+                .setSession(null)
+                .build());
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
 
         assertEquals(CallAudioModeStateMachine.RING_STATE_NAME, sm.getCurrentStateName());
@@ -107,29 +107,27 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
                 mAudioManager, mTestThread.getLooper());
         sm.setCallAudioManager(mCallAudioManager);
         sm.sendMessage(CallAudioModeStateMachine.ABANDON_FOCUS_FOR_TESTING);
-        sm.sendMessage(CallAudioModeStateMachine.NEW_HOLDING_CALL,
-                new CallAudioModeStateMachine.MessageArgs(
-                        false, // hasActiveOrDialingCalls
-                        false, // hasRingingCalls
-                        true, // hasHoldingCalls
-                        false, // isTonePlaying
-                        false, // foregroundCallIsVoip
-                        null // session
-                ));
+        sm.sendMessage(CallAudioModeStateMachine.NEW_HOLDING_CALL, new Builder()
+                .setHasActiveOrDialingCalls(false)
+                .setHasRingingCalls(false)
+                .setHasHoldingCalls(true)
+                .setIsTonePlaying(false)
+                .setForegroundCallIsVoip(false)
+                .setSession(null)
+                .build());
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
         assertEquals(CallAudioModeStateMachine.TONE_HOLD_STATE_NAME, sm.getCurrentStateName());
         when(mSystemStateHelper.isDeviceAtEar()).thenReturn(true);
 
         resetMocks();
-        sm.sendMessage(CallAudioModeStateMachine.NEW_RINGING_CALL,
-                new CallAudioModeStateMachine.MessageArgs(
-                        false, // hasActiveOrDialingCalls
-                        true, // hasRingingCalls
-                        true, // hasHoldingCalls
-                        false, // isTonePlaying
-                        false, // foregroundCallIsVoip
-                        null // session
-                ));
+        sm.sendMessage(CallAudioModeStateMachine.NEW_RINGING_CALL, new Builder()
+                .setHasActiveOrDialingCalls(false)
+                .setHasRingingCalls(true)
+                .setHasHoldingCalls(true)
+                .setIsTonePlaying(false)
+                .setForegroundCallIsVoip(false)
+                .setSession(null)
+                .build());
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
 
         verify(mAudioManager, never()).requestAudioFocusForCall(anyInt(), anyInt());
@@ -150,15 +148,14 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
         resetMocks();
         when(mCallAudioManager.startRinging()).thenReturn(false);
 
-        sm.sendMessage(CallAudioModeStateMachine.NEW_RINGING_CALL,
-                new CallAudioModeStateMachine.MessageArgs(
-                        false, // hasActiveOrDialingCalls
-                        true, // hasRingingCalls
-                        false, // hasHoldingCalls
-                        false, // isTonePlaying
-                        false, // foregroundCallIsVoip
-                        null // session
-                ));
+        sm.sendMessage(CallAudioModeStateMachine.NEW_RINGING_CALL, new Builder()
+                .setHasActiveOrDialingCalls(false)
+                .setHasRingingCalls(true)
+                .setHasHoldingCalls(false)
+                .setIsTonePlaying(false)
+                .setForegroundCallIsVoip(false)
+                .setSession(null)
+                .build());
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
 
         assertEquals(CallAudioModeStateMachine.RING_STATE_NAME, sm.getCurrentStateName());
