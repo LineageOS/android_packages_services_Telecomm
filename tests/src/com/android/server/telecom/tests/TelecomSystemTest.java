@@ -78,6 +78,7 @@ import com.android.server.telecom.CallsManagerListenerBase;
 import com.android.server.telecom.ClockProxy;
 import com.android.server.telecom.ConnectionServiceFocusManager;
 import com.android.server.telecom.ContactsAsyncHelper;
+import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.HeadsetMediaButton;
 import com.android.server.telecom.HeadsetMediaButtonFactory;
 import com.android.server.telecom.InCallWakeLockController;
@@ -183,18 +184,6 @@ public class TelecomSystemTest extends TelecomTestCase {
     }
 
     MissedCallNotifierFakeImpl mMissedCallNotifier = new MissedCallNotifierFakeImpl();
-    private class EmergencyNumberUtilsAdapter extends PhoneNumberUtilsAdapterImpl {
-
-        @Override
-        public boolean isLocalEmergencyNumber(Context context, String number) {
-            return mIsEmergencyCall;
-        }
-
-        @Override
-        public boolean isPotentialLocalEmergencyNumber(Context context, String number) {
-            return mIsEmergencyCall;
-        }
-    }
 
     private class IncomingCallAddedListener extends CallsManagerListenerBase {
 
@@ -209,8 +198,6 @@ public class TelecomSystemTest extends TelecomTestCase {
             mCountDownLatch.countDown();
         }
     }
-
-    PhoneNumberUtilsAdapter mPhoneNumberUtilsAdapter = new EmergencyNumberUtilsAdapter();
 
     @Mock HeadsetMediaButton mHeadsetMediaButton;
     @Mock ProximitySensorManager mProximitySensorManager;
@@ -344,8 +331,6 @@ public class TelecomSystemTest extends TelecomTestCase {
 
     private int mNumOutgoingCallsMade;
 
-    private boolean mIsEmergencyCall;
-
     class IdPair {
         final String mConnectionId;
         final String mCallId;
@@ -368,7 +353,10 @@ public class TelecomSystemTest extends TelecomTestCase {
 
         mNumOutgoingCallsMade = 0;
 
-        mIsEmergencyCall = false;
+        doReturn(false).when(mComponentContextFixture.getTelephonyManager())
+                .isEmergencyNumber(any());
+        doReturn(false).when(mComponentContextFixture.getTelephonyManager())
+                .isPotentialEmergencyNumber(any());
 
         // First set up information about the In-Call services in the mock Context, since
         // Telecom will search for these as soon as it is instantiated
@@ -492,7 +480,7 @@ public class TelecomSystemTest extends TelecomTestCase {
                 mConnServFMFactory,
                 mTimeoutsAdapter,
                 mAsyncRingtonePlayer,
-                mPhoneNumberUtilsAdapter,
+                new PhoneNumberUtilsAdapterImpl(),
                 mIncomingCallNotifier,
                 (streamType, volume) -> mToneGenerator,
                 new CallAudioRouteStateMachine.Factory() {
@@ -712,7 +700,11 @@ public class TelecomSystemTest extends TelecomTestCase {
         int startingNumConnections = connectionServiceFixture.mConnectionById.size();
         int startingNumCalls = mInCallServiceFixtureX.mCallById.size();
 
-        mIsEmergencyCall = true;
+        doReturn(true).when(mComponentContextFixture.getTelephonyManager())
+                .isEmergencyNumber(any());
+        doReturn(true).when(mComponentContextFixture.getTelephonyManager())
+                .isPotentialEmergencyNumber(any());
+
         // Call will not use the ordered broadcaster, since it is an Emergency Call
         startOutgoingPhoneCallWaitForBroadcaster(number, phoneAccountHandle,
                 connectionServiceFixture, initiatingUser, videoState, true /*isEmergency*/);

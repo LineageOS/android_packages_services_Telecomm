@@ -261,7 +261,7 @@ public class CallsManagerTest extends TelecomTestCase {
 
         Call ongoingCall = new Call(
                 "1", /* callId */
-                mComponentContextFixture.getTestDouble(),
+                mContext,
                 mCallsManager,
                 mLock,
                 null /* ConnectionServiceRepository */,
@@ -1024,7 +1024,8 @@ public class CallsManagerTest extends TelecomTestCase {
     public void testIsInEmergencyCallLocal() {
         // Setup a call which is considered emergency based on its phone number.
         Call ongoingCall = addSpyCall();
-        when(mPhoneNumberUtilsAdapter.isLocalEmergencyNumber(any(), any())).thenReturn(true);
+        when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
+                .thenReturn(true);
         ongoingCall.setHandle(Uri.fromParts("tel", "5551212", null),
                 TelecomManager.PRESENTATION_ALLOWED);
 
@@ -1100,7 +1101,7 @@ public class CallsManagerTest extends TelecomTestCase {
 
     private Call addSpyCall(PhoneAccountHandle targetPhoneAccount) {
         Call ongoingCall = new Call(String.format("TC@%d", sCallId++), /* callId */
-                mComponentContextFixture.getTestDouble(),
+                mContext,
                 mCallsManager,
                 mLock, /* ConnectionServiceRepository */
                 null,

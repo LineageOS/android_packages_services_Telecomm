@@ -177,6 +177,11 @@ public class CallScreeningServiceFilter {
                 Log.endSession();
             }
         }
+
+        @Override
+        public void screenCallFurther(String callId) {
+            // TODO: implement this
+        }
     }
 
     private final Context mContext;
