@@ -215,6 +215,14 @@ public final class CallLogManager extends CallsManagerListenerBase {
             return false;
         }
 
+        // A conference call which had no children should not be logged; this case will occur on IMS
+        // when no conference event package data is received.  We will have logged the participants
+        // as they merge into the conference, so we should not log the conference itself.
+        if (call.isConference() && !call.hadChildren() &&
+                !call.hasProperty(Connection.PROPERTY_REMOTELY_HOSTED)) {
+            return false;
+        }
+
         // A child call of a conference which was remotely hosted; these didn't originate on this
         // device and should not be logged.
         if (call.getParentCall() != null && call.hasProperty(Connection.PROPERTY_REMOTELY_HOSTED)) {

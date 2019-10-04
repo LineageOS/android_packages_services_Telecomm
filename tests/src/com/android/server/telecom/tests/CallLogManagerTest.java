@@ -785,7 +785,7 @@ public class CallLogManagerTest extends TelecomTestCase {
 
     @SmallTest
     @Test
-    public void testLogConferenceWithNoChildren() {
+    public void testDoNotLogConferenceWithNoChildren() {
         Call fakeCall = makeFakeCall(
                 DisconnectCause.LOCAL, // disconnectCauseCode
                 true, // isConference
@@ -801,7 +801,7 @@ public class CallLogManagerTest extends TelecomTestCase {
         );
         when(fakeCall.hadChildren()).thenReturn(false);
 
-        assertTrue(mCallLogManager.shouldLogDisconnectedCall(fakeCall, CallState.DISCONNECTED,
+        assertFalse(mCallLogManager.shouldLogDisconnectedCall(fakeCall, CallState.DISCONNECTED,
                 false /* isCanceled */));
     }
 
