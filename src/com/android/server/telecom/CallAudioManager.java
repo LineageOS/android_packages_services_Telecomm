@@ -601,11 +601,19 @@ public class CallAudioManager extends CallsManagerListenerBase {
     }
 
     private void onCallLeavingAudioProcessing() {
-        // TODO: implement
+        if (mAudioProcessingCalls.size() == 0) {
+            mCallAudioModeStateMachine.sendMessageWithArgs(
+                    CallAudioModeStateMachine.NO_MORE_AUDIO_PROCESSING_CALLS,
+                    makeArgsForModeStateMachine());
+        }
     }
 
     private void onCallEnteringAudioProcessing() {
-        // TODO: implement
+        if (mAudioProcessingCalls.size() == 1) {
+            mCallAudioModeStateMachine.sendMessageWithArgs(
+                    CallAudioModeStateMachine.NEW_AUDIO_PROCESSING_CALL,
+                    makeArgsForModeStateMachine());
+        }
     }
 
     private void onCallLeavingActiveDialingOrConnecting() {
@@ -690,6 +698,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
                 .setHasActiveOrDialingCalls(mActiveDialingOrConnectingCalls.size() > 0)
                 .setHasRingingCalls(mRingingCalls.size() > 0)
                 .setHasHoldingCalls(mHoldingCalls.size() > 0)
+                .setHasAudioProcessingCalls(mAudioProcessingCalls.size() > 0)
                 .setIsTonePlaying(mIsTonePlaying)
                 .setForegroundCallIsVoip(
                         mForegroundCall != null && mForegroundCall.getIsVoipAudioMode())
