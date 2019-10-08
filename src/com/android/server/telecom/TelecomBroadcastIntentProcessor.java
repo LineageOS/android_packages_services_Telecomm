@@ -18,11 +18,16 @@ package com.android.server.telecom;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.UserHandle;
 import android.telecom.Log;
+import android.widget.Toast;
 
 import com.android.server.telecom.ui.CallRedirectionConfirmDialogActivity;
 import com.android.server.telecom.ui.ConfirmCallDialogActivity;
+
+import java.util.List;
 
 public final class TelecomBroadcastIntentProcessor {
     /** The action used to send SMS response for the missed call notification. */
@@ -119,7 +124,15 @@ public final class TelecomBroadcastIntentProcessor {
 
                 Intent callIntent = new Intent(Intent.ACTION_SENDTO, intent.getData());
                 callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mContext.startActivityAsUser(callIntent, userHandle);
+                PackageManager packageManager = mContext.getPackageManager();
+                List<ResolveInfo> activities = packageManager.queryIntentActivitiesAsUser(
+                        callIntent, PackageManager.MATCH_DEFAULT_ONLY, userHandle.getIdentifier());
+                if (activities.size() > 0) {
+                    mContext.startActivityAsUser(callIntent, userHandle);
+                } else {
+                    Toast.makeText(mContext, com.android.internal.R.string.noApplications,
+                            Toast.LENGTH_SHORT).show();
+                }
 
                 // Call back recent caller from the missed call notification.
             } else if (ACTION_CALL_BACK_FROM_NOTIFICATION.equals(action)) {
