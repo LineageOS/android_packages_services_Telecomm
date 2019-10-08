@@ -674,6 +674,188 @@ public class CallAudioModeTransitionTests extends TelecomTestCase {
                 OFF // expectedCallWaitingInteraction
         ));
 
+        result.add(new ModeTestParameters(
+                "Call enters audio processing state from call screening service",
+                CallAudioModeStateMachine.ABANDON_FOCUS_FOR_TESTING, // initialAudioState
+                CallAudioModeStateMachine.NEW_AUDIO_PROCESSING_CALL, // messageType
+                new MessageArgs.Builder()
+                        .setHasActiveOrDialingCalls(false)
+                        .setHasRingingCalls(false)
+                        .setHasHoldingCalls(false)
+                        .setHasAudioProcessingCalls(true)
+                        .setIsTonePlaying(false)
+                        .setForegroundCallIsVoip(false)
+                        .setSession(null)
+                        .build(),
+                CallAudioModeStateMachine.AUDIO_PROCESSING_STATE_NAME, // expectedFinalStateName
+                FOCUS_NO_CHANGE, // expectedFocus
+                CallAudioModeStateMachine.NEW_AUDIO_MODE_FOR_AUDIO_PROCESSING, // expectedMode
+                NO_CHANGE, // expectedRingingInteraction
+                NO_CHANGE // expectedCallWaitingInteraction
+        ));
+
+        result.add(new ModeTestParameters(
+                "Call enters audio processing state by manual intervention from ringing state, 1",
+                CallAudioModeStateMachine.ENTER_RING_FOCUS_FOR_TESTING, // initialAudioState
+                CallAudioModeStateMachine.NO_MORE_RINGING_CALLS, // messageType
+                new MessageArgs.Builder()
+                        .setHasActiveOrDialingCalls(false)
+                        .setHasRingingCalls(false)
+                        .setHasHoldingCalls(false)
+                        .setHasAudioProcessingCalls(true)
+                        .setIsTonePlaying(false)
+                        .setForegroundCallIsVoip(false)
+                        .setSession(null)
+                        .build(),
+                CallAudioModeStateMachine.AUDIO_PROCESSING_STATE_NAME, // expectedFinalStateName
+                FOCUS_OFF, // expectedFocus
+                CallAudioModeStateMachine.NEW_AUDIO_MODE_FOR_AUDIO_PROCESSING, // expectedMode
+                OFF, // expectedRingingInteraction
+                NO_CHANGE // expectedCallWaitingInteraction
+        ));
+
+        result.add(new ModeTestParameters(
+                "Call enters audio processing state by manual intervention from ringing state, 2",
+                CallAudioModeStateMachine.ENTER_RING_FOCUS_FOR_TESTING, // initialAudioState
+                CallAudioModeStateMachine.NEW_AUDIO_PROCESSING_CALL, // messageType
+                new MessageArgs.Builder()
+                        .setHasActiveOrDialingCalls(false)
+                        .setHasRingingCalls(false)
+                        .setHasHoldingCalls(false)
+                        .setHasAudioProcessingCalls(true)
+                        .setIsTonePlaying(false)
+                        .setForegroundCallIsVoip(false)
+                        .setSession(null)
+                        .build(),
+                CallAudioModeStateMachine.AUDIO_PROCESSING_STATE_NAME, // expectedFinalStateName
+                FOCUS_OFF, // expectedFocus
+                CallAudioModeStateMachine.NEW_AUDIO_MODE_FOR_AUDIO_PROCESSING, // expectedMode
+                OFF, // expectedRingingInteraction
+                NO_CHANGE // expectedCallWaitingInteraction
+        ));
+
+        result.add(new ModeTestParameters(
+                "Call enters audio processing state from active call, 1",
+                CallAudioModeStateMachine.ENTER_CALL_FOCUS_FOR_TESTING, // initialAudioState
+                CallAudioModeStateMachine.NO_MORE_ACTIVE_OR_DIALING_CALLS, // messageType
+                new MessageArgs.Builder()
+                        .setHasActiveOrDialingCalls(false)
+                        .setHasRingingCalls(false)
+                        .setHasHoldingCalls(false)
+                        .setHasAudioProcessingCalls(true)
+                        .setIsTonePlaying(false)
+                        .setForegroundCallIsVoip(false)
+                        .setSession(null)
+                        .build(),
+                CallAudioModeStateMachine.AUDIO_PROCESSING_STATE_NAME, // expectedFinalStateName
+                FOCUS_OFF, // expectedFocus
+                CallAudioModeStateMachine.NEW_AUDIO_MODE_FOR_AUDIO_PROCESSING, // expectedMode
+                NO_CHANGE, // expectedRingingInteraction
+                NO_CHANGE // expectedCallWaitingInteraction
+        ));
+
+        result.add(new ModeTestParameters(
+                "Call enters audio processing state from active call, 2",
+                CallAudioModeStateMachine.ENTER_CALL_FOCUS_FOR_TESTING, // initialAudioState
+                CallAudioModeStateMachine.NEW_AUDIO_PROCESSING_CALL, // messageType
+                new MessageArgs.Builder()
+                        .setHasActiveOrDialingCalls(false)
+                        .setHasRingingCalls(false)
+                        .setHasHoldingCalls(false)
+                        .setHasAudioProcessingCalls(true)
+                        .setIsTonePlaying(false)
+                        .setForegroundCallIsVoip(false)
+                        .setSession(null)
+                        .build(),
+                CallAudioModeStateMachine.AUDIO_PROCESSING_STATE_NAME, // expectedFinalStateName
+                FOCUS_OFF, // expectedFocus
+                CallAudioModeStateMachine.NEW_AUDIO_MODE_FOR_AUDIO_PROCESSING, // expectedMode
+                NO_CHANGE, // expectedRingingInteraction
+                NO_CHANGE // expectedCallWaitingInteraction
+        ));
+
+        result.add(new ModeTestParameters(
+                "Call in audio processing gets hanged up",
+                CallAudioModeStateMachine.ENTER_AUDIO_PROCESSING_FOCUS_FOR_TESTING, // initialAudioS
+                CallAudioModeStateMachine.NO_MORE_AUDIO_PROCESSING_CALLS, // messageType
+                new MessageArgs.Builder()
+                        .setHasActiveOrDialingCalls(false)
+                        .setHasRingingCalls(false)
+                        .setHasHoldingCalls(false)
+                        .setHasAudioProcessingCalls(false)
+                        .setIsTonePlaying(false)
+                        .setForegroundCallIsVoip(false)
+                        .setSession(null)
+                        .build(),
+                CallAudioModeStateMachine.UNFOCUSED_STATE_NAME, // expectedFinalStateName
+                NO_CHANGE, // expectedFocus
+                AudioManager.MODE_NORMAL, // expectedMode
+                NO_CHANGE, // expectedRingingInteraction
+                NO_CHANGE // expectedCallWaitingInteraction
+        ));
+
+        result.add(new ModeTestParameters(
+                "Notify user of a call in audio processing by simulating ringing, 1",
+                CallAudioModeStateMachine.ENTER_AUDIO_PROCESSING_FOCUS_FOR_TESTING, // initialAudioS
+                CallAudioModeStateMachine.NO_MORE_AUDIO_PROCESSING_CALLS, // messageType
+                new MessageArgs.Builder()
+                        .setHasActiveOrDialingCalls(false)
+                        .setHasRingingCalls(true)
+                        .setHasHoldingCalls(false)
+                        .setHasAudioProcessingCalls(false)
+                        .setIsTonePlaying(false)
+                        .setForegroundCallIsVoip(false)
+                        .setSession(null)
+                        .build(),
+                CallAudioModeStateMachine.RING_STATE_NAME, // expectedFinalStateName
+                FOCUS_RING, // expectedFocus
+                AudioManager.MODE_RINGTONE, // expectedMode
+                ON, // expectedRingingInteraction
+                // We expect a call to stopCallWaiting because it happens whenever the ringer starts
+                OFF // expectedCallWaitingInteraction
+        ));
+
+        result.add(new ModeTestParameters(
+                "Notify user of a call in audio processing by simulating ringing, 2",
+                CallAudioModeStateMachine.ENTER_AUDIO_PROCESSING_FOCUS_FOR_TESTING, // initialAudioS
+                CallAudioModeStateMachine.NEW_RINGING_CALL, // messageType
+                new MessageArgs.Builder()
+                        .setHasActiveOrDialingCalls(false)
+                        .setHasRingingCalls(true)
+                        .setHasHoldingCalls(false)
+                        .setHasAudioProcessingCalls(false)
+                        .setIsTonePlaying(false)
+                        .setForegroundCallIsVoip(false)
+                        .setSession(null)
+                        .build(),
+                CallAudioModeStateMachine.RING_STATE_NAME, // expectedFinalStateName
+                FOCUS_RING, // expectedFocus
+                AudioManager.MODE_RINGTONE, // expectedMode
+                ON, // expectedRingingInteraction
+                // We expect a call to stopCallWaiting because it happens whenever the ringer starts
+                OFF // expectedCallWaitingInteraction
+        ));
+
+        result.add(new ModeTestParameters(
+                "Audio processing call gets set to active manually",
+                CallAudioModeStateMachine.ENTER_AUDIO_PROCESSING_FOCUS_FOR_TESTING, // initialAudioS
+                CallAudioModeStateMachine.NO_MORE_AUDIO_PROCESSING_CALLS, // messageType
+                new MessageArgs.Builder()
+                        .setHasActiveOrDialingCalls(true)
+                        .setHasRingingCalls(false)
+                        .setHasHoldingCalls(false)
+                        .setHasAudioProcessingCalls(false)
+                        .setIsTonePlaying(false)
+                        .setForegroundCallIsVoip(false)
+                        .setSession(null)
+                        .build(),
+                CallAudioModeStateMachine.CALL_STATE_NAME, // expectedFinalStateName
+                FOCUS_VOICE, // expectedFocus
+                AudioManager.MODE_IN_CALL, // expectedMode
+                NO_CHANGE, // expectedRingingInteraction
+                NO_CHANGE // expectedCallWaitingInteraction
+        ));
+
         return result;
     }
 
