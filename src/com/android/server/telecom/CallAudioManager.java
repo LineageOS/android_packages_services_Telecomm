@@ -516,6 +516,13 @@ public class CallAudioManager extends CallsManagerListenerBase {
         pw.increaseIndent();
         mCallAudioRouteStateMachine.dumpPendingMessages(pw);
         pw.decreaseIndent();
+
+        pw.println("BluetoothDeviceManager:");
+        pw.increaseIndent();
+        if (mBluetoothStateReceiver.getBluetoothDeviceManager() != null) {
+            mBluetoothStateReceiver.getBluetoothDeviceManager().dump(pw);
+        }
+        pw.decreaseIndent();
     }
 
     @VisibleForTesting
