@@ -23,7 +23,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
-import android.provider.CallLog;
+import android.provider.CallLog.Calls;
 import android.telecom.TelecomManager;
 import android.telephony.CarrierConfigManager;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -34,6 +34,7 @@ import com.android.server.telecom.callfiltering.AsyncBlockCheckFilter;
 import com.android.server.telecom.callfiltering.BlockCheckerAdapter;
 import com.android.server.telecom.callfiltering.CallFilterResultCallback;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
+import com.android.server.telecom.callfiltering.CallFilteringResult.Builder;
 
 import org.junit.After;
 import org.junit.Before;
@@ -61,23 +62,22 @@ public class AsyncBlockCheckFilterTest extends TelecomTestCase {
     @Mock private CarrierConfigManager mCarrierConfigManager;
 
     private AsyncBlockCheckFilter mFilter;
-    private static final CallFilteringResult BLOCK_RESULT = new CallFilteringResult(
-            false, // shouldAllowCall
-            true, //shouldReject
-            true, //shouldAddToCallLog
-            false, // shouldShowNotification
-            CallLog.Calls.BLOCK_REASON_BLOCKED_NUMBER, //blockReason
-            null, // callScreeningAppName
-            null //callScreeningComponentName
+    private static final CallFilteringResult BLOCK_RESULT = new Builder()
+            .setShouldAllowCall(false)
+            .setShouldReject(true)
+            .setShouldAddToCallLog(true)
+            .setShouldShowNotification(false)
+            .setCallBlockReason(Calls.BLOCK_REASON_BLOCKED_NUMBER)
+            .setCallScreeningAppName(null)
+            .setCallScreeningComponentName(null)
+            .build();
 
-    );
-
-    private static final CallFilteringResult PASS_RESULT = new CallFilteringResult(
-            true, // shouldAllowCall
-            false, // shouldReject
-            true, // shouldAddToCallLog
-            true // shouldShowNotification
-    );
+    private static final CallFilteringResult PASS_RESULT = new Builder()
+            .setShouldAllowCall(true)
+            .setShouldReject(false)
+            .setShouldAddToCallLog(true)
+            .setShouldShowNotification(true)
+            .build();
 
     private static final Uri TEST_HANDLE = Uri.parse("tel:1235551234");
     private static final int TEST_TIMEOUT = 1000;
