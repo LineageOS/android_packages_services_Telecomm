@@ -29,7 +29,7 @@ import android.os.IBinder;
 import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.os.UserHandle;
-import android.provider.CallLog.Calls;
+import android.provider.CallLog;
 import android.telecom.CallScreeningService;
 import android.telecom.ParcelableCall;
 import android.telecom.TelecomManager;
@@ -44,7 +44,6 @@ import com.android.server.telecom.ParcelableCallUtils;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.TelecomServiceImpl;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
-import com.android.server.telecom.callfiltering.CallFilteringResult.Builder;
 import com.android.server.telecom.callfiltering.CallScreeningServiceFilter;
 import com.android.server.telecom.TelecomSystem;
 
@@ -106,20 +105,20 @@ public class CallScreeningServiceFilterTest extends TelecomTestCase {
     private static final String USER_CHOSEN_CALL_SCREENING_APP_NAME = "UserChosen";
     private ResolveInfo mResolveInfo;
 
-    private static final CallFilteringResult PASS_RESULT = new Builder()
-            .setShouldAllowCall(true)
-            .setShouldReject(false)
-            .setShouldAddToCallLog(true)
-            .setShouldShowNotification(true)
-            .build();
+    private static final CallFilteringResult PASS_RESULT = new CallFilteringResult(
+            true, // shouldAllowCall
+            false, // shouldReject
+            true, // shouldAddToCallLog
+            true // shouldShowNotification
+    );
 
-    private static final CallFilteringResult PASS_RESULT_WITH_SILENCE = new Builder()
-            .setShouldAllowCall(true)
-            .setShouldReject(false)
-            .setShouldSilence(true)
-            .setShouldAddToCallLog(true)
-            .setShouldShowNotification(true)
-            .build();
+    private static final CallFilteringResult PASS_RESULT_WITH_SILENCE = new CallFilteringResult(
+            true, // shouldAllowCall
+            false, // shouldReject
+            true, // shouldSilence
+            true, // shouldAddToCallLog
+            true // shouldShowNotification
+    );
 
     private CallScreeningServiceFilter mFilter;
 
@@ -275,17 +274,15 @@ public class CallScreeningServiceFilterTest extends TelecomTestCase {
                 true, // shouldShowNotification
                 CARRIER_DEFINED_CALL_SCREENING
         );
-        verify(mCallback).onCallScreeningFilterComplete(eq(mCall), eq(new Builder()
-                        .setShouldAllowCall(false)
-                        .setShouldReject(true)
-                        .setShouldAddToCallLog(false)
-                        .setShouldShowNotification(true)
-                        .setCallBlockReason(Calls.BLOCK_REASON_CALL_SCREENING_SERVICE)
-                        .setCallScreeningAppName(CARRIER_DEFINED_CALL_SCREENING_APP_NAME)
-                        .setCallScreeningComponentName(
-                                CARRIER_DEFINED_CALL_SCREENING.flattenToString())
-                        .build()),
-                eq(CARRIER_DEFINED_CALL_SCREENING.getPackageName()));
+        verify(mCallback).onCallScreeningFilterComplete(eq(mCall), eq(new CallFilteringResult(
+                false, // shouldAllowCall
+                true, // shouldReject
+                false, // shouldAddToCallLog
+                true, // shouldShowNotification
+                CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE, //callBlockReason
+                CARRIER_DEFINED_CALL_SCREENING_APP_NAME, //callScreeningAppName
+                CARRIER_DEFINED_CALL_SCREENING.flattenToString() //callScreeningComponentName
+        )), eq(CARRIER_DEFINED_CALL_SCREENING.getPackageName()));
     }
 
     @SmallTest
@@ -310,16 +307,15 @@ public class CallScreeningServiceFilterTest extends TelecomTestCase {
             true, // shouldShowNotification
             DEFAULT_DIALER_CALL_SCREENING
         );
-        verify(mCallback).onCallScreeningFilterComplete(eq(mCall), eq(new Builder()
-                .setShouldAllowCall(false)
-                .setShouldReject(true)
-                .setShouldAddToCallLog(true)
-                .setShouldShowNotification(true)
-                .setCallBlockReason(Calls.BLOCK_REASON_CALL_SCREENING_SERVICE)
-                .setCallScreeningAppName(DEFAULT_DIALER_APP_NAME)
-                .setCallScreeningComponentName(DEFAULT_DIALER_CALL_SCREENING.flattenToString())
-                .build()),
-                eq(DEFAULT_DIALER_CALL_SCREENING.getPackageName()));
+        verify(mCallback).onCallScreeningFilterComplete(eq(mCall), eq(new CallFilteringResult(
+            false, // shouldAllowCall
+            true, // shouldReject
+            true, // shouldAddToCallLog
+            true, // shouldShowNotification
+            CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE, //callBlockReason
+            DEFAULT_DIALER_APP_NAME, //callScreeningAppName
+            DEFAULT_DIALER_CALL_SCREENING.flattenToString() //callScreeningComponentName
+        )), eq(DEFAULT_DIALER_CALL_SCREENING.getPackageName()));
     }
 
     @SmallTest
@@ -344,16 +340,15 @@ public class CallScreeningServiceFilterTest extends TelecomTestCase {
             true, // shouldShowNotification
             USER_CHOSEN_CALL_SCREENING
         );
-        verify(mCallback).onCallScreeningFilterComplete(eq(mCall), eq(new Builder()
-                        .setShouldAllowCall(false)
-                        .setShouldReject(true)
-                        .setShouldAddToCallLog(true)
-                        .setShouldShowNotification(true)
-                        .setCallBlockReason(Calls.BLOCK_REASON_CALL_SCREENING_SERVICE)
-                        .setCallScreeningAppName(USER_CHOSEN_CALL_SCREENING_APP_NAME)
-                        .setCallScreeningComponentName(USER_CHOSEN_CALL_SCREENING.flattenToString())
-                        .build()),
-                eq(USER_CHOSEN_CALL_SCREENING.getPackageName()));
+        verify(mCallback).onCallScreeningFilterComplete(eq(mCall), eq(new CallFilteringResult(
+            false, // shouldAllowCall
+            true, // shouldReject
+            true, // shouldAddToCallLog
+            true, // shouldShowNotification
+            CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE, //callBlockReason
+            USER_CHOSEN_CALL_SCREENING_APP_NAME, //callScreeningAppName
+            USER_CHOSEN_CALL_SCREENING.flattenToString() //callScreeningComponentName
+        )), eq(USER_CHOSEN_CALL_SCREENING.getPackageName()));
     }
 
     private ServiceConnection verifyBindingIntent() {
