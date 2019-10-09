@@ -39,6 +39,7 @@ import com.android.server.telecom.ParcelableCallUtils;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.TelecomServiceImpl;
 import com.android.server.telecom.TelecomSystem;
+import com.android.server.telecom.callfiltering.CallFilteringResult.Builder;
 
 /**
  * This class supports binding to the various {@link android.telecom.CallScreeningService}:
@@ -66,12 +67,12 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
     private Call mCall;
     private CallFilterResultCallback mCallback;
 
-    private CallFilteringResult mResult = new CallFilteringResult(
-            true, // shouldAllowCall
-            false, // shouldReject
-            true, // shouldAddToCallLog
-            true // shouldShowNotification
-    );
+    private CallFilteringResult mResult = new Builder()
+            .setShouldAllowCall(true)
+            .setShouldReject(false)
+            .setShouldAddToCallLog(true)
+            .setShouldShowNotification(true)
+            .build();
 
     private boolean mIsFinished;
     private boolean mIsCarrierFinished;
