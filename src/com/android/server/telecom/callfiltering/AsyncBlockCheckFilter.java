@@ -30,7 +30,6 @@ import android.telephony.CallerInfo;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.LogUtils;
-import com.android.server.telecom.callfiltering.CallFilteringResult.Builder;
 import com.android.server.telecom.settings.BlockedNumbersUtil;
 
 /**
@@ -122,15 +121,15 @@ public class AsyncBlockCheckFilter extends AsyncTask<String, Void, Boolean>
         try {
             CallFilteringResult result;
             if (isBlocked) {
-                result = new Builder()
-                        .setShouldAllowCall(false)
-                        .setShouldReject(true)
-                        .setShouldAddToCallLog(true)
-                        .setShouldShowNotification(false)
-                        .setCallBlockReason(convertBlockStatusToReason())
-                        .setCallScreeningAppName(null)
-                        .setCallScreeningComponentName(null)
-                        .build();
+                result = new CallFilteringResult(
+                        false, // shouldAllowCall
+                        true, //shouldReject
+                        true, //shouldAddToCallLog
+                        false, // shouldShowNotification
+                        convertBlockStatusToReason(), //callBlockReason
+                        null, //callScreeningAppName
+                        null //callScreeningComponentName
+                );
                 if (mCallBlockListener != null) {
                     String number = mIncomingCall.getHandle() == null ? null
                             : mIncomingCall.getHandle().getSchemeSpecificPart();
@@ -138,12 +137,12 @@ public class AsyncBlockCheckFilter extends AsyncTask<String, Void, Boolean>
                             mIncomingCall.getInitiatingUser());
                 }
             } else {
-                result = new Builder()
-                        .setShouldAllowCall(true)
-                        .setShouldReject(false)
-                        .setShouldAddToCallLog(true)
-                        .setShouldShowNotification(true)
-                        .build();
+                result = new CallFilteringResult(
+                        true, // shouldAllowCall
+                        false, // shouldReject
+                        true, // shouldAddToCallLog
+                        true // shouldShowNotification
+                );
             }
             Log.addEvent(mIncomingCall, LogUtils.Events.BLOCK_CHECK_FINISHED,
                     BlockedNumberContract.SystemContract.blockStatusToString(mBlockStatus) + " "

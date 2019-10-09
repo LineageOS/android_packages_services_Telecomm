@@ -17,14 +17,14 @@
 package com.android.server.telecom.tests;
 
 import android.net.Uri;
-import android.provider.CallLog.Calls;
+import android.provider.CallLog;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import android.telephony.CallerInfo;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.callfiltering.CallFilterResultCallback;
 import com.android.server.telecom.CallerInfoLookupHelper;
-import com.android.server.telecom.callfiltering.CallFilteringResult.Builder;
+import com.android.server.telecom.callfiltering.CallFilteringResult;
 import com.android.server.telecom.callfiltering.DirectToVoicemailCallFilter;
 
 import org.junit.After;
@@ -68,15 +68,16 @@ public class DirectToVoicemailCallFilterTest extends TelecomTestCase {
         callerInfo.shouldSendToVoicemail = true;
 
         queryListener.onCallerInfoQueryComplete(TEST_HANDLE, callerInfo);
-        verify(mCallback).onCallFilteringComplete(mCall, new Builder()
-                .setShouldAllowCall(false)
-                .setShouldReject(true)
-                .setShouldAddToCallLog(true)
-                .setShouldShowNotification(true)
-                .setCallBlockReason(Calls.BLOCK_REASON_DIRECT_TO_VOICEMAIL)
-                .setCallScreeningAppName(null)
-                .setCallScreeningComponentName(null)
-                .build());
+        verify(mCallback).onCallFilteringComplete(mCall,
+                new CallFilteringResult(
+                        false, // shouldAllowCall
+                        true, // shouldReject
+                        true, // shouldAddToCallLog
+                        true, // shouldShowNotification
+                        CallLog.Calls.BLOCK_REASON_DIRECT_TO_VOICEMAIL, //callBlockReason
+                        null, //callScreeningAppName
+                        null // callScreeningComponentName
+                ));
     }
 
     @SmallTest
@@ -88,12 +89,13 @@ public class DirectToVoicemailCallFilterTest extends TelecomTestCase {
         callerInfo.shouldSendToVoicemail = false;
 
         queryListener.onCallerInfoQueryComplete(TEST_HANDLE, callerInfo);
-        verify(mCallback).onCallFilteringComplete(mCall, new Builder()
-                .setShouldAllowCall(true)
-                .setShouldReject(false)
-                .setShouldAddToCallLog(true)
-                .setShouldShowNotification(true)
-                .build());
+        verify(mCallback).onCallFilteringComplete(mCall,
+                new CallFilteringResult(
+                        true, // shouldAllowCall
+                        false, // shouldReject
+                        true, // shouldAddToCallLog
+                        true // shouldShowNotification
+                ));
     }
 
     @SmallTest
@@ -102,12 +104,13 @@ public class DirectToVoicemailCallFilterTest extends TelecomTestCase {
         CallerInfoLookupHelper.OnQueryCompleteListener queryListener = verifyLookupStart(null);
 
         queryListener.onCallerInfoQueryComplete(null, null);
-        verify(mCallback).onCallFilteringComplete(mCall, new Builder()
-                .setShouldAllowCall(true)
-                .setShouldReject(false)
-                .setShouldAddToCallLog(true)
-                .setShouldShowNotification(true)
-                .build());
+        verify(mCallback).onCallFilteringComplete(mCall,
+                new CallFilteringResult(
+                        true, // shouldAllowCall
+                        false, // shouldReject
+                        true, // shouldAddToCallLog
+                        true // shouldShowNotification
+                ));
     }
 
     private CallerInfoLookupHelper.OnQueryCompleteListener verifyLookupStart() {
