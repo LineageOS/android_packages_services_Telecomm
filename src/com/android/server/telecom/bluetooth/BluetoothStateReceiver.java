@@ -152,6 +152,10 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
         }
     }
 
+    public BluetoothDeviceManager getBluetoothDeviceManager() {
+        return mBluetoothDeviceManager;
+    }
+
     public BluetoothStateReceiver(BluetoothDeviceManager deviceManager,
             BluetoothRouteManager routeManager) {
         mBluetoothDeviceManager = deviceManager;
