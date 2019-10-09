@@ -79,6 +79,7 @@ import com.android.server.telecom.callfiltering.AsyncBlockCheckFilter;
 import com.android.server.telecom.callfiltering.BlockCheckerAdapter;
 import com.android.server.telecom.callfiltering.CallFilterResultCallback;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
+import com.android.server.telecom.callfiltering.CallFilteringResult.Builder;
 import com.android.server.telecom.callfiltering.CallScreeningServiceController;
 import com.android.server.telecom.callfiltering.DirectToVoicemailCallFilter;
 import com.android.server.telecom.callfiltering.IncomingCallFilter;
@@ -609,7 +610,12 @@ public class CallsManager extends Call.ListenerBase
                     incomingCall.hasProperty(Connection.PROPERTY_EMERGENCY_CALLBACK_MODE),
                     incomingCall.isSelfManaged(),
                     extras.getBoolean(PhoneAccount.EXTRA_SKIP_CALL_FILTERING));
-            onCallFilteringComplete(incomingCall, new CallFilteringResult(true, false, true, true));
+            onCallFilteringComplete(incomingCall, new Builder()
+                    .setShouldAllowCall(true)
+                    .setShouldReject(false)
+                    .setShouldAddToCallLog(true)
+                    .setShouldShowNotification(true)
+                    .build());
             incomingCall.setIsUsingCallFiltering(false);
             return;
         }
