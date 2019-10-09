@@ -17,17 +17,17 @@
 package com.android.server.telecom.tests;
 
 import android.content.ContentResolver;
-import android.content.IContentProvider;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.CallLog;
+import android.provider.CallLog.Calls;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.Call;
 import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.callfiltering.CallFilterResultCallback;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
+import com.android.server.telecom.callfiltering.CallFilteringResult.Builder;
 import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.TelecomSystem;
 
@@ -68,46 +68,47 @@ public class IncomingCallFilterTest extends TelecomTestCase {
     private static final long SHORT_TIMEOUT = 100;
 
     private static final CallFilteringResult PASS_CALL_RESULT =
-            new CallFilteringResult(
-                    true, // shouldAllowCall
-                    false, // shouldReject
-                    true, // shouldAddToCallLog
-                    true // shouldShowNotification
-            );
+            new Builder()
+                    .setShouldAllowCall(true)
+                    .setShouldReject(false)
+                    .setShouldAddToCallLog(true)
+                    .setShouldShowNotification(true)
+                    .build();
 
     private static final CallFilteringResult ASYNC_BLOCK_CHECK_BLOCK_RESULT =
-            new CallFilteringResult(
-                    false, // shouldAllowCall
-                    true, // shouldReject
-                    true, // shouldAddToCallLog
-                    false, // shouldShowNotification
-                    CallLog.Calls.BLOCK_REASON_BLOCKED_NUMBER, //callBlockReason
-                    null, //callScreeningAppName
-                    null //callScreeningComponentName
-            );
+            new Builder()
+                    .setShouldAllowCall(false)
+                    .setShouldReject(true)
+                    .setShouldAddToCallLog(true)
+                    .setShouldShowNotification(false)
+                    .setCallBlockReason(Calls.BLOCK_REASON_BLOCKED_NUMBER)
+                    .setCallScreeningAppName(null)
+                    .setCallScreeningComponentName(null)
+                    .build();
 
     private static final CallFilteringResult DIRECT_TO_VOICEMAIL_CALL_BLOCK_RESULT =
-            new CallFilteringResult(
-                    false, // shouldAllowCall
-                    true, // shouldReject
-                    true, // shouldAddToCallLog
-                    true, // shouldShowNotification
-                    CallLog.Calls.BLOCK_REASON_DIRECT_TO_VOICEMAIL, //callBlockReason
-                    null, //callScreeningAppName
-                    null //callScreeningComponentName
-            );
+            new Builder()
+                    .setShouldAllowCall(false)
+                    .setShouldReject(true)
+                    .setShouldAddToCallLog(true)
+                    .setShouldShowNotification(true)
+                    .setCallBlockReason(Calls.BLOCK_REASON_DIRECT_TO_VOICEMAIL)
+                    .setCallScreeningAppName(null)
+                    .setCallScreeningComponentName(null)
+                    .build();
 
     private static final CallFilteringResult CALL_SCREENING_SERVICE_BLOCK_RESULT =
-            new CallFilteringResult(
-                    false, // shouldAllowCall
-                    true, // shouldReject
-                    false, // shouldAddToCallLog
-                    true, // shouldShowNotification
-                    CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE, //callBlockReason
-                    "com.android.thirdparty", //callScreeningAppName
-                    "com.android.thirdparty/com.android.thirdparty.callscreeningserviceimpl"
-                    //callScreeningComponentName
-            );
+            new Builder()
+                    .setShouldAllowCall(false)
+                    .setShouldReject(true)
+                    .setShouldAddToCallLog(false)
+                    .setShouldShowNotification(true)
+                    .setCallBlockReason(Calls.BLOCK_REASON_CALL_SCREENING_SERVICE)
+                    .setCallScreeningAppName("com.android.thirdparty")
+                    .setCallScreeningComponentName(
+                            "com.android.thirdparty/"
+                                    + "com.android.thirdparty.callscreeningserviceimpl")
+                    .build();
 
     private static final CallFilteringResult DEFAULT_RESULT = PASS_CALL_RESULT;
     private Handler mHandler = new Handler(Looper.getMainLooper());
@@ -207,16 +208,15 @@ public class IncomingCallFilterTest extends TelecomTestCase {
         testFilter.onCallFilteringComplete(mCall, DIRECT_TO_VOICEMAIL_CALL_BLOCK_RESULT);
         testFilter.onCallFilteringComplete(mCall, CALL_SCREENING_SERVICE_BLOCK_RESULT);
         waitForHandlerAction(testFilter.getHandler(), SHORT_TIMEOUT * 2);
-        verify(mResultCallback).onCallFilteringComplete(eq(mCall), eq(
-                new CallFilteringResult(
-                        false, // shouldAllowCall
-                        true, // shouldReject
-                        false, // shouldAddToCallLog
-                        false, // shouldShowNotification
-                        CallLog.Calls.BLOCK_REASON_BLOCKED_NUMBER, //callBlockReason
-                        null, //callScreeningAppName
-                        null //callScreeningComponentName
-                )));
+        verify(mResultCallback).onCallFilteringComplete(eq(mCall), eq(new Builder()
+                .setShouldAllowCall(false)
+                .setShouldReject(true)
+                .setShouldAddToCallLog(false)
+                .setShouldShowNotification(false)
+                .setCallBlockReason(Calls.BLOCK_REASON_BLOCKED_NUMBER)
+                .setCallScreeningAppName(null)
+                .setCallScreeningComponentName(null)
+                .build()));
     }
 
     @SmallTest
@@ -239,16 +239,15 @@ public class IncomingCallFilterTest extends TelecomTestCase {
         testFilter.onCallFilteringComplete(mCall, DIRECT_TO_VOICEMAIL_CALL_BLOCK_RESULT);
         testFilter.onCallFilteringComplete(mCall, CALL_SCREENING_SERVICE_BLOCK_RESULT);
         waitForHandlerAction(testFilter.getHandler(), SHORT_TIMEOUT * 2);
-        verify(mResultCallback).onCallFilteringComplete(eq(mCall), eq(
-                new CallFilteringResult(
-                        false, // shouldAllowCall
-                        true, // shouldReject
-                        false, // shouldAddToCallLog
-                        true, // shouldShowNotification
-                        CallLog.Calls.BLOCK_REASON_DIRECT_TO_VOICEMAIL, //callBlockReason
-                        null, ////callScreeningAppName
-                        null ////callScreeningComponentName
-                )));
+        verify(mResultCallback).onCallFilteringComplete(eq(mCall), eq(new Builder()
+                .setShouldAllowCall(false)
+                .setShouldReject(true)
+                .setShouldAddToCallLog(false)
+                .setShouldShowNotification(true)
+                .setCallBlockReason(Calls.BLOCK_REASON_DIRECT_TO_VOICEMAIL)
+                .setCallScreeningAppName(null)
+                .setCallScreeningComponentName(null)
+                .build()));
     }
 
     @SmallTest
@@ -268,17 +267,16 @@ public class IncomingCallFilterTest extends TelecomTestCase {
         testFilter.onCallFilteringComplete(mCall, PASS_CALL_RESULT);
         testFilter.onCallFilteringComplete(mCall, CALL_SCREENING_SERVICE_BLOCK_RESULT);
         waitForHandlerAction(testFilter.getHandler(), SHORT_TIMEOUT * 2);
-        verify(mResultCallback).onCallFilteringComplete(eq(mCall), eq(
-                new CallFilteringResult(
-                        false, // shouldAllowCall
-                        true, // shouldReject
-                        false, // shouldAddToCallLog
-                        true, // shouldShowNotification
-                        CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE, //callBlockReason
-                        "com.android.thirdparty", //callScreeningAppName
-                        "com.android.thirdparty/com.android.thirdparty.callscreeningserviceimpl"
-                        //callScreeningComponentName
-                )));
+        verify(mResultCallback).onCallFilteringComplete(eq(mCall), eq(new Builder()
+                .setShouldAllowCall(false)
+                .setShouldReject(true)
+                .setShouldAddToCallLog(false)
+                .setShouldShowNotification(true)
+                .setCallBlockReason(Calls.BLOCK_REASON_CALL_SCREENING_SERVICE)
+                .setCallScreeningAppName("com.android.thirdparty")
+                .setCallScreeningComponentName(
+                        "com.android.thirdparty/com.android.thirdparty.callscreeningserviceimpl")
+                .build()));
     }
 
     @SmallTest
