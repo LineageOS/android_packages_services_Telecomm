@@ -17,13 +17,14 @@
 package com.android.server.telecom.callfiltering;
 
 import android.net.Uri;
-import android.provider.CallLog;
+import android.provider.CallLog.Calls;
 import android.telecom.Log;
 
 import com.android.internal.telephony.CallerInfo;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.LogUtils;
+import com.android.server.telecom.callfiltering.CallFilteringResult.Builder;
 
 import java.util.Objects;
 
@@ -46,33 +47,32 @@ public class DirectToVoicemailCallFilter implements IncomingCallFilter.CallFilte
                         CallFilteringResult result;
                         if ((handle != null) && Objects.equals(callHandle, handle)) {
                             if (info != null && info.shouldSendToVoicemail) {
-                                result = new CallFilteringResult(
-                                        false, // shouldAllowCall
-                                        true, // shouldReject
-                                        true, // shouldAddToCallLog
-                                        true, // shouldShowNotification
-                                        CallLog.Calls.BLOCK_REASON_DIRECT_TO_VOICEMAIL,
-                                        //callBlockReason
-                                        null, //callScreeningAppName
-                                        null // callScreeningComponentName
-                                );
+                                result = new Builder()
+                                        .setShouldAllowCall(false)
+                                        .setShouldReject(true)
+                                        .setShouldAddToCallLog(true)
+                                        .setShouldShowNotification(true)
+                                        .setCallBlockReason(Calls.BLOCK_REASON_DIRECT_TO_VOICEMAIL)
+                                        .setCallScreeningAppName(null)
+                                        .setCallScreeningComponentName(null)
+                                        .build();
                             } else {
-                                result = new CallFilteringResult(
-                                        true, // shouldAllowCall
-                                        false, // shouldReject
-                                        true, // shouldAddToCallLog
-                                        true // shouldShowNotification
-                                );
+                                result = new Builder()
+                                        .setShouldAllowCall(true)
+                                        .setShouldReject(false)
+                                        .setShouldAddToCallLog(true)
+                                        .setShouldShowNotification(true)
+                                        .build();
                             }
                             Log.addEvent(call, LogUtils.Events.DIRECT_TO_VM_FINISHED, result);
                             callback.onCallFilteringComplete(call, result);
                         } else {
-                            result = new CallFilteringResult(
-                                true, // shouldAllowCall
-                                false, // shouldReject
-                                true, // shouldAddToCallLog
-                                true // shouldShowNotification
-                            );
+                            result = new Builder()
+                                    .setShouldAllowCall(true)
+                                    .setShouldReject(false)
+                                    .setShouldAddToCallLog(true)
+                                    .setShouldShowNotification(true)
+                                    .build();
                             Log.addEvent(call, LogUtils.Events.DIRECT_TO_VM_FINISHED, result);
                             Log.w(this, "CallerInfo lookup returned with a different handle than " +
                                     "what was passed in. Was %s, should be %s", handle, callHandle);

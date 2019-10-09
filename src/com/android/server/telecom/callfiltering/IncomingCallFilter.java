@@ -27,6 +27,7 @@ import com.android.server.telecom.Call;
 import com.android.server.telecom.LogUtils;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
+import com.android.server.telecom.callfiltering.CallFilteringResult.Builder;
 
 import java.util.List;
 
@@ -53,12 +54,12 @@ public class IncomingCallFilter implements CallFilterResultCallback {
     private final CallFilterResultCallback mListener;
     private final Timeouts.Adapter mTimeoutsAdapter;
 
-    private CallFilteringResult mResult = new CallFilteringResult(
-            true, // shouldAllowCall
-            false, // shouldReject
-            true, // shouldAddToCallLog
-            true // shouldShowNotification
-    );
+    private CallFilteringResult mResult = new Builder()
+            .setShouldAllowCall(true)
+            .setShouldReject(false)
+            .setShouldAddToCallLog(true)
+            .setShouldShowNotification(true)
+            .build();
 
     private boolean mIsPending = true;
     private int mNumPendingFilters;
