@@ -24,7 +24,7 @@ import android.os.IBinder;
 import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.os.UserHandle;
-import android.provider.CallLog;
+import android.provider.CallLog.Calls;
 import android.provider.Settings;
 import android.telecom.Log;
 import android.telecom.TelecomManager;
@@ -41,6 +41,7 @@ import com.android.server.telecom.ParcelableCallUtils;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.TelecomServiceImpl.SettingsSecureAdapter;
 import com.android.server.telecom.TelecomSystem;
+import com.android.server.telecom.callfiltering.CallFilteringResult.Builder;
 
 /**
  * Binds to {@link ICallScreeningService} to allow call blocking. A single instance of this class
@@ -96,13 +97,13 @@ public class CallScreeningServiceFilter {
                 synchronized (mTelecomLock) {
                     Log.d(this, "allowCall(%s)", callId);
                     if (mCall != null && mCall.getId().equals(callId)) {
-                        mResult = new CallFilteringResult(
-                                true, // shouldAllowCall
-                                false, //shouldReject
-                                false, //shouldSilence
-                                true, //shouldAddToCallLog
-                                true // shouldShowNotification
-                        );
+                        mResult = new Builder()
+                                .setShouldAllowCall(true)
+                                .setShouldReject(false)
+                                .setShouldSilence(false)
+                                .setShouldAddToCallLog(true)
+                                .setShouldShowNotification(true)
+                                .build();
                     } else {
                         Log.w(this, "allowCall, unknown call id: %s", callId);
                     }
@@ -131,16 +132,16 @@ public class CallScreeningServiceFilter {
                                     + "shouldShowNotification: %b", callId, shouldReject,
                             isServiceRequestingLogging, shouldShowNotification);
                     if (mCall != null && mCall.getId().equals(callId)) {
-                        mResult = new CallFilteringResult(
-                                false, // shouldAllowCall
-                                shouldReject, //shouldReject
-                                false, // shouldSilenceCall
-                                isServiceRequestingLogging, //shouldAddToCallLog
-                                shouldShowNotification, // shouldShowNotification
-                                CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE, //callBlockReason
-                                mAppName, //callScreeningAppName
-                                componentName.flattenToString() //callScreeningComponentName
-                        );
+                        mResult = new Builder()
+                                .setShouldAllowCall(false)
+                                .setShouldReject(shouldReject)
+                                .setShouldSilence(false)
+                                .setShouldAddToCallLog(isServiceRequestingLogging)
+                                .setShouldShowNotification(shouldShowNotification)
+                                .setCallBlockReason(Calls.BLOCK_REASON_CALL_SCREENING_SERVICE)
+                                .setCallScreeningAppName(mAppName)
+                                .setCallScreeningComponentName(componentName.flattenToString())
+                                .build();
                     } else {
                         Log.w(this, "disallowCall, unknown call id: %s", callId);
                     }
@@ -160,13 +161,13 @@ public class CallScreeningServiceFilter {
                 synchronized (mTelecomLock) {
                     Log.d(this, "silenceCall(%s)", callId);
                     if (mCall != null && mCall.getId().equals(callId)) {
-                        mResult = new CallFilteringResult(
-                                true, // shouldAllowCall
-                                false, //shouldReject
-                                true, //shouldSilence
-                                true, //shouldAddToCallLog
-                                true // shouldShowNotification
-                        );
+                        mResult = new Builder()
+                                .setShouldAllowCall(true)
+                                .setShouldReject(false)
+                                .setShouldSilence(true)
+                                .setShouldAddToCallLog(true)
+                                .setShouldShowNotification(true)
+                                .build();
                     } else {
                         Log.w(this, "silenceCall, unknown call id: %s", callId);
                     }
@@ -199,12 +200,12 @@ public class CallScreeningServiceFilter {
     private boolean mHasFinished = false;
     private int mCallScreeningServiceType;
 
-    private CallFilteringResult mResult = new CallFilteringResult(
-            true, // shouldAllowCall
-            false, //shouldReject
-            true, //shouldAddToCallLog
-            true // shouldShowNotification
-    );
+    private CallFilteringResult mResult = new Builder()
+            .setShouldAllowCall(true)
+            .setShouldReject(false)
+            .setShouldAddToCallLog(true)
+            .setShouldShowNotification(true)
+            .build();
 
     public CallScreeningServiceFilter(
             Context context,
