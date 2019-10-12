@@ -2020,6 +2020,37 @@ public class CallsManager extends Call.ListenerBase
     }
 
     /**
+     * Instructs Telecom to bring a call into the AUDIO_PROCESSING state.
+     *
+     * Used by the background audio call screener (also the default dialer) to signal that
+     * they want to manually enter the AUDIO_PROCESSING state. The user will be aware that there is
+     * an ongoing call at this time.
+     *
+     * @param call The call to manipulate
+     */
+    public void enterBackgroundAudioProcessing(Call call) {
+        if (!mCalls.contains(call)) {
+            Log.w(this, "Trying to exit audio processing on an untracked call");
+            return;
+        }
+
+        Call activeCall = getActiveCall();
+        if (activeCall != call) {
+            Log.w(this, "Ignoring enter audio processing because there's already a call active");
+        }
+
+        // We only want this to work on active or ringing calls
+        if (call.getState() == CallState.RINGING) {
+            // After the connection service sets up the call with the other end, it'll set the call
+            // state to AUDIO_PROCESSING
+            answerCallForAudioProcessing(call);
+        } else if (call.getState() == CallState.ACTIVE) {
+            setCallState(call, CallState.AUDIO_PROCESSING,
+                    "audio processing set by dialer request");
+        }
+    }
+
+    /**
      * Instructs Telecom to bring a call out of the AUDIO_PROCESSING state.
      *
      * Used by the background audio call screener (also the default dialer) to signal that it's
