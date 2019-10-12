@@ -39,6 +39,7 @@ import com.android.server.telecom.ParcelableCallUtils;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.TelecomServiceImpl;
 import com.android.server.telecom.TelecomSystem;
+import com.android.server.telecom.callfiltering.CallFilteringResult.Builder;
 
 /**
  * This class supports binding to the various {@link android.telecom.CallScreeningService}:
@@ -66,12 +67,12 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
     private Call mCall;
     private CallFilterResultCallback mCallback;
 
-    private CallFilteringResult mResult = new CallFilteringResult(
-            true, // shouldAllowCall
-            false, // shouldReject
-            true, // shouldAddToCallLog
-            true // shouldShowNotification
-    );
+    private CallFilteringResult mResult = new Builder()
+            .setShouldAllowCall(true)
+            .setShouldReject(false)
+            .setShouldAddToCallLog(true)
+            .setShouldShowNotification(true)
+            .build();
 
     private boolean mIsFinished;
     private boolean mIsCarrierFinished;
@@ -195,10 +196,18 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
             if (TextUtils.isEmpty(userChosenPackageName)) {
                 mIsUserChosenFinished = true;
             } else {
-                createCallScreeningServiceFilter().startCallScreeningFilter(mCall,
-                        CallScreeningServiceController.this, userChosenPackageName,
-                        mAppLabelProxy.getAppLabel(userChosenPackageName),
-                        CallScreeningServiceFilter.CALL_SCREENING_FILTER_TYPE_USER_SELECTED);
+                // If the user chosen call screening service is the same as the default dialer, then
+                // we have already bound to it above and don't need to do so again here.
+                if (userChosenPackageName.equals(dialerPackageName)) {
+                    Log.addEvent(mCall, LogUtils.Events.SCREENING_SKIPPED,
+                            "user pkg same as dialer: " + userChosenPackageName);
+                    mIsUserChosenFinished = true;
+                } else {
+                    createCallScreeningServiceFilter().startCallScreeningFilter(mCall,
+                            CallScreeningServiceController.this, userChosenPackageName,
+                            mAppLabelProxy.getAppLabel(userChosenPackageName),
+                            CallScreeningServiceFilter.CALL_SCREENING_FILTER_TYPE_USER_SELECTED);
+                }
             }
 
             if (mIsDefaultDialerFinished && mIsUserChosenFinished) {
