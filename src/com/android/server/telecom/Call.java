@@ -138,6 +138,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         boolean onCanceledViaNewOutgoingCallBroadcast(Call call, long disconnectionTimeout);
         void onHoldToneRequested(Call call);
         void onCallHoldFailed(Call call);
+        void onCallSwitchFailed(Call call);
         void onConnectionEvent(Call call, String event, Bundle extras);
         void onExternalCallChanged(Call call, boolean isExternalCall);
         void onRttInitiationFailure(Call call, int reason);
@@ -213,6 +214,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         public void onHoldToneRequested(Call call) {}
         @Override
         public void onCallHoldFailed(Call call) {}
+        @Override
+        public void onCallSwitchFailed(Call call) {}
         @Override
         public void onConnectionEvent(Call call, String event, Bundle extras) {}
         @Override
@@ -3197,6 +3200,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         } else if (Connection.EVENT_CALL_HOLD_FAILED.equals(event)) {
             for (Listener l : mListeners) {
                 l.onCallHoldFailed(this);
+            }
+        } else if (Connection.EVENT_CALL_SWITCH_FAILED.equals(event)) {
+            for (Listener l : mListeners) {
+                l.onCallSwitchFailed(this);
             }
         } else {
             for (Listener l : mListeners) {
