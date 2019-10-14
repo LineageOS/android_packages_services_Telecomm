@@ -544,6 +544,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private Call mHandoverSourceCall = null;
 
     /**
+     * The user-visible app name of the app that requested for this call to be put into the
+     * AUDIO_PROCESSING state. Used to display a notification to the user.
+     */
+    private CharSequence mAudioProcessingRequestingApp = null;
+
+    /**
      * Indicates the current state of this call if it is in the process of a handover.
      */
     private int mHandoverState = HandoverState.HANDOVER_NONE;
@@ -2039,6 +2045,14 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
 
         Log.addEvent(this, LogUtils.Events.REQUEST_PICKUP_FOR_AUDIO_PROCESSING);
+    }
+
+    public void setAudioProcessingRequestingApp(CharSequence appName) {
+        mAudioProcessingRequestingApp = appName;
+    }
+
+    public CharSequence getAudioProcessingRequestingApp() {
+        return mAudioProcessingRequestingApp;
     }
 
     /**

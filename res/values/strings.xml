@@ -48,6 +48,18 @@
          [CHAR LIMIT=18] -->
     <string name="notification_missedCall_message">Message</string>
 
+    <!-- Title for the persistent notification presented when an app has requested that a call
+         be put into the background so that the app can access the audio from the call
+         [CHAR LIMIT=20] -->
+    <string name="notification_audioProcessing_title">Background call</string>
+    <!-- Body of the persistent notification presented when an app requests
+         that a call be put into the background so that the app can access the audio from the call.
+         [CHAR LIMIT=NONE] -->
+    <string name="notification_audioProcessing_body">
+        <xliff:g id="audio_processing_app_name">%s</xliff:g> has placed a call into the
+        background. This app may be accessing and playing audio over the call.
+    </string>
+
     <!-- Content description of the call muted notification icon for
          accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
     <string name="accessibility_call_muted">Call muted.</string>
@@ -276,6 +288,8 @@
     <string name="notification_channel_missed_call">Missed calls</string>
     <!-- Notification channel name for a channel containing call blocking notifications. -->
     <string name="notification_channel_call_blocking">Call Blocking</string>
+    <!-- Notification channel name for a channel containing background call notifications. -->
+    <string name="notification_channel_background_calls">Background calls</string>
 
     <!-- Alert dialog content used to inform the user that placing a new outgoing call will end the
          ongoing call in the app "other_app". -->

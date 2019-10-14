@@ -83,6 +83,7 @@ import com.android.server.telecom.WiredHeadsetManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
 import com.android.server.telecom.callfiltering.IncomingCallFilter;
+import com.android.server.telecom.ui.AudioProcessingNotification;
 
 import org.junit.After;
 import org.junit.Before;
@@ -165,6 +166,7 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private EmergencyCallHelper mEmergencyCallHelper;
     @Mock private InCallTonePlayer.ToneGeneratorFactory mToneGeneratorFactory;
     @Mock private ClockProxy mClockProxy;
+    @Mock private AudioProcessingNotification mAudioProcessingNotification;
     @Mock private InCallControllerFactory mInCallControllerFactory;
     @Mock private InCallController mInCallController;
     @Mock private ConnectionServiceFocusManager mConnectionSvrFocusMgr;
@@ -223,6 +225,7 @@ public class CallsManagerTest extends TelecomTestCase {
                 mEmergencyCallHelper,
                 mToneGeneratorFactory,
                 mClockProxy,
+                mAudioProcessingNotification,
                 mBluetoothStateReceiver,
                 mCallAudioRouteStateMachineFactory,
                 mCallAudioModeStateMachineFactory,
