@@ -131,7 +131,7 @@ public class SystemStateHelperTest extends TelecomTestCase {
         new SystemStateHelper(mContext);
         verify(mContext).registerReceiver(any(BroadcastReceiver.class), intentFilter.capture());
 
-        assertEquals(2, intentFilter.getValue().countActions());
+        assertEquals(4, intentFilter.getValue().countActions());
         assertEquals(UiModeManager.ACTION_ENTER_CAR_MODE, intentFilter.getValue().getAction(0));
         assertEquals(UiModeManager.ACTION_EXIT_CAR_MODE, intentFilter.getValue().getAction(1));
     }

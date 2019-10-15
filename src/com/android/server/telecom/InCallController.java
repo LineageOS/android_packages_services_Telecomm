@@ -707,6 +707,10 @@ public class InCallController extends CallsManagerListenerBase {
                 mInCallServiceConnection.setCarMode(shouldUseCarModeUI());
             }
         }
+
+        @Override
+        public void onCarModeChanged(int priority, String packageName, boolean isCarMode) {
+        }
     };
 
     private static final int IN_CALL_SERVICE_TYPE_INVALID = 0;
