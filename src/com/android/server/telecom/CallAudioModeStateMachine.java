@@ -329,8 +329,7 @@ public class CallAudioModeStateMachine extends StateMachine {
                     transitionTo(mOtherFocusState);
                     return HANDLED;
                 case NEW_AUDIO_PROCESSING_CALL:
-                    Log.w(LOG_TAG, "Unexpected behavior! New audio processing call appeared while"
-                            + " in audio processing state.");
+                    // Can happen as a duplicate message
                     return HANDLED;
                 case TONE_STARTED_PLAYING:
                     // This shouldn't happen either, but perform the action anyway.
@@ -404,8 +403,7 @@ public class CallAudioModeStateMachine extends StateMachine {
                                 + "ringing");
                     }
                 case NEW_RINGING_CALL:
-                    Log.w(LOG_TAG, "Unexpected behavior! New ringing call appeared while in " +
-                            "ringing state.");
+                    // Can happen as a duplicate message
                     return HANDLED;
                 case NEW_HOLDING_CALL:
                     // This really shouldn't happen, but transition to the focused state anyway.
