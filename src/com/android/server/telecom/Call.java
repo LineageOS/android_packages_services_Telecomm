@@ -365,6 +365,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      */
     private DisconnectCause mDisconnectCause = new DisconnectCause(DisconnectCause.UNKNOWN);
 
+    /**
+     * Override the disconnect cause set by the connection service. Used for audio processing and
+     * simulated ringing calls.
+     */
+    private int mOverrideDisconnectCauseCode = DisconnectCause.UNKNOWN;
+
     private Bundle mIntentExtras = new Bundle();
 
     /**
@@ -1145,6 +1151,11 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     public void setDisconnectCause(DisconnectCause disconnectCause) {
         // TODO: Consider combining this method with a setDisconnected() method that is totally
         // separate from setState.
+        if (mOverrideDisconnectCauseCode != DisconnectCause.UNKNOWN) {
+            disconnectCause = new DisconnectCause(mOverrideDisconnectCauseCode,
+                    disconnectCause.getLabel(), disconnectCause.getDescription(),
+                    disconnectCause.getReason(), disconnectCause.getTone());
+        }
         mAnalytics.setCallDisconnectCause(disconnectCause);
         mDisconnectCause = disconnectCause;
     }
@@ -1924,6 +1935,13 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             Log.v(this, "Aborting call %s", this);
             abort(disconnectionTimeout);
         } else if (mState != CallState.ABORTED && mState != CallState.DISCONNECTED) {
+            if (mState == CallState.AUDIO_PROCESSING) {
+                mOverrideDisconnectCauseCode = DisconnectCause.REJECTED;
+            } else if (mState == CallState.SIMULATED_RINGING) {
+                // This is the case where the dialer calls disconnect() because the call timed out
+                // Override the disconnect cause to MISSED
+                mOverrideDisconnectCauseCode = DisconnectCause.MISSED;
+            }
             if (mConnectionService == null) {
                 Log.e(this, new Exception(), "disconnect() request on a call without a"
                         + " connection service.");
@@ -2002,6 +2020,30 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     /**
+     * Answers the call on the connectionservice side in order to start audio processing.
+     *
+     * This pathway keeps the call in the ANSWERED state until the connection service confirms the
+     * answer, at which point we'll set it to AUDIO_PROCESSING. However, to prevent any other
+     * components from seeing the churn between RINGING -> ANSWERED -> AUDIO_PROCESSING, we'll
+     * refrain from tracking this call in CallsManager until we've stabilized in AUDIO_PROCESSING
+     */
+    public void answerForAudioProcessing() {
+        if (mState != CallState.RINGING) {
+            Log.w(this, "Trying to audio-process a non-ringing call: id=%s", mId);
+            return;
+        }
+
+        if (mConnectionService != null) {
+            mConnectionService.answer(this, VideoProfile.STATE_AUDIO_ONLY);
+        } else {
+            Log.e(this, new NullPointerException(),
+                    "answer call (audio processing) failed due to null CS callId=%s", getId());
+        }
+
+        Log.addEvent(this, LogUtils.Events.REQUEST_PICKUP_FOR_AUDIO_PROCESSING);
+    }
+
+    /**
      * Deflects the call if it is ringing.
      *
      * @param address address to be deflected to.
@@ -2047,9 +2089,19 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      */
     @VisibleForTesting
     public void reject(boolean rejectWithMessage, String textMessage, String reason) {
-        // Check to verify that the call is still in the ringing state. A call can change states
-        // between the time the user hits 'reject' and Telecomm receives the command.
-        if (isRinging("reject")) {
+        if (mState == CallState.SIMULATED_RINGING) {
+            // This handles the case where the user manually rejects a call that's in simulated
+            // ringing. Since the call is already active on the connectionservice side, we want to
+            // hangup, not reject.
+            mOverrideDisconnectCauseCode = DisconnectCause.REJECTED;
+            if (mConnectionService != null) {
+                mConnectionService.disconnect(this);
+            } else {
+                Log.e(this, new NullPointerException(),
+                        "reject call failed due to null CS callId=%s", getId());
+            }
+            Log.addEvent(this, LogUtils.Events.REQUEST_REJECT, reason);
+        } else if (isRinging("reject")) {
             // Ensure video state history tracks video state at time of rejection.
             mVideoStateHistory |= mVideoState;
 
