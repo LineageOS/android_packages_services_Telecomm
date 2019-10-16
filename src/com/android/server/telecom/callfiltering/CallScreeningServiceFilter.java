@@ -181,7 +181,31 @@ public class CallScreeningServiceFilter {
 
         @Override
         public void screenCallFurther(String callId) {
-            // TODO: implement this
+            Log.startSession("CSCR.sCF");
+            Binder.withCleanCallingIdentity(() -> {
+                synchronized (mTelecomLock) {
+                    // This is only allowed if the caller is also the default dialer.
+                    if (!mCallsManager.getDefaultDialerCache().isDefaultOrSystemDialer(
+                            mPackageName, UserHandle.USER_CURRENT)) {
+                        throw new SecurityException("Only the default/system dialer may request"
+                                + " screening via background call audio");
+                    }
+                    // TODO: add permissions check for the additional role-based permission
+
+                    Log.d(this, "screenCallFurther: %s", callId);
+                    if (mCall != null && mCall.getId().equals(callId)) {
+                        mResult = new CallFilteringResult.Builder()
+                                .setShouldAllowCall(true)
+                                .setShouldReject(false)
+                                .setShouldSilence(false)
+                                .setShouldScreenViaAudio(true)
+                                .build();
+                    } else {
+                        Log.w(this, "screenCallFurther, unknown call id: %s", callId);
+                    }
+                    finishCallScreening();
+                }
+            });
         }
     }
 

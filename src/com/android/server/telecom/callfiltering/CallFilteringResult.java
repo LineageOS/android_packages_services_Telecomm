@@ -27,6 +27,7 @@ public class CallFilteringResult {
         private boolean mShouldAddToCallLog;
         private boolean mShouldShowNotification;
         private boolean mShouldSilence = false;
+        private boolean mShouldScreenViaAudio = false;
         private int mCallBlockReason = Calls.BLOCK_REASON_NOT_BLOCKED;
         private CharSequence mCallScreeningAppName = null;
         private String mCallScreeningComponentName = null;
@@ -61,6 +62,11 @@ public class CallFilteringResult {
             return this;
         }
 
+        public Builder setShouldScreenViaAudio(boolean shouldScreenViaAudio) {
+            mShouldScreenViaAudio = shouldScreenViaAudio;
+            return this;
+        }
+
         public Builder setCallScreeningAppName(CharSequence callScreeningAppName) {
             mCallScreeningAppName = callScreeningAppName;
             return this;
@@ -73,8 +79,8 @@ public class CallFilteringResult {
 
         public CallFilteringResult build() {
             return new CallFilteringResult(mShouldAllowCall, mShouldReject, mShouldSilence,
-                    mShouldAddToCallLog, mShouldShowNotification, mCallBlockReason,
-                    mCallScreeningAppName, mCallScreeningComponentName);
+                    mShouldAddToCallLog, mShouldShowNotification, mShouldScreenViaAudio,
+                    mCallBlockReason, mCallScreeningAppName, mCallScreeningComponentName);
         }
     }
 
@@ -82,19 +88,22 @@ public class CallFilteringResult {
     public boolean shouldReject;
     public boolean shouldSilence;
     public boolean shouldAddToCallLog;
+    public boolean shouldScreenViaAudio = false;
     public boolean shouldShowNotification;
     public int mCallBlockReason;
     public CharSequence mCallScreeningAppName;
     public String mCallScreeningComponentName;
 
     private CallFilteringResult(boolean shouldAllowCall, boolean shouldReject, boolean
-            shouldSilence, boolean shouldAddToCallLog, boolean shouldShowNotification, int
-            callBlockReason, CharSequence callScreeningAppName, String callScreeningComponentName) {
+            shouldSilence, boolean shouldAddToCallLog, boolean shouldShowNotification,
+            boolean shouldScreenViaAudio, int callBlockReason, CharSequence callScreeningAppName,
+            String callScreeningComponentName) {
         this.shouldAllowCall = shouldAllowCall;
         this.shouldReject = shouldReject;
         this.shouldSilence = shouldSilence;
         this.shouldAddToCallLog = shouldAddToCallLog;
         this.shouldShowNotification = shouldShowNotification;
+        this.shouldScreenViaAudio = shouldScreenViaAudio;
         this.mCallBlockReason = callBlockReason;
         this.mCallScreeningAppName = callScreeningAppName;
         this.mCallScreeningComponentName = callScreeningComponentName;
@@ -141,6 +150,7 @@ public class CallFilteringResult {
                 .setShouldSilence(shouldSilence || other.shouldSilence)
                 .setShouldAddToCallLog(shouldAddToCallLog && other.shouldAddToCallLog)
                 .setShouldShowNotification(shouldShowNotification && other.shouldShowNotification)
+                .setShouldScreenViaAudio(shouldScreenViaAudio || other.shouldScreenViaAudio)
                 .build();
     }
 
@@ -164,6 +174,7 @@ public class CallFilteringResult {
                 .setShouldSilence(shouldSilence || other.shouldSilence)
                 .setShouldAddToCallLog(shouldAddToCallLog && other.shouldAddToCallLog)
                 .setShouldShowNotification(shouldShowNotification && other.shouldShowNotification)
+                .setShouldScreenViaAudio(shouldScreenViaAudio || other.shouldScreenViaAudio)
                 .setCallBlockReason(callBlockReason)
                 .setCallScreeningAppName(callScreeningAppName)
                 .setCallScreeningComponentName(callScreeningComponentName)
@@ -224,6 +235,10 @@ public class CallFilteringResult {
             sb.append("Silence");
         } else {
             sb.append("Ignore");
+        }
+
+        if (shouldScreenViaAudio) {
+            sb.append(", audio processing");
         }
 
         if (shouldAddToCallLog) {
