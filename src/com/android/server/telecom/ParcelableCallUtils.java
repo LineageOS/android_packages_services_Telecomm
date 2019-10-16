@@ -421,6 +421,12 @@ public class ParcelableCallUtils {
             case CallState.SELECT_PHONE_ACCOUNT:
                 state = android.telecom.Call.STATE_SELECT_PHONE_ACCOUNT;
                 break;
+            case CallState.AUDIO_PROCESSING:
+                state = android.telecom.Call.STATE_AUDIO_PROCESSING;
+                break;
+            case CallState.SIMULATED_RINGING:
+                state = android.telecom.Call.STATE_SIMULATED_RINGING;
+                break;
         }
 
         // If we are marked as 'locally disconnecting' then mark ourselves as disconnecting instead.
