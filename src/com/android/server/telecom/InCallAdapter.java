@@ -326,7 +326,22 @@ class InCallAdapter extends IInCallAdapter.Stub {
 
     @Override
     public void exitBackgroundAudioProcessing(String callId, boolean shouldRing) {
-        // TODO: implement this
+        try {
+            Log.startSession(LogUtils.Sessions.ICA_EXIT_AUDIO_PROCESSING, mOwnerComponentName);
+            Binder.withCleanCallingIdentity(() -> {
+                synchronized (mLock) {
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        mCallsManager.exitBackgroundAudioProcessing(call, shouldRing);
+                    } else {
+                        Log.w(InCallAdapter.this,
+                                "exitBackgroundAudioProcessing, unknown call id: %s", callId);
+                    }
+                }
+            });
+        } finally {
+            Log.endSession();
+        }
     }
 
     @Override
