@@ -115,6 +115,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
         if (newBinForCall != null) {
             newBinForCall.add(call);
         }
+        sendCallStatusToBluetoothStateReceiver();
 
         updateForegroundCall();
         if (shouldPlayDisconnectTone(oldState, newState)) {
@@ -158,9 +159,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
         }
         updateForegroundCall();
         mCalls.add(call);
-        if (mCalls.size() == 1) {
-            mBluetoothStateReceiver.setIsInCall(true);
-        }
+        sendCallStatusToBluetoothStateReceiver();
 
         onCallEnteringState(call, call.getState());
     }
@@ -177,11 +176,15 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
         updateForegroundCall();
         mCalls.remove(call);
-        if (mCalls.size() == 0) {
-            mBluetoothStateReceiver.setIsInCall(false);
-        }
+        sendCallStatusToBluetoothStateReceiver();
 
         onCallLeavingState(call, call.getState());
+    }
+
+    private void sendCallStatusToBluetoothStateReceiver() {
+        // We're in a call if there are calls in mCalls that are not in mAudioProcessingCalls.
+        boolean isInCall = !mAudioProcessingCalls.containsAll(mCalls);
+        mBluetoothStateReceiver.setIsInCall(isInCall);
     }
 
     /**
