@@ -1616,9 +1616,7 @@ public class TelecomServiceImpl {
             try {
                 Log.startSession("TSI.aORTCCA");
                 enforceModifyPermission();
-                if (!Build.IS_USERDEBUG) {
-                    throw new SecurityException("Test-only API.");
-                }
+                enforceShellOnly(Binder.getCallingUid(), "addOrRemoveTestCallCompanionApp");
                 synchronized (mLock) {
                     long token = Binder.clearCallingIdentity();
                     try {

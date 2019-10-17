@@ -252,6 +252,13 @@ public class CallsManager extends Call.ListenerBase
      * Used by {@link #onCallRedirectionComplete}.
      */
     private Call mPendingRedirectedOutgoingCall;
+
+    /**
+     * Cached call that's been answered but will be added to mCalls pending confirmation of active
+     * status from the connection service.
+     */
+    private Call mPendingAudioProcessingCall;
+
     /**
      * Cached latest pending redirected call information which require user-intervention in order
      * to be placed. Used by {@link #onCallRedirectionComplete}.
@@ -683,6 +690,9 @@ public class CallsManager extends Call.ListenerBase
                 Log.i(this, "onCallFilteringCompleted: setting the call to silent ringing state");
                 incomingCall.setSilentRingingRequested(true);
                 addCall(incomingCall);
+            } else if (result.shouldScreenViaAudio) {
+                Log.i(this, "onCallFilteringCompleted: starting background audio processing");
+                answerCallForAudioProcessing(incomingCall);
             } else {
                 addCall(incomingCall);
             }
@@ -974,6 +984,10 @@ public class CallsManager extends Call.ListenerBase
 
     EmergencyCallHelper getEmergencyCallHelper() {
         return mEmergencyCallHelper;
+    }
+
+    public DefaultDialerCache getDefaultDialerCache() {
+        return mDefaultDialerCache;
     }
 
     @VisibleForTesting
@@ -1970,6 +1984,62 @@ public class CallsManager extends Call.ListenerBase
         }
     }
 
+    private void answerCallForAudioProcessing(Call call) {
+        // We don't check whether the call has been added to the internal lists yet -- it's optional
+        // until the call is actually in the AUDIO_PROCESSING state.
+        Call activeCall = (Call) mConnectionSvrFocusMgr.getCurrentFocusCall();
+        if (activeCall != null && activeCall != call) {
+            Log.w(this, "answerCallForAudioProcessing: another active call already exists. "
+                    + "Ignoring request for audio processing and letting the incoming call "
+                    + "through.");
+            // The call should already be in the RINGING state, so all we have to do is add the
+            // call to the internal tracker.
+            addCall(call);
+            return;
+        }
+        Log.d(this, "answerCallForAudioProcessing: Incoming call = %s", call);
+        mConnectionSvrFocusMgr.requestFocus(
+                call,
+                new RequestCallback(() -> {
+                    synchronized (mLock) {
+                        Log.d(this, "answering call %s for audio processing with cs focus", call);
+                        call.answerForAudioProcessing();
+                        // Skip setting the call state to ANSWERED -- that's only for calls that
+                        // were answered by user intervention.
+                        mPendingAudioProcessingCall = call;
+                    }
+                }));
+
+    }
+
+    /**
+     * Instructs Telecom to bring a call out of the AUDIO_PROCESSING state.
+     *
+     * Used by the background audio call screener (also the default dialer) to signal that it's
+     * finished doing its thing and the user should be made aware of the call.
+     *
+     * @param call The call to manipulate
+     * @param shouldRing if true, puts the call into SIMULATED_RINGING. Otherwise, makes the call
+     *                   active.
+     */
+    public void exitBackgroundAudioProcessing(Call call, boolean shouldRing) {
+        if (!mCalls.contains(call)) {
+            Log.w(this, "Trying to exit audio processing on an untracked call");
+            return;
+        }
+
+        Call activeCall = getActiveCall();
+        if (activeCall != null) {
+            Log.w(this, "Ignoring exit audio processing because there's already a call active");
+        }
+
+        if (shouldRing) {
+            setCallState(call, CallState.SIMULATED_RINGING, "exitBackgroundAudioProcessing");
+        } else {
+            setCallState(call, CallState.ACTIVE, "exitBackgroundAudioProcessing");
+        }
+    }
+
     /**
      * Instructs Telecom to deflect the specified call. Intended to be invoked by the in-call
      * app through {@link InCallAdapter} after Telecom notifies it of an incoming call followed by
@@ -2475,6 +2545,15 @@ public class CallsManager extends Call.ListenerBase
                             CallState.ACTIVE,
                             "active set explicitly for self-managed")));
         } else {
+            if (mPendingAudioProcessingCall == call) {
+                if (mCalls.contains(call)) {
+                    setCallState(call, CallState.AUDIO_PROCESSING, "active set explicitly");
+                } else {
+                    call.setState(CallState.AUDIO_PROCESSING, "active set explicitly and adding");
+                    addCall(call);
+                }
+                return;
+            }
             setCallState(call, CallState.ACTIVE, "active set explicitly");
             maybeMoveToSpeakerPhone(call);
             ensureCallAudible();
@@ -4546,9 +4625,14 @@ public class CallsManager extends Call.ListenerBase
 
                 // We do not update the UI until we get confirmation of the answer() through
                 // {@link #markCallAsActive}.
-                mCall.answer(mVideoState);
                 if (mCall.getState() == CallState.RINGING) {
+                    mCall.answer(mVideoState);
                     setCallState(mCall, CallState.ANSWERED, "answered");
+                } else if (mCall.getState() == CallState.SIMULATED_RINGING) {
+                    // If the call's in simulated ringing, we don't have to wait for the CS --
+                    // we can just declare it active.
+                    setCallState(mCall, CallState.ACTIVE, "answering simulated ringing");
+                    Log.addEvent(mCall, LogUtils.Events.REQUEST_SIMULATED_ACCEPT);
                 }
                 if (isSpeakerphoneAutoEnabledForVideoCalls(mVideoState)) {
                     mCall.setStartWithSpeakerphoneOn(true);
