@@ -182,7 +182,8 @@ public class CallScreeningServiceFilter {
         @Override
         public void screenCallFurther(String callId) {
             Log.startSession("CSCR.sCF");
-            Binder.withCleanCallingIdentity(() -> {
+            long token = Binder.clearCallingIdentity();
+            try {
                 synchronized (mTelecomLock) {
                     // This is only allowed if the caller is also the default dialer.
                     if (!mCallsManager.getDefaultDialerCache().isDefaultOrSystemDialer(
@@ -199,13 +200,17 @@ public class CallScreeningServiceFilter {
                                 .setShouldReject(false)
                                 .setShouldSilence(false)
                                 .setShouldScreenViaAudio(true)
+                                .setCallScreeningAppName(mAppName)
                                 .build();
                     } else {
                         Log.w(this, "screenCallFurther, unknown call id: %s", callId);
                     }
                     finishCallScreening();
                 }
-            });
+            } finally {
+                Binder.restoreCallingIdentity(token);
+                Log.endSession();
+            }
         }
     }
 
