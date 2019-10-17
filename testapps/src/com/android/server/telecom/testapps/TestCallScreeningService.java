@@ -21,6 +21,11 @@ import android.telecom.Call;
 import android.telecom.CallScreeningService;
 import android.telecom.Log;
 
+/**
+ * To use this while testing, use:
+ * adb shell setprop com.android.server.telecom.testapps.callscreeningresult n,
+ * where n is one of the codes defined below.
+ */
 public class TestCallScreeningService extends CallScreeningService {
     private Call.Details mDetails;
     private static TestCallScreeningService sTestCallScreeningService;

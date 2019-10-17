@@ -177,7 +177,8 @@ public class TestInCallUI extends Activity {
 
         answerButton.setOnClickListener(view -> {
             Call call = mCallList.getCall(0);
-            if (call.getState() == Call.STATE_RINGING) {
+            if (call.getState() == Call.STATE_RINGING
+                    || call.getState() == Call.STATE_SIMULATED_RINGING) {
                 call.answer(VideoProfile.STATE_AUDIO_ONLY);
             }
         });

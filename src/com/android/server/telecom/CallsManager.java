@@ -2741,6 +2741,11 @@ public class CallsManager extends Call.ListenerBase
         return getFirstCallWithState(CallState.RINGING, CallState.ANSWERED) != null;
     }
 
+    boolean hasRingingOrSimulatedRingingCall() {
+        return getFirstCallWithState(
+                CallState.SIMULATED_RINGING, CallState.RINGING, CallState.ANSWERED) != null;
+    }
+
     @VisibleForTesting
     public boolean onMediaButton(int type) {
         if (hasAnyCalls()) {
@@ -2843,8 +2848,9 @@ public class CallsManager extends Call.ListenerBase
     }
 
     @VisibleForTesting
-    public Call getRingingCall() {
-        return getFirstCallWithState(CallState.RINGING, CallState.ANSWERED);
+    public Call getRingingOrSimulatedRingingCall() {
+        return getFirstCallWithState(CallState.RINGING,
+                CallState.ANSWERED, CallState.SIMULATED_RINGING);
     }
 
     public Call getActiveCall() {
