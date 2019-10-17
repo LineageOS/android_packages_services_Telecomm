@@ -23,6 +23,7 @@ import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
 import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
+import com.android.server.telecom.ui.AudioProcessingNotification;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.MissedCallNotifierImpl.MissedCallNotifierImplFactory;
 import com.android.server.telecom.BluetoothPhoneServiceImpl.BluetoothPhoneServiceImplFactory;
@@ -267,6 +268,9 @@ public class TelecomSystem {
             }
         };
 
+        AudioProcessingNotification audioProcessingNotification =
+                new AudioProcessingNotification(mContext);
+
         mCallsManager = new CallsManager(
                 mContext,
                 mLock,
@@ -288,6 +292,7 @@ public class TelecomSystem {
                 emergencyCallHelper,
                 toneGeneratorFactory,
                 clockProxy,
+                audioProcessingNotification,
                 bluetoothStateReceiver,
                 callAudioRouteStateMachineFactory,
                 callAudioModeStateMachineFactory,

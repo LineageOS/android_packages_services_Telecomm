@@ -16,8 +16,7 @@
 
 package com.android.server.telecom.testapps;
 
-import android.content.Intent;
-import android.graphics.drawable.Icon;
+import android.os.SystemProperties;
 import android.telecom.Call;
 import android.telecom.CallScreeningService;
 import android.telecom.Log;
@@ -30,6 +29,13 @@ public class TestCallScreeningService extends CallScreeningService {
         return sTestCallScreeningService;
     }
 
+    private static final int ALLOW_CALL = 0;
+    private static final int BLOCK_CALL = 1;
+    private static final int SCREEN_CALL_FURTHER = 2;
+
+    private static final String SCREENING_RESULT_KEY =
+            TestCallScreeningService.class.getPackage().getName() + ".callscreeningresult";
+
     /**
      * Handles request from the system to screen an incoming call.
      * @param callDetails Information about a new incoming call, see {@link Call.Details}.
@@ -40,10 +46,21 @@ public class TestCallScreeningService extends CallScreeningService {
         sTestCallScreeningService = this;
 
         mDetails = callDetails;
+
         if (callDetails.getCallDirection() == Call.Details.DIRECTION_INCOMING) {
-            Intent errorIntent = new Intent(this, CallScreeningActivity.class);
-            errorIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(errorIntent);
+            Log.i(this, "%s = %d", SCREENING_RESULT_KEY,
+                    SystemProperties.getInt(SCREENING_RESULT_KEY, 0));
+            switch (SystemProperties.getInt(SCREENING_RESULT_KEY, 0)) {
+                case ALLOW_CALL:
+                    allowCall();
+                    break;
+                case BLOCK_CALL:
+                    blockCall();
+                    break;
+                case SCREEN_CALL_FURTHER:
+                    screenCallFurther();
+                    break;
+            }
         }
     }
 
@@ -65,6 +82,18 @@ public class TestCallScreeningService extends CallScreeningService {
                 .setRejectCall(false)
                 .setSkipCallLog(false)
                 .setSkipNotification(false)
+                .build();
+        respondToCall(mDetails, response);
+    }
+
+    void screenCallFurther() {
+        CallScreeningService.CallResponse
+                response = new CallScreeningService.CallResponse.Builder()
+                .setDisallowCall(false)
+                .setRejectCall(false)
+                .setSkipCallLog(false)
+                .setSkipNotification(false)
+                .setShouldScreenCallFurther(true)
                 .build();
         respondToCall(mDetails, response);
     }
