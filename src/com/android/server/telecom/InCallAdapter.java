@@ -321,7 +321,22 @@ class InCallAdapter extends IInCallAdapter.Stub {
 
     @Override
     public void enterBackgroundAudioProcessing(String callId) {
-        // TODO: implement this
+        try {
+            Log.startSession(LogUtils.Sessions.ICA_ENTER_AUDIO_PROCESSING, mOwnerComponentName);
+            // TODO: enforce the extra permission.
+            Binder.withCleanCallingIdentity(() -> {
+                synchronized (mLock) {
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        mCallsManager.enterBackgroundAudioProcessing(call);
+                    } else {
+                        Log.w(this, "enterBackgroundAudioProcessing, unknown call id: %s", callId);
+                    }
+                }
+            });
+        } finally {
+            Log.endSession();
+        }
     }
 
     @Override
