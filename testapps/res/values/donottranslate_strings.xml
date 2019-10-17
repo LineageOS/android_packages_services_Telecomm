@@ -56,6 +56,12 @@
 
     <string name="holdButton">Hold</string>
 
+    <string name="exit_audio_processing_noring_button">Exit AP (no ring)</string>
+
+    <string name="exit_audio_processing_ring_button">Exit AP (ring)</string>
+
+    <string name="reject_button">Reject</string>
+
     <string name="handoverButton">Handover</string>
 
     <string name="inCallUiAppLabel">Test InCall UI</string>

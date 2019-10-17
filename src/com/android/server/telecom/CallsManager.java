@@ -86,6 +86,7 @@ import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.callredirection.CallRedirectionProcessor;
 import com.android.server.telecom.components.ErrorDialogActivity;
 import com.android.server.telecom.settings.BlockedNumbersUtil;
+import com.android.server.telecom.ui.AudioProcessingNotification;
 import com.android.server.telecom.ui.CallRedirectionConfirmDialogActivity;
 import com.android.server.telecom.ui.CallRedirectionTimeoutDialogActivity;
 import com.android.server.telecom.ui.ConfirmCallDialogActivity;
@@ -441,6 +442,7 @@ public class CallsManager extends Call.ListenerBase
             EmergencyCallHelper emergencyCallHelper,
             InCallTonePlayer.ToneGeneratorFactory toneGeneratorFactory,
             ClockProxy clockProxy,
+            AudioProcessingNotification audioProcessingNotification,
             BluetoothStateReceiver bluetoothStateReceiver,
             CallAudioRouteStateMachine.Factory callAudioRouteStateMachineFactory,
             CallAudioModeStateMachine.Factory callAudioModeStateMachineFactory,
@@ -533,6 +535,7 @@ public class CallsManager extends Call.ListenerBase
         mListeners.add(missedCallNotifier);
         mListeners.add(mHeadsetMediaButton);
         mListeners.add(mProximitySensorManager);
+        mListeners.add(audioProcessingNotification);
 
         // There is no USER_SWITCHED broadcast for user 0, handle it here explicitly.
         final UserManager userManager = UserManager.get(mContext);
@@ -693,6 +696,7 @@ public class CallsManager extends Call.ListenerBase
             } else if (result.shouldScreenViaAudio) {
                 Log.i(this, "onCallFilteringCompleted: starting background audio processing");
                 answerCallForAudioProcessing(incomingCall);
+                incomingCall.setAudioProcessingRequestingApp(result.mCallScreeningAppName);
             } else {
                 addCall(incomingCall);
             }
@@ -2029,7 +2033,7 @@ public class CallsManager extends Call.ListenerBase
      *
      * @param call The call to manipulate
      */
-    public void enterBackgroundAudioProcessing(Call call) {
+    public void enterBackgroundAudioProcessing(Call call, String requestingPackageName) {
         if (!mCalls.contains(call)) {
             Log.w(this, "Trying to exit audio processing on an untracked call");
             return;
@@ -2038,6 +2042,18 @@ public class CallsManager extends Call.ListenerBase
         Call activeCall = getActiveCall();
         if (activeCall != call) {
             Log.w(this, "Ignoring enter audio processing because there's already a call active");
+            return;
+        }
+
+        CharSequence requestingAppName;
+
+        PackageManager pm = mContext.getPackageManager();
+        try {
+            ApplicationInfo info = pm.getApplicationInfo( requestingPackageName, 0);
+            requestingAppName = pm.getApplicationLabel(info);
+        } catch (PackageManager.NameNotFoundException nnfe) {
+            Log.w(this, "Could not determine package name.");
+            requestingAppName = requestingPackageName;
         }
 
         // We only want this to work on active or ringing calls
@@ -2045,9 +2061,11 @@ public class CallsManager extends Call.ListenerBase
             // After the connection service sets up the call with the other end, it'll set the call
             // state to AUDIO_PROCESSING
             answerCallForAudioProcessing(call);
+            call.setAudioProcessingRequestingApp(requestingAppName);
         } else if (call.getState() == CallState.ACTIVE) {
             setCallState(call, CallState.AUDIO_PROCESSING,
                     "audio processing set by dialer request");
+            call.setAudioProcessingRequestingApp(requestingAppName);
         }
     }
 
