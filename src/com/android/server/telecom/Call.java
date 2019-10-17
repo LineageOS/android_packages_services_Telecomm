@@ -1165,6 +1165,11 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         mDisconnectCause = disconnectCause;
     }
 
+    public void setOverrideDisconnectCauseCode(int overrideDisconnectCauseCode) {
+        mOverrideDisconnectCauseCode = overrideDisconnectCauseCode;
+    }
+
+
     public DisconnectCause getDisconnectCause() {
         return mDisconnectCause;
     }
