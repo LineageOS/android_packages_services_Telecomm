@@ -1275,16 +1275,20 @@ public class CallAudioRouteStateMachine extends StateMachine {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.startSession("CARSM.mCR");
-            if (AudioManager.ACTION_MICROPHONE_MUTE_CHANGED.equals(intent.getAction())) {
-                if (mCallsManager.hasEmergencyCall()) {
-                    Log.i(this, "Mute was externally changed when there's an emergency call. " +
-                            "Forcing mute back off.");
-                    sendInternalMessage(MUTE_OFF);
+            try {
+                if (AudioManager.ACTION_MICROPHONE_MUTE_CHANGED.equals(intent.getAction())) {
+                    if (mCallsManager.hasEmergencyCall()) {
+                        Log.i(this, "Mute was externally changed when there's an emergency call. " +
+                                "Forcing mute back off.");
+                        sendInternalMessage(MUTE_OFF);
+                    } else {
+                        sendInternalMessage(MUTE_EXTERNALLY_CHANGED);
+                    }
                 } else {
-                    sendInternalMessage(MUTE_EXTERNALLY_CHANGED);
+                    Log.w(this, "Received non-mute-change intent");
                 }
-            } else {
-                Log.w(this, "Received non-mute-change intent");
+            } finally {
+                Log.endSession();
             }
         }
     };
