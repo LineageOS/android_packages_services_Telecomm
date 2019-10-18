@@ -197,7 +197,9 @@ public class TestConnectionService extends ConnectionService {
             setConnectionProperties(properties);
 
             if (isIncoming) {
-                putExtra(Connection.EXTRA_ANSWERING_DROPS_FG_CALL, true);
+                Bundle newExtras = getExtras();
+                newExtras.putBoolean(Connection.EXTRA_ANSWERING_DROPS_FG_CALL, true);
+                putExtras(newExtras);
             }
             LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(
                     mHangupReceiver, new IntentFilter(TestCallActivity.ACTION_HANGUP_CALLS));

@@ -95,8 +95,6 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1076,16 +1074,16 @@ public class CallsManagerTest extends TelecomTestCase {
         ongoingCall.setConnectionCapabilities(
                 Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL);
         newCapabilities = capabilitiesQueue.poll(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
-        assertTrue(Connection.can(newCapabilities,
-                Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL));
+        assertTrue((newCapabilities & Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL)
+                == Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL);
         assertTrue(ongoingCall.isVideoCallingSupportedByPhoneAccount());
 
         // Fire a changed event for the phone account making it not capable.
         mCallsManager.getPhoneAccountListener().onPhoneAccountChanged(mPhoneAccountRegistrar,
                 SIM_2_ACCOUNT);
         newCapabilities = capabilitiesQueue.poll(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
-        assertFalse(Connection.can(newCapabilities,
-                Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL));
+        assertFalse((newCapabilities & Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL)
+                == Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL);
         assertFalse(ongoingCall.isVideoCallingSupportedByPhoneAccount());
 
         // Fire a change for an unrelated phone account.
@@ -1096,8 +1094,9 @@ public class CallsManagerTest extends TelecomTestCase {
         mCallsManager.getPhoneAccountListener().onPhoneAccountChanged(mPhoneAccountRegistrar,
                 anotherVideoCapableAcct);
         // Call still should not be video capable
-        assertFalse(Connection.can(ongoingCall.getConnectionCapabilities(),
-                Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL));
+        assertFalse((ongoingCall.getConnectionCapabilities()
+                & Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL)
+                == Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL);
     }
 
     private Call addSpyCall() {
