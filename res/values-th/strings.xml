@@ -26,6 +26,8 @@
     <string name="notification_missedCallTicker" msgid="504686252427747209">"สายที่ไม่ได้รับจาก <xliff:g id="MISSED_CALL_FROM">%s</xliff:g>"</string>
     <string name="notification_missedCall_call_back" msgid="2684890353590890187">"โทรกลับ"</string>
     <string name="notification_missedCall_message" msgid="3049928912736917988">"ข้อความ"</string>
+    <string name="notification_audioProcessing_title" msgid="4837854083813671778">"การโทรในเบื้องหลัง"</string>
+    <string name="notification_audioProcessing_body" msgid="2752136833398247134">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ได้ทำการโทรในเบื้องหลัง แอปนี้อาจกำลังเข้าถึงและเล่นเสียงผ่านการโทร"</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"ปิดเสียงการโทร"</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"เปิดใช้งานลำโพงแล้ว"</string>
     <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"ตอนนี้คุยไม่ได้ มีอะไรหรือเปล่า"</string>
@@ -90,6 +92,7 @@
     <string name="notification_channel_incoming_call" msgid="3513761697082968084">"สายโทรเข้า"</string>
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"สายที่ไม่ได้รับ"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"การบล็อกสาย"</string>
+    <string name="notification_channel_background_calls" msgid="3378750174196582923">"การโทรในเบื้องหลัง"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"การโทรออกนี้จะวางสายใน <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"เลือกวิธีโทรออก"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"โอนสายโดยใช้ <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
