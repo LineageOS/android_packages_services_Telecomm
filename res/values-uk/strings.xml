@@ -26,6 +26,8 @@
     <string name="notification_missedCallTicker" msgid="504686252427747209">"Пропущ. виклик від <xliff:g id="MISSED_CALL_FROM">%s</xliff:g>"</string>
     <string name="notification_missedCall_call_back" msgid="2684890353590890187">"Передзвонити"</string>
     <string name="notification_missedCall_message" msgid="3049928912736917988">"Повідомлення"</string>
+    <string name="notification_audioProcessing_title" msgid="4837854083813671778">"У фоновий режим"</string>
+    <string name="notification_audioProcessing_body" msgid="2752136833398247134">"Додаток <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> перевів виклик у фоновий режим і може відтворювати аудіо під час виклику."</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"Звук виклику вимкнено."</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"Гучний зв’язок увімкнено."</string>
     <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"Не можу говорити. У чому справа?"</string>
@@ -90,6 +92,7 @@
     <string name="notification_channel_incoming_call" msgid="3513761697082968084">"Вхідні виклики"</string>
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Пропущені виклики"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Блокування викликів"</string>
+    <string name="notification_channel_background_calls" msgid="3378750174196582923">"Виклики у фоновому режимі"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Якщо здійснити цей виклик, буде завершено виклик у додатку <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"Виберіть, як здійснити цей виклик"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"Переспрямувати через додаток <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>

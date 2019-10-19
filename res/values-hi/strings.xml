@@ -26,6 +26,8 @@
     <string name="notification_missedCallTicker" msgid="504686252427747209">"<xliff:g id="MISSED_CALL_FROM">%s</xliff:g> की कॉल छूटी"</string>
     <string name="notification_missedCall_call_back" msgid="2684890353590890187">"वापस कॉल करें"</string>
     <string name="notification_missedCall_message" msgid="3049928912736917988">"मैसेज"</string>
+    <string name="notification_audioProcessing_title" msgid="4837854083813671778">"बैकग्राउंड कॉल"</string>
+    <string name="notification_audioProcessing_body" msgid="2752136833398247134">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ने कॉल को बैकग्राउंड में रखा है हो सकता है कि यह ऐप्लिकेशन आपके कॉल से ऑडियो ऐक्सेस करके उसे चला रहा हो."</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"कॉल म्‍यूट की गई."</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"स्‍पीकरफ़ोन सक्षम."</string>
     <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"अभी बात नहीं हो सकती. क्‍या हो रहा है?"</string>
@@ -90,6 +92,7 @@
     <string name="notification_channel_incoming_call" msgid="3513761697082968084">"इनकमिंग कॉल"</string>
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"छूटे कॉल"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"कॉल पर रोक"</string>
+    <string name="notification_channel_background_calls" msgid="3378750174196582923">"बैकग्राउंड कॉल"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"इस कॉल को करने से आपका <xliff:g id="OTHER_APP">%1$s</xliff:g> कॉल खत्म हो जाएगा."</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"चुनें कि आप इस कॉल को कैसे करना चाहते हैं"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"<xliff:g id="OTHER_APP">%1$s</xliff:g> का इस्तेमाल करके कॉल को दूसरे नंबर पर भेजें"</string>
