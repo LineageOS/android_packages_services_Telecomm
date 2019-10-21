@@ -125,6 +125,10 @@ public class TestInCallUI extends Activity {
         View setBtDeviceButton = findViewById(R.id.set_bt_device_button);
         View earpieceButton = findViewById(R.id.earpiece_button);
         View speakerButton = findViewById(R.id.speaker_button);
+        View exitAudioProcessingRingButton = findViewById(R.id.exit_audio_processing_ring_button);
+        View exitAudioProcessingNoRingButton =
+                findViewById(R.id.exit_audio_processing_noring_button);
+        View rejectButton = findViewById(R.id.reject_button);
         mBtDeviceList = findViewById(R.id.available_bt_devices);
         mBluetoothDeviceAdapter = new BluetoothDeviceAdapter();
         mBtDeviceList.setAdapter(mBluetoothDeviceAdapter);
@@ -173,7 +177,8 @@ public class TestInCallUI extends Activity {
 
         answerButton.setOnClickListener(view -> {
             Call call = mCallList.getCall(0);
-            if (call.getState() == Call.STATE_RINGING) {
+            if (call.getState() == Call.STATE_RINGING
+                    || call.getState() == Call.STATE_SIMULATED_RINGING) {
                 call.answer(VideoProfile.STATE_AUDIO_ONLY);
             }
         });
@@ -212,6 +217,21 @@ public class TestInCallUI extends Activity {
             Call call = mCallList.getCall(0);
             call.handoverTo(getHandoverToPhoneAccountHandle(), VideoProfile.STATE_BIDIRECTIONAL,
                     null);
+        });
+
+        exitAudioProcessingRingButton.setOnClickListener((v) -> {
+            Call call = mCallList.getCall(0);
+            call.exitBackgroundAudioProcessing(true);
+        });
+
+        exitAudioProcessingNoRingButton.setOnClickListener((v) -> {
+            Call call = mCallList.getCall(0);
+            call.exitBackgroundAudioProcessing(false);
+        });
+
+        rejectButton.setOnClickListener((v) -> {
+            Call call = mCallList.getCall(0);
+            call.reject(false, null);
         });
     }
 

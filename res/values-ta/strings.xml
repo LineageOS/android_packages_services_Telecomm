@@ -26,6 +26,10 @@
     <string name="notification_missedCallTicker" msgid="504686252427747209">"<xliff:g id="MISSED_CALL_FROM">%s</xliff:g> இடமிருந்து தவறிய அழைப்பு"</string>
     <string name="notification_missedCall_call_back" msgid="2684890353590890187">"அழை"</string>
     <string name="notification_missedCall_message" msgid="3049928912736917988">"செய்தி"</string>
+    <!-- no translation found for notification_audioProcessing_title (4837854083813671778) -->
+    <skip />
+    <!-- no translation found for notification_audioProcessing_body (2752136833398247134) -->
+    <skip />
     <string name="accessibility_call_muted" msgid="2776111226185342220">"அழைப்பு முடக்கப்பட்டது."</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"ஸ்பீக்கர்ஃபோன் இயக்கப்பட்டது."</string>
     <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"இப்போது பேசமுடியாது. என்ன விஷயம்?"</string>
@@ -90,6 +94,8 @@
     <string name="notification_channel_incoming_call" msgid="3513761697082968084">"உள்வரும் அழைப்புகள்"</string>
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"தவறிய அழைப்புகள்"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"அழைப்புத் தடுப்பு"</string>
+    <!-- no translation found for notification_channel_background_calls (3378750174196582923) -->
+    <skip />
     <string name="alert_outgoing_call" msgid="982908156825958001">"புதிய அழைப்பைச் செய்தால், செயலில் உள்ள <xliff:g id="OTHER_APP">%1$s</xliff:g> அழைப்பு துண்டிக்கப்படும்."</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"இந்த அழைப்பை எவ்வாறு மேற்கொள்ள வேண்டும் எனத் தேர்ந்தெடுக்கவும்"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"<xliff:g id="OTHER_APP">%1$s</xliff:g>ஐப் பயன்படுத்தி அழைப்பைத் திருப்பி விடு"</string>

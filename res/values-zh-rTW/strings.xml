@@ -26,6 +26,10 @@
     <string name="notification_missedCallTicker" msgid="504686252427747209">"來自 <xliff:g id="MISSED_CALL_FROM">%s</xliff:g> 的未接來電"</string>
     <string name="notification_missedCall_call_back" msgid="2684890353590890187">"回撥"</string>
     <string name="notification_missedCall_message" msgid="3049928912736917988">"簡訊"</string>
+    <!-- no translation found for notification_audioProcessing_title (4837854083813671778) -->
+    <skip />
+    <!-- no translation found for notification_audioProcessing_body (2752136833398247134) -->
+    <skip />
     <string name="accessibility_call_muted" msgid="2776111226185342220">"通話已靜音。"</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"喇叭已啟用"</string>
     <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"我現在不方便講話，有什麼事？"</string>
@@ -90,6 +94,8 @@
     <string name="notification_channel_incoming_call" msgid="3513761697082968084">"來電"</string>
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"未接來電"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"來電封鎖"</string>
+    <!-- no translation found for notification_channel_background_calls (3378750174196582923) -->
+    <skip />
     <string name="alert_outgoing_call" msgid="982908156825958001">"撥打這通電話將結束你的「<xliff:g id="OTHER_APP">%1$s</xliff:g>」通話。"</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"選擇撥打這通電話的方式"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"使用「<xliff:g id="OTHER_APP">%1$s</xliff:g>」轉接電話"</string>

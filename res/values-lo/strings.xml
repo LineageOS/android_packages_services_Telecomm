@@ -26,6 +26,8 @@
     <string name="notification_missedCallTicker" msgid="504686252427747209">"ສາຍທີ່ບໍ່ໄດ້ຮັບຈາກ <xliff:g id="MISSED_CALL_FROM">%s</xliff:g>"</string>
     <string name="notification_missedCall_call_back" msgid="2684890353590890187">"ໂທກັບ"</string>
     <string name="notification_missedCall_message" msgid="3049928912736917988">"ຂໍ້ຄວາມ"</string>
+    <string name="notification_audioProcessing_title" msgid="4837854083813671778">"ການໂທໃນພື້ນຫຼັງ"</string>
+    <string name="notification_audioProcessing_body" msgid="2752136833398247134">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ວາງການໂທໄວ້ພື້ນຫຼັງແລ້ວ. ແອັບນີ້ອາດເຂົ້າເຖິງ ແລະ ຫຼິ້ນສຽງຜ່ານການໂທໄດ້."</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"ປິດສຽງການໂທແລ້ວ."</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"ເປີດລຳໂພງແລ້ວ."</string>
     <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"ບໍ່ສາມາດລົມໄດ້ໃນຕອນນີ້. ມີຫຍັງບໍ່?"</string>
@@ -90,6 +92,7 @@
     <string name="notification_channel_incoming_call" msgid="3513761697082968084">"ສາຍໂທເຂົ້າ"</string>
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"ສາຍບໍ່ໄດ້ຮັບ"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"ການບລັອກສາຍ"</string>
+    <string name="notification_channel_background_calls" msgid="3378750174196582923">"ການໂທໃນພື້ນຫຼັງ"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"ການໂທສາຍນີ້ຈະເປັນການສິ້ນສຸດສາຍ <xliff:g id="OTHER_APP">%1$s</xliff:g> ຂອງທ່ານ."</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"ເລືອກວິທີໂທສາຍນີ້"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"ປ່ຽນເສັ້ນທາງການໂທໂດຍໃຊ້ <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>

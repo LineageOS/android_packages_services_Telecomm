@@ -144,6 +144,14 @@ public class CallFilteringResult {
                 other.mCallScreeningAppName, other.mCallScreeningComponentName);
         }
 
+        if (shouldScreenViaAudio) {
+            return getCombinedCallFilteringResult(other, Calls.BLOCK_REASON_NOT_BLOCKED,
+                    mCallScreeningAppName, mCallScreeningComponentName);
+        } else if (other.shouldScreenViaAudio) {
+            return getCombinedCallFilteringResult(other, Calls.BLOCK_REASON_NOT_BLOCKED,
+                    other.mCallScreeningAppName, other.mCallScreeningComponentName);
+        }
+
         return new Builder()
                 .setShouldAllowCall(shouldAllowCall && other.shouldAllowCall)
                 .setShouldReject(shouldReject || other.shouldReject)

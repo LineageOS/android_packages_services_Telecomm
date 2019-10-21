@@ -83,6 +83,7 @@ import com.android.server.telecom.WiredHeadsetManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
 import com.android.server.telecom.callfiltering.IncomingCallFilter;
+import com.android.server.telecom.ui.AudioProcessingNotification;
 
 import org.junit.After;
 import org.junit.Before;
@@ -163,6 +164,7 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private EmergencyCallHelper mEmergencyCallHelper;
     @Mock private InCallTonePlayer.ToneGeneratorFactory mToneGeneratorFactory;
     @Mock private ClockProxy mClockProxy;
+    @Mock private AudioProcessingNotification mAudioProcessingNotification;
     @Mock private InCallControllerFactory mInCallControllerFactory;
     @Mock private InCallController mInCallController;
     @Mock private ConnectionServiceFocusManager mConnectionSvrFocusMgr;
@@ -221,6 +223,7 @@ public class CallsManagerTest extends TelecomTestCase {
                 mEmergencyCallHelper,
                 mToneGeneratorFactory,
                 mClockProxy,
+                mAudioProcessingNotification,
                 mBluetoothStateReceiver,
                 mCallAudioRouteStateMachineFactory,
                 mCallAudioModeStateMachineFactory,
@@ -1071,16 +1074,16 @@ public class CallsManagerTest extends TelecomTestCase {
         ongoingCall.setConnectionCapabilities(
                 Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL);
         newCapabilities = capabilitiesQueue.poll(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
-        assertTrue(Connection.can(newCapabilities,
-                Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL));
+        assertTrue((newCapabilities & Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL)
+                == Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL);
         assertTrue(ongoingCall.isVideoCallingSupportedByPhoneAccount());
 
         // Fire a changed event for the phone account making it not capable.
         mCallsManager.getPhoneAccountListener().onPhoneAccountChanged(mPhoneAccountRegistrar,
                 SIM_2_ACCOUNT);
         newCapabilities = capabilitiesQueue.poll(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
-        assertFalse(Connection.can(newCapabilities,
-                Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL));
+        assertFalse((newCapabilities & Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL)
+                == Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL);
         assertFalse(ongoingCall.isVideoCallingSupportedByPhoneAccount());
 
         // Fire a change for an unrelated phone account.
@@ -1091,8 +1094,9 @@ public class CallsManagerTest extends TelecomTestCase {
         mCallsManager.getPhoneAccountListener().onPhoneAccountChanged(mPhoneAccountRegistrar,
                 anotherVideoCapableAcct);
         // Call still should not be video capable
-        assertFalse(Connection.can(ongoingCall.getConnectionCapabilities(),
-                Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL));
+        assertFalse((ongoingCall.getConnectionCapabilities()
+                & Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL)
+                == Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL);
     }
 
     private Call addSpyCall() {
