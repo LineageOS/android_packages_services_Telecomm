@@ -808,6 +808,7 @@ public class BasicCallTests extends TelecomSystemTest {
     private void blockNumberWithAnswer(String phoneNumber, Answer answer) throws Exception {
         when(getBlockedNumberProvider().call(
                 anyString(),
+                nullable(String.class),
                 anyString(),
                 eq(BlockedNumberContract.SystemContract.METHOD_SHOULD_SYSTEM_BLOCK_NUMBER),
                 eq(phoneNumber),

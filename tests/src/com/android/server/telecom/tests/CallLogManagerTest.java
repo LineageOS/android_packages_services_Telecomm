@@ -22,6 +22,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -159,9 +160,10 @@ public class CallLogManagerTest extends TelecomTestCase {
         doAnswer(new Answer<Uri>() {
             @Override
             public Uri answer(InvocationOnMock invocation) throws Throwable {
-                return (Uri) invocation.getArguments()[1];
+                return (Uri) invocation.getArguments()[2];
             }
-        }).when(mContentProvider).insert(anyString(), any(Uri.class), any(ContentValues.class));
+        }).when(mContentProvider).insert(anyString(), nullable(String.class), any(Uri.class),
+                any(ContentValues.class));
 
         when(userManager.isUserRunning(any(UserHandle.class))).thenReturn(true);
         when(userManager.isUserUnlocked(any(UserHandle.class))).thenReturn(true);
@@ -931,7 +933,7 @@ public class CallLogManagerTest extends TelecomTestCase {
     private void verifyNoInsertion() {
         try {
             Thread.sleep(TEST_TIMEOUT_MILLIS);
-            verify(mContentProvider, never()).insert(any(String.class),
+            verify(mContentProvider, never()).insert(any(String.class), nullable(String.class),
                     any(Uri.class), any(ContentValues.class));
         } catch (android.os.RemoteException e) {
             fail("Remote exception occurred during test execution");
@@ -945,8 +947,8 @@ public class CallLogManagerTest extends TelecomTestCase {
         try {
             Uri uri = ContentProvider.maybeAddUserId(CallLog.Calls.CONTENT_URI, userId);
             Thread.sleep(TEST_TIMEOUT_MILLIS);
-            verify(getContentProviderForUser(userId), never())
-                    .insert(any(String.class), eq(uri), any(ContentValues.class));
+            verify(getContentProviderForUser(userId), never()).insert(any(String.class),
+                    nullable(String.class), eq(uri), any(ContentValues.class));
         } catch (android.os.RemoteException e) {
             fail("Remote exception occurred during test execution");
         } catch (InterruptedException e) {
@@ -959,7 +961,7 @@ public class CallLogManagerTest extends TelecomTestCase {
         try {
             Uri uri = ContentProvider.maybeAddUserId(CallLog.Calls.CONTENT_URI, userId);
             verify(getContentProviderForUser(userId), timeout(TEST_TIMEOUT_MILLIS).atLeastOnce())
-                    .insert(any(String.class), eq(uri), captor.capture());
+                    .insert(any(String.class), nullable(String.class), eq(uri), captor.capture());
         } catch (android.os.RemoteException e) {
             fail("Remote exception occurred during test execution");
         }
