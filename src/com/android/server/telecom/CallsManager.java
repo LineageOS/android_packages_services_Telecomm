@@ -2629,6 +2629,12 @@ public class CallsManager extends Call.ListenerBase
      * @param disconnectCause The disconnect cause, see {@link android.telecom.DisconnectCause}.
      */
     void markCallAsDisconnected(Call call, DisconnectCause disconnectCause) {
+        if (call.getState() == CallState.SIMULATED_RINGING
+                && disconnectCause.getCode() == DisconnectCause.REMOTE) {
+            // If the remote end hangs up while in SIMULATED_RINGING, the call should
+            // be marked as missed.
+            call.setOverrideDisconnectCauseCode(DisconnectCause.MISSED);
+        }
         call.setDisconnectCause(disconnectCause);
         setCallState(call, CallState.DISCONNECTED, "disconnected set explicitly");
     }
