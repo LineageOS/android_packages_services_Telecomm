@@ -332,6 +332,12 @@ public class Ringer {
                             isUsingAudioCoupledHaptics, mIsHapticPlaybackSupportedByDevice);
                     maybeStartVibration(foregroundCall, shouldRingForContact, effect,
                             isVibratorEnabled, isRingerAudible);
+                } else if (mSystemSettingsUtil.applyRampingRinger(mContext)
+                           && mSystemSettingsUtil.enableRampingRingerFromDeviceConfig()
+                           && !mSystemSettingsUtil.enableAudioCoupledVibrationForRampingRinger()) {
+                    Log.i(this, "startRinging: apply ramping ringer vibration");
+                    maybeStartVibration(foregroundCall, shouldRingForContact, effect,
+                            isVibratorEnabled, isRingerAudible);
                 } else {
                     Log.addEvent(foregroundCall, LogUtils.Events.SKIP_VIBRATION,
                             "using audio-coupled haptics");
@@ -354,7 +360,6 @@ public class Ringer {
 
     private void maybeStartVibration(Call foregroundCall, boolean shouldRingForContact,
         VibrationEffect effect, boolean isVibrationEnabled, boolean isRingerAudible) {
-
         if (isVibrationEnabled
                 && !mIsVibrating && shouldRingForContact) {
             if (mSystemSettingsUtil.applyRampingRinger(mContext)
