@@ -50,7 +50,7 @@
 
     <!-- Title for the persistent notification presented when an app has requested that a call
          be put into the background so that the app can access the audio from the call
-         [CHAR LIMIT=20] -->
+         [CHAR LIMIT=40] -->
     <string name="notification_audioProcessing_title">Background call</string>
     <!-- Body of the persistent notification presented when an app requests
          that a call be put into the background so that the app can access the audio from the call.
