@@ -16,8 +16,8 @@
 
 package com.android.server.telecom.tests;
 
-import com.android.internal.telephony.CallerInfo;
-import com.android.internal.telephony.CallerInfoAsyncQuery;
+import android.telephony.CallerInfo;
+import android.telephony.CallerInfoAsyncQuery;
 import com.android.server.telecom.CallerInfoAsyncQueryFactory;
 
 import android.content.Context;

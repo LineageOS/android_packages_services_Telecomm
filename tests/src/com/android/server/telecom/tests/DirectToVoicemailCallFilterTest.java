@@ -20,7 +20,7 @@ import android.net.Uri;
 import android.provider.CallLog.Calls;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import com.android.internal.telephony.CallerInfo;
+import android.telephony.CallerInfo;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.callfiltering.CallFilterResultCallback;
 import com.android.server.telecom.CallerInfoLookupHelper;
