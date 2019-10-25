@@ -26,7 +26,7 @@ import android.telecom.Log;
 import android.telecom.Logging.Session;
 import android.telecom.TelecomManager;
 
-import com.android.internal.telephony.CallerInfo;
+import android.telephony.CallerInfo;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.LogUtils;

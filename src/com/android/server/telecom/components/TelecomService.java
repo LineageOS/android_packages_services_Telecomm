@@ -29,7 +29,7 @@ import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.telecom.Log;
 
-import com.android.internal.telephony.CallerInfoAsyncQuery;
+import android.telephony.CallerInfoAsyncQuery;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.BluetoothAdapterProxy;
 import com.android.server.telecom.BluetoothPhoneServiceImpl;

@@ -59,7 +59,7 @@ import android.test.suitebuilder.annotation.MediumTest;
 import androidx.test.filters.FlakyTest;
 
 import com.android.internal.telecom.IInCallAdapter;
-import com.android.internal.telephony.CallerInfo;
+import android.telephony.CallerInfo;
 
 import com.google.common.base.Predicate;
 
