@@ -79,8 +79,9 @@ public class CallFilteringResult {
 
         public CallFilteringResult build() {
             return new CallFilteringResult(mShouldAllowCall, mShouldReject, mShouldSilence,
-                    mShouldAddToCallLog, mShouldShowNotification, mShouldScreenViaAudio,
-                    mCallBlockReason, mCallScreeningAppName, mCallScreeningComponentName);
+                    mShouldAddToCallLog, mShouldShowNotification, mCallBlockReason,
+                    mCallScreeningAppName, mCallScreeningComponentName,
+                    mShouldScreenViaAudio);
         }
     }
 
@@ -95,9 +96,9 @@ public class CallFilteringResult {
     public String mCallScreeningComponentName;
 
     private CallFilteringResult(boolean shouldAllowCall, boolean shouldReject, boolean
-            shouldSilence, boolean shouldAddToCallLog, boolean shouldShowNotification,
-            boolean shouldScreenViaAudio, int callBlockReason, CharSequence callScreeningAppName,
-            String callScreeningComponentName) {
+            shouldSilence, boolean shouldAddToCallLog, boolean shouldShowNotification, int
+            callBlockReason, CharSequence callScreeningAppName, String callScreeningComponentName,
+            boolean shouldScreenViaAudio) {
         this.shouldAllowCall = shouldAllowCall;
         this.shouldReject = shouldReject;
         this.shouldSilence = shouldSilence;
