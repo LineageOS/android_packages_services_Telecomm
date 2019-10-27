@@ -91,7 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Vastamata kõned"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Kõnede blokeerimine"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Selle kõne tegemisel lõpetatakse pooleliolev kõne rakenduses <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"Lubage rakendusel <xliff:g id="OTHER_APP">%1$s</xliff:g> helistada, kasutades teist numbrit või kontot."</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"Valige, kuidas soovite helistada"</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"Suuna kõne ümber rakenduse <xliff:g id="OTHER_APP">%1$s</xliff:g> abil"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"Helista minu telefoninumbri abil"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"Rakendus <xliff:g id="OTHER_APP">%1$s</xliff:g> ei saa helistada. Proovige kasutada teist kõnede ümbersuunamise rakendust või võtke abi saamiseks arendajaga ühendust."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Kõnede blokeerimine"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Numbrid, mis ei ole kontaktide hulgas"</string>
@@ -100,7 +102,7 @@
     <string name="phone_settings_private_num_summary_txt" msgid="7516314821207782191">"Nende helistajate blokeerimine, kes ei avalda oma numbrit"</string>
     <string name="phone_settings_payphone_txt" msgid="2493356957416981318">"Telefoniautomaat"</string>
     <string name="phone_settings_payphone_summary_txt" msgid="6126709946103814653">"Kõnede blokeerimine telefoniautomaatidest"</string>
-    <string name="phone_settings_unknown_txt" msgid="5836407031508172721">"Tundmatu"</string>
+    <string name="phone_settings_unknown_txt" msgid="5836407031508172721">"Tundmatud"</string>
     <string name="phone_settings_unknown_summary_txt" msgid="3457690230497753233">"Kõnede blokeerimine tuvastamata helistajatelt"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="628536625775266096">"Kõnede blokeerimine"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="6264230048947693941">"Kõnede blokeerimine on keelatud"</string>

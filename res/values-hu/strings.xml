@@ -91,7 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Nem fogadott hívások"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Hívásletiltás"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Ha hívást indít, azzal megszakítja a(z) <xliff:g id="OTHER_APP">%1$s</xliff:g>-hívást."</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"Más számmal vagy fiókkal való hívásindítás engedélyezése a(z) <xliff:g id="OTHER_APP">%1$s</xliff:g> számára."</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"A hívás módjának kiválasztása"</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"Hívás átirányítása a következővel: <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"Hívás a saját telefonszámommal"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"A(z) <xliff:g id="OTHER_APP">%1$s</xliff:g> nem tudja elindítani a hívást. Használjon másik hívásátirányítási alkalmazást, vagy forduljon az alkalmazás fejlesztőjéhez."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Hívásletiltás"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"A névjegyek között nem szereplő számok"</string>

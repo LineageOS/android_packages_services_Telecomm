@@ -32,7 +32,7 @@
     <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"我待會就回電。"</string>
     <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"我晚點回電。"</string>
     <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"我現在不方便講話，晚點再打來好嗎？"</string>
-    <string name="respond_via_sms_setting_title" msgid="3754000371039709383">"應答短訊"</string>
+    <string name="respond_via_sms_setting_title" msgid="3754000371039709383">"快速回應"</string>
     <string name="respond_via_sms_setting_title_2" msgid="6104662227299493906">"編輯快速回應"</string>
     <string name="respond_via_sms_setting_summary" msgid="9150281183930613065"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="20379890418289778">"快速回應"</string>
@@ -56,7 +56,7 @@
     <string name="change_default_call_screening_dialog_affirmative" msgid="5503888845998386856">"設為預設來電過濾應用程式"</string>
     <string name="change_default_call_screening_dialog_negative" msgid="3420459312464019224">"取消"</string>
     <string name="blocked_numbers" msgid="2751843139572970579">"已封鎖的號碼"</string>
-    <string name="blocked_numbers_msg" msgid="1045015186124965643">"您不會收到已封鎖號碼的來電或簡訊。"</string>
+    <string name="blocked_numbers_msg" msgid="1045015186124965643">"你不會收到已封鎖號碼的來電或簡訊。"</string>
     <string name="block_number" msgid="1101252256321306179">"新增號碼"</string>
     <string name="unblock_dialog_body" msgid="1614238499771862793">"要解除封鎖 <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> 嗎？"</string>
     <string name="unblock_button" msgid="3078048901972674170">"解除封鎖"</string>
@@ -91,7 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"未接來電"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"來電封鎖"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"撥打這通電話將結束你的「<xliff:g id="OTHER_APP">%1$s</xliff:g>」通話。"</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"允許「<xliff:g id="OTHER_APP">%1$s</xliff:g>」使用其他號碼或帳戶撥打電話。"</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"選擇撥打這通電話的方式"</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"使用「<xliff:g id="OTHER_APP">%1$s</xliff:g>」轉接電話"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"使用我的電話號碼撥打電話"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"無法使用「<xliff:g id="OTHER_APP">%1$s</xliff:g>」撥打電話。請嘗試使用其他的通話轉接應用程式，或向開發人員尋求協助。"</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"來電封鎖"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"不屬於聯絡人的號碼"</string>

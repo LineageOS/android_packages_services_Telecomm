@@ -28,10 +28,10 @@
     <string name="notification_missedCall_message" msgid="3049928912736917988">"Zpráva"</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"Hovor ztlumen."</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"Reproduktor je zapnutý."</string>
-    <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"Teď nemůžu telefonovat, o co jde?"</string>
+    <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"Teď nemůžu mluvit, o co jde?"</string>
     <string name="respond_via_sms_canned_response_2" msgid="4074450431532859214">"Zavolám zpátky."</string>
     <string name="respond_via_sms_canned_response_3" msgid="3496079065723960450">"Zavolám později."</string>
-    <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"Nemůžu telefonovat. Zavoláte později?"</string>
+    <string name="respond_via_sms_canned_response_4" msgid="1698989243040062190">"Nemůžu telefonovat. Zavoláš později?"</string>
     <string name="respond_via_sms_setting_title" msgid="3754000371039709383">"Rychlé odpovědi"</string>
     <string name="respond_via_sms_setting_title_2" msgid="6104662227299493906">"Upravit rychlé odpovědi"</string>
     <string name="respond_via_sms_setting_summary" msgid="9150281183930613065"></string>
@@ -91,7 +91,9 @@
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Zmeškané hovory"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Blokování hovorů"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Uskutečněním tohoto hovoru ukončíte hovor <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
-    <string name="alert_redirect_outgoing_call" msgid="1267579501303765238">"Povolte aplikaci <xliff:g id="OTHER_APP">%1$s</xliff:g> provést hovor přes jiné číslo nebo účet."</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"Vyberte, jak chcete tento hovor provést"</string>
+    <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"Přesměrovat hovor přes aplikaci <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
+    <string name="alert_place_unredirect_outgoing_call" msgid="3066499005445865910">"Zavolat prostřednictvím mého telefonního čísla"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="7268954889515301158">"Aplikace <xliff:g id="OTHER_APP">%1$s</xliff:g> nemůže hovor provést. Zkuste jinou aplikaci na přesměrování hovorů nebo požádejte o pomoc vývojáře."</string>
     <string name="phone_settings_call_blocking_txt" msgid="3976004073043846733">"Blokování hovorů"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="3126829421867168652">"Čísla, která nejsou v kontaktech"</string>

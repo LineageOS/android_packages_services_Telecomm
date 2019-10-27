@@ -26,6 +26,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.telecom.Log;
+import android.telecom.Logging.Session;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.os.SomeArgs;
@@ -107,6 +108,7 @@ public class AsyncRingtonePlayer {
         args.arg2 = incomingCall;
         args.arg3 = volumeShaperConfig;
         args.arg4 = isVibrationEnabled;
+        args.arg5 = Log.createSubsession();
         postMessage(EVENT_PLAY, true /* shouldCreateHandler */, args);
         return mHapticsFuture;
     }
@@ -173,73 +175,87 @@ public class AsyncRingtonePlayer {
         Call incomingCall = (Call) args.arg2;
         VolumeShaper.Configuration volumeShaperConfig = (VolumeShaper.Configuration) args.arg3;
         boolean isVibrationEnabled = (boolean) args.arg4;
+        Session session = (Session) args.arg5;
         args.recycle();
-        // don't bother with any of this if there is an EVENT_STOP waiting.
-        if (mHandler.hasMessages(EVENT_STOP)) {
-            mHapticsFuture.complete(false /* ringtoneHasHaptics */);
-            mHapticsFuture = null;
-            return;
-        }
 
-        // If the Ringtone Uri is EMPTY, then the "None" Ringtone has been selected. Do not play
-        // anything.
-        if(Uri.EMPTY.equals(incomingCall.getRingtone())) {
-            mRingtone = null;
-            mHapticsFuture.complete(false /* ringtoneHasHaptics */);
-            mHapticsFuture = null;
-            return;
-        }
-
-        ThreadUtil.checkNotOnMainThread();
-        Log.i(this, "handlePlay: Play ringtone.");
-
-        if (mRingtone == null) {
-            mRingtone = factory.getRingtone(incomingCall, volumeShaperConfig);
-            if (mRingtone == null) {
-                Uri ringtoneUri = incomingCall.getRingtone();
-                String ringtoneUriString = (ringtoneUri == null) ? "null" :
-                        ringtoneUri.toSafeString();
-                Log.addEvent(null, LogUtils.Events.ERROR_LOG, "Failed to get ringtone from " +
-                        "factory. Skipping ringing. Uri was: " + ringtoneUriString);
-                mHapticsFuture.complete(false /* ringtoneHasHaptics */);
-                mHapticsFuture = null;
-                return;
-            }
-
-            // With the ringtone to play now known, we can determine if it has haptic channels or
-            // not; we will complete the haptics future so the default vibration code in Ringer
-            // can know whether to trigger the vibrator.
-            if (mHapticsFuture != null && !mHapticsFuture.isDone()) {
-                boolean hasHaptics = factory.hasHapticChannels(mRingtone);
-
-                Log.i(this, "handlePlay: hasHaptics=%b, isVibrationEnabled=%b", hasHaptics,
-                        isVibrationEnabled);
-                if (hasHaptics) {
-                    AudioAttributes attributes = mRingtone.getAudioAttributes();
-                    Log.d(this, "handlePlay: %s haptic channel",
-                            (isVibrationEnabled ? "unmuting" : "muting"));
-                    mRingtone.setAudioAttributes(
-                            new AudioAttributes.Builder(attributes)
-                                    .setHapticChannelsMuted(!isVibrationEnabled)
-                                    .build());
+        Log.continueSession(session, "ARP.hP");
+        try {
+            // don't bother with any of this if there is an EVENT_STOP waiting.
+            if (mHandler.hasMessages(EVENT_STOP)) {
+                if (mHapticsFuture != null) {
+                    mHapticsFuture.complete(false /* ringtoneHasHaptics */);
+                    mHapticsFuture = null;
                 }
-                mHapticsFuture.complete(hasHaptics);
-                mHapticsFuture = null;
-            }
-        }
-
-        if (mShouldPauseBetweenRepeat) {
-            // We're trying to pause between repeats, so the ringtone will not intentionally loop.
-            // Instead, we'll use a handler message to perform repeats.
-            handleRepeat();
-        } else {
-            mRingtone.setLooping(true);
-            if (mRingtone.isPlaying()) {
-                Log.d(this, "Ringtone already playing.");
                 return;
             }
-            mRingtone.play();
-            Log.i(this, "Play ringtone, looping.");
+
+            // If the Ringtone Uri is EMPTY, then the "None" Ringtone has been selected. Do not play
+            // anything.
+            if (Uri.EMPTY.equals(incomingCall.getRingtone())) {
+                mRingtone = null;
+                if (mHapticsFuture != null) {
+                    mHapticsFuture.complete(false /* ringtoneHasHaptics */);
+                    mHapticsFuture = null;
+                }
+
+                return;
+            }
+
+            ThreadUtil.checkNotOnMainThread();
+            Log.i(this, "handlePlay: Play ringtone.");
+
+            if (mRingtone == null) {
+                mRingtone = factory.getRingtone(incomingCall, volumeShaperConfig);
+                if (mRingtone == null) {
+                    Uri ringtoneUri = incomingCall.getRingtone();
+                    String ringtoneUriString = (ringtoneUri == null) ? "null" :
+                            ringtoneUri.toSafeString();
+                    Log.addEvent(null, LogUtils.Events.ERROR_LOG, "Failed to get ringtone from " +
+                            "factory. Skipping ringing. Uri was: " + ringtoneUriString);
+                    if (mHapticsFuture != null) {
+                        mHapticsFuture.complete(false /* ringtoneHasHaptics */);
+                        mHapticsFuture = null;
+                    }
+                    return;
+                }
+
+                // With the ringtone to play now known, we can determine if it has haptic channels or
+                // not; we will complete the haptics future so the default vibration code in Ringer
+                // can know whether to trigger the vibrator.
+                if (mHapticsFuture != null && !mHapticsFuture.isDone()) {
+                    boolean hasHaptics = factory.hasHapticChannels(mRingtone);
+
+                    Log.i(this, "handlePlay: hasHaptics=%b, isVibrationEnabled=%b", hasHaptics,
+                            isVibrationEnabled);
+                    if (hasHaptics) {
+                        AudioAttributes attributes = mRingtone.getAudioAttributes();
+                        Log.d(this, "handlePlay: %s haptic channel",
+                                (isVibrationEnabled ? "unmuting" : "muting"));
+                        mRingtone.setAudioAttributes(
+                                new AudioAttributes.Builder(attributes)
+                                        .setHapticChannelsMuted(!isVibrationEnabled)
+                                        .build());
+                    }
+                    mHapticsFuture.complete(hasHaptics);
+                    mHapticsFuture = null;
+                }
+            }
+
+            if (mShouldPauseBetweenRepeat) {
+                // We're trying to pause between repeats, so the ringtone will not intentionally loop.
+                // Instead, we'll use a handler message to perform repeats.
+                handleRepeat();
+            } else {
+                mRingtone.setLooping(true);
+                if (mRingtone.isPlaying()) {
+                    Log.d(this, "Ringtone already playing.");
+                    return;
+                }
+                mRingtone.play();
+                Log.i(this, "Play ringtone, looping.");
+            }
+        } finally {
+            Log.cancelSubsession(session);
         }
     }
 

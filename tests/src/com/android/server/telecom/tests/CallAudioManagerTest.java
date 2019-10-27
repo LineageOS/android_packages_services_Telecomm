@@ -34,6 +34,7 @@ import com.android.server.telecom.InCallTonePlayer;
 import com.android.server.telecom.CallAudioModeStateMachine.MessageArgs.Builder;
 import com.android.server.telecom.RingbackPlayer;
 import com.android.server.telecom.Ringer;
+import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
 
 import org.junit.After;
@@ -73,6 +74,7 @@ public class CallAudioManagerTest extends TelecomTestCase {
     @Mock private RingbackPlayer mRingbackPlayer;
     @Mock private DtmfLocalTonePlayer mDtmfLocalTonePlayer;
     @Mock private BluetoothStateReceiver mBluetoothStateReceiver;
+    @Mock private TelecomSystem.SyncRoot mLock;
 
     private CallAudioManager mCallAudioManager;
 
@@ -88,6 +90,7 @@ public class CallAudioManagerTest extends TelecomTestCase {
             }).when(mockInCallTonePlayer).startTone();
             return mockInCallTonePlayer;
         }).when(mPlayerFactory).createPlayer(anyInt());
+        when(mCallsManager.getLock()).thenReturn(mLock);
         mCallAudioManager = new CallAudioManager(
                 mCallAudioRouteStateMachine,
                 mCallsManager,
