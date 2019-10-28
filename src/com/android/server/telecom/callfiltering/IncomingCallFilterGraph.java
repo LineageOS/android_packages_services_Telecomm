@@ -33,7 +33,7 @@ import java.util.concurrent.Executor;
 public class IncomingCallFilterGraph {
     //TODO: Add logging for control flow.
     public static final String TAG = "IncomingCallFilterGraph";
-    public static final CallFilteringResult DEFAULT_SCREENING_RESULT =
+    public static final CallFilteringResult DEFAULT_RESULT =
             new CallFilteringResult.Builder()
                     .setShouldAllowCall(true)
                     .setShouldReject(false)
@@ -92,8 +92,8 @@ public class IncomingCallFilterGraph {
         mFinished = false;
         mContext = context;
         mTimeoutsAdapter = timeoutsAdapter;
-        mCurrentResult = DEFAULT_SCREENING_RESULT;
         mLock = lock;
+        mCurrentResult = DEFAULT_RESULT;
     }
 
     public void addFilter(CallFilter filter) {
