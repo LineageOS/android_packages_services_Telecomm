@@ -28,6 +28,7 @@ public class CallFilteringResult {
         private boolean mShouldShowNotification;
         private boolean mShouldSilence = false;
         private boolean mShouldScreenViaAudio = false;
+        private boolean mContactExists = false;
         private int mCallBlockReason = Calls.BLOCK_REASON_NOT_BLOCKED;
         private CharSequence mCallScreeningAppName = null;
         private String mCallScreeningComponentName = null;
@@ -77,11 +78,30 @@ public class CallFilteringResult {
             return this;
         }
 
+        public Builder setContactExists(boolean contactExists) {
+            mContactExists = contactExists;
+            return this;
+        }
+
+        public static Builder from(CallFilteringResult result) {
+            return new Builder()
+                    .setShouldAllowCall(result.shouldAllowCall)
+                    .setShouldReject(result.shouldReject)
+                    .setShouldAddToCallLog(result.shouldAddToCallLog)
+                    .setShouldShowNotification(result.shouldShowNotification)
+                    .setShouldSilence(result.shouldSilence)
+                    .setCallBlockReason(result.mCallBlockReason)
+                    .setShouldScreenViaAudio(result.shouldScreenViaAudio)
+                    .setCallScreeningAppName(result.mCallScreeningAppName)
+                    .setCallScreeningComponentName(result.mCallScreeningComponentName)
+                    .setContactExists(result.contactExists);
+        }
+
         public CallFilteringResult build() {
             return new CallFilteringResult(mShouldAllowCall, mShouldReject, mShouldSilence,
                     mShouldAddToCallLog, mShouldShowNotification, mCallBlockReason,
-                    mCallScreeningAppName, mCallScreeningComponentName,
-                    mShouldScreenViaAudio);
+                    mCallScreeningAppName, mCallScreeningComponentName, mShouldScreenViaAudio,
+                    mContactExists);
         }
     }
 
@@ -94,11 +114,12 @@ public class CallFilteringResult {
     public int mCallBlockReason;
     public CharSequence mCallScreeningAppName;
     public String mCallScreeningComponentName;
+    public boolean contactExists;
 
     private CallFilteringResult(boolean shouldAllowCall, boolean shouldReject, boolean
             shouldSilence, boolean shouldAddToCallLog, boolean shouldShowNotification, int
             callBlockReason, CharSequence callScreeningAppName, String callScreeningComponentName,
-            boolean shouldScreenViaAudio) {
+            boolean shouldScreenViaAudio, boolean contactExists) {
         this.shouldAllowCall = shouldAllowCall;
         this.shouldReject = shouldReject;
         this.shouldSilence = shouldSilence;
@@ -108,6 +129,7 @@ public class CallFilteringResult {
         this.mCallBlockReason = callBlockReason;
         this.mCallScreeningAppName = callScreeningAppName;
         this.mCallScreeningComponentName = callScreeningComponentName;
+        this.contactExists = contactExists;
     }
 
     /**
@@ -187,6 +209,7 @@ public class CallFilteringResult {
                 .setCallBlockReason(callBlockReason)
                 .setCallScreeningAppName(callScreeningAppName)
                 .setCallScreeningComponentName(callScreeningComponentName)
+                .setContactExists(contactExists || other.contactExists)
                 .build();
     }
 
@@ -204,6 +227,7 @@ public class CallFilteringResult {
         if (shouldAddToCallLog != that.shouldAddToCallLog) return false;
         if (shouldShowNotification != that.shouldShowNotification) return false;
         if (mCallBlockReason != that.mCallBlockReason) return false;
+        if (contactExists != that.contactExists) return false;
 
         if ((TextUtils.isEmpty(mCallScreeningAppName) &&
             TextUtils.isEmpty(that.mCallScreeningAppName)) &&
@@ -256,6 +280,10 @@ public class CallFilteringResult {
 
         if (shouldShowNotification) {
             sb.append(", notified");
+        }
+
+        if (contactExists) {
+            sb.append(", contact exists");
         }
 
         if (mCallBlockReason != 0) {
