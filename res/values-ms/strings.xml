@@ -26,10 +26,8 @@
     <string name="notification_missedCallTicker" msgid="504686252427747209">"Panggilan tidak dijawab daripada <xliff:g id="MISSED_CALL_FROM">%s</xliff:g>"</string>
     <string name="notification_missedCall_call_back" msgid="2684890353590890187">"Panggil balik"</string>
     <string name="notification_missedCall_message" msgid="3049928912736917988">"Mesej"</string>
-    <!-- no translation found for notification_audioProcessing_title (4837854083813671778) -->
-    <skip />
-    <!-- no translation found for notification_audioProcessing_body (2752136833398247134) -->
-    <skip />
+    <string name="notification_audioProcessing_title" msgid="4837854083813671778">"Panggilan latar blkg"</string>
+    <string name="notification_audioProcessing_body" msgid="2752136833398247134">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> telah meletakkan panggilan dalam latar belakang Apl ini mungkin mengakses dan memainkan audio mengatasi panggilan."</string>
     <string name="accessibility_call_muted" msgid="2776111226185342220">"Panggilan diredam."</string>
     <string name="accessibility_speakerphone_enabled" msgid="1988512040421036359">"Telefon pembesar suara didayakan."</string>
     <string name="respond_via_sms_canned_response_1" msgid="2461606462788380215">"Sedang sibuk. Ada apa?"</string>
@@ -94,8 +92,7 @@
     <string name="notification_channel_incoming_call" msgid="3513761697082968084">"Panggilan masuk"</string>
     <string name="notification_channel_missed_call" msgid="8727062678632713146">"Panggilan tidak dijawab"</string>
     <string name="notification_channel_call_blocking" msgid="2943358779746676070">"Sekatan Panggilan"</string>
-    <!-- no translation found for notification_channel_background_calls (3378750174196582923) -->
-    <skip />
+    <string name="notification_channel_background_calls" msgid="3378750174196582923">"Panggilan latar belakang"</string>
     <string name="alert_outgoing_call" msgid="982908156825958001">"Membuat panggilan ini akan menamatkan panggilan <xliff:g id="OTHER_APP">%1$s</xliff:g> anda."</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="7419614878375226644">"Pilih cara untuk membuat panggilan ini"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="3728173638697188636">"Ubah hala panggilan menggunakan <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
