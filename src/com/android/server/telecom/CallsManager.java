@@ -1181,10 +1181,8 @@ public class CallsManager extends Call.ListenerBase
             }
         }
 
-        boolean isRttSettingOn = isRttSettingOn(phoneAccountHandle);
-        if (isRttSettingOn ||
-                extras.getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false)) {
-            Log.i(this, "Incoming call requesting RTT, rtt setting is %b", isRttSettingOn);
+        if (extras.getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false)) {
+            Log.i(this, "Incoming call requesting RTT");
             call.createRttStreams();
             // Even if the phone account doesn't support RTT yet, the connection manager might
             // change that. Set this to check it later.
@@ -1632,12 +1630,9 @@ public class CallsManager extends Call.ListenerBase
 
                     boolean isVoicemail = isVoicemail(callToUse.getHandle(), accountToUse);
 
-                    boolean isRttSettingOn = isRttSettingOn(phoneAccountHandle);
-                    if (!isVoicemail && (isRttSettingOn || (extras != null
-                            && extras.getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT,
-                            false)))) {
-                        Log.d(this, "Outgoing call requesting RTT, rtt setting is %b",
-                                isRttSettingOn);
+                    if (!isVoicemail && extras != null
+                            && extras.getBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, false)) {
+                        Log.d(this, "Outgoing call requesting RTT");
                         if (callToUse.isEmergencyCall() || (accountToUse != null
                                 && accountToUse.hasCapabilities(PhoneAccount.CAPABILITY_RTT))) {
                             // If the call requested RTT and it's an emergency call, ignore the
@@ -2510,24 +2505,6 @@ public class CallsManager extends Call.ListenerBase
      */
     void turnOffProximitySensor(boolean screenOnImmediately) {
         mProximitySensorManager.turnOff(screenOnImmediately);
-    }
-
-    private boolean isRttSettingOn(PhoneAccountHandle handle) {
-        boolean isRttModeSettingOn = Settings.Secure.getInt(mContext.getContentResolver(),
-                Settings.Secure.RTT_CALLING_MODE, 0) != 0;
-        // If the carrier config says that we should ignore the RTT mode setting from the user,
-        // assume that it's off (i.e. only make an RTT call if it's requested through the extra).
-        boolean shouldIgnoreRttModeSetting = getCarrierConfigForPhoneAccount(handle)
-                .getBoolean(CarrierConfigManager.KEY_IGNORE_RTT_MODE_SETTING_BOOL, false);
-        return isRttModeSettingOn && !shouldIgnoreRttModeSetting;
-    }
-
-    private PersistableBundle getCarrierConfigForPhoneAccount(PhoneAccountHandle handle) {
-        int subscriptionId = mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(handle);
-        CarrierConfigManager carrierConfigManager =
-                mContext.getSystemService(CarrierConfigManager.class);
-        PersistableBundle result = carrierConfigManager.getConfigForSubId(subscriptionId);
-        return result == null ? new PersistableBundle() : result;
     }
 
     void phoneAccountSelected(Call call, PhoneAccountHandle account, boolean setDefault) {
