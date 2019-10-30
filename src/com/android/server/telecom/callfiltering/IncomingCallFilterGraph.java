@@ -20,15 +20,16 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.telecom.Log;
+import android.telecom.Logging.Runnable;
 
 import com.android.server.telecom.Call;
+import com.android.server.telecom.LoggedHandlerExecutor;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 
 public class IncomingCallFilterGraph {
     //TODO: Add logging for control flow.
@@ -47,7 +48,6 @@ public class IncomingCallFilterGraph {
     private final HandlerThread mHandlerThread;
     private final TelecomSystem.SyncRoot mLock;
     private List<CallFilter> mFiltersList;
-    private Executor mExecutor;
     private CallFilter mDummyComplete;
     private boolean mFinished;
     private CallFilteringResult mCurrentResult;
@@ -88,11 +88,10 @@ public class IncomingCallFilterGraph {
         mHandlerThread = new HandlerThread(TAG);
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
-        mExecutor = mHandler::post;
+        mLock = lock;
         mFinished = false;
         mContext = context;
         mTimeoutsAdapter = timeoutsAdapter;
-        mLock = lock;
         mCurrentResult = DEFAULT_RESULT;
     }
 
@@ -114,15 +113,17 @@ public class IncomingCallFilterGraph {
         addEdge(dummyStart, mDummyComplete);
 
         scheduleFilter(dummyStart);
-        mHandler.postDelayed(() -> {
-            synchronized(mLock) {
+        mHandler.postDelayed(new Runnable("ICFG.pF", mLock) {
+            @Override
+            public void loggedRun() {
                 if (!mFinished) {
-                    Log.i(this, "Graph timed out when perform filtering.");
+                    Log.i(this, "Graph timed out when performing filtering.");
                     mListener.onCallFilteringComplete(mCall, mCurrentResult);
                     mFinished = true;
                     mHandlerThread.quit();
                 }
-            }}, mTimeoutsAdapter.getCallScreeningTimeoutMillis(mContext.getContentResolver()));
+            }
+        }.prepare(), mTimeoutsAdapter.getCallScreeningTimeoutMillis(mContext.getContentResolver()));
     }
 
     private void scheduleFilter(CallFilter filter) {
@@ -143,8 +144,10 @@ public class IncomingCallFilterGraph {
                 CompletableFuture.completedFuture(input);
         PostFilterTask postFilterTask = new PostFilterTask(filter);
 
-        startFuture.thenComposeAsync(filter::startFilterLookup, mExecutor)
-                .thenApplyAsync(postFilterTask::whenDone, mExecutor);
+        startFuture.thenComposeAsync(filter::startFilterLookup,
+                new LoggedHandlerExecutor(mHandler, "ICFG.sF", null))
+                .thenApplyAsync(postFilterTask::whenDone,
+                        new LoggedHandlerExecutor(mHandler, "ICFG.sF", null));
     }
 
     public static void addEdge(CallFilter before, CallFilter after) {
