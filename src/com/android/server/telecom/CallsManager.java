@@ -2032,7 +2032,7 @@ public class CallsManager extends Call.ListenerBase
         }
 
         Call activeCall = getActiveCall();
-        if (activeCall != call) {
+        if (activeCall != null && activeCall != call) {
             Log.w(this, "Ignoring enter audio processing because there's already a call active");
             return;
         }
