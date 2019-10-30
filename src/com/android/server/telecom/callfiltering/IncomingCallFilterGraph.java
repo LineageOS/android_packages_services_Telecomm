@@ -24,6 +24,7 @@ import android.telecom.Logging.Runnable;
 
 import com.android.server.telecom.Call;
 import com.android.server.telecom.LoggedHandlerExecutor;
+import com.android.server.telecom.LogUtils;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
 
@@ -62,6 +63,7 @@ public class IncomingCallFilterGraph {
         }
 
         public CallFilteringResult whenDone(CallFilteringResult result) {
+            Log.i(TAG, "Filter %s done, result: %s.", mFilter, result);
             mFilter.result = result;
             for (CallFilter filter : mFilter.getFollowings()) {
                 if (filter.decrementAndGetIndegree() == 0) {
@@ -72,6 +74,7 @@ public class IncomingCallFilterGraph {
                 synchronized (mLock) {
                     mFinished = true;
                     mListener.onCallFilteringComplete(mCall, result);
+                    Log.addEvent(mCall, LogUtils.Events.FILTERING_COMPLETED, result);
                 }
                 mHandlerThread.quit();
             }
@@ -100,7 +103,7 @@ public class IncomingCallFilterGraph {
     }
 
     public void performFiltering() {
-
+        Log.addEvent(mCall, LogUtils.Events.FILTERING_INITIATED);
         CallFilter dummyStart = new CallFilter();
         mDummyComplete = new CallFilter();
 
@@ -118,6 +121,7 @@ public class IncomingCallFilterGraph {
             public void loggedRun() {
                 if (!mFinished) {
                     Log.i(this, "Graph timed out when performing filtering.");
+                    Log.addEvent(mCall, LogUtils.Events.FILTERING_TIMED_OUT);
                     mListener.onCallFilteringComplete(mCall, mCurrentResult);
                     mFinished = true;
                     mHandlerThread.quit();
@@ -148,10 +152,15 @@ public class IncomingCallFilterGraph {
                 new LoggedHandlerExecutor(mHandler, "ICFG.sF", null))
                 .thenApplyAsync(postFilterTask::whenDone,
                         new LoggedHandlerExecutor(mHandler, "ICFG.sF", null));
+        Log.i(TAG, "Filter %s scheduled.", filter);
     }
 
     public static void addEdge(CallFilter before, CallFilter after) {
         before.addFollowings(after);
         after.addDependency(before);
+    }
+
+    public HandlerThread getHandlerThread() {
+        return mHandlerThread;
     }
 }
