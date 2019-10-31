@@ -151,7 +151,7 @@ public class CallRedirectionProcessorHelper {
         String number = handle.getSchemeSpecificPart();
 
         // Extract the post dial portion
-        number = PhoneNumberUtils.extractNetworkPortionAlt(number);
+        number = PhoneNumberUtils.extractNetworkPortion(number);
         Log.i(this, "removePostDialDigits, number after being extracted post dial digits: "
                 + Log.pii(number));
         // if there is a problem with parsing the phone number, removePostDialDigits will return

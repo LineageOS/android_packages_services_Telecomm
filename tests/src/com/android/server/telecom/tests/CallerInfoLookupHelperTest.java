@@ -37,8 +37,8 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import androidx.test.InstrumentationRegistry;
 
-import android.telephony.CallerInfo;
-import android.telephony.CallerInfoAsyncQuery;
+import android.telecom.CallerInfo;
+import android.telecom.CallerInfoAsyncQuery;
 import com.android.server.telecom.CallerInfoAsyncQueryFactory;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.ContactsAsyncHelper;

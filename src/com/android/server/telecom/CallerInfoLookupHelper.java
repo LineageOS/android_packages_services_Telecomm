@@ -28,8 +28,8 @@ import android.text.TextUtils;
 import android.util.Pair;
 
 import com.android.internal.annotations.VisibleForTesting;
-import android.telephony.CallerInfo;
-import android.telephony.CallerInfoAsyncQuery;
+import android.telecom.CallerInfo;
+import android.telecom.CallerInfoAsyncQuery;
 
 import java.util.HashMap;
 import java.util.LinkedList;

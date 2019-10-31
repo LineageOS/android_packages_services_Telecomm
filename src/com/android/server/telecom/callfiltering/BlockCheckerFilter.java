@@ -23,9 +23,9 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.provider.BlockedNumberContract;
 import android.provider.CallLog;
+import android.telecom.CallerInfo;
 import android.telecom.Log;
 import android.telecom.TelecomManager;
-import android.telephony.CallerInfo;
 
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallerInfoLookupHelper;
