@@ -79,17 +79,6 @@ public class TestConnectionService extends ConnectionService {
 
     private final class TestConference extends Conference {
 
-        private final Connection.Listener mConnectionListener = new Connection.Listener() {
-            @Override
-            public void onDestroyed(Connection c) {
-                removeConnection(c);
-                if (getConnections().size() == 0) {
-                    setDisconnected(new DisconnectCause(DisconnectCause.REMOTE));
-                    destroy();
-                }
-            }
-        };
-
         public TestConference(Connection a, Connection b) {
             super(null);
             setConnectionCapabilities(
@@ -99,9 +88,6 @@ public class TestConnectionService extends ConnectionService {
                     Connection.CAPABILITY_MANAGE_CONFERENCE);
             addConnection(a);
             addConnection(b);
-
-            a.addConnectionListener(mConnectionListener);
-            b.addConnectionListener(mConnectionListener);
 
             a.setConference(this);
             b.setConference(this);
@@ -122,7 +108,6 @@ public class TestConnectionService extends ConnectionService {
             if (getConnections().contains(connection)) {
                 connection.setConference(null);
                 removeConnection(connection);
-                connection.removeConnectionListener(mConnectionListener);
             }
         }
 
