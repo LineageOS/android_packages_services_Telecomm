@@ -38,7 +38,6 @@ import android.os.Looper;
 import android.os.PersistableBundle;
 import android.os.Process;
 import android.os.SystemClock;
-import android.os.SystemProperties;
 import android.os.SystemVibrator;
 import android.os.Trace;
 import android.os.UserHandle;
@@ -46,6 +45,7 @@ import android.os.UserManager;
 import android.provider.BlockedNumberContract.SystemContract;
 import android.provider.CallLog.Calls;
 import android.provider.Settings;
+import android.sysprop.TelephonyProperties;
 import android.telecom.CallAudioState;
 import android.telecom.Conference;
 import android.telecom.Connection;
@@ -71,7 +71,6 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telephony.AsyncEmergencyContactNotifier;
 import android.telephony.CallerInfo;
 import com.android.internal.telephony.PhoneConstants;
-import com.android.internal.telephony.TelephonyProperties;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
@@ -2137,9 +2136,8 @@ public class CallsManager extends Call.ListenerBase
      * @return {@code true} if the speakerphone should automatically be enabled.
      */
     private static boolean isSpeakerEnabledForVideoCalls() {
-        return (SystemProperties.getInt(TelephonyProperties.PROPERTY_VIDEOCALL_AUDIO_OUTPUT,
-                PhoneConstants.AUDIO_OUTPUT_DEFAULT) ==
-                PhoneConstants.AUDIO_OUTPUT_ENABLE_SPEAKER);
+        return TelephonyProperties.videocall_audio_output().orElse(
+            PhoneConstants.AUDIO_OUTPUT_DEFAULT) == PhoneConstants.AUDIO_OUTPUT_ENABLE_SPEAKER;
     }
 
     /**
