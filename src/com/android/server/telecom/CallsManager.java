@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import android.Manifest;
 import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.app.KeyguardManager;
@@ -1581,8 +1582,16 @@ public class CallsManager extends Call.ListenerBase
                                 isInContacts);
 
                         // We only want to provide a CallScreeningService with a call if its not in
-                        // contacts.
-                        if (!isInContacts) {
+                        // contacts or the package has READ_CONTACT permission.
+                        PackageManager packageManager = mContext.getPackageManager();
+                        int permission = packageManager.checkPermission(
+                                Manifest.permission.READ_CONTACTS,
+                                mRoleManagerAdapter.getDefaultCallScreeningApp());
+                        Log.d(CallsManager.this,
+                                "default call screening service package %s has permissions=%s",
+                                mRoleManagerAdapter.getDefaultCallScreeningApp(),
+                                permission == PackageManager.PERMISSION_GRANTED);
+                        if ((!isInContacts) || (permission == PackageManager.PERMISSION_GRANTED)) {
                             bindForOutgoingCallerId(theCall);
                         }
             }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.pCSB", mLock));
