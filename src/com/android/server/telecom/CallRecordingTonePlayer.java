@@ -17,12 +17,14 @@
 package com.android.server.telecom;
 
 import android.content.Context;
+import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.AudioRecordingConfiguration;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.telecom.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -243,6 +245,9 @@ public class CallRecordingTonePlayer extends CallsManagerListenerBase {
             mRecordingTonePlayer.setLooping(true);
             mRecordingTonePlayer.setPreferredDevice(telephonyDevice);
             mRecordingTonePlayer.setVolume(0.1f);
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION).build();
+            mRecordingTonePlayer.setAudioAttributes(audioAttributes);
             mRecordingTonePlayer.start();
         } else {
             Log.w(this ,"startCallRecordingTone: can't find telephony audio device.");
