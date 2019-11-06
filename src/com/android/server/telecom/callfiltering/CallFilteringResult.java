@@ -182,6 +182,7 @@ public class CallFilteringResult {
                 .setShouldAddToCallLog(shouldAddToCallLog && other.shouldAddToCallLog)
                 .setShouldShowNotification(shouldShowNotification && other.shouldShowNotification)
                 .setShouldScreenViaAudio(shouldScreenViaAudio || other.shouldScreenViaAudio)
+                .setContactExists(contactExists || other.contactExists)
                 .build();
     }
 

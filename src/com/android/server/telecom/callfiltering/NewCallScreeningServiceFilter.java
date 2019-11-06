@@ -16,8 +16,6 @@
 
 package com.android.server.telecom.callfiltering;
 
-import static com.android.server.telecom.callfiltering.IncomingCallFilterGraph.DEFAULT_RESULT;
-
 import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
@@ -70,7 +68,7 @@ public class NewCallScreeningServiceFilter extends CallFilter {
             if (mCall == null || (!mCall.getId().equals(callId))) {
                 Log.w(this, "allowCall, unknown call id: %s", callId);
             }
-            mResultFuture.complete(DEFAULT_RESULT);
+            mResultFuture.complete(mPriorStageResult);
             Binder.restoreCallingIdentity(token);
             unbindCallScreeningService();
         }
@@ -91,10 +89,11 @@ public class NewCallScreeningServiceFilter extends CallFilter {
                         .setCallBlockReason(CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE)
                         .setCallScreeningAppName(mAppName)
                         .setCallScreeningComponentName(componentName.flattenToString())
+                        .setContactExists(mPriorStageResult.contactExists)
                         .build());
             } else {
                 Log.w(this, "disallowCall, unknown call id: %s", callId);
-                mResultFuture.complete(DEFAULT_RESULT);
+                mResultFuture.complete(mPriorStageResult);
             }
             Binder.restoreCallingIdentity(token);
             unbindCallScreeningService();
@@ -110,10 +109,11 @@ public class NewCallScreeningServiceFilter extends CallFilter {
                         .setShouldSilence(true)
                         .setShouldAddToCallLog(true)
                         .setShouldShowNotification(true)
+                        .setContactExists(mPriorStageResult.contactExists)
                         .build());
             } else {
                 Log.w(this, "silenceCall, unknown call id: %s" , callId);
-                mResultFuture.complete(DEFAULT_RESULT);
+                mResultFuture.complete(mPriorStageResult);
             }
             Binder.restoreCallingIdentity(token);
             unbindCallScreeningService();
@@ -134,10 +134,11 @@ public class NewCallScreeningServiceFilter extends CallFilter {
                         .setShouldReject(false)
                         .setShouldSilence(false)
                         .setShouldScreenViaAudio(true)
+                        .setContactExists(mPriorStageResult.contactExists)
                         .build());
             } else {
                 Log.w(this, "screenCallFurther, unknown call id: %s", callId);
-                mResultFuture.complete(DEFAULT_RESULT);
+                mResultFuture.complete(mPriorStageResult);
             }
             Binder.restoreCallingIdentity(token);
             unbindCallScreeningService();
@@ -162,26 +163,26 @@ public class NewCallScreeningServiceFilter extends CallFilter {
                                 toParcelableCallForScreening(mCall, isSystemDialer()));
             } catch (RemoteException e) {
                 Log.e(this, e, "Failed to set the call screening adapter");
-                mResultFuture.complete(DEFAULT_RESULT);
+                mResultFuture.complete(mPriorStageResult);
             }
             Log.i(this, "Binding completed.");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            mResultFuture.complete(DEFAULT_RESULT);
+            mResultFuture.complete(mPriorStageResult);
             Log.i(this, "Service disconnected.");
         }
 
         @Override
         public void onBindingDied(ComponentName name) {
-            mResultFuture.complete(DEFAULT_RESULT);
+            mResultFuture.complete(mPriorStageResult);
             Log.i(this, "Binding died.");
         }
 
         @Override
         public void onNullBinding(ComponentName name) {
-            mResultFuture.complete(DEFAULT_RESULT);
+            mResultFuture.complete(mPriorStageResult);
             Log.i(this, "Null binding.");
         }
     }
@@ -206,20 +207,22 @@ public class NewCallScreeningServiceFilter extends CallFilter {
     }
 
     @Override
-    public CompletionStage<CallFilteringResult> startFilterLookup(CallFilteringResult priorStageResult) {
+    public CompletionStage<CallFilteringResult> startFilterLookup(
+            CallFilteringResult priorStageResult) {
+        mPriorStageResult = priorStageResult;
         if (mPackageName == null) {
-            return CompletableFuture.completedFuture(DEFAULT_RESULT);
+            return CompletableFuture.completedFuture(priorStageResult);
         }
 
         if (!priorStageResult.shouldAllowCall) {
             // Call already blocked by other filters, no need to bind to call screening service.
-            return CompletableFuture.completedFuture(DEFAULT_RESULT);
+            return CompletableFuture.completedFuture(priorStageResult);
         }
 
         if (priorStageResult.contactExists && (!hasReadContactsPermission())) {
             // Binding to the call screening service will be skipped if it does NOT hold
             // READ_CONTACTS permission and the number is in the user’s contacts
-            return CompletableFuture.completedFuture(DEFAULT_RESULT);
+            return CompletableFuture.completedFuture(priorStageResult);
         }
 
         CompletableFuture<CallFilteringResult> resultFuture = new CompletableFuture<>();
@@ -245,7 +248,7 @@ public class NewCallScreeningServiceFilter extends CallFilter {
         if (!CallScreeningServiceHelper.bindCallScreeningService(mContext,
                 mCallsManager.getCurrentUserHandle(), mPackageName, mConnection)) {
             Log.i(this, "Call screening service binding failed.");
-            resultFuture.complete(DEFAULT_RESULT);
+            resultFuture.complete(mPriorStageResult);
         }
     }
 
@@ -265,7 +268,6 @@ public class NewCallScreeningServiceFilter extends CallFilter {
     }
 
     private boolean packageTypeShouldAdd(int packageType) {
-        return packageType == PACKAGE_TYPE_CARRIER;
+        return packageType != PACKAGE_TYPE_CARRIER;
     }
-
 }
