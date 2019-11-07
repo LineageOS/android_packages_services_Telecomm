@@ -20,6 +20,7 @@ import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -34,6 +35,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.PersistableBundle;
 import android.os.Process;
@@ -74,14 +76,15 @@ import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
-import com.android.server.telecom.callfiltering.AsyncBlockCheckFilter;
 import com.android.server.telecom.callfiltering.BlockCheckerAdapter;
+import com.android.server.telecom.callfiltering.BlockCheckerFilter;
 import com.android.server.telecom.callfiltering.CallFilterResultCallback;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
 import com.android.server.telecom.callfiltering.CallFilteringResult.Builder;
-import com.android.server.telecom.callfiltering.CallScreeningServiceController;
-import com.android.server.telecom.callfiltering.DirectToVoicemailCallFilter;
+import com.android.server.telecom.callfiltering.DirectToVoicemailFilter;
 import com.android.server.telecom.callfiltering.IncomingCallFilter;
+import com.android.server.telecom.callfiltering.IncomingCallFilterGraph;
+import com.android.server.telecom.callfiltering.NewCallScreeningServiceFilter;
 import com.android.server.telecom.callredirection.CallRedirectionProcessor;
 import com.android.server.telecom.components.ErrorDialogActivity;
 import com.android.server.telecom.settings.BlockedNumbersUtil;
@@ -91,13 +94,13 @@ import com.android.server.telecom.ui.CallRedirectionTimeoutDialogActivity;
 import com.android.server.telecom.ui.ConfirmCallDialogActivity;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -357,6 +360,8 @@ public class CallsManager extends Call.ListenerBase
 
     private Runnable mStopTone;
 
+    private LinkedList<HandlerThread> mGraphHandlerThreads;
+
     /**
      * Listener to PhoneAccountRegistrar events.
      */
@@ -547,6 +552,7 @@ public class CallsManager extends Call.ListenerBase
                 CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED);
         intentFilter.addAction(SystemContract.ACTION_BLOCK_SUPPRESSION_STATE_CHANGED);
         context.registerReceiver(mReceiver, intentFilter);
+        mGraphHandlerThreads = new LinkedList<>();
     }
 
     public void setIncomingCallNotifier(IncomingCallNotifier incomingCallNotifier) {
@@ -630,14 +636,16 @@ public class CallsManager extends Call.ListenerBase
             return;
         }
 
+        IncomingCallFilterGraph graph = setUpCallFilterGraph(incomingCall);
+        graph.performFiltering();
+    }
+
+    private IncomingCallFilterGraph setUpCallFilterGraph(Call incomingCall) {
         incomingCall.setIsUsingCallFiltering(true);
-        List<IncomingCallFilter.CallFilter> filters = new ArrayList<>();
-        filters.add(new DirectToVoicemailCallFilter(mCallerInfoLookupHelper));
-        filters.add(new AsyncBlockCheckFilter(mContext, new BlockCheckerAdapter(),
-                mCallerInfoLookupHelper, null));
-        filters.add(new CallScreeningServiceController(mContext, this, mPhoneAccountRegistrar,
-                new ParcelableCallUtils.Converter(), mLock,
-                new TelecomServiceImpl.SettingsSecureAdapterImpl(), mCallerInfoLookupHelper,
+        String carrierPackageName = getCarrierPackageName();
+        String defaultDialerPackageName = TelecomManager.from(mContext).getDefaultDialerPackage();
+        String userChosenPackageName = getRoleManagerAdapter().getDefaultCallScreeningApp();
+        CallScreeningServiceHelper.AppLabelProxy appLabelProxy =
                 new CallScreeningServiceHelper.AppLabelProxy() {
                     @Override
                     public CharSequence getAppLabel(String packageName) {
@@ -651,9 +659,53 @@ public class CallsManager extends Call.ListenerBase
 
                         return null;
                     }
-                }));
-        mIncomingCallFilterFactory.create(mContext, this, incomingCall, mLock,
-                mTimeoutsAdapter, filters).performFiltering();
+                };
+        ParcelableCallUtils.Converter converter = new ParcelableCallUtils.Converter();
+
+        IncomingCallFilterGraph graph = new IncomingCallFilterGraph(incomingCall,
+                this::onCallFilteringComplete, mContext, mTimeoutsAdapter, mLock);
+        DirectToVoicemailFilter voicemailFilter = new DirectToVoicemailFilter(incomingCall,
+                mCallerInfoLookupHelper);
+        BlockCheckerFilter blockCheckerFilter = new BlockCheckerFilter(mContext, incomingCall,
+                mCallerInfoLookupHelper, new BlockCheckerAdapter());
+        NewCallScreeningServiceFilter carrierCallScreeningServiceFilter =
+                new NewCallScreeningServiceFilter(incomingCall, carrierPackageName,
+                        NewCallScreeningServiceFilter.PACKAGE_TYPE_CARRIER, mContext, this,
+                        appLabelProxy, converter);
+        NewCallScreeningServiceFilter defaultDialerCallScreeningServiceFilter =
+                new NewCallScreeningServiceFilter(incomingCall, defaultDialerPackageName,
+                        NewCallScreeningServiceFilter.PACKAGE_TYPE_DEFAULT_DIALER, mContext, this,
+                        appLabelProxy, converter);
+        NewCallScreeningServiceFilter userChosenCallScreeningServiceFilter =
+                new NewCallScreeningServiceFilter(incomingCall, userChosenPackageName,
+                        NewCallScreeningServiceFilter.PACKAGE_TYPE_USER_CHOSEN, mContext, this,
+                        appLabelProxy, converter);
+        graph.addFilter(voicemailFilter);
+        graph.addFilter(blockCheckerFilter);
+        graph.addFilter(carrierCallScreeningServiceFilter);
+        graph.addFilter(defaultDialerCallScreeningServiceFilter);
+        graph.addFilter(userChosenCallScreeningServiceFilter);
+        IncomingCallFilterGraph.addEdge(voicemailFilter, carrierCallScreeningServiceFilter);
+        IncomingCallFilterGraph.addEdge(blockCheckerFilter, carrierCallScreeningServiceFilter);
+        IncomingCallFilterGraph.addEdge(carrierCallScreeningServiceFilter,
+                defaultDialerCallScreeningServiceFilter);
+        IncomingCallFilterGraph.addEdge(carrierCallScreeningServiceFilter,
+                userChosenCallScreeningServiceFilter);
+        mGraphHandlerThreads.add(graph.getHandlerThread());
+        return graph;
+    }
+
+    private String getCarrierPackageName() {
+        ComponentName componentName = null;
+        CarrierConfigManager configManager = (CarrierConfigManager) mContext.getSystemService
+                (Context.CARRIER_CONFIG_SERVICE);
+        PersistableBundle configBundle = configManager.getConfig();
+        if (configBundle != null) {
+            componentName = ComponentName.unflattenFromString(configBundle.getString
+                    (CarrierConfigManager.KEY_CARRIER_CALL_SCREENING_APP_STRING, ""));
+        }
+
+        return componentName != null ? componentName.getPackageName() : null;
     }
 
     @Override
@@ -661,6 +713,8 @@ public class CallsManager extends Call.ListenerBase
         // Only set the incoming call as ringing if it isn't already disconnected. It is possible
         // that the connection service disconnected the call before it was even added to Telecom, in
         // which case it makes no sense to set it back to a ringing state.
+        mGraphHandlerThreads.clear();
+
         if (incomingCall.getState() != CallState.DISCONNECTED &&
                 incomingCall.getState() != CallState.DISCONNECTING) {
             setCallState(incomingCall, CallState.RINGING,
@@ -4767,5 +4821,9 @@ public class CallsManager extends Call.ListenerBase
         mCalls.stream()
                 .filter(c -> phoneAccount.getAccountHandle().equals(c.getTargetPhoneAccount()))
                 .forEach(c -> c.setVideoCallingSupportedByPhoneAccount(isVideoNowSupported));
+    }
+
+    public LinkedList<HandlerThread> getGraphHandlerThreads() {
+        return mGraphHandlerThreads;
     }
 }
