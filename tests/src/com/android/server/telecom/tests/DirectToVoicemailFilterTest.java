@@ -23,9 +23,9 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.telephony.CallerInfo;
 import android.net.Uri;
 import android.provider.CallLog;
+import android.telecom.CallerInfo;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.Call;

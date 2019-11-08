@@ -41,7 +41,7 @@ import android.telephony.SubscriptionManager;
 
 // TODO: Needed for move to system service: import com.android.internal.R;
 import com.android.internal.annotations.VisibleForTesting;
-import android.telephony.CallerInfo;
+import android.telecom.CallerInfo;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
 
 import java.util.Arrays;
@@ -130,6 +130,11 @@ public final class CallLogManager extends CallsManagerListenerBase {
     }
 
     private static final String TAG = CallLogManager.class.getSimpleName();
+
+    // Copied from android.telephony.DisconnectCause.toString
+    // TODO: come up with a better way to indicate in a android.telecom.DisconnectCause that
+    // a conference was merged successfully
+    private static final String REASON_IMS_MERGED_SUCCESSFULLY = "IMS_MERGED_SUCCESSFULLY";
 
     private final Context mContext;
     private final CarrierConfigManager mCarrierConfigManager;
@@ -252,9 +257,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
         // Otherwise, fall through. Merged calls would be associated with disconnected
         // connections because of special carrier requirements. Those calls don't look like
         // merged, e.g. could be one active and the other on hold.
-        if (cause != null && android.telephony.DisconnectCause.toString(
-                android.telephony.DisconnectCause.IMS_MERGED_SUCCESSFULLY)
-                .equals(cause.getReason())) {
+        if (cause != null && REASON_IMS_MERGED_SUCCESSFULLY.equals(cause.getReason())) {
             int subscriptionId = mPhoneAccountRegistrar
                     .getSubscriptionIdForPhoneAccount(call.getTargetPhoneAccount());
             // By default, the conference should return a list of participants.
