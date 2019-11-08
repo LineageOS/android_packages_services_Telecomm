@@ -49,7 +49,7 @@ import android.telephony.TelephonyManager;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import android.telephony.CallerInfo;
+import android.telecom.CallerInfo;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallAudioManager;
@@ -1150,8 +1150,7 @@ public class CallsManagerTest extends TelecomTestCase {
 
     private void setupMsimAccounts() {
         TelephonyManager mockTelephonyManager = mComponentContextFixture.getTelephonyManager();
-        when(mockTelephonyManager.getMultiSimConfiguration()).thenReturn(
-                TelephonyManager.MultiSimVariants.DSDS);
+        when(mockTelephonyManager.getMaxNumberOfSimultaneouslyActiveSims()).thenReturn(1);
         when(mPhoneAccountRegistrar.getCallCapablePhoneAccounts(any(), anyBoolean(),
                 any(), anyInt(), anyInt())).thenReturn(
                 new ArrayList<>(Arrays.asList(SIM_1_HANDLE, SIM_2_HANDLE)));

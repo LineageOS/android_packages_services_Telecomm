@@ -30,12 +30,14 @@ import android.os.Parcelable;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.Trace;
+import android.os.UserHandle;
 import android.provider.ContactsContract.Contacts;
 import android.telecom.CallAudioState;
+import android.telecom.CallerInfo;
 import android.telecom.Conference;
+import android.telecom.Connection;
 import android.telecom.ConnectionService;
 import android.telecom.DisconnectCause;
-import android.telecom.Connection;
 import android.telecom.GatewayInfo;
 import android.telecom.Log;
 import android.telecom.Logging.EventManager;
@@ -51,17 +53,13 @@ import android.telephony.TelephonyManager;
 import android.telephony.emergency.EmergencyNumber;
 import android.text.TextUtils;
 import android.util.StatsLog;
-import android.os.UserHandle;
 import android.widget.Toast;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telecom.IVideoProvider;
-import android.telephony.CallerInfo;
-import com.android.internal.telephony.SmsApplication;
 import com.android.internal.util.Preconditions;
 
 import java.io.IOException;
-import java.lang.String;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -2649,7 +2647,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
 
         // Is there a valid SMS application on the phone?
-        if (SmsApplication.getDefaultRespondViaMessageApplication(mContext,
+        if (TelephonyManager.getDefaultRespondViaMessageApplication(mContext,
                 true /*updateIfNeeded*/) == null) {
             return false;
         }

@@ -246,7 +246,8 @@ public class BluetoothPhoneServiceTest extends TelecomTestCase {
                 nullable(PhoneAccountHandle.class))).thenReturn(null);
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(
                 nullable(PhoneAccountHandle.class))).thenReturn(null);
-        when(TelephonyManager.from(mContext).getLine1Number()).thenReturn(fakeNumber);
+        when(mComponentContextFixture.getTelephonyManager().getLine1Number())
+                .thenReturn(fakeNumber);
 
         String subscriberNumber = mBluetoothPhoneService.mBinder.getSubscriberNumber();
 

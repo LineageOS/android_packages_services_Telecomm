@@ -850,7 +850,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
 
         TelephonyManager mockTelephonyManager =
                 (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
-        when(mockTelephonyManager.getVoiceMailNumber(subId)).thenReturn(vmNumber);
+        when(mockTelephonyManager.getVoiceMailNumber()).thenReturn(vmNumber);
 
         assertEquals(vmNumber, mTSIBinder.getVoiceMailNumber(null, DEFAULT_DIALER_PACKAGE));
     }
@@ -866,7 +866,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
 
         TelephonyManager mockTelephonyManager =
                 (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
-        when(mockTelephonyManager.getVoiceMailNumber(subId)).thenReturn(vmNumber);
+        when(mockTelephonyManager.getVoiceMailNumber()).thenReturn(vmNumber);
         when(mFakePhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(TEL_PA_HANDLE_CURRENT))
                 .thenReturn(subId);
 
@@ -884,7 +884,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 .thenReturn(subId);
         TelephonyManager mockTelephonyManager =
                 (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
-        when(mockTelephonyManager.getLine1Number(subId)).thenReturn(line1Number);
+        when(mockTelephonyManager.getLine1Number()).thenReturn(line1Number);
 
         assertEquals(line1Number,
                 mTSIBinder.getLine1Number(TEL_PA_HANDLE_CURRENT, DEFAULT_DIALER_PACKAGE));

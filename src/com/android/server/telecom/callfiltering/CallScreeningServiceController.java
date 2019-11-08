@@ -29,7 +29,7 @@ import android.telecom.TelecomManager;
 import android.telephony.CarrierConfigManager;
 import android.text.TextUtils;
 
-import android.telephony.CallerInfo;
+import android.telecom.CallerInfo;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallScreeningServiceHelper;
 import com.android.server.telecom.CallerInfoLookupHelper;
