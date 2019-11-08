@@ -598,7 +598,7 @@ public class TelecomServiceImpl {
                                     .getSubscriptionIdForPhoneAccount(accountHandle);
                         }
                     }
-                    return getTelephonyManager().getVoiceMailNumber(subId);
+                    return getTelephonyManager(subId).getVoiceMailNumber();
                 } catch (Exception e) {
                     Log.e(this, e, "getSubscriptionIdForPhoneAccount");
                     throw e;
@@ -633,7 +633,7 @@ public class TelecomServiceImpl {
                         subId = mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(
                                 accountHandle);
                     }
-                    return getTelephonyManager().getLine1Number(subId);
+                    return getTelephonyManager(subId).getLine1Number();
                 } catch (Exception e) {
                     Log.e(this, e, "getSubscriptionIdForPhoneAccount");
                     throw e;
@@ -950,7 +950,9 @@ public class TelecomServiceImpl {
                 long token = Binder.clearCallingIdentity();
                 boolean retval = false;
                 try {
-                    retval = getTelephonyManager().handlePinMmi(dialString);
+                    retval = getTelephonyManager(
+                            SubscriptionManager.getDefaultVoiceSubscriptionId())
+                            .handlePinMmi(dialString);
                 } finally {
                     Binder.restoreCallingIdentity(token);
                 }
@@ -991,7 +993,8 @@ public class TelecomServiceImpl {
                         subId = mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(
                                 accountHandle);
                     }
-                    retval = getTelephonyManager().handlePinMmiForSubscriber(subId, dialString);
+                    retval = getTelephonyManager(subId)
+                            .handlePinMmiForSubscriber(subId, dialString);
                 } finally {
                     Binder.restoreCallingIdentity(token);
                 }
@@ -2072,8 +2075,9 @@ public class TelecomServiceImpl {
         }
     }
 
-    private TelephonyManager getTelephonyManager() {
-        return (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
+    private TelephonyManager getTelephonyManager(int subId) {
+        return ((TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE))
+                .createForSubscriptionId(subId);
     }
 
     /**

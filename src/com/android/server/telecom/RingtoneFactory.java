@@ -33,7 +33,7 @@ import android.telecom.Log;
 import android.text.TextUtils;
 
 import com.android.internal.annotations.VisibleForTesting;
-import android.telephony.CallerInfo;
+import android.telecom.CallerInfo;
 
 import java.util.List;
 

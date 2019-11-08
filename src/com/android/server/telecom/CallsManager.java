@@ -71,7 +71,7 @@ import android.util.Pair;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telephony.AsyncEmergencyContactNotifier;
-import android.telephony.CallerInfo;
+import android.telecom.CallerInfo;
 import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.telephony.TelephonyProperties;
 import com.android.internal.util.IndentingPrintWriter;
@@ -357,7 +357,7 @@ public class CallsManager extends Call.ListenerBase
 
     private boolean mCanAddCall = true;
 
-    private TelephonyManager.MultiSimVariants mRadioSimVariants = null;
+    private int mMaxNumberOfSimultaneouslyActiveSims = -1;
 
     private Runnable mStopTone;
 
@@ -2408,14 +2408,13 @@ public class CallsManager extends Call.ListenerBase
                 mPhoneAccountRegistrar.getCallCapablePhoneAccounts(handle.getScheme(), false, user,
                         isVideo ? PhoneAccount.CAPABILITY_VIDEO_CALLING : 0 /* any */,
                         isEmergency ? 0 : PhoneAccount.CAPABILITY_EMERGENCY_CALLS_ONLY);
-        // First check the Radio SIM Technology
-        if(mRadioSimVariants == null) {
-            // Cache Sim Variants
-            mRadioSimVariants = getTelephonyManager().getMultiSimConfiguration();
+        if (mMaxNumberOfSimultaneouslyActiveSims < 0) {
+            mMaxNumberOfSimultaneouslyActiveSims =
+                    getTelephonyManager().getMaxNumberOfSimultaneouslyActiveSims();
         }
         // Only one SIM PhoneAccount can be active at one time for DSDS. Only that SIM PhoneAccount
-        // Should be available if a call is already active on the SIM account.
-        if(mRadioSimVariants != TelephonyManager.MultiSimVariants.DSDA) {
+        // should be available if a call is already active on the SIM account.
+        if (mMaxNumberOfSimultaneouslyActiveSims == 1) {
             List<PhoneAccountHandle> simAccounts =
                     mPhoneAccountRegistrar.getSimPhoneAccountsOfCurrentUser();
             PhoneAccountHandle ongoingCallAccount = null;
