@@ -18,8 +18,8 @@ package com.android.server.telecom.callfiltering;
 
 import android.net.Uri;
 import android.provider.CallLog;
+import android.telecom.CallerInfo;
 import android.telecom.Log;
-import android.telephony.CallerInfo;
 
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallerInfoLookupHelper;
