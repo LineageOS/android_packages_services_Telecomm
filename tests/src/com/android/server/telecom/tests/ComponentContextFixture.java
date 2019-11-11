@@ -502,7 +502,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
         // Used in CreateConnectionProcessor to rank emergency numbers by viability.
         // For the test, make them all equal to INVALID so that the preferred PhoneAccount will be
         // chosen.
-        when(mTelephonyManager.getSubIdForPhoneAccountHandle(any())).thenReturn(
+        when(mTelephonyManager.getSubscriptionId(any())).thenReturn(
                 SubscriptionManager.INVALID_SUBSCRIPTION_ID);
 
         when(mTelephonyManager.getNetworkOperatorName()).thenReturn("label1");
