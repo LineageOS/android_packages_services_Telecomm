@@ -1278,7 +1278,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
             Log.startSession("CARSM.mCR");
             try {
                 if (AudioManager.ACTION_MICROPHONE_MUTE_CHANGED.equals(intent.getAction())) {
-                    if (mCallsManager.hasEmergencyCall()) {
+                    if (mCallsManager.isInEmergencyCall()) {
                         Log.i(this, "Mute was externally changed when there's an emergency call. " +
                                 "Forcing mute back off.");
                         sendInternalMessage(MUTE_OFF);
