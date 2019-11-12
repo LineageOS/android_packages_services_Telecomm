@@ -707,6 +707,31 @@ public class TelecomServiceImpl {
         }
 
         /**
+         * @param userId user id to get the default dialer package for
+         * @return the package name of the current user-selected default dialer. If no default
+         *         has been selected, the package name of the system dialer is returned. If
+         *         neither exists, then {@code null} is returned.
+         * @see android.telecom.TelecomManager#getDefaultDialerPackage
+         */
+        @Override
+        public String getDefaultDialerPackageForUser(int userId) {
+            try {
+                Log.startSession("TSI.gDDPU");
+                mContext.enforceCallingOrSelfPermission(READ_PRIVILEGED_PHONE_STATE,
+                        "READ_PRIVILEGED_PHONE_STATE permission required.");
+
+                final long token = Binder.clearCallingIdentity();
+                try {
+                    return mDefaultDialerCache.getDefaultDialerApplication(userId);
+                } finally {
+                    Binder.restoreCallingIdentity(token);
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        /**
          * @see android.telecom.TelecomManager#getSystemDialerPackage
          */
         @Override

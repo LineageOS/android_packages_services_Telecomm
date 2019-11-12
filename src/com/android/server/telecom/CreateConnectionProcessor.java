@@ -104,7 +104,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
             if (manager == null) {
                 return SubscriptionManager.INVALID_SUBSCRIPTION_ID;
             }
-            return manager.getSubIdForPhoneAccountHandle(account.getAccountHandle());
+            return manager.getSubscriptionId(account.getAccountHandle());
         }
 
         @Override

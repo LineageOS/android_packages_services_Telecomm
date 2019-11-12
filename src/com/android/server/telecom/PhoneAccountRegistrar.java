@@ -195,7 +195,7 @@ public class PhoneAccountRegistrar {
         if (account != null && account.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
             TelephonyManager tm =
                     (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
-            return tm.getSubIdForPhoneAccountHandle(accountHandle);
+            return tm.getSubscriptionId(accountHandle);
         }
         return SubscriptionManager.INVALID_SUBSCRIPTION_ID;
     }
