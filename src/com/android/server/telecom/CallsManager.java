@@ -1751,7 +1751,8 @@ public class CallsManager extends Call.ListenerBase
                 new CallerInfoLookupHelper.OnQueryCompleteListener() {
                     @Override
                     public void onCallerInfoQueryComplete(Uri handle, CallerInfo info) {
-                        if (info.preferredPhoneAccountComponent != null &&
+                        if (info != null &&
+                                info.preferredPhoneAccountComponent != null &&
                                 info.preferredPhoneAccountId != null &&
                                 !info.preferredPhoneAccountId.isEmpty()) {
                             PhoneAccountHandle contactDefaultHandle = new PhoneAccountHandle(
