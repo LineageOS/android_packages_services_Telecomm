@@ -1193,27 +1193,8 @@ public class CallsManagerTest extends TelecomTestCase {
         assertTrue((newCapabilities & Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL)
                 == Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL);
         assertTrue(ongoingCall.isVideoCallingSupportedByPhoneAccount());
-
-        // Fire a changed event for the phone account making it not capable.
-        mCallsManager.getPhoneAccountListener().onPhoneAccountChanged(mPhoneAccountRegistrar,
-                SIM_2_ACCOUNT);
-        newCapabilities = capabilitiesQueue.poll(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
-        assertFalse((newCapabilities & Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL)
-                == Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL);
-        assertFalse(ongoingCall.isVideoCallingSupportedByPhoneAccount());
-
-        // Fire a change for an unrelated phone account.
-        PhoneAccount anotherVideoCapableAcct = new PhoneAccount.Builder(SIM_1_ACCOUNT)
-                .setCapabilities(SIM_2_ACCOUNT.getCapabilities()
-                        | PhoneAccount.CAPABILITY_VIDEO_CALLING)
-                .build();
-        mCallsManager.getPhoneAccountListener().onPhoneAccountChanged(mPhoneAccountRegistrar,
-                anotherVideoCapableAcct);
-        // Call still should not be video capable
-        assertFalse((ongoingCall.getConnectionCapabilities()
-                & Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL)
-                == Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL);
     }
+
 
     private Call addSpyCall() {
         return addSpyCall(SIM_2_HANDLE, CallState.ACTIVE);
