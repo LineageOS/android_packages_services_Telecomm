@@ -182,7 +182,7 @@ public class TestConnectionService extends ConnectionService {
             setConnectionProperties(properties);
 
             if (isIncoming) {
-                Bundle newExtras = getExtras();
+                Bundle newExtras = (getExtras() == null) ? new Bundle() : getExtras();
                 newExtras.putBoolean(Connection.EXTRA_ANSWERING_DROPS_FG_CALL, true);
                 putExtras(newExtras);
             }

@@ -58,6 +58,7 @@ import android.widget.Toast;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telecom.IVideoProvider;
 import com.android.internal.util.Preconditions;
+import com.android.server.telecom.ui.ToastFactory;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -435,6 +436,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private final Context mContext;
     private final CallsManager mCallsManager;
     private final ClockProxy mClockProxy;
+    private final ToastFactory mToastFactory;
     private final TelecomSystem.SyncRoot mLock;
     private final String mId;
     private String mConnectionId;
@@ -560,6 +562,17 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private boolean mIsUsingCallFiltering = false;
 
     /**
+     * Indicates whether or not this call has been active before. This is helpful in detecting
+     * situations where we have moved into {@link CallState#SIMULATED_RINGING} or
+     * {@link CallState#AUDIO_PROCESSING} again after being active. If a call has moved into one
+     * of these states again after being active and the user dials an emergency call, we want to
+     * log these calls normally instead of considering them MISSED. If the emergency call was
+     * dialed during initial screening however, we want to treat those calls as MISSED (because the
+     * user never got the chance to explicitly reject).
+     */
+    private boolean mHasGoneActiveBefore = false;
+
+    /**
      * Persists the specified parameters and initializes the new instance.
      * @param context The context.
      * @param repository The connection service repository.
@@ -589,7 +602,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             int callDirection,
             boolean shouldAttachToExistingConnection,
             boolean isConference,
-            ClockProxy clockProxy) {
+            ClockProxy clockProxy,
+            ToastFactory toastFactory) {
         mId = callId;
         mConnectionId = callId;
         mState = isConference ? CallState.ACTIVE : CallState.NEW;
@@ -610,6 +624,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 || callDirection == CALL_DIRECTION_INCOMING;
         maybeLoadCannedSmsResponses();
         mClockProxy = clockProxy;
+        mToastFactory = toastFactory;
         mCreationTimeMillis = mClockProxy.currentTimeMillis();
     }
 
@@ -647,11 +662,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             boolean isConference,
             long connectTimeMillis,
             long connectElapsedTimeMillis,
-            ClockProxy clockProxy) {
+            ClockProxy clockProxy,
+            ToastFactory toastFactory) {
         this(callId, context, callsManager, lock, repository,
                 phoneNumberUtilsAdapter, handle, gatewayInfo,
                 connectionManagerPhoneAccountHandle, targetPhoneAccountHandle, callDirection,
-                shouldAttachToExistingConnection, isConference, clockProxy);
+                shouldAttachToExistingConnection, isConference, clockProxy, toastFactory);
 
         mConnectTimeMillis = connectTimeMillis;
         mConnectElapsedTimeMillis = connectElapsedTimeMillis;
@@ -943,6 +959,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 // We're clearly not disconnected, so reset the disconnected time.
                 mDisconnectTimeMillis = 0;
                 mDisconnectElapsedTimeMillis = 0;
+                mHasGoneActiveBefore = true;
             } else if (mState == CallState.DISCONNECTED) {
                 mDisconnectTimeMillis = mClockProxy.currentTimeMillis();
                 mDisconnectElapsedTimeMillis = mClockProxy.elapsedRealtime();
@@ -1944,10 +1961,11 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             Log.v(this, "Aborting call %s", this);
             abort(disconnectionTimeout);
         } else if (mState != CallState.ABORTED && mState != CallState.DISCONNECTED) {
-            if (mState == CallState.AUDIO_PROCESSING) {
+            if (mState == CallState.AUDIO_PROCESSING && !hasGoneActiveBefore()) {
                 mOverrideDisconnectCauseCode = DisconnectCause.REJECTED;
             } else if (mState == CallState.SIMULATED_RINGING) {
                 // This is the case where the dialer calls disconnect() because the call timed out
+                // or an emergency call was dialed while in this state.
                 // Override the disconnect cause to MISSED
                 mOverrideDisconnectCauseCode = DisconnectCause.MISSED;
             }
@@ -2389,6 +2407,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * device, so will issue a request to pull the call to the second device.
      * <p>
      * Requests to pull a call which is not external, or a call which is not pullable are ignored.
+     * If there is an ongoing emergency call, pull requests are also ignored.
      */
     public void pullExternalCall() {
         if (mConnectionService == null) {
@@ -2404,6 +2423,15 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             Log.w(this, "pullExternalCall - call %s is external but cannot be pulled.", mId);
             return;
         }
+
+        if (mCallsManager.isInEmergencyCall()) {
+            Log.w(this, "pullExternalCall = pullExternalCall - call %s is external but can not be"
+                    + " pulled while an emergency call is in progress.", mId);
+            mToastFactory.makeText(mContext, R.string.toast_emergency_can_not_pull_call,
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
         Log.addEvent(this, LogUtils.Events.REQUEST_PULL);
         mConnectionService.pullExternalCall(this);
     }
@@ -2438,8 +2466,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(mContext, "WARNING: Event-based handover APIs are deprecated "
-                                            + "and will no longer function in Android Q.",
+                            mToastFactory.makeText(mContext,
+                                    "WARNING: Event-based handover APIs are deprecated and will no"
+                                            + " longer function in Android Q.",
                                     Toast.LENGTH_LONG).show();
                         }
                     });
@@ -3314,6 +3343,18 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     public void setIsUsingCallFiltering(boolean isUsingCallFiltering) {
         mIsUsingCallFiltering = isUsingCallFiltering;
+    }
+
+    /**
+     * In some cases, we need to know if this call has ever gone active (for example, the case
+     * when the call was put into the {@link CallState#AUDIO_PROCESSING} state after being active)
+     * for call logging purposes.
+     *
+     * @return {@code true} if this call has gone active before (even if it isn't now), false if it
+     * has never gone active.
+     */
+    public boolean hasGoneActiveBefore() {
+        return mHasGoneActiveBefore;
     }
 
     /**
