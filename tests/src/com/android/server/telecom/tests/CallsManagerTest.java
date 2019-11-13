@@ -25,6 +25,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyChar;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doAnswer;
@@ -35,10 +37,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Process;
 import android.os.SystemClock;
+import android.telecom.CallerInfo;
 import android.telecom.Connection;
 import android.telecom.Log;
 import android.telecom.PhoneAccount;
@@ -48,8 +52,8 @@ import android.telecom.VideoProfile;
 import android.telephony.TelephonyManager;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.widget.Toast;
 
-import android.telecom.CallerInfo;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallAudioManager;
@@ -84,6 +88,7 @@ import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
 import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.ui.AudioProcessingNotification;
+import com.android.server.telecom.ui.ToastFactory;
 
 import org.junit.After;
 import org.junit.Before;
@@ -176,6 +181,8 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private RoleManagerAdapter mRoleManagerAdapter;
     @Mock private IncomingCallFilter.Factory mIncomingCallFilterFactory;
     @Mock private IncomingCallFilter mIncomingCallFilter;
+    @Mock private ToastFactory mToastFactory;
+    @Mock private Toast mToast;
 
     private CallsManager mCallsManager;
 
@@ -229,7 +236,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 mCallAudioModeStateMachineFactory,
                 mInCallControllerFactory,
                 mRoleManagerAdapter,
-                mIncomingCallFilterFactory);
+                mIncomingCallFilterFactory,
+                mToastFactory);
 
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SELF_MANAGED_HANDLE), any())).thenReturn(SELF_MANAGED_ACCOUNT);
@@ -237,6 +245,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 eq(SIM_1_HANDLE), any())).thenReturn(SIM_1_ACCOUNT);
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SIM_2_HANDLE), any())).thenReturn(SIM_2_ACCOUNT);
+        when(mToastFactory.makeText(any(), anyInt(), anyInt())).thenReturn(mToast);
+        when(mToastFactory.makeText(any(), any(), anyInt())).thenReturn(mToast);
     }
 
     @Override
@@ -276,7 +286,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 Call.CALL_DIRECTION_INCOMING,
                 false /* shouldAttachToExistingConnection*/,
                 false /* isConference */,
-                mClockProxy);
+                mClockProxy,
+                mToastFactory);
         ongoingCall.setState(CallState.ACTIVE, "just cuz");
         mCallsManager.addCall(ongoingCall);
 
@@ -1041,6 +1052,102 @@ public class CallsManagerTest extends TelecomTestCase {
         assertTrue(mCallsManager.isInEmergencyCall());
     }
 
+    @SmallTest
+    @Test
+    public void testIsInEmergencyCallLocalDisconnected() {
+        // Setup a call which is considered emergency based on its phone number.
+        Call ongoingCall = addSpyCall();
+        when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
+                .thenReturn(true);
+        ongoingCall.setHandle(Uri.fromParts("tel", "5551212", null),
+                TelecomManager.PRESENTATION_ALLOWED);
+
+        // and then set it as disconnected.
+        ongoingCall.setState(CallState.DISCONNECTED, "");
+        assertTrue(ongoingCall.isEmergencyCall());
+        assertFalse(ongoingCall.isNetworkIdentifiedEmergencyCall());
+        assertFalse(mCallsManager.isInEmergencyCall());
+    }
+
+    @SmallTest
+    @Test
+    public void testHasEmergencyCallIncomingCallPermitted() {
+        // Setup a call which is considered emergency based on its phone number.
+        Call ongoingCall = addSpyCall();
+        when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
+                .thenReturn(true);
+        ongoingCall.setHandle(Uri.fromParts("tel", "5551212", null),
+                TelecomManager.PRESENTATION_ALLOWED);
+        when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(SELF_MANAGED_HANDLE))
+                .thenReturn(SELF_MANAGED_ACCOUNT);
+        when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(SIM_1_HANDLE))
+                .thenReturn(SIM_1_ACCOUNT);
+
+        assertFalse(mCallsManager.isIncomingCallPermitted(null, SELF_MANAGED_HANDLE));
+        assertFalse(mCallsManager.isIncomingCallPermitted(null, SIM_1_HANDLE));
+    }
+
+    @SmallTest
+    @Test
+    public void testMakeRoomForOutgoingCallAudioProcessingInProgress() {
+        Call ongoingCall = addSpyCall(SIM_2_HANDLE, CallState.AUDIO_PROCESSING);
+
+        Call newEmergencyCall = createCall(SIM_1_HANDLE, CallState.NEW);
+        when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
+                .thenReturn(true);
+        newEmergencyCall.setHandle(Uri.fromParts("tel", "5551213", null),
+                TelecomManager.PRESENTATION_ALLOWED);
+
+        assertTrue(mCallsManager.makeRoomForOutgoingCall(newEmergencyCall, true /*isEmergency*/));
+        verify(ongoingCall).disconnect(anyLong(), anyString());
+    }
+
+    @SmallTest
+    @Test
+    public void testMakeRoomForEmergencyDuringIncomingCall() {
+        Call ongoingCall = addSpyCall(SIM_2_HANDLE, CallState.RINGING);
+
+        Call newEmergencyCall = createCall(SIM_1_HANDLE, CallState.NEW);
+        when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
+                .thenReturn(true);
+        newEmergencyCall.setHandle(Uri.fromParts("tel", "5551213", null),
+                TelecomManager.PRESENTATION_ALLOWED);
+
+        assertTrue(mCallsManager.makeRoomForOutgoingCall(newEmergencyCall, true /*isEmergency*/));
+        verify(ongoingCall).reject(anyBoolean(), any(), any());
+    }
+
+    @SmallTest
+    @Test
+    public void testMakeRoomForEmergencyCallSimulatedRingingInProgress() {
+        Call ongoingCall = addSpyCall(SIM_2_HANDLE, CallState.SIMULATED_RINGING);
+
+        Call newEmergencyCall = createCall(SIM_1_HANDLE, CallState.NEW);
+        when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
+                .thenReturn(true);
+        newEmergencyCall.setHandle(Uri.fromParts("tel", "5551213", null),
+                TelecomManager.PRESENTATION_ALLOWED);
+
+        assertTrue(mCallsManager.makeRoomForOutgoingCall(newEmergencyCall, true /*isEmergency*/));
+        verify(ongoingCall).disconnect(anyString());
+    }
+
+    @SmallTest
+    @Test
+    public void testMakeRoomForEmergencyCallSimulatedRingingInProgressHasBeenActive() {
+        Call ongoingCall = addSpyCall(SIM_2_HANDLE, CallState.ACTIVE);
+        ongoingCall.setState(CallState.SIMULATED_RINGING, "");
+
+        Call newEmergencyCall = createCall(SIM_1_HANDLE, CallState.NEW);
+        when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
+                .thenReturn(true);
+        newEmergencyCall.setHandle(Uri.fromParts("tel", "5551213", null),
+                TelecomManager.PRESENTATION_ALLOWED);
+
+        assertTrue(mCallsManager.makeRoomForOutgoingCall(newEmergencyCall, true /*isEmergency*/));
+        verify(ongoingCall).reject(anyBoolean(), any(), any());
+    }
+
     /**
      * Verifies that changes to a {@link PhoneAccount}'s
      * {@link PhoneAccount#CAPABILITY_VIDEO_CALLING} capability will be reflected on a call.
@@ -1112,6 +1219,21 @@ public class CallsManagerTest extends TelecomTestCase {
     }
 
     private Call addSpyCall(PhoneAccountHandle targetPhoneAccount, int initialState) {
+        Call ongoingCall = createCall(targetPhoneAccount, initialState);
+        Call callSpy = Mockito.spy(ongoingCall);
+
+        // Mocks some methods to not call the real method.
+        doNothing().when(callSpy).unhold();
+        doNothing().when(callSpy).hold();
+        doNothing().when(callSpy).disconnect();
+        doNothing().when(callSpy).answer(Matchers.anyInt());
+        doNothing().when(callSpy).setStartWithSpeakerphoneOn(Matchers.anyBoolean());
+
+        mCallsManager.addCall(callSpy);
+        return callSpy;
+    }
+
+    private Call createCall(PhoneAccountHandle targetPhoneAccount, int initialState) {
         Call ongoingCall = new Call(String.format("TC@%d", sCallId++), /* callId */
                 mContext,
                 mCallsManager,
@@ -1125,19 +1247,10 @@ public class CallsManagerTest extends TelecomTestCase {
                 Call.CALL_DIRECTION_INCOMING,
                 false /* shouldAttachToExistingConnection*/,
                 false /* isConference */,
-                mClockProxy);
+                mClockProxy,
+                mToastFactory);
         ongoingCall.setState(initialState, "just cuz");
-        Call callSpy = Mockito.spy(ongoingCall);
-
-        // Mocks some methods to not call the real method.
-        doNothing().when(callSpy).unhold();
-        doNothing().when(callSpy).hold();
-        doNothing().when(callSpy).disconnect();
-        doNothing().when(callSpy).answer(Matchers.anyInt());
-        doNothing().when(callSpy).setStartWithSpeakerphoneOn(Matchers.anyBoolean());
-
-        mCallsManager.addCall(callSpy);
-        return callSpy;
+        return ongoingCall;
     }
 
     private void verifyFocusRequestAndExecuteCallback(Call call) {
