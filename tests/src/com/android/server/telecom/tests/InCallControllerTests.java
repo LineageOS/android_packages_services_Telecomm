@@ -93,17 +93,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.matches;
-import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
 @RunWith(JUnit4.class)
@@ -179,7 +172,7 @@ public class InCallControllerTests extends TelecomTestCase {
     public void testBindToService_NoServicesFound_IncomingCall() throws Exception {
         when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
-        when(mMockCallsManager.hasEmergencyCall()).thenReturn(false);
+        when(mMockCallsManager.isInEmergencyCall()).thenReturn(false);
         when(mMockCall.isIncoming()).thenReturn(true);
         when(mMockCall.isExternalCall()).thenReturn(false);
         when(mTimeoutsAdapter.getEmergencyCallbackWindowMillis(any(ContentResolver.class)))
@@ -211,7 +204,7 @@ public class InCallControllerTests extends TelecomTestCase {
 
         when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
-        when(mMockCallsManager.hasEmergencyCall()).thenReturn(false);
+        when(mMockCallsManager.isInEmergencyCall()).thenReturn(false);
         when(mMockCall.isIncoming()).thenReturn(false);
         when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
         when(mMockCall.getIntentExtras()).thenReturn(callExtras);
@@ -249,7 +242,7 @@ public class InCallControllerTests extends TelecomTestCase {
 
         when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
-        when(mMockCallsManager.hasEmergencyCall()).thenReturn(false);
+        when(mMockCallsManager.isInEmergencyCall()).thenReturn(false);
         when(mMockCall.isIncoming()).thenReturn(false);
         when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
         when(mMockCall.getIntentExtras()).thenReturn(callExtras);
@@ -301,7 +294,7 @@ public class InCallControllerTests extends TelecomTestCase {
 
         when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
-        when(mMockCallsManager.hasEmergencyCall()).thenReturn(true);
+        when(mMockCallsManager.isInEmergencyCall()).thenReturn(true);
         when(mMockCall.isEmergencyCall()).thenReturn(true);
         when(mMockCall.isIncoming()).thenReturn(false);
         when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
@@ -371,7 +364,7 @@ public class InCallControllerTests extends TelecomTestCase {
 
         when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
-        when(mMockCallsManager.hasEmergencyCall()).thenReturn(false);
+        when(mMockCallsManager.isInEmergencyCall()).thenReturn(false);
         when(mMockCallsManager.getCalls()).thenReturn(Collections.singletonList(mMockCall));
         when(mMockCallsManager.getAudioState()).thenReturn(null);
         when(mMockCallsManager.canAddCall()).thenReturn(false);
@@ -497,7 +490,7 @@ public class InCallControllerTests extends TelecomTestCase {
     public void testUnbindDueToCallDisconnect() throws Exception {
         when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
-        when(mMockCallsManager.hasEmergencyCall()).thenReturn(false);
+        when(mMockCallsManager.isInEmergencyCall()).thenReturn(false);
         when(mMockCall.isIncoming()).thenReturn(true);
         when(mMockCall.isExternalCall()).thenReturn(false);
         when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID)).thenReturn(DEF_PKG);
@@ -699,7 +692,7 @@ public class InCallControllerTests extends TelecomTestCase {
     public void testBindingFuture() throws Exception {
         when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
-        when(mMockCallsManager.hasEmergencyCall()).thenReturn(false);
+        when(mMockCallsManager.isInEmergencyCall()).thenReturn(false);
         when(mMockCall.isIncoming()).thenReturn(false);
         when(mMockCall.isExternalCall()).thenReturn(false);
         when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID)).thenReturn(DEF_PKG);
@@ -745,7 +738,7 @@ public class InCallControllerTests extends TelecomTestCase {
     private void setupMocks(boolean isExternalCall) {
         when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
-        when(mMockCallsManager.hasEmergencyCall()).thenReturn(false);
+        when(mMockCallsManager.isInEmergencyCall()).thenReturn(false);
         when(mMockCall.isIncoming()).thenReturn(false);
         when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
         when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID)).thenReturn(DEF_PKG);

@@ -1527,7 +1527,8 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         }
     }
 
-    void pullExternalCall(Call call) {
+    @VisibleForTesting
+    public void pullExternalCall(Call call) {
         final String callId = mCallIdMapper.getCallId(call);
         if (callId != null && isServiceValid("pullExternalCall")) {
             try {
