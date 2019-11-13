@@ -335,6 +335,11 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt">Call Blocking has been disabled to allow emergency responders to contact you.</string>
     <!-- Window title used for the Telecom Developer Menu -->
     <string name="developer_title">Telecom Developer Menu</string>
+    <!-- Some carriers allow an "external" call that has been placed on another device (another
+    tablet, phone, etc...) to be transferred to this device and taken as a call. In
+    the situation that we are already in an emergency call, notify the user that the call can not
+    be taken at this time.-->
+    <string name="toast_emergency_can_not_pull_call">Calls can not be taken while in an emergency call.</string>
     <!-- Label for a switch in the Telecom Developer Menu which is used to enable the enhanced call
          blocking functionality (for test purposes).
          DO NOT TRANSLATE -->
