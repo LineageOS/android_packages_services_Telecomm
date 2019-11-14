@@ -18,6 +18,7 @@ package com.android.server.telecom.tests;
 
 import static junit.framework.Assert.fail;
 
+import android.telecom.Log;
 import android.telecom.Logging.Session;
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -48,30 +49,189 @@ public class SessionTest extends TelecomTestCase {
 
     /**
      * Ensure creating two sessions that are parent/child of each other does not lead to a crash
-     * or infinite recursion.
+     * or infinite recursion when using Session#printFullSessionTree.
+     */
+    @SmallTest
+    @Test
+    public void testRecursion_printFullSessionTree() {
+        Log.startSession("testParent");
+        // Running in the same thread, so mark as invisible subsession
+        Session childSession = Log.getSessionManager()
+                .createSubsession(true /*isStartedFromActiveSession*/);
+        Log.continueSession(childSession, "child");
+        Session parentSession = childSession.getParentSession();
+        // Create a circular dependency and ensure we do not crash
+        parentSession.setParentSession(childSession);
+        childSession.addChild(parentSession);
+
+        // Make sure calling these methods does not result in a crash
+        try {
+            parentSession.printFullSessionTree();
+            childSession.printFullSessionTree();
+        } catch (Exception e) {
+            fail("Exception: " + e.getMessage());
+        } finally {
+            // End child
+            Log.endSession();
+            // End parent
+            Log.endSession();
+        }
+    }
+
+    /**
+     * Ensure creating two sessions that are parent/child of each other does not lead to a crash
+     * or infinite recursion when using Session#getFullMethodPath.
+     */
+    @SmallTest
+    @Test
+    public void testRecursion_getFullMethodPath() {
+        Log.startSession("testParent");
+        // Running in the same thread, so mark as invisible subsession
+        Session childSession = Log.getSessionManager()
+                .createSubsession(true /*isStartedFromActiveSession*/);
+        Log.continueSession(childSession, "child");
+        Session parentSession = childSession.getParentSession();
+        // Create a circular dependency and ensure we do not crash
+        parentSession.setParentSession(childSession);
+        childSession.addChild(parentSession);
+
+        // Make sure calling these methods does not result in a crash
+        try {
+            parentSession.getFullMethodPath(false /*truncatePath*/);
+            childSession.getFullMethodPath(false /*truncatePath*/);
+        } catch (Exception e) {
+            fail("Exception: " + e.getMessage());
+        } finally {
+            // End child
+            Log.endSession();
+            // End parent
+            Log.endSession();
+        }
+    }
+
+    /**
+     * Ensure creating two sessions that are parent/child of each other does not lead to a crash
+     * or infinite recursion when using Session#getFullMethodPath.
+     */
+    @SmallTest
+    @Test
+    public void testRecursion_getFullMethodPathTruncated() {
+        Log.startSession("testParent");
+        // Running in the same thread, so mark as invisible subsession
+        Session childSession = Log.getSessionManager()
+                .createSubsession(true /*isStartedFromActiveSession*/);
+        Log.continueSession(childSession, "child");
+        Session parentSession = childSession.getParentSession();
+        // Create a circular dependency and ensure we do not crash
+        parentSession.setParentSession(childSession);
+        childSession.addChild(parentSession);
+
+        // Make sure calling these methods does not result in a crash
+        try {
+            parentSession.getFullMethodPath(true /*truncatePath*/);
+            childSession.getFullMethodPath(true /*truncatePath*/);
+        } catch (Exception e) {
+            fail("Exception: " + e.getMessage());
+        } finally {
+            // End child
+            Log.endSession();
+            // End parent
+            Log.endSession();
+        }
+    }
+
+    /**
+     * Ensure creating two sessions that are parent/child of each other does not lead to a crash
+     * or infinite recursion when using Session#toString.
+     */
+    @SmallTest
+    @Test
+    public void testRecursion_toString() {
+        Log.startSession("testParent");
+        // Running in the same thread, so mark as invisible subsession
+        Session childSession = Log.getSessionManager()
+                .createSubsession(true /*isStartedFromActiveSession*/);
+        Log.continueSession(childSession, "child");
+        Session parentSession = childSession.getParentSession();
+        // Create a circular dependency and ensure we do not crash
+        parentSession.setParentSession(childSession);
+        childSession.addChild(parentSession);
+
+        // Make sure calling these methods does not result in a crash
+        try {
+
+            parentSession.toString();
+            childSession.toString();
+        } catch (Exception e) {
+            fail("Exception: " + e.getMessage());
+        } finally {
+            // End child
+            Log.endSession();
+            // End parent
+            Log.endSession();
+        }
+    }
+
+    /**
+     * Ensure creating two sessions that are parent/child of each other does not lead to a crash
+     * or infinite recursion when using Session#getInfo.
+     */
+    @SmallTest
+    @Test
+    public void testRecursion_getInfo() {
+        Log.startSession("testParent");
+        // Running in the same thread, so mark as invisible subsession
+        Session childSession = Log.getSessionManager()
+                .createSubsession(true /*isStartedFromActiveSession*/);
+        Log.continueSession(childSession, "child");
+        Session parentSession = childSession.getParentSession();
+        // Create a circular dependency and ensure we do not crash
+        parentSession.setParentSession(childSession);
+        childSession.addChild(parentSession);
+
+        // Make sure calling these methods does not result in a crash
+        try {
+            Session.Info.getInfo(parentSession);
+            Session.Info.getInfo(childSession);
+        } catch (Exception e) {
+            fail("Exception: " + e.getMessage());
+        } finally {
+            // End child
+            Log.endSession();
+            // End parent
+            Log.endSession();
+        }
+    }
+
+    /**
+     * Ensure creating two sessions that are parent/child of each other does not lead to a crash
+     * or infinite recursion in the general case.
      */
     @SmallTest
     @Test
     public void testRecursion() {
         Session parentSession =  createTestSession("parent", "p");
         Session childSession =  createTestSession("child", "c");
+        // Create a circular dependency
         parentSession.addChild(childSession);
-        parentSession.setParentSession(childSession);
         childSession.addChild(parentSession);
+        parentSession.setParentSession(childSession);
         childSession.setParentSession(parentSession);
 
         // Make sure calling these methods does not result in a crash
         try {
             parentSession.printFullSessionTree();
             childSession.printFullSessionTree();
-            parentSession.getFullMethodPath(false);
-            childSession.getFullMethodPath(false);
+            parentSession.getFullMethodPath(false /*truncatePath*/);
+            childSession.getFullMethodPath(false /*truncatePath*/);
+            parentSession.getFullMethodPath(true /*truncatePath*/);
+            childSession.getFullMethodPath(true /*truncatePath*/);
             parentSession.toString();
             childSession.toString();
             Session.Info.getInfo(parentSession);
             Session.Info.getInfo(childSession);
         } catch (Exception e) {
-            fail();
+            fail("Exception: " + e.getMessage());
         }
     }
 
