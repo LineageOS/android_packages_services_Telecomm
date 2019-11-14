@@ -31,6 +31,7 @@ import com.android.server.telecom.ParcelableCallUtils;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.PhoneNumberUtilsAdapter;
 import com.android.server.telecom.TelecomSystem;
+import com.android.server.telecom.ui.ToastFactory;
 
 import org.junit.After;
 import org.junit.Before;
@@ -45,6 +46,7 @@ public class ParcelableCallUtilsTest extends TelecomTestCase {
 
     private SyncRoot mLock = new SyncRoot() {};
     @Mock private ClockProxy mClockProxy;
+    @Mock private ToastFactory mToastProxy;
     @Mock private CallsManager mCallsManager;
     @Mock private CallerInfoLookupHelper mCallerInfoLookupHelper;
     @Mock private PhoneNumberUtilsAdapter mPhoneNumberUtilsAdapter;
@@ -77,7 +79,8 @@ public class ParcelableCallUtilsTest extends TelecomTestCase {
                 Call.CALL_DIRECTION_INCOMING,
                 false /* shouldAttachToExistingConnection */,
                 false /* isConference */,
-                mClockProxy /* ClockProxy */);
+                mClockProxy /* ClockProxy */,
+                mToastProxy);
     }
 
     @Override

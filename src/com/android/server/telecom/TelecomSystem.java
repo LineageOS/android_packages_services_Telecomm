@@ -29,6 +29,7 @@ import com.android.server.telecom.ui.MissedCallNotifierImpl.MissedCallNotifierIm
 import com.android.server.telecom.BluetoothPhoneServiceImpl.BluetoothPhoneServiceImplFactory;
 import com.android.server.telecom.CallAudioManager.AudioServiceFactory;
 import com.android.server.telecom.DefaultDialerCache.DefaultDialerManagerAdapter;
+import com.android.server.telecom.ui.ToastFactory;
 
 import android.app.ActivityManager;
 import android.Manifest;
@@ -43,6 +44,7 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
+import android.widget.Toast;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -272,6 +274,19 @@ public class TelecomSystem {
         AudioProcessingNotification audioProcessingNotification =
                 new AudioProcessingNotification(mContext);
 
+        ToastFactory toastFactory = new ToastFactory() {
+            @Override
+            public Toast makeText(Context context, int resId, int duration) {
+                return Toast.makeText(context, context.getMainLooper(), context.getString(resId),
+                        duration);
+            }
+
+            @Override
+            public Toast makeText(Context context, CharSequence text, int duration) {
+                return Toast.makeText(context, context.getMainLooper(), text, duration);
+            }
+        };
+
         mCallsManager = new CallsManager(
                 mContext,
                 mLock,
@@ -299,7 +314,8 @@ public class TelecomSystem {
                 callAudioModeStateMachineFactory,
                 inCallControllerFactory,
                 roleManagerAdapter,
-                incomingCallFilterFactory);
+                incomingCallFilterFactory,
+                toastFactory);
 
         mIncomingCallNotifier = incomingCallNotifier;
         incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {

@@ -358,6 +358,7 @@ public class BasicCallTests extends TelecomSystemTest {
                 mInCallServiceFixtureY.getCall(ids.mCallId).getState());
     }
 
+    @FlakyTest
     @LargeTest
     @Test
     public void testIncomingCallFromContactWithSendToVoicemailIsRejected() throws Exception {
