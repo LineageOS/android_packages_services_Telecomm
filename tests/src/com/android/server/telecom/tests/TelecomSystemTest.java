@@ -62,6 +62,8 @@ import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
+import android.telephony.TelephonyManager;
+import android.telephony.TelephonyRegistryManager;
 import android.text.TextUtils;
 
 import com.android.internal.telecom.IInCallAdapter;
@@ -1022,6 +1024,16 @@ public class TelecomSystemTest extends TelecomTestCase {
         if (phoneAccountHandle != mPhoneAccountSelfManaged.getAccountHandle()) {
             assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
             assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureY.getCall(ids.mCallId).getState());
+
+            if ((mInCallServiceFixtureX.getCall(ids.mCallId).getProperties() &
+                    Call.Details.PROPERTY_IS_EXTERNAL_CALL) == 0) {
+                // Test the PhoneStateBroadcaster functionality if the call is not external.
+                verify(mContext.getSystemService(TelephonyRegistryManager.class),
+                        timeout(TEST_TIMEOUT).atLeastOnce())
+                        .notifyCallStateChangedForAllSubscriptions(
+                                eq(TelephonyManager.CALL_STATE_OFFHOOK),
+                                nullable(String.class));
+            }
         }
         return ids;
     }
@@ -1070,6 +1082,16 @@ public class TelecomSystemTest extends TelecomTestCase {
         if (phoneAccountHandle != mPhoneAccountSelfManaged.getAccountHandle()) {
             assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
             assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureY.getCall(ids.mCallId).getState());
+
+            if ((mInCallServiceFixtureX.getCall(ids.mCallId).getProperties() &
+                    Call.Details.PROPERTY_IS_EXTERNAL_CALL) == 0) {
+                // Test the PhoneStateBroadcaster functionality if the call is not external.
+                verify(mContext.getSystemService(TelephonyRegistryManager.class),
+                        timeout(TEST_TIMEOUT).atLeastOnce())
+                        .notifyCallStateChangedForAllSubscriptions(
+                                eq(TelephonyManager.CALL_STATE_OFFHOOK),
+                                nullable(String.class));
+            }
         }
         return ids;
     }

@@ -377,10 +377,13 @@ public class BasicCallTests extends TelecomSystemTest {
         waitForHandlerAction(mConnectionServiceFixtureA.mConnectionServiceDelegate.getHandler(),
                 TEST_TIMEOUT);
         assertEquals(1, mCallerInfoAsyncQueryFactoryFixture.mRequests.size());
+
+        CallerInfo sendToVoicemailCallerInfo = new CallerInfo();
+        sendToVoicemailCallerInfo.shouldSendToVoicemail = true;
+        sendToVoicemailCallerInfo.contactExists = true;
+        mCallerInfoAsyncQueryFactoryFixture.setResponse(sendToVoicemailCallerInfo);
         for (CallerInfoAsyncQueryFactoryFixture.Request request :
                 mCallerInfoAsyncQueryFactoryFixture.mRequests) {
-            CallerInfo sendToVoicemailCallerInfo = new CallerInfo();
-            sendToVoicemailCallerInfo.shouldSendToVoicemail = true;
             request.replyWithCallerInfo(sendToVoicemailCallerInfo);
         }
 
