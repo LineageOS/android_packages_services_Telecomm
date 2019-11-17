@@ -112,4 +112,6 @@
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="6629412508584507377">"已拨打紧急呼救电话"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"系统已停用来电屏蔽功能，以便急救人员与您联系。"</string>
     <string name="developer_title" msgid="9146088855661672353">"电信开发者菜单"</string>
+    <!-- no translation found for toast_emergency_can_not_pull_call (9074229465338410869) -->
+    <skip />
 </resources>
