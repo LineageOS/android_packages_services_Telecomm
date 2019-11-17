@@ -5,7 +5,9 @@ include $(CLEAR_VARS)
 
 LOCAL_JAVA_LIBRARIES := telephony-common
 
-LOCAL_STATIC_JAVA_LIBRARIES := org.lineageos.platform.internal
+LOCAL_STATIC_JAVA_LIBRARIES := \
+    org.lineageos.platform.internal \
+    org.lineageos.lib.phone
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-proto-files-under, proto)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
