@@ -1,0 +1,36 @@
+<<<<<<< HEAD   (7696e2 Merge tag 'android-10.0.0_r11' into lineage-17.0)
+=======
+LOCAL_PATH:= $(call my-dir)
+
+# Build the Telecom service.
+include $(CLEAR_VARS)
+
+LOCAL_JAVA_LIBRARIES := telephony-common
+
+LOCAL_STATIC_JAVA_LIBRARIES := \
+    org.lineageos.platform.internal \
+    org.lineageos.platform.internal.phone
+
+LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-proto-files-under, proto)
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_USE_AAPT2 := true
+
+LOCAL_PROTOC_OPTIMIZE_TYPE := nano
+LOCAL_PROTOC_FLAGS := --proto_path=$(LOCAL_PATH)/proto/
+LOCAL_PROTO_JAVA_OUTPUT_PARAMS := optional_field_style=accessors
+
+LOCAL_PACKAGE_NAME := Telecom
+LOCAL_PRIVATE_PLATFORM_APIS := true
+
+LOCAL_CERTIFICATE := platform
+LOCAL_PRIVILEGED_MODULE := true
+
+LOCAL_PROGUARD_FLAG_FILES := proguard.flags
+
+include frameworks/base/packages/SettingsLib/common.mk
+
+include $(BUILD_PACKAGE)
+
+# Build the test package.
+include $(call all-makefiles-under,$(LOCAL_PATH))
+>>>>>>> CHANGE (1f768b Telecom: Move SensitivePhoneNumbers to own package)
