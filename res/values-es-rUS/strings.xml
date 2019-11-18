@@ -43,8 +43,8 @@
     <string name="outgoing_call_not_allowed_no_permission" msgid="8590468836581488679">"Esta aplicación no puede realizar llamadas salientes sin permiso del teléfono."</string>
     <string name="outgoing_call_error_no_phone_number_supplied" msgid="7665135102566099778">"Para realizar una llamada, ingresa un número válido."</string>
     <string name="duplicate_video_call_not_allowed" msgid="5754746140185781159">"No se puede agregar la llamada en este momento."</string>
-    <string name="no_vm_number" msgid="2179959110602180844">"Falta el número de correo de voz"</string>
-    <string name="no_vm_number_msg" msgid="1339245731058529388">"No hay un número de correo de voz almacenado en la tarjeta SIM."</string>
+    <string name="no_vm_number" msgid="2179959110602180844">"Falta el número de buzón de voz"</string>
+    <string name="no_vm_number_msg" msgid="1339245731058529388">"No hay un número de buzón de voz almacenado en la tarjeta SIM."</string>
     <string name="add_vm_number_str" msgid="5179510133063168998">"Agregar número"</string>
     <string name="change_default_dialer_dialog_title" msgid="5861469279421508060">"¿Establecer <xliff:g id="NEW_APP">%s</xliff:g> como la app de teléfono predeterminada?"</string>
     <string name="change_default_dialer_dialog_affirmative" msgid="8604665314757739550">"Establecer como predeterminada"</string>
