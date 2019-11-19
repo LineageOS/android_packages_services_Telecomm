@@ -112,4 +112,6 @@
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="6629412508584507377">"आणीबाणी कॉल केला"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"आणीबाणीत प्रतिसाद देणार्‍यांना तुमच्‍याशी संपर्क साधण्‍याची अनुमती देण्‍यासाठी कॉल ब्‍लॉक करणे बंद केले आहे."</string>
     <string name="developer_title" msgid="9146088855661672353">"टेलिकॉम डेव्‍हलपर मेनू"</string>
+    <!-- no translation found for toast_emergency_can_not_pull_call (9074229465338410869) -->
+    <skip />
 </resources>
