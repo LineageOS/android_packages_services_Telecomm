@@ -63,6 +63,7 @@ import android.telecom.TelecomManager;
 import android.telephony.CarrierConfigManager;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
+import android.telephony.TelephonyRegistryManager;
 import android.test.mock.MockContext;
 
 import java.io.File;
@@ -195,6 +196,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
                     return mCountryDetector;
                 case Context.ROLE_SERVICE:
                     return mRoleManager;
+                case Context.TELEPHONY_REGISTRY_SERVICE:
+                    return mTelephonyRegistryManager;
                 default:
                     return null;
             }
@@ -214,6 +217,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
                 return Context.CARRIER_CONFIG_SERVICE;
             } else if (svcClass == SubscriptionManager.class) {
                 return Context.TELEPHONY_SUBSCRIPTION_SERVICE;
+            } else if (svcClass == TelephonyRegistryManager.class) {
+                return Context.TELEPHONY_REGISTRY_SERVICE;
             }
             throw new UnsupportedOperationException();
         }
@@ -463,6 +468,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
     private final Configuration mResourceConfiguration = new Configuration();
     private final ApplicationInfo mTestApplicationInfo = new ApplicationInfo();
     private final RoleManager mRoleManager = mock(RoleManager.class);
+    private final TelephonyRegistryManager mTelephonyRegistryManager =
+            mock(TelephonyRegistryManager.class);
 
     private TelecomManager mTelecomManager = mock(TelecomManager.class);
 
