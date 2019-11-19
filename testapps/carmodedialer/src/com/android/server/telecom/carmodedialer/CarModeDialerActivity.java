@@ -1,43 +1,46 @@
-package com.android.server.telecom.testapps;
+/*
+ * Copyright (C) 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License
+ */
 
-import static android.content.res.Configuration.UI_MODE_TYPE_CAR;
+package com.android.server.telecom.carmodedialer;
 
 import android.app.Activity;
 import android.app.UiModeManager;
 import android.content.ComponentName;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.CallLog.Calls;
 import android.telecom.PhoneAccount;
 import android.telecom.TelecomManager;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class TestDialerActivity extends Activity {
+public class CarModeDialerActivity extends Activity {
     private static final int REQUEST_CODE_SET_DEFAULT_DIALER = 1;
 
     private EditText mNumberView;
-    private CheckBox mRttCheckbox;
     private EditText mPriorityView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.testdialer_main);
-        findViewById(R.id.set_default_button).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setDefault();
-            }
-        });
 
         findViewById(R.id.place_call_button).setOnClickListener(new OnClickListener() {
             @Override
@@ -46,22 +49,7 @@ public class TestDialerActivity extends Activity {
             }
         });
 
-        findViewById(R.id.test_voicemail_button).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                testVoicemail();
-            }
-        });
-
-        findViewById(R.id.cancel_missed_button).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cancelMissedCallNotification();
-            }
-        });
-
         mNumberView = (EditText) findViewById(R.id.number);
-        mRttCheckbox = (CheckBox) findViewById(R.id.call_with_rtt_checkbox);
         findViewById(R.id.enable_car_mode).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -80,7 +68,9 @@ public class TestDialerActivity extends Activity {
                 toggleInCallService();
             }
         });
+
         mPriorityView = findViewById(R.id.priority);
+
         updateMutableUi();
     }
 
@@ -105,15 +95,7 @@ public class TestDialerActivity extends Activity {
         Intent intent = getIntent();
         if (intent != null) {
             mNumberView.setText(intent.getDataString());
-            mRttCheckbox.setChecked(
-                    intent.getBooleanExtra(TelecomManager.EXTRA_START_CALL_WITH_RTT, false));
         }
-    }
-
-    private void setDefault() {
-        final Intent intent = new Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER);
-        intent.putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, getPackageName());
-        startActivityForResult(intent, REQUEST_CODE_SET_DEFAULT_DIALER);
     }
 
     private void placeCall() {
@@ -123,46 +105,16 @@ public class TestDialerActivity extends Activity {
                 mNumberView.getText().toString(), null), createCallIntentExtras());
     }
 
-    private void testVoicemail() {
-        try {
-            // Test read
-            getContentResolver().query(Calls.CONTENT_URI_WITH_VOICEMAIL, null, null, null, null);
-            // Test write
-            final ContentValues values = new ContentValues();
-            values.put(Calls.CACHED_NAME, "hello world");
-            getContentResolver().update(Calls.CONTENT_URI_WITH_VOICEMAIL, values, "1=0", null);
-        } catch (SecurityException e) {
-            showToast("Permission check failed");
-            return;
-        }
-        showToast("Permission check succeeded");
-    }
-
     private void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
-    private void cancelMissedCallNotification() {
-        try {
-            final TelecomManager tm = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
-            tm.cancelMissedCallsNotification();
-        } catch (SecurityException e) {
-            Toast.makeText(this, "Privileged dialer operation failed", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Toast.makeText(this, "Privileged dialer operation succeeded", Toast.LENGTH_SHORT).show();
-    }
-
     private Bundle createCallIntentExtras() {
         Bundle extras = new Bundle();
-        extras.putString("com.android.server.telecom.testapps.CALL_EXTRAS", "Hall was here");
-        if (mRttCheckbox.isChecked()) {
-            extras.putBoolean(TelecomManager.EXTRA_START_CALL_WITH_RTT, true);
-        }
+        extras.putString("com.android.server.telecom.carmodedialer.CALL_EXTRAS", "Tyler was here");
 
         Bundle intentExtras = new Bundle();
         intentExtras.putBundle(TelecomManager.EXTRA_OUTGOING_CALL_EXTRAS, extras);
-        Log.i("Santos xtr", intentExtras.toString());
         return intentExtras;
     }
 
@@ -189,8 +141,8 @@ public class TestDialerActivity extends Activity {
 
     private void toggleInCallService() {
         ComponentName uiComponent = new ComponentName(
-                TestInCallServiceImpl.class.getPackage().getName(),
-                TestInCallServiceImpl.class.getName());
+                com.android.server.telecom.carmodedialer.CarModeInCallServiceImpl.class.getPackage().getName(),
+                com.android.server.telecom.carmodedialer.CarModeInCallServiceImpl.class.getName());
         boolean isEnabled = getPackageManager().getComponentEnabledSetting(uiComponent)
                 == PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
         getPackageManager().setComponentEnabledSetting(uiComponent,
