@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.android.server.telecom.ui.CallRedirectionConfirmDialogActivity;
 import com.android.server.telecom.ui.ConfirmCallDialogActivity;
+import com.android.server.telecom.ui.DisconnectedCallNotifier;
 
 import java.util.List;
 
@@ -37,6 +38,14 @@ public final class TelecomBroadcastIntentProcessor {
     /** The action used to call a handle back for the missed call notification. */
     public static final String ACTION_CALL_BACK_FROM_NOTIFICATION =
             "com.android.server.telecom.ACTION_CALL_BACK_FROM_NOTIFICATION";
+
+    /** The action used to send SMS response for the disconnected call notification. */
+    public static final String ACTION_DISCONNECTED_SEND_SMS_FROM_NOTIFICATION =
+            "com.android.server.telecom.ACTION_DISCONNECTED_SEND_SMS_FROM_NOTIFICATION";
+
+    /** The action used to call a handle back for the disconnected call notification. */
+    public static final String ACTION_DISCONNECTED_CALL_BACK_FROM_NOTIFICATION =
+            "com.android.server.telecom.ACTION_DISCONNECTED_CALL_BACK_FROM_NOTIFICATION";
 
     /** The action used to clear missed calls. */
     public static final String ACTION_CLEAR_MISSED_CALLS =
@@ -121,33 +130,44 @@ public final class TelecomBroadcastIntentProcessor {
                 // Close the notification shade and the notification itself.
                 closeSystemDialogs(mContext);
                 missedCallNotifier.clearMissedCalls(userHandle);
-
-                Intent callIntent = new Intent(Intent.ACTION_SENDTO, intent.getData());
-                callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                PackageManager packageManager = mContext.getPackageManager();
-                List<ResolveInfo> activities = packageManager.queryIntentActivitiesAsUser(
-                        callIntent, PackageManager.MATCH_DEFAULT_ONLY, userHandle.getIdentifier());
-                if (activities.size() > 0) {
-                    mContext.startActivityAsUser(callIntent, userHandle);
-                } else {
-                    Toast.makeText(mContext, com.android.internal.R.string.noApplications,
-                            Toast.LENGTH_SHORT).show();
-                }
+                sendSmsIntent(intent, userHandle);
 
                 // Call back recent caller from the missed call notification.
             } else if (ACTION_CALL_BACK_FROM_NOTIFICATION.equals(action)) {
                 // Close the notification shade and the notification itself.
                 closeSystemDialogs(mContext);
                 missedCallNotifier.clearMissedCalls(userHandle);
-
-                Intent callIntent = new Intent(Intent.ACTION_CALL, intent.getData());
-                callIntent.setFlags(
-                        Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-                mContext.startActivityAsUser(callIntent, userHandle);
+                sendCallBackIntent(intent, userHandle);
 
                 // Clear the missed call notification and call log entries.
             } else if (ACTION_CLEAR_MISSED_CALLS.equals(action)) {
                 missedCallNotifier.clearMissedCalls(userHandle);
+            }
+        } else if(ACTION_DISCONNECTED_SEND_SMS_FROM_NOTIFICATION.equals(action) ||
+                ACTION_DISCONNECTED_CALL_BACK_FROM_NOTIFICATION.equals(action)) {
+            Log.v(this, "Action received: %s.", action);
+            UserHandle userHandle = intent.getParcelableExtra(EXTRA_USERHANDLE);
+            if (userHandle == null) {
+                Log.d(this, "disconnect user handle can't be null, not processing the broadcast");
+                return;
+            }
+
+            DisconnectedCallNotifier disconnectedCallNotifier =
+                    mCallsManager.getDisconnectedCallNotifier();
+
+            // Send an SMS from the disconnected call notification.
+            if (ACTION_DISCONNECTED_SEND_SMS_FROM_NOTIFICATION.equals(action)) {
+                // Close the notification shade and the notification itself.
+                closeSystemDialogs(mContext);
+                disconnectedCallNotifier.clearNotification(userHandle);
+                sendSmsIntent(intent, userHandle);
+
+            // Call back recent caller from the disconnected call notification.
+            } else if (ACTION_DISCONNECTED_CALL_BACK_FROM_NOTIFICATION.equals(action)) {
+                // Close the notification shade and the notification itself.
+                closeSystemDialogs(mContext);
+                disconnectedCallNotifier.clearNotification(userHandle);
+                sendCallBackIntent(intent, userHandle);
             }
         } else if (ACTION_ANSWER_FROM_NOTIFICATION.equals(action)) {
             Log.startSession("TBIP.aAFM");
@@ -229,5 +249,26 @@ public final class TelecomBroadcastIntentProcessor {
     private void closeSystemDialogs(Context context) {
         Intent intent = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
         context.sendBroadcastAsUser(intent, UserHandle.ALL);
+    }
+
+    private void sendSmsIntent(Intent intent, UserHandle userHandle) {
+        Intent callIntent = new Intent(Intent.ACTION_SENDTO, intent.getData());
+        callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PackageManager packageManager = mContext.getPackageManager();
+        List<ResolveInfo> activities = packageManager.queryIntentActivitiesAsUser(
+                callIntent, PackageManager.MATCH_DEFAULT_ONLY, userHandle.getIdentifier());
+        if (activities.size() > 0) {
+            mContext.startActivityAsUser(callIntent, userHandle);
+        } else {
+            Toast.makeText(mContext, com.android.internal.R.string.noApplications,
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void sendCallBackIntent(Intent intent, UserHandle userHandle) {
+        Intent callIntent = new Intent(Intent.ACTION_CALL, intent.getData());
+        callIntent.setFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+        mContext.startActivityAsUser(callIntent, userHandle);
     }
 }
