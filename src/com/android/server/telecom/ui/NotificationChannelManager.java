@@ -38,6 +38,7 @@ public class NotificationChannelManager {
     public static final String CHANNEL_ID_INCOMING_CALLS = "TelecomIncomingCalls";
     public static final String CHANNEL_ID_CALL_BLOCKING = "TelecomCallBlocking";
     public static final String CHANNEL_ID_AUDIO_PROCESSING = "TelecomBackgroundAudioProcessing";
+    public static final String CHANNEL_ID_DISCONNECTED_CALLS = "TelecomDisconnectedCalls";
 
     private BroadcastReceiver mLocaleChangeReceiver = new BroadcastReceiver() {
         @Override
@@ -59,6 +60,7 @@ public class NotificationChannelManager {
         createOrUpdateChannel(context, CHANNEL_ID_INCOMING_CALLS);
         createOrUpdateChannel(context, CHANNEL_ID_CALL_BLOCKING);
         createOrUpdateChannel(context, CHANNEL_ID_AUDIO_PROCESSING);
+        createOrUpdateChannel(context, CHANNEL_ID_DISCONNECTED_CALLS);
     }
 
     private void createOrUpdateChannel(Context context, String channelId) {
@@ -107,6 +109,14 @@ public class NotificationChannelManager {
                 lights = false;
                 vibration = false;
                 sound = null;
+                break;
+            case CHANNEL_ID_DISCONNECTED_CALLS:
+                name = context.getText(R.string.notification_channel_disconnected_calls);
+                importance = NotificationManager.IMPORTANCE_DEFAULT;
+                canShowBadge = true;
+                lights = true;
+                vibration = true;
+                sound = silentRingtone;
                 break;
         }
 

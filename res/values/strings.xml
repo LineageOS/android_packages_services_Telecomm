@@ -48,6 +48,14 @@
          [CHAR LIMIT=18] -->
     <string name="notification_missedCall_message">Message</string>
 
+    <!-- Disconnected call notification label, used when the call has been automatically
+         disconnected by telecom to make room for a higher priority call, such as an emergency
+         call.-->
+    <string name="notification_disconnectedCall_title">Disconnected call</string>
+    <!-- Body of the notification presented when an ongoing call is disconnected in favor of placing
+         an emergency call. This is required by some carriers. [CHAR LIMIT=NONE] -->
+    <string name="notification_disconnectedCall_body">The call to <xliff:g id="caller">%s</xliff:g> has been disconnected due to an emergency call being placed.</string>
+
     <!-- Title for the persistent notification presented when an app has requested that a call
          be put into the background so that the app can access the audio from the call
          [CHAR LIMIT=40] -->
@@ -290,6 +298,8 @@
     <string name="notification_channel_call_blocking">Call Blocking</string>
     <!-- Notification channel name for a channel containing background call notifications. -->
     <string name="notification_channel_background_calls">Background calls</string>
+    <!-- Notification channel name for a channel containing disconnected call notifications. -->
+    <string name="notification_channel_disconnected_calls">Disconnected calls</string>
 
     <!-- Alert dialog content used to inform the user that placing a new outgoing call will end the
          ongoing call in the app "other_app". -->
