@@ -45,6 +45,7 @@ import android.os.SystemVibrator;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.BlockedNumberContract;
 import android.provider.BlockedNumberContract.SystemContract;
 import android.provider.CallLog.Calls;
 import android.provider.Settings;
@@ -111,6 +112,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -1991,7 +1993,9 @@ public class CallsManager extends Call.ListenerBase
         }
 
         if (call.isEmergencyCall()) {
-            new AsyncEmergencyContactNotifier(mContext).execute();
+            Executors.defaultThreadFactory().newThread(() ->
+                    BlockedNumberContract.SystemContract.notifyEmergencyContact(mContext))
+                    .start();
         }
 
         final boolean requireCallCapableAccountByHandle = mContext.getResources().getBoolean(
@@ -4726,6 +4730,10 @@ public class CallsManager extends Call.ListenerBase
                 listener.onConnectionTimeChanged(call);
             }
         }
+    }
+
+    public Context getContext() {
+        return mContext;
     }
 
     /**
