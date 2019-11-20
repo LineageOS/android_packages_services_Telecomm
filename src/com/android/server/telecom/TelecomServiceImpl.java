@@ -1660,27 +1660,6 @@ public class TelecomServiceImpl {
         }
 
         @Override
-        public void setTestAutoModeApp(String packageName) {
-            try {
-                Log.startSession("TSI.sTAMA");
-                enforceModifyPermission();
-                if (!Build.IS_USERDEBUG) {
-                    throw new SecurityException("Test-only API.");
-                }
-                synchronized (mLock) {
-                    long token = Binder.clearCallingIdentity();
-                    try {
-                        mCallsManager.getRoleManagerAdapter().setTestAutoModeApp(packageName);
-                    } finally {
-                        Binder.restoreCallingIdentity(token);
-                    }
-                }
-            } finally {
-                Log.endSession();
-            }
-        }
-
-        @Override
         public void setTestPhoneAcctSuggestionComponent(String flattenedComponentName) {
             try {
                 Log.startSession("TSI.sPASA");
