@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2014 The Android Open Source Project
+<!-- Copyright (C) 2019 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -19,6 +19,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
+    <TextView
+        android:id="@+id/appLabel"
+        android:layout_gravity="left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="25dp"
+        android:text="Telecom CarMode Dialer" />
     <EditText
         android:id="@+id/number"
         android:inputType="number"
@@ -29,36 +36,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/placeCallButton" />
-    <Button
-        android:id="@+id/report_nuisance_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Report Nuisance" />
-    <Button
-        android:id="@+id/report_not_nuisance_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Report Not Nuisance" />
-    <Button
-        android:id="@+id/set_default_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/defaultDialerButton" />
-    <Button
-        android:id="@+id/test_voicemail_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/testVoicemailButton" />
-    <Button
-        android:id="@+id/cancel_missed_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/cancelMissedButton" />
-    <CheckBox
-        android:id="@+id/call_with_rtt_checkbox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/startCallWithRtt"/>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
