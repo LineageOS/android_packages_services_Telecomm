@@ -125,6 +125,11 @@ public class ComponentContextFixture implements TestFixture<Context> {
         }
 
         @Override
+        public Resources.Theme getTheme() {
+            return mResourcesTheme;
+        }
+
+        @Override
         public File getFilesDir() {
             try {
                 return File.createTempFile("temp", "temp").getParentFile();
@@ -451,6 +456,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
     // We then create a spy on the application context allowing standard Mockito-style
     // when(...) logic to be used to add specific little responses where needed.
 
+    private final Resources.Theme mResourcesTheme = mock(Resources.Theme.class);
     private final Resources mResources = mock(Resources.class);
     private final Context mApplicationContextSpy = spy(mApplicationContext);
     private final PackageManager mPackageManager = mock(PackageManager.class);

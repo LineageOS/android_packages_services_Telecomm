@@ -88,6 +88,7 @@ import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
 import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.ui.AudioProcessingNotification;
+import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import com.android.server.telecom.ui.ToastFactory;
 
 import org.junit.After;
@@ -150,6 +151,8 @@ public class CallsManagerTest extends TelecomTestCase {
     private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
     @Mock private CallerInfoLookupHelper mCallerInfoLookupHelper;
     @Mock private MissedCallNotifier mMissedCallNotifier;
+    @Mock private DisconnectedCallNotifier.Factory mDisconnectedCallNotifierFactory;
+    @Mock private DisconnectedCallNotifier mDisconnectedCallNotifier;
     @Mock private PhoneAccountRegistrar mPhoneAccountRegistrar;
     @Mock private HeadsetMediaButton mHeadsetMediaButton;
     @Mock private HeadsetMediaButtonFactory mHeadsetMediaButtonFactory;
@@ -209,11 +212,14 @@ public class CallsManagerTest extends TelecomTestCase {
         when(mClockProxy.elapsedRealtime()).thenReturn(SystemClock.elapsedRealtime());
         when(mConnSvrFocusManagerFactory.create(any())).thenReturn(mConnectionSvrFocusMgr);
         doNothing().when(mRoleManagerAdapter).setCurrentUserHandle(any());
+        when(mDisconnectedCallNotifierFactory.create(any(Context.class),any(CallsManager.class)))
+                .thenReturn(mDisconnectedCallNotifier);
         mCallsManager = new CallsManager(
                 mComponentContextFixture.getTestDouble().getApplicationContext(),
                 mLock,
                 mCallerInfoLookupHelper,
                 mMissedCallNotifier,
+                mDisconnectedCallNotifierFactory,
                 mPhoneAccountRegistrar,
                 mHeadsetMediaButtonFactory,
                 mProximitySensorManagerFactory,
