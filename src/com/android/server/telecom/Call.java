@@ -58,6 +58,7 @@ import android.widget.Toast;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telecom.IVideoProvider;
 import com.android.internal.util.Preconditions;
+import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import com.android.server.telecom.ui.ToastFactory;
 
 import java.io.IOException;
@@ -366,9 +367,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     /**
      * Override the disconnect cause set by the connection service. Used for audio processing and
-     * simulated ringing calls.
+     * simulated ringing calls as well as the condition when an emergency call is ended due to
+     * an emergency call being placed.
      */
-    private int mOverrideDisconnectCauseCode = DisconnectCause.UNKNOWN;
+    private DisconnectCause mOverrideDisconnectCause = new DisconnectCause(DisconnectCause.UNKNOWN);
 
     private Bundle mIntentExtras = new Bundle();
 
@@ -1167,23 +1169,30 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     /**
-     * @param disconnectCause The reason for the disconnection, represented by
-     *         {@link android.telecom.DisconnectCause}.
+     * @param cause The reason for the disconnection, represented by
+     * {@link android.telecom.DisconnectCause}.
      */
-    public void setDisconnectCause(DisconnectCause disconnectCause) {
+    public void setDisconnectCause(DisconnectCause cause) {
         // TODO: Consider combining this method with a setDisconnected() method that is totally
         // separate from setState.
-        if (mOverrideDisconnectCauseCode != DisconnectCause.UNKNOWN) {
-            disconnectCause = new DisconnectCause(mOverrideDisconnectCauseCode,
-                    disconnectCause.getLabel(), disconnectCause.getDescription(),
-                    disconnectCause.getReason(), disconnectCause.getTone());
+
+        if (mOverrideDisconnectCause.getCode() != DisconnectCause.UNKNOWN) {
+            cause = new DisconnectCause(mOverrideDisconnectCause.getCode(),
+                    TextUtils.isEmpty(mOverrideDisconnectCause.getLabel()) ?
+                            cause.getLabel() : mOverrideDisconnectCause.getLabel(),
+                    (mOverrideDisconnectCause.getDescription() == null) ?
+                            cause.getDescription() :mOverrideDisconnectCause.getDescription(),
+                    TextUtils.isEmpty(mOverrideDisconnectCause.getReason()) ?
+                            cause.getReason() : mOverrideDisconnectCause.getReason(),
+                    (mOverrideDisconnectCause.getTone() == 0) ?
+                            cause.getTone() : mOverrideDisconnectCause.getTone());
         }
-        mAnalytics.setCallDisconnectCause(disconnectCause);
-        mDisconnectCause = disconnectCause;
+        mAnalytics.setCallDisconnectCause(cause);
+        mDisconnectCause = cause;
     }
 
-    public void setOverrideDisconnectCauseCode(int overrideDisconnectCauseCode) {
-        mOverrideDisconnectCauseCode = overrideDisconnectCauseCode;
+    public void setOverrideDisconnectCauseCode(DisconnectCause overrideDisconnectCause) {
+        mOverrideDisconnectCause = overrideDisconnectCause;
     }
 
 
@@ -1963,12 +1972,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             abort(disconnectionTimeout);
         } else if (mState != CallState.ABORTED && mState != CallState.DISCONNECTED) {
             if (mState == CallState.AUDIO_PROCESSING && !hasGoneActiveBefore()) {
-                mOverrideDisconnectCauseCode = DisconnectCause.REJECTED;
+                setOverrideDisconnectCauseCode(new DisconnectCause(DisconnectCause.REJECTED));
             } else if (mState == CallState.SIMULATED_RINGING) {
                 // This is the case where the dialer calls disconnect() because the call timed out
                 // or an emergency call was dialed while in this state.
                 // Override the disconnect cause to MISSED
-                mOverrideDisconnectCauseCode = DisconnectCause.MISSED;
+                setOverrideDisconnectCauseCode(new DisconnectCause(DisconnectCause.MISSED));
             }
             if (mConnectionService == null) {
                 Log.e(this, new Exception(), "disconnect() request on a call without a"
@@ -2129,7 +2138,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             // This handles the case where the user manually rejects a call that's in simulated
             // ringing. Since the call is already active on the connectionservice side, we want to
             // hangup, not reject.
-            mOverrideDisconnectCauseCode = DisconnectCause.REJECTED;
+            setOverrideDisconnectCauseCode(new DisconnectCause(DisconnectCause.REJECTED));
             if (mConnectionService != null) {
                 mConnectionService.disconnect(this);
             } else {

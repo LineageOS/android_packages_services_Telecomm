@@ -378,10 +378,13 @@ public class BasicCallTests extends TelecomSystemTest {
         waitForHandlerAction(mConnectionServiceFixtureA.mConnectionServiceDelegate.getHandler(),
                 TEST_TIMEOUT);
         assertEquals(1, mCallerInfoAsyncQueryFactoryFixture.mRequests.size());
+
+        CallerInfo sendToVoicemailCallerInfo = new CallerInfo();
+        sendToVoicemailCallerInfo.shouldSendToVoicemail = true;
+        sendToVoicemailCallerInfo.contactExists = true;
+        mCallerInfoAsyncQueryFactoryFixture.setResponse(sendToVoicemailCallerInfo);
         for (CallerInfoAsyncQueryFactoryFixture.Request request :
                 mCallerInfoAsyncQueryFactoryFixture.mRequests) {
-            CallerInfo sendToVoicemailCallerInfo = new CallerInfo();
-            sendToVoicemailCallerInfo.shouldSendToVoicemail = true;
             request.replyWithCallerInfo(sendToVoicemailCallerInfo);
         }
 
@@ -809,7 +812,7 @@ public class BasicCallTests extends TelecomSystemTest {
                 anyString(),
                 nullable(String.class),
                 anyString(),
-                eq(BlockedNumberContract.SystemContract.METHOD_SHOULD_SYSTEM_BLOCK_NUMBER),
+                eq(BlockedNumberContract.METHOD_SHOULD_SYSTEM_BLOCK_NUMBER),
                 eq(phoneNumber),
                 nullable(Bundle.class))).thenAnswer(answer);
     }

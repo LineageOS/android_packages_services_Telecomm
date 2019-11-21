@@ -45,6 +45,7 @@ import android.os.SystemVibrator;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.BlockedNumberContract;
 import android.provider.BlockedNumberContract.SystemContract;
 import android.provider.CallLog.Calls;
 import android.provider.Settings;
@@ -93,6 +94,7 @@ import com.android.server.telecom.ui.AudioProcessingNotification;
 import com.android.server.telecom.ui.CallRedirectionConfirmDialogActivity;
 import com.android.server.telecom.ui.CallRedirectionTimeoutDialogActivity;
 import com.android.server.telecom.ui.ConfirmCallDialogActivity;
+import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.ToastFactory;
 
@@ -111,6 +113,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -326,6 +329,7 @@ public class CallsManager extends Call.ListenerBase
     private final TelecomSystem.SyncRoot mLock;
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
     private final MissedCallNotifier mMissedCallNotifier;
+    private final DisconnectedCallNotifier mDisconnectedCallNotifier;
     private IncomingCallNotifier mIncomingCallNotifier;
     private final CallerInfoLookupHelper mCallerInfoLookupHelper;
     private final IncomingCallFilter.Factory mIncomingCallFilterFactory;
@@ -434,6 +438,7 @@ public class CallsManager extends Call.ListenerBase
             TelecomSystem.SyncRoot lock,
             CallerInfoLookupHelper callerInfoLookupHelper,
             MissedCallNotifier missedCallNotifier,
+            DisconnectedCallNotifier.Factory disconnectedCallNotifierFactory,
             PhoneAccountRegistrar phoneAccountRegistrar,
             HeadsetMediaButtonFactory headsetMediaButtonFactory,
             ProximitySensorManagerFactory proximitySensorManagerFactory,
@@ -465,6 +470,7 @@ public class CallsManager extends Call.ListenerBase
         mPhoneAccountRegistrar = phoneAccountRegistrar;
         mPhoneAccountRegistrar.addListener(mPhoneAccountListener);
         mMissedCallNotifier = missedCallNotifier;
+        mDisconnectedCallNotifier = disconnectedCallNotifierFactory.create(mContext, this);
         StatusBarNotifier statusBarNotifier = new StatusBarNotifier(context, this);
         mWiredHeadsetManager = wiredHeadsetManager;
         mSystemStateHelper = systemStateHelper;
@@ -544,6 +550,7 @@ public class CallsManager extends Call.ListenerBase
         mListeners.add(mCallAudioManager);
         mListeners.add(mCallRecordingTonePlayer);
         mListeners.add(missedCallNotifier);
+        mListeners.add(mDisconnectedCallNotifier);
         mListeners.add(mHeadsetMediaButton);
         mListeners.add(mProximitySensorManager);
         mListeners.add(audioProcessingNotification);
@@ -1991,7 +1998,9 @@ public class CallsManager extends Call.ListenerBase
         }
 
         if (call.isEmergencyCall()) {
-            new AsyncEmergencyContactNotifier(mContext).execute();
+            Executors.defaultThreadFactory().newThread(() ->
+                    BlockedNumberContract.SystemContract.notifyEmergencyContact(mContext))
+                    .start();
         }
 
         final boolean requireCallCapableAccountByHandle = mContext.getResources().getBoolean(
@@ -2692,7 +2701,7 @@ public class CallsManager extends Call.ListenerBase
                 && disconnectCause.getCode() == DisconnectCause.REMOTE) {
             // If the remote end hangs up while in SIMULATED_RINGING, the call should
             // be marked as missed.
-            call.setOverrideDisconnectCauseCode(DisconnectCause.MISSED);
+            call.setOverrideDisconnectCauseCode(new DisconnectCause(DisconnectCause.MISSED));
         }
         call.setDisconnectCause(disconnectCause);
         setCallState(call, CallState.DISCONNECTED, "disconnected set explicitly");
@@ -3088,6 +3097,14 @@ public class CallsManager extends Call.ListenerBase
     @VisibleForTesting
     public PhoneAccountRegistrar getPhoneAccountRegistrar() {
         return mPhoneAccountRegistrar;
+    }
+
+    /**
+     * Retrieves the {@link DisconnectedCallNotifier}
+     * @return The {@link DisconnectedCallNotifier}.
+     */
+    DisconnectedCallNotifier getDisconnectedCallNotifier() {
+        return mDisconnectedCallNotifier;
     }
 
     /**
@@ -3619,7 +3636,8 @@ public class CallsManager extends Call.ListenerBase
                     // we will try to connect the first outgoing call.
                     call.getAnalytics().setCallIsAdditional(true);
                     outgoingCall.getAnalytics().setCallIsInterrupted(true);
-                    outgoingCall.disconnect();
+                    outgoingCall.disconnect("Disconnecting dialing call in favor of new dialing"
+                            + " emergency call.");
                     return true;
                 }
                 if (outgoingCall.getState() == CallState.SELECT_PHONE_ACCOUNT) {
@@ -3627,7 +3645,8 @@ public class CallsManager extends Call.ListenerBase
                     // state, just disconnect it since the user has explicitly started a new call.
                     call.getAnalytics().setCallIsAdditional(true);
                     outgoingCall.getAnalytics().setCallIsInterrupted(true);
-                    outgoingCall.disconnect();
+                    outgoingCall.disconnect("Disconnecting call in SELECT_PHONE_ACCOUNT in favor"
+                            + " of new outgoing call.");
                     return true;
                 }
                 return false;
@@ -3664,6 +3683,23 @@ public class CallsManager extends Call.ListenerBase
                 liveCallPhoneAccount = getFirstChildPhoneAccount(liveCall);
                 Log.i(this, "makeRoomForOutgoingCall: using child call PhoneAccount = " +
                         liveCallPhoneAccount);
+            }
+
+            // We may not know which PhoneAccount the emergency call will be placed on yet, but if
+            // the liveCall PhoneAccount does not support placing emergency calls, then we know it
+            // will not be that one and we do not want multiple PhoneAccounts active during an
+            // emergency call if possible. Disconnect the active call in favor of the emergency call
+            // instead of trying to hold.
+            if (isEmergency && liveCall.getTargetPhoneAccount() != null) {
+                PhoneAccount pa = mPhoneAccountRegistrar.getPhoneAccountUnchecked(
+                        liveCall.getTargetPhoneAccount());
+                if((pa.getCapabilities() & PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS) == 0) {
+                    liveCall.setOverrideDisconnectCauseCode(new DisconnectCause(
+                            DisconnectCause.LOCAL, DisconnectCause.REASON_EMERGENCY_CALL_PLACED));
+                    liveCall.disconnect("outgoing call does not support emergency calls, "
+                            + "disconnecting.");
+                }
+                return true;
             }
 
             // First thing, if we are trying to make a call with the same phone account as the live
@@ -3716,7 +3752,8 @@ public class CallsManager extends Call.ListenerBase
             } else { // normal incoming ringing call.
                 // Hang up the ringing call to make room for the emergency call and mark as missed,
                 // since the user did not reject.
-                ringingCall.setOverrideDisconnectCauseCode(DisconnectCause.MISSED);
+                ringingCall.setOverrideDisconnectCauseCode(
+                        new DisconnectCause(DisconnectCause.MISSED));
                 ringingCall.reject(false, null, "emergency call dialed during ringing.");
             }
             return true;
@@ -4726,6 +4763,10 @@ public class CallsManager extends Call.ListenerBase
                 listener.onConnectionTimeChanged(call);
             }
         }
+    }
+
+    public Context getContext() {
+        return mContext;
     }
 
     /**

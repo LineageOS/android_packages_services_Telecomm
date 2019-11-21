@@ -24,6 +24,7 @@ import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
 import com.android.server.telecom.ui.AudioProcessingNotification;
+import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.MissedCallNotifierImpl.MissedCallNotifierImplFactory;
 import com.android.server.telecom.BluetoothPhoneServiceImpl.BluetoothPhoneServiceImplFactory;
@@ -252,6 +253,8 @@ public class TelecomSystem {
 
         mMissedCallNotifier = missedCallNotifierImplFactory
                 .makeMissedCallNotifierImpl(mContext, mPhoneAccountRegistrar, defaultDialerCache);
+        DisconnectedCallNotifier.Factory disconnectedCallNotifierFactory =
+                new DisconnectedCallNotifier.Default();
 
         CallerInfoLookupHelper callerInfoLookupHelper =
                 new CallerInfoLookupHelper(context, callerInfoAsyncQueryFactory,
@@ -292,6 +295,7 @@ public class TelecomSystem {
                 mLock,
                 callerInfoLookupHelper,
                 mMissedCallNotifier,
+                disconnectedCallNotifierFactory,
                 mPhoneAccountRegistrar,
                 headsetMediaButtonFactory,
                 proximitySensorManagerFactory,
