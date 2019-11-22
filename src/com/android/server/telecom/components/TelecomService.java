@@ -60,7 +60,6 @@ import com.android.server.telecom.RoleManagerAdapterImpl;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.TelecomWakeLock;
 import com.android.server.telecom.Timeouts;
-import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.MissedCallNotifierImpl;
 import com.android.server.telecom.ui.NotificationChannelManager;
@@ -205,7 +204,6 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                             },
                             new RoleManagerAdapterImpl(context,
                                     (RoleManager) context.getSystemService(Context.ROLE_SERVICE)),
-                            new IncomingCallFilter.Factory(),
                             new ContactsAsyncHelper.Factory(),
                             internalServiceRetriever.getDeviceIdleController()));
         }
