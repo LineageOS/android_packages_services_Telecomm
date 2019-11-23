@@ -26,6 +26,8 @@
     <string name="notification_missedCallTicker" msgid="6731461957487087769">"ខកខាន​ទទួល​ពី <xliff:g id="MISSED_CALL_FROM">%s</xliff:g>"</string>
     <string name="notification_missedCall_call_back" msgid="7900333283939789732">"ហៅ​ទៅ​វិញ"</string>
     <string name="notification_missedCall_message" msgid="4054698824390076431">"សារ"</string>
+    <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"បាន​ផ្ដាច់​ការហៅ​ទូរសព្ទ"</string>
+    <string name="notification_disconnectedCall_body" msgid="600491714584417536">"ការហៅ​ទូរសព្ទ​ទៅ <xliff:g id="CALLER">%s</xliff:g> ត្រូវ​បាន​ផ្ដាច់ ដោយសារ​កំពុង​ហៅ​ទៅ​លេខ​សង្គ្រោះ​បន្ទាន់។"</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"ការហៅនៅផ្ទៃខាងក្រោយ"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> បាន​ធ្វើ​ការហៅ​ទូរសព្ទ​នៅ​ផ្ទៃ​ខាង​ក្រោយ។ កម្មវិធី​នេះ​អាច​កំពុង​ចូល​ប្រើប្រាស់ និង​ចាក់​សំឡេង​តាម​ការហៅ​ទូរសព្ទ។"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"ការ​ហៅ​បិទ​សំឡេង។"</string>
@@ -93,6 +95,7 @@
     <string name="notification_channel_missed_call" msgid="7168893015283909012">"ការ​ហៅ​ដែល​មិន​បាន​ទទួល"</string>
     <string name="notification_channel_call_blocking" msgid="2028807677868598710">"ការទប់ស្កាត់ការហៅ"</string>
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"ការហៅនៅផ្ទៃខាងក្រោយ"</string>
+    <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"បាន​ផ្ដាច់​ការហៅ​ទូរសព្ទ"</string>
     <string name="alert_outgoing_call" msgid="5319895109298927431">"ការ​ហៅ​ទូរសព្ទ​នេះ នឹង​បញ្ចប់​ការហៅ <xliff:g id="OTHER_APP">%1$s</xliff:g> របស់​អ្នក។"</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"ជ្រើសរើស​របៀប​ធ្វើ​ការហៅ​ទូរសព្ទ​នេះ"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="5221065030959024121">"បញ្ជូន​ការហៅ​ទូរសព្ទ​បន្ត​ដោយ​ប្រើប្រាស់ <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
@@ -112,6 +115,5 @@
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="6629412508584507377">"បាន​ធ្វើការហៅ​បន្ទាន់"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"ការទប់ស្កាត់​ការហៅ​ត្រូវបាន​បិទ ដើម្បី​អនុញ្ញាត​ឲ្យ​អ្នក​ឆ្លើយតប​បន្ទាន់​អាច​ទាក់ទង​អ្នក​បាន។"</string>
     <string name="developer_title" msgid="9146088855661672353">"ម៉ឺនុយ​អ្នក​អភិវឌ្ឍន៍​ទូរគមនាគមន៍"</string>
-    <!-- no translation found for toast_emergency_can_not_pull_call (9074229465338410869) -->
-    <skip />
+    <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"មិន​អាច​ទទួល​ការហៅ​ទូរសព្ទ​បាន​ទេ ពេល​កំពុង​ហៅ​ទៅ​លេខ​សង្គ្រោះ​បន្ទាន់។"</string>
 </resources>
