@@ -122,8 +122,8 @@ public class CallAudioModeStateMachine extends StateMachine {
         }
     }
 
-    // TODO: remove this and replace when the new audio mode gets checked in.
-    public static final int NEW_AUDIO_MODE_FOR_AUDIO_PROCESSING = AudioManager.MODE_NORMAL;
+    // TODO: remove this and replace when the new audio mode gets pushed to AOSP.
+    public static final int NEW_AUDIO_MODE_FOR_AUDIO_PROCESSING = 4;
 
     public static final int INITIALIZE = 1;
     // These ENTER_*_FOCUS commands are for testing.

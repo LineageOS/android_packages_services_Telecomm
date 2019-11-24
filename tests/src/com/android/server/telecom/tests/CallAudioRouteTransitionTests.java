@@ -219,8 +219,18 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
             return null;
         }).when(mockBluetoothRouteManager).connectBluetoothAudio(nullable(String.class));
 
-        when(mockAudioManager.isSpeakerphoneOn()).thenReturn(
-                params.initialRoute == CallAudioState.ROUTE_SPEAKER);
+        // Set the speakerphone state depending on the message being sent. If it's one of the
+        // speakerphone override ones, set accordingly. Otherwise consult the initial route.
+        boolean speakerphoneOn;
+        if (params.action == CallAudioRouteStateMachine.SPEAKER_ON) {
+            speakerphoneOn = true;
+        } else if (params.action == CallAudioRouteStateMachine.SPEAKER_OFF) {
+            speakerphoneOn = false;
+        } else {
+            speakerphoneOn = params.initialRoute == CallAudioState.ROUTE_SPEAKER;
+        }
+        when(mockAudioManager.isSpeakerphoneOn()).thenReturn(speakerphoneOn);
+
         when(fakeCall.getSupportedAudioRoutes()).thenReturn(params.callSupportedRoutes);
     }
 
@@ -752,6 +762,58 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
                 OPTIONAL, // speakerInteraction
                 ON, // bluetoothInteraction
                 CallAudioRouteStateMachine.BT_ACTIVE_DEVICE_PRESENT, // action
+                CallAudioState.ROUTE_BLUETOOTH, // expectedRoute
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH, // expectedAvailabl
+                CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED // earpieceControl
+        ));
+
+        params.add(new RoutingTestParameters(
+                "Speakerphone turned on during earpiece", // name
+                CallAudioState.ROUTE_EARPIECE, // initialRoute
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH, // availableRoutes
+                NONE, // speakerInteraction
+                NONE, // bluetoothInteraction
+                CallAudioRouteStateMachine.SPEAKER_ON, // action
+                CallAudioState.ROUTE_SPEAKER, // expectedRoute
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH, // expectedAvailabl
+                CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED // earpieceControl
+        ));
+
+        params.add(new RoutingTestParameters(
+                "Speakerphone turned on during wired headset", // name
+                CallAudioState.ROUTE_WIRED_HEADSET, // initialRoute
+                CallAudioState.ROUTE_EARPIECE
+                        | CallAudioState.ROUTE_BLUETOOTH
+                        | CallAudioState.ROUTE_WIRED_HEADSET, // availableRoutes
+                NONE, // speakerInteraction
+                NONE, // bluetoothInteraction
+                CallAudioRouteStateMachine.SPEAKER_ON, // action
+                CallAudioState.ROUTE_SPEAKER, // expectedRoute
+                CallAudioState.ROUTE_EARPIECE
+                        | CallAudioState.ROUTE_BLUETOOTH
+                        | CallAudioState.ROUTE_WIRED_HEADSET, // availableRoutes
+                CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED // earpieceControl
+        ));
+
+        params.add(new RoutingTestParameters(
+                "Speakerphone turned on during bluetooth", // name
+                CallAudioState.ROUTE_BLUETOOTH, // initialRoute
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH, // availableRoutes
+                NONE, // speakerInteraction
+                OFF, // bluetoothInteraction
+                CallAudioRouteStateMachine.SPEAKER_ON, // action
+                CallAudioState.ROUTE_SPEAKER, // expectedRoute
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH, // expectedAvailabl
+                CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED // earpieceControl
+        ));
+
+        params.add(new RoutingTestParameters(
+                "Speakerphone turned off externally during speaker", // name
+                CallAudioState.ROUTE_SPEAKER, // initialRoute
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH, // availableRoutes
+                NONE, // speakerInteraction
+                ON, // bluetoothInteraction
+                CallAudioRouteStateMachine.SPEAKER_OFF, // action
                 CallAudioState.ROUTE_BLUETOOTH, // expectedRoute
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH, // expectedAvailabl
                 CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED // earpieceControl
