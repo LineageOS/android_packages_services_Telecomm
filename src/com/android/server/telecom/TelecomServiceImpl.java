@@ -182,7 +182,12 @@ public class TelecomServiceImpl {
                 boolean includeDisabledAccounts, String callingPackage) {
             try {
                 Log.startSession("TSI.gCCPA");
-                if (!canReadPhoneState(callingPackage, "getDefaultOutgoingPhoneAccount")) {
+                if (includeDisabledAccounts &&
+                        !canReadPrivilegedPhoneState(
+                                callingPackage, "getCallCapablePhoneAccounts")) {
+                    return Collections.emptyList();
+                }
+                if (!canReadPhoneState(callingPackage, "getCallCapablePhoneAccounts")) {
                     return Collections.emptyList();
                 }
                 synchronized (mLock) {
@@ -2044,6 +2049,17 @@ public class TelecomServiceImpl {
             return mAppOpsManager.noteOp(AppOpsManager.OP_READ_PHONE_STATE,
                     Binder.getCallingUid(), callingPackage) == AppOpsManager.MODE_ALLOWED;
         }
+    }
+
+    private boolean canReadPrivilegedPhoneState(String callingPackage, String message) {
+        // The system/default dialer can always read phone state - so that emergency calls will
+        // still work.
+        if (isPrivilegedDialerCalling(callingPackage)) {
+            return true;
+        }
+
+        mContext.enforceCallingOrSelfPermission(READ_PRIVILEGED_PHONE_STATE, message);
+        return true;
     }
 
     private boolean isDialerOrPrivileged(String callingPackage, String message) {
