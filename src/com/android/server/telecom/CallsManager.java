@@ -72,7 +72,6 @@ import android.text.TextUtils;
 import android.util.Pair;
 
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.telephony.AsyncEmergencyContactNotifier;
 import android.telecom.CallerInfo;
 import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.util.IndentingPrintWriter;
