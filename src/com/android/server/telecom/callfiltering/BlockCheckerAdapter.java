@@ -21,8 +21,6 @@ import android.os.Bundle;
 import android.provider.BlockedNumberContract;
 import android.telecom.Log;
 
-import com.android.internal.telephony.BlockChecker;
-
 public class BlockCheckerAdapter {
     private static final String TAG = BlockCheckerAdapter.class.getSimpleName();
 
