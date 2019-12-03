@@ -4682,8 +4682,10 @@ public class CallsManager extends Call.ListenerBase
 
         @Override
         public void performAction() {
-            Log.d(this, "perform set call state for %s, state = %s", mCall, mState);
-            setCallState(mCall, mState, mTag);
+            synchronized (mLock) {
+                Log.d(this, "perform set call state for %s, state = %s", mCall, mState);
+                setCallState(mCall, mState, mTag);
+            }
         }
     }
 
@@ -4698,8 +4700,10 @@ public class CallsManager extends Call.ListenerBase
 
         @Override
         public void performAction() {
-            Log.d(this, "perform unhold call for %s", mCall);
-            mCall.unhold("held " + mPreviouslyHeldCallId);
+            synchronized (mLock) {
+                Log.d(this, "perform unhold call for %s", mCall);
+                mCall.unhold("held " + mPreviouslyHeldCallId);
+            }
         }
     }
 
