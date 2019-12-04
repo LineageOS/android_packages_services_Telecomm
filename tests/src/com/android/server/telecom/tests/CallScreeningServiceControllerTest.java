@@ -131,7 +131,6 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
         super.setUp();
         when(mRoleManagerAdapter.getCallCompanionApps()).thenReturn(Collections.emptyList());
         when(mRoleManagerAdapter.getDefaultCallScreeningApp()).thenReturn(null);
-        when(mRoleManagerAdapter.getCarModeDialerApp()).thenReturn(null);
         when(mCallsManager.getRoleManagerAdapter()).thenReturn(mRoleManagerAdapter);
         when(mCallsManager.getCurrentUserHandle()).thenReturn(UserHandle.CURRENT);
         when(mContext.getPackageManager()).thenReturn(mPackageManager);
