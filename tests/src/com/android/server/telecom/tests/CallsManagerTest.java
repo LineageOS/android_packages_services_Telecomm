@@ -1168,7 +1168,6 @@ public class CallsManagerTest extends TelecomTestCase {
             @Override
             public void onConnectionCapabilitiesChanged(Call call) {
                 try {
-                    Log.i("TYLER", "Listener got " + call.getConnectionCapabilities());
                     capabilitiesQueue.put(call.getConnectionCapabilities());
                 } catch (InterruptedException e) {
                     fail();

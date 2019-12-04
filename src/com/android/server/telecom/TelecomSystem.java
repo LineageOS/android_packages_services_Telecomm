@@ -269,7 +269,8 @@ public class TelecomSystem {
                     DefaultDialerCache defaultDialerCache, Timeouts.Adapter timeoutsAdapter,
                     EmergencyCallHelper emergencyCallHelper) {
                 return new InCallController(context, lock, callsManager, systemStateProvider,
-                        defaultDialerCache, timeoutsAdapter, emergencyCallHelper);
+                        defaultDialerCache, timeoutsAdapter, emergencyCallHelper,
+                        new CarModeTracker());
             }
         };
 
