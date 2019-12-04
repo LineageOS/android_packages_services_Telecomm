@@ -98,7 +98,7 @@ public class TestCallScreeningService extends CallScreeningService {
                 .setRejectCall(false)
                 .setSkipCallLog(false)
                 .setSkipNotification(false)
-                .setShouldScreenCallFurther(true)
+                .setShouldScreenCallViaAudioProcessing(true)
                 .build();
         respondToCall(mDetails, response);
     }
