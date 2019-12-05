@@ -564,14 +564,25 @@ public class ComponentContextFixture implements TestFixture<Context> {
 
     public void addInCallService(
             ComponentName componentName,
-            IInCallService service)
+            IInCallService service,
+            int uid)
             throws Exception {
         addService(InCallService.SERVICE_INTERFACE, componentName, service);
         ServiceInfo serviceInfo = new ServiceInfo();
         serviceInfo.permission = android.Manifest.permission.BIND_INCALL_SERVICE;
         serviceInfo.packageName = componentName.getPackageName();
+        serviceInfo.applicationInfo = new ApplicationInfo();
+        serviceInfo.applicationInfo.uid = uid;
+        serviceInfo.metaData = new Bundle();
+        serviceInfo.metaData.putBoolean(TelecomManager.METADATA_IN_CALL_SERVICE_UI, false);
         serviceInfo.name = componentName.getClassName();
         mServiceInfoByComponentName.put(componentName, serviceInfo);
+
+        // Used in InCallController to check permissions for CONTROL_INCALL_EXPERIENCE
+        when(mPackageManager.getPackagesForUid(eq(uid))).thenReturn(new String[] {
+                componentName.getPackageName() });
+        when(mPackageManager.checkPermission(eq(Manifest.permission.CONTROL_INCALL_EXPERIENCE),
+                eq(componentName.getPackageName()))).thenReturn(PackageManager.PERMISSION_GRANTED);
     }
 
     public void putResource(int id, final String value) {
