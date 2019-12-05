@@ -325,6 +325,11 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      */
     private int mHandlePresentation;
 
+    /**
+     * The verification status for an incoming call's number.
+     */
+    private @Connection.VerificationStatus int mCallerNumberVerificationStatus;
+
     /** The caller display name (CNAP) set by the connection service. */
     private String mCallerDisplayName;
 
@@ -1085,6 +1090,14 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         return mHandlePresentation;
     }
 
+    public void setCallerNumberVerificationStatus(
+            @Connection.VerificationStatus int callerNumberVerificationStatus) {
+        mCallerNumberVerificationStatus = callerNumberVerificationStatus;
+    }
+
+    public @Connection.VerificationStatus int getCallerNumberVerificationStatus() {
+        return mCallerNumberVerificationStatus;
+    }
 
     void setHandle(Uri handle) {
         setHandle(handle, TelecomManager.PRESENTATION_ALLOWED);
@@ -1836,6 +1849,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
         switch (mCallDirection) {
             case CALL_DIRECTION_INCOMING:
+                setCallerNumberVerificationStatus(connection.getCallerNumberVerificationStatus());
+
                 // Listeners (just CallsManager for now) will be responsible for checking whether
                 // the call should be blocked.
                 for (Listener l : mListeners) {
