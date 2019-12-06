@@ -1211,6 +1211,11 @@ public class CallsManager extends Call.ListenerBase
         // TODO: Move this to be a part of addCall()
         call.addListener(this);
 
+        if (extras.containsKey(TelecomManager.EXTRA_CALL_DISCONNECT_MESSAGE)) {
+          String disconnectMessage = extras.getString(TelecomManager.EXTRA_CALL_DISCONNECT_MESSAGE);
+          Log.i(this, "processIncomingCallIntent Disconnect message " + disconnectMessage);
+        }
+
         boolean isHandoverAllowed = true;
         if (isHandover) {
             if (!isHandoverInProgress() &&
@@ -2673,7 +2678,8 @@ public class CallsManager extends Call.ListenerBase
      * @param disconnectCause The disconnect cause, see {@link android.telecom.DisconnectCause}.
      */
     void markCallAsDisconnected(Call call, DisconnectCause disconnectCause) {
-        if (call.getState() == CallState.SIMULATED_RINGING
+      int oldState = call.getState();
+      if (call.getState() == CallState.SIMULATED_RINGING
                 && disconnectCause.getCode() == DisconnectCause.REMOTE) {
             // If the remote end hangs up while in SIMULATED_RINGING, the call should
             // be marked as missed.
@@ -2681,6 +2687,12 @@ public class CallsManager extends Call.ListenerBase
         }
         call.setDisconnectCause(disconnectCause);
         setCallState(call, CallState.DISCONNECTED, "disconnected set explicitly");
+
+        if(oldState == CallState.NEW && disconnectCause.getCode() == DisconnectCause.MISSED) {
+            Log.i(this, "markCallAsDisconnected: logging missed call ");
+            mCallLogManager.logCall(call, Calls.MISSED_TYPE, true, null);
+        }
+
     }
 
     /**
