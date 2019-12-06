@@ -29,10 +29,14 @@ import android.telecom.ParcelableRttCall;
 import android.telecom.TelecomManager;
 import android.text.TextUtils;
 
+import com.android.internal.annotations.VisibleForTesting;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Utilities dealing with {@link ParcelableCall}.
@@ -254,7 +258,8 @@ public class ParcelableCallUtils {
                 call.getIntentExtras(),
                 extras,
                 call.getCreationTimeMillis(),
-                callDirection);
+                callDirection,
+                call.getCallerNumberVerificationStatus());
     }
 
     /**
@@ -267,6 +272,7 @@ public class ParcelableCallUtils {
      *     <li>Connection time</li>
      *     <li>Handle (phone number)</li>
      *     <li>Handle (phone number) presentation</li>
+     *     <li>Caller number verification status (verstat)</li>
      * </ul>
      * All other fields are nulled or set to 0 values.
      * Where the call screening service is part of the system dialer, the
@@ -324,7 +330,8 @@ public class ParcelableCallUtils {
                 null, /* intentExtras */
                 callExtras, /* callExtras */
                 call.getCreationTimeMillis(),
-                callDirection);
+                callDirection,
+                call.getCallerNumberVerificationStatus());
     }
 
     /**
