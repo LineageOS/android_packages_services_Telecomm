@@ -424,6 +424,7 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         boolean isVoipAudioMode;
         Bundle extras;
         boolean isConferenceCreated;
+        int callerNumberVerificationStatus;
     }
 
     public class ConferenceInfo {
@@ -712,6 +713,7 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
                 c.statusHints,
                 c.disconnectCause,
                 c.conferenceableConnectionIds,
-                c.extras);
+                c.extras,
+                c.callerNumberVerificationStatus);
     }
 }
