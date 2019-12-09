@@ -519,7 +519,13 @@ public class NewOutgoingCallIntentBroadcaster {
     private boolean isPotentialEmergencyNumber(String number) {
         Log.v(this, "Checking restrictions for number : %s", Log.pii(number));
         if (number == null) return false;
-        return mContext.getSystemService(TelephonyManager.class).isPotentialEmergencyNumber(number);
+        try {
+            return mContext.getSystemService(TelephonyManager.class).isPotentialEmergencyNumber(
+                    number);
+        } catch (Exception e) {
+            Log.e(this, e, "isPotentialEmergencyNumber: Telephony threw an exception.");
+            return false;
+        }
     }
 
     /**
