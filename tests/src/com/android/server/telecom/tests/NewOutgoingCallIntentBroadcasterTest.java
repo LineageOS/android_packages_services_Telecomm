@@ -28,6 +28,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNotNull;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -49,6 +50,7 @@ import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.telephony.DisconnectCause;
+import android.telephony.TelephonyManager;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.Call;
@@ -427,6 +429,18 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
                 .isPotentialEmergencyNumber(eq(newEmergencyNumber));
         result.receiver.onReceive(mContext, result.intent);
         verify(mCall).disconnect(eq(0L));
+    }
+
+    /**
+     * Ensure if {@link TelephonyManager#isPotentialEmergencyNumber(String)} throws an exception of
+     * any sort that we don't crash Telecom.
+     */
+    @SmallTest
+    @Test
+    public void testThrowOnIsPotentialEmergencyNumber() {
+        doThrow(new IllegalStateException()).when(mComponentContextFixture.getTelephonyManager())
+                .isPotentialEmergencyNumber(anyString());
+        testUnmodifiedRegularCall();
     }
 
     private ReceiverIntentPair regularCallTestHelper(Intent intent,
