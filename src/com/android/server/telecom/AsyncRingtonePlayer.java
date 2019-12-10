@@ -43,10 +43,6 @@ public class AsyncRingtonePlayer {
     // Message codes used with the ringtone thread.
     private static final int EVENT_PLAY = 1;
     private static final int EVENT_STOP = 2;
-    private static final int EVENT_REPEAT = 3;
-
-    // The interval in which to restart the ringer.
-    private static final int RESTART_RINGER_MILLIS = 3000;
 
     /** Handler running on the ringtone thread. */
     private Handler mHandler;
@@ -60,24 +56,8 @@ public class AsyncRingtonePlayer {
      */
     private CompletableFuture<Boolean> mHapticsFuture = null;
 
-    /**
-     * Determines if the {@link AsyncRingtonePlayer} should pause between repeats of the ringtone.
-     * When {@code true}, the system will check if the ringtone has stopped every
-     * {@link #RESTART_RINGER_MILLIS} and restart the ringtone if it has stopped.  This does not
-     * guarantee that there is {@link #RESTART_RINGER_MILLIS} between each repeat of the ringtone,
-     * rather it ensures that for short ringtones, or ringtones which are not a multiple of
-     * {@link #RESTART_RINGER_MILLIS} in duration that there will be some pause between repetitions.
-     * When {@code false}, the ringtone will be looped continually with no attempt to pause between
-     * repeats.
-     */
-    private boolean mShouldPauseBetweenRepeat = true;
-
     public AsyncRingtonePlayer() {
         // Empty
-    }
-
-    public AsyncRingtonePlayer(boolean shouldPauseBetweenRepeat) {
-        mShouldPauseBetweenRepeat = shouldPauseBetweenRepeat;
     }
 
     /**
@@ -155,9 +135,6 @@ public class AsyncRingtonePlayer {
                 switch(msg.what) {
                     case EVENT_PLAY:
                         handlePlay((SomeArgs) msg.obj);
-                        break;
-                    case EVENT_REPEAT:
-                        handleRepeat();
                         break;
                     case EVENT_STOP:
                         handleStop();
@@ -241,40 +218,15 @@ public class AsyncRingtonePlayer {
                 }
             }
 
-            if (mShouldPauseBetweenRepeat) {
-                // We're trying to pause between repeats, so the ringtone will not intentionally loop.
-                // Instead, we'll use a handler message to perform repeats.
-                handleRepeat();
-            } else {
-                mRingtone.setLooping(true);
-                if (mRingtone.isPlaying()) {
-                    Log.d(this, "Ringtone already playing.");
-                    return;
-                }
-                mRingtone.play();
-                Log.i(this, "Play ringtone, looping.");
+            mRingtone.setLooping(true);
+            if (mRingtone.isPlaying()) {
+                Log.d(this, "Ringtone already playing.");
+                return;
             }
+            mRingtone.play();
+            Log.i(this, "Play ringtone, looping.");
         } finally {
             Log.cancelSubsession(session);
-        }
-    }
-
-    private void handleRepeat() {
-        if (mRingtone == null) {
-            return;
-        }
-        if (mRingtone.isPlaying()) {
-            Log.d(this, "Ringtone already playing.");
-        } else {
-            mRingtone.play();
-            Log.i(this, "Repeat ringtone.");
-        }
-
-        // Repost event to restart ringer in {@link RESTART_RINGER_MILLIS}.
-        synchronized(this) {
-            if (!mHandler.hasMessages(EVENT_REPEAT)) {
-                mHandler.sendEmptyMessageDelayed(EVENT_REPEAT, RESTART_RINGER_MILLIS);
-            }
         }
     }
 
@@ -292,10 +244,6 @@ public class AsyncRingtonePlayer {
         }
 
         synchronized(this) {
-            // At the time that STOP is handled, there should be no need for repeat messages in the
-            // queue.
-            mHandler.removeMessages(EVENT_REPEAT);
-
             if (mHandler.hasMessages(EVENT_PLAY)) {
                 Log.v(this, "Keeping alive ringtone thread for subsequent play request.");
             } else {
