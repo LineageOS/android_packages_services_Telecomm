@@ -813,8 +813,11 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                     // ParcelableConnection is in fact registered to Telecom and is being called
                     // from the correct user.
                     List<PhoneAccountHandle> accountHandles =
+                    // Include CAPABILITY_EMERGENCY_CALLS_ONLY in this list in case we are adding
+                    // an emergency call.
                             mPhoneAccountRegistrar.getCallCapablePhoneAccounts(null /*uriScheme*/,
-                                    false /*includeDisabledAccounts*/, userHandle);
+                            false /*includeDisabledAccounts*/, userHandle, 0 /*capabilities*/,
+                            0 /*excludedCapabilities*/);
                     PhoneAccountHandle phoneAccountHandle = null;
                     for (PhoneAccountHandle accountHandle : accountHandles) {
                         if(accountHandle.equals(callingPhoneAccountHandle)) {
