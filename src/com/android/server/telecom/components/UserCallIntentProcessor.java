@@ -27,6 +27,7 @@ import android.telecom.PhoneAccount;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.telephony.PhoneNumberUtils;
+import android.telephony.TelephonyManager;
 
 import com.android.server.telecom.CallIntentProcessor;
 import com.android.server.telecom.R;
@@ -163,8 +164,8 @@ public class UserCallIntentProcessor {
      * @return {@code True} if the device is voice-capable.
      */
     private boolean isVoiceCapable() {
-        return mContext.getApplicationContext().getResources().getBoolean(
-                com.android.internal.R.bool.config_voice_capable);
+        return ((TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE))
+                .isVoiceCapable();
     }
 
     /**
