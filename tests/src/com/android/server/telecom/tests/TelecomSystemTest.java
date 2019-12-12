@@ -581,8 +581,9 @@ public class TelecomSystemTest extends TelecomTestCase {
         mComponentContextFixture.putResource(
                 com.android.server.telecom.R.string.incall_default_class,
                 mInCallServiceComponentNameX.getClassName());
-        mComponentContextFixture.putBooleanResource(
-                com.android.internal.R.bool.config_voice_capable, true);
+
+        doReturn(true).when(mComponentContextFixture.getTelephonyManager())
+                .isVoiceCapable();
 
         mInCallServiceFixtureX = new InCallServiceFixture();
         mInCallServiceFixtureY = new InCallServiceFixture();
