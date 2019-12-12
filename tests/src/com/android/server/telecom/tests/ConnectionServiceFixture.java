@@ -302,6 +302,14 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
                 throws RemoteException { }
 
         @Override
+        public void transfer(String callId, Uri number, boolean isConfirmationRequired,
+                Session.Info info) throws RemoteException { }
+
+        @Override
+        public void consultativeTransfer(String callId, String otherCallId,
+                Session.Info info) throws RemoteException { }
+
+        @Override
         public void reject(String callId, Session.Info info) throws RemoteException {
             rejectedCallIds.add(callId);
         }
