@@ -190,8 +190,10 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     public void setUp() throws Exception {
         super.setUp();
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
-        mComponentContextFixture.putBooleanResource(
-                com.android.internal.R.bool.config_voice_capable, true);
+
+        TelephonyManager mockTelephonyManager =
+                (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
+        when(mockTelephonyManager.isVoiceCapable()).thenReturn(true);
 
         doReturn(mContext).when(mContext).getApplicationContext();
         doNothing().when(mContext).sendBroadcastAsUser(any(Intent.class), any(UserHandle.class),
