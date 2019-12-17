@@ -580,6 +580,13 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private boolean mHasGoneActiveBefore = false;
 
     /**
+     * Indicates the package name of the {@link android.telecom.CallScreeningService} which should
+     * be sent the {@link android.telecom.TelecomManager#ACTION_POST_CALL} intent upon disconnection
+     * of a call.
+     */
+    private String mPostCallPackageName;
+
+    /**
      * Persists the specified parameters and initializes the new instance.
      * @param context The context.
      * @param repository The connection service repository.
@@ -3412,5 +3419,24 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 return CALL_DIRECTION_UNDEFINED;
         }
         return CALL_DIRECTION_UNDEFINED;
+    }
+
+    /**
+     * Set the package name of the {@link android.telecom.CallScreeningService} which should be sent
+     * the {@link android.telecom.TelecomManager#ACTION_POST_CALL} upon disconnection of a call.
+     * @param packageName post call screen service package name.
+     */
+    public void setPostCallPackageName(String packageName) {
+        mPostCallPackageName = packageName;
+    }
+
+    /**
+     * Return the package name of the {@link android.telecom.CallScreeningService} which should be
+     * sent the {@link android.telecom.TelecomManager#ACTION_POST_CALL} upon disconnection of a
+     * call.
+     * @return post call screen service package name.
+     */
+    public String getPostCallPackageName() {
+        return mPostCallPackageName;
     }
 }
