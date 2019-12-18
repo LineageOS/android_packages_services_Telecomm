@@ -273,5 +273,13 @@
                   android:excludeFromRecents="true"
                   android:launchMode="singleInstance">
         </activity>
+
+        <activity android:name=".PostCallActivity"
+                  android:label="@string/postCallActivityLabel">
+            <intent-filter>
+                <action android:name="android.telecom.action.POST_CALL" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

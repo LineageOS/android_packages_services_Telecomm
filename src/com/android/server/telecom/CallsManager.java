@@ -16,6 +16,18 @@
 
 package com.android.server.telecom;
 
+import static android.telecom.TelecomManager.ACTION_POST_CALL;
+import static android.telecom.TelecomManager.DURATION_LONG;
+import static android.telecom.TelecomManager.DURATION_MEDIUM;
+import static android.telecom.TelecomManager.DURATION_SHORT;
+import static android.telecom.TelecomManager.DURATION_VERY_SHORT;
+import static android.telecom.TelecomManager.EXTRA_CALL_DURATION;
+import static android.telecom.TelecomManager.EXTRA_DISCONNECT_CAUSE;
+import static android.telecom.TelecomManager.EXTRA_HANDLE;
+import static android.telecom.TelecomManager.MEDIUM_CALL_TIME_MS;
+import static android.telecom.TelecomManager.SHORT_CALL_TIME_MS;
+import static android.telecom.TelecomManager.VERY_SHORT_CALL_TIME_MS;
+
 import android.Manifest;
 import android.annotation.NonNull;
 import android.app.ActivityManager;
@@ -600,6 +612,7 @@ public class CallsManager extends Call.ListenerBase
     @Override
     public void onSuccessfulOutgoingCall(Call call, int callState) {
         Log.v(this, "onSuccessfulOutgoingCall, %s", call);
+        call.setPostCallPackageName(getRoleManagerAdapter().getDefaultCallScreeningApp());
 
         setCallState(call, callState, "successful outgoing call");
         if (!mCalls.contains(call)) {
@@ -739,6 +752,9 @@ public class CallsManager extends Call.ListenerBase
         }
 
         if (result.shouldAllowCall) {
+            incomingCall.setPostCallPackageName(
+                    getRoleManagerAdapter().getDefaultCallScreeningApp());
+
             if (hasMaximumManagedRingingCalls(incomingCall)) {
                 if (shouldSilenceInsteadOfReject(incomingCall)) {
                     incomingCall.silence();
@@ -3234,6 +3250,10 @@ public class CallsManager extends Call.ListenerBase
             // TODO: Define expected state transitions here, and log when an
             // unexpected transition occurs.
             if (call.setState(newState, tag)) {
+                if ((oldState != CallState.AUDIO_PROCESSING) &&
+                        (newState == CallState.DISCONNECTED)) {
+                    maybeSendPostCallScreenIntent(call);
+                }
                 maybeShowErrorDialogOnDisconnect(call);
 
                 Trace.beginSection("onCallStateChanged");
@@ -4812,5 +4832,29 @@ public class CallsManager extends Call.ListenerBase
 
     public LinkedList<HandlerThread> getGraphHandlerThreads() {
         return mGraphHandlerThreads;
+    }
+
+    private void maybeSendPostCallScreenIntent(Call call) {
+        if (call.isEmergencyCall() || (call.isNetworkIdentifiedEmergencyCall()) ||
+                (call.getPostCallPackageName() == null)) {
+            return;
+        }
+
+        Intent intent = new Intent(ACTION_POST_CALL);
+        intent.setPackage(call.getPostCallPackageName());
+        intent.putExtra(EXTRA_HANDLE, call.getHandle());
+        intent.putExtra(EXTRA_DISCONNECT_CAUSE, call.getDisconnectCause().getCode());
+        long duration = call.getAgeMillis();
+        int durationCode = DURATION_VERY_SHORT;
+        if ((duration >= VERY_SHORT_CALL_TIME_MS) && (duration < SHORT_CALL_TIME_MS)) {
+            durationCode = DURATION_SHORT;
+        } else if ((duration >= SHORT_CALL_TIME_MS) && (duration < MEDIUM_CALL_TIME_MS)) {
+            durationCode = DURATION_MEDIUM;
+        } else if (duration >= MEDIUM_CALL_TIME_MS) {
+            durationCode = DURATION_LONG;
+        }
+        intent.putExtra(EXTRA_CALL_DURATION, durationCode);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mContext.startActivityAsUser(intent, mCurrentUserHandle);
     }
 }

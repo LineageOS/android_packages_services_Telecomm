@@ -96,6 +96,8 @@
 
     <string name="rttUiLabel">Test RTT UI</string>
 
+    <string name="postCallActivityLabel">Test Post Call Screen</string>
+
     <string-array name="rtt_mode_array">
         <item>Full</item>
         <item>HCO</item>
