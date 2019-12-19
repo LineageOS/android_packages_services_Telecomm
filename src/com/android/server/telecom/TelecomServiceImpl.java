@@ -1466,6 +1466,19 @@ public class TelecomServiceImpl {
             return BlockedNumbersActivity.getIntentForStartingActivity();
         }
 
+
+        @Override
+        public Intent createLaunchEmergencyDialerIntent(String number) {
+            String packageName = mContext.getApplicationContext().getString(
+                    com.android.internal.R.string.config_emergency_dialer_package);
+            Intent intent = new Intent(Intent.ACTION_DIAL_EMERGENCY)
+                    .setPackage(packageName);
+            if (!TextUtils.isEmpty(number) && TextUtils.isDigitsOnly(number)) {
+                intent.setData(Uri.parse("tel:" + number));
+            }
+            return intent;
+        }
+
         /**
          * @see android.telecom.TelecomManager#isIncomingCallPermitted(PhoneAccountHandle)
          */
