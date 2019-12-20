@@ -1613,14 +1613,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         Log.v(this, "setConnectionCapabilities: %s", Connection.capabilitiesToString(
                 connectionCapabilities));
         if (forceUpdate || mConnectionCapabilities != connectionCapabilities) {
-            // If the phone account does not support video calling, and the connection capabilities
-            // passed in indicate that the call supports video, remove those video capabilities.
-            if (!isVideoCallingSupportedByPhoneAccount()
-                    && doesCallSupportVideo(connectionCapabilities)) {
-                Log.w(this, "setConnectionCapabilities: attempt to set connection as video " +
-                        "capable when not supported by the phone account.");
-                connectionCapabilities = removeVideoCapabilities(connectionCapabilities);
-            }
             int previousCapabilities = mConnectionCapabilities;
             mConnectionCapabilities = connectionCapabilities;
             for (Listener l : mListeners) {
