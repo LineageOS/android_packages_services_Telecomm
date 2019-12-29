@@ -59,7 +59,7 @@
     <string name="blocked_numbers_msg" msgid="2797422132329662697">"لن تتلقّى أي مكالمات أو مراسلات نصية من الأرقام المحظورة."</string>
     <string name="block_number" msgid="3784343046852802722">"إضافة رقم"</string>
     <string name="unblock_dialog_body" msgid="2723393535797217261">"هل تريد إلغاء حظر <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>؟"</string>
-    <string name="unblock_button" msgid="8732021675729981781">"إلغاء الحظر"</string>
+    <string name="unblock_button" msgid="8732021675729981781">"إزالة الحظر"</string>
     <string name="add_blocked_dialog_body" msgid="8599974422407139255">"حظر المكالمات والرسائل النصية من"</string>
     <string name="add_blocked_number_hint" msgid="8769422085658041097">"رقم الهاتف"</string>
     <string name="block_button" msgid="485080149164258770">"حظر"</string>
