@@ -2385,6 +2385,11 @@ public class CallsManager extends Call.ListenerBase
         if (!mCalls.contains(call)) {
             Log.w(this, "Unknown call (%s) asked to be removed from hold", call);
         } else {
+            if (getOutgoingCall() != null) {
+                Log.w(this, "There is an outgoing call, so it is unable to unhold this call %s",
+                        call);
+                return;
+            }
             Call activeCall = (Call) mConnectionSvrFocusMgr.getCurrentFocusCall();
             String activeCallId = null;
             if (activeCall != null && !activeCall.isLocallyDisconnecting()) {
