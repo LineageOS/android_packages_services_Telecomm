@@ -146,6 +146,10 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
             if (device == null) {
                 mBluetoothRouteManager.sendMessage(BT_AUDIO_LOST, args);
             } else {
+                if (!mIsInCall) {
+                    Log.i(LOG_TAG, "Ignoring hearing aid audio on since we're not in a call");
+                    return;
+                }
                 args.arg2 = device.getAddress();
                 mBluetoothRouteManager.sendMessage(BT_AUDIO_IS_ON, args);
             }

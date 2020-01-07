@@ -59,7 +59,7 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
 
     BluetoothDeviceManager mBluetoothDeviceManager;
     BluetoothProfile.ServiceListener serviceListenerUnderTest;
-    BroadcastReceiver receiverUnderTest;
+    BluetoothStateReceiver receiverUnderTest;
 
     private BluetoothDevice device1;
     private BluetoothDevice device2;
@@ -90,8 +90,7 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
                 serviceCaptor.capture(), eq(BluetoothProfile.HEADSET));
         serviceListenerUnderTest = serviceCaptor.getValue();
 
-        receiverUnderTest = new BluetoothStateReceiver(mBluetoothDeviceManager,
-                null /* route mgr not needed here */);
+        receiverUnderTest = new BluetoothStateReceiver(mBluetoothDeviceManager, mRouteManager);
 
         mBluetoothDeviceManager.setHeadsetServiceForTesting(mHeadsetProxy);
         mBluetoothDeviceManager.setHearingAidServiceForTesting(mBluetoothHearingAid);
@@ -194,6 +193,21 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
         verify(mRouteManager, never()).onDeviceLost(device3.getAddress());
         assertNull(mBluetoothDeviceManager.getHearingAidService());
         assertEquals(2, mBluetoothDeviceManager.getNumConnectedDevices());
+    }
+
+    @SmallTest
+    @Test
+    public void testHearingAidChangesIgnoredWhenNotInCall() {
+        receiverUnderTest.setIsInCall(false);
+        receiverUnderTest.onReceive(mContext,
+                buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device2, true));
+        Intent activeDeviceChangedIntent =
+                new Intent(BluetoothHearingAid.ACTION_ACTIVE_DEVICE_CHANGED);
+        activeDeviceChangedIntent.putExtra(BluetoothDevice.EXTRA_DEVICE, device2);
+        receiverUnderTest.onReceive(mContext, activeDeviceChangedIntent);
+
+        verify(mRouteManager).onActiveDeviceChanged(device2, true);
+        verify(mRouteManager, never()).sendMessage(BluetoothRouteManager.BT_AUDIO_IS_ON);
     }
 
     @SmallTest
