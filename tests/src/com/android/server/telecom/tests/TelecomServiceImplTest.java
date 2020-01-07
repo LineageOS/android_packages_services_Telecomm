@@ -250,11 +250,11 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         makeAccountsVisibleToAllUsers(TEL_PA_HANDLE_16, SIP_PA_HANDLE_17);
 
         PhoneAccountHandle returnedHandleTel
-                = mTSIBinder.getDefaultOutgoingPhoneAccount("tel", DEFAULT_DIALER_PACKAGE);
+                = mTSIBinder.getDefaultOutgoingPhoneAccount("tel", DEFAULT_DIALER_PACKAGE, null);
         assertEquals(TEL_PA_HANDLE_16, returnedHandleTel);
 
         PhoneAccountHandle returnedHandleSip
-                = mTSIBinder.getDefaultOutgoingPhoneAccount("sip", DEFAULT_DIALER_PACKAGE);
+                = mTSIBinder.getDefaultOutgoingPhoneAccount("sip", DEFAULT_DIALER_PACKAGE, null);
         assertEquals(SIP_PA_HANDLE_17, returnedHandleSip);
     }
 
@@ -269,13 +269,14 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 .thenReturn(TEL_PA_HANDLE_16);
         when(mFakePhoneAccountRegistrar.getPhoneAccountUnchecked(TEL_PA_HANDLE_16)).thenReturn(
                 makePhoneAccount(TEL_PA_HANDLE_16).build());
-        when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_READ_PHONE_STATE), anyInt(), anyString()))
+        when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_READ_PHONE_STATE), anyInt(), anyString(),
+                nullable(String.class), nullable(String.class)))
                 .thenReturn(AppOpsManager.MODE_IGNORED);
         doThrow(new SecurityException()).when(mContext)
                 .enforceCallingOrSelfPermission(eq(READ_PRIVILEGED_PHONE_STATE), anyString());
 
         PhoneAccountHandle returnedHandleTel
-                = mTSIBinder.getDefaultOutgoingPhoneAccount("tel", "");
+                = mTSIBinder.getDefaultOutgoingPhoneAccount("tel", "", null);
         assertNull(returnedHandleTel);
     }
 
@@ -338,9 +339,9 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         makeAccountsVisibleToAllUsers(TEL_PA_HANDLE_16, SIP_PA_HANDLE_17);
 
         assertEquals(fullPHList,
-                mTSIBinder.getCallCapablePhoneAccounts(true, DEFAULT_DIALER_PACKAGE));
+                mTSIBinder.getCallCapablePhoneAccounts(true, DEFAULT_DIALER_PACKAGE, null));
         assertEquals(smallPHList,
-                mTSIBinder.getCallCapablePhoneAccounts(false, DEFAULT_DIALER_PACKAGE));
+                mTSIBinder.getCallCapablePhoneAccounts(false, DEFAULT_DIALER_PACKAGE, null));
     }
 
     @SmallTest
@@ -355,7 +356,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
 
         List<PhoneAccountHandle> result = null;
         try {
-            result = mTSIBinder.getCallCapablePhoneAccounts(true, "");
+            result = mTSIBinder.getCallCapablePhoneAccounts(true, "", null);
         } catch (SecurityException e) {
             // intended behavior
         }
@@ -684,14 +685,15 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         Uri handle = Uri.parse("tel:6505551234");
         Bundle extras = createSampleExtras();
 
-        when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_CALL_PHONE), anyInt(), anyString()))
+        when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_CALL_PHONE), anyInt(), anyString(),
+                nullable(String.class), nullable(String.class)))
                 .thenReturn(AppOpsManager.MODE_ALLOWED);
         doReturn(PackageManager.PERMISSION_GRANTED)
                 .when(mContext).checkCallingPermission(CALL_PHONE);
         doReturn(PackageManager.PERMISSION_DENIED)
                 .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
 
-        mTSIBinder.placeCall(handle, extras, DEFAULT_DIALER_PACKAGE);
+        mTSIBinder.placeCall(handle, extras, DEFAULT_DIALER_PACKAGE, null);
         placeCallTestHelper(handle, extras, true);
     }
 
@@ -701,14 +703,15 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         Uri handle = Uri.parse("tel:6505551234");
         Bundle extras = createSampleExtras();
 
-        when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_CALL_PHONE), anyInt(), anyString()))
+        when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_CALL_PHONE), anyInt(), anyString(),
+                nullable(String.class), nullable(String.class)))
                 .thenReturn(AppOpsManager.MODE_IGNORED);
         doReturn(PackageManager.PERMISSION_GRANTED)
                 .when(mContext).checkCallingPermission(CALL_PHONE);
         doReturn(PackageManager.PERMISSION_DENIED)
                 .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
 
-        mTSIBinder.placeCall(handle, extras, DEFAULT_DIALER_PACKAGE);
+        mTSIBinder.placeCall(handle, extras, DEFAULT_DIALER_PACKAGE, null);
         placeCallTestHelper(handle, extras, false);
     }
 
@@ -718,14 +721,15 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         Uri handle = Uri.parse("tel:6505551234");
         Bundle extras = createSampleExtras();
 
-        when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_CALL_PHONE), anyInt(), anyString()))
+        when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_CALL_PHONE), anyInt(), anyString(),
+                nullable(String.class), nullable(String.class)))
                 .thenReturn(AppOpsManager.MODE_ALLOWED);
         doReturn(PackageManager.PERMISSION_DENIED)
                 .when(mContext).checkCallingPermission(CALL_PHONE);
         doReturn(PackageManager.PERMISSION_DENIED)
                 .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
 
-        mTSIBinder.placeCall(handle, extras, DEFAULT_DIALER_PACKAGE);
+        mTSIBinder.placeCall(handle, extras, DEFAULT_DIALER_PACKAGE, null);
         placeCallTestHelper(handle, extras, false);
     }
 
@@ -750,7 +754,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 .when(mContext).enforceCallingOrSelfPermission(eq(CALL_PHONE), anyString());
 
         try {
-            mTSIBinder.placeCall(handle, extras, "arbitrary_package_name");
+            mTSIBinder.placeCall(handle, extras, "arbitrary_package_name", null);
         } catch (SecurityException e) {
             // expected
         }
@@ -823,7 +827,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         doReturn(true).when(mFakePhoneAccountRegistrar).isVoiceMailNumber(TEL_PA_HANDLE_CURRENT,
                 vmNumber);
         assertTrue(mTSIBinder.isVoiceMailNumber(TEL_PA_HANDLE_CURRENT,
-                vmNumber, DEFAULT_DIALER_PACKAGE));
+                vmNumber, DEFAULT_DIALER_PACKAGE, null));
     }
 
     @SmallTest
@@ -837,7 +841,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         when(mFakePhoneAccountRegistrar.getPhoneAccount(TEL_PA_HANDLE_CURRENT,
                 Binder.getCallingUserHandle())).thenReturn(null);
         assertFalse(mTSIBinder
-                .isVoiceMailNumber(TEL_PA_HANDLE_CURRENT, vmNumber, DEFAULT_DIALER_PACKAGE));
+                .isVoiceMailNumber(TEL_PA_HANDLE_CURRENT, vmNumber, DEFAULT_DIALER_PACKAGE, null));
     }
 
     @SmallTest
@@ -854,7 +858,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
         when(mockTelephonyManager.getVoiceMailNumber()).thenReturn(vmNumber);
 
-        assertEquals(vmNumber, mTSIBinder.getVoiceMailNumber(null, DEFAULT_DIALER_PACKAGE));
+        assertEquals(vmNumber, mTSIBinder.getVoiceMailNumber(null, DEFAULT_DIALER_PACKAGE, null));
     }
 
     @SmallTest
@@ -873,7 +877,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 .thenReturn(subId);
 
         assertEquals(vmNumber,
-                mTSIBinder.getVoiceMailNumber(TEL_PA_HANDLE_CURRENT, DEFAULT_DIALER_PACKAGE));
+                mTSIBinder.getVoiceMailNumber(TEL_PA_HANDLE_CURRENT, DEFAULT_DIALER_PACKAGE, null));
     }
 
     @SmallTest
@@ -889,7 +893,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         when(mockTelephonyManager.getLine1Number()).thenReturn(line1Number);
 
         assertEquals(line1Number,
-                mTSIBinder.getLine1Number(TEL_PA_HANDLE_CURRENT, DEFAULT_DIALER_PACKAGE));
+                mTSIBinder.getLine1Number(TEL_PA_HANDLE_CURRENT, DEFAULT_DIALER_PACKAGE, null));
     }
 
     @SmallTest
@@ -960,14 +964,14 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @Test
     public void testIsInCall() throws Exception {
         when(mFakeCallsManager.hasOngoingCalls()).thenReturn(true);
-        assertTrue(mTSIBinder.isInCall(DEFAULT_DIALER_PACKAGE));
+        assertTrue(mTSIBinder.isInCall(DEFAULT_DIALER_PACKAGE, null));
     }
 
     @SmallTest
     @Test
     public void testNotIsInCall() throws Exception {
         when(mFakeCallsManager.hasOngoingCalls()).thenReturn(false);
-        assertFalse(mTSIBinder.isInCall(DEFAULT_DIALER_PACKAGE));
+        assertFalse(mTSIBinder.isInCall(DEFAULT_DIALER_PACKAGE, null));
     }
 
     @SmallTest
@@ -976,7 +980,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         doThrow(new SecurityException()).when(mContext).enforceCallingOrSelfPermission(
                 anyString(), any());
         try {
-            mTSIBinder.isInCall("blah");
+            mTSIBinder.isInCall("blah", null);
             fail();
         } catch (SecurityException e) {
             // desired result
@@ -988,14 +992,14 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @Test
     public void testIsInManagedCall() throws Exception {
         when(mFakeCallsManager.hasOngoingManagedCalls()).thenReturn(true);
-        assertTrue(mTSIBinder.isInManagedCall(DEFAULT_DIALER_PACKAGE));
+        assertTrue(mTSIBinder.isInManagedCall(DEFAULT_DIALER_PACKAGE, null));
     }
 
     @SmallTest
     @Test
     public void testNotIsInManagedCall() throws Exception {
         when(mFakeCallsManager.hasOngoingManagedCalls()).thenReturn(false);
-        assertFalse(mTSIBinder.isInManagedCall(DEFAULT_DIALER_PACKAGE));
+        assertFalse(mTSIBinder.isInManagedCall(DEFAULT_DIALER_PACKAGE, null));
     }
 
     @SmallTest
@@ -1004,7 +1008,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         doThrow(new SecurityException()).when(mContext).enforceCallingOrSelfPermission(
                 anyString(), any());
         try {
-            mTSIBinder.isInManagedCall("blah");
+            mTSIBinder.isInManagedCall("blah", null);
             fail();
         } catch (SecurityException e) {
             // desired result
