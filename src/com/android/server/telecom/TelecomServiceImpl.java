@@ -108,11 +108,12 @@ public class TelecomServiceImpl {
     private final ITelecomService.Stub mBinderImpl = new ITelecomService.Stub() {
         @Override
         public PhoneAccountHandle getDefaultOutgoingPhoneAccount(String uriScheme,
-                String callingPackage) {
+                String callingPackage, String callingFeatureId) {
             try {
                 Log.startSession("TSI.gDOPA");
                 synchronized (mLock) {
-                    if (!canReadPhoneState(callingPackage, "getDefaultOutgoingPhoneAccount")) {
+                    if (!canReadPhoneState(callingPackage, callingFeatureId,
+                            "getDefaultOutgoingPhoneAccount")) {
                         return null;
                     }
 
@@ -179,7 +180,7 @@ public class TelecomServiceImpl {
 
         @Override
         public List<PhoneAccountHandle> getCallCapablePhoneAccounts(
-                boolean includeDisabledAccounts, String callingPackage) {
+                boolean includeDisabledAccounts, String callingPackage, String callingFeatureId) {
             try {
                 Log.startSession("TSI.gCCPA");
                 if (includeDisabledAccounts &&
@@ -187,7 +188,8 @@ public class TelecomServiceImpl {
                                 callingPackage, "getCallCapablePhoneAccounts")) {
                     return Collections.emptyList();
                 }
-                if (!canReadPhoneState(callingPackage, "getCallCapablePhoneAccounts")) {
+                if (!canReadPhoneState(callingPackage, callingFeatureId,
+                        "getCallCapablePhoneAccounts")) {
                     return Collections.emptyList();
                 }
                 synchronized (mLock) {
@@ -209,10 +211,12 @@ public class TelecomServiceImpl {
         }
 
         @Override
-        public List<PhoneAccountHandle> getSelfManagedPhoneAccounts(String callingPackage) {
+        public List<PhoneAccountHandle> getSelfManagedPhoneAccounts(String callingPackage,
+                String callingFeatureId) {
             try {
                 Log.startSession("TSI.gSMPA");
-                if (!canReadPhoneState(callingPackage, "Requires READ_PHONE_STATE permission.")) {
+                if (!canReadPhoneState(callingPackage, callingFeatureId,
+                        "Requires READ_PHONE_STATE permission.")) {
                     throw new SecurityException("Requires READ_PHONE_STATE permission.");
                 }
                 synchronized (mLock) {
@@ -551,11 +555,11 @@ public class TelecomServiceImpl {
          */
         @Override
         public boolean isVoiceMailNumber(PhoneAccountHandle accountHandle, String number,
-                String callingPackage) {
+                String callingPackage, String callingFeatureId) {
             try {
                 Log.startSession("TSI.iVMN");
                 synchronized (mLock) {
-                    if (!canReadPhoneState(callingPackage, "isVoiceMailNumber")) {
+                    if (!canReadPhoneState(callingPackage, callingFeatureId, "isVoiceMailNumber")) {
                         return false;
                     }
                     final UserHandle callingUserHandle = Binder.getCallingUserHandle();
@@ -583,10 +587,11 @@ public class TelecomServiceImpl {
          * @see android.telecom.TelecomManager#getVoiceMailNumber
          */
         @Override
-        public String getVoiceMailNumber(PhoneAccountHandle accountHandle, String callingPackage) {
+        public String getVoiceMailNumber(PhoneAccountHandle accountHandle, String callingPackage,
+                String callingFeatureId) {
             try {
                 Log.startSession("TSI.gVMN");
-                if (!canReadPhoneState(callingPackage, "getVoiceMailNumber")) {
+                if (!canReadPhoneState(callingPackage, callingFeatureId, "getVoiceMailNumber")) {
                     return null;
                 }
                 try {
@@ -618,10 +623,11 @@ public class TelecomServiceImpl {
          * @see android.telecom.TelecomManager#getLine1Number
          */
         @Override
-        public String getLine1Number(PhoneAccountHandle accountHandle, String callingPackage) {
+        public String getLine1Number(PhoneAccountHandle accountHandle, String callingPackage,
+                String callingFeatureId) {
             try {
                 Log.startSession("getL1N");
-                if (!canReadPhoneState(callingPackage, "getLine1Number")) {
+                if (!canReadPhoneState(callingPackage, callingFeatureId, "getLine1Number")) {
                     return null;
                 }
 
@@ -772,10 +778,10 @@ public class TelecomServiceImpl {
          * @see android.telecom.TelecomManager#isInCall
          */
         @Override
-        public boolean isInCall(String callingPackage) {
+        public boolean isInCall(String callingPackage, String callingFeatureId) {
             try {
                 Log.startSession("TSI.iIC");
-                if (!canReadPhoneState(callingPackage, "isInCall")) {
+                if (!canReadPhoneState(callingPackage, callingFeatureId, "isInCall")) {
                     return false;
                 }
 
@@ -791,10 +797,10 @@ public class TelecomServiceImpl {
          * @see android.telecom.TelecomManager#isInManagedCall
          */
         @Override
-        public boolean isInManagedCall(String callingPackage) {
+        public boolean isInManagedCall(String callingPackage, String callingFeatureId) {
             try {
                 Log.startSession("TSI.iIMC");
-                if (!canReadPhoneState(callingPackage, "isInManagedCall")) {
+                if (!canReadPhoneState(callingPackage, callingFeatureId, "isInManagedCall")) {
                     throw new SecurityException("Only the default dialer or caller with " +
                             "READ_PHONE_STATE permission can use this method.");
                 }
@@ -925,10 +931,11 @@ public class TelecomServiceImpl {
          * @see android.telecom.TelecomManager#showInCallScreen
          */
         @Override
-        public void showInCallScreen(boolean showDialpad, String callingPackage) {
+        public void showInCallScreen(boolean showDialpad, String callingPackage,
+                String callingFeatureId) {
             try {
                 Log.startSession("TSI.sICS");
-                if (!canReadPhoneState(callingPackage, "showInCallScreen")) {
+                if (!canReadPhoneState(callingPackage, callingFeatureId, "showInCallScreen")) {
                     return;
                 }
 
@@ -1074,10 +1081,10 @@ public class TelecomServiceImpl {
          * @see android.telecom.TelecomManager#isTtySupported
          */
         @Override
-        public boolean isTtySupported(String callingPackage) {
+        public boolean isTtySupported(String callingPackage, String callingFeatureId) {
             try {
                 Log.startSession("TSI.iTS");
-                if (!canReadPhoneState(callingPackage, "isTtySupported")) {
+                if (!canReadPhoneState(callingPackage, callingFeatureId, "isTtySupported")) {
                     throw new SecurityException("Only default dialer or an app with" +
                             "READ_PRIVILEGED_PHONE_STATE or READ_PHONE_STATE can call this api");
                 }
@@ -1094,10 +1101,10 @@ public class TelecomServiceImpl {
          * @see android.telecom.TelecomManager#getCurrentTtyMode
          */
         @Override
-        public int getCurrentTtyMode(String callingPackage) {
+        public int getCurrentTtyMode(String callingPackage, String callingFeatureId) {
             try {
                 Log.startSession("TSI.gCTM");
-                if (!canReadPhoneState(callingPackage, "getCurrentTtyMode")) {
+                if (!canReadPhoneState(callingPackage, callingFeatureId, "getCurrentTtyMode")) {
                     return TelecomManager.TTY_MODE_OFF;
                 }
 
@@ -1277,7 +1284,8 @@ public class TelecomServiceImpl {
          * @see android.telecom.TelecomManager#placeCall
          */
         @Override
-        public void placeCall(Uri handle, Bundle extras, String callingPackage) {
+        public void placeCall(Uri handle, Bundle extras, String callingPackage,
+                String callingFeatureId) {
             try {
                 Log.startSession("TSI.pC");
                 enforceCallingPackage(callingPackage);
@@ -1299,14 +1307,14 @@ public class TelecomServiceImpl {
 
                     if (!callingPackage.equals(
                             phoneAccountHandle.getComponentName().getPackageName())
-                            && !canCallPhone(callingPackage,
+                            && !canCallPhone(callingPackage, callingFeatureId,
                             "CALL_PHONE permission required to place calls.")) {
                         // The caller is not allowed to place calls, so we want to ensure that it
                         // can only place calls through itself.
                         throw new SecurityException("Self-managed ConnectionServices can only "
                                 + "place calls through their own ConnectionService.");
                     }
-                } else if (!canCallPhone(callingPackage, "placeCall")) {
+                } else if (!canCallPhone(callingPackage, callingFeatureId, "placeCall")) {
                     throw new SecurityException("Package " + callingPackage
                             + " is not allowed to place phone calls");
                 }
@@ -1319,7 +1327,8 @@ public class TelecomServiceImpl {
                 // by {@link UserCallIntentProcessor}.
 
                 final boolean hasCallAppOp = mAppOpsManager.noteOp(AppOpsManager.OP_CALL_PHONE,
-                        Binder.getCallingUid(), callingPackage) == AppOpsManager.MODE_ALLOWED;
+                        Binder.getCallingUid(), callingPackage, callingFeatureId, null)
+                        == AppOpsManager.MODE_ALLOWED;
 
                 final boolean hasCallPermission = mContext.checkCallingPermission(CALL_PHONE) ==
                         PackageManager.PERMISSION_GRANTED;
@@ -2008,7 +2017,8 @@ public class TelecomServiceImpl {
         throw new SecurityException(message + ": Only shell user can call it");
     }
 
-    private boolean canReadPhoneState(String callingPackage, String message) {
+    private boolean canReadPhoneState(String callingPackage, String callingFeatureId,
+            String message) {
         // The system/default dialer can always read phone state - so that emergency calls will
         // still work.
         if (isPrivilegedDialerCalling(callingPackage)) {
@@ -2025,8 +2035,8 @@ public class TelecomServiceImpl {
             mContext.enforceCallingOrSelfPermission(READ_PHONE_STATE, message);
 
             // Some apps that have the permission can be restricted via app ops.
-            return mAppOpsManager.noteOp(AppOpsManager.OP_READ_PHONE_STATE,
-                    Binder.getCallingUid(), callingPackage) == AppOpsManager.MODE_ALLOWED;
+            return mAppOpsManager.noteOp(AppOpsManager.OP_READ_PHONE_STATE, Binder.getCallingUid(),
+                    callingPackage, callingFeatureId, message) == AppOpsManager.MODE_ALLOWED;
         }
     }
 
@@ -2063,7 +2073,7 @@ public class TelecomServiceImpl {
         return false;
     }
 
-    private boolean canCallPhone(String callingPackage, String message) {
+    private boolean canCallPhone(String callingPackage, String callingFeatureId, String message) {
         // The system/default dialer can always read phone state - so that emergency calls will
         // still work.
         if (isPrivilegedDialerCalling(callingPackage)) {
@@ -2075,7 +2085,8 @@ public class TelecomServiceImpl {
 
         // Some apps that have the permission can be restricted via app ops.
         return mAppOpsManager.noteOp(AppOpsManager.OP_CALL_PHONE,
-                Binder.getCallingUid(), callingPackage) == AppOpsManager.MODE_ALLOWED;
+                Binder.getCallingUid(), callingPackage, callingFeatureId, message)
+                == AppOpsManager.MODE_ALLOWED;
     }
 
     private boolean isCallerSimCallManager(PhoneAccountHandle targetPhoneAccount) {
