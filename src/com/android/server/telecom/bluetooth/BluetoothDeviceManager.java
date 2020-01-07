@@ -16,6 +16,7 @@
 
 package com.android.server.telecom.bluetooth;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothHearingAid;
@@ -119,9 +120,11 @@ public class BluetoothDeviceManager {
     private BluetoothHeadsetProxy mBluetoothHeadsetService;
     private BluetoothHearingAid mBluetoothHearingAidService;
     private BluetoothDevice mBluetoothHearingAidActiveDeviceCache;
+    private BluetoothAdapterProxy mBluetoothAdapterProxy;
 
     public BluetoothDeviceManager(Context context, BluetoothAdapterProxy bluetoothAdapter) {
         if (bluetoothAdapter != null) {
+            mBluetoothAdapterProxy = bluetoothAdapter;
             bluetoothAdapter.getProfileProxy(context, mBluetoothProfileServiceListener,
                     BluetoothProfile.HEADSET);
             bluetoothAdapter.getProfileProxy(context, mBluetoothProfileServiceListener,
@@ -246,7 +249,8 @@ public class BluetoothDeviceManager {
         } else {
             for (BluetoothDevice device : mBluetoothHearingAidService.getActiveDevices()) {
                 if (device != null) {
-                    mBluetoothHearingAidService.setActiveDevice(null);
+                    mBluetoothAdapterProxy.setActiveDevice(null,
+                        BluetoothAdapter.ACTIVE_DEVICE_ALL);
                 }
             }
         }
@@ -269,15 +273,17 @@ public class BluetoothDeviceManager {
                 Log.w(this, "Attempting to turn on audio when the hearing aid service is null");
                 return false;
             }
-            return mBluetoothHearingAidService.setActiveDevice(
-                    mHearingAidDevicesByAddress.get(address));
+            return mBluetoothAdapterProxy.setActiveDevice(
+                    mHearingAidDevicesByAddress.get(address),
+                    BluetoothAdapter.ACTIVE_DEVICE_ALL);
         } else if (mHfpDevicesByAddress.containsKey(address)) {
             BluetoothDevice device = mHfpDevicesByAddress.get(address);
             if (mBluetoothHeadsetService == null) {
                 Log.w(this, "Attempting to turn on audio when the headset service is null");
                 return false;
             }
-            boolean success = mBluetoothHeadsetService.setActiveDevice(device);
+            boolean success = mBluetoothAdapterProxy.setActiveDevice(device,
+                BluetoothAdapter.ACTIVE_DEVICE_PHONE_CALL);
             if (!success) {
                 Log.w(this, "Couldn't set active device to %s", address);
                 return false;
@@ -304,7 +310,9 @@ public class BluetoothDeviceManager {
 
     public void restoreHearingAidDevice() {
         if (mBluetoothHearingAidActiveDeviceCache != null && mBluetoothHearingAidService != null) {
-            mBluetoothHearingAidService.setActiveDevice(mBluetoothHearingAidActiveDeviceCache);
+            mBluetoothAdapterProxy.setActiveDevice(
+                mBluetoothHearingAidActiveDeviceCache,
+                BluetoothAdapter.ACTIVE_DEVICE_ALL);
             mBluetoothHearingAidActiveDeviceCache = null;
         }
     }
