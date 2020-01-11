@@ -42,9 +42,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Process;
 import android.os.SystemClock;
+import android.os.UserHandle;
 import android.telecom.CallerInfo;
 import android.telecom.Connection;
-import android.telecom.Log;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
@@ -1193,6 +1193,22 @@ public class CallsManagerTest extends TelecomTestCase {
         assertTrue((newCapabilities & Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL)
                 == Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL);
         assertTrue(ongoingCall.isVideoCallingSupportedByPhoneAccount());
+    }
+
+    /**
+     * Verifies that speakers is disabled when there's no video capabilities, even if a video call
+     * tried to place.
+     * @throws Exception
+     */
+    @SmallTest
+    @Test
+    public void testSpeakerDisabledWhenNoVideoCapabilities() throws Exception {
+        Call outgoingCall = addSpyCall(CallState.NEW);
+        when(mPhoneAccountRegistrar.getPhoneAccount(
+                any(PhoneAccountHandle.class), any(UserHandle.class))).thenReturn(SIM_1_ACCOUNT);
+        mCallsManager.placeOutgoingCall(outgoingCall, TEST_ADDRESS, null, true,
+                VideoProfile.STATE_TX_ENABLED);
+        assertFalse(outgoingCall.getStartWithSpeakerphoneOn());
     }
 
 
