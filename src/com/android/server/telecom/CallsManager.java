@@ -166,6 +166,7 @@ public class CallsManager extends Call.ListenerBase
         void onDisconnectedTonePlaying(boolean isTonePlaying);
         void onConnectionTimeChanged(Call call);
         void onConferenceStateChanged(Call call, boolean isConference);
+        void onCdmaConferenceSwap(Call call);
     }
 
     /** Interface used to define the action which is executed delay under some condition. */
@@ -925,6 +926,14 @@ public class CallsManager extends Call.ListenerBase
         updateCanAddCall();
         for (CallsManagerListener listener : mListeners) {
             listener.onConferenceStateChanged(call, isConference);
+        }
+    }
+
+    @Override
+    public void onCdmaConferenceSwap(Call call) {
+        // SWAP was executed on a CDMA conference
+        for (CallsManagerListener listener : mListeners) {
+            listener.onCdmaConferenceSwap(call);
         }
     }
 
