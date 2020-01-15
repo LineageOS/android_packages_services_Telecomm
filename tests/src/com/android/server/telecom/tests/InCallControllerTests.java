@@ -625,6 +625,44 @@ public class InCallControllerTests extends TelecomTestCase {
         verifyBinding(bindIntentCaptor, 0, DEF_PKG, DEF_CLASS);
     }
 
+    @MediumTest
+    @Test
+    public void testSanitizeContactName() throws Exception {
+        setupMocks(false /* isExternalCall */);
+        setupMockPackageManager(true /* default */, true /* system */, true /* external calls */);
+        when(mMockPackageManager.checkPermission(
+                matches(Manifest.permission.READ_CONTACTS),
+                matches(DEF_PKG))).thenReturn(PackageManager.PERMISSION_DENIED);
+        when(mMockCall.getName()).thenReturn("evil");
+
+        mInCallController.bindToServices(mMockCall);
+
+        // Bind InCallServices
+        ArgumentCaptor<Intent> bindIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        ArgumentCaptor<ServiceConnection> serviceConnectionCaptor =
+                ArgumentCaptor.forClass(ServiceConnection.class);
+        verify(mMockContext, times(1)).bindServiceAsUser(
+                bindIntentCaptor.capture(),
+                serviceConnectionCaptor.capture(),
+                eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE
+                        | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS),
+                eq(UserHandle.CURRENT));
+        assertEquals(1, bindIntentCaptor.getAllValues().size());
+        verifyBinding(bindIntentCaptor, 0, DEF_PKG, DEF_CLASS);
+
+        IInCallService.Stub mockInCallServiceStub = mock(IInCallService.Stub.class);
+        IInCallService mockInCallService = mock(IInCallService.class);
+        when(mockInCallServiceStub.queryLocalInterface(anyString())).thenReturn(mockInCallService);
+        serviceConnectionCaptor.getValue().onServiceConnected(new ComponentName(DEF_PKG, DEF_CLASS),
+                mockInCallServiceStub);
+
+        mInCallController.onCallAdded(mMockCall);
+        ArgumentCaptor<ParcelableCall> parcelableCallCaptor =
+                ArgumentCaptor.forClass(ParcelableCall.class);
+        verify(mockInCallService).addCall(parcelableCallCaptor.capture());
+        assertTrue(TextUtils.isEmpty(parcelableCallCaptor.getValue().getContactDisplayName()));
+    }
+
     /**
      * Ensures that the {@link InCallController} will bind to a higher priority car mode service
      * when one becomes available.
