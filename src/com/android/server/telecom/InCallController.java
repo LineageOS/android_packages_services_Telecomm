@@ -865,7 +865,7 @@ public class InCallController extends CallsManagerListenerBase {
                         info.isExternalCallsSupported(), includeRttCall,
                         info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI);
                 try {
-                    inCallService.addCall(parcelableCall);
+                    inCallService.addCall(sanitizeParcelableCallForService(info, parcelableCall));
                 } catch (RemoteException ignored) {
                 }
             }
@@ -929,7 +929,7 @@ public class InCallController extends CallsManagerListenerBase {
                         info.isExternalCallsSupported(), includeRttCall,
                         info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI);
                 try {
-                    inCallService.addCall(parcelableCall);
+                    inCallService.addCall(sanitizeParcelableCallForService(info, parcelableCall));
                 } catch (RemoteException ignored) {
                 }
             }
@@ -961,7 +961,8 @@ public class InCallController extends CallsManagerListenerBase {
                         );
 
                 try {
-                    inCallService.updateCall(parcelableCall);
+                    inCallService.updateCall(
+                            sanitizeParcelableCallForService(info, parcelableCall));
                 } catch (RemoteException ignored) {
                 }
             }
@@ -1043,6 +1044,12 @@ public class InCallController extends CallsManagerListenerBase {
     @Override
     public void onConferenceStateChanged(Call call, boolean isConference) {
         Log.d(this, "onConferenceStateChanged %s ,isConf=%b", call, isConference);
+        updateCall(call);
+    }
+
+    @Override
+    public void onCdmaConferenceSwap(Call call) {
+        Log.d(this, "onCdmaConferenceSwap %s", call);
         updateCall(call);
     }
 
@@ -1446,13 +1453,14 @@ public class InCallController extends CallsManagerListenerBase {
                 // Track the call if we don't already know about it.
                 addCall(call);
                 numCallsSent += 1;
-                inCallService.addCall(ParcelableCallUtils.toParcelableCall(
+                ParcelableCall parcelableCall = ParcelableCallUtils.toParcelableCall(
                         call,
                         true /* includeVideoProvider */,
                         mCallsManager.getPhoneAccountRegistrar(),
                         info.isExternalCallsSupported(),
                         includeRttCall,
-                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI));
+                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI);
+                inCallService.addCall(sanitizeParcelableCallForService(info, parcelableCall));
             } catch (RemoteException ignored) {
             }
         }
@@ -1522,7 +1530,8 @@ public class InCallController extends CallsManagerListenerBase {
                 componentsUpdated.add(componentName);
 
                 try {
-                    inCallService.updateCall(parcelableCall);
+                    inCallService.updateCall(
+                            sanitizeParcelableCallForService(info, parcelableCall));
                 } catch (RemoteException ignored) {
                 }
             }
@@ -1652,6 +1661,21 @@ public class InCallController extends CallsManagerListenerBase {
         }
         childCalls.addAll(parentCalls);
         return childCalls;
+    }
+
+    private ParcelableCall sanitizeParcelableCallForService(
+            InCallServiceInfo info, ParcelableCall parcelableCall) {
+        ParcelableCall.ParcelableCallBuilder builder =
+                ParcelableCall.ParcelableCallBuilder.fromParcelableCall(parcelableCall);
+        // Check for contacts permission. If it's not there, remove the contactsDisplayName.
+        PackageManager pm = mContext.getPackageManager();
+        if (pm.checkPermission(Manifest.permission.READ_CONTACTS,
+                info.getComponentName().getPackageName()) != PackageManager.PERMISSION_GRANTED) {
+            builder.setContactDisplayName(null);
+        }
+
+        // TODO: move all the other service-specific sanitizations in here
+        return builder.createParcelableCall();
     }
 
     @VisibleForTesting
