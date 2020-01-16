@@ -136,6 +136,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         void onPhoneAccountChanged(Call call);
         void onConferenceableCallsChanged(Call call);
         void onConferenceStateChanged(Call call, boolean isConference);
+        void onCdmaConferenceSwap(Call call);
         boolean onCanceledViaNewOutgoingCallBroadcast(Call call, long disconnectionTimeout);
         void onHoldToneRequested(Call call);
         void onCallHoldFailed(Call call);
@@ -207,6 +208,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         public void onConferenceableCallsChanged(Call call) {}
         @Override
         public void onConferenceStateChanged(Call call, boolean isConference) {}
+        @Override
+        public void onCdmaConferenceSwap(Call call) {}
         @Override
         public boolean onCanceledViaNewOutgoingCallBroadcast(Call call, long disconnectionTimeout) {
             return false;
@@ -2420,6 +2423,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                     // For anything else 0, or 3+, set it to null since it is impossible to tell.
                     mConferenceLevelActiveCall = null;
                     break;
+            }
+            for (Listener l : mListeners) {
+                l.onCdmaConferenceSwap(this);
             }
         }
     }
