@@ -2028,7 +2028,10 @@ public class CallsManager extends Call.ListenerBase
 
         // Auto-enable speakerphone if the originating intent specified to do so, if the call
         // is a video call, of if using speaker when docked
-        call.setStartWithSpeakerphoneOn(speakerphoneOn || useSpeakerForVideoCall
+        PhoneAccount account = mPhoneAccountRegistrar.getPhoneAccount(
+                call.getTargetPhoneAccount(), call.getInitiatingUser());
+        boolean allowVideo = account.hasCapabilities(PhoneAccount.CAPABILITY_VIDEO_CALLING);
+        call.setStartWithSpeakerphoneOn(speakerphoneOn || (useSpeakerForVideoCall && allowVideo)
                 || (useSpeakerWhenDocked && useSpeakerForDock));
         call.setVideoState(videoState);
 
