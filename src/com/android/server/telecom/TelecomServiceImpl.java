@@ -2073,6 +2073,10 @@ public class TelecomServiceImpl {
         return false;
     }
 
+    private boolean canCallPhone(String callingPackage, String message) {
+        return canCallPhone(callingPackage, null /* featureId */, message);
+    }
+
     private boolean canCallPhone(String callingPackage, String callingFeatureId, String message) {
         // The system/default dialer can always read phone state - so that emergency calls will
         // still work.
