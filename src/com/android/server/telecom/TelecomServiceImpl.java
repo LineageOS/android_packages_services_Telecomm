@@ -1179,6 +1179,54 @@ public class TelecomServiceImpl {
         }
 
         /**
+         * @see android.telecom.TelecomManager#addNewIncomingConference
+         */
+        @Override
+        public void addNewIncomingConference(PhoneAccountHandle phoneAccountHandle, Bundle extras) {
+            try {
+                Log.startSession("TSI.aNIC");
+                synchronized (mLock) {
+                    Log.i(this, "Adding new incoming conference with phoneAccountHandle %s",
+                            phoneAccountHandle);
+                    if (phoneAccountHandle != null &&
+                            phoneAccountHandle.getComponentName() != null) {
+                        if (isCallerSimCallManager(phoneAccountHandle)
+                                && TelephonyUtil.isPstnComponentName(
+                                        phoneAccountHandle.getComponentName())) {
+                            Log.v(this, "Allowing call manager to add incoming conference" +
+                                    " with PSTN handle");
+                        } else {
+                            mAppOpsManager.checkPackage(
+                                    Binder.getCallingUid(),
+                                    phoneAccountHandle.getComponentName().getPackageName());
+                            // Make sure it doesn't cross the UserHandle boundary
+                            enforceUserHandleMatchesCaller(phoneAccountHandle);
+                            enforcePhoneAccountIsRegisteredEnabled(phoneAccountHandle,
+                                    Binder.getCallingUserHandle());
+                            if (isSelfManagedConnectionService(phoneAccountHandle)) {
+                                throw new SecurityException("Self-Managed ConnectionServices cannot add "
+                                        + "adhoc conference calls");
+                            }
+                        }
+                        long token = Binder.clearCallingIdentity();
+                        try {
+                            mCallsManager.processIncomingConference(
+                                    phoneAccountHandle, extras);
+                        } finally {
+                            Binder.restoreCallingIdentity(token);
+                        }
+                    } else {
+                        Log.w(this, "Null phoneAccountHandle. Ignoring request to add new" +
+                                " incoming conference");
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+
+        /**
          * @see android.telecom.TelecomManager#acceptHandover
          */
         @Override
@@ -1275,6 +1323,25 @@ public class TelecomServiceImpl {
                                         "Ignoring request to add new unknown call.");
                     }
                 }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        /**
+         * @see android.telecom.TelecomManager#startConference.
+         */
+        @Override
+        public void startConference(List<Uri> participants, Bundle extras,
+                String callingPackage) {
+            try {
+                Log.startSession("TSI.sC");
+                if (!canCallPhone(callingPackage, "startConference")) {
+                    throw new SecurityException("Package " + callingPackage + " is not allowed"
+                            + " to start conference call");
+                }
+                mCallsManager.startConference(participants, extras, callingPackage,
+                        Binder.getCallingUserHandle());
             } finally {
                 Log.endSession();
             }
