@@ -268,6 +268,26 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         }
 
         @Override
+        public void createConference(
+                PhoneAccountHandle connectionManagerPhoneAccount,
+                String id,
+                ConnectionRequest request,
+                boolean isIncoming,
+                boolean isUnknown,
+                Session.Info sessionInfo) { }
+
+        @Override
+        public void createConferenceComplete(String id, Session.Info sessionInfo) { }
+
+        @Override
+        public void createConferenceFailed(
+                PhoneAccountHandle connectionManagerPhoneAccount,
+                String callId,
+                ConnectionRequest request,
+                boolean isIncoming,
+                Session.Info sessionInfo) { }
+
+        @Override
         public void abort(String callId, Session.Info info) throws RemoteException { }
 
         @Override

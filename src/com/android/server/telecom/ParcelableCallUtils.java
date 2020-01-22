@@ -558,7 +558,10 @@ public class ParcelableCallUtils {
         android.telecom.Call.Details.PROPERTY_RTT,
 
         Connection.PROPERTY_NETWORK_IDENTIFIED_EMERGENCY_CALL,
-        android.telecom.Call.Details.PROPERTY_NETWORK_IDENTIFIED_EMERGENCY_CALL
+        android.telecom.Call.Details.PROPERTY_NETWORK_IDENTIFIED_EMERGENCY_CALL,
+
+        Connection.PROPERTY_IS_ADHOC_CONFERENCE,
+        android.telecom.Call.Details.PROPERTY_IS_ADHOC_CONFERENCE
     };
 
     private static int convertConnectionToCallProperties(int connectionProperties) {
