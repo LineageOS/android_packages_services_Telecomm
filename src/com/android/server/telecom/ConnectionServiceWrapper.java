@@ -1680,6 +1680,18 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         }
     }
 
+    void addConferenceParticipants(Call call, List<Uri> participants) {
+        final String callId = mCallIdMapper.getCallId(call);
+        if (callId != null && isServiceValid("addConferenceParticipants")) {
+            try {
+                logOutgoing("addConferenceParticipants %s", callId);
+                mServiceInterface.addConferenceParticipants(callId, participants,
+                        Log.getExternalSession());
+            } catch (RemoteException ignored) {
+            }
+        }
+    }
+
     @VisibleForTesting
     public void pullExternalCall(Call call) {
         final String callId = mCallIdMapper.getCallId(call);
