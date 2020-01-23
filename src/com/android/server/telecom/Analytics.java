@@ -24,6 +24,7 @@ import android.telecom.DisconnectCause;
 import android.telecom.Logging.EventManager;
 import android.telecom.ParcelableCallAnalytics;
 import android.telecom.TelecomAnalytics;
+import android.telecom.TelecomManager;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.util.Base64;
@@ -36,7 +37,6 @@ import com.android.server.telecom.nano.TelecomLogClass;
 import java.io.PrintWriter;
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,8 +45,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.PriorityQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
 
@@ -576,11 +574,11 @@ public class Analytics {
 
     // Constants for call source
     public static final int CALL_SOURCE_UNSPECIFIED =
-            ParcelableCallAnalytics.CALL_SOURCE_UNSPECIFIED;
+            TelecomManager.CALL_SOURCE_UNSPECIFIED;
     public static final int CALL_SOURCE_EMERGENCY_DIALPAD =
-            ParcelableCallAnalytics.CALL_SOURCE_EMERGENCY_DIALPAD;
+            TelecomManager.CALL_SOURCE_EMERGENCY_DIALPAD;
     public static final int CALL_SOURCE_EMERGENCY_SHORTCUT =
-            ParcelableCallAnalytics.CALL_SOURCE_EMERGENCY_SHORTCUT;
+            TelecomManager.CALL_SOURCE_EMERGENCY_SHORTCUT;
 
     // Constants for video events
     public static final int SEND_LOCAL_SESSION_MODIFY_REQUEST =
