@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.telecom.DisconnectCause;
 import android.telecom.Log;
+import android.telecom.ParcelableConference;
 import android.telecom.ParcelableConnection;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
@@ -246,7 +247,11 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
                 mCall.setConnectionService(mService);
                 setTimeoutIfNeeded(mService, attempt);
                 if (mCall.isIncoming()) {
-                    mService.createConnection(mCall, CreateConnectionProcessor.this);
+                    if (mCall.isAdhocConferenceCall()) {
+                        mService.createConference(mCall, CreateConnectionProcessor.this);
+                    } else {
+                        mService.createConnection(mCall, CreateConnectionProcessor.this);
+                    }
                 } else {
                     // Start to create the connection for outgoing call after the ConnectionService
                     // of the call has gained the focus.
@@ -255,10 +260,16 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
                             new CallsManager.RequestCallback(new CallsManager.PendingAction() {
                                 @Override
                                 public void performAction() {
-                                    Log.d(this, "perform create connection");
-                                    mService.createConnection(
-                                            mCall,
-                                            CreateConnectionProcessor.this);
+                                    if (mCall.isAdhocConferenceCall()) {
+                                        Log.d(this, "perform create conference");
+                                        mService.createConference(mCall,
+                                                CreateConnectionProcessor.this);
+                                    } else {
+                                        Log.d(this, "perform create connection");
+                                        mService.createConnection(
+                                                mCall,
+                                                CreateConnectionProcessor.this);
+                                    }
                                 }
                             }));
 
@@ -268,7 +279,11 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
             Log.v(this, "attemptNextPhoneAccount, no more accounts, failing");
             DisconnectCause disconnectCause = mLastErrorDisconnectCause != null ?
                     mLastErrorDisconnectCause : new DisconnectCause(DisconnectCause.ERROR);
-            notifyCallConnectionFailure(disconnectCause);
+            if (mCall.isAdhocConferenceCall()) {
+                notifyConferenceCallFailure(disconnectCause);
+            } else {
+                notifyCallConnectionFailure(disconnectCause);
+            }
         }
     }
 
@@ -459,6 +474,16 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
         }
     }
 
+    private void notifyConferenceCallFailure(DisconnectCause errorDisconnectCause) {
+        if (mCallResponse != null) {
+            clearTimeout();
+            mCallResponse.handleCreateConferenceFailure(errorDisconnectCause);
+            mCallResponse = null;
+            mCall.clearConnectionService();
+        }
+    }
+
+
     @Override
     public void handleCreateConnectionSuccess(
             CallIdMapper idMapper,
@@ -476,6 +501,25 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
             // after the call has successfully been created but before it has become active.
         }
     }
+
+    @Override
+    public void handleCreateConferenceSuccess(
+            CallIdMapper idMapper,
+            ParcelableConference conference) {
+        if (mCallResponse == null) {
+            // Nobody is listening for this conference attempt any longer; ask the responsible
+            // ConnectionService to tear down any resources associated with the call
+            mService.abort(mCall);
+        } else {
+            // Success -- share the good news and remember that we are no longer interested
+            // in hearing about any more attempts
+            mCallResponse.handleCreateConferenceSuccess(idMapper, conference);
+            mCallResponse = null;
+            // If there's a timeout running then don't clear it. The timeout can be triggered
+            // after the call has successfully been created but before it has become active.
+        }
+    }
+
 
     private boolean shouldFailCallIfConnectionManagerFails(DisconnectCause cause) {
         // Connection Manager does not exist or does not match registered Connection Manager
@@ -518,6 +562,18 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
         Log.d(CreateConnectionProcessor.this, "Connection failed: (%s)", errorDisconnectCause);
         if (shouldFailCallIfConnectionManagerFails(errorDisconnectCause)) {
             notifyCallConnectionFailure(errorDisconnectCause);
+            return;
+        }
+        mLastErrorDisconnectCause = errorDisconnectCause;
+        attemptNextPhoneAccount();
+    }
+
+    @Override
+    public void handleCreateConferenceFailure(DisconnectCause errorDisconnectCause) {
+        // Failure of some sort; record the reasons for failure and try again if possible
+        Log.d(CreateConnectionProcessor.this, "Conference failed: (%s)", errorDisconnectCause);
+        if (shouldFailCallIfConnectionManagerFails(errorDisconnectCause)) {
+            notifyConferenceCallFailure(errorDisconnectCause);
             return;
         }
         mLastErrorDisconnectCause = errorDisconnectCause;
