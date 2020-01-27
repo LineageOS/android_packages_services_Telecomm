@@ -1551,6 +1551,19 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         }
     }
 
+    /** @see IConnectionService#reject(String, Session.Info) */
+    void rejectWithReason(Call call, @android.telecom.Call.RejectReason int rejectReason) {
+        final String callId = mCallIdMapper.getCallId(call);
+        if (callId != null && isServiceValid("rejectReason")) {
+            try {
+                logOutgoing("rejectReason %s, %d", callId, rejectReason);
+
+                mServiceInterface.rejectWithReason(callId, rejectReason, Log.getExternalSession());
+            } catch (RemoteException e) {
+            }
+        }
+    }
+
     /** @see IConnectionService#playDtmfTone(String, char, Session.Info) */
     void playDtmfTone(Call call, char digit) {
         final String callId = mCallIdMapper.getCallId(call);
