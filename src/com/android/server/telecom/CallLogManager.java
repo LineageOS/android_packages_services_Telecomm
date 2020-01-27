@@ -337,8 +337,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
         int callFeatures = getCallFeatures(call.getVideoStateHistory(),
                 call.getDisconnectCause().getCode() == DisconnectCause.CALL_PULLED,
                 call.wasHighDefAudio(), call.wasWifi(),
-                (call.getConnectionProperties() & Connection.PROPERTY_ASSISTED_DIALING_USED) ==
-                        Connection.PROPERTY_ASSISTED_DIALING_USED,
+                (call.getConnectionProperties() & Connection.PROPERTY_ASSISTED_DIALING) ==
+                        Connection.PROPERTY_ASSISTED_DIALING,
                 call.wasEverRttCall(),
                 call.wasVolte());
 
