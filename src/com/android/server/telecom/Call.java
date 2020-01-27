@@ -53,7 +53,6 @@ import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
 import android.telephony.emergency.EmergencyNumber;
 import android.text.TextUtils;
-import android.util.StatsLog;
 import android.widget.Toast;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -1067,8 +1066,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             }
             int statsdDisconnectCause = (newState == CallState.DISCONNECTED) ?
                     getDisconnectCause().getCode() : DisconnectCause.UNKNOWN;
-            StatsLog.write(StatsLog.CALL_STATE_CHANGED, newState, statsdDisconnectCause,
-                    isSelfManaged(), isExternalCall());
+            TelecomStatsLog.write(TelecomStatsLog.CALL_STATE_CHANGED, newState,
+                    statsdDisconnectCause, isSelfManaged(), isExternalCall());
         }
         return true;
     }
@@ -2361,7 +2360,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         for (Listener l : mListeners) {
             l.onExtrasChanged(this, source, extras);
         }
-      
+
         // If mExtra shows that the call using Volte, record it with mWasVolte
         if (mExtras.containsKey(TelecomManager.EXTRA_CALL_NETWORK_TYPE) &&
             mExtras.get(TelecomManager.EXTRA_CALL_NETWORK_TYPE)
@@ -3481,8 +3480,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     public void setIsUsingCallFiltering(boolean isUsingCallFiltering) {
         mIsUsingCallFiltering = isUsingCallFiltering;
-    }       
-          
+    }
+
     /**
      * Returns whether or not Volte call was used.
      *
