@@ -513,6 +513,18 @@ public class TelecomServiceImpl {
                         if (callingUid != Process.SHELL_UID) {
                             enforceUserHandleMatchesCaller(account.getAccountHandle());
                         }
+
+                        if (TextUtils.isEmpty(account.getGroupId())
+                                && mContext.checkCallingOrSelfPermission(MODIFY_PHONE_STATE)
+                                != PackageManager.PERMISSION_GRANTED) {
+                            Log.w(this, "registerPhoneAccount - attempt to set a"
+                                    + " group from a non-system caller.");
+                            // Not permitted to set group, so null it out.
+                            account = new PhoneAccount.Builder(account)
+                                    .setGroupId(null)
+                                    .build();
+                        }
+
                         final long token = Binder.clearCallingIdentity();
                         try {
                             mPhoneAccountRegistrar.registerPhoneAccount(account);
