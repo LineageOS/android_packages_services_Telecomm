@@ -59,7 +59,6 @@ import android.widget.Toast;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telecom.IVideoProvider;
 import com.android.internal.util.Preconditions;
-import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import com.android.server.telecom.ui.ToastFactory;
 
 import java.io.IOException;
@@ -2270,6 +2269,38 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                         "reject call failed due to null CS callId=%s", getId());
             }
             Log.addEvent(this, LogUtils.Events.REQUEST_REJECT, reason);
+        }
+    }
+
+    /**
+     * Reject this Telecom call with the user-indicated reason.
+     * @param rejectReason The user-indicated reason fore rejecting the call.
+     */
+    public void reject(@android.telecom.Call.RejectReason int rejectReason) {
+        if (mState == CallState.SIMULATED_RINGING) {
+            // This handles the case where the user manually rejects a call that's in simulated
+            // ringing. Since the call is already active on the connectionservice side, we want to
+            // hangup, not reject.
+            // Since its simulated reason we can't pass along the reject reason.
+            setOverrideDisconnectCauseCode(new DisconnectCause(DisconnectCause.REJECTED));
+            if (mConnectionService != null) {
+                mConnectionService.disconnect(this);
+            } else {
+                Log.e(this, new NullPointerException(),
+                        "reject call failed due to null CS callId=%s", getId());
+            }
+            Log.addEvent(this, LogUtils.Events.REQUEST_REJECT);
+        } else if (isRinging("reject")) {
+            // Ensure video state history tracks video state at time of rejection.
+            mVideoStateHistory |= mVideoState;
+
+            if (mConnectionService != null) {
+                mConnectionService.rejectWithReason(this, rejectReason);
+            } else {
+                Log.e(this, new NullPointerException(),
+                        "reject call failed due to null CS callId=%s", getId());
+            }
+            Log.addEvent(this, LogUtils.Events.REQUEST_REJECT, rejectReason);
         }
     }
 

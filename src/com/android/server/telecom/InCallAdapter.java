@@ -126,6 +126,32 @@ class InCallAdapter extends IInCallAdapter.Stub {
     }
 
     @Override
+    public void rejectCallWithReason(String callId,
+            @android.telecom.Call.RejectReason int rejectReason) {
+        try {
+            Log.startSession(LogUtils.Sessions.ICA_REJECT_CALL, mOwnerPackageName);
+
+            int callingUid = Binder.getCallingUid();
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    Log.d(this, "rejectCallWithReason(%s,%d)", callId, rejectReason);
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        mCallsManager.rejectCall(call, rejectReason);
+                    } else {
+                        Log.w(this, "rejectCallWithReason, unknown call id: %s", callId);
+                    }
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+        } finally {
+            Log.endSession();
+        }
+    }
+
+    @Override
     public void playDtmfTone(String callId, char digit) {
         try {
             Log.startSession("ICA.pDT", mOwnerPackageName);
