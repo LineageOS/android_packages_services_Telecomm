@@ -551,8 +551,8 @@ public class ParcelableCallUtils {
         Connection.PROPERTY_SELF_MANAGED,
         android.telecom.Call.Details.PROPERTY_SELF_MANAGED,
 
-        Connection.PROPERTY_ASSISTED_DIALING_USED,
-        android.telecom.Call.Details.PROPERTY_ASSISTED_DIALING_USED,
+        Connection.PROPERTY_ASSISTED_DIALING,
+        android.telecom.Call.Details.PROPERTY_ASSISTED_DIALING,
 
         Connection.PROPERTY_IS_RTT,
         android.telecom.Call.Details.PROPERTY_RTT,
