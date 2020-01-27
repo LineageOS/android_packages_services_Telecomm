@@ -2364,6 +2364,25 @@ public class CallsManager extends Call.ListenerBase
     }
 
     /**
+     * Instructs Telecom to reject the specified call. Intended to be invoked by the in-call
+     * app through {@link InCallAdapter} after Telecom notifies it of an incoming call followed by
+     * the user opting to reject said call.
+     */
+    @VisibleForTesting
+    public void rejectCall(Call call, @android.telecom.Call.RejectReason int rejectReason) {
+        if (!mCalls.contains(call)) {
+            Log.i(this, "Request to reject a non-existent call %s", call);
+        } else {
+            for (CallsManagerListener listener : mListeners) {
+                listener.onIncomingCallRejected(call, false /* rejectWithMessage */,
+                        null /* textMessage */);
+            }
+            call.reject(rejectReason);
+        }
+    }
+
+
+    /**
      * Instructs Telecom to play the specified DTMF tone within the specified call.
      *
      * @param digit The DTMF digit to play.
