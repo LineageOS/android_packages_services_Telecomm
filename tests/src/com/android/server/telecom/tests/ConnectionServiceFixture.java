@@ -306,6 +306,11 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
             rejectedCallIds.add(callId);
         }
 
+        @Override public void rejectWithReason(java.lang.String callId, int rejectReason,
+                android.telecom.Logging.Session.Info sessionInfo) throws RemoteException {
+            rejectedCallIds.add(callId);
+        }
+
         @Override
         public void rejectWithMessage(String callId, String message,
                 Session.Info info) throws RemoteException {

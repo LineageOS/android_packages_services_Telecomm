@@ -53,13 +53,11 @@ import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
 import android.telephony.emergency.EmergencyNumber;
 import android.text.TextUtils;
-import android.util.StatsLog;
 import android.widget.Toast;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telecom.IVideoProvider;
 import com.android.internal.util.Preconditions;
-import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import com.android.server.telecom.ui.ToastFactory;
 
 import java.io.IOException;
@@ -1067,8 +1065,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             }
             int statsdDisconnectCause = (newState == CallState.DISCONNECTED) ?
                     getDisconnectCause().getCode() : DisconnectCause.UNKNOWN;
-            StatsLog.write(StatsLog.CALL_STATE_CHANGED, newState, statsdDisconnectCause,
-                    isSelfManaged(), isExternalCall());
+            TelecomStatsLog.write(TelecomStatsLog.CALL_STATE_CHANGED, newState,
+                    statsdDisconnectCause, isSelfManaged(), isExternalCall());
         }
         return true;
     }
@@ -2275,6 +2273,38 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     /**
+     * Reject this Telecom call with the user-indicated reason.
+     * @param rejectReason The user-indicated reason fore rejecting the call.
+     */
+    public void reject(@android.telecom.Call.RejectReason int rejectReason) {
+        if (mState == CallState.SIMULATED_RINGING) {
+            // This handles the case where the user manually rejects a call that's in simulated
+            // ringing. Since the call is already active on the connectionservice side, we want to
+            // hangup, not reject.
+            // Since its simulated reason we can't pass along the reject reason.
+            setOverrideDisconnectCauseCode(new DisconnectCause(DisconnectCause.REJECTED));
+            if (mConnectionService != null) {
+                mConnectionService.disconnect(this);
+            } else {
+                Log.e(this, new NullPointerException(),
+                        "reject call failed due to null CS callId=%s", getId());
+            }
+            Log.addEvent(this, LogUtils.Events.REQUEST_REJECT);
+        } else if (isRinging("reject")) {
+            // Ensure video state history tracks video state at time of rejection.
+            mVideoStateHistory |= mVideoState;
+
+            if (mConnectionService != null) {
+                mConnectionService.rejectWithReason(this, rejectReason);
+            } else {
+                Log.e(this, new NullPointerException(),
+                        "reject call failed due to null CS callId=%s", getId());
+            }
+            Log.addEvent(this, LogUtils.Events.REQUEST_REJECT, rejectReason);
+        }
+    }
+
+    /**
      * Puts the call on hold if it is currently active.
      */
     @VisibleForTesting
@@ -2361,7 +2391,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         for (Listener l : mListeners) {
             l.onExtrasChanged(this, source, extras);
         }
-      
+
         // If mExtra shows that the call using Volte, record it with mWasVolte
         if (mExtras.containsKey(TelecomManager.EXTRA_CALL_NETWORK_TYPE) &&
             mExtras.get(TelecomManager.EXTRA_CALL_NETWORK_TYPE)
@@ -3481,8 +3511,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     public void setIsUsingCallFiltering(boolean isUsingCallFiltering) {
         mIsUsingCallFiltering = isUsingCallFiltering;
-    }       
-          
+    }
+
     /**
      * Returns whether or not Volte call was used.
      *
