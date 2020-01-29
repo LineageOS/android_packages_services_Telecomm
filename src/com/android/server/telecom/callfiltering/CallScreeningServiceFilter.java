@@ -176,7 +176,6 @@ public class CallScreeningServiceFilter extends CallFilter {
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             ICallScreeningService callScreeningService =
                     ICallScreeningService.Stub.asInterface(service);
-
             try {
                 callScreeningService.screenCall(new CallScreeningAdapter(mResultFuture),
                         mParcelableCallUtilsConverter.
@@ -204,6 +203,7 @@ public class CallScreeningServiceFilter extends CallFilter {
         public void onNullBinding(ComponentName name) {
             mResultFuture.complete(mPriorStageResult);
             Log.i(this, "Null binding.");
+            unbindCallScreeningService();
         }
     }
 
@@ -251,6 +251,11 @@ public class CallScreeningServiceFilter extends CallFilter {
         return resultFuture;
     }
 
+    @Override
+    public String toString() {
+        return super.toString() + ": " + mPackageName;
+    }
+
     private boolean hasReadContactsPermission() {
         int permission = PackageManager.PERMISSION_DENIED;
         if (mPackagetype == PACKAGE_TYPE_CARRIER || mPackagetype == PACKAGE_TYPE_DEFAULT_DIALER) {
@@ -272,7 +277,7 @@ public class CallScreeningServiceFilter extends CallFilter {
         }
     }
 
-    private void unbindCallScreeningService() {
+    public void unbindCallScreeningService() {
         if (mConnection != null) {
             mContext.unbindService(mConnection);
         }
@@ -283,7 +288,8 @@ public class CallScreeningServiceFilter extends CallFilter {
         if (mPackagetype != PACKAGE_TYPE_DEFAULT_DIALER) {
             return false;
         } else {
-            return mPackageName.equals(TelecomManager.from(mContext).getSystemDialerPackage());
+            return mPackageName.equals(
+                    TelecomManager.from(mContext).getSystemDialerPackage());
         }
     }
 
