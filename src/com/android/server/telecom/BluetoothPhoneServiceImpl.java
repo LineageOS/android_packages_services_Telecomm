@@ -260,6 +260,19 @@ public class BluetoothPhoneServiceImpl {
             }
         }
 
+        @Override
+        public boolean isCsCallInProgress() {
+            boolean isCsCall = false;
+            Call activeCall = mCallsManager.getActiveCall();
+            if (mNumActiveCalls > 0) {
+                isCsCall =  ((activeCall != null) &&
+                 !(activeCall.hasProperty(Connection.PROPERTY_HIGH_DEF_AUDIO) ||
+                 activeCall.hasProperty(Connection.PROPERTY_WIFI)));
+            }
+            Log.i(TAG, "isCsCallInProgress: "+ isCsCall);
+            return isCsCall;
+        }
+
        /**
         * isHighDefCallInProgress
         * Returns true if there is any Call is in Progress with High Definition
