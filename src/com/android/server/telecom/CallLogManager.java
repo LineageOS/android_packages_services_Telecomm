@@ -339,7 +339,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
                 call.wasHighDefAudio(), call.wasWifi(),
                 (call.getConnectionProperties() & Connection.PROPERTY_ASSISTED_DIALING_USED) ==
                         Connection.PROPERTY_ASSISTED_DIALING_USED,
-                call.wasEverRttCall());
+                call.wasEverRttCall(),
+                call.wasVolte());
 
         if (callLogType == Calls.BLOCKED_TYPE) {
             logCall(call.getCallerInfo(), logNumber, call.getPostDialDigits(), formattedViaNumber,
@@ -464,7 +465,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
      * @return The call features.
      */
     private static int getCallFeatures(int videoState, boolean isPulledCall, boolean isStoreHd,
-            boolean isWifi, boolean isUsingAssistedDialing, boolean isRtt) {
+            boolean isWifi, boolean isUsingAssistedDialing, boolean isRtt, boolean isVolte) {
         int features = 0;
         if (VideoProfile.isVideo(videoState)) {
             features |= Calls.FEATURES_VIDEO;
@@ -483,6 +484,9 @@ public final class CallLogManager extends CallsManagerListenerBase {
         }
         if (isRtt) {
             features |= Calls.FEATURES_RTT;
+        }
+        if (isVolte) {
+            features |= Calls.FEATURES_VOLTE;
         }
         return features;
     }
