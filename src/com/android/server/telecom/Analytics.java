@@ -201,7 +201,8 @@ public class Analytics {
         public void addVideoEvent(int eventId, int videoState) {
         }
 
-        public void addInCallService(String serviceName, int type) {
+        public void addInCallService(String serviceName, int type, long boundDuration,
+                boolean isNullBinding) {
         }
 
         public void addCallProperties(int properties) {
@@ -370,10 +371,13 @@ public class Analytics {
         }
 
         @Override
-        public void addInCallService(String serviceName, int type) {
+        public void addInCallService(String serviceName, int type, long boundDuration,
+                boolean isNullBinding) {
             inCallServiceInfos.add(new TelecomLogClass.InCallServiceInfo()
                     .setInCallServiceName(serviceName)
-                    .setInCallServiceType(type));
+                    .setInCallServiceType(type)
+                    .setBoundDurationMillis(boundDuration)
+                    .setIsNullBinding(isNullBinding));
         }
 
         @Override
@@ -533,6 +537,10 @@ public class Analytics {
                 s.append(service.getInCallServiceName());
                 s.append(" type: ");
                 s.append(service.getInCallServiceType());
+                s.append(" is crashed: ");
+                s.append(service.getIsNullBinding());
+                s.append(" service last time in ms: ");
+                s.append(service.getBoundDurationMillis());
                 s.append("\n");
             }
             s.append("]");

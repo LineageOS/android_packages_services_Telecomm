@@ -18,6 +18,8 @@ package com.android.server.telecom;
 
 import android.Manifest;
 import android.annotation.NonNull;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -47,6 +49,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telecom.IInCallService;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.SystemStateHelper.SystemStateListener;
+import com.android.server.telecom.ui.NotificationChannelManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,6 +68,8 @@ import java.util.stream.Collectors;
  * a binding to the {@link IInCallService} (implemented by the in-call app).
  */
 public class InCallController extends CallsManagerListenerBase {
+    public static final int IN_CALL_SERVICE_NOTIFICATION_ID = 3;
+    public static final String NOTIFICATION_TAG = InCallController.class.getSimpleName();
 
     public class InCallServiceConnection {
         /**
@@ -83,7 +88,7 @@ public class InCallController extends CallsManagerListenerBase {
         public static final int CONNECTION_NOT_SUPPORTED = 3;
 
         public class Listener {
-            public void onDisconnect(InCallServiceConnection conn) {}
+            public void onDisconnect(InCallServiceConnection conn, Call call) {}
         }
 
         protected Listener mListener;
@@ -97,6 +102,7 @@ public class InCallController extends CallsManagerListenerBase {
         }
         public InCallServiceInfo getInfo() { return null; }
         public void dump(IndentingPrintWriter pw) {}
+        public Call mCall;
     }
 
     private class InCallServiceInfo {
@@ -104,6 +110,8 @@ public class InCallController extends CallsManagerListenerBase {
         private boolean mIsExternalCallsSupported;
         private boolean mIsSelfManagedCallsSupported;
         private final int mType;
+        private long mBindingStartTime;
+        private long mDisconnectTime;
 
         public InCallServiceInfo(ComponentName componentName,
                 boolean isExternalCallsSupported,
@@ -129,6 +137,22 @@ public class InCallController extends CallsManagerListenerBase {
 
         public int getType() {
             return mType;
+        }
+
+        public long getBindingStartTime() {
+            return mBindingStartTime;
+        }
+
+        public long getDisconnectTime() {
+            return mDisconnectTime;
+        }
+
+        public void setBindingStartTime(long bindingStartTime) {
+            mBindingStartTime = bindingStartTime;
+        }
+
+        public void setDisconnectTime(long disconnectTime) {
+            mDisconnectTime = disconnectTime;
         }
 
         @Override
@@ -198,14 +222,47 @@ public class InCallController extends CallsManagerListenerBase {
                     }
                 }
             }
+
+            @Override
+            public void onNullBinding(ComponentName name) {
+                Log.startSession("ICSBC.oNB");
+                synchronized (mLock) {
+                    try {
+                        Log.d(this, "onNullBinding: %s", name);
+                        mIsNullBinding = true;
+                        mIsBound = false;
+                        onDisconnected();
+                    } finally {
+                        Log.endSession();
+                    }
+                }
+            }
+
+            @Override
+            public void onBindingDied(ComponentName name) {
+                Log.startSession("ICSBC.oBD");
+                synchronized (mLock) {
+                    try {
+                        Log.d(this, "onBindingDied: %s", name);
+                        mIsBound = false;
+                        onDisconnected();
+                    } finally {
+                        Log.endSession();
+                    }
+                }
+            }
         };
 
         private final InCallServiceInfo mInCallServiceInfo;
         private boolean mIsConnected = false;
         private boolean mIsBound = false;
+        private boolean mIsNullBinding = false;
+        private NotificationManager mNotificationManager;
 
         public InCallServiceBindingConnection(InCallServiceInfo info) {
             mInCallServiceInfo = info;
+            mNotificationManager =
+                    (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         }
 
         @Override
@@ -234,6 +291,7 @@ public class InCallController extends CallsManagerListenerBase {
 
             Log.i(this, "Attempting to bind to InCall %s, with %s", mInCallServiceInfo, intent);
             mIsConnected = true;
+            mInCallServiceInfo.setBindingStartTime(mClockProxy.elapsedRealtime());
             if (!mContext.bindServiceAsUser(intent, mServiceConnection,
                         Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE
                         | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS,
@@ -242,11 +300,10 @@ public class InCallController extends CallsManagerListenerBase {
                 mIsConnected = false;
             }
 
-            if (call != null && mIsConnected) {
-                call.getAnalytics().addInCallService(
-                        mInCallServiceInfo.getComponentName().flattenToShortString(),
-                        mInCallServiceInfo.getType());
+            if (mIsConnected && call != null) {
+                mCall = call;
             }
+            Log.i(this, "mCall: %s, mIsConnected: %s", mCall, mIsConnected);
 
             return mIsConnected ? CONNECTION_SUCCEEDED : CONNECTION_FAILED;
         }
@@ -259,10 +316,36 @@ public class InCallController extends CallsManagerListenerBase {
         @Override
         public void disconnect() {
             if (mIsConnected) {
-                Log.i(InCallController.this, "ICSBC#disconnect: unbinding; %s",
-                        mInCallServiceInfo);
+                mInCallServiceInfo.setDisconnectTime(mClockProxy.elapsedRealtime());
+                Log.i(InCallController.this, "ICSBC#disconnect: unbinding after %s ms;"
+                                + "%s. isCrashed: %s", mInCallServiceInfo.mDisconnectTime
+                                - mInCallServiceInfo.mBindingStartTime,
+                        mInCallServiceInfo, mIsNullBinding);
+                String packageName = mInCallServiceInfo.getComponentName().getPackageName();
                 mContext.unbindService(mServiceConnection);
                 mIsConnected = false;
+                if (mIsNullBinding) {
+                    Notification.Builder builder = new Notification.Builder(mContext,
+                            NotificationChannelManager.CHANNEL_ID_IN_CALL_SERVICE_CRASH);
+                    builder.setSmallIcon(R.drawable.ic_phone)
+                            .setColor(mContext.getResources().getColor(R.color.theme_color))
+                            .setContentTitle(
+                                    mContext.getText(
+                                            R.string.notification_crashedInCallService_title))
+                            .setStyle(new Notification.BigTextStyle()
+                                    .bigText(mContext.getString(
+                                            R.string.notification_crashedInCallService_body,
+                                            packageName)));
+                    mNotificationManager.notify(NOTIFICATION_TAG, IN_CALL_SERVICE_NOTIFICATION_ID,
+                            builder.build());
+                }
+                if (mCall != null) {
+                    mCall.getAnalytics().addInCallService(
+                            mInCallServiceInfo.getComponentName().flattenToShortString(),
+                            mInCallServiceInfo.getType(),
+                            mInCallServiceInfo.getDisconnectTime()
+                                    - mInCallServiceInfo.getBindingStartTime(), mIsNullBinding);
+                }
             } else {
                 Log.i(InCallController.this, "ICSBC#disconnect: already disconnected; %s",
                         mInCallServiceInfo);
@@ -302,7 +385,7 @@ public class InCallController extends CallsManagerListenerBase {
             InCallController.this.onDisconnected(mInCallServiceInfo);
             disconnect();  // Unbind explicitly if we get disconnected.
             if (mListener != null) {
-                mListener.onDisconnect(InCallServiceBindingConnection.this);
+                mListener.onDisconnect(InCallServiceBindingConnection.this, mCall);
             }
         }
     }
@@ -319,7 +402,7 @@ public class InCallController extends CallsManagerListenerBase {
 
         private Listener mSubListener = new Listener() {
             @Override
-            public void onDisconnect(InCallServiceConnection subConnection) {
+            public void onDisconnect(InCallServiceConnection subConnection, Call call) {
                 if (subConnection == mSubConnection) {
                     if (mIsConnected && mIsProxying) {
                         // At this point we know that we need to be connected to the InCallService
@@ -327,7 +410,7 @@ public class InCallController extends CallsManagerListenerBase {
                         // just died so we need to stop proxying and connect to the system in-call
                         // service instead.
                         mIsProxying = false;
-                        connect(null);
+                        connect(call);
                     }
                 }
             }
@@ -799,6 +882,7 @@ public class InCallController extends CallsManagerListenerBase {
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private CarSwappingInCallServiceConnection mInCallServiceConnection;
     private NonUIInCallServiceConnectionCollection mNonUIInCallServiceConnections;
+    private final ClockProxy mClockProxy;
 
     // Future that's in a completed state unless we're in the middle of binding to a service.
     // The future will complete with true if binding succeeds, false if it timed out.
@@ -809,7 +893,8 @@ public class InCallController extends CallsManagerListenerBase {
     public InCallController(Context context, TelecomSystem.SyncRoot lock, CallsManager callsManager,
             SystemStateHelper systemStateHelper,
             DefaultDialerCache defaultDialerCache, Timeouts.Adapter timeoutsAdapter,
-            EmergencyCallHelper emergencyCallHelper, CarModeTracker carModeTracker) {
+            EmergencyCallHelper emergencyCallHelper, CarModeTracker carModeTracker,
+            ClockProxy clockProxy) {
         mContext = context;
         mLock = lock;
         mCallsManager = callsManager;
@@ -819,6 +904,7 @@ public class InCallController extends CallsManagerListenerBase {
         mEmergencyCallHelper = emergencyCallHelper;
         mCarModeTracker = carModeTracker;
         mSystemStateHelper.addListener(mSystemStateListener);
+        mClockProxy = clockProxy;
     }
 
     @Override
