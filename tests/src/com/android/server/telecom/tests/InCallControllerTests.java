@@ -16,8 +16,14 @@
 
 package com.android.server.telecom.tests;
 
+import static com.android.server.telecom.InCallController.IN_CALL_SERVICE_NOTIFICATION_ID;
+import static com.android.server.telecom.InCallController.NOTIFICATION_TAG;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
@@ -33,6 +39,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.UiModeManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -44,12 +52,14 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.UserHandle;
 import android.telecom.InCallService;
+import android.telecom.Log;
 import android.telecom.ParcelableCall;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
@@ -64,6 +74,7 @@ import com.android.server.telecom.BluetoothHeadsetProxy;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.CarModeTracker;
+import com.android.server.telecom.ClockProxy;
 import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.EmergencyCallHelper;
 import com.android.server.telecom.InCallController;
@@ -85,22 +96,9 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.matches;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 @RunWith(JUnit4.class)
 public class InCallControllerTests extends TelecomTestCase {
@@ -115,6 +113,9 @@ public class InCallControllerTests extends TelecomTestCase {
     @Mock Timeouts.Adapter mTimeoutsAdapter;
     @Mock DefaultDialerCache mDefaultDialerCache;
     @Mock RoleManagerAdapter mMockRoleManagerAdapter;
+    @Mock ClockProxy mClockProxy;
+    @Mock Analytics.CallInfoImpl mCallInfo;
+    @Mock NotificationManager mNotificationManager;
 
     private static final int CURRENT_USER_ID = 900973;
     private static final String DEF_PKG = "defpkg";
@@ -159,7 +160,9 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCallsManager.getRoleManagerAdapter()).thenReturn(mMockRoleManagerAdapter);
         mInCallController = new InCallController(mMockContext, mLock, mMockCallsManager,
                 mMockSystemStateHelper, mDefaultDialerCache, mTimeoutsAdapter,
-                mEmergencyCallHelper, new CarModeTracker());
+                mEmergencyCallHelper, new CarModeTracker(), mClockProxy);
+        when(mMockContext.getSystemService(eq(Context.NOTIFICATION_SERVICE)))
+                .thenReturn(mNotificationManager);
         // Companion Apps don't have CONTROL_INCALL_EXPERIENCE permission.
         doAnswer(invocation -> {
             int uid = invocation.getArgument(0);
@@ -470,6 +473,58 @@ public class InCallControllerTests extends TelecomTestCase {
         bindIntent = bindIntentCaptor2.getValue();
         assertEquals(SYS_PKG, bindIntent.getComponent().getPackageName());
         assertEquals(SYS_CLASS, bindIntent.getComponent().getClassName());
+    }
+
+    @Test
+    public void testBindToService_NullBinding_FallBackToSystem() throws Exception {
+        ApplicationInfo applicationInfo = new ApplicationInfo();
+        applicationInfo.targetSdkVersion = Build.VERSION_CODES.R;
+        when(mMockCallsManager.isInEmergencyCall()).thenReturn(false);
+        when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
+        when(mMockCall.isIncoming()).thenReturn(false);
+        when(mMockCall.isExternalCall()).thenReturn(false);
+        when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
+        when(mMockCall.getAnalytics()).thenReturn(mCallInfo);
+        when(mMockContext.bindServiceAsUser(
+                any(Intent.class), any(ServiceConnection.class), anyInt(), any(UserHandle.class)))
+                .thenReturn(true);
+        when(mMockContext.getApplicationInfo()).thenReturn(applicationInfo);
+
+        setupMockPackageManager(true /* default */, true /* system */, false /* external calls */);
+        mInCallController.bindToServices(mMockCall);
+
+        ArgumentCaptor<Intent> bindIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        ArgumentCaptor<ServiceConnection> serviceConnectionCaptor =
+                ArgumentCaptor.forClass(ServiceConnection.class);
+        verify(mMockContext, times(1)).bindServiceAsUser(
+                bindIntentCaptor.capture(),
+                serviceConnectionCaptor.capture(),
+                anyInt(),
+                any(UserHandle.class));
+        ServiceConnection serviceConnection = serviceConnectionCaptor.getValue();
+        ComponentName defDialerComponentName = new ComponentName(DEF_PKG, DEF_CLASS);
+        ComponentName sysDialerComponentName = new ComponentName(SYS_PKG, SYS_CLASS);
+
+        IBinder mockBinder = mock(IBinder.class);
+        IInCallService mockInCallService = mock(IInCallService.class);
+        when(mockBinder.queryLocalInterface(anyString())).thenReturn(mockInCallService);
+
+        serviceConnection.onServiceConnected(defDialerComponentName, mockBinder);
+        // verify(mockInCallService).setInCallAdapter(any(IInCallAdapter.class));
+        serviceConnection.onNullBinding(defDialerComponentName);
+
+        verify(mNotificationManager).notify(eq(NOTIFICATION_TAG),
+                eq(IN_CALL_SERVICE_NOTIFICATION_ID), any(Notification.class));
+        verify(mCallInfo).addInCallService(eq(sysDialerComponentName.flattenToShortString()),
+                anyInt(), anyLong(), eq(true));
+
+        ArgumentCaptor<Intent> bindIntentCaptor2 = ArgumentCaptor.forClass(Intent.class);
+        verify(mMockContext, times(2)).bindServiceAsUser(
+                bindIntentCaptor2.capture(),
+                any(ServiceConnection.class),
+                eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE
+                        | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS),
+                eq(UserHandle.CURRENT));
     }
 
     /**
