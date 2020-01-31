@@ -271,7 +271,7 @@ public class TelecomSystem {
                     EmergencyCallHelper emergencyCallHelper) {
                 return new InCallController(context, lock, callsManager, systemStateProvider,
                         defaultDialerCache, timeoutsAdapter, emergencyCallHelper,
-                        new CarModeTracker());
+                        new CarModeTracker(), clockProxy);
             }
         };
 
