@@ -131,4 +131,14 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"/>
     </LinearLayout>
+    <Button
+        android:id="@+id/disable_incallservice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Disable InCallService" />
+    <Button
+        android:id="@+id/enable_incallservice"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="Enable InCallService" />
 </LinearLayout>
