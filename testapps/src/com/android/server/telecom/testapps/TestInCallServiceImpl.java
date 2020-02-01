@@ -23,9 +23,6 @@ import android.telecom.InCallService;
 import android.telecom.Phone;
 import android.util.Log;
 
-import java.lang.Override;
-import java.lang.String;
-
 /**
  * Test In-Call service implementation.  Logs incoming events.  Mainly used to test binding to
  * multiple {@link InCallService} implementations.
