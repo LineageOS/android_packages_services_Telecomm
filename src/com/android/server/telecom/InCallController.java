@@ -261,8 +261,6 @@ public class InCallController extends CallsManagerListenerBase {
 
         public InCallServiceBindingConnection(InCallServiceInfo info) {
             mInCallServiceInfo = info;
-            mNotificationManager =
-                    (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         }
 
         @Override
@@ -325,19 +323,7 @@ public class InCallController extends CallsManagerListenerBase {
                 mContext.unbindService(mServiceConnection);
                 mIsConnected = false;
                 if (mIsNullBinding) {
-                    Notification.Builder builder = new Notification.Builder(mContext,
-                            NotificationChannelManager.CHANNEL_ID_IN_CALL_SERVICE_CRASH);
-                    builder.setSmallIcon(R.drawable.ic_phone)
-                            .setColor(mContext.getResources().getColor(R.color.theme_color))
-                            .setContentTitle(
-                                    mContext.getText(
-                                            R.string.notification_crashedInCallService_title))
-                            .setStyle(new Notification.BigTextStyle()
-                                    .bigText(mContext.getString(
-                                            R.string.notification_crashedInCallService_body,
-                                            packageName)));
-                    mNotificationManager.notify(NOTIFICATION_TAG, IN_CALL_SERVICE_NOTIFICATION_ID,
-                            builder.build());
+                    sendCrashedInCallServiceNotification(packageName);
                 }
                 if (mCall != null) {
                     mCall.getAnalytics().addInCallService(
@@ -1328,7 +1314,13 @@ public class InCallController extends CallsManagerListenerBase {
                 mCallsManager.getCurrentUserHandle().getIdentifier());
         Log.d(this, "Default Dialer package: " + packageName);
 
-        return getInCallServiceComponent(packageName, IN_CALL_SERVICE_TYPE_DIALER_UI);
+        InCallServiceInfo defaultDialerComponent = getInCallServiceComponent(packageName,
+                IN_CALL_SERVICE_TYPE_DIALER_UI);
+        if (packageName != null && defaultDialerComponent == null) {
+            // The in call service of default phone app is disabled, send notification.
+            sendCrashedInCallServiceNotification(packageName);
+        }
+        return defaultDialerComponent;
     }
 
     private InCallServiceInfo getCurrentCarModeComponent() {
@@ -1806,5 +1798,23 @@ public class InCallController extends CallsManagerListenerBase {
                 mInCallServiceConnection.disableCarMode();
             }
         }
+    }
+
+    private void sendCrashedInCallServiceNotification(String packageName) {
+        NotificationManager notificationManager = (NotificationManager) mContext
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+        Notification.Builder builder = new Notification.Builder(mContext,
+                NotificationChannelManager.CHANNEL_ID_IN_CALL_SERVICE_CRASH);
+        builder.setSmallIcon(R.drawable.ic_phone)
+                .setColor(mContext.getResources().getColor(R.color.theme_color))
+                .setContentTitle(
+                        mContext.getText(
+                                R.string.notification_crashedInCallService_title))
+                .setStyle(new Notification.BigTextStyle()
+                        .bigText(mContext.getString(
+                                R.string.notification_crashedInCallService_body,
+                                packageName)));
+        notificationManager.notify(NOTIFICATION_TAG, IN_CALL_SERVICE_NOTIFICATION_ID,
+                builder.build());
     }
 }

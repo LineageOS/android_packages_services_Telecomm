@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.telecom.Call;
 import android.telecom.CallAudioState;
@@ -233,6 +234,20 @@ public class TestInCallUI extends Activity {
             Call call = mCallList.getCall(0);
             call.reject(false, null);
         });
+
+        findViewById(R.id.disable_incallservice).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                disableInCallService();
+            }
+        });
+
+        findViewById(R.id.enable_incallservice).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                enableInCallService();
+            }
+        });
     }
 
     public void updateCallAudioState(CallAudioState cas) {
@@ -284,5 +299,27 @@ public class TestInCallUI extends Activity {
         return new PhoneAccountHandle(new ComponentName(
                 SelfManagedCallList.class.getPackage().getName(),
                 SelfManagedConnectionService.class.getName()), "1");
+    }
+
+    public void disableInCallService() {
+        ComponentName uiComponent = new ComponentName(
+                TestInCallServiceImpl.class.getPackage().getName(),
+                TestInCallServiceImpl.class.getName());
+        getPackageManager().setComponentEnabledSetting(uiComponent,
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
+        boolean isEnabled = getPackageManager().getComponentEnabledSetting(uiComponent)
+                == PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
+        Toast.makeText(this, "Is UI enabled? " + isEnabled, Toast.LENGTH_LONG).show();
+    }
+
+    public void enableInCallService() {
+        ComponentName uiComponent = new ComponentName(
+                TestInCallServiceImpl.class.getPackage().getName(),
+                TestInCallServiceImpl.class.getName());
+        getPackageManager().setComponentEnabledSetting(uiComponent,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0);
+        boolean isEnabled = getPackageManager().getComponentEnabledSetting(uiComponent)
+                == PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
+        Toast.makeText(this, "Is UI enabled? " + isEnabled, Toast.LENGTH_LONG).show();
     }
 }

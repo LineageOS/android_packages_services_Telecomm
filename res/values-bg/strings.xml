@@ -30,6 +30,10 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Обаждането до <xliff:g id="CALLER">%s</xliff:g> бе прекъснато, тъй като се извършва спешно обаждане."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Обаждане: заден план"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> постави обаждане на заден план. Приложението може да има достъп до обаждането и да възпроизвежда звук върху него."</string>
+    <!-- no translation found for notification_crashedInCallService_title (7440244344965656743) -->
+    <skip />
+    <!-- no translation found for notification_crashedInCallService_body (2307501918379604204) -->
+    <skip />
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Обаждането бе спряно."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"Високоговорителят бе активиран."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"Сега не мога да говоря. Какво има?"</string>
@@ -96,6 +100,8 @@
     <string name="notification_channel_call_blocking" msgid="2028807677868598710">"Блокиране на обажданията"</string>
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"Обаждания на заден план"</string>
     <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"Прекъснати обаждания"</string>
+    <!-- no translation found for notification_channel_in_call_service_crash (7313237519166984267) -->
+    <skip />
     <string name="alert_outgoing_call" msgid="5319895109298927431">"Ако извършите това обаждане, обаждането ви през <xliff:g id="OTHER_APP">%1$s</xliff:g> ще прекъсне."</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"Изберете как да се извърши обаждането"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="5221065030959024121">"Пренасочване на обаждането през <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>

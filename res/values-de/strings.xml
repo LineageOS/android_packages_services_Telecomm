@@ -30,6 +30,10 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Der Anruf mit <xliff:g id="CALLER">%s</xliff:g> wurde beendet, weil ein Notruf getätigt wurde."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Anruf im Hintergrund"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> hat einen Anruf in den Hintergrund verschoben. Diese App greift möglicherweise auf den Anruf zu und spielt Audio darüber ab."</string>
+    <!-- no translation found for notification_crashedInCallService_title (7440244344965656743) -->
+    <skip />
+    <!-- no translation found for notification_crashedInCallService_body (2307501918379604204) -->
+    <skip />
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Anruf stummgeschaltet"</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"Freisprechfunktion aktiviert"</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"Kann jetzt nicht sprechen. Was gibt\'s?"</string>
@@ -96,6 +100,8 @@
     <string name="notification_channel_call_blocking" msgid="2028807677868598710">"Anrufblockierung"</string>
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"Anrufe im Hintergrund"</string>
     <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"Beendete Anrufe"</string>
+    <!-- no translation found for notification_channel_in_call_service_crash (7313237519166984267) -->
+    <skip />
     <string name="alert_outgoing_call" msgid="5319895109298927431">"Durch diesen Anruf wird der Anruf in <xliff:g id="OTHER_APP">%1$s</xliff:g> beendet."</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"Wie möchtest du anrufen?"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="5221065030959024121">"Mit <xliff:g id="OTHER_APP">%1$s</xliff:g> weiterleiten"</string>
