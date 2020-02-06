@@ -374,7 +374,6 @@ public class RingerTest extends TelecomTestCase {
         mRingerUnderTest.startCallWaiting(mockCall1);
         ensureRingerIsAudible();
         enableRampingRinger();
-        enableRampingRingerFromDeviceConfig();
         mFuture.complete(false); // not using audio coupled haptics
         enableVibrationWhenRinging();
         assertTrue(mRingerUnderTest.startRinging(mockCall2, false));
@@ -441,9 +440,5 @@ public class RingerTest extends TelecomTestCase {
 
     private void enableRampingRinger() {
         when(mockSystemSettingsUtil.applyRampingRinger(any(Context.class))).thenReturn(true);
-    }
-
-    private void enableRampingRingerFromDeviceConfig() {
-        when(mockSystemSettingsUtil.enableRampingRingerFromDeviceConfig()).thenReturn(true);
     }
 }
