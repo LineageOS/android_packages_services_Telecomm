@@ -1312,10 +1312,13 @@ public class InCallController extends CallsManagerListenerBase {
     private InCallServiceInfo getDefaultDialerComponent() {
         String packageName = mDefaultDialerCache.getDefaultDialerApplication(
                 mCallsManager.getCurrentUserHandle().getIdentifier());
+        String systemPackageName = mDefaultDialerCache.getSystemDialerApplication();
         Log.d(this, "Default Dialer package: " + packageName);
 
-        InCallServiceInfo defaultDialerComponent = getInCallServiceComponent(packageName,
-                IN_CALL_SERVICE_TYPE_DIALER_UI);
+        InCallServiceInfo defaultDialerComponent =
+                (systemPackageName != null && systemPackageName.equals(packageName))
+                ? getInCallServiceComponent(packageName, IN_CALL_SERVICE_TYPE_SYSTEM_UI)
+                : getInCallServiceComponent(packageName, IN_CALL_SERVICE_TYPE_DIALER_UI);
         if (packageName != null && defaultDialerComponent == null) {
             // The in call service of default phone app is disabled, send notification.
             sendCrashedInCallServiceNotification(packageName);
