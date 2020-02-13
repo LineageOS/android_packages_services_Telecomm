@@ -359,6 +359,12 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
                 Session.Info info) throws RemoteException { }
 
         @Override
+        public void addConferenceParticipants(String CallId, List<Uri> participants,
+                Session.Info sessionInfo) throws RemoteException {
+
+        }
+
+        @Override
         public void onPostDialContinue(String callId, boolean proceed,
                 Session.Info info) throws RemoteException { }
 
