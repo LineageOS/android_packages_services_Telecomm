@@ -514,7 +514,9 @@ public class ParcelableCallUtils {
         android.telecom.Call.Details.CAPABILITY_CAN_PULL_CALL,
 
         Connection.CAPABILITY_SUPPORT_DEFLECT,
-        android.telecom.Call.Details.CAPABILITY_SUPPORT_DEFLECT
+        android.telecom.Call.Details.CAPABILITY_SUPPORT_DEFLECT,
+        Connection.CAPABILITY_ADD_PARTICIPANT,
+        android.telecom.Call.Details.CAPABILITY_ADD_PARTICIPANT
     };
 
     private static int convertConnectionToCallCapabilities(int connectionCapabilities) {

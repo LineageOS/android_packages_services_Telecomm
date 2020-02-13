@@ -2554,6 +2554,15 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
     }
 
+    public void addConferenceParticipants(List<Uri> participants) {
+        if (mConnectionService == null) {
+            Log.w(this, "adding conference participants without a connection service.");
+        } else if (can(Connection.CAPABILITY_ADD_PARTICIPANT)) {
+            Log.addEvent(this, LogUtils.Events.ADD_PARTICIPANT);
+            mConnectionService.addConferenceParticipants(this, participants);
+        }
+    }
+
     /**
      * Initiates a request to the connection service to pull this call.
      * <p>
