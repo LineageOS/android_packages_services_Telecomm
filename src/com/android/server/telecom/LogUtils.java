@@ -127,6 +127,7 @@ public class LogUtils {
         public static final String CONFERENCE_WITH = "CONF_WITH";
         public static final String SPLIT_FROM_CONFERENCE = "CONF_SPLIT";
         public static final String SWAP = "SWAP";
+        public static final String ADD_PARTICIPANT = "ADD_PARTICIPANT";
         public static final String ADD_CHILD = "ADD_CHILD";
         public static final String REMOVE_CHILD = "REMOVE_CHILD";
         public static final String SET_PARENT = "SET_PARENT";
