@@ -474,6 +474,29 @@ class InCallAdapter extends IInCallAdapter.Stub {
     }
 
     @Override
+    public void addConferenceParticipants(String callId, List<Uri> participants) {
+        try {
+            Log.startSession("ICA.aCP", mOwnerPackageName);
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        call.addConferenceParticipants(participants);
+                    } else {
+                        Log.w(this, "addConferenceParticipants, unknown call id: %s", callId);
+                    }
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+        } finally {
+            Log.endSession();
+        }
+    }
+
+
+    @Override
     public void pullExternalCall(String callId) {
         try {
             Log.startSession("ICA.pEC", mOwnerPackageName);
