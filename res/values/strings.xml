@@ -73,8 +73,8 @@
     <string name="notification_crashedInCallService_title">Crashed phone app</string>
     <!-- Body of the notification presented when an in call service crashed. [CHAR LIMIT=NONE] -->
     <string name="notification_crashedInCallService_body">
-        Your Phone app <xliff:g id="in_call_service_app_name">%s</xliff:g> has crashed.
-        You call was continued using the Phone app that came with your device.
+        Your phone app <xliff:g id="in_call_service_app_name">%s</xliff:g> has crashed.
+        You call was continued using the phone app that came with your device.
     </string>
 
     <!-- Content description of the call muted notification icon for
