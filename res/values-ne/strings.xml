@@ -30,9 +30,8 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"आपत्कालीन कल गरिएको हुनाले <xliff:g id="CALLER">%s</xliff:g> लाई गरिएको कल विच्छेद गरियो।"</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"पृष्ठभूमिको कल"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ले एउटा कल पृष्ठभूमिमा राखेको छ। कल गरेको बेला यो अनुप्रयोगले अडियोमाथि पहुँच राखेर प्ले गरिरहेको हुन सक्छ।"</string>
-    <!-- no translation found for notification_crashedInCallService_title (7440244344965656743) -->
-    <skip />
-    <!-- no translation found for notification_crashedInCallService_body (2307501918379604204) -->
+    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"क्र्यास भएको फोन एप"</string>
+    <!-- no translation found for notification_crashedInCallService_body (7821729360036047995) -->
     <skip />
     <string name="accessibility_call_muted" msgid="2968461092554300779">"कल म्युट भयो।"</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"स्पिकरफोन सक्षम भयो।"</string>
@@ -100,8 +99,7 @@
     <string name="notification_channel_call_blocking" msgid="2028807677868598710">"कलमाथि रोक लगाउने सुविधा"</string>
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"पृष्ठभूमिका कलहरू"</string>
     <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"विच्छेद गरिएका कल"</string>
-    <!-- no translation found for notification_channel_in_call_service_crash (7313237519166984267) -->
-    <skip />
+    <string name="notification_channel_in_call_service_crash" msgid="7313237519166984267">"क्र्यास भएका फोन एपहरू"</string>
     <string name="alert_outgoing_call" msgid="5319895109298927431">"यो कल गर्नुले तपाईंको <xliff:g id="OTHER_APP">%1$s</xliff:g> कल अन्त्य गर्दछ।"</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"यो कल गर्ने तरिका छनौट गर्नुहोस्"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="5221065030959024121">"<xliff:g id="OTHER_APP">%1$s</xliff:g> प्रयोग गरी कल रिडाइरेक्ट गर्नुहोस्"</string>
