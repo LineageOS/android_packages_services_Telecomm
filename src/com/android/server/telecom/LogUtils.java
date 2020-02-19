@@ -63,6 +63,8 @@ public class LogUtils {
         public static final String ICA_ANSWER_CALL = "ICA.aC";
         public static final String ICA_DEFLECT_CALL = "ICA.defC";
         public static final String ICA_REJECT_CALL = "ICA.rC";
+        public static final String ICA_TRANSFER_CALL = "ICA.tC";
+        public static final String ICA_CONSULTATIVE_TRANSFER = "ICA.cT";
         public static final String ICA_DISCONNECT_CALL = "ICA.dC";
         public static final String ICA_HOLD_CALL = "ICA.hC";
         public static final String ICA_UNHOLD_CALL = "ICA.uC";
@@ -108,6 +110,8 @@ public class LogUtils {
                 "REQUEST_PICKUP_FOR_AUDIO_PROCESSING";
         public static final String REQUEST_DEFLECT = "REQUEST_DEFLECT";
         public static final String REQUEST_REJECT = "REQUEST_REJECT";
+        public static final String REQUEST_TRANSFER = "REQUEST_TRANSFER";
+        public static final String REQUEST_CONSULTATIVE_TRANSFER = "REQUEST_CONSULTATIVE_TRANSFER";
         public static final String START_DTMF = "START_DTMF";
         public static final String STOP_DTMF = "STOP_DTMF";
         public static final String START_RINGER = "START_RINGER";
