@@ -31,7 +31,8 @@
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Фонавы выклік"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"Праграма \"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>\" перавяла выклік у фонавы рэжым і можа прайграваць аўдыя падчас выкліку."</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Збой у праграме \"Тэлефон\""</string>
-    <string name="notification_crashedInCallService_body" msgid="2307501918379604204">"У праграме \"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g>\" адбыўся збой. Выклік працягнуты ў стандартнай праграме \"Тэлефон\" на прыладзе."</string>
+    <!-- no translation found for notification_crashedInCallService_body (7821729360036047995) -->
+    <skip />
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Гук выключаны."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"Уключаная гучная сувязь."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"Не магу гаварыць. У чым справа?"</string>

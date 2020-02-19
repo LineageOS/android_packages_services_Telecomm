@@ -30,10 +30,8 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"因撥打緊急電話緣故，與<xliff:g id="CALLER">%s</xliff:g>的通話已中斷。"</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"背景通話"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"「<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>」已將通話放到背景。這個應用程式可以存取該通話，並透過該通話播放音訊。"</string>
-    <!-- no translation found for notification_crashedInCallService_title (7440244344965656743) -->
-    <skip />
-    <!-- no translation found for notification_crashedInCallService_body (2307501918379604204) -->
-    <skip />
+    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"當機的手機應用程式"</string>
+    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"您的手機應用程式「<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g>」已當機。您使用了裝置隨付的手機應用程式來繼續通話。"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"通話已靜音。"</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"擴音器已啟用"</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"我現在不方便通話，有什麼事呢？"</string>
@@ -100,8 +98,7 @@
     <string name="notification_channel_call_blocking" msgid="2028807677868598710">"來電封鎖"</string>
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"背景通話"</string>
     <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"已中斷的通話"</string>
-    <!-- no translation found for notification_channel_in_call_service_crash (7313237519166984267) -->
-    <skip />
+    <string name="notification_channel_in_call_service_crash" msgid="7313237519166984267">"當機的手機應用程式"</string>
     <string name="alert_outgoing_call" msgid="5319895109298927431">"如果撥打此電話，您的 <xliff:g id="OTHER_APP">%1$s</xliff:g> 通話將會結束。"</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"選擇如何撥打此電話"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="5221065030959024121">"使用「<xliff:g id="OTHER_APP">%1$s</xliff:g>」將通話重新導向"</string>
