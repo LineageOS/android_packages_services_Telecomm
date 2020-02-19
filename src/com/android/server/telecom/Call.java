@@ -2305,6 +2305,45 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     /**
+     * Transfers the call if it is active or held.
+     *
+     * @param number number to be transferred to.
+     * @param isConfirmationRequired whether for blind or assured transfer.
+     */
+    @VisibleForTesting
+    public void transfer(Uri number, boolean isConfirmationRequired) {
+        if (mState == CallState.ACTIVE || mState == CallState.ON_HOLD) {
+            if (mConnectionService != null) {
+                mConnectionService.transfer(this, number, isConfirmationRequired);
+            } else {
+                Log.e(this, new NullPointerException(),
+                        "transfer call failed due to null CS callId=%s", getId());
+            }
+            Log.addEvent(this, LogUtils.Events.REQUEST_TRANSFER, Log.pii(number));
+        }
+    }
+
+    /**
+     * Transfers the call when this call is active and the other call is held.
+     * This is for Consultative call transfer.
+     *
+     * @param otherCall The other {@link Call} to which this call will be transferred.
+     */
+    @VisibleForTesting
+    public void transfer(Call otherCall) {
+        if (mState == CallState.ACTIVE &&
+                (otherCall != null && otherCall.getState() == CallState.ON_HOLD)) {
+            if (mConnectionService != null) {
+                mConnectionService.transfer(this, otherCall);
+            } else {
+                Log.e(this, new NullPointerException(),
+                        "transfer call failed due to null CS callId=%s", getId());
+            }
+            Log.addEvent(this, LogUtils.Events.REQUEST_CONSULTATIVE_TRANSFER, otherCall);
+        }
+    }
+
+    /**
      * Puts the call on hold if it is currently active.
      */
     @VisibleForTesting
