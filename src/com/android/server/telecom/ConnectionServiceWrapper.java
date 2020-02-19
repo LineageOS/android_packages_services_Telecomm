@@ -1614,6 +1614,33 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         }
     }
 
+    /** @see IConnectionService#transfer(String, Uri , boolean, Session.Info) */
+    void transfer(Call call, Uri number, boolean isConfirmationRequired) {
+        final String callId = mCallIdMapper.getCallId(call);
+        if (callId != null && isServiceValid("transfer")) {
+            try {
+                logOutgoing("transfer %s", callId);
+                mServiceInterface.transfer(callId, number, isConfirmationRequired,
+                        Log.getExternalSession());
+            } catch (RemoteException e) {
+            }
+        }
+    }
+
+    /** @see IConnectionService#consultativeTransfer(String, String, Session.Info) */
+    void transfer(Call call, Call otherCall) {
+        final String callId = mCallIdMapper.getCallId(call);
+        final String otherCallId = mCallIdMapper.getCallId(otherCall);
+        if (callId != null && otherCallId != null && isServiceValid("consultativeTransfer")) {
+            try {
+                logOutgoing("consultativeTransfer %s", callId);
+                mServiceInterface.consultativeTransfer(callId, otherCallId,
+                        Log.getExternalSession());
+            } catch (RemoteException e) {
+            }
+        }
+    }
+
     /** @see IConnectionService#playDtmfTone(String, char, Session.Info) */
     void playDtmfTone(Call call, char digit) {
         final String callId = mCallIdMapper.getCallId(call);
