@@ -31,8 +31,7 @@
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"নেপথ্যৰ কল"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>এ নেপথ্যত এটা কল কৰিছে। এই এপ্‌টোৱে কলটোত অডিঅ’ এক্সেছ আৰু প্লে’ কৰি থাকিব পাৰে।"</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"ক্ৰেশ্ব হোৱা ফ\'ন এপ্"</string>
-    <!-- no translation found for notification_crashedInCallService_body (7821729360036047995) -->
-    <skip />
+    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"আপোনাৰ ফ\'ন এপ্ <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> ক্ৰেশ্ব হৈছে। আপোনাৰ ডিভাইচটোৰ লগত অহা ফ\'ন এপ্‌টো ব্যৱহাৰ কৰি আপোনাৰ কলটো অব্যাহত ৰখা হৈছিল।"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"কল মিউট কৰা হৈছে।"</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"স্পীকাৰফ\'ন সক্ষম কৰা হৈছে।"</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"এতিয়া কথা পাতিব নোৱাৰোঁ। কি খবৰ?"</string>
