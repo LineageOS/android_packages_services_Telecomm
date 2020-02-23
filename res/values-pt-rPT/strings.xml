@@ -31,8 +31,7 @@
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Cham. segundo plano"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> colocou uma chamada em segundo plano. Esta aplicação pode estar a aceder e a reproduzir áudio sobre a chamada."</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Aplicação Telefone com falha"</string>
-    <!-- no translation found for notification_crashedInCallService_body (7821729360036047995) -->
-    <skip />
+    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"Ocorreu uma falha na sua aplicação telefone <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g>. A sua chamada foi continuada através da aplicação telefone incluída com o dispositivo."</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Chamada sem som."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"Alta voz ativada."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"Não posso falar agora. Que se passa?"</string>
