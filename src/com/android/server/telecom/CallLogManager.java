@@ -311,7 +311,18 @@ public final class CallLogManager extends CallsManagerListenerBase {
      */
     void logCall(Call call, int callLogType,
         @Nullable LogCallCompletedListener logCallCompletedListener, CallFilteringResult result) {
-        final long creationTime = call.getCreationTimeMillis();
+        long creationTime;
+
+        if (call.getConnectTimeMillis() != 0
+                && call.getConnectTimeMillis() < call.getCreationTimeMillis()) {
+            // If connected time is available, use connected time. The connected time might be
+            // earlier than created time since it might come from carrier sent special SMS to
+            // notifier user earlier missed call.
+            creationTime = call.getConnectTimeMillis();
+        } else {
+            creationTime = call.getCreationTimeMillis();
+        }
+
         final long age = call.getAgeMillis();
 
         final String logNumber = getLogNumber(call);
