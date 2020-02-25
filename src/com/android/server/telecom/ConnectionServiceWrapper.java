@@ -43,7 +43,6 @@ import android.telecom.PhoneAccountHandle;
 import android.telecom.StatusHints;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
-import android.telephony.TelephonyManager;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telecom.IConnectionService;
@@ -1918,6 +1917,11 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
             // A connection that begins in the DISCONNECTED state is an indication of
             // failure to connect; we handle all failures uniformly
             Call foundCall = mCallIdMapper.getCall(callId);
+
+            if (connection.getConnectTimeMillis() != 0) {
+                foundCall.setConnectTimeMillis(connection.getConnectTimeMillis());
+            }
+
             if (foundCall != null) {
                 // The post-dial digits are created when the call is first created.  Normally
                 // the ConnectionService is responsible for stripping them from the address, but
