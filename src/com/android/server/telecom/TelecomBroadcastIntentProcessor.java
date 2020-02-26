@@ -24,7 +24,6 @@ import android.os.UserHandle;
 import android.telecom.Log;
 import android.widget.Toast;
 
-import com.android.server.telecom.ui.CallRedirectionConfirmDialogActivity;
 import com.android.server.telecom.ui.ConfirmCallDialogActivity;
 import com.android.server.telecom.ui.DisconnectedCallNotifier;
 
@@ -80,27 +79,31 @@ public final class TelecomBroadcastIntentProcessor {
             "com.android.server.telecom.CANCEL_CALL";
 
     /**
-     * The action used to proceed with a redirected call being confirmed via
-     * {@link com.android.server.telecom.ui.CallRedirectionConfirmDialogActivity}.
+     * The action used to proceed with a redirected call being confirmed via the call redirection
+     * confirmation dialog.
      */
     public static final String ACTION_PLACE_REDIRECTED_CALL =
             "com.android.server.telecom.PROCEED_WITH_REDIRECTED_CALL";
 
     /**
-     * The action used to confirm to proceed the call without redirection via
-     * {@link com.android.server.telecom.ui.CallRedirectionConfirmDialogActivity}.
+     * The action used to confirm to proceed the call without redirection via the call redirection
+     * confirmation dialog.
      */
     public static final String ACTION_PLACE_UNREDIRECTED_CALL =
             "com.android.server.telecom.PROCEED_WITH_UNREDIRECTED_CALL";
 
     /**
-     * The action used to cancel a redirected call being confirmed via
-     * {@link com.android.server.telecom.ui.CallRedirectionConfirmDialogActivity}.
+     * The action used to cancel a redirected call being confirmed via the call redirection
+     * confirmation dialog.
      */
     public static final String ACTION_CANCEL_REDIRECTED_CALL =
             "com.android.server.telecom.CANCEL_REDIRECTED_CALL";
 
     public static final String EXTRA_USERHANDLE = "userhandle";
+    public static final String EXTRA_REDIRECTION_OUTGOING_CALL_ID =
+            "android.telecom.extra.REDIRECTION_OUTGOING_CALL_ID";
+    public static final String EXTRA_REDIRECTION_APP_NAME =
+            "android.telecom.extra.REDIRECTION_APP_NAME";
 
     private final Context mContext;
     private final CallsManager mCallsManager;
@@ -214,8 +217,7 @@ public final class TelecomBroadcastIntentProcessor {
             Log.startSession("TBIP.aPRC");
             try {
                 mCallsManager.processRedirectedOutgoingCallAfterUserInteraction(
-                        intent.getStringExtra(CallRedirectionConfirmDialogActivity
-                                .EXTRA_REDIRECTION_OUTGOING_CALL_ID),
+                        intent.getStringExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID),
                         ACTION_PLACE_REDIRECTED_CALL);
             } finally {
                 Log.endSession();
@@ -224,8 +226,7 @@ public final class TelecomBroadcastIntentProcessor {
             Log.startSession("TBIP.aPUC");
             try {
                 mCallsManager.processRedirectedOutgoingCallAfterUserInteraction(
-                        intent.getStringExtra(CallRedirectionConfirmDialogActivity
-                                .EXTRA_REDIRECTION_OUTGOING_CALL_ID),
+                        intent.getStringExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID),
                         ACTION_PLACE_UNREDIRECTED_CALL);
             } finally {
                 Log.endSession();
@@ -234,8 +235,7 @@ public final class TelecomBroadcastIntentProcessor {
             Log.startSession("TBIP.aCRC");
             try {
                 mCallsManager.processRedirectedOutgoingCallAfterUserInteraction(
-                        intent.getStringExtra(CallRedirectionConfirmDialogActivity
-                                .EXTRA_REDIRECTION_OUTGOING_CALL_ID),
+                        intent.getStringExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID),
                         ACTION_CANCEL_REDIRECTED_CALL);
             } finally {
                 Log.endSession();
