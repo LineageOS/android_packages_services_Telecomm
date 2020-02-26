@@ -291,14 +291,6 @@
                 android:process=":ui">
         </activity>
 
-        <activity android:name=".ui.CallRedirectionConfirmDialogActivity"
-                  android:configChanges="orientation|screenSize|keyboardHidden"
-                  android:excludeFromRecents="true"
-                  android:launchMode="singleInstance"
-                  android:theme="@style/Theme.Telecomm.Transparent"
-                  android:process=":ui">
-        </activity>
-
         <activity android:name=".ui.CallRedirectionTimeoutDialogActivity"
                   android:configChanges="orientation|screenSize|keyboardHidden"
                   android:excludeFromRecents="true"
