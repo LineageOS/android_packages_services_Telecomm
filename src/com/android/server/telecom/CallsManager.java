@@ -1943,13 +1943,22 @@ public class CallsManager extends Call.ListenerBase
 
         boolean endEarly = false;
         String disconnectReason = "";
-
         String callRedirectionApp = mRoleManagerAdapter.getDefaultCallRedirectionApp();
+
+        boolean isPotentialEmergencyNumber;
+        try {
+            isPotentialEmergencyNumber =
+                    handle != null && getTelephonyManager().isPotentialEmergencyNumber(
+                            handle.getSchemeSpecificPart());
+        } catch (IllegalStateException ise) {
+            isPotentialEmergencyNumber = false;
+        }
 
         if (shouldCancelCall) {
             Log.w(this, "onCallRedirectionComplete: call is canceled");
             endEarly = true;
             disconnectReason = "Canceled from Call Redirection Service";
+
             // Show UX when user-defined call redirection service does not response; the UX
             // is not needed to show if the call is disconnected (e.g. by the user)
             if (uiAction.equals(CallRedirectionProcessor.UI_TYPE_USER_DEFINED_TIMEOUT)
@@ -1970,8 +1979,7 @@ public class CallsManager extends Call.ListenerBase
             Log.w(this, "onCallRedirectionComplete: phoneAccountHandle is null");
             endEarly = true;
             disconnectReason = "Null phoneAccountHandle from Call Redirection Service";
-        } else if (getTelephonyManager().isPotentialEmergencyNumber(
-                handle.getSchemeSpecificPart())) {
+        } else if (isPotentialEmergencyNumber) {
             Log.w(this, "onCallRedirectionComplete: emergency number %s is redirected from Call"
                     + " Redirection Service", handle.getSchemeSpecificPart());
             endEarly = true;
