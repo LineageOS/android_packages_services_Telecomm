@@ -74,6 +74,9 @@ public class Ringer {
 
     private static final int[] PULSE_AMPLITUDE;
 
+    private static final int RAMPING_RINGER_VIBRATION_DURATION = 5000;
+    private static final int RAMPING_RINGER_DURATION = 10000;
+
     static {
         // construct complete pulse pattern
         PULSE_PATTERN = new long[PULSE_PRIMING_PATTERN.length + PULSE_RAMPING_PATTERN.length];
@@ -110,13 +113,6 @@ public class Ringer {
     private static final int REPEAT_VIBRATION_AT = 5;
 
     private static final int REPEAT_SIMPLE_VIBRATION_AT = 1;
-
-    private static final int DEFAULT_RAMPING_RINGER_DURATION = 10000;  // 10 seconds
-
-    private int mRampingRingerDuration = -1;  // ramping ringer duration in millisecond
-
-    // vibration duration before ramping ringer in second
-    private int mRampingRingerVibrationDuration = 0;
 
     private static final float EPSILON = 1e-6f;
 
@@ -287,36 +283,18 @@ public class Ringer {
             // call (for the purposes of direct-to-voicemail), the information about custom
             // ringtones should be available by the time this code executes. We can safely
             // request the custom ringtone from the call and expect it to be current.
-            if (mSystemSettingsUtil.applyRampingRinger(mContext)
-                && mSystemSettingsUtil.enableRampingRingerFromDeviceConfig()) {
+            if (mSystemSettingsUtil.applyRampingRinger(mContext)) {
                 Log.i(this, "start ramping ringer.");
-                // configure vibration effect for ramping ringer.
-                int previousRampingRingerVibrationDuration = mRampingRingerVibrationDuration;
-                // get vibration duration in millisecond and round down to second.
-                mRampingRingerVibrationDuration =
-                    mSystemSettingsUtil.getRampingRingerVibrationDuration() >= 0
-                    ? mSystemSettingsUtil.getRampingRingerVibrationDuration() / 1000
-                    : 0;
                 if (mSystemSettingsUtil.enableAudioCoupledVibrationForRampingRinger()) {
                     effect = getVibrationEffectForCall(mRingtoneFactory, foregroundCall);
                 } else {
                     effect = mDefaultVibrationEffect;
                 }
-
-                // configure volume shaper for ramping ringer
-                int previousRampingRingerDuration = mRampingRingerDuration;
-                mRampingRingerDuration =
-                    mSystemSettingsUtil.getRampingRingerDuration() > 0
-                        ? mSystemSettingsUtil.getRampingRingerDuration()
-                        : DEFAULT_RAMPING_RINGER_DURATION;
-                if (mRampingRingerDuration != previousRampingRingerDuration
-                    || mRampingRingerVibrationDuration != previousRampingRingerVibrationDuration
-                    || mVolumeShaperConfig == null) {
-                    float silencePoint = (float) (mRampingRingerVibrationDuration * 1000)
-                        / (float) (mRampingRingerVibrationDuration * 1000 + mRampingRingerDuration);
+                if (mVolumeShaperConfig == null) {
+                    float silencePoint = (float) (RAMPING_RINGER_VIBRATION_DURATION)
+                        / (float) (RAMPING_RINGER_VIBRATION_DURATION + RAMPING_RINGER_DURATION);
                     mVolumeShaperConfig = new VolumeShaper.Configuration.Builder()
-                        .setDuration(mRampingRingerVibrationDuration * 1000
-                            + mRampingRingerDuration)
+                        .setDuration(RAMPING_RINGER_VIBRATION_DURATION + RAMPING_RINGER_DURATION)
                         .setCurve(new float[] {0.f, silencePoint + EPSILON /*keep monotonicity*/,
                             1.f}, new float[] {0.f, 0.f, 1.f})
                         .setInterpolatorType(VolumeShaper.Configuration.INTERPOLATOR_TYPE_LINEAR)
@@ -347,7 +325,6 @@ public class Ringer {
                     maybeStartVibration(foregroundCall, shouldRingForContact, effect,
                             isVibratorEnabled, isRingerAudible);
                 } else if (mSystemSettingsUtil.applyRampingRinger(mContext)
-                           && mSystemSettingsUtil.enableRampingRingerFromDeviceConfig()
                            && !mSystemSettingsUtil.enableAudioCoupledVibrationForRampingRinger()) {
                     Log.i(this, "startRinging: apply ramping ringer vibration");
                     maybeStartVibration(foregroundCall, shouldRingForContact, effect,
@@ -377,7 +354,6 @@ public class Ringer {
         if (isVibrationEnabled
                 && !mIsVibrating && shouldRingForContact) {
             if (mSystemSettingsUtil.applyRampingRinger(mContext)
-                    && mSystemSettingsUtil.enableRampingRingerFromDeviceConfig()
                     && isRingerAudible) {
                 Log.i(this, "start vibration for ramping ringer.");
                 mIsVibrating = true;
@@ -535,7 +511,6 @@ public class Ringer {
             return false;
         }
         return mSystemSettingsUtil.canVibrateWhenRinging(context)
-            || (mSystemSettingsUtil.applyRampingRinger(context)
-                && mSystemSettingsUtil.enableRampingRingerFromDeviceConfig());
+            || mSystemSettingsUtil.applyRampingRinger(context);
     }
 }

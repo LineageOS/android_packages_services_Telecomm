@@ -514,7 +514,16 @@ public class ParcelableCallUtils {
         android.telecom.Call.Details.CAPABILITY_CAN_PULL_CALL,
 
         Connection.CAPABILITY_SUPPORT_DEFLECT,
-        android.telecom.Call.Details.CAPABILITY_SUPPORT_DEFLECT
+        android.telecom.Call.Details.CAPABILITY_SUPPORT_DEFLECT,
+
+        Connection.CAPABILITY_ADD_PARTICIPANT,
+        android.telecom.Call.Details.CAPABILITY_ADD_PARTICIPANT,
+
+        Connection.CAPABILITY_TRANSFER,
+        android.telecom.Call.Details.CAPABILITY_TRANSFER,
+
+        Connection.CAPABILITY_TRANSFER_CONSULTATIVE,
+        android.telecom.Call.Details.CAPABILITY_TRANSFER_CONSULTATIVE
     };
 
     private static int convertConnectionToCallCapabilities(int connectionCapabilities) {
@@ -551,8 +560,8 @@ public class ParcelableCallUtils {
         Connection.PROPERTY_SELF_MANAGED,
         android.telecom.Call.Details.PROPERTY_SELF_MANAGED,
 
-        Connection.PROPERTY_ASSISTED_DIALING_USED,
-        android.telecom.Call.Details.PROPERTY_ASSISTED_DIALING_USED,
+        Connection.PROPERTY_ASSISTED_DIALING,
+        android.telecom.Call.Details.PROPERTY_ASSISTED_DIALING,
 
         Connection.PROPERTY_IS_RTT,
         android.telecom.Call.Details.PROPERTY_RTT,

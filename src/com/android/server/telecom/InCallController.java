@@ -24,6 +24,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
@@ -1804,6 +1805,17 @@ public class InCallController extends CallsManagerListenerBase {
     }
 
     private void sendCrashedInCallServiceNotification(String packageName) {
+        PackageManager packageManager = mContext.getPackageManager();
+        CharSequence appName;
+        try {
+            appName = packageManager.getApplicationLabel(
+                    packageManager.getApplicationInfo(packageName, 0));
+            if (TextUtils.isEmpty(appName)) {
+                appName = packageName;
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            appName = packageName;
+        }
         NotificationManager notificationManager = (NotificationManager) mContext
                 .getSystemService(Context.NOTIFICATION_SERVICE);
         Notification.Builder builder = new Notification.Builder(mContext,
@@ -1816,7 +1828,7 @@ public class InCallController extends CallsManagerListenerBase {
                 .setStyle(new Notification.BigTextStyle()
                         .bigText(mContext.getString(
                                 R.string.notification_crashedInCallService_body,
-                                packageName)));
+                                appName)));
         notificationManager.notify(NOTIFICATION_TAG, IN_CALL_SERVICE_NOTIFICATION_ID,
                 builder.build());
     }

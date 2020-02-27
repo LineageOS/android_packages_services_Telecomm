@@ -151,6 +151,54 @@ class InCallAdapter extends IInCallAdapter.Stub {
         }
     }
 
+    public void transferCall(String callId, Uri targetNumber, boolean isConfirmationRequired) {
+        try {
+            Log.startSession(LogUtils.Sessions.ICA_TRANSFER_CALL, mOwnerPackageName);
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    Log.i(this, "transferCall - %s, %s, %b", callId, Log.pii(targetNumber),
+                            isConfirmationRequired);
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        mCallsManager.transferCall(call, targetNumber, isConfirmationRequired);
+                    } else {
+                        Log.w(this, "transferCall, unknown call id: %s", callId);
+                    }
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+        } finally {
+            Log.endSession();
+        }
+    }
+
+    @Override
+    public void consultativeTransfer(String callId, String otherCallId) {
+        try {
+            Log.startSession(LogUtils.Sessions.ICA_CONSULTATIVE_TRANSFER, mOwnerPackageName);
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    Log.i(this, "consultativeTransfer - %s, %s", callId, otherCallId);
+                    Call call = mCallIdMapper.getCall(callId);
+                    Call otherCall = mCallIdMapper.getCall(otherCallId);
+                    if (call != null && otherCall != null) {
+                        mCallsManager.transferCall(call, otherCall);
+                    } else {
+                        Log.w(this, "consultativeTransfer, unknown call id: %s or %s",
+                                callId, otherCallId);
+                    }
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+        } finally {
+            Log.endSession();
+        }
+    }
+
     @Override
     public void playDtmfTone(String callId, char digit) {
         try {
@@ -472,6 +520,29 @@ class InCallAdapter extends IInCallAdapter.Stub {
             Log.endSession();
         }
     }
+
+    @Override
+    public void addConferenceParticipants(String callId, List<Uri> participants) {
+        try {
+            Log.startSession("ICA.aCP", mOwnerPackageName);
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        call.addConferenceParticipants(participants);
+                    } else {
+                        Log.w(this, "addConferenceParticipants, unknown call id: %s", callId);
+                    }
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+        } finally {
+            Log.endSession();
+        }
+    }
+
 
     @Override
     public void pullExternalCall(String callId) {

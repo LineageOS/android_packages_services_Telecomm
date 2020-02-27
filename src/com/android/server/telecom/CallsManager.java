@@ -2381,6 +2381,32 @@ public class CallsManager extends Call.ListenerBase
         }
     }
 
+    /**
+     * Instructs Telecom to transfer the specified call. Intended to be invoked by the in-call
+     * app through {@link InCallAdapter} after the user opts to transfer the said call.
+     */
+    @VisibleForTesting
+    public void transferCall(Call call, Uri number, boolean isConfirmationRequired) {
+        if (!mCalls.contains(call)) {
+            Log.i(this, "transferCall - Request to transfer a non-existent call %s", call);
+        } else {
+            call.transfer(number, isConfirmationRequired);
+        }
+    }
+
+    /**
+     * Instructs Telecom to transfer the specified call to another ongoing call.
+     * Intended to be invoked by the in-call app through {@link InCallAdapter} after the user opts
+     * to transfer the said call (consultative transfer).
+     */
+    @VisibleForTesting
+    public void transferCall(Call call, Call otherCall) {
+        if (!mCalls.contains(call) || !mCalls.contains(otherCall)) {
+            Log.i(this, "transferCall - Non-existent call %s or %s", call, otherCall);
+        } else {
+            call.transfer(otherCall);
+        }
+    }
 
     /**
      * Instructs Telecom to play the specified DTMF tone within the specified call.

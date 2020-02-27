@@ -16,9 +16,12 @@
 
 package com.android.server.telecom;
 
+import static android.Manifest.permission.MODIFY_PHONE_STATE;
+
 import android.app.AppOpsManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
@@ -40,7 +43,6 @@ import android.telecom.PhoneAccountHandle;
 import android.telecom.StatusHints;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
-import android.telephony.TelephonyManager;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telecom.IConnectionService;
@@ -465,6 +467,32 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         public void addConferenceCall(String callId, ParcelableConference parcelableConference,
                 Session.Info sessionInfo) {
             Log.startSession(sessionInfo, LogUtils.Sessions.CSW_ADD_CONFERENCE_CALL);
+
+            if (parcelableConference.getConnectElapsedTimeMillis() != 0
+                    && mContext.checkCallingOrSelfPermission(MODIFY_PHONE_STATE)
+                            != PackageManager.PERMISSION_GRANTED) {
+                Log.w(this, "addConferenceCall from caller without permission!");
+                parcelableConference = new ParcelableConference(
+                        parcelableConference.getPhoneAccount(),
+                        parcelableConference.getState(),
+                        parcelableConference.getConnectionCapabilities(),
+                        parcelableConference.getConnectionProperties(),
+                        parcelableConference.getConnectionIds(),
+                        parcelableConference.getVideoProvider(),
+                        parcelableConference.getVideoState(),
+                        0 /* connectTimeMillis */,
+                        0 /* connectElapsedRealTime */,
+                        parcelableConference.getStatusHints(),
+                        parcelableConference.getExtras(),
+                        parcelableConference.getHandle(),
+                        parcelableConference.getHandlePresentation(),
+                        "" /* callerDisplayName */,
+                        TelecomManager.PRESENTATION_UNKNOWN /* callerDisplayNamePresentation */,
+                        parcelableConference.getDisconnectCause(),
+                        parcelableConference.isRingbackRequested()
+                        );
+            }
+
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -752,6 +780,13 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         public void setAddress(String callId, Uri address, int presentation,
                 Session.Info sessionInfo) {
             Log.startSession(sessionInfo, "CSW.sA");
+
+            if (mContext.checkCallingOrSelfPermission(MODIFY_PHONE_STATE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                Log.w(this, "setAddress from caller without permission.");
+                return;
+            }
+
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -836,6 +871,13 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                 mAppOpsManager.checkPackage(Binder.getCallingUid(),
                         callingPhoneAccountHandle.getComponentName().getPackageName());
             }
+
+            if (mContext.checkCallingOrSelfPermission(MODIFY_PHONE_STATE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                Log.w(this, "addExistingConnection from caller without permission!");
+                return;
+            }
+
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -1038,6 +1080,13 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         public void setConferenceState(String callId, boolean isConference,
                 Session.Info sessionInfo) throws RemoteException {
             Log.startSession(sessionInfo, "CSW.sCS");
+
+            if (mContext.checkCallingOrSelfPermission(MODIFY_PHONE_STATE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                Log.w(this, "setConferenceState from caller without permission.");
+                return;
+            }
+
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -1564,6 +1613,33 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         }
     }
 
+    /** @see IConnectionService#transfer(String, Uri , boolean, Session.Info) */
+    void transfer(Call call, Uri number, boolean isConfirmationRequired) {
+        final String callId = mCallIdMapper.getCallId(call);
+        if (callId != null && isServiceValid("transfer")) {
+            try {
+                logOutgoing("transfer %s", callId);
+                mServiceInterface.transfer(callId, number, isConfirmationRequired,
+                        Log.getExternalSession());
+            } catch (RemoteException e) {
+            }
+        }
+    }
+
+    /** @see IConnectionService#consultativeTransfer(String, String, Session.Info) */
+    void transfer(Call call, Call otherCall) {
+        final String callId = mCallIdMapper.getCallId(call);
+        final String otherCallId = mCallIdMapper.getCallId(otherCall);
+        if (callId != null && otherCallId != null && isServiceValid("consultativeTransfer")) {
+            try {
+                logOutgoing("consultativeTransfer %s", callId);
+                mServiceInterface.consultativeTransfer(callId, otherCallId,
+                        Log.getExternalSession());
+            } catch (RemoteException e) {
+            }
+        }
+    }
+
     /** @see IConnectionService#playDtmfTone(String, char, Session.Info) */
     void playDtmfTone(Call call, char digit) {
         final String callId = mCallIdMapper.getCallId(call);
@@ -1675,6 +1751,18 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
             try {
                 logOutgoing("swapConference %s", callId);
                 mServiceInterface.swapConference(callId, Log.getExternalSession());
+            } catch (RemoteException ignored) {
+            }
+        }
+    }
+
+    void addConferenceParticipants(Call call, List<Uri> participants) {
+        final String callId = mCallIdMapper.getCallId(call);
+        if (callId != null && isServiceValid("addConferenceParticipants")) {
+            try {
+                logOutgoing("addConferenceParticipants %s", callId);
+                mServiceInterface.addConferenceParticipants(callId, participants,
+                        Log.getExternalSession());
             } catch (RemoteException ignored) {
             }
         }
@@ -1829,6 +1917,11 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
             // A connection that begins in the DISCONNECTED state is an indication of
             // failure to connect; we handle all failures uniformly
             Call foundCall = mCallIdMapper.getCall(callId);
+
+            if (connection.getConnectTimeMillis() != 0) {
+                foundCall.setConnectTimeMillis(connection.getConnectTimeMillis());
+            }
+
             if (foundCall != null) {
                 // The post-dial digits are created when the call is first created.  Normally
                 // the ConnectionService is responsible for stripping them from the address, but
