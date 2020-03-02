@@ -31,8 +31,7 @@
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"बैकग्राउंड कॉल"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ने कॉल को बैकग्राउंड में रखा है हो सकता है कि यह ऐप्लिकेशन आपके कॉल से ऑडियो ऐक्सेस करके उसे चला रहा हो."</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"फ़ोन ऐप्लिकेशन जो बंद हो गया"</string>
-    <!-- no translation found for notification_crashedInCallService_body (7821729360036047995) -->
-    <skip />
+    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"आपका फ़ोन ऐप <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> बंद हो गया है. आपके कॉल को डिवाइस में पहले से इंस्टॉल फ़ोन ऐप का इस्तेमाल करके जारी रखा गया है."</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"कॉल म्‍यूट की गई."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"स्‍पीकरफ़ोन सक्षम."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"अभी बात नहीं हो सकती. क्‍या हो रहा है?"</string>
