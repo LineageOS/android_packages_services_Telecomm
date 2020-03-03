@@ -936,7 +936,8 @@ public class InCallController extends CallsManagerListenerBase {
                 ParcelableCall parcelableCall = ParcelableCallUtils.toParcelableCall(call,
                         true /* includeVideoProvider */, mCallsManager.getPhoneAccountRegistrar(),
                         info.isExternalCallsSupported(), includeRttCall,
-                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI);
+                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI ||
+                        info.getType() == IN_CALL_SERVICE_TYPE_NON_UI);
                 try {
                     inCallService.addCall(sanitizeParcelableCallForService(info, parcelableCall));
                 } catch (RemoteException ignored) {
@@ -1000,7 +1001,8 @@ public class InCallController extends CallsManagerListenerBase {
                 ParcelableCall parcelableCall = ParcelableCallUtils.toParcelableCall(call,
                         true /* includeVideoProvider */, mCallsManager.getPhoneAccountRegistrar(),
                         info.isExternalCallsSupported(), includeRttCall,
-                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI);
+                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI ||
+                        info.getType() == IN_CALL_SERVICE_TYPE_NON_UI);
                 try {
                     inCallService.addCall(sanitizeParcelableCallForService(info, parcelableCall));
                 } catch (RemoteException ignored) {
@@ -1030,7 +1032,8 @@ public class InCallController extends CallsManagerListenerBase {
                         false /* supportsExternalCalls */,
                         android.telecom.Call.STATE_DISCONNECTED /* overrideState */,
                         false /* includeRttCall */,
-                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI
+                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI ||
+                        info.getType() == IN_CALL_SERVICE_TYPE_NON_UI
                         );
 
                 try {
@@ -1541,7 +1544,8 @@ public class InCallController extends CallsManagerListenerBase {
                         mCallsManager.getPhoneAccountRegistrar(),
                         info.isExternalCallsSupported(),
                         includeRttCall,
-                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI);
+                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI ||
+                        info.getType() == IN_CALL_SERVICE_TYPE_NON_UI);
                 inCallService.addCall(sanitizeParcelableCallForService(info, parcelableCall));
             } catch (RemoteException ignored) {
             }
@@ -1606,7 +1610,8 @@ public class InCallController extends CallsManagerListenerBase {
                         mCallsManager.getPhoneAccountRegistrar(),
                         info.isExternalCallsSupported(),
                         rttInfoChanged && info.equals(mInCallServiceConnection.getInfo()),
-                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI);
+                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI ||
+                        info.getType() == IN_CALL_SERVICE_TYPE_NON_UI);
                 ComponentName componentName = info.getComponentName();
                 IInCallService inCallService = entry.getValue();
                 componentsUpdated.add(componentName);
