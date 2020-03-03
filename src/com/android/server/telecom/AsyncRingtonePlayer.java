@@ -224,10 +224,11 @@ public class AsyncRingtonePlayer {
                 // can know whether to trigger the vibrator.
                 if (mHapticsFuture != null && !mHapticsFuture.isDone()) {
                     boolean hasHaptics = factory.hasHapticChannels(mRingtone);
-
                     Log.i(this, "handlePlay: hasHaptics=%b, isVibrationEnabled=%b", hasHaptics,
                             isVibrationEnabled);
-                    if (hasHaptics) {
+                    SystemSettingsUtil systemSettingsUtil = new SystemSettingsUtil();
+                    if (hasHaptics && (volumeShaperConfig == null
+                            || systemSettingsUtil.enableAudioCoupledVibrationForRampingRinger())) {
                         AudioAttributes attributes = mRingtone.getAudioAttributes();
                         Log.d(this, "handlePlay: %s haptic channel",
                                 (isVibrationEnabled ? "unmuting" : "muting"));
