@@ -2921,7 +2921,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * @return True if the call is ringing, else logs the action name.
      */
     private boolean isRinging(String actionName) {
-        if (mState == CallState.RINGING) {
+        if (mState == CallState.RINGING || mState == CallState.ANSWERED) {
             return true;
         }
 
