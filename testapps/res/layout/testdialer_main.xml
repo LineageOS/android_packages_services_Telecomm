@@ -90,4 +90,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Toggle InCallService" />
+
+    <Button
+        android:id="@+id/send_contact_discovery_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/send_contact_discovery" />
 </LinearLayout>
