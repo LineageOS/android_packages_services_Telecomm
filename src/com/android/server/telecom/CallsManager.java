@@ -781,14 +781,14 @@ public class CallsManager extends Call.ListenerBase
                             "dialing calls.");
                     rejectCallAndLog(incomingCall, result);
                 }
-            } else if (result.shouldSilence) {
-                Log.i(this, "onCallFilteringCompleted: setting the call to silent ringing state");
-                incomingCall.setSilentRingingRequested(true);
-                addCall(incomingCall);
             } else if (result.shouldScreenViaAudio) {
                 Log.i(this, "onCallFilteringCompleted: starting background audio processing");
                 answerCallForAudioProcessing(incomingCall);
                 incomingCall.setAudioProcessingRequestingApp(result.mCallScreeningAppName);
+            } else if (result.shouldSilence) {
+                Log.i(this, "onCallFilteringCompleted: setting the call to silent ringing state");
+                incomingCall.setSilentRingingRequested(true);
+                addCall(incomingCall);
             } else {
                 addCall(incomingCall);
             }

@@ -32,6 +32,7 @@ import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -86,6 +87,7 @@ import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.WiredHeadsetManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
+import com.android.server.telecom.callfiltering.CallFilteringResult;
 import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.ui.AudioProcessingNotification;
 import com.android.server.telecom.ui.DisconnectedCallNotifier;
@@ -1211,6 +1213,31 @@ public class CallsManagerTest extends TelecomTestCase {
         assertFalse(outgoingCall.getStartWithSpeakerphoneOn());
     }
 
+    /**
+     * Make sure that CallsManager handles a screening result that has both
+     * silence and screen-further set to true as a request to screen further.
+     * @throws Exception
+     */
+    @SmallTest
+    @Test
+    public void testHandleSilenceVsBackgroundScreeningOrdering() throws Exception {
+        Call screenedCall = mock(Call.class);
+        String appName = "blah";
+        CallFilteringResult result = new CallFilteringResult.Builder()
+                .setShouldAllowCall(true)
+                .setShouldReject(false)
+                .setShouldSilence(true)
+                .setShouldScreenViaAudio(true)
+                .setShouldAddToCallLog(true)
+                .setShouldShowNotification(true)
+                .setCallScreeningAppName(appName)
+                .build();
+        mCallsManager.onCallFilteringComplete(screenedCall, result);
+
+        verify(mConnectionSvrFocusMgr).requestFocus(eq(screenedCall),
+                nullable(ConnectionServiceFocusManager.RequestFocusCallback.class));
+        verify(screenedCall).setAudioProcessingRequestingApp(appName);
+    }
 
     private Call addSpyCall() {
         return addSpyCall(SIM_2_HANDLE, CallState.ACTIVE);
