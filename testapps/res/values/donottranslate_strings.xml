@@ -113,4 +113,6 @@
         <item>The FCC has mandated that I respond... I will do so begrudgingly</item>
         <item>😂😂😂💯</item>
     </string-array>
+
+    <string name="send_contact_discovery">Send Contact Discovery Intent</string>
 </resources>
