@@ -36,6 +36,7 @@ import android.os.Bundle;
 import android.provider.BlockedNumberContract;
 import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.telephony.PhoneNumberUtils;
+import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -276,7 +277,7 @@ public class BlockedNumbersActivity extends ListActivity
      * Add blocked number if it does not exist.
      */
     private void addBlockedNumber(String number) {
-        if (PhoneNumberUtils.isEmergencyNumber(number)) {
+        if (isEmergencyNumber(this, number)) {
             Toast.makeText(
                     this,
                     getString(R.string.blocked_numbers_block_emergency_number_message),
@@ -286,6 +287,16 @@ public class BlockedNumbersActivity extends ListActivity
             // current number is added.
             mAddButton.setEnabled(false);
             mBlockNumberTaskFragment.blockIfNotAlreadyBlocked(number, this);
+        }
+    }
+
+    private boolean isEmergencyNumber(Context context, String number) {
+        try {
+            TelephonyManager tm = (TelephonyManager) context.getSystemService(
+                    Context.TELEPHONY_SERVICE);
+            return tm.isEmergencyNumber(number);
+        } catch (IllegalStateException ise) {
+            return false;
         }
     }
 
