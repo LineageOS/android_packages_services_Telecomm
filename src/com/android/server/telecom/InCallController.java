@@ -1013,7 +1013,7 @@ public class InCallController extends CallsManagerListenerBase {
             // The call was regular but it is now external.  We must now remove it from any
             // InCallServices which do not support external calls.
             // Remove the call by sending a call update indicating the call was disconnected.
-            Log.i(this, "Removing external call %", call);
+            Log.i(this, "Removing external call %s", call);
             for (Map.Entry<InCallServiceInfo, IInCallService> entry : mInCallServices.entrySet()) {
                 InCallServiceInfo info = entry.getKey();
                 if (info.isExternalCallsSupported()) {
