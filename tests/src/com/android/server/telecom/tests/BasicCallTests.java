@@ -812,7 +812,7 @@ public class BasicCallTests extends TelecomSystemTest {
                 anyString(),
                 nullable(String.class),
                 anyString(),
-                eq(BlockedNumberContract.METHOD_SHOULD_SYSTEM_BLOCK_NUMBER),
+                eq(BlockedNumberContract.SystemContract.METHOD_SHOULD_SYSTEM_BLOCK_NUMBER),
                 eq(phoneNumber),
                 nullable(Bundle.class))).thenAnswer(answer);
     }
