@@ -1599,10 +1599,16 @@ public class PhoneAccountRegistrar {
             return BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.length);
         }
 
+        @Nullable
         protected Icon readIcon(XmlPullParser parser) throws IOException {
-            byte[] iconByteArray = Base64.decode(parser.getText(), 0);
-            ByteArrayInputStream stream = new ByteArrayInputStream(iconByteArray);
-            return Icon.createFromStream(stream);
+            try {
+                byte[] iconByteArray = Base64.decode(parser.getText(), 0);
+                ByteArrayInputStream stream = new ByteArrayInputStream(iconByteArray);
+                return Icon.createFromStream(stream);
+            } catch (IllegalArgumentException e) {
+                Log.e(this, e, "Bitmap must not be null.");
+                return null;
+            }
         }
     }
 
