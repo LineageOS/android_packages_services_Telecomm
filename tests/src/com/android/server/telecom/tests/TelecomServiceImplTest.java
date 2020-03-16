@@ -899,7 +899,17 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         when(call.getState()).thenReturn(CallState.RINGING);
         when(mFakeCallsManager.getForegroundCall()).thenReturn(call);
         assertTrue(mTSIBinder.endCall(TEST_PACKAGE));
-        verify(call).reject(eq(false), isNull(), eq(TEST_PACKAGE));
+        verify(mFakeCallsManager).rejectCall(eq(call), eq(false), isNull());
+    }
+
+    @SmallTest
+    @Test
+    public void testEndCallWithSimulatedRingingForegroundCall() throws Exception {
+        Call call = mock(Call.class);
+        when(call.getState()).thenReturn(CallState.SIMULATED_RINGING);
+        when(mFakeCallsManager.getForegroundCall()).thenReturn(call);
+        assertTrue(mTSIBinder.endCall(TEST_PACKAGE));
+        verify(mFakeCallsManager).rejectCall(eq(call), eq(false), isNull());
     }
 
     @SmallTest
@@ -909,7 +919,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         when(call.getState()).thenReturn(CallState.ACTIVE);
         when(mFakeCallsManager.getForegroundCall()).thenReturn(call);
         assertTrue(mTSIBinder.endCall(TEST_PACKAGE));
-        verify(call).disconnect(eq(0L), eq(TEST_PACKAGE));
+        verify(mFakeCallsManager).disconnectCall(eq(call));
     }
 
     @SmallTest
@@ -920,7 +930,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         when(mFakeCallsManager.getFirstCallWithState(any()))
                 .thenReturn(call);
         assertTrue(mTSIBinder.endCall(TEST_PACKAGE));
-        verify(call).disconnect(eq(0L), eq(TEST_PACKAGE));
+        verify(mFakeCallsManager).disconnectCall(eq(call));
     }
 
     @SmallTest
@@ -933,27 +943,27 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @Test
     public void testAcceptRingingCall() throws Exception {
         Call call = mock(Call.class);
-        when(mFakeCallsManager.getFirstCallWithState(anyInt())).thenReturn(call);
+        when(mFakeCallsManager.getFirstCallWithState(anyInt(), anyInt())).thenReturn(call);
         // Not intended to be a real video state. Here to ensure that the call will be answered
         // with whatever video state it's currently in.
         int fakeVideoState = 29578215;
         when(call.getVideoState()).thenReturn(fakeVideoState);
         mTSIBinder.acceptRingingCall("");
-        verify(call).answer(eq(fakeVideoState));
+        verify(mFakeCallsManager).answerCall(eq(call), eq(fakeVideoState));
     }
 
     @SmallTest
     @Test
     public void testAcceptRingingCallWithValidVideoState() throws Exception {
         Call call = mock(Call.class);
-        when(mFakeCallsManager.getFirstCallWithState(anyInt())).thenReturn(call);
+        when(mFakeCallsManager.getFirstCallWithState(anyInt(), anyInt())).thenReturn(call);
         // Not intended to be a real video state. Here to ensure that the call will be answered
         // with the video state passed in to acceptRingingCallWithVideoState
         int fakeVideoState = 29578215;
         int realVideoState = VideoProfile.STATE_RX_ENABLED | VideoProfile.STATE_TX_ENABLED;
         when(call.getVideoState()).thenReturn(fakeVideoState);
         mTSIBinder.acceptRingingCallWithVideoState("", realVideoState);
-        verify(call).answer(realVideoState);
+        verify(mFakeCallsManager).answerCall(eq(call), eq(realVideoState));
     }
 
     @SmallTest
