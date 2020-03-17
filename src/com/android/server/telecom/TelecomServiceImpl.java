@@ -112,15 +112,11 @@ public class TelecomServiceImpl {
             try {
                 Log.startSession("TSI.gDOPA");
                 synchronized (mLock) {
-                    if (!canReadPhoneState(callingPackage, callingFeatureId,
-                            "getDefaultOutgoingPhoneAccount")) {
-                        return null;
-                    }
-
+                    PhoneAccountHandle phoneAccountHandle = null;
                     final UserHandle callingUserHandle = Binder.getCallingUserHandle();
                     long token = Binder.clearCallingIdentity();
                     try {
-                        return mPhoneAccountRegistrar
+                        phoneAccountHandle = mPhoneAccountRegistrar
                                 .getOutgoingPhoneAccountForScheme(uriScheme, callingUserHandle);
                     } catch (Exception e) {
                         Log.e(this, e, "getDefaultOutgoingPhoneAccount");
@@ -128,6 +124,14 @@ public class TelecomServiceImpl {
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
+                    if (isCallerSimCallManager(phoneAccountHandle)
+                        || canReadPhoneState(
+                            callingPackage,
+                            callingFeatureId,
+                            "getDefaultOutgoingPhoneAccount")) {
+                      return phoneAccountHandle;
+                    }
+                    return null;
                 }
             } finally {
                 Log.endSession();
@@ -1939,12 +1943,12 @@ public class TelecomServiceImpl {
     }
 
     private void acceptRingingCallInternal(int videoState) {
-        Call call = mCallsManager.getFirstCallWithState(CallState.RINGING);
+        Call call = mCallsManager.getFirstCallWithState(CallState.RINGING, CallState.SIMULATED_RINGING);
         if (call != null) {
             if (videoState == DEFAULT_VIDEO_STATE || !isValidAcceptVideoState(videoState)) {
                 videoState = call.getVideoState();
             }
-            call.answer(videoState);
+            mCallsManager.answerCall(call, videoState);
         }
     }
 
@@ -1958,6 +1962,7 @@ public class TelecomServiceImpl {
                     CallState.DIALING,
                     CallState.PULLING,
                     CallState.RINGING,
+                    CallState.SIMULATED_RINGING,
                     CallState.ON_HOLD);
         }
 
@@ -1967,10 +1972,11 @@ public class TelecomServiceImpl {
                 return false;
             }
 
-            if (call.getState() == CallState.RINGING) {
-                call.reject(false /* rejectWithMessage */, null, callingPackage);
+            if (call.getState() == CallState.RINGING
+                    || call.getState() == CallState.SIMULATED_RINGING) {
+                mCallsManager.rejectCall(call, false /* rejectWithMessage */, null);
             } else {
-                call.disconnect(0 /* disconnectionTimeout */, callingPackage);
+                mCallsManager.disconnectCall(call);
             }
             return true;
         }

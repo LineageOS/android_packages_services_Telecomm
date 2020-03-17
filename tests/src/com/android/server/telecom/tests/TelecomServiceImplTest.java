@@ -248,6 +248,43 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 .getOutgoingPhoneAccountForScheme(eq("sip"), any(UserHandle.class)))
                 .thenReturn(SIP_PA_HANDLE_17);
         makeAccountsVisibleToAllUsers(TEL_PA_HANDLE_16, SIP_PA_HANDLE_17);
+        PhoneAccount phoneAccount = makePhoneAccount(TEL_PA_HANDLE_CURRENT).build();
+        phoneAccount.setIsEnabled(true);
+        doReturn(phoneAccount).when(mFakePhoneAccountRegistrar).getPhoneAccount(
+                eq(TEL_PA_HANDLE_CURRENT), any(UserHandle.class));
+        doNothing().when(mAppOpsManager).checkPackage(anyInt(), anyString());
+
+        PhoneAccountHandle returnedHandleTel
+                = mTSIBinder.getDefaultOutgoingPhoneAccount("tel", DEFAULT_DIALER_PACKAGE, null);
+        assertEquals(TEL_PA_HANDLE_16, returnedHandleTel);
+
+        PhoneAccountHandle returnedHandleSip
+                = mTSIBinder.getDefaultOutgoingPhoneAccount("sip", DEFAULT_DIALER_PACKAGE, null);
+        assertEquals(SIP_PA_HANDLE_17, returnedHandleSip);
+    }
+
+    @SmallTest
+    @Test
+    public void testGetDefaultOutgoingPhoneAccountSucceedsIfCallerIsSimCallManager()
+            throws RemoteException {
+        when(mFakePhoneAccountRegistrar
+                .getOutgoingPhoneAccountForScheme(eq("tel"), any(UserHandle.class)))
+                .thenReturn(TEL_PA_HANDLE_16);
+        when(mFakePhoneAccountRegistrar
+                .getOutgoingPhoneAccountForScheme(eq("sip"), any(UserHandle.class)))
+                .thenReturn(SIP_PA_HANDLE_17);
+        makeAccountsVisibleToAllUsers(TEL_PA_HANDLE_16, SIP_PA_HANDLE_17);
+        PhoneAccount phoneAccount = makePhoneAccount(TEL_PA_HANDLE_CURRENT).build();
+        phoneAccount.setIsEnabled(true);
+        doReturn(phoneAccount).when(mFakePhoneAccountRegistrar).getPhoneAccount(
+                eq(TEL_PA_HANDLE_CURRENT), any(UserHandle.class));
+        doReturn(TEL_PA_HANDLE_CURRENT).when(mFakePhoneAccountRegistrar)
+                .getSimCallManagerFromHandle(
+                eq(TEL_PA_HANDLE_CURRENT), any(UserHandle.class));
+        // doNothing will make #isCallerSimCallManager return true
+        doNothing().when(mAppOpsManager).checkPackage(anyInt(), anyString());
+        doThrow(new SecurityException()).when(mContext)
+                .enforceCallingOrSelfPermission(eq(READ_PRIVILEGED_PHONE_STATE), anyString());
 
         PhoneAccountHandle returnedHandleTel
                 = mTSIBinder.getDefaultOutgoingPhoneAccount("tel", DEFAULT_DIALER_PACKAGE, null);
@@ -272,6 +309,13 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_READ_PHONE_STATE), anyInt(), anyString(),
                 nullable(String.class), nullable(String.class)))
                 .thenReturn(AppOpsManager.MODE_IGNORED);
+        PhoneAccount phoneAccount = makePhoneAccount(TEL_PA_HANDLE_CURRENT).build();
+        phoneAccount.setIsEnabled(true);
+        doReturn(phoneAccount).when(mFakePhoneAccountRegistrar).getPhoneAccount(
+                eq(TEL_PA_HANDLE_CURRENT), any(UserHandle.class));
+        doReturn(TEL_PA_HANDLE_16).when(mFakePhoneAccountRegistrar).getSimCallManagerFromHandle(
+                eq(TEL_PA_HANDLE_CURRENT), any(UserHandle.class));
+        doNothing().when(mAppOpsManager).checkPackage(anyInt(), anyString());
         doThrow(new SecurityException()).when(mContext)
                 .enforceCallingOrSelfPermission(eq(READ_PRIVILEGED_PHONE_STATE), anyString());
 
@@ -903,7 +947,17 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         when(call.getState()).thenReturn(CallState.RINGING);
         when(mFakeCallsManager.getForegroundCall()).thenReturn(call);
         assertTrue(mTSIBinder.endCall(TEST_PACKAGE));
-        verify(call).reject(eq(false), isNull(), eq(TEST_PACKAGE));
+        verify(mFakeCallsManager).rejectCall(eq(call), eq(false), isNull());
+    }
+
+    @SmallTest
+    @Test
+    public void testEndCallWithSimulatedRingingForegroundCall() throws Exception {
+        Call call = mock(Call.class);
+        when(call.getState()).thenReturn(CallState.SIMULATED_RINGING);
+        when(mFakeCallsManager.getForegroundCall()).thenReturn(call);
+        assertTrue(mTSIBinder.endCall(TEST_PACKAGE));
+        verify(mFakeCallsManager).rejectCall(eq(call), eq(false), isNull());
     }
 
     @SmallTest
@@ -913,7 +967,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         when(call.getState()).thenReturn(CallState.ACTIVE);
         when(mFakeCallsManager.getForegroundCall()).thenReturn(call);
         assertTrue(mTSIBinder.endCall(TEST_PACKAGE));
-        verify(call).disconnect(eq(0L), eq(TEST_PACKAGE));
+        verify(mFakeCallsManager).disconnectCall(eq(call));
     }
 
     @SmallTest
@@ -924,7 +978,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         when(mFakeCallsManager.getFirstCallWithState(any()))
                 .thenReturn(call);
         assertTrue(mTSIBinder.endCall(TEST_PACKAGE));
-        verify(call).disconnect(eq(0L), eq(TEST_PACKAGE));
+        verify(mFakeCallsManager).disconnectCall(eq(call));
     }
 
     @SmallTest
@@ -937,27 +991,27 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @Test
     public void testAcceptRingingCall() throws Exception {
         Call call = mock(Call.class);
-        when(mFakeCallsManager.getFirstCallWithState(anyInt())).thenReturn(call);
+        when(mFakeCallsManager.getFirstCallWithState(anyInt(), anyInt())).thenReturn(call);
         // Not intended to be a real video state. Here to ensure that the call will be answered
         // with whatever video state it's currently in.
         int fakeVideoState = 29578215;
         when(call.getVideoState()).thenReturn(fakeVideoState);
         mTSIBinder.acceptRingingCall("");
-        verify(call).answer(eq(fakeVideoState));
+        verify(mFakeCallsManager).answerCall(eq(call), eq(fakeVideoState));
     }
 
     @SmallTest
     @Test
     public void testAcceptRingingCallWithValidVideoState() throws Exception {
         Call call = mock(Call.class);
-        when(mFakeCallsManager.getFirstCallWithState(anyInt())).thenReturn(call);
+        when(mFakeCallsManager.getFirstCallWithState(anyInt(), anyInt())).thenReturn(call);
         // Not intended to be a real video state. Here to ensure that the call will be answered
         // with the video state passed in to acceptRingingCallWithVideoState
         int fakeVideoState = 29578215;
         int realVideoState = VideoProfile.STATE_RX_ENABLED | VideoProfile.STATE_TX_ENABLED;
         when(call.getVideoState()).thenReturn(fakeVideoState);
         mTSIBinder.acceptRingingCallWithVideoState("", realVideoState);
-        verify(call).answer(realVideoState);
+        verify(mFakeCallsManager).answerCall(eq(call), eq(realVideoState));
     }
 
     @SmallTest
