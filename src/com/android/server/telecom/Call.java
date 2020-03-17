@@ -2899,8 +2899,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
 
         // Is there a valid SMS application on the phone?
-        if (TelephonyManager.getDefaultRespondViaMessageApplication(mContext,
-                true /*updateIfNeeded*/) == null) {
+        if (mContext.getSystemService(TelephonyManager.class)
+                .getAndUpdateDefaultRespondViaMessageApplication() == null) {
             return false;
         }
 
