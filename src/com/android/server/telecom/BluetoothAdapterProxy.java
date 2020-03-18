@@ -43,6 +43,10 @@ public class BluetoothAdapterProxy {
         if (mBluetoothAdapter == null) {
             return false;
         }
-        return mBluetoothAdapter.setActiveDevice(device, profiles);
+        if (device != null) {
+            return mBluetoothAdapter.setActiveDevice(device, profiles);
+        } else {
+            return mBluetoothAdapter.removeActiveDevice(profiles);
+        }
     }
 }
