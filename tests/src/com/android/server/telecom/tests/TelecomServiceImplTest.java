@@ -248,6 +248,43 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 .getOutgoingPhoneAccountForScheme(eq("sip"), any(UserHandle.class)))
                 .thenReturn(SIP_PA_HANDLE_17);
         makeAccountsVisibleToAllUsers(TEL_PA_HANDLE_16, SIP_PA_HANDLE_17);
+        PhoneAccount phoneAccount = makePhoneAccount(TEL_PA_HANDLE_CURRENT).build();
+        phoneAccount.setIsEnabled(true);
+        doReturn(phoneAccount).when(mFakePhoneAccountRegistrar).getPhoneAccount(
+                eq(TEL_PA_HANDLE_CURRENT), any(UserHandle.class));
+        doNothing().when(mAppOpsManager).checkPackage(anyInt(), anyString());
+
+        PhoneAccountHandle returnedHandleTel
+                = mTSIBinder.getDefaultOutgoingPhoneAccount("tel", DEFAULT_DIALER_PACKAGE, null);
+        assertEquals(TEL_PA_HANDLE_16, returnedHandleTel);
+
+        PhoneAccountHandle returnedHandleSip
+                = mTSIBinder.getDefaultOutgoingPhoneAccount("sip", DEFAULT_DIALER_PACKAGE, null);
+        assertEquals(SIP_PA_HANDLE_17, returnedHandleSip);
+    }
+
+    @SmallTest
+    @Test
+    public void testGetDefaultOutgoingPhoneAccountSucceedsIfCallerIsSimCallManager()
+            throws RemoteException {
+        when(mFakePhoneAccountRegistrar
+                .getOutgoingPhoneAccountForScheme(eq("tel"), any(UserHandle.class)))
+                .thenReturn(TEL_PA_HANDLE_16);
+        when(mFakePhoneAccountRegistrar
+                .getOutgoingPhoneAccountForScheme(eq("sip"), any(UserHandle.class)))
+                .thenReturn(SIP_PA_HANDLE_17);
+        makeAccountsVisibleToAllUsers(TEL_PA_HANDLE_16, SIP_PA_HANDLE_17);
+        PhoneAccount phoneAccount = makePhoneAccount(TEL_PA_HANDLE_CURRENT).build();
+        phoneAccount.setIsEnabled(true);
+        doReturn(phoneAccount).when(mFakePhoneAccountRegistrar).getPhoneAccount(
+                eq(TEL_PA_HANDLE_CURRENT), any(UserHandle.class));
+        doReturn(TEL_PA_HANDLE_CURRENT).when(mFakePhoneAccountRegistrar)
+                .getSimCallManagerFromHandle(
+                eq(TEL_PA_HANDLE_CURRENT), any(UserHandle.class));
+        // doNothing will make #isCallerSimCallManager return true
+        doNothing().when(mAppOpsManager).checkPackage(anyInt(), anyString());
+        doThrow(new SecurityException()).when(mContext)
+                .enforceCallingOrSelfPermission(eq(READ_PRIVILEGED_PHONE_STATE), anyString());
 
         PhoneAccountHandle returnedHandleTel
                 = mTSIBinder.getDefaultOutgoingPhoneAccount("tel", DEFAULT_DIALER_PACKAGE, null);
@@ -272,6 +309,13 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_READ_PHONE_STATE), anyInt(), anyString(),
                 nullable(String.class), nullable(String.class)))
                 .thenReturn(AppOpsManager.MODE_IGNORED);
+        PhoneAccount phoneAccount = makePhoneAccount(TEL_PA_HANDLE_CURRENT).build();
+        phoneAccount.setIsEnabled(true);
+        doReturn(phoneAccount).when(mFakePhoneAccountRegistrar).getPhoneAccount(
+                eq(TEL_PA_HANDLE_CURRENT), any(UserHandle.class));
+        doReturn(TEL_PA_HANDLE_16).when(mFakePhoneAccountRegistrar).getSimCallManagerFromHandle(
+                eq(TEL_PA_HANDLE_CURRENT), any(UserHandle.class));
+        doNothing().when(mAppOpsManager).checkPackage(anyInt(), anyString());
         doThrow(new SecurityException()).when(mContext)
                 .enforceCallingOrSelfPermission(eq(READ_PRIVILEGED_PHONE_STATE), anyString());
 
