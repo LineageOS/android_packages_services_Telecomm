@@ -112,15 +112,11 @@ public class TelecomServiceImpl {
             try {
                 Log.startSession("TSI.gDOPA");
                 synchronized (mLock) {
-                    if (!canReadPhoneState(callingPackage, callingFeatureId,
-                            "getDefaultOutgoingPhoneAccount")) {
-                        return null;
-                    }
-
+                    PhoneAccountHandle phoneAccountHandle = null;
                     final UserHandle callingUserHandle = Binder.getCallingUserHandle();
                     long token = Binder.clearCallingIdentity();
                     try {
-                        return mPhoneAccountRegistrar
+                        phoneAccountHandle = mPhoneAccountRegistrar
                                 .getOutgoingPhoneAccountForScheme(uriScheme, callingUserHandle);
                     } catch (Exception e) {
                         Log.e(this, e, "getDefaultOutgoingPhoneAccount");
@@ -128,6 +124,14 @@ public class TelecomServiceImpl {
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
+                    if (isCallerSimCallManager(phoneAccountHandle)
+                        || canReadPhoneState(
+                            callingPackage,
+                            callingFeatureId,
+                            "getDefaultOutgoingPhoneAccount")) {
+                      return phoneAccountHandle;
+                    }
+                    return null;
                 }
             } finally {
                 Log.endSession();
