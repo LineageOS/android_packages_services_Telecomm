@@ -419,6 +419,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 case SWITCH_FOCUS:
                     if (msg.arg1 == NO_FOCUS) {
                         reinitialize();
+                        mCallAudioManager.notifyAudioOperationsComplete();
                     }
                     return HANDLED;
                 default:
@@ -616,6 +617,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 case SWITCH_FOCUS:
                     if (msg.arg1 == NO_FOCUS) {
                         reinitialize();
+                        mCallAudioManager.notifyAudioOperationsComplete();
                     }
                     return HANDLED;
                 default:
@@ -861,6 +863,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                         // Only disconnect SCO audio here instead of routing away from BT entirely.
                         mBluetoothRouteManager.disconnectSco();
                         reinitialize();
+                        mCallAudioManager.notifyAudioOperationsComplete();
                     } else if (msg.arg1 == RINGING_FOCUS
                             && !mBluetoothRouteManager.isInbandRingingEnabled()) {
                         setBluetoothOff();
@@ -952,6 +955,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 case SWITCH_FOCUS:
                     if (msg.arg1 == NO_FOCUS) {
                         reinitialize();
+                        mCallAudioManager.notifyAudioOperationsComplete();
                     } else if (msg.arg1 == ACTIVE_FOCUS) {
                         setBluetoothOn(null);
                     }
@@ -1175,6 +1179,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 case SWITCH_FOCUS:
                     if (msg.arg1 == NO_FOCUS) {
                         reinitialize();
+                        mCallAudioManager.notifyAudioOperationsComplete();
                     }
                     return HANDLED;
                 default:
