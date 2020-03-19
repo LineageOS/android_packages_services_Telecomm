@@ -140,6 +140,12 @@ public class CallAudioModeTransitionTests extends TelecomTestCase {
 
         sm.sendMessage(mParams.messageType, mParams.externalState);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
+        if (mParams.expectedFocus == FOCUS_OFF
+                && mParams.messageType != CallAudioModeStateMachine.AUDIO_OPERATIONS_COMPLETE) {
+            // If we expect the focus to turn off, we need to signal operations complete first
+            sm.sendMessage(CallAudioModeStateMachine.AUDIO_OPERATIONS_COMPLETE);
+            waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
+        }
 
         assertEquals(mParams.expectedFinalStateName, sm.getCurrentStateName());
 
@@ -852,6 +858,46 @@ public class CallAudioModeTransitionTests extends TelecomTestCase {
                 CallAudioModeStateMachine.CALL_STATE_NAME, // expectedFinalStateName
                 FOCUS_VOICE, // expectedFocus
                 AudioManager.MODE_IN_CALL, // expectedMode
+                NO_CHANGE, // expectedRingingInteraction
+                NO_CHANGE // expectedCallWaitingInteraction
+        ));
+
+        result.add(new ModeTestParameters(
+                "No change to focus without signaling audio ops complete",
+                CallAudioModeStateMachine.ENTER_TONE_OR_HOLD_FOCUS_FOR_TESTING, // initialAudioS
+                CallAudioModeStateMachine.TONE_STOPPED_PLAYING, // messageType
+                new MessageArgs.Builder()
+                        .setHasActiveOrDialingCalls(false)
+                        .setHasRingingCalls(false)
+                        .setHasHoldingCalls(false)
+                        .setHasAudioProcessingCalls(false)
+                        .setIsTonePlaying(false)
+                        .setForegroundCallIsVoip(false)
+                        .setSession(null)
+                        .build(),
+                CallAudioModeStateMachine.UNFOCUSED_STATE_NAME, // expectedFinalStateName
+                FOCUS_NO_CHANGE, // expectedFocus
+                AudioManager.MODE_NORMAL, // expectedMode
+                NO_CHANGE, // expectedRingingInteraction
+                NO_CHANGE // expectedCallWaitingInteraction
+        ));
+
+        result.add(new ModeTestParameters(
+                "Abandon focus once audio ops are complete",
+                CallAudioModeStateMachine.ABANDON_FOCUS_FOR_TESTING, // initialAudioS
+                CallAudioModeStateMachine.AUDIO_OPERATIONS_COMPLETE, // messageType
+                new MessageArgs.Builder()
+                        .setHasActiveOrDialingCalls(false)
+                        .setHasRingingCalls(false)
+                        .setHasHoldingCalls(false)
+                        .setHasAudioProcessingCalls(false)
+                        .setIsTonePlaying(false)
+                        .setForegroundCallIsVoip(false)
+                        .setSession(null)
+                        .build(),
+                CallAudioModeStateMachine.UNFOCUSED_STATE_NAME, // expectedFinalStateName
+                FOCUS_OFF, // expectedFocus
+                NO_CHANGE, // expectedMode
                 NO_CHANGE, // expectedRingingInteraction
                 NO_CHANGE // expectedCallWaitingInteraction
         ));
