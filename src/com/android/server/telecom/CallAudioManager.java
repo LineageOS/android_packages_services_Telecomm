@@ -486,6 +486,11 @@ public class CallAudioManager extends CallsManagerListenerBase {
                 CallAudioRouteStateMachine.SWITCH_FOCUS, focusState);
     }
 
+    public void notifyAudioOperationsComplete() {
+        mCallAudioModeStateMachine.sendMessageWithArgs(
+                CallAudioModeStateMachine.AUDIO_OPERATIONS_COMPLETE, makeArgsForModeStateMachine());
+    }
+
     @VisibleForTesting
     public CallAudioRouteStateMachine getCallAudioRouteStateMachine() {
         return mCallAudioRouteStateMachine;
