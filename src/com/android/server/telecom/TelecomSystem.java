@@ -217,20 +217,9 @@ public class TelecomSystem {
 
         Log.startSession("TS.init");
         mPhoneAccountRegistrar = new PhoneAccountRegistrar(mContext, defaultDialerCache,
-                new PhoneAccountRegistrar.AppLabelProxy() {
-                    @Override
-                    public CharSequence getAppLabel(String packageName) {
-                        PackageManager pm = mContext.getPackageManager();
-                        try {
-                            ApplicationInfo info = pm.getApplicationInfo(packageName, 0);
-                            return pm.getApplicationLabel(info);
-                        } catch (PackageManager.NameNotFoundException nnfe) {
-                            Log.w(this, "Could not determine package name.");
-                        }
+                packageName -> AppLabelProxy.Util.getAppLabel(
+                        mContext.getPackageManager(), packageName));
 
-                        return null;
-                    }
-                });
         mContactsAsyncHelper = contactsAsyncHelperFactory.create(
                 new ContactsAsyncHelper.ContentResolverAdapter() {
                     @Override
