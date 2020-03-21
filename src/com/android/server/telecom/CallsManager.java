@@ -681,21 +681,8 @@ public class CallsManager extends Call.ListenerBase
         String carrierPackageName = getCarrierPackageName();
         String defaultDialerPackageName = TelecomManager.from(mContext).getDefaultDialerPackage();
         String userChosenPackageName = getRoleManagerAdapter().getDefaultCallScreeningApp();
-        CallScreeningServiceHelper.AppLabelProxy appLabelProxy =
-                new CallScreeningServiceHelper.AppLabelProxy() {
-                    @Override
-                    public CharSequence getAppLabel(String packageName) {
-                        PackageManager pm = mContext.getPackageManager();
-                        try {
-                            ApplicationInfo info = pm.getApplicationInfo(packageName, 0);
-                            return pm.getApplicationLabel(info);
-                        } catch (PackageManager.NameNotFoundException nnfe) {
-                            Log.w(this, "Could not determine package name.");
-                        }
-
-                        return null;
-                    }
-                };
+        AppLabelProxy appLabelProxy = packageName -> AppLabelProxy.Util.getAppLabel(
+                mContext.getPackageManager(), packageName);
         ParcelableCallUtils.Converter converter = new ParcelableCallUtils.Converter();
 
         IncomingCallFilterGraph graph = new IncomingCallFilterGraph(incomingCall,
@@ -1808,19 +1795,10 @@ public class CallsManager extends Call.ListenerBase
                 new ParcelableCallUtils.Converter(),
                 mCurrentUserHandle,
                 theCall,
-                new CallScreeningServiceHelper.AppLabelProxy() {
+                new AppLabelProxy() {
                     @Override
                     public CharSequence getAppLabel(String packageName) {
-                        PackageManager pm = mContext.getPackageManager();
-                        try {
-                            ApplicationInfo info = pm.getApplicationInfo(
-                                    packageName, 0);
-                            return pm.getApplicationLabel(info);
-                        } catch (PackageManager.NameNotFoundException nnfe) {
-                            Log.w(this, "Could not determine package name.");
-                        }
-
-                        return null;
+                        return Util.getAppLabel(mContext.getPackageManager(), packageName);
                     }
                 }).process();
         future.thenApply( v -> {
@@ -2333,14 +2311,9 @@ public class CallsManager extends Call.ListenerBase
             return;
         }
 
-        CharSequence requestingAppName;
-
-        PackageManager pm = mContext.getPackageManager();
-        try {
-            ApplicationInfo info = pm.getApplicationInfo( requestingPackageName, 0);
-            requestingAppName = pm.getApplicationLabel(info);
-        } catch (PackageManager.NameNotFoundException nnfe) {
-            Log.w(this, "Could not determine package name.");
+        CharSequence requestingAppName = AppLabelProxy.Util.getAppLabel(
+                mContext.getPackageManager(), requestingPackageName);
+        if (requestingAppName == null) {
             requestingAppName = requestingPackageName;
         }
 
