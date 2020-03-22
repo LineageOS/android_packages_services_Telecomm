@@ -212,7 +212,8 @@ public class RespondViaSmsManager extends CallsManagerListenerBase {
                     messageParts.size());
             context.registerReceiver(receiver, new IntentFilter(ACTION_MESSAGE_SENT));
             smsManager.sendMultipartTextMessage(phoneNumber, null, messageParts,
-                    sentIntents/*sentIntent*/, null /*deliveryIntent*/, context.getOpPackageName());
+                    sentIntents/*sentIntent*/, null /*deliveryIntent*/, context.getOpPackageName(),
+                    context.getAttributionTag());
         } catch (IllegalArgumentException e) {
             Log.w(RespondViaSmsManager.this, "Couldn't send SMS message: " +
                     e.getMessage());
