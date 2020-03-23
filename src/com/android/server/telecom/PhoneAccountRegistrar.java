@@ -131,14 +131,6 @@ public class PhoneAccountRegistrar {
                 PhoneAccount phoneAccount) {}
     }
 
-    /**
-     * Abstracts away dependency on the {@link PackageManager} required to fetch the label for an
-     * app.
-     */
-    public interface AppLabelProxy {
-        CharSequence getAppLabel(String packageName);
-    }
-
     public static final String FILE_NAME = "phone-account-registrar-state.xml";
     @VisibleForTesting
     public static final int EXPECTED_STATE_VERSION = 9;
