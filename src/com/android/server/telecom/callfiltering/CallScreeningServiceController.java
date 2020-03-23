@@ -30,8 +30,9 @@ import android.telephony.CarrierConfigManager;
 import android.text.TextUtils;
 
 import android.telecom.CallerInfo;
+
+import com.android.server.telecom.AppLabelProxy;
 import com.android.server.telecom.Call;
-import com.android.server.telecom.CallScreeningServiceHelper;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.LogUtils;
@@ -57,7 +58,7 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
     private final TelecomSystem.SyncRoot mTelecomLock;
     private final TelecomServiceImpl.SettingsSecureAdapter mSettingsSecureAdapter;
     private final CallerInfoLookupHelper mCallerInfoLookupHelper;
-    private final CallScreeningServiceHelper.AppLabelProxy mAppLabelProxy;
+    private final AppLabelProxy mAppLabelProxy;
 
     private final int CARRIER_CALL_FILTERING_TIMED_OUT = 2000; // 2 seconds
     private final int CALL_FILTERING_TIMED_OUT = 4500; // 4.5 seconds
@@ -87,7 +88,7 @@ public class CallScreeningServiceController implements IncomingCallFilter.CallFi
             TelecomSystem.SyncRoot lock,
             TelecomServiceImpl.SettingsSecureAdapter settingsSecureAdapter,
             CallerInfoLookupHelper callerInfoLookupHelper,
-            CallScreeningServiceHelper.AppLabelProxy appLabelProxy) {
+            AppLabelProxy appLabelProxy) {
         mContext = context;
         mCallsManager = callsManager;
         mPhoneAccountRegistrar = phoneAccountRegistrar;
