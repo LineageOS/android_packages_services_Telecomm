@@ -20,8 +20,10 @@ import static android.Manifest.permission.CALL_PHONE;
 import static android.Manifest.permission.CALL_PRIVILEGED;
 import static android.Manifest.permission.DUMP;
 import static android.Manifest.permission.MODIFY_PHONE_STATE;
+import static android.Manifest.permission.READ_PHONE_NUMBERS;
 import static android.Manifest.permission.READ_PHONE_STATE;
 import static android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE;
+import static android.Manifest.permission.READ_SMS;
 import static android.Manifest.permission.REGISTER_SIM_SUBSCRIPTION;
 import static android.Manifest.permission.WRITE_SECURE_SETTINGS;
 
@@ -54,6 +56,7 @@ import android.text.TextUtils;
 import android.util.EventLog;
 
 import com.android.internal.telecom.ITelecomService;
+import com.android.internal.telephony.TelephonyPermissions;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
 import com.android.server.telecom.settings.BlockedNumbersActivity;
@@ -643,7 +646,7 @@ public class TelecomServiceImpl {
                 String callingFeatureId) {
             try {
                 Log.startSession("getL1N");
-                if (!canReadPhoneState(callingPackage, callingFeatureId, "getLine1Number")) {
+                if (!canReadPhoneNumbers(callingPackage, callingFeatureId, "getLine1Number")) {
                     return null;
                 }
 
@@ -2124,6 +2127,59 @@ public class TelecomServiceImpl {
                     callingPackage, callingFeatureId, message) == AppOpsManager.MODE_ALLOWED;
         }
     }
+
+    private boolean canReadPhoneNumbers(String callingPackage, String callingFeatureId,
+            String message) {
+        boolean targetSdkPreR = false;
+        int uid = Binder.getCallingUid();
+        try {
+            ApplicationInfo applicationInfo = mPackageManager.getApplicationInfoAsUser(
+                    callingPackage, 0, UserHandle.getUserHandleForUid(Binder.getCallingUid()));
+            targetSdkPreR = applicationInfo != null
+                    && applicationInfo.targetSdkVersion < Build.VERSION_CODES.R;
+        } catch (PackageManager.NameNotFoundException e) {
+            // In the case that the PackageManager cannot find the specified calling package apply
+            // the more restrictive target R+ requirements.
+        }
+        // Apps targeting pre-R can access phone numbers via READ_PHONE_STATE
+        if (targetSdkPreR) {
+            try {
+                return canReadPhoneState(callingPackage, callingFeatureId, message);
+            } catch (SecurityException e) {
+                // Apps targeting pre-R can still access phone numbers via the additional checks
+                // below.
+            }
+        } else {
+            // The system/default dialer can always read phone state - so that emergency calls will
+            // still work.
+            if (isPrivilegedDialerCalling(callingPackage)) {
+                return true;
+            }
+            if (mContext.checkCallingOrSelfPermission(READ_PRIVILEGED_PHONE_STATE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                return true;
+            }
+        }
+        if (mContext.checkCallingOrSelfPermission(READ_PHONE_NUMBERS)
+                == PackageManager.PERMISSION_GRANTED && mAppOpsManager.noteOpNoThrow(
+                AppOpsManager.OPSTR_READ_PHONE_NUMBERS, uid, callingPackage, callingFeatureId,
+                message) == AppOpsManager.MODE_ALLOWED) {
+            return true;
+        }
+        if (mContext.checkCallingOrSelfPermission(READ_SMS) == PackageManager.PERMISSION_GRANTED
+                && mAppOpsManager.noteOpNoThrow(AppOpsManager.OPSTR_READ_SMS, uid, callingPackage,
+                callingFeatureId, message) == AppOpsManager.MODE_ALLOWED) {
+            return true;
+        }
+        // The default SMS app with the WRITE_SMS appop granted can access phone numbers.
+        if (mAppOpsManager.noteOpNoThrow(AppOpsManager.OPSTR_WRITE_SMS, uid, callingPackage,
+                callingFeatureId, message) == AppOpsManager.MODE_ALLOWED) {
+            return true;
+        }
+        throw new SecurityException("Package " + callingPackage
+                + " does not meet the requirements to access the phone number");
+    }
+
 
     private boolean canReadPrivilegedPhoneState(String callingPackage, String message) {
         // The system/default dialer can always read phone state - so that emergency calls will
