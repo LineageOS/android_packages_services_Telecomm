@@ -44,8 +44,8 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.internal.telecom.ICallScreeningAdapter;
 import com.android.internal.telecom.ICallScreeningService;
+import com.android.server.telecom.AppLabelProxy;
 import com.android.server.telecom.Call;
-import com.android.server.telecom.CallScreeningServiceHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.ParcelableCallUtils;
 import com.android.server.telecom.PhoneAccountRegistrar;
@@ -60,11 +60,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.Collections;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(JUnit4.class)
@@ -74,7 +70,7 @@ public class NewCallScreeningServiceFilterTest extends TelecomTestCase {
     @Mock Context mContext;
     @Mock PackageManager mPackageManager;
     @Mock CallsManager mCallsManager;
-    @Mock CallScreeningServiceHelper.AppLabelProxy mAppLabelProxy;
+    @Mock AppLabelProxy mAppLabelProxy;
     @Mock ParcelableCallUtils.Converter mParcelableCallUtilsConverter;
     @Mock PhoneAccountRegistrar mPhoneAccountRegistrar;
     @Mock ICallScreeningService mCallScreeningService;
@@ -116,7 +112,8 @@ public class NewCallScreeningServiceFilterTest extends TelecomTestCase {
         when(mCallsManager.getCurrentUserHandle()).thenReturn(UserHandle.CURRENT);
         when(mCall.getId()).thenReturn(CALL_ID);
         when(mContext.getPackageManager()).thenReturn(mPackageManager);
-        when(mAppLabelProxy.getAppLabel(PKG_NAME)).thenReturn(APP_NAME);
+        when(mAppLabelProxy.getAppLabel(eq(PKG_NAME)))
+                .thenReturn(APP_NAME);
         when(mParcelableCallUtilsConverter.toParcelableCall(
                 eq(mCall), anyBoolean(), eq(mPhoneAccountRegistrar))).thenReturn(null);
         when(mContext.bindServiceAsUser(nullable(Intent.class), nullable(ServiceConnection.class),

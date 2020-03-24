@@ -21,7 +21,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Handler;
 import android.os.IBinder;
@@ -43,14 +42,6 @@ import java.util.concurrent.CompletableFuture;
  */
 public class CallScreeningServiceHelper {
     private static final String TAG = CallScreeningServiceHelper.class.getSimpleName();
-
-    /**
-     * Abstracts away dependency on the {@link PackageManager} required to fetch the label for an
-     * app.
-     */
-    public interface AppLabelProxy {
-        CharSequence getAppLabel(String packageName);
-    }
 
     /**
      * Implementation of {@link CallScreeningService} adapter AIDL; provides a means for responses
