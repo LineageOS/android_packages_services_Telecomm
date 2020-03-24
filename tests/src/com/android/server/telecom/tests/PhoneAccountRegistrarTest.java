@@ -49,6 +49,7 @@ import androidx.test.InstrumentationRegistry;
 
 import com.android.internal.telecom.IConnectionService;
 import com.android.internal.util.FastXmlSerializer;
+import com.android.server.telecom.AppLabelProxy;
 import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.PhoneAccountRegistrar.DefaultPhoneAccountHandle;
@@ -84,7 +85,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
     private PhoneAccountRegistrar mRegistrar;
     @Mock private TelecomManager mTelecomManager;
     @Mock private DefaultDialerCache mDefaultDialerCache;
-    @Mock private PhoneAccountRegistrar.AppLabelProxy mAppLabelProxy;
+    @Mock private AppLabelProxy mAppLabelProxy;
 
     @Override
     @Before

@@ -30,6 +30,7 @@ import android.telecom.TelecomManager;
 
 import com.android.internal.telecom.ICallScreeningAdapter;
 import com.android.internal.telecom.ICallScreeningService;
+import com.android.server.telecom.AppLabelProxy;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallScreeningServiceHelper;
 import com.android.server.telecom.CallsManager;
@@ -193,7 +194,7 @@ public class NewCallScreeningServiceFilter extends CallFilter {
             int packageType,
             Context context,
             CallsManager callsManager,
-            CallScreeningServiceHelper.AppLabelProxy appLabelProxy,
+            AppLabelProxy appLabelProxy,
             ParcelableCallUtils.Converter parcelableCallUtilsConverter) {
         super();
         mCall = call;
