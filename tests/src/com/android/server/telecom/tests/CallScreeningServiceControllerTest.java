@@ -35,8 +35,9 @@ import android.telephony.CarrierConfigManager;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import android.telecom.CallerInfo;
+
+import com.android.server.telecom.AppLabelProxy;
 import com.android.server.telecom.Call;
-import com.android.server.telecom.CallScreeningServiceHelper;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.ParcelableCallUtils;
@@ -106,13 +107,7 @@ public class CallScreeningServiceControllerTest extends TelecomTestCase {
     ParcelableCallUtils.Converter mParcelableCallUtilsConverter;
     @Mock
     PhoneAccountRegistrar mPhoneAccountRegistrar;
-    CallScreeningServiceHelper.AppLabelProxy mAppLabelProxy =
-            new CallScreeningServiceHelper.AppLabelProxy() {
-                @Override
-                public CharSequence getAppLabel(String packageName) {
-                    return APP_NAME;
-                }
-            };
+    AppLabelProxy mAppLabelProxy = packageName -> APP_NAME;
     @Mock
     private CallFilterResultCallback mCallback;
     @Mock
