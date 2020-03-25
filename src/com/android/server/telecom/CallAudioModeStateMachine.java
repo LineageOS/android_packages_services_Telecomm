@@ -151,6 +151,10 @@ public class CallAudioModeStateMachine extends StateMachine {
 
     public static final int RINGER_MODE_CHANGE = 5001;
 
+    // Used to indicate that Telecom is done doing things to the AudioManager and that it's safe
+    // to release focus for other apps to take over.
+    public static final int AUDIO_OPERATIONS_COMPLETE = 6001;
+
     public static final int RUN_RUNNABLE = 9001;
 
     private static final SparseArray<String> MESSAGE_CODE_TO_NAME = new SparseArray<String>() {{
@@ -172,6 +176,7 @@ public class CallAudioModeStateMachine extends StateMachine {
         put(TONE_STOPPED_PLAYING, "TONE_STOPPED_PLAYING");
         put(FOREGROUND_VOIP_MODE_CHANGE, "FOREGROUND_VOIP_MODE_CHANGE");
         put(RINGER_MODE_CHANGE, "RINGER_MODE_CHANGE");
+        put(AUDIO_OPERATIONS_COMPLETE, "AUDIO_OPERATIONS_COMPLETE");
 
         put(RUN_RUNNABLE, "RUN_RUNNABLE");
     }};
@@ -223,12 +228,11 @@ public class CallAudioModeStateMachine extends StateMachine {
         @Override
         public void enter() {
             if (mIsInitialized) {
-                Log.i(LOG_TAG, "Abandoning audio focus: now UNFOCUSED");
-                mAudioManager.setMode(AudioManager.MODE_NORMAL);
-                mAudioManager.abandonAudioFocusForCall();
-
-                mMostRecentMode = AudioManager.MODE_NORMAL;
                 mCallAudioManager.setCallAudioRouteFocusState(CallAudioRouteStateMachine.NO_FOCUS);
+                mAudioManager.setMode(AudioManager.MODE_NORMAL);
+                mMostRecentMode = AudioManager.MODE_NORMAL;
+                // Don't release focus here -- wait until we get a signal that any other audio
+                // operations triggered by this are done before releasing focus.
             }
         }
 
@@ -272,6 +276,10 @@ public class CallAudioModeStateMachine extends StateMachine {
                     Log.w(LOG_TAG, "Tone started playing unexpectedly. Args are: \n"
                             + args.toString());
                     return HANDLED;
+                case AUDIO_OPERATIONS_COMPLETE:
+                    Log.i(LOG_TAG, "Abandoning audio focus: now UNFOCUSED");
+                    mAudioManager.abandonAudioFocusForCall();
+                    return HANDLED;
                 default:
                     // The forced focus switch commands are handled by BaseState.
                     return NOT_HANDLED;
@@ -283,12 +291,9 @@ public class CallAudioModeStateMachine extends StateMachine {
         @Override
         public void enter() {
             if (mIsInitialized) {
-                Log.i(LOG_TAG, "Abandoning audio focus: now audio processing");
-                mAudioManager.setMode(NEW_AUDIO_MODE_FOR_AUDIO_PROCESSING);
-                mAudioManager.abandonAudioFocusForCall();
-
-                mMostRecentMode = NEW_AUDIO_MODE_FOR_AUDIO_PROCESSING;
                 mCallAudioManager.setCallAudioRouteFocusState(CallAudioRouteStateMachine.NO_FOCUS);
+                mAudioManager.setMode(NEW_AUDIO_MODE_FOR_AUDIO_PROCESSING);
+                mMostRecentMode = NEW_AUDIO_MODE_FOR_AUDIO_PROCESSING;
             }
         }
 
@@ -335,6 +340,10 @@ public class CallAudioModeStateMachine extends StateMachine {
                     // This shouldn't happen either, but perform the action anyway.
                     Log.w(LOG_TAG, "Tone started playing unexpectedly. Args are: \n"
                             + args.toString());
+                    return HANDLED;
+                case AUDIO_OPERATIONS_COMPLETE:
+                    Log.i(LOG_TAG, "Abandoning audio focus: now AUDIO_PROCESSING");
+                    mAudioManager.abandonAudioFocusForCall();
                     return HANDLED;
                 default:
                     // The forced focus switch commands are handled by BaseState.
@@ -416,6 +425,10 @@ public class CallAudioModeStateMachine extends StateMachine {
                     tryStartRinging();
                     return HANDLED;
                 }
+                case AUDIO_OPERATIONS_COMPLETE:
+                    Log.w(LOG_TAG, "Should not be seeing AUDIO_OPERATIONS_COMPLETE in a focused"
+                            + " state");
+                    return HANDLED;
                 default:
                     // The forced focus switch commands are handled by BaseState.
                     return NOT_HANDLED;
@@ -493,6 +506,10 @@ public class CallAudioModeStateMachine extends StateMachine {
                         transitionTo(mVoipCallFocusState);
                     }
                     return HANDLED;
+                case AUDIO_OPERATIONS_COMPLETE:
+                    Log.w(LOG_TAG, "Should not be seeing AUDIO_OPERATIONS_COMPLETE in a focused"
+                            + " state");
+                    return HANDLED;
                 default:
                     // The forced focus switch commands are handled by BaseState.
                     return NOT_HANDLED;
@@ -563,6 +580,10 @@ public class CallAudioModeStateMachine extends StateMachine {
                         transitionTo(mSimCallFocusState);
                     }
                     return HANDLED;
+                case AUDIO_OPERATIONS_COMPLETE:
+                    Log.w(LOG_TAG, "Should not be seeing AUDIO_OPERATIONS_COMPLETE in a focused"
+                            + " state");
+                    return HANDLED;
                 default:
                     // The forced focus switch commands are handled by BaseState.
                     return NOT_HANDLED;
@@ -625,6 +646,11 @@ public class CallAudioModeStateMachine extends StateMachine {
                     return HANDLED;
                 case TONE_STOPPED_PLAYING:
                     transitionTo(calculateProperStateFromArgs(args));
+                    return HANDLED;
+                case AUDIO_OPERATIONS_COMPLETE:
+                    Log.w(LOG_TAG, "Should not be seeing AUDIO_OPERATIONS_COMPLETE in a focused"
+                            + " state");
+                    return HANDLED;
                 default:
                     return NOT_HANDLED;
             }
