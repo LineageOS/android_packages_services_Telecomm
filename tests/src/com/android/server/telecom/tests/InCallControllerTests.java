@@ -388,6 +388,98 @@ public class InCallControllerTests extends TelecomTestCase {
                 eq(Manifest.permission.ACCESS_FINE_LOCATION), eq(mUserHandle));
     }
 
+    /**
+     * This test verifies the behavior of Telecom when the system dialer crashes on binding and must
+     * be restarted.  Specifically, it ensures when the system dialer crashes we revoke the runtime
+     * location permission, and when it restarts we re-grant the permission.
+     * @throws Exception
+     */
+    @MediumTest
+    @Test
+    public void testBindToService_SystemDialer_Crash() throws Exception {
+        Bundle callExtras = new Bundle();
+        callExtras.putBoolean("whatever", true);
+
+        when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
+        when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
+        when(mMockCallsManager.isInEmergencyCall()).thenReturn(true);
+        when(mMockCall.isEmergencyCall()).thenReturn(true);
+        when(mMockCall.isIncoming()).thenReturn(false);
+        when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
+        when(mMockCall.getIntentExtras()).thenReturn(callExtras);
+        when(mMockCall.isExternalCall()).thenReturn(false);
+        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID))
+                .thenReturn(DEF_PKG);
+        ArgumentCaptor<ServiceConnection> serviceConnectionCaptor =
+                ArgumentCaptor.forClass(ServiceConnection.class);
+        when(mMockContext.bindServiceAsUser(any(Intent.class), serviceConnectionCaptor.capture(),
+                eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE
+                        | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS),
+                eq(UserHandle.CURRENT))).thenReturn(true);
+        when(mTimeoutsAdapter.getEmergencyCallbackWindowMillis(any(ContentResolver.class)))
+                .thenReturn(300_000L);
+
+        setupMockPackageManager(true /* default */, true /* system */, false /* external calls */);
+        setupMockPackageManagerLocationPermission(SYS_PKG, false /* granted */);
+
+        mInCallController.bindToServices(mMockCall);
+
+        // Query for the different InCallServices
+        ArgumentCaptor<Intent> queryIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mMockPackageManager, times(4)).queryIntentServicesAsUser(
+                queryIntentCaptor.capture(),
+                eq(PackageManager.GET_META_DATA), eq(CURRENT_USER_ID));
+
+        // Verify call for default dialer InCallService
+        assertEquals(DEF_PKG, queryIntentCaptor.getAllValues().get(0).getPackage());
+        // Verify call for car-mode InCallService
+        assertEquals(null, queryIntentCaptor.getAllValues().get(1).getPackage());
+        // Verify call for non-UI InCallServices
+        assertEquals(null, queryIntentCaptor.getAllValues().get(2).getPackage());
+
+        ArgumentCaptor<Intent> bindIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mMockContext, times(1)).bindServiceAsUser(
+                bindIntentCaptor.capture(),
+                any(ServiceConnection.class),
+                eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE
+                        | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS),
+                eq(UserHandle.CURRENT));
+
+        Intent bindIntent = bindIntentCaptor.getValue();
+        assertEquals(InCallService.SERVICE_INTERFACE, bindIntent.getAction());
+        assertEquals(SYS_PKG, bindIntent.getComponent().getPackageName());
+        assertEquals(SYS_CLASS, bindIntent.getComponent().getClassName());
+        assertEquals(PA_HANDLE, bindIntent.getExtras().getParcelable(
+                TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE));
+        assertEquals(callExtras, bindIntent.getExtras().getParcelable(
+                TelecomManager.EXTRA_OUTGOING_CALL_EXTRAS));
+
+        verify(mMockPackageManager).grantRuntimePermission(eq(SYS_PKG),
+                eq(Manifest.permission.ACCESS_FINE_LOCATION), eq(mUserHandle));
+
+        // Emulate a crash in the system dialer; we'll use the captured service connection to signal
+        // to InCallController that the dialer died.
+        ServiceConnection serviceConnection = serviceConnectionCaptor.getValue();
+        serviceConnection.onServiceDisconnected(bindIntent.getComponent());
+
+        // We expect that the permission is revoked at this point.
+        verify(mMockPackageManager).revokeRuntimePermission(eq(SYS_PKG),
+                eq(Manifest.permission.ACCESS_FINE_LOCATION), eq(mUserHandle));
+
+        // Now, we expect to auto-rebind to the system dialer (verify 2 times since this is the
+        // second binding).
+        verify(mMockContext, times(2)).bindServiceAsUser(
+                bindIntentCaptor.capture(),
+                any(ServiceConnection.class),
+                eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE
+                        | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS),
+                eq(UserHandle.CURRENT));
+
+        // Verify we were re-granted the runtime permission.
+        verify(mMockPackageManager, times(2)).grantRuntimePermission(eq(SYS_PKG),
+                eq(Manifest.permission.ACCESS_FINE_LOCATION), eq(mUserHandle));
+    }
+
     @MediumTest
     @Test
     public void testBindToService_DefaultDialer_FallBackToSystem() throws Exception {
