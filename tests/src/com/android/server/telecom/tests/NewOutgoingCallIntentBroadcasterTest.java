@@ -474,11 +474,11 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
     private NewOutgoingCallIntentBroadcaster.CallDisposition processIntent(Intent intent,
             boolean isDefaultPhoneApp) {
         NewOutgoingCallIntentBroadcaster b = new NewOutgoingCallIntentBroadcaster(
-                mContext, mCallsManager, mCall, intent, mPhoneNumberUtilsAdapter,
+                mContext, mCallsManager, intent, mPhoneNumberUtilsAdapter,
                 isDefaultPhoneApp, mDefaultDialerCache);
         NewOutgoingCallIntentBroadcaster.CallDisposition cd = b.evaluateCall();
         if (cd.disconnectCause == DisconnectCause.NOT_DISCONNECTED) {
-            b.processCall(cd);
+            b.processCall(mCall, cd);
         }
         return cd;
     }
