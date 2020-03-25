@@ -72,7 +72,7 @@ public class NewOutgoingCallIntentBroadcaster {
     public static final String EXTRA_GATEWAY_URI = "com.android.phone.extra.GATEWAY_URI";
 
     private final CallsManager mCallsManager;
-    private final Call mCall;
+    private Call mCall;
     private final Intent mIntent;
     private final Context mContext;
     private final PhoneNumberUtilsAdapter mPhoneNumberUtilsAdapter;
@@ -99,12 +99,11 @@ public class NewOutgoingCallIntentBroadcaster {
     }
 
     @VisibleForTesting
-    public NewOutgoingCallIntentBroadcaster(Context context, CallsManager callsManager, Call call,
+    public NewOutgoingCallIntentBroadcaster(Context context, CallsManager callsManager,
             Intent intent, PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
             boolean isDefaultPhoneApp, DefaultDialerCache defaultDialerCache) {
         mContext = context;
         mCallsManager = callsManager;
-        mCall = call;
         mIntent = intent;
         mPhoneNumberUtilsAdapter = phoneNumberUtilsAdapter;
         mIsDefaultOrSystemPhoneApp = isDefaultPhoneApp;
@@ -330,7 +329,8 @@ public class NewOutgoingCallIntentBroadcaster {
         return number;
     }
 
-    public void processCall(CallDisposition disposition) {
+    public void processCall(Call call, CallDisposition disposition) {
+        mCall = call;
         if (disposition.callImmediately) {
             boolean speakerphoneOn = mIntent.getBooleanExtra(
                     TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE, false);
