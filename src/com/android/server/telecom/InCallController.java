@@ -478,7 +478,7 @@ public class InCallController extends CallsManagerListenerBase {
             super.onDisconnected();
             // We just disconnected.  Check if we are expected to be connected, and reconnect.
             if (shouldReconnect && !mIsProxying) {
-                connect(null);  // reconnect
+                connect(mCall);  // reconnect
             }
         }
 
