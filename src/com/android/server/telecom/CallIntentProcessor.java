@@ -165,6 +165,17 @@ public class CallIntentProcessor {
         boolean isPrivilegedDialer = defaultDialerCache.isDefaultOrSystemDialer(callingPackage,
                 initiatingUser.getIdentifier());
 
+        NewOutgoingCallIntentBroadcaster broadcaster = new NewOutgoingCallIntentBroadcaster(
+                context, callsManager, intent, callsManager.getPhoneNumberUtilsAdapter(),
+                isPrivilegedDialer, defaultDialerCache);
+
+        // If the broadcaster comes back with an immediate error, disconnect and show a dialog.
+        NewOutgoingCallIntentBroadcaster.CallDisposition disposition = broadcaster.evaluateCall();
+        if (disposition.disconnectCause != DisconnectCause.NOT_DISCONNECTED) {
+            showErrorDialog(context, disposition.disconnectCause);
+            return;
+        }
+
         // Send to CallsManager to ensure the InCallUI gets kicked off before the broadcast returns
         CompletableFuture<Call> callFuture = callsManager
                 .startOutgoingCall(handle, phoneAccountHandle, clientExtras, initiatingUser,
@@ -175,34 +186,12 @@ public class CallIntentProcessor {
             if (call != null) {
                 Log.continueSession(logSubsession, "CIP.sNOCI");
                 try {
-                    sendNewOutgoingCallIntent(context, call, callsManager, intent,
-                            isPrivilegedDialer, defaultDialerCache);
+                    broadcaster.processCall(call, disposition);
                 } finally {
                     Log.endSession();
                 }
             }
         });
-    }
-
-    static void sendNewOutgoingCallIntent(Context context, Call call, CallsManager callsManager,
-            Intent intent, boolean isPrivilegedDialer, DefaultDialerCache defaultDialerCache) {
-        // Asynchronous calls should not usually be made inside a BroadcastReceiver because once
-        // onReceive is complete, the BroadcastReceiver's process runs the risk of getting
-        // killed if memory is scarce. However, this is OK here because the entire Telecom
-        // process will be running throughout the duration of the phone call and should never
-        // be killed.
-        NewOutgoingCallIntentBroadcaster broadcaster = new NewOutgoingCallIntentBroadcaster(
-                context, callsManager, call, intent, callsManager.getPhoneNumberUtilsAdapter(),
-                isPrivilegedDialer, defaultDialerCache);
-
-        // If the broadcaster comes back with an immediate error, disconnect and show a dialog.
-        NewOutgoingCallIntentBroadcaster.CallDisposition disposition = broadcaster.evaluateCall();
-        if (disposition.disconnectCause != DisconnectCause.NOT_DISCONNECTED) {
-            disconnectCallAndShowErrorDialog(context, call, disposition.disconnectCause);
-            return;
-        }
-
-        broadcaster.processCall(disposition);
     }
 
     /**
@@ -276,9 +265,7 @@ public class CallIntentProcessor {
         callsManager.addNewUnknownCall(phoneAccountHandle, intent.getExtras());
     }
 
-    private static void disconnectCallAndShowErrorDialog(
-            Context context, Call call, int errorCode) {
-        call.disconnect();
+    private static void showErrorDialog(Context context, int errorCode) {
         final Intent errorIntent = new Intent(context, ErrorDialogActivity.class);
         int errorMessageId = -1;
         switch (errorCode) {
