@@ -21,6 +21,7 @@ import android.app.AppOpsManager;
 import android.app.Activity;
 import android.app.BroadcastOptions;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -72,7 +73,7 @@ public class NewOutgoingCallIntentBroadcaster {
     public static final String EXTRA_GATEWAY_URI = "com.android.phone.extra.GATEWAY_URI";
 
     private final CallsManager mCallsManager;
-    private final Call mCall;
+    private Call mCall;
     private final Intent mIntent;
     private final Context mContext;
     private final PhoneNumberUtilsAdapter mPhoneNumberUtilsAdapter;
@@ -99,12 +100,11 @@ public class NewOutgoingCallIntentBroadcaster {
     }
 
     @VisibleForTesting
-    public NewOutgoingCallIntentBroadcaster(Context context, CallsManager callsManager, Call call,
+    public NewOutgoingCallIntentBroadcaster(Context context, CallsManager callsManager,
             Intent intent, PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
             boolean isDefaultPhoneApp, DefaultDialerCache defaultDialerCache) {
         mContext = context;
         mCallsManager = callsManager;
-        mCall = call;
         mIntent = intent;
         mPhoneNumberUtilsAdapter = phoneNumberUtilsAdapter;
         mIsDefaultOrSystemPhoneApp = isDefaultPhoneApp;
@@ -330,7 +330,8 @@ public class NewOutgoingCallIntentBroadcaster {
         return number;
     }
 
-    public void processCall(CallDisposition disposition) {
+    public void processCall(Call call, CallDisposition disposition) {
+        mCall = call;
         if (disposition.callImmediately) {
             boolean speakerphoneOn = mIntent.getBooleanExtra(
                     TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE, false);
@@ -494,7 +495,9 @@ public class NewOutgoingCallIntentBroadcaster {
 
     private void launchSystemDialer(Uri handle) {
         Intent systemDialerIntent = new Intent();
-        systemDialerIntent.setComponent(mDefaultDialerCache.getSystemDialerComponent());
+        systemDialerIntent.setComponent(
+                new ComponentName(mDefaultDialerCache.getSystemDialerApplication(),
+                    mContext.getResources().getString(R.string.dialer_default_class)));
         systemDialerIntent.setAction(Intent.ACTION_DIAL);
         systemDialerIntent.setData(handle);
         systemDialerIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
