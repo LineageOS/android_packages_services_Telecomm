@@ -181,21 +181,11 @@ public class ParcelableCallUtils {
             parentCallId = parentCall.getId();
         }
 
-        long connectTimeMillis = call.getConnectTimeMillis();
         List<Call> childCalls = call.getChildCalls();
         List<String> childCallIds = new ArrayList<>();
         if (!childCalls.isEmpty()) {
-            long childConnectTimeMillis = Long.MAX_VALUE;
             for (Call child : childCalls) {
-                if (child.getConnectTimeMillis() > 0) {
-                    childConnectTimeMillis = Math.min(child.getConnectTimeMillis(),
-                            childConnectTimeMillis);
-                }
                 childCallIds.add(child.getId());
-            }
-
-            if (childConnectTimeMillis != Long.MAX_VALUE) {
-                connectTimeMillis = childConnectTimeMillis;
             }
         }
 
@@ -240,7 +230,7 @@ public class ParcelableCallUtils {
                 .setCapabilities(capabilities)
                 .setProperties(properties)
                 .setSupportedAudioRoutes(supportedAudioRoutes)
-                .setConnectTimeMillis(connectTimeMillis)
+                .setConnectTimeMillis(call.getConnectTimeMillis())
                 .setHandle(handle)
                 .setHandlePresentation(call.getHandlePresentation())
                 .setCallerDisplayName(callerDisplayName)
