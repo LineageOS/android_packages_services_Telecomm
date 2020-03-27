@@ -1,5 +1,8 @@
 package com.android.server.telecom.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -31,6 +34,7 @@ import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.Collections;
@@ -82,8 +86,37 @@ public class DisconnectedCallNotifierTest extends TelecomTestCase {
 
         doReturn(Collections.EMPTY_LIST).when(mCallsManager).getCalls();
         notifier.onCallRemoved(call);
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
         verify(mNotificationManager).notifyAsUser(anyString(), anyInt(),
+                captor.capture(), any(UserHandle.class));
+        Notification notification = captor.getValue();
+        assertNotNull(notification.contentIntent);
+        assertEquals(2, notification.actions.length);
+    }
+
+    @Test
+    @SmallTest
+    public void testNotificationShownForDisconnectedEmergencyCall() {
+        Call call = createCall(new DisconnectCause(DisconnectCause.LOCAL,
+                DisconnectCause.REASON_EMERGENCY_CALL_PLACED));
+        when(call.isEmergencyCall()).thenReturn(true);
+
+        DisconnectedCallNotifier notifier = new DisconnectedCallNotifier(mContext, mCallsManager);
+        notifier.onCallStateChanged(call, CallState.NEW, CallState.DIALING);
+        notifier.onCallStateChanged(call, CallState.DIALING, CallState.DISCONNECTED);
+        verify(mNotificationManager, never()).notifyAsUser(anyString(), anyInt(),
                 any(Notification.class), any(UserHandle.class));
+
+        doReturn(Collections.EMPTY_LIST).when(mCallsManager).getCalls();
+        notifier.onCallRemoved(call);
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(mNotificationManager).notifyAsUser(anyString(), anyInt(),
+                captor.capture(), any(UserHandle.class));
+        Notification notification = captor.getValue();
+        assertNull(notification.contentIntent);
+        if (notification.actions != null) {
+            assertEquals(0, notification.actions.length);
+        }
     }
 
     @Test
