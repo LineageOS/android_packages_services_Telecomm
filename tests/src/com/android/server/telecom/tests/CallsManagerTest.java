@@ -124,6 +124,10 @@ public class CallsManagerTest extends TelecomTestCase {
             ComponentName.unflattenFromString("com.foo/.Blah"), "Sim1");
     private static final PhoneAccountHandle SIM_2_HANDLE = new PhoneAccountHandle(
             ComponentName.unflattenFromString("com.foo/.Blah"), "Sim2");
+    private static final PhoneAccountHandle CONNECTION_MGR_1_HANDLE = new PhoneAccountHandle(
+            ComponentName.unflattenFromString("com.bar/.Conn"), "Cm1");
+    private static final PhoneAccountHandle CONNECTION_MGR_2_HANDLE = new PhoneAccountHandle(
+            ComponentName.unflattenFromString("com.spa/.Conn"), "Cm2");
     private static final PhoneAccountHandle VOIP_1_HANDLE = new PhoneAccountHandle(
             ComponentName.unflattenFromString("com.voip/.Stuff"), "Voip1");
     private static final PhoneAccountHandle SELF_MANAGED_HANDLE = new PhoneAccountHandle(
@@ -1288,6 +1292,68 @@ public class CallsManagerTest extends TelecomTestCase {
         verify(screenedCall).setAudioProcessingRequestingApp(appName);
     }
 
+    /**
+     * Verify the behavior of the {@link CallsManager#areFromSameSource(Call, Call)} method.
+     * @throws Exception
+     */
+    @SmallTest
+    @Test
+    public void testAreFromSameSource() throws Exception {
+        Call callSim1 = createCall(SIM_1_HANDLE, null, CallState.ACTIVE);
+        Call callSim2 = createCall(SIM_2_HANDLE, null, CallState.ACTIVE);
+        Call callVoip1 = createCall(VOIP_1_HANDLE, null, CallState.ACTIVE);
+        assertTrue(CallsManager.areFromSameSource(callSim1, callSim1));
+        assertTrue(CallsManager.areFromSameSource(callSim1, callSim2));
+        assertFalse(CallsManager.areFromSameSource(callSim1, callVoip1));
+        assertFalse(CallsManager.areFromSameSource(callSim2, callVoip1));
+
+        Call callSim1ConnectionMgr1 = createCall(SIM_1_HANDLE, CONNECTION_MGR_1_HANDLE,
+                CallState.ACTIVE);
+        Call callSim2ConnectionMgr2 = createCall(SIM_2_HANDLE, CONNECTION_MGR_2_HANDLE,
+                CallState.ACTIVE);
+        assertFalse(CallsManager.areFromSameSource(callSim1ConnectionMgr1, callVoip1));
+        assertFalse(CallsManager.areFromSameSource(callSim2ConnectionMgr2, callVoip1));
+        // Even though the connection manager differs, the underlying telephony CS is the same
+        // so hold/swap will still work as expected.
+        assertTrue(CallsManager.areFromSameSource(callSim1ConnectionMgr1, callSim2ConnectionMgr2));
+
+        // Sometimes connection managers have been known to also have calls
+        Call callConnectionMgr = createCall(CONNECTION_MGR_2_HANDLE, CONNECTION_MGR_2_HANDLE,
+                CallState.ACTIVE);
+        assertTrue(CallsManager.areFromSameSource(callSim2ConnectionMgr2, callConnectionMgr));
+    }
+
+    /**
+     * Ensures that if we have two calls hosted by the same connection manager, but with
+     * different target phone accounts, we can swap between them.
+     * @throws Exception
+     */
+    @SmallTest
+    @Test
+    public void testSwapCallsWithSameConnectionMgr() throws Exception {
+        // GIVEN a CallsManager with ongoing call, and this call can not be held
+        Call ongoingCall = addSpyCall(SIM_1_HANDLE, CONNECTION_MGR_1_HANDLE, CallState.ACTIVE);
+        doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
+
+        // and a held call which has the same connection manager, but a different target phone
+        // account.  We have seen cases where a connection mgr adds its own calls and these can
+        // be problematic for swapping.
+        Call heldCall = addSpyCall(CONNECTION_MGR_1_HANDLE, CONNECTION_MGR_1_HANDLE,
+                CallState.ON_HOLD);
+
+        // WHEN unhold the held call
+        mCallsManager.unholdCall(heldCall);
+
+        // THEN the ongoing call is held
+        verify(ongoingCall).hold(any());
+        verifyFocusRequestAndExecuteCallback(heldCall);
+
+        // and held call is unhold now
+        verify(heldCall).unhold(any());
+    }
+
     private Call addSpyCall() {
         return addSpyCall(SIM_2_HANDLE, CallState.ACTIVE);
     }
@@ -1297,7 +1363,12 @@ public class CallsManagerTest extends TelecomTestCase {
     }
 
     private Call addSpyCall(PhoneAccountHandle targetPhoneAccount, int initialState) {
-        Call ongoingCall = createCall(targetPhoneAccount, initialState);
+        return addSpyCall(targetPhoneAccount, null, initialState);
+    }
+
+    private Call addSpyCall(PhoneAccountHandle targetPhoneAccount,
+            PhoneAccountHandle connectionMgrAcct, int initialState) {
+        Call ongoingCall = createCall(targetPhoneAccount, connectionMgrAcct, initialState);
         Call callSpy = Mockito.spy(ongoingCall);
 
         // Mocks some methods to not call the real method.
@@ -1312,6 +1383,11 @@ public class CallsManagerTest extends TelecomTestCase {
     }
 
     private Call createCall(PhoneAccountHandle targetPhoneAccount, int initialState) {
+        return createCall(targetPhoneAccount, null /* connectionManager */, initialState);
+    }
+
+    private Call createCall(PhoneAccountHandle targetPhoneAccount,
+            PhoneAccountHandle connectionManagerAccount, int initialState) {
         Call ongoingCall = new Call(String.format("TC@%d", sCallId++), /* callId */
                 mContext,
                 mCallsManager,
@@ -1320,7 +1396,7 @@ public class CallsManagerTest extends TelecomTestCase {
                 mPhoneNumberUtilsAdapter,
                 TEST_ADDRESS,
                 null /* GatewayInfo */,
-                null /* connectionManagerPhoneAccountHandle */,
+                connectionManagerAccount,
                 targetPhoneAccount,
                 Call.CALL_DIRECTION_INCOMING,
                 false /* shouldAttachToExistingConnection*/,
