@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import android.annotation.NonNull;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -802,21 +803,18 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        String component = null;
-        if (mConnectionService != null && mConnectionService.getComponentName() != null) {
-            component = mConnectionService.getComponentName().flattenToShortString();
-        }
-
-        return String.format(Locale.US, "[%s, %s, %s, %s, %s, childs(%d), has_parent(%b), %s, %s]",
+        return String.format(Locale.US, "[Call id=%s, state=%s, tpac=%s, cmgr=%s, handle=%s, "
+                        + "vidst=%s, childs(%d), has_parent(%b), cap=%s, prop=%s]",
                 mId,
                 CallState.toString(mState),
-                component,
+                getTargetPhoneAccount(),
+                getConnectionManagerPhoneAccount(),
                 Log.piiHandle(mHandle),
                 getVideoStateDescription(getVideoState()),
                 getChildCalls().size(),
                 getParentCall() != null,
-                Connection.capabilitiesToString(getConnectionCapabilities()),
-                Connection.propertiesToString(getConnectionProperties()));
+                Connection.capabilitiesToStringShort(getConnectionCapabilities()),
+                Connection.propertiesToStringShort(getConnectionProperties()));
     }
 
     @Override
@@ -843,6 +841,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             s.append(")");
         } else {
             s.append("not set");
+        }
+        if (getConnectionManagerPhoneAccount() != null) {
+            s.append("\n\tConn mgr: ");
+            s.append(getConnectionManagerPhoneAccount());
         }
 
         s.append("\n\tTo address: ");
@@ -1641,7 +1643,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         mCreationTimeMillis = time;
     }
 
-    long getConnectTimeMillis() {
+    public long getConnectTimeMillis() {
         return mConnectTimeMillis;
     }
 
@@ -2805,7 +2807,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * ensure the InCall UI is updated with the change in parent.
      * @param parentCall The new parent for this call.
      */
-    void setChildOf(Call parentCall) {
+    public void setChildOf(Call parentCall) {
         if (parentCall != null && !parentCall.getChildCalls().contains(this)) {
             parentCall.addChildCall(this);
         }
@@ -2843,11 +2845,40 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             mConferenceLevelActiveCall = call;
             mChildCalls.add(call);
 
+            // When adding a child, we will potentially adjust the various times from the calls
+            // based on the children being added.  This ensures the parent of the conference has a
+            // connect time reflective of all the children added.
+            maybeAdjustConnectTime(call);
+
             Log.addEvent(this, LogUtils.Events.ADD_CHILD, call);
 
             for (Listener l : mListeners) {
                 l.onChildrenChanged(this);
             }
+        }
+    }
+
+    /**
+     * Potentially adjust the connect and creation time of this call based on another one.
+     * Ensures that if the other call has an earlier connect time that we adjust the connect time of
+     * this call to match.
+     * <p>
+     * This is important for conference calls; as we add children to the conference we need to
+     * ensure that earlier connect time is reflected on the conference.  In the past this
+     * was just done in {@link ParcelableCallUtils} when parceling the calls to the UI, but that
+     * approach would not reflect the right time on the parent as children disconnect.
+     *
+     * @param call the call to potentially use to adjust connect time.
+     */
+    private void maybeAdjustConnectTime(@NonNull Call call) {
+        long childConnectTimeMillis = call.getConnectTimeMillis();
+        long currentConnectTimeMillis = getConnectTimeMillis();
+        // Conference calls typically have a 0 connect time, so we will replace the current connect
+        // time if its zero also.
+        if (childConnectTimeMillis != 0
+                && (currentConnectTimeMillis == 0
+                || childConnectTimeMillis < getConnectTimeMillis())) {
+            setConnectTimeMillis(childConnectTimeMillis);
         }
     }
 
