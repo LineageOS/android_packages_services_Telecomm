@@ -55,6 +55,13 @@
     <!-- Body of the notification presented when an ongoing call is disconnected in favor of placing
          an emergency call. This is required by some carriers. [CHAR LIMIT=NONE] -->
     <string name="notification_disconnectedCall_body">The call to <xliff:g id="caller">%s</xliff:g> has been disconnected due to an emergency call being placed.</string>
+    <!-- Body of the notification presented when an ongoing call is disconnected in favor of placing
+         an emergency call. This version is used when the call that was disconnected was also an
+         emergency call. In this case, we want to hide the exact number dialed in order to protect
+         user privacy. [CHAR LIMIT=NONE] -->
+    <string name="notification_disconnectedCall_generic_body">
+        Your call has been disconnected due to an emergency call being placed.
+    </string>
 
     <!-- Title for the persistent notification presented when an app has requested that a call
          be put into the background so that the app can access the audio from the call
