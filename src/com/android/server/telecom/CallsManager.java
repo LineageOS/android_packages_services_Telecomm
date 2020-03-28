@@ -392,6 +392,8 @@ public class CallsManager extends Call.ListenerBase
 
     private LinkedList<HandlerThread> mGraphHandlerThreads;
 
+    private boolean mHasActiveRttCall = false;
+
     /**
      * Listener to PhoneAccountRegistrar events.
      */
@@ -894,6 +896,13 @@ public class CallsManager extends Call.ListenerBase
             mDtmfLocalTonePlayer.stopTone(call);
         } else {
             Log.w(this, "onPostDialChar: invalid value %d", nextChar);
+        }
+    }
+
+    @Override
+    public void onConnectionPropertiesChanged(Call call, boolean didRttChange) {
+        if (didRttChange) {
+            updateHasActiveRttCall();
         }
     }
 
@@ -3423,6 +3432,7 @@ public class CallsManager extends Call.ListenerBase
                 SystemClock.elapsedRealtime());
 
         updateCanAddCall();
+        updateHasActiveRttCall();
         // onCallAdded for calls which immediately take the foreground (like the first call).
         for (CallsManagerListener listener : mListeners) {
             if (LogUtils.SYSTRACE_DEBUG) {
@@ -3456,6 +3466,7 @@ public class CallsManager extends Call.ListenerBase
         // Only broadcast changes for calls that are being tracked.
         if (shouldNotify) {
             updateCanAddCall();
+            updateHasActiveRttCall();
             for (CallsManagerListener listener : mListeners) {
                 if (LogUtils.SYSTRACE_DEBUG) {
                     Trace.beginSection(listener.getClass().toString() + " onCallRemoved");
@@ -3467,6 +3478,24 @@ public class CallsManager extends Call.ListenerBase
             }
         }
         Trace.endSection();
+    }
+
+    private void updateHasActiveRttCall() {
+        boolean hasActiveRttCall = hasActiveRttCall();
+        if (hasActiveRttCall != mHasActiveRttCall) {
+            Log.i(this, "updateHasActiveRttCall %s -> %s", mHasActiveRttCall, hasActiveRttCall);
+            AudioManager.setRttEnabled(hasActiveRttCall);
+            mHasActiveRttCall = hasActiveRttCall;
+        }
+    }
+
+    private boolean hasActiveRttCall() {
+        for (Call call : mCalls) {
+            if (call.isActive() && call.isRttCall()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -3510,6 +3539,7 @@ public class CallsManager extends Call.ListenerBase
                 // Only broadcast state change for calls that are being tracked.
                 if (mCalls.contains(call)) {
                     updateCanAddCall();
+                    updateHasActiveRttCall();
                     for (CallsManagerListener listener : mListeners) {
                         if (LogUtils.SYSTRACE_DEBUG) {
                             Trace.beginSection(listener.getClass().toString() +
