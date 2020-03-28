@@ -510,6 +510,14 @@ public class PhoneAccountRegistrar {
      */
     public PhoneAccountHandle getSimCallManagerFromHandle(PhoneAccountHandle targetPhoneAccount,
             UserHandle userHandle) {
+        // First, check if the specified target phone account handle is a connection manager; if
+        // it is, then just return it.
+        PhoneAccount phoneAccount = getPhoneAccountUnchecked(targetPhoneAccount);
+        if (phoneAccount != null
+                && phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_CONNECTION_MANAGER)) {
+            return targetPhoneAccount;
+        }
+
         int subId = getSubscriptionIdForPhoneAccount(targetPhoneAccount);
         if (SubscriptionManager.isValidSubscriptionId(subId)
                  && subId != SubscriptionManager.DEFAULT_SUBSCRIPTION_ID) {
