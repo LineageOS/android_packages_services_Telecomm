@@ -78,15 +78,17 @@ public class DisconnectedCallNotifier extends CallsManagerListenerBase {
         public final Bitmap callerInfoIcon;
         public final Drawable callerInfoPhoto;
         public final String callerInfoName;
+        public final boolean isEmergency;
 
         public CallInfo(UserHandle userHandle, Uri handle, long endTimeMs, Bitmap callerInfoIcon,
-                Drawable callerInfoPhoto, String callerInfoName) {
+                Drawable callerInfoPhoto, String callerInfoName, boolean isEmergency) {
             this.userHandle = userHandle;
             this.handle = handle;
             this.endTimeMs = endTimeMs;
             this.callerInfoIcon = callerInfoIcon;
             this.callerInfoPhoto = callerInfoPhoto;
             this.callerInfoName = callerInfoName;
+            this.isEmergency = isEmergency;
         }
 
         @Override
@@ -94,6 +96,7 @@ public class DisconnectedCallNotifier extends CallsManagerListenerBase {
             return "CallInfo{" +
                     "userHandle=" + userHandle +
                     ", handle=" + handle +
+                    ", isEmergency=" + isEmergency +
                     ", endTimeMs=" + endTimeMs +
                     ", callerInfoIcon=" + callerInfoIcon +
                     ", callerInfoPhoto=" + callerInfoPhoto +
@@ -146,7 +149,7 @@ public class DisconnectedCallNotifier extends CallsManagerListenerBase {
             if (userHandle == null) userHandle = mCallsManager.getCurrentUserHandle();
             mPendingCallNotification = new CallInfo(userHandle, call.getHandle(),
                     call.getCreationTimeMillis() + call.getAgeMillis(), call.getPhotoIcon(),
-                    call.getPhoto(), call.getName());
+                    call.getPhoto(), call.getName(), call.isEmergencyCall());
         }
     }
 
@@ -154,8 +157,10 @@ public class DisconnectedCallNotifier extends CallsManagerListenerBase {
         Log.i(this, "showDisconnectedNotification: userHandle=%d", call.userHandle.getIdentifier());
 
         final int titleResId = R.string.notification_disconnectedCall_title;
-        final String expandedText = mContext.getString(R.string.notification_disconnectedCall_body,
-                getNameForCallNotification(call));
+        final CharSequence expandedText = call.isEmergency
+                ? mContext.getText(R.string.notification_disconnectedCall_generic_body)
+                : mContext.getString(R.string.notification_disconnectedCall_body,
+                        getNameForCallNotification(call));
 
         // Create a public viewable version of the notification, suitable for display when sensitive
         // notification content is hidden.
@@ -173,8 +178,11 @@ public class DisconnectedCallNotifier extends CallsManagerListenerBase {
                 // Notification details shows that there are disconnected call(s), but does not
                 // reveal the caller information.
                 .setContentText(mContext.getText(titleResId))
-                .setContentIntent(createCallLogPendingIntent(call.userHandle))
                 .setAutoCancel(true);
+
+        if (!call.isEmergency) {
+            publicBuilder.setContentIntent(createCallLogPendingIntent(call.userHandle));
+        }
 
         // Create the notification suitable for display when sensitive information is showing.
         Notification.Builder builder = new Notification.Builder(contextForUser,
@@ -186,7 +194,6 @@ public class DisconnectedCallNotifier extends CallsManagerListenerBase {
                 .setContentTitle(mContext.getText(titleResId))
                 //Only show expanded text for sensitive information
                 .setStyle(new Notification.BigTextStyle().bigText(expandedText))
-                .setContentIntent(createCallLogPendingIntent(call.userHandle))
                 .setAutoCancel(true)
                 // Include a public version of the notification to be shown when the call
                 // notification is shown on the user's lock screen and they have chosen to hide
@@ -194,10 +201,15 @@ public class DisconnectedCallNotifier extends CallsManagerListenerBase {
                 .setPublicVersion(publicBuilder.build())
                 .setChannelId(NotificationChannelManager.CHANNEL_ID_DISCONNECTED_CALLS);
 
+        if (!call.isEmergency) {
+            builder.setContentIntent(createCallLogPendingIntent(call.userHandle));
+        }
+
         String handle = call.handle != null ? call.handle.getSchemeSpecificPart() : null;
 
         if (!TextUtils.isEmpty(handle)
-                && !TextUtils.equals(handle, mContext.getString(R.string.handle_restricted))) {
+                && !TextUtils.equals(handle, mContext.getString(R.string.handle_restricted))
+                && !call.isEmergency) {
             builder.addAction(new Notification.Action.Builder(
                     Icon.createWithResource(contextForUser, R.drawable.ic_phone_24dp),
                     // Reuse missed call "Call back"
