@@ -849,6 +849,19 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
         s.append("\n\tTo address: ");
         s.append(Log.piiHandle(getHandle()));
+        if (isIncoming()) {
+            switch (mCallerNumberVerificationStatus) {
+                case Connection.VERIFICATION_STATUS_FAILED:
+                    s.append(" Verstat: fail");
+                    break;
+                case Connection.VERIFICATION_STATUS_NOT_VERIFIED:
+                    s.append(" Verstat: not");
+                    break;
+                case Connection.VERIFICATION_STATUS_PASSED:
+                    s.append(" Verstat: pass");
+                    break;
+            }
+        }
         s.append(" Presentation: ");
         switch (getHandlePresentation()) {
             case TelecomManager.PRESENTATION_ALLOWED:
