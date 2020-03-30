@@ -1214,6 +1214,34 @@ public class CallsManagerTest extends TelecomTestCase {
     }
 
     /**
+     * Verify that a parent call will inherit the connect time of its children.
+     * @throws Exception
+     */
+    @SmallTest
+    @Test
+    public void testParentInheritsChildConnectTime() throws Exception {
+        Call callSim1 = createCall(SIM_1_HANDLE, CallState.ACTIVE);
+        Call callSim2 = createCall(SIM_1_HANDLE, CallState.ACTIVE);
+        callSim1.setConnectTimeMillis(100);
+
+        // Pretend it is a conference made later.
+        callSim2.setConnectTimeMillis(0);
+
+        // Make the first call a child of the second (pretend conference).
+        callSim1.setChildOf(callSim2);
+
+        assertEquals(100, callSim2.getConnectTimeMillis());
+
+        // Add another later call.
+        Call callSim3 = createCall(SIM_1_HANDLE, CallState.ACTIVE);
+        callSim3.setConnectTimeMillis(200);
+        callSim3.setChildOf(callSim2);
+
+        // Later call shouldn't impact parent.
+        assertEquals(100, callSim2.getConnectTimeMillis());
+    }
+
+    /**
      * Make sure that CallsManager handles a screening result that has both
      * silence and screen-further set to true as a request to screen further.
      * @throws Exception
