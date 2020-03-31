@@ -3433,6 +3433,7 @@ public class CallsManager extends Call.ListenerBase
 
         updateCanAddCall();
         updateHasActiveRttCall();
+        updateExternalCallCanPullSupport();
         // onCallAdded for calls which immediately take the foreground (like the first call).
         for (CallsManagerListener listener : mListeners) {
             if (LogUtils.SYSTRACE_DEBUG) {
@@ -3446,7 +3447,8 @@ public class CallsManager extends Call.ListenerBase
         Trace.endSection();
     }
 
-    private void removeCall(Call call) {
+    @VisibleForTesting
+    public void removeCall(Call call) {
         Trace.beginSection("removeCall");
         Log.v(this, "removeCall(%s)", call);
 
@@ -3462,7 +3464,7 @@ public class CallsManager extends Call.ListenerBase
         }
 
         call.destroy();
-
+        updateExternalCallCanPullSupport();
         // Only broadcast changes for calls that are being tracked.
         if (shouldNotify) {
             updateCanAddCall();
@@ -5113,6 +5115,18 @@ public class CallsManager extends Call.ListenerBase
     public boolean isInEmergencyCall() {
         return mCalls.stream().filter(c -> (c.isEmergencyCall()
                 || c.isNetworkIdentifiedEmergencyCall()) && !c.isDisconnected()).count() > 0;
+    }
+
+    /**
+     * Trigger a recalculation of support for CAPABILITY_CAN_PULL_CALL for external calls due to
+     * a possible emergency call being added/removed.
+     */
+    private void updateExternalCallCanPullSupport() {
+        boolean isInEmergencyCall = isInEmergencyCall();
+        // Remove the capability to pull an external call in the case that we are in an emergency
+        // call.
+        mCalls.stream().filter(Call::isExternalCall).forEach(
+                c->c.setIsPullExternalCallSupported(!isInEmergencyCall));
     }
 
     /**
