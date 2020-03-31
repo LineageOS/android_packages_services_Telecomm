@@ -28,6 +28,8 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Μήνυμα"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Αποσύνδεση κλήσης"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Η κλήση προς <xliff:g id="CALLER">%s</xliff:g> αποσυνδέθηκε λόγω πραγματοποίησης κλήσης έκτακτης ανάγκης."</string>
+    <!-- no translation found for notification_disconnectedCall_generic_body (5282765206349184853) -->
+    <skip />
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Κλήση στο παρασκήνιο"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"Η εφαρμογή <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> πραγματοποίησε μια κλήση στο παρασκήνιο. Η εφαρμογή αυτή ενδέχεται να έχει δικαίωμα προσπέλασης και αναπαραγωγής ήχου κατά τη διάρκεια της κλήσης."</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Εφαρμογή τηλεφώνου που αντιμετώπισε σφάλμα λειτουργίας"</string>
