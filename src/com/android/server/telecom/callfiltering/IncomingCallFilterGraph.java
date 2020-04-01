@@ -148,6 +148,8 @@ public class IncomingCallFilterGraph {
                 CompletableFuture.completedFuture(input);
         PostFilterTask postFilterTask = new PostFilterTask(filter);
 
+        // TODO: improve these filter logging names to be more reflective of the filters that are
+        // executing
         startFuture.thenComposeAsync(filter::startFilterLookup,
                 new LoggedHandlerExecutor(mHandler, "ICFG.sF", null))
                 .thenApplyAsync(postFilterTask::whenDone,
