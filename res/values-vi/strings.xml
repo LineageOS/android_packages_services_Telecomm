@@ -28,6 +28,8 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Tin nhắn"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Cuộc gọi bị ngắt kết nối"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Cuộc gọi đến <xliff:g id="CALLER">%s</xliff:g> đã bị ngắt kết nối do một cuộc gọi khẩn cấp được thực hiện."</string>
+    <!-- no translation found for notification_disconnectedCall_generic_body (5282765206349184853) -->
+    <skip />
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Cuộc gọi trong nền"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> đã gọi điện ở chế độ nền. Ứng dụng này có thể đang truy cập và phát âm thanh qua cuộc gọi."</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Ứng dụng điện thoại bị lỗi"</string>

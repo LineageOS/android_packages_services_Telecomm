@@ -28,6 +28,8 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Mezua"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Deia deskonektatu egin da"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"<xliff:g id="CALLER">%s</xliff:g> deitzaileari egiten ari zinen deia deskonektatu da larrialdi-dei bat egiten ari zarelako."</string>
+    <!-- no translation found for notification_disconnectedCall_generic_body (5282765206349184853) -->
+    <skip />
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Atzeko planoko deia"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> aplikazioak atzeko planoan jarri du deia. Baliteke aplikazioak audioa atzitzea eta erreproduzitzea deian zehar."</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Telefonoko aplikazioak huts egin du"</string>

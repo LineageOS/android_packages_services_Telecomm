@@ -28,6 +28,8 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"መልዕክት"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"የተቋረጠ ጥሪ"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"የአደጋ ጊዜ ጥሪ እየተደረገ ስለሆነ ወደ <xliff:g id="CALLER">%s</xliff:g> የሚደረገው ጥሪ ተቋርጧል።"</string>
+    <!-- no translation found for notification_disconnectedCall_generic_body (5282765206349184853) -->
+    <skip />
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"የጀርባ ጥሪ"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ጥሪን ወደ ጀርባ አስቀምጧል። ይህ መተግበሪያ ጥሪው ላይ ኦዲዮ ላይ እየደረሰ ወይም እያጫወተ ሊሆን ይችላል።"</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"የተበላሸ የስልክ መተግበሪያ"</string>

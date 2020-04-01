@@ -28,6 +28,8 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"短訊"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"已中斷的通話"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"因撥打緊急電話緣故，與<xliff:g id="CALLER">%s</xliff:g>的通話已中斷。"</string>
+    <!-- no translation found for notification_disconnectedCall_generic_body (5282765206349184853) -->
+    <skip />
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"背景通話"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"「<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>」已將通話放到背景。這個應用程式可以存取該通話，並透過該通話播放音訊。"</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"當機的手機應用程式"</string>
