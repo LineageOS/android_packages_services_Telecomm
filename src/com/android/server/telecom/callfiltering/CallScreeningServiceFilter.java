@@ -39,8 +39,7 @@ import com.android.server.telecom.ParcelableCallUtils;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public class NewCallScreeningServiceFilter extends CallFilter {
-    //TODO: Change the name of this class with CallScreeningServiceFilter
+public class CallScreeningServiceFilter extends CallFilter {
     public static final int PACKAGE_TYPE_CARRIER = 0;
     public static final int PACKAGE_TYPE_DEFAULT_DIALER = 1;
     public static final int PACKAGE_TYPE_USER_CHOSEN = 2;
@@ -208,7 +207,7 @@ public class NewCallScreeningServiceFilter extends CallFilter {
         }
     }
 
-    public NewCallScreeningServiceFilter(
+    public CallScreeningServiceFilter(
             Call call,
             String packageName,
             int packageType,
