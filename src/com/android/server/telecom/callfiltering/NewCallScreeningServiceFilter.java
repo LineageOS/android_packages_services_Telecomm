@@ -66,12 +66,17 @@ public class NewCallScreeningServiceFilter extends CallFilter {
         @Override
         public void allowCall(String callId) {
             Long token = Binder.clearCallingIdentity();
-            if (mCall == null || (!mCall.getId().equals(callId))) {
-                Log.w(this, "allowCall, unknown call id: %s", callId);
+            Log.startSession("NCSSF.aC");
+            try {
+                if (mCall == null || (!mCall.getId().equals(callId))) {
+                    Log.w(this, "allowCall, unknown call id: %s", callId);
+                }
+                mResultFuture.complete(mPriorStageResult);
+            } finally {
+                unbindCallScreeningService();
+                Binder.restoreCallingIdentity(token);
+                Log.endSession();
             }
-            mResultFuture.complete(mPriorStageResult);
-            Binder.restoreCallingIdentity(token);
-            unbindCallScreeningService();
         }
 
         @Override
@@ -79,70 +84,85 @@ public class NewCallScreeningServiceFilter extends CallFilter {
                 boolean shouldAddToCallLog, boolean shouldShowNotification,
                 ComponentName componentName) {
             long token = Binder.clearCallingIdentity();
-            if (mCall != null && mCall.getId().equals(callId)) {
-                mResultFuture.complete(new CallFilteringResult.Builder()
-                        .setShouldAllowCall(false)
-                        .setShouldReject(shouldReject)
-                        .setShouldSilence(false)
-                        .setShouldAddToCallLog(shouldAddToCallLog
-                                || packageTypeShouldAdd(mPackagetype))
-                        .setShouldShowNotification(shouldShowNotification)
-                        .setCallBlockReason(CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE)
-                        .setCallScreeningAppName(mAppName)
-                        .setCallScreeningComponentName(componentName.flattenToString())
-                        .setContactExists(mPriorStageResult.contactExists)
-                        .build());
-            } else {
-                Log.w(this, "disallowCall, unknown call id: %s", callId);
-                mResultFuture.complete(mPriorStageResult);
+            Log.startSession("NCSSF.dC");
+            try {
+                if (mCall != null && mCall.getId().equals(callId)) {
+                    mResultFuture.complete(new CallFilteringResult.Builder()
+                            .setShouldAllowCall(false)
+                            .setShouldReject(shouldReject)
+                            .setShouldSilence(false)
+                            .setShouldAddToCallLog(shouldAddToCallLog
+                                    || packageTypeShouldAdd(mPackagetype))
+                            .setShouldShowNotification(shouldShowNotification)
+                            .setCallBlockReason(CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE)
+                            .setCallScreeningAppName(mAppName)
+                            .setCallScreeningComponentName(componentName.flattenToString())
+                            .setContactExists(mPriorStageResult.contactExists)
+                            .build());
+                } else {
+                    Log.w(this, "disallowCall, unknown call id: %s", callId);
+                    mResultFuture.complete(mPriorStageResult);
+                }
+            } finally {
+                unbindCallScreeningService();
+                Log.endSession();
+                Binder.restoreCallingIdentity(token);
             }
-            Binder.restoreCallingIdentity(token);
-            unbindCallScreeningService();
         }
 
         @Override
         public void silenceCall(String callId) {
             long token = Binder.clearCallingIdentity();
-            if (mCall != null && mCall.getId().equals(callId)) {
-                mResultFuture.complete(new CallFilteringResult.Builder()
-                        .setShouldAllowCall(true)
-                        .setShouldReject(false)
-                        .setShouldSilence(true)
-                        .setShouldAddToCallLog(true)
-                        .setShouldShowNotification(true)
-                        .setContactExists(mPriorStageResult.contactExists)
-                        .build());
-            } else {
-                Log.w(this, "silenceCall, unknown call id: %s" , callId);
-                mResultFuture.complete(mPriorStageResult);
+            Log.startSession("NCSSF.sC");
+            try {
+                if (mCall != null && mCall.getId().equals(callId)) {
+                    mResultFuture.complete(new CallFilteringResult.Builder()
+                            .setShouldAllowCall(true)
+                            .setShouldReject(false)
+                            .setShouldSilence(true)
+                            .setShouldAddToCallLog(true)
+                            .setShouldShowNotification(true)
+                            .setContactExists(mPriorStageResult.contactExists)
+                            .build());
+                } else {
+                    Log.w(this, "silenceCall, unknown call id: %s", callId);
+                    mResultFuture.complete(mPriorStageResult);
+                }
+            } finally {
+                unbindCallScreeningService();
+                Log.endSession();
+                Binder.restoreCallingIdentity(token);
             }
-            Binder.restoreCallingIdentity(token);
-            unbindCallScreeningService();
         }
 
         @Override
         public void screenCallFurther(String callId) {
-            long token = Binder.clearCallingIdentity();
             if (mPackagetype != PACKAGE_TYPE_DEFAULT_DIALER) {
                 throw new SecurityException("Only the default/system dialer may request screen via"
                     + "background call audio");
             }
             // TODO: add permission check for the additional role-based permission
+            long token = Binder.clearCallingIdentity();
+            Log.startSession("NCSSF.sCF");
 
-            if (mCall != null && mCall.getId().equals(callId)) {
-                mResultFuture.complete(new CallFilteringResult.Builder()
-                        .setShouldAllowCall(true)
-                        .setShouldReject(false)
-                        .setShouldSilence(false)
-                        .setShouldScreenViaAudio(true)
-                        .setContactExists(mPriorStageResult.contactExists)
-                        .build());
-            } else {
-                Log.w(this, "screenCallFurther, unknown call id: %s", callId);
-                mResultFuture.complete(mPriorStageResult);
+            try {
+                if (mCall != null && mCall.getId().equals(callId)) {
+                    mResultFuture.complete(new CallFilteringResult.Builder()
+                            .setShouldAllowCall(true)
+                            .setShouldReject(false)
+                            .setShouldSilence(false)
+                            .setShouldScreenViaAudio(true)
+                            .setContactExists(mPriorStageResult.contactExists)
+                            .build());
+                } else {
+                    Log.w(this, "screenCallFurther, unknown call id: %s", callId);
+                    mResultFuture.complete(mPriorStageResult);
+                }
+            } finally {
+                unbindCallScreeningService();
+                Log.endSession();
+                Binder.restoreCallingIdentity(token);
             }
-            Binder.restoreCallingIdentity(token);
-            unbindCallScreeningService();
         }
     }
 
