@@ -135,8 +135,8 @@ public class CallFilteringResult {
     /**
      * Combine this CallFilteringResult with another, returning a CallFilteringResult with the more
      * restrictive properties of the two. Where there are multiple call filtering components which
-     * block a call, the first filter from {@link AsyncBlockCheckFilter},
-     * {@link DirectToVoicemailCallFilter}, {@link CallScreeningServiceFilter} which blocked a call
+     * block a call, the first filter from {@link BlockCheckerFilter},
+     * {@link DirectToVoicemailFilter}, {@link NewCallScreeningServiceFilter} which blocked a call
      * shall be used to populate the call block reason, component name, etc.
      */
     public CallFilteringResult combine(CallFilteringResult other) {
