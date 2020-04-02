@@ -217,6 +217,12 @@ public class DefaultDialerCache {
         return mSystemDialerComponentName;
     }
 
+    public ComponentName getDialtactsSystemDialerComponent() {
+        final Resources resources = mContext.getResources();
+        return new ComponentName(getSystemDialerApplication(),
+                resources.getString(R.string.dialer_default_class));
+    }
+
     public void observeDefaultDialerApplication(Executor executor, IntConsumer observer) {
         mRoleManagerAdapter.observeDefaultDialerApp(executor, observer);
     }
