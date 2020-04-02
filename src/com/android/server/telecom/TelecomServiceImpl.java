@@ -696,7 +696,7 @@ public class TelecomServiceImpl {
         public ComponentName getDefaultPhoneApp() {
             try {
                 Log.startSession("TSI.gDPA");
-                return mDefaultDialerCache.getSystemDialerComponent();
+                return mDefaultDialerCache.getDialtactsSystemDialerComponent();
             } finally {
                 Log.endSession();
             }
