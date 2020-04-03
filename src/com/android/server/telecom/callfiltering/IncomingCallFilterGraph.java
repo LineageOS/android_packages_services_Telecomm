@@ -126,6 +126,12 @@ public class IncomingCallFilterGraph {
                     mFinished = true;
                     mHandlerThread.quit();
                 }
+                for (CallFilter filter : mFiltersList) {
+                    // unbind timed out call screening service
+                    if (filter instanceof CallScreeningServiceFilter) {
+                        ((CallScreeningServiceFilter) filter).unbindCallScreeningService();
+                    }
+                }
             }
         }.prepare(), mTimeoutsAdapter.getCallScreeningTimeoutMillis(mContext.getContentResolver()));
     }

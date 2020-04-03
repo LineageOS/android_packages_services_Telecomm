@@ -111,8 +111,7 @@ public class CallScreeningServiceFilterTest extends TelecomTestCase {
         when(mCallsManager.getCurrentUserHandle()).thenReturn(UserHandle.CURRENT);
         when(mCall.getId()).thenReturn(CALL_ID);
         when(mContext.getPackageManager()).thenReturn(mPackageManager);
-        when(mAppLabelProxy.getAppLabel(eq(PKG_NAME)))
-                .thenReturn(APP_NAME);
+        when(mAppLabelProxy.getAppLabel(PKG_NAME)).thenReturn(APP_NAME);
         when(mParcelableCallUtilsConverter.toParcelableCall(
                 eq(mCall), anyBoolean(), eq(mPhoneAccountRegistrar))).thenReturn(null);
         when(mContext.bindServiceAsUser(nullable(Intent.class), nullable(ServiceConnection.class),
