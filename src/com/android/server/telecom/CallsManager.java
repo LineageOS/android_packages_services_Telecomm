@@ -45,8 +45,8 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
 import android.media.AudioSystem;
-import android.media.ToneGenerator;
 import android.media.MediaPlayer;
+import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -66,6 +66,7 @@ import android.provider.CallLog.Calls;
 import android.provider.Settings;
 import android.sysprop.TelephonyProperties;
 import android.telecom.CallAudioState;
+import android.telecom.CallerInfo;
 import android.telecom.Conference;
 import android.telecom.Connection;
 import android.telecom.DisconnectCause;
@@ -85,14 +86,12 @@ import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Pair;
-
-import com.android.internal.annotations.VisibleForTesting;
-import android.telecom.CallerInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
@@ -101,10 +100,10 @@ import com.android.server.telecom.callfiltering.BlockCheckerFilter;
 import com.android.server.telecom.callfiltering.CallFilterResultCallback;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
 import com.android.server.telecom.callfiltering.CallFilteringResult.Builder;
+import com.android.server.telecom.callfiltering.CallScreeningServiceFilter;
 import com.android.server.telecom.callfiltering.DirectToVoicemailFilter;
 import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.callfiltering.IncomingCallFilterGraph;
-import com.android.server.telecom.callfiltering.CallScreeningServiceFilter;
 import com.android.server.telecom.callredirection.CallRedirectionProcessor;
 import com.android.server.telecom.components.ErrorDialogActivity;
 import com.android.server.telecom.components.TelecomBroadcastReceiver;
@@ -116,8 +115,8 @@ import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.ToastFactory;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -694,25 +693,26 @@ public class CallsManager extends Call.ListenerBase
                 new CallScreeningServiceFilter(incomingCall, carrierPackageName,
                         CallScreeningServiceFilter.PACKAGE_TYPE_CARRIER, mContext, this,
                         appLabelProxy, converter);
-        CallScreeningServiceFilter defaultDialerCallScreeningServiceFilter =
-                new CallScreeningServiceFilter(incomingCall, defaultDialerPackageName,
-                        CallScreeningServiceFilter.PACKAGE_TYPE_DEFAULT_DIALER, mContext, this,
-                        appLabelProxy, converter);
-        CallScreeningServiceFilter userChosenCallScreeningServiceFilter =
-                new CallScreeningServiceFilter(incomingCall, userChosenPackageName,
-                        CallScreeningServiceFilter.PACKAGE_TYPE_USER_CHOSEN, mContext, this,
-                        appLabelProxy, converter);
+        CallScreeningServiceFilter callScreeningServiceFilter;
+        if ((userChosenPackageName != null)
+                && (!userChosenPackageName.equals(defaultDialerPackageName))) {
+            callScreeningServiceFilter = new CallScreeningServiceFilter(incomingCall,
+                    userChosenPackageName, CallScreeningServiceFilter.PACKAGE_TYPE_USER_CHOSEN,
+                    mContext, this, appLabelProxy, converter);
+        } else {
+            callScreeningServiceFilter = new CallScreeningServiceFilter(incomingCall,
+                    defaultDialerPackageName,
+                    CallScreeningServiceFilter.PACKAGE_TYPE_DEFAULT_DIALER,
+                    mContext, this, appLabelProxy, converter);
+        }
         graph.addFilter(voicemailFilter);
         graph.addFilter(blockCheckerFilter);
         graph.addFilter(carrierCallScreeningServiceFilter);
-        graph.addFilter(defaultDialerCallScreeningServiceFilter);
-        graph.addFilter(userChosenCallScreeningServiceFilter);
+        graph.addFilter(callScreeningServiceFilter);
         IncomingCallFilterGraph.addEdge(voicemailFilter, carrierCallScreeningServiceFilter);
         IncomingCallFilterGraph.addEdge(blockCheckerFilter, carrierCallScreeningServiceFilter);
         IncomingCallFilterGraph.addEdge(carrierCallScreeningServiceFilter,
-                defaultDialerCallScreeningServiceFilter);
-        IncomingCallFilterGraph.addEdge(carrierCallScreeningServiceFilter,
-                userChosenCallScreeningServiceFilter);
+                callScreeningServiceFilter);
         mGraphHandlerThreads.add(graph.getHandlerThread());
         return graph;
     }
