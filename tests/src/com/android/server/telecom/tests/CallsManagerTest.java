@@ -34,6 +34,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -103,6 +105,8 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -621,6 +625,23 @@ public class CallsManagerTest extends TelecomTestCase {
 
         // and held call is unhold now
         verify(heldCall).unhold(any());
+    }
+
+    @SmallTest
+    @Test
+    public void testDuplicateAnswerCall() {
+        Call incomingCall = addSpyCall(CallState.RINGING);
+        doAnswer(invocation -> {
+            doReturn(CallState.ANSWERED).when(incomingCall).getState();
+            return null;
+        }).when(incomingCall).answer(anyInt());
+        mCallsManager.answerCall(incomingCall, VideoProfile.STATE_AUDIO_ONLY);
+        verifyFocusRequestAndExecuteCallback(incomingCall);
+        reset(mConnectionSvrFocusMgr);
+        mCallsManager.answerCall(incomingCall, VideoProfile.STATE_AUDIO_ONLY);
+        verifyFocusRequestAndExecuteCallback(incomingCall);
+
+        verify(incomingCall, times(2)).answer(anyInt());
     }
 
     @SmallTest
