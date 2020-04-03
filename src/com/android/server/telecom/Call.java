@@ -1199,8 +1199,14 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             // Let's not allow resetting of the emergency flag. Once a call becomes an emergency
             // call, it will remain so for the rest of it's lifetime.
             if (!mIsEmergencyCall) {
-                mIsEmergencyCall = mHandle != null &&
-                        getTelephonyManager().isEmergencyNumber(mHandle.getSchemeSpecificPart());
+                try {
+                    mIsEmergencyCall = mHandle != null &&
+                            getTelephonyManager().isEmergencyNumber(
+                                    mHandle.getSchemeSpecificPart());
+                } catch (IllegalStateException ise) {
+                    Log.e(this, ise, "setHandle: can't determine if number is emergency");
+                    mIsEmergencyCall = false;
+                }
                 mAnalytics.setCallIsEmergency(mIsEmergencyCall);
             }
             if (!mIsTestEmergencyCall) {
@@ -1215,11 +1221,16 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     private boolean isTestEmergencyCall(String number) {
-        Map<Integer, List<EmergencyNumber>> eMap = getTelephonyManager().getEmergencyNumberList();
-        return eMap.values().stream().flatMap(Collection::stream)
-                .anyMatch(eNumber ->
-                        eNumber.isFromSources(EmergencyNumber.EMERGENCY_NUMBER_SOURCE_TEST) &&
-                                number.equals(eNumber.getNumber()));
+        try {
+            Map<Integer, List<EmergencyNumber>> eMap =
+                    getTelephonyManager().getEmergencyNumberList();
+            return eMap.values().stream().flatMap(Collection::stream)
+                    .anyMatch(eNumber ->
+                            eNumber.isFromSources(EmergencyNumber.EMERGENCY_NUMBER_SOURCE_TEST) &&
+                                    number.equals(eNumber.getNumber()));
+        } catch (IllegalStateException ise) {
+            return false;
+        }
     }
 
     public String getCallerDisplayName() {
