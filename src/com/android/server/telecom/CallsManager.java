@@ -39,7 +39,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.graphics.Color;
@@ -105,7 +104,7 @@ import com.android.server.telecom.callfiltering.CallFilteringResult.Builder;
 import com.android.server.telecom.callfiltering.DirectToVoicemailFilter;
 import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.callfiltering.IncomingCallFilterGraph;
-import com.android.server.telecom.callfiltering.NewCallScreeningServiceFilter;
+import com.android.server.telecom.callfiltering.CallScreeningServiceFilter;
 import com.android.server.telecom.callredirection.CallRedirectionProcessor;
 import com.android.server.telecom.components.ErrorDialogActivity;
 import com.android.server.telecom.components.TelecomBroadcastReceiver;
@@ -693,17 +692,17 @@ public class CallsManager extends Call.ListenerBase
                 mCallerInfoLookupHelper);
         BlockCheckerFilter blockCheckerFilter = new BlockCheckerFilter(mContext, incomingCall,
                 mCallerInfoLookupHelper, new BlockCheckerAdapter());
-        NewCallScreeningServiceFilter carrierCallScreeningServiceFilter =
-                new NewCallScreeningServiceFilter(incomingCall, carrierPackageName,
-                        NewCallScreeningServiceFilter.PACKAGE_TYPE_CARRIER, mContext, this,
+        CallScreeningServiceFilter carrierCallScreeningServiceFilter =
+                new CallScreeningServiceFilter(incomingCall, carrierPackageName,
+                        CallScreeningServiceFilter.PACKAGE_TYPE_CARRIER, mContext, this,
                         appLabelProxy, converter);
-        NewCallScreeningServiceFilter defaultDialerCallScreeningServiceFilter =
-                new NewCallScreeningServiceFilter(incomingCall, defaultDialerPackageName,
-                        NewCallScreeningServiceFilter.PACKAGE_TYPE_DEFAULT_DIALER, mContext, this,
+        CallScreeningServiceFilter defaultDialerCallScreeningServiceFilter =
+                new CallScreeningServiceFilter(incomingCall, defaultDialerPackageName,
+                        CallScreeningServiceFilter.PACKAGE_TYPE_DEFAULT_DIALER, mContext, this,
                         appLabelProxy, converter);
-        NewCallScreeningServiceFilter userChosenCallScreeningServiceFilter =
-                new NewCallScreeningServiceFilter(incomingCall, userChosenPackageName,
-                        NewCallScreeningServiceFilter.PACKAGE_TYPE_USER_CHOSEN, mContext, this,
+        CallScreeningServiceFilter userChosenCallScreeningServiceFilter =
+                new CallScreeningServiceFilter(incomingCall, userChosenPackageName,
+                        CallScreeningServiceFilter.PACKAGE_TYPE_USER_CHOSEN, mContext, this,
                         appLabelProxy, converter);
         graph.addFilter(voicemailFilter);
         graph.addFilter(blockCheckerFilter);
