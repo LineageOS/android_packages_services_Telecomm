@@ -28,8 +28,7 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Mesazh"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Telefonatë e shkëputur"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Telefonata me <xliff:g id="CALLER">%s</xliff:g> është shkëputur sepse është kryer një telefonatë urgjence."</string>
-    <!-- no translation found for notification_disconnectedCall_generic_body (5282765206349184853) -->
-    <skip />
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Telefonata jote është shkëputur sepse është kryer një telefonatë urgjence."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Telefonatë në sfond"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> e ka vendosur një telefonatë në sfond. Ky aplikacion mund të ketë qasje dhe të luajë audio mbi telefonatë."</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Aplikacioni i telefonit që ka pësuar një ndërprerje aksidentale"</string>

@@ -28,8 +28,7 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Mensaje"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Se desconectó la llamada"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Se desconectó la llamada a <xliff:g id="CALLER">%s</xliff:g> porque se está realizando una llamada de emergencia."</string>
-    <!-- no translation found for notification_disconnectedCall_generic_body (5282765206349184853) -->
-    <skip />
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Se desconectó tu llamada porque se está haciendo una llamada de emergencia."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Llamada en 2.° plano"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> movió una a segundo plano. Es posible que esta app acceda a la llamada y reproduzca audio."</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"App de teléfono con fallas"</string>

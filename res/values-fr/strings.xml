@@ -28,8 +28,7 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Message"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Appel interrompu"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"L\'appel avec <xliff:g id="CALLER">%s</xliff:g> a été interrompu en raison d\'un appel d\'urgence."</string>
-    <!-- no translation found for notification_disconnectedCall_generic_body (5282765206349184853) -->
-    <skip />
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Votre appel a été interrompu en raison d\'un appel d\'urgence."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Appel en arrière-plan"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> a placé un appel en arrière-plan. Il est possible que cette application lise des fichiers audio pendant l\'appel."</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Une application d\'appel a planté"</string>
