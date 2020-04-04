@@ -1947,13 +1947,22 @@ public class CallsManager extends Call.ListenerBase
 
         boolean endEarly = false;
         String disconnectReason = "";
-
         String callRedirectionApp = mRoleManagerAdapter.getDefaultCallRedirectionApp();
+
+        boolean isPotentialEmergencyNumber;
+        try {
+            isPotentialEmergencyNumber =
+                    handle != null && getTelephonyManager().isPotentialEmergencyNumber(
+                            handle.getSchemeSpecificPart());
+        } catch (IllegalStateException ise) {
+            isPotentialEmergencyNumber = false;
+        }
 
         if (shouldCancelCall) {
             Log.w(this, "onCallRedirectionComplete: call is canceled");
             endEarly = true;
             disconnectReason = "Canceled from Call Redirection Service";
+
             // Show UX when user-defined call redirection service does not response; the UX
             // is not needed to show if the call is disconnected (e.g. by the user)
             if (uiAction.equals(CallRedirectionProcessor.UI_TYPE_USER_DEFINED_TIMEOUT)
@@ -1974,8 +1983,7 @@ public class CallsManager extends Call.ListenerBase
             Log.w(this, "onCallRedirectionComplete: phoneAccountHandle is null");
             endEarly = true;
             disconnectReason = "Null phoneAccountHandle from Call Redirection Service";
-        } else if (getTelephonyManager().isPotentialEmergencyNumber(
-                handle.getSchemeSpecificPart())) {
+        } else if (isPotentialEmergencyNumber) {
             Log.w(this, "onCallRedirectionComplete: emergency number %s is redirected from Call"
                     + " Redirection Service", handle.getSchemeSpecificPart());
             endEarly = true;
@@ -5068,6 +5076,12 @@ public class CallsManager extends Call.ListenerBase
                     // we can just declare it active.
                     setCallState(mCall, CallState.ACTIVE, "answering simulated ringing");
                     Log.addEvent(mCall, LogUtils.Events.REQUEST_SIMULATED_ACCEPT);
+                } else if (mCall.getState() == CallState.ANSWERED) {
+                    // In certain circumstances, the connection service can lose track of a request
+                    // to answer a call. Therefore, if the user presses answer again, still send it
+                    // on down, but log a warning in the process and don't change the call state.
+                    mCall.answer(mVideoState);
+                    Log.w(this, "Duplicate answer request for call %s", mCall.getId());
                 }
                 if (isSpeakerphoneAutoEnabledForVideoCalls(mVideoState)) {
                     mCall.setStartWithSpeakerphoneOn(true);
