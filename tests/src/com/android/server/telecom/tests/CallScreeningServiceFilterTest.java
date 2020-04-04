@@ -40,6 +40,7 @@ import android.os.UserHandle;
 import android.provider.CallLog;
 import android.telecom.CallScreeningService;
 import android.telecom.ParcelableCall;
+import android.telecom.TelecomManager;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.internal.telecom.ICallScreeningAdapter;
@@ -67,6 +68,7 @@ import java.util.concurrent.TimeUnit;
 public class CallScreeningServiceFilterTest extends TelecomTestCase {
     static @Mock Call mCall;
     @Mock Context mContext;
+    @Mock TelecomManager mTelecomManager;
     @Mock PackageManager mPackageManager;
     @Mock CallsManager mCallsManager;
     @Mock AppLabelProxy mAppLabelProxy;
@@ -111,6 +113,9 @@ public class CallScreeningServiceFilterTest extends TelecomTestCase {
         when(mCallsManager.getCurrentUserHandle()).thenReturn(UserHandle.CURRENT);
         when(mCall.getId()).thenReturn(CALL_ID);
         when(mContext.getPackageManager()).thenReturn(mPackageManager);
+        when(mContext.getSystemService(TelecomManager.class))
+                .thenReturn(mTelecomManager);
+        when(mTelecomManager.getSystemDialerPackage()).thenReturn(PKG_NAME);
         when(mAppLabelProxy.getAppLabel(PKG_NAME)).thenReturn(APP_NAME);
         when(mParcelableCallUtilsConverter.toParcelableCall(
                 eq(mCall), anyBoolean(), eq(mPhoneAccountRegistrar))).thenReturn(null);
@@ -283,6 +288,33 @@ public class CallScreeningServiceFilterTest extends TelecomTestCase {
                         CallScreeningServiceFilter.CALL_SCREENING_FILTER_TIMEOUT,
                         TimeUnit.MILLISECONDS));
 
+        serviceConnection.onServiceDisconnected(COMPONENT_NAME);
+    }
+
+    @SmallTest
+    @Test
+    public void testScreenCallFurther() throws Exception {
+        CallFilteringResult expectedResult = new CallFilteringResult.Builder()
+                .setShouldAllowCall(true)
+                .setShouldReject(false)
+                .setShouldSilence(false)
+                .setShouldScreenViaAudio(true)
+                .setCallScreeningAppName(APP_NAME)
+                .build();
+        CallScreeningServiceFilter filter = new CallScreeningServiceFilter(mCall, PKG_NAME,
+                CallScreeningServiceFilter.PACKAGE_TYPE_DEFAULT_DIALER, mContext, mCallsManager,
+                mAppLabelProxy, mParcelableCallUtilsConverter);
+        CompletionStage<CallFilteringResult> resultFuture = filter.startFilterLookup(inputResult);
+
+        ServiceConnection serviceConnection = verifyBindingIntent();
+
+        serviceConnection.onServiceConnected(COMPONENT_NAME, mBinder);
+        ICallScreeningAdapter csAdapter = getCallScreeningAdapter();
+        csAdapter.screenCallFurther(CALL_ID);
+        assertEquals(expectedResult,
+                resultFuture.toCompletableFuture().get(
+                        CallScreeningServiceFilter.CALL_SCREENING_FILTER_TIMEOUT,
+                        TimeUnit.MILLISECONDS));
         serviceConnection.onServiceDisconnected(COMPONENT_NAME);
     }
 
