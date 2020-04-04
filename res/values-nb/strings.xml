@@ -28,8 +28,7 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Melding"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Koblet fra anropet"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Anropet til <xliff:g id="CALLER">%s</xliff:g> er koblet fra fordi et nødanrop ble utført."</string>
-    <!-- no translation found for notification_disconnectedCall_generic_body (5282765206349184853) -->
-    <skip />
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Samtalen din ble brutt fordi et nødanrop ble utført."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Bakgrunnsanrop"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> har flyttet et anrop til bakgrunnen. Det kan hende denne appen bruker og spiller av lyd over anropet."</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Krasjet telefonapp"</string>

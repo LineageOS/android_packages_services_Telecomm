@@ -28,8 +28,7 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"मैसेज"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"कॉल डिसकनेक्ट किया गया"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"<xliff:g id="CALLER">%s</xliff:g> के साथ चल रहे कॉल को डिसकनेक्ट किया गया क्योंकि एक आपातकालीन कॉल किया जा रहा है."</string>
-    <!-- no translation found for notification_disconnectedCall_generic_body (5282765206349184853) -->
-    <skip />
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"एक आपातकालीन कॉल किया जा रहा है, इसलिए आपका कॉल डिसकनेक्ट कर दिया गया है."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"बैकग्राउंड कॉल"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ने कॉल को बैकग्राउंड में रखा है हो सकता है कि यह ऐप्लिकेशन आपके कॉल से ऑडियो ऐक्सेस करके उसे चला रहा हो."</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"फ़ोन ऐप्लिकेशन जो बंद हो गया"</string>

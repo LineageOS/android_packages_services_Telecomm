@@ -28,8 +28,7 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Повідомлення"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Виклик припинено"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Виклик абонента <xliff:g id="CALLER">%s</xliff:g> припинено, оскільки здійснюється екстрений виклик."</string>
-    <!-- no translation found for notification_disconnectedCall_generic_body (5282765206349184853) -->
-    <skip />
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Виклик перервано, оскільки здійснюється екстрений виклик."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"У фоновий режим"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"Додаток <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> перевів виклик у фоновий режим і може відтворювати аудіо під час виклику."</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Збій у додатку для дзвінків"</string>
