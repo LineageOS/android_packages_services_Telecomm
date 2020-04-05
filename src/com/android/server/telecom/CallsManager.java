@@ -39,15 +39,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
 import android.media.AudioSystem;
-import android.media.ToneGenerator;
 import android.media.MediaPlayer;
+import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -67,6 +66,7 @@ import android.provider.CallLog.Calls;
 import android.provider.Settings;
 import android.sysprop.TelephonyProperties;
 import android.telecom.CallAudioState;
+import android.telecom.CallerInfo;
 import android.telecom.Conference;
 import android.telecom.Connection;
 import android.telecom.DisconnectCause;
@@ -86,14 +86,12 @@ import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Pair;
-
-import com.android.internal.annotations.VisibleForTesting;
-import android.telecom.CallerInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
@@ -102,10 +100,10 @@ import com.android.server.telecom.callfiltering.BlockCheckerFilter;
 import com.android.server.telecom.callfiltering.CallFilterResultCallback;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
 import com.android.server.telecom.callfiltering.CallFilteringResult.Builder;
+import com.android.server.telecom.callfiltering.CallScreeningServiceFilter;
 import com.android.server.telecom.callfiltering.DirectToVoicemailFilter;
 import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.callfiltering.IncomingCallFilterGraph;
-import com.android.server.telecom.callfiltering.NewCallScreeningServiceFilter;
 import com.android.server.telecom.callredirection.CallRedirectionProcessor;
 import com.android.server.telecom.components.ErrorDialogActivity;
 import com.android.server.telecom.components.TelecomBroadcastReceiver;
@@ -117,8 +115,8 @@ import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.ToastFactory;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -693,29 +691,30 @@ public class CallsManager extends Call.ListenerBase
                 mCallerInfoLookupHelper);
         BlockCheckerFilter blockCheckerFilter = new BlockCheckerFilter(mContext, incomingCall,
                 mCallerInfoLookupHelper, new BlockCheckerAdapter());
-        NewCallScreeningServiceFilter carrierCallScreeningServiceFilter =
-                new NewCallScreeningServiceFilter(incomingCall, carrierPackageName,
-                        NewCallScreeningServiceFilter.PACKAGE_TYPE_CARRIER, mContext, this,
+        CallScreeningServiceFilter carrierCallScreeningServiceFilter =
+                new CallScreeningServiceFilter(incomingCall, carrierPackageName,
+                        CallScreeningServiceFilter.PACKAGE_TYPE_CARRIER, mContext, this,
                         appLabelProxy, converter);
-        NewCallScreeningServiceFilter defaultDialerCallScreeningServiceFilter =
-                new NewCallScreeningServiceFilter(incomingCall, defaultDialerPackageName,
-                        NewCallScreeningServiceFilter.PACKAGE_TYPE_DEFAULT_DIALER, mContext, this,
-                        appLabelProxy, converter);
-        NewCallScreeningServiceFilter userChosenCallScreeningServiceFilter =
-                new NewCallScreeningServiceFilter(incomingCall, userChosenPackageName,
-                        NewCallScreeningServiceFilter.PACKAGE_TYPE_USER_CHOSEN, mContext, this,
-                        appLabelProxy, converter);
+        CallScreeningServiceFilter callScreeningServiceFilter;
+        if ((userChosenPackageName != null)
+                && (!userChosenPackageName.equals(defaultDialerPackageName))) {
+            callScreeningServiceFilter = new CallScreeningServiceFilter(incomingCall,
+                    userChosenPackageName, CallScreeningServiceFilter.PACKAGE_TYPE_USER_CHOSEN,
+                    mContext, this, appLabelProxy, converter);
+        } else {
+            callScreeningServiceFilter = new CallScreeningServiceFilter(incomingCall,
+                    defaultDialerPackageName,
+                    CallScreeningServiceFilter.PACKAGE_TYPE_DEFAULT_DIALER,
+                    mContext, this, appLabelProxy, converter);
+        }
         graph.addFilter(voicemailFilter);
         graph.addFilter(blockCheckerFilter);
         graph.addFilter(carrierCallScreeningServiceFilter);
-        graph.addFilter(defaultDialerCallScreeningServiceFilter);
-        graph.addFilter(userChosenCallScreeningServiceFilter);
+        graph.addFilter(callScreeningServiceFilter);
         IncomingCallFilterGraph.addEdge(voicemailFilter, carrierCallScreeningServiceFilter);
         IncomingCallFilterGraph.addEdge(blockCheckerFilter, carrierCallScreeningServiceFilter);
         IncomingCallFilterGraph.addEdge(carrierCallScreeningServiceFilter,
-                defaultDialerCallScreeningServiceFilter);
-        IncomingCallFilterGraph.addEdge(carrierCallScreeningServiceFilter,
-                userChosenCallScreeningServiceFilter);
+                callScreeningServiceFilter);
         mGraphHandlerThreads.add(graph.getHandlerThread());
         return graph;
     }
@@ -1947,13 +1946,22 @@ public class CallsManager extends Call.ListenerBase
 
         boolean endEarly = false;
         String disconnectReason = "";
-
         String callRedirectionApp = mRoleManagerAdapter.getDefaultCallRedirectionApp();
+
+        boolean isPotentialEmergencyNumber;
+        try {
+            isPotentialEmergencyNumber =
+                    handle != null && getTelephonyManager().isPotentialEmergencyNumber(
+                            handle.getSchemeSpecificPart());
+        } catch (IllegalStateException ise) {
+            isPotentialEmergencyNumber = false;
+        }
 
         if (shouldCancelCall) {
             Log.w(this, "onCallRedirectionComplete: call is canceled");
             endEarly = true;
             disconnectReason = "Canceled from Call Redirection Service";
+
             // Show UX when user-defined call redirection service does not response; the UX
             // is not needed to show if the call is disconnected (e.g. by the user)
             if (uiAction.equals(CallRedirectionProcessor.UI_TYPE_USER_DEFINED_TIMEOUT)
@@ -1974,8 +1982,7 @@ public class CallsManager extends Call.ListenerBase
             Log.w(this, "onCallRedirectionComplete: phoneAccountHandle is null");
             endEarly = true;
             disconnectReason = "Null phoneAccountHandle from Call Redirection Service";
-        } else if (getTelephonyManager().isPotentialEmergencyNumber(
-                handle.getSchemeSpecificPart())) {
+        } else if (isPotentialEmergencyNumber) {
             Log.w(this, "onCallRedirectionComplete: emergency number %s is redirected from Call"
                     + " Redirection Service", handle.getSchemeSpecificPart());
             endEarly = true;
@@ -5068,6 +5075,12 @@ public class CallsManager extends Call.ListenerBase
                     // we can just declare it active.
                     setCallState(mCall, CallState.ACTIVE, "answering simulated ringing");
                     Log.addEvent(mCall, LogUtils.Events.REQUEST_SIMULATED_ACCEPT);
+                } else if (mCall.getState() == CallState.ANSWERED) {
+                    // In certain circumstances, the connection service can lose track of a request
+                    // to answer a call. Therefore, if the user presses answer again, still send it
+                    // on down, but log a warning in the process and don't change the call state.
+                    mCall.answer(mVideoState);
+                    Log.w(this, "Duplicate answer request for call %s", mCall.getId());
                 }
                 if (isSpeakerphoneAutoEnabledForVideoCalls(mVideoState)) {
                     mCall.setStartWithSpeakerphoneOn(true);

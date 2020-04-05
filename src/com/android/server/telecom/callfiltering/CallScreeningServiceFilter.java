@@ -39,8 +39,7 @@ import com.android.server.telecom.ParcelableCallUtils;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public class NewCallScreeningServiceFilter extends CallFilter {
-    //TODO: Change the name of this class with CallScreeningServiceFilter
+public class CallScreeningServiceFilter extends CallFilter {
     public static final int PACKAGE_TYPE_CARRIER = 0;
     public static final int PACKAGE_TYPE_DEFAULT_DIALER = 1;
     public static final int PACKAGE_TYPE_USER_CHOSEN = 2;
@@ -177,7 +176,6 @@ public class NewCallScreeningServiceFilter extends CallFilter {
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             ICallScreeningService callScreeningService =
                     ICallScreeningService.Stub.asInterface(service);
-
             try {
                 callScreeningService.screenCall(new CallScreeningAdapter(mResultFuture),
                         mParcelableCallUtilsConverter.
@@ -205,10 +203,11 @@ public class NewCallScreeningServiceFilter extends CallFilter {
         public void onNullBinding(ComponentName name) {
             mResultFuture.complete(mPriorStageResult);
             Log.i(this, "Null binding.");
+            unbindCallScreeningService();
         }
     }
 
-    public NewCallScreeningServiceFilter(
+    public CallScreeningServiceFilter(
             Call call,
             String packageName,
             int packageType,
@@ -252,6 +251,11 @@ public class NewCallScreeningServiceFilter extends CallFilter {
         return resultFuture;
     }
 
+    @Override
+    public String toString() {
+        return super.toString() + ": " + mPackageName;
+    }
+
     private boolean hasReadContactsPermission() {
         int permission = PackageManager.PERMISSION_DENIED;
         if (mPackagetype == PACKAGE_TYPE_CARRIER || mPackagetype == PACKAGE_TYPE_DEFAULT_DIALER) {
@@ -273,7 +277,7 @@ public class NewCallScreeningServiceFilter extends CallFilter {
         }
     }
 
-    private void unbindCallScreeningService() {
+    public void unbindCallScreeningService() {
         if (mConnection != null) {
             mContext.unbindService(mConnection);
         }
@@ -284,7 +288,8 @@ public class NewCallScreeningServiceFilter extends CallFilter {
         if (mPackagetype != PACKAGE_TYPE_DEFAULT_DIALER) {
             return false;
         } else {
-            return mPackageName.equals(TelecomManager.from(mContext).getSystemDialerPackage());
+            return mPackageName.equals(
+                    TelecomManager.from(mContext).getSystemDialerPackage());
         }
     }
 
