@@ -916,7 +916,107 @@ public class InCallControllerTests extends TelecomTestCase {
         assertTrue(bindTimeout.getNow(false));
     }
 
+    /**
+     * Verify that if we go from a dialer which doesn't support self managed calls to a car mode
+     * dialer that does support them, we will bind.
+     */
+    @MediumTest
+    @Test
+    public void testBindToService_SelfManagedCarModeUI() throws Exception {
+        setupMocks(true /* isExternalCall */, true /* isSelfManaged*/);
+        setupMockPackageManager(true /* default */, true /* system */, true /* external calls */,
+                false /* selfManagedInDefaultDialer */, true /* selfManagedInCarModeDialer */);
+
+        // Bind; we should not bind to anything right now; the dialer does not support self
+        // managed calls.
+        mInCallController.bindToServices(mMockCall);
+
+        // Bind InCallServices; make sure no binding took place.  InCallController handles not
+        // binding initially, but the rebind (see next test case) will always happen.
+        verify(mMockContext, never()).bindServiceAsUser(
+                any(Intent.class),
+                any(ServiceConnection.class),
+                eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE
+                        | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS),
+                eq(UserHandle.CURRENT));
+
+        // Now switch to car mode.
+        // Enable car mode and enter car mode at default priority.
+        when(mMockSystemStateHelper.isCarMode()).thenReturn(true);
+        mInCallController.handleCarModeChange(UiModeManager.DEFAULT_PRIORITY, CAR_PKG, true);
+
+        ArgumentCaptor<Intent> bindIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mMockContext, times(1)).bindServiceAsUser(
+                bindIntentCaptor.capture(),
+                any(ServiceConnection.class),
+                eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE
+                        | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS),
+                eq(UserHandle.CURRENT));
+        // Verify bind car mode ui
+        assertEquals(1, bindIntentCaptor.getAllValues().size());
+        verifyBinding(bindIntentCaptor, 0, CAR_PKG, CAR_CLASS);
+    }
+
+    /**
+     * Verify that if we go from a dialer which doesn't support self managed calls to a car mode
+     * dialer that does not support them, the calls are not sent to the call mode UI.
+     */
+    @MediumTest
+    @Test
+    public void testBindToService_SelfManagedNoCarModeUI() throws Exception {
+        setupMocks(true /* isExternalCall */, true /* isSelfManaged*/);
+        setupMockPackageManager(true /* default */, true /* system */, true /* external calls */,
+                false /* selfManagedInDefaultDialer */, false /* selfManagedInCarModeDialer */);
+
+        // Bind; we should not bind to anything right now; the dialer does not support self
+        // managed calls.
+        mInCallController.bindToServices(mMockCall);
+
+        // Bind InCallServices; make sure no binding took place.
+        verify(mMockContext, never()).bindServiceAsUser(
+                any(Intent.class),
+                any(ServiceConnection.class),
+                eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE
+                        | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS),
+                eq(UserHandle.CURRENT));
+
+        // Now switch to car mode.
+        // Enable car mode and enter car mode at default priority.
+        when(mMockSystemStateHelper.isCarMode()).thenReturn(true);
+        mInCallController.handleCarModeChange(UiModeManager.DEFAULT_PRIORITY, CAR_PKG, true);
+
+        // We currently will bind to the car-mode InCallService even if there are no calls available
+        // for it.  Its not perfect, but it reflects the fact that the InCallController isn't
+        // sophisticated enough to realize until its already bound whether there are in fact calls
+        // which will be sent to it.
+        ArgumentCaptor<ServiceConnection> serviceConnectionCaptor =
+                ArgumentCaptor.forClass(ServiceConnection.class);
+        verify(mMockContext, times(1)).bindServiceAsUser(
+                any(Intent.class),
+                serviceConnectionCaptor.capture(),
+                eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE
+                        | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS),
+                eq(UserHandle.CURRENT));
+
+        ServiceConnection serviceConnection = serviceConnectionCaptor.getValue();
+        ComponentName defDialerComponentName = new ComponentName(DEF_PKG, DEF_CLASS);
+        IBinder mockBinder = mock(IBinder.class);
+        IInCallService mockInCallService = mock(IInCallService.class);
+        when(mockBinder.queryLocalInterface(anyString())).thenReturn(mockInCallService);
+
+        // Emulate successful connection.
+        serviceConnection.onServiceConnected(defDialerComponentName, mockBinder);
+        verify(mockInCallService).setInCallAdapter(any(IInCallAdapter.class));
+
+        // We should not have gotten informed about any calls
+        verify(mockInCallService, never()).addCall(any(ParcelableCall.class));
+    }
+
     private void setupMocks(boolean isExternalCall) {
+        setupMocks(isExternalCall, false /* isSelfManagedCall */);
+    }
+
+    private void setupMocks(boolean isExternalCall, boolean isSelfManagedCall) {
         when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
         when(mMockCallsManager.isInEmergencyCall()).thenReturn(false);
@@ -926,9 +1026,11 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockContext.bindServiceAsUser(any(Intent.class), any(ServiceConnection.class),
                 anyInt(), eq(UserHandle.CURRENT))).thenReturn(true);
         when(mMockCall.isExternalCall()).thenReturn(isExternalCall);
+        when(mMockCall.isSelfManaged()).thenReturn(isSelfManagedCall);
     }
 
-    private ResolveInfo getDefResolveInfo(final boolean includeExternalCalls) {
+    private ResolveInfo getDefResolveInfo(final boolean includeExternalCalls,
+            final boolean includeSelfManagedCalls) {
         return new ResolveInfo() {{
             serviceInfo = new ServiceInfo();
             serviceInfo.packageName = DEF_PKG;
@@ -943,11 +1045,15 @@ public class InCallControllerTests extends TelecomTestCase {
                 serviceInfo.metaData.putBoolean(
                         TelecomManager.METADATA_INCLUDE_EXTERNAL_CALLS, true);
             }
+            if (includeSelfManagedCalls) {
+                serviceInfo.metaData.putBoolean(
+                        TelecomManager.METADATA_INCLUDE_SELF_MANAGED_CALLS, true);
+            }
         }};
     }
 
     private ResolveInfo getCarModeResolveinfo(final String packageName, final String className,
-            final boolean includeExternalCalls) {
+            final boolean includeExternalCalls, final boolean includeSelfManagedCalls) {
         return new ResolveInfo() {{
             serviceInfo = new ServiceInfo();
             serviceInfo.packageName = packageName;
@@ -965,6 +1071,10 @@ public class InCallControllerTests extends TelecomTestCase {
             if (includeExternalCalls) {
                 serviceInfo.metaData.putBoolean(
                         TelecomManager.METADATA_INCLUDE_EXTERNAL_CALLS, true);
+            }
+            if (includeSelfManagedCalls) {
+                serviceInfo.metaData.putBoolean(
+                        TelecomManager.METADATA_INCLUDE_SELF_MANAGED_CALLS, true);
             }
         }};
     }
@@ -993,7 +1103,14 @@ public class InCallControllerTests extends TelecomTestCase {
 
     private void setupMockPackageManager(final boolean useDefaultDialer,
             final boolean useSystemDialer, final boolean includeExternalCalls) {
+        setupMockPackageManager(useDefaultDialer, useSystemDialer, includeExternalCalls,
+                false /* self mgd */, false /* self mgd */);
+    }
 
+    private void setupMockPackageManager(final boolean useDefaultDialer,
+            final boolean useSystemDialer, final boolean includeExternalCalls,
+            final boolean includeSelfManagedCallsInDefaultDialer,
+            final boolean includeSelfManagedCallsInCarModeDialer) {
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
@@ -1007,7 +1124,8 @@ public class InCallControllerTests extends TelecomTestCase {
                 LinkedList<ResolveInfo> resolveInfo = new LinkedList<ResolveInfo>();
                 if (!TextUtils.isEmpty(packageName)) {
                     if (packageName.equals(DEF_PKG) && useDefaultDialer) {
-                        resolveInfo.add(getDefResolveInfo(includeExternalCalls));
+                        resolveInfo.add(getDefResolveInfo(includeExternalCalls,
+                                includeSelfManagedCallsInDefaultDialer));
                     }
 
                     if (packageName.equals(SYS_PKG) && useSystemDialer) {
@@ -1020,12 +1138,12 @@ public class InCallControllerTests extends TelecomTestCase {
 
                     if (packageName.equals(CAR_PKG)) {
                         resolveInfo.add(getCarModeResolveinfo(CAR_PKG, CAR_CLASS,
-                                includeExternalCalls));
+                                includeExternalCalls, includeSelfManagedCallsInCarModeDialer));
                     }
 
                     if (packageName.equals(CAR2_PKG)) {
                         resolveInfo.add(getCarModeResolveinfo(CAR2_PKG, CAR2_CLASS,
-                                includeExternalCalls));
+                                includeExternalCalls, includeSelfManagedCallsInCarModeDialer));
                     }
                 }
                 return resolveInfo;
