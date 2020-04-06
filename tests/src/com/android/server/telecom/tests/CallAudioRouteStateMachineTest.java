@@ -54,9 +54,11 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -486,9 +488,10 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
                 CallAudioRouteStateMachine.ACTIVE_FOCUS);
         waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
 
-        // Make sure that we've successfully switched to the active BT route without actually
-        // calling connectAudio.
-        verify(mockBluetoothRouteManager, never()).connectBluetoothAudio(nullable(String.class));
+        // Make sure that we've successfully switched to the active BT route and that we've
+        // called connectAudio on the right device.
+        verify(mockBluetoothRouteManager, atLeastOnce())
+                .connectBluetoothAudio(eq(bluetoothDevice1.getAddress()));
         assertTrue(stateMachine.isInActiveState());
     }
 
