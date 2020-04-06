@@ -1607,10 +1607,13 @@ public class CallAudioRouteStateMachine extends StateMachine {
             BluetoothDevice connectedDevice =
                     mBluetoothRouteManager.getBluetoothAudioConnectedDevice();
             if (address == null && connectedDevice != null) {
-                // null means connect to any device, so don't bother reconnecting. Also, send a
-                // message to ourselves telling us that BT audio is already connected.
-                Log.i(this, "HFP audio already on. Skipping connecting.");
+                // null means connect to any device, so if we're already connected to some device,
+                // that means we can just tell ourselves that it's connected.
+                // Do still try to connect audio though, so that BluetoothRouteManager knows that
+                // there's an active call.
+                Log.i(this, "Bluetooth audio already on.");
                 sendInternalMessage(BT_AUDIO_CONNECTED);
+                mBluetoothRouteManager.connectBluetoothAudio(connectedDevice.getAddress());
                 return;
             }
             if (connectedDevice == null || !Objects.equals(address, connectedDevice.getAddress())) {
