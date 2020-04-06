@@ -151,6 +151,7 @@ public class CallScreeningServiceFilter extends CallFilter {
                             .setShouldReject(false)
                             .setShouldSilence(false)
                             .setShouldScreenViaAudio(true)
+                            .setCallScreeningAppName(mAppName)
                             .setContactExists(mPriorStageResult.contactExists)
                             .build());
                 } else {
@@ -289,7 +290,7 @@ public class CallScreeningServiceFilter extends CallFilter {
             return false;
         } else {
             return mPackageName.equals(
-                    TelecomManager.from(mContext).getSystemDialerPackage());
+                    mContext.getSystemService(TelecomManager.class).getSystemDialerPackage());
         }
     }
 
