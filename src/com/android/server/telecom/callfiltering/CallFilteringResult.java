@@ -20,6 +20,8 @@ import android.provider.CallLog;
 import android.provider.CallLog.Calls;
 import android.text.TextUtils;
 
+import java.util.Objects;
+
 public class CallFilteringResult {
     public static class Builder {
         private boolean mShouldAllowCall;
@@ -230,21 +232,11 @@ public class CallFilteringResult {
         if (mCallBlockReason != that.mCallBlockReason) return false;
         if (contactExists != that.contactExists) return false;
 
-        if ((TextUtils.isEmpty(mCallScreeningAppName) &&
-            TextUtils.isEmpty(that.mCallScreeningAppName)) &&
-            (TextUtils.isEmpty(mCallScreeningComponentName) &&
-            TextUtils.isEmpty(that.mCallScreeningComponentName))) {
-            return true;
-        } else if (!TextUtils.isEmpty(mCallScreeningAppName) &&
-            !TextUtils.isEmpty(that.mCallScreeningAppName) &&
-            mCallScreeningAppName.equals(that.mCallScreeningAppName) &&
-            !TextUtils.isEmpty(mCallScreeningComponentName) &&
-            !TextUtils.isEmpty(that.mCallScreeningComponentName) &&
-            mCallScreeningComponentName.equals(that.mCallScreeningComponentName)) {
-            return true;
+        if (!Objects.equals(mCallScreeningAppName, that.mCallScreeningAppName)) return false;
+        if (!Objects.equals(mCallScreeningComponentName, that.mCallScreeningComponentName)) {
+            return false;
         }
-
-        return false;
+        return true;
     }
 
     @Override
