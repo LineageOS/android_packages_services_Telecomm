@@ -543,9 +543,9 @@ public class InCallController extends CallsManagerListenerBase {
                 if (newConnection != mCurrentConnection) {
                     if (mIsConnected) {
                         mCurrentConnection.disconnect();
-                        int result = newConnection.connect(null);
-                        mIsConnected = result == CONNECTION_SUCCEEDED;
                     }
+                    int result = newConnection.connect(null);
+                    mIsConnected = result == CONNECTION_SUCCEEDED;
                     mCurrentConnection = newConnection;
                 }
             }
@@ -1498,7 +1498,6 @@ public class InCallController extends CallsManagerListenerBase {
      * @return True if we successfully connected.
      */
     private boolean onConnected(InCallServiceInfo info, IBinder service) {
-        Trace.beginSection("onConnected: " + info.getComponentName());
         Log.i(this, "onConnected to %s", info.getComponentName());
 
         IInCallService inCallService = IInCallService.Stub.asInterface(service);
@@ -1553,7 +1552,6 @@ public class InCallController extends CallsManagerListenerBase {
         }
         mBindingFuture.complete(true);
         Log.i(this, "%s calls sent to InCallService.", numCallsSent);
-        Trace.endSection();
         return true;
     }
 
