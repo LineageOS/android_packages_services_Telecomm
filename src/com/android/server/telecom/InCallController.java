@@ -802,6 +802,11 @@ public class InCallController extends CallsManagerListenerBase {
         }
 
         @Override
+        public void onCallDirectionChanged(Call call) {
+            updateCall(call);
+        }
+
+        @Override
         public void onVideoStateChanged(Call call, int previousVideoState, int newVideoState) {
             updateCall(call);
         }
