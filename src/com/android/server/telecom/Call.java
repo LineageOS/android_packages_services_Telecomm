@@ -130,6 +130,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         void onExtrasRemoved(Call c, int source, List<String> keys);
         void onHandleChanged(Call call);
         void onCallerDisplayNameChanged(Call call);
+        void onCallDirectionChanged(Call call);
         void onVideoStateChanged(Call call, int previousVideoState, int newVideoState);
         void onTargetPhoneAccountChanged(Call call);
         void onConnectionManagerPhoneAccountChanged(Call call);
@@ -197,6 +198,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         @Override
         public void onCallerDisplayNameChanged(Call call) {}
         @Override
+        public void onCallDirectionChanged(Call call) {}
+        @Override
         public void onVideoStateChanged(Call call, int previousVideoState, int newVideoState) {}
         @Override
         public void onTargetPhoneAccountChanged(Call call) {}
@@ -258,7 +261,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     /**
      * One of CALL_DIRECTION_INCOMING, CALL_DIRECTION_OUTGOING, or CALL_DIRECTION_UNKNOWN
      */
-    private final int mCallDirection;
+    private int mCallDirection;
 
     /**
      * The post-dial digits that were dialed after the network portion of the number
@@ -3628,6 +3631,24 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         // the UI to update itself.
         for (Listener l : mListeners) {
             l.onConferenceStateChanged(this, isConference);
+        }
+    }
+
+    /**
+     * Change the call direction. This is useful if it was not previously defined (for example in
+     * single caller emulation mode).
+     * @param callDirection The new direction of this call.
+     */
+    // Make sure the callDirection has been mapped to the Call definition correctly!
+    public void setCallDirection(int callDirection) {
+        if (mCallDirection != callDirection) {
+            Log.addEvent(this, LogUtils.Events.CALL_DIRECTION_CHANGED, "callDirection="
+                    + callDirection);
+            mCallDirection = callDirection;
+            for (Listener l : mListeners) {
+                // Update InCallService directly, do not notify CallsManager.
+                l.onCallDirectionChanged(this);
+            }
         }
     }
 
