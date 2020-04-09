@@ -472,25 +472,22 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                     && mContext.checkCallingOrSelfPermission(MODIFY_PHONE_STATE)
                             != PackageManager.PERMISSION_GRANTED) {
                 Log.w(this, "addConferenceCall from caller without permission!");
-                parcelableConference = new ParcelableConference(
+                parcelableConference = new ParcelableConference.Builder(
                         parcelableConference.getPhoneAccount(),
-                        parcelableConference.getState(),
-                        parcelableConference.getConnectionCapabilities(),
-                        parcelableConference.getConnectionProperties(),
-                        parcelableConference.getConnectionIds(),
-                        parcelableConference.getVideoProvider(),
-                        parcelableConference.getVideoState(),
-                        0 /* connectTimeMillis */,
-                        0 /* connectElapsedRealTime */,
-                        parcelableConference.getStatusHints(),
-                        parcelableConference.getExtras(),
-                        parcelableConference.getHandle(),
-                        parcelableConference.getHandlePresentation(),
-                        "" /* callerDisplayName */,
-                        TelecomManager.PRESENTATION_UNKNOWN /* callerDisplayNamePresentation */,
-                        parcelableConference.getDisconnectCause(),
-                        parcelableConference.isRingbackRequested()
-                        );
+                        parcelableConference.getState())
+                        .setConnectionCapabilities(parcelableConference.getConnectionCapabilities())
+                        .setConnectionProperties(parcelableConference.getConnectionProperties())
+                        .setConnectionIds(parcelableConference.getConnectionIds())
+                        .setVideoAttributes(parcelableConference.getVideoProvider(),
+                                parcelableConference.getVideoState())
+                        .setStatusHints(parcelableConference.getStatusHints())
+                        .setExtras(parcelableConference.getExtras())
+                        .setAddress(parcelableConference.getHandle(),
+                                parcelableConference.getHandlePresentation())
+                        // no caller display name set.
+                        .setDisconnectCause(parcelableConference.getDisconnectCause())
+                        .setRingbackRequested(parcelableConference.isRingbackRequested())
+                        .build();
             }
 
             long token = Binder.clearCallingIdentity();
