@@ -804,21 +804,18 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        String component = null;
-        if (mConnectionService != null && mConnectionService.getComponentName() != null) {
-            component = mConnectionService.getComponentName().flattenToShortString();
-        }
-
-        return String.format(Locale.US, "[%s, %s, %s, %s, %s, childs(%d), has_parent(%b), %s, %s]",
+        return String.format(Locale.US, "[Call id=%s, state=%s, tpac=%s, cmgr=%s, handle=%s, "
+                        + "vidst=%s, childs(%d), has_parent(%b), cap=%s, prop=%s]",
                 mId,
                 CallState.toString(mState),
-                component,
+                getTargetPhoneAccount(),
+                getConnectionManagerPhoneAccount(),
                 Log.piiHandle(mHandle),
                 getVideoStateDescription(getVideoState()),
                 getChildCalls().size(),
                 getParentCall() != null,
-                Connection.capabilitiesToString(getConnectionCapabilities()),
-                Connection.propertiesToString(getConnectionProperties()));
+                Connection.capabilitiesToStringShort(getConnectionCapabilities()),
+                Connection.propertiesToStringShort(getConnectionProperties()));
     }
 
     @Override
@@ -845,6 +842,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             s.append(")");
         } else {
             s.append("not set");
+        }
+        if (getConnectionManagerPhoneAccount() != null) {
+            s.append("\n\tConn mgr: ");
+            s.append(getConnectionManagerPhoneAccount());
         }
 
         s.append("\n\tTo address: ");
