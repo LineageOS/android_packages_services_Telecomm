@@ -301,4 +301,36 @@ public class CallTest extends TelecomTestCase {
         verify(mMockConnectionService, never()).pullExternalCall(any());
         verify(mMockToast).show();
     }
+
+    @Test
+    @SmallTest
+    public void testCallDirection() {
+        Call call = new Call(
+                "1", /* callId */
+                mContext,
+                mMockCallsManager,
+                mLock,
+                null /* ConnectionServiceRepository */,
+                mMockPhoneNumberUtilsAdapter,
+                TEST_ADDRESS,
+                null /* GatewayInfo */,
+                null /* connectionManagerPhoneAccountHandle */,
+                SIM_1_HANDLE,
+                Call.CALL_DIRECTION_UNDEFINED,
+                false /* shouldAttachToExistingConnection*/,
+                true /* isConference */,
+                mMockClockProxy,
+                mMockToastProxy);
+        boolean[] hasCallDirectionChanged = new boolean[1];
+        call.addListener(new Call.ListenerBase() {
+            @Override
+            public void onCallDirectionChanged(Call call) {
+                hasCallDirectionChanged[0] = true;
+            }
+        });
+        assertFalse(call.isIncoming());
+        call.setCallDirection(Call.CALL_DIRECTION_INCOMING);
+        assertTrue(hasCallDirectionChanged[0]);
+        assertTrue(call.isIncoming());
+    }
 }
