@@ -1084,6 +1084,7 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
             if (mContext.checkCallingOrSelfPermission(MODIFY_PHONE_STATE)
                     != PackageManager.PERMISSION_GRANTED) {
                 Log.w(this, "setConferenceState from caller without permission.");
+                Log.endSession();
                 return;
             }
 
@@ -1093,6 +1094,35 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                     Call call = mCallIdMapper.getCall(callId);
                     if (call != null) {
                         call.setConferenceState(isConference);
+                    }
+                }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
+            } finally {
+                Binder.restoreCallingIdentity(token);
+                Log.endSession();
+            }
+        }
+
+        @Override
+        public void setCallDirection(String callId, int direction, Session.Info sessionInfo) {
+            Log.startSession(sessionInfo, "CSW.sCD");
+
+            if (mContext.checkCallingOrSelfPermission(MODIFY_PHONE_STATE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                Log.w(this, "setCallDirection from caller without permission.");
+                Log.endSession();
+                return;
+            }
+
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    logIncoming("setCallDirection %s %d", callId, direction);
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        call.setCallDirection(Call.getRemappedCallDirection(direction));
                     }
                 }
             } catch (Throwable t) {
