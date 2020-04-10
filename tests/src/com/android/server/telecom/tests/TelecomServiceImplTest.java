@@ -19,6 +19,7 @@ package com.android.server.telecom.tests;
 import static android.Manifest.permission.CALL_PHONE;
 import static android.Manifest.permission.CALL_PRIVILEGED;
 import static android.Manifest.permission.MODIFY_PHONE_STATE;
+import static android.Manifest.permission.READ_PHONE_NUMBERS;
 import static android.Manifest.permission.READ_PHONE_STATE;
 import static android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE;
 
@@ -32,6 +33,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -70,6 +72,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.function.IntConsumer;
 
+import static android.Manifest.permission.READ_SMS;
 import static android.Manifest.permission.REGISTER_SIM_SUBSCRIPTION;
 import static android.Manifest.permission.WRITE_SECURE_SETTINGS;
 import static org.junit.Assert.assertEquals;
@@ -168,6 +171,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     private TelecomServiceImpl.SettingsSecureAdapter mSettingsSecureAdapter =
         spy(new SettingsSecureAdapterFake());
     @Mock private UserCallIntentProcessor mUserCallIntentProcessor;
+    private PackageManager mPackageManager;
+    @Mock private ApplicationInfo mApplicationInfo;
 
     private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
 
@@ -230,6 +235,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 .thenReturn(DEFAULT_DIALER_PACKAGE);
         when(mDefaultDialerCache.isDefaultOrSystemDialer(eq(DEFAULT_DIALER_PACKAGE), anyInt()))
                 .thenReturn(true);
+
+        mPackageManager = mContext.getPackageManager();
     }
 
     @Override
@@ -926,18 +933,142 @@ public class TelecomServiceImplTest extends TelecomTestCase {
 
     @SmallTest
     @Test
-    public void testGetLine1Number() throws Exception {
+    public void testGetLine1NumberWithNoPermissionTargetPreR() throws Exception {
+        setupGetLine1NumberTest();
+        setTargetSdkVersion(Build.VERSION_CODES.Q);
+
+        try {
+            String line1Number = mTSIBinder.getLine1Number(TEL_PA_HANDLE_CURRENT,
+                    DEFAULT_DIALER_PACKAGE, null);
+            fail("Should have thrown a SecurityException when invoking getLine1Number without "
+                    + "permission, received "
+                    + line1Number);
+        } catch (SecurityException expected) {
+        }
+    }
+
+    @SmallTest
+    @Test
+    public void testGetLine1NumberWithNoPermissionTargetR() throws Exception {
+        setupGetLine1NumberTest();
+
+        try {
+            String line1Number = mTSIBinder.getLine1Number(TEL_PA_HANDLE_CURRENT,
+                    DEFAULT_DIALER_PACKAGE, null);
+            fail("Should have thrown a SecurityException when invoking getLine1Number without "
+                    + "permission, received "
+                    + line1Number);
+        } catch (SecurityException expected) {
+        }
+    }
+
+    @SmallTest
+    @Test
+    public void testGetLine1NumberWithReadPhoneStateTargetPreR() throws Exception {
+        String line1Number = setupGetLine1NumberTest();
+        setTargetSdkVersion(Build.VERSION_CODES.Q);
+        grantPermissionAndAppOp(READ_PHONE_STATE, AppOpsManager.OPSTR_READ_PHONE_STATE);
+
+        assertEquals(line1Number,
+                mTSIBinder.getLine1Number(TEL_PA_HANDLE_CURRENT, DEFAULT_DIALER_PACKAGE, null));
+    }
+
+    @SmallTest
+    @Test
+    public void testGetLine1NumberWithReadPhoneStateTargetR() throws Exception {
+        setupGetLine1NumberTest();
+        grantPermissionAndAppOp(READ_PHONE_STATE, AppOpsManager.OPSTR_READ_PHONE_STATE);
+
+        try {
+            String line1Number = mTSIBinder.getLine1Number(TEL_PA_HANDLE_CURRENT,
+                    DEFAULT_DIALER_PACKAGE, null);
+            fail("Should have thrown a SecurityException when invoking getLine1Number on target R"
+                    + " with READ_PHONE_STATE permission, received "
+                    + line1Number);
+        } catch (SecurityException expected) {
+        }
+    }
+
+    @SmallTest
+    @Test
+    public void testGetLine1NumberWithReadPhoneNumbersTargetR() throws Exception {
+        String line1Number = setupGetLine1NumberTest();
+        grantPermissionAndAppOp(READ_PHONE_NUMBERS, AppOpsManager.OPSTR_READ_PHONE_NUMBERS);
+
+        assertEquals(line1Number,
+                mTSIBinder.getLine1Number(TEL_PA_HANDLE_CURRENT, DEFAULT_DIALER_PACKAGE, null));
+    }
+
+    @SmallTest
+    @Test
+    public void testGetLine1NumberWithReadSmsTargetR() throws Exception {
+        String line1Number = setupGetLine1NumberTest();
+        grantPermissionAndAppOp(READ_SMS, AppOpsManager.OPSTR_READ_SMS);
+
+        assertEquals(line1Number,
+                mTSIBinder.getLine1Number(TEL_PA_HANDLE_CURRENT, DEFAULT_DIALER_PACKAGE, null));
+    }
+
+    @SmallTest
+    @Test
+    public void testGetLine1NumberWithWriteSmsTargetR() throws Exception {
+        String line1Number = setupGetLine1NumberTest();
+        doReturn(AppOpsManager.MODE_ALLOWED).when(mAppOpsManager).noteOpNoThrow(
+                eq(AppOpsManager.OPSTR_WRITE_SMS), anyInt(), eq(DEFAULT_DIALER_PACKAGE), any(),
+                any());
+
+        assertEquals(line1Number,
+                mTSIBinder.getLine1Number(TEL_PA_HANDLE_CURRENT, DEFAULT_DIALER_PACKAGE, null));
+    }
+
+
+    @SmallTest
+    @Test
+    public void testGetLine1NumberAsDefaultDialer() throws Exception {
+        String line1Number = setupGetLine1NumberTest();
+        doReturn(true).when(mDefaultDialerCache).isDefaultOrSystemDialer(
+                eq(DEFAULT_DIALER_PACKAGE), anyInt());
+
+        assertEquals(line1Number,
+                mTSIBinder.getLine1Number(TEL_PA_HANDLE_CURRENT, DEFAULT_DIALER_PACKAGE, null));
+    }
+
+    private String setupGetLine1NumberTest() throws Exception {
         int subId = 58374;
         String line1Number = "9482752023479";
+
+        setTargetSdkVersion(Build.VERSION_CODES.R);
+        doReturn(AppOpsManager.MODE_DEFAULT).when(mAppOpsManager).noteOpNoThrow(anyString(),
+                anyInt(), eq(DEFAULT_DIALER_PACKAGE), any(), any());
         makeAccountsVisibleToAllUsers(TEL_PA_HANDLE_CURRENT);
         when(mFakePhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(TEL_PA_HANDLE_CURRENT))
                 .thenReturn(subId);
         TelephonyManager mockTelephonyManager =
                 (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
         when(mockTelephonyManager.getLine1Number()).thenReturn(line1Number);
+        doThrow(new SecurityException()).when(mContext).enforceCallingOrSelfPermission(anyString(),
+                anyString());
+        doReturn(PackageManager.PERMISSION_DENIED).when(mContext).checkCallingOrSelfPermission(
+                anyString());
+        doReturn(false).when(mDefaultDialerCache).isDefaultOrSystemDialer(
+                eq(DEFAULT_DIALER_PACKAGE), anyInt());
+        return line1Number;
+    }
 
-        assertEquals(line1Number,
-                mTSIBinder.getLine1Number(TEL_PA_HANDLE_CURRENT, DEFAULT_DIALER_PACKAGE, null));
+    private void grantPermissionAndAppOp(String permission, String appop) {
+        doReturn(PackageManager.PERMISSION_GRANTED).when(mContext).checkCallingOrSelfPermission(
+                eq(permission));
+        doNothing().when(mContext).enforceCallingOrSelfPermission(eq(permission), anyString());
+        doReturn(AppOpsManager.MODE_ALLOWED).when(mAppOpsManager).noteOp(eq(appop), anyInt(),
+                eq(DEFAULT_DIALER_PACKAGE), any(), any());
+        doReturn(AppOpsManager.MODE_ALLOWED).when(mAppOpsManager).noteOpNoThrow(eq(appop), anyInt(),
+                eq(DEFAULT_DIALER_PACKAGE), any(), any());
+    }
+
+    private void setTargetSdkVersion(int targetSdkVersion) throws Exception {
+        mApplicationInfo.targetSdkVersion = targetSdkVersion;
+        doReturn(mApplicationInfo).when(mPackageManager).getApplicationInfoAsUser(
+                eq(DEFAULT_DIALER_PACKAGE), anyInt(), any());
     }
 
     @SmallTest
