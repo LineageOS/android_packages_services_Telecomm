@@ -29,10 +29,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.IInterface;
-import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.telecom.CallAudioState;
@@ -714,22 +712,15 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
     }
 
     private ParcelableConference parcelable(ConferenceInfo c) {
-        return new ParcelableConference(
-                c.phoneAccount,
-                c.state,
-                c.capabilities,
-                c.properties,
-                c.connectionIds,
-                c.videoProvider,
-                c.videoState,
-                c.connectTimeMillis,
-                c.connectElapsedTimeMillis,
-                c.statusHints,
-                c.extras,
-                null,
-                0,
-                null,
-                0);
+        return new ParcelableConference.Builder(c.phoneAccount, c.state)
+                .setConnectionCapabilities(c.capabilities)
+                .setConnectionProperties(c.properties)
+                .setConnectionIds(c.connectionIds)
+                .setVideoAttributes(c.videoProvider, c.videoState)
+                .setConnectTimeMillis(c.connectTimeMillis, c.connectElapsedTimeMillis)
+                .setStatusHints(c.statusHints)
+                .setExtras(c.extras)
+                .build();
     }
 
     private ParcelableConnection parcelable(ConnectionInfo c) {
