@@ -3312,6 +3312,8 @@ public class CallsManager extends Call.ListenerBase
                         Conference.CONNECT_TIME_NOT_SPECIFIED ? 0 :
                         parcelableConference.getConnectElapsedTimeMillis();
 
+        int callDirection = Call.getRemappedCallDirection(parcelableConference.getCallDirection());
+
         PhoneAccountHandle connectionMgr =
                     mPhoneAccountRegistrar.getSimCallManagerFromHandle(phoneAccount,
                             mCurrentUserHandle);
@@ -3326,7 +3328,7 @@ public class CallsManager extends Call.ListenerBase
                 null /* gatewayInfo */,
                 connectionMgr,
                 phoneAccount,
-                Call.CALL_DIRECTION_UNDEFINED /* callDirection */,
+                callDirection,
                 false /* forceAttachToExistingConnection */,
                 true /* isConference */,
                 connectTime,
