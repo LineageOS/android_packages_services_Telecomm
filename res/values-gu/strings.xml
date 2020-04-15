@@ -28,6 +28,7 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"સંદેશ"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"ડિસ્કનેક્ટ કરેલો કૉલ"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"ઇમર્જન્સી કૉલને કારણે <xliff:g id="CALLER">%s</xliff:g>નો કૉલ ડિસ્કનેક્ટ કરવામાં આવ્યો છે."</string>
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"ઇમર્જન્સી કૉલને કારણે તમારો કૉલ ડિસ્કનેક્ટ કરવામાં આવ્યો છે."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"બૅકગ્રાઉન્ડ કૉલ"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>એ કૉલ બેકગ્રાઉન્ડમાં રાખ્યો છે. આ ઍપ કૉલ પરથી ઑડિયો ઍક્સેસ કરીને તેને ચલાવી શકે છે."</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"ફોન ઍપ ક્રૅશ થઈ"</string>
