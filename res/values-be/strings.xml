@@ -27,7 +27,7 @@
     <string name="notification_missedCall_call_back" msgid="7900333283939789732">"Адказаць"</string>
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Паведамленне"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Выклік перарваны"</string>
-    <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Выклік абанента <xliff:g id="CALLER">%s</xliff:g> быў перарваны з-за ажыццяўлення экстраннага выкліку."</string>
+    <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Выклік да абанента <xliff:g id="CALLER">%s</xliff:g> перарваны, бо выконваецца экстранны выклік."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Бягучы выклік перарваны, бо выконваецца экстранны выклік."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Фонавы выклік"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"Праграма \"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>\" перавяла выклік у фонавы рэжым і можа прайграваць аўдыя падчас выкліку."</string>
