@@ -28,6 +28,7 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Boodskap"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Oproep is ontkoppel"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Die oproep na <xliff:g id="CALLER">%s</xliff:g> is ontkoppel as gevolg van \'n noodoproep wat gemaak word."</string>
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Jou oproep is ontkoppel as gevolg van \'n noodoproep wat gemaak word."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Agtergrondoproep"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> het \'n oproep in die agtergrond geplaas. Hierdie program kan dalk toegang tot oudio kry en dit oor die oproep speel."</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Omgevalde foonprogram"</string>
