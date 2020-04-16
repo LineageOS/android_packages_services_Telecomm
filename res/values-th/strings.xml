@@ -28,6 +28,7 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"ข้อความ"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"สายถูกตัด"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"สายที่โทรหา <xliff:g id="CALLER">%s</xliff:g> ถูกตัดเนื่องจากมีการโทรหาหมายเลขฉุกเฉิน"</string>
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"สายของคุณถูกตัดเพราะมีการโทรหาหมายเลขฉุกเฉิน"</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"การโทรในเบื้องหลัง"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ได้ทำการโทรในเบื้องหลัง แอปนี้อาจกำลังเข้าถึงและเล่นเสียงผ่านการโทร"</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"แอปโทรศัพท์ขัดข้อง"</string>
