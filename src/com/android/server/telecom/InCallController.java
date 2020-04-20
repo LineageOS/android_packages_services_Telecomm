@@ -1705,7 +1705,7 @@ public class InCallController extends CallsManagerListenerBase {
 
         if (TextUtils.isEmpty(ringingPackage)) {
             // The current in-call UI returned nothing, so lets use the default dialer.
-            ringingPackage = mDefaultDialerCache.getDefaultDialerApplication(
+            ringingPackage = mDefaultDialerCache.getRoleManagerAdapter().getDefaultDialerApp(
                     mCallsManager.getCurrentUserHandle().getIdentifier());
             if (ringingPackage != null) {
                 Log.d(this, "doesConnectedDialerSupportRinging: notCurentlyConnectedPackage=%s",
