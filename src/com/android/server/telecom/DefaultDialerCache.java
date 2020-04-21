@@ -295,4 +295,8 @@ public class DefaultDialerCache {
     public ContentObserver getContentObserver() {
         return mDefaultDialerObserver;
     }
+
+    public RoleManagerAdapter getRoleManagerAdapter() {
+        return mRoleManagerAdapter;
+    }
 }
