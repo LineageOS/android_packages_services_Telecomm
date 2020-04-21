@@ -30,9 +30,11 @@ import android.util.ArraySet;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Abstract class to perform the work of binding and unbinding to the specified service interface.
@@ -120,7 +122,8 @@ public abstract class ServiceBinder {
         public void binderDied() {
             try {
                 synchronized (mLock) {
-                    Log.startSession("SDR.bD");
+                    Log.startSession("SDR.bD",
+                            ServiceBinder.getPackageAbbreviation(mComponentName));
                     Log.i(this, "binderDied: ConnectionService %s died.", mComponentName);
                     logServiceDisconnected("binderDied");
                     handleDisconnect();
@@ -144,7 +147,7 @@ public abstract class ServiceBinder {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder binder) {
             try {
-                Log.startSession("SBC.oSC");
+                Log.startSession("SBC.oSC", getPackageAbbreviation(componentName));
                 synchronized (mLock) {
                     Log.i(this, "Service bound %s", componentName);
 
@@ -182,7 +185,7 @@ public abstract class ServiceBinder {
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             try {
-                Log.startSession("SBC.oSD");
+                Log.startSession("SBC.oSD", getPackageAbbreviation(componentName));
                 synchronized (mLock) {
                     logServiceDisconnected("onServiceDisconnected");
                     handleDisconnect();
@@ -211,6 +214,11 @@ public abstract class ServiceBinder {
 
     /** The component name of the service to bind to. */
     protected final ComponentName mComponentName;
+
+    /**
+     * Abbreviated form of the package name from {@link #mComponentName}; used for session logging.
+     */
+    protected final String mPackageAbbreviation;
 
     /** The set of callbacks waiting for notification of the binding's success or failure. */
     private final Set<BindCallback> mCallbacks = new ArraySet<>();
@@ -261,6 +269,7 @@ public abstract class ServiceBinder {
         mLock = lock;
         mServiceAction = serviceAction;
         mComponentName = componentName;
+        mPackageAbbreviation = getPackageAbbreviation(componentName);
         mUserHandle = userHandle;
     }
 
@@ -441,4 +450,32 @@ public abstract class ServiceBinder {
      * Removes the service interface before the service is unbound.
      */
     protected abstract void removeServiceInterface();
+
+    /**
+     * Generates an abbreviated version of the package name from a component.
+     * E.g. com.android.phone becomes cap
+     * @param componentName The component name to abbreviate.
+     * @return Abbreviation of empty string if component is null.
+     */
+    public static String getPackageAbbreviation(ComponentName componentName) {
+        if (componentName == null) {
+            return "";
+        }
+        return getPackageAbbreviation(componentName.getPackageName());
+    }
+
+    /**
+     * Generates an abbreviated version of the package name.
+     * E.g. com.android.phone becomes cap
+     * @param packageName The packageName name to abbreviate.
+     * @return Abbreviation of empty string if package is null.
+     */
+    public static String getPackageAbbreviation(String packageName) {
+        if (packageName == null) {
+            return "";
+        }
+        return Arrays.stream(packageName.split("\\."))
+                .map(s -> s.substring(0,1))
+                .collect(Collectors.joining(""));
+    }
 }
