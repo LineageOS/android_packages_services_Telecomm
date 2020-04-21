@@ -17,6 +17,7 @@
 package com.android.server.telecom;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -316,6 +317,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private PhoneAccountHandle mConnectionManagerPhoneAccountHandle;
 
     private PhoneAccountHandle mTargetPhoneAccountHandle;
+
+    private PhoneAccountHandle mRemotePhoneAccountHandle;
 
     private UserHandle mInitiatingUser;
 
@@ -844,19 +847,46 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         s.append(SimpleDateFormat.getDateTimeInstance().format(new Date(getCreationTimeMillis())));
         s.append("]");
         s.append(isIncoming() ? "(MT - incoming)" : "(MO - outgoing)");
-        s.append("\n\tVia PhoneAccount: ");
+        s.append("\n\t");
+
         PhoneAccountHandle targetPhoneAccountHandle = getTargetPhoneAccount();
+        PhoneAccountHandle remotePhoneAccountHandle = getRemotePhoneAccountHandle();
+        PhoneAccountHandle connectionMgrAccountHandle = getConnectionManagerPhoneAccount();
+        PhoneAccountHandle delegatePhoneAccountHandle = getDelegatePhoneAccountHandle();
+        boolean isTargetSameAsRemote = targetPhoneAccountHandle != null
+                && targetPhoneAccountHandle.equals(remotePhoneAccountHandle);
+        if (delegatePhoneAccountHandle.equals(targetPhoneAccountHandle)) {
+            s.append(">>>");
+        }
+        s.append("Target");
+        s.append(" PhoneAccount: ");
         if (targetPhoneAccountHandle != null) {
             s.append(targetPhoneAccountHandle);
             s.append(" (");
             s.append(getTargetPhoneAccountLabel());
             s.append(")");
+            if (isTargetSameAsRemote) {
+                s.append("(remote)");
+            }
         } else {
             s.append("not set");
         }
-        if (getConnectionManagerPhoneAccount() != null) {
-            s.append("\n\tConn mgr: ");
-            s.append(getConnectionManagerPhoneAccount());
+        if (!isTargetSameAsRemote && remotePhoneAccountHandle != null) {
+            // This is a RARE case and will likely not be seen in practice but it is possible.
+            if (delegatePhoneAccountHandle.equals(remotePhoneAccountHandle)) {
+                s.append("\n\t>>>Remote PhoneAccount: ");
+            } else {
+                s.append("\n\tRemote PhoneAccount: ");
+            }
+            s.append(remotePhoneAccountHandle);
+        }
+        if (connectionMgrAccountHandle != null) {
+            if (delegatePhoneAccountHandle.equals(connectionMgrAccountHandle)) {
+                s.append("\n\t>>>Conn mgr: ");
+            } else {
+                s.append("\n\tConn mgr: ");
+            }
+            s.append(connectionMgrAccountHandle);
         }
 
         s.append("\n\tTo address: ");
@@ -1362,6 +1392,45 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             }
         }
         checkIfRttCapable();
+    }
+
+    /**
+     * @return the {@link PhoneAccountHandle} of the remote connection service which placing this
+     * call was delegated to, or {@code null} if a remote connection service was not used.
+     */
+    public @Nullable PhoneAccountHandle getRemotePhoneAccountHandle() {
+        return mRemotePhoneAccountHandle;
+    }
+
+    /**
+     * Sets the {@link PhoneAccountHandle} of the remote connection service which placing this
+     * call was delegated to.
+     * @param accountHandle The phone account handle.
+     */
+    public void setRemotePhoneAccountHandle(PhoneAccountHandle accountHandle) {
+        mRemotePhoneAccountHandle = accountHandle;
+    }
+
+    /**
+     * Determines which {@link PhoneAccountHandle} is actually placing a call.
+     * Where {@link #getRemotePhoneAccountHandle()} is non-null, the connection manager is placing
+     * the call via a remote connection service, so the remote connection service's phone account
+     * is the source.
+     * Where {@link #getConnectionManagerPhoneAccount()} is non-null and
+     * {@link #getRemotePhoneAccountHandle()} is null, the connection manager is placing the call
+     * itself (even if the target specifies something else).
+     * Finally, if neither of the above cases apply, the target phone account is the one actually
+     * placing the call.
+     * @return The {@link PhoneAccountHandle} which is actually placing a call.
+     */
+    public @NonNull PhoneAccountHandle getDelegatePhoneAccountHandle() {
+        if (mRemotePhoneAccountHandle != null) {
+            return mRemotePhoneAccountHandle;
+        }
+        if (mConnectionManagerPhoneAccountHandle != null) {
+            return mConnectionManagerPhoneAccountHandle;
+        }
+        return mTargetPhoneAccountHandle;
     }
 
     @VisibleForTesting
@@ -2524,6 +2593,18 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             mExtras.get(TelecomManager.EXTRA_CALL_NETWORK_TYPE)
                     .equals(TelephonyManager.NETWORK_TYPE_LTE)) {
             mWasVolte = true;
+        }
+
+        if (extras.containsKey(Connection.EXTRA_ORIGINAL_CONNECTION_ID)) {
+            setOriginalConnectionId(extras.getString(Connection.EXTRA_ORIGINAL_CONNECTION_ID));
+        }
+
+        // The remote connection service API can track the phone account which was originally
+        // requested to create a connection via the remote connection service API; we store that so
+        // we have some visibility into how a call was actually placed.
+        if (mExtras.containsKey(Connection.EXTRA_REMOTE_PHONE_ACCOUNT_HANDLE)) {
+            setRemotePhoneAccountHandle(extras.getParcelable(
+                    Connection.EXTRA_REMOTE_PHONE_ACCOUNT_HANDLE));
         }
 
         // If the change originated from an InCallService, notify the connection service.
