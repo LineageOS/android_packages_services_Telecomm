@@ -4167,13 +4167,8 @@ public class CallsManager extends Call.ListenerBase
         call.setCallerDisplayName(connection.getCallerDisplayName(),
                 connection.getCallerDisplayNamePresentation());
         call.addListener(this);
+        call.putExtras(Call.SOURCE_CONNECTION_SERVICE, connection.getExtras());
 
-        // In case this connection was added via a ConnectionManager, keep track of the original
-        // Connection ID as created by the originating ConnectionService.
-        Bundle extras = connection.getExtras();
-        if (extras != null && extras.containsKey(Connection.EXTRA_ORIGINAL_CONNECTION_ID)) {
-            call.setOriginalConnectionId(extras.getString(Connection.EXTRA_ORIGINAL_CONNECTION_ID));
-        }
         Log.i(this, "createCallForExistingConnection: %s", connection);
         Call parentCall = null;
         if (!TextUtils.isEmpty(connection.getParentCallId())) {
