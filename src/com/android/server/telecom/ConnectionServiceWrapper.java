@@ -781,12 +781,6 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                 Session.Info sessionInfo) {
             Log.startSession(sessionInfo, "CSW.sA");
 
-            if (mContext.checkCallingOrSelfPermission(MODIFY_PHONE_STATE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                Log.w(this, "setAddress from caller without permission.");
-                return;
-            }
-
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -870,12 +864,6 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
             if (callingPhoneAccountHandle != null) {
                 mAppOpsManager.checkPackage(Binder.getCallingUid(),
                         callingPhoneAccountHandle.getComponentName().getPackageName());
-            }
-
-            if (mContext.checkCallingOrSelfPermission(MODIFY_PHONE_STATE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                Log.w(this, "addExistingConnection from caller without permission!");
-                return;
             }
 
             long token = Binder.clearCallingIdentity();
