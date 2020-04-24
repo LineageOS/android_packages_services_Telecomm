@@ -28,6 +28,7 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"שליחת הודעה"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"השיחה נותקה"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"השיחה עם <xliff:g id="CALLER">%s</xliff:g> נותקה בגלל שיחת חירום."</string>
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"השיחה נותקה בגלל שיחת חירום."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"שיחה ברקע"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"האפליקציה <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> התחילה שיחה ברקע. ייתכן שלאפליקציה יש גישה לאודיו או שהיא משמיעה אודיו בשיחה."</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"אפליקציית טלפון קרסה"</string>
