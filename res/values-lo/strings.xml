@@ -28,6 +28,7 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"ຂໍ້ຄວາມ"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"ສາຍຖືກຕັດແລ້ວ"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"ສາຍໂທຫາ <xliff:g id="CALLER">%s</xliff:g> ຖືກຕັດແລ້ວ ເນື່ອງຈາກກຳລັງມີການໂທສຸກເສີນຢູ່."</string>
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"ສາຍໂທຂອງທ່ານໄດ້ຖືກຕັດແລ້ວ ເນື່ອງຈາກກຳລັງມີການໂທສຸກເສີນຢູ່."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"ການໂທໃນພື້ນຫຼັງ"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ວາງການໂທໄວ້ພື້ນຫຼັງແລ້ວ. ແອັບນີ້ອາດເຂົ້າເຖິງ ແລະ ຫຼິ້ນສຽງຜ່ານການໂທໄດ້."</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"ແອັບໂທລະສັບຂັດຂ້ອງ"</string>
