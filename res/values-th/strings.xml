@@ -94,7 +94,7 @@
     <string name="cant_call_due_to_ongoing_call" msgid="8004235328451385493">"ไม่สามารถโทรออกได้เนื่องจากกำลังใช้สายอยู่ใน <xliff:g id="OTHER_CALL">%1$s</xliff:g>"</string>
     <string name="cant_call_due_to_ongoing_calls" msgid="6379163795277824868">"ไม่สามารถโทรออกได้เนื่องจากกำลังใช้สายอยู่ใน <xliff:g id="OTHER_CALL">%1$s</xliff:g>"</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="8243532328969433172">"ไม่สามารถโทรออกได้เนื่องจากกำลังใช้สายอยู่ในแอปอื่น"</string>
-    <string name="notification_channel_incoming_call" msgid="5245550964701715662">"สายโทรเข้า"</string>
+    <string name="notification_channel_incoming_call" msgid="5245550964701715662">"สายเรียกเข้า"</string>
     <string name="notification_channel_missed_call" msgid="7168893015283909012">"สายที่ไม่ได้รับ"</string>
     <string name="notification_channel_call_blocking" msgid="2028807677868598710">"การบล็อกสาย"</string>
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"การโทรในเบื้องหลัง"</string>
