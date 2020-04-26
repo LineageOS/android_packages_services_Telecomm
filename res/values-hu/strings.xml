@@ -28,6 +28,7 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Üzenet"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Bontott hívás"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Az Ön és <xliff:g id="CALLER">%s</xliff:g> közötti hívást a szolgáltató egy segélyhívás kezdeményezése miatt bontotta."</string>
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Segélyhívást kezdeményeztek, ezért az Ön hívását megszakítottuk."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Háttérbeli hívás"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"A(z) <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> a háttérbe helyezett egy hívást. Ez az alkalmazás hozzáférhet a híváshoz, és hangot játszhat le benne."</string>
     <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Telefonalkalmazás összeomlása"</string>
