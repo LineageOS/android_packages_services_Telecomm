@@ -381,7 +381,7 @@ public class ParcelableCallUtils {
 
     private static int getParcelableState(Call call, boolean supportsExternalCalls) {
         int state = CallState.NEW;
-        switch (call.getState()) {
+        switch (call.getParcelableCallState()) {
             case CallState.ABORTED:
             case CallState.DISCONNECTED:
                 state = android.telecom.Call.STATE_DISCONNECTED;
@@ -433,12 +433,6 @@ public class ParcelableCallUtils {
                 break;
         }
 
-        // If we are marked as 'locally disconnecting' then mark ourselves as disconnecting instead.
-        // Unless we're disconnect*ED*, in which case leave it at that.
-        if (call.isLocallyDisconnecting() &&
-                (state != android.telecom.Call.STATE_DISCONNECTED)) {
-            state = android.telecom.Call.STATE_DISCONNECTING;
-        }
         return state;
     }
 
