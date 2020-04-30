@@ -28,6 +28,7 @@ import android.text.SpannableString;
 import android.view.View;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+
 import com.android.server.telecom.R;
 
 public class BlockedNumbersAdapter extends SimpleCursorAdapter {
@@ -63,7 +64,7 @@ public class BlockedNumbersAdapter extends SimpleCursorAdapter {
         Spannable messageSpannable = new SpannableString(message);
         PhoneNumberUtils.addTtsSpan(messageSpannable, startingPosition,
                 startingPosition + formattedNumber.length());
-        new AlertDialog.Builder(context)
+        AlertDialog dialog = new AlertDialog.Builder(context)
                 .setMessage(messageSpannable)
                 .setPositiveButton(R.string.unblock_button,
                         new DialogInterface.OnClickListener() {
@@ -79,8 +80,15 @@ public class BlockedNumbersAdapter extends SimpleCursorAdapter {
                             }
                         }
                 )
-                .create()
-                .show();
+                .create();
+        dialog.setOnShowListener(new AlertDialog.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setAllCaps(false);
+                ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE).setAllCaps(false);
+            }
+        });
+        dialog.show();
     }
 
     private void deleteBlockedNumber(Context context, String number) {
