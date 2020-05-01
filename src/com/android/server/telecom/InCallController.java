@@ -20,9 +20,11 @@ import android.Manifest;
 import android.annotation.NonNull;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -44,6 +46,7 @@ import android.telecom.ParcelableCall;
 import android.telecom.TelecomManager;
 import android.text.TextUtils;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 
 import com.android.internal.annotations.VisibleForTesting;
 // TODO: Needed for move to system service: import com.android.internal.R;
@@ -59,6 +62,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -323,7 +327,10 @@ public class InCallController extends CallsManagerListenerBase {
                 String packageName = mInCallServiceInfo.getComponentName().getPackageName();
                 mContext.unbindService(mServiceConnection);
                 mIsConnected = false;
-                if (mIsNullBinding) {
+                if (mIsNullBinding && mInCallServiceInfo.getType() != IN_CALL_SERVICE_TYPE_NON_UI) {
+                    // Non-UI InCallServices are allowed to return null from onBind if they don't
+                    // want to handle calls at the moment, so don't report them to the user as
+                    // crashed.
                     sendCrashedInCallServiceNotification(packageName);
                 }
                 if (mCall != null) {
@@ -722,6 +729,20 @@ public class InCallController extends CallsManagerListenerBase {
             }
             pw.decreaseIndent();
         }
+
+        public void addConnections(List<InCallServiceBindingConnection> newConnections) {
+            // connect() needs to be called with a Call object. Since we're in the middle of any
+            // possible number of calls right now, choose an arbitrary one from the ones that
+            // InCallController is tracking.
+            if (mCallIdMapper.getCalls().isEmpty()) {
+                Log.w(InCallController.this, "No calls tracked while adding new NonUi incall");
+                return;
+            }
+            Call callToConnectWith = mCallIdMapper.getCalls().iterator().next();
+            for (InCallServiceBindingConnection newConnection : newConnections) {
+                newConnection.connect(callToConnectWith);
+            }
+        }
     }
 
     private final Call.Listener mCallListener = new Call.ListenerBase() {
@@ -848,6 +869,38 @@ public class InCallController extends CallsManagerListenerBase {
         }
     };
 
+    private BroadcastReceiver mPackageChangedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.startSession("ICC.pCR");
+            try {
+                if (Intent.ACTION_PACKAGE_CHANGED.equals(intent.getAction())) {
+                    synchronized (mLock) {
+                        String changedPackage = intent.getData().getSchemeSpecificPart();
+                        List<InCallServiceBindingConnection> componentsToBind =
+                                Arrays.stream(intent.getStringArrayExtra(
+                                        Intent.EXTRA_CHANGED_COMPONENT_NAME_LIST))
+                                        .map((className) ->
+                                                ComponentName.createRelative(changedPackage,
+                                                        className))
+                                        .filter(mKnownNonUiInCallServices::contains)
+                                        .flatMap(componentName -> getInCallServiceComponents(
+                                                componentName,
+                                                IN_CALL_SERVICE_TYPE_NON_UI).stream())
+                                        .map(InCallServiceBindingConnection::new)
+                                        .collect(Collectors.toList());
+
+                        if (mNonUIInCallServiceConnections != null) {
+                            mNonUIInCallServiceConnections.addConnections(componentsToBind);
+                        }
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+    };
+
     private final SystemStateListener mSystemStateListener =
             (priority, packageName, isCarMode) -> InCallController.this.handleCarModeChange(
                     priority, packageName, isCarMode);
@@ -875,6 +928,11 @@ public class InCallController extends CallsManagerListenerBase {
     private CarSwappingInCallServiceConnection mInCallServiceConnection;
     private NonUIInCallServiceConnectionCollection mNonUIInCallServiceConnections;
     private final ClockProxy mClockProxy;
+
+    // A set of known non-UI in call services on the device, including those that are disabled.
+    // We track this so that we can efficiently bind to them when we're notified that a new
+    // component has been enabled.
+    private Set<ComponentName> mKnownNonUiInCallServices = new ArraySet<>();
 
     // Future that's in a completed state unless we're in the middle of binding to a service.
     // The future will complete with true if binding succeeds, false if it timed out.
@@ -1231,6 +1289,7 @@ public class InCallController extends CallsManagerListenerBase {
      * Unbinds an existing bound connection to the in-call app.
      */
     private void unbindFromServices() {
+        mContext.unregisterReceiver(mPackageChangedReceiver);
         if (mInCallServiceConnection != null) {
             mInCallServiceConnection.disconnect();
             mInCallServiceConnection = null;
@@ -1316,6 +1375,10 @@ public class InCallController extends CallsManagerListenerBase {
         }
         mNonUIInCallServiceConnections = new NonUIInCallServiceConnectionCollection(nonUIInCalls);
         mNonUIInCallServiceConnections.connect(call);
+
+        IntentFilter packageChangedFilter = new IntentFilter(Intent.ACTION_PACKAGE_CHANGED);
+        packageChangedFilter.addDataScheme("package");
+        mContext.registerReceiver(mPackageChangedReceiver, packageChangedFilter);
     }
 
     private InCallServiceInfo getDefaultDialerComponent() {
@@ -1389,7 +1452,7 @@ public class InCallController extends CallsManagerListenerBase {
         PackageManager packageManager = mContext.getPackageManager();
         for (ResolveInfo entry : packageManager.queryIntentServicesAsUser(
                 serviceIntent,
-                PackageManager.GET_META_DATA,
+                PackageManager.GET_META_DATA | PackageManager.MATCH_DISABLED_COMPONENTS,
                 mCallsManager.getCurrentUserHandle().getIdentifier())) {
             ServiceInfo serviceInfo = entry.serviceInfo;
             if (serviceInfo != null) {
@@ -1402,14 +1465,13 @@ public class InCallController extends CallsManagerListenerBase {
 
                 int currentType = getInCallServiceType(entry.serviceInfo, packageManager,
                         packageName);
-                if (requestedType == 0 || requestedType == currentType) {
-                    if (requestedType == IN_CALL_SERVICE_TYPE_NON_UI) {
-                        // We enforce the rule that self-managed calls are not supported by non-ui
-                        // InCallServices.
-                        isSelfManageCallsSupported = false;
-                    }
-                    retval.add(new InCallServiceInfo(
-                            new ComponentName(serviceInfo.packageName, serviceInfo.name),
+                ComponentName foundComponentName =
+                        new ComponentName(serviceInfo.packageName, serviceInfo.name);
+                if (requestedType == IN_CALL_SERVICE_TYPE_NON_UI) {
+                    mKnownNonUiInCallServices.add(foundComponentName);
+                }
+                if (serviceInfo.enabled && (requestedType == 0 || requestedType == currentType)) {
+                    retval.add(new InCallServiceInfo(foundComponentName,
                             isExternalCallsSupported, isSelfManageCallsSupported, requestedType));
                 }
             }
