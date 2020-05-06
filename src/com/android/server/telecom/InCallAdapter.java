@@ -45,7 +45,7 @@ class InCallAdapter extends IInCallAdapter.Stub {
         mCallIdMapper = callIdMapper;
         mLock = lock;
         mOwnerPackageName = ownerPackageName;
-        mOwnerPackageAbbreviation = ServiceBinder.getPackageAbbreviation(ownerPackageName);
+        mOwnerPackageAbbreviation = Log.getPackageAbbreviation(ownerPackageName);
     }
 
     @Override

@@ -24,7 +24,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
@@ -195,7 +194,7 @@ public class InCallController extends CallsManagerListenerBase {
         private final ServiceConnection mServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                Log.startSession("ICSBC.oSC", ServiceBinder.getPackageAbbreviation(name));
+                Log.startSession("ICSBC.oSC", Log.getPackageAbbreviation(name));
                 synchronized (mLock) {
                     try {
                         Log.d(this, "onServiceConnected: %s %b %b", name, mIsBound, mIsConnected);
@@ -212,7 +211,7 @@ public class InCallController extends CallsManagerListenerBase {
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
-                Log.startSession("ICSBC.oSD", ServiceBinder.getPackageAbbreviation(name));
+                Log.startSession("ICSBC.oSD", Log.getPackageAbbreviation(name));
                 synchronized (mLock) {
                     try {
                         Log.d(this, "onDisconnected: %s", name);
@@ -226,7 +225,7 @@ public class InCallController extends CallsManagerListenerBase {
 
             @Override
             public void onNullBinding(ComponentName name) {
-                Log.startSession("ICSBC.oNB", ServiceBinder.getPackageAbbreviation(name));
+                Log.startSession("ICSBC.oNB", Log.getPackageAbbreviation(name));
                 synchronized (mLock) {
                     try {
                         Log.d(this, "onNullBinding: %s", name);
@@ -241,7 +240,7 @@ public class InCallController extends CallsManagerListenerBase {
 
             @Override
             public void onBindingDied(ComponentName name) {
-                Log.startSession("ICSBC.oBD", ServiceBinder.getPackageAbbreviation(name));
+                Log.startSession("ICSBC.oBD", Log.getPackageAbbreviation(name));
                 synchronized (mLock) {
                     try {
                         Log.d(this, "onBindingDied: %s", name);
