@@ -66,6 +66,7 @@ import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
+import com.android.server.telecom.CallsManagerListenerBase;
 import com.android.server.telecom.ClockProxy;
 import com.android.server.telecom.ConnectionServiceFocusManager;
 import com.android.server.telecom.ConnectionServiceFocusManager.ConnectionServiceFocusManagerFactory;
@@ -1388,6 +1389,26 @@ public class CallsManagerTest extends TelecomTestCase {
 
         // and held call is unhold now
         verify(heldCall).unhold(any());
+    }
+
+    /**
+     * Verifies we inform the InCallService on local disconnect.
+     * @throws Exception
+     */
+    @SmallTest
+    @Test
+    public void testRequestDisconnect() throws Exception {
+        CallsManager.CallsManagerListener listener = mock(CallsManager.CallsManagerListener.class);
+        mCallsManager.addListener(listener);
+
+        Call ongoingCall = addSpyCall(CallState.ACTIVE);
+        mCallsManager.addCall(ongoingCall);
+
+        mCallsManager.disconnectCall(ongoingCall);
+        // Seems odd, but ultimately the call state is still active even though it is locally
+        // disconnecting.
+        verify(listener).onCallStateChanged(eq(ongoingCall), eq(CallState.ACTIVE),
+                eq(CallState.ACTIVE));
     }
 
     private Call addSpyCall() {
