@@ -423,7 +423,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
                         CallAudioRouteStateMachine.NO_INCLUDE_BLUETOOTH_IN_BASELINE);
                 return;
             default:
-                Log.wtf(this, "Invalid route specified: %d", route);
+                Log.w(this, "InCallService requested an invalid audio route: %d", route);
         }
     }
 
