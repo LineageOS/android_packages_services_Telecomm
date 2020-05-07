@@ -821,7 +821,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         return String.format(Locale.US, "[Call id=%s, state=%s, tpac=%s, cmgr=%s, handle=%s, "
                         + "vidst=%s, childs(%d), has_parent(%b), cap=%s, prop=%s]",
                 mId,
-                CallState.toString(mState),
+                CallState.toString(getParcelableCallState()),
                 getTargetPhoneAccount(),
                 getConnectionManagerPhoneAccount(),
                 Log.piiHandle(mHandle),
@@ -960,6 +960,20 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     @VisibleForTesting
     public int getState() {
+        return mState;
+    }
+
+    /**
+     * Similar to {@link #getState()}, except will return {@link CallState#DISCONNECTING} if the
+     * call is locally disconnecting.  This is the call state which is reported to the
+     * {@link android.telecom.InCallService}s when a call is parcelled.
+     * @return The parcelable call state.
+     */
+    public int getParcelableCallState() {
+        if (isLocallyDisconnecting() &&
+                (mState != android.telecom.Call.STATE_DISCONNECTED)) {
+            return CallState.DISCONNECTING;
+        }
         return mState;
     }
 
