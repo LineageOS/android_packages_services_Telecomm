@@ -103,8 +103,10 @@ public class BasicCallTests extends TelecomSystemTest {
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
 
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(ids.mCallId);
-        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
-        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureY.getCall(ids.mCallId).getState());
+        assertEquals(Call.STATE_DISCONNECTING,
+                mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+        assertEquals(Call.STATE_DISCONNECTING,
+                mInCallServiceFixtureY.getCall(ids.mCallId).getState());
 
         when(mClockProxy.currentTimeMillis()).thenReturn(TEST_DISCONNECT_TIME);
         when(mClockProxy.elapsedRealtime()).thenReturn(TEST_DISCONNECT_ELAPSED_TIME);
@@ -259,12 +261,15 @@ public class BasicCallTests extends TelecomSystemTest {
         IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(ids.mCallId);
-        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
-        assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureY.getCall(ids.mCallId).getState());
+        assertEquals(Call.STATE_DISCONNECTING,
+                mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+        assertEquals(Call.STATE_DISCONNECTING,
+                mInCallServiceFixtureY.getCall(ids.mCallId).getState());
 
         when(mClockProxy.currentTimeMillis()).thenReturn(TEST_DISCONNECT_TIME);
         when(mClockProxy.elapsedRealtime()).thenReturn(TEST_DISCONNECT_ELAPSED_TIME);
         mConnectionServiceFixtureA.sendSetDisconnected(ids.mConnectionId, DisconnectCause.LOCAL);
+
         assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureX.getCall(ids.mCallId).getState());
         assertEquals(Call.STATE_DISCONNECTED,
