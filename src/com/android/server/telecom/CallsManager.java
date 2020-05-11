@@ -2178,7 +2178,10 @@ public class CallsManager extends Call.ListenerBase
         // is a video call, of if using speaker when docked
         PhoneAccount account = mPhoneAccountRegistrar.getPhoneAccount(
                 call.getTargetPhoneAccount(), call.getInitiatingUser());
-        boolean allowVideo = account.hasCapabilities(PhoneAccount.CAPABILITY_VIDEO_CALLING);
+        boolean allowVideo = false;
+        if (account != null) {
+            allowVideo = account.hasCapabilities(PhoneAccount.CAPABILITY_VIDEO_CALLING);
+        }
         call.setStartWithSpeakerphoneOn(speakerphoneOn || (useSpeakerForVideoCall && allowVideo)
                 || (useSpeakerWhenDocked && useSpeakerForDock));
         call.setVideoState(videoState);
