@@ -81,13 +81,13 @@
     <string name="blocked_numbers_number_already_blocked_message" msgid="2301270825735665458">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> قبلاً مسدود شده است."</string>
     <string name="toast_personal_call_msg" msgid="5817631570381795610">"استفاده از شماره‌گیر شخصی برای گرفتن تماس"</string>
     <string name="notification_incoming_call" msgid="1233481138362230894">"<xliff:g id="CALL_VIA">%1$s</xliff:g> تماس از <xliff:g id="CALL_FROM">%2$s</xliff:g>"</string>
-    <string name="notification_incoming_video_call" msgid="5795968314037063900">"<xliff:g id="CALL_VIA">%1$s</xliff:g> تماس ویدیویی از <xliff:g id="CALL_FROM">%2$s</xliff:g>"</string>
+    <string name="notification_incoming_video_call" msgid="5795968314037063900">"<xliff:g id="CALL_VIA">%1$s</xliff:g> تماس تصویری از <xliff:g id="CALL_FROM">%2$s</xliff:g>"</string>
     <string name="answering_ends_other_call" msgid="8653544281903986641">"پاسخ‌گویی به تماس <xliff:g id="CALL_VIA">%1$s</xliff:g> پایان می‌دهد"</string>
     <string name="answering_ends_other_calls" msgid="3702302838456922535">"پاسخ‌گویی به تماس‌های <xliff:g id="CALL_VIA">%1$s</xliff:g> شما پاسخ می‌دهد"</string>
-    <string name="answering_ends_other_video_call" msgid="8572022039304239958">"پاسخ‌گویی به تماس ویدیویی <xliff:g id="CALL_VIA">%1$s</xliff:g> شما پایان می‌دهد"</string>
+    <string name="answering_ends_other_video_call" msgid="8572022039304239958">"پاسخ‌گویی به تماس تصویری <xliff:g id="CALL_VIA">%1$s</xliff:g> شما پایان می‌دهد"</string>
     <string name="answering_ends_other_managed_call" msgid="4031778317409881805">"پاسخ‌گویی به تماس درحال انجامتان پایان می‌دهد"</string>
     <string name="answering_ends_other_managed_calls" msgid="3974069768615307659">"پاسخ‌گویی به تماس‌های درحال انجامتان پایان می‌دهد"</string>
-    <string name="answering_ends_other_managed_video_call" msgid="1988508241432031327">"پاسخ‌گویی به تماس ویدیویی درحال انجامتان پایان می‌دهد"</string>
+    <string name="answering_ends_other_managed_video_call" msgid="1988508241432031327">"پاسخ‌گویی به تماس تصویری درحال انجامتان پایان می‌دهد"</string>
     <string name="answer_incoming_call" msgid="2045888814782215326">"پاسخ‌گویی"</string>
     <string name="decline_incoming_call" msgid="922147089348451310">"نپذیرفتن"</string>
     <string name="cant_call_due_to_no_supported_service" msgid="1635626384149947077">"به‌دلیل اینکه هیچ حساب تماسی وجود ندارد که از این نوع تماس پشتیبانی کند، تماس برقرار نشد."</string>
