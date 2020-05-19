@@ -137,6 +137,11 @@ public class CallAudioModeTransitionTests extends TelecomTestCase {
 
         resetMocks();
         when(mCallAudioManager.startRinging()).thenReturn(true);
+        if (mParams.initialAudioState
+                == CallAudioModeStateMachine.ENTER_AUDIO_PROCESSING_FOCUS_FOR_TESTING) {
+            when(mAudioManager.getMode())
+                    .thenReturn(CallAudioModeStateMachine.NEW_AUDIO_MODE_FOR_AUDIO_PROCESSING);
+        }
 
         sm.sendMessage(mParams.messageType, mParams.externalState);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
@@ -815,7 +820,7 @@ public class CallAudioModeTransitionTests extends TelecomTestCase {
                         .build(),
                 CallAudioModeStateMachine.RING_STATE_NAME, // expectedFinalStateName
                 FOCUS_RING, // expectedFocus
-                AudioManager.MODE_RINGTONE, // expectedMode
+                NO_CHANGE, // expectedMode
                 ON, // expectedRingingInteraction
                 // We expect a call to stopCallWaiting because it happens whenever the ringer starts
                 OFF // expectedCallWaitingInteraction
@@ -836,7 +841,7 @@ public class CallAudioModeTransitionTests extends TelecomTestCase {
                         .build(),
                 CallAudioModeStateMachine.RING_STATE_NAME, // expectedFinalStateName
                 FOCUS_RING, // expectedFocus
-                AudioManager.MODE_RINGTONE, // expectedMode
+                NO_CHANGE, // expectedMode
                 ON, // expectedRingingInteraction
                 // We expect a call to stopCallWaiting because it happens whenever the ringer starts
                 OFF // expectedCallWaitingInteraction
