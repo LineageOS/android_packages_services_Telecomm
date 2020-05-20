@@ -357,7 +357,11 @@ public class CallAudioModeStateMachine extends StateMachine {
             if (mCallAudioManager.startRinging()) {
                 mAudioManager.requestAudioFocusForCall(AudioManager.STREAM_RING,
                         AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
-                mAudioManager.setMode(AudioManager.MODE_RINGTONE);
+                // Do not set MODE_RINGTONE if we were previously in the CALL_SCREENING mode -- this
+                // trips up the audio system.
+                if (mAudioManager.getMode() != AudioManager.MODE_CALL_SCREENING) {
+                    mAudioManager.setMode(AudioManager.MODE_RINGTONE);
+                }
                 mCallAudioManager.setCallAudioRouteFocusState(
                         CallAudioRouteStateMachine.RINGING_FOCUS);
             } else {
