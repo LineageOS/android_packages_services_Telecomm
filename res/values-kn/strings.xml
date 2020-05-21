@@ -21,8 +21,8 @@
     <string name="unknown" msgid="6993977514360123431">"ಅಪರಿಚಿತ"</string>
     <string name="notification_missedCallTitle" msgid="5060387047205532974">"ಮಿಸ್ಡ್‌ ಕಾಲ್‌"</string>
     <string name="notification_missedWorkCallTitle" msgid="6965463282259034953">"ಮಿಸ್ಡ್‌ ಕೆಲಸದ ಕರೆ"</string>
-    <string name="notification_missedCallsTitle" msgid="3910479625507893809">"ಮಿಸ್ಡ್‌ ಕರೆಗಳು"</string>
-    <string name="notification_missedCallsMsg" msgid="5055782736170916682">"<xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> ಮಿಸ್ಡ್‌ ಕರೆಗಳು"</string>
+    <string name="notification_missedCallsTitle" msgid="3910479625507893809">"ಮಿಸ್ಡ್‌ ಕಾಲ್‍‍ಗಳು"</string>
+    <string name="notification_missedCallsMsg" msgid="5055782736170916682">"<xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> ಮಿಸ್ಡ್‌ ಕಾಲ್‍‍ಗಳು"</string>
     <string name="notification_missedCallTicker" msgid="6731461957487087769">"<xliff:g id="MISSED_CALL_FROM">%s</xliff:g> ಅವರಿಂದ ಮಿಸ್ಡ್‌ ಕಾಲ್‌"</string>
     <string name="notification_missedCall_call_back" msgid="7900333283939789732">"ಮರಳಿ ಕರೆ ಮಾಡಿ"</string>
     <string name="notification_missedCall_message" msgid="4054698824390076431">"ಸಂದೇಶ"</string>
@@ -95,7 +95,7 @@
     <string name="cant_call_due_to_ongoing_calls" msgid="6379163795277824868">"ನಿಮ್ಮ <xliff:g id="OTHER_CALL">%1$s</xliff:g> ಕರೆಗಳ ಕಾರಣ ಕರೆ ಮಾಡಲು ಸಾಧ್ಯವಾಗಿಲ್ಲ."</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="8243532328969433172">"ಬೇರೊಂದು ಅಪ್ಲಿಕೇಶನ್‍ನಲ್ಲಿ ಕರೆಯಲ್ಲಿರುವುದರಿಂದ ಕರೆ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ."</string>
     <string name="notification_channel_incoming_call" msgid="5245550964701715662">"ಒಳಬರುವ ಕರೆಗಳು"</string>
-    <string name="notification_channel_missed_call" msgid="7168893015283909012">"ಮಿಸ್ಡ್‌ ಕರೆಗಳು"</string>
+    <string name="notification_channel_missed_call" msgid="7168893015283909012">"ಮಿಸ್ಡ್‌ ಕಾಲ್‍‍ಗಳು"</string>
     <string name="notification_channel_call_blocking" msgid="2028807677868598710">"ಕರೆ ನಿರ್ಬಂಧಿಸುವಿಕೆ"</string>
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"ಹಿನ್ನೆಲೆ ಕರೆಗಳು"</string>
     <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"ಕರೆಗಳ ಕನೆಕ್ಷನ್ ಅನ್ನು ಕಡಿತಗೊಳಿಸಲಾಗಿದೆ"</string>

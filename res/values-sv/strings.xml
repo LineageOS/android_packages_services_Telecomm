@@ -98,7 +98,7 @@
     <string name="notification_channel_missed_call" msgid="7168893015283909012">"Missade samtal"</string>
     <string name="notification_channel_call_blocking" msgid="2028807677868598710">"Samtalsblockering"</string>
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"Bakgrundssamtal"</string>
-    <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"Samtalen kopplades från"</string>
+    <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"Frånkopplade samtal"</string>
     <string name="notification_channel_in_call_service_crash" msgid="7313237519166984267">"Kraschade telefonappar"</string>
     <string name="alert_outgoing_call" msgid="5319895109298927431">"Ringer du det här samtalet avslutas samtalet i <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"Välj hur du vill ringa samtalet"</string>
