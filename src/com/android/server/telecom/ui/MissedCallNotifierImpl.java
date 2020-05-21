@@ -472,7 +472,7 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
         TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(mContext);
         taskStackBuilder.addNextIntent(intent);
 
-        return taskStackBuilder.getPendingIntent(0, 0, null, userHandle);
+        return taskStackBuilder.getPendingIntent(0, PendingIntent.FLAG_IMMUTABLE, null, userHandle);
     }
 
     /**
