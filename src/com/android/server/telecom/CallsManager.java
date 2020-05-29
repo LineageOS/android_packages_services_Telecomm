@@ -1550,14 +1550,22 @@ public class CallsManager extends Call.ListenerBase
         CompletableFuture<Call> makeRoomForCall = setAccountHandle.thenComposeAsync(
                 potentialPhoneAccounts -> {
                     Log.i(CallsManager.this, "make room for outgoing call stage");
-                    boolean isPotentialInCallMMICode =
-                            isPotentialInCallMMICode(handle) && !isSelfManaged;
-                    // Do not support any more live calls.  Our options are to move a call to hold,
-                    // disconnect a call, or cancel this call altogether. If a call is being reused,
-                    // then it has already passed the makeRoomForOutgoingCall check once and will
-                    // fail the second time due to the call transitioning into the CONNECTING state.
-                    if (!isPotentialInCallMMICode && (!isReusedCall
-                            && !makeRoomForOutgoingCall(finalCall, finalCall.isEmergencyCall()))) {
+                    if (isPotentialInCallMMICode(handle) && !isSelfManaged) {
+                        return CompletableFuture.completedFuture(finalCall);
+                    }
+                    // If a call is being reused, then it has already passed the
+                    // makeRoomForOutgoingCall check once and will fail the second time due to the
+                    // call transitioning into the CONNECTING state.
+                    if (isReusedCall) {
+                        return CompletableFuture.completedFuture(finalCall);
+                    }
+
+                    // If we can not supportany more active calls, our options are to move a call
+                    // to hold, disconnect a call, or cancel this call altogether.
+                    boolean isRoomForCall = finalCall.isEmergencyCall() ?
+                            makeRoomForOutgoingEmergencyCall(finalCall) :
+                            makeRoomForOutgoingCall(finalCall);
+                    if (!isRoomForCall) {
                         Call foregroundCall = getForegroundCall();
                         Log.d(CallsManager.this, "No more room for outgoing call %s ", finalCall);
                         if (foregroundCall.isSelfManaged()) {
@@ -3879,142 +3887,26 @@ public class CallsManager extends Call.ListenerBase
     }
 
     @VisibleForTesting
-    public boolean makeRoomForOutgoingCall(Call call, boolean isEmergency) {
-        if (hasMaximumLiveCalls(call)) {
-            // NOTE: If the amount of live calls changes beyond 1, this logic will probably
-            // have to change.
-            Call liveCall = getFirstCallWithState(LIVE_CALL_STATES);
-            Log.i(this, "makeRoomForOutgoingCall call = " + call + " livecall = " +
-                   liveCall);
-
-            if (call == liveCall) {
-                // If the call is already the foreground call, then we are golden.
-                // This can happen after the user selects an account in the SELECT_PHONE_ACCOUNT
-                // state since the call was already populated into the list.
-                return true;
-            }
-
-            if (hasMaximumOutgoingCalls(call)) {
-                Call outgoingCall = getFirstCallWithState(OUTGOING_CALL_STATES);
-                if (isEmergency && !outgoingCall.isEmergencyCall()) {
-                    // Disconnect the current outgoing call if it's not an emergency call. If the
-                    // user tries to make two outgoing calls to different emergency call numbers,
-                    // we will try to connect the first outgoing call.
-                    call.getAnalytics().setCallIsAdditional(true);
-                    outgoingCall.getAnalytics().setCallIsInterrupted(true);
-                    outgoingCall.disconnect("Disconnecting dialing call in favor of new dialing"
-                            + " emergency call.");
-                    return true;
-                }
-                if (outgoingCall.getState() == CallState.SELECT_PHONE_ACCOUNT) {
-                    // If there is an orphaned call in the {@link CallState#SELECT_PHONE_ACCOUNT}
-                    // state, just disconnect it since the user has explicitly started a new call.
-                    call.getAnalytics().setCallIsAdditional(true);
-                    outgoingCall.getAnalytics().setCallIsInterrupted(true);
-                    outgoingCall.disconnect("Disconnecting call in SELECT_PHONE_ACCOUNT in favor"
-                            + " of new outgoing call.");
-                    return true;
-                }
-                return false;
-            }
-
-            if (liveCall.getState() == CallState.AUDIO_PROCESSING && isEmergency) {
-                call.getAnalytics().setCallIsAdditional(true);
-                liveCall.getAnalytics().setCallIsInterrupted(true);
-                liveCall.disconnect(0, "disconnecting audio processing call for emergency");
-                return true;
-            }
-
-            // If we have the max number of held managed calls and we're placing an emergency call,
-            // we'll disconnect the ongoing call if it cannot be held.
-            if (hasMaximumManagedHoldingCalls(call) && isEmergency && !canHold(liveCall)) {
-                call.getAnalytics().setCallIsAdditional(true);
-                liveCall.getAnalytics().setCallIsInterrupted(true);
-                liveCall.disconnect("disconnecting to make room for emergency call "
-                        + call.getId());
-                return true;
-            }
-
-            // TODO: Remove once b/23035408 has been corrected.
-            // If the live call is a conference, it will not have a target phone account set.  This
-            // means the check to see if the live call has the same target phone account as the new
-            // call will not cause us to bail early.  As a result, we'll end up holding the
-            // ongoing conference call.  However, the ConnectionService is already doing that.  This
-            // has caused problems with some carriers.  As a workaround until b/23035408 is
-            // corrected, we will try and get the target phone account for one of the conference's
-            // children and use that instead.
-            PhoneAccountHandle liveCallPhoneAccount = liveCall.getTargetPhoneAccount();
-            if (liveCallPhoneAccount == null && liveCall.isConference() &&
-                    !liveCall.getChildCalls().isEmpty()) {
-                liveCallPhoneAccount = getFirstChildPhoneAccount(liveCall);
-                Log.i(this, "makeRoomForOutgoingCall: using child call PhoneAccount = " +
-                        liveCallPhoneAccount);
-            }
-
-            // We may not know which PhoneAccount the emergency call will be placed on yet, but if
-            // the liveCall PhoneAccount does not support placing emergency calls, then we know it
-            // will not be that one and we do not want multiple PhoneAccounts active during an
-            // emergency call if possible. Disconnect the active call in favor of the emergency call
-            // instead of trying to hold.
-            if (isEmergency && liveCall.getTargetPhoneAccount() != null) {
-                PhoneAccount pa = mPhoneAccountRegistrar.getPhoneAccountUnchecked(
-                        liveCall.getTargetPhoneAccount());
-                if((pa.getCapabilities() & PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS) == 0) {
-                    liveCall.setOverrideDisconnectCauseCode(new DisconnectCause(
-                            DisconnectCause.LOCAL, DisconnectCause.REASON_EMERGENCY_CALL_PLACED));
-                    liveCall.disconnect("outgoing call does not support emergency calls, "
-                            + "disconnecting.");
-                }
-                return true;
-            }
-
-            // First thing, if we are trying to make a call with the same phone account as the live
-            // call, then allow it so that the connection service can make its own decision about
-            // how to handle the new call relative to the current one.
-            if (PhoneAccountHandle.areFromSamePackage(liveCallPhoneAccount,
-                    call.getTargetPhoneAccount())) {
-                Log.i(this, "makeRoomForOutgoingCall: phoneAccount matches.");
-                call.getAnalytics().setCallIsAdditional(true);
-                liveCall.getAnalytics().setCallIsInterrupted(true);
-                return true;
-            } else if (call.getTargetPhoneAccount() == null) {
-                // Without a phone account, we can't say reliably that the call will fail.
-                // If the user chooses the same phone account as the live call, then it's
-                // still possible that the call can be made (like with CDMA calls not supporting
-                // hold but they still support adding a call by going immediately into conference
-                // mode). Return true here and we'll run this code again after user chooses an
-                // account.
-                return true;
-            }
-
-            // Try to hold the live call before attempting the new outgoing call.
-            if (canHold(liveCall)) {
-                Log.i(this, "makeRoomForOutgoingCall: holding live call.");
-                call.getAnalytics().setCallIsAdditional(true);
-                liveCall.getAnalytics().setCallIsInterrupted(true);
-                liveCall.hold("calling " + call.getId());
-                return true;
-            }
-
-            // The live call cannot be held so we're out of luck here.  There's no room.
-            return false;
-        } else if (hasRingingOrSimulatedRingingCall() && isEmergency) {
+    public boolean makeRoomForOutgoingEmergencyCall(Call emergencyCall) {
+        // Always disconnect any ringing/incoming calls when an emergency call is placed to minimize
+        // distraction. This does not affect live call count.
+        if (hasRingingOrSimulatedRingingCall()) {
             Call ringingCall = getRingingOrSimulatedRingingCall();
             ringingCall.getAnalytics().setCallIsAdditional(true);
             ringingCall.getAnalytics().setCallIsInterrupted(true);
             if (ringingCall.getState() == CallState.SIMULATED_RINGING) {
-                    if (!ringingCall.hasGoneActiveBefore()) {
-                        // If this is an incoming call that is currently in SIMULATED_RINGING only
-                        // after a call screen, disconnect to make room and mark as missed, since
-                        // the user didn't get a chance to accept/reject.
-                        ringingCall.disconnect("emergency call dialed during simulated ringing "
-                                + "after screen.");
-                    } else {
-                        // If this is a simulated ringing call after being active and put in
-                        // AUDIO_PROCESSING state again, disconnect normally.
-                        ringingCall.reject(false, null, "emergency call dialed during simulated "
-                                + "ringing.");
-                    }
+                if (!ringingCall.hasGoneActiveBefore()) {
+                    // If this is an incoming call that is currently in SIMULATED_RINGING only
+                    // after a call screen, disconnect to make room and mark as missed, since
+                    // the user didn't get a chance to accept/reject.
+                    ringingCall.disconnect("emergency call dialed during simulated ringing "
+                            + "after screen.");
+                } else {
+                    // If this is a simulated ringing call after being active and put in
+                    // AUDIO_PROCESSING state again, disconnect normally.
+                    ringingCall.reject(false, null, "emergency call dialed during simulated "
+                            + "ringing.");
+                }
             } else { // normal incoming ringing call.
                 // Hang up the ringing call to make room for the emergency call and mark as missed,
                 // since the user did not reject.
@@ -4022,9 +3914,208 @@ public class CallsManager extends Call.ListenerBase
                         new DisconnectCause(DisconnectCause.MISSED));
                 ringingCall.reject(false, null, "emergency call dialed during ringing.");
             }
+        }
+
+        // There is already room!
+        if (!hasMaximumLiveCalls(emergencyCall)) return true;
+
+        Call liveCall = getFirstCallWithState(LIVE_CALL_STATES);
+        Log.i(this, "makeRoomForOutgoingEmergencyCall call = " + emergencyCall
+                + " livecall = " + liveCall);
+
+        if (emergencyCall == liveCall) {
+            // Not likely, but a good sanity check.
             return true;
         }
-        return true;
+
+        if (hasMaximumOutgoingCalls(emergencyCall)) {
+            Call outgoingCall = getFirstCallWithState(OUTGOING_CALL_STATES);
+            if (!outgoingCall.isEmergencyCall()) {
+                emergencyCall.getAnalytics().setCallIsAdditional(true);
+                outgoingCall.getAnalytics().setCallIsInterrupted(true);
+                outgoingCall.disconnect("Disconnecting dialing call in favor of new dialing"
+                        + " emergency call.");
+                return true;
+            }
+            if (outgoingCall.getState() == CallState.SELECT_PHONE_ACCOUNT) {
+                // Sanity check: if there is an orphaned emergency call in the
+                // {@link CallState#SELECT_PHONE_ACCOUNT} state, just disconnect it since the user
+                // has explicitly started a new call.
+                emergencyCall.getAnalytics().setCallIsAdditional(true);
+                outgoingCall.getAnalytics().setCallIsInterrupted(true);
+                outgoingCall.disconnect("Disconnecting call in SELECT_PHONE_ACCOUNT in favor"
+                        + " of new outgoing call.");
+                return true;
+            }
+            //  If the user tries to make two outgoing calls to different emergency call numbers,
+            //  we will try to connect the first outgoing call and reject the second.
+            return false;
+        }
+
+        if (liveCall.getState() == CallState.AUDIO_PROCESSING) {
+            emergencyCall.getAnalytics().setCallIsAdditional(true);
+            liveCall.getAnalytics().setCallIsInterrupted(true);
+            liveCall.disconnect("disconnecting audio processing call for emergency");
+            return true;
+        }
+
+        // If we have the max number of held managed calls and we're placing an emergency call,
+        // we'll disconnect the ongoing call if it cannot be held.
+        if (hasMaximumManagedHoldingCalls(emergencyCall) && !canHold(liveCall)) {
+            emergencyCall.getAnalytics().setCallIsAdditional(true);
+            liveCall.getAnalytics().setCallIsInterrupted(true);
+            // Disconnect the active call instead of the holding call because it is historically
+            // easier to do, rather than disconnect a held call.
+            liveCall.disconnect("disconnecting to make room for emergency call "
+                    + emergencyCall.getId());
+            return true;
+        }
+
+        // TODO: Remove once b/23035408 has been corrected.
+        // If the live call is a conference, it will not have a target phone account set.  This
+        // means the check to see if the live call has the same target phone account as the new
+        // call will not cause us to bail early.  As a result, we'll end up holding the
+        // ongoing conference call.  However, the ConnectionService is already doing that.  This
+        // has caused problems with some carriers.  As a workaround until b/23035408 is
+        // corrected, we will try and get the target phone account for one of the conference's
+        // children and use that instead.
+        PhoneAccountHandle liveCallPhoneAccount = liveCall.getTargetPhoneAccount();
+        if (liveCallPhoneAccount == null && liveCall.isConference() &&
+                !liveCall.getChildCalls().isEmpty()) {
+            liveCallPhoneAccount = getFirstChildPhoneAccount(liveCall);
+            Log.i(this, "makeRoomForOutgoingEmergencyCall: using child call PhoneAccount = " +
+                    liveCallPhoneAccount);
+        }
+
+        // We may not know which PhoneAccount the emergency call will be placed on yet, but if
+        // the liveCall PhoneAccount does not support placing emergency calls, then we know it
+        // will not be that one and we do not want multiple PhoneAccounts active during an
+        // emergency call if possible. Disconnect the active call in favor of the emergency call
+        // instead of trying to hold.
+        if (liveCall.getTargetPhoneAccount() != null) {
+            PhoneAccount pa = mPhoneAccountRegistrar.getPhoneAccountUnchecked(
+                    liveCall.getTargetPhoneAccount());
+            if((pa.getCapabilities() & PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS) == 0) {
+                liveCall.setOverrideDisconnectCauseCode(new DisconnectCause(
+                        DisconnectCause.LOCAL, DisconnectCause.REASON_EMERGENCY_CALL_PLACED));
+                liveCall.disconnect("outgoing call does not support emergency calls, "
+                        + "disconnecting.");
+            }
+            return true;
+        }
+
+        // First thing, if we are trying to make an emergency call with the same package name as
+        // the live call, then allow it so that the connection service can make its own decision
+        // about how to handle the new call relative to the current one.
+        // By default, for telephony, it will try to hold the existing call before placing the new
+        // emergency call except for if the carrier does not support holding calls for emergency.
+        // In this case, telephony will disconnect the call.
+        if (PhoneAccountHandle.areFromSamePackage(liveCallPhoneAccount,
+                emergencyCall.getTargetPhoneAccount())) {
+            Log.i(this, "makeRoomForOutgoingEmergencyCall: phoneAccount matches.");
+            emergencyCall.getAnalytics().setCallIsAdditional(true);
+            liveCall.getAnalytics().setCallIsInterrupted(true);
+            return true;
+        } else if (emergencyCall.getTargetPhoneAccount() == null) {
+            // Without a phone account, we can't say reliably that the call will fail.
+            // If the user chooses the same phone account as the live call, then it's
+            // still possible that the call can be made (like with CDMA calls not supporting
+            // hold but they still support adding a call by going immediately into conference
+            // mode). Return true here and we'll run this code again after user chooses an
+            // account.
+            return true;
+        }
+
+        // Hold the live call if possible before attempting the new outgoing emergency call.
+        if (canHold(liveCall)) {
+            Log.i(this, "makeRoomForOutgoingEmergencyCall: holding live call.");
+            emergencyCall.getAnalytics().setCallIsAdditional(true);
+            liveCall.getAnalytics().setCallIsInterrupted(true);
+            liveCall.hold("calling " + emergencyCall.getId());
+            return true;
+        }
+
+        // The live call cannot be held so we're out of luck here.  There's no room.
+        return false;
+    }
+
+    private boolean makeRoomForOutgoingCall(Call call) {
+        // Already room!
+        if (!hasMaximumLiveCalls(call)) return true;
+
+        // NOTE: If the amount of live calls changes beyond 1, this logic will probably
+        // have to change.
+        Call liveCall = getFirstCallWithState(LIVE_CALL_STATES);
+        Log.i(this, "makeRoomForOutgoingCall call = " + call + " livecall = " +
+               liveCall);
+
+        if (call == liveCall) {
+            // If the call is already the foreground call, then we are golden.
+            // This can happen after the user selects an account in the SELECT_PHONE_ACCOUNT
+            // state since the call was already populated into the list.
+            return true;
+        }
+
+        if (hasMaximumOutgoingCalls(call)) {
+            Call outgoingCall = getFirstCallWithState(OUTGOING_CALL_STATES);
+            if (outgoingCall.getState() == CallState.SELECT_PHONE_ACCOUNT) {
+                // If there is an orphaned call in the {@link CallState#SELECT_PHONE_ACCOUNT}
+                // state, just disconnect it since the user has explicitly started a new call.
+                call.getAnalytics().setCallIsAdditional(true);
+                outgoingCall.getAnalytics().setCallIsInterrupted(true);
+                outgoingCall.disconnect("Disconnecting call in SELECT_PHONE_ACCOUNT in favor"
+                        + " of new outgoing call.");
+                return true;
+            }
+            return false;
+        }
+
+        // TODO: Remove once b/23035408 has been corrected.
+        // If the live call is a conference, it will not have a target phone account set.  This
+        // means the check to see if the live call has the same target phone account as the new
+        // call will not cause us to bail early.  As a result, we'll end up holding the
+        // ongoing conference call.  However, the ConnectionService is already doing that.  This
+        // has caused problems with some carriers.  As a workaround until b/23035408 is
+        // corrected, we will try and get the target phone account for one of the conference's
+        // children and use that instead.
+        PhoneAccountHandle liveCallPhoneAccount = liveCall.getTargetPhoneAccount();
+        if (liveCallPhoneAccount == null && liveCall.isConference() &&
+                !liveCall.getChildCalls().isEmpty()) {
+            liveCallPhoneAccount = getFirstChildPhoneAccount(liveCall);
+            Log.i(this, "makeRoomForOutgoingCall: using child call PhoneAccount = " +
+                    liveCallPhoneAccount);
+        }
+
+        // First thing, if we are trying to make a call with the same phone account as the live
+        // call, then allow it so that the connection service can make its own decision about
+        // how to handle the new call relative to the current one.
+        if (PhoneAccountHandle.areFromSamePackage(liveCallPhoneAccount,
+                call.getTargetPhoneAccount())) {
+            Log.i(this, "makeRoomForOutgoingCall: phoneAccount matches.");
+            call.getAnalytics().setCallIsAdditional(true);
+            liveCall.getAnalytics().setCallIsInterrupted(true);
+            return true;
+        } else if (call.getTargetPhoneAccount() == null) {
+            // Without a phone account, we can't say reliably that the call will fail.
+            // If the user chooses the same phone account as the live call, then it's
+            // still possible that the call can be made (like with CDMA calls not supporting
+            // hold but they still support adding a call by going immediately into conference
+            // mode). Return true here and we'll run this code again after user chooses an
+            // account.
+            return true;
+        }
+
+        // Try to hold the live call before attempting the new outgoing call.
+        if (canHold(liveCall)) {
+            Log.i(this, "makeRoomForOutgoingCall: holding live call.");
+            call.getAnalytics().setCallIsAdditional(true);
+            liveCall.getAnalytics().setCallIsInterrupted(true);
+            liveCall.hold("calling " + call.getId());
+            return true;
+        }
+
+        // The live call cannot be held so we're out of luck here.  There's no room.
+        return false;
     }
 
     /**
