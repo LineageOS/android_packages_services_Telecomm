@@ -165,6 +165,7 @@
         <activity-alias android:name="PrivilegedCallActivity"
              android:targetActivity=".components.UserCallActivity"
              android:permission="android.permission.CALL_PRIVILEGED"
+             android:exported="true"
              android:process=":ui">
             <intent-filter android:priority="1000">
                 <action android:name="android.intent.action.CALL_PRIVILEGED"/>
@@ -200,6 +201,7 @@
         <activity-alias android:name="EmergencyCallActivity"
              android:targetActivity=".components.UserCallActivity"
              android:permission="android.permission.CALL_PRIVILEGED"
+             android:exported="true"
              android:process=":ui">
             <intent-filter android:priority="1000">
                 <action android:name="android.intent.action.CALL_EMERGENCY"/>
