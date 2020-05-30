@@ -98,7 +98,7 @@
     <string name="notification_channel_missed_call" msgid="7168893015283909012">"Dei galduak"</string>
     <string name="notification_channel_call_blocking" msgid="2028807677868598710">"Deiak blokeatzeko aukera"</string>
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"Atzeko planoko deiak"</string>
-    <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"Deiak deskonektatu egin dira"</string>
+    <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"Deskonektatutako deiak"</string>
     <string name="notification_channel_in_call_service_crash" msgid="7313237519166984267">"Huts egin duten telefonoko aplikazioak"</string>
     <string name="alert_outgoing_call" msgid="5319895109298927431">"Dei hau egiten baduzu, amaitu egingo da <xliff:g id="OTHER_APP">%1$s</xliff:g> aplikazioko deia."</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"Aukeratu dei hau egiteko modua"</string>
