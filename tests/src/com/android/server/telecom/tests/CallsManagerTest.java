@@ -136,7 +136,8 @@ public class CallsManagerTest extends TelecomTestCase {
             ComponentName.unflattenFromString("com.baz/.Self"), "Self");
     private static final PhoneAccount SIM_1_ACCOUNT = new PhoneAccount.Builder(SIM_1_HANDLE, "Sim1")
             .setCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION
-                    | PhoneAccount.CAPABILITY_CALL_PROVIDER)
+                    | PhoneAccount.CAPABILITY_CALL_PROVIDER
+                    | PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS)
             .setIsEnabled(true)
             .build();
     private static final PhoneAccount SIM_2_ACCOUNT = new PhoneAccount.Builder(SIM_2_HANDLE, "Sim2")
@@ -1133,7 +1134,7 @@ public class CallsManagerTest extends TelecomTestCase {
         newEmergencyCall.setHandle(Uri.fromParts("tel", "5551213", null),
                 TelecomManager.PRESENTATION_ALLOWED);
 
-        assertTrue(mCallsManager.makeRoomForOutgoingCall(newEmergencyCall, true /*isEmergency*/));
+        assertTrue(mCallsManager.makeRoomForOutgoingEmergencyCall(newEmergencyCall));
         verify(ongoingCall).disconnect(anyLong(), anyString());
     }
 
@@ -1148,7 +1149,7 @@ public class CallsManagerTest extends TelecomTestCase {
         newEmergencyCall.setHandle(Uri.fromParts("tel", "5551213", null),
                 TelecomManager.PRESENTATION_ALLOWED);
 
-        assertTrue(mCallsManager.makeRoomForOutgoingCall(newEmergencyCall, true /*isEmergency*/));
+        assertTrue(mCallsManager.makeRoomForOutgoingEmergencyCall(newEmergencyCall));
         verify(ongoingCall).reject(anyBoolean(), any(), any());
     }
 
@@ -1163,7 +1164,7 @@ public class CallsManagerTest extends TelecomTestCase {
         newEmergencyCall.setHandle(Uri.fromParts("tel", "5551213", null),
                 TelecomManager.PRESENTATION_ALLOWED);
 
-        assertTrue(mCallsManager.makeRoomForOutgoingCall(newEmergencyCall, true /*isEmergency*/));
+        assertTrue(mCallsManager.makeRoomForOutgoingEmergencyCall(newEmergencyCall));
         verify(ongoingCall).disconnect(anyString());
     }
 
@@ -1179,8 +1180,27 @@ public class CallsManagerTest extends TelecomTestCase {
         newEmergencyCall.setHandle(Uri.fromParts("tel", "5551213", null),
                 TelecomManager.PRESENTATION_ALLOWED);
 
-        assertTrue(mCallsManager.makeRoomForOutgoingCall(newEmergencyCall, true /*isEmergency*/));
+        assertTrue(mCallsManager.makeRoomForOutgoingEmergencyCall(newEmergencyCall));
         verify(ongoingCall).reject(anyBoolean(), any(), any());
+    }
+
+    @SmallTest
+    @Test
+    public void testMakeRoomForEmergencyCallDuringActiveAndRingingCallDisconnectRinging() {
+        when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(SIM_1_HANDLE))
+                .thenReturn(SIM_1_ACCOUNT);
+        Call ongoingCall = addSpyCall(SIM_1_HANDLE, CallState.ACTIVE);
+        doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
+        Call ringingCall = addSpyCall(SIM_1_HANDLE, CallState.RINGING);
+
+        Call newEmergencyCall = createCall(SIM_1_HANDLE, CallState.NEW);
+        when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
+                .thenReturn(true);
+        newEmergencyCall.setHandle(Uri.fromParts("tel", "5551213", null),
+                TelecomManager.PRESENTATION_ALLOWED);
+
+        assertTrue(mCallsManager.makeRoomForOutgoingEmergencyCall(newEmergencyCall));
+        verify(ringingCall).reject(anyBoolean(), any(), any());
     }
 
     /**
