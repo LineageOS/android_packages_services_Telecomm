@@ -98,7 +98,7 @@
     <string name="notification_channel_missed_call" msgid="7168893015283909012">"ការ​ហៅ​ដែល​មិន​បាន​ទទួល"</string>
     <string name="notification_channel_call_blocking" msgid="2028807677868598710">"ការទប់ស្កាត់ការហៅ"</string>
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"ការហៅនៅផ្ទៃខាងក្រោយ"</string>
-    <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"បាន​ផ្ដាច់​ការហៅ​ទូរសព្ទ"</string>
+    <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"ការហៅ​ទូរសព្ទដែលបាន​ផ្ដាច់"</string>
     <string name="notification_channel_in_call_service_crash" msgid="7313237519166984267">"កម្មវិធី​ទូរសព្ទ​គាំង"</string>
     <string name="alert_outgoing_call" msgid="5319895109298927431">"ការ​ហៅ​ទូរសព្ទ​នេះ នឹង​បញ្ចប់​ការហៅ <xliff:g id="OTHER_APP">%1$s</xliff:g> របស់​អ្នក។"</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"ជ្រើសរើស​របៀប​ធ្វើ​ការហៅ​ទូរសព្ទ​នេះ"</string>
