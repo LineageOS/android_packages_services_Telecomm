@@ -24,16 +24,24 @@ import android.telephony.TelephonyManager;
 public class PhoneNumberUtilsAdapterImpl implements PhoneNumberUtilsAdapter {
     @Override
     public boolean isLocalEmergencyNumber(Context context, String number) {
-        TelephonyManager tm = (TelephonyManager) context.getSystemService(
-                Context.TELEPHONY_SERVICE);
-        return tm.isEmergencyNumber(number);
+        try {
+            TelephonyManager tm = (TelephonyManager) context.getSystemService(
+                    Context.TELEPHONY_SERVICE);
+            return tm.isEmergencyNumber(number);
+        } catch (IllegalStateException ise) {
+            return false;
+        }
     }
 
     @Override
     public boolean isPotentialLocalEmergencyNumber(Context context, String number) {
-        TelephonyManager tm = (TelephonyManager) context.getSystemService(
-                Context.TELEPHONY_SERVICE);
-        return tm.isPotentialEmergencyNumber(number);
+        try {
+            TelephonyManager tm = (TelephonyManager) context.getSystemService(
+                    Context.TELEPHONY_SERVICE);
+            return tm.isPotentialEmergencyNumber(number);
+        } catch (IllegalStateException ise) {
+            return false;
+        }
     }
 
     @Override
