@@ -26,7 +26,7 @@
     <string name="notification_missedCallTicker" msgid="6731461957487087769">"Прапушчаны выклік ад <xliff:g id="MISSED_CALL_FROM">%s</xliff:g>"</string>
     <string name="notification_missedCall_call_back" msgid="7900333283939789732">"Адказаць"</string>
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Паведамленне"</string>
-    <string name="accessibility_call_muted" msgid="2968461092554300779">"Выклік сцішаны."</string>
+    <string name="accessibility_call_muted" msgid="2968461092554300779">"Гук выключаны."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"Уключаная гучная сувязь."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"Не магу гаварыць. У чым справа?"</string>
     <string name="respond_via_sms_canned_response_2" msgid="2052951316129952406">"Я выклікаю цябе праз момант."</string>
