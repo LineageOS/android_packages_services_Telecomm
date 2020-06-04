@@ -76,7 +76,7 @@
     <string name="blocked_numbers_butter_bar_body" msgid="1261213114919301485">"Nakon što nazovete broj hitne službe ili pošaljete poruku na njega, blokada će se isključiti kako bi vam se hitna služba mogla javiti."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2704456308072489793">"Ponovno omogući sada"</string>
     <string name="blocked_numbers_number_blocked_message" msgid="4314736791180919167">"Broj <xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> blokiran je"</string>
-    <string name="blocked_numbers_number_unblocked_message" msgid="2933071624674945601">"Broj <xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> deblokiran je"</string>
+    <string name="blocked_numbers_number_unblocked_message" msgid="2933071624674945601">"Broj <xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> je deblokiran"</string>
     <string name="blocked_numbers_block_emergency_number_message" msgid="4198550501500893890">"Broj hitne službe ne može se blokirati."</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="2301270825735665458">"Broj <xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> već je blokiran."</string>
     <string name="toast_personal_call_msg" msgid="5817631570381795610">"Za upućivanje poziva upotrebljava se osobni program za biranje"</string>
