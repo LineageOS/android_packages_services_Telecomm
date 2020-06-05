@@ -36,8 +36,8 @@
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Звук выключен."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"Громкая связь включена."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"Не могу говорить. Что случилось?"</string>
-    <string name="respond_via_sms_canned_response_2" msgid="2052951316129952406">"Я сейчас вам перезвоню."</string>
-    <string name="respond_via_sms_canned_response_3" msgid="6656147963478092035">"Я перезвоню вам позже."</string>
+    <string name="respond_via_sms_canned_response_2" msgid="2052951316129952406">"Я сейчас перезвоню."</string>
+    <string name="respond_via_sms_canned_response_3" msgid="6656147963478092035">"Я перезвоню позже."</string>
     <string name="respond_via_sms_canned_response_4" msgid="9141132488345561047">"Не могу говорить. Позвоните позже."</string>
     <string name="respond_via_sms_setting_title" msgid="4762275482898830160">"Быстрые ответы"</string>
     <string name="respond_via_sms_setting_title_2" msgid="4914853536609553457">"Быстрые ответы"</string>
