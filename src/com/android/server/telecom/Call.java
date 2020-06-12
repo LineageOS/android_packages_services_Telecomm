@@ -2569,7 +2569,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
     }
 
-    boolean isActive() {
+    @VisibleForTesting
+    public boolean isActive() {
         return mState == CallState.ACTIVE;
     }
 
