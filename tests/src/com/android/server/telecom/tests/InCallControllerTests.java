@@ -291,7 +291,8 @@ public class InCallControllerTests extends TelecomTestCase {
         ArgumentCaptor<Intent> queryIntentCaptor = ArgumentCaptor.forClass(Intent.class);
         verify(mMockPackageManager, times(4)).queryIntentServicesAsUser(
                 queryIntentCaptor.capture(),
-                eq(PackageManager.GET_META_DATA), eq(CURRENT_USER_ID));
+                eq(PackageManager.GET_META_DATA | PackageManager.MATCH_DISABLED_COMPONENTS),
+                eq(CURRENT_USER_ID));
 
         // Verify call for default dialer InCallService
         assertEquals(DEF_PKG, queryIntentCaptor.getAllValues().get(0).getPackage());
@@ -350,7 +351,8 @@ public class InCallControllerTests extends TelecomTestCase {
         ArgumentCaptor<Intent> queryIntentCaptor = ArgumentCaptor.forClass(Intent.class);
         verify(mMockPackageManager, times(4)).queryIntentServicesAsUser(
                 queryIntentCaptor.capture(),
-                eq(PackageManager.GET_META_DATA), eq(CURRENT_USER_ID));
+                eq(PackageManager.GET_META_DATA | PackageManager.MATCH_DISABLED_COMPONENTS),
+                eq(CURRENT_USER_ID));
 
         // Verify call for default dialer InCallService
         assertEquals(DEF_PKG, queryIntentCaptor.getAllValues().get(0).getPackage());
@@ -428,7 +430,8 @@ public class InCallControllerTests extends TelecomTestCase {
         ArgumentCaptor<Intent> queryIntentCaptor = ArgumentCaptor.forClass(Intent.class);
         verify(mMockPackageManager, times(4)).queryIntentServicesAsUser(
                 queryIntentCaptor.capture(),
-                eq(PackageManager.GET_META_DATA), eq(CURRENT_USER_ID));
+                eq(PackageManager.GET_META_DATA | PackageManager.MATCH_DISABLED_COMPONENTS),
+                eq(CURRENT_USER_ID));
 
         // Verify call for default dialer InCallService
         assertEquals(DEF_PKG, queryIntentCaptor.getAllValues().get(0).getPackage());
@@ -510,7 +513,8 @@ public class InCallControllerTests extends TelecomTestCase {
         ArgumentCaptor<Intent> queryIntentCaptor = ArgumentCaptor.forClass(Intent.class);
         verify(mMockPackageManager, times(4)).queryIntentServicesAsUser(
                 queryIntentCaptor.capture(),
-                eq(PackageManager.GET_META_DATA), eq(CURRENT_USER_ID));
+                eq(PackageManager.GET_META_DATA | PackageManager.MATCH_DISABLED_COMPONENTS),
+                eq(CURRENT_USER_ID));
 
         // Verify call for default dialer InCallService
         assertEquals(DEF_PKG, queryIntentCaptor.getAllValues().get(0).getPackage());
@@ -634,7 +638,8 @@ public class InCallControllerTests extends TelecomTestCase {
         ArgumentCaptor<Intent> queryIntentCaptor = ArgumentCaptor.forClass(Intent.class);
         verify(mMockPackageManager, times(4)).queryIntentServicesAsUser(
                 queryIntentCaptor.capture(),
-                eq(PackageManager.GET_META_DATA), eq(CURRENT_USER_ID));
+                eq(PackageManager.GET_META_DATA | PackageManager.MATCH_DISABLED_COMPONENTS),
+                eq(CURRENT_USER_ID));
 
         // Verify call for default dialer InCallService
         assertEquals(DEF_PKG, queryIntentCaptor.getAllValues().get(0).getPackage());
@@ -1038,6 +1043,7 @@ public class InCallControllerTests extends TelecomTestCase {
             serviceInfo.applicationInfo = new ApplicationInfo();
             serviceInfo.applicationInfo.uid = DEF_UID;
             serviceInfo.permission = Manifest.permission.BIND_INCALL_SERVICE;
+            serviceInfo.enabled = true;
             serviceInfo.metaData = new Bundle();
             serviceInfo.metaData.putBoolean(
                     TelecomManager.METADATA_IN_CALL_SERVICE_UI, true);
@@ -1065,6 +1071,7 @@ public class InCallControllerTests extends TelecomTestCase {
                 serviceInfo.applicationInfo.uid = CAR2_UID;
             }
             serviceInfo.permission = Manifest.permission.BIND_INCALL_SERVICE;
+            serviceInfo.enabled = true;
             serviceInfo.metaData = new Bundle();
             serviceInfo.metaData.putBoolean(
                     TelecomManager.METADATA_IN_CALL_SERVICE_CAR_MODE_UI, true);
@@ -1086,6 +1093,7 @@ public class InCallControllerTests extends TelecomTestCase {
             serviceInfo.name = SYS_CLASS;
             serviceInfo.applicationInfo = new ApplicationInfo();
             serviceInfo.applicationInfo.uid = SYS_UID;
+            serviceInfo.enabled = true;
             serviceInfo.permission = Manifest.permission.BIND_INCALL_SERVICE;
         }};
     }
@@ -1097,6 +1105,7 @@ public class InCallControllerTests extends TelecomTestCase {
             serviceInfo.name = COMPANION_CLASS;
             serviceInfo.applicationInfo = new ApplicationInfo();
             serviceInfo.applicationInfo.uid = COMPANION_UID;
+            serviceInfo.enabled = true;
             serviceInfo.permission = Manifest.permission.BIND_INCALL_SERVICE;
         }};
     }
@@ -1149,7 +1158,7 @@ public class InCallControllerTests extends TelecomTestCase {
                 return resolveInfo;
             }
         }).when(mMockPackageManager).queryIntentServicesAsUser(
-                any(Intent.class), eq(PackageManager.GET_META_DATA), eq(CURRENT_USER_ID));
+                any(Intent.class), anyInt(), eq(CURRENT_USER_ID));
     }
 
     private void setupMockPackageManagerLocationPermission(final String pkg,
