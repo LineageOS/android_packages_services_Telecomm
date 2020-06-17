@@ -1825,12 +1825,11 @@ public class InCallController extends CallsManagerListenerBase {
         builder.setSmallIcon(R.drawable.ic_phone)
                 .setColor(mContext.getResources().getColor(R.color.theme_color))
                 .setContentTitle(
-                        mContext.getText(
-                                R.string.notification_crashedInCallService_title))
+                        mContext.getString(
+                                R.string.notification_incallservice_not_responding_title, appName))
                 .setStyle(new Notification.BigTextStyle()
-                        .bigText(mContext.getString(
-                                R.string.notification_crashedInCallService_body,
-                                appName)));
+                        .bigText(mContext.getText(
+                                R.string.notification_incallservice_not_responding_body)));
         notificationManager.notify(NOTIFICATION_TAG, IN_CALL_SERVICE_NOTIFICATION_ID,
                 builder.build());
     }
