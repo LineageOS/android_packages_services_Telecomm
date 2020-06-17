@@ -31,8 +31,10 @@
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"आपत्कालीन कल जारी रहेको हुनाले तपाईंको कल विच्छेद गरिएको छ।"</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"पृष्ठभूमिको कल"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ले एउटा कल पृष्ठभूमिमा राखेको छ। कल गरेको बेला यो अनुप्रयोगले अडियोमाथि पहुँच राखेर प्ले गरिरहेको हुन सक्छ।"</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"क्र्यास भएको फोन एप"</string>
-    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"तपाईंको फोन एप <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> क्र्यास भएको छ। तपाईंको यन्त्रमा पहिलेदेखि नै रहेको फोन एप प्रयोग गरी तपाईंको कल जारी राखिएको थियो।"</string>
+    <!-- no translation found for notification_incallservice_not_responding_title (5347557574288598548) -->
+    <skip />
+    <!-- no translation found for notification_incallservice_not_responding_body (9209308270131968623) -->
+    <skip />
     <string name="accessibility_call_muted" msgid="2968461092554300779">"कल म्युट भयो।"</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"स्पिकरफोन सक्षम भयो।"</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"अहिले कुरा गर्न मिल्दैन। के भइरहेको छ?"</string>

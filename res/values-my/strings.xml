@@ -31,8 +31,10 @@
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"အရေးပေါ်ဖုန်းခေါ်ဆိုမှု ပြုလုပ်နေသောကြောင့် သင်၏ ခေါ်ဆိုမှုကို ဖြတ်တောက်လိုက်သည်။"</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"နောက်ခံမှ ခေါ်ဆိုမှု"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> သည် ခေါ်ဆိုမှုကို နောက်ခံသို့ ထည့်လိုက်ပါသည်။ ဤအက်ပ်သည် ခေါ်ဆိုမှုမှတစ်ဆင့် အသံများကို သုံးခြင်းနှင့် ဖွင့်ခြင်းတို့ ပြုလုပ်နိုင်ပါသည်။"</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"ရပ်တန့်သွားသော ဖုန်းအက်ပ်"</string>
-    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"သင်၏ ဖုန်းအက်ပ် <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> ရပ်တန့်သွားသည်။ သင့်စက်ပစ္စည်းနှင့် အတူပါလာသော ဖုန်းအက်ပ်သုံးပြီး ခေါ်ဆိုမှုကို ဆက်လက်ပြုလုပ်ထားသည်။"</string>
+    <!-- no translation found for notification_incallservice_not_responding_title (5347557574288598548) -->
+    <skip />
+    <!-- no translation found for notification_incallservice_not_responding_body (9209308270131968623) -->
+    <skip />
     <string name="accessibility_call_muted" msgid="2968461092554300779">"နားထောင်ရုံသာ (စကားပြောပိတ်ထားသည်)"</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"စပီကာဖုန်း သုံးလို့ရသည်"</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"အခုပြောလို့မရဘူး။ အကြောင်းထူးရှိလား။"</string>

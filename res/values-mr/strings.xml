@@ -31,8 +31,10 @@
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"आणीबाणी कॉल केल्यामुळे तुमचा कॉल डिस्कनेक्ट केला गेला आहे."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"बॅकग्राउंड कॉल"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> यांनी कॉल बॅकग्राउंडवर ठेवला आहे हे ॲप कदाचित कॉलद्वारे ऑडिओ ॲक्सेस आणि प्ले करत आहे."</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"क्रॅश झालेले फोन ॲप"</string>
-    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"तुमचे फोन ॲप <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> क्रॅश झाले. तुमच्या डिव्हाइससोबत दिलेले फोन अ‍ॅप वापरून तुमचा कॉल पुढे सुरू ठेवला गेला."</string>
+    <!-- no translation found for notification_incallservice_not_responding_title (5347557574288598548) -->
+    <skip />
+    <!-- no translation found for notification_incallservice_not_responding_body (9209308270131968623) -->
+    <skip />
     <string name="accessibility_call_muted" msgid="2968461092554300779">"कॉल नि.शब्‍द केला."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"स्‍पीकरफोन सक्षम केला."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"आत्ता बोलू शकत नाही. कशासाठी कॉल केला होता?"</string>

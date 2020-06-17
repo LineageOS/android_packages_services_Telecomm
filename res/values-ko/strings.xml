@@ -31,8 +31,10 @@
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"긴급 전화 연결로 인해 통화가 연결 해제되었습니다."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"백그라운드 통화"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>에서 통화를 백그라운드로 전환했습니다. 앱이 통화에 사용되는 오디오에 액세스하거나 재생 중일 수 있습니다."</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"다운된 전화 앱"</string>
-    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"전화 앱 <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g>이(가) 다운되었습니다. 통화는 기기의 기본 전화 앱을 사용하여 계속 진행되었습니다."</string>
+    <!-- no translation found for notification_incallservice_not_responding_title (5347557574288598548) -->
+    <skip />
+    <!-- no translation found for notification_incallservice_not_responding_body (9209308270131968623) -->
+    <skip />
     <string name="accessibility_call_muted" msgid="2968461092554300779">"통화가 음소거되었습니다."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"스피커폰이 사용 설정되었습니다."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"통화 불가. 용무를 남겨주세요."</string>

@@ -31,8 +31,10 @@
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"თქვენი ზარი გაითიშა, რადგან ხორციელდება გადაუდებელი ზარი."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"ზარი ფონში"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>-მა განათავსა ზარი ფონში. ამ აპმა შეიძლება წვდომა იქონიოს აუდიოზე ზარიდან და დაუკრას ის."</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"ავარიულად გათიშული ტელეფონის აპი"</string>
-    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"თქვენი ტელეფონის აპი <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> გათიშულია ავარიულად. თქვენი ზარი გაგრძელდა იმ ტელეფონის აპის გამოყენებით, რომელიც თქვენს მოწყობილობას მოჰყვა."</string>
+    <!-- no translation found for notification_incallservice_not_responding_title (5347557574288598548) -->
+    <skip />
+    <!-- no translation found for notification_incallservice_not_responding_body (9209308270131968623) -->
+    <skip />
     <string name="accessibility_call_muted" msgid="2968461092554300779">"ზარი დადუმებულია."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"სპიკერები ჩართულია."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"ვერ ვპასუხობ. რა ხდება?"</string>
