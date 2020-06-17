@@ -445,7 +445,7 @@ public class InCallController extends CallsManagerListenerBase {
 
         @Override
         public void disconnect() {
-            Log.i(this, "Disconnect forced!");
+            Log.i(this, "Disconnecting from InCallService");
             if (mIsProxying) {
                 mSubConnection.disconnect();
             } else {
