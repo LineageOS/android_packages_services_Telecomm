@@ -19,7 +19,7 @@
     <string name="telecommAppLabel" product="default" msgid="3077225713817780583">"Opkaldsstyring"</string>
     <string name="userCallActivityLabel" product="default" msgid="3605391260292846248">"Opkald"</string>
     <string name="unknown" msgid="6993977514360123431">"Ukendt"</string>
-    <string name="notification_missedCallTitle" msgid="5060387047205532974">"Ubesvarede opkald"</string>
+    <string name="notification_missedCallTitle" msgid="5060387047205532974">"Ubesvaret opkald"</string>
     <string name="notification_missedWorkCallTitle" msgid="6965463282259034953">"Ubesvaret arbejdsopkald"</string>
     <string name="notification_missedCallsTitle" msgid="3910479625507893809">"Ubesvarede opkald"</string>
     <string name="notification_missedCallsMsg" msgid="5055782736170916682">"<xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> ubesvarede opkald"</string>
@@ -66,7 +66,7 @@
     <string name="blocked_numbers_msg" msgid="2797422132329662697">"Du modtager ikke opkald og sms-beskeder fra blokerede numre."</string>
     <string name="block_number" msgid="3784343046852802722">"Tilføj et nummer"</string>
     <string name="unblock_dialog_body" msgid="2723393535797217261">"Vil du fjerne blokeringen af <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
-    <string name="unblock_button" msgid="8732021675729981781">"Fjern blokeringen"</string>
+    <string name="unblock_button" msgid="8732021675729981781">"Fjern blokering"</string>
     <string name="add_blocked_dialog_body" msgid="8599974422407139255">"Bloker opkald og sms-beskeder fra"</string>
     <string name="add_blocked_number_hint" msgid="8769422085658041097">"Telefonnummer"</string>
     <string name="block_button" msgid="485080149164258770">"Bloker"</string>

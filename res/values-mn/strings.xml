@@ -36,7 +36,7 @@
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Дууг хаасан."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"Чанга яригчийг идэвхжүүлсэн."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"Ярих боломжгүй байна. Сонин юу байна?"</string>
-    <string name="respond_via_sms_canned_response_2" msgid="2052951316129952406">"Би тань руу одоо буцаагаад залгая."</string>
+    <string name="respond_via_sms_canned_response_2" msgid="2052951316129952406">"Би тань руу одоохон эргээд залгая."</string>
     <string name="respond_via_sms_canned_response_3" msgid="6656147963478092035">"Би тань руу дараа залгая."</string>
     <string name="respond_via_sms_canned_response_4" msgid="9141132488345561047">"Ярих боломжгүй байна. Дараа залгах уу?"</string>
     <string name="respond_via_sms_setting_title" msgid="4762275482898830160">"Шуурхай хариунууд"</string>
@@ -76,7 +76,7 @@
     <string name="blocked_numbers_butter_bar_body" msgid="1261213114919301485">"Түргэн тусламжийн дугаар руу залгах буюу мессеж бичсэний дараа түргэн тусламжаас тантай холбогдох боломжтой байлгахын тулд дугаар хориглохыг идэвхгүй болгоно."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2704456308072489793">"Одоо дахин идэвхжүүлэх"</string>
     <string name="blocked_numbers_number_blocked_message" msgid="4314736791180919167">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g>-г хориглосон"</string>
-    <string name="blocked_numbers_number_unblocked_message" msgid="2933071624674945601">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g>-н хоригийг авсан"</string>
+    <string name="blocked_numbers_number_unblocked_message" msgid="2933071624674945601">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g>-г блокоос гаргасан"</string>
     <string name="blocked_numbers_block_emergency_number_message" msgid="4198550501500893890">"Яаралтай дугаарыг хориглох боломжгүй."</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="2301270825735665458">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g>-г аль хэдийн хориглосон байна."</string>
     <string name="toast_personal_call_msg" msgid="5817631570381795610">"Дуудлага хийхийн тулд хувийн залгагчийг ашиглаж байна"</string>
