@@ -31,8 +31,10 @@
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Votre appel a été interrompu en raison d\'un appel d\'urgence."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Appel en arrière-plan"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> a placé un appel en arrière-plan. Il est possible que cette application lise des fichiers audio pendant l\'appel."</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Une application d\'appel a planté"</string>
-    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"L\'application <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> a planté. L\'appel s\'est poursuivi dans l\'application d\'appel préinstallée sur votre appareil."</string>
+    <!-- no translation found for notification_incallservice_not_responding_title (5347557574288598548) -->
+    <skip />
+    <!-- no translation found for notification_incallservice_not_responding_body (9209308270131968623) -->
+    <skip />
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Son coupé"</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"Haut-parleur activé"</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"Je ne peux pas répondre. Ça va ?"</string>

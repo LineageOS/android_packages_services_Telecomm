@@ -31,8 +31,10 @@
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Повикот ќе се исклучи поради воспоставувањето итен повик."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Повик во заднина"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> воспостави повик во заднината. Апликацијава можеби пристапува до и пушта аудио во повикот."</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Падната апликација за телефон"</string>
-    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"Апликацијата за телефон <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> падна. Повикот продолжи на апликацијата за телефон што дојде со уредот."</string>
+    <!-- no translation found for notification_incallservice_not_responding_title (5347557574288598548) -->
+    <skip />
+    <!-- no translation found for notification_incallservice_not_responding_body (9209308270131968623) -->
+    <skip />
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Повикот е со исклучен звук"</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"Интерфонот е овозможен."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"Не можам да зборувам сега. Што има?"</string>

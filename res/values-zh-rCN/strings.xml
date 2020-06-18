@@ -31,8 +31,10 @@
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"由于要进行紧急呼叫，您的通话已中断。"</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"后台通话"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> 已将通话切换到后台进行。此应用可以接入通话，并播放通话音频。"</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"崩溃的手机应用"</string>
-    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"您的手机应用“<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g>”已崩溃。系统使用设备自带的“电话”应用继续通话。"</string>
+    <!-- no translation found for notification_incallservice_not_responding_title (5347557574288598548) -->
+    <skip />
+    <!-- no translation found for notification_incallservice_not_responding_body (9209308270131968623) -->
+    <skip />
     <string name="accessibility_call_muted" msgid="2968461092554300779">"通话已静音。"</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"扬声器已启用。"</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"现在无法接听。有什么事吗？"</string>
