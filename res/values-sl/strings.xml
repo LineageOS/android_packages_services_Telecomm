@@ -31,10 +31,8 @@
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Klic je prekinjen zaradi vzpostavljanja klica v sili."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Klic v ozadju"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"Aplikacija <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> je klic premaknila v ozadje. Ta aplikacija morda dostopa do zvoka in ga predvaja prek klica."</string>
-    <!-- no translation found for notification_incallservice_not_responding_title (5347557574288598548) -->
-    <skip />
-    <!-- no translation found for notification_incallservice_not_responding_body (9209308270131968623) -->
-    <skip />
+    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"Aplikacija <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> se ne odziva več"</string>
+    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Klic je bil opravljen prek aplikacije za klicanje, ki jo je v napravo namestil proizvajalec"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Klic izključen."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"Zvočnik omogočen."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"Zdaj ne morem govoriti. Za kaj gre?"</string>
