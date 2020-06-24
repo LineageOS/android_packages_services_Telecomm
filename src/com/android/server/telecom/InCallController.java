@@ -1324,10 +1324,12 @@ public class InCallController extends CallsManagerListenerBase {
                 (systemPackageName != null && systemPackageName.equals(packageName))
                 ? getInCallServiceComponent(packageName, IN_CALL_SERVICE_TYPE_SYSTEM_UI)
                 : getInCallServiceComponent(packageName, IN_CALL_SERVICE_TYPE_DIALER_UI);
-        if (packageName != null && defaultDialerComponent == null) {
-            // The in call service of default phone app is disabled, send notification.
-            sendCrashedInCallServiceNotification(packageName);
-        }
+        /* TODO: in Android 12 re-enable this an InCallService is required by the dialer role.
+            if (packageName != null && defaultDialerComponent == null) {
+                // The in call service of default phone app is disabled, send notification.
+                sendCrashedInCallServiceNotification(packageName);
+            }
+        */
         return defaultDialerComponent;
     }
 
