@@ -31,8 +31,8 @@
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"အရေးပေါ်ဖုန်းခေါ်ဆိုမှု ပြုလုပ်နေသောကြောင့် သင်၏ ခေါ်ဆိုမှုကို ဖြတ်တောက်လိုက်သည်။"</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"နောက်ခံမှ ခေါ်ဆိုမှု"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> သည် ခေါ်ဆိုမှုကို နောက်ခံသို့ ထည့်လိုက်ပါသည်။ ဤအက်ပ်သည် ခေါ်ဆိုမှုမှတစ်ဆင့် အသံများကို သုံးခြင်းနှင့် ဖွင့်ခြင်းတို့ ပြုလုပ်နိုင်ပါသည်။"</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"ရပ်တန့်သွားသော ဖုန်းအက်ပ်"</string>
-    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"သင်၏ ဖုန်းအက်ပ် <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> ရပ်တန့်သွားသည်။ သင့်စက်ပစ္စည်းနှင့် အတူပါလာသော ဖုန်းအက်ပ်သုံးပြီး ခေါ်ဆိုမှုကို ဆက်လက်ပြုလုပ်ထားသည်။"</string>
+    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> က တုံ့ပြန်ခြင်းကို ရပ်လိုက်သည်"</string>
+    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"သင့်စက်ပစ္စည်းနှင့် အတူပါလာသော ဖုန်းအက်ပ်သုံးပြီး ခေါ်ဆိုမှုကို ပြုလုပ်ထားသည်"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"နားထောင်ရုံသာ (စကားပြောပိတ်ထားသည်)"</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"စပီကာဖုန်း သုံးလို့ရသည်"</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"အခုပြောလို့မရဘူး။ အကြောင်းထူးရှိလား။"</string>
@@ -65,18 +65,18 @@
     <string name="blocked_numbers" msgid="8322134197039865180">"ပိတ်ထားသည့် နံပါတ်များ"</string>
     <string name="blocked_numbers_msg" msgid="2797422132329662697">"ပိတ်ထားသော နံပါတ်များမှ ဖုန်းခေါ်ခြင်း (သို့) စာသားပို့ခြင်းတို့ကို သင်လက်ခံရရှိမည် မဟုတ်ပါ။"</string>
     <string name="block_number" msgid="3784343046852802722">"နံပါတ်တစ်ခု ထည့်ပါ"</string>
-    <string name="unblock_dialog_body" msgid="2723393535797217261">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ကို ပိတ်ဆို့မှုပြန်ဖွင့်မလား။"</string>
-    <string name="unblock_button" msgid="8732021675729981781">"ပိတ်ဆို့မှုပြန်ဖွင့်ပါ"</string>
+    <string name="unblock_dialog_body" msgid="2723393535797217261">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ကို ပြန်ဖွင့်မလား။"</string>
+    <string name="unblock_button" msgid="8732021675729981781">"ပြန်ဖွင့်ရန်"</string>
     <string name="add_blocked_dialog_body" msgid="8599974422407139255">"ဤနံပါတ်မှ ခေါ်ဆိုမှုနှင့် စာများကို ပိတ်ဆို့ပါ"</string>
     <string name="add_blocked_number_hint" msgid="8769422085658041097">"ဖုန်းနံပါတ်"</string>
     <string name="block_button" msgid="485080149164258770">"ပိတ်ဆို့ပါ"</string>
     <string name="non_primary_user" msgid="315564589279622098">"ပိတ်ဆို့ထားသည့် နံပါတ်များကို စက်ပစ္စည်းပိုင်ရှင်သာလျှင် ကြည့်ရှု၍ စီမံခန့်ခွဲနိုင်ပါသည်။"</string>
-    <string name="delete_icon_description" msgid="5335959254954774373">"မပိတ်ဆို့တော့ပါ"</string>
+    <string name="delete_icon_description" msgid="5335959254954774373">"ပြန်ဖွင့်ရန်"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="582982373755950791">"ဘလော့ခ်လုပ်ခြင်းကို ပိတ်ထားပါသည်"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="1261213114919301485">"သင် အရေးပေါ်နံပါတ်တစ်ခုကို ဖုန်းခေါ် (သို့) စာသားပို့ပြီးနောက် အရေးပေါ်ဝန်ဆောင်မှုများက သင့်ကို ဆက်သွယ်နိုင်ကြောင်း သေချာစေရန် ဘလော့ခ်လုပ်ခြင်းကို ပိတ်ထားပါသည်။"</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2704456308072489793">"ယခု ပြန်ဖွင့်လိုက်ပါ"</string>
     <string name="blocked_numbers_number_blocked_message" msgid="4314736791180919167">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> ကို ပိတ်ဆို့ပြီးပါပြီ"</string>
-    <string name="blocked_numbers_number_unblocked_message" msgid="2933071624674945601">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> ကို မပိတ်ဆို့တော့ပါ"</string>
+    <string name="blocked_numbers_number_unblocked_message" msgid="2933071624674945601">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> ကို ပြန်ဖွင့်လိုက်သည်"</string>
     <string name="blocked_numbers_block_emergency_number_message" msgid="4198550501500893890">"အရေးပေါ်နံပါတ်ကို  ပိတ်ဆို့၍ မရပါ။"</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="2301270825735665458">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> ကို ပိတ်ဆို့ထားပြီး ဖြစ်သည်။"</string>
     <string name="toast_personal_call_msg" msgid="5817631570381795610">"ဖုန်းခေါ်ဆိုမှုပြုလုပ်ရန် ကိုယ်ရေးကိုယ်တာ ဖုန်းခေါ်ဆိုမှုစနစ်ကို အသုံးပြုခြင်း"</string>
