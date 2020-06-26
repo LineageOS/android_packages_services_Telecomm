@@ -1288,7 +1288,12 @@ public class InCallController extends CallsManagerListenerBase {
      * Unbinds an existing bound connection to the in-call app.
      */
     private void unbindFromServices() {
-        mContext.unregisterReceiver(mPackageChangedReceiver);
+        try {
+            mContext.unregisterReceiver(mPackageChangedReceiver);
+        } catch (IllegalArgumentException e) {
+            // Ignore this -- we may or may not have registered it, but when we bind, we want to
+            // unregister no matter what.
+        }
         if (mInCallServiceConnection != null) {
             mInCallServiceConnection.disconnect();
             mInCallServiceConnection = null;
