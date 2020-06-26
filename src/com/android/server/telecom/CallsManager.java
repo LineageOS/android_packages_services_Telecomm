@@ -2959,6 +2959,9 @@ public class CallsManager extends Call.ListenerBase
                     call.setState(CallState.AUDIO_PROCESSING, "active set explicitly and adding");
                     addCall(call);
                 }
+                // Clear mPendingAudioProcessingCall so that future attempts to mark the call as
+                // active (e.g. coming off of hold) don't put the call into audio processing instead
+                mPendingAudioProcessingCall = null;
                 return;
             }
             setCallState(call, CallState.ACTIVE, "active set explicitly");
