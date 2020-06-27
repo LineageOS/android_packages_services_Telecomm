@@ -31,10 +31,8 @@
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"你撥出了緊急電話，因此目前的通話已中斷。"</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"背景通話"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"「<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>」已將通話切換到在背景進行。這個應用程式可能會在通話期間存取及播放音訊。"</string>
-    <!-- no translation found for notification_incallservice_not_responding_title (5347557574288598548) -->
-    <skip />
-    <!-- no translation found for notification_incallservice_not_responding_body (9209308270131968623) -->
-    <skip />
+    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"「<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g>」已停止回應"</string>
+    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"目前是透過裝置內建的電話應用程式進行通話"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"通話已靜音。"</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"喇叭已啟用"</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"我現在不方便講話，有什麼事？"</string>

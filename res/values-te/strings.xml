@@ -31,10 +31,8 @@
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"అత్యవసర కాల్ చేయబడినందున మీ కాల్ డిస్‌కనెక్ట్ చేయబడింది."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"నేపథ్యం కాల్"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> కాల్‌ను నేపథ్యంలోకి పంపింది. కాల్ ద్వారా ఈ యాప్, ఆడియోను యాక్సెస్ ఇంకా ప్లే చేస్తుండవచ్చు."</string>
-    <!-- no translation found for notification_incallservice_not_responding_title (5347557574288598548) -->
-    <skip />
-    <!-- no translation found for notification_incallservice_not_responding_body (9209308270131968623) -->
-    <skip />
+    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> స్పందించడం ఆగిపోయింది"</string>
+    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"మీ కాల్, మీ పరికరంతో వచ్చిన ఫోన్ యాప్‌ను ఉపయోగించింది"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"కాల్ మ్యూట్ చేయబడింది."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"స్పీకర్ ఫోన్ ప్రారంభించబడింది."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"ఇప్పుడు మాట్లాడలేను. విషయం ఏమిటి?"</string>
