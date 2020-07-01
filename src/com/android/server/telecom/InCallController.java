@@ -1556,7 +1556,11 @@ public class InCallController extends CallsManagerListenerBase {
             inCallService.onCanAddCallChanged(mCallsManager.canAddCall());
         } catch (RemoteException ignored) {
         }
-        mBindingFuture.complete(true);
+        // Don't complete the binding future for non-ui incalls
+        if (info.getType() != IN_CALL_SERVICE_TYPE_NON_UI) {
+            mBindingFuture.complete(true);
+        }
+
         Log.i(this, "%s calls sent to InCallService.", numCallsSent);
         return true;
     }
