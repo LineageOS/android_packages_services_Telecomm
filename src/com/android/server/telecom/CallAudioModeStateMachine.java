@@ -358,7 +358,7 @@ public class CallAudioModeStateMachine extends StateMachine {
         private boolean mHasFocus = false;
 
         private void tryStartRinging() {
-            if (mHasFocus) {
+            if (mHasFocus && mCallAudioManager.isRingtonePlaying()) {
                 Log.i(LOG_TAG, "RingingFocusState#tryStartRinging -- audio focus previously"
                         + " acquired and ringtone already playing -- skipping.");
                 return;
