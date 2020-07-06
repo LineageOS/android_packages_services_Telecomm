@@ -56,7 +56,7 @@
     <string name="change_default_call_screening_dialog_affirmative" msgid="7162433828280058647">"기본으로 설정"</string>
     <string name="change_default_call_screening_dialog_negative" msgid="1839266125623106342">"취소"</string>
     <string name="blocked_numbers" msgid="8322134197039865180">"차단된 번호"</string>
-    <string name="blocked_numbers_msg" msgid="2797422132329662697">"차단한 번호에서 걸려오는 전화나 문자는 더 이상 수신되지 않습니다."</string>
+    <string name="blocked_numbers_msg" msgid="2797422132329662697">"차단된 번호에서 걸려오는 전화나 문자는 더 이상 수신되지 않습니다."</string>
     <string name="block_number" msgid="3784343046852802722">"번호 추가"</string>
     <string name="unblock_dialog_body" msgid="2723393535797217261">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>번을 차단 해제하시겠습니까?"</string>
     <string name="unblock_button" msgid="8732021675729981781">"차단 해제"</string>

@@ -31,7 +31,7 @@
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"Je ne peux pas répondre. Ça va ?"</string>
     <string name="respond_via_sms_canned_response_2" msgid="2052951316129952406">"Je te rappelle tout de suite."</string>
     <string name="respond_via_sms_canned_response_3" msgid="6656147963478092035">"Je t\'appelle plus tard."</string>
-    <string name="respond_via_sms_canned_response_4" msgid="9141132488345561047">"Peux pas répondre. On se rappelle ?"</string>
+    <string name="respond_via_sms_canned_response_4" msgid="9141132488345561047">"Je ne peux pas répondre. On se rappelle ?"</string>
     <string name="respond_via_sms_setting_title" msgid="4762275482898830160">"Réponses rapides"</string>
     <string name="respond_via_sms_setting_title_2" msgid="4914853536609553457">"Modifier les réponses rapides"</string>
     <string name="respond_via_sms_setting_summary" msgid="8054571501085436868"></string>
@@ -103,7 +103,7 @@
     <string name="phone_settings_payphone_txt" msgid="5003987966052543965">"Cabines téléphoniques"</string>
     <string name="phone_settings_payphone_summary_txt" msgid="3936631076065563665">"Bloquez les appels provenant de cabines téléphoniques"</string>
     <string name="phone_settings_unknown_txt" msgid="3577926178354772728">"Numéros inconnus"</string>
-    <string name="phone_settings_unknown_summary_txt" msgid="5446657192535779645">"Bloquez les appels provenant de personnes non identifiées"</string>
+    <string name="phone_settings_unknown_summary_txt" msgid="5446657192535779645">"Bloquer les appels provenant de personnes non identifiées"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="2895809176537908791">"Blocage d\'appels"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="1713632946174016619">"Blocage d\'appels désactivé"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="6629412508584507377">"Appel d\'urgence"</string>

@@ -88,14 +88,14 @@
     <string name="cant_call_due_to_ongoing_calls" msgid="6379163795277824868">"ਤੁਹਾਡੀਆਂ <xliff:g id="OTHER_CALL">%1$s</xliff:g> ਕਾਲਾਂ ਦੇ ਕਾਰਨ ਕਾਲ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ।"</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="8243532328969433172">"ਕਿਸੇ ਹੋਰ ਐਪ ਵਿੱਚ ਇੱਕ ਕਾਲ ਹੋਣ ਦੇ ਕਾਰਨ ਕਾਲ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ।"</string>
     <string name="notification_channel_incoming_call" msgid="5245550964701715662">"ਇਨਕਮਿੰਗ ਕਾਲਾਂ"</string>
-    <string name="notification_channel_missed_call" msgid="7168893015283909012">"ਖੁੰਝੀਆਂ ਕਾਲਾਂ"</string>
-    <string name="notification_channel_call_blocking" msgid="2028807677868598710">"ਕਾਲ ਬਲਾਕਿੰਗ"</string>
+    <string name="notification_channel_missed_call" msgid="7168893015283909012">"ਮਿਸ ਕਾਲਾਂ"</string>
+    <string name="notification_channel_call_blocking" msgid="2028807677868598710">"ਕਾਲ ਬਲਾਕ ਕਰਨਾ"</string>
     <string name="alert_outgoing_call" msgid="5319895109298927431">"ਇਹ ਕਾਲ ਕਰਨ ਨਾਲ ਤੁਹਾਡੀ <xliff:g id="OTHER_APP">%1$s</xliff:g> ਕਾਲ ਸਮਾਪਤ ਹੋ ਜਾਵੇਗੀ।"</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"ਚੁਣੋ ਕਿ ਕਾਲ ਕਿਵੇਂ ਕਰਨੀ ਹੈ"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="5221065030959024121">"<xliff:g id="OTHER_APP">%1$s</xliff:g> ਦੀ ਵਰਤੋਂ ਕਰਕੇ ਕਾਲ ਰੀਡਾਇਰੈਕਟ ਕਰੋ"</string>
     <string name="alert_place_unredirect_outgoing_call" msgid="2467608535225764006">"ਮੇਰਾ ਫ਼ੋਨ ਨੰਬਰ ਵਰਤ ਕੇ ਕਾਲ ਕਰੋ"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="5568101425637373060">"<xliff:g id="OTHER_APP">%1$s</xliff:g> ਤੋਂ ਕਾਲ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ। ਕਾਲ ਨੂੰ ਰੀਡਾਇਰੈਕਟ ਕਰਨ ਲਈ ਕੋਈ ਵੱਖਰੀ ਐਪ ਵਰਤ ਕੇ ਦੇਖੋ ਜਾਂ ਮਦਦ ਲਈ ਵਿਕਾਸਕਾਰ ਨਾਲ ਸੰਪਰਕ ਕਰਨ ਦੀ ਕੋਸ਼ਿਸ਼ ਕਰੋ।"</string>
-    <string name="phone_settings_call_blocking_txt" msgid="7311523114822507178">"ਕਾਲ ਬਲਾਕਿੰਗ"</string>
+    <string name="phone_settings_call_blocking_txt" msgid="7311523114822507178">"ਕਾਲ ਬਲਾਕ ਕਰਨਾ"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="2602249106007265757">"ਨੰਬਰ ਜੋ ਤੁਹਾਡੇ ਸੰਪਰਕਾਂ ਵਿੱਚ ਨਹੀਂ ਹਨ"</string>
     <string name="phone_settings_number_not_in_contact_summary_txt" msgid="963327038085718969">"ਉਹ ਨੰਬਰ ਬਲਾਕ ਕਰੋ ਜੋ ਤੁਹਾਡੇ ਸੰਪਰਕਾਂ ਵਿੱਚ ਨਹੀਂ ਹਨ"</string>
     <string name="phone_settings_private_num_txt" msgid="6339272760338475619">"ਨਿੱਜੀ"</string>
@@ -104,7 +104,7 @@
     <string name="phone_settings_payphone_summary_txt" msgid="3936631076065563665">"ਜਨਤਕ ਫ਼ੋਨਾਂ ਵਾਲੀਆਂ ਕਾਲਾਂ ਬਲਾਕ ਕਰੋ"</string>
     <string name="phone_settings_unknown_txt" msgid="3577926178354772728">"ਅਗਿਆਤ"</string>
     <string name="phone_settings_unknown_summary_txt" msgid="5446657192535779645">"ਅਣਪਛਾਤੇ ਕਾਲਰਾਂ ਵਾਲੀਆਂ ਕਾਲਾਂ ਬਲਾਕ ਕਰੋ"</string>
-    <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="2895809176537908791">"ਕਾਲ ਬਲਾਕਿੰਗ"</string>
+    <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="2895809176537908791">"ਕਾਲ ਬਲਾਕ ਕਰਨਾ"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="1713632946174016619">"ਕਾਲ ਬਲਾਕਿੰਗ ਵਿਕਲਪ ਬੰਦ ਕੀਤਾ ਗਿਆ"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="6629412508584507377">"ਸੰਕਟਕਾਲੀਨ ਕਾਲ ਕੀਤੀ ਗਈ"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"ਸੰਕਟਕਾਲੀਨ ਸਥਿਤੀ ਵਿੱਚ ਮਦਦ ਕਰਨ ਵਾਲੇ ਵਿਅਕਤੀ ਨੂੰ ਤੁਹਾਨੂੰ ਸੰਪਰਕ ਕਰਨ ਦੇਣ ਲਈ ਕਾਲ ਬਲਾਕਿੰਗ ਵਿਕਲਪ ਬੰਦ ਕਰ ਦਿੱਤਾ ਗਿਆ ਹੈ।"</string>

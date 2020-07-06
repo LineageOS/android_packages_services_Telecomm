@@ -58,7 +58,7 @@
     <string name="blocked_numbers" msgid="8322134197039865180">"Numrat e bllokuar"</string>
     <string name="blocked_numbers_msg" msgid="2797422132329662697">"Nuk do të marrësh telefonata ose mesazhe me tekst nga numrat e bllokuar."</string>
     <string name="block_number" msgid="3784343046852802722">"Shto një numër"</string>
-    <string name="unblock_dialog_body" msgid="2723393535797217261">"Zhblloko <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
+    <string name="unblock_dialog_body" msgid="2723393535797217261">"Të zhbllokohet <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="8732021675729981781">"Zhblloko"</string>
     <string name="add_blocked_dialog_body" msgid="8599974422407139255">"Blloko telefonatat dhe mesazhet me tekst nga"</string>
     <string name="add_blocked_number_hint" msgid="8769422085658041097">"Numri i telefonit"</string>
