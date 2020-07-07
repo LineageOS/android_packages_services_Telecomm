@@ -449,6 +449,10 @@ public class CallAudioManager extends CallsManagerListenerBase {
         }
     }
 
+    public boolean isRingtonePlaying() {
+        return mRinger.isRinging();
+    }
+
     @VisibleForTesting
     public boolean startRinging() {
         synchronized (mCallsManager.getLock()) {
