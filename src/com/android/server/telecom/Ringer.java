@@ -458,6 +458,10 @@ public class Ringer {
         }
     }
 
+    public boolean isRinging() {
+        return mRingtonePlayer.isPlaying();
+    }
+
     private boolean shouldRingForContact(Uri contactUri) {
         final NotificationManager manager =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
