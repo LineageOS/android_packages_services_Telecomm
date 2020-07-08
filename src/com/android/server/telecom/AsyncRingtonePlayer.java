@@ -255,4 +255,8 @@ public class AsyncRingtonePlayer {
             }
         }
     }
+
+    public boolean isPlaying() {
+        return mRingtone != null;
+    }
 }
