@@ -43,6 +43,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 import android.os.UserHandle;
+import android.provider.BlockedNumberContract;
 import android.provider.Settings;
 import android.telecom.Log;
 import android.telecom.PhoneAccount;
@@ -1483,6 +1484,28 @@ public class TelecomServiceImpl {
                     try {
                         return mDefaultDialerCache.setDefaultDialer(packageName,
                                 ActivityManager.getCurrentUser());
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        @Override
+        public void stopBlockSuppression() {
+            try {
+                Log.startSession("TSI.sBS");
+                enforceModifyPermission();
+                if (Binder.getCallingUid() != Process.SHELL_UID
+                        && Binder.getCallingUid() != Process.ROOT_UID) {
+                    throw new SecurityException("Shell-only API.");
+                }
+                synchronized (mLock) {
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        BlockedNumberContract.SystemContract.endBlockSuppression(mContext);
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
