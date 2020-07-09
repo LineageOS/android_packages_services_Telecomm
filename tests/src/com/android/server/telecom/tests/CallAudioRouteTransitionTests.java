@@ -384,8 +384,12 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
         // rest of the system
         verifyNoSystemAudioChanges();
 
+        // Special case for SPEAKER_ON -- we don't expect any route transitions to happen when
+        // there are no calls, so set the expected state to the initial route.
+        int expectedRoute = (mParams.action == CallAudioRouteStateMachine.SPEAKER_ON)
+                ? mParams.initialRoute : mParams.expectedRoute;
         // Verify the end state
-        CallAudioState expectedState = new CallAudioState(false, mParams.expectedRoute,
+        CallAudioState expectedState = new CallAudioState(false, expectedRoute,
                 mParams.expectedAvailableRoutes | CallAudioState.ROUTE_SPEAKER,
                 mParams.expectedBluetoothDevice, mParams.availableBluetoothDevices);
         assertEquals(expectedState, stateMachine.getCurrentCallAudioState());
