@@ -28,10 +28,11 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Tin nhắn"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Cuộc gọi bị ngắt kết nối"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Cuộc gọi đến <xliff:g id="CALLER">%s</xliff:g> đã bị ngắt kết nối do một cuộc gọi khẩn cấp được thực hiện."</string>
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Cuộc gọi của bạn đã bị ngắt kết nối do một cuộc gọi khẩn cấp đang được thực hiện."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Cuộc gọi trong nền"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> đã gọi điện ở chế độ nền. Ứng dụng này có thể đang truy cập và phát âm thanh qua cuộc gọi."</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Ứng dụng điện thoại bị lỗi"</string>
-    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"Ứng dụng điện thoại <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> của bạn bị lỗi. Cuộc gọi của bạn đã được tiếp tục trên ứng dụng điện thoại đi kèm với thiết bị."</string>
+    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> đã dừng phản hồi"</string>
+    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Cuộc gọi của bạn đã dùng ứng dụng dành cho điện thoại đi kèm với thiết bị"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Đã tắt tiếng cuộc gọi."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"Đã bật loa ngoài."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"Giờ tôi không nói chuyện được. Có việc gì không?"</string>
@@ -80,13 +81,13 @@
     <string name="blocked_numbers_number_already_blocked_message" msgid="2301270825735665458">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> đã bị chặn."</string>
     <string name="toast_personal_call_msg" msgid="5817631570381795610">"Sử dụng trình quay số cá nhân để gọi điện"</string>
     <string name="notification_incoming_call" msgid="1233481138362230894">"Cuộc gọi <xliff:g id="CALL_VIA">%1$s</xliff:g> từ <xliff:g id="CALL_FROM">%2$s</xliff:g>"</string>
-    <string name="notification_incoming_video_call" msgid="5795968314037063900">"Cuộc gọi điện video <xliff:g id="CALL_VIA">%1$s</xliff:g> từ <xliff:g id="CALL_FROM">%2$s</xliff:g>"</string>
+    <string name="notification_incoming_video_call" msgid="5795968314037063900">"Cuộc gọi video <xliff:g id="CALL_VIA">%1$s</xliff:g> từ <xliff:g id="CALL_FROM">%2$s</xliff:g>"</string>
     <string name="answering_ends_other_call" msgid="8653544281903986641">"Trả lời sẽ kết thúc cuộc gọi <xliff:g id="CALL_VIA">%1$s</xliff:g> của bạn"</string>
     <string name="answering_ends_other_calls" msgid="3702302838456922535">"Trả lời sẽ kết thúc cuộc gọi <xliff:g id="CALL_VIA">%1$s</xliff:g> của bạn"</string>
-    <string name="answering_ends_other_video_call" msgid="8572022039304239958">"Trả lời sẽ kết thúc cuộc gọi điện video <xliff:g id="CALL_VIA">%1$s</xliff:g> của bạn"</string>
+    <string name="answering_ends_other_video_call" msgid="8572022039304239958">"Trả lời sẽ kết thúc cuộc gọi video <xliff:g id="CALL_VIA">%1$s</xliff:g> của bạn"</string>
     <string name="answering_ends_other_managed_call" msgid="4031778317409881805">"Trả lời sẽ kết thúc cuộc gọi đang diễn ra của bạn"</string>
     <string name="answering_ends_other_managed_calls" msgid="3974069768615307659">"Trả lời sẽ kết thúc cuộc gọi đang diễn ra của bạn"</string>
-    <string name="answering_ends_other_managed_video_call" msgid="1988508241432031327">"Trả lời sẽ kết thúc cuộc gọi điện video đang diễn ra của bạn"</string>
+    <string name="answering_ends_other_managed_video_call" msgid="1988508241432031327">"Trả lời sẽ kết thúc cuộc gọi video đang diễn ra của bạn"</string>
     <string name="answer_incoming_call" msgid="2045888814782215326">"Trả lời"</string>
     <string name="decline_incoming_call" msgid="922147089348451310">"Từ chối"</string>
     <string name="cant_call_due_to_no_supported_service" msgid="1635626384149947077">"Không thể thực hiện cuộc gọi do không có tài khoản hỗ trợ loại cuộc gọi này."</string>
