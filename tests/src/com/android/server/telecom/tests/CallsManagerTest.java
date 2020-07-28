@@ -1019,7 +1019,7 @@ public class CallsManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testHangupActiveCallWhenHeadsetMediaButtonLongPressDuringTwoCalls() {
-        // GIVEN an  ongoing call
+        // GIVEN an ongoing call
         Call ongoingCall = addSpyCall();
         doReturn(CallState.ACTIVE).when(ongoingCall).getState();
 
