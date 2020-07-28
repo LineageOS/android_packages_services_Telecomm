@@ -436,7 +436,10 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
                             mPhoneAccountRegistrar.getOutgoingPhoneAccountForSchemeOfCurrentUser(
                                     mCall.getHandle() == null
                                             ? null : mCall.getHandle().getScheme()));
-                    if (!mAttemptRecords.contains(callAttemptRecord)) {
+                    // If the target phone account is null, we'll run into a NPE during the retry
+                    // process, so skip it now if it's null.
+                    if (callAttemptRecord.targetPhoneAccount != null
+                            && !mAttemptRecords.contains(callAttemptRecord)) {
                         Log.i(this, "Will try Connection Manager account %s for emergency",
                                 callManager);
                         mAttemptRecords.add(callAttemptRecord);
