@@ -1753,6 +1753,32 @@ public class TelecomServiceImpl {
             }
         }
 
+        /**
+         * A method intended for use in testing to clean up any calls that get stuck in the
+         * {@link CallState#DISCONNECTED} or {@link CallState#DISCONNECTING} states. Stuck calls
+         * during CTS cause cascading failures, so if the CTS test detects such a state, it should
+         * call this method via a shell command to clean up before moving on to the next test.
+         */
+        @Override
+        public void cleanupStuckCalls() {
+            Log.startSession("TCI.cSC");
+            try {
+                synchronized (mLock) {
+                    enforceShellOnly(Binder.getCallingUid(), "cleanupStuckCalls");
+                    Binder.withCleanCallingIdentity(() -> {
+                        for (Call call : mCallsManager.getCalls()) {
+                            if (call.getState() == CallState.DISCONNECTED
+                                    || call.getState() == CallState.DISCONNECTING) {
+                                mCallsManager.markCallAsRemoved(call);
+                            }
+                        }
+                    });
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
         @Override
         public void setTestDefaultCallRedirectionApp(String packageName) {
             try {
