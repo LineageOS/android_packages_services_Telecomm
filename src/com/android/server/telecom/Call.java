@@ -545,7 +545,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private ParcelFileDescriptor[] mConnectionServiceToInCallStreams;
 
     /**
-     * True if we're supposed to start this call with RTT, either due to the master switch or due
+     * True if we're supposed to start this call with RTT, either due to the settings switch or due
      * to an extra.
      */
     private boolean mDidRequestToStartWithRtt = false;
