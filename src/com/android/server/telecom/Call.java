@@ -1124,6 +1124,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 case CallState.ANSWERED:
                     event = LogUtils.Events.SET_ANSWERED;
                     break;
+                case CallState.AUDIO_PROCESSING:
+                    event = LogUtils.Events.SET_AUDIO_PROCESSING;
+                    break;
+                case CallState.SIMULATED_RINGING:
+                    event = LogUtils.Events.SET_SIMULATED_RINGING;
+                    break;
             }
             if (event != null) {
                 // The string data should be just the tag.
