@@ -605,7 +605,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
             for (int i = 0; i < result.length; i++) {
                 Uri uri = result[i];
                 /*
-                 Performs a simple sanity check to make sure the call was written in the database.
+                 Performs a simple correctness check to make sure the call was written in the
+                 database.
                  Typically there is only one result per call so it is easy to identify which one
                  failed.
                  */
