@@ -3975,7 +3975,7 @@ public class CallsManager extends Call.ListenerBase
                 + " livecall = " + liveCall);
 
         if (emergencyCall == liveCall) {
-            // Not likely, but a good sanity check.
+            // Not likely, but a good correctness check.
             return true;
         }
 
@@ -3989,7 +3989,7 @@ public class CallsManager extends Call.ListenerBase
                 return true;
             }
             if (outgoingCall.getState() == CallState.SELECT_PHONE_ACCOUNT) {
-                // Sanity check: if there is an orphaned emergency call in the
+                // Correctness check: if there is an orphaned emergency call in the
                 // {@link CallState#SELECT_PHONE_ACCOUNT} state, just disconnect it since the user
                 // has explicitly started a new call.
                 emergencyCall.getAnalytics().setCallIsAdditional(true);

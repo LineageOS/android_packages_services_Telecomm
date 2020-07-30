@@ -545,7 +545,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private ParcelFileDescriptor[] mConnectionServiceToInCallStreams;
 
     /**
-     * True if we're supposed to start this call with RTT, either due to the master switch or due
+     * True if we're supposed to start this call with RTT, either due to the settings switch or due
      * to an extra.
      */
     private boolean mDidRequestToStartWithRtt = false;
@@ -1123,6 +1123,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                     break;
                 case CallState.ANSWERED:
                     event = LogUtils.Events.SET_ANSWERED;
+                    break;
+                case CallState.AUDIO_PROCESSING:
+                    event = LogUtils.Events.SET_AUDIO_PROCESSING;
+                    break;
+                case CallState.SIMULATED_RINGING:
+                    event = LogUtils.Events.SET_SIMULATED_RINGING;
                     break;
             }
             if (event != null) {
