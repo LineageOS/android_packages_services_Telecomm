@@ -249,6 +249,7 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
 
         @Override
         public void createConnectionComplete(String id, Session.Info info) throws RemoteException {
+            Log.i(ConnectionServiceFixture.this, "createConnectionComplete: %s", id);
             mConnectionServiceDelegateAdapter.createConnectionComplete(id, null /*Session.Info*/);
         }
 
