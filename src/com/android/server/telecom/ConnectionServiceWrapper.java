@@ -91,6 +91,7 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                             mServiceInterface.createConnectionComplete(callId,
                                     Log.getExternalSession());
                         } catch (RemoteException e) {
+                            logOutgoing("createConnectionComplete remote exception=%s", e);
                         }
                     }
                 }

@@ -925,7 +925,12 @@ public class TelecomSystemTest extends TelecomTestCase {
         // Wait for the handler to start the CallerInfo lookup
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
 
+        // Wait a few more times to address flakiness due to timing issues.
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
+
         // Ensure callback to CS on successful creation happened.
+
         verify(connectionServiceFixture.getTestDouble(), timeout(TEST_TIMEOUT))
                 .createConnectionComplete(anyString(), any());
 
