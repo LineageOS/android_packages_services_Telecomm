@@ -163,6 +163,9 @@ public class BasicCallTests extends TelecomSystemTest {
                 .getApplicationContext().getSystemService(Context.TELECOM_SERVICE);
         telecomManager.acceptRingingCall();
 
+        waitForHandlerAction(mTelecomSystem.getCallsManager()
+                .getConnectionServiceFocusManager().getHandler(), TEST_TIMEOUT);
+
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
                 .answer(eq(ids.mConnectionId), any());
         mConnectionServiceFixtureA.sendSetActive(ids.mConnectionId);
@@ -219,6 +222,9 @@ public class BasicCallTests extends TelecomSystemTest {
                 .getApplicationContext().getSystemService(Context.TELECOM_SERVICE);
         telecomManager.acceptRingingCall(VideoProfile.STATE_AUDIO_ONLY);
 
+        waitForHandlerAction(mTelecomSystem.getCallsManager()
+                .getConnectionServiceFocusManager().getHandler(), TEST_TIMEOUT);
+
         // The generic answer method on the ConnectionService is used to answer audio-only calls.
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
                 .answer(eq(ids.mConnectionId), any());
@@ -247,6 +253,9 @@ public class BasicCallTests extends TelecomSystemTest {
         TelecomManager telecomManager = (TelecomManager) mComponentContextFixture.getTestDouble()
                 .getApplicationContext().getSystemService(Context.TELECOM_SERVICE);
         telecomManager.acceptRingingCall(999 /* invalid videostate */);
+
+        waitForHandlerAction(mTelecomSystem.getCallsManager()
+                .getConnectionServiceFocusManager().getHandler(), TEST_TIMEOUT);
 
         // Answer video API should be called
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
@@ -626,6 +635,10 @@ public class BasicCallTests extends TelecomSystemTest {
         mConnectionServiceFixtureA.
                 sendSetDisconnected(outgoing.mConnectionId, DisconnectCause.REMOTE);
 
+        waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
+                .getCallAudioModeStateMachine().getHandler(), TEST_TIMEOUT);
+        waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
+                .getCallAudioRouteStateMachine().getHandler(), TEST_TIMEOUT);
         verify(audioManager, timeout(TEST_TIMEOUT))
                 .abandonAudioFocusForCall();
         verify(audioManager, timeout(TEST_TIMEOUT).atLeastOnce())
