@@ -17,6 +17,7 @@
 package com.android.server.telecom.tests;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertNull;
 
@@ -101,6 +102,17 @@ public class CarModeTrackerTest extends TelecomTestCase {
         assertEquals(1, mCarModeTracker.getCarModeApps().size());
         assertEquals(CAR_MODE_APP1_PACKAGE_NAME, mCarModeTracker.getCurrentCarModePackage());
         assertEquals(CAR_MODE_APP1_PACKAGE_NAME, mCarModeTracker.getCarModeApps().get(0));
+    }
+
+    /**
+     * Ensure that we don't keep a package around after it's been removed from the device
+     */
+    @Test
+    public void testForceExitCarMode() {
+        testEnterCarModeBasic();
+        mCarModeTracker.forceExitCarMode(CAR_MODE_APP1_PACKAGE_NAME);
+        assertFalse(mCarModeTracker.isInCarMode());
+        assertNull(mCarModeTracker.getCurrentCarModePackage());
     }
 
     /**

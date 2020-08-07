@@ -28,6 +28,7 @@ import com.android.internal.util.IndentingPrintWriter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.PriorityQueue;
 import java.util.stream.Collectors;
 
@@ -141,6 +142,28 @@ public class CarModeTracker {
         mCarModeChangeLog.log("exitCarMode: packageName=" + packageName + ", priority="
                 + priority);
         mCarModeApps.removeIf(c -> c.getPriority() == priority);
+    }
+
+    /**
+     * Force-removes a package from the car mode tracking list, no matter at which priority.
+     *
+     * This handles the case where packages are disabled or uninstalled. In those case, remove them
+     * from the tracking list so they don't cause a leak.
+     * @param packageName Package name of the app to force-remove
+     */
+    public void forceExitCarMode(@NonNull String packageName) {
+        Optional<CarModeApp> forcedApp = mCarModeApps.stream()
+                .filter(c -> c.getPackageName().equals(packageName))
+                .findAny();
+        if (forcedApp.isPresent()) {
+            String logString = String.format("forceExitCarMode: packageName=%s, was at priority=%s",
+                    packageName, forcedApp.get().getPriority());
+            Log.i(this, logString);
+            mCarModeChangeLog.log(logString);
+            mCarModeApps.removeIf(c -> c.getPackageName().equals(packageName));
+        } else {
+            Log.i(this, "Package %s is not tracked as requesting car mode", packageName);
+        }
     }
 
     /**

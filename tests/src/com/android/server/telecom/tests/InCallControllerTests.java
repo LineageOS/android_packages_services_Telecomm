@@ -35,6 +35,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -66,6 +67,7 @@ import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.test.mock.MockContext;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.SmallTest;
 import android.text.TextUtils;
 
 import com.android.internal.telecom.IInCallAdapter;
@@ -146,6 +148,8 @@ public class InCallControllerTests extends TelecomTestCase {
     private InCallController mInCallController;
     private TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() {};
     private EmergencyCallHelper mEmergencyCallHelper;
+    private SystemStateHelper.SystemStateListener mSystemStateListener;
+    private CarModeTracker mCarModeTracker = spy(new CarModeTracker());
 
     @Override
     @Before
@@ -166,7 +170,13 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCallsManager.getRoleManagerAdapter()).thenReturn(mMockRoleManagerAdapter);
         mInCallController = new InCallController(mMockContext, mLock, mMockCallsManager,
                 mMockSystemStateHelper, mDefaultDialerCache, mTimeoutsAdapter,
-                mEmergencyCallHelper, new CarModeTracker(), mClockProxy);
+                mEmergencyCallHelper, mCarModeTracker, mClockProxy);
+
+        ArgumentCaptor<SystemStateHelper.SystemStateListener> systemStateListenerArgumentCaptor
+                = ArgumentCaptor.forClass(SystemStateHelper.SystemStateListener.class);
+        verify(mMockSystemStateHelper).addListener(systemStateListenerArgumentCaptor.capture());
+        mSystemStateListener = systemStateListenerArgumentCaptor.getValue();
+
         when(mMockContext.getSystemService(eq(Context.NOTIFICATION_SERVICE)))
                 .thenReturn(mNotificationManager);
         // Companion Apps don't have CONTROL_INCALL_EXPERIENCE permission.
@@ -208,6 +218,24 @@ public class InCallControllerTests extends TelecomTestCase {
         mInCallController.getHandler().removeCallbacksAndMessages(null);
         waitForHandlerAction(mInCallController.getHandler(), 1000);
         super.tearDown();
+    }
+
+    @SmallTest
+    @Test
+    public void testCarModeAppRemoval() {
+        setupMockPackageManager(true /* default */, true /* system */, true /* external calls */);
+        when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
+        when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
+
+        when(mMockSystemStateHelper.isCarMode()).thenReturn(true);
+
+        mSystemStateListener.onCarModeChanged(666, CAR_PKG, true);
+        verify(mCarModeTracker).handleEnterCarMode(666, CAR_PKG);
+        assertTrue(mCarModeTracker.isInCarMode());
+
+        mSystemStateListener.onPackageUninstalled(CAR_PKG);
+        verify(mCarModeTracker).forceExitCarMode(CAR_PKG);
+        assertFalse(mCarModeTracker.isInCarMode());
     }
 
     @MediumTest
