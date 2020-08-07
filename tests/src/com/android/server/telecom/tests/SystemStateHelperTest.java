@@ -16,6 +16,8 @@
 
 package com.android.server.telecom.tests;
 
+import static junit.framework.Assert.fail;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -23,9 +25,11 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,6 +43,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.SystemStateHelper;
@@ -53,11 +58,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.internal.util.reflection.FieldSetter;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Unit tests for SystemStateHelper
@@ -128,16 +132,53 @@ public class SystemStateHelperTest extends TelecomTestCase {
 
     @SmallTest
     @Test
-    public void testReceiverAndIntentFilter() {
-        ArgumentCaptor<IntentFilter> intentFilter = ArgumentCaptor.forClass(IntentFilter.class);
-        new SystemStateHelper(mContext);
-        verify(mContext).registerReceiver(any(BroadcastReceiver.class), intentFilter.capture());
+    public void testPackageRemoved() {
+        ArgumentCaptor<BroadcastReceiver> receiver =
+                ArgumentCaptor.forClass(BroadcastReceiver.class);
+        new SystemStateHelper(mContext).addListener(mSystemStateListener);
+        verify(mContext, atLeastOnce())
+                .registerReceiver(receiver.capture(), any(IntentFilter.class));
+        Intent packageRemovedIntent = new Intent(Intent.ACTION_PACKAGE_REMOVED);
+        packageRemovedIntent.setData(Uri.fromParts("package", "com.android.test", null));
+        receiver.getValue().onReceive(mContext, packageRemovedIntent);
+        verify(mSystemStateListener).onPackageUninstalled("com.android.test");
+    }
 
-        assertEquals(2, intentFilter.getValue().countActions());
-        assertEquals(UiModeManager.ACTION_ENTER_CAR_MODE_PRIORITIZED,
-                intentFilter.getValue().getAction(0));
-        assertEquals(UiModeManager.ACTION_EXIT_CAR_MODE_PRIORITIZED,
-                intentFilter.getValue().getAction(1));
+    @SmallTest
+    @Test
+    public void testReceiverAndIntentFilter() {
+        ArgumentCaptor<IntentFilter> intentFilterCaptor =
+                ArgumentCaptor.forClass(IntentFilter.class);
+        new SystemStateHelper(mContext);
+        verify(mContext, times(2)).registerReceiver(
+                any(BroadcastReceiver.class), intentFilterCaptor.capture());
+
+        Predicate<IntentFilter> carModeFilterTest = (intentFilter) ->
+                2 == intentFilter.countActions()
+                        && intentFilter.hasAction(UiModeManager.ACTION_ENTER_CAR_MODE_PRIORITIZED)
+                        && intentFilter.hasAction(UiModeManager.ACTION_EXIT_CAR_MODE_PRIORITIZED);
+
+        Predicate<IntentFilter> packageRemovedFilterTest = (intentFilter) ->
+                1 == intentFilter.countActions()
+                        && intentFilter.hasAction(Intent.ACTION_PACKAGE_REMOVED)
+                        && intentFilter.hasDataScheme("package");
+
+        List<IntentFilter> capturedFilters = intentFilterCaptor.getAllValues();
+        assertEquals(2, capturedFilters.size());
+        for (IntentFilter filter : capturedFilters) {
+            if (carModeFilterTest.test(filter)) {
+                carModeFilterTest = (i) -> false;
+                continue;
+            }
+            if (packageRemovedFilterTest.test(filter)) {
+                packageRemovedFilterTest = (i) -> false;
+                continue;
+            }
+            String failString = String.format("Registered intent filters not correct. Got %s",
+                    capturedFilters.stream().map(IntentFilter::toString)
+                            .collect(Collectors.joining("\n")));
+            fail(failString);
+        }
     }
 
     @SmallTest
@@ -147,7 +188,8 @@ public class SystemStateHelperTest extends TelecomTestCase {
                 ArgumentCaptor.forClass(BroadcastReceiver.class);
         new SystemStateHelper(mContext).addListener(mSystemStateListener);
 
-        verify(mContext).registerReceiver(receiver.capture(), any(IntentFilter.class));
+        verify(mContext, atLeastOnce())
+                .registerReceiver(receiver.capture(), any(IntentFilter.class));
 
         when(mIntentEnter.getAction()).thenReturn(UiModeManager.ACTION_ENTER_CAR_MODE_PRIORITIZED);
         receiver.getValue().onReceive(mContext, mIntentEnter);
