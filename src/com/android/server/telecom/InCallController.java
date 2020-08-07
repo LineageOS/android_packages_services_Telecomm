@@ -322,7 +322,10 @@ public class InCallController extends CallsManagerListenerBase {
                 String packageName = mInCallServiceInfo.getComponentName().getPackageName();
                 mContext.unbindService(mServiceConnection);
                 mIsConnected = false;
-                if (mIsNullBinding) {
+                if (mIsNullBinding && mInCallServiceInfo.getType() != IN_CALL_SERVICE_TYPE_NON_UI) {
+                    // Non-UI InCallServices are allowed to return null from onBind if they don't
+                    // want to handle calls at the moment, so don't report them to the user as
+                    // crashed.
                     sendCrashedInCallServiceNotification(packageName);
                 }
                 if (mCall != null) {
@@ -1811,6 +1814,10 @@ public class InCallController extends CallsManagerListenerBase {
     private void sendCrashedInCallServiceNotification(String packageName) {
         PackageManager packageManager = mContext.getPackageManager();
         CharSequence appName;
+        String systemDialer = mDefaultDialerCache.getSystemDialerApplication();
+        if ((systemDialer != null) && systemDialer.equals(packageName)) {
+            return;
+        }
         try {
             appName = packageManager.getApplicationLabel(
                     packageManager.getApplicationInfo(packageName, 0));
