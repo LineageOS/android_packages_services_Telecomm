@@ -900,9 +900,18 @@ public class InCallController extends CallsManagerListenerBase {
         }
     };
 
-    private final SystemStateListener mSystemStateListener =
-            (priority, packageName, isCarMode) -> InCallController.this.handleCarModeChange(
-                    priority, packageName, isCarMode);
+    private final SystemStateListener mSystemStateListener = new SystemStateListener() {
+        @Override
+        public void onCarModeChanged(int priority, String packageName, boolean isCarMode) {
+            InCallController.this.handleCarModeChange(priority, packageName, isCarMode);
+        }
+
+        @Override
+        public void onPackageUninstalled(String packageName) {
+            mCarModeTracker.forceExitCarMode(packageName);
+            updateCarModeForSwitchingConnection();
+        }
+    };
 
     private static final int IN_CALL_SERVICE_TYPE_INVALID = 0;
     private static final int IN_CALL_SERVICE_TYPE_DIALER_UI = 1;
@@ -1860,7 +1869,8 @@ public class InCallController extends CallsManagerListenerBase {
     public void handleCarModeChange(int priority, String packageName, boolean isCarMode) {
         Log.i(this, "handleCarModeChange: packageName=%s, priority=%d, isCarMode=%b",
                 packageName, priority, isCarMode);
-        if (!isCarModeInCallService(packageName)) {
+        // Don't ignore the signal if we are disabling car mode; package may be uninstalled.
+        if (isCarMode && !isCarModeInCallService(packageName)) {
             Log.i(this, "handleCarModeChange: not a valid InCallService; packageName=%s",
                     packageName);
             return;
@@ -1872,8 +1882,12 @@ public class InCallController extends CallsManagerListenerBase {
             mCarModeTracker.handleExitCarMode(priority, packageName);
         }
 
+        updateCarModeForSwitchingConnection();
+    }
+
+    public void updateCarModeForSwitchingConnection() {
         if (mInCallServiceConnection != null) {
-            Log.i(this, "handleCarModeChange: car mode apps: %s",
+            Log.i(this, "updateCarModeForSwitchingConnection: car mode apps: %s",
                     mCarModeTracker.getCarModeApps().stream().collect(Collectors.joining(", ")));
             if (shouldUseCarModeUI()) {
                 mInCallServiceConnection.changeCarModeApp(
