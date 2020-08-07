@@ -26,6 +26,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.telecom.Log;
 
 import java.util.Set;
@@ -38,7 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Provides various system states to the rest of the telecom codebase.
  */
 public class SystemStateHelper {
-    public static interface SystemStateListener {
+    public interface SystemStateListener {
         /**
          * Listener method to inform interested parties when a package name requests to enter or
          * exit car mode.
@@ -48,6 +49,12 @@ public class SystemStateHelper {
          *                              otherwise.
          */
         void onCarModeChanged(int priority, String packageName, boolean isCarMode);
+
+        /**
+         * Notifies when a package has been uninstalled.
+         * @param packageName the package name of the uninstalled package
+         */
+        void onPackageUninstalled(String packageName);
     }
 
     private final Context mContext;
@@ -62,7 +69,7 @@ public class SystemStateHelper {
                             UiModeManager.DEFAULT_PRIORITY);
                     String callingPackage = intent.getStringExtra(
                             UiModeManager.EXTRA_CALLING_PACKAGE);
-                    Log.i(SystemStateHelper.this, "ENTER_CAR_MODE_PRIVILEGED; priority=%d, pkg=%s",
+                    Log.i(SystemStateHelper.this, "ENTER_CAR_MODE_PRIORITIZED; priority=%d, pkg=%s",
                             priority, callingPackage);
                     onEnterCarMode(priority, callingPackage);
                 } else if (UiModeManager.ACTION_EXIT_CAR_MODE_PRIORITIZED.equals(action)) {
@@ -70,11 +77,21 @@ public class SystemStateHelper {
                             UiModeManager.DEFAULT_PRIORITY);
                     String callingPackage = intent.getStringExtra(
                             UiModeManager.EXTRA_CALLING_PACKAGE);
-                    Log.i(SystemStateHelper.this, "EXIT_CAR_MODE_PRIVILEGED; priority=%d, pkg=%s",
+                    Log.i(SystemStateHelper.this, "EXIT_CAR_MODE_PRIORITIZED; priority=%d, pkg=%s",
                             priority, callingPackage);
                     onExitCarMode(priority, callingPackage);
+                } else if (Intent.ACTION_PACKAGE_REMOVED.equals(action)) {
+                    Uri data = intent.getData();
+                    if (data == null) {
+                        Log.w(SystemStateHelper.this,
+                                "Got null data for package removed, ignoring");
+                        return;
+                    }
+                    mListeners.forEach(
+                            l -> l.onPackageUninstalled(data.getEncodedSchemeSpecificPart()));
                 } else {
-                    Log.w(this, "Unexpected intent received: %s", intent.getAction());
+                    Log.w(SystemStateHelper.this,
+                            "Unexpected intent received: %s", intent.getAction());
                 }
             } finally {
                 Log.endSession();
@@ -88,11 +105,16 @@ public class SystemStateHelper {
     public SystemStateHelper(Context context) {
         mContext = context;
 
-        IntentFilter intentFilter = new IntentFilter(
+        IntentFilter intentFilter1 = new IntentFilter(
                 UiModeManager.ACTION_ENTER_CAR_MODE_PRIORITIZED);
-        intentFilter.addAction(UiModeManager.ACTION_EXIT_CAR_MODE_PRIORITIZED);
-        mContext.registerReceiver(mBroadcastReceiver, intentFilter);
-        Log.i(this, "Registering car mode receiver: %s", intentFilter);
+        intentFilter1.addAction(UiModeManager.ACTION_EXIT_CAR_MODE_PRIORITIZED);
+
+        IntentFilter intentFilter2 = new IntentFilter(Intent.ACTION_PACKAGE_REMOVED);
+        intentFilter2.addDataScheme("package");
+        mContext.registerReceiver(mBroadcastReceiver, intentFilter1);
+        mContext.registerReceiver(mBroadcastReceiver, intentFilter2);
+        Log.i(this, "Registering broadcast receiver: %s", intentFilter1);
+        Log.i(this, "Registering broadcast receiver: %s", intentFilter2);
 
         mIsCarMode = getSystemCarMode();
     }
