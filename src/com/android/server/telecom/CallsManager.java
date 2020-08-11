@@ -2025,7 +2025,8 @@ public class CallsManager extends Call.ListenerBase
                             + "callId=%s, callRedirectionAppName=%s",
                     call.getId(), callRedirectionApp);
 
-            showRedirectionDialog(call.getId());
+            showRedirectionDialog(call.getId(),
+                    mRoleManagerAdapter.getApplicationLabelForPackageName(callRedirectionApp));
         } else {
             call.setTargetPhoneAccount(phoneAccountHandle);
             placeOutgoingCall(call, handle, gatewayInfo, speakerphoneOn, videoState);
@@ -2044,7 +2045,7 @@ public class CallsManager extends Call.ListenerBase
      * content on the screen.
      * @param callId The ID of the call to show the redirection dialog for.
      */
-    private void showRedirectionDialog(@NonNull String callId) {
+    private void showRedirectionDialog(@NonNull String callId, @NonNull CharSequence appName) {
         AlertDialog confirmDialog = new AlertDialog.Builder(mContext).create();
         LayoutInflater layoutInflater = LayoutInflater.from(mContext);
         View dialogView = layoutInflater.inflate(R.layout.call_redirection_confirm_dialog, null);
@@ -2066,8 +2067,8 @@ public class CallsManager extends Call.ListenerBase
         });
 
         Button buttonSecondLine = (Button) dialogView.findViewById(R.id.buttonSecondLine);
-        buttonSecondLine.setText(mContext.getText(
-                R.string.alert_place_outgoing_call_with_redirection));
+        buttonSecondLine.setText(mContext.getString(
+                R.string.alert_place_outgoing_call_with_redirection, appName));
         buttonSecondLine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
