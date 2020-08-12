@@ -1901,6 +1901,10 @@ public class InCallController extends CallsManagerListenerBase {
     private void sendCrashedInCallServiceNotification(String packageName) {
         PackageManager packageManager = mContext.getPackageManager();
         CharSequence appName;
+        String systemDialer = mDefaultDialerCache.getSystemDialerApplication();
+        if ((systemDialer != null) && systemDialer.equals(packageName)) {
+            return;
+        }
         try {
             appName = packageManager.getApplicationLabel(
                     packageManager.getApplicationInfo(packageName, 0));
