@@ -1207,6 +1207,10 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                 mPendingResponses.put(callId, response);
 
                 Bundle extras = call.getIntentExtras();
+                if (extras == null) {
+                    extras = new Bundle();
+                }
+                extras.putString(Connection.EXTRA_ORIGINAL_CONNECTION_ID, callId);
 
                 Log.addEvent(call, LogUtils.Events.START_CONFERENCE,
                         Log.piiHandle(call.getHandle()));
