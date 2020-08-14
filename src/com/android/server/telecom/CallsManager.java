@@ -173,6 +173,7 @@ public class CallsManager extends Call.ListenerBase
         void onConnectionTimeChanged(Call call);
         void onConferenceStateChanged(Call call, boolean isConference);
         void onCdmaConferenceSwap(Call call);
+        void onSetCamera(Call call, String cameraId);
     }
 
     /** Interface used to define the action which is executed delay under some condition. */
@@ -1008,6 +1009,18 @@ public class CallsManager extends Call.ListenerBase
 
         for (CallsManagerListener listener : mListeners) {
             listener.onSessionModifyRequestReceived(call, videoProfile);
+        }
+    }
+
+    /**
+     * Handles a change to the currently active camera for a call by notifying listeners.
+     * @param call The call.
+     * @param cameraId The ID of the camera in use, or {@code null} if no camera is in use.
+     */
+    @Override
+    public void onSetCamera(Call call, String cameraId) {
+        for (CallsManagerListener listener : mListeners) {
+            listener.onSetCamera(call, cameraId);
         }
     }
 
