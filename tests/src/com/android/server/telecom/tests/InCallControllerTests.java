@@ -60,6 +60,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.UserHandle;
+import android.telecom.CallAudioState;
 import android.telecom.InCallService;
 import android.telecom.Log;
 import android.telecom.ParcelableCall;
@@ -168,6 +169,8 @@ public class InCallControllerTests extends TelecomTestCase {
         mEmergencyCallHelper = new EmergencyCallHelper(mMockContext, mDefaultDialerCache,
                 mTimeoutsAdapter);
         when(mMockCallsManager.getRoleManagerAdapter()).thenReturn(mMockRoleManagerAdapter);
+        when(mMockContext.getSystemService(eq(Context.NOTIFICATION_SERVICE)))
+                .thenReturn(mNotificationManager);
         mInCallController = new InCallController(mMockContext, mLock, mMockCallsManager,
                 mMockSystemStateHelper, mDefaultDialerCache, mTimeoutsAdapter,
                 mEmergencyCallHelper, mCarModeTracker, mClockProxy);
@@ -177,8 +180,6 @@ public class InCallControllerTests extends TelecomTestCase {
         verify(mMockSystemStateHelper).addListener(systemStateListenerArgumentCaptor.capture());
         mSystemStateListener = systemStateListenerArgumentCaptor.getValue();
 
-        when(mMockContext.getSystemService(eq(Context.NOTIFICATION_SERVICE)))
-                .thenReturn(mNotificationManager);
         // Companion Apps don't have CONTROL_INCALL_EXPERIENCE permission.
         doAnswer(invocation -> {
             int uid = invocation.getArgument(0);
@@ -210,6 +211,7 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockPackageManager.checkPermission(
                 matches(Manifest.permission.CONTROL_INCALL_EXPERIENCE),
                 matches(NONUI_PKG))).thenReturn(PackageManager.PERMISSION_GRANTED);
+        when(mMockCallsManager.getAudioState()).thenReturn(new CallAudioState(false, 0, 0));
     }
 
     @Override
