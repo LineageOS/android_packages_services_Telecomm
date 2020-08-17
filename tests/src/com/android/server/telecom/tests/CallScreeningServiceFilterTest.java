@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -207,6 +208,19 @@ public class CallScreeningServiceFilterTest extends TelecomTestCase {
         filter.startFilterLookup(inputResult);
         ServiceConnection connection = verifyBindingIntent();
         connection.onServiceDisconnected(COMPONENT_NAME);
+    }
+
+    @SmallTest
+    @Test
+    public void testUnbindingException() {
+        // Make sure that exceptions when unbinding won't make the device crash.
+        doThrow(new IllegalArgumentException()).when(mContext)
+                .unbindService(nullable(ServiceConnection.class));
+        CallScreeningServiceFilter filter = new CallScreeningServiceFilter(mCall, PKG_NAME,
+                CallScreeningServiceFilter.PACKAGE_TYPE_CARRIER, mContext, mCallsManager,
+                mAppLabelProxy, mParcelableCallUtilsConverter);
+        filter.startFilterLookup(inputResult);
+        filter.unbindCallScreeningService();
     }
 
     @SmallTest
