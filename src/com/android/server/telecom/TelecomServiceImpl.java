@@ -262,6 +262,23 @@ public class TelecomServiceImpl {
 
         @Override
         public List<PhoneAccountHandle> getPhoneAccountsForPackage(String packageName) {
+            //TODO: Deprecate this in S
+            try {
+                enforceCallingPackage(packageName);
+            } catch (SecurityException se1) {
+                EventLog.writeEvent(0x534e4554, "153995334", Binder.getCallingUid(),
+                        "getPhoneAccountsForPackage: invalid calling package");
+                throw se1;
+            }
+
+            try {
+                enforcePermission(READ_PRIVILEGED_PHONE_STATE);
+            } catch (SecurityException se2) {
+                EventLog.writeEvent(0x534e4554, "153995334", Binder.getCallingUid(),
+                        "getPhoneAccountsForPackage: no permission");
+                throw se2;
+            }
+
             synchronized (mLock) {
                 final UserHandle callingUserHandle = Binder.getCallingUserHandle();
                 long token = Binder.clearCallingIdentity();
