@@ -815,7 +815,7 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
                 "Speakerphone turned off externally during speaker", // name
                 CallAudioState.ROUTE_SPEAKER, // initialRoute
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH, // availableRoutes
-                NONE, // speakerInteraction
+                OFF, // speakerInteraction
                 ON, // bluetoothInteraction
                 CallAudioRouteStateMachine.SPEAKER_OFF, // action
                 CallAudioState.ROUTE_BLUETOOTH, // expectedRoute
