@@ -16,8 +16,11 @@
 
 package com.android.server.telecom;
 
+import static android.os.Process.myUid;
+
 import android.Manifest;
 import android.annotation.NonNull;
+import android.app.AppOpsManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.ComponentName;
@@ -869,6 +872,7 @@ public class InCallController extends CallsManagerListenerBase {
     private final CallIdMapper mCallIdMapper = new CallIdMapper(Call::getId);
 
     private final Context mContext;
+    private final AppOpsManager mAppOpsManager;
     private final TelecomSystem.SyncRoot mLock;
     private final CallsManager mCallsManager;
     private final SystemStateHelper mSystemStateHelper;
@@ -903,6 +907,7 @@ public class InCallController extends CallsManagerListenerBase {
             EmergencyCallHelper emergencyCallHelper, CarModeTracker carModeTracker,
             ClockProxy clockProxy) {
         mContext = context;
+        mAppOpsManager = context.getSystemService(AppOpsManager.class);
         mLock = lock;
         mCallsManager = callsManager;
         mSystemStateHelper = systemStateHelper;
@@ -1158,13 +1163,11 @@ public class InCallController extends CallsManagerListenerBase {
     public void onSetCamera(Call call, String cameraId) {
         Log.i(this, "onSetCamera callId=%s, cameraId=%s", call.getId(), cameraId);
         if (cameraId != null) {
-            Log.i(this, "onSetCamera: %s is using the camera.",
-                    mCurrentUserInterfacePackageName);
-            // TODO: Call AppOpsManager#startOp(camera, mCurrentMicrophonePackage)
+            mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_CAMERA, myUid(),
+                    mContext.getOpPackageName(), false, null, null);
         } else {
-            Log.i(this, "onSetCamera: %s is no longer using the camera.",
-                    mCurrentUserInterfacePackageName);
-            // TODO: Call AppOpsManager#endOp(camera, mCurrentMicrophonePackage)
+            mAppOpsManager.finishOp(AppOpsManager.OP_PHONE_CALL_CAMERA, myUid(),
+                    mContext.getOpPackageName(), null);
         }
     }
 
@@ -1869,7 +1872,6 @@ public class InCallController extends CallsManagerListenerBase {
         if (!Objects.equals(mCurrentUserInterfacePackageName, packageName)) {
             Log.i(this, "trackCallingUserInterfaceStarted: %s is now calling UX.", packageName);
             mCurrentUserInterfacePackageName = packageName;
-            // TODO: Call AppOpsManager#startOp(microphone, mCurrentMicrophonePackage)
         }
         maybeTrackMicrophoneUse(isMuted());
     }
@@ -1883,7 +1885,6 @@ public class InCallController extends CallsManagerListenerBase {
         mCurrentUserInterfacePackageName = null;
         String packageName = info.getComponentName().getPackageName();
         Log.i(this, "trackCallingUserInterfaceStopped: %s is no longer calling UX", packageName);
-        // TODO: Call AppOpsManager#endOp(microphone, mCurrentMicrophonePackage)
     }
 
     /**
@@ -1896,13 +1897,11 @@ public class InCallController extends CallsManagerListenerBase {
         mIsCallUsingMicrophone = isTrackingManagedCall() && !isMuted;
         if (wasTrackingManagedCall != mIsCallUsingMicrophone) {
             if (mIsCallUsingMicrophone) {
-                Log.i(this, "maybeTrackMicrophoneUse: %s is using the microphone",
-                        mCurrentUserInterfacePackageName);
-                // TODO: Call AppOpsManager#startOp(microphone, mCurrentMicrophonePackage)
+                mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_MICROPHONE, myUid(),
+                        mContext.getOpPackageName(), false, null, null);
             } else {
-                Log.i(this, "maybeTrackMicrophoneUse: %s stopped using the microphone",
-                        mCurrentUserInterfacePackageName);
-                // TODO: Call AppOpsManager#endOp(microphone, mCurrentMicrophonePackage)
+                mAppOpsManager.finishOp(AppOpsManager.OP_PHONE_CALL_MICROPHONE, myUid(),
+                        mContext.getOpPackageName(), null);
             }
         }
     }
