@@ -41,6 +41,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.Manifest;
+import android.app.AppOpsManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.UiModeManager;
@@ -62,7 +63,6 @@ import android.os.Looper;
 import android.os.UserHandle;
 import android.telecom.CallAudioState;
 import android.telecom.InCallService;
-import android.telecom.Log;
 import android.telecom.ParcelableCall;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
@@ -114,6 +114,7 @@ public class InCallControllerTests extends TelecomTestCase {
     @Mock PackageManager mMockPackageManager;
     @Mock Call mMockCall;
     @Mock Resources mMockResources;
+    @Mock AppOpsManager mMockAppOpsManager;
     @Mock MockContext mMockContext;
     @Mock Timeouts.Adapter mTimeoutsAdapter;
     @Mock DefaultDialerCache mDefaultDialerCache;
@@ -159,6 +160,7 @@ public class InCallControllerTests extends TelecomTestCase {
         MockitoAnnotations.initMocks(this);
         when(mMockCall.getAnalytics()).thenReturn(new Analytics.CallInfo());
         doReturn(mMockResources).when(mMockContext).getResources();
+        doReturn(mMockAppOpsManager).when(mMockContext).getSystemService(AppOpsManager.class);
         doReturn(SYS_PKG).when(mMockResources).getString(
                 com.android.internal.R.string.config_defaultDialer);
         doReturn(SYS_CLASS).when(mMockResources).getString(R.string.incall_default_class);
