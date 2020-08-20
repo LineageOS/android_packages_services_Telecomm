@@ -38,6 +38,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.app.AppOpsManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -347,6 +348,8 @@ public class TelecomSystemTest extends TelecomTestCase {
         mSpyContext = mComponentContextFixture.getTestDouble().getApplicationContext();
         doReturn(mSpyContext).when(mSpyContext).getApplicationContext();
         doNothing().when(mSpyContext).sendBroadcastAsUser(any(), any(), any());
+
+        doReturn(mock(AppOpsManager.class)).when(mSpyContext).getSystemService(AppOpsManager.class);
 
         mHandlerThread = new HandlerThread("TelecomHandlerThread");
         mHandlerThread.start();

@@ -20,6 +20,7 @@ import android.util.ArrayMap;
 
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.util.Collection;
 import java.util.Map;
 
 /** Utility to map {@link Call} objects to unique IDs. IDs are generated when a call is added. */
@@ -130,6 +131,10 @@ public class CallIdMapper {
         }
 
         return mCalls.getValue(callId);
+    }
+
+    Collection<Call> getCalls() {
+        return mCalls.mPrimaryMap.values();
     }
 
     void clear() {
