@@ -169,7 +169,7 @@ public class CallLogManagerTest extends TelecomTestCase {
         when(userManager.isUserUnlocked(any(UserHandle.class))).thenReturn(true);
         when(userManager.hasUserRestriction(any(String.class), any(UserHandle.class)))
                 .thenReturn(false);
-        when(userManager.getUsers(any(Boolean.class)))
+        when(userManager.getAliveUsers())
                 .thenReturn(Arrays.asList(userInfo, otherUserInfo, managedProfileUserInfo));
         when(userManager.getUserInfo(eq(CURRENT_USER_ID))).thenReturn(userInfo);
         when(userManager.getUserInfo(eq(OTHER_USER_ID))).thenReturn(otherUserInfo);
