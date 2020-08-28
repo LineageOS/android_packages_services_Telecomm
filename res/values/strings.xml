@@ -75,13 +75,14 @@
         background. This app may be accessing and playing audio over the call.
     </string>
 
-    <!-- Crashed in call service notification label, used when the in call service has cranshed and
+    <!-- Crashed in call service notification label, used when the in call service has crashed and
          the system fall back to use system dialer. [CHAR LIMIT=NONE] -->
-    <string name="notification_crashedInCallService_title">Crashed phone app</string>
+    <string name="notification_incallservice_not_responding_title">
+        <xliff:g id="in_call_service_app_name">%s</xliff:g> stopped responding
+    </string>
     <!-- Body of the notification presented when an in call service crashed. [CHAR LIMIT=NONE] -->
-    <string name="notification_crashedInCallService_body">
-        Your phone app <xliff:g id="in_call_service_app_name">%s</xliff:g> has crashed.
-        You call was continued using the phone app that came with your device.
+    <string name="notification_incallservice_not_responding_body">
+        Your call used the phone app that came with your device
     </string>
 
     <!-- Content description of the call muted notification icon for

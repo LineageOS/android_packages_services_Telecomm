@@ -32,6 +32,7 @@ import com.android.server.telecom.CallAudioManager.AudioServiceFactory;
 import com.android.server.telecom.DefaultDialerCache.DefaultDialerManagerAdapter;
 import com.android.server.telecom.ui.ToastFactory;
 
+import android.app.ActivityManager;
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -336,9 +337,19 @@ public class TelecomSystem {
         mRespondViaSmsManager = new RespondViaSmsManager(mCallsManager, mLock);
         mCallsManager.setRespondViaSmsManager(mRespondViaSmsManager);
 
-        mContext.registerReceiver(mUserSwitchedReceiver, USER_SWITCHED_FILTER);
-        mContext.registerReceiver(mUserStartingReceiver, USER_STARTING_FILTER);
-        mContext.registerReceiver(mBootCompletedReceiver, BOOT_COMPLETE_FILTER);
+        mContext.registerReceiverAsUser(mUserSwitchedReceiver, UserHandle.ALL,
+                USER_SWITCHED_FILTER, null, null);
+        mContext.registerReceiverAsUser(mUserStartingReceiver, UserHandle.ALL,
+                USER_STARTING_FILTER, null, null);
+        mContext.registerReceiverAsUser(mBootCompletedReceiver, UserHandle.ALL,
+                BOOT_COMPLETE_FILTER, null, null);
+
+        // Set current user explicitly since USER_SWITCHED_FILTER intent can be missed at startup
+        synchronized(mLock) {
+            UserHandle currentUserHandle = UserHandle.of(ActivityManager.getCurrentUser());
+            mPhoneAccountRegistrar.setCurrentUserHandle(currentUserHandle);
+            mCallsManager.onUserSwitch(currentUserHandle);
+        }
 
         mBluetoothPhoneServiceImpl = bluetoothPhoneServiceImplFactory.makeBluetoothPhoneServiceImpl(
                 mContext, mLock, mCallsManager, mPhoneAccountRegistrar);

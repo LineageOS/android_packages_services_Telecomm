@@ -353,17 +353,28 @@ public class CallAudioModeStateMachine extends StateMachine {
     }
 
     private class RingingFocusState extends BaseState {
+        // Keeps track of whether we're ringing with audio focus or if we've just entered the state
+        // without acquiring focus because of a silent ringtone or something.
+        private boolean mHasFocus = false;
+
         private void tryStartRinging() {
+            if (mHasFocus && mCallAudioManager.isRingtonePlaying()) {
+                Log.i(LOG_TAG, "RingingFocusState#tryStartRinging -- audio focus previously"
+                        + " acquired and ringtone already playing -- skipping.");
+                return;
+            }
+
             if (mCallAudioManager.startRinging()) {
                 mAudioManager.requestAudioFocusForCall(AudioManager.STREAM_RING,
                         AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
                 // Do not set MODE_RINGTONE if we were previously in the CALL_SCREENING mode -- this
                 // trips up the audio system.
-                if (mAudioManager.getMode() != NEW_AUDIO_MODE_FOR_AUDIO_PROCESSING) {
+                if (mAudioManager.getMode() != AudioManager.MODE_CALL_SCREENING) {
                     mAudioManager.setMode(AudioManager.MODE_RINGTONE);
                 }
                 mCallAudioManager.setCallAudioRouteFocusState(
                         CallAudioRouteStateMachine.RINGING_FOCUS);
+                mHasFocus = true;
             } else {
                 Log.i(LOG_TAG, "RINGING state, try start ringing but not acquiring audio focus");
             }
@@ -380,6 +391,7 @@ public class CallAudioModeStateMachine extends StateMachine {
         public void exit() {
             // Audio mode and audio stream will be set by the next state.
             mCallAudioManager.stopRinging();
+            mHasFocus = false;
         }
 
         @Override

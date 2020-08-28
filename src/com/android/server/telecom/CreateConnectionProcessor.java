@@ -17,6 +17,7 @@
 package com.android.server.telecom;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.telecom.DisconnectCause;
 import android.telecom.Log;
 import android.telecom.ParcelableConference;
@@ -388,7 +389,8 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
             List<PhoneAccount> allAccounts = mPhoneAccountRegistrar
                     .getAllPhoneAccountsOfCurrentUser();
 
-            if (allAccounts.isEmpty()) {
+            if (allAccounts.isEmpty() && mContext.getPackageManager().hasSystemFeature(
+                    PackageManager.FEATURE_TELEPHONY)) {
                 // If the list of phone accounts is empty at this point, it means Telephony hasn't
                 // registered any phone accounts yet. Add a fallback emergency phone account so
                 // that emergency calls can still go through. We create a new ArrayLists here just

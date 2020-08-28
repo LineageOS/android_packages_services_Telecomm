@@ -43,10 +43,18 @@ public class BlockedNumbersAdapter extends SimpleCursorAdapter {
         final String rawNumber = cursor.getString(cursor.getColumnIndex(
                 BlockedNumberContract.BlockedNumbers.COLUMN_ORIGINAL_NUMBER));
         final String formattedNumber = BlockedNumbersUtil.formatNumber(rawNumber);
-        TextView numberView = (TextView) view.findViewById(R.id.blocked_number);
-        Spannable numberSpannable = new SpannableString(formattedNumber);
-        PhoneNumberUtils.addTtsSpan(numberSpannable, 0, numberSpannable.length());
-        numberView.setText(numberSpannable);
+        TextView textView = (TextView) view.findViewById(R.id.blocked_number);
+
+        if (formattedNumber != null
+                && formattedNumber.contains("@") || formattedNumber.contains("%40")) {
+            // An email address
+            textView.setText(formattedNumber);
+        } else {
+            // A phone number
+            Spannable numberSpannable = new SpannableString(formattedNumber);
+            PhoneNumberUtils.addTtsSpan(numberSpannable, 0, numberSpannable.length());
+            textView.setText(numberSpannable);
+        }
 
         View deleteButton = view.findViewById(R.id.delete_blocked_number);
         deleteButton.setOnClickListener(new View.OnClickListener() {

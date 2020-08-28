@@ -26,7 +26,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
@@ -199,7 +198,7 @@ public class InCallController extends CallsManagerListenerBase {
         private final ServiceConnection mServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                Log.startSession("ICSBC.oSC", ServiceBinder.getPackageAbbreviation(name));
+                Log.startSession("ICSBC.oSC", Log.getPackageAbbreviation(name));
                 synchronized (mLock) {
                     try {
                         Log.d(this, "onServiceConnected: %s %b %b", name, mIsBound, mIsConnected);
@@ -216,7 +215,7 @@ public class InCallController extends CallsManagerListenerBase {
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
-                Log.startSession("ICSBC.oSD", ServiceBinder.getPackageAbbreviation(name));
+                Log.startSession("ICSBC.oSD", Log.getPackageAbbreviation(name));
                 synchronized (mLock) {
                     try {
                         Log.d(this, "onDisconnected: %s", name);
@@ -230,7 +229,7 @@ public class InCallController extends CallsManagerListenerBase {
 
             @Override
             public void onNullBinding(ComponentName name) {
-                Log.startSession("ICSBC.oNB", ServiceBinder.getPackageAbbreviation(name));
+                Log.startSession("ICSBC.oNB", Log.getPackageAbbreviation(name));
                 synchronized (mLock) {
                     try {
                         Log.d(this, "onNullBinding: %s", name);
@@ -245,7 +244,7 @@ public class InCallController extends CallsManagerListenerBase {
 
             @Override
             public void onBindingDied(ComponentName name) {
-                Log.startSession("ICSBC.oBD", ServiceBinder.getPackageAbbreviation(name));
+                Log.startSession("ICSBC.oBD", Log.getPackageAbbreviation(name));
                 synchronized (mLock) {
                     try {
                         Log.d(this, "onBindingDied: %s", name);
@@ -1405,10 +1404,12 @@ public class InCallController extends CallsManagerListenerBase {
                 (systemPackageName != null && systemPackageName.equals(packageName))
                 ? getInCallServiceComponent(packageName, IN_CALL_SERVICE_TYPE_SYSTEM_UI)
                 : getInCallServiceComponent(packageName, IN_CALL_SERVICE_TYPE_DIALER_UI);
-        if (packageName != null && defaultDialerComponent == null) {
-            // The in call service of default phone app is disabled, send notification.
-            sendCrashedInCallServiceNotification(packageName);
-        }
+        /* TODO: in Android 12 re-enable this an InCallService is required by the dialer role.
+            if (packageName != null && defaultDialerComponent == null) {
+                // The in call service of default phone app is disabled, send notification.
+                sendCrashedInCallServiceNotification(packageName);
+            }
+        */
         return defaultDialerComponent;
     }
 
@@ -1916,12 +1917,11 @@ public class InCallController extends CallsManagerListenerBase {
         builder.setSmallIcon(R.drawable.ic_phone)
                 .setColor(mContext.getResources().getColor(R.color.theme_color))
                 .setContentTitle(
-                        mContext.getText(
-                                R.string.notification_crashedInCallService_title))
+                        mContext.getString(
+                                R.string.notification_incallservice_not_responding_title, appName))
                 .setStyle(new Notification.BigTextStyle()
-                        .bigText(mContext.getString(
-                                R.string.notification_crashedInCallService_body,
-                                appName)));
+                        .bigText(mContext.getText(
+                                R.string.notification_incallservice_not_responding_body)));
         notificationManager.notify(NOTIFICATION_TAG, IN_CALL_SERVICE_NOTIFICATION_ID,
                 builder.build());
     }
