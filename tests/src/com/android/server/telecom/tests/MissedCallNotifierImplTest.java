@@ -16,6 +16,10 @@
 
 package com.android.server.telecom.tests;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+
+import android.app.BroadcastOptions;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -43,6 +47,7 @@ import android.telecom.CallerInfo;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.Constants;
 import com.android.server.telecom.DefaultDialerCache;
+import com.android.server.telecom.DeviceIdleControllerAdapter;
 import com.android.server.telecom.MissedCallNotifier;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.TelecomBroadcastIntentProcessor;
@@ -67,6 +72,8 @@ import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -143,6 +150,9 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
     private static final UserHandle SECONARY_USER = UserHandle.of(12);
     private static final int NO_CAPABILITY = 0;
     private static final int TEST_TIMEOUT = 1000;
+    private static final long TEST_POWER_EXEMPT_TIME_MS = 1000;
+    private static final ComponentName COMPONENT_NAME = new ComponentName(
+            "com.anything", "com.whatever");
 
     @Mock
     private NotificationManager mNotificationManager;
@@ -155,6 +165,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
 
     @Mock TelecomSystem mTelecomSystem;
     @Mock private DefaultDialerCache mDefaultDialerCache;
+    @Mock private DeviceIdleControllerAdapter mDeviceIdleControllerAdapter;
 
     @Override
     @Before
@@ -246,7 +257,8 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                 makeNotificationBuilderFactory(builders);
 
         MissedCallNotifier missedCallNotifier = new MissedCallNotifierImpl(mContext,
-                mPhoneAccountRegistrar, mDefaultDialerCache, fakeBuilderFactory);
+                mPhoneAccountRegistrar, mDefaultDialerCache, fakeBuilderFactory,
+                mDeviceIdleControllerAdapter);
 
         missedCallNotifier.showMissedCallNotification(fakeCall);
         missedCallNotifier.showMissedCallNotification(fakeCall);
@@ -401,7 +413,8 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                 makeNotificationBuilderFactory(builder1);
 
         MissedCallNotifier missedCallNotifier = new MissedCallNotifierImpl(mContext,
-                mPhoneAccountRegistrar, mDefaultDialerCache, fakeBuilderFactory);
+                mPhoneAccountRegistrar, mDefaultDialerCache, fakeBuilderFactory,
+                mDeviceIdleControllerAdapter);
         PhoneAccount phoneAccount = makePhoneAccount(PRIMARY_USER, NO_CAPABILITY);
 
         MissedCallNotifier.CallInfo fakeCall =
@@ -461,7 +474,8 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                 makeNotificationBuilderFactory(builder1);
 
         MissedCallNotifier missedCallNotifier = new MissedCallNotifierImpl(mContext,
-                mPhoneAccountRegistrar, mDefaultDialerCache, fakeBuilderFactory);
+                mPhoneAccountRegistrar, mDefaultDialerCache, fakeBuilderFactory,
+                mDeviceIdleControllerAdapter);
 
         // AsyncQueryHandler used in reloadFromDatabase interacts poorly with the below
         // timeout-verify, so run this in a new handler to mitigate that.
@@ -530,7 +544,8 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                 makeNotificationBuilderFactory(builder1);
 
         MissedCallNotifier missedCallNotifier = new MissedCallNotifierImpl(mContext,
-                mPhoneAccountRegistrar, mDefaultDialerCache, fakeBuilderFactory);
+                mPhoneAccountRegistrar, mDefaultDialerCache, fakeBuilderFactory,
+                mDeviceIdleControllerAdapter);
 
         // AsyncQueryHandler used in reloadFromDatabase interacts poorly with the below
         // timeout-verify, so run this in a new handler to mitigate that.
@@ -557,6 +572,49 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
 
         // Verify that two notifications were generated, both with the same id.
         verify(mNotificationManager, times(2)).notifyAsUser(nullable(String.class), eq(1),
+                nullable(Notification.class), eq(PRIMARY_USER));
+    }
+
+    @SmallTest
+    @Test
+    public void testDialerHandleMissedCall() {
+        // Configure Notifier to send missed call intent and let dialer handle
+        enableDialerHandlesMissedCall();
+
+        Notification.Builder builder1 = makeNotificationBuilder("builder1");
+        MissedCallNotifierImpl.NotificationBuilderFactory fakeBuilderFactory =
+                makeNotificationBuilderFactory(builder1);
+
+        MissedCallNotifier missedCallNotifier = new MissedCallNotifierImpl(mContext,
+                mPhoneAccountRegistrar, mDefaultDialerCache, fakeBuilderFactory,
+                mDeviceIdleControllerAdapter);
+        PhoneAccount phoneAccount = makePhoneAccount(PRIMARY_USER, NO_CAPABILITY);
+
+        MissedCallNotifier.CallInfo fakeCall =
+                makeFakeCallInfo(SIP_CALL_HANDLE, CALLER_NAME, CALL_TIMESTAMP,
+                        phoneAccount.getAccountHandle());
+        missedCallNotifier.showMissedCallNotification(fakeCall);
+
+        ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
+        ArgumentCaptor<Bundle> bundleCaptor =
+                ArgumentCaptor.forClass(Bundle.class);
+        verify(mDeviceIdleControllerAdapter).exemptAppTemporarilyForEvent(
+                eq(COMPONENT_NAME.getPackageName()), anyLong(), anyInt(), any());
+        verify(mContext).sendBroadcastAsUser(
+                intentCaptor.capture(),
+                any(),
+                eq(android.Manifest.permission.READ_PHONE_STATE), bundleCaptor.capture());
+        assertNotNull("Not expecting null intent", intentCaptor.getValue());
+        assertEquals("Incorrect intent received",
+                TelecomManager.ACTION_SHOW_MISSED_CALLS_NOTIFICATION,
+                intentCaptor.getValue().getAction());
+        assertNotNull("Not expecting null options bundle", bundleCaptor.getValue());
+        BroadcastOptions options = new BroadcastOptions(bundleCaptor.getValue());
+        assertTrue("App must have a temporary exemption set.",
+                options.getTemporaryAppWhitelistDuration() > 0);
+
+        // A notification should never be posted by Telecom
+        verify(mNotificationManager, never()).notifyAsUser(nullable(String.class), anyInt(),
                 nullable(Notification.class), eq(PRIMARY_USER));
     }
 
@@ -592,14 +650,14 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
     private MissedCallNotifier makeMissedCallNotifier(
             NotificationBuilderFactory fakeBuilderFactory, UserHandle currentUser) {
         MissedCallNotifier missedCallNotifier = new MissedCallNotifierImpl(mContext,
-                mPhoneAccountRegistrar, mDefaultDialerCache, fakeBuilderFactory);
+                mPhoneAccountRegistrar, mDefaultDialerCache, fakeBuilderFactory,
+                mDeviceIdleControllerAdapter);
         missedCallNotifier.setCurrentUserHandle(currentUser);
         return missedCallNotifier;
     }
 
     private PhoneAccount makePhoneAccount(UserHandle userHandle, int capability) {
-        ComponentName componentName = new ComponentName("com.anything", "com.whatever");
-        PhoneAccountHandle phoneAccountHandle = new PhoneAccountHandle(componentName, "id",
+        PhoneAccountHandle phoneAccountHandle = new PhoneAccountHandle(COMPONENT_NAME, "id",
                 userHandle);
         PhoneAccount.Builder builder = new PhoneAccount.Builder(phoneAccountHandle, "test");
         builder.setCapabilities(capability);
@@ -607,6 +665,13 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(phoneAccountHandle))
                 .thenReturn(phoneAccount);
         return phoneAccount;
+    }
+
+    private void enableDialerHandlesMissedCall() {
+        doReturn(COMPONENT_NAME.getPackageName()).when(mDefaultDialerCache).
+                getDefaultDialerApplication(anyInt());
+        mComponentContextFixture.addIntentReceiver(
+                TelecomManager.ACTION_SHOW_MISSED_CALLS_NOTIFICATION, COMPONENT_NAME);
     }
 
     private IContentProvider getContentProviderForUser(int userId) {
