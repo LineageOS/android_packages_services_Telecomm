@@ -79,6 +79,7 @@ import com.android.server.telecom.CallsManagerListenerBase;
 import com.android.server.telecom.ClockProxy;
 import com.android.server.telecom.ConnectionServiceFocusManager;
 import com.android.server.telecom.ContactsAsyncHelper;
+import com.android.server.telecom.DeviceIdleControllerAdapter;
 import com.android.server.telecom.HeadsetMediaButton;
 import com.android.server.telecom.HeadsetMediaButtonFactory;
 import com.android.server.telecom.InCallWakeLockController;
@@ -208,6 +209,7 @@ public class TelecomSystemTest extends TelecomTestCase {
     @Mock ClockProxy mClockProxy;
     @Mock RoleManagerAdapter mRoleManagerAdapter;
     @Mock ToneGenerator mToneGenerator;
+    @Mock DeviceIdleControllerAdapter mDeviceIdleControllerAdapter;
 
     final ComponentName mInCallServiceComponentNameX =
             new ComponentName(
@@ -478,7 +480,8 @@ public class TelecomSystemTest extends TelecomTestCase {
         when(mRoleManagerAdapter.getDefaultCallScreeningApp()).thenReturn(null);
         mTelecomSystem = new TelecomSystem(
                 mComponentContextFixture.getTestDouble(),
-                (context, phoneAccountRegistrar, defaultDialerCache) -> mMissedCallNotifier,
+                (context, phoneAccountRegistrar, defaultDialerCache, mDeviceIdleControllerAdapter)
+                        -> mMissedCallNotifier,
                 mCallerInfoAsyncQueryFactoryFixture.getTestDouble(),
                 headsetMediaButtonFactory,
                 proximitySensorManagerFactory,
@@ -538,7 +541,7 @@ public class TelecomSystemTest extends TelecomTestCase {
                             ContactsAsyncHelper.ContentResolverAdapter adapter) {
                         return new ContactsAsyncHelper(adapter, mHandlerThread.getLooper());
                     }
-                });
+                }, mDeviceIdleControllerAdapter);
 
         mComponentContextFixture.setTelecomManager(new TelecomManager(
                 mComponentContextFixture.getTestDouble(),
