@@ -34,6 +34,7 @@ import com.android.server.telecom.AppLabelProxy;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallScreeningServiceHelper;
 import com.android.server.telecom.CallsManager;
+import com.android.server.telecom.LogUtils;
 import com.android.server.telecom.ParcelableCallUtils;
 
 import java.util.concurrent.CompletableFuture;
@@ -70,6 +71,7 @@ public class CallScreeningServiceFilter extends CallFilter {
                 if (mCall == null || (!mCall.getId().equals(callId))) {
                     Log.w(this, "allowCall, unknown call id: %s", callId);
                 }
+                Log.addEvent(mCall, LogUtils.Events.SCREENING_COMPLETED, mPriorStageResult);
                 mResultFuture.complete(mPriorStageResult);
             } finally {
                 unbindCallScreeningService();
@@ -86,7 +88,7 @@ public class CallScreeningServiceFilter extends CallFilter {
             Log.startSession("NCSSF.dC");
             try {
                 if (mCall != null && mCall.getId().equals(callId)) {
-                    mResultFuture.complete(new CallFilteringResult.Builder()
+                    CallFilteringResult result = new CallFilteringResult.Builder()
                             .setShouldAllowCall(false)
                             .setShouldReject(shouldReject)
                             .setShouldSilence(false)
@@ -97,7 +99,9 @@ public class CallScreeningServiceFilter extends CallFilter {
                             .setCallScreeningAppName(mAppName)
                             .setCallScreeningComponentName(componentName.flattenToString())
                             .setContactExists(mPriorStageResult.contactExists)
-                            .build());
+                            .build();
+                    Log.addEvent(mCall, LogUtils.Events.SCREENING_COMPLETED, result);
+                    mResultFuture.complete(result);
                 } else {
                     Log.w(this, "disallowCall, unknown call id: %s", callId);
                     mResultFuture.complete(mPriorStageResult);
@@ -115,14 +119,16 @@ public class CallScreeningServiceFilter extends CallFilter {
             Log.startSession("NCSSF.sC");
             try {
                 if (mCall != null && mCall.getId().equals(callId)) {
-                    mResultFuture.complete(new CallFilteringResult.Builder()
+                    CallFilteringResult result = new CallFilteringResult.Builder()
                             .setShouldAllowCall(true)
                             .setShouldReject(false)
                             .setShouldSilence(true)
                             .setShouldAddToCallLog(true)
                             .setShouldShowNotification(true)
                             .setContactExists(mPriorStageResult.contactExists)
-                            .build());
+                            .build();
+                    Log.addEvent(mCall, LogUtils.Events.SCREENING_COMPLETED, result);
+                    mResultFuture.complete(result);
                 } else {
                     Log.w(this, "silenceCall, unknown call id: %s", callId);
                     mResultFuture.complete(mPriorStageResult);
@@ -146,14 +152,16 @@ public class CallScreeningServiceFilter extends CallFilter {
 
             try {
                 if (mCall != null && mCall.getId().equals(callId)) {
-                    mResultFuture.complete(new CallFilteringResult.Builder()
+                    CallFilteringResult result = new CallFilteringResult.Builder()
                             .setShouldAllowCall(true)
                             .setShouldReject(false)
                             .setShouldSilence(false)
                             .setShouldScreenViaAudio(true)
                             .setCallScreeningAppName(mAppName)
                             .setContactExists(mPriorStageResult.contactExists)
-                            .build());
+                            .build();
+                    Log.addEvent(mCall, LogUtils.Events.SCREENING_COMPLETED, result);
+                    mResultFuture.complete(result);
                 } else {
                     Log.w(this, "screenCallFurther, unknown call id: %s", callId);
                     mResultFuture.complete(mPriorStageResult);
@@ -185,6 +193,7 @@ public class CallScreeningServiceFilter extends CallFilter {
                 Log.e(this, e, "Failed to set the call screening adapter");
                 mResultFuture.complete(mPriorStageResult);
             }
+            Log.addEvent(mCall, LogUtils.Events.SCREENING_BOUND, componentName);
             Log.i(this, "Binding completed.");
         }
 

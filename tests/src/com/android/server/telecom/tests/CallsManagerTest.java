@@ -66,6 +66,7 @@ import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
+import com.android.server.telecom.CallsManagerListenerBase;
 import com.android.server.telecom.ClockProxy;
 import com.android.server.telecom.ConnectionServiceFocusManager;
 import com.android.server.telecom.ConnectionServiceFocusManager.ConnectionServiceFocusManagerFactory;
@@ -1301,8 +1302,8 @@ public class CallsManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testParentInheritsChildConnectTime() throws Exception {
-        Call callSim1 = createCall(SIM_1_HANDLE, CallState.ACTIVE);
-        Call callSim2 = createCall(SIM_1_HANDLE, CallState.ACTIVE);
+        Call callSim1 = createCall(SIM_1_HANDLE, null, CallState.ACTIVE);
+        Call callSim2 = createCall(SIM_1_HANDLE, null, CallState.ACTIVE);
         callSim1.setConnectTimeMillis(100);
 
         // Pretend it is a conference made later.
@@ -1314,7 +1315,7 @@ public class CallsManagerTest extends TelecomTestCase {
         assertEquals(100, callSim2.getConnectTimeMillis());
 
         // Add another later call.
-        Call callSim3 = createCall(SIM_1_HANDLE, CallState.ACTIVE);
+        Call callSim3 = createCall(SIM_1_HANDLE, null, CallState.ACTIVE);
         callSim3.setConnectTimeMillis(200);
         callSim3.setChildOf(callSim2);
 
@@ -1408,6 +1409,26 @@ public class CallsManagerTest extends TelecomTestCase {
 
         // and held call is unhold now
         verify(heldCall).unhold(any());
+    }
+
+    /**
+     * Verifies we inform the InCallService on local disconnect.
+     * @throws Exception
+     */
+    @SmallTest
+    @Test
+    public void testRequestDisconnect() throws Exception {
+        CallsManager.CallsManagerListener listener = mock(CallsManager.CallsManagerListener.class);
+        mCallsManager.addListener(listener);
+
+        Call ongoingCall = addSpyCall(CallState.ACTIVE);
+        mCallsManager.addCall(ongoingCall);
+
+        mCallsManager.disconnectCall(ongoingCall);
+        // Seems odd, but ultimately the call state is still active even though it is locally
+        // disconnecting.
+        verify(listener).onCallStateChanged(eq(ongoingCall), eq(CallState.ACTIVE),
+                eq(CallState.ACTIVE));
     }
 
     private Call addSpyCall() {

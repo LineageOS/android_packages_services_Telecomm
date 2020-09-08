@@ -55,7 +55,6 @@ import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
 import android.telephony.emergency.EmergencyNumber;
 import android.text.TextUtils;
-import android.util.StatsLog;
 import android.widget.Toast;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -822,7 +821,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         return String.format(Locale.US, "[Call id=%s, state=%s, tpac=%s, cmgr=%s, handle=%s, "
                         + "vidst=%s, childs(%d), has_parent(%b), cap=%s, prop=%s]",
                 mId,
-                CallState.toString(mState),
+                CallState.toString(getParcelableCallState()),
                 getTargetPhoneAccount(),
                 getConnectionManagerPhoneAccount(),
                 Log.piiHandle(mHandle),
@@ -961,6 +960,20 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     @VisibleForTesting
     public int getState() {
+        return mState;
+    }
+
+    /**
+     * Similar to {@link #getState()}, except will return {@link CallState#DISCONNECTING} if the
+     * call is locally disconnecting.  This is the call state which is reported to the
+     * {@link android.telecom.InCallService}s when a call is parcelled.
+     * @return The parcelable call state.
+     */
+    public int getParcelableCallState() {
+        if (isLocallyDisconnecting() &&
+                (mState != android.telecom.Call.STATE_DISCONNECTED)) {
+            return CallState.DISCONNECTING;
+        }
         return mState;
     }
 
@@ -1129,8 +1142,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             }
             int statsdDisconnectCause = (newState == CallState.DISCONNECTED) ?
                     getDisconnectCause().getCode() : DisconnectCause.UNKNOWN;
-            StatsLog.write(StatsLog.CALL_STATE_CHANGED, newState, statsdDisconnectCause,
-                    isSelfManaged(), isExternalCall());
+            TelecomStatsLog.write(TelecomStatsLog.CALL_STATE_CHANGED, newState,
+                    statsdDisconnectCause, isSelfManaged(), isExternalCall());
         }
         return true;
     }
@@ -2562,7 +2575,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
     }
 
-    boolean isActive() {
+    @VisibleForTesting
+    public boolean isActive() {
         return mState == CallState.ACTIVE;
     }
 
@@ -2594,7 +2608,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         for (Listener l : mListeners) {
             l.onExtrasChanged(this, source, extras);
         }
-      
+
         // If mExtra shows that the call using Volte, record it with mWasVolte
         if (mExtras.containsKey(TelecomManager.EXTRA_CALL_NETWORK_TYPE) &&
             mExtras.get(TelecomManager.EXTRA_CALL_NETWORK_TYPE)
@@ -3093,8 +3107,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
 
         // Is there a valid SMS application on the phone?
-        if (TelephonyManager.getDefaultRespondViaMessageApplication(mContext,
-                true /*updateIfNeeded*/) == null) {
+        if (mContext.getSystemService(TelephonyManager.class)
+                .getAndUpdateDefaultRespondViaMessageApplication() == null) {
             return false;
         }
 
@@ -3782,8 +3796,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     public void setIsUsingCallFiltering(boolean isUsingCallFiltering) {
         mIsUsingCallFiltering = isUsingCallFiltering;
-    }       
-          
+    }
+
     /**
      * Returns whether or not Volte call was used.
      *
