@@ -1523,7 +1523,10 @@ public class InCallController extends CallsManagerListenerBase {
                 if (requestedType == IN_CALL_SERVICE_TYPE_NON_UI) {
                     mKnownNonUiInCallServices.add(foundComponentName);
                 }
-                if (serviceInfo.enabled && (requestedType == 0 || requestedType == currentType)) {
+                
+                boolean isEnabled = isServiceEnabled(foundComponentName,
+                        serviceInfo, packageManager);
+                if (isEnabled && (requestedType == 0 || requestedType == currentType)) {
                     retval.add(new InCallServiceInfo(foundComponentName,
                             isExternalCallsSupported, isSelfManageCallsSupported, requestedType));
                 }
@@ -1531,6 +1534,21 @@ public class InCallController extends CallsManagerListenerBase {
         }
 
         return retval;
+    }
+
+    private boolean isServiceEnabled(ComponentName componentName,
+            ServiceInfo serviceInfo, PackageManager packageManager) {
+        int componentEnabledState = packageManager.getComponentEnabledSetting(componentName);
+
+        if (componentEnabledState == PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
+            return true;
+        }
+
+        if (componentEnabledState == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) {
+            return serviceInfo.isEnabled();
+        }
+
+        return false;
     }
 
     private boolean shouldUseCarModeUI() {

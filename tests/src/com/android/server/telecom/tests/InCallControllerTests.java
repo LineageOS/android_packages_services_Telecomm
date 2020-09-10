@@ -1260,6 +1260,28 @@ public class InCallControllerTests extends TelecomTestCase {
             }
         }).when(mMockPackageManager).queryIntentServicesAsUser(
                 any(Intent.class), anyInt(), eq(CURRENT_USER_ID));
+
+        if (useDefaultDialer) {
+            when(mMockPackageManager
+                    .getComponentEnabledSetting(new ComponentName(DEF_PKG, DEF_CLASS)))
+                    .thenReturn(PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
+        }
+
+        when(mMockPackageManager
+                .getComponentEnabledSetting(new ComponentName(SYS_PKG, SYS_CLASS)))
+                .thenReturn(PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
+
+        when(mMockPackageManager
+                .getComponentEnabledSetting(new ComponentName(CAR_PKG, CAR_CLASS)))
+                .thenReturn(PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
+
+        when(mMockPackageManager
+                .getComponentEnabledSetting(new ComponentName(COMPANION_PKG, COMPANION_CLASS)))
+                .thenReturn(PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
+
+        when(mMockPackageManager
+                .getComponentEnabledSetting(new ComponentName(CAR2_PKG, CAR2_CLASS)))
+                .thenReturn(PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
     }
 
     private void setupMockPackageManagerLocationPermission(final String pkg,
