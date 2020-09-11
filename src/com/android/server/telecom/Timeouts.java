@@ -211,4 +211,15 @@ public final class Timeouts {
     public static long getCallRecordingToneRepeatIntervalMillis(ContentResolver contentResolver) {
         return get(contentResolver, "call_recording_tone_repeat_interval", 15000L /* 15 seconds */);
     }
+
+    /**
+     * Returns the number of milliseconds for which the system should exempt the default dialer from
+     * power save restrictions due to the dialer needing to handle a missed call notification
+     * (update call log, check VVM, etc...).
+     */
+    public static long getDialerMissedCallPowerSaveExemptionTimeMillis(
+            ContentResolver contentResolver) {
+        return get(contentResolver, "dialer_missed_call_power_save_exemption_time_millis",
+                30000L /*30 seconds*/);
+    }
 }
