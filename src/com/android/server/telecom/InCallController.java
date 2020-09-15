@@ -2015,7 +2015,7 @@ public class InCallController extends CallsManagerListenerBase {
     private boolean isTrackingManagedAliveCall() {
         return mCallIdMapper.getCalls().stream().anyMatch(c -> !c.isExternalCall()
             && !c.isSelfManaged() && c.isAlive() && c.getState() != CallState.ON_HOLD
-                && c.getState() != CallState.AUDIO_PROCESSING);
+                && c.getState() != CallState.AUDIO_PROCESSING && c.getState() != CallState.DIALING);
     }
 
     /**
