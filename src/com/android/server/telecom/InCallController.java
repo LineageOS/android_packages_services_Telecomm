@@ -1139,6 +1139,7 @@ public class InCallController extends CallsManagerListenerBase {
 
     @Override
     public void onCallStateChanged(Call call, int oldState, int newState) {
+        maybeTrackMicrophoneUse(isMuted());
         updateCall(call);
     }
 
@@ -1995,7 +1996,7 @@ public class InCallController extends CallsManagerListenerBase {
      */
     private void maybeTrackMicrophoneUse(boolean isMuted) {
         boolean wasTrackingManagedCall = mIsCallUsingMicrophone;
-        mIsCallUsingMicrophone = isTrackingManagedCall() && !isMuted;
+        mIsCallUsingMicrophone = isTrackingManagedAliveCall() && !isMuted;
         if (wasTrackingManagedCall != mIsCallUsingMicrophone) {
             if (mIsCallUsingMicrophone) {
                 mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_MICROPHONE, myUid(),
@@ -2009,11 +2010,12 @@ public class InCallController extends CallsManagerListenerBase {
 
     /**
      * @return {@code true} if InCallController is tracking a managed call (i.e. not self managed
-     * and not external).
+     * and not external) that is active.
      */
-    private boolean isTrackingManagedCall() {
+    private boolean isTrackingManagedAliveCall() {
         return mCallIdMapper.getCalls().stream().anyMatch(c -> !c.isExternalCall()
-            && !c.isSelfManaged());
+            && !c.isSelfManaged() && c.isAlive() && c.getState() != CallState.ON_HOLD
+                && c.getState() != CallState.AUDIO_PROCESSING);
     }
 
     /**
