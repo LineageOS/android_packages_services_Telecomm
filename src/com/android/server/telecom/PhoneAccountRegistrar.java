@@ -1266,11 +1266,11 @@ public class PhoneAccountRegistrar {
             // Comparator which places PhoneAccounts with a specified sort order first, followed by
             // those with no sort order.
             Comparator<PhoneAccount> bySortOrder = (p1, p2) -> {
-                String sort1 = p1.getExtras() == null ? null :
-                        p1.getExtras().getString(PhoneAccount.EXTRA_SORT_ORDER, null);
-                String sort2 = p2.getExtras() == null ? null :
-                        p2.getExtras().getString(PhoneAccount.EXTRA_SORT_ORDER, null);
-                return nullSafeStringComparator.compare(sort1, sort2);
+                int sort1 = p1.getExtras() == null ? Integer.MAX_VALUE:
+                        p1.getExtras().getInt(PhoneAccount.EXTRA_SORT_ORDER, Integer.MAX_VALUE);
+                int sort2 = p2.getExtras() == null ? Integer.MAX_VALUE:
+                        p2.getExtras().getInt(PhoneAccount.EXTRA_SORT_ORDER, Integer.MAX_VALUE);
+                return Integer.compare(sort1, sort2);
             };
 
             // Comparator which sorts PhoneAccounts by label.
