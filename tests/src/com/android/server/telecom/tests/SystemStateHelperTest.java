@@ -60,6 +60,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.internal.util.reflection.FieldSetter;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -91,6 +92,8 @@ public class SystemStateHelperTest extends TelecomTestCase {
         when(mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)).thenReturn(mGravitySensor);
         when(mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY)).thenReturn(mProxSensor);
 
+        doReturn(mUiModeManager).when(mContext).getSystemService(UiModeManager.class);
+
         mComponentContextFixture.putFloatResource(
                 R.dimen.device_on_ear_xy_gravity_threshold, 5.5f);
         mComponentContextFixture.putFloatResource(
@@ -117,17 +120,53 @@ public class SystemStateHelperTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testQuerySystemForCarMode_True() {
-        when(mContext.getSystemService(Context.UI_MODE_SERVICE)).thenReturn(mUiModeManager);
         when(mUiModeManager.getCurrentModeType()).thenReturn(Configuration.UI_MODE_TYPE_CAR);
-        assertTrue(new SystemStateHelper(mContext).isCarMode());
+        assertTrue(new SystemStateHelper(mContext).isCarModeOrProjectionActive());
     }
 
     @SmallTest
     @Test
     public void testQuerySystemForCarMode_False() {
-        when(mContext.getSystemService(Context.UI_MODE_SERVICE)).thenReturn(mUiModeManager);
         when(mUiModeManager.getCurrentModeType()).thenReturn(Configuration.UI_MODE_TYPE_NORMAL);
-        assertFalse(new SystemStateHelper(mContext).isCarMode());
+        assertFalse(new SystemStateHelper(mContext).isCarModeOrProjectionActive());
+    }
+
+    @SmallTest
+    @Test
+    public void testQuerySystemForAutomotiveProjection_True() {
+        when(mUiModeManager.getActiveProjectionTypes())
+                .thenReturn(UiModeManager.PROJECTION_TYPE_AUTOMOTIVE);
+        assertTrue(new SystemStateHelper(mContext).isCarModeOrProjectionActive());
+
+        when(mUiModeManager.getActiveProjectionTypes())
+                .thenReturn(UiModeManager.PROJECTION_TYPE_ALL);
+        assertTrue(new SystemStateHelper(mContext).isCarModeOrProjectionActive());
+    }
+
+    @SmallTest
+    @Test
+    public void testQuerySystemForAutomotiveProjection_False() {
+        when(mUiModeManager.getActiveProjectionTypes())
+                .thenReturn(UiModeManager.PROJECTION_TYPE_NONE);
+        assertFalse(new SystemStateHelper(mContext).isCarModeOrProjectionActive());
+    }
+
+    @SmallTest
+    @Test
+    public void testQuerySystemForAutomotiveProjectionAndCarMode_True() {
+        when(mUiModeManager.getCurrentModeType()).thenReturn(Configuration.UI_MODE_TYPE_CAR);
+        when(mUiModeManager.getActiveProjectionTypes())
+                .thenReturn(UiModeManager.PROJECTION_TYPE_AUTOMOTIVE);
+        assertTrue(new SystemStateHelper(mContext).isCarModeOrProjectionActive());
+    }
+
+    @SmallTest
+    @Test
+    public void testQuerySystemForAutomotiveProjectionOrCarMode_nullService() {
+        when(mContext.getSystemService(UiModeManager.class))
+                .thenReturn(mUiModeManager)  // Without this, class construction will throw NPE.
+                .thenReturn(null);
+        assertFalse(new SystemStateHelper(mContext).isCarModeOrProjectionActive());
     }
 
     @SmallTest
@@ -200,6 +239,40 @@ public class SystemStateHelperTest extends TelecomTestCase {
         verify(mSystemStateListener).onCarModeChanged(anyInt(), isNull(), eq(false));
 
         receiver.getValue().onReceive(mContext, new Intent("invalid action"));
+    }
+
+    @SmallTest
+    @Test
+    public void testOnSetReleaseAutomotiveProjection() {
+        SystemStateHelper systemStateHelper = new SystemStateHelper(mContext);
+        // We don't care what listener is registered, that's an implementation detail, but we need
+        // to call methods on whatever it is.
+        ArgumentCaptor<UiModeManager.OnProjectionStateChangeListener> listenerCaptor =
+                ArgumentCaptor.forClass(UiModeManager.OnProjectionStateChangeListener.class);
+        verify(mUiModeManager).addOnProjectionStateChangeListener(
+                eq(UiModeManager.PROJECTION_TYPE_AUTOMOTIVE), any(), listenerCaptor.capture());
+        systemStateHelper.addListener(mSystemStateListener);
+
+        String packageName1 = "Sufjan Stevens";
+        String packageName2 = "The Ascension";
+
+        // Should pay attention to automotive projection, though.
+        listenerCaptor.getValue().onProjectionStateChanged(
+                UiModeManager.PROJECTION_TYPE_AUTOMOTIVE, Set.of(packageName2));
+        verify(mSystemStateListener).onAutomotiveProjectionStateSet(packageName2);
+
+        // Without any automotive projection, it should see it as released.
+        listenerCaptor.getValue().onProjectionStateChanged(
+                UiModeManager.PROJECTION_TYPE_NONE, Set.of());
+        verify(mSystemStateListener).onAutomotiveProjectionStateReleased();
+
+        // Try the whole thing again, with different values.
+        listenerCaptor.getValue().onProjectionStateChanged(
+                UiModeManager.PROJECTION_TYPE_AUTOMOTIVE, Set.of(packageName1));
+        verify(mSystemStateListener).onAutomotiveProjectionStateSet(packageName1);
+        listenerCaptor.getValue().onProjectionStateChanged(
+                UiModeManager.PROJECTION_TYPE_AUTOMOTIVE, Set.of());
+        verify(mSystemStateListener, times(2)).onAutomotiveProjectionStateReleased();
     }
 
     @SmallTest
