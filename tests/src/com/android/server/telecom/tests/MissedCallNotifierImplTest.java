@@ -400,9 +400,9 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                 TelecomBroadcastReceiver.class);
 
         assertNotNull(PendingIntent.getBroadcast(mContext, REQUEST_ID,
-                callBackIntent, PendingIntent.FLAG_NO_CREATE));
+                callBackIntent, PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE));
         assertNotNull(PendingIntent.getBroadcast(mContext, REQUEST_ID,
-                smsIntent, PendingIntent.FLAG_NO_CREATE));
+                smsIntent, PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE));
     }
 
     @SmallTest
@@ -437,9 +437,9 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                 TelecomBroadcastReceiver.class);
 
         assertNotNull(PendingIntent.getBroadcast(mContext, REQUEST_ID,
-                callBackIntent, PendingIntent.FLAG_NO_CREATE));
+                callBackIntent, PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE));
         assertNull(PendingIntent.getBroadcast(mContext, REQUEST_ID,
-                smsIntent, PendingIntent.FLAG_NO_CREATE));
+                smsIntent, PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE));
     }
 
     @SmallTest
