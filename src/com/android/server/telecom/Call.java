@@ -855,7 +855,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         PhoneAccountHandle delegatePhoneAccountHandle = getDelegatePhoneAccountHandle();
         boolean isTargetSameAsRemote = targetPhoneAccountHandle != null
                 && targetPhoneAccountHandle.equals(remotePhoneAccountHandle);
-        if (delegatePhoneAccountHandle.equals(targetPhoneAccountHandle)) {
+        if (Objects.equals(delegatePhoneAccountHandle, targetPhoneAccountHandle)) {
             s.append(">>>");
         }
         s.append("Target");
