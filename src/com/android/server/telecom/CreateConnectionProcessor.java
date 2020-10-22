@@ -403,6 +403,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
             // When testing emergency calls, we want the calls to go through to the test connection
             // service, not the telephony ConnectionService.
             if (mCall.isTestEmergencyCall()) {
+                Log.i(this, "Processing test emergency call -- special rules");
                 allAccounts = mPhoneAccountRegistrar.filterRestrictedPhoneAccounts(allAccounts);
             }
 
@@ -411,7 +412,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
                     preferredPAH);
             // Next, add all SIM phone accounts which can place emergency calls.
             sortSimPhoneAccountsForEmergency(allAccounts, preferredPA);
-            // and pick the fist one that can place emergency calls.
+            // and pick the first one that can place emergency calls.
             for (PhoneAccount phoneAccount : allAccounts) {
                 if (phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS)
                         && phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
