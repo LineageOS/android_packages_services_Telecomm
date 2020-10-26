@@ -30,6 +30,10 @@ import android.os.SystemClock;
 import android.telecom.Log;
 
 import android.telecom.CallerInfoAsyncQuery;
+
+import com.android.internal.telecom.IInternalServiceRetriever;
+import com.android.internal.telecom.ITelecomLoader;
+import com.android.internal.telecom.ITelecomService;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.BluetoothAdapterProxy;
 import com.android.server.telecom.BluetoothPhoneServiceImpl;
@@ -41,16 +45,17 @@ import com.android.server.telecom.ClockProxy;
 import com.android.server.telecom.ConnectionServiceFocusManager;
 import com.android.server.telecom.ContactsAsyncHelper;
 import com.android.server.telecom.DefaultDialerCache;
+import com.android.server.telecom.DeviceIdleControllerAdapter;
 import com.android.server.telecom.HeadsetMediaButton;
 import com.android.server.telecom.HeadsetMediaButtonFactory;
 import com.android.server.telecom.InCallWakeLockControllerFactory;
 import com.android.server.telecom.CallAudioManager;
+import com.android.server.telecom.InternalServiceRetrieverAdapter;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.PhoneNumberUtilsAdapterImpl;
 import com.android.server.telecom.ProximitySensorManagerFactory;
 import com.android.server.telecom.InCallWakeLockController;
 import com.android.server.telecom.ProximitySensorManager;
-import com.android.server.telecom.R;
 import com.android.server.telecom.RoleManagerAdapterImpl;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.TelecomWakeLock;
@@ -68,10 +73,17 @@ public class TelecomService extends Service implements TelecomSystem.Component {
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(this, "onBind");
-        initializeTelecomSystem(this);
-        synchronized (getTelecomSystem().getLock()) {
-            return getTelecomSystem().getTelecomServiceImpl().getBinder();
-        }
+        return new ITelecomLoader.Stub() {
+            @Override
+            public ITelecomService createTelecomService(IInternalServiceRetriever retriever) {
+                InternalServiceRetrieverAdapter adapter =
+                        new InternalServiceRetrieverAdapter(retriever);
+                initializeTelecomSystem(TelecomService.this, adapter);
+                synchronized (getTelecomSystem().getLock()) {
+                    return getTelecomSystem().getTelecomServiceImpl().getBinder();
+                }
+            }
+        };
     }
 
     /**
@@ -84,7 +96,8 @@ public class TelecomService extends Service implements TelecomSystem.Component {
      *
      * @param context
      */
-    static void initializeTelecomSystem(Context context) {
+    static void initializeTelecomSystem(Context context,
+            InternalServiceRetrieverAdapter internalServiceRetriever) {
         if (TelecomSystem.getInstance() == null) {
             NotificationChannelManager notificationChannelManager =
                     new NotificationChannelManager();
@@ -98,9 +111,11 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                 public MissedCallNotifierImpl makeMissedCallNotifierImpl(
                                         Context context,
                                         PhoneAccountRegistrar phoneAccountRegistrar,
-                                        DefaultDialerCache defaultDialerCache) {
+                                        DefaultDialerCache defaultDialerCache,
+                                        DeviceIdleControllerAdapter idleControllerAdapter) {
                                     return new MissedCallNotifierImpl(context,
-                                            phoneAccountRegistrar, defaultDialerCache);
+                                            phoneAccountRegistrar, defaultDialerCache,
+                                            idleControllerAdapter);
                                 }
                             },
                             new CallerInfoAsyncQueryFactory() {
@@ -191,7 +206,8 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                             new RoleManagerAdapterImpl(context,
                                     (RoleManager) context.getSystemService(Context.ROLE_SERVICE)),
                             new IncomingCallFilter.Factory(),
-                            new ContactsAsyncHelper.Factory()));
+                            new ContactsAsyncHelper.Factory(),
+                            internalServiceRetriever.getDeviceIdleController()));
         }
         if (BluetoothAdapter.getDefaultAdapter() != null) {
             context.startService(new Intent(context, BluetoothPhoneService.class));
