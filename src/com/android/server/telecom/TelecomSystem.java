@@ -207,7 +207,8 @@ public class TelecomSystem {
             ClockProxy clockProxy,
             RoleManagerAdapter roleManagerAdapter,
             IncomingCallFilter.Factory incomingCallFilterFactory,
-            ContactsAsyncHelper.Factory contactsAsyncHelperFactory) {
+            ContactsAsyncHelper.Factory contactsAsyncHelperFactory,
+            DeviceIdleControllerAdapter deviceIdleControllerAdapter) {
         mContext = context.getApplicationContext();
         LogUtils.initLogging(mContext);
         DefaultDialerManagerAdapter defaultDialerAdapter =
@@ -241,7 +242,8 @@ public class TelecomSystem {
         SystemStateHelper systemStateHelper = new SystemStateHelper(mContext);
 
         mMissedCallNotifier = missedCallNotifierImplFactory
-                .makeMissedCallNotifierImpl(mContext, mPhoneAccountRegistrar, defaultDialerCache);
+                .makeMissedCallNotifierImpl(mContext, mPhoneAccountRegistrar, defaultDialerCache,
+                        deviceIdleControllerAdapter);
         DisconnectedCallNotifier.Factory disconnectedCallNotifierFactory =
                 new DisconnectedCallNotifier.Default();
 
