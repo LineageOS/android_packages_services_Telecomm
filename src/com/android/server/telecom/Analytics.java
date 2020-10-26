@@ -208,6 +208,9 @@ public class Analytics {
 
         public void setCallSource(int callSource) {
         }
+
+        public void setMissedReason(long missedReason) {
+        }
     }
 
     /**
@@ -242,6 +245,7 @@ public class Analytics {
         public List<TelecomLogClass.InCallServiceInfo> inCallServiceInfos;
         public int callProperties = 0;
         public int callSource = CALL_SOURCE_UNSPECIFIED;
+        public long missedReason;
 
         private long mTimeOfLastVideoEvent = -1;
 
@@ -254,6 +258,7 @@ public class Analytics {
             connectionService = "";
             videoEvents = new LinkedList<>();
             inCallServiceInfos = new LinkedList<>();
+            missedReason = 0;
         }
 
         CallInfoImpl(CallInfoImpl other) {
@@ -272,6 +277,7 @@ public class Analytics {
             this.videoEvents = other.videoEvents;
             this.callProperties = other.callProperties;
             this.callSource = other.callSource;
+            this.missedReason = other.missedReason;
 
             if (other.callTerminationReason != null) {
                 this.callTerminationReason = new DisconnectCause(
@@ -342,6 +348,13 @@ public class Analytics {
         }
 
         @Override
+        public void setMissedReason(long missedReason) {
+            Log.d(TAG, "setting missedReason for call " + callId + ": "
+                    + missedReason);
+            this.missedReason = missedReason;
+        }
+
+        @Override
         public void setCallEvents(EventManager.EventRecord records) {
             this.callEvents = records;
         }
@@ -399,6 +412,7 @@ public class Analytics {
                     + "    isEmergency: " + isEmergency + '\n'
                     + "    callTechnologies: " + getCallTechnologiesAsString() + '\n'
                     + "    callTerminationReason: " + getCallDisconnectReasonString() + '\n'
+                    + "    missedReason: " + getMissedReasonString() + '\n'
                     + "    connectionService: " + connectionService + '\n'
                     + "    isVideoCall: " + isVideo + '\n'
                     + "    inCallServices: " + getInCallServicesString() + '\n'
@@ -524,6 +538,11 @@ public class Analytics {
             } else {
                 return "NOT SET";
             }
+        }
+
+        private String getMissedReasonString() {
+            //TODO: Implement this
+            return null;
         }
 
         private String getInCallServicesString() {

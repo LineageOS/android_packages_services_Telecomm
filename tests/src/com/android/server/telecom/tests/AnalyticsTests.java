@@ -16,6 +16,8 @@
 
 package com.android.server.telecom.tests;
 
+import static android.provider.CallLog.Calls.MISSED_REASON_NOT_MISSED;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -127,7 +129,8 @@ public class AnalyticsTests extends TelecomSystemTest {
         Analytics.dump(ip);
         String dumpResult = sr.toString();
         String[] expectedFields = {"startTime", "endTime", "direction", "isAdditionalCall",
-                "isInterrupted", "callTechnologies", "callTerminationReason", "connectionService"};
+                "isInterrupted", "callTechnologies", "callTerminationReason", "connectionService",
+                "missedReason"};
         for (String field : expectedFields) {
             assertTrue(dumpResult.contains(field));
         }
@@ -200,6 +203,8 @@ public class AnalyticsTests extends TelecomSystemTest {
         assertTrue(callAnalytics2.startTime > 0);
         assertEquals(0, callAnalytics1.endTime);
         assertEquals(0, callAnalytics2.endTime);
+        assertEquals(MISSED_REASON_NOT_MISSED, callAnalytics1.missedReason);
+        assertEquals(MISSED_REASON_NOT_MISSED, callAnalytics2.missedReason);
 
         assertEquals(Analytics.INCOMING_DIRECTION, callAnalytics1.callDirection);
         assertEquals(Analytics.OUTGOING_DIRECTION, callAnalytics2.callDirection);

@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import static android.provider.CallLog.Calls.MISSED_REASON_NOT_MISSED;
 import static android.telecom.TelecomManager.ACTION_POST_CALL;
 import static android.telecom.TelecomManager.DURATION_LONG;
 import static android.telecom.TelecomManager.DURATION_MEDIUM;
@@ -27,6 +28,9 @@ import static android.telecom.TelecomManager.EXTRA_HANDLE;
 import static android.telecom.TelecomManager.MEDIUM_CALL_TIME_MS;
 import static android.telecom.TelecomManager.SHORT_CALL_TIME_MS;
 import static android.telecom.TelecomManager.VERY_SHORT_CALL_TIME_MS;
+import static android.provider.CallLog.Calls.AUTO_MISSED_EMERGENCY_CALL;
+import static android.provider.CallLog.Calls.AUTO_MISSED_MAXIMUM_DIALING;
+import static android.provider.CallLog.Calls.AUTO_MISSED_MAXIMUM_RINGING;
 
 import android.Manifest;
 import android.annotation.NonNull;
@@ -739,6 +743,7 @@ public class CallsManager extends Call.ListenerBase
         // Only set the incoming call as ringing if it isn't already disconnected. It is possible
         // that the connection service disconnected the call before it was even added to Telecom, in
         // which case it makes no sense to set it back to a ringing state.
+        Log.i(this, "onCallFilteringComplete");
         mGraphHandlerThreads.clear();
 
         if (incomingCall.getState() != CallState.DISCONNECTED &&
@@ -760,16 +765,17 @@ public class CallsManager extends Call.ListenerBase
                 } else {
                     Log.i(this, "onCallFilteringCompleted: Call rejected! " +
                             "Exceeds maximum number of ringing calls.");
-                    rejectCallAndLog(incomingCall, result);
+                    incomingCall.setMissedReason(AUTO_MISSED_MAXIMUM_RINGING);
+                    autoMissCallAndLog(incomingCall, result);
                 }
             } else if (hasMaximumManagedDialingCalls(incomingCall)) {
                 if (shouldSilenceInsteadOfReject(incomingCall)) {
                     incomingCall.silence();
                 } else {
-
                     Log.i(this, "onCallFilteringCompleted: Call rejected! Exceeds maximum number of " +
                             "dialing calls.");
-                    rejectCallAndLog(incomingCall, result);
+                    incomingCall.setMissedReason(AUTO_MISSED_MAXIMUM_DIALING);
+                    autoMissCallAndLog(incomingCall, result);
                 }
             } else if (result.shouldScreenViaAudio) {
                 Log.i(this, "onCallFilteringCompleted: starting background audio processing");
@@ -1335,12 +1341,18 @@ public class CallsManager extends Call.ListenerBase
             if (isConference) {
                 notifyCreateConferenceFailed(phoneAccountHandle, call);
             } else {
+                if (hasMaximumManagedRingingCalls(call)) {
+                    call.setMissedReason(AUTO_MISSED_MAXIMUM_RINGING);
+                    mCallLogManager.logCall(call, Calls.MISSED_TYPE,
+                            true /*showNotificationForMissedCall*/, null /*CallFilteringResult*/);
+                }
                 notifyCreateConnectionFailed(phoneAccountHandle, call);
             }
         } else if (isInEmergencyCall()) {
             // The incoming call is implicitly being rejected so the user does not get any incoming
             // call UI during an emergency call. In this case, log the call as missed instead of
             // rejected since the user did not explicitly reject.
+            call.setMissedReason(AUTO_MISSED_EMERGENCY_CALL);
             mCallLogManager.logCall(call, Calls.MISSED_TYPE,
                     true /*showNotificationForMissedCall*/, null /*CallFilteringResult*/);
             if (isConference) {
@@ -3437,7 +3449,8 @@ public class CallsManager extends Call.ListenerBase
      * Reject an incoming call and manually add it to the Call Log.
      * @param incomingCall Incoming call that has been rejected
      */
-    private void rejectCallAndLog(Call incomingCall, CallFilteringResult result) {
+    private void autoMissCallAndLog(Call incomingCall, CallFilteringResult result) {
+        incomingCall.getAnalytics().setMissedReason(incomingCall.getMissedReason());
         if (incomingCall.getConnectionService() != null) {
             // Only reject the call if it has not already been destroyed.  If a call ends while
             // incoming call filtering is taking place, it is possible that the call has already
@@ -3574,6 +3587,10 @@ public class CallsManager extends Call.ListenerBase
                 if ((oldState != CallState.AUDIO_PROCESSING) &&
                         (newState == CallState.DISCONNECTED)) {
                     maybeSendPostCallScreenIntent(call);
+                }
+                if (((newState == CallState.ABORTED) || (newState == CallState.DISCONNECTED))
+                        && (call.getDisconnectCause().getCode() != DisconnectCause.MISSED)) {
+                    call.setMissedReason(MISSED_REASON_NOT_MISSED);
                 }
                 maybeShowErrorDialogOnDisconnect(call);
 
@@ -4731,6 +4748,7 @@ public class CallsManager extends Call.ListenerBase
      * @param call The {@link Call} which could not be added.
      */
     private void notifyCreateConnectionFailed(PhoneAccountHandle phoneAccountHandle, Call call) {
+        call.getAnalytics().setMissedReason(call.getMissedReason());
         if (phoneAccountHandle == null) {
             return;
         }
