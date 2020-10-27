@@ -34,6 +34,7 @@ import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.PermissionChecker;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -824,6 +825,22 @@ public class TelecomServiceImpl {
                 synchronized (mLock) {
                     return mCallsManager.hasOngoingCalls();
                 }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        /**
+         * @see android.telecom.TelecomManager#hasCompanionInCallServiceAccess
+         */
+        @Override
+        public boolean hasCompanionInCallServiceAccess(String callingPackage) {
+            try {
+                Log.startSession("TSI.hCICSA");
+                return PermissionChecker.checkPermissionForPreflight(mContext,
+                        Manifest.permission.MANAGE_ONGOING_CALLS,
+                                PermissionChecker.PID_UNKNOWN, Binder.getCallingUid(),
+                                        callingPackage) == PermissionChecker.PERMISSION_GRANTED;
             } finally {
                 Log.endSession();
             }
