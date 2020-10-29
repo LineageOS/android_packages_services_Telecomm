@@ -1598,6 +1598,17 @@ public class CallsManager extends Call.ListenerBase
                     // call transitioning into the CONNECTING state.
                     if (isReusedCall) {
                         return CompletableFuture.completedFuture(finalCall);
+                    } else {
+                        Call reusableCall = reuseOutgoingCall(handle);
+                        if (reusableCall != null) {
+                            Log.i(CallsManager.this,
+                                    "reusable call %s came in later; disconnect it.",
+                                    reusableCall.getId());
+                            mPendingCallsToDisconnect.remove(reusableCall);
+                            reusableCall.disconnect();
+                            markCallAsDisconnected(reusableCall,
+                                    new DisconnectCause(DisconnectCause.CANCELED));
+                        }
                     }
 
                     // If we can not supportany more active calls, our options are to move a call
@@ -5357,5 +5368,10 @@ public class CallsManager extends Call.ListenerBase
         intent.putExtra(EXTRA_CALL_DURATION, durationCode);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.startActivityAsUser(intent, mCurrentUserHandle);
+    }
+
+    @VisibleForTesting
+    public void addToPendingCallsToDisconnect(Call call) {
+        mPendingCallsToDisconnect.add(call);
     }
 }
