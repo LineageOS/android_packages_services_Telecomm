@@ -42,8 +42,11 @@ import static org.mockito.Mockito.when;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Process;
 import android.os.SystemClock;
 import android.os.UserHandle;
@@ -56,6 +59,7 @@ import android.telecom.VideoProfile;
 import android.telephony.TelephonyManager;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.util.Pair;
 import android.widget.Toast;
 
 import com.android.server.telecom.AsyncRingtonePlayer;
@@ -116,6 +120,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -1381,6 +1387,80 @@ public class CallsManagerTest extends TelecomTestCase {
     }
 
     /**
+     * This test verifies a race condition seen with the new outgoing call broadcast.
+     * The scenario occurs when an incoming call is handled by an app which receives the
+     * NewOutgoingCallBroadcast.  That app cancels the call by modifying the new outgoing call
+     * broadcast.  Meanwhile, it places that same call again, expecting that Telecom will reuse the
+     * same same.  HOWEVER, if the system delays passing of the new outgoing call broadcast back to
+     * Telecom, the app will have placed a new outgoing call BEFORE telecom is aware that the call
+     * was cancelled.
+     * The consequence of this is that in CallsManager#startOutgoingCall, when we first get the
+     * call to reuse, it will come back empty.  Meanwhile, by the time we get into the various
+     * completable futures, the call WILL be in the list of calls which can be reused.  Since the
+     * reusable call was not found earlier on, we end up aborting the new outgoing call.
+     * @throws Exception
+     */
+    @SmallTest
+    @Test
+    public void testReuseCallConcurrency() throws Exception {
+        // Ensure contact info lookup succeeds
+        doAnswer(invocation -> {
+            Uri handle = invocation.getArgument(0);
+            CallerInfo info = new CallerInfo();
+            CompletableFuture<Pair<Uri, CallerInfo>> callerInfoFuture = new CompletableFuture<>();
+            callerInfoFuture.complete(new Pair<>(handle, info));
+            return callerInfoFuture;
+        }).when(mCallerInfoLookupHelper).startLookup(any(Uri.class));
+
+        // Ensure we have candidate phone account handle info.
+        when(mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(any(), any())).thenReturn(
+                SIM_1_HANDLE);
+        when(mPhoneAccountRegistrar.getCallCapablePhoneAccounts(any(), anyBoolean(),
+                any(), anyInt(), anyInt())).thenReturn(
+                new ArrayList<>(Arrays.asList(SIM_1_HANDLE, SIM_2_HANDLE)));
+
+        // Let's add an existing call which is in connecting state; this emulates the case where
+        // we have an outgoing call which we have not yet disconnected as a result of the new
+        // outgoing call broadcast cancelling the call.
+        Call outgoingCall = addSpyCall(CallState.CONNECTING);
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        // Get the handler for the main looper, which is the same one the CallsManager will use.
+        // We'll post a little something to block up the handler for now.  This prevents
+        // startOutgoingCall from process it's completablefutures.
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(() -> {
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        // Now while the main handler is blocked up we'll start another outgoing call.
+        CompletableFuture<Call> callFuture = mCallsManager.startOutgoingCall(
+                outgoingCall.getHandle(), outgoingCall.getTargetPhoneAccount(), new Bundle(),
+                UserHandle.CURRENT, new Intent(), "com.test.stuff");
+
+        // And we'll add the initial outgoing call to the list of pending disconnects; this
+        // emulates a scenario where the pending disconnect call came in AFTER this call began.
+        mCallsManager.addToPendingCallsToDisconnect(outgoingCall);
+
+        // And we'll unblock the handler; this will let all the startOutgoingCall futures to happen.
+        latch.countDown();
+
+        // Wait for the future to become the present.
+        callFuture.join();
+
+        // We should have gotten a call out of this; if we did not then it means the call was
+        // aborted.
+        assertNotNull(callFuture.get());
+
+        // And the original call should be disconnected now.
+        assertEquals(CallState.DISCONNECTED, outgoingCall.getState());
+    }
+
+    /**
      * Ensures that if we have two calls hosted by the same connection manager, but with
      * different target phone accounts, we can swap between them.
      * @throws Exception
@@ -1460,7 +1540,6 @@ public class CallsManagerTest extends TelecomTestCase {
         // Mocks some methods to not call the real method.
         doNothing().when(callSpy).unhold();
         doNothing().when(callSpy).hold();
-        doNothing().when(callSpy).disconnect();
         doNothing().when(callSpy).answer(Matchers.anyInt());
         doNothing().when(callSpy).setStartWithSpeakerphoneOn(Matchers.anyBoolean());
 
