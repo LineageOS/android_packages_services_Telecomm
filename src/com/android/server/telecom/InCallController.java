@@ -16,8 +16,11 @@
 
 package com.android.server.telecom;
 
+import static android.os.Process.myUid;
+
 import android.Manifest;
 import android.annotation.NonNull;
+import android.app.AppOpsManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
@@ -926,6 +929,7 @@ public class InCallController extends CallsManagerListenerBase {
     private final CallIdMapper mCallIdMapper = new CallIdMapper(Call::getId);
 
     private final Context mContext;
+    private final AppOpsManager mAppOpsManager;
     private final TelecomSystem.SyncRoot mLock;
     private final CallsManager mCallsManager;
     private final SystemStateHelper mSystemStateHelper;
@@ -954,6 +958,7 @@ public class InCallController extends CallsManagerListenerBase {
             EmergencyCallHelper emergencyCallHelper, CarModeTracker carModeTracker,
             ClockProxy clockProxy) {
         mContext = context;
+        mAppOpsManager = context.getSystemService(AppOpsManager.class);
         mLock = lock;
         mCallsManager = callsManager;
         mSystemStateHelper = systemStateHelper;
