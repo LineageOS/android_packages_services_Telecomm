@@ -1122,6 +1122,54 @@ public class TelecomSystemTest extends TelecomTestCase {
         return ids;
     }
 
+    protected IdPair startAndMakeDialingOutgoingCall(
+            String number,
+            PhoneAccountHandle phoneAccountHandle,
+            ConnectionServiceFixture connectionServiceFixture) throws Exception {
+        IdPair ids = startOutgoingPhoneCall(number, phoneAccountHandle, connectionServiceFixture,
+                Process.myUserHandle(), VideoProfile.STATE_AUDIO_ONLY);
+
+        connectionServiceFixture.sendSetDialing(ids.mConnectionId);
+        if (phoneAccountHandle != mPhoneAccountSelfManaged.getAccountHandle()) {
+            assertEquals(Call.STATE_DIALING,
+                    mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+            assertEquals(Call.STATE_DIALING,
+                    mInCallServiceFixtureY.getCall(ids.mCallId).getState());
+        }
+
+        return ids;
+    }
+
+    protected IdPair startAndMakeRingingIncomingCall(
+            String number,
+            PhoneAccountHandle phoneAccountHandle,
+            ConnectionServiceFixture connectionServiceFixture) throws Exception {
+        IdPair ids = startIncomingPhoneCall(number, phoneAccountHandle, connectionServiceFixture);
+
+        if (phoneAccountHandle != mPhoneAccountSelfManaged.getAccountHandle()) {
+            assertEquals(Call.STATE_RINGING,
+                    mInCallServiceFixtureX.getCall(ids.mCallId).getState());
+            assertEquals(Call.STATE_RINGING,
+                    mInCallServiceFixtureY.getCall(ids.mCallId).getState());
+
+            mInCallServiceFixtureX.mInCallAdapter
+                    .answerCall(ids.mCallId, VideoProfile.STATE_AUDIO_ONLY);
+
+            waitForHandlerAction(mTelecomSystem.getCallsManager()
+                    .getConnectionServiceFocusManager().getHandler(), TEST_TIMEOUT);
+
+            if (!VideoProfile.isVideo(VideoProfile.STATE_AUDIO_ONLY)) {
+                verify(connectionServiceFixture.getTestDouble(), timeout(TEST_TIMEOUT))
+                        .answer(eq(ids.mConnectionId), any());
+            } else {
+                verify(connectionServiceFixture.getTestDouble(), timeout(TEST_TIMEOUT))
+                        .answerVideo(eq(ids.mConnectionId), eq(VideoProfile.STATE_AUDIO_ONLY),
+                                any());
+            }
+        }
+        return ids;
+    }
+
     protected static void assertTrueWithTimeout(Predicate<Void> predicate) {
         int elapsed = 0;
         while (elapsed < TEST_TIMEOUT) {
