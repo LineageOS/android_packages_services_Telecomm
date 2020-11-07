@@ -20,7 +20,7 @@
     <string name="userCallActivityLabel" product="default" msgid="3605391260292846248">"Telefon"</string>
     <string name="unknown" msgid="6993977514360123431">"Nepoznato"</string>
     <string name="notification_missedCallTitle" msgid="5060387047205532974">"Propušten poziv"</string>
-    <string name="notification_missedWorkCallTitle" msgid="6965463282259034953">"Propušten poslovni poziv"</string>
+    <string name="notification_missedWorkCallTitle" msgid="6965463282259034953">"Propušten poziv za Work"</string>
     <string name="notification_missedCallsTitle" msgid="3910479625507893809">"Propušteni pozivi"</string>
     <string name="notification_missedCallsMsg" msgid="5055782736170916682">"Broj propuštenih poziva: <xliff:g id="NUM_MISSED_CALLS">%s</xliff:g>"</string>
     <string name="notification_missedCallTicker" msgid="6731461957487087769">"Propušten poziv od: <xliff:g id="MISSED_CALL_FROM">%s</xliff:g>"</string>
@@ -28,11 +28,10 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Poruka"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Poziv je prekinut"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Poziv sa <xliff:g id="CALLER">%s</xliff:g> je prekinut jer se upućuje hitni poziv."</string>
-    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Poziv je prekinut jer se upućuje hitni poziv."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Poziv u pozadini"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"Aplikacija <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> je uputila poziv u pozadini. Ona može da pristupa zvuku i pušta ga tokom poziva."</string>
-    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> više ne reaguje"</string>
-    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Poziv je koristio aplikaciju za telefoniranje koju ste dobili uz uređaj"</string>
+    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Aplikacija za telefoniranje koja je otkazala"</string>
+    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"Aplikacija za telefoniranje <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> je otkazala. Poziv je nastavljen pomoću aplikacije za telefoniranje koju ste dobili uz uređaj."</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Zvuk poziva je isključen."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"Spikerfon je omogućen."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"U gužvi sam. O čemu se radi?"</string>
