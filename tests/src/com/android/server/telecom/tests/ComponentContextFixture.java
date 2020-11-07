@@ -30,6 +30,7 @@ import android.Manifest;
 import android.app.AppOpsManager;
 import android.app.NotificationManager;
 import android.app.StatusBarManager;
+import android.app.UiModeManager;
 import android.app.role.RoleManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -206,6 +207,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
                     return mRoleManager;
                 case Context.TELEPHONY_REGISTRY_SERVICE:
                     return mTelephonyRegistryManager;
+                case Context.UI_MODE_SERVICE:
+                    return mUiModeManager;
                 default:
                     return null;
             }
@@ -227,6 +230,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
                 return Context.TELEPHONY_SUBSCRIPTION_SERVICE;
             } else if (svcClass == TelephonyRegistryManager.class) {
                 return Context.TELEPHONY_REGISTRY_SERVICE;
+            } else if (svcClass == UiModeManager.class) {
+                return Context.UI_MODE_SERVICE;
             }
             throw new UnsupportedOperationException();
         }
@@ -486,6 +491,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
     private final RoleManager mRoleManager = mock(RoleManager.class);
     private final TelephonyRegistryManager mTelephonyRegistryManager =
             mock(TelephonyRegistryManager.class);
+    private final UiModeManager mUiModeManager = mock(UiModeManager.class);
     private final PermissionInfo mPermissionInfo = mock(PermissionInfo.class);
 
     private TelecomManager mTelecomManager = mock(TelecomManager.class);
