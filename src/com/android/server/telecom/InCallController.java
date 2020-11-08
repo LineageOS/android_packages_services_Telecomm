@@ -913,8 +913,18 @@ public class InCallController extends CallsManagerListenerBase {
         }
 
         @Override
+        public void onAutomotiveProjectionStateSet(String automotiveProjectionPackage) {
+            InCallController.this.handleSetAutomotiveProjection(automotiveProjectionPackage);
+        }
+
+        @Override
+        public void onAutomotiveProjectionStateReleased() {
+            InCallController.this.handleReleaseAutomotiveProjection();
+        }
+
+        @Override
         public void onPackageUninstalled(String packageName) {
-            mCarModeTracker.forceExitCarMode(packageName);
+            mCarModeTracker.forceRemove(packageName);
             updateCarModeForSwitchingConnection();
         }
     };
@@ -1958,6 +1968,25 @@ public class InCallController extends CallsManagerListenerBase {
         } else {
             mCarModeTracker.handleExitCarMode(priority, packageName);
         }
+
+        updateCarModeForSwitchingConnection();
+    }
+
+    public void handleSetAutomotiveProjection(@NonNull String packageName) {
+        Log.i(this, "handleSetAutomotiveProjection: packageName=%s", packageName);
+        if (!isCarModeInCallService(packageName)) {
+            Log.i(this, "handleSetAutomotiveProjection: not a valid InCallService: packageName=%s",
+                    packageName);
+            return;
+        }
+        mCarModeTracker.handleSetAutomotiveProjection(packageName);
+
+        updateCarModeForSwitchingConnection();
+    }
+
+    public void handleReleaseAutomotiveProjection() {
+        Log.i(this, "handleReleaseAutomotiveProjection");
+        mCarModeTracker.handleReleaseAutomotiveProjection();
 
         updateCarModeForSwitchingConnection();
     }

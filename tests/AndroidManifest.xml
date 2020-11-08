@@ -36,6 +36,9 @@
     <uses-permission android:name="android.permission.MODIFY_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
 
+    <!-- Used to access Projection State APIs -->
+    <uses-permission android:name="android.permission.READ_PROJECTION_STATE"/>
+
     <application android:label="@string/app_name"
                  android:debuggable="true">
         <uses-library android:name="android.test.runner" />

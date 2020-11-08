@@ -243,14 +243,32 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
 
-        when(mMockSystemStateHelper.isCarMode()).thenReturn(true);
+        when(mMockSystemStateHelper.isCarModeOrProjectionActive()).thenReturn(true);
 
         mSystemStateListener.onCarModeChanged(666, CAR_PKG, true);
         verify(mCarModeTracker).handleEnterCarMode(666, CAR_PKG);
         assertTrue(mCarModeTracker.isInCarMode());
 
         mSystemStateListener.onPackageUninstalled(CAR_PKG);
-        verify(mCarModeTracker).forceExitCarMode(CAR_PKG);
+        verify(mCarModeTracker).forceRemove(CAR_PKG);
+        assertFalse(mCarModeTracker.isInCarMode());
+    }
+
+    @SmallTest
+    @Test
+    public void testAutomotiveProjectionAppRemoval() {
+        setupMockPackageManager(true /* default */, true /* system */, true /* external calls */);
+        when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
+        when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
+
+        when(mMockSystemStateHelper.isCarModeOrProjectionActive()).thenReturn(true);
+
+        mSystemStateListener.onAutomotiveProjectionStateSet(CAR_PKG);
+        verify(mCarModeTracker).handleSetAutomotiveProjection(CAR_PKG);
+        assertTrue(mCarModeTracker.isInCarMode());
+
+        mSystemStateListener.onPackageUninstalled(CAR_PKG);
+        verify(mCarModeTracker).forceRemove(CAR_PKG);
         assertFalse(mCarModeTracker.isInCarMode());
     }
 
@@ -786,7 +804,7 @@ public class InCallControllerTests extends TelecomTestCase {
         setupMockPackageManager(true /* default */, true /* system */, true /* external calls */);
 
         // Enable car mode
-        when(mMockSystemStateHelper.isCarMode()).thenReturn(true);
+        when(mMockSystemStateHelper.isCarModeOrProjectionActive()).thenReturn(true);
         mInCallController.handleCarModeChange(UiModeManager.DEFAULT_PRIORITY, CAR_PKG, true);
 
         // Now bind; we should only bind to one app.
@@ -816,7 +834,7 @@ public class InCallControllerTests extends TelecomTestCase {
                 matches(Manifest.permission.CONTROL_INCALL_EXPERIENCE),
                 matches(CAR_PKG))).thenReturn(PackageManager.PERMISSION_DENIED);
         // Enable car mode
-        when(mMockSystemStateHelper.isCarMode()).thenReturn(true);
+        when(mMockSystemStateHelper.isCarModeOrProjectionActive()).thenReturn(true);
 
         // Register the fact that the invalid app entered car mode.
         mInCallController.handleCarModeChange(UiModeManager.DEFAULT_PRIORITY, CAR_PKG, true);
@@ -928,7 +946,7 @@ public class InCallControllerTests extends TelecomTestCase {
         mInCallController.bindToServices(mMockCall);
 
         // Enable car mode and enter car mode at default priority.
-        when(mMockSystemStateHelper.isCarMode()).thenReturn(true);
+        when(mMockSystemStateHelper.isCarModeOrProjectionActive()).thenReturn(true);
         mInCallController.handleCarModeChange(UiModeManager.DEFAULT_PRIORITY, CAR_PKG, true);
 
         // And change to the second car mode app.
@@ -1075,7 +1093,7 @@ public class InCallControllerTests extends TelecomTestCase {
 
         // Now switch to car mode.
         // Enable car mode and enter car mode at default priority.
-        when(mMockSystemStateHelper.isCarMode()).thenReturn(true);
+        when(mMockSystemStateHelper.isCarModeOrProjectionActive()).thenReturn(true);
         mInCallController.handleCarModeChange(UiModeManager.DEFAULT_PRIORITY, CAR_PKG, true);
 
         ArgumentCaptor<Intent> bindIntentCaptor = ArgumentCaptor.forClass(Intent.class);
@@ -1115,7 +1133,7 @@ public class InCallControllerTests extends TelecomTestCase {
 
         // Now switch to car mode.
         // Enable car mode and enter car mode at default priority.
-        when(mMockSystemStateHelper.isCarMode()).thenReturn(true);
+        when(mMockSystemStateHelper.isCarModeOrProjectionActive()).thenReturn(true);
         mInCallController.handleCarModeChange(UiModeManager.DEFAULT_PRIORITY, CAR_PKG, true);
 
         // We currently will bind to the car-mode InCallService even if there are no calls available
