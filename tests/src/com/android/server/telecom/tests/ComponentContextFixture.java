@@ -42,6 +42,7 @@ import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.PermissionInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.res.Configuration;
@@ -485,6 +486,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
     private final RoleManager mRoleManager = mock(RoleManager.class);
     private final TelephonyRegistryManager mTelephonyRegistryManager =
             mock(TelephonyRegistryManager.class);
+    private final PermissionInfo mPermissionInfo = mock(PermissionInfo.class);
 
     private TelecomManager mTelecomManager = mock(TelecomManager.class);
 
@@ -538,6 +540,14 @@ public class ComponentContextFixture implements TestFixture<Context> {
         when(mPackageManager.checkPermission(
                 matches(Manifest.permission.CALL_COMPANION_APP), anyString()))
                 .thenReturn(PackageManager.PERMISSION_DENIED);
+
+        try {
+            when(mPackageManager.getPermissionInfo(anyString(), anyInt())).thenReturn(
+                    mPermissionInfo);
+        } catch (PackageManager.NameNotFoundException ex) {
+        }
+
+        when(mPermissionInfo.isAppOp()).thenReturn(true);
 
         // Used in CreateConnectionProcessor to rank emergency numbers by viability.
         // For the test, make them all equal to INVALID so that the preferred PhoneAccount will be
