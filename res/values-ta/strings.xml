@@ -28,10 +28,11 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"செய்தி"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"அழைப்பு துண்டிக்கப்பட்டது"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"அவசர அழைப்பு மேற்கொள்ளப்பட்டதால் <xliff:g id="CALLER">%s</xliff:g> உடனான அழைப்பு துண்டிக்கப்பட்டது."</string>
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"அவசர அழைப்பு மேற்கொள்ளப்படுவதால் உங்கள் அழைப்பு துண்டிக்கப்பட்டுள்ளது."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"பின்னணி அழைப்பு"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"அழைப்பை பின்னணியில் செயல்படும் வகையில் <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> மாற்றியுள்ளது. அழைப்பின் மூலமாக இந்த ஆப்ஸ் ஆடியோவை அணுகி இயக்கக்கூடும்."</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"சிதைவடைந்த மொபைல் ஆப்ஸ்"</string>
-    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"உங்கள் மொபைல் ஆப்ஸான <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> சிதைவடைந்துள்ளது. உங்கள் சாதனத்துடன் கிடைக்கும் மொபைல் ஆப்ஸ் மூலமே உங்கள் அழைப்பு தொடரப்பட்டது."</string>
+    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> செயலிழந்துவிட்டது"</string>
+    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"உங்கள் சாதனத்துடன் கிடைக்கும் மொபைல் ஆப்ஸ் மூலம் அழைப்பு மேற்கொள்ளப்பட்டது"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"அழைப்பு முடக்கப்பட்டது."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"ஸ்பீக்கர்ஃபோன் இயக்கப்பட்டது."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"இப்போது பேசமுடியாது. என்ன விஷயம்?"</string>

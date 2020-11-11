@@ -28,10 +28,11 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"שליחת הודעה"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"השיחה נותקה"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"השיחה עם <xliff:g id="CALLER">%s</xliff:g> נותקה בגלל שיחת חירום."</string>
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"השיחה נותקה בגלל שיחת חירום."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"שיחה ברקע"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"האפליקציה <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> התחילה שיחה ברקע. ייתכן שלאפליקציה יש גישה לאודיו או שהיא משמיעה אודיו בשיחה."</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"אפליקציית טלפון קרסה"</string>
-    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"אפליקציית השיחות <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> קרסה. השיחה נמשכה באפליקציית השיחות של המכשיר."</string>
+    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"אפליקציית <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> הפסיקה להגיב"</string>
+    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"השיחה הייתה דרך אפליקציית הטלפון המקורית של המכשיר"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"שיחה מושתקת."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"רמקול מופעל."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"לא נוח לי עכשיו. מה קורה?"</string>
