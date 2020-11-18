@@ -44,7 +44,7 @@
     <string name="respond_via_sms_setting_summary" msgid="8054571501085436868"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="6579353156073272157">"Брз одговор"</string>
     <string name="respond_via_sms_confirmation_format" msgid="2932395476561267842">"Порака е испратена на <xliff:g id="PHONE_NUMBER">%s</xliff:g>."</string>
-    <string name="respond_via_sms_failure_format" msgid="5198680980054596391">"Пораката не можеше да се испрати на <xliff:g id="PHONE_NUMBER">%s</xliff:g>."</string>
+    <string name="respond_via_sms_failure_format" msgid="5198680980054596391">"Пораката не може да се испрати на <xliff:g id="PHONE_NUMBER">%s</xliff:g>."</string>
     <string name="enable_account_preference_title" msgid="6949224486748457976">"Сметки за повици"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="3424338207838851646">"Дозволени се само итни повици."</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="8590468836581488679">"Оваа апликација не може да прави појдовни повици без дозволата Телефон."</string>
