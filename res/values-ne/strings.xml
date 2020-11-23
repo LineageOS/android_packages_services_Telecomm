@@ -56,10 +56,10 @@
     <string name="change_default_dialer_dialog_title" msgid="5861469279421508060">"तपाईंको पूर्वनिर्धारित फोन एप <xliff:g id="NEW_APP">%s</xliff:g> बनाउने हो?"</string>
     <string name="change_default_dialer_dialog_affirmative" msgid="8604665314757739550">"पूर्वनिर्धारित रूपमा सेट गर्नुहोस्"</string>
     <string name="change_default_dialer_dialog_negative" msgid="8648669840052697821">"रद्द गर्नुहोस्"</string>
-    <string name="change_default_dialer_warning_message" msgid="8461963987376916114">"<xliff:g id="NEW_APP">%s</xliff:g> कलका सबै पक्षहरूलाई स्थापित गर्न र नियन्त्रण गर्न सक्षम हुने छ। तपाईंलाई विश्वास लाग्ने अनुप्रयोगहरूलाई मात्र फोनमा पूर्वनिर्धारित अनुप्रयोगका रूपमा सेट गर्नुपर्छ।"</string>
+    <string name="change_default_dialer_warning_message" msgid="8461963987376916114">"<xliff:g id="NEW_APP">%s</xliff:g> कलका सबै पक्षहरूलाई स्थापित गर्न र नियन्त्रण गर्न सक्षम हुने छ। तपाईंलाई विश्वास लाग्ने एपहरूलाई मात्र फोनमा पूर्वनिर्धारित एपका रूपमा सेट गर्नुपर्छ।"</string>
     <string name="change_default_call_screening_dialog_title" msgid="5365787219927262408">"तपाईंको पूर्वनिर्धारित कल स्क्रिन एप <xliff:g id="NEW_APP">%s</xliff:g> बनाउने हो?"</string>
     <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="2039830033533243164">"<xliff:g id="OLD_APP">%s</xliff:g> ले अब उप्रान्त कलहरू स्क्रिन गर्न सक्ने छैनन्‌।"</string>
-    <string name="change_default_call_screening_warning_message" msgid="9020537562292754269">"<xliff:g id="NEW_APP">%s</xliff:g> ले तपाईंको सम्पर्कमा नभएका कल गर्ने व्यक्तिका जानकारी हेर्न सक्छ र तिनीहरूमाथि रोक लगाउन सक्छ। तपाईंलाई विश्वास लाग्ने अनुप्रयोगहरूलाई मात्र कल स्क्रिन पूर्वनिर्धारित अनुप्रयोगका रूपमा सेट गर्नुपर्छ।"</string>
+    <string name="change_default_call_screening_warning_message" msgid="9020537562292754269">"<xliff:g id="NEW_APP">%s</xliff:g> ले तपाईंको सम्पर्कमा नभएका कल गर्ने व्यक्तिका जानकारी हेर्न सक्छ र तिनीहरूमाथि रोक लगाउन सक्छ। तपाईंलाई विश्वास लाग्ने एपहरूलाई मात्र कल स्क्रिन पूर्वनिर्धारित एपका रूपमा सेट गर्नुपर्छ।"</string>
     <string name="change_default_call_screening_dialog_affirmative" msgid="7162433828280058647">"पूर्वनिर्धारित रूपमा सेट गर्नुहोस्"</string>
     <string name="change_default_call_screening_dialog_negative" msgid="1839266125623106342">"रद्द गर्नुहोस्"</string>
     <string name="blocked_numbers" msgid="8322134197039865180">"रोकिएका नम्बरहरू"</string>
