@@ -62,6 +62,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.UserHandle;
+import android.telecom.CallAudioState;
 import android.telecom.InCallService;
 import android.telecom.ParcelableCall;
 import android.telecom.PhoneAccountHandle;
@@ -175,6 +176,8 @@ public class InCallControllerTests extends TelecomTestCase {
         mEmergencyCallHelper = new EmergencyCallHelper(mMockContext, mDefaultDialerCache,
                 mTimeoutsAdapter);
         when(mMockCallsManager.getRoleManagerAdapter()).thenReturn(mMockRoleManagerAdapter);
+        when(mMockContext.getSystemService(eq(Context.NOTIFICATION_SERVICE)))
+                .thenReturn(mNotificationManager);
         when(mMockPackageManager.getPermissionInfo(anyString(), anyInt())).thenReturn(
                 mMockPermissionInfo);
         mInCallController = new InCallController(mMockContext, mLock, mMockCallsManager,
@@ -186,8 +189,6 @@ public class InCallControllerTests extends TelecomTestCase {
         verify(mMockSystemStateHelper).addListener(systemStateListenerArgumentCaptor.capture());
         mSystemStateListener = systemStateListenerArgumentCaptor.getValue();
 
-        when(mMockContext.getSystemService(eq(Context.NOTIFICATION_SERVICE)))
-                .thenReturn(mNotificationManager);
         // Companion Apps don't have CONTROL_INCALL_EXPERIENCE permission.
         doAnswer(invocation -> {
             int uid = invocation.getArgument(0);
@@ -224,6 +225,7 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockPackageManager.checkPermission(
                 matches(Manifest.permission.CONTROL_INCALL_EXPERIENCE),
                 matches(APPOP_NONUI_PKG))).thenReturn(PackageManager.PERMISSION_DENIED);
+        when(mMockCallsManager.getAudioState()).thenReturn(new CallAudioState(false, 0, 0));
     }
 
     @Override
@@ -638,6 +640,7 @@ public class InCallControllerTests extends TelecomTestCase {
                 any(Intent.class), any(ServiceConnection.class), anyInt(), any(UserHandle.class)))
                 .thenReturn(true);
         when(mMockContext.getApplicationInfo()).thenReturn(applicationInfo);
+        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID)).thenReturn(DEF_PKG);
 
         setupMockPackageManager(true /* default */, true /* system */, false /* external calls */);
         mInCallController.bindToServices(mMockCall);
@@ -664,7 +667,7 @@ public class InCallControllerTests extends TelecomTestCase {
 
         verify(mNotificationManager).notify(eq(NOTIFICATION_TAG),
                 eq(IN_CALL_SERVICE_NOTIFICATION_ID), any(Notification.class));
-        verify(mCallInfo).addInCallService(eq(sysDialerComponentName.flattenToShortString()),
+        verify(mCallInfo).addInCallService(eq(defDialerComponentName.flattenToShortString()),
                 anyInt(), anyLong(), eq(true));
 
         ArgumentCaptor<Intent> bindIntentCaptor2 = ArgumentCaptor.forClass(Intent.class);
@@ -674,6 +677,7 @@ public class InCallControllerTests extends TelecomTestCase {
                 eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE
                         | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS),
                 eq(UserHandle.CURRENT));
+        assertEquals(sysDialerComponentName, bindIntentCaptor2.getValue().getComponent());
     }
 
     /**

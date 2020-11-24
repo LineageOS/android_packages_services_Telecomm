@@ -28,11 +28,11 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"सन्देश"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"विच्छेद गरिएको कल"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"आपत्कालीन कल गरिएको हुनाले <xliff:g id="CALLER">%s</xliff:g> लाई गरिएको कल विच्छेद गरियो।"</string>
-    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"आपत्कालीन कल जारी रहेको हुनाले तपाईंको कल विच्छेद गरिएको छ।"</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"पृष्ठभूमिको कल"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ले एउटा कल पृष्ठभूमिमा राखेको छ। कल गरेको बेला यो अनुप्रयोगले अडियोमाथि पहुँच राखेर प्ले गरिरहेको हुन सक्छ।"</string>
-    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> ले काम गर्न छाड्यो"</string>
-    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"कल गर्नका लागि तपाईंको यन्त्रमा पहिल्यैदेखि रहेको फोन एप प्रयोग गरियो"</string>
+    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"क्र्यास भएको फोन एप"</string>
+    <!-- no translation found for notification_crashedInCallService_body (7821729360036047995) -->
+    <skip />
     <string name="accessibility_call_muted" msgid="2968461092554300779">"कल म्युट भयो।"</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"स्पिकरफोन सक्षम भयो।"</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"अहिले कुरा गर्न मिल्दैन। के भइरहेको छ?"</string>
@@ -53,11 +53,11 @@
     <string name="no_vm_number" msgid="2179959110602180844">"भ्वाइसमेल नम्बर हराइरहेको छ"</string>
     <string name="no_vm_number_msg" msgid="1339245731058529388">"SIM कार्डमा कुनै पनि भ्वाइसमेल नम्बर भण्डारण भएको छैन।"</string>
     <string name="add_vm_number_str" msgid="5179510133063168998">"नम्बर थप्नुहोस्"</string>
-    <string name="change_default_dialer_dialog_title" msgid="5861469279421508060">"तपाईंको पूर्वनिर्धारित फोन एप <xliff:g id="NEW_APP">%s</xliff:g> बनाउने हो?"</string>
+    <string name="change_default_dialer_dialog_title" msgid="5861469279421508060">"तपाईंको पूर्वनिर्धारित फोन अनुप्रयोग <xliff:g id="NEW_APP">%s</xliff:g> बनाउने हो?"</string>
     <string name="change_default_dialer_dialog_affirmative" msgid="8604665314757739550">"पूर्वनिर्धारित रूपमा सेट गर्नुहोस्"</string>
     <string name="change_default_dialer_dialog_negative" msgid="8648669840052697821">"रद्द गर्नुहोस्"</string>
     <string name="change_default_dialer_warning_message" msgid="8461963987376916114">"<xliff:g id="NEW_APP">%s</xliff:g> कलका सबै पक्षहरूलाई स्थापित गर्न र नियन्त्रण गर्न सक्षम हुने छ। तपाईंलाई विश्वास लाग्ने अनुप्रयोगहरूलाई मात्र फोनमा पूर्वनिर्धारित अनुप्रयोगका रूपमा सेट गर्नुपर्छ।"</string>
-    <string name="change_default_call_screening_dialog_title" msgid="5365787219927262408">"तपाईंको पूर्वनिर्धारित कल स्क्रिन एप <xliff:g id="NEW_APP">%s</xliff:g> बनाउने हो?"</string>
+    <string name="change_default_call_screening_dialog_title" msgid="5365787219927262408">"तपाईंको पूर्वनिर्धारित कल स्क्रिन अनुप्रयोग <xliff:g id="NEW_APP">%s</xliff:g> बनाउने हो?"</string>
     <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="2039830033533243164">"<xliff:g id="OLD_APP">%s</xliff:g> ले अब उप्रान्त कलहरू स्क्रिन गर्न सक्ने छैनन्‌।"</string>
     <string name="change_default_call_screening_warning_message" msgid="9020537562292754269">"<xliff:g id="NEW_APP">%s</xliff:g> ले तपाईंको सम्पर्कमा नभएका कल गर्ने व्यक्तिका जानकारी हेर्न सक्छ र तिनीहरूमाथि रोक लगाउन सक्छ। तपाईंलाई विश्वास लाग्ने अनुप्रयोगहरूलाई मात्र कल स्क्रिन पूर्वनिर्धारित अनुप्रयोगका रूपमा सेट गर्नुपर्छ।"</string>
     <string name="change_default_call_screening_dialog_affirmative" msgid="7162433828280058647">"पूर्वनिर्धारित रूपमा सेट गर्नुहोस्"</string>
@@ -97,14 +97,14 @@
     <string name="notification_channel_incoming_call" msgid="5245550964701715662">"आगमन कलहरू"</string>
     <string name="notification_channel_missed_call" msgid="7168893015283909012">"छुटेका कलहरू"</string>
     <string name="notification_channel_call_blocking" msgid="2028807677868598710">"कलमाथि रोक लगाउने सुविधा"</string>
-    <string name="notification_channel_background_calls" msgid="7785659903711350506">"ब्याकग्राउन्डका कलहरू"</string>
+    <string name="notification_channel_background_calls" msgid="7785659903711350506">"पृष्ठभूमिका कलहरू"</string>
     <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"विच्छेद गरिएका कल"</string>
     <string name="notification_channel_in_call_service_crash" msgid="7313237519166984267">"क्र्यास भएका फोन एपहरू"</string>
     <string name="alert_outgoing_call" msgid="5319895109298927431">"यो कल गर्नुले तपाईंको <xliff:g id="OTHER_APP">%1$s</xliff:g> कल अन्त्य गर्दछ।"</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"यो कल गर्ने तरिका छनौट गर्नुहोस्"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="5221065030959024121">"<xliff:g id="OTHER_APP">%1$s</xliff:g> प्रयोग गरी कल रिडाइरेक्ट गर्नुहोस्"</string>
     <string name="alert_place_unredirect_outgoing_call" msgid="2467608535225764006">"फोन नम्बर प्रयोग गरी कल गर्नुहोस्"</string>
-    <string name="alert_redirect_outgoing_call_timeout" msgid="5568101425637373060">"<xliff:g id="OTHER_APP">%1$s</xliff:g> प्रयोग गरेर कल गर्न सकिएन। कुनै अर्को रिडिरेक्टिङ एपको प्रयोग वा मद्दतका लागि विकासकर्तासँग सम्पर्क गरी हेर्नुहोस्।"</string>
+    <string name="alert_redirect_outgoing_call_timeout" msgid="5568101425637373060">"<xliff:g id="OTHER_APP">%1$s</xliff:g> प्रयोग गरेर कल गर्न सकिएन। कुनै अर्को रिडिरेक्टिङ अनुप्रयोगको प्रयोग वा मद्दतका लागि विकासकर्तासँग सम्पर्क गरी हेर्नुहोस्।"</string>
     <string name="phone_settings_call_blocking_txt" msgid="7311523114822507178">"कलमाथि रोक लगाउने सुविधा"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="2602249106007265757">"सम्पर्क सूचीहरूमा नरहेका नम्बरहरू"</string>
     <string name="phone_settings_number_not_in_contact_summary_txt" msgid="963327038085718969">"आफ्नो सम्पर्क सूचीहरूमा सूचीबद्ध नगरिएका नम्बरहरूमाथि रोक लगाउनुहोस्"</string>
