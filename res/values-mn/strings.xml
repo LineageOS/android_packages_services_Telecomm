@@ -25,7 +25,7 @@
     <string name="notification_missedCallsMsg" msgid="5055782736170916682">"<xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> аваагүй дуудлага"</string>
     <string name="notification_missedCallTicker" msgid="6731461957487087769">"<xliff:g id="MISSED_CALL_FROM">%s</xliff:g>-н аваагүй дуудлага"</string>
     <string name="notification_missedCall_call_back" msgid="7900333283939789732">"Буцааж залгах"</string>
-    <string name="notification_missedCall_message" msgid="4054698824390076431">"Мессэж"</string>
+    <string name="notification_missedCall_message" msgid="4054698824390076431">"Мессеж"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Дуудлага саллаа"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Яаралтай дуудлага ирсэн тул <xliff:g id="CALLER">%s</xliff:g> руу хийсэн дуудлагыг салгалаа."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Яаралтай дуудлага ирсэн тул таны дуудлагыг салгалаа."</string>
@@ -43,8 +43,8 @@
     <string name="respond_via_sms_setting_title_2" msgid="4914853536609553457">"Шуурхай хариуг засах"</string>
     <string name="respond_via_sms_setting_summary" msgid="8054571501085436868"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="6579353156073272157">"Шуурхай хариу"</string>
-    <string name="respond_via_sms_confirmation_format" msgid="2932395476561267842">"Зурвасыг <xliff:g id="PHONE_NUMBER">%s</xliff:g> руу илгээв."</string>
-    <string name="respond_via_sms_failure_format" msgid="5198680980054596391">"<xliff:g id="PHONE_NUMBER">%s</xliff:g> руу зурвас илгээж чадсангүй."</string>
+    <string name="respond_via_sms_confirmation_format" msgid="2932395476561267842">"Мессежийг <xliff:g id="PHONE_NUMBER">%s</xliff:g> руу илгээв."</string>
+    <string name="respond_via_sms_failure_format" msgid="5198680980054596391">"<xliff:g id="PHONE_NUMBER">%s</xliff:g> руу мессеж илгээж чадсангүй."</string>
     <string name="enable_account_preference_title" msgid="6949224486748457976">"Дуудлагын эрхтэй бүртгэлүүд"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="3424338207838851646">"Зөвхөн яаралтай тусламжийн дуудлага хийх боломжтой."</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="8590468836581488679">"Энэ апп нь утасны зөвшөөрөлгүйгээр дуудлага хийх боломжгүй."</string>
