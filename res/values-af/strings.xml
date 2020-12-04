@@ -28,10 +28,11 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Boodskap"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Oproep is ontkoppel"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Die oproep na <xliff:g id="CALLER">%s</xliff:g> is ontkoppel as gevolg van \'n noodoproep wat gemaak word."</string>
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Jou oproep is ontkoppel as gevolg van \'n noodoproep wat gemaak word."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Agtergrondoproep"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> het \'n oproep in die agtergrond geplaas. Hierdie program kan dalk toegang tot oudio kry en dit oor die oproep speel."</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Omgevalde foonprogram"</string>
-    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"Jou foonprogram <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> het omgeval. Jou oproep is voortgesit deur die foonprogram te gebruik wat jy saam met jou toestel gekry het."</string>
+    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> het opgehou reageer"</string>
+    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Jou oproep het die foonprogram gebruik wat saam met jou toestel gekom het"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Oproep stilgemaak."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"Luidsprekerfoon geaktiveer."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"Kan nie nou praat nie. Hoe\'s dit?"</string>
