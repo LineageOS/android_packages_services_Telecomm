@@ -289,7 +289,12 @@ public class CallScreeningServiceFilter extends CallFilter {
 
     public void unbindCallScreeningService() {
         if (mConnection != null) {
-            mContext.unbindService(mConnection);
+            try {
+                mContext.unbindService(mConnection);
+            } catch (IllegalArgumentException e) {
+                Log.i(this, "Exception when unbind service %s : %s", mConnection,
+                        e.getMessage());
+            }
         }
         mConnection = null;
     }
