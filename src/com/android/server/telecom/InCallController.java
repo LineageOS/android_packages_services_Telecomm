@@ -222,7 +222,7 @@ public class InCallController extends CallsManagerListenerBase {
                 Log.startSession("ICSBC.oSD", Log.getPackageAbbreviation(name));
                 synchronized (mLock) {
                     try {
-                        Log.d(this, "onDisconnected: %s", name);
+                        Log.d(this, "onServiceDisconnected: %s", name);
                         mIsBound = false;
                         onDisconnected();
                     } finally {
@@ -343,6 +343,8 @@ public class InCallController extends CallsManagerListenerBase {
                             mInCallServiceInfo.getDisconnectTime()
                                     - mInCallServiceInfo.getBindingStartTime(), mIsNullBinding);
                 }
+
+                InCallController.this.onDisconnected(mInCallServiceInfo);
             } else {
                 Log.i(InCallController.this, "ICSBC#disconnect: already disconnected; %s",
                         mInCallServiceInfo);
@@ -953,6 +955,17 @@ public class InCallController extends CallsManagerListenerBase {
 
     private final CarModeTracker mCarModeTracker;
 
+    /**
+     * The package name of the app which is showing the calling UX.
+     */
+    private String mCurrentUserInterfacePackageName = null;
+
+    /**
+     * {@code true} if InCallController is tracking a managed, not external call which is using the
+     * microphone, {@code false} otherwise.
+     */
+    private boolean mIsCallUsingMicrophone = false;
+
     public InCallController(Context context, TelecomSystem.SyncRoot lock, CallsManager callsManager,
             SystemStateHelper systemStateHelper,
             DefaultDialerCache defaultDialerCache, Timeouts.Adapter timeoutsAdapter,
@@ -1046,6 +1059,7 @@ public class InCallController extends CallsManagerListenerBase {
         }
         call.removeListener(mCallListener);
         mCallIdMapper.removeCall(call);
+        maybeTrackMicrophoneUse(isMuted());
     }
 
     @Override
@@ -1121,10 +1135,12 @@ public class InCallController extends CallsManagerListenerBase {
             }
             Log.i(this, "External call removed from components: %s", componentsUpdated);
         }
+        maybeTrackMicrophoneUse(isMuted());
     }
 
     @Override
     public void onCallStateChanged(Call call, int oldState, int newState) {
+        maybeTrackMicrophoneUse(isMuted());
         updateCall(call);
     }
 
@@ -1142,6 +1158,7 @@ public class InCallController extends CallsManagerListenerBase {
         if (!mInCallServices.isEmpty()) {
             Log.i(this, "Calling onAudioStateChanged, audioState: %s -> %s", oldCallAudioState,
                     newCallAudioState);
+            maybeTrackMicrophoneUse(newCallAudioState.isMuted());
             for (IInCallService inCallService : mInCallServices.values()) {
                 try {
                     inCallService.onCallAudioStateChanged(newCallAudioState);
@@ -1204,6 +1221,23 @@ public class InCallController extends CallsManagerListenerBase {
     public void onCdmaConferenceSwap(Call call) {
         Log.d(this, "onCdmaConferenceSwap %s", call);
         updateCall(call);
+    }
+
+    /**
+     * Track changes to camera usage for a call.
+     * @param call The call.
+     * @param cameraId The id of the camera to use, or {@code null} if camera is off.
+     */
+    @Override
+    public void onSetCamera(Call call, String cameraId) {
+        Log.i(this, "onSetCamera callId=%s, cameraId=%s", call.getId(), cameraId);
+        if (cameraId != null) {
+            mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_CAMERA, myUid(),
+                    mContext.getOpPackageName(), false, null, null);
+        } else {
+            mAppOpsManager.finishOp(AppOpsManager.OP_PHONE_CALL_CAMERA, myUid(),
+                    mContext.getOpPackageName(), null);
+        }
     }
 
     void bringToForeground(boolean showDialpad) {
@@ -1600,6 +1634,11 @@ public class InCallController extends CallsManagerListenerBase {
     private boolean onConnected(InCallServiceInfo info, IBinder service) {
         Log.i(this, "onConnected to %s", info.getComponentName());
 
+        if (info.getType() == IN_CALL_SERVICE_TYPE_CAR_MODE_UI
+                || info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI
+                || info.getType() == IN_CALL_SERVICE_TYPE_DIALER_UI) {
+            trackCallingUserInterfaceStarted(info);
+        }
         IInCallService inCallService = IInCallService.Stub.asInterface(service);
         mInCallServices.put(info, inCallService);
 
@@ -1667,7 +1706,11 @@ public class InCallController extends CallsManagerListenerBase {
      */
     private void onDisconnected(InCallServiceInfo disconnectedInfo) {
         Log.i(this, "onDisconnected from %s", disconnectedInfo.getComponentName());
-
+        if (disconnectedInfo.getType() == IN_CALL_SERVICE_TYPE_CAR_MODE_UI
+                || disconnectedInfo.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI
+                || disconnectedInfo.getType() == IN_CALL_SERVICE_TYPE_DIALER_UI) {
+            trackCallingUserInterfaceStopped(disconnectedInfo);
+        }
         mInCallServices.remove(disconnectedInfo);
     }
 
@@ -1734,6 +1777,7 @@ public class InCallController extends CallsManagerListenerBase {
             mCallIdMapper.addCall(call);
             call.addListener(mCallListener);
         }
+        maybeTrackMicrophoneUse(isMuted());
     }
 
     /**
@@ -1913,6 +1957,69 @@ public class InCallController extends CallsManagerListenerBase {
         }
     }
 
+    /**
+     * Tracks start of microphone use on binding to the current calling UX.
+     * @param info
+     */
+    private void trackCallingUserInterfaceStarted(InCallServiceInfo info) {
+        String packageName = info.getComponentName().getPackageName();
+        if (!Objects.equals(mCurrentUserInterfacePackageName, packageName)) {
+            Log.i(this, "trackCallingUserInterfaceStarted: %s is now calling UX.", packageName);
+            mCurrentUserInterfacePackageName = packageName;
+        }
+        maybeTrackMicrophoneUse(isMuted());
+    }
+
+    /**
+     * Tracks stop of microphone use on unbind from the current calling UX.
+     * @param info
+     */
+    private void trackCallingUserInterfaceStopped(InCallServiceInfo info) {
+        maybeTrackMicrophoneUse(isMuted());
+        mCurrentUserInterfacePackageName = null;
+        String packageName = info.getComponentName().getPackageName();
+        Log.i(this, "trackCallingUserInterfaceStopped: %s is no longer calling UX", packageName);
+    }
+
+    /**
+     * As calls are added, removed and change between external and non-external status, track
+     * whether the current active calling UX is using the microphone.  We assume if there is a
+     * managed call present and the mic is not muted that the microphone is in use.
+     */
+    private void maybeTrackMicrophoneUse(boolean isMuted) {
+        boolean wasTrackingManagedCall = mIsCallUsingMicrophone;
+        mIsCallUsingMicrophone = isTrackingManagedAliveCall() && !isMuted;
+        if (wasTrackingManagedCall != mIsCallUsingMicrophone) {
+            if (mIsCallUsingMicrophone) {
+                mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_MICROPHONE, myUid(),
+                        mContext.getOpPackageName(), false, null, null);
+            } else {
+                mAppOpsManager.finishOp(AppOpsManager.OP_PHONE_CALL_MICROPHONE, myUid(),
+                        mContext.getOpPackageName(), null);
+            }
+        }
+    }
+
+    /**
+     * @return {@code true} if InCallController is tracking a managed call (i.e. not self managed
+     * and not external) that is active.
+     */
+    private boolean isTrackingManagedAliveCall() {
+        return mCallIdMapper.getCalls().stream().anyMatch(c -> !c.isExternalCall()
+            && !c.isSelfManaged() && c.isAlive() && c.getState() != CallState.ON_HOLD
+                && c.getState() != CallState.AUDIO_PROCESSING);
+    }
+
+    /**
+     * @return {@code true} if the audio is currently muted, {@code false} otherwise.
+     */
+    private boolean isMuted() {
+        if (mCallsManager.getAudioState() == null) {
+            return false;
+        }
+        return mCallsManager.getAudioState().isMuted();
+    }
+
     private boolean isAppOpsPermittedManageOngoingCalls(int uid, String callingPackage) {
         return PermissionChecker.checkPermissionForPreflight(mContext,
                 Manifest.permission.MANAGE_ONGOING_CALLS, PermissionChecker.PID_UNKNOWN, uid,
@@ -1922,6 +2029,10 @@ public class InCallController extends CallsManagerListenerBase {
     private void sendCrashedInCallServiceNotification(String packageName) {
         PackageManager packageManager = mContext.getPackageManager();
         CharSequence appName;
+        String systemDialer = mDefaultDialerCache.getSystemDialerApplication();
+        if ((systemDialer != null) && systemDialer.equals(packageName)) {
+            return;
+        }
         try {
             appName = packageManager.getApplicationLabel(
                     packageManager.getApplicationInfo(packageName, 0));
