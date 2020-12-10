@@ -501,6 +501,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
         when(mResources.getConfiguration()).thenReturn(mResourceConfiguration);
         when(mResources.getString(anyInt())).thenReturn("");
         when(mResources.getStringArray(anyInt())).thenReturn(new String[0]);
+        when(mResources.newTheme()).thenReturn(mResourcesTheme);
         mResourceConfiguration.setLocale(Locale.TAIWAN);
 
         // TODO: Move into actual tests
