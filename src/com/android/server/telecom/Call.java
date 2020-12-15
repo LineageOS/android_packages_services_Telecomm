@@ -2450,7 +2450,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                         "reject call failed due to null CS callId=%s", getId());
             }
             Log.addEvent(this, LogUtils.Events.REQUEST_REJECT, reason);
-        } else if (isRinging("reject")) {
+        } else if (isRinging("reject") || isAnswered("reject")) {
             // Ensure video state history tracks video state at time of rejection.
             mVideoStateHistory |= mVideoState;
 
@@ -2482,7 +2482,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                         "reject call failed due to null CS callId=%s", getId());
             }
             Log.addEvent(this, LogUtils.Events.REQUEST_REJECT);
-        } else if (isRinging("reject")) {
+        } else if (isRinging("reject") || isAnswered("reject")) {
             // Ensure video state history tracks video state at time of rejection.
             mVideoStateHistory |= mVideoState;
 
@@ -3160,6 +3160,18 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
 
         Log.i(this, "Request to %s a non-ringing call %s", actionName, this);
+        return false;
+    }
+
+    /**
+     * @return True if the call is answered, else logs the action name.
+     */
+    private boolean isAnswered(String actionName) {
+        if (mState == CallState.ANSWERED) {
+            return true;
+        }
+
+        Log.i(this, "Request to %s a non-answered call %s", actionName, this);
         return false;
     }
 
