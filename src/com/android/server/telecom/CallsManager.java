@@ -2841,8 +2841,8 @@ public class CallsManager extends Call.ListenerBase
     }
 
     private boolean isRttSettingOn(PhoneAccountHandle handle) {
-        boolean isRttModeSettingOn = Settings.Secure.getInt(mContext.getContentResolver(),
-                Settings.Secure.RTT_CALLING_MODE, 0) != 0;
+        boolean isRttModeSettingOn = Settings.Secure.getIntForUser(mContext.getContentResolver(),
+                Settings.Secure.RTT_CALLING_MODE, 0, mContext.getUserId()) != 0;
         // If the carrier config says that we should ignore the RTT mode setting from the user,
         // assume that it's off (i.e. only make an RTT call if it's requested through the extra).
         boolean shouldIgnoreRttModeSetting = getCarrierConfigForPhoneAccount(handle)
