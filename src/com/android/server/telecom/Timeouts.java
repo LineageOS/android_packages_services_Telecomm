@@ -85,7 +85,8 @@ public final class Timeouts {
      * @return The timeout value from Settings or the default value if it hasn't been changed.
      */
     private static long get(ContentResolver contentResolver, String key, long defaultValue) {
-        return Settings.Secure.getLong(contentResolver, PREFIX + key, defaultValue);
+        return Settings.Secure.getLongForUser(contentResolver, PREFIX + key, defaultValue,
+                        contentResolver.getUserId());
     }
 
     /**

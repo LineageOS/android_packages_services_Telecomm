@@ -1993,8 +1993,8 @@ public class PhoneAccountRegistrar {
          * @return {@code True} if SIP should be used for all calls.
          */
         private boolean useSipForPstnCalls(Context context) {
-            String option = Settings.System.getString(context.getContentResolver(),
-                    Settings.System.SIP_CALL_OPTIONS);
+            String option = Settings.System.getStringForUser(context.getContentResolver(),
+                    Settings.System.SIP_CALL_OPTIONS, context.getUserId());
             option = (option != null) ? option : Settings.System.SIP_ADDRESS_ONLY;
             return option.equals(Settings.System.SIP_ALWAYS);
         }
