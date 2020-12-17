@@ -69,7 +69,6 @@ import android.text.TextUtils;
 
 import com.android.internal.telecom.IInCallAdapter;
 import com.android.server.telecom.AsyncRingtonePlayer;
-import com.android.server.telecom.BluetoothPhoneServiceImpl;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioRouteStateMachine;
@@ -203,7 +202,6 @@ public class TelecomSystemTest extends TelecomTestCase {
     @Mock HeadsetMediaButton mHeadsetMediaButton;
     @Mock ProximitySensorManager mProximitySensorManager;
     @Mock InCallWakeLockController mInCallWakeLockController;
-    @Mock BluetoothPhoneServiceImpl mBluetoothPhoneServiceImpl;
     @Mock AsyncRingtonePlayer mAsyncRingtonePlayer;
     @Mock IncomingCallNotifier mIncomingCallNotifier;
     @Mock ClockProxy mClockProxy;
@@ -487,7 +485,6 @@ public class TelecomSystemTest extends TelecomTestCase {
                 proximitySensorManagerFactory,
                 inCallWakeLockControllerFactory,
                 () -> mAudioService,
-                (context, lock, callsManager, phoneAccountRegistrar) -> mBluetoothPhoneServiceImpl,
                 mConnServFMFactory,
                 mTimeoutsAdapter,
                 mAsyncRingtonePlayer,
