@@ -69,6 +69,7 @@ import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.telephony.TelephonyRegistryManager;
 import android.test.mock.MockContext;
+import android.util.DisplayMetrics;
 
 import java.io.File;
 import java.io.IOException;
@@ -474,6 +475,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
     private final Resources.Theme mResourcesTheme = mock(Resources.Theme.class);
     private final Resources mResources = mock(Resources.class);
     private final Context mApplicationContextSpy = spy(mApplicationContext);
+    private final DisplayMetrics mDisplayMetrics = mock(DisplayMetrics.class);
     private final PackageManager mPackageManager = mock(PackageManager.class);
     private final Executor mMainExecutor = mock(Executor.class);
     private final AudioManager mAudioManager = spy(new FakeAudioManager(mContext));
@@ -502,6 +504,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
         when(mResources.getString(anyInt())).thenReturn("");
         when(mResources.getStringArray(anyInt())).thenReturn(new String[0]);
         when(mResources.newTheme()).thenReturn(mResourcesTheme);
+        when(mResources.getDisplayMetrics()).thenReturn(mDisplayMetrics);
+        mDisplayMetrics.density = 3.125f;
         mResourceConfiguration.setLocale(Locale.TAIWAN);
 
         // TODO: Move into actual tests
