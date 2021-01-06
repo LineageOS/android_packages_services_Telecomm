@@ -358,8 +358,10 @@ public final class CallLogManager extends CallsManagerListenerBase {
                 call.wasVolte());
 
         if (result == null) {
-            // Call auto missed before filtered
-            result = new CallFilteringResult.Builder().build();
+            result = new CallFilteringResult.Builder()
+                    .setCallScreeningAppName(call.getCallScreeningAppName())
+                    .setCallScreeningComponentName(call.getCallScreeningComponentName())
+                    .build();
         }
 
         if (callLogType == Calls.BLOCKED_TYPE || callLogType == Calls.MISSED_TYPE) {

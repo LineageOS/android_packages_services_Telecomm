@@ -73,7 +73,7 @@ public class IncomingCallFilterGraph {
             if (mFilter.equals(mDummyComplete)) {
                 synchronized (mLock) {
                     mFinished = true;
-                    mListener.onCallFilteringComplete(mCall, result);
+                    mListener.onCallFilteringComplete(mCall, result, false);
                     Log.addEvent(mCall, LogUtils.Events.FILTERING_COMPLETED, result);
                 }
                 mHandlerThread.quit();
@@ -122,7 +122,7 @@ public class IncomingCallFilterGraph {
                 if (!mFinished) {
                     Log.i(this, "Graph timed out when performing filtering.");
                     Log.addEvent(mCall, LogUtils.Events.FILTERING_TIMED_OUT);
-                    mListener.onCallFilteringComplete(mCall, mCurrentResult);
+                    mListener.onCallFilteringComplete(mCall, mCurrentResult, true);
                     mFinished = true;
                     mHandlerThread.quit();
                 }
