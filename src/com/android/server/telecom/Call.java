@@ -624,6 +624,18 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private long mStartRingTime;
 
     /**
+     * The package name of the call screening service that silence this call. If the call is not
+     * silenced, this field will be null.
+     */
+    private CharSequence mCallScreeningAppName;
+
+    /**
+     * The component name of the call screening service that silence this call. If the call is not
+     * silenced, this field will be null.
+     */
+    private String mCallScreeningComponentName;
+
+    /**
      * Persists the specified parameters and initializes the new instance.
      * @param context The context.
      * @param repository The connection service repository.
@@ -3906,11 +3918,31 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         mMissedReason = missedReason;
     }
 
+    public void setUserMissed(long code) {
+        mMissedReason |= code;
+    }
+
     public long getStartRingTime() {
         return mStartRingTime;
     }
 
     public void setStartRingTime(long startRingTime) {
         mStartRingTime = startRingTime;
+    }
+
+    public CharSequence getCallScreeningAppName() {
+        return mCallScreeningAppName;
+    }
+
+    public void setCallScreeningAppName(CharSequence callScreeningAppName) {
+        mCallScreeningAppName = callScreeningAppName;
+    }
+
+    public String getCallScreeningComponentName() {
+        return mCallScreeningComponentName;
+    }
+
+    public void setCallScreeningComponentName(String callScreeningComponentName) {
+        mCallScreeningComponentName = callScreeningComponentName;
     }
 }

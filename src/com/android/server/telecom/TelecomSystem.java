@@ -20,7 +20,6 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.bluetooth.BluetoothDeviceManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
-import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
 import com.android.server.telecom.ui.AudioProcessingNotification;
@@ -202,7 +201,6 @@ public class TelecomSystem {
             CallAudioModeStateMachine.Factory callAudioModeStateMachineFactory,
             ClockProxy clockProxy,
             RoleManagerAdapter roleManagerAdapter,
-            IncomingCallFilter.Factory incomingCallFilterFactory,
             ContactsAsyncHelper.Factory contactsAsyncHelperFactory,
             DeviceIdleControllerAdapter deviceIdleControllerAdapter) {
         mContext = context.getApplicationContext();
@@ -306,7 +304,6 @@ public class TelecomSystem {
                 callAudioModeStateMachineFactory,
                 inCallControllerFactory,
                 roleManagerAdapter,
-                incomingCallFilterFactory,
                 toastFactory);
 
         mIncomingCallNotifier = incomingCallNotifier;
