@@ -18,6 +18,7 @@ package com.android.server.telecom.components;
 
 import android.app.Service;
 import android.app.role.RoleManager;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.media.IAudioService;
@@ -34,6 +35,8 @@ import com.android.internal.telecom.IInternalServiceRetriever;
 import com.android.internal.telecom.ITelecomLoader;
 import com.android.internal.telecom.ITelecomService;
 import com.android.server.telecom.AsyncRingtonePlayer;
+import com.android.server.telecom.BluetoothAdapterProxy;
+import com.android.server.telecom.BluetoothPhoneServiceImpl;
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.CallerInfoAsyncQueryFactory;
@@ -169,6 +172,17 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                             ServiceManager.getService(Context.AUDIO_SERVICE));
                                 }
                             },
+                            new BluetoothPhoneServiceImpl.BluetoothPhoneServiceImplFactory() {
+                                @Override
+                                public BluetoothPhoneServiceImpl makeBluetoothPhoneServiceImpl(
+                                        Context context, TelecomSystem.SyncRoot lock,
+                                        CallsManager callsManager,
+                                        PhoneAccountRegistrar phoneAccountRegistrar) {
+                                    return new BluetoothPhoneServiceImpl(context, lock,
+                                            callsManager, new BluetoothAdapterProxy(),
+                                            phoneAccountRegistrar);
+                                }
+                            },
                             ConnectionServiceFocusManager::new,
                             new Timeouts.Adapter(),
                             new AsyncRingtonePlayer(),
@@ -192,6 +206,9 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                     (RoleManager) context.getSystemService(Context.ROLE_SERVICE)),
                             new ContactsAsyncHelper.Factory(),
                             internalServiceRetriever.getDeviceIdleController()));
+        }
+        if (BluetoothAdapter.getDefaultAdapter() != null) {
+            context.startService(new Intent(context, BluetoothPhoneService.class));
         }
     }
 
