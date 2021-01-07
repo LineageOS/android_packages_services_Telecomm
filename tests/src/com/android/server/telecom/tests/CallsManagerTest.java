@@ -96,7 +96,6 @@ import com.android.server.telecom.WiredHeadsetManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
-import com.android.server.telecom.callfiltering.IncomingCallFilter;
 import com.android.server.telecom.ui.AudioProcessingNotification;
 import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import com.android.server.telecom.ui.ToastFactory;
@@ -111,8 +110,6 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -201,8 +198,6 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private CallAudioModeStateMachine.Factory mCallAudioModeStateMachineFactory;
     @Mock private BluetoothStateReceiver mBluetoothStateReceiver;
     @Mock private RoleManagerAdapter mRoleManagerAdapter;
-    @Mock private IncomingCallFilter.Factory mIncomingCallFilterFactory;
-    @Mock private IncomingCallFilter mIncomingCallFilter;
     @Mock private ToastFactory mToastFactory;
     @Mock private Toast mToast;
 
@@ -225,8 +220,6 @@ public class CallsManagerTest extends TelecomTestCase {
                 anyInt())).thenReturn(mCallAudioRouteStateMachine);
         when(mCallAudioModeStateMachineFactory.create(any(), any()))
                 .thenReturn(mCallAudioModeStateMachine);
-        when(mIncomingCallFilterFactory.create(any(), any(), any(), any(), any(), any()))
-                .thenReturn(mIncomingCallFilter);
         when(mClockProxy.currentTimeMillis()).thenReturn(System.currentTimeMillis());
         when(mClockProxy.elapsedRealtime()).thenReturn(SystemClock.elapsedRealtime());
         when(mConnSvrFocusManagerFactory.create(any())).thenReturn(mConnectionSvrFocusMgr);
@@ -261,7 +254,6 @@ public class CallsManagerTest extends TelecomTestCase {
                 mCallAudioModeStateMachineFactory,
                 mInCallControllerFactory,
                 mRoleManagerAdapter,
-                mIncomingCallFilterFactory,
                 mToastFactory);
 
         when(mPhoneAccountRegistrar.getPhoneAccount(
@@ -1338,6 +1330,8 @@ public class CallsManagerTest extends TelecomTestCase {
     @Test
     public void testHandleSilenceVsBackgroundScreeningOrdering() throws Exception {
         Call screenedCall = mock(Call.class);
+        Bundle extra = new Bundle();
+        when(screenedCall.getIntentExtras()).thenReturn(extra);
         String appName = "blah";
         CallFilteringResult result = new CallFilteringResult.Builder()
                 .setShouldAllowCall(true)
@@ -1348,7 +1342,7 @@ public class CallsManagerTest extends TelecomTestCase {
                 .setShouldShowNotification(true)
                 .setCallScreeningAppName(appName)
                 .build();
-        mCallsManager.onCallFilteringComplete(screenedCall, result);
+        mCallsManager.onCallFilteringComplete(screenedCall, result, false);
 
         verify(mConnectionSvrFocusMgr).requestFocus(eq(screenedCall),
                 nullable(ConnectionServiceFocusManager.RequestFocusCallback.class));

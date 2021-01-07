@@ -20,11 +20,14 @@ import static android.provider.CallLog.Calls.AUTO_MISSED_EMERGENCY_CALL;
 import static android.provider.CallLog.Calls.AUTO_MISSED_MAXIMUM_DIALING;
 import static android.provider.CallLog.Calls.AUTO_MISSED_MAXIMUM_RINGING;
 import static android.provider.CallLog.Calls.MISSED_REASON_NOT_MISSED;
+import static android.provider.CallLog.Calls.USER_MISSED_CALL_FILTERS_TIMEOUT;
+import static android.provider.CallLog.Calls.USER_MISSED_CALL_SCREENING_SERVICE_SILENCED;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,6 +47,8 @@ import com.android.server.telecom.Call;
 import com.android.server.telecom.CallIntentProcessor;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallsManager;
+import com.android.server.telecom.TelecomSystem;
+import com.android.server.telecom.callfiltering.CallFilteringResult;
 
 import org.junit.After;
 import org.junit.Before;
@@ -58,10 +63,14 @@ public class MissedInformationTest extends TelecomSystemTest {
     private static final String TEST_NUMBER = "650-555-1212";
     private static final String TEST_NUMBER_1 = "7";
     private static final String PACKAGE_NAME = "com.android.server.telecom.tests";
+    private static final String CALL_SCREENING_SERVICE_PACKAGE_NAME = "testapp";
+    private static final String CALL_SCREENING_COMPONENT_NAME = "testapp";
+
     @Mock ContentResolver mContentResolver;
     @Mock IContentProvider mContentProvider;
     @Mock Call mEmergencyCall;
     @Mock Analytics.CallInfo mCallInfo;
+    @Mock Call mIncomingCall;
     private CallsManager mCallsManager;
     private CallIntentProcessor.AdapterImpl mAdapter;
 
@@ -98,7 +107,8 @@ public class MissedInformationTest extends TelecomSystemTest {
         Map<String, Analytics.CallInfoImpl> analyticsMap = Analytics.cloneData();
         Analytics.CallInfoImpl callAnalytics = analyticsMap.get(testCall.mCallId);
         assertEquals(MISSED_REASON_NOT_MISSED, callAnalytics.missedReason);
-        assertEquals(MISSED_REASON_NOT_MISSED, (int) values.getAsInteger(CallLog.Calls.MISSED_REASON));
+        assertEquals(MISSED_REASON_NOT_MISSED,
+                (long) values.getAsLong(CallLog.Calls.MISSED_REASON));
     }
 
     @Test
@@ -116,11 +126,11 @@ public class MissedInformationTest extends TelecomSystemTest {
         ContentValues values = verifyInsertionWithCapture();
 
         Map<String, Analytics.CallInfoImpl> analyticsMap = Analytics.cloneData();
+        assertEquals(AUTO_MISSED_EMERGENCY_CALL,
+                (long) values.getAsLong(CallLog.Calls.MISSED_REASON));
         for (Analytics.CallInfoImpl ci : analyticsMap.values()) {
             assertEquals(AUTO_MISSED_EMERGENCY_CALL, ci.missedReason);
         }
-        assertEquals(AUTO_MISSED_EMERGENCY_CALL,
-                (int) values.getAsInteger(CallLog.Calls.MISSED_REASON));
     }
 
     @Test
@@ -146,7 +156,7 @@ public class MissedInformationTest extends TelecomSystemTest {
             assertEquals(AUTO_MISSED_MAXIMUM_DIALING, analyticsMap.get(callId).missedReason);
         }
         assertEquals(AUTO_MISSED_MAXIMUM_DIALING,
-                (int) values.getAsInteger(CallLog.Calls.MISSED_REASON));
+                (long) values.getAsLong(CallLog.Calls.MISSED_REASON));
     }
 
     @Test
@@ -172,7 +182,49 @@ public class MissedInformationTest extends TelecomSystemTest {
             assertEquals(AUTO_MISSED_MAXIMUM_RINGING, analyticsMap.get(callId).missedReason);
         }
         assertEquals(AUTO_MISSED_MAXIMUM_RINGING,
-                (int) values.getAsInteger(CallLog.Calls.MISSED_REASON));
+                (long) values.getAsLong(CallLog.Calls.MISSED_REASON));
+    }
+
+    @Test
+    public void testCallFiltersTimeout() throws Exception {
+        setUpIncomingCall();
+        CallFilteringResult result = new CallFilteringResult.Builder()
+                .setShouldAllowCall(true)
+                .build();
+        mCallsManager.onCallFilteringComplete(mIncomingCall, result, true);
+        mCallsManager.markCallAsDisconnected(mIncomingCall,
+                    new DisconnectCause(DisconnectCause.MISSED));
+        ContentValues values = verifyInsertionWithCapture();
+
+        long missedReason = values.getAsLong(CallLog.Calls.MISSED_REASON);
+        assertTrue((missedReason & USER_MISSED_CALL_FILTERS_TIMEOUT) > 0);
+        missedReason = ((Analytics.CallInfoImpl) mIncomingCall.getAnalytics()).missedReason;
+        assertTrue((missedReason & USER_MISSED_CALL_FILTERS_TIMEOUT) > 0);
+    }
+
+    @Test
+    public void testCallScreeningServiceSilence() throws Exception {
+        setUpIncomingCall();
+        CallFilteringResult result = new CallFilteringResult.Builder()
+                .setShouldAllowCall(true)
+                .setShouldSilence(true)
+                .setCallScreeningAppName(CALL_SCREENING_SERVICE_PACKAGE_NAME)
+                .setCallScreeningComponentName(CALL_SCREENING_COMPONENT_NAME)
+                .build();
+        mCallsManager.onCallFilteringComplete(mIncomingCall, result, false);
+        assertTrue(mIncomingCall.isIncoming());
+        mCallsManager.markCallAsDisconnected(mIncomingCall,
+                new DisconnectCause(DisconnectCause.MISSED));
+        ContentValues values = verifyInsertionWithCapture();
+
+        long missedReason = values.getAsLong(CallLog.Calls.MISSED_REASON);
+        assertTrue((missedReason & USER_MISSED_CALL_SCREENING_SERVICE_SILENCED) > 0);
+        assertEquals(CALL_SCREENING_COMPONENT_NAME,
+                values.getAsString(CallLog.Calls.CALL_SCREENING_COMPONENT_NAME));
+        assertEquals(CALL_SCREENING_SERVICE_PACKAGE_NAME,
+                values.getAsString(CallLog.Calls.CALL_SCREENING_APP_NAME));
+        missedReason = ((Analytics.CallInfoImpl) mIncomingCall.getAnalytics()).missedReason;
+        assertTrue((missedReason & USER_MISSED_CALL_SCREENING_SERVICE_SILENCED) > 0);
     }
 
     private ContentValues verifyInsertionWithCapture() {
@@ -189,5 +241,17 @@ public class MissedInformationTest extends TelecomSystemTest {
         when(mEmergencyCall.getState()).thenReturn(CallState.ACTIVE);
         when(mEmergencyCall.getContext()).thenReturn(mSpyContext);
         when(mEmergencyCall.getHandle()).thenReturn(Uri.parse("tel:" + TEST_NUMBER));
+    }
+
+    private void setUpIncomingCall() throws Exception {
+        mIncomingCall = spy(new Call("0", mSpyContext, mCallsManager,
+                (TelecomSystem.SyncRoot) mTelecomSystem.getLock(),
+                null, mCallsManager.getPhoneNumberUtilsAdapter(), null,
+                null, null, mPhoneAccountA0.getAccountHandle(),
+                Call.CALL_DIRECTION_INCOMING, false, false,
+                mClockProxy, null));
+        mIncomingCall.initAnalytics();
+        when(mIncomingCall.getIntentExtras()).thenReturn(new Bundle());
+        when(mIncomingCall.getViaNumber()).thenReturn(TEST_NUMBER);
     }
 }
