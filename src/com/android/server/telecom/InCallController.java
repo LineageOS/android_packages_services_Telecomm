@@ -1403,11 +1403,12 @@ public class InCallController extends CallsManagerListenerBase {
 
         mInCallServiceConnection.chooseInitialInCallService(shouldUseCarModeUI());
 
-        // Actually try binding to the UI InCallService.  If the response
+        // Actually try binding to the UI InCallService.
         if (mInCallServiceConnection.connect(call) ==
-                InCallServiceConnection.CONNECTION_SUCCEEDED) {
+                InCallServiceConnection.CONNECTION_SUCCEEDED || call.isSelfManaged()) {
             // Only connect to the non-ui InCallServices if we actually connected to the main UI
-            // one.
+            // one, or if the call is self-managed (in which case we'd still want to keep Wear, BT,
+            // etc. informed.
             connectToNonUiInCallServices(call);
             mBindingFuture = new CompletableFuture<Boolean>().completeOnTimeout(false,
                     mTimeoutsAdapter.getCallRemoveUnbindInCallServicesDelay(
