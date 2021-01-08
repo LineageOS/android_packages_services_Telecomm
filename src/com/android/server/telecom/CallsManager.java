@@ -1237,10 +1237,14 @@ public class CallsManager extends Call.ListenerBase
         PhoneAccount phoneAccount = mPhoneAccountRegistrar.getPhoneAccountUnchecked(
                 phoneAccountHandle);
         if (phoneAccount != null) {
+            Bundle phoneAccountExtras = phoneAccount.getExtras();
             call.setIsSelfManaged(phoneAccount.isSelfManaged());
             if (call.isSelfManaged()) {
                 // Self managed calls will always be voip audio mode.
                 call.setIsVoipAudioMode(true);
+                call.setVisibleToInCallService(phoneAccountExtras != null
+                        && phoneAccountExtras.getBoolean(
+                        PhoneAccount.EXTRA_ADD_SELF_MANAGED_CALLS_TO_INCALLSERVICE, false));
             } else {
                 // Incoming call is managed, the active call is self-managed and can't be held.
                 // We need to set extras on it to indicate whether answering will cause a 
@@ -1259,7 +1263,6 @@ public class CallsManager extends Call.ListenerBase
                 }
             }
 
-            Bundle phoneAccountExtras = phoneAccount.getExtras();
             if (phoneAccountExtras != null
                     && phoneAccountExtras.getBoolean(
                             PhoneAccount.EXTRA_ALWAYS_USE_VOIP_AUDIO_MODE)) {
@@ -1474,6 +1477,7 @@ public class CallsManager extends Call.ListenerBase
 
         PhoneAccount account =
                 mPhoneAccountRegistrar.getPhoneAccount(requestedAccountHandle, initiatingUser);
+        Bundle phoneAccountExtra = account != null ? account.getExtras() : null;
         boolean isSelfManaged = account != null && account.isSelfManaged();
 
         // Create a call with original handle. The handle may be changed when the call is attached
@@ -1504,6 +1508,9 @@ public class CallsManager extends Call.ListenerBase
             if (isSelfManaged) {
                 // Self-managed calls will ALWAYS use voip audio mode.
                 call.setIsVoipAudioMode(true);
+                call.setVisibleToInCallService(phoneAccountExtra != null
+                        && phoneAccountExtra.getBoolean(
+                                PhoneAccount.EXTRA_ADD_SELF_MANAGED_CALLS_TO_INCALLSERVICE, false));
             }
             call.setInitiatingUser(initiatingUser);
             isReusedCall = false;
@@ -4740,6 +4747,9 @@ public class CallsManager extends Call.ListenerBase
         extras.putLong(TelecomManager.EXTRA_CALL_TELECOM_ROUTING_START_TIME_MILLIS,
               SystemClock.elapsedRealtime());
 
+        if (call.visibleToInCallService()) {
+            extras.putBoolean(PhoneAccount.EXTRA_ADD_SELF_MANAGED_CALLS_TO_INCALLSERVICE, true);
+        }
         call.setIntentExtras(extras);
     }
 
