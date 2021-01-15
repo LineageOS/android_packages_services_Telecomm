@@ -429,6 +429,10 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
 
         @Override
         public void handoverComplete(String callId, Session.Info sessionInfo) {}
+
+        @Override
+        public void onCallFilteringCompleted(String callId, boolean isBlocked, boolean isInContacts,
+                Session.Info sessionInfo) { }
     }
 
     FakeConnectionServiceDelegate mConnectionServiceDelegate;
