@@ -3837,6 +3837,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         mIsUsingCallFiltering = isUsingCallFiltering;
     }
 
+    public boolean isUsingCallFiltering() {
+        return mIsUsingCallFiltering;
+    }
+
     /**
      * Returns whether or not Volte call was used.
      *

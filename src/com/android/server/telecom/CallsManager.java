@@ -759,6 +759,14 @@ public class CallsManager extends Call.ListenerBase
             return;
         }
 
+        // Inform our connection service that call filtering is done (if it was performed at all).
+        if (incomingCall.isUsingCallFiltering()) {
+            boolean isInContacts = incomingCall.getCallerInfo() != null
+                    && incomingCall.getCallerInfo().contactExists;
+            incomingCall.getConnectionService().onCallFilteringCompleted(incomingCall,
+                    !result.shouldAllowCall, isInContacts);
+        }
+
         if (result.shouldAllowCall) {
             incomingCall.setPostCallPackageName(
                     getRoleManagerAdapter().getDefaultCallScreeningApp());
