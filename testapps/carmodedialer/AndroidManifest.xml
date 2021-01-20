@@ -37,8 +37,10 @@
         <service android:name="com.android.server.telecom.carmodedialer.CarModeInCallServiceImpl"
              android:permission="android.permission.BIND_INCALL_SERVICE"
              android:exported="true">
-          <meta-data android:name="android.telecom.IN_CALL_SERVICE_CAR_MODE_UI"
-               android:value="true"/>
+            <meta-data android:name="android.telecom.IN_CALL_SERVICE_CAR_MODE_UI"
+                       android:value="true"/>
+            <meta-data android:name="android.telecom.INCLUDE_SELF_MANAGED_CALLS"
+                       android:value="true"/>
           <intent-filter>
               <action android:name="android.telecom.InCallService"/>
           </intent-filter>
