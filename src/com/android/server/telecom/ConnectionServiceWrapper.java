@@ -18,6 +18,7 @@ package com.android.server.telecom;
 
 import static android.Manifest.permission.MODIFY_PHONE_STATE;
 
+import android.Manifest;
 import android.app.AppOpsManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -1573,6 +1574,34 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         }
     }
 
+    /** @see IConnectionService#onUsingAlternativeUi(String, boolean, Session.Info) */
+    @VisibleForTesting
+    public void onUsingAlternativeUi(Call activeCall, boolean isUsingAlternativeUi) {
+        final String callId = mCallIdMapper.getCallId(activeCall);
+        if (callId != null && isServiceValid("onUsingAlternativeUi")) {
+            try {
+                logOutgoing("onUsingAlternativeUi %s", isUsingAlternativeUi);
+                mServiceInterface.onUsingAlternativeUi(callId, isUsingAlternativeUi,
+                        Log.getExternalSession(TELECOM_ABBREVIATION));
+            } catch (RemoteException e) {
+            }
+        }
+    }
+
+    /** @see IConnectionService#onTrackedByNonUiService(String, boolean, Session.Info) */
+    @VisibleForTesting
+    public void onTrackedByNonUiService(Call activeCall, boolean isTracked) {
+        final String callId = mCallIdMapper.getCallId(activeCall);
+        if (callId != null && isServiceValid("onTrackedByNonUiService")) {
+            try {
+                logOutgoing("onTrackedByNonUiService %s", isTracked);
+                mServiceInterface.onTrackedByNonUiService(callId, isTracked,
+                        Log.getExternalSession(TELECOM_ABBREVIATION));
+            } catch (RemoteException e) {
+            }
+        }
+    }
+
     /** @see IConnectionService#disconnect(String, Session.Info) */
     void disconnect(Call call) {
         final String callId = mCallIdMapper.getCallId(call);
@@ -1830,6 +1859,26 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                 logOutgoing("sendCallEvent %s %s", callId, event);
                 mServiceInterface.sendCallEvent(callId, event, extras,
                         Log.getExternalSession(TELECOM_ABBREVIATION));
+            } catch (RemoteException ignored) {
+            }
+        }
+    }
+
+    void onCallFilteringCompleted(Call call, boolean isBlocked, boolean isInContacts) {
+        final String callId = mCallIdMapper.getCallId(call);
+        if (callId != null && isServiceValid("onCallFilteringCompleted")) {
+            try {
+                logOutgoing("onCallFilteringCompleted %b %b", isBlocked, isInContacts);
+                int contactsPermission = mContext.getPackageManager()
+                        .checkPermission(Manifest.permission.READ_CONTACTS,
+                                getComponentName().getPackageName());
+                if (contactsPermission == PackageManager.PERMISSION_GRANTED) {
+                    mServiceInterface.onCallFilteringCompleted(callId, isBlocked, isInContacts,
+                            Log.getExternalSession(TELECOM_ABBREVIATION));
+                } else {
+                    logOutgoing("Skipping call filtering complete message for %s due"
+                            + " to lack of READ_CONTACTS", getComponentName().getPackageName());
+                }
             } catch (RemoteException ignored) {
             }
         }
