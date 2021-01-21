@@ -1208,6 +1208,7 @@ public class InCallControllerTests extends TelecomTestCase {
                 anyInt(), eq(UserHandle.CURRENT))).thenReturn(true);
         when(mMockCall.isExternalCall()).thenReturn(isExternalCall);
         when(mMockCall.isSelfManaged()).thenReturn(isSelfManagedCall);
+        when(mMockCall.visibleToInCallService()).thenReturn(isSelfManagedCall);
     }
 
     private ResolveInfo getDefResolveInfo(final boolean includeExternalCalls,

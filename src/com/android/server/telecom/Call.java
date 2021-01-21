@@ -44,6 +44,7 @@ import android.telecom.Connection;
 import android.telecom.ConnectionService;
 import android.telecom.DisconnectCause;
 import android.telecom.GatewayInfo;
+import android.telecom.InCallService;
 import android.telecom.Log;
 import android.telecom.Logging.EventManager;
 import android.telecom.ParcelableConference;
@@ -58,6 +59,7 @@ import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
 import android.telephony.emergency.EmergencyNumber;
 import android.text.TextUtils;
+import android.util.ArrayMap;
 import android.widget.Toast;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -508,6 +510,15 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * See {@link PhoneAccount#CAPABILITY_SELF_MANAGED} for more information.
      */
     private boolean mIsSelfManaged = false;
+
+    /**
+     * Indicates whether the {@link PhoneAccount} associated with an self-managed call want to
+     * expose the call to an {@link android.telecom.InCallService} which declares the metadata
+     * {@link TelecomManager#METADATA_INCLUDE_SELF_MANAGED_CALLS},
+     * For calls that {@link #mIsSelfManaged} is {@code false}, this value should be {@code false}
+     * as well.
+     */
+    private boolean mVisibleToInCallService = false;
 
     /**
      * Indicates whether the {@link PhoneAccount} associated with this call supports video calling.
@@ -1626,6 +1637,14 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
         // Connection properties will add/remove the PROPERTY_SELF_MANAGED.
         setConnectionProperties(getConnectionProperties());
+    }
+
+    public boolean visibleToInCallService() {
+        return mVisibleToInCallService;
+    }
+
+    public void setVisibleToInCallService(boolean visibleToInCallService) {
+        mVisibleToInCallService = visibleToInCallService;
     }
 
     public void markFinishedHandoverStateAndCleanup(int handoverState) {
@@ -3948,5 +3967,18 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     public void setCallScreeningComponentName(String callScreeningComponentName) {
         mCallScreeningComponentName = callScreeningComponentName;
+    }
+
+    public void maybeOnInCallServiceTrackingChanged(boolean isTracking, boolean hasUi) {
+        if (mConnectionService == null) {
+            Log.w(this, "maybeOnInCallServiceTrackingChanged() request on a call"
+                    + " without a connection service.");
+        } else {
+            if (hasUi) {
+                mConnectionService.onUsingAlternativeUi(this, isTracking);
+            } else if (isTracking) {
+                mConnectionService.onTrackedByNonUiService(this, isTracking);
+            }
+        }
     }
 }
