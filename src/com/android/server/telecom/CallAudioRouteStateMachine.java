@@ -1272,6 +1272,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     return HANDLED;
                 case SWITCH_FOCUS:
                     if (msg.arg1 == ACTIVE_FOCUS || msg.arg1 == RINGING_FOCUS) {
+                        setSpeakerphoneOn(true);
                         transitionTo(mActiveSpeakerRoute);
                     }
                     return HANDLED;
