@@ -342,6 +342,14 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
                 throws RemoteException { }
 
         @Override
+        public void onUsingAlternativeUi(String activeCallId, boolean usingAlternativeUi,
+                Session.Info info) throws RemoteException { }
+
+        @Override
+        public void onTrackedByNonUiService(String activeCallId, boolean isTracked,
+                Session.Info info) throws RemoteException { }
+
+        @Override
         public void playDtmfTone(String callId, char digit,
                 Session.Info info) throws RemoteException { }
 
@@ -429,6 +437,10 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
 
         @Override
         public void handoverComplete(String callId, Session.Info sessionInfo) {}
+
+        @Override
+        public void onCallFilteringCompleted(String callId, boolean isBlocked, boolean isInContacts,
+                Session.Info sessionInfo) { }
     }
 
     FakeConnectionServiceDelegate mConnectionServiceDelegate;
