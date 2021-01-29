@@ -18,6 +18,7 @@ package com.android.server.telecom.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,7 +41,9 @@ import android.content.res.Resources;
 import android.location.Country;
 import android.location.CountryDetector;
 import android.location.CountryListener;
+import android.location.Location;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Looper;
 import android.os.PersistableBundle;
 import android.os.SystemClock;
@@ -52,6 +55,7 @@ import android.telecom.Connection;
 import android.telecom.DisconnectCause;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
+import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.telephony.CarrierConfigManager;
 import android.telephony.PhoneNumberUtils;
@@ -819,6 +823,54 @@ public class CallLogManagerTest extends TelecomTestCase {
 
     @SmallTest
     @Test
+    public void testCallComposerElements() {
+        Call fakeCall = makeFakeCall(
+                DisconnectCause.LOCAL, // disconnectCauseCode
+                false, // isConference
+                true, // isIncoming
+                1L, // creationTimeMillis
+                1000L, // ageMillis
+                TEL_PHONEHANDLE, // callHandle
+                mDefaultAccountHandle, // phoneAccountHandle
+                NO_VIDEO_STATE, // callVideoState
+                POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
+                UserHandle.of(CURRENT_USER_ID)
+        );
+        String subject = "segmentation fault";
+        // =)
+        double lat = 40.649723;
+        double lon = -80.082090;
+        Location location = new Location("");
+        location.setLatitude(lat);
+        location.setLongitude(lon);
+
+        Uri fakeProviderUri = Uri.parse("content://nothing_to_see_here/12345");
+
+        Bundle extras = new Bundle();
+        extras.putInt(TelecomManager.EXTRA_PRIORITY, TelecomManager.PRIORITY_URGENT);
+        extras.putString(TelecomManager.EXTRA_CALL_SUBJECT, subject);
+        extras.putParcelable(TelecomManager.EXTRA_LOCATION, location);
+        extras.putParcelable(TelecomManager.EXTRA_PICTURE_URI, fakeProviderUri);
+        when(fakeCall.getExtras()).thenReturn(extras);
+
+        mCallLogManager.onCallStateChanged(fakeCall, CallState.ACTIVE,
+                CallState.DISCONNECTED);
+        ContentValues locationValues = verifyLocationInsertionWithCapture(CURRENT_USER_ID);
+        assertEquals(lat, locationValues.getAsDouble(CallLog.Locations.LATITUDE), 0);
+        assertEquals(lon, locationValues.getAsDouble(CallLog.Locations.LONGITUDE), 0);
+
+        ContentValues callLogValues = verifyInsertionWithCapture(CURRENT_USER_ID);
+        assertEquals(subject, callLogValues.getAsString(Calls.SUBJECT));
+        assertEquals(fakeProviderUri.toString(),
+                callLogValues.getAsString(Calls.COMPOSER_PHOTO_URI));
+        assertEquals(TelecomManager.PRIORITY_URGENT,
+                (int) callLogValues.getAsInteger(Calls.PRIORITY));
+        assertNotNull(callLogValues.getAsString(Calls.LOCATION));
+    }
+
+    @SmallTest
+    @Test
     public void testDoNotLogConferenceWithNoChildren() {
         Call fakeCall = makeFakeCall(
                 DisconnectCause.LOCAL, // disconnectCauseCode
@@ -970,6 +1022,14 @@ public class CallLogManagerTest extends TelecomTestCase {
 
     private ContentValues verifyInsertionWithCapture(int userId) {
         Uri uri = ContentProvider.maybeAddUserId(CallLog.Calls.CONTENT_URI, userId);
+        ArgumentCaptor<ContentValues> captor = ArgumentCaptor.forClass(ContentValues.class);
+        verify(mContentProvider, timeout(TEST_TIMEOUT_MILLIS).times(1)).insert(
+                eq(uri), captor.capture());
+        return captor.getValue();
+    }
+
+    private ContentValues verifyLocationInsertionWithCapture(int userId) {
+        Uri uri = ContentProvider.maybeAddUserId(CallLog.Locations.CONTENT_URI, userId);
         ArgumentCaptor<ContentValues> captor = ArgumentCaptor.forClass(ContentValues.class);
         verify(mContentProvider, timeout(TEST_TIMEOUT_MILLIS).times(1)).insert(
                 eq(uri), captor.capture());
