@@ -554,7 +554,10 @@ public class ParcelableCallUtils {
         android.telecom.Call.Details.PROPERTY_NETWORK_IDENTIFIED_EMERGENCY_CALL,
 
         Connection.PROPERTY_IS_ADHOC_CONFERENCE,
-        android.telecom.Call.Details.PROPERTY_IS_ADHOC_CONFERENCE
+        android.telecom.Call.Details.PROPERTY_IS_ADHOC_CONFERENCE,
+
+        Connection.PROPERTY_CROSS_SIM,
+        android.telecom.Call.Details.PROPERTY_CROSS_SIM
     };
 
     private static int convertConnectionToCallProperties(int connectionProperties) {
