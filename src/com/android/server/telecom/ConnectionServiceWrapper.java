@@ -1573,6 +1573,34 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         }
     }
 
+    /** @see IConnectionService#onUsingAlternativeUi(String, boolean, Session.Info) */
+    @VisibleForTesting
+    public void onUsingAlternativeUi(Call activeCall, boolean isUsingAlternativeUi) {
+        final String callId = mCallIdMapper.getCallId(activeCall);
+        if (callId != null && isServiceValid("onUsingAlternativeUi")) {
+            try {
+                logOutgoing("onUsingAlternativeUi %s", isUsingAlternativeUi);
+                mServiceInterface.onUsingAlternativeUi(callId, isUsingAlternativeUi,
+                        Log.getExternalSession(TELECOM_ABBREVIATION));
+            } catch (RemoteException e) {
+            }
+        }
+    }
+
+    /** @see IConnectionService#onTrackedByNonUiService(String, boolean, Session.Info) */
+    @VisibleForTesting
+    public void onTrackedByNonUiService(Call activeCall, boolean isTracked) {
+        final String callId = mCallIdMapper.getCallId(activeCall);
+        if (callId != null && isServiceValid("onTrackedByNonUiService")) {
+            try {
+                logOutgoing("onTrackedByNonUiService %s", isTracked);
+                mServiceInterface.onTrackedByNonUiService(callId, isTracked,
+                        Log.getExternalSession(TELECOM_ABBREVIATION));
+            } catch (RemoteException e) {
+            }
+        }
+    }
+
     /** @see IConnectionService#disconnect(String, Session.Info) */
     void disconnect(Call call) {
         final String callId = mCallIdMapper.getCallId(call);
