@@ -764,7 +764,8 @@ public class CallsManager extends Call.ListenerBase
             boolean isInContacts = incomingCall.getCallerInfo() != null
                     && incomingCall.getCallerInfo().contactExists;
             incomingCall.getConnectionService().onCallFilteringCompleted(incomingCall,
-                    !result.shouldAllowCall, isInContacts);
+                    !result.shouldAllowCall, isInContacts, result.mCallScreeningResponse,
+                    result.mIsResponseFromSystemDialer);
         }
 
         if (result.shouldAllowCall) {
