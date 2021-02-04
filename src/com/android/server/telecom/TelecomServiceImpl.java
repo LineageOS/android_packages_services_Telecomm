@@ -30,6 +30,7 @@ import static android.Manifest.permission.WRITE_SECURE_SETTINGS;
 import android.Manifest;
 import android.app.ActivityManager;
 import android.app.AppOpsManager;
+import android.app.UiModeManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -1789,6 +1790,28 @@ public class TelecomServiceImpl {
                                 mCallsManager.markCallAsRemoved(call);
                             }
                         }
+                    });
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        /**
+         * A method intended for use in testing to reset car mode at all priorities.
+         *
+         * Runs during setup to avoid cascading failures from failing car mode CTS.
+         */
+        @Override
+        public void resetCarMode() {
+            Log.startSession("TCI.rCM");
+            try {
+                synchronized (mLock) {
+                    enforceShellOnly(Binder.getCallingUid(), "resetCarMode");
+                    Binder.withCleanCallingIdentity(() -> {
+                        UiModeManager uiModeManager =
+                                mContext.getSystemService(UiModeManager.class);
+                        uiModeManager.disableCarMode(UiModeManager.DISABLE_CAR_MODE_ALL_PRIORITIES);
                     });
                 }
             } finally {
