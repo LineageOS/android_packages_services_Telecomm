@@ -72,6 +72,7 @@ import android.provider.CallLog.Calls;
 import android.provider.Settings;
 import android.sysprop.TelephonyProperties;
 import android.telecom.CallAudioState;
+import android.telecom.CallScreeningService;
 import android.telecom.CallerInfo;
 import android.telecom.Conference;
 import android.telecom.Connection;
@@ -766,6 +767,26 @@ public class CallsManager extends Call.ListenerBase
             incomingCall.getConnectionService().onCallFilteringCompleted(incomingCall,
                     !result.shouldAllowCall, isInContacts, result.mCallScreeningResponse,
                     result.mIsResponseFromSystemDialer);
+        }
+
+        // Get rid of the call composer attachments that aren't wanted
+        if (result.mIsResponseFromSystemDialer && result.mCallScreeningResponse != null
+                && result.mCallScreeningResponse.getCallComposerAttachmentsToShow() >= 0) {
+            int attachmentMask = result.mCallScreeningResponse.getCallComposerAttachmentsToShow();
+            if ((attachmentMask
+                    & CallScreeningService.CallResponse.CALL_COMPOSER_ATTACHMENT_LOCATION) == 0) {
+                incomingCall.getExtras().remove(TelecomManager.EXTRA_LOCATION);
+            }
+
+            if ((attachmentMask
+                    & CallScreeningService.CallResponse.CALL_COMPOSER_ATTACHMENT_SUBJECT) == 0) {
+                incomingCall.getExtras().remove(TelecomManager.EXTRA_CALL_SUBJECT);
+            }
+
+            if ((attachmentMask
+                    & CallScreeningService.CallResponse.CALL_COMPOSER_ATTACHMENT_PRIORITY) == 0) {
+                incomingCall.getExtras().remove(TelecomManager.EXTRA_PRIORITY);
+            }
         }
 
         if (result.shouldAllowCall) {
