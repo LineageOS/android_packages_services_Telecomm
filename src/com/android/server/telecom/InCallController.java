@@ -982,6 +982,11 @@ public class InCallController extends CallsManagerListenerBase {
      */
     private boolean mIsCallUsingMicrophone = false;
 
+    /**
+     * A list of call IDs which are currently using the camera.
+     */
+    private ArrayList<String> mCallsUsingCamera = new ArrayList<>();
+
     public InCallController(Context context, TelecomSystem.SyncRoot lock, CallsManager callsManager,
             SystemStateHelper systemStateHelper, DefaultDialerCache defaultDialerCache,
             Timeouts.Adapter timeoutsAdapter, EmergencyCallHelper emergencyCallHelper,
@@ -1080,6 +1085,7 @@ public class InCallController extends CallsManagerListenerBase {
         call.removeListener(mCallListener);
         mCallIdMapper.removeCall(call);
         maybeTrackMicrophoneUse(isMuted());
+        onSetCamera(call, null);
     }
 
     @Override
@@ -1252,13 +1258,28 @@ public class InCallController extends CallsManagerListenerBase {
      */
     @Override
     public void onSetCamera(Call call, String cameraId) {
+        if (call == null) {
+            return;
+        }
+
         Log.i(this, "onSetCamera callId=%s, cameraId=%s", call.getId(), cameraId);
         if (cameraId != null) {
-            mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_CAMERA, myUid(),
-                    mContext.getOpPackageName(), false, null, null);
+            boolean shouldStart = mCallsUsingCamera.isEmpty();
+            if (!mCallsUsingCamera.contains(call.getId())) {
+                mCallsUsingCamera.add(call.getId());
+            }
+
+            if (shouldStart) {
+                mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_CAMERA, myUid(),
+                        mContext.getOpPackageName(), false, null, null);
+            }
         } else {
-            mAppOpsManager.finishOp(AppOpsManager.OP_PHONE_CALL_CAMERA, myUid(),
-                    mContext.getOpPackageName(), null);
+            boolean hadCall = !mCallsUsingCamera.isEmpty();
+            mCallsUsingCamera.remove(call.getId());
+            if (hadCall && mCallsUsingCamera.isEmpty()) {
+                mAppOpsManager.finishOp(AppOpsManager.OP_PHONE_CALL_CAMERA, myUid(),
+                        mContext.getOpPackageName(), null);
+            }
         }
     }
 
