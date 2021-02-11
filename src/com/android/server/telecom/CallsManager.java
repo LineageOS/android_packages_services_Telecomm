@@ -1244,7 +1244,7 @@ public class CallsManager extends Call.ListenerBase
                 call.setIsVoipAudioMode(true);
                 call.setVisibleToInCallService(phoneAccountExtras != null
                         && phoneAccountExtras.getBoolean(
-                        PhoneAccount.EXTRA_ADD_SELF_MANAGED_CALLS_TO_INCALLSERVICE, false));
+                        PhoneAccount.EXTRA_ADD_SELF_MANAGED_CALLS_TO_INCALLSERVICE, true));
             } else {
                 // Incoming call is managed, the active call is self-managed and can't be held.
                 // We need to set extras on it to indicate whether answering will cause a 
@@ -1510,7 +1510,7 @@ public class CallsManager extends Call.ListenerBase
                 call.setIsVoipAudioMode(true);
                 call.setVisibleToInCallService(phoneAccountExtra != null
                         && phoneAccountExtra.getBoolean(
-                                PhoneAccount.EXTRA_ADD_SELF_MANAGED_CALLS_TO_INCALLSERVICE, false));
+                                PhoneAccount.EXTRA_ADD_SELF_MANAGED_CALLS_TO_INCALLSERVICE, true));
             }
             call.setInitiatingUser(initiatingUser);
             isReusedCall = false;
