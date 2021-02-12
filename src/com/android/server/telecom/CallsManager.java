@@ -2736,6 +2736,16 @@ public class CallsManager extends Call.ListenerBase
         updateCanAddCall();
     }
 
+    @Override
+    public void onRemoteRttRequest(Call call, int requestId) {
+        Log.i(this, "onRemoteRttRequest: call %s", call.getId());
+        playRttUpgradeToneForCall(call);
+    }
+
+    public void playRttUpgradeToneForCall(Call call) {
+        mCallAudioManager.playRttUpgradeTone(call);
+    }
+
     // Construct the list of possible PhoneAccounts that the outgoing call can use based on the
     // active calls in CallsManager. If any of the active calls are on a SIM based PhoneAccount,
     // then include only that SIM based PhoneAccount and any non-SIM PhoneAccounts, such as SIP.
