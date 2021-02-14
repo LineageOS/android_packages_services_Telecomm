@@ -58,6 +58,7 @@ import android.os.PersistableBundle;
 import android.os.PowerWhitelistManager;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.os.VibratorManager;
 import android.telecom.CallAudioState;
 import android.telecom.ConnectionService;
 import android.telecom.Log;
@@ -210,6 +211,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
                     return mTelephonyRegistryManager;
                 case Context.UI_MODE_SERVICE:
                     return mUiModeManager;
+                case Context.VIBRATOR_MANAGER_SERVICE:
+                    return mVibratorManager;
                 default:
                     return null;
             }
@@ -233,6 +236,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
                 return Context.TELEPHONY_REGISTRY_SERVICE;
             } else if (svcClass == UiModeManager.class) {
                 return Context.UI_MODE_SERVICE;
+            } else if (svcClass == VibratorManager.class) {
+                return Context.VIBRATOR_MANAGER_SERVICE;
             }
             throw new UnsupportedOperationException();
         }
@@ -493,6 +498,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
     private final RoleManager mRoleManager = mock(RoleManager.class);
     private final TelephonyRegistryManager mTelephonyRegistryManager =
             mock(TelephonyRegistryManager.class);
+    private final VibratorManager mVibratorManager = mock(VibratorManager.class);
     private final UiModeManager mUiModeManager = mock(UiModeManager.class);
     private final PermissionInfo mPermissionInfo = mock(PermissionInfo.class);
 
@@ -559,6 +565,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
         }
 
         when(mPermissionInfo.isAppOp()).thenReturn(true);
+        when(mVibratorManager.getVibratorIds()).thenReturn(new int[0]);
 
         // Used in CreateConnectionProcessor to rank emergency numbers by viability.
         // For the test, make them all equal to INVALID so that the preferred PhoneAccount will be
