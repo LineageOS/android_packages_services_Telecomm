@@ -67,6 +67,7 @@ import com.android.server.telecom.Call;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioRouteStateMachine;
+import com.android.server.telecom.CallDiagnosticServiceController;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
@@ -196,6 +197,7 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private CallAudioRouteStateMachine.Factory mCallAudioRouteStateMachineFactory;
     @Mock private CallAudioModeStateMachine mCallAudioModeStateMachine;
     @Mock private CallAudioModeStateMachine.Factory mCallAudioModeStateMachineFactory;
+    @Mock private CallDiagnosticServiceController mCallDiagnosticServiceController;
     @Mock private BluetoothStateReceiver mBluetoothStateReceiver;
     @Mock private RoleManagerAdapter mRoleManagerAdapter;
     @Mock private ToastFactory mToastFactory;
@@ -253,6 +255,7 @@ public class CallsManagerTest extends TelecomTestCase {
                 mCallAudioRouteStateMachineFactory,
                 mCallAudioModeStateMachineFactory,
                 mInCallControllerFactory,
+                mCallDiagnosticServiceController,
                 mRoleManagerAdapter,
                 mToastFactory);
 
