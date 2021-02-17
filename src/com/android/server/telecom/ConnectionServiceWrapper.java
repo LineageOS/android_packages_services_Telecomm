@@ -31,6 +31,7 @@ import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.telecom.CallAudioState;
+import android.telecom.CallScreeningService;
 import android.telecom.Connection;
 import android.telecom.ConnectionRequest;
 import android.telecom.ConnectionService;
@@ -1864,7 +1865,9 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         }
     }
 
-    void onCallFilteringCompleted(Call call, boolean isBlocked, boolean isInContacts) {
+    void onCallFilteringCompleted(Call call, boolean isBlocked, boolean isInContacts,
+            CallScreeningService.ParcelableCallResponse callScreeningResponse,
+            boolean isResponseFromSystemDialer) {
         final String callId = mCallIdMapper.getCallId(call);
         if (callId != null && isServiceValid("onCallFilteringCompleted")) {
             try {
@@ -1874,6 +1877,7 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                                 getComponentName().getPackageName());
                 if (contactsPermission == PackageManager.PERMISSION_GRANTED) {
                     mServiceInterface.onCallFilteringCompleted(callId, isBlocked, isInContacts,
+                            callScreeningResponse, isResponseFromSystemDialer,
                             Log.getExternalSession(TELECOM_ABBREVIATION));
                 } else {
                     logOutgoing("Skipping call filtering complete message for %s due"
