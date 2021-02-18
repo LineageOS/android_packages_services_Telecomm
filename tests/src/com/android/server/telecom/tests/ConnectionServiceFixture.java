@@ -34,6 +34,7 @@ import android.os.IInterface;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.telecom.CallAudioState;
+import android.telecom.CallScreeningService;
 import android.telecom.Conference;
 import android.telecom.Connection;
 import android.telecom.ConnectionRequest;
@@ -440,7 +441,8 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
 
         @Override
         public void onCallFilteringCompleted(String callId, boolean isBlocked, boolean isInContacts,
-                Session.Info sessionInfo) { }
+                CallScreeningService.ParcelableCallResponse callScreeningResponse,
+                boolean isResponseFromSystemDialer, Session.Info sessionInfo) { }
     }
 
     FakeConnectionServiceDelegate mConnectionServiceDelegate;

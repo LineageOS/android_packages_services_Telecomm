@@ -162,6 +162,7 @@ public class InCallTonePlayer extends Thread {
     public static final int TONE_UNOBTAINABLE_NUMBER = 12;
     public static final int TONE_VOICE_PRIVACY = 13;
     public static final int TONE_VIDEO_UPGRADE = 14;
+    public static final int TONE_RTT_REQUEST = 15;
 
     private static final int TONE_RESOURCE_ID_UNDEFINED = -1;
 
@@ -329,6 +330,7 @@ public class InCallTonePlayer extends Thread {
                     // TODO: fill in.
                     throw new IllegalStateException("Voice privacy tone NYI.");
                 case TONE_VIDEO_UPGRADE:
+                case TONE_RTT_REQUEST:
                     // Similar to the call waiting tone, but does not repeat.
                     toneType = ToneGenerator.TONE_SUP_CALL_WAITING;
                     toneVolume = RELATIVE_VOLUME_HIPRI;
