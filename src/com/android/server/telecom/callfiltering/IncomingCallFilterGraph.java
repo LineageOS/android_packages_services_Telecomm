@@ -49,7 +49,7 @@ public class IncomingCallFilterGraph {
     private final HandlerThread mHandlerThread;
     private final TelecomSystem.SyncRoot mLock;
     private List<CallFilter> mFiltersList;
-    private CallFilter mDummyComplete;
+    private CallFilter mCompletionSentinel;
     private boolean mFinished;
     private CallFilteringResult mCurrentResult;
     private Context mContext;
@@ -70,7 +70,7 @@ public class IncomingCallFilterGraph {
                     scheduleFilter(filter);
                 }
             }
-            if (mFilter.equals(mDummyComplete)) {
+            if (mFilter.equals(mCompletionSentinel)) {
                 synchronized (mLock) {
                     mFinished = true;
                     mListener.onCallFilteringComplete(mCall, result, false);
@@ -105,15 +105,15 @@ public class IncomingCallFilterGraph {
     public void performFiltering() {
         Log.addEvent(mCall, LogUtils.Events.FILTERING_INITIATED);
         CallFilter dummyStart = new CallFilter();
-        mDummyComplete = new CallFilter();
+        mCompletionSentinel = new CallFilter();
 
         for (CallFilter filter : mFiltersList) {
             addEdge(dummyStart, filter);
         }
         for (CallFilter filter : mFiltersList) {
-            addEdge(filter, mDummyComplete);
+            addEdge(filter, mCompletionSentinel);
         }
-        addEdge(dummyStart, mDummyComplete);
+        addEdge(dummyStart, mCompletionSentinel);
 
         scheduleFilter(dummyStart);
         mHandler.postDelayed(new Runnable("ICFG.pF", mLock) {
