@@ -764,9 +764,16 @@ public class CallsManager extends Call.ListenerBase
         if (incomingCall.isUsingCallFiltering()) {
             boolean isInContacts = incomingCall.getCallerInfo() != null
                     && incomingCall.getCallerInfo().contactExists;
+            Connection.CallFilteringCompletionInfo completionInfo =
+                    new Connection.CallFilteringCompletionInfo(!result.shouldAllowCall,
+                            isInContacts,
+                            result.mCallScreeningResponse == null
+                                    ? null : result.mCallScreeningResponse.toCallResponse(),
+                            result.mCallScreeningComponentName == null ? null
+                                    : ComponentName.unflattenFromString(
+                                            result.mCallScreeningComponentName));
             incomingCall.getConnectionService().onCallFilteringCompleted(incomingCall,
-                    !result.shouldAllowCall, isInContacts, result.mCallScreeningResponse,
-                    result.mIsResponseFromSystemDialer);
+                    completionInfo);
         }
 
         // Get rid of the call composer attachments that aren't wanted
