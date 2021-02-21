@@ -21,18 +21,17 @@
     <string name="unknown" msgid="6993977514360123431">"Unbekannt"</string>
     <string name="notification_missedCallTitle" msgid="5060387047205532974">"Entgangener Anruf"</string>
     <string name="notification_missedWorkCallTitle" msgid="6965463282259034953">"Verpasster geschäftlicher Anruf"</string>
-    <string name="notification_missedCallsTitle" msgid="3910479625507893809">"Verpasste Anrufe"</string>
-    <string name="notification_missedCallsMsg" msgid="5055782736170916682">"<xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> verpasste Anrufe"</string>
+    <string name="notification_missedCallsTitle" msgid="3910479625507893809">"Entgangene Anrufe"</string>
+    <string name="notification_missedCallsMsg" msgid="5055782736170916682">"<xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> entgangene Anrufe"</string>
     <string name="notification_missedCallTicker" msgid="6731461957487087769">"Entgangener Anruf von <xliff:g id="MISSED_CALL_FROM">%s</xliff:g>"</string>
     <string name="notification_missedCall_call_back" msgid="7900333283939789732">"Zurückrufen"</string>
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Nachricht"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Anruf beendet"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Der Anruf mit <xliff:g id="CALLER">%s</xliff:g> wurde beendet, weil ein Notruf getätigt wurde."</string>
-    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Der Anruf wurde beendet, weil ein Notruf getätigt wurde."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Anruf im Hintergrund"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> hat einen Anruf in den Hintergrund verschoben. Diese App greift möglicherweise auf den Anruf zu und spielt Audio darüber ab."</string>
-    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> reagiert nicht mehr"</string>
-    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Für den Anruf wurde die auf deinem Gerät vorinstallierte App verwendet"</string>
+    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Abgestürzte Telefon-App"</string>
+    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"Deine Telefon-App \"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g>\" ist abgestürzt. Der Anruf wurde mit der auf deinem Gerät vorinstallierten App fortgesetzt."</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Anruf stummgeschaltet"</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"Freisprechfunktion aktiviert"</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"Kann jetzt nicht sprechen. Was gibt\'s?"</string>
@@ -47,7 +46,7 @@
     <string name="respond_via_sms_failure_format" msgid="5198680980054596391">"Fehler beim Senden der Nachricht an <xliff:g id="PHONE_NUMBER">%s</xliff:g>"</string>
     <string name="enable_account_preference_title" msgid="6949224486748457976">"Anrufkonten"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="3424338207838851646">"Es sind nur Notrufe erlaubt."</string>
-    <string name="outgoing_call_not_allowed_no_permission" msgid="8590468836581488679">"Diese App darf ohne die Berechtigung \"Telefon-App\" keine ausgehenden Anrufe tätigen."</string>
+    <string name="outgoing_call_not_allowed_no_permission" msgid="8590468836581488679">"Diese App darf ohne die Berechtigung \"Standard-App für Telefonie\" keine ausgehenden Anrufe tätigen."</string>
     <string name="outgoing_call_error_no_phone_number_supplied" msgid="7665135102566099778">"Gib eine gültige Nummer ein."</string>
     <string name="duplicate_video_call_not_allowed" msgid="5754746140185781159">"Der Anruf kann momentan nicht hinzugefügt werden."</string>
     <string name="no_vm_number" msgid="2179959110602180844">"Fehlende Mailbox-Nummer"</string>
@@ -63,7 +62,7 @@
     <string name="change_default_call_screening_dialog_affirmative" msgid="7162433828280058647">"Als Standard festlegen"</string>
     <string name="change_default_call_screening_dialog_negative" msgid="1839266125623106342">"Abbrechen"</string>
     <string name="blocked_numbers" msgid="8322134197039865180">"Blockierte Nummern"</string>
-    <string name="blocked_numbers_msg" msgid="2797422132329662697">"Du erhältst von blockierten Nummern keine Anrufe oder SMS."</string>
+    <string name="blocked_numbers_msg" msgid="2797422132329662697">"Du erhältst keine Anrufe oder SMS von blockierten Nummern."</string>
     <string name="block_number" msgid="3784343046852802722">"Nummer hinzufügen"</string>
     <string name="unblock_dialog_body" msgid="2723393535797217261">"Blockierung von <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> aufheben?"</string>
     <string name="unblock_button" msgid="8732021675729981781">"Blockierung aufheben"</string>
@@ -95,7 +94,7 @@
     <string name="cant_call_due_to_ongoing_calls" msgid="6379163795277824868">"Dieser Anruf kann aufgrund deiner Anrufe in <xliff:g id="OTHER_CALL">%1$s</xliff:g> nicht getätigt werden."</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="8243532328969433172">"Dieser Anruf kann aufgrund eines Anrufs in einer anderen App nicht getätigt werden."</string>
     <string name="notification_channel_incoming_call" msgid="5245550964701715662">"Eingehende Anrufe"</string>
-    <string name="notification_channel_missed_call" msgid="7168893015283909012">"Verpasste Anrufe"</string>
+    <string name="notification_channel_missed_call" msgid="7168893015283909012">"Entgangene Anrufe"</string>
     <string name="notification_channel_call_blocking" msgid="2028807677868598710">"Anrufblockierung"</string>
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"Anrufe im Hintergrund"</string>
     <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"Beendete Anrufe"</string>

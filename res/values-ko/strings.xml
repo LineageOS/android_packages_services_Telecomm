@@ -28,11 +28,11 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"문자 메시지"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"연결 해제된 통화"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"긴급 전화 연결로 인해 <xliff:g id="CALLER">%s</xliff:g>님에게 건 통화가 연결 해제되었습니다."</string>
-    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"긴급 전화 연결로 인해 통화가 연결 해제되었습니다."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"백그라운드 통화"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>에서 통화를 백그라운드로 전환했습니다. 앱이 통화에 사용되는 오디오에 액세스하거나 재생 중일 수 있습니다."</string>
-    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g>의 응답이 중지됨"</string>
-    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"기기의 기본 전화 앱을 사용하여 통화했습니다."</string>
+    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"다운된 전화 앱"</string>
+    <!-- no translation found for notification_crashedInCallService_body (7821729360036047995) -->
+    <skip />
     <string name="accessibility_call_muted" msgid="2968461092554300779">"통화가 음소거되었습니다."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"스피커폰이 사용 설정되었습니다."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"통화 불가. 용무를 남겨주세요."</string>
@@ -63,7 +63,7 @@
     <string name="change_default_call_screening_dialog_affirmative" msgid="7162433828280058647">"기본으로 설정"</string>
     <string name="change_default_call_screening_dialog_negative" msgid="1839266125623106342">"취소"</string>
     <string name="blocked_numbers" msgid="8322134197039865180">"차단된 번호"</string>
-    <string name="blocked_numbers_msg" msgid="2797422132329662697">"차단된 번호에서 걸려오는 전화나 문자는 더 이상 수신되지 않습니다."</string>
+    <string name="blocked_numbers_msg" msgid="2797422132329662697">"차단한 번호에서 걸려오는 전화나 문자는 더 이상 수신되지 않습니다."</string>
     <string name="block_number" msgid="3784343046852802722">"번호 추가"</string>
     <string name="unblock_dialog_body" msgid="2723393535797217261">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>번을 차단 해제하시겠습니까?"</string>
     <string name="unblock_button" msgid="8732021675729981781">"차단 해제"</string>
