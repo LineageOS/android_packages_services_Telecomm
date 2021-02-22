@@ -254,6 +254,27 @@ public class InCallControllerTests extends TelecomTestCase {
         assertFalse(mCarModeTracker.isInCarMode());
     }
 
+    /**
+     * Ensure that if we remove a random unrelated app we don't exit car mode.
+     */
+    @SmallTest
+    @Test
+    public void testRandomAppRemovalInCarMode() {
+        setupMockPackageManager(true /* default */, true /* system */, true /* external calls */);
+        when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
+        when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
+
+        when(mMockSystemStateHelper.isCarModeOrProjectionActive()).thenReturn(true);
+
+        mSystemStateListener.onCarModeChanged(666, CAR_PKG, true);
+        verify(mCarModeTracker).handleEnterCarMode(666, CAR_PKG);
+        assertTrue(mCarModeTracker.isInCarMode());
+
+        mSystemStateListener.onPackageUninstalled("com.foo.test");
+        verify(mCarModeTracker, never()).forceRemove(CAR_PKG);
+        assertTrue(mCarModeTracker.isInCarMode());
+    }
+
     @SmallTest
     @Test
     public void testAutomotiveProjectionAppRemoval() {
@@ -961,6 +982,31 @@ public class InCallControllerTests extends TelecomTestCase {
                 ArgumentCaptor.forClass(ParcelableCall.class);
         verify(mockInCallService).addCall(parcelableCallCaptor.capture());
         assertTrue(TextUtils.isEmpty(parcelableCallCaptor.getValue().getContactDisplayName()));
+    }
+
+    /**
+     * Ensures that the {@link InCallController} will bind to a higher priority car mode service
+     * when one becomes available.
+     */
+    @MediumTest
+    @Test
+    public void testRandomAppRemovalWhenNotInCarMode() throws Exception {
+        setupMocks(true /* isExternalCall */);
+        setupMockPackageManager(true /* default */, true /* system */, true /* external calls */);
+        // Bind to default dialer.
+        mInCallController.bindToServices(mMockCall);
+
+        // Uninstall an unrelated app.
+        mSystemStateListener.onPackageUninstalled("com.joe.stuff");
+
+        // Bind InCallServices, just once; we should not re-bind to the same app.
+        ArgumentCaptor<Intent> bindIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mMockContext).bindServiceAsUser(
+                bindIntentCaptor.capture(),
+                any(ServiceConnection.class),
+                eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE
+                        | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS),
+                eq(UserHandle.CURRENT));
     }
 
     /**
