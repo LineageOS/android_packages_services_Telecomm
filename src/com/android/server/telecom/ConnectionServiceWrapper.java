@@ -1994,11 +1994,11 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
             // failure to connect; we handle all failures uniformly
             Call foundCall = mCallIdMapper.getCall(callId);
 
-            if (connection.getConnectTimeMillis() != 0) {
-                foundCall.setConnectTimeMillis(connection.getConnectTimeMillis());
-            }
-
             if (foundCall != null) {
+                if (connection.getConnectTimeMillis() != 0) {
+                    foundCall.setConnectTimeMillis(connection.getConnectTimeMillis());
+                }
+
                 // The post-dial digits are created when the call is first created.  Normally
                 // the ConnectionService is responsible for stripping them from the address, but
                 // since a failed connection will not have done this, we could end up with duplicate
