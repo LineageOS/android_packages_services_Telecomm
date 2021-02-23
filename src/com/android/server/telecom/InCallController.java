@@ -622,6 +622,10 @@ public class InCallController extends CallsManagerListenerBase {
             }
         }
 
+        public boolean isCarMode() {
+            return mIsCarMode;
+        }
+
         @Override
         public int connect(Call call) {
             if (mIsConnected) {
@@ -2048,10 +2052,15 @@ public class InCallController extends CallsManagerListenerBase {
                 mCarModeTracker.getCarModeApps().stream().collect(Collectors.joining(", ")));
         if (mInCallServiceConnection != null) {
             if (shouldUseCarModeUI()) {
+                Log.i(this, "updateCarModeForConnections: potentially update car mode app.");
                 mInCallServiceConnection.changeCarModeApp(
                         mCarModeTracker.getCurrentCarModePackage());
             } else {
-                mInCallServiceConnection.disableCarMode();
+                if (mInCallServiceConnection.isCarMode()) {
+                    Log.i(this, "updateCarModeForConnections: car mode no longer "
+                            + "applicable; disabling");
+                    mInCallServiceConnection.disableCarMode();
+                }
             }
         }
     }
