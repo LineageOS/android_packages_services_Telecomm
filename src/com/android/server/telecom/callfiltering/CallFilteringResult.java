@@ -241,11 +241,22 @@ public class CallFilteringResult {
             CallFilteringResult r2) {
         if (r1.mIsResponseFromSystemDialer) {
             builder.setCallScreeningResponse(r1.mCallScreeningResponse, true);
+            builder.setCallScreeningComponentName(r1.mCallScreeningComponentName);
+            builder.setCallScreeningAppName(r1.mCallScreeningAppName);
         } else if (r2.mIsResponseFromSystemDialer) {
             builder.setCallScreeningResponse(r2.mCallScreeningResponse, true);
+            builder.setCallScreeningComponentName(r2.mCallScreeningComponentName);
+            builder.setCallScreeningAppName(r2.mCallScreeningAppName);
         } else {
-            builder.setCallScreeningResponse(r1.mCallScreeningResponse == null
-                    ? r2.mCallScreeningResponse : r1.mCallScreeningResponse, false);
+            if (r1.mCallScreeningResponse != null) {
+                builder.setCallScreeningResponse(r1.mCallScreeningResponse, false);
+                builder.setCallScreeningComponentName(r1.mCallScreeningComponentName);
+                builder.setCallScreeningAppName(r1.mCallScreeningAppName);
+            } else {
+                builder.setCallScreeningResponse(r2.mCallScreeningResponse, false);
+                builder.setCallScreeningComponentName(r2.mCallScreeningComponentName);
+                builder.setCallScreeningAppName(r2.mCallScreeningAppName);
+            }
         }
     }
 
