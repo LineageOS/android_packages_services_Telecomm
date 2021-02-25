@@ -159,7 +159,11 @@ public class IncomingCallFilterGraph {
         startFuture.thenComposeAsync(filter::startFilterLookup,
                 new LoggedHandlerExecutor(mHandler, "ICFG.sF", null))
                 .thenApplyAsync(postFilterTask::whenDone,
-                        new LoggedHandlerExecutor(mHandler, "ICFG.sF", null));
+                        new LoggedHandlerExecutor(mHandler, "ICFG.sF", null))
+                .exceptionally((t) -> {
+                    Log.e(filter, t, "Encountered exception running filter");
+                    return null;
+                });
         Log.i(TAG, "Filter %s scheduled.", filter);
     }
 
