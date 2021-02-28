@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2013 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="telecommAppLabel" product="default">Xestión de llamaes</string>
+    <string name="userCallActivityLabel" product="default">Teléfonu</string>
+    <string name="unknown">Desconocíu</string>
+    <string name="notification_missedCallTitle">Llamada perdida</string>
+    <string name="notification_missedWorkCallTitle">Perdióse la llamada\'l trabayu</string>
+    <string name="notification_missedCallsTitle">Llamaes perdíes</string>
+    <string name="notification_missedCallsMsg"><xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> llamaes perdíes</string>
+    <string name="notification_missedCallTicker">Llamada perdida de <xliff:g id="MISSED_CALL_FROM">%s</xliff:g></string>
+    <string name="notification_missedCall_call_back">Llamar</string>
+    <string name="notification_missedCall_message">Mensaxe</string>
+    <string name="accessibility_call_muted">Llamada silenciada.</string>
+    <string name="accessibility_speakerphone_enabled">Altavoz habilitáu.</string>
+    <string name="respond_via_sms_canned_response_1">Nun puedo falar. ¿Ye importante?</string>
+    <string name="respond_via_sms_canned_response_2">Llámote namái pueda.</string>
+    <string name="respond_via_sms_canned_response_3">Llámote dempués.</string>
+    <string name="respond_via_sms_canned_response_4">Nun puedo falar. Llámesme llueu?</string>
+    <string name="respond_via_sms_setting_title">Rempuestes rápides</string>
+    <string name="respond_via_sms_setting_title_2">Editar rempuestes rápides</string>
+    <string name="respond_via_sms_edittext_dialog_title">Rempuesta rápida</string>
+    <string name="respond_via_sms_confirmation_format">Mensaxe unviáu a <xliff:g id="PHONE_NUMBER">%s</xliff:g>.</string>
+    <string name="enable_account_preference_title">Cuentes de llamaes</string>
+    <string name="outgoing_call_not_allowed_user_restriction">Namái s\'almiten llames d\'emerxencia.</string>
+    <string name="outgoing_call_not_allowed_no_permission">Esta aplicación nun pue facer llamaes salientes ensin el permisu de Teléfonu.</string>
+    <string name="outgoing_call_error_no_phone_number_supplied">Pa facer una llamada, teclexa un númberu válidu.</string>
+    <string name="duplicate_video_call_not_allowed">La llamada nun pue amestase nesti momentu.</string>
+    <string name="no_vm_number">Falta\'l númberu del buzón de voz</string>
+    <string name="no_vm_number_msg">Nun s\'almacenó nengún númberu de buzón de voz na tarxeta SIM.</string>
+    <string name="add_vm_number_str">Amestar númberu</string>
+    <string name="change_default_dialer_dialog_title">¿Predeterminar la to aplicación de teléfonu <xliff:g id="new_app">%s</xliff:g>?</string>
+    <string name="change_default_dialer_dialog_affirmative">Predeterminar</string>
+    <string name="change_default_dialer_dialog_negative">Encaboxar</string>
+    <string name="change_default_dialer_warning_message"><xliff:g id="new_app">%s</xliff:g> sedrá a allugar y controlar tolos aspeutos de les llamaes. Namái deberíen predeterminase como aplicación de teléfonu les aplicaciones nes que t\'enfotes.</string>
+    <string name="change_default_call_screening_dialog_affirmative">Predeterminar</string>
+    <string name="change_default_call_screening_dialog_negative">Encaboxar</string>
+    <string name="blocked_numbers">Númberos bloquiaos</string>
+    <string name="blocked_numbers_msg">Nun recibirás llames o mensaxes de númberos bloquiaos.</string>
+    <string name="block_number">Amestar un númberu</string>
+    <string name="unblock_dialog_body">¿Desbloquiar <xliff:g id="number_to_block">%1$s</xliff:g>?</string>
+    <string name="unblock_button">Desbloquiar</string>
+    <string name="add_blocked_dialog_body">Bloquiar llamaes y mensaxes de</string>
+    <string name="add_blocked_number_hint">Númberu telefónicu</string>
+    <string name="block_button">Bloquiar</string>
+    <string name="non_primary_user">Namái\'l dueñu\'l teléfonu pue ver y xestionar númberos bloquiaos.</string>
+    <string name="delete_icon_description">Desbloquiar</string>
+    <string name="blocked_numbers_butter_bar_title">Bloquéu desactiváu temporalmente</string>
+    <string name="blocked_numbers_butter_bar_body">Dempués que marques o unvies un mensaxe a un númberu d\'emerxencies, desactivaráse\'l bloquéu p\'asegurar qu\'esos servicios puean contautate.</string>
+    <string name="blocked_numbers_butter_bar_button">Reactivar agora</string>
+    <string name="blocked_numbers_number_blocked_message"><xliff:g id="blocked_number">%1$s</xliff:g> bloquiáu</string>
+    <string name="blocked_numbers_number_unblocked_message"><xliff:g id="unblocked_number">%1$s</xliff:g> desbloquiáu</string>
+    <string name="blocked_numbers_block_emergency_number_message">Nun pue bloquiase\'l númberu d\'emerxencies.</string>
+    <string name="blocked_numbers_number_already_blocked_message"><xliff:g id="blocked_number">%1$s</xliff:g> yá ta bloquiáu.</string>
+    <string name="test_account_0_label">Q Mobile</string>
+    <string name="test_account_1_label">Market Wireless</string>
+    <string name="test_account_2_label">Sonoma Circles Talk Plus</string>
+    <string name="test_account_3_label">Bay Voice Chat Pro</string>
+    <string name="test_account_0_short_description">Account with Q Mobile</string>
+    <string name="test_account_1_short_description">Account with Market Wireless</string>
+    <string name="test_account_2_short_description">Talk to everyone in your Circles!</string>
+    <string name="test_account_3_short_description">Chat with Chat Network users</string>
+    <string name="handle_restricted">RESTRICTED</string>
+    <string name="toast_personal_call_msg">Usando\'l marcador personal pa llamar</string>
+    <string name="notification_channel_missed_call">Llamaes perdíes</string>
+    <string name="notification_channel_call_blocking">Bloquéu de Llamaes</string>
+    <string name="phone_settings_call_blocking_txt">Bloquéu de Llamaes</string>
+    <string name="phone_settings_number_not_in_contact_txt">Los númberos nun tán en Contautos</string>
+    <string name="phone_settings_private_num_txt">Priváu</string>
+    <string name="phone_settings_payphone_txt">Teléfonu públicu</string>
+    <string name="phone_settings_payphone_summary_txt">Torgar llamaes de teléfonos de pagu</string>
+    <string name="phone_settings_unknown_txt">Desconocíu</string>
+    <string name="phone_settings_unknown_summary_txt">Torgar llamaes de contautos ensin identificar</string>
+    <string name="phone_strings_call_blocking_turned_off_notification_title_txt">Bloquéu de Llamaes</string>
+</resources>
