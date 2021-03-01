@@ -832,12 +832,12 @@ public class TelecomServiceImpl {
         }
 
         /**
-         * @see android.telecom.TelecomManager#hasCompanionInCallServiceAccess
+         * @see android.telecom.TelecomManager#hasManageOngoingCallsPermission
          */
         @Override
-        public boolean hasCompanionInCallServiceAccess(String callingPackage) {
+        public boolean hasManageOngoingCallsPermission(String callingPackage) {
             try {
-                Log.startSession("TSI.hCICSA");
+                Log.startSession("TSI.hMOCP");
                 return PermissionChecker.checkPermissionForPreflight(mContext,
                         Manifest.permission.MANAGE_ONGOING_CALLS,
                                 PermissionChecker.PID_UNKNOWN, Binder.getCallingUid(),
