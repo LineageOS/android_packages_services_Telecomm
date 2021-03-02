@@ -118,6 +118,6 @@
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="1713632946174016619">"కాల్ బ్లాక్ చేయడం నిలిపివేయబడింది"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="6629412508584507377">"అత్యవసర కాల్ చేయబడింది"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"మిమ్మల్ని సంప్రదించడానికి అత్యవసర ప్రతిస్పందనదారులను అనుమతించడానికి కాల్ బ్లాక్ చేయడం నిలిపివేయబడింది."</string>
-    <string name="developer_title" msgid="9146088855661672353">"టెలికామ్ డెవలపర్ మెను"</string>
+    <string name="developer_title" msgid="9146088855661672353">"టెలికామ్ డెవలపర్ మెనూ"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"అత్యవసర కాల్‌లో వున్నప్పుడు కాల్‌లను స్వీకరించడానికి వీలుపడదు."</string>
 </resources>
