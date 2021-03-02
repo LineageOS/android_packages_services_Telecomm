@@ -36,8 +36,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -45,8 +47,11 @@ import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * Top-level Application class for Telecom.
@@ -260,6 +265,39 @@ public class TelecomSystem {
             }
         };
 
+        CallDiagnosticServiceController callDiagnosticServiceController =
+                new CallDiagnosticServiceController(
+                        new CallDiagnosticServiceController.ContextProxy() {
+                            @Override
+                            public List<ResolveInfo> queryIntentServicesAsUser(
+                                    @NonNull Intent intent, int flags, int userId) {
+                                return mContext.getPackageManager().queryIntentServicesAsUser(
+                                        intent, flags, userId);
+                            }
+
+                            @Override
+                            public boolean bindServiceAsUser(@NonNull Intent service,
+                                    @NonNull ServiceConnection conn, int flags,
+                                    @NonNull UserHandle user) {
+                                return mContext.bindServiceAsUser(service, conn, flags, user);
+                            }
+
+                            @Override
+                            public void unbindService(@NonNull ServiceConnection conn) {
+                                mContext.unbindService(conn);
+                            }
+
+                            @Override
+                            public UserHandle getCurrentUserHandle() {
+                                return mCallsManager.getCurrentUserHandle();
+                            }
+                        },
+                        mContext.getResources().getString(
+                                com.android.server.telecom.R.string
+                                        .call_diagnostic_service_package_name),
+                        mLock
+                );
+
         AudioProcessingNotification audioProcessingNotification =
                 new AudioProcessingNotification(mContext);
 
@@ -303,6 +341,7 @@ public class TelecomSystem {
                 callAudioRouteStateMachineFactory,
                 callAudioModeStateMachineFactory,
                 inCallControllerFactory,
+                callDiagnosticServiceController,
                 roleManagerAdapter,
                 toastFactory);
 
