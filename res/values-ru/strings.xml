@@ -28,16 +28,16 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Написать"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Вызов прекращен"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Вызов абонента <xliff:g id="CALLER">%s</xliff:g> был прекращен, так как осуществляется экстренный вызов."</string>
-    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Ваш вызов прекращен, так как осуществляется экстренный вызов."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Фоновый вызов"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"Приложение <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> перевело вызов в фоновый режим. Это приложение может получать доступ к аудио вызова или воспроизводить в нем свое аудио."</string>
-    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> не отвечает"</string>
-    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Вызов был сделан с использованием приложения, которое установлено на ваше устройство производителем."</string>
+    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Прекращена работа приложения телефона"</string>
+    <!-- no translation found for notification_crashedInCallService_body (7821729360036047995) -->
+    <skip />
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Звук выключен."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"Громкая связь включена."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"Не могу говорить. Что случилось?"</string>
-    <string name="respond_via_sms_canned_response_2" msgid="2052951316129952406">"Я сейчас перезвоню."</string>
-    <string name="respond_via_sms_canned_response_3" msgid="6656147963478092035">"Я перезвоню позже."</string>
+    <string name="respond_via_sms_canned_response_2" msgid="2052951316129952406">"Я сейчас вам перезвоню."</string>
+    <string name="respond_via_sms_canned_response_3" msgid="6656147963478092035">"Я перезвоню вам позже."</string>
     <string name="respond_via_sms_canned_response_4" msgid="9141132488345561047">"Не могу говорить. Позвоните позже."</string>
     <string name="respond_via_sms_setting_title" msgid="4762275482898830160">"Быстрые ответы"</string>
     <string name="respond_via_sms_setting_title_2" msgid="4914853536609553457">"Быстрые ответы"</string>

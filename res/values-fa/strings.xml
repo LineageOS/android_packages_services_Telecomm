@@ -28,15 +28,14 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"پیام"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"تماس قطع‌شده"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"به‌دلیل انجام تماسی اضطراری، تماس با <xliff:g id="CALLER">%s</xliff:g> قطع شده است."</string>
-    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"به‌دلیل برقراری تماس اضطراری، تماس شما قطع شده است."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"تماس پس‌زمینه"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> تماسی را در پس‌زمینه قرار داد. ممکن است این برنامه درحین تماس به صدا دسترسی پیدا کند و آن را پخش کند."</string>
-    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> متوقف شد"</string>
-    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"تماستان بااستفاده از برنامه تلفن ارائه‌شده در دستگاهتان برقرار شد"</string>
+    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"برنامه خراب تلفن"</string>
+    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"«برنامه تلفن» <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> خراب شده است. تماستان بااستفاده از «برنامه تلفن» ارائه‌شده در دستگاه ادامه پیدا کرد."</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"تماس نادیده گرفته شد."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"تلفن آیفون‌دار فعال شد."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"الآن نمی‌توانم صحبت کنم. موضوع چیست؟"</string>
-    <string name="respond_via_sms_canned_response_2" msgid="2052951316129952406">"همین حالا با شما تماس می‌گیرم."</string>
+    <string name="respond_via_sms_canned_response_2" msgid="2052951316129952406">"همین حالا با شما تماس می‌گیرم.."</string>
     <string name="respond_via_sms_canned_response_3" msgid="6656147963478092035">"بعداً با شما تماس می‌گیرم."</string>
     <string name="respond_via_sms_canned_response_4" msgid="9141132488345561047">"اکنون نمی‌توانم صحبت کنم. بعداً به من زنگ می‌زنید؟"</string>
     <string name="respond_via_sms_setting_title" msgid="4762275482898830160">"پاسخ‌های سریع"</string>
@@ -81,13 +80,13 @@
     <string name="blocked_numbers_number_already_blocked_message" msgid="2301270825735665458">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> قبلاً مسدود شده است."</string>
     <string name="toast_personal_call_msg" msgid="5817631570381795610">"استفاده از شماره‌گیر شخصی برای گرفتن تماس"</string>
     <string name="notification_incoming_call" msgid="1233481138362230894">"<xliff:g id="CALL_VIA">%1$s</xliff:g> تماس از <xliff:g id="CALL_FROM">%2$s</xliff:g>"</string>
-    <string name="notification_incoming_video_call" msgid="5795968314037063900">"<xliff:g id="CALL_VIA">%1$s</xliff:g> تماس تصویری از <xliff:g id="CALL_FROM">%2$s</xliff:g>"</string>
+    <string name="notification_incoming_video_call" msgid="5795968314037063900">"<xliff:g id="CALL_VIA">%1$s</xliff:g> تماس ویدیویی از <xliff:g id="CALL_FROM">%2$s</xliff:g>"</string>
     <string name="answering_ends_other_call" msgid="8653544281903986641">"پاسخ‌گویی به تماس <xliff:g id="CALL_VIA">%1$s</xliff:g> پایان می‌دهد"</string>
     <string name="answering_ends_other_calls" msgid="3702302838456922535">"پاسخ‌گویی به تماس‌های <xliff:g id="CALL_VIA">%1$s</xliff:g> شما پاسخ می‌دهد"</string>
-    <string name="answering_ends_other_video_call" msgid="8572022039304239958">"پاسخ‌گویی به تماس تصویری <xliff:g id="CALL_VIA">%1$s</xliff:g> شما پایان می‌دهد"</string>
+    <string name="answering_ends_other_video_call" msgid="8572022039304239958">"پاسخ‌گویی به تماس ویدیویی <xliff:g id="CALL_VIA">%1$s</xliff:g> شما پایان می‌دهد"</string>
     <string name="answering_ends_other_managed_call" msgid="4031778317409881805">"پاسخ‌گویی به تماس درحال انجامتان پایان می‌دهد"</string>
     <string name="answering_ends_other_managed_calls" msgid="3974069768615307659">"پاسخ‌گویی به تماس‌های درحال انجامتان پایان می‌دهد"</string>
-    <string name="answering_ends_other_managed_video_call" msgid="1988508241432031327">"پاسخ‌گویی به تماس تصویری درحال انجامتان پایان می‌دهد"</string>
+    <string name="answering_ends_other_managed_video_call" msgid="1988508241432031327">"پاسخ‌گویی به تماس ویدیویی درحال انجامتان پایان می‌دهد"</string>
     <string name="answer_incoming_call" msgid="2045888814782215326">"پاسخ‌گویی"</string>
     <string name="decline_incoming_call" msgid="922147089348451310">"نپذیرفتن"</string>
     <string name="cant_call_due_to_no_supported_service" msgid="1635626384149947077">"به‌دلیل اینکه هیچ حساب تماسی وجود ندارد که از این نوع تماس پشتیبانی کند، تماس برقرار نشد."</string>

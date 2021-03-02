@@ -28,11 +28,11 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Хабар"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Қоңырау ажыратылды"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Құтқару қызметіне қоңырау шалғандықтан, сіз бен <xliff:g id="CALLER">%s</xliff:g> арасындағы қоңырау ажыратылды."</string>
-    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Құтқару қызметіне қоңырау шалғандықтан, қоңырауыңыз ажыратылды."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Фондық қоңырау"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> қоңырауды фондық режимге ауыстырды. Бұл қолданба қоңырау барысында аудионы пайдалана және ойната алады."</string>
-    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> жауап бермейді"</string>
-    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Қоңырау құрылғының әдепкі телефон қолданбасы арқылы шалынды."</string>
+    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Бұзылған телефон қолданбасы"</string>
+    <!-- no translation found for notification_crashedInCallService_body (7821729360036047995) -->
+    <skip />
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Қоңырау үнсіздендірілген."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"Үндеткішті телефон қосылды."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"Қазір сөйлесе алмаймын. Не болды?"</string>
@@ -76,7 +76,7 @@
     <string name="blocked_numbers_butter_bar_body" msgid="1261213114919301485">"Төтенше жағдай нөмірін терген немесе мәтіндік хабар жіберген соң, төтенше жағдай қызметтері сізге хабарласа алуы үшін тыйым алынады."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2704456308072489793">"Қазір қайта қосу"</string>
     <string name="blocked_numbers_number_blocked_message" msgid="4314736791180919167">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> бөгелген"</string>
-    <string name="blocked_numbers_number_unblocked_message" msgid="2933071624674945601">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> бөгеуден шығарылды"</string>
+    <string name="blocked_numbers_number_unblocked_message" msgid="2933071624674945601">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> бөгеуден шығарылған"</string>
     <string name="blocked_numbers_block_emergency_number_message" msgid="4198550501500893890">"Жедел қызмет нөмірін бөгеу мүмкін емес."</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="2301270825735665458">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> бұрыннан бөгелген."</string>
     <string name="toast_personal_call_msg" msgid="5817631570381795610">"Қоңырау шалу үшін жеке нөмір тергішті пайдалану"</string>
