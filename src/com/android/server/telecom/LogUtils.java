@@ -196,6 +196,7 @@ public class LogUtils {
         public static final String REDIRECTION_USER_CONFIRMATION = "REDIRECTION_USER_CONFIRMATION";
         public static final String REDIRECTION_USER_CONFIRMED = "REDIRECTION_USER_CONFIRMED";
         public static final String REDIRECTION_USER_CANCELLED = "REDIRECTION_USER_CANCELLED";
+        public static final String BT_QUALITY_REPORT = "BT_QUALITY_REPORT";
 
         public static class Timings {
             public static final String ACCEPT_TIMING = "accept";
