@@ -1921,6 +1921,30 @@ public class TelecomServiceImpl {
                 Log.endSession();
             }
         }
+
+        @Override
+        public void setTestCallDiagnosticService(String packageName) {
+            try {
+                Log.startSession("TSI.sTCDS");
+                enforceModifyPermission();
+                enforceShellOnly(Binder.getCallingUid(), "setTestCallDiagnosticService is for "
+                        + "shell use only.");
+                synchronized (mLock) {
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        CallDiagnosticServiceController controller =
+                                mCallsManager.getCallDiagnosticServiceController();
+                        if (controller != null) {
+                            controller.setTestCallDiagnosticService(packageName);
+                        }
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
     };
 
     /**
