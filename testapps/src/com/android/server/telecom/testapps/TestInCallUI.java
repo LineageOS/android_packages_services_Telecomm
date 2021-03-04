@@ -29,6 +29,7 @@ import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
+import android.telephony.ims.ImsCallProfile;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -260,6 +261,8 @@ public class TestInCallUI extends Activity {
                         .getIntentExtras().getParcelable(TelecomManager.EXTRA_LOCATION);
                 String subject = call.getDetails()
                         .getIntentExtras().getString(TelecomManager.EXTRA_CALL_SUBJECT);
+                boolean isBusiness = call.getDetails()
+                        .getExtras().getBoolean(ImsCallProfile.EXTRA_IS_BUSINESS_CALL);
 
                 StringBuilder display = new StringBuilder();
                 display.append("priority=");
@@ -282,6 +285,7 @@ public class TestInCallUI extends Activity {
                 }
 
                 display.append(" subject=" + subject);
+                display.append(" isBusiness=" + isBusiness);
                 TextView attachmentsTextView = findViewById(R.id.incoming_composer_attachments);
                 attachmentsTextView.setText(display.toString());
                 break;
