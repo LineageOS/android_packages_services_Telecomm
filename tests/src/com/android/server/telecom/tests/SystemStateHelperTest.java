@@ -48,6 +48,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.SystemStateHelper;
 import com.android.server.telecom.SystemStateHelper.SystemStateListener;
+import com.android.server.telecom.TelecomSystem;
 
 import org.junit.After;
 import org.junit.Before;
@@ -78,6 +79,7 @@ public class SystemStateHelperTest extends TelecomTestCase {
     @Mock SensorManager mSensorManager;
     @Mock Intent mIntentEnter;
     @Mock Intent mIntentExit;
+    TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
 
     @Override
     @Before
@@ -109,7 +111,7 @@ public class SystemStateHelperTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testListeners() throws Exception {
-        SystemStateHelper systemStateHelper = new SystemStateHelper(mContext);
+        SystemStateHelper systemStateHelper = new SystemStateHelper(mContext, mLock);
 
         assertFalse(systemStateHelper.removeListener(mSystemStateListener));
         systemStateHelper.addListener(mSystemStateListener);
@@ -121,14 +123,14 @@ public class SystemStateHelperTest extends TelecomTestCase {
     @Test
     public void testQuerySystemForCarMode_True() {
         when(mUiModeManager.getCurrentModeType()).thenReturn(Configuration.UI_MODE_TYPE_CAR);
-        assertTrue(new SystemStateHelper(mContext).isCarModeOrProjectionActive());
+        assertTrue(new SystemStateHelper(mContext, mLock).isCarModeOrProjectionActive());
     }
 
     @SmallTest
     @Test
     public void testQuerySystemForCarMode_False() {
         when(mUiModeManager.getCurrentModeType()).thenReturn(Configuration.UI_MODE_TYPE_NORMAL);
-        assertFalse(new SystemStateHelper(mContext).isCarModeOrProjectionActive());
+        assertFalse(new SystemStateHelper(mContext, mLock).isCarModeOrProjectionActive());
     }
 
     @SmallTest
@@ -136,11 +138,11 @@ public class SystemStateHelperTest extends TelecomTestCase {
     public void testQuerySystemForAutomotiveProjection_True() {
         when(mUiModeManager.getActiveProjectionTypes())
                 .thenReturn(UiModeManager.PROJECTION_TYPE_AUTOMOTIVE);
-        assertTrue(new SystemStateHelper(mContext).isCarModeOrProjectionActive());
+        assertTrue(new SystemStateHelper(mContext, mLock).isCarModeOrProjectionActive());
 
         when(mUiModeManager.getActiveProjectionTypes())
                 .thenReturn(UiModeManager.PROJECTION_TYPE_ALL);
-        assertTrue(new SystemStateHelper(mContext).isCarModeOrProjectionActive());
+        assertTrue(new SystemStateHelper(mContext, mLock).isCarModeOrProjectionActive());
     }
 
     @SmallTest
@@ -148,7 +150,7 @@ public class SystemStateHelperTest extends TelecomTestCase {
     public void testQuerySystemForAutomotiveProjection_False() {
         when(mUiModeManager.getActiveProjectionTypes())
                 .thenReturn(UiModeManager.PROJECTION_TYPE_NONE);
-        assertFalse(new SystemStateHelper(mContext).isCarModeOrProjectionActive());
+        assertFalse(new SystemStateHelper(mContext, mLock).isCarModeOrProjectionActive());
     }
 
     @SmallTest
@@ -157,7 +159,7 @@ public class SystemStateHelperTest extends TelecomTestCase {
         when(mUiModeManager.getCurrentModeType()).thenReturn(Configuration.UI_MODE_TYPE_CAR);
         when(mUiModeManager.getActiveProjectionTypes())
                 .thenReturn(UiModeManager.PROJECTION_TYPE_AUTOMOTIVE);
-        assertTrue(new SystemStateHelper(mContext).isCarModeOrProjectionActive());
+        assertTrue(new SystemStateHelper(mContext, mLock).isCarModeOrProjectionActive());
     }
 
     @SmallTest
@@ -166,7 +168,7 @@ public class SystemStateHelperTest extends TelecomTestCase {
         when(mContext.getSystemService(UiModeManager.class))
                 .thenReturn(mUiModeManager)  // Without this, class construction will throw NPE.
                 .thenReturn(null);
-        assertFalse(new SystemStateHelper(mContext).isCarModeOrProjectionActive());
+        assertFalse(new SystemStateHelper(mContext, mLock).isCarModeOrProjectionActive());
     }
 
     @SmallTest
@@ -174,7 +176,7 @@ public class SystemStateHelperTest extends TelecomTestCase {
     public void testPackageRemoved() {
         ArgumentCaptor<BroadcastReceiver> receiver =
                 ArgumentCaptor.forClass(BroadcastReceiver.class);
-        new SystemStateHelper(mContext).addListener(mSystemStateListener);
+        new SystemStateHelper(mContext, mLock).addListener(mSystemStateListener);
         verify(mContext, atLeastOnce())
                 .registerReceiver(receiver.capture(), any(IntentFilter.class));
         Intent packageRemovedIntent = new Intent(Intent.ACTION_PACKAGE_REMOVED);
@@ -188,7 +190,7 @@ public class SystemStateHelperTest extends TelecomTestCase {
     public void testReceiverAndIntentFilter() {
         ArgumentCaptor<IntentFilter> intentFilterCaptor =
                 ArgumentCaptor.forClass(IntentFilter.class);
-        new SystemStateHelper(mContext);
+        new SystemStateHelper(mContext, mLock);
         verify(mContext, times(2)).registerReceiver(
                 any(BroadcastReceiver.class), intentFilterCaptor.capture());
 
@@ -225,7 +227,7 @@ public class SystemStateHelperTest extends TelecomTestCase {
     public void testOnEnterExitCarMode() {
         ArgumentCaptor<BroadcastReceiver> receiver =
                 ArgumentCaptor.forClass(BroadcastReceiver.class);
-        new SystemStateHelper(mContext).addListener(mSystemStateListener);
+        new SystemStateHelper(mContext, mLock).addListener(mSystemStateListener);
 
         verify(mContext, atLeastOnce())
                 .registerReceiver(receiver.capture(), any(IntentFilter.class));
@@ -244,7 +246,7 @@ public class SystemStateHelperTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testOnSetReleaseAutomotiveProjection() {
-        SystemStateHelper systemStateHelper = new SystemStateHelper(mContext);
+        SystemStateHelper systemStateHelper = new SystemStateHelper(mContext, mLock);
         // We don't care what listener is registered, that's an implementation detail, but we need
         // to call methods on whatever it is.
         ArgumentCaptor<UiModeManager.OnProjectionStateChangeListener> listenerCaptor =
