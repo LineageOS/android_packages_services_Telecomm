@@ -1925,6 +1925,13 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             if (didRttChange) {
                 if ((mConnectionProperties & Connection.PROPERTY_IS_RTT) ==
                         Connection.PROPERTY_IS_RTT) {
+                    // If we already had RTT streams up, that means that either the call started
+                    // with RTT or the user previously requested to start RTT. Either way, don't
+                    // play the alert tone.
+                    if (!areRttStreamsInitialized()) {
+                        mCallsManager.playRttUpgradeToneForCall(this);
+                    }
+
                     createRttStreams();
                     // Call startRtt to pass the RTT pipes down to the connection service.
                     // They already turned on the RTT property so no request should be sent.
