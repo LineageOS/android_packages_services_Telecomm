@@ -1383,7 +1383,7 @@ public class InCallController extends CallsManagerListenerBase {
     /**
      * Unbinds an existing bound connection to the in-call app.
      */
-    private void unbindFromServices() {
+    public void unbindFromServices() {
         try {
             mContext.unregisterReceiver(mPackageChangedReceiver);
         } catch (IllegalArgumentException e) {
