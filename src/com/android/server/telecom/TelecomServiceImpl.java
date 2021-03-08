@@ -1790,6 +1790,7 @@ public class TelecomServiceImpl {
                                 mCallsManager.markCallAsRemoved(call);
                             }
                         }
+                        mCallsManager.getInCallController().unbindFromServices();
                     });
                 }
             } finally {
