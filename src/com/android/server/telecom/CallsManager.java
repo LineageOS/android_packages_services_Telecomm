@@ -3139,7 +3139,11 @@ public class CallsManager extends Call.ListenerBase
                 Log.i(this, "Auto-unholding held foreground call (call doesn't support hold)");
                 foregroundCall.unhold();
             }
-        }, new LoggedHandlerExecutor(mHandler, "CM.mCAR", mLock));
+        }, new LoggedHandlerExecutor(mHandler, "CM.mCAR", mLock))
+                .exceptionally((throwable) -> {
+                    Log.e(TAG, throwable, "Error while executing call removal");
+                    return null;
+                });
     }
 
     /**
