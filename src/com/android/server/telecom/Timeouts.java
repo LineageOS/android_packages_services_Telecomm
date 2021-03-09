@@ -18,7 +18,11 @@ package com.android.server.telecom;
 
 import android.content.ContentResolver;
 import android.provider.Settings;
+import android.telecom.CallDiagnosticService;
 import android.telecom.CallRedirectionService;
+import android.telecom.DiagnosticCall;
+import android.telephony.ims.ImsReasonInfo;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -66,6 +70,10 @@ public final class Timeouts {
 
         public long getCallRecordingToneRepeatIntervalMillis(ContentResolver cr) {
             return Timeouts.getCallRecordingToneRepeatIntervalMillis(cr);
+        }
+
+        public long getCallDiagnosticServiceTimeoutMillis(ContentResolver cr) {
+            return Timeouts.getCallDiagnosticServiceTimeoutMillis(cr);
         }
     }
 
@@ -190,7 +198,7 @@ public final class Timeouts {
     /**
      * Returns the amount of time for an user-defined {@link CallRedirectionService}.
      *
-     * @param contentResolver The content resolved.
+     * @param contentResolver The content resolver.
      */
     public static long getUserDefinedCallRedirectionTimeoutMillis(ContentResolver contentResolver) {
         return get(contentResolver, "user_defined_call_redirection_timeout",
@@ -200,7 +208,7 @@ public final class Timeouts {
     /**
      * Returns the amount of time for a carrier {@link CallRedirectionService}.
      *
-     * @param contentResolver The content resolved.
+     * @param contentResolver The content resolver.
      */
     public static long getCarrierCallRedirectionTimeoutMillis(ContentResolver contentResolver) {
         return get(contentResolver, "carrier_call_redirection_timeout", 5000L /* 5 seconds */);
@@ -211,6 +219,17 @@ public final class Timeouts {
      */
     public static long getCallRecordingToneRepeatIntervalMillis(ContentResolver contentResolver) {
         return get(contentResolver, "call_recording_tone_repeat_interval", 15000L /* 15 seconds */);
+    }
+
+    /**
+     * Returns the maximum amount of time a {@link CallDiagnosticService} is permitted to take to
+     * return back from {@link DiagnosticCall#onCallDisconnected(ImsReasonInfo)} and
+     * {@link DiagnosticCall#onCallDisconnected(int, int)}.
+     * @param contentResolver The resolver for the config option.
+     * @return The timeout in millis.
+     */
+    public static long getCallDiagnosticServiceTimeoutMillis(ContentResolver contentResolver) {
+        return get(contentResolver, "call_diagnostic_service_timeout", 2000L /* 2 sec */);
     }
 
     /**
