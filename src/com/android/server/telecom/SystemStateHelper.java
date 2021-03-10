@@ -75,7 +75,7 @@ public class SystemStateHelper implements UiModeManager.OnProjectionStateChangeL
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.startSession("SSP.oR");
+            Log.startSession("SSH.oR");
             try {
                 String action = intent.getAction();
                 if (UiModeManager.ACTION_ENTER_CAR_MODE_PRIORITIZED.equals(action)) {
@@ -116,11 +116,19 @@ public class SystemStateHelper implements UiModeManager.OnProjectionStateChangeL
     @Override
     public void onProjectionStateChanged(int activeProjectionTypes,
             @NonNull Set<String> projectingPackages) {
-        if (projectingPackages.isEmpty()) {
-            onReleaseAutomotiveProjection();
-        } else {
-            onSetAutomotiveProjection(projectingPackages.iterator().next());
+        Log.startSession("SSH.oPSC");
+        try {
+            synchronized (mLock) {
+                if (projectingPackages.isEmpty()) {
+                    onReleaseAutomotiveProjection();
+                } else {
+                    onSetAutomotiveProjection(projectingPackages.iterator().next());
+                }
+            }
+        } finally {
+            Log.endSession();
         }
+
     }
 
     private Set<SystemStateListener> mListeners = new CopyOnWriteArraySet<>();
