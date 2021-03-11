@@ -163,6 +163,7 @@ public class InCallTonePlayer extends Thread {
     public static final int TONE_VOICE_PRIVACY = 13;
     public static final int TONE_VIDEO_UPGRADE = 14;
     public static final int TONE_RTT_REQUEST = 15;
+    public static final int TONE_IN_CALL_QUALITY_NOTIFICATION = 16;
 
     private static final int TONE_RESOURCE_ID_UNDEFINED = -1;
 
@@ -336,6 +337,15 @@ public class InCallTonePlayer extends Thread {
                     toneVolume = RELATIVE_VOLUME_HIPRI;
                     toneLengthMillis = 4000;
                     mediaResourceId = TONE_RESOURCE_ID_UNDEFINED;
+                    break;
+                case TONE_IN_CALL_QUALITY_NOTIFICATION:
+                    // Don't use tone generator
+                    toneType = ToneGenerator.TONE_UNKNOWN;
+                    toneVolume = RELATIVE_VOLUME_UNDEFINED;
+                    toneLengthMillis = 0;
+
+                    // Use a tone resource file for a more rich, full-bodied tone experience.
+                    mediaResourceId = R.raw.InCallQualityNotification;
                     break;
                 default:
                     throw new IllegalStateException("Bad toneId: " + mToneId);
