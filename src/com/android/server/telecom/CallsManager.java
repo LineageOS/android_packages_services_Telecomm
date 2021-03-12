@@ -790,17 +790,17 @@ public class CallsManager extends Call.ListenerBase
             int attachmentMask = result.mCallScreeningResponse.getCallComposerAttachmentsToShow();
             if ((attachmentMask
                     & CallScreeningService.CallResponse.CALL_COMPOSER_ATTACHMENT_LOCATION) == 0) {
-                incomingCall.getExtras().remove(TelecomManager.EXTRA_LOCATION);
+                incomingCall.getIntentExtras().remove(TelecomManager.EXTRA_LOCATION);
             }
 
             if ((attachmentMask
                     & CallScreeningService.CallResponse.CALL_COMPOSER_ATTACHMENT_SUBJECT) == 0) {
-                incomingCall.getExtras().remove(TelecomManager.EXTRA_CALL_SUBJECT);
+                incomingCall.getIntentExtras().remove(TelecomManager.EXTRA_CALL_SUBJECT);
             }
 
             if ((attachmentMask
                     & CallScreeningService.CallResponse.CALL_COMPOSER_ATTACHMENT_PRIORITY) == 0) {
-                incomingCall.getExtras().remove(TelecomManager.EXTRA_PRIORITY);
+                incomingCall.getIntentExtras().remove(TelecomManager.EXTRA_PRIORITY);
             }
         }
 
