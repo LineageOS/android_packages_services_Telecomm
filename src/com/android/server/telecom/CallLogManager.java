@@ -342,20 +342,29 @@ public final class CallLogManager extends CallsManagerListenerBase {
                 paramBuilder.setAddForAllUsers(accountHandle.getUserHandle() == null);
             }
         }
-        if (call.getExtras() != null) {
-            if (call.getExtras().containsKey(TelecomManager.EXTRA_PRIORITY)) {
-                paramBuilder.setPriority(call.getExtras().getInt(TelecomManager.EXTRA_PRIORITY));
+        if (call.getIntentExtras() != null) {
+            if (call.getIntentExtras().containsKey(TelecomManager.EXTRA_PRIORITY)) {
+                paramBuilder.setPriority(call.getIntentExtras()
+                        .getInt(TelecomManager.EXTRA_PRIORITY));
             }
-            if (call.getExtras().containsKey(TelecomManager.EXTRA_CALL_SUBJECT)) {
-                paramBuilder.setSubject(call.getExtras()
+            if (call.getIntentExtras().containsKey(TelecomManager.EXTRA_CALL_SUBJECT)) {
+                paramBuilder.setSubject(call.getIntentExtras()
                         .getString(TelecomManager.EXTRA_CALL_SUBJECT));
             }
-            if (call.getExtras().containsKey(TelecomManager.EXTRA_PICTURE_URI)) {
+            if (call.getIntentExtras().containsKey(TelecomManager.EXTRA_PICTURE_URI)) {
+                paramBuilder.setPictureUri(call.getIntentExtras()
+                        .getParcelable(TelecomManager.EXTRA_PICTURE_URI));
+            }
+            // The picture uri can end up either in extras or in intent extras due to how these
+            // two bundles are set. For incoming calls they're in extras, but for outgoing calls
+            // they're in intentExtras.
+            if (call.getExtras() != null
+                    && call.getExtras().containsKey(TelecomManager.EXTRA_PICTURE_URI)) {
                 paramBuilder.setPictureUri(call.getExtras()
                         .getParcelable(TelecomManager.EXTRA_PICTURE_URI));
             }
-            if (call.getExtras().containsKey(TelecomManager.EXTRA_LOCATION)) {
-                Location l = call.getExtras().getParcelable(TelecomManager.EXTRA_LOCATION);
+            if (call.getIntentExtras().containsKey(TelecomManager.EXTRA_LOCATION)) {
+                Location l = call.getIntentExtras().getParcelable(TelecomManager.EXTRA_LOCATION);
                 if (l != null) {
                     paramBuilder.setLatitude(l.getLatitude());
                     paramBuilder.setLongitude(l.getLongitude());

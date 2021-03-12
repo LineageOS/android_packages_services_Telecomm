@@ -852,7 +852,7 @@ public class CallLogManagerTest extends TelecomTestCase {
         extras.putString(TelecomManager.EXTRA_CALL_SUBJECT, subject);
         extras.putParcelable(TelecomManager.EXTRA_LOCATION, location);
         extras.putParcelable(TelecomManager.EXTRA_PICTURE_URI, fakeProviderUri);
-        when(fakeCall.getExtras()).thenReturn(extras);
+        when(fakeCall.getIntentExtras()).thenReturn(extras);
 
         mCallLogManager.onCallStateChanged(fakeCall, CallState.ACTIVE,
                 CallState.DISCONNECTED);
