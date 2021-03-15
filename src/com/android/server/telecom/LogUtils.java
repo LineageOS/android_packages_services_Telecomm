@@ -197,6 +197,10 @@ public class LogUtils {
         public static final String REDIRECTION_USER_CONFIRMED = "REDIRECTION_USER_CONFIRMED";
         public static final String REDIRECTION_USER_CANCELLED = "REDIRECTION_USER_CANCELLED";
         public static final String BT_QUALITY_REPORT = "BT_QUALITY_REPORT";
+        public static final String SET_DISCONNECTED_ORIG = "SET_DISCONNECTED_ORIG";
+        public static final String OVERRIDE_DISCONNECT_MESSAGE = "OVERRIDE_DISCONNECT_MSG";
+        public static final String CALL_DIAGNOSTIC_SERVICE_TIMEOUT =
+                "CALL_DIAGNOSTIC_SERVICE_TIMEOUT";
 
         public static class Timings {
             public static final String ACCEPT_TIMING = "accept";
