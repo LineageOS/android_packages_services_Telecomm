@@ -41,6 +41,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -52,6 +53,7 @@ import android.os.SystemClock;
 import android.os.UserHandle;
 import android.telecom.CallerInfo;
 import android.telecom.Connection;
+import android.telecom.DisconnectCause;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
@@ -228,6 +230,8 @@ public class CallsManagerTest extends TelecomTestCase {
         doNothing().when(mRoleManagerAdapter).setCurrentUserHandle(any());
         when(mDisconnectedCallNotifierFactory.create(any(Context.class),any(CallsManager.class)))
                 .thenReturn(mDisconnectedCallNotifier);
+        when(mTimeoutsAdapter.getCallDiagnosticServiceTimeoutMillis(any(ContentResolver.class)))
+                .thenReturn(2000L);
         mCallsManager = new CallsManager(
                 mComponentContextFixture.getTestDouble().getApplicationContext(),
                 mLock,
@@ -1506,6 +1510,39 @@ public class CallsManagerTest extends TelecomTestCase {
         // disconnecting.
         verify(listener).onCallStateChanged(eq(ongoingCall), eq(CallState.ACTIVE),
                 eq(CallState.ACTIVE));
+    }
+
+    /**
+     * Verifies where a call diagnostic service is NOT in use that we don't try to relay to the
+     * CallDiagnosticService and that we get a synchronous disconnect.
+     * @throws Exception
+     */
+    @MediumTest
+    @Test
+    public void testDisconnectCallSynchronous() throws Exception {
+        Call callSpy = addSpyCall();
+        callSpy.setIsSimCall(true);
+        when(mCallDiagnosticServiceController.isConnected()).thenReturn(false);
+        mCallsManager.markCallAsDisconnected(callSpy, new DisconnectCause(DisconnectCause.ERROR));
+
+        verify(mCallDiagnosticServiceController, never()).onCallDisconnected(any(Call.class),
+                any(DisconnectCause.class));
+        verify(callSpy).setDisconnectCause(any(DisconnectCause.class));
+    }
+
+    @MediumTest
+    @Test
+    public void testDisconnectCallAsynchronous() throws Exception {
+        Call callSpy = addSpyCall();
+        callSpy.setIsSimCall(true);
+        when(mCallDiagnosticServiceController.isConnected()).thenReturn(true);
+        when(mCallDiagnosticServiceController.onCallDisconnected(any(Call.class),
+                any(DisconnectCause.class))).thenReturn(true);
+        mCallsManager.markCallAsDisconnected(callSpy, new DisconnectCause(DisconnectCause.ERROR));
+
+        verify(mCallDiagnosticServiceController).onCallDisconnected(any(Call.class),
+                any(DisconnectCause.class));
+        verify(callSpy, never()).setDisconnectCause(any(DisconnectCause.class));
     }
 
     private Call addSpyCall() {
