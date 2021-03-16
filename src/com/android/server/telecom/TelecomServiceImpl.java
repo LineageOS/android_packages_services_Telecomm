@@ -1776,6 +1776,8 @@ public class TelecomServiceImpl {
          * {@link CallState#DISCONNECTED} or {@link CallState#DISCONNECTING} states. Stuck calls
          * during CTS cause cascading failures, so if the CTS test detects such a state, it should
          * call this method via a shell command to clean up before moving on to the next test.
+         * Also cleans up any pending futures related to
+         * {@link android.telecom.CallDiagnosticService}s.
          */
         @Override
         public void cleanupStuckCalls() {
@@ -1785,6 +1787,7 @@ public class TelecomServiceImpl {
                     enforceShellOnly(Binder.getCallingUid(), "cleanupStuckCalls");
                     Binder.withCleanCallingIdentity(() -> {
                         for (Call call : mCallsManager.getCalls()) {
+                            call.cleanup();
                             if (call.getState() == CallState.DISCONNECTED
                                     || call.getState() == CallState.DISCONNECTING) {
                                 mCallsManager.markCallAsRemoved(call);

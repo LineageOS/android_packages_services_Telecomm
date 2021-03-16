@@ -3099,27 +3099,82 @@ public class CallsManager extends Call.ListenerBase
             // be marked as missed.
             call.setOverrideDisconnectCauseCode(new DisconnectCause(DisconnectCause.MISSED));
         }
-        call.setDisconnectCause(disconnectCause);
-        setCallState(call, CallState.DISCONNECTED, "disconnected set explicitly");
 
-        if(oldState == CallState.NEW && disconnectCause.getCode() == DisconnectCause.MISSED) {
+        // If a call diagnostic service is in use, we will log the original telephony-provided
+        // disconnect cause, inform the CDS of the disconnection, and then chain the update of the
+        // call state until AFTER the CDS reports it's result back.
+        if (oldState == CallState.ACTIVE && disconnectCause.getCode() != DisconnectCause.MISSED
+                && mCallDiagnosticServiceController.isConnected()
+                && mCallDiagnosticServiceController.onCallDisconnected(call, disconnectCause)) {
+            Log.i(this, "markCallAsDisconnected; callid=%s, postingToFuture.", call.getId());
+
+            // Log the original disconnect reason prior to calling into the
+            // CallDiagnosticService.
+            Log.addEvent(call, LogUtils.Events.SET_DISCONNECTED_ORIG, disconnectCause);
+
+            // Setup the future with a timeout so that the CDS is time boxed.
+            CompletableFuture<Boolean> future = call.initializeDisconnectFuture(
+                    mTimeoutsAdapter.getCallDiagnosticServiceTimeoutMillis(
+                            mContext.getContentResolver()));
+
+            // Post the disconnection updates to the future for completion once the CDS returns
+            // with it's overridden disconnect message.
+            future.thenRunAsync(() -> {
+                call.setDisconnectCause(disconnectCause);
+                setCallState(call, CallState.DISCONNECTED, "disconnected set explicitly");
+            }, new LoggedHandlerExecutor(mHandler, "CM.mCAD", mLock))
+                    .exceptionally((throwable) -> {
+                        Log.e(TAG, throwable, "Error while executing disconnect future.");
+                        return null;
+                    });
+        } else {
+            // No CallDiagnosticService, or it doesn't handle this call, so just do this
+            // synchronously as always.
+            call.setDisconnectCause(disconnectCause);
+            setCallState(call, CallState.DISCONNECTED, "disconnected set explicitly");
+        }
+
+        if (oldState == CallState.NEW && disconnectCause.getCode() == DisconnectCause.MISSED) {
             Log.i(this, "markCallAsDisconnected: logging missed call ");
             mCallLogManager.logCall(call, Calls.MISSED_TYPE, true, null);
         }
-
     }
 
     /**
      * Removes an existing disconnected call, and notifies the in-call app.
      */
     void markCallAsRemoved(Call call) {
+        if (call.isDisconnectHandledViaFuture()) {
+            Log.i(this, "markCallAsRemoved; callid=%s, postingToFuture.", call.getId());
+            // A future is being used due to a CallDiagnosticService handling the call.  We will
+            // chain the removal operation to the end of any outstanding disconnect work.
+            call.getDisconnectFuture().thenRunAsync(() -> {
+                performRemoval(call);
+            }, new LoggedHandlerExecutor(mHandler, "CM.mCAR", mLock))
+                    .exceptionally((throwable) -> {
+                        Log.e(TAG, throwable, "Error while executing disconnect future");
+                        return null;
+                    });
+
+        } else {
+            Log.i(this, "markCallAsRemoved; callid=%s, immediate.", call.getId());
+            performRemoval(call);
+        }
+    }
+
+    /**
+     * Work which is completed when a call is to be removed. Can either be be run synchronously or
+     * posted to a {@link Call#getDisconnectFuture()}.
+     * @param call The call.
+     */
+    private void performRemoval(Call call) {
         mInCallController.getBindingFuture().thenRunAsync(() -> {
             call.maybeCleanupHandover();
             removeCall(call);
             Call foregroundCall = mCallAudioManager.getPossiblyHeldForegroundCall();
             if (mLocallyDisconnectingCalls.contains(call)) {
                 boolean isDisconnectingChildCall = call.isDisconnectingChildCall();
-                Log.v(this, "markCallAsRemoved: isDisconnectingChildCall = "
+                Log.v(this, "performRemoval: isDisconnectingChildCall = "
                         + isDisconnectingChildCall + "call -> %s", call);
                 mLocallyDisconnectingCalls.remove(call);
                 // Auto-unhold the foreground call due to a locally disconnected call, except if the
@@ -3136,10 +3191,11 @@ public class CallsManager extends Call.ListenerBase
                 // The new foreground call is on hold, however the carrier does not display the hold
                 // button in the UI.  Therefore, we need to auto unhold the held call since the user
                 // has no means of unholding it themselves.
-                Log.i(this, "Auto-unholding held foreground call (call doesn't support hold)");
+                Log.i(this, "performRemoval: Auto-unholding held foreground call (call doesn't "
+                        + "support hold)");
                 foregroundCall.unhold();
             }
-        }, new LoggedHandlerExecutor(mHandler, "CM.mCAR", mLock))
+        }, new LoggedHandlerExecutor(mHandler, "CM.pR", mLock))
                 .exceptionally((throwable) -> {
                     Log.e(TAG, throwable, "Error while executing call removal");
                     return null;

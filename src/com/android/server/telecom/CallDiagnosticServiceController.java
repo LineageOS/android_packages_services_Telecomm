@@ -36,6 +36,7 @@ import android.telecom.CallAudioState;
 import android.telecom.CallDiagnosticService;
 import android.telecom.ConnectionService;
 import android.telecom.DiagnosticCall;
+import android.telecom.DisconnectCause;
 import android.telecom.InCallService;
 import android.telecom.Log;
 import android.telecom.ParcelableCall;
@@ -252,6 +253,32 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
         } else {
             maybeBindCallDiagnosticService();
         }
+    }
+
+    /**
+     * Handles a newly disconnected call signalled from {@link CallsManager}.
+     * @param call The call
+     * @param disconnectCause The disconnect cause
+     * @return {@code true} if the {@link CallDiagnosticService} was sent the call, {@code false}
+     * if the call was not applicable to the CDS or if there was an issue sending it.
+     */
+    public boolean onCallDisconnected(@NonNull Call call,
+            @NonNull DisconnectCause disconnectCause) {
+        if (!call.isSimCall() || call.isExternalCall()) {
+            Log.i(this, "onCallDisconnected: skipping call %s as non-sim or external.",
+                    call.getId());
+            return false;
+        }
+        String callId = mCallIdMapper.getCallId(call);
+        try {
+            if (isConnected()) {
+                mCallDiagnosticService.notifyCallDisconnected(callId, disconnectCause);
+                return true;
+            }
+        } catch (RemoteException e) {
+            Log.w(this, "onCallDisconnected: callId=%s, exception=%s", call.getId(), e);
+        }
+        return false;
     }
 
     /**
@@ -569,7 +596,7 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
     /**
      * @return {@code true} if the call diagnostic service is bound/connected.
      */
-    private boolean isConnected() {
+    public boolean isConnected() {
         return mCallDiagnosticService != null;
     }
 

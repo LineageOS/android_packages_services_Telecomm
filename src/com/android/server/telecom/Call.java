@@ -39,6 +39,7 @@ import android.provider.CallLog;
 import android.provider.ContactsContract.Contacts;
 import android.telecom.BluetoothCallQualityReport;
 import android.telecom.CallAudioState;
+import android.telecom.CallDiagnosticService;
 import android.telecom.CallerInfo;
 import android.telecom.Conference;
 import android.telecom.Connection;
@@ -60,6 +61,7 @@ import android.telecom.VideoProfile;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
 import android.telephony.emergency.EmergencyNumber;
+import android.telephony.ims.ImsReasonInfo;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.widget.Toast;
@@ -81,7 +83,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  *  Encapsulates all aspects of a given phone call throughout its lifecycle, starting
@@ -662,6 +666,22 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private boolean mIsSimCall;
 
     /**
+     * Set to {@code true} if we received a valid response ({@code null} or otherwise) from
+     * the {@link DiagnosticCall#onCallDisconnected(ImsReasonInfo)} or
+     * {@link DiagnosticCall#onCallDisconnected(int, int)} calls.  This is used to detect a timeout
+     * when awaiting a response from the call diagnostic service.
+     */
+    private boolean mReceivedCallDiagnosticPostCallResponse = false;
+
+    /**
+     * {@link CompletableFuture} used to delay posting disconnection and removal to a call until
+     * after a {@link CallDiagnosticService} is able to handle the disconnection and provide a
+     * disconnect message via {@link DiagnosticCall#onCallDisconnected(ImsReasonInfo)} or
+     * {@link DiagnosticCall#onCallDisconnected(int, int)}.
+     */
+    private CompletableFuture<Boolean> mDisconnectFuture;
+
+    /**
      * Persists the specified parameters and initializes the new instance.
      * @param context The context.
      * @param repository The connection service repository.
@@ -1092,8 +1112,29 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
     }
 
+    /**
+     * Handles an incoming overridden disconnect message for this call.
+     *
+     * We only care if the disconnect is handled via a future.
+     * @param message the overridden disconnect message.
+     */
     public void handleOverrideDisconnectMessage(@Nullable CharSequence message) {
+        Log.i(this, "handleOverrideDisconnectMessage; callid=%s, msg=%s", getId(), message);
 
+        if (isDisconnectHandledViaFuture()) {
+            mReceivedCallDiagnosticPostCallResponse = true;
+            if (message != null) {
+                Log.addEvent(this, LogUtils.Events.OVERRIDE_DISCONNECT_MESSAGE, message);
+                // Replace the existing disconnect cause in this call
+                setOverrideDisconnectCauseCode(new DisconnectCause(DisconnectCause.ERROR, message,
+                        message, null));
+            }
+
+            mDisconnectFuture.complete(true);
+        } else {
+            Log.w(this, "handleOverrideDisconnectMessage; callid=%s - got override when unbound",
+                    getId());
+        }
     }
 
     /**
@@ -4087,5 +4128,67 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      */
     public boolean isSimCall() {
         return mIsSimCall;
+    }
+
+    /**
+     * Sets whether this is a sim call or not.
+     * @param isSimCall {@code true} if this is a SIM call, {@code false} otherwise.
+     */
+    public void setIsSimCall(boolean isSimCall) {
+        mIsSimCall = isSimCall;
+    }
+
+    /**
+     * Initializes a disconnect future which is used to chain up pending operations which take
+     * place when the {@link CallDiagnosticService} returns the result of the
+     * {@link DiagnosticCall#onCallDisconnected(int, int)} or
+     * {@link DiagnosticCall#onCallDisconnected(ImsReasonInfo)} invocation via
+     * {@link CallDiagnosticServiceAdapter}.  If no {@link CallDiagnosticService} is in use, we
+     * would not try to make a disconnect future.
+     * @param timeoutMillis Timeout we use for waiting for the response.
+     * @return the {@link CompletableFuture}.
+     */
+    public CompletableFuture<Boolean> initializeDisconnectFuture(long timeoutMillis) {
+        if (mDisconnectFuture == null) {
+            mDisconnectFuture = new CompletableFuture<Boolean>()
+                    .completeOnTimeout(false, timeoutMillis, TimeUnit.MILLISECONDS);
+            // After all the chained stuff we will report where the CDS timed out.
+            mDisconnectFuture.thenRunAsync(() -> {
+                if (!mReceivedCallDiagnosticPostCallResponse) {
+                    Log.addEvent(this, LogUtils.Events.CALL_DIAGNOSTIC_SERVICE_TIMEOUT);
+                }},
+                new LoggedHandlerExecutor(mHandler, "C.iDF", mLock))
+                    .exceptionally((throwable) -> {
+                        Log.e(this, throwable, "Error while executing disconnect future");
+                        return null;
+                    });
+        }
+        return mDisconnectFuture;
+    }
+
+    /**
+     * @return the disconnect future, if initialized.  Used for chaining operations after creation.
+     */
+    public CompletableFuture<Boolean> getDisconnectFuture() {
+        return mDisconnectFuture;
+    }
+
+    /**
+     * @return {@code true} if disconnection and removal is handled via a future, or {@code false}
+     * if this is handled immediately.
+     */
+    public boolean isDisconnectHandledViaFuture() {
+        return mDisconnectFuture != null && !mDisconnectFuture.isDone();
+    }
+
+    /**
+     * Perform any cleanup on this call as a result of a {@link TelecomServiceImpl}
+     * {@code cleanupStuckCalls} request.
+     */
+    public void cleanup() {
+        if (mDisconnectFuture != null) {
+            mDisconnectFuture.complete(false);
+            mDisconnectFuture = null;
+        }
     }
 }
