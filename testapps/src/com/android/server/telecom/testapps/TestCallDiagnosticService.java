@@ -51,14 +51,14 @@ public class TestCallDiagnosticService extends CallDiagnosticService {
         @Override
         public CharSequence onCallDisconnected(int disconnectCause, int preciseDisconnectCause) {
             Log.i(this, "onCallDisconnected");
-            return null;
+            return "GSM/CDMA call dropped because " + disconnectCause;
         }
 
         @Nullable
         @Override
         public CharSequence onCallDisconnected(@NonNull ImsReasonInfo disconnectReason) {
             Log.i(this, "onCallDisconnected");
-            return null;
+            return "ImsCall dropped because something happened " + disconnectReason.mExtraMessage;
         }
 
         @Override
