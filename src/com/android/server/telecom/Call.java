@@ -40,14 +40,13 @@ import android.provider.ContactsContract.Contacts;
 import android.telecom.BluetoothCallQualityReport;
 import android.telecom.CallAudioState;
 import android.telecom.CallDiagnosticService;
+import android.telecom.CallDiagnostics;
 import android.telecom.CallerInfo;
 import android.telecom.Conference;
 import android.telecom.Connection;
 import android.telecom.ConnectionService;
-import android.telecom.DiagnosticCall;
 import android.telecom.DisconnectCause;
 import android.telecom.GatewayInfo;
-import android.telecom.InCallService;
 import android.telecom.Log;
 import android.telecom.Logging.EventManager;
 import android.telecom.ParcelableConference;
@@ -63,7 +62,6 @@ import android.telephony.TelephonyManager;
 import android.telephony.emergency.EmergencyNumber;
 import android.telephony.ims.ImsReasonInfo;
 import android.text.TextUtils;
-import android.util.ArrayMap;
 import android.widget.Toast;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -667,8 +665,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     /**
      * Set to {@code true} if we received a valid response ({@code null} or otherwise) from
-     * the {@link DiagnosticCall#onCallDisconnected(ImsReasonInfo)} or
-     * {@link DiagnosticCall#onCallDisconnected(int, int)} calls.  This is used to detect a timeout
+     * the {@link CallDiagnostics#onCallDisconnected(ImsReasonInfo)} or
+     * {@link CallDiagnostics#onCallDisconnected(int, int)} calls.  This is used to detect a timeout
      * when awaiting a response from the call diagnostic service.
      */
     private boolean mReceivedCallDiagnosticPostCallResponse = false;
@@ -676,8 +674,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     /**
      * {@link CompletableFuture} used to delay posting disconnection and removal to a call until
      * after a {@link CallDiagnosticService} is able to handle the disconnection and provide a
-     * disconnect message via {@link DiagnosticCall#onCallDisconnected(ImsReasonInfo)} or
-     * {@link DiagnosticCall#onCallDisconnected(int, int)}.
+     * disconnect message via {@link CallDiagnostics#onCallDisconnected(ImsReasonInfo)} or
+     * {@link CallDiagnostics#onCallDisconnected(int, int)}.
      */
     private CompletableFuture<Boolean> mDisconnectFuture;
 
@@ -4001,7 +3999,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * @param message the message type to send.
      * @param value the value for the message.
      */
-    public void sendDeviceToDeviceMessage(@DiagnosticCall.MessageType int message, int value) {
+    public void sendDeviceToDeviceMessage(@CallDiagnostics.MessageType int message, int value) {
         Log.i(this, "sendDeviceToDeviceMessage; callId=%s, msg=%d/%d", getId(), message, value);
         Bundle extras = new Bundle();
         extras.putInt(Connection.EXTRA_DEVICE_TO_DEVICE_MESSAGE_TYPE, message);
@@ -4141,8 +4139,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     /**
      * Initializes a disconnect future which is used to chain up pending operations which take
      * place when the {@link CallDiagnosticService} returns the result of the
-     * {@link DiagnosticCall#onCallDisconnected(int, int)} or
-     * {@link DiagnosticCall#onCallDisconnected(ImsReasonInfo)} invocation via
+     * {@link CallDiagnostics#onCallDisconnected(int, int)} or
+     * {@link CallDiagnostics#onCallDisconnected(ImsReasonInfo)} invocation via
      * {@link CallDiagnosticServiceAdapter}.  If no {@link CallDiagnosticService} is in use, we
      * would not try to make a disconnect future.
      * @param timeoutMillis Timeout we use for waiting for the response.
