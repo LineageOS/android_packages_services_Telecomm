@@ -20,7 +20,7 @@ import android.content.ContentResolver;
 import android.provider.Settings;
 import android.telecom.CallDiagnosticService;
 import android.telecom.CallRedirectionService;
-import android.telecom.DiagnosticCall;
+import android.telecom.CallDiagnostics;
 import android.telephony.ims.ImsReasonInfo;
 
 import java.util.concurrent.TimeUnit;
@@ -223,8 +223,8 @@ public final class Timeouts {
 
     /**
      * Returns the maximum amount of time a {@link CallDiagnosticService} is permitted to take to
-     * return back from {@link DiagnosticCall#onCallDisconnected(ImsReasonInfo)} and
-     * {@link DiagnosticCall#onCallDisconnected(int, int)}.
+     * return back from {@link CallDiagnostics#onCallDisconnected(ImsReasonInfo)} and
+     * {@link CallDiagnostics#onCallDisconnected(int, int)}.
      * @param contentResolver The resolver for the config option.
      * @return The timeout in millis.
      */

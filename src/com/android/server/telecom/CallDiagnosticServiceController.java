@@ -35,7 +35,7 @@ import android.telecom.BluetoothCallQualityReport;
 import android.telecom.CallAudioState;
 import android.telecom.CallDiagnosticService;
 import android.telecom.ConnectionService;
-import android.telecom.DiagnosticCall;
+import android.telecom.CallDiagnostics;
 import android.telecom.DisconnectCause;
 import android.telecom.InCallService;
 import android.telecom.Log;
@@ -46,7 +46,6 @@ import android.text.TextUtils;
 import com.android.internal.telecom.ICallDiagnosticService;
 import com.android.internal.util.IndentingPrintWriter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -455,7 +454,7 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
 
         @Override
         public void sendDeviceToDeviceMessage(String callId,
-                        @DiagnosticCall.MessageType int message, int value) {
+                        @CallDiagnostics.MessageType int message, int value) {
             handleSendD2DMessage(callId, message, value);
         }
 
@@ -528,7 +527,7 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
      * @param value The message value.
      */
     private void handleSendD2DMessage(@NonNull String callId,
-            @DiagnosticCall.MessageType int message, int value) {
+            @CallDiagnostics.MessageType int message, int value) {
         Call call = mCallIdMapper.getCall(callId);
         if (call == null) {
             Log.w(this, "handleSendD2DMessage: callId=%s; msg=%d/%d; invalid call", callId,
@@ -542,7 +541,7 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
     /**
      * Handles a request from a {@link CallDiagnosticService} to override the disconnect message
      * for a call.  This is the response path from a previous call into the
-     * {@link CallDiagnosticService} via {@link DiagnosticCall#onCallDisconnected(ImsReasonInfo)}.
+     * {@link CallDiagnosticService} via {@link CallDiagnostics#onCallDisconnected(ImsReasonInfo)}.
      * @param callId The telecom call ID the disconnect override is pending for.
      * @param message The new disconnect message, or {@code null} if no override.
      */
