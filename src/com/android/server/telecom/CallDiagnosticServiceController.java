@@ -40,6 +40,7 @@ import android.telecom.DisconnectCause;
 import android.telecom.InCallService;
 import android.telecom.Log;
 import android.telecom.ParcelableCall;
+import android.telephony.CallQuality;
 import android.telephony.ims.ImsReasonInfo;
 import android.text.TextUtils;
 
@@ -153,6 +154,16 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
         @Override
         public void onReceivedDeviceToDeviceMessage(Call call, int messageType, int messageValue) {
             handleReceivedDeviceToDeviceMessage(call, messageType, messageValue);
+        }
+
+        /**
+         * Handles an incoming {@link CallQuality} report from a {@link android.telecom.Connection}.
+         * @param call The call.
+         * @param callQualityReport The call quality report.
+         */
+        @Override
+        public void onReceivedCallQualityReport(Call call, CallQuality callQualityReport) {
+            handleCallQualityReport(call, callQualityReport);
         }
     };
 
@@ -646,6 +657,23 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
             }
         } catch (RemoteException e) {
             Log.w(this, "handleReceivedDeviceToDeviceMessage: callId=%s, exception=%s",
+                    call.getId(), e);
+        }
+    }
+
+    /**
+     * Handles a reported {@link CallQuality} report from a {@link android.telecom.Connection}.
+     * @param call The call the report originated from.
+     * @param callQualityReport The {@link CallQuality} report.
+     */
+    private void handleCallQualityReport(@NonNull Call call,
+            @NonNull CallQuality callQualityReport) {
+        try {
+            if (isConnected()) {
+                mCallDiagnosticService.callQualityChanged(call.getId(), callQualityReport);
+            }
+        } catch (RemoteException e) {
+            Log.w(this, "handleCallQualityReport: callId=%s, exception=%s",
                     call.getId(), e);
         }
     }
