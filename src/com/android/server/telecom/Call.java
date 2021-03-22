@@ -57,6 +57,7 @@ import android.telecom.Response;
 import android.telecom.StatusHints;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
+import android.telephony.CallQuality;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
 import android.telephony.emergency.EmergencyNumber;
@@ -162,6 +163,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         void onHandoverComplete(Call call);
         void onBluetoothCallQualityReport(Call call, BluetoothCallQualityReport report);
         void onReceivedDeviceToDeviceMessage(Call call, int messageType, int messageValue);
+        void onReceivedCallQualityReport(Call call, CallQuality callQuality);
     }
 
     public abstract static class ListenerBase implements Listener {
@@ -254,6 +256,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         public void onBluetoothCallQualityReport(Call call, BluetoothCallQualityReport report) {}
         @Override
         public void onReceivedDeviceToDeviceMessage(Call call, int messageType, int messageValue) {}
+        @Override
+        public void onReceivedCallQualityReport(Call call, CallQuality callQuality) {}
     }
 
     private final CallerInfoLookupHelper.OnQueryCompleteListener mCallerInfoQueryListener =
@@ -3790,6 +3794,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             for (Listener l : mListeners) {
                 l.onReceivedDeviceToDeviceMessage(this, messageType, messageValue);
             }
+        } else if (Connection.EVENT_CALL_QUALITY_REPORT.equals(event)
+                && extras != null && extras.containsKey(Connection.EXTRA_CALL_QUALITY_REPORT)) {
+            CallQuality callQuality = extras.getParcelable(Connection.EXTRA_CALL_QUALITY_REPORT);
+            for (Listener l : mListeners) {
+                l.onReceivedCallQualityReport(this, callQuality);
+            }
         } else {
             for (Listener l : mListeners) {
                 l.onConnectionEvent(this, event, extras);
@@ -4154,7 +4164,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             mDisconnectFuture.thenRunAsync(() -> {
                 if (!mReceivedCallDiagnosticPostCallResponse) {
                     Log.addEvent(this, LogUtils.Events.CALL_DIAGNOSTIC_SERVICE_TIMEOUT);
-                }},
+                }
+                // Clear the future as a final step.
+                mDisconnectFuture = null;
+                },
                 new LoggedHandlerExecutor(mHandler, "C.iDF", mLock))
                     .exceptionally((throwable) -> {
                         Log.e(this, throwable, "Error while executing disconnect future");
@@ -4176,7 +4189,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * if this is handled immediately.
      */
     public boolean isDisconnectHandledViaFuture() {
-        return mDisconnectFuture != null && !mDisconnectFuture.isDone();
+        return mDisconnectFuture != null;
     }
 
     /**
