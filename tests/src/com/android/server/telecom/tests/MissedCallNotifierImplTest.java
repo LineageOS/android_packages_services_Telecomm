@@ -458,7 +458,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                         CallLog.Calls.PRESENTATION_ALLOWED, CALL_TIMESTAMP)
                 .build();
 
-        when(cp.query(anyString(), nullable(String.class), eq(queryUri), nullable(String[].class),
+        when(cp.query(any(), eq(queryUri), nullable(String[].class),
                 nullable(Bundle.class), nullable(ICancellationSignal.class)))
                 .thenReturn(mockMissedCallsCursor);
 
@@ -528,7 +528,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                 PRIMARY_USER.getIdentifier());
         IContentProvider cp = getContentProviderForUser(PRIMARY_USER.getIdentifier());
 
-        when(cp.query(anyString(), nullable(String.class), eq(queryUri), nullable(String[].class),
+        when(cp.query(any(), eq(queryUri), nullable(String[].class),
                 nullable(Bundle.class), nullable(ICancellationSignal.class)))
                 .thenReturn(mockMissedCallsCursor);
 
