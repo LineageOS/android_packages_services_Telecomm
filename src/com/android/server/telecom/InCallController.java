@@ -608,7 +608,7 @@ public class InCallController extends CallsManagerListenerBase {
                             new InCallServiceBindingConnection(carModeConnectionInfo);
                     mIsCarMode = true;
                 } else {
-                    // Invalid car mode app; don't expect this but should handle it gracefully.
+                    // The app is not enabled. Using the default dialer connection instead
                     mCarModeConnection = null;
                     mIsCarMode = false;
                     mCurrentConnection = mDialerConnection;
@@ -908,6 +908,10 @@ public class InCallController extends CallsManagerListenerBase {
                         if (mNonUIInCallServiceConnections != null) {
                             mNonUIInCallServiceConnections.addConnections(componentsToBind);
                         }
+
+                        // If the current car mode app become enabled from disabled, update
+                        // the connection to binding
+                        updateCarModeForConnections();
                     }
                 }
             } finally {
@@ -1455,6 +1459,10 @@ public class InCallController extends CallsManagerListenerBase {
         } else {
             Log.i(this, "bindToServices: current UI doesn't support call; not binding.");
         }
+
+        IntentFilter packageChangedFilter = new IntentFilter(Intent.ACTION_PACKAGE_CHANGED);
+        packageChangedFilter.addDataScheme("package");
+        mContext.registerReceiver(mPackageChangedReceiver, packageChangedFilter);
     }
 
     private void updateNonUiInCallServices() {
@@ -1484,10 +1492,6 @@ public class InCallController extends CallsManagerListenerBase {
             updateNonUiInCallServices();
         }
         mNonUIInCallServiceConnections.connect(call);
-
-        IntentFilter packageChangedFilter = new IntentFilter(Intent.ACTION_PACKAGE_CHANGED);
-        packageChangedFilter.addDataScheme("package");
-        mContext.registerReceiver(mPackageChangedReceiver, packageChangedFilter);
     }
 
     private InCallServiceInfo getDefaultDialerComponent() {
