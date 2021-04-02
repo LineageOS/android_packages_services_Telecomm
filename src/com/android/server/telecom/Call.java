@@ -2016,6 +2016,16 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 }
             }
 
+            boolean wasDowngradedConference =
+                    (previousProperties & Connection.PROPERTY_IS_DOWNGRADED_CONFERENCE) != 0;
+            boolean isDowngradedConference =
+                    (connectionProperties & Connection.PROPERTY_IS_DOWNGRADED_CONFERENCE) != 0;
+            if (wasDowngradedConference && !isDowngradedConference) {
+                Log.i(this, "DOWNGRADED_CONFERENCE property removed; setting"
+                        + " conference state to false");
+                setConferenceState(false);
+            }
+
             mAnalytics.addCallProperties(mConnectionProperties);
 
             int xorProps = previousProperties ^ mConnectionProperties;
