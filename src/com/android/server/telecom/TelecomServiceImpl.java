@@ -934,7 +934,9 @@ public class TelecomServiceImpl {
                 if (CompatChanges.isChangeEnabled(
                         TelecomManager.ENABLE_GET_CALL_STATE_PERMISSION_PROTECTION, callingPackage,
                         Binder.getCallingUserHandle())) {
-                    if (!canReadPhoneState(callingPackage, callingFeatureId, "getCallState")) {
+                    // Bypass canReadPhoneState check if this is being called from SHELL UID
+                    if (Binder.getCallingUid() != Process.SHELL_UID && !canReadPhoneState(
+                            callingPackage, callingFeatureId, "getCallState")) {
                         throw new SecurityException("getCallState API requires READ_PHONE_STATE"
                                 + " for API version 31+");
                     }
