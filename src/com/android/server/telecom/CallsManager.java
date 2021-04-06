@@ -547,6 +547,7 @@ public class CallsManager extends Call.ListenerBase
                 systemStateHelper, defaultDialerCache, mTimeoutsAdapter,
                 emergencyCallHelper);
         mCallDiagnosticServiceController = callDiagnosticServiceController;
+        mCallDiagnosticServiceController.setInCallTonePlayerFactory(playerFactory);
         mRinger = new Ringer(playerFactory, context, systemSettingsUtil, asyncRingtonePlayer,
                 ringtoneFactory, systemVibrator,
                 new Ringer.VibrationEffectProxy(), mInCallController);
