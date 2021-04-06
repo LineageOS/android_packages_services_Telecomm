@@ -229,6 +229,7 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
 
     private final String mPackageName;
     private final ContextProxy mContextProxy;
+    private InCallTonePlayer.Factory mPlayerFactory;
     private String mTestPackageName;
     private CallDiagnosticServiceConnection mConnection;
     private CallDiagnosticServiceAdapter mAdapter;
@@ -241,6 +242,14 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
         mContextProxy = contextProxy;
         mPackageName = packageName;
         mLock = lock;
+    }
+
+    /**
+     * Sets the current {@link InCallTonePlayer.Factory} for this instance.
+     * @param factory the factory.
+     */
+    public void setInCallTonePlayerFactory(InCallTonePlayer.Factory factory) {
+        mPlayerFactory = factory;
     }
 
     /**
@@ -510,6 +519,11 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
         }
         Log.i(this, "handleDisplayDiagnosticMessage: callId=%s; msg=%d/%s; invalid call",
                 callId, messageId, message);
+        if (mPlayerFactory != null) {
+            // Play that tone!
+            mPlayerFactory.createPlayer(InCallTonePlayer.TONE_IN_CALL_QUALITY_NOTIFICATION)
+                    .startTone();
+        }
         call.displayDiagnosticMessage(messageId, message);
     }
 
