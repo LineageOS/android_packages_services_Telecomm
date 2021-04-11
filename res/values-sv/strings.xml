@@ -28,10 +28,11 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Sms:a"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Samtalet kopplades från"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Samtalet <xliff:g id="CALLER">%s</xliff:g> kopplades från eftersom ett nödsamtal ringdes."</string>
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Samtalets kopplades bort på grund av ett nödsamtal."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Bakgrundssamtal"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> har ringt ett samtal i bakgrunden. Denna app kan få åtkomst till och spela upp ljud från samtalet."</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Kraschad telefonapp"</string>
-    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"Telefonappen <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> har kraschat. Samtalet fortsatte med appen Telefon som medföljer enheten."</string>
+    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> slutade svara"</string>
+    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Samtalet använde telefonappen som medföljer enheten"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Samtalets ljud avstängt."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"Högtalartelefon aktiverad."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"Kan inte prata nu. Läget?"</string>
@@ -56,9 +57,9 @@
     <string name="change_default_dialer_dialog_affirmative" msgid="8604665314757739550">"Ange standard"</string>
     <string name="change_default_dialer_dialog_negative" msgid="8648669840052697821">"Avbryt"</string>
     <string name="change_default_dialer_warning_message" msgid="8461963987376916114">"<xliff:g id="NEW_APP">%s</xliff:g> kan ringa och styra allt omkring samtal. Endast appar du litar på bör ställas in som standardtelefonapp."</string>
-    <string name="change_default_call_screening_dialog_title" msgid="5365787219927262408">"Vill du göra <xliff:g id="NEW_APP">%s</xliff:g> till din standardapp för samtalsspärr?"</string>
-    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="2039830033533243164">"<xliff:g id="OLD_APP">%s</xliff:g> kommer inte längre att användas för samtalsspärr."</string>
-    <string name="change_default_call_screening_warning_message" msgid="9020537562292754269">"<xliff:g id="NEW_APP">%s</xliff:g> kommer att kunna se information om uppringare som inte finns i dina kontakter och blockera dessa samtal. Endast appar du litar på bör ställas in som standardapp för samtalsspärr."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="5365787219927262408">"Vill du göra <xliff:g id="NEW_APP">%s</xliff:g> till din standardapp för samtalsfiltrering?"</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="2039830033533243164">"<xliff:g id="OLD_APP">%s</xliff:g> kommer inte längre att användas för samtalsfiltrering."</string>
+    <string name="change_default_call_screening_warning_message" msgid="9020537562292754269">"<xliff:g id="NEW_APP">%s</xliff:g> kommer att kunna se information om uppringare som inte finns i dina kontakter och blockera dessa samtal. Endast appar du litar på bör ställas in som standardapp för samtalsfiltrering."</string>
     <string name="change_default_call_screening_dialog_affirmative" msgid="7162433828280058647">"Ange standard"</string>
     <string name="change_default_call_screening_dialog_negative" msgid="1839266125623106342">"Avbryt"</string>
     <string name="blocked_numbers" msgid="8322134197039865180">"Blockerade nummer"</string>
@@ -74,7 +75,7 @@
     <string name="blocked_numbers_butter_bar_title" msgid="582982373755950791">"Blockeringen har inaktiverats tillfälligt"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="1261213114919301485">"När du ringer eller sms:ar ett nödnummer inaktiveras blockering för att säkerställa att räddningstjänsten kan kontakta dig."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2704456308072489793">"Återaktivera nu"</string>
-    <string name="blocked_numbers_number_blocked_message" msgid="4314736791180919167">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> blockerade"</string>
+    <string name="blocked_numbers_number_blocked_message" msgid="4314736791180919167">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> har blockerats"</string>
     <string name="blocked_numbers_number_unblocked_message" msgid="2933071624674945601">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> avblockerat"</string>
     <string name="blocked_numbers_block_emergency_number_message" msgid="4198550501500893890">"Det går inte att blockera nödnummer."</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="2301270825735665458">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> är redan blockerat."</string>
@@ -97,7 +98,7 @@
     <string name="notification_channel_missed_call" msgid="7168893015283909012">"Missade samtal"</string>
     <string name="notification_channel_call_blocking" msgid="2028807677868598710">"Samtalsblockering"</string>
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"Bakgrundssamtal"</string>
-    <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"Samtalen kopplades från"</string>
+    <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"Frånkopplade samtal"</string>
     <string name="notification_channel_in_call_service_crash" msgid="7313237519166984267">"Kraschade telefonappar"</string>
     <string name="alert_outgoing_call" msgid="5319895109298927431">"Ringer du det här samtalet avslutas samtalet i <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"Välj hur du vill ringa samtalet"</string>

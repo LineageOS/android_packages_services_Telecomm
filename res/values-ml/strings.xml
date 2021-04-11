@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="telecommAppLabel" product="default" msgid="3077225713817780583">"കോൾ മാനേജുമെന്റ്"</string>
+    <string name="telecommAppLabel" product="default" msgid="3077225713817780583">"കോൾ മാനേജ്മെന്റ്"</string>
     <string name="userCallActivityLabel" product="default" msgid="3605391260292846248">"ഫോണ്‍"</string>
     <string name="unknown" msgid="6993977514360123431">"അജ്ഞാതം"</string>
     <string name="notification_missedCallTitle" msgid="5060387047205532974">"മിസ്‌ഡ് കോൾ"</string>
@@ -24,15 +24,15 @@
     <string name="notification_missedCallsTitle" msgid="3910479625507893809">"മിസ്‌ഡ് കോളുകൾ"</string>
     <string name="notification_missedCallsMsg" msgid="5055782736170916682">"<xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> മിസ്‌ഡ് കോളുകൾ"</string>
     <string name="notification_missedCallTicker" msgid="6731461957487087769">"<xliff:g id="MISSED_CALL_FROM">%s</xliff:g> എന്നതിൽ നിന്നുള്ള മിസ്‌ഡ് കോൾ"</string>
-    <string name="notification_missedCall_call_back" msgid="7900333283939789732">"കോൾബാക്ക്"</string>
+    <string name="notification_missedCall_call_back" msgid="7900333283939789732">"തിരിച്ചുവിളിക്കുക"</string>
     <string name="notification_missedCall_message" msgid="4054698824390076431">"സന്ദേശം"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"വിച്ഛേദിക്കപ്പെട്ട കോൾ"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"ഒരു അടിയന്തര കോൾ നടക്കുന്നതിനാൽ <xliff:g id="CALLER">%s</xliff:g> എന്നയാൾക്ക് ചെയ്യുന്ന കോൾ വിച്‌ഛേദിക്കപ്പെട്ടിരിക്കുന്നു."</string>
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"ഒരു അടിയന്തര കോൾ നടക്കുന്നതിനാൽ നിങ്ങളുടെ കോൾ വിച്‌ഛേദിക്കപ്പെട്ടിരിക്കുന്നു."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"പശ്ചാത്തല കോൾ"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> കോൾ പശ്ചാത്തലത്തിലേക്ക് മാറ്റി. കോൾ ചെയ്യുമ്പോൾ ഈ ആപ്പിന് ഓഡിയോ ആക്‌സസ് ചെയ്യാനും പ്ലേ ചെയ്യാനും കഴിഞ്ഞേക്കാം."</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"ക്രാഷായ ഫോൺ ആപ്പ്"</string>
-    <!-- no translation found for notification_crashedInCallService_body (7821729360036047995) -->
-    <skip />
+    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> ആപ്പ് പ്രതികരിക്കുന്നത് നിർത്തി"</string>
+    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"നിങ്ങളുടെ കോൾ, നിങ്ങളുടെ ഉപകരണത്തിനൊപ്പം ലഭ്യമായ ഫോൺ ആപ്പ് ഉപയോഗിച്ചു"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"കോൾ നിശബ്‌ദമാക്കി."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"സ്‌പീക്കർഫോൺ പ്രവർത്തനക്ഷമമാക്കി."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"ഇപ്പോൾ സംസാരിക്കാനാകില്ല. എന്താ വിളിച്ചത്?"</string>
@@ -76,7 +76,7 @@
     <string name="blocked_numbers_butter_bar_body" msgid="1261213114919301485">"നിങ്ങൾ ഒരു എമർജൻസി നമ്പർ ഡയൽ ചെയ്‌ത് കഴിയുമ്പോഴോ അതിലേക്ക് സന്ദേശമയച്ചുകഴിയുമ്പോഴോ, എമർജൻസി സേവനങ്ങൾ നിങ്ങളിലേക്ക് എത്തുമെന്ന് ഉറപ്പാക്കാൻ കോൾ ബ്ലോക്കിംഗ് ഓഫാക്കും."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2704456308072489793">"ഇപ്പോൾ വീണ്ടും പ്രവർത്തനക്ഷമമാക്കുക"</string>
     <string name="blocked_numbers_number_blocked_message" msgid="4314736791180919167">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> ബ്ലോക്ക് ചെയ്‌തു"</string>
-    <string name="blocked_numbers_number_unblocked_message" msgid="2933071624674945601">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> അൺബ്ലോക്കുചെയ്‌തു"</string>
+    <string name="blocked_numbers_number_unblocked_message" msgid="2933071624674945601">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> അൺബ്ലോക്ക് ചെയ്‌തു"</string>
     <string name="blocked_numbers_block_emergency_number_message" msgid="4198550501500893890">"അടിയന്തര നമ്പർ ബ്ലോക്കുചെയ്യാനാകുന്നില്ല."</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="2301270825735665458">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> മുമ്പേതന്നെ ബ്ലോക്കുചെയ്‌തതാണ്."</string>
     <string name="toast_personal_call_msg" msgid="5817631570381795610">"കോൾ ചെയ്യുന്നതിന് സ്വകാര്യ ഡയലർ ഉപയോഗിക്കുന്നു"</string>

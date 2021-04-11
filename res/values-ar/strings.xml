@@ -28,11 +28,11 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"رسالة"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"تم قطع الاتصال"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"تم قطع اتصالك بجهة الاتصال <xliff:g id="CALLER">%s</xliff:g> بسبب إجراء مكالمة طوارئ."</string>
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"تم قطع مكالمتك بسبب إجراء مكالمة طوارئ."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"مكالمة في الخلفية"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"وضَع <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> مكالمة في الخلفية. يمكن لهذا التطبيق الوصول إلى الصوت وتشغيله عبر المكالمة."</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"لقد تعطّل تطبيق الهاتف"</string>
-    <!-- no translation found for notification_crashedInCallService_body (7821729360036047995) -->
-    <skip />
+    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"توقّف <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> عن الاستجابة"</string>
+    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"تمت مكالمتك باستخدام تطبيق \"الهاتف\" الذي أتى مع جهازك."</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"تم كتم صوت المكالمة."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"تم تفعيل مكبر صوت الهاتف."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"لا يمكنني التحدث الآن. ما الأمر؟"</string>
@@ -73,10 +73,10 @@
     <string name="non_primary_user" msgid="315564589279622098">"يمكن لمالك الجهاز فقط الاطّلاع على الأرقام المحظورة وإدارتها."</string>
     <string name="delete_icon_description" msgid="5335959254954774373">"إلغاء الحظر"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="582982373755950791">"تم إيقاف الحظر مؤقتًا"</string>
-    <string name="blocked_numbers_butter_bar_body" msgid="1261213114919301485">"بعد الاتصال الهاتفي أو إرسال رسالة نصية إلى رقم طوارئ، يتم إيقاف تفعيل الحظر لضمان تمكن خدمات الطوارئ من الاتصال بك."</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="1261213114919301485">"بعد الاتصال الهاتفي أو إرسال رسالة نصية إلى رقم طوارئ، يتم إيقاف الحظر لضمان تمكن خدمات الطوارئ من الاتصال بك."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2704456308072489793">"إعادة تفعيل الآن"</string>
     <string name="blocked_numbers_number_blocked_message" msgid="4314736791180919167">"تم حظر <xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g>"</string>
-    <string name="blocked_numbers_number_unblocked_message" msgid="2933071624674945601">"تم إلغاء حظر <xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g>"</string>
+    <string name="blocked_numbers_number_unblocked_message" msgid="2933071624674945601">"تمت إزالة حظر <xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g>"</string>
     <string name="blocked_numbers_block_emergency_number_message" msgid="4198550501500893890">"غير قادر على حظر رقم الطوارئ."</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="2301270825735665458">"تم حظر <xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> بالفعل."</string>
     <string name="toast_personal_call_msg" msgid="5817631570381795610">"يتم استخدام أداة الاتصال الشخصي لإجراء الاتصال"</string>

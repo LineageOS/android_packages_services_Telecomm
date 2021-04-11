@@ -28,11 +28,11 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Pranešimas"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Skambutis atjungtas"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Skambutis kontaktui <xliff:g id="CALLER">%s</xliff:g> buvo atjungtas dėl atliekamo skambučio pagalbos numeriu."</string>
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Skambutis buvo atjungtas dėl atliekamo skambučio pagalbos numeriu."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Skambutis fone"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"Programa „<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>“ perkėlė skambutį į foną. Ši programa gali pasiekti ir leisti garsą vykstant skambučiui."</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Užstrigusi telefono programa"</string>
-    <!-- no translation found for notification_crashedInCallService_body (7821729360036047995) -->
-    <skip />
+    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"Programa „<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g>“ nebereaguoja"</string>
+    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Atliekant skambutį buvo naudojama telefono programa, kuri buvo įrenginyje jį įsigijus"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Skambutis nutildytas."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"Garsiakalbis įgalintas."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"Dabar negaliu kalbėti. Kas nutiko?"</string>
