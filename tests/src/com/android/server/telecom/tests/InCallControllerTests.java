@@ -45,6 +45,7 @@ import android.app.AppOpsManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.UiModeManager;
+import android.content.AttributionSource;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -124,6 +125,7 @@ public class InCallControllerTests extends TelecomTestCase {
     @Mock Analytics.CallInfoImpl mCallInfo;
     @Mock NotificationManager mNotificationManager;
     @Mock PermissionInfo mMockPermissionInfo;
+    @Mock AttributionSource mAttributionSource;
 
     private static final int CURRENT_USER_ID = 900973;
     private static final String DEF_PKG = "defpkg";
@@ -180,6 +182,7 @@ public class InCallControllerTests extends TelecomTestCase {
                 .thenReturn(mNotificationManager);
         when(mMockPackageManager.getPermissionInfo(anyString(), anyInt())).thenReturn(
                 mMockPermissionInfo);
+        when(mMockContext.getAttributionSource()).thenReturn(mAttributionSource);
         mInCallController = new InCallController(mMockContext, mLock, mMockCallsManager,
                 mMockSystemStateHelper, mDefaultDialerCache, mTimeoutsAdapter,
                 mEmergencyCallHelper, mCarModeTracker, mClockProxy);
