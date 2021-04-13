@@ -32,6 +32,7 @@ import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.app.UiModeManager;
 import android.app.compat.CompatChanges;
+import android.content.AttributionSource;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -839,10 +840,14 @@ public class TelecomServiceImpl {
         public boolean hasManageOngoingCallsPermission(String callingPackage) {
             try {
                 Log.startSession("TSI.hMOCP");
-                return PermissionChecker.checkPermissionForPreflight(mContext,
-                        Manifest.permission.MANAGE_ONGOING_CALLS,
-                                PermissionChecker.PID_UNKNOWN, Binder.getCallingUid(),
-                                        callingPackage) == PermissionChecker.PERMISSION_GRANTED;
+                return PermissionChecker.checkPermissionForDataDeliveryFromDataSource(
+                        mContext, Manifest.permission.MANAGE_ONGOING_CALLS,
+                        Binder.getCallingPid(),
+                        new AttributionSource(mContext.getAttributionSource(),
+                                new AttributionSource(Binder.getCallingUid(),
+                                        callingPackage, /*attributionTag*/ null)),
+                        "Checking whether the caller has MANAGE_ONGOING_CALLS permission")
+                                == PermissionChecker.PERMISSION_GRANTED;
             } finally {
                 Log.endSession();
             }

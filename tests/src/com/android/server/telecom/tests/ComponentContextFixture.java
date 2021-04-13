@@ -32,6 +32,7 @@ import android.app.NotificationManager;
 import android.app.StatusBarManager;
 import android.app.UiModeManager;
 import android.app.role.RoleManager;
+import android.content.AttributionSource;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -263,6 +264,11 @@ public class ComponentContextFixture implements TestFixture<Context> {
         }
 
         @Override
+        public AttributionSource getAttributionSource() {
+            return mAttributionSource;
+        }
+
+        @Override
         public ContentResolver getContentResolver() {
             return new ContentResolver(mApplicationContextSpy) {
                 @Override
@@ -449,6 +455,11 @@ public class ComponentContextFixture implements TestFixture<Context> {
             return mAudioStreamValue;
         }
     }
+
+    private static final int UID = 123;
+    private static final String PACKAGE_NAME = "com.android.server.telecom.tests";
+    private final AttributionSource mAttributionSource =
+            new AttributionSource.Builder(UID).setPackageName(PACKAGE_NAME).build();
 
     private final Multimap<String, ComponentName> mComponentNamesByAction =
             ArrayListMultimap.create();

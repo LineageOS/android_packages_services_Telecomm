@@ -23,6 +23,7 @@ import android.annotation.NonNull;
 import android.app.AppOpsManager;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.content.AttributionSource;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -2133,9 +2134,13 @@ public class InCallController extends CallsManagerListenerBase {
     }
 
     private boolean isAppOpsPermittedManageOngoingCalls(int uid, String callingPackage) {
-        return PermissionChecker.checkPermissionForPreflight(mContext,
-                Manifest.permission.MANAGE_ONGOING_CALLS, PermissionChecker.PID_UNKNOWN, uid,
-                        callingPackage) == PermissionChecker.PERMISSION_GRANTED;
+        return PermissionChecker.checkPermissionForDataDeliveryFromDataSource(mContext,
+                Manifest.permission.MANAGE_ONGOING_CALLS, PermissionChecker.PID_UNKNOWN,
+                        new AttributionSource(mContext.getAttributionSource(),
+                                new AttributionSource(uid, callingPackage,
+                                        /*attributionTag*/ null)), "Checking whether the app has"
+                                                + " MANAGE_ONGOING_CALLS permission")
+                                                        == PermissionChecker.PERMISSION_GRANTED;
     }
 
     private void sendCrashedInCallServiceNotification(String packageName) {
