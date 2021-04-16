@@ -98,7 +98,7 @@
     <string name="notification_channel_missed_call" msgid="7168893015283909012">"Пропуштени повици"</string>
     <string name="notification_channel_call_blocking" msgid="2028807677868598710">"Блокирање повици"</string>
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"Повици во заднина"</string>
-    <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"Исклучени повици"</string>
+    <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"Прекинати повици"</string>
     <string name="notification_channel_in_call_service_crash" msgid="7313237519166984267">"Паднати апликации за телефон"</string>
     <string name="alert_outgoing_call" msgid="5319895109298927431">"Ако се воспостави повиков, вашиот повик на <xliff:g id="OTHER_APP">%1$s</xliff:g> ќе заврши."</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"Изберете како да се воспостави повиков"</string>
