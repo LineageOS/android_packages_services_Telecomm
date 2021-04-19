@@ -49,7 +49,7 @@ def main():
 
 def _is_in_aosp():
   branch_info = subprocess.check_output(["git", "branch", "-vv"])
-  return re.search(AOSP_BRANCH_REGEX, branch_info) is not None
+  return re.search(AOSP_BRANCH_REGEX, str(branch_info)) is not None
 
 def _check_aosp_message(aosp_line):
   if re.search(AOSP_COMMIT_LINK_REGEX, aosp_line):
