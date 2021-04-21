@@ -276,6 +276,10 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
 
         waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
         verifyNewSystemCallAudioState(initState, expectedMidState);
+        // clear out the handler state before resetting mocks in order to avoid introducing a
+        // CallAudioState that has a null list of supported BT devices
+        waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
+        waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
         resetMocks();
 
         // Now, switch back to BT explicitly
