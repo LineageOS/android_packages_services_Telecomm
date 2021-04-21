@@ -493,6 +493,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 case SWITCH_FOCUS:
                     if (msg.arg1 == ACTIVE_FOCUS || msg.arg1 == RINGING_FOCUS) {
                         transitionTo(mActiveEarpieceRoute);
+                    } else {
+                        mCallAudioManager.notifyAudioOperationsComplete();
                     }
                     return HANDLED;
                 default:
@@ -695,6 +697,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 case SWITCH_FOCUS:
                     if (msg.arg1 == ACTIVE_FOCUS || msg.arg1 == RINGING_FOCUS) {
                         transitionTo(mActiveHeadsetRoute);
+                    } else {
+                        mCallAudioManager.notifyAudioOperationsComplete();
                     }
                     return HANDLED;
                 default:
@@ -1051,6 +1055,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                         } else {
                             transitionTo(mRingingBluetoothRoute);
                         }
+                    } else {
+                        mCallAudioManager.notifyAudioOperationsComplete();
                     }
                     return HANDLED;
                 case BT_AUDIO_DISCONNECTED:
@@ -1274,6 +1280,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     if (msg.arg1 == ACTIVE_FOCUS || msg.arg1 == RINGING_FOCUS) {
                         setSpeakerphoneOn(true);
                         transitionTo(mActiveSpeakerRoute);
+                    } else {
+                        mCallAudioManager.notifyAudioOperationsComplete();
                     }
                     return HANDLED;
                 default:
