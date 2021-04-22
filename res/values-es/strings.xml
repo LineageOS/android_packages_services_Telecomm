@@ -28,10 +28,11 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"Mensaje"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"Llamada interrumpida"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Se ha interrumpido la llamada a <xliff:g id="CALLER">%s</xliff:g> debido a una llamada de emergencia."</string>
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Se ha interrumpido tu llamada debido a una llamada de emergencia."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Llamada en segundo plano"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ha llamado en segundo plano. Puede que esta aplicación acceda al audio y lo reproduzca durante la llamada."</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"Aplicación para teléfonos bloqueada"</string>
-    <string name="notification_crashedInCallService_body" msgid="7821729360036047995">"Tu aplicación para teléfonos <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> se ha bloqueado. La llamada continuó con la aplicación para teléfonos de tu dispositivo."</string>
+    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> ha dejado de responder"</string>
+    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"La llamada se utilizó la aplicación para teléfonos que venía con tu dispositivo"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Llamada silenciada"</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"Altavoz habilitado"</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"No puedo hablar. ¿Es importante?"</string>
@@ -44,7 +45,7 @@
     <string name="respond_via_sms_edittext_dialog_title" msgid="6579353156073272157">"Respuesta rápida"</string>
     <string name="respond_via_sms_confirmation_format" msgid="2932395476561267842">"Mensaje enviado a <xliff:g id="PHONE_NUMBER">%s</xliff:g>"</string>
     <string name="respond_via_sms_failure_format" msgid="5198680980054596391">"No se ha podido enviar el mensaje al <xliff:g id="PHONE_NUMBER">%s</xliff:g>."</string>
-    <string name="enable_account_preference_title" msgid="6949224486748457976">"Cuentas de llamadas"</string>
+    <string name="enable_account_preference_title" msgid="6949224486748457976">"Cuentas de llamada"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="3424338207838851646">"Solo se permiten llamadas de emergencia."</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="8590468836581488679">"Esta aplicación no puede hacer llamadas sin permiso del teléfono."</string>
     <string name="outgoing_call_error_no_phone_number_supplied" msgid="7665135102566099778">"Para realizar una llamada, introduce un número válido."</string>
@@ -98,7 +99,7 @@
     <string name="notification_channel_call_blocking" msgid="2028807677868598710">"Bloqueo de llamadas"</string>
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"Llamadas en segundo plano"</string>
     <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"Llamadas interrumpidas"</string>
-    <string name="notification_channel_in_call_service_crash" msgid="7313237519166984267">"Aplicaciones para teléfonos bloqueadas"</string>
+    <string name="notification_channel_in_call_service_crash" msgid="7313237519166984267">"Aplicaciones para teléfonos con bloqueos"</string>
     <string name="alert_outgoing_call" msgid="5319895109298927431">"Si haces esta llamada, se finalizará la de <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"Elige cómo quieres hacer esta llamada"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="5221065030959024121">"Redirigir llamada con <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>

@@ -16,23 +16,23 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="telecommAppLabel" product="default" msgid="3077225713817780583">"કૉલ સંચાલન"</string>
+    <string name="telecommAppLabel" product="default" msgid="3077225713817780583">"કૉલ મેનેજમેન્ટ"</string>
     <string name="userCallActivityLabel" product="default" msgid="3605391260292846248">"ફોન"</string>
     <string name="unknown" msgid="6993977514360123431">"અજાણ્યું"</string>
-    <string name="notification_missedCallTitle" msgid="5060387047205532974">"છૂટેલો કૉલ"</string>
+    <string name="notification_missedCallTitle" msgid="5060387047205532974">"ચૂકી ગયેલો કૉલ"</string>
     <string name="notification_missedWorkCallTitle" msgid="6965463282259034953">"ચૂકી ગયેલ કાર્ય કૉલ"</string>
-    <string name="notification_missedCallsTitle" msgid="3910479625507893809">"છૂટેલા કૉલ્સ"</string>
-    <string name="notification_missedCallsMsg" msgid="5055782736170916682">"<xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> છૂટેલા કૉલ્સ"</string>
+    <string name="notification_missedCallsTitle" msgid="3910479625507893809">"ચૂકી ગયેલા કૉલ"</string>
+    <string name="notification_missedCallsMsg" msgid="5055782736170916682">"<xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> ચૂકી ગયેલા કૉલ"</string>
     <string name="notification_missedCallTicker" msgid="6731461957487087769">"<xliff:g id="MISSED_CALL_FROM">%s</xliff:g> નો કૉલ ચૂકી ગયાં"</string>
     <string name="notification_missedCall_call_back" msgid="7900333283939789732">"કૉલ બેક"</string>
     <string name="notification_missedCall_message" msgid="4054698824390076431">"સંદેશ"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"ડિસ્કનેક્ટ કરેલો કૉલ"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"ઇમર્જન્સી કૉલને કારણે <xliff:g id="CALLER">%s</xliff:g>નો કૉલ ડિસ્કનેક્ટ કરવામાં આવ્યો છે."</string>
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"ઇમર્જન્સી કૉલને કારણે તમારો કૉલ ડિસ્કનેક્ટ કરવામાં આવ્યો છે."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"બૅકગ્રાઉન્ડ કૉલ"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>એ કૉલ બેકગ્રાઉન્ડમાં રાખ્યો છે. આ ઍપ કૉલ પરથી ઑડિયો ઍક્સેસ કરીને તેને ચલાવી શકે છે."</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"ફોન ઍપ ક્રૅશ થઈ"</string>
-    <!-- no translation found for notification_crashedInCallService_body (7821729360036047995) -->
-    <skip />
+    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> ઍપ પ્રતિસાદ આપી રહી નથી"</string>
+    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"તમારા કૉલ માટે તમારા ડિવાઇસમાં પહેલેથી ઇન્સ્ટૉલ કરેલી ફોન ઍપનો ઉપયોગ કરવામાં આવ્યો"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"કૉલ મ્યૂટ કરેલ છે."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"સ્પીકરફોન પસંદ કરેલ છે."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"હમણાં વાત નહીં કરી શકું. શું હતું?"</string>
@@ -45,7 +45,7 @@
     <string name="respond_via_sms_edittext_dialog_title" msgid="6579353156073272157">"ઝડપી પ્રતિસાદ"</string>
     <string name="respond_via_sms_confirmation_format" msgid="2932395476561267842">"<xliff:g id="PHONE_NUMBER">%s</xliff:g> પર સંદેશ મોકલ્યો."</string>
     <string name="respond_via_sms_failure_format" msgid="5198680980054596391">"<xliff:g id="PHONE_NUMBER">%s</xliff:g>ને સંદેશ મોકલવામાં નિષ્ફળ રહ્યાં."</string>
-    <string name="enable_account_preference_title" msgid="6949224486748457976">"કૉલિંગ એકાઉન્ટ્સ"</string>
+    <string name="enable_account_preference_title" msgid="6949224486748457976">"કૉલ કરવા માટેના એકાઉન્ટ"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="3424338207838851646">"ફક્ત કટોકટીના કૉલ્સને મંજૂરી છે."</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="8590468836581488679">"ફોન પરવાનગી વિના આ ઍપ્લિકેશન આઉટગોઇંગ કૉલ્સ કરી શકતી નથી."</string>
     <string name="outgoing_call_error_no_phone_number_supplied" msgid="7665135102566099778">"કૉલ કરવા માટે, માન્ય નંબર દાખલ કરો."</string>
@@ -65,8 +65,8 @@
     <string name="blocked_numbers" msgid="8322134197039865180">"અવરોધિત નંબરો"</string>
     <string name="blocked_numbers_msg" msgid="2797422132329662697">"બ્લૉક કરેલા નંબર પરથી કૉલ અથવા ટેક્સ્ટ તમને આવશે નહિ."</string>
     <string name="block_number" msgid="3784343046852802722">"એક નંબર ઉમેરો"</string>
-    <string name="unblock_dialog_body" msgid="2723393535797217261">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ને બ્લૉક કરીએ?"</string>
-    <string name="unblock_button" msgid="8732021675729981781">"અનાવરોધિત કરો"</string>
+    <string name="unblock_dialog_body" msgid="2723393535797217261">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> ને અનબ્લૉક કરીએ?"</string>
+    <string name="unblock_button" msgid="8732021675729981781">"અનબ્લૉક કરો"</string>
     <string name="add_blocked_dialog_body" msgid="8599974422407139255">"આ નંબરના કૉલ અને ટેક્સ્ટને અવરોધિત કરો"</string>
     <string name="add_blocked_number_hint" msgid="8769422085658041097">"ફોન નંબર"</string>
     <string name="block_button" msgid="485080149164258770">"અવરોધિત કરો"</string>
@@ -76,7 +76,7 @@
     <string name="blocked_numbers_butter_bar_body" msgid="1261213114919301485">"તમે કોઈ કટોકટીનો નંબર ડાયલ કરો કે ટેક્સ્ટ કરો તે પછી, કટોકટીની સેવાઓ તમારો સંપર્ક કરી શકે તેની ખાતરી કરવા માટે અવરોધિત કરવું બંધ કરવામાં આવે છે."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2704456308072489793">"હવે ફરીથી સક્ષમ કરો"</string>
     <string name="blocked_numbers_number_blocked_message" msgid="4314736791180919167">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> અવરોધિત કર્યો"</string>
-    <string name="blocked_numbers_number_unblocked_message" msgid="2933071624674945601">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> અનાવરોધિત કર્યો"</string>
+    <string name="blocked_numbers_number_unblocked_message" msgid="2933071624674945601">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> અનબ્લૉક કર્યો"</string>
     <string name="blocked_numbers_block_emergency_number_message" msgid="4198550501500893890">"કટોકટીના નંબરને અવરોધિત કરવામાં અસમર્થ."</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="2301270825735665458">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g>, પહેલાંથી અવરોધિત કરવામાં આવ્યો છે."</string>
     <string name="toast_personal_call_msg" msgid="5817631570381795610">"કૉલ કરવા માટે વ્યક્તિગત ડાયલરનો ઉપયોગ કરી રહ્યાં છે"</string>
@@ -95,7 +95,7 @@
     <string name="cant_call_due_to_ongoing_calls" msgid="6379163795277824868">"તમારા <xliff:g id="OTHER_CALL">%1$s</xliff:g> કૉલને કારણે કૉલ કરી શકતાં નથી."</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="8243532328969433172">"અન્ય ઍપ્લિકેશનમાં કૉલને કારણે કૉલ કરી શકતાં નથી."</string>
     <string name="notification_channel_incoming_call" msgid="5245550964701715662">"ઇનકમિંગ કૉલ"</string>
-    <string name="notification_channel_missed_call" msgid="7168893015283909012">"છૂટેલા કૉલ"</string>
+    <string name="notification_channel_missed_call" msgid="7168893015283909012">"ચૂકી ગયેલા કૉલ"</string>
     <string name="notification_channel_call_blocking" msgid="2028807677868598710">"કૉલ બ્લૉક કરી રહ્યાં છીએ"</string>
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"બૅકગ્રાઉન્ડ કૉલ"</string>
     <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"ડિસ્કનેક્ટ કરેલા કૉલ"</string>

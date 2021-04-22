@@ -16,23 +16,23 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="telecommAppLabel" product="default" msgid="3077225713817780583">"కాల్ నిర్వహణ"</string>
+    <string name="telecommAppLabel" product="default" msgid="3077225713817780583">"కాల్ మేనేజ్‌మెంట్"</string>
     <string name="userCallActivityLabel" product="default" msgid="3605391260292846248">"ఫోన్"</string>
     <string name="unknown" msgid="6993977514360123431">"తెలియదు"</string>
     <string name="notification_missedCallTitle" msgid="5060387047205532974">"సమాధానం ఇవ్వని కాల్"</string>
     <string name="notification_missedWorkCallTitle" msgid="6965463282259034953">"మిస్డ్ కార్యాలయ కాల్"</string>
-    <string name="notification_missedCallsTitle" msgid="3910479625507893809">"సమాధానం ఇవ్వని కాల్‌లు"</string>
+    <string name="notification_missedCallsTitle" msgid="3910479625507893809">"సమాధానం ఇవ్వని కాల్స్"</string>
     <string name="notification_missedCallsMsg" msgid="5055782736170916682">"<xliff:g id="NUM_MISSED_CALLS">%s</xliff:g> సమాధానం ఇవ్వని కాల్‌లు"</string>
     <string name="notification_missedCallTicker" msgid="6731461957487087769">"<xliff:g id="MISSED_CALL_FROM">%s</xliff:g> నుండి సమాధానం ఇవ్వని కాల్"</string>
     <string name="notification_missedCall_call_back" msgid="7900333283939789732">"కాల్ చేయి"</string>
     <string name="notification_missedCall_message" msgid="4054698824390076431">"సందేశం"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"కాల్ డిస్‌కనెక్ట్ చేయబడింది"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"అత్యవసర కాల్ చేయబడినందున <xliff:g id="CALLER">%s</xliff:g>తో కాల్ డిస్‌కనెక్ట్ చేయబడింది."</string>
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"అత్యవసర కాల్ చేయబడినందున మీ కాల్ డిస్‌కనెక్ట్ చేయబడింది."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"నేపథ్యం కాల్"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> కాల్‌ను నేపథ్యంలోకి పంపింది. కాల్ ద్వారా ఈ యాప్, ఆడియోను యాక్సెస్ ఇంకా ప్లే చేస్తుండవచ్చు."</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"క్రాష్ అయిన ఫోన్ యాప్"</string>
-    <!-- no translation found for notification_crashedInCallService_body (7821729360036047995) -->
-    <skip />
+    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> స్పందించడం ఆగిపోయింది"</string>
+    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"మీ కాల్, మీ పరికరంతో వచ్చిన ఫోన్ యాప్‌ను ఉపయోగించింది"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"కాల్ మ్యూట్ చేయబడింది."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"స్పీకర్ ఫోన్ ప్రారంభించబడింది."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"ఇప్పుడు మాట్లాడలేను. విషయం ఏమిటి?"</string>
@@ -94,11 +94,11 @@
     <string name="cant_call_due_to_ongoing_call" msgid="8004235328451385493">"మీ <xliff:g id="OTHER_CALL">%1$s</xliff:g> కాల్ కొనసాగుతున్నందున కాల్ చేయడం సాధ్యపడదు."</string>
     <string name="cant_call_due_to_ongoing_calls" msgid="6379163795277824868">"మీ <xliff:g id="OTHER_CALL">%1$s</xliff:g> కాల్‌లు కొనసాగుతున్నందున కాల్ చేయడం సాధ్యపడదు."</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="8243532328969433172">"వేరొక అనువర్తనంలో కాల్ కొనసాగుతున్నందున కాల్ చేయడం సాధ్యపడదు."</string>
-    <string name="notification_channel_incoming_call" msgid="5245550964701715662">"ఇన్‌కమింగ్ కాల్‌లు"</string>
-    <string name="notification_channel_missed_call" msgid="7168893015283909012">"సమాధానం ఇవ్వని కాల్‌లు"</string>
+    <string name="notification_channel_incoming_call" msgid="5245550964701715662">"ఇన్‌కమింగ్ కాల్స్"</string>
+    <string name="notification_channel_missed_call" msgid="7168893015283909012">"సమాధానం ఇవ్వని కాల్స్"</string>
     <string name="notification_channel_call_blocking" msgid="2028807677868598710">"కాల్ బ్లాక్ చేయడం"</string>
-    <string name="notification_channel_background_calls" msgid="7785659903711350506">"నేపథ్యం కాల్‌లు"</string>
-    <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"డిస్‌కనెక్ట్ చేసిన కాల్‌లు"</string>
+    <string name="notification_channel_background_calls" msgid="7785659903711350506">"బ్యాక్‌గ్రౌండ్ కాల్స్"</string>
+    <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"డిస్‌కనెక్ట్ చేసిన కాల్స్"</string>
     <string name="notification_channel_in_call_service_crash" msgid="7313237519166984267">"క్రాష్ అయిన ఫోన్ యాప్స్"</string>
     <string name="alert_outgoing_call" msgid="5319895109298927431">"ఈ కాల్ చేయడం వలన మీ <xliff:g id="OTHER_APP">%1$s</xliff:g> కాల్ ముగుస్తుంది."</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"ఈ కాల్ ఎలా చేయాలో ఎంచుకోండి"</string>
@@ -118,6 +118,6 @@
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="1713632946174016619">"కాల్ బ్లాక్ చేయడం నిలిపివేయబడింది"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="6629412508584507377">"అత్యవసర కాల్ చేయబడింది"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"మిమ్మల్ని సంప్రదించడానికి అత్యవసర ప్రతిస్పందనదారులను అనుమతించడానికి కాల్ బ్లాక్ చేయడం నిలిపివేయబడింది."</string>
-    <string name="developer_title" msgid="9146088855661672353">"టెలికామ్ డెవలపర్ మెను"</string>
+    <string name="developer_title" msgid="9146088855661672353">"టెలికామ్ డెవలపర్ మెనూ"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"అత్యవసర కాల్‌లో వున్నప్పుడు కాల్‌లను స్వీకరించడానికి వీలుపడదు."</string>
 </resources>

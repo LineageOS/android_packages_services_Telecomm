@@ -28,11 +28,11 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"মেসেজ"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"ডিসকানেক্ট করা কল"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"জরুরি কল করার জন্য <xliff:g id="CALLER">%s</xliff:g>-কে করা কল ডিসকানেক্ট করা হয়েছে।"</string>
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"জরুরী কল করার জন্য আপনার কল ডিসকানেক্ট করা হয়েছে।"</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"ব্যাকগ্রাউন্ডের কল"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ব্যাকগ্রাউন্ডে কল রেখেছে। এই অ্যাপটি হয়ত কলের মাধ্যমে অডিও অ্যাক্সেস করে চালাচ্ছে।"</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"ক্র্যাশ হওয়া ফোন অ্যাপ"</string>
-    <!-- no translation found for notification_crashedInCallService_body (7821729360036047995) -->
-    <skip />
+    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> কাজ করছে না"</string>
+    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"আপনার ডিভাইসের ফোন অ্যাপ ব্যবহার করে কল করা হত"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"কল মিউট করা আছে৷"</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"স্পীকারফোন সক্ষম করা আছে৷"</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"এখন কথা বলতে পারছি না৷ কি খবর?"</string>

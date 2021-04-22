@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="telecommAppLabel" product="default" msgid="3077225713817780583">"कॉल प्रबंधन"</string>
+    <string name="telecommAppLabel" product="default" msgid="3077225713817780583">"कॉल मैनेजमेंट"</string>
     <string name="userCallActivityLabel" product="default" msgid="3605391260292846248">"फ़ोन"</string>
     <string name="unknown" msgid="6993977514360123431">"अज्ञात"</string>
     <string name="notification_missedCallTitle" msgid="5060387047205532974">"छूटी कॉल"</string>
@@ -28,11 +28,11 @@
     <string name="notification_missedCall_message" msgid="4054698824390076431">"मैसेज"</string>
     <string name="notification_disconnectedCall_title" msgid="1790131923692416928">"कॉल डिसकनेक्ट किया गया"</string>
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"<xliff:g id="CALLER">%s</xliff:g> के साथ चल रहे कॉल को डिसकनेक्ट किया गया क्योंकि एक आपातकालीन कॉल किया जा रहा है."</string>
+    <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"एक आपातकालीन कॉल किया जा रहा है, इसलिए आपका कॉल डिसकनेक्ट कर दिया गया है."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"बैकग्राउंड कॉल"</string>
     <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ने कॉल को बैकग्राउंड में रखा है हो सकता है कि यह ऐप्लिकेशन आपके कॉल से ऑडियो ऐक्सेस करके उसे चला रहा हो."</string>
-    <string name="notification_crashedInCallService_title" msgid="7440244344965656743">"फ़ोन ऐप्लिकेशन जो बंद हो गया"</string>
-    <!-- no translation found for notification_crashedInCallService_body (7821729360036047995) -->
-    <skip />
+    <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> ऐप्लिकेशन बंद हो गया है"</string>
+    <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"कॉल करने के लिए, आपके डिवाइस में पहले से मौजूद फ़ोन ऐप्लिकेशन का इस्तेमाल किया गया"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"कॉल म्‍यूट की गई."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"स्‍पीकरफ़ोन सक्षम."</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"अभी बात नहीं हो सकती. क्‍या हो रहा है?"</string>
@@ -66,7 +66,7 @@
     <string name="blocked_numbers_msg" msgid="2797422132329662697">"ब्लॉक किए गए नंबर से आपको कॉल या मैसेज नहीं मिलेंगे."</string>
     <string name="block_number" msgid="3784343046852802722">"नंबर जोड़ें"</string>
     <string name="unblock_dialog_body" msgid="2723393535797217261">"<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g> को अनब्लॉक करें?"</string>
-    <string name="unblock_button" msgid="8732021675729981781">"अनवरोधित करें"</string>
+    <string name="unblock_button" msgid="8732021675729981781">"अनब्लॉक करें"</string>
     <string name="add_blocked_dialog_body" msgid="8599974422407139255">"इसके कॉल और मैसेज रोकें"</string>
     <string name="add_blocked_number_hint" msgid="8769422085658041097">"फ़ोन नंबर"</string>
     <string name="block_button" msgid="485080149164258770">"ब्लॉक करें"</string>
@@ -76,7 +76,7 @@
     <string name="blocked_numbers_butter_bar_body" msgid="1261213114919301485">"आपातकालीन नंबर डायल करने या उस पर लेख संदेश भेजने के बाद, अवरोधन बंद हो जाता है ताकि आपातकालीन सेवाएं आपसे संपर्क कर सकें."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2704456308072489793">"अभी फिर से सक्षम करें"</string>
     <string name="blocked_numbers_number_blocked_message" msgid="4314736791180919167">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> अवरोधित है"</string>
-    <string name="blocked_numbers_number_unblocked_message" msgid="2933071624674945601">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> अनवरोधित है"</string>
+    <string name="blocked_numbers_number_unblocked_message" msgid="2933071624674945601">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> अनब्लॉक किया गया"</string>
     <string name="blocked_numbers_block_emergency_number_message" msgid="4198550501500893890">"आपातकालीन नंबर ब्लॉक करने में असमर्थ."</string>
     <string name="blocked_numbers_number_already_blocked_message" msgid="2301270825735665458">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> पहले से अवरोधित है."</string>
     <string name="toast_personal_call_msg" msgid="5817631570381795610">"कॉल करने के लिए व्यक्तिगत डायलर का उपयोग करना"</string>
