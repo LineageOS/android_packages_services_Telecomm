@@ -1271,6 +1271,14 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
             @Override
             public void onSuccess() {
                 String callId = mCallIdMapper.getCallId(call);
+                if (callId == null) {
+                    Log.w(ConnectionServiceWrapper.this, "Call not present"
+                            + " in call id mapper, maybe it was aborted before the bind"
+                            + " completed successfully?");
+                    response.handleCreateConnectionFailure(
+                            new DisconnectCause(DisconnectCause.CANCELED));
+                    return;
+                }
                 mPendingResponses.put(callId, response);
 
                 GatewayInfo gatewayInfo = call.getGatewayInfo();
