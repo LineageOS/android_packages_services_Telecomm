@@ -517,7 +517,7 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
                     callId, messageId, message);
             return;
         }
-        Log.i(this, "handleDisplayDiagnosticMessage: callId=%s; msg=%d/%s; invalid call",
+        Log.i(this, "handleDisplayDiagnosticMessage: callId=%s; msg=%d/%s",
                 callId, messageId, message);
         if (mPlayerFactory != null) {
             // Play that tone!
