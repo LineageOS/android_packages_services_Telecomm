@@ -1202,6 +1202,39 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     }
 
     /**
+     * Ensure self-managed calls cannot be ended using {@link TelecomManager#endCall()}.
+     * @throws Exception
+     */
+    @SmallTest
+    @Test
+    public void testCannotEndSelfManagedCall() throws Exception {
+        Call call = mock(Call.class);
+        when(call.isSelfManaged()).thenReturn(true);
+        when(call.getState()).thenReturn(CallState.ACTIVE);
+        when(mFakeCallsManager.getFirstCallWithState(any()))
+                .thenReturn(call);
+        assertFalse(mTSIBinder.endCall(TEST_PACKAGE));
+        verify(mFakeCallsManager, never()).disconnectCall(eq(call));
+    }
+
+    /**
+     * Ensure self-managed calls cannot be answered using {@link TelecomManager#acceptRingingCall()}
+     * or {@link TelecomManager#acceptRingingCall(int)}.
+     * @throws Exception
+     */
+    @SmallTest
+    @Test
+    public void testCannotAnswerSelfManagedCall() throws Exception {
+        Call call = mock(Call.class);
+        when(call.isSelfManaged()).thenReturn(true);
+        when(call.getState()).thenReturn(CallState.ACTIVE);
+        when(mFakeCallsManager.getFirstCallWithState(any()))
+                .thenReturn(call);
+        mTSIBinder.acceptRingingCall(TEST_PACKAGE);
+        verify(mFakeCallsManager, never()).answerCall(eq(call), anyInt());
+    }
+
+    /**
      * Register phone accounts for the supplied PhoneAccountHandles to make them
      * visible to all users (via the isVisibleToCaller method in TelecomServiceImpl.
      * @param handles the handles for which phone accounts should be created for.
