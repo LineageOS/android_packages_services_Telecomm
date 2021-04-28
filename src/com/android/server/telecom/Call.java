@@ -3770,7 +3770,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * @param extras The extras.
      */
     public void onConnectionEvent(String event, Bundle extras) {
-        Log.addEvent(this, LogUtils.Events.CONNECTION_EVENT, event);
+        // Don't log call quality reports; they're quite frequent and will clog the log.
+        if (!Connection.EVENT_CALL_QUALITY_REPORT.equals(event)) {
+            Log.addEvent(this, LogUtils.Events.CONNECTION_EVENT, event);
+        }
         if (Connection.EVENT_ON_HOLD_TONE_START.equals(event)) {
             mIsRemotelyHeld = true;
             Log.addEvent(this, LogUtils.Events.REMOTELY_HELD);
