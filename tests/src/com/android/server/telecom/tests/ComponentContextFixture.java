@@ -360,6 +360,11 @@ public class ComponentContextFixture implements TestFixture<Context> {
         }
 
         @Override
+        public int checkSelfPermission(String permission) {
+            return PackageManager.PERMISSION_GRANTED;
+        }
+
+        @Override
         public void enforceCallingOrSelfPermission(String permission, String message) {
             // Don't bother enforcing anything in mock.
         }
