@@ -990,7 +990,7 @@ public class TelecomServiceImpl {
 
                     long token = Binder.clearCallingIdentity();
                     try {
-                        acceptRingingCallInternal(DEFAULT_VIDEO_STATE);
+                        acceptRingingCallInternal(DEFAULT_VIDEO_STATE, packageName);
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
@@ -1013,7 +1013,7 @@ public class TelecomServiceImpl {
 
                     long token = Binder.clearCallingIdentity();
                     try {
-                        acceptRingingCallInternal(videoState);
+                        acceptRingingCallInternal(videoState, packageName);
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
@@ -2120,9 +2120,16 @@ public class TelecomServiceImpl {
         return false;
     }
 
-    private void acceptRingingCallInternal(int videoState) {
-        Call call = mCallsManager.getFirstCallWithState(CallState.RINGING, CallState.SIMULATED_RINGING);
+    private void acceptRingingCallInternal(int videoState, String packageName) {
+        Call call = mCallsManager.getFirstCallWithState(CallState.RINGING,
+                CallState.SIMULATED_RINGING);
         if (call != null) {
+            if (call.isSelfManaged()) {
+                Log.addEvent(call, LogUtils.Events.REQUEST_ACCEPT,
+                        "self-mgd accept ignored from " + packageName);
+                return;
+            }
+
             if (videoState == DEFAULT_VIDEO_STATE || !isValidAcceptVideoState(videoState)) {
                 videoState = call.getVideoState();
             }
@@ -2147,6 +2154,12 @@ public class TelecomServiceImpl {
         if (call != null) {
             if (call.isEmergencyCall()) {
                 android.util.EventLog.writeEvent(0x534e4554, "132438333", -1, "");
+                return false;
+            }
+
+            if (call.isSelfManaged()) {
+                Log.addEvent(call, LogUtils.Events.REQUEST_DISCONNECT,
+                        "self-mgd disconnect ignored from " + callingPackage);
                 return false;
             }
 
