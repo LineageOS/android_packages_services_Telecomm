@@ -365,7 +365,7 @@ public class TelecomSystemTest extends TelecomTestCase {
 
         // Next, create the TelecomSystem, our system under test
         setupTelecomSystem();
-        // Need to reset teseting tag here
+        // Need to reset testing tag here
         Log.setTag(TESTING_TAG);
 
         // Finally, register the ConnectionServices with the PhoneAccountRegistrar of the
@@ -401,11 +401,9 @@ public class TelecomSystemTest extends TelecomTestCase {
         mConnectionServiceFixtureA.waitForHandlerToClear();
         mConnectionServiceFixtureB.waitForHandlerToClear();
 
-        // Print out any incomplete sessions for debugging tests
-        String sessions = Log.getSessionManager().printActiveSessions();
-        if (!TextUtils.isEmpty(sessions)) {
-            Log.w(this, "Active Sessions:\n" + sessions);
-        }
+        // Forcefully clean all sessions at the end of the test, which will also log any stale
+        // sessions for debugging.
+        Log.getSessionManager().cleanupStaleSessions(0);
 
         mTelecomSystem = null;
         super.tearDown();
