@@ -439,7 +439,7 @@ public class InCallTonePlayer extends Thread {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
                     Log.i(this, "playMediaTone: toneResourceId=%d completed.", toneResourceId);
-                    synchronized (this) {
+                    synchronized (InCallTonePlayer.this) {
                         mState = STATE_OFF;
                     }
                     mToneMediaPlayer.release();
