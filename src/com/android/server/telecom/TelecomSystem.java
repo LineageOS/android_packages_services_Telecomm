@@ -217,199 +217,208 @@ public class TelecomSystem {
                 defaultDialerAdapter, roleManagerAdapter, mLock);
 
         Log.startSession("TS.init");
-        mPhoneAccountRegistrar = new PhoneAccountRegistrar(mContext, defaultDialerCache,
-                packageName -> AppLabelProxy.Util.getAppLabel(
-                        mContext.getPackageManager(), packageName));
+        // Wrap this in a try block to ensure session cleanup occurs in the case of error.
+        try {
+            mPhoneAccountRegistrar = new PhoneAccountRegistrar(mContext, defaultDialerCache,
+                    packageName -> AppLabelProxy.Util.getAppLabel(
+                            mContext.getPackageManager(), packageName));
 
-        mContactsAsyncHelper = contactsAsyncHelperFactory.create(
-                new ContactsAsyncHelper.ContentResolverAdapter() {
-                    @Override
-                    public InputStream openInputStream(Context context, Uri uri)
-                            throws FileNotFoundException {
-                        return context.getContentResolver().openInputStream(uri);
-                    }
-                });
-        BluetoothDeviceManager bluetoothDeviceManager = new BluetoothDeviceManager(mContext,
-                new BluetoothAdapterProxy());
-        BluetoothRouteManager bluetoothRouteManager = new BluetoothRouteManager(mContext, mLock,
-                bluetoothDeviceManager, new Timeouts.Adapter());
-        BluetoothStateReceiver bluetoothStateReceiver = new BluetoothStateReceiver(
-                bluetoothDeviceManager, bluetoothRouteManager);
-        mContext.registerReceiver(bluetoothStateReceiver, BluetoothStateReceiver.INTENT_FILTER);
+            mContactsAsyncHelper = contactsAsyncHelperFactory.create(
+                    new ContactsAsyncHelper.ContentResolverAdapter() {
+                        @Override
+                        public InputStream openInputStream(Context context, Uri uri)
+                                throws FileNotFoundException {
+                            return context.getContentResolver().openInputStream(uri);
+                        }
+                    });
+            BluetoothDeviceManager bluetoothDeviceManager = new BluetoothDeviceManager(mContext,
+                    new BluetoothAdapterProxy());
+            BluetoothRouteManager bluetoothRouteManager = new BluetoothRouteManager(mContext, mLock,
+                    bluetoothDeviceManager, new Timeouts.Adapter());
+            BluetoothStateReceiver bluetoothStateReceiver = new BluetoothStateReceiver(
+                    bluetoothDeviceManager, bluetoothRouteManager);
+            mContext.registerReceiver(bluetoothStateReceiver, BluetoothStateReceiver.INTENT_FILTER);
 
-        WiredHeadsetManager wiredHeadsetManager = new WiredHeadsetManager(mContext);
-        SystemStateHelper systemStateHelper = new SystemStateHelper(mContext, mLock);
+            WiredHeadsetManager wiredHeadsetManager = new WiredHeadsetManager(mContext);
+            SystemStateHelper systemStateHelper = new SystemStateHelper(mContext, mLock);
 
-        mMissedCallNotifier = missedCallNotifierImplFactory
-                .makeMissedCallNotifierImpl(mContext, mPhoneAccountRegistrar, defaultDialerCache,
-                        deviceIdleControllerAdapter);
-        DisconnectedCallNotifier.Factory disconnectedCallNotifierFactory =
-                new DisconnectedCallNotifier.Default();
+            mMissedCallNotifier = missedCallNotifierImplFactory
+                    .makeMissedCallNotifierImpl(mContext, mPhoneAccountRegistrar,
+                            defaultDialerCache,
+                            deviceIdleControllerAdapter);
+            DisconnectedCallNotifier.Factory disconnectedCallNotifierFactory =
+                    new DisconnectedCallNotifier.Default();
 
-        CallerInfoLookupHelper callerInfoLookupHelper =
-                new CallerInfoLookupHelper(context, callerInfoAsyncQueryFactory,
-                        mContactsAsyncHelper, mLock);
+            CallerInfoLookupHelper callerInfoLookupHelper =
+                    new CallerInfoLookupHelper(context, callerInfoAsyncQueryFactory,
+                            mContactsAsyncHelper, mLock);
 
-        EmergencyCallHelper emergencyCallHelper = new EmergencyCallHelper(mContext,
-                defaultDialerCache, timeoutsAdapter);
+            EmergencyCallHelper emergencyCallHelper = new EmergencyCallHelper(mContext,
+                    defaultDialerCache, timeoutsAdapter);
 
-        InCallControllerFactory inCallControllerFactory = new InCallControllerFactory() {
-            @Override
-            public InCallController create(Context context, SyncRoot lock,
-                    CallsManager callsManager, SystemStateHelper systemStateProvider,
-                    DefaultDialerCache defaultDialerCache, Timeouts.Adapter timeoutsAdapter,
-                    EmergencyCallHelper emergencyCallHelper) {
-                return new InCallController(context, lock, callsManager, systemStateProvider,
-                        defaultDialerCache, timeoutsAdapter, emergencyCallHelper,
-                        new CarModeTracker(), clockProxy);
+            InCallControllerFactory inCallControllerFactory = new InCallControllerFactory() {
+                @Override
+                public InCallController create(Context context, SyncRoot lock,
+                        CallsManager callsManager, SystemStateHelper systemStateProvider,
+                        DefaultDialerCache defaultDialerCache, Timeouts.Adapter timeoutsAdapter,
+                        EmergencyCallHelper emergencyCallHelper) {
+                    return new InCallController(context, lock, callsManager, systemStateProvider,
+                            defaultDialerCache, timeoutsAdapter, emergencyCallHelper,
+                            new CarModeTracker(), clockProxy);
+                }
+            };
+
+            CallDiagnosticServiceController callDiagnosticServiceController =
+                    new CallDiagnosticServiceController(
+                            new CallDiagnosticServiceController.ContextProxy() {
+                                @Override
+                                public List<ResolveInfo> queryIntentServicesAsUser(
+                                        @NonNull Intent intent, int flags, int userId) {
+                                    return mContext.getPackageManager().queryIntentServicesAsUser(
+                                            intent, flags, userId);
+                                }
+
+                                @Override
+                                public boolean bindServiceAsUser(@NonNull Intent service,
+                                        @NonNull ServiceConnection conn, int flags,
+                                        @NonNull UserHandle user) {
+                                    return mContext.bindServiceAsUser(service, conn, flags, user);
+                                }
+
+                                @Override
+                                public void unbindService(@NonNull ServiceConnection conn) {
+                                    mContext.unbindService(conn);
+                                }
+
+                                @Override
+                                public UserHandle getCurrentUserHandle() {
+                                    return mCallsManager.getCurrentUserHandle();
+                                }
+                            },
+                            mContext.getResources().getString(
+                                    com.android.server.telecom.R.string
+                                            .call_diagnostic_service_package_name),
+                            mLock
+                    );
+
+            AudioProcessingNotification audioProcessingNotification =
+                    new AudioProcessingNotification(mContext);
+
+            ToastFactory toastFactory = new ToastFactory() {
+                @Override
+                public Toast makeText(Context context, int resId, int duration) {
+                    return Toast.makeText(context, context.getMainLooper(),
+                            context.getString(resId),
+                            duration);
+                }
+
+                @Override
+                public Toast makeText(Context context, CharSequence text, int duration) {
+                    return Toast.makeText(context, context.getMainLooper(), text, duration);
+                }
+            };
+
+            mCallsManager = new CallsManager(
+                    mContext,
+                    mLock,
+                    callerInfoLookupHelper,
+                    mMissedCallNotifier,
+                    disconnectedCallNotifierFactory,
+                    mPhoneAccountRegistrar,
+                    headsetMediaButtonFactory,
+                    proximitySensorManagerFactory,
+                    inCallWakeLockControllerFactory,
+                    connectionServiceFocusManagerFactory,
+                    audioServiceFactory,
+                    bluetoothRouteManager,
+                    wiredHeadsetManager,
+                    systemStateHelper,
+                    defaultDialerCache,
+                    timeoutsAdapter,
+                    asyncRingtonePlayer,
+                    phoneNumberUtilsAdapter,
+                    emergencyCallHelper,
+                    toneGeneratorFactory,
+                    clockProxy,
+                    audioProcessingNotification,
+                    bluetoothStateReceiver,
+                    callAudioRouteStateMachineFactory,
+                    callAudioModeStateMachineFactory,
+                    inCallControllerFactory,
+                    callDiagnosticServiceController,
+                    roleManagerAdapter,
+                    toastFactory);
+
+            mIncomingCallNotifier = incomingCallNotifier;
+            incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {
+                @Override
+                public boolean hasUnholdableCallsForOtherConnectionService(
+                        PhoneAccountHandle phoneAccountHandle) {
+                    return mCallsManager.hasUnholdableCallsForOtherConnectionService(
+                            phoneAccountHandle);
+                }
+
+                @Override
+                public int getNumUnholdableCallsForOtherConnectionService(
+                        PhoneAccountHandle phoneAccountHandle) {
+                    return mCallsManager.getNumUnholdableCallsForOtherConnectionService(
+                            phoneAccountHandle);
+                }
+
+                @Override
+                public Call getActiveCall() {
+                    return mCallsManager.getActiveCall();
+                }
+            });
+            mCallsManager.setIncomingCallNotifier(mIncomingCallNotifier);
+
+            mRespondViaSmsManager = new RespondViaSmsManager(mCallsManager, mLock);
+            mCallsManager.setRespondViaSmsManager(mRespondViaSmsManager);
+
+            mContext.registerReceiverAsUser(mUserSwitchedReceiver, UserHandle.ALL,
+                    USER_SWITCHED_FILTER, null, null);
+            mContext.registerReceiverAsUser(mUserStartingReceiver, UserHandle.ALL,
+                    USER_STARTING_FILTER, null, null);
+            mContext.registerReceiverAsUser(mBootCompletedReceiver, UserHandle.ALL,
+                    BOOT_COMPLETE_FILTER, null, null);
+
+            // Set current user explicitly since USER_SWITCHED_FILTER intent can be missed at
+            // startup
+            synchronized (mLock) {
+                UserHandle currentUserHandle = UserHandle.of(ActivityManager.getCurrentUser());
+                mPhoneAccountRegistrar.setCurrentUserHandle(currentUserHandle);
+                mCallsManager.onUserSwitch(currentUserHandle);
             }
-        };
 
-        CallDiagnosticServiceController callDiagnosticServiceController =
-                new CallDiagnosticServiceController(
-                        new CallDiagnosticServiceController.ContextProxy() {
-                            @Override
-                            public List<ResolveInfo> queryIntentServicesAsUser(
-                                    @NonNull Intent intent, int flags, int userId) {
-                                return mContext.getPackageManager().queryIntentServicesAsUser(
-                                        intent, flags, userId);
-                            }
+            mCallIntentProcessor = new CallIntentProcessor(mContext, mCallsManager,
+                    defaultDialerCache);
+            mTelecomBroadcastIntentProcessor = new TelecomBroadcastIntentProcessor(
+                    mContext, mCallsManager);
 
-                            @Override
-                            public boolean bindServiceAsUser(@NonNull Intent service,
-                                    @NonNull ServiceConnection conn, int flags,
-                                    @NonNull UserHandle user) {
-                                return mContext.bindServiceAsUser(service, conn, flags, user);
-                            }
+            // Register the receiver for the dialer secret codes, used to enable extended logging.
+            mDialerCodeReceiver = new DialerCodeReceiver(mCallsManager);
+            mContext.registerReceiver(mDialerCodeReceiver, DIALER_SECRET_CODE_FILTER,
+                    Manifest.permission.CONTROL_INCALL_EXPERIENCE, null);
 
-                            @Override
-                            public void unbindService(@NonNull ServiceConnection conn) {
-                                mContext.unbindService(conn);
-                            }
-
-                            @Override
-                            public UserHandle getCurrentUserHandle() {
-                                return mCallsManager.getCurrentUserHandle();
-                            }
-                        },
-                        mContext.getResources().getString(
-                                com.android.server.telecom.R.string
-                                        .call_diagnostic_service_package_name),
-                        mLock
-                );
-
-        AudioProcessingNotification audioProcessingNotification =
-                new AudioProcessingNotification(mContext);
-
-        ToastFactory toastFactory = new ToastFactory() {
-            @Override
-            public Toast makeText(Context context, int resId, int duration) {
-                return Toast.makeText(context, context.getMainLooper(), context.getString(resId),
-                        duration);
-            }
-
-            @Override
-            public Toast makeText(Context context, CharSequence text, int duration) {
-                return Toast.makeText(context, context.getMainLooper(), text, duration);
-            }
-        };
-
-        mCallsManager = new CallsManager(
-                mContext,
-                mLock,
-                callerInfoLookupHelper,
-                mMissedCallNotifier,
-                disconnectedCallNotifierFactory,
-                mPhoneAccountRegistrar,
-                headsetMediaButtonFactory,
-                proximitySensorManagerFactory,
-                inCallWakeLockControllerFactory,
-                connectionServiceFocusManagerFactory,
-                audioServiceFactory,
-                bluetoothRouteManager,
-                wiredHeadsetManager,
-                systemStateHelper,
-                defaultDialerCache,
-                timeoutsAdapter,
-                asyncRingtonePlayer,
-                phoneNumberUtilsAdapter,
-                emergencyCallHelper,
-                toneGeneratorFactory,
-                clockProxy,
-                audioProcessingNotification,
-                bluetoothStateReceiver,
-                callAudioRouteStateMachineFactory,
-                callAudioModeStateMachineFactory,
-                inCallControllerFactory,
-                callDiagnosticServiceController,
-                roleManagerAdapter,
-                toastFactory);
-
-        mIncomingCallNotifier = incomingCallNotifier;
-        incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {
-            @Override
-            public boolean hasUnholdableCallsForOtherConnectionService(
-                    PhoneAccountHandle phoneAccountHandle) {
-                return mCallsManager.hasUnholdableCallsForOtherConnectionService(
-                        phoneAccountHandle);
-            }
-
-            @Override
-            public int getNumUnholdableCallsForOtherConnectionService(
-                    PhoneAccountHandle phoneAccountHandle) {
-                return mCallsManager.getNumUnholdableCallsForOtherConnectionService(
-                        phoneAccountHandle);
-            }
-
-            @Override
-            public Call getActiveCall() {
-                return mCallsManager.getActiveCall();
-            }
-        });
-        mCallsManager.setIncomingCallNotifier(mIncomingCallNotifier);
-
-        mRespondViaSmsManager = new RespondViaSmsManager(mCallsManager, mLock);
-        mCallsManager.setRespondViaSmsManager(mRespondViaSmsManager);
-
-        mContext.registerReceiverAsUser(mUserSwitchedReceiver, UserHandle.ALL,
-                USER_SWITCHED_FILTER, null, null);
-        mContext.registerReceiverAsUser(mUserStartingReceiver, UserHandle.ALL,
-                USER_STARTING_FILTER, null, null);
-        mContext.registerReceiverAsUser(mBootCompletedReceiver, UserHandle.ALL,
-                BOOT_COMPLETE_FILTER, null, null);
-
-        // Set current user explicitly since USER_SWITCHED_FILTER intent can be missed at startup
-        synchronized(mLock) {
-            UserHandle currentUserHandle = UserHandle.of(ActivityManager.getCurrentUser());
-            mPhoneAccountRegistrar.setCurrentUserHandle(currentUserHandle);
-            mCallsManager.onUserSwitch(currentUserHandle);
+            // There is no USER_SWITCHED broadcast for user 0, handle it here explicitly.
+            final UserManager userManager = UserManager.get(mContext);
+            mTelecomServiceImpl = new TelecomServiceImpl(
+                    mContext, mCallsManager, mPhoneAccountRegistrar,
+                    new CallIntentProcessor.AdapterImpl(defaultDialerCache),
+                    new UserCallIntentProcessorFactory() {
+                        @Override
+                        public UserCallIntentProcessor create(Context context,
+                                UserHandle userHandle) {
+                            return new UserCallIntentProcessor(context, userHandle);
+                        }
+                    },
+                    defaultDialerCache,
+                    new TelecomServiceImpl.SubscriptionManagerAdapterImpl(),
+                    new TelecomServiceImpl.SettingsSecureAdapterImpl(),
+                    mLock);
+        } finally {
+            Log.endSession();
         }
-
-        mCallIntentProcessor = new CallIntentProcessor(mContext, mCallsManager, defaultDialerCache);
-        mTelecomBroadcastIntentProcessor = new TelecomBroadcastIntentProcessor(
-                mContext, mCallsManager);
-
-        // Register the receiver for the dialer secret codes, used to enable extended logging.
-        mDialerCodeReceiver = new DialerCodeReceiver(mCallsManager);
-        mContext.registerReceiver(mDialerCodeReceiver, DIALER_SECRET_CODE_FILTER,
-                Manifest.permission.CONTROL_INCALL_EXPERIENCE, null);
-
-        // There is no USER_SWITCHED broadcast for user 0, handle it here explicitly.
-        final UserManager userManager = UserManager.get(mContext);
-        mTelecomServiceImpl = new TelecomServiceImpl(
-                mContext, mCallsManager, mPhoneAccountRegistrar,
-                new CallIntentProcessor.AdapterImpl(defaultDialerCache),
-                new UserCallIntentProcessorFactory() {
-                    @Override
-                    public UserCallIntentProcessor create(Context context, UserHandle userHandle) {
-                        return new UserCallIntentProcessor(context, userHandle);
-                    }
-                },
-                defaultDialerCache,
-                new TelecomServiceImpl.SubscriptionManagerAdapterImpl(),
-                new TelecomServiceImpl.SettingsSecureAdapterImpl(),
-                mLock);
-        Log.endSession();
     }
 
     @VisibleForTesting
