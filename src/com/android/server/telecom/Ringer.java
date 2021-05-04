@@ -512,7 +512,7 @@ public class Ringer {
 
         boolean isVolumeOverZero = mAudioManager.getStreamVolume(AudioManager.STREAM_RING) > 0;
         timer.record("isVolumeOverZero");
-        boolean shouldRingForContact = shouldRingForContact(call.getContactUri());
+        boolean shouldRingForContact = shouldRingForContact(call.getHandle());
         timer.record("shouldRingForContact");
         boolean isRingtonePresent = !(mRingtoneFactory.getRingtone(call) == null);
         timer.record("getRingtone");
