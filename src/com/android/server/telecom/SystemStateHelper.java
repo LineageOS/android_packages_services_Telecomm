@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Provides various system states to the rest of the telecom codebase.
  */
-public class SystemStateHelper implements UiModeManager.OnProjectionStateChangeListener {
+public class SystemStateHelper implements UiModeManager.OnProjectionStateChangedListener {
     public interface SystemStateListener {
         /**
          * Listener method to inform interested parties when a package name requests to enter or
@@ -154,7 +154,7 @@ public class SystemStateHelper implements UiModeManager.OnProjectionStateChangeL
         Log.i(this, "Registering broadcast receiver: %s", intentFilter1);
         Log.i(this, "Registering broadcast receiver: %s", intentFilter2);
 
-        mContext.getSystemService(UiModeManager.class).addOnProjectionStateChangeListener(
+        mContext.getSystemService(UiModeManager.class).addOnProjectionStateChangedListener(
                 UiModeManager.PROJECTION_TYPE_AUTOMOTIVE, mContext.getMainExecutor(), this);
         mIsCarModeOrProjectionActive = getSystemCarModeOrProjectionState();
     }
