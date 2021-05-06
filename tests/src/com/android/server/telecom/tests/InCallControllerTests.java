@@ -18,6 +18,7 @@ package com.android.server.telecom.tests;
 
 import static com.android.server.telecom.InCallController.IN_CALL_SERVICE_NOTIFICATION_ID;
 import static com.android.server.telecom.InCallController.NOTIFICATION_TAG;
+import static com.android.server.telecom.tests.TelecomSystemTest.TEST_TIMEOUT;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -50,6 +51,7 @@ import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.PermissionChecker;
 import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -62,6 +64,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Process;
 import android.os.UserHandle;
 import android.telecom.CallAudioState;
 import android.telecom.InCallService;
@@ -73,6 +76,7 @@ import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.text.TextUtils;
 
+import com.android.dx.mockito.inline.extended.ExtendedMockito;
 import com.android.internal.telecom.IInCallAdapter;
 import com.android.internal.telecom.IInCallService;
 import com.android.server.telecom.Analytics;
@@ -99,7 +103,9 @@ import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.MockitoSession;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
 
 import java.util.Collections;
@@ -125,7 +131,6 @@ public class InCallControllerTests extends TelecomTestCase {
     @Mock Analytics.CallInfoImpl mCallInfo;
     @Mock NotificationManager mNotificationManager;
     @Mock PermissionInfo mMockPermissionInfo;
-    @Mock AttributionSource mAttributionSource;
 
     private static final int CURRENT_USER_ID = 900973;
     private static final String DEF_PKG = "defpkg";
@@ -182,7 +187,8 @@ public class InCallControllerTests extends TelecomTestCase {
                 .thenReturn(mNotificationManager);
         when(mMockPackageManager.getPermissionInfo(anyString(), anyInt())).thenReturn(
                 mMockPermissionInfo);
-        when(mMockContext.getAttributionSource()).thenReturn(mAttributionSource);
+        when(mMockContext.getAttributionSource()).thenReturn(new AttributionSource(Process.myUid(),
+                "com.android.server.telecom.tests", null));
         mInCallController = new InCallController(mMockContext, mLock, mMockCallsManager,
                 mMockSystemStateHelper, mDefaultDialerCache, mTimeoutsAdapter,
                 mEmergencyCallHelper, mCarModeTracker, mClockProxy);
@@ -883,39 +889,45 @@ public class InCallControllerTests extends TelecomTestCase {
     @MediumTest
     @Test
     public void testBindToService_ThirdPartyApp() throws Exception {
-        setupMocks(false /* isExternalCall */);
-        setupMockPackageManager(false /* default */, false /* nonui */, true /* appop_nonui */,
-                true /* system */, false /* external calls */, false /* self mgd in default */,
-                        false /* self mgd in car*/);
+        final MockitoSession mockitoSession = ExtendedMockito.mockitoSession()
+                .strictness(Strictness.WARN)
+                .spyStatic(PermissionChecker.class)
+                .startMocking();
+        try {
+            setupMocks(false /* isExternalCall */);
+            setupMockPackageManager(false /* default */, false /* nonui */, true /* appop_nonui */,
+                    true /* system */, false /* external calls */, false /* self mgd in default */,
+                    false /* self mgd in car*/);
 
-        // Enable Third Party Companion App
-        when(mMockPackageManager.getPermissionInfo(anyString(), anyInt())).thenReturn(
-                mMockPermissionInfo);
-        when(mMockPermissionInfo.isAppOp()).thenReturn(true);
-        when(mMockAppOpsManager.unsafeCheckOpRawNoThrow(matches(
-                AppOpsManager.OPSTR_MANAGE_ONGOING_CALLS), eq(APPOP_NONUI_UID),
-                        matches(APPOP_NONUI_PKG))).thenReturn(AppOpsManager.MODE_ALLOWED);
+            // Enable Third Party Companion App
+            ExtendedMockito.doReturn(PermissionChecker.PERMISSION_GRANTED).when(() ->
+                    PermissionChecker.checkPermissionForDataDeliveryFromDataSource(
+                            any(Context.class), eq(Manifest.permission.MANAGE_ONGOING_CALLS),
+                            anyInt(), any(AttributionSource.class), nullable(String.class)));
 
-        // Now bind; we should bind to the system dialer and app op non ui app.
-        mInCallController.bindToServices(mMockCall);
+            // Now bind; we should bind to the system dialer and app op non ui app.
+            mInCallController.bindToServices(mMockCall);
 
-        // Bind InCallServices
-        ArgumentCaptor<Intent> bindIntentCaptor = ArgumentCaptor.forClass(Intent.class);
-        verify(mMockContext, times(2)).bindServiceAsUser(
-                bindIntentCaptor.capture(),
-                any(ServiceConnection.class),
-                eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE
-                        | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS),
-                eq(UserHandle.CURRENT));
+            // Bind InCallServices
+            ArgumentCaptor<Intent> bindIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+            verify(mMockContext, times(2)).bindServiceAsUser(
+                    bindIntentCaptor.capture(),
+                    any(ServiceConnection.class),
+                    eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE
+                            | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS),
+                    eq(UserHandle.CURRENT));
 
-        // Verify bind
-        assertEquals(2, bindIntentCaptor.getAllValues().size());
+            // Verify bind
+            assertEquals(2, bindIntentCaptor.getAllValues().size());
 
-        // Should have first bound to the system dialer.
-        verifyBinding(bindIntentCaptor, 0, SYS_PKG, SYS_CLASS);
+            // Should have first bound to the system dialer.
+            verifyBinding(bindIntentCaptor, 0, SYS_PKG, SYS_CLASS);
 
-        // Should have next bound to the third party app op non ui app.
-        verifyBinding(bindIntentCaptor, 1, APPOP_NONUI_PKG, APPOP_NONUI_CLASS);
+            // Should have next bound to the third party app op non ui app.
+            verifyBinding(bindIntentCaptor, 1, APPOP_NONUI_PKG, APPOP_NONUI_CLASS);
+        } finally {
+            mockitoSession.finishMocking();
+        }
     }
 
     /**
