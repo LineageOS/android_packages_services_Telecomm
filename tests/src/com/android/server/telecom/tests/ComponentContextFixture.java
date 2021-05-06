@@ -57,6 +57,7 @@ import android.os.Handler;
 import android.os.IInterface;
 import android.os.PersistableBundle;
 import android.os.PowerWhitelistManager;
+import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.VibratorManager;
@@ -461,10 +462,9 @@ public class ComponentContextFixture implements TestFixture<Context> {
         }
     }
 
-    private static final int UID = 123;
     private static final String PACKAGE_NAME = "com.android.server.telecom.tests";
     private final AttributionSource mAttributionSource =
-            new AttributionSource.Builder(UID).setPackageName(PACKAGE_NAME).build();
+            new AttributionSource.Builder(Process.myUid()).setPackageName(PACKAGE_NAME).build();
 
     private final Multimap<String, ComponentName> mComponentNamesByAction =
             ArrayListMultimap.create();
