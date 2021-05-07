@@ -249,9 +249,9 @@ public class SystemStateHelperTest extends TelecomTestCase {
         SystemStateHelper systemStateHelper = new SystemStateHelper(mContext, mLock);
         // We don't care what listener is registered, that's an implementation detail, but we need
         // to call methods on whatever it is.
-        ArgumentCaptor<UiModeManager.OnProjectionStateChangeListener> listenerCaptor =
-                ArgumentCaptor.forClass(UiModeManager.OnProjectionStateChangeListener.class);
-        verify(mUiModeManager).addOnProjectionStateChangeListener(
+        ArgumentCaptor<UiModeManager.OnProjectionStateChangedListener> listenerCaptor =
+                ArgumentCaptor.forClass(UiModeManager.OnProjectionStateChangedListener.class);
+        verify(mUiModeManager).addOnProjectionStateChangedListener(
                 eq(UiModeManager.PROJECTION_TYPE_AUTOMOTIVE), any(), listenerCaptor.capture());
         systemStateHelper.addListener(mSystemStateListener);
 
