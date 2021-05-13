@@ -2064,6 +2064,8 @@ public class CallsManager extends Call.ListenerBase
                             handle.getSchemeSpecificPart());
         } catch (IllegalStateException ise) {
             isPotentialEmergencyNumber = false;
+        } catch (RuntimeException r) {
+            isPotentialEmergencyNumber = false;
         }
 
         if (shouldCancelCall) {
