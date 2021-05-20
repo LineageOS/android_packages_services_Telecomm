@@ -514,7 +514,7 @@ public class InCallControllerTests extends TelecomTestCase {
         // Pretend that the call has gone away.
         when(mMockCallsManager.getCalls()).thenReturn(Collections.emptyList());
         mInCallController.onCallRemoved(mMockCall);
-        waitForHandlerAction(new Handler(Looper.getMainLooper()), TelecomSystemTest.TEST_TIMEOUT);
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
 
         verify(mMockPackageManager).revokeRuntimePermission(eq(SYS_PKG),
                 eq(Manifest.permission.ACCESS_FINE_LOCATION), eq(mUserHandle));
