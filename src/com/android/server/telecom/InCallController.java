@@ -34,13 +34,16 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.PackageTagsList;
 import android.os.RemoteException;
 import android.os.Trace;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.telecom.CallAudioState;
 import android.telecom.ConnectionService;
 import android.telecom.InCallService;
@@ -972,6 +975,7 @@ public class InCallController extends CallsManagerListenerBase {
     private CarSwappingInCallServiceConnection mInCallServiceConnection;
     private NonUIInCallServiceConnectionCollection mNonUIInCallServiceConnections;
     private final ClockProxy mClockProxy;
+    private final IBinder mToken = new Binder();
 
     // A set of known non-UI in call services on the device, including those that are disabled.
     // We track this so that we can efficiently bind to them when we're notified that a new
@@ -1015,6 +1019,17 @@ public class InCallController extends CallsManagerListenerBase {
         mCarModeTracker = carModeTracker;
         mSystemStateHelper.addListener(mSystemStateListener);
         mClockProxy = clockProxy;
+        restrictPhoneCallOps();
+    }
+
+    private void restrictPhoneCallOps() {
+        PackageTagsList packageRestriction = new PackageTagsList.Builder()
+                .add(mContext.getPackageName())
+                .build();
+        mAppOpsManager.setUserRestrictionForUser(AppOpsManager.OP_PHONE_CALL_MICROPHONE, true,
+                mToken, packageRestriction, UserHandle.USER_ALL);
+        mAppOpsManager.setUserRestrictionForUser(AppOpsManager.OP_PHONE_CALL_CAMERA, true,
+                mToken, packageRestriction, UserHandle.USER_ALL);
     }
 
     @Override
