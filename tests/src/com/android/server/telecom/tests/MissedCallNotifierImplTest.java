@@ -29,6 +29,8 @@ import android.content.Context;
 import android.content.IContentProvider;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -65,11 +67,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -79,6 +83,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -132,6 +137,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         }
     }
 
+    private static final long TIMEOUT_DELAY = 5000;
     private static final Uri TEL_CALL_HANDLE = Uri.parse("tel:+11915552620");
     private static final Uri SIP_CALL_HANDLE = Uri.parse("sip:testaddress@testdomain.com");
     private static final String CALLER_NAME = "Fake Name";
@@ -139,6 +145,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
     private static final String MISSED_CALLS_TITLE = "Missed Calls";
     private static final String MISSED_CALLS_MSG = "%s missed calls";
     private static final String USER_CALL_ACTIVITY_LABEL = "Phone";
+    private static final String DEFAULT_DIALER_PACKAGE = "com.android.server.telecom.test";
 
     private static final int REQUEST_ID = 0;
     private static final long CALL_TIMESTAMP;
@@ -211,6 +218,49 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
     @Test
     public void testCancelNotificationInSecondaryUser() {
         cancelNotificationTestInternal(SECONARY_USER);
+    }
+
+    @SmallTest
+    @Test
+    public void testDefaultDialerClear() {
+        MissedCallNotifier missedCallNotifier = setupMissedCallNotificationThroughDefaultDialer();
+        missedCallNotifier.clearMissedCalls(PRIMARY_USER);
+
+        ArgumentCaptor<Intent> intentArgumentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mContext).sendBroadcastAsUser(intentArgumentCaptor.capture(), any(),
+                anyString(), any());
+        Intent sentIntent = intentArgumentCaptor.getValue();
+        assertEquals(0, sentIntent.getIntExtra(TelecomManager.EXTRA_NOTIFICATION_COUNT, -1));
+    }
+
+    @SmallTest
+    @Test
+    public void testDefaultDialerIncrement() {
+        MissedCallNotifier missedCallNotifier = setupMissedCallNotificationThroughDefaultDialer();
+        PhoneAccount phoneAccount = makePhoneAccount(PRIMARY_USER, NO_CAPABILITY);
+        MissedCallNotifier.CallInfo fakeCall = makeFakeCallInfo(TEL_CALL_HANDLE, CALLER_NAME,
+                CALL_TIMESTAMP, phoneAccount.getAccountHandle());
+
+        missedCallNotifier.showMissedCallNotification(fakeCall);
+        ArgumentCaptor<Intent> intentArgumentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mContext).sendBroadcastAsUser(intentArgumentCaptor.capture(), any(),
+                anyString(), any());
+
+        Intent sentIntent = intentArgumentCaptor.getValue();
+        assertEquals(1, sentIntent.getIntExtra(TelecomManager.EXTRA_NOTIFICATION_COUNT, -1));
+    }
+
+    private MissedCallNotifier setupMissedCallNotificationThroughDefaultDialer() {
+        mComponentContextFixture.addIntentReceiver(
+                TelecomManager.ACTION_SHOW_MISSED_CALLS_NOTIFICATION, COMPONENT_NAME);
+        when(mDefaultDialerCache.getDefaultDialerApplication(anyInt())).thenReturn(
+                DEFAULT_DIALER_PACKAGE);
+
+        Notification.Builder builder1 = makeNotificationBuilder("builder1");
+        Notification.Builder builder2 = makeNotificationBuilder("builder2");
+        MissedCallNotifierImpl.NotificationBuilderFactory fakeBuilderFactory =
+                makeNotificationBuilderFactory(builder1, builder1, builder2, builder2);
+        return makeMissedCallNotifier(fakeBuilderFactory, PRIMARY_USER);
     }
 
     private void cancelNotificationTestInternal(UserHandle userHandle) {
