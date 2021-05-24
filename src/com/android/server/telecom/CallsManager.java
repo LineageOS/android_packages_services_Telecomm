@@ -1675,6 +1675,21 @@ public class CallsManager extends Call.ListenerBase
                         }
                     }
 
+                    if (!finalCall.isEmergencyCall() && isInEmergencyCall()) {
+                        Log.i(CallsManager.this, "Aborting call since there's an"
+                                + " ongoing emergency call");
+                        // If the ongoing call is a managed call, we will prevent the outgoing
+                        // call from dialing.
+                        if (isConference) {
+                            notifyCreateConferenceFailed(finalCall.getTargetPhoneAccount(),
+                                    finalCall);
+                        } else {
+                            notifyCreateConnectionFailed(
+                                    finalCall.getTargetPhoneAccount(), finalCall);
+                        }
+                        return CompletableFuture.completedFuture(null);
+                    }
+
                     // If we can not supportany more active calls, our options are to move a call
                     // to hold, disconnect a call, or cancel this call altogether.
                     boolean isRoomForCall = finalCall.isEmergencyCall() ?
@@ -5527,5 +5542,11 @@ public class CallsManager extends Call.ListenerBase
     @VisibleForTesting
     public void addToPendingCallsToDisconnect(Call call) {
         mPendingCallsToDisconnect.add(call);
+    }
+
+    @VisibleForTesting
+    public void addConnectionServiceRepositoryCache(ComponentName componentName,
+            UserHandle userHandle, ConnectionServiceWrapper service) {
+        mConnectionServiceRepository.setService(componentName, userHandle, service);
     }
 }
