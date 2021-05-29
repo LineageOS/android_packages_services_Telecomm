@@ -17,7 +17,10 @@
 package com.android.server.telecom.tests;
 
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.IAudioService;
 import android.os.HandlerThread;
@@ -147,6 +150,49 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
         // is ensure the stateMachine construction didn't fail.  But at least we exercised the
         // autodetection code...
         assertNotNull(stateMachine);
+    }
+
+    @MediumTest
+    @Test
+    public void testStreamRingMuteChange() {
+        CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
+                mContext,
+                mockCallsManager,
+                mockBluetoothRouteManager,
+                mockWiredHeadsetManager,
+                mockStatusBarNotifier,
+                mAudioServiceFactory,
+                CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED,
+                mThreadHandler.getLooper());
+        stateMachine.setCallAudioManager(mockCallAudioManager);
+        CallAudioState initState = new CallAudioState(false, CallAudioState.ROUTE_SPEAKER,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER);
+        stateMachine.initialize(initState);
+
+        // Make sure we register a receiver for the STREAM_MUTE_CHANGED_ACTION so we can see if the
+        // ring stream unmutes.
+        ArgumentCaptor<BroadcastReceiver> brCaptor = ArgumentCaptor.forClass(
+                BroadcastReceiver.class);
+        ArgumentCaptor<IntentFilter> filterCaptor = ArgumentCaptor.forClass(IntentFilter.class);
+        verify(mContext, times(3)).registerReceiver(brCaptor.capture(), filterCaptor.capture());
+        boolean foundValid = false;
+        for (int ix = 0; ix < brCaptor.getAllValues().size(); ix++) {
+            BroadcastReceiver receiver = brCaptor.getAllValues().get(ix);
+            IntentFilter filter = filterCaptor.getAllValues().get(ix);
+            if (!filter.hasAction(AudioManager.STREAM_MUTE_CHANGED_ACTION)) {
+                continue;
+            }
+
+            // Fake out a call to the broadcast receiver and make sure we call into audio manager
+            // to trigger re-evaluation of ringing.
+            Intent intent = new Intent(AudioManager.STREAM_MUTE_CHANGED_ACTION);
+            intent.putExtra(AudioManager.EXTRA_STREAM_VOLUME_MUTED, false);
+            intent.putExtra(AudioManager.EXTRA_VOLUME_STREAM_TYPE, AudioManager.STREAM_RING);
+            receiver.onReceive(mContext, intent);
+            verify(mockCallAudioManager).onRingerModeChange();
+            foundValid = true;
+        }
+        assertTrue(foundValid);
     }
 
     @MediumTest
