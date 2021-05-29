@@ -1347,6 +1347,15 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     } else {
                         sendInternalMessage(MUTE_EXTERNALLY_CHANGED);
                     }
+                } else if (AudioManager.STREAM_MUTE_CHANGED_ACTION.equals(intent.getAction())) {
+                    int streamType = intent.getIntExtra(AudioManager.EXTRA_VOLUME_STREAM_TYPE, -1);
+                    boolean isStreamMuted = intent.getBooleanExtra(
+                            AudioManager.EXTRA_STREAM_VOLUME_MUTED, false);
+
+                    if (streamType == AudioManager.STREAM_RING && !isStreamMuted) {
+                        Log.i(this, "Ring stream was un-muted.");
+                        mCallAudioManager.onRingerModeChange();
+                    }
                 } else {
                     Log.w(this, "Received non-mute-change intent");
                 }
@@ -1530,6 +1539,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
         mWasOnSpeaker = false;
         mContext.registerReceiver(mMuteChangeReceiver,
                 new IntentFilter(AudioManager.ACTION_MICROPHONE_MUTE_CHANGED));
+        mContext.registerReceiver(mMuteChangeReceiver,
+                new IntentFilter(AudioManager.STREAM_MUTE_CHANGED_ACTION));
         mContext.registerReceiver(mSpeakerPhoneChangeReceiver,
                 new IntentFilter(AudioManager.ACTION_SPEAKERPHONE_STATE_CHANGED));
 
