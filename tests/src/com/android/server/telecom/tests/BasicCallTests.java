@@ -63,6 +63,7 @@ import com.google.common.base.Predicate;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -473,6 +474,7 @@ public class BasicCallTests extends TelecomSystemTest {
     @LargeTest
     @Test
     @FlakyTest
+    @Ignore("b/189904580")
     public void testIncomingCallFromBlockedNumberIsRejected() throws Exception {
         String phoneNumber = "650-555-1212";
         blockNumber(phoneNumber);
@@ -492,6 +494,7 @@ public class BasicCallTests extends TelecomSystemTest {
 
         waitForHandlerAction(mConnectionServiceFixtureA.mConnectionServiceDelegate.getHandler(),
                 TEST_TIMEOUT);
+
         assertEquals(1, mCallerInfoAsyncQueryFactoryFixture.mRequests.size());
         for (CallerInfoAsyncQueryFactoryFixture.Request request :
                 mCallerInfoAsyncQueryFactoryFixture.mRequests) {
