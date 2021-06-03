@@ -25,7 +25,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
@@ -42,11 +44,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.Manifest;
+import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.app.AppOpsManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.UiModeManager;
 import android.content.AttributionSource;
+import android.content.AttributionSourceState;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -66,6 +71,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Process;
 import android.os.UserHandle;
+import android.permission.PermissionCheckerManager;
 import android.telecom.CallAudioState;
 import android.telecom.InCallService;
 import android.telecom.ParcelableCall;
@@ -101,6 +107,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.MockitoSession;
@@ -111,6 +118,7 @@ import org.mockito.stubbing.Answer;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 @RunWith(JUnit4.class)
@@ -120,6 +128,7 @@ public class InCallControllerTests extends TelecomTestCase {
     @Mock BluetoothHeadsetProxy mMockBluetoothHeadset;
     @Mock SystemStateHelper mMockSystemStateHelper;
     @Mock PackageManager mMockPackageManager;
+    @Mock PermissionCheckerManager mMockPermissionCheckerManager;
     @Mock Call mMockCall;
     @Mock Resources mMockResources;
     @Mock AppOpsManager mMockAppOpsManager;
@@ -185,6 +194,8 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCallsManager.getRoleManagerAdapter()).thenReturn(mMockRoleManagerAdapter);
         when(mMockContext.getSystemService(eq(Context.NOTIFICATION_SERVICE)))
                 .thenReturn(mNotificationManager);
+        when(mMockContext.getSystemService(eq(PermissionCheckerManager.class)))
+                .thenReturn(mMockPermissionCheckerManager);
         when(mMockPackageManager.getPermissionInfo(anyString(), anyInt())).thenReturn(
                 mMockPermissionInfo);
         when(mMockContext.getAttributionSource()).thenReturn(new AttributionSource(Process.myUid(),
@@ -219,21 +230,37 @@ public class InCallControllerTests extends TelecomTestCase {
             }
             return null;
         }).when(mMockPackageManager).getPackagesForUid(anyInt());
-        when(mMockPackageManager.checkPermission(
+
+        when(mMockPermissionCheckerManager.checkPermission(
                 matches(Manifest.permission.CONTROL_INCALL_EXPERIENCE),
-                matches(COMPANION_PKG))).thenReturn(PackageManager.PERMISSION_DENIED);
-        when(mMockPackageManager.checkPermission(
+                matchesAttributionSourcePackage(COMPANION_PKG), nullable(String.class),
+                anyBoolean(), anyBoolean(), anyBoolean(), anyInt()))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+
+        when(mMockPermissionCheckerManager.checkPermission(
                 matches(Manifest.permission.CONTROL_INCALL_EXPERIENCE),
-                matches(CAR_PKG))).thenReturn(PackageManager.PERMISSION_GRANTED);
-        when(mMockPackageManager.checkPermission(
+                matchesAttributionSourcePackage(CAR_PKG), nullable(String.class),
+                anyBoolean(), anyBoolean(), anyBoolean(), anyInt()))
+                .thenReturn(PackageManager.PERMISSION_GRANTED);
+
+        when(mMockPermissionCheckerManager.checkPermission(
                 matches(Manifest.permission.CONTROL_INCALL_EXPERIENCE),
-                matches(CAR2_PKG))).thenReturn(PackageManager.PERMISSION_GRANTED);
-        when(mMockPackageManager.checkPermission(
+                matchesAttributionSourcePackage(CAR2_PKG), nullable(String.class),
+                anyBoolean(), anyBoolean(), anyBoolean(), anyInt()))
+                .thenReturn(PackageManager.PERMISSION_GRANTED);
+
+        when(mMockPermissionCheckerManager.checkPermission(
                 matches(Manifest.permission.CONTROL_INCALL_EXPERIENCE),
-                matches(NONUI_PKG))).thenReturn(PackageManager.PERMISSION_GRANTED);
-        when(mMockPackageManager.checkPermission(
+                matchesAttributionSourcePackage(NONUI_PKG), nullable(String.class),
+                anyBoolean(), anyBoolean(), anyBoolean(), anyInt()))
+                .thenReturn(PackageManager.PERMISSION_GRANTED);
+
+        when(mMockPermissionCheckerManager.checkPermission(
                 matches(Manifest.permission.CONTROL_INCALL_EXPERIENCE),
-                matches(APPOP_NONUI_PKG))).thenReturn(PackageManager.PERMISSION_DENIED);
+                matchesAttributionSourcePackage(APPOP_NONUI_PKG), nullable(String.class),
+                anyBoolean(), anyBoolean(), anyBoolean(), anyInt()))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+
         when(mMockCallsManager.getAudioState()).thenReturn(new CallAudioState(false, 0, 0));
     }
 
@@ -1489,4 +1516,24 @@ public class InCallControllerTests extends TelecomTestCase {
                         ? PackageManager.PERMISSION_GRANTED
                         : PackageManager.PERMISSION_DENIED);
   }
+
+    private static AttributionSourceState matchesAttributionSourcePackage(
+            @Nullable String packageName) {
+        return argThat(new PackageNameArgumentMatcher(packageName));
+    }
+
+    private static class PackageNameArgumentMatcher implements
+            ArgumentMatcher<AttributionSourceState> {
+        @Nullable
+        private final String mPackgeName;
+
+        PackageNameArgumentMatcher(@Nullable String packageName) {
+            mPackgeName = packageName;
+        }
+
+        @Override
+        public boolean matches(@NonNull AttributionSourceState attributionSource) {
+            return Objects.equals(mPackgeName, attributionSource.packageName);
+        }
+    }
 }
