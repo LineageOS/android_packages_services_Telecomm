@@ -2258,8 +2258,16 @@ public class CallsManager extends Call.ListenerBase
     public void processRedirectedOutgoingCallAfterUserInteraction(String callId, String action) {
         Log.i(this, "processRedirectedOutgoingCallAfterUserInteraction for Call ID %s, action=%s",
                 callId, action);
-        if (mPendingRedirectedOutgoingCall != null && mPendingRedirectedOutgoingCall.getId()
-                .equals(callId)) {
+        if (mPendingRedirectedOutgoingCall != null) {
+            String pendingCallId = mPendingRedirectedOutgoingCall.getId();
+            if (!pendingCallId.equals(callId)) {
+                Log.i(this, "processRedirectedOutgoingCallAfterUserInteraction for new Call ID %s, "
+                        + "cancel the previous pending Call with ID %s", callId, pendingCallId);
+                mPendingRedirectedOutgoingCall.disconnect("Another call redirection requested");
+                mPendingRedirectedOutgoingCallInfo.remove(pendingCallId);
+                mPendingUnredirectedOutgoingCallInfo.remove(pendingCallId);
+            }
+
             if (action.equals(TelecomBroadcastIntentProcessor.ACTION_PLACE_REDIRECTED_CALL)) {
                 mHandler.post(mPendingRedirectedOutgoingCallInfo.get(callId).prepare());
             } else if (action.equals(
