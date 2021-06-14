@@ -1253,6 +1253,21 @@ public class CallsManagerTest extends TelecomTestCase {
         verify(ringingCall).reject(anyBoolean(), any(), any());
     }
 
+    @SmallTest
+    @Test
+    public void testMakeRoomForOutgoingCallConnecting() {
+        Call ongoingCall = addSpyCall(SIM_2_HANDLE, CallState.CONNECTING);
+
+        Call newCall = createCall(SIM_1_HANDLE, CallState.NEW);
+        when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
+                .thenReturn(false);
+        newCall.setHandle(Uri.fromParts("tel", "5551213", null),
+                TelecomManager.PRESENTATION_ALLOWED);
+
+        assertTrue(mCallsManager.makeRoomForOutgoingCall(newCall));
+        verify(ongoingCall).disconnect(anyLong(), anyString());
+    }
+
     /**
      * Verifies that changes to a {@link PhoneAccount}'s
      * {@link PhoneAccount#CAPABILITY_VIDEO_CALLING} capability will be reflected on a call.
