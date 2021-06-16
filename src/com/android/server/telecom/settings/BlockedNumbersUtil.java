@@ -95,8 +95,7 @@ public final class BlockedNumbersUtil {
         if (showNotification) {
             Intent intent = new Intent(context, CallBlockDisabledActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(
-                    context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT
-                            | PendingIntent.FLAG_IMMUTABLE);
+                    context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
             String title = context.getString(
                     R.string.phone_strings_call_blocking_turned_off_notification_title_txt);
