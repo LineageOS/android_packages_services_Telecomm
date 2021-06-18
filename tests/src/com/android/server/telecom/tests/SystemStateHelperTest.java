@@ -48,6 +48,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.SystemStateHelper;
 import com.android.server.telecom.SystemStateHelper.SystemStateListener;
+import com.android.server.telecom.TelecomSystem;
 
 import org.junit.After;
 import org.junit.Before;
@@ -77,6 +78,7 @@ public class SystemStateHelperTest extends TelecomTestCase {
     @Mock SensorManager mSensorManager;
     @Mock Intent mIntentEnter;
     @Mock Intent mIntentExit;
+    TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
 
     @Override
     @Before
@@ -106,7 +108,7 @@ public class SystemStateHelperTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testListeners() throws Exception {
-        SystemStateHelper systemStateHelper = new SystemStateHelper(mContext);
+        SystemStateHelper systemStateHelper = new SystemStateHelper(mContext, mLock);
 
         assertFalse(systemStateHelper.removeListener(mSystemStateListener));
         systemStateHelper.addListener(mSystemStateListener);
@@ -119,7 +121,7 @@ public class SystemStateHelperTest extends TelecomTestCase {
     public void testQuerySystemForCarMode_True() {
         when(mContext.getSystemService(Context.UI_MODE_SERVICE)).thenReturn(mUiModeManager);
         when(mUiModeManager.getCurrentModeType()).thenReturn(Configuration.UI_MODE_TYPE_CAR);
-        assertTrue(new SystemStateHelper(mContext).isCarMode());
+        assertTrue(new SystemStateHelper(mContext, mLock).isCarMode());
     }
 
     @SmallTest
@@ -127,7 +129,7 @@ public class SystemStateHelperTest extends TelecomTestCase {
     public void testQuerySystemForCarMode_False() {
         when(mContext.getSystemService(Context.UI_MODE_SERVICE)).thenReturn(mUiModeManager);
         when(mUiModeManager.getCurrentModeType()).thenReturn(Configuration.UI_MODE_TYPE_NORMAL);
-        assertFalse(new SystemStateHelper(mContext).isCarMode());
+        assertFalse(new SystemStateHelper(mContext, mLock).isCarMode());
     }
 
     @SmallTest
@@ -135,7 +137,7 @@ public class SystemStateHelperTest extends TelecomTestCase {
     public void testPackageRemoved() {
         ArgumentCaptor<BroadcastReceiver> receiver =
                 ArgumentCaptor.forClass(BroadcastReceiver.class);
-        new SystemStateHelper(mContext).addListener(mSystemStateListener);
+        new SystemStateHelper(mContext, mLock).addListener(mSystemStateListener);
         verify(mContext, atLeastOnce())
                 .registerReceiver(receiver.capture(), any(IntentFilter.class));
         Intent packageRemovedIntent = new Intent(Intent.ACTION_PACKAGE_REMOVED);
@@ -149,7 +151,7 @@ public class SystemStateHelperTest extends TelecomTestCase {
     public void testReceiverAndIntentFilter() {
         ArgumentCaptor<IntentFilter> intentFilterCaptor =
                 ArgumentCaptor.forClass(IntentFilter.class);
-        new SystemStateHelper(mContext);
+        new SystemStateHelper(mContext, mLock);
         verify(mContext, times(2)).registerReceiver(
                 any(BroadcastReceiver.class), intentFilterCaptor.capture());
 
@@ -186,7 +188,7 @@ public class SystemStateHelperTest extends TelecomTestCase {
     public void testOnEnterExitCarMode() {
         ArgumentCaptor<BroadcastReceiver> receiver =
                 ArgumentCaptor.forClass(BroadcastReceiver.class);
-        new SystemStateHelper(mContext).addListener(mSystemStateListener);
+        new SystemStateHelper(mContext, mLock).addListener(mSystemStateListener);
 
         verify(mContext, atLeastOnce())
                 .registerReceiver(receiver.capture(), any(IntentFilter.class));
