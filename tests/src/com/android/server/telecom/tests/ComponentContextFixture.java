@@ -711,6 +711,10 @@ public class ComponentContextFixture implements TestFixture<Context> {
         return mTelephonyManager;
     }
 
+    public NotificationManager getNotificationManager() {
+        return mNotificationManager;
+    }
+
     private void addService(String action, ComponentName name, IInterface service) {
         mComponentNamesByAction.put(action, name);
         mServiceByComponentName.put(name, service);
