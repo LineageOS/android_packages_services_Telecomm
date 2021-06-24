@@ -460,10 +460,10 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @Test
     public void testGetPhoneAccount() throws RemoteException {
         makeAccountsVisibleToAllUsers(TEL_PA_HANDLE_16, SIP_PA_HANDLE_17);
-        assertEquals(TEL_PA_HANDLE_16, mTSIBinder.getPhoneAccount(TEL_PA_HANDLE_16)
-                .getAccountHandle());
-        assertEquals(SIP_PA_HANDLE_17, mTSIBinder.getPhoneAccount(SIP_PA_HANDLE_17)
-                .getAccountHandle());
+        assertEquals(TEL_PA_HANDLE_16, mTSIBinder.getPhoneAccount(TEL_PA_HANDLE_16,
+                mContext.getPackageName()).getAccountHandle());
+        assertEquals(SIP_PA_HANDLE_17, mTSIBinder.getPhoneAccount(SIP_PA_HANDLE_17,
+                mContext.getPackageName()).getAccountHandle());
     }
 
     @SmallTest

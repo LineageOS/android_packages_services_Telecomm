@@ -317,9 +317,21 @@ public class TelecomServiceImpl {
         }
 
         @Override
-        public PhoneAccount getPhoneAccount(PhoneAccountHandle accountHandle) {
+        public PhoneAccount getPhoneAccount(PhoneAccountHandle accountHandle,
+                String callingPackage) {
             synchronized (mLock) {
                 final UserHandle callingUserHandle = Binder.getCallingUserHandle();
+                if (CompatChanges.isChangeEnabled(
+                        TelecomManager.ENABLE_GET_PHONE_ACCOUNT_PERMISSION_PROTECTION,
+                        callingPackage, Binder.getCallingUserHandle())) {
+                    if (Binder.getCallingUid() != Process.SHELL_UID &&
+                            !canGetPhoneAccount(callingPackage, accountHandle)) {
+                        SecurityException e = new SecurityException("getPhoneAccount API requires" +
+                                "READ_PHONE_NUMBERS");
+                        Log.e(this, e, "getPhoneAccount %s", accountHandle);
+                        throw e;
+                    }
+                }
                 long token = Binder.clearCallingIdentity();
                 try {
                     Log.startSession("TSI.gPA");
@@ -329,7 +341,7 @@ public class TelecomServiceImpl {
                     // profile's phone account handle.
                     return mPhoneAccountRegistrar
                             .getPhoneAccount(accountHandle, callingUserHandle,
-                            /* acrossProfiles */ true);
+                                    /* acrossProfiles */ true);
                 } catch (Exception e) {
                     Log.e(this, e, "getPhoneAccount %s", accountHandle);
                     throw e;
@@ -2420,6 +2432,28 @@ public class TelecomServiceImpl {
         return mAppOpsManager.noteOp(AppOpsManager.OP_CALL_PHONE,
                 Binder.getCallingUid(), callingPackage, callingFeatureId, message)
                 == AppOpsManager.MODE_ALLOWED;
+    }
+
+    private boolean canGetPhoneAccount(String callingPackage, PhoneAccountHandle accountHandle) {
+        // Allow default dialer, system dialer and sim call manager to be able to do this without
+        // extra permission
+        try {
+            if (isPrivilegedDialerCalling(callingPackage) || isCallerSimCallManager(
+                    accountHandle)) {
+                return true;
+            }
+        } catch (SecurityException e) {
+            // ignore
+        }
+
+        try {
+            mContext.enforceCallingOrSelfPermission(READ_PRIVILEGED_PHONE_STATE, null);
+            return true;
+        } catch (SecurityException e) {
+            // Accessing phone state is gated by a special permission.
+            mContext.enforceCallingOrSelfPermission(READ_PHONE_NUMBERS, null);
+            return true;
+        }
     }
 
     private boolean isCallerSimCallManager(PhoneAccountHandle targetPhoneAccount) {
