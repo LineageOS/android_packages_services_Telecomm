@@ -58,6 +58,7 @@ import android.util.ArraySet;
 import com.android.internal.annotations.VisibleForTesting;
 // TODO: Needed for move to system service: import com.android.internal.R;
 import com.android.internal.telecom.IInCallService;
+import com.android.internal.util.ArrayUtils;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.SystemStateHelper.SystemStateListener;
 import com.android.server.telecom.ui.NotificationChannelManager;
@@ -958,6 +959,9 @@ public class InCallController extends CallsManagerListenerBase {
     private static final int IN_CALL_SERVICE_TYPE_NON_UI = 4;
     private static final int IN_CALL_SERVICE_TYPE_COMPANION = 5;
 
+    private static final int[] LIVE_CALL_STATES = { CallState.ACTIVE, CallState.PULLING,
+            CallState.DISCONNECTING };
+
     /** The in-call app implementations, see {@link IInCallService}. */
     private final Map<InCallServiceInfo, IInCallService> mInCallServices = new ArrayMap<>();
 
@@ -995,7 +999,7 @@ public class InCallController extends CallsManagerListenerBase {
 
     /**
      * {@code true} if InCallController is tracking a managed, not external call which is using the
-     * microphone, {@code false} otherwise.
+     * microphone, and is not muted {@code false} otherwise.
      */
     private boolean mIsCallUsingMicrophone = false;
 
@@ -2154,8 +2158,8 @@ public class InCallController extends CallsManagerListenerBase {
      */
     private boolean isTrackingManagedAliveCall() {
         return mCallIdMapper.getCalls().stream().anyMatch(c -> !c.isExternalCall()
-            && !c.isSelfManaged() && c.isAlive() && c.getState() != CallState.ON_HOLD
-                && c.getState() != CallState.AUDIO_PROCESSING && c.getState() != CallState.DIALING);
+            && !c.isSelfManaged() && c.isAlive() && ArrayUtils.contains(LIVE_CALL_STATES,
+                c.getState()));
     }
 
     /**
