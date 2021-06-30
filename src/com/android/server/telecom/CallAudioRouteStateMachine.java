@@ -1678,8 +1678,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     // may run as a separate user from the foreground user. If we
                     // used AudioManager directly, we would change mute for the system's
                     // user and not the current foreground, which we want to avoid.
-                    audio.setMicrophoneMute(
-                            mute, mContext.getOpPackageName(), getCurrentUserId());
+                    audio.setMicrophoneMute(mute, mContext.getOpPackageName(),
+                            getCurrentUserId(), mContext.getAttributionTag());
                 } catch (RemoteException e) {
                     Log.e(this, e, "Remote exception while toggling mute.");
                 }
