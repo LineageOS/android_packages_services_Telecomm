@@ -804,10 +804,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     public void initAnalytics() {
-        initAnalytics(null);
+        initAnalytics(null, null);
     }
 
-    public void initAnalytics(String callingPackage) {
+    public void initAnalytics(String callingPackage, String extraCreationLogs) {
         int analyticsDirection;
         switch (mCallDirection) {
             case CALL_DIRECTION_OUTGOING:
@@ -823,7 +823,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
         mAnalytics = Analytics.initiateCallAnalytics(mId, analyticsDirection);
         mAnalytics.setCallIsEmergency(mIsEmergencyCall);
-        Log.addEvent(this, LogUtils.Events.CREATED, callingPackage);
+        Log.addEvent(this, LogUtils.Events.CREATED, callingPackage + ";" + extraCreationLogs);
     }
 
     public Analytics.CallInfo getAnalytics() {

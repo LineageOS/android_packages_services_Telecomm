@@ -115,7 +115,7 @@ public class TelecomServiceImpl {
         public PhoneAccountHandle getDefaultOutgoingPhoneAccount(String uriScheme,
                 String callingPackage, String callingFeatureId) {
             try {
-                Log.startSession("TSI.gDOPA");
+                Log.startSession("TSI.gDOPA", Log.getPackageAbbreviation(callingPackage));
                 synchronized (mLock) {
                     PhoneAccountHandle phoneAccountHandle = null;
                     final UserHandle callingUserHandle = Binder.getCallingUserHandle();
@@ -147,7 +147,7 @@ public class TelecomServiceImpl {
         public PhoneAccountHandle getUserSelectedOutgoingPhoneAccount(String callingPackage) {
             synchronized (mLock) {
                 try {
-                    Log.startSession("TSI.gUSOPA");
+                    Log.startSession("TSI.gUSOPA", Log.getPackageAbbreviation(callingPackage));
                     if (!isDialerOrPrivileged(callingPackage, "getDefaultOutgoingPhoneAccount")) {
                         throw new SecurityException("Only the default dialer, or caller with "
                                 + "READ_PRIVILEGED_PHONE_STATE can call this method.");
@@ -191,7 +191,7 @@ public class TelecomServiceImpl {
         public List<PhoneAccountHandle> getCallCapablePhoneAccounts(
                 boolean includeDisabledAccounts, String callingPackage, String callingFeatureId) {
             try {
-                Log.startSession("TSI.gCCPA");
+                Log.startSession("TSI.gCCPA", Log.getPackageAbbreviation(callingPackage));
                 if (includeDisabledAccounts &&
                         !canReadPrivilegedPhoneState(
                                 callingPackage, "getCallCapablePhoneAccounts")) {
@@ -223,7 +223,7 @@ public class TelecomServiceImpl {
         public List<PhoneAccountHandle> getSelfManagedPhoneAccounts(String callingPackage,
                 String callingFeatureId) {
             try {
-                Log.startSession("TSI.gSMPA");
+                Log.startSession("TSI.gSMPA", Log.getPackageAbbreviation(callingPackage));
                 if (!canReadPhoneState(callingPackage, callingFeatureId,
                         "Requires READ_PHONE_STATE permission.")) {
                     throw new SecurityException("Requires READ_PHONE_STATE permission.");
@@ -250,7 +250,7 @@ public class TelecomServiceImpl {
         public List<PhoneAccountHandle> getPhoneAccountsSupportingScheme(String uriScheme,
                 String callingPackage) {
             try {
-                Log.startSession("TSI.gPASS");
+                Log.startSession("TSI.gPASS", Log.getPackageAbbreviation(callingPackage));
                 try {
                     enforceModifyPermission(
                             "getPhoneAccountsSupportingScheme requires MODIFY_PHONE_STATE");
@@ -918,7 +918,7 @@ public class TelecomServiceImpl {
         @Override
         public boolean endCall(String callingPackage) {
             try {
-                Log.startSession("TSI.eC");
+                Log.startSession("TSI.eC", Log.getPackageAbbreviation(callingPackage));
                 synchronized (mLock) {
                     if (!enforceAnswerCallPermission(callingPackage, Binder.getCallingUid())) {
                         throw new SecurityException("requires ANSWER_PHONE_CALLS permission");
@@ -942,7 +942,7 @@ public class TelecomServiceImpl {
         @Override
         public void acceptRingingCall(String packageName) {
             try {
-                Log.startSession("TSI.aRC");
+                Log.startSession("TSI.aRC", Log.getPackageAbbreviation(packageName));
                 synchronized (mLock) {
                     if (!enforceAnswerCallPermission(packageName, Binder.getCallingUid())) return;
 
@@ -965,7 +965,7 @@ public class TelecomServiceImpl {
         @Override
         public void acceptRingingCallWithVideoState(String packageName, int videoState) {
             try {
-                Log.startSession("TSI.aRCWVS");
+                Log.startSession("TSI.aRCWVS", Log.getPackageAbbreviation(packageName));
                 synchronized (mLock) {
                     if (!enforceAnswerCallPermission(packageName, Binder.getCallingUid())) return;
 
@@ -988,7 +988,7 @@ public class TelecomServiceImpl {
         public void showInCallScreen(boolean showDialpad, String callingPackage,
                 String callingFeatureId) {
             try {
-                Log.startSession("TSI.sICS");
+                Log.startSession("TSI.sICS", Log.getPackageAbbreviation(callingPackage));
                 if (!canReadPhoneState(callingPackage, callingFeatureId, "showInCallScreen")) {
                     return;
                 }
@@ -1013,7 +1013,7 @@ public class TelecomServiceImpl {
         @Override
         public void cancelMissedCallsNotification(String callingPackage) {
             try {
-                Log.startSession("TSI.cMCN");
+                Log.startSession("TSI.cMCN", Log.getPackageAbbreviation(callingPackage));
                 synchronized (mLock) {
                     enforcePermissionOrPrivilegedDialer(MODIFY_PHONE_STATE, callingPackage);
                     UserHandle userHandle = Binder.getCallingUserHandle();
@@ -1034,7 +1034,7 @@ public class TelecomServiceImpl {
         @Override
         public boolean handlePinMmi(String dialString, String callingPackage) {
             try {
-                Log.startSession("TSI.hPM");
+                Log.startSession("TSI.hPM", Log.getPackageAbbreviation(callingPackage));
                 enforcePermissionOrPrivilegedDialer(MODIFY_PHONE_STATE, callingPackage);
 
                 // Switch identity so that TelephonyManager checks Telecom's permissions
@@ -1062,7 +1062,7 @@ public class TelecomServiceImpl {
         public boolean handlePinMmiForPhoneAccount(PhoneAccountHandle accountHandle,
                 String dialString, String callingPackage) {
             try {
-                Log.startSession("TSI.hPMFPA");
+                Log.startSession("TSI.hPMFPA", Log.getPackageAbbreviation(callingPackage));
 
                 enforcePermissionOrPrivilegedDialer(MODIFY_PHONE_STATE, callingPackage);
                 UserHandle callingUserHandle = Binder.getCallingUserHandle();
@@ -1103,7 +1103,7 @@ public class TelecomServiceImpl {
         public Uri getAdnUriForPhoneAccount(PhoneAccountHandle accountHandle,
                 String callingPackage) {
             try {
-                Log.startSession("TSI.aAUFPA");
+                Log.startSession("TSI.aAUFPA", Log.getPackageAbbreviation(callingPackage));
                 enforcePermissionOrPrivilegedDialer(MODIFY_PHONE_STATE, callingPackage);
                 synchronized (mLock) {
                     if (!isPhoneAccountHandleVisibleToCallingUser(accountHandle,
@@ -1137,7 +1137,7 @@ public class TelecomServiceImpl {
         @Override
         public boolean isTtySupported(String callingPackage, String callingFeatureId) {
             try {
-                Log.startSession("TSI.iTS");
+                Log.startSession("TSI.iTS", Log.getPackageAbbreviation(callingPackage));
                 if (!canReadPhoneState(callingPackage, callingFeatureId, "isTtySupported")) {
                     throw new SecurityException("Only default dialer or an app with" +
                             "READ_PRIVILEGED_PHONE_STATE or READ_PHONE_STATE can call this api");
@@ -1157,7 +1157,7 @@ public class TelecomServiceImpl {
         @Override
         public int getCurrentTtyMode(String callingPackage, String callingFeatureId) {
             try {
-                Log.startSession("TSI.gCTM");
+                Log.startSession("TSI.gCTM", Log.getPackageAbbreviation(callingPackage));
                 if (!canReadPhoneState(callingPackage, callingFeatureId, "getCurrentTtyMode")) {
                     return TelecomManager.TTY_MODE_OFF;
                 }
@@ -1389,7 +1389,7 @@ public class TelecomServiceImpl {
         public void startConference(List<Uri> participants, Bundle extras,
                 String callingPackage) {
             try {
-                Log.startSession("TSI.sC");
+                Log.startSession("TSI.sC", Log.getPackageAbbreviation(callingPackage));
                 if (!canCallPhone(callingPackage, "startConference")) {
                     throw new SecurityException("Package " + callingPackage + " is not allowed"
                             + " to start conference call");
@@ -1408,7 +1408,7 @@ public class TelecomServiceImpl {
         public void placeCall(Uri handle, Bundle extras, String callingPackage,
                 String callingFeatureId) {
             try {
-                Log.startSession("TSI.pC");
+                Log.startSession("TSI.pC", Log.getPackageAbbreviation(callingPackage));
                 enforceCallingPackage(callingPackage);
 
                 PhoneAccountHandle phoneAccountHandle = null;

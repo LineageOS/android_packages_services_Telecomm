@@ -1226,6 +1226,14 @@ public class PhoneAccountRegistrar {
                     = mState.defaultOutgoingAccountHandles.get(Process.myUserHandle());
             pw.println("defaultOutgoing: " + (defaultPhoneAccountHandle == null ? "none" :
                     defaultPhoneAccountHandle.phoneAccountHandle));
+            PhoneAccountHandle defaultOutgoing =
+                    getOutgoingPhoneAccountForScheme(PhoneAccount.SCHEME_TEL, mCurrentUserHandle);
+            pw.print("outgoingPhoneAccountForTelScheme: ");
+            if (defaultOutgoing == null) {
+                pw.println("none");
+            } else {
+                pw.println(defaultOutgoing);
+            }
             pw.println("simCallManager: " + getSimCallManager(mCurrentUserHandle));
             pw.println("phoneAccounts:");
             pw.increaseIndent();
