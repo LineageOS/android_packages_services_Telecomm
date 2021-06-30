@@ -618,10 +618,12 @@ public class BasicCallTests extends TelecomSystemTest {
 
         mInCallServiceFixtureX.mInCallAdapter.mute(true);
         verify(mAudioService, timeout(TEST_TIMEOUT))
-                .setMicrophoneMute(eq(true), any(String.class), any(Integer.class));
+                .setMicrophoneMute(eq(true), any(String.class), any(Integer.class),
+                        nullable(String.class));
         mInCallServiceFixtureX.mInCallAdapter.mute(false);
         verify(mAudioService, timeout(TEST_TIMEOUT))
-                .setMicrophoneMute(eq(false), any(String.class), any(Integer.class));
+                .setMicrophoneMute(eq(false), any(String.class), any(Integer.class),
+                        nullable(String.class));
 
         mInCallServiceFixtureX.mInCallAdapter.setAudioRoute(CallAudioState.ROUTE_SPEAKER, null);
         waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
@@ -1185,7 +1187,7 @@ public class BasicCallTests extends TelecomSystemTest {
 
         ArgumentCaptor<Boolean> muteValueCaptor = ArgumentCaptor.forClass(Boolean.class);
         verify(mAudioService, times(2)).setMicrophoneMute(muteValueCaptor.capture(),
-                any(String.class), any(Integer.class));
+                any(String.class), any(Integer.class), nullable(String.class));
         List<Boolean> muteValues = muteValueCaptor.getAllValues();
         // Check mute status was changed twice with true and false.
         assertTrue(muteValues.get(0));
