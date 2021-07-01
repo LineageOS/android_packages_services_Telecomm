@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import static android.app.AppOpsManager.OPSTR_RECORD_AUDIO;
 import static android.os.Process.myUid;
 
 import android.Manifest;
@@ -58,6 +59,7 @@ import android.util.ArraySet;
 import com.android.internal.annotations.VisibleForTesting;
 // TODO: Needed for move to system service: import com.android.internal.R;
 import com.android.internal.telecom.IInCallService;
+import com.android.internal.util.ArrayUtils;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.SystemStateHelper.SystemStateListener;
 import com.android.server.telecom.ui.NotificationChannelManager;
@@ -79,7 +81,8 @@ import java.util.stream.Collectors;
  * can send updates to the in-call app. This class is created and owned by CallsManager and retains
  * a binding to the {@link IInCallService} (implemented by the in-call app).
  */
-public class InCallController extends CallsManagerListenerBase {
+public class InCallController extends CallsManagerListenerBase implements
+        AppOpsManager.OnOpActiveChangedListener {
     public static final int IN_CALL_SERVICE_NOTIFICATION_ID = 3;
     public static final String NOTIFICATION_TAG = InCallController.class.getSimpleName();
 
@@ -958,6 +961,9 @@ public class InCallController extends CallsManagerListenerBase {
     private static final int IN_CALL_SERVICE_TYPE_NON_UI = 4;
     private static final int IN_CALL_SERVICE_TYPE_COMPANION = 5;
 
+    private static final int[] LIVE_CALL_STATES = { CallState.ACTIVE, CallState.PULLING,
+            CallState.DISCONNECTING };
+
     /** The in-call app implementations, see {@link IInCallService}. */
     private final Map<InCallServiceInfo, IInCallService> mInCallServices = new ArrayMap<>();
 
@@ -995,7 +1001,7 @@ public class InCallController extends CallsManagerListenerBase {
 
     /**
      * {@code true} if InCallController is tracking a managed, not external call which is using the
-     * microphone, {@code false} otherwise.
+     * microphone, and is not muted {@code false} otherwise.
      */
     private boolean mIsCallUsingMicrophone = false;
 
@@ -1003,6 +1009,9 @@ public class InCallController extends CallsManagerListenerBase {
      * A list of call IDs which are currently using the camera.
      */
     private ArrayList<String> mCallsUsingCamera = new ArrayList<>();
+
+    private ArraySet<String> mAllCarrierPrivilegedApps = new ArraySet<>();
+    private ArraySet<String> mActiveCarrierPrivilegedApps = new ArraySet<>();
 
     public InCallController(Context context, TelecomSystem.SyncRoot lock, CallsManager callsManager,
             SystemStateHelper systemStateHelper, DefaultDialerCache defaultDialerCache,
@@ -1030,6 +1039,65 @@ public class InCallController extends CallsManagerListenerBase {
                 mToken, packageRestriction, UserHandle.USER_ALL);
         mAppOpsManager.setUserRestrictionForUser(AppOpsManager.OP_PHONE_CALL_CAMERA, true,
                 mToken, packageRestriction, UserHandle.USER_ALL);
+    }
+
+    @Override
+    public void onOpActiveChanged(@androidx.annotation.NonNull String op, int uid,
+            @androidx.annotation.NonNull String packageName, boolean active) {
+        synchronized (mLock) {
+            if (!mAllCarrierPrivilegedApps.contains(packageName)) {
+                return;
+            }
+
+            if (active) {
+                mActiveCarrierPrivilegedApps.add(packageName);
+            } else {
+                mActiveCarrierPrivilegedApps.remove(packageName);
+            }
+            maybeTrackMicrophoneUse(isMuted());
+        }
+    }
+
+    private void updateAllCarrierPrivilegedUsingMic() {
+        mActiveCarrierPrivilegedApps.clear();
+        UserManager userManager = mContext.getSystemService(UserManager.class);
+        PackageManager pkgManager = mContext.getPackageManager();
+        for (String pkg : mAllCarrierPrivilegedApps) {
+            boolean isActive = mActiveCarrierPrivilegedApps.contains(pkg);
+            List<UserHandle> users = userManager.getUserHandles(true);
+            for (UserHandle user : users) {
+                if (isActive) {
+                    break;
+                }
+
+                int uid;
+                try {
+                    uid = pkgManager.getPackageUidAsUser(pkg, user.getIdentifier());
+                } catch (PackageManager.NameNotFoundException e) {
+                    continue;
+                }
+                List<AppOpsManager.PackageOps> pkgOps = mAppOpsManager.getOpsForPackage(
+                        uid, pkg, OPSTR_RECORD_AUDIO);
+                for (int j = 0; j < pkgOps.size(); j++) {
+                    List<AppOpsManager.OpEntry> opEntries = pkgOps.get(j).getOps();
+                    for (int k = 0; k < opEntries.size(); k++) {
+                        AppOpsManager.OpEntry entry = opEntries.get(k);
+                        if (entry.isRunning()) {
+                            mActiveCarrierPrivilegedApps.add(pkg);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void updateAllCarrierPrivileged() {
+        mAllCarrierPrivilegedApps.clear();
+        for (Call call : mCallIdMapper.getCalls()) {
+            mAllCarrierPrivilegedApps.add(call.getConnectionManagerPhoneAccount()
+                    .getComponentName().getPackageName());
+        }
     }
 
     @Override
@@ -1112,6 +1180,10 @@ public class InCallController extends CallsManagerListenerBase {
         }
         call.removeListener(mCallListener);
         mCallIdMapper.removeCall(call);
+        if (mCallIdMapper.getCalls().isEmpty()) {
+            mActiveCarrierPrivilegedApps.clear();
+            mAppOpsManager.stopWatchingActive(this);
+        }
         maybeTrackMicrophoneUse(isMuted());
         onSetCamera(call, null);
     }
@@ -1265,6 +1337,7 @@ public class InCallController extends CallsManagerListenerBase {
     public void onIsVoipAudioModeChanged(Call call) {
         Log.d(this, "onIsVoipAudioModeChanged %s", call);
         updateCall(call);
+        maybeTrackMicrophoneUse(isMuted());
     }
 
     @Override
@@ -1894,10 +1967,18 @@ public class InCallController extends CallsManagerListenerBase {
      * @param call The call to add.
      */
     private void addCall(Call call) {
+        if (mCallIdMapper.getCalls().size() == 0) {
+            mAppOpsManager.startWatchingActive(new String[] { OPSTR_RECORD_AUDIO },
+                    java.lang.Runnable::run, this);
+            updateAllCarrierPrivileged();
+            updateAllCarrierPrivilegedUsingMic();
+        }
+
         if (mCallIdMapper.getCallId(call) == null) {
             mCallIdMapper.addCall(call);
             call.addListener(mCallListener);
         }
+
         maybeTrackMicrophoneUse(isMuted());
     }
 
@@ -2136,7 +2217,8 @@ public class InCallController extends CallsManagerListenerBase {
      */
     private void maybeTrackMicrophoneUse(boolean isMuted) {
         boolean wasTrackingManagedCall = mIsCallUsingMicrophone;
-        mIsCallUsingMicrophone = isTrackingManagedAliveCall() && !isMuted;
+        mIsCallUsingMicrophone = isTrackingManagedAliveCall() && !isMuted
+                && !carrierPrivilegedUsingMicDuringVoipCall();
         if (wasTrackingManagedCall != mIsCallUsingMicrophone) {
             if (mIsCallUsingMicrophone) {
                 mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_MICROPHONE, myUid(),
@@ -2154,8 +2236,13 @@ public class InCallController extends CallsManagerListenerBase {
      */
     private boolean isTrackingManagedAliveCall() {
         return mCallIdMapper.getCalls().stream().anyMatch(c -> !c.isExternalCall()
-            && !c.isSelfManaged() && c.isAlive() && c.getState() != CallState.ON_HOLD
-                && c.getState() != CallState.AUDIO_PROCESSING && c.getState() != CallState.DIALING);
+            && !c.isSelfManaged() && c.isAlive() && ArrayUtils.contains(LIVE_CALL_STATES,
+                c.getState()));
+    }
+
+    private boolean carrierPrivilegedUsingMicDuringVoipCall() {
+        return !mActiveCarrierPrivilegedApps.isEmpty() &&
+                mCallIdMapper.getCalls().stream().anyMatch(Call::getIsVoipAudioMode);
     }
 
     /**
