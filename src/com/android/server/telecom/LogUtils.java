@@ -201,6 +201,7 @@ public class LogUtils {
         public static final String OVERRIDE_DISCONNECT_MESSAGE = "OVERRIDE_DISCONNECT_MSG";
         public static final String CALL_DIAGNOSTIC_SERVICE_TIMEOUT =
                 "CALL_DIAGNOSTIC_SERVICE_TIMEOUT";
+        public static final String VERSTAT_CHANGED = "VERSTAT_CHANGED";
 
         public static class Timings {
             public static final String ACCEPT_TIMING = "accept";
