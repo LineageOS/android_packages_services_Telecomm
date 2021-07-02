@@ -165,6 +165,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         void onBluetoothCallQualityReport(Call call, BluetoothCallQualityReport report);
         void onReceivedDeviceToDeviceMessage(Call call, int messageType, int messageValue);
         void onReceivedCallQualityReport(Call call, CallQuality callQuality);
+        void onCallerNumberVerificationStatusChanged(Call call, int callerNumberVerificationStatus);
     }
 
     public abstract static class ListenerBase implements Listener {
@@ -259,6 +260,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         public void onReceivedDeviceToDeviceMessage(Call call, int messageType, int messageValue) {}
         @Override
         public void onReceivedCallQualityReport(Call call, CallQuality callQuality) {}
+        @Override
+        public void onCallerNumberVerificationStatusChanged(Call call,
+                int callerNumberVerificationStatus) {}
     }
 
     private final CallerInfoLookupHelper.OnQueryCompleteListener mCallerInfoQueryListener =
@@ -1324,6 +1328,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     public void setCallerNumberVerificationStatus(
             @Connection.VerificationStatus int callerNumberVerificationStatus) {
         mCallerNumberVerificationStatus = callerNumberVerificationStatus;
+        mListeners.forEach(l -> l.onCallerNumberVerificationStatusChanged(this,
+                callerNumberVerificationStatus));
     }
 
     public @Connection.VerificationStatus int getCallerNumberVerificationStatus() {
@@ -2753,6 +2759,16 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
         if (extras.containsKey(Connection.EXTRA_ORIGINAL_CONNECTION_ID)) {
             setOriginalConnectionId(extras.getString(Connection.EXTRA_ORIGINAL_CONNECTION_ID));
+        }
+
+        if (extras.containsKey(Connection.EXTRA_CALLER_NUMBER_VERIFICATION_STATUS)
+                && source == SOURCE_CONNECTION_SERVICE) {
+            int callerNumberVerificationStatus =
+                    extras.getInt(Connection.EXTRA_CALLER_NUMBER_VERIFICATION_STATUS);
+            if (mCallerNumberVerificationStatus != callerNumberVerificationStatus) {
+                Log.addEvent(this, LogUtils.Events.VERSTAT_CHANGED, callerNumberVerificationStatus);
+                setCallerNumberVerificationStatus(callerNumberVerificationStatus);
+            }
         }
 
         // The remote connection service API can track the phone account which was originally
