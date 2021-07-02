@@ -17,6 +17,7 @@
 package com.android.server.telecom;
 
 import android.content.ContentResolver;
+import android.provider.DeviceConfig;
 import android.provider.Settings;
 import android.telecom.CallDiagnosticService;
 import android.telecom.CallRedirectionService;
@@ -74,6 +75,10 @@ public final class Timeouts {
 
         public long getCallDiagnosticServiceTimeoutMillis(ContentResolver cr) {
             return Timeouts.getCallDiagnosticServiceTimeoutMillis(cr);
+        }
+
+        public long getCallStartAppOpDebounceIntervalMillis() {
+            return  Timeouts.getCallStartAppOpDebounceIntervalMillis();
         }
     }
 
@@ -230,6 +235,10 @@ public final class Timeouts {
      */
     public static long getCallDiagnosticServiceTimeoutMillis(ContentResolver contentResolver) {
         return get(contentResolver, "call_diagnostic_service_timeout", 2000L /* 2 sec */);
+    }
+
+    public static long getCallStartAppOpDebounceIntervalMillis() {
+        return DeviceConfig.getLong(DeviceConfig.NAMESPACE_PRIVACY, "app_op_debounce_time", 250L);
     }
 
     /**
