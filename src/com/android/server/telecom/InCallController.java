@@ -893,6 +893,12 @@ public class InCallController extends CallsManagerListenerBase implements
         public void onRemoteRttRequest(Call call, int requestId) {
             notifyRemoteRttRequest(call, requestId);
         }
+
+        @Override
+        public void onCallerNumberVerificationStatusChanged(Call call,
+                int callerNumberVerificationStatus) {
+            updateCall(call);
+        }
     };
 
     private BroadcastReceiver mPackageChangedReceiver = new BroadcastReceiver() {
