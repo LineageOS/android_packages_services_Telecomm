@@ -45,6 +45,7 @@ import android.os.RemoteException;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.DeviceConfig;
 import android.telecom.CallAudioState;
 import android.telecom.ConnectionService;
 import android.telecom.InCallService;
@@ -83,8 +84,8 @@ import java.util.stream.Collectors;
  */
 public class InCallController extends CallsManagerListenerBase implements
         AppOpsManager.OnOpActiveChangedListener {
-    public static final int IN_CALL_SERVICE_NOTIFICATION_ID = 3;
     public static final String NOTIFICATION_TAG = InCallController.class.getSimpleName();
+    public static final int IN_CALL_SERVICE_NOTIFICATION_ID = 3;
 
     public class InCallServiceConnection {
         /**
@@ -893,6 +894,12 @@ public class InCallController extends CallsManagerListenerBase implements
         public void onRemoteRttRequest(Call call, int requestId) {
             notifyRemoteRttRequest(call, requestId);
         }
+
+        @Override
+        public void onCallerNumberVerificationStatusChanged(Call call,
+                int callerNumberVerificationStatus) {
+            updateCall(call);
+        }
     };
 
     private BroadcastReceiver mPackageChangedReceiver = new BroadcastReceiver() {
@@ -1004,6 +1011,14 @@ public class InCallController extends CallsManagerListenerBase implements
      * microphone, and is not muted {@code false} otherwise.
      */
     private boolean mIsCallUsingMicrophone = false;
+
+    /**
+     * {@code true} if InCallController is tracking a managed, not external call which is using the
+     * microphone, {@code false} otherwise.
+     */
+    private boolean mIsTrackingManagedAliveCall = false;
+
+    private boolean mIsStartCallDelayScheduled = false;
 
     /**
      * A list of call IDs which are currently using the camera.
@@ -2210,16 +2225,38 @@ public class InCallController extends CallsManagerListenerBase implements
         Log.i(this, "trackCallingUserInterfaceStopped: %s is no longer calling UX", packageName);
     }
 
+    private void maybeTrackMicrophoneUse(boolean isMuted) {
+        maybeTrackMicrophoneUse(isMuted, false);
+    }
+
     /**
      * As calls are added, removed and change between external and non-external status, track
      * whether the current active calling UX is using the microphone.  We assume if there is a
      * managed call present and the mic is not muted that the microphone is in use.
      */
-    private void maybeTrackMicrophoneUse(boolean isMuted) {
-        boolean wasTrackingManagedCall = mIsCallUsingMicrophone;
-        mIsCallUsingMicrophone = isTrackingManagedAliveCall() && !isMuted
-                && !carrierPrivilegedUsingMicDuringVoipCall();
-        if (wasTrackingManagedCall != mIsCallUsingMicrophone) {
+    private void maybeTrackMicrophoneUse(boolean isMuted, boolean isScheduledDelay) {
+        if (mIsStartCallDelayScheduled && !isScheduledDelay) {
+            return;
+        }
+
+        mIsStartCallDelayScheduled = false;
+        boolean wasUsingMicrophone = mIsCallUsingMicrophone;
+        boolean wasTrackingCall = mIsTrackingManagedAliveCall;
+        mIsTrackingManagedAliveCall = isTrackingManagedAliveCall();
+        if (!wasTrackingCall && mIsTrackingManagedAliveCall) {
+            mIsStartCallDelayScheduled = true;
+            mHandler.postDelayed(new Runnable("ICC.mTMU", mLock) {
+                @Override
+                public void loggedRun() {
+                    maybeTrackMicrophoneUse(isMuted(), true);
+                }
+            }.prepare(), mTimeoutsAdapter.getCallStartAppOpDebounceIntervalMillis());
+            return;
+        }
+
+        mIsCallUsingMicrophone = mIsTrackingManagedAliveCall && !isMuted
+                && !isCarrierPrivilegedUsingMicDuringVoipCall();
+        if (wasUsingMicrophone != mIsCallUsingMicrophone) {
             if (mIsCallUsingMicrophone) {
                 mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_MICROPHONE, myUid(),
                         mContext.getOpPackageName(), false, null, null);
@@ -2240,7 +2277,7 @@ public class InCallController extends CallsManagerListenerBase implements
                 c.getState()));
     }
 
-    private boolean carrierPrivilegedUsingMicDuringVoipCall() {
+    private boolean isCarrierPrivilegedUsingMicDuringVoipCall() {
         return !mActiveCarrierPrivilegedApps.isEmpty() &&
                 mCallIdMapper.getCalls().stream().anyMatch(Call::getIsVoipAudioMode);
     }
