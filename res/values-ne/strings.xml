@@ -54,13 +54,13 @@
     <string name="no_vm_number_msg" msgid="1339245731058529388">"SIM कार्डमा कुनै पनि भ्वाइसमेल नम्बर भण्डारण भएको छैन।"</string>
     <string name="add_vm_number_str" msgid="5179510133063168998">"नम्बर थप्नुहोस्"</string>
     <string name="change_default_dialer_dialog_title" msgid="5861469279421508060">"तपाईंको डिफल्ट फोन एप <xliff:g id="NEW_APP">%s</xliff:g> बनाउने हो?"</string>
-    <string name="change_default_dialer_dialog_affirmative" msgid="8604665314757739550">"पूर्वनिर्धारित रूपमा सेट गर्नुहोस्"</string>
+    <string name="change_default_dialer_dialog_affirmative" msgid="8604665314757739550">"डिफल्ट रूपमा सेट गर्नुहोस्"</string>
     <string name="change_default_dialer_dialog_negative" msgid="8648669840052697821">"रद्द गर्नुहोस्"</string>
-    <string name="change_default_dialer_warning_message" msgid="8461963987376916114">"<xliff:g id="NEW_APP">%s</xliff:g> कलका सबै पक्षहरूलाई स्थापित गर्न र नियन्त्रण गर्न सक्षम हुने छ। तपाईंलाई विश्वास लाग्ने एपहरूलाई मात्र फोनमा पूर्वनिर्धारित एपका रूपमा सेट गर्नुपर्छ।"</string>
-    <string name="change_default_call_screening_dialog_title" msgid="5365787219927262408">"तपाईंको पूर्वनिर्धारित कल स्क्रिन एप <xliff:g id="NEW_APP">%s</xliff:g> बनाउने हो?"</string>
+    <string name="change_default_dialer_warning_message" msgid="8461963987376916114">"<xliff:g id="NEW_APP">%s</xliff:g> कलका सबै पक्षहरूलाई स्थापित गर्न र नियन्त्रण गर्न सक्षम हुने छ। तपाईंलाई विश्वास लाग्ने एपहरूलाई मात्र फोनमा डिफल्ट एपका रूपमा सेट गर्नुपर्छ।"</string>
+    <string name="change_default_call_screening_dialog_title" msgid="5365787219927262408">"तपाईंको डिफल्ट कल स्क्रिन एप <xliff:g id="NEW_APP">%s</xliff:g> बनाउने हो?"</string>
     <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="2039830033533243164">"<xliff:g id="OLD_APP">%s</xliff:g> ले अब उप्रान्त कलहरू स्क्रिन गर्न सक्ने छैनन्‌।"</string>
-    <string name="change_default_call_screening_warning_message" msgid="9020537562292754269">"<xliff:g id="NEW_APP">%s</xliff:g> ले तपाईंको सम्पर्कमा नभएका कल गर्ने व्यक्तिका जानकारी हेर्न सक्छ र तिनीहरूमाथि रोक लगाउन सक्छ। तपाईंलाई विश्वास लाग्ने एपहरूलाई मात्र कल स्क्रिन पूर्वनिर्धारित एपका रूपमा सेट गर्नुपर्छ।"</string>
-    <string name="change_default_call_screening_dialog_affirmative" msgid="7162433828280058647">"पूर्वनिर्धारित रूपमा सेट गर्नुहोस्"</string>
+    <string name="change_default_call_screening_warning_message" msgid="9020537562292754269">"<xliff:g id="NEW_APP">%s</xliff:g> ले तपाईंको सम्पर्कमा नभएका कल गर्ने व्यक्तिका जानकारी हेर्न सक्छ र तिनीहरूमाथि रोक लगाउन सक्छ। तपाईंलाई विश्वास लाग्ने एपहरूलाई मात्र कल स्क्रिन डिफल्ट एपका रूपमा सेट गर्नुपर्छ।"</string>
+    <string name="change_default_call_screening_dialog_affirmative" msgid="7162433828280058647">"डिफल्ट रूपमा सेट गर्नुहोस्"</string>
     <string name="change_default_call_screening_dialog_negative" msgid="1839266125623106342">"रद्द गर्नुहोस्"</string>
     <string name="blocked_numbers" msgid="8322134197039865180">"रोकिएका नम्बरहरू"</string>
     <string name="blocked_numbers_msg" msgid="2797422132329662697">"तपाईँले रोक लगाइएका नम्बरहरूबाट फोन वा टेक्स्ट म्यासेजहरू प्राप्त गर्नुहुने छैन।"</string>
@@ -93,7 +93,7 @@
     <string name="cant_call_due_to_no_supported_service" msgid="1635626384149947077">"यस प्रकारका कलहरूलाई समर्थन गर्ने कुनै पनि कल गर्ने खाता नभएकाले कल गर्न सकिँदैन।"</string>
     <string name="cant_call_due_to_ongoing_call" msgid="8004235328451385493">"तपाईंको <xliff:g id="OTHER_CALL">%1$s</xliff:g> कलका कारण कल गर्न सकिँदैन।"</string>
     <string name="cant_call_due_to_ongoing_calls" msgid="6379163795277824868">"तपाईंका <xliff:g id="OTHER_CALL">%1$s</xliff:g> कलहरूका कारण कल गर्न सकिँदैन।"</string>
-    <string name="cant_call_due_to_ongoing_unknown_call" msgid="8243532328969433172">"अर्को अनुप्रयोगमा जारी कलका कारण कल गर्न सकिँदैन।"</string>
+    <string name="cant_call_due_to_ongoing_unknown_call" msgid="8243532328969433172">"अर्को एपमा जारी कलका कारण कल गर्न सकिँदैन।"</string>
     <string name="notification_channel_incoming_call" msgid="5245550964701715662">"आगमन कलहरू"</string>
     <string name="notification_channel_missed_call" msgid="7168893015283909012">"मिस कलहरू"</string>
     <string name="notification_channel_call_blocking" msgid="2028807677868598710">"कलमाथि रोक लगाउने सुविधा"</string>
