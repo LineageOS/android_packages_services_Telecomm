@@ -471,11 +471,11 @@ public class TelecomServiceImpl {
                 try {
                     Log.startSession("TSI.gSCMFU");
                     final int callingUid = Binder.getCallingUid();
+                    if (user != ActivityManager.getCurrentUser()) {
+                        enforceCrossUserPermission(callingUid);
+                    }
                     long token = Binder.clearCallingIdentity();
                     try {
-                        if (user != ActivityManager.getCurrentUser()) {
-                            enforceCrossUserPermission(callingUid);
-                        }
                         return mPhoneAccountRegistrar.getSimCallManager(UserHandle.of(user));
                     } finally {
                         Binder.restoreCallingIdentity(token);
