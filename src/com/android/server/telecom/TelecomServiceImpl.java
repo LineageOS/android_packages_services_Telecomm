@@ -948,7 +948,6 @@ public class TelecomServiceImpl {
         public int getCallStateUsingPackage(String callingPackage, String callingFeatureId) {
             try {
                 Log.startSession("TSI.getCallStateUsingPackage");
-                enforceCallingPackage(callingPackage);
                 if (CompatChanges.isChangeEnabled(
                         TelecomManager.ENABLE_GET_CALL_STATE_PERMISSION_PROTECTION, callingPackage,
                         Binder.getCallingUserHandle())) {
