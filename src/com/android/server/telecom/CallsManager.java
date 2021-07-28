@@ -3131,7 +3131,8 @@ public class CallsManager extends Call.ListenerBase
         // If a call diagnostic service is in use, we will log the original telephony-provided
         // disconnect cause, inform the CDS of the disconnection, and then chain the update of the
         // call state until AFTER the CDS reports it's result back.
-        if (oldState == CallState.ACTIVE && disconnectCause.getCode() != DisconnectCause.MISSED
+        if ((oldState == CallState.ACTIVE || oldState == CallState.DIALING)
+                && disconnectCause.getCode() != DisconnectCause.MISSED
                 && mCallDiagnosticServiceController.isConnected()
                 && mCallDiagnosticServiceController.onCallDisconnected(call, disconnectCause)) {
             Log.i(this, "markCallAsDisconnected; callid=%s, postingToFuture.", call.getId());
