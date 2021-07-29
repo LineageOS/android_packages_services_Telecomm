@@ -1604,6 +1604,26 @@ public class CallsManagerTest extends TelecomTestCase {
                 any(DisconnectCause.class));
         verify(callSpy, never()).setDisconnectCause(any(DisconnectCause.class));
     }
+    
+    /**
+     * Verifies that if call state goes from DIALING to DISCONNECTED, and a call diagnostic service
+     * IS in use, it would call onCallDisconnected of the CallDiagnosticService
+     * @throws Exception
+     */
+    @MediumTest
+    @Test
+    public void testDisconnectDialingCall() throws Exception {
+        Call callSpy = addSpyCall(CallState.DIALING);
+        callSpy.setIsSimCall(true);
+        when(mCallDiagnosticServiceController.isConnected()).thenReturn(true);
+        when(mCallDiagnosticServiceController.onCallDisconnected(any(Call.class),
+                any(DisconnectCause.class))).thenReturn(true);
+        mCallsManager.markCallAsDisconnected(callSpy, new DisconnectCause(DisconnectCause.ERROR));
+
+        verify(mCallDiagnosticServiceController).onCallDisconnected(any(Call.class),
+                any(DisconnectCause.class));
+        verify(callSpy, never()).setDisconnectCause(any(DisconnectCause.class));
+    }
 
     private Call addSpyCall() {
         return addSpyCall(SIM_2_HANDLE, CallState.ACTIVE);
