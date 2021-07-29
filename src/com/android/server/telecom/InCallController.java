@@ -45,7 +45,6 @@ import android.os.RemoteException;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.provider.DeviceConfig;
 import android.telecom.CallAudioState;
 import android.telecom.ConnectionService;
 import android.telecom.InCallService;
@@ -282,7 +281,16 @@ public class InCallController extends CallsManagerListenerBase implements
         @Override
         public int connect(Call call) {
             if (mIsConnected) {
-                Log.addEvent(call, LogUtils.Events.INFO, "Already connected, ignoring request.");
+                Log.addEvent(call, LogUtils.Events.INFO, "Already connected, ignoring request: "
+                        + mInCallServiceInfo);
+                if (call != null) {
+                    // Track the call if we don't already know about it.
+                    addCall(call);
+
+                    // Notify this new added call
+                    sendCallToService(call, mInCallServiceInfo,
+                            mInCallServices.get(mInCallServiceInfo));
+                }
                 return CONNECTION_SUCCEEDED;
             }
 
@@ -1864,34 +1872,7 @@ public class InCallController extends CallsManagerListenerBase implements
                 "calls", calls.size(), info.getComponentName());
         int numCallsSent = 0;
         for (Call call : calls) {
-            try {
-                if ((call.isSelfManaged() && (!info.isSelfManagedCallsSupported()
-                        || !call.visibleToInCallService())) ||
-                        (call.isExternalCall() && !info.isExternalCallsSupported())) {
-                    continue;
-                }
-
-                // Only send the RTT call if it's a UI in-call service
-                boolean includeRttCall = false;
-                if (mInCallServiceConnection != null) {
-                    includeRttCall = info.equals(mInCallServiceConnection.getInfo());
-                }
-
-                // Track the call if we don't already know about it.
-                addCall(call);
-                numCallsSent += 1;
-                ParcelableCall parcelableCall = ParcelableCallUtils.toParcelableCall(
-                        call,
-                        true /* includeVideoProvider */,
-                        mCallsManager.getPhoneAccountRegistrar(),
-                        info.isExternalCallsSupported(),
-                        includeRttCall,
-                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI ||
-                        info.getType() == IN_CALL_SERVICE_TYPE_NON_UI);
-                inCallService.addCall(sanitizeParcelableCallForService(info, parcelableCall));
-                updateCallTracking(call, info, true /* isAdd */);
-            } catch (RemoteException ignored) {
-            }
+            numCallsSent += sendCallToService(call, info, inCallService);
         }
         try {
             inCallService.onCallAudioStateChanged(mCallsManager.getAudioState());
@@ -1899,12 +1880,45 @@ public class InCallController extends CallsManagerListenerBase implements
         } catch (RemoteException ignored) {
         }
         // Don't complete the binding future for non-ui incalls
-        if (info.getType() != IN_CALL_SERVICE_TYPE_NON_UI) {
+        if (info.getType() != IN_CALL_SERVICE_TYPE_NON_UI && !mBindingFuture.isDone()) {
             mBindingFuture.complete(true);
         }
 
         Log.i(this, "%s calls sent to InCallService.", numCallsSent);
         return true;
+    }
+
+    private int sendCallToService(Call call, InCallServiceInfo info,
+            IInCallService inCallService) {
+        try {
+            if ((call.isSelfManaged() && (!info.isSelfManagedCallsSupported()
+                    || !call.visibleToInCallService())) ||
+                    (call.isExternalCall() && !info.isExternalCallsSupported())) {
+                return 0;
+            }
+
+            // Only send the RTT call if it's a UI in-call service
+            boolean includeRttCall = false;
+            if (mInCallServiceConnection != null) {
+                includeRttCall = info.equals(mInCallServiceConnection.getInfo());
+            }
+
+            // Track the call if we don't already know about it.
+            addCall(call);
+            ParcelableCall parcelableCall = ParcelableCallUtils.toParcelableCall(
+                    call,
+                    true /* includeVideoProvider */,
+                    mCallsManager.getPhoneAccountRegistrar(),
+                    info.isExternalCallsSupported(),
+                    includeRttCall,
+                    info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI ||
+                            info.getType() == IN_CALL_SERVICE_TYPE_NON_UI);
+            inCallService.addCall(sanitizeParcelableCallForService(info, parcelableCall));
+            updateCallTracking(call, info, true /* isAdd */);
+            return 1;
+        } catch (RemoteException ignored) {
+        }
+        return 0;
     }
 
     /**
