@@ -1035,7 +1035,9 @@ public class BasicCallTests extends TelecomSystemTest {
     @Test
     public void testIsOutgoingCallPermitted() throws Exception {
         assertTrue(mTelecomSystem.getTelecomServiceImpl().getBinder()
-                .isOutgoingCallPermitted(mPhoneAccountSelfManaged.getAccountHandle()));
+                .isOutgoingCallPermitted(mPhoneAccountSelfManaged.getAccountHandle(),
+                        mPhoneAccountSelfManaged.getAccountHandle().getComponentName()
+                                .getPackageName()));
     }
 
     /**
@@ -1052,7 +1054,9 @@ public class BasicCallTests extends TelecomSystemTest {
         assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
 
         assertTrue(mTelecomSystem.getTelecomServiceImpl().getBinder()
-                .isOutgoingCallPermitted(mPhoneAccountSelfManaged.getAccountHandle()));
+                .isOutgoingCallPermitted(mPhoneAccountSelfManaged.getAccountHandle(),
+                        mPhoneAccountSelfManaged.getAccountHandle().getComponentName()
+                                .getPackageName()));
     }
 
     /**
@@ -1070,7 +1074,9 @@ public class BasicCallTests extends TelecomSystemTest {
         assertEquals(Call.STATE_ACTIVE, mInCallServiceFixtureX.getCall(ids.mCallId).getState());
 
         assertTrue(mTelecomSystem.getTelecomServiceImpl().getBinder()
-                .isOutgoingCallPermitted(mPhoneAccountSelfManaged.getAccountHandle()));
+                .isOutgoingCallPermitted(mPhoneAccountSelfManaged.getAccountHandle(),
+                        mPhoneAccountSelfManaged.getAccountHandle().getComponentName()
+                                .getPackageName()));
     }
 
     /**
