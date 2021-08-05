@@ -1695,10 +1695,14 @@ public class TelecomServiceImpl {
          * @see android.telecom.TelecomManager#isIncomingCallPermitted(PhoneAccountHandle)
          */
         @Override
-        public boolean isIncomingCallPermitted(PhoneAccountHandle phoneAccountHandle) {
+        public boolean isIncomingCallPermitted(PhoneAccountHandle phoneAccountHandle,
+                String callingPackage) {
+            Log.startSession("TSI.iICP");
             try {
-                Log.startSession("TSI.iICP");
+                enforceCallingPackage(callingPackage);
+                enforcePhoneAccountHandleMatchesCaller(phoneAccountHandle, callingPackage);
                 enforcePermission(android.Manifest.permission.MANAGE_OWN_CALLS);
+                enforceUserHandleMatchesCaller(phoneAccountHandle);
                 synchronized (mLock) {
                     long token = Binder.clearCallingIdentity();
                     try {
@@ -1716,10 +1720,14 @@ public class TelecomServiceImpl {
          * @see android.telecom.TelecomManager#isOutgoingCallPermitted(PhoneAccountHandle)
          */
         @Override
-        public boolean isOutgoingCallPermitted(PhoneAccountHandle phoneAccountHandle) {
+        public boolean isOutgoingCallPermitted(PhoneAccountHandle phoneAccountHandle,
+                String callingPackage) {
+            Log.startSession("TSI.iOCP");
             try {
-                Log.startSession("TSI.iOCP");
+                enforceCallingPackage(callingPackage);
+                enforcePhoneAccountHandleMatchesCaller(phoneAccountHandle, callingPackage);
                 enforcePermission(android.Manifest.permission.MANAGE_OWN_CALLS);
+                enforceUserHandleMatchesCaller(phoneAccountHandle);
                 synchronized (mLock) {
                     long token = Binder.clearCallingIdentity();
                     try {
@@ -2277,6 +2285,13 @@ public class TelecomServiceImpl {
     private void enforceUserHandleMatchesCaller(PhoneAccountHandle accountHandle) {
         if (!Binder.getCallingUserHandle().equals(accountHandle.getUserHandle())) {
             throw new SecurityException("Calling UserHandle does not match PhoneAccountHandle's");
+        }
+    }
+
+    private void enforcePhoneAccountHandleMatchesCaller(PhoneAccountHandle phoneAccountHandle,
+            String callingPackage) {
+        if (!callingPackage.equals(phoneAccountHandle.getComponentName().getPackageName())) {
+            throw new SecurityException("Caller does not own the PhoneAccountHandle");
         }
     }
 
