@@ -50,6 +50,7 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.hardware.SensorPrivacyManager;
 import android.location.Country;
 import android.location.CountryDetector;
 import android.media.AudioManager;
@@ -221,6 +222,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
                     return mVibratorManager;
                 case Context.PERMISSION_CHECKER_SERVICE:
                     return mPermissionCheckerManager;
+                case Context.SENSOR_PRIVACY_SERVICE:
+                    return mSensorPrivacyManager;
                 default:
                     return null;
             }
@@ -248,6 +251,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
                 return Context.VIBRATOR_MANAGER_SERVICE;
             } else if (svcClass == PermissionCheckerManager.class) {
                 return Context.PERMISSION_CHECKER_SERVICE;
+            } else if (svcClass == SensorPrivacyManager.class) {
+                return Context.SENSOR_PRIVACY_SERVICE;
             }
             throw new UnsupportedOperationException();
         }
@@ -527,6 +532,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
     private final PermissionCheckerManager mPermissionCheckerManager =
             mock(PermissionCheckerManager.class);
     private final PermissionInfo mPermissionInfo = mock(PermissionInfo.class);
+    private final SensorPrivacyManager mSensorPrivacyManager = mock(SensorPrivacyManager.class);
 
     private TelecomManager mTelecomManager = mock(TelecomManager.class);
 
