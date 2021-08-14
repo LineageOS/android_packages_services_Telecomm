@@ -217,6 +217,7 @@ public class TelecomSystem {
                 defaultDialerAdapter, roleManagerAdapter, mLock);
 
         Log.startSession("TS.init");
+        // Wrap this in a try block to ensure session cleanup occurs in the case of error.
         try {
             mPhoneAccountRegistrar = new PhoneAccountRegistrar(mContext, defaultDialerCache,
                     packageName -> AppLabelProxy.Util.getAppLabel(
@@ -243,7 +244,8 @@ public class TelecomSystem {
 
             mMissedCallNotifier = missedCallNotifierImplFactory
                     .makeMissedCallNotifierImpl(mContext, mPhoneAccountRegistrar,
-                            defaultDialerCache, deviceIdleControllerAdapter);
+                            defaultDialerCache,
+                            deviceIdleControllerAdapter);
             DisconnectedCallNotifier.Factory disconnectedCallNotifierFactory =
                     new DisconnectedCallNotifier.Default();
 
@@ -306,7 +308,8 @@ public class TelecomSystem {
                 @Override
                 public Toast makeText(Context context, int resId, int duration) {
                     return Toast.makeText(context, context.getMainLooper(),
-                            context.getString(resId), duration);
+                            context.getString(resId),
+                            duration);
                 }
 
                 @Override

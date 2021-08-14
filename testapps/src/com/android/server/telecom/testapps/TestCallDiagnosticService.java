@@ -20,7 +20,7 @@ import android.telecom.BluetoothCallQualityReport;
 import android.telecom.Call;
 import android.telecom.CallAudioState;
 import android.telecom.CallDiagnosticService;
-import android.telecom.DiagnosticCall;
+import android.telecom.CallDiagnostics;
 import android.telecom.Log;
 import android.telephony.CallQuality;
 import android.telephony.ims.ImsReasonInfo;
@@ -30,10 +30,10 @@ import androidx.annotation.Nullable;
 
 public class TestCallDiagnosticService extends CallDiagnosticService {
 
-    public static final class TestDiagnosticCall extends DiagnosticCall {
+    public static final class TestCallDiagnostics extends CallDiagnostics {
         public Call.Details details;
 
-        TestDiagnosticCall(Call.Details details) {
+        TestCallDiagnostics(Call.Details details) {
             this.details = details;
         }
 
@@ -51,14 +51,14 @@ public class TestCallDiagnosticService extends CallDiagnosticService {
         @Override
         public CharSequence onCallDisconnected(int disconnectCause, int preciseDisconnectCause) {
             Log.i(this, "onCallDisconnected");
-            return null;
+            return "GSM/CDMA call dropped because " + disconnectCause;
         }
 
         @Nullable
         @Override
         public CharSequence onCallDisconnected(@NonNull ImsReasonInfo disconnectReason) {
             Log.i(this, "onCallDisconnected");
-            return null;
+            return "ImsCall dropped because something happened " + disconnectReason.mExtraMessage;
         }
 
         @Override
@@ -69,13 +69,13 @@ public class TestCallDiagnosticService extends CallDiagnosticService {
 
     @NonNull
     @Override
-    public DiagnosticCall onInitializeDiagnosticCall(@NonNull Call.Details call) {
+    public CallDiagnostics onInitializeCallDiagnostics(@NonNull Call.Details call) {
         Log.i(this, "onInitiatlizeDiagnosticCall %s", call);
-        return new TestDiagnosticCall(call);
+        return new TestCallDiagnostics(call);
     }
 
     @Override
-    public void onRemoveDiagnosticCall(@NonNull DiagnosticCall call) {
+    public void onRemoveCallDiagnostics(@NonNull CallDiagnostics call) {
         Log.i(this, "onRemoveDiagnosticCall %s", call);
     }
 
