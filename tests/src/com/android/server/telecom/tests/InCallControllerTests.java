@@ -86,7 +86,6 @@ import com.android.dx.mockito.inline.extended.ExtendedMockito;
 import com.android.internal.telecom.IInCallAdapter;
 import com.android.internal.telecom.IInCallService;
 import com.android.server.telecom.Analytics;
-import com.android.server.telecom.BluetoothHeadsetProxy;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.CarModeTracker;
@@ -125,7 +124,6 @@ import java.util.concurrent.CompletableFuture;
 public class InCallControllerTests extends TelecomTestCase {
     @Mock CallsManager mMockCallsManager;
     @Mock PhoneAccountRegistrar mMockPhoneAccountRegistrar;
-    @Mock BluetoothHeadsetProxy mMockBluetoothHeadset;
     @Mock SystemStateHelper mMockSystemStateHelper;
     @Mock PackageManager mMockPackageManager;
     @Mock PermissionCheckerManager mMockPermissionCheckerManager;
