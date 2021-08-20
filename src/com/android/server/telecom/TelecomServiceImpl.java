@@ -852,6 +852,7 @@ public class TelecomServiceImpl {
         public boolean hasManageOngoingCallsPermission(String callingPackage) {
             try {
                 Log.startSession("TSI.hMOCP");
+                enforceCallingPackage(callingPackage);
                 return PermissionChecker.checkPermissionForDataDeliveryFromDataSource(
                         mContext, Manifest.permission.MANAGE_ONGOING_CALLS,
                         Binder.getCallingPid(),
