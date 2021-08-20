@@ -373,4 +373,6 @@
          blocking functionality (for test purposes).
          DO NOT TRANSLATE -->
     <string name="developer_enhanced_call_blocking" translatable="false">Enhanced Call Blocking</string>
+    <!-- Button label for generic cancel action [CHAR LIMIT=20] -->
+    <string name="cancel">Cancel</string>
 </resources>
