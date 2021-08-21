@@ -25,6 +25,9 @@ android_app {
         ":Telecom-srcs",
         "proto/**/*.proto",
     ],
+    static_libs: [
+        "androidx.annotation_annotation",
+    ],
     resource_dirs: ["res"],
     proto: {
         type: "nano",
@@ -37,7 +40,6 @@ android_app {
     optimize: {
         proguard_flags_files: ["proguard.flags"],
     },
-    defaults: ["SettingsLibDefaults"],
 }
 
 android_test {
