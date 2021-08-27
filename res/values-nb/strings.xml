@@ -120,4 +120,6 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"Anropsblokkering er slått av for å gjøre det mulig for nødtjenester å kontakte deg."</string>
     <string name="developer_title" msgid="9146088855661672353">"Meny for telekommunikasjonsutviklere"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"Du kan ikke besvare anrop mens du har et pågående nødanrop."</string>
+    <!-- no translation found for cancel (6733466216239934756) -->
+    <skip />
 </resources>

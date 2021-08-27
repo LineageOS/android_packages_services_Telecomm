@@ -120,4 +120,6 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"ปิดใช้การบล็อกสายแล้วเพื่อให้ทีมฉุกเฉินติดต่อคุณ"</string>
     <string name="developer_title" msgid="9146088855661672353">"เมนูนักพัฒนาโทรคมนาคม"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"การโทรนั้นจะทำขณะอยู่ในการโทรฉุกเฉินไม่ได้"</string>
+    <!-- no translation found for cancel (6733466216239934756) -->
+    <skip />
 </resources>

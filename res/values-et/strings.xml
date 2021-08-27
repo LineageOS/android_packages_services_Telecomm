@@ -120,4 +120,6 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"Kõnede blokeerimine on keelatud, et lubada hädaabiteenustel teiega ühendust võtta."</string>
     <string name="developer_title" msgid="9146088855661672353">"Teenuse Telecom arendaja menüü"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"Hädaabikõne ajal ei saa kõnesid vastu võtta."</string>
+    <!-- no translation found for cancel (6733466216239934756) -->
+    <skip />
 </resources>

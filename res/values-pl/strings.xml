@@ -120,4 +120,5 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"Blokowanie połączeń zostało wyłączone, aby służby ratownicze mogły się z Tobą skontaktować."</string>
     <string name="developer_title" msgid="9146088855661672353">"Menu programisty Telecom"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"Nie można odbierać rozmów przy nawiązanym połączeniu alarmowym."</string>
+    <string name="cancel" msgid="6733466216239934756">"Anuluj"</string>
 </resources>

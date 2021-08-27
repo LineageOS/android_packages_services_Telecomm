@@ -120,4 +120,6 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"Η φραγή κλήσεων έχει απενεργοποιηθεί, ώστε να επιτρέπεται σε άτομα που ανταποκρίνονται σε έκτακτες ανάγκες να επικοινωνούν μαζί σας."</string>
     <string name="developer_title" msgid="9146088855661672353">"Μενού προγραμματιστών τηλεπικοινωνιών"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"Δεν είναι δυνατή η λήψη κλήσεων κατά τη διάρκεια κλήσης επείγουσας ανάγκης."</string>
+    <!-- no translation found for cancel (6733466216239934756) -->
+    <skip />
 </resources>

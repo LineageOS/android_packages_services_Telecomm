@@ -120,4 +120,5 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"ನಿಮ್ಮನ್ನು ಸಂಪರ್ಕಿಸುವುದಕ್ಕಾಗಿ ತುರ್ತಾಗಿ ಪ್ರತಿಕ್ರಿಯಿಸುವವರ ಸಂಖ್ಯೆಯನ್ನು ನಿರ್ಬಂಧಿಸುವುದನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ."</string>
     <string name="developer_title" msgid="9146088855661672353">"ಟೆಲಿಕಾಂ ಡೆವಲಪರ್ ಮೆನು"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"ತುರ್ತು ಕರೆಯಲ್ಲಿರುವಾಗ ಕರೆಗಳನ್ನು ಸ್ವೀಕರಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ."</string>
+    <string name="cancel" msgid="6733466216239934756">"ರದ್ದುಮಾಡಿ"</string>
 </resources>

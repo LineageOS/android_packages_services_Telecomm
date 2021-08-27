@@ -120,4 +120,5 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"El bloqueig de trucades s\'ha desactivat perquè els serveis d\'emergència puguin contactar amb tu."</string>
     <string name="developer_title" msgid="9146088855661672353">"Menú per a desenvolupadors de telecomunicacions"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"No es poden respondre trucades durant una trucada d\'emergència."</string>
+    <string name="cancel" msgid="6733466216239934756">"Cancel·la"</string>
 </resources>

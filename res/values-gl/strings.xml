@@ -120,4 +120,6 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"Desactivouse o bloqueo de chamadas parar permitir que os servizos de emerxencias se poidan poñer en contacto contigo."</string>
     <string name="developer_title" msgid="9146088855661672353">"Menú para programadores de telecomunicacións"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"Non se pode responder ás chamadas durante unha chamada de emerxencia."</string>
+    <!-- no translation found for cancel (6733466216239934756) -->
+    <skip />
 </resources>
