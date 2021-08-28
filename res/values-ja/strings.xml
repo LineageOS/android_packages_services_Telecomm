@@ -120,4 +120,5 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"着信のブロックを無効して、救急隊員などがあなたに連絡できるようにしました。"</string>
     <string name="developer_title" msgid="9146088855661672353">"Telecom デベロッパー メニュー"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"緊急通報中は、他の電話を受けることができません。"</string>
+    <string name="cancel" msgid="6733466216239934756">"キャンセル"</string>
 </resources>

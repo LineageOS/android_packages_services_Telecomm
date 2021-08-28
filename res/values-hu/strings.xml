@@ -120,4 +120,5 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"A hívásletiltás ki van kapcsolva, hogy a segélyszolgálatok kapcsolatba léphessenek Önnel."</string>
     <string name="developer_title" msgid="9146088855661672353">"Telekommunikációs fejlesztői menü"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"Segélyhívás közben nem lehet hívást fogadni."</string>
+    <string name="cancel" msgid="6733466216239934756">"Mégse"</string>
 </resources>
