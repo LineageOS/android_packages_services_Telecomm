@@ -120,4 +120,5 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"आपत्‌कालीन अवस्थामा उद्दार गर्ने मान्छेहरूलाई तपाईंलाई सम्पर्क गर्न दिन कलमाथि रोक लगाउने सुविधा असक्षम पारिएको छ।"</string>
     <string name="developer_title" msgid="9146088855661672353">"टेलिकमको विकासकर्ताको मेनु"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"आपत्‌कालीन कल चलिराखेको बेलामा अरु कल स्वीकार गर्न सकिँदैन।"</string>
+    <string name="cancel" msgid="6733466216239934756">"रद्द गर्नुहोस्"</string>
 </resources>

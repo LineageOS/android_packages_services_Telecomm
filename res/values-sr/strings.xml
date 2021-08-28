@@ -120,4 +120,5 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"Блокирање позива је онемогућено да би хитне службе могле да вас контактирају."</string>
     <string name="developer_title" msgid="9146088855661672353">"Мени за програмере Telecom-а"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"За време хитног позива није могуће преузимати друге позиве."</string>
+    <string name="cancel" msgid="6733466216239934756">"Откажи"</string>
 </resources>

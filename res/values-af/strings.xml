@@ -120,4 +120,5 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"Oproepblokkering is gedeaktiveer sodat noodeenhede jou kan kontak."</string>
     <string name="developer_title" msgid="9146088855661672353">"Telecom-ontwikkelaarkieslys"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"Oproepe kan nie gedurende \'n noodoproep geneem word nie."</string>
+    <string name="cancel" msgid="6733466216239934756">"Kanselleer"</string>
 </resources>

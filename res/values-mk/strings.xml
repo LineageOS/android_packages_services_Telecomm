@@ -120,4 +120,6 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"Блокирањето повици е оневозможено за да им се овозможи на лицата од службите за итни случаи да контактираат со вас."</string>
     <string name="developer_title" msgid="9146088855661672353">"Програмерско мени за телекомуникации"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"Не може да примате повици во тек на итен повик."</string>
+    <!-- no translation found for cancel (6733466216239934756) -->
+    <skip />
 </resources>
