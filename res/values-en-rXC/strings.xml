@@ -120,4 +120,5 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‎‏‏‏‏‏‎‏‎‏‎‏‏‏‎‎‏‎‏‎‎‏‏‏‏‏‎‏‏‏‏‎‏‎‏‎‏‎‏‎‏‏‏‎‏‎‏‎‎‎‎‎‏‏‎‏‏‎‎‏‏‏‏‎‏‎‏‏‎‎Call Blocking has been disabled to allow emergency responders to contact you.‎‏‎‎‏‎"</string>
     <string name="developer_title" msgid="9146088855661672353">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‎‏‏‎‏‎‏‏‎‏‏‏‏‎‏‎‏‏‎‏‏‎‎‏‎‏‏‎‏‏‏‎‏‏‏‏‏‎‏‏‏‎‏‏‏‏‎‏‎‎‎‎‏‎Telecom Developer Menu‎‏‎‎‏‎"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‎‏‏‏‎‎‎‏‎‎‎‏‏‏‎‎‏‏‏‏‏‎‎‎‏‎‎‏‏‏‏‏‎‎‎‎‎‏‏‏‏‎‏‏‏‎‏‏‏‎‏‎‏‎Calls can not be taken while in an emergency call.‎‏‎‎‏‎"</string>
+    <string name="cancel" msgid="6733466216239934756">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‎‏‏‏‏‏‏‏‎‏‏‏‎‏‎‏‏‏‎‎‏‎‎‎‎‏‎‎‏‏‏‏‎‏‏‎‎‏‎‎‏‎‎‏‏‎‎‎‎‏‎‎‏‏‎‎‏‎‏‏‎‏‎‎‏‎‎‏‎‎‎Cancel‎‏‎‎‏‎"</string>
 </resources>

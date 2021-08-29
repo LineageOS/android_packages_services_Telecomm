@@ -120,4 +120,5 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"કટોકટીમાં પ્રતિસાદ કરનારાઓ તમારો સંપર્ક કરી શકે તે માટે કૉલ બ્લૉક કરવાનું બંધ કરવામાં આવ્યું છે."</string>
     <string name="developer_title" msgid="9146088855661672353">"ટેલિકોમ ડેવલપર મેનૂ"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"ઇમર્જન્સી કૉલ ચાલુ હોય, ત્યારે બીજા કોઈ કૉલ લઈ શકાતા નથી."</string>
+    <string name="cancel" msgid="6733466216239934756">"રદ કરો"</string>
 </resources>

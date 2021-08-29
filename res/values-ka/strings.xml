@@ -120,4 +120,6 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"ზარების დაბლოკვა გათიშულია, რათა საგანგებო სიტუაციებში მოპასუხეებმა თქვენთან დაკავშირება შეძლონ"</string>
     <string name="developer_title" msgid="9146088855661672353">"Telecom-ის დეველოპერის მენიუ"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"გადაუდებელი ზარის დროს ზარების მიღება შეუძლებელია."</string>
+    <!-- no translation found for cancel (6733466216239934756) -->
+    <skip />
 </resources>

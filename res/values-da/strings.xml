@@ -120,4 +120,5 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"Opkaldsblokering er blevet deaktiveret for at give nødnumre mulighed for at kontakte dig."</string>
     <string name="developer_title" msgid="9146088855661672353">"Udviklermenu for Telecom"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"Du kan ikke besvare opkald, mens du er i et nødopkald."</string>
+    <string name="cancel" msgid="6733466216239934756">"Annuller"</string>
 </resources>
