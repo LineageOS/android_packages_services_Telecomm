@@ -120,6 +120,5 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"تم إيقاف حظر المكالمات للسماح لمسؤولي استجابة الطوارئ بالاتصال بك."</string>
     <string name="developer_title" msgid="9146088855661672353">"قائمة مطوّر برامج الاتصالات"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"لا يمكن تلقّي المكالمات أثناء إجراء مكالمة طوارئ."</string>
-    <!-- no translation found for cancel (6733466216239934756) -->
-    <skip />
+    <string name="cancel" msgid="6733466216239934756">"إلغاء"</string>
 </resources>
