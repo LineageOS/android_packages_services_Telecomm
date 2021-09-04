@@ -120,6 +120,5 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"Sizga favqulodda chiqiruv qilish imkoni bo‘lishi uchun chaqiruvlarni bloklash funksiyasi o‘chirib qo‘yilgan."</string>
     <string name="developer_title" msgid="9146088855661672353">"Telecom dasturchisi menyusi"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"Favqulodda chaqiruv vaqtida boshqa chaqiruvlarni qabul qilish imkonsiz."</string>
-    <!-- no translation found for cancel (6733466216239934756) -->
-    <skip />
+    <string name="cancel" msgid="6733466216239934756">"Bekor qilish"</string>
 </resources>
