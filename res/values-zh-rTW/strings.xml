@@ -120,6 +120,5 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"系統已停用來電封鎖功能，以便緊急應變人員與你聯絡。"</string>
     <string name="developer_title" msgid="9146088855661672353">"電信開發人員選單"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"如果裝置已撥打緊急電話，就無法進行其他通話。"</string>
-    <!-- no translation found for cancel (6733466216239934756) -->
-    <skip />
+    <string name="cancel" msgid="6733466216239934756">"取消"</string>
 </resources>
