@@ -22,6 +22,7 @@
 
     <protected-broadcast android:name="android.intent.action.SHOW_MISSED_CALLS_NOTIFICATION"/>
     <protected-broadcast android:name="com.android.server.telecom.MESSAGE_SENT"/>
+    <protected-broadcast android:name="android.telecom.action.TTY_PREFERRED_MODE_CHANGED"/>
 
 
     <!-- Prevents the activity manager from delaying any activity-start
