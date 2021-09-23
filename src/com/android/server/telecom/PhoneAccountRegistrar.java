@@ -1321,8 +1321,7 @@ public class PhoneAccountRegistrar {
         try {
             sortPhoneAccounts();
             ByteArrayOutputStream os = new ByteArrayOutputStream();
-            XmlSerializer serializer = new FastXmlSerializer();
-            serializer.setOutput(os, "utf-8");
+            XmlSerializer serializer = Xml.resolveSerializer(os);
             writeToXml(mState, serializer, mContext);
             serializer.flush();
             new AsyncXmlWriter().execute(os);
@@ -1341,10 +1340,8 @@ public class PhoneAccountRegistrar {
 
         boolean versionChanged = false;
 
-        XmlPullParser parser;
         try {
-            parser = Xml.newPullParser();
-            parser.setInput(new BufferedInputStream(is), null);
+            XmlPullParser parser = Xml.resolvePullParser(is);
             parser.nextTag();
             mState = readFromXml(parser, mContext);
             versionChanged = mState.versionNumber < EXPECTED_STATE_VERSION;
