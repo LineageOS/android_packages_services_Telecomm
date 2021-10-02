@@ -31,6 +31,7 @@ import com.android.server.telecom.DefaultDialerCache.DefaultDialerManagerAdapter
 import com.android.server.telecom.ui.ToastFactory;
 
 import android.app.ActivityManager;
+import android.bluetooth.BluetoothManager;
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -232,7 +233,7 @@ public class TelecomSystem {
                         }
                     });
             BluetoothDeviceManager bluetoothDeviceManager = new BluetoothDeviceManager(mContext,
-                    new BluetoothAdapterProxy());
+                    new BluetoothManager(mContext).getAdapter());
             BluetoothRouteManager bluetoothRouteManager = new BluetoothRouteManager(mContext, mLock,
                     bluetoothDeviceManager, new Timeouts.Adapter());
             BluetoothStateReceiver bluetoothStateReceiver = new BluetoothStateReceiver(
