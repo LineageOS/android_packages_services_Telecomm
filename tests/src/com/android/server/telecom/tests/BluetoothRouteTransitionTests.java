@@ -16,15 +16,16 @@
 
 package com.android.server.telecom.tests;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothHearingAid;
+import android.bluetooth.BluetoothProfile;
 import android.content.ContentResolver;
 import android.telecom.Log;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.internal.os.SomeArgs;
-import com.android.server.telecom.BluetoothHeadsetProxy;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.bluetooth.BluetoothDeviceManager;
@@ -76,7 +77,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
         private BluetoothDevice expectedConnectionDevice;
         private String expectedFinalStateName;
         private BluetoothDevice[] connectedDevices;
-        // the active device as returned by BluetoothHeadset#getActiveDevice
+        // the active device as returned by BluetoothAdapter#getActiveDevices
         private BluetoothDevice activeDevice = null;
         private List<BluetoothDevice> hearingAidBtDevices = Collections.emptyList();
 
@@ -183,7 +184,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
         public BluetoothDevice expectedConnectionDevice; // Expected device to connect to.
         public String expectedFinalStateName; // Expected name of the final state.
         public BluetoothDevice[] connectedDevices; // array of connected devices
-        // the active device as returned by BluetoothHeadset#getActiveDevice
+        // the active device as returned by BluetoothAdapter#getActiveDevices
         private BluetoothDevice activeDevice = null;
         private List<BluetoothDevice> hearingAidBtDevices;
 
@@ -236,7 +237,8 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
 
     private final BluetoothRouteTestParameters mParams;
     @Mock private BluetoothDeviceManager mDeviceManager;
-    @Mock private BluetoothHeadsetProxy mHeadsetProxy;
+    @Mock private BluetoothAdapter mBluetoothAdapter;
+    @Mock private BluetoothHeadset mBluetoothHeadset;
     @Mock private BluetoothHearingAid mBluetoothHearingAid;
     @Mock private Timeouts.Adapter mTimeoutsAdapter;
     @Mock private BluetoothRouteManager.BluetoothStateListener mListener;
@@ -245,6 +247,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        when(mDeviceManager.getBluetoothAdapter()).thenReturn(mBluetoothAdapter);
     }
 
     @Override
@@ -272,7 +275,8 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                 SomeArgs args = SomeArgs.obtain();
                 args.arg1 = Log.createSubsession();
                 args.arg2 = mParams.initialDevice.getAddress();
-                when(mHeadsetProxy.getActiveDevice()).thenReturn(null);
+                when(mBluetoothAdapter.getActiveDevices(eq(BluetoothProfile.HEADSET)))
+                    .thenReturn(Arrays.asList((BluetoothDevice) null));
                 sm.sendMessage(BluetoothRouteManager.BT_AUDIO_LOST, args);
                 return true;
             }).when(mDeviceManager).disconnectAudio();
@@ -287,9 +291,11 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
             sm.onActiveDeviceChanged(null,
                     mParams.hearingAidBtDevices.contains(mParams.messageDevice));
             if (mParams.hearingAidBtDevices.contains(mParams.messageDevice)) {
-                when(mBluetoothHearingAid.getActiveDevices()).thenReturn(Arrays.asList(null, null));
+                when(mBluetoothAdapter.getActiveDevices(eq(BluetoothProfile.HEARING_AID)))
+                    .thenReturn(Arrays.asList(null, null));
             } else {
-                when(mHeadsetProxy.getActiveDevice()).thenReturn(null);
+                when(mBluetoothAdapter.getActiveDevices(eq(BluetoothProfile.HEADSET)))
+                    .thenReturn(Arrays.asList((BluetoothDevice) null));
             }
             sm.onDeviceLost(mParams.messageDevice.getAddress());
         } else {
@@ -344,13 +350,15 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
             BluetoothDevice audioOnDevice, BluetoothDevice activeDevice) {
         when(mDeviceManager.getNumConnectedDevices()).thenReturn(devices.length);
         when(mDeviceManager.getConnectedDevices()).thenReturn(Arrays.asList(devices));
-        when(mHeadsetProxy.getConnectedDevices()).thenReturn(Arrays.asList(devices));
-        when(mHeadsetProxy.getActiveDevice()).thenReturn(activeDevice);
-        when(mHeadsetProxy.getAudioState(nullable(BluetoothDevice.class)))
+        when(mBluetoothHeadset.getConnectedDevices()).thenReturn(Arrays.asList(devices));
+        when(mBluetoothAdapter.getActiveDevices(eq(BluetoothProfile.HEADSET)))
+            .thenReturn(Arrays.asList(activeDevice));
+        when(mBluetoothHeadset.getAudioState(nullable(BluetoothDevice.class)))
                 .thenReturn(BluetoothHeadset.STATE_AUDIO_DISCONNECTED);
         if (audioOnDevice != null) {
-            when(mHeadsetProxy.getActiveDevice()).thenReturn(audioOnDevice);
-            when(mHeadsetProxy.getAudioState(audioOnDevice))
+            when(mBluetoothAdapter.getActiveDevices(eq(BluetoothProfile.HEADSET)))
+                .thenReturn(Arrays.asList(audioOnDevice));
+            when(mBluetoothHeadset.getAudioState(audioOnDevice))
                     .thenReturn(BluetoothHeadset.STATE_AUDIO_CONNECTED);
         }
     }
@@ -358,8 +366,8 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
     private BluetoothRouteManager setupStateMachine(String initialState,
             BluetoothDevice initialDevice) {
         resetMocks();
-        when(mDeviceManager.getHeadsetService()).thenReturn(mHeadsetProxy);
-        when(mDeviceManager.getHearingAidService()).thenReturn(mBluetoothHearingAid);
+        when(mDeviceManager.getBluetoothHeadset()).thenReturn(mBluetoothHeadset);
+        when(mDeviceManager.getBluetoothHearingAid()).thenReturn(mBluetoothHearingAid);
         when(mDeviceManager.connectAudio(nullable(String.class))).thenReturn(true);
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
                 nullable(ContentResolver.class))).thenReturn(100000L);
@@ -375,7 +383,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
     }
 
     private void resetMocks() {
-        clearInvocations(mDeviceManager, mListener, mHeadsetProxy, mTimeoutsAdapter);
+        clearInvocations(mDeviceManager, mListener, mBluetoothHeadset, mTimeoutsAdapter);
     }
 
     @Parameterized.Parameters(name = "{0}")
