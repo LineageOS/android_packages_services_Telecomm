@@ -16,9 +16,11 @@
 
 package com.android.server.telecom.bluetooth;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothHearingAid;
+import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Message;
 import android.telecom.Log;
@@ -30,7 +32,6 @@ import com.android.internal.os.SomeArgs;
 import com.android.internal.util.IState;
 import com.android.internal.util.State;
 import com.android.internal.util.StateMachine;
-import com.android.server.telecom.BluetoothHeadsetProxy;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
 
@@ -701,19 +702,28 @@ public class BluetoothRouteManager extends StateMachine {
      */
     @VisibleForTesting
     public BluetoothDevice getBluetoothAudioConnectedDevice() {
-        BluetoothHeadsetProxy bluetoothHeadset = mDeviceManager.getHeadsetService();
-        BluetoothHearingAid bluetoothHearingAid = mDeviceManager.getHearingAidService();
+        BluetoothAdapter bluetoothAdapter = mDeviceManager.getBluetoothAdapter();
+        BluetoothHeadset bluetoothHeadset = mDeviceManager.getBluetoothHeadset();
+        BluetoothHearingAid bluetoothHearingAid = mDeviceManager.getBluetoothHearingAid();
 
         BluetoothDevice hfpAudioOnDevice = null;
         BluetoothDevice hearingAidActiveDevice = null;
 
+        if (bluetoothAdapter == null) {
+            Log.i(this, "getBluetoothAudioConnectedDevice: no adapter available.");
+            return null;
+        }
         if (bluetoothHeadset == null && bluetoothHearingAid == null) {
             Log.i(this, "getBluetoothAudioConnectedDevice: no service available.");
             return null;
         }
 
         if (bluetoothHeadset != null) {
-            hfpAudioOnDevice = bluetoothHeadset.getActiveDevice();
+            for (BluetoothDevice device : bluetoothAdapter.getActiveDevices(
+                        BluetoothProfile.HEADSET)) {
+                hfpAudioOnDevice = device;
+                break;
+            }
 
             if (bluetoothHeadset.getAudioState(hfpAudioOnDevice)
                     == BluetoothHeadset.STATE_AUDIO_DISCONNECTED) {
@@ -722,7 +732,8 @@ public class BluetoothRouteManager extends StateMachine {
         }
 
         if (bluetoothHearingAid != null) {
-            for (BluetoothDevice device : bluetoothHearingAid.getActiveDevices()) {
+            for (BluetoothDevice device : bluetoothAdapter.getActiveDevices(
+                        BluetoothProfile.HEARING_AID)) {
                 if (device != null) {
                     hearingAidActiveDevice = device;
                     break;
@@ -751,7 +762,7 @@ public class BluetoothRouteManager extends StateMachine {
      */
     @VisibleForTesting
     public boolean isInbandRingingEnabled() {
-        BluetoothHeadsetProxy bluetoothHeadset = mDeviceManager.getHeadsetService();
+        BluetoothHeadset bluetoothHeadset = mDeviceManager.getBluetoothHeadset();
         if (bluetoothHeadset == null) {
             Log.i(this, "isInbandRingingEnabled: no headset service available.");
             return false;
