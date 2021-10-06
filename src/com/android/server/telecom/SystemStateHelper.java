@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import android.annotation.NonNull;
 import android.app.UiModeManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -38,7 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Provides various system states to the rest of the telecom codebase.
  */
-public class SystemStateHelper {
+public class SystemStateHelper implements UiModeManager.OnProjectionStateChangedListener {
     public interface SystemStateListener {
         /**
          * Listener method to inform interested parties when a package name requests to enter or
@@ -51,6 +52,19 @@ public class SystemStateHelper {
         void onCarModeChanged(int priority, String packageName, boolean isCarMode);
 
         /**
+         * Listener method to inform interested parties when a package has set automotive projection
+         * state.
+         * @param automotiveProjectionPackage the package that set automotive projection.
+         */
+        void onAutomotiveProjectionStateSet(String automotiveProjectionPackage);
+
+        /**
+         * Listener method to inform interested parties when automotive projection state has been
+         * cleared.
+         */
+        void onAutomotiveProjectionStateReleased();
+
+        /**
          * Notifies when a package has been uninstalled.
          * @param packageName the package name of the uninstalled package
          */
@@ -61,7 +75,7 @@ public class SystemStateHelper {
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.startSession("SSP.oR");
+            Log.startSession("SSH.oR");
             try {
                 synchronized (mLock) {
                     String action = intent.getAction();
@@ -103,8 +117,26 @@ public class SystemStateHelper {
         }
     };
 
+    @Override
+    public void onProjectionStateChanged(int activeProjectionTypes,
+            @NonNull Set<String> projectingPackages) {
+        Log.startSession("SSH.oPSC");
+        try {
+            synchronized (mLock) {
+                if (projectingPackages.isEmpty()) {
+                    onReleaseAutomotiveProjection();
+                } else {
+                    onSetAutomotiveProjection(projectingPackages.iterator().next());
+                }
+            }
+        } finally {
+            Log.endSession();
+        }
+
+    }
+
     private Set<SystemStateListener> mListeners = new CopyOnWriteArraySet<>();
-    private boolean mIsCarMode;
+    private boolean mIsCarModeOrProjectionActive;
     private final TelecomSystem.SyncRoot mLock;
 
     public SystemStateHelper(Context context, TelecomSystem.SyncRoot lock) {
@@ -122,7 +154,9 @@ public class SystemStateHelper {
         Log.i(this, "Registering broadcast receiver: %s", intentFilter1);
         Log.i(this, "Registering broadcast receiver: %s", intentFilter2);
 
-        mIsCarMode = getSystemCarMode();
+        mContext.getSystemService(UiModeManager.class).addOnProjectionStateChangedListener(
+                UiModeManager.PROJECTION_TYPE_AUTOMOTIVE, mContext.getMainExecutor(), this);
+        mIsCarModeOrProjectionActive = getSystemCarModeOrProjectionState();
     }
 
     public void addListener(SystemStateListener listener) {
@@ -135,8 +169,8 @@ public class SystemStateHelper {
         return mListeners.remove(listener);
     }
 
-    public boolean isCarMode() {
-        return mIsCarMode;
+    public boolean isCarModeOrProjectionActive() {
+        return mIsCarModeOrProjectionActive;
     }
 
     public boolean isDeviceAtEar() {
@@ -221,7 +255,7 @@ public class SystemStateHelper {
 
     private void onEnterCarMode(int priority, String packageName) {
         Log.i(this, "Entering carmode");
-        mIsCarMode = getSystemCarMode();
+        mIsCarModeOrProjectionActive = getSystemCarModeOrProjectionState();
         for (SystemStateListener listener : mListeners) {
             listener.onCarModeChanged(priority, packageName, true /* isCarMode */);
         }
@@ -229,25 +263,44 @@ public class SystemStateHelper {
 
     private void onExitCarMode(int priority, String packageName) {
         Log.i(this, "Exiting carmode");
-        mIsCarMode = getSystemCarMode();
+        mIsCarModeOrProjectionActive = getSystemCarModeOrProjectionState();
         for (SystemStateListener listener : mListeners) {
             listener.onCarModeChanged(priority, packageName, false /* isCarMode */);
         }
     }
 
-    /**
-     * Checks the system for the current car mode.
-     *
-     * @return True if in car mode, false otherwise.
-     */
-    private boolean getSystemCarMode() {
-        UiModeManager uiModeManager =
-                (UiModeManager) mContext.getSystemService(Context.UI_MODE_SERVICE);
-
-        if (uiModeManager != null) {
-            return uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_CAR;
+    private void onSetAutomotiveProjection(String packageName) {
+        Log.i(this, "Automotive projection set.");
+        mIsCarModeOrProjectionActive = getSystemCarModeOrProjectionState();
+        for (SystemStateListener listener : mListeners) {
+            listener.onAutomotiveProjectionStateSet(packageName);
         }
 
+    }
+
+    private void onReleaseAutomotiveProjection() {
+        Log.i(this, "Automotive projection released.");
+        mIsCarModeOrProjectionActive = getSystemCarModeOrProjectionState();
+        for (SystemStateListener listener : mListeners) {
+            listener.onAutomotiveProjectionStateReleased();
+        }
+    }
+
+    /**
+     * Checks the system for the current car projection state.
+     *
+     * @return True if projection is active, false otherwise.
+     */
+    private boolean getSystemCarModeOrProjectionState() {
+        UiModeManager uiModeManager = mContext.getSystemService(UiModeManager.class);
+
+        if (uiModeManager != null) {
+            return uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_CAR
+                    || (uiModeManager.getActiveProjectionTypes()
+                            & UiModeManager.PROJECTION_TYPE_AUTOMOTIVE) != 0;
+        }
+
+        Log.w(this, "Got null UiModeManager, returning false.");
         return false;
     }
 }

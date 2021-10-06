@@ -27,6 +27,7 @@ import android.telecom.DisconnectCause;
 import android.telecom.ParcelableCall;
 import android.telecom.ParcelableRttCall;
 import android.telecom.TelecomManager;
+import android.telephony.ims.ImsCallProfile;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -61,6 +62,7 @@ public class ParcelableCallUtils {
     static {
         RESTRICTED_CALL_SCREENING_EXTRA_KEYS = new ArrayList<>();
         RESTRICTED_CALL_SCREENING_EXTRA_KEYS.add(android.telecom.Connection.EXTRA_SIP_INVITE);
+        RESTRICTED_CALL_SCREENING_EXTRA_KEYS.add(ImsCallProfile.EXTRA_IS_BUSINESS_CALL);
     }
 
     public static class Converter {
@@ -554,7 +556,10 @@ public class ParcelableCallUtils {
         android.telecom.Call.Details.PROPERTY_NETWORK_IDENTIFIED_EMERGENCY_CALL,
 
         Connection.PROPERTY_IS_ADHOC_CONFERENCE,
-        android.telecom.Call.Details.PROPERTY_IS_ADHOC_CONFERENCE
+        android.telecom.Call.Details.PROPERTY_IS_ADHOC_CONFERENCE,
+
+        Connection.PROPERTY_CROSS_SIM,
+        android.telecom.Call.Details.PROPERTY_CROSS_SIM
     };
 
     private static int convertConnectionToCallProperties(int connectionProperties) {

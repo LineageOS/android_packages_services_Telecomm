@@ -282,12 +282,12 @@ public class IncomingCallNotifier extends CallsManagerListenerBase {
                 R.anim.on_going_call,
                 getActionText(R.string.answer_incoming_call, R.color.notification_action_answer),
                 PendingIntent.getBroadcast(mContext, 0, answerIntent,
-                        PendingIntent.FLAG_CANCEL_CURRENT));
+                        PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE));
         builder.addAction(
                 R.drawable.ic_close_dk,
                 getActionText(R.string.decline_incoming_call, R.color.notification_action_decline),
                 PendingIntent.getBroadcast(mContext, 0, rejectIntent,
-                        PendingIntent.FLAG_CANCEL_CURRENT));
+                        PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE));
         return builder;
     }
 

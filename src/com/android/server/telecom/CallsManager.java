@@ -72,6 +72,7 @@ import android.provider.CallLog.Calls;
 import android.provider.Settings;
 import android.sysprop.TelephonyProperties;
 import android.telecom.CallAudioState;
+import android.telecom.CallScreeningService;
 import android.telecom.CallerInfo;
 import android.telecom.Conference;
 import android.telecom.Connection;
@@ -546,6 +547,7 @@ public class CallsManager extends Call.ListenerBase
                 systemStateHelper, defaultDialerCache, mTimeoutsAdapter,
                 emergencyCallHelper);
         mCallDiagnosticServiceController = callDiagnosticServiceController;
+        mCallDiagnosticServiceController.setInCallTonePlayerFactory(playerFactory);
         mRinger = new Ringer(playerFactory, context, systemSettingsUtil, asyncRingtonePlayer,
                 ringtoneFactory, systemVibrator,
                 new Ringer.VibrationEffectProxy(), mInCallController);
@@ -765,6 +767,42 @@ public class CallsManager extends Call.ListenerBase
         } else {
             Log.i(this, "onCallFilteringCompleted: call already disconnected.");
             return;
+        }
+
+        // Inform our connection service that call filtering is done (if it was performed at all).
+        if (incomingCall.isUsingCallFiltering()) {
+            boolean isInContacts = incomingCall.getCallerInfo() != null
+                    && incomingCall.getCallerInfo().contactExists;
+            Connection.CallFilteringCompletionInfo completionInfo =
+                    new Connection.CallFilteringCompletionInfo(!result.shouldAllowCall,
+                            isInContacts,
+                            result.mCallScreeningResponse == null
+                                    ? null : result.mCallScreeningResponse.toCallResponse(),
+                            result.mCallScreeningComponentName == null ? null
+                                    : ComponentName.unflattenFromString(
+                                            result.mCallScreeningComponentName));
+            incomingCall.getConnectionService().onCallFilteringCompleted(incomingCall,
+                    completionInfo);
+        }
+
+        // Get rid of the call composer attachments that aren't wanted
+        if (result.mIsResponseFromSystemDialer && result.mCallScreeningResponse != null
+                && result.mCallScreeningResponse.getCallComposerAttachmentsToShow() >= 0) {
+            int attachmentMask = result.mCallScreeningResponse.getCallComposerAttachmentsToShow();
+            if ((attachmentMask
+                    & CallScreeningService.CallResponse.CALL_COMPOSER_ATTACHMENT_LOCATION) == 0) {
+                incomingCall.getIntentExtras().remove(TelecomManager.EXTRA_LOCATION);
+            }
+
+            if ((attachmentMask
+                    & CallScreeningService.CallResponse.CALL_COMPOSER_ATTACHMENT_SUBJECT) == 0) {
+                incomingCall.getIntentExtras().remove(TelecomManager.EXTRA_CALL_SUBJECT);
+            }
+
+            if ((attachmentMask
+                    & CallScreeningService.CallResponse.CALL_COMPOSER_ATTACHMENT_PRIORITY) == 0) {
+                incomingCall.getIntentExtras().remove(TelecomManager.EXTRA_PRIORITY);
+            }
         }
 
         if (result.shouldAllowCall) {
@@ -1250,8 +1288,8 @@ public class CallsManager extends Call.ListenerBase
             if (call.isSelfManaged()) {
                 // Self managed calls will always be voip audio mode.
                 call.setIsVoipAudioMode(true);
-                call.setVisibleToInCallService(phoneAccountExtras != null
-                        && phoneAccountExtras.getBoolean(
+                call.setVisibleToInCallService(phoneAccountExtras == null
+                        || phoneAccountExtras.getBoolean(
                         PhoneAccount.EXTRA_ADD_SELF_MANAGED_CALLS_TO_INCALLSERVICE, true));
             } else {
                 // Incoming call is managed, the active call is self-managed and can't be held.
@@ -1526,8 +1564,8 @@ public class CallsManager extends Call.ListenerBase
             if (isSelfManaged) {
                 // Self-managed calls will ALWAYS use voip audio mode.
                 call.setIsVoipAudioMode(true);
-                call.setVisibleToInCallService(phoneAccountExtra != null
-                        && phoneAccountExtra.getBoolean(
+                call.setVisibleToInCallService(phoneAccountExtra == null
+                        || phoneAccountExtra.getBoolean(
                                 PhoneAccount.EXTRA_ADD_SELF_MANAGED_CALLS_TO_INCALLSERVICE, true));
             }
             call.setInitiatingUser(initiatingUser);
@@ -1646,6 +1684,21 @@ public class CallsManager extends Call.ListenerBase
                             markCallAsDisconnected(reusableCall,
                                     new DisconnectCause(DisconnectCause.CANCELED));
                         }
+                    }
+
+                    if (!finalCall.isEmergencyCall() && isInEmergencyCall()) {
+                        Log.i(CallsManager.this, "Aborting call since there's an"
+                                + " ongoing emergency call");
+                        // If the ongoing call is a managed call, we will prevent the outgoing
+                        // call from dialing.
+                        if (isConference) {
+                            notifyCreateConferenceFailed(finalCall.getTargetPhoneAccount(),
+                                    finalCall);
+                        } else {
+                            notifyCreateConnectionFailed(
+                                    finalCall.getTargetPhoneAccount(), finalCall);
+                        }
+                        return CompletableFuture.completedFuture(null);
                     }
 
                     // If we can not supportany more active calls, our options are to move a call
@@ -2041,6 +2094,8 @@ public class CallsManager extends Call.ListenerBase
                             handle.getSchemeSpecificPart());
         } catch (IllegalStateException ise) {
             isPotentialEmergencyNumber = false;
+        } catch (RuntimeException r) {
+            isPotentialEmergencyNumber = false;
         }
 
         if (shouldCancelCall) {
@@ -2218,8 +2273,16 @@ public class CallsManager extends Call.ListenerBase
     public void processRedirectedOutgoingCallAfterUserInteraction(String callId, String action) {
         Log.i(this, "processRedirectedOutgoingCallAfterUserInteraction for Call ID %s, action=%s",
                 callId, action);
-        if (mPendingRedirectedOutgoingCall != null && mPendingRedirectedOutgoingCall.getId()
-                .equals(callId)) {
+        if (mPendingRedirectedOutgoingCall != null) {
+            String pendingCallId = mPendingRedirectedOutgoingCall.getId();
+            if (!pendingCallId.equals(callId)) {
+                Log.i(this, "processRedirectedOutgoingCallAfterUserInteraction for new Call ID %s, "
+                        + "cancel the previous pending Call with ID %s", callId, pendingCallId);
+                mPendingRedirectedOutgoingCall.disconnect("Another call redirection requested");
+                mPendingRedirectedOutgoingCallInfo.remove(pendingCallId);
+                mPendingUnredirectedOutgoingCallInfo.remove(pendingCallId);
+            }
+
             if (action.equals(TelecomBroadcastIntentProcessor.ACTION_PLACE_REDIRECTED_CALL)) {
                 mHandler.post(mPendingRedirectedOutgoingCallInfo.get(callId).prepare());
             } else if (action.equals(
@@ -2892,8 +2955,8 @@ public class CallsManager extends Call.ListenerBase
     }
 
     private boolean isRttSettingOn(PhoneAccountHandle handle) {
-        boolean isRttModeSettingOn = Settings.Secure.getInt(mContext.getContentResolver(),
-                Settings.Secure.RTT_CALLING_MODE, 0) != 0;
+        boolean isRttModeSettingOn = Settings.Secure.getIntForUser(mContext.getContentResolver(),
+                Settings.Secure.RTT_CALLING_MODE, 0, mContext.getUserId()) != 0;
         // If the carrier config says that we should ignore the RTT mode setting from the user,
         // assume that it's off (i.e. only make an RTT call if it's requested through the extra).
         boolean shouldIgnoreRttModeSetting = getCarrierConfigForPhoneAccount(handle)
@@ -2971,6 +3034,7 @@ public class CallsManager extends Call.ListenerBase
      */
     boolean holdActiveCallForNewCall(Call call) {
         Call activeCall = (Call) mConnectionSvrFocusMgr.getCurrentFocusCall();
+        Log.i(this, "holdActiveCallForNewCall, newCall: %s, activeCall: %s", call, activeCall);
         if (activeCall != null && activeCall != call) {
             if (canHold(activeCall)) {
                 activeCall.hold();
@@ -3026,6 +3090,7 @@ public class CallsManager extends Call.ListenerBase
 
     @VisibleForTesting
     public void markCallAsActive(Call call) {
+        Log.i(this, "markCallAsActive, isSelfManaged: " + call.isSelfManaged());
         if (call.isSelfManaged()) {
             // backward compatibility, the self-managed connection service will set the call state
             // to active directly. We should hold or disconnect the current active call based on the
@@ -3077,27 +3142,83 @@ public class CallsManager extends Call.ListenerBase
             // be marked as missed.
             call.setOverrideDisconnectCauseCode(new DisconnectCause(DisconnectCause.MISSED));
         }
-        call.setDisconnectCause(disconnectCause);
-        setCallState(call, CallState.DISCONNECTED, "disconnected set explicitly");
 
-        if(oldState == CallState.NEW && disconnectCause.getCode() == DisconnectCause.MISSED) {
+        // If a call diagnostic service is in use, we will log the original telephony-provided
+        // disconnect cause, inform the CDS of the disconnection, and then chain the update of the
+        // call state until AFTER the CDS reports it's result back.
+        if ((oldState == CallState.ACTIVE || oldState == CallState.DIALING)
+                && disconnectCause.getCode() != DisconnectCause.MISSED
+                && mCallDiagnosticServiceController.isConnected()
+                && mCallDiagnosticServiceController.onCallDisconnected(call, disconnectCause)) {
+            Log.i(this, "markCallAsDisconnected; callid=%s, postingToFuture.", call.getId());
+
+            // Log the original disconnect reason prior to calling into the
+            // CallDiagnosticService.
+            Log.addEvent(call, LogUtils.Events.SET_DISCONNECTED_ORIG, disconnectCause);
+
+            // Setup the future with a timeout so that the CDS is time boxed.
+            CompletableFuture<Boolean> future = call.initializeDisconnectFuture(
+                    mTimeoutsAdapter.getCallDiagnosticServiceTimeoutMillis(
+                            mContext.getContentResolver()));
+
+            // Post the disconnection updates to the future for completion once the CDS returns
+            // with it's overridden disconnect message.
+            future.thenRunAsync(() -> {
+                call.setDisconnectCause(disconnectCause);
+                setCallState(call, CallState.DISCONNECTED, "disconnected set explicitly");
+            }, new LoggedHandlerExecutor(mHandler, "CM.mCAD", mLock))
+                    .exceptionally((throwable) -> {
+                        Log.e(TAG, throwable, "Error while executing disconnect future.");
+                        return null;
+                    });
+        } else {
+            // No CallDiagnosticService, or it doesn't handle this call, so just do this
+            // synchronously as always.
+            call.setDisconnectCause(disconnectCause);
+            setCallState(call, CallState.DISCONNECTED, "disconnected set explicitly");
+        }
+
+        if (oldState == CallState.NEW && disconnectCause.getCode() == DisconnectCause.MISSED) {
             Log.i(this, "markCallAsDisconnected: logging missed call ");
             mCallLogManager.logCall(call, Calls.MISSED_TYPE, true, null);
         }
-
     }
 
     /**
      * Removes an existing disconnected call, and notifies the in-call app.
      */
     void markCallAsRemoved(Call call) {
+        if (call.isDisconnectHandledViaFuture()) {
+            Log.i(this, "markCallAsRemoved; callid=%s, postingToFuture.", call.getId());
+            // A future is being used due to a CallDiagnosticService handling the call.  We will
+            // chain the removal operation to the end of any outstanding disconnect work.
+            call.getDisconnectFuture().thenRunAsync(() -> {
+                performRemoval(call);
+            }, new LoggedHandlerExecutor(mHandler, "CM.mCAR", mLock))
+                    .exceptionally((throwable) -> {
+                        Log.e(TAG, throwable, "Error while executing disconnect future");
+                        return null;
+                    });
+
+        } else {
+            Log.i(this, "markCallAsRemoved; callid=%s, immediate.", call.getId());
+            performRemoval(call);
+        }
+    }
+
+    /**
+     * Work which is completed when a call is to be removed. Can either be be run synchronously or
+     * posted to a {@link Call#getDisconnectFuture()}.
+     * @param call The call.
+     */
+    private void performRemoval(Call call) {
         mInCallController.getBindingFuture().thenRunAsync(() -> {
             call.maybeCleanupHandover();
             removeCall(call);
             Call foregroundCall = mCallAudioManager.getPossiblyHeldForegroundCall();
             if (mLocallyDisconnectingCalls.contains(call)) {
                 boolean isDisconnectingChildCall = call.isDisconnectingChildCall();
-                Log.v(this, "markCallAsRemoved: isDisconnectingChildCall = "
+                Log.v(this, "performRemoval: isDisconnectingChildCall = "
                         + isDisconnectingChildCall + "call -> %s", call);
                 mLocallyDisconnectingCalls.remove(call);
                 // Auto-unhold the foreground call due to a locally disconnected call, except if the
@@ -3114,10 +3235,11 @@ public class CallsManager extends Call.ListenerBase
                 // The new foreground call is on hold, however the carrier does not display the hold
                 // button in the UI.  Therefore, we need to auto unhold the held call since the user
                 // has no means of unholding it themselves.
-                Log.i(this, "Auto-unholding held foreground call (call doesn't support hold)");
+                Log.i(this, "performRemoval: Auto-unholding held foreground call (call doesn't "
+                        + "support hold)");
                 foregroundCall.unhold();
             }
-        }, new LoggedHandlerExecutor(mHandler, "CM.mCAR", mLock))
+        }, new LoggedHandlerExecutor(mHandler, "CM.pR", mLock))
                 .exceptionally((throwable) -> {
                     Log.e(TAG, throwable, "Error while executing call removal");
                     return null;
@@ -4195,7 +4317,8 @@ public class CallsManager extends Call.ListenerBase
         return false;
     }
 
-    private boolean makeRoomForOutgoingCall(Call call) {
+    @VisibleForTesting
+    public boolean makeRoomForOutgoingCall(Call call) {
         // Already room!
         if (!hasMaximumLiveCalls(call)) return true;
 
@@ -4209,6 +4332,13 @@ public class CallsManager extends Call.ListenerBase
             // If the call is already the foreground call, then we are golden.
             // This can happen after the user selects an account in the SELECT_PHONE_ACCOUNT
             // state since the call was already populated into the list.
+            return true;
+        }
+
+        // If the live call is stuck in a connecting state, then we should disconnect it in favor
+        // of the new outgoing call.
+        if (liveCall.getState() == CallState.CONNECTING) {
+            liveCall.disconnect("Force disconnect CONNECTING call.");
             return true;
         }
 
@@ -5446,5 +5576,11 @@ public class CallsManager extends Call.ListenerBase
     @VisibleForTesting
     public void addToPendingCallsToDisconnect(Call call) {
         mPendingCallsToDisconnect.add(call);
+    }
+
+    @VisibleForTesting
+    public void addConnectionServiceRepositoryCache(ComponentName componentName,
+            UserHandle userHandle, ConnectionServiceWrapper service) {
+        mConnectionServiceRepository.setService(componentName, userHandle, service);
     }
 }
