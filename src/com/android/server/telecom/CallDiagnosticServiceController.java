@@ -35,17 +35,18 @@ import android.telecom.BluetoothCallQualityReport;
 import android.telecom.CallAudioState;
 import android.telecom.CallDiagnosticService;
 import android.telecom.ConnectionService;
-import android.telecom.DiagnosticCall;
+import android.telecom.CallDiagnostics;
+import android.telecom.DisconnectCause;
 import android.telecom.InCallService;
 import android.telecom.Log;
 import android.telecom.ParcelableCall;
+import android.telephony.CallQuality;
 import android.telephony.ims.ImsReasonInfo;
 import android.text.TextUtils;
 
 import com.android.internal.telecom.ICallDiagnosticService;
 import com.android.internal.util.IndentingPrintWriter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -154,6 +155,16 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
         public void onReceivedDeviceToDeviceMessage(Call call, int messageType, int messageValue) {
             handleReceivedDeviceToDeviceMessage(call, messageType, messageValue);
         }
+
+        /**
+         * Handles an incoming {@link CallQuality} report from a {@link android.telecom.Connection}.
+         * @param call The call.
+         * @param callQualityReport The call quality report.
+         */
+        @Override
+        public void onReceivedCallQualityReport(Call call, CallQuality callQualityReport) {
+            handleCallQualityReport(call, callQualityReport);
+        }
     };
 
     /**
@@ -218,6 +229,7 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
 
     private final String mPackageName;
     private final ContextProxy mContextProxy;
+    private InCallTonePlayer.Factory mPlayerFactory;
     private String mTestPackageName;
     private CallDiagnosticServiceConnection mConnection;
     private CallDiagnosticServiceAdapter mAdapter;
@@ -230,6 +242,14 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
         mContextProxy = contextProxy;
         mPackageName = packageName;
         mLock = lock;
+    }
+
+    /**
+     * Sets the current {@link InCallTonePlayer.Factory} for this instance.
+     * @param factory the factory.
+     */
+    public void setInCallTonePlayerFactory(InCallTonePlayer.Factory factory) {
+        mPlayerFactory = factory;
     }
 
     /**
@@ -252,6 +272,32 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
         } else {
             maybeBindCallDiagnosticService();
         }
+    }
+
+    /**
+     * Handles a newly disconnected call signalled from {@link CallsManager}.
+     * @param call The call
+     * @param disconnectCause The disconnect cause
+     * @return {@code true} if the {@link CallDiagnosticService} was sent the call, {@code false}
+     * if the call was not applicable to the CDS or if there was an issue sending it.
+     */
+    public boolean onCallDisconnected(@NonNull Call call,
+            @NonNull DisconnectCause disconnectCause) {
+        if (!call.isSimCall() || call.isExternalCall()) {
+            Log.i(this, "onCallDisconnected: skipping call %s as non-sim or external.",
+                    call.getId());
+            return false;
+        }
+        String callId = mCallIdMapper.getCallId(call);
+        try {
+            if (isConnected()) {
+                mCallDiagnosticService.notifyCallDisconnected(callId, disconnectCause);
+                return true;
+            }
+        } catch (RemoteException e) {
+            Log.w(this, "onCallDisconnected: callId=%s, exception=%s", call.getId(), e);
+        }
+        return false;
     }
 
     /**
@@ -428,7 +474,7 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
 
         @Override
         public void sendDeviceToDeviceMessage(String callId,
-                        @DiagnosticCall.MessageType int message, int value) {
+                        @CallDiagnostics.MessageType int message, int value) {
             handleSendD2DMessage(callId, message, value);
         }
 
@@ -471,8 +517,13 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
                     callId, messageId, message);
             return;
         }
-        Log.i(this, "handleDisplayDiagnosticMessage: callId=%s; msg=%d/%s; invalid call",
+        Log.i(this, "handleDisplayDiagnosticMessage: callId=%s; msg=%d/%s",
                 callId, messageId, message);
+        if (mPlayerFactory != null) {
+            // Play that tone!
+            mPlayerFactory.createPlayer(InCallTonePlayer.TONE_IN_CALL_QUALITY_NOTIFICATION)
+                    .startTone();
+        }
         call.displayDiagnosticMessage(messageId, message);
     }
 
@@ -501,7 +552,7 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
      * @param value The message value.
      */
     private void handleSendD2DMessage(@NonNull String callId,
-            @DiagnosticCall.MessageType int message, int value) {
+            @CallDiagnostics.MessageType int message, int value) {
         Call call = mCallIdMapper.getCall(callId);
         if (call == null) {
             Log.w(this, "handleSendD2DMessage: callId=%s; msg=%d/%d; invalid call", callId,
@@ -515,7 +566,7 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
     /**
      * Handles a request from a {@link CallDiagnosticService} to override the disconnect message
      * for a call.  This is the response path from a previous call into the
-     * {@link CallDiagnosticService} via {@link DiagnosticCall#onCallDisconnected(ImsReasonInfo)}.
+     * {@link CallDiagnosticService} via {@link CallDiagnostics#onCallDisconnected(ImsReasonInfo)}.
      * @param callId The telecom call ID the disconnect override is pending for.
      * @param message The new disconnect message, or {@code null} if no override.
      */
@@ -569,7 +620,7 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
     /**
      * @return {@code true} if the call diagnostic service is bound/connected.
      */
-    private boolean isConnected() {
+    public boolean isConnected() {
         return mCallDiagnosticService != null;
     }
 
@@ -620,6 +671,23 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
             }
         } catch (RemoteException e) {
             Log.w(this, "handleReceivedDeviceToDeviceMessage: callId=%s, exception=%s",
+                    call.getId(), e);
+        }
+    }
+
+    /**
+     * Handles a reported {@link CallQuality} report from a {@link android.telecom.Connection}.
+     * @param call The call the report originated from.
+     * @param callQualityReport The {@link CallQuality} report.
+     */
+    private void handleCallQualityReport(@NonNull Call call,
+            @NonNull CallQuality callQualityReport) {
+        try {
+            if (isConnected()) {
+                mCallDiagnosticService.callQualityChanged(call.getId(), callQualityReport);
+            }
+        } catch (RemoteException e) {
+            Log.w(this, "handleCallQualityReport: callId=%s, exception=%s",
                     call.getId(), e);
         }
     }

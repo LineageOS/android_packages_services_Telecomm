@@ -110,7 +110,7 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
         when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(
             any(PhoneAccountHandle.class))).thenReturn(mPhoneAccount);
         when(mPhoneAccount.isSelfManaged()).thenReturn(true);
-        when(mSystemStateHelper.isCarMode()).thenReturn(false);
+        when(mSystemStateHelper.isCarModeOrProjectionActive()).thenReturn(false);
     }
 
     @Override

@@ -21,6 +21,7 @@ import static junit.framework.TestCase.fail;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -36,11 +37,14 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -52,6 +56,8 @@ import android.os.SystemClock;
 import android.os.UserHandle;
 import android.telecom.CallerInfo;
 import android.telecom.Connection;
+import android.telecom.DisconnectCause;
+import android.telecom.Log;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
@@ -75,6 +81,7 @@ import com.android.server.telecom.CallsManagerListenerBase;
 import com.android.server.telecom.ClockProxy;
 import com.android.server.telecom.ConnectionServiceFocusManager;
 import com.android.server.telecom.ConnectionServiceFocusManager.ConnectionServiceFocusManagerFactory;
+import com.android.server.telecom.ConnectionServiceWrapper;
 import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.EmergencyCallHelper;
 import com.android.server.telecom.HeadsetMediaButton;
@@ -228,6 +235,8 @@ public class CallsManagerTest extends TelecomTestCase {
         doNothing().when(mRoleManagerAdapter).setCurrentUserHandle(any());
         when(mDisconnectedCallNotifierFactory.create(any(Context.class),any(CallsManager.class)))
                 .thenReturn(mDisconnectedCallNotifier);
+        when(mTimeoutsAdapter.getCallDiagnosticServiceTimeoutMillis(any(ContentResolver.class)))
+                .thenReturn(2000L);
         mCallsManager = new CallsManager(
                 mComponentContextFixture.getTestDouble().getApplicationContext(),
                 mLock,
@@ -1106,6 +1115,46 @@ public class CallsManagerTest extends TelecomTestCase {
         assertFalse(mCallsManager.isInEmergencyCall());
     }
 
+
+    @SmallTest
+    @Test
+    public void testBlockNonEmergencyCallDuringEmergencyCall() throws Exception {
+        // Setup a call which the network identified as an emergency call.
+        Call ongoingCall = addSpyCall();
+        ongoingCall.setConnectionProperties(Connection.PROPERTY_NETWORK_IDENTIFIED_EMERGENCY_CALL);
+        assertTrue(mCallsManager.isInEmergencyCall());
+
+        Call newCall = addSpyCall(CallState.NEW);
+        ConnectionServiceWrapper service = mock(ConnectionServiceWrapper.class);
+        doReturn(SIM_2_HANDLE.getComponentName()).when(service).getComponentName();
+
+        // Ensure contact info lookup succeeds
+        doAnswer(invocation -> {
+            Uri handle = invocation.getArgument(0);
+            CallerInfo info = new CallerInfo();
+            CompletableFuture<Pair<Uri, CallerInfo>> callerInfoFuture = new CompletableFuture<>();
+            callerInfoFuture.complete(new Pair<>(handle, info));
+            return callerInfoFuture;
+        }).when(mCallerInfoLookupHelper).startLookup(any(Uri.class));
+
+        // Ensure we have candidate phone account handle info.
+        when(mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(any(), any())).thenReturn(
+                SIM_1_HANDLE);
+        when(mPhoneAccountRegistrar.getCallCapablePhoneAccounts(any(), anyBoolean(),
+                any(), anyInt(), anyInt())).thenReturn(
+                new ArrayList<>(Arrays.asList(SIM_1_HANDLE, SIM_2_HANDLE)));
+        mCallsManager.addConnectionServiceRepositoryCache(SIM_2_HANDLE.getComponentName(),
+                SIM_2_HANDLE.getUserHandle(), service);
+
+        CompletableFuture<Call> callFuture = mCallsManager.startOutgoingCall(
+                newCall.getHandle(), newCall.getTargetPhoneAccount(), new Bundle(),
+                UserHandle.CURRENT, new Intent(), "com.test.stuff");
+
+        verify(service, timeout(TEST_TIMEOUT)).createConnectionFailed(any());
+        Call result = callFuture.get(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
+        assertNull(result);
+    }
+
     @SmallTest
     @Test
     public void testHasEmergencyCallIncomingCallPermitted() {
@@ -1202,6 +1251,21 @@ public class CallsManagerTest extends TelecomTestCase {
 
         assertTrue(mCallsManager.makeRoomForOutgoingEmergencyCall(newEmergencyCall));
         verify(ringingCall).reject(anyBoolean(), any(), any());
+    }
+
+    @SmallTest
+    @Test
+    public void testMakeRoomForOutgoingCallConnecting() {
+        Call ongoingCall = addSpyCall(SIM_2_HANDLE, CallState.CONNECTING);
+
+        Call newCall = createCall(SIM_1_HANDLE, CallState.NEW);
+        when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
+                .thenReturn(false);
+        newCall.setHandle(Uri.fromParts("tel", "5551213", null),
+                TelecomManager.PRESENTATION_ALLOWED);
+
+        assertTrue(mCallsManager.makeRoomForOutgoingCall(newCall));
+        verify(ongoingCall).disconnect(anyLong(), anyString());
     }
 
     /**
@@ -1506,6 +1570,59 @@ public class CallsManagerTest extends TelecomTestCase {
         // disconnecting.
         verify(listener).onCallStateChanged(eq(ongoingCall), eq(CallState.ACTIVE),
                 eq(CallState.ACTIVE));
+    }
+
+    /**
+     * Verifies where a call diagnostic service is NOT in use that we don't try to relay to the
+     * CallDiagnosticService and that we get a synchronous disconnect.
+     * @throws Exception
+     */
+    @MediumTest
+    @Test
+    public void testDisconnectCallSynchronous() throws Exception {
+        Call callSpy = addSpyCall();
+        callSpy.setIsSimCall(true);
+        when(mCallDiagnosticServiceController.isConnected()).thenReturn(false);
+        mCallsManager.markCallAsDisconnected(callSpy, new DisconnectCause(DisconnectCause.ERROR));
+
+        verify(mCallDiagnosticServiceController, never()).onCallDisconnected(any(Call.class),
+                any(DisconnectCause.class));
+        verify(callSpy).setDisconnectCause(any(DisconnectCause.class));
+    }
+
+    @MediumTest
+    @Test
+    public void testDisconnectCallAsynchronous() throws Exception {
+        Call callSpy = addSpyCall();
+        callSpy.setIsSimCall(true);
+        when(mCallDiagnosticServiceController.isConnected()).thenReturn(true);
+        when(mCallDiagnosticServiceController.onCallDisconnected(any(Call.class),
+                any(DisconnectCause.class))).thenReturn(true);
+        mCallsManager.markCallAsDisconnected(callSpy, new DisconnectCause(DisconnectCause.ERROR));
+
+        verify(mCallDiagnosticServiceController).onCallDisconnected(any(Call.class),
+                any(DisconnectCause.class));
+        verify(callSpy, never()).setDisconnectCause(any(DisconnectCause.class));
+    }
+    
+    /**
+     * Verifies that if call state goes from DIALING to DISCONNECTED, and a call diagnostic service
+     * IS in use, it would call onCallDisconnected of the CallDiagnosticService
+     * @throws Exception
+     */
+    @MediumTest
+    @Test
+    public void testDisconnectDialingCall() throws Exception {
+        Call callSpy = addSpyCall(CallState.DIALING);
+        callSpy.setIsSimCall(true);
+        when(mCallDiagnosticServiceController.isConnected()).thenReturn(true);
+        when(mCallDiagnosticServiceController.onCallDisconnected(any(Call.class),
+                any(DisconnectCause.class))).thenReturn(true);
+        mCallsManager.markCallAsDisconnected(callSpy, new DisconnectCause(DisconnectCause.ERROR));
+
+        verify(mCallDiagnosticServiceController).onCallDisconnected(any(Call.class),
+                any(DisconnectCause.class));
+        verify(callSpy, never()).setDisconnectCause(any(DisconnectCause.class));
     }
 
     private Call addSpyCall() {

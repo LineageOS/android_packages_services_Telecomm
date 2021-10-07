@@ -130,10 +130,17 @@ final class PhoneStateBroadcaster extends CallsManagerListenerBase {
         TelephonyManager tm = mCallsManager.getContext().getSystemService(TelephonyManager.class);
         String strippedNumber =
                 PhoneNumberUtils.stripSeparators(call.getHandle().getSchemeSpecificPart());
-        Optional<EmergencyNumber> emergencyNumber = tm.getEmergencyNumberList().values().stream()
-                .flatMap(List::stream)
-                .filter(numberObj -> Objects.equals(numberObj.getNumber(), strippedNumber))
-                .findFirst();
+        Optional<EmergencyNumber> emergencyNumber;
+        try {
+            emergencyNumber = tm.getEmergencyNumberList().values().stream()
+                    .flatMap(List::stream)
+                    .filter(numberObj -> Objects.equals(numberObj.getNumber(), strippedNumber))
+                    .findFirst();
+        } catch (IllegalStateException ie) {
+            emergencyNumber = Optional.empty();
+        } catch (RuntimeException r) {
+            emergencyNumber = Optional.empty();
+        }
 
         int subscriptionId = tm.getSubscriptionId(call.getTargetPhoneAccount());
         SubscriptionManager subscriptionManager =

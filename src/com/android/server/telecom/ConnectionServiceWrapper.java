@@ -18,6 +18,7 @@ package com.android.server.telecom;
 
 import static android.Manifest.permission.MODIFY_PHONE_STATE;
 
+import android.Manifest;
 import android.app.AppOpsManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -30,6 +31,7 @@ import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.telecom.CallAudioState;
+import android.telecom.CallScreeningService;
 import android.telecom.Connection;
 import android.telecom.ConnectionRequest;
 import android.telecom.ConnectionService;
@@ -350,7 +352,7 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                     logIncoming("removeCall %s", callId);
                     Call call = mCallIdMapper.getCall(callId);
                     if (call != null) {
-                        if (call.isAlive()) {
+                        if (call.isAlive() && !call.isDisconnectHandledViaFuture()) {
                             mCallsManager.markCallAsDisconnected(
                                     call, new DisconnectCause(DisconnectCause.REMOTE));
                         } else {
@@ -1360,7 +1362,8 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
      * create a connection has been denied or failed.
      * @param call The call.
      */
-    void createConnectionFailed(final Call call) {
+    @VisibleForTesting
+    public void createConnectionFailed(final Call call) {
         Log.d(this, "createConnectionFailed(%s) via %s.", call, getComponentName());
         BindCallback callback = new BindCallback() {
             @Override
@@ -1867,6 +1870,28 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                 mServiceInterface.sendCallEvent(callId, event, extras,
                         Log.getExternalSession(TELECOM_ABBREVIATION));
             } catch (RemoteException ignored) {
+            }
+        }
+    }
+
+    void onCallFilteringCompleted(Call call,
+            Connection.CallFilteringCompletionInfo completionInfo) {
+        final String callId = mCallIdMapper.getCallId(call);
+        if (callId != null && isServiceValid("onCallFilteringCompleted")) {
+            try {
+                logOutgoing("onCallFilteringCompleted %s", completionInfo);
+                int contactsPermission = mContext.getPackageManager()
+                        .checkPermission(Manifest.permission.READ_CONTACTS,
+                                getComponentName().getPackageName());
+                if (contactsPermission == PackageManager.PERMISSION_GRANTED) {
+                    mServiceInterface.onCallFilteringCompleted(callId, completionInfo,
+                            Log.getExternalSession(TELECOM_ABBREVIATION));
+                } else {
+                    logOutgoing("Skipping call filtering complete message for %s due"
+                            + " to lack of READ_CONTACTS", getComponentName().getPackageName());
+                }
+            } catch (RemoteException e) {
+                Log.e(this, e, "Remote exception calling onCallFilteringCompleted");
             }
         }
     }

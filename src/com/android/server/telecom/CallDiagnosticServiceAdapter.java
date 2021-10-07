@@ -20,11 +20,10 @@ import android.annotation.NonNull;
 import android.os.Binder;
 import android.os.RemoteException;
 import android.telecom.CallDiagnosticService;
-import android.telecom.DiagnosticCall;
+import android.telecom.CallDiagnostics;
 import android.telecom.Log;
 
 import com.android.internal.telecom.ICallDiagnosticServiceAdapter;
-import com.android.internal.telecom.IInCallAdapter;
 
 /**
  * Adapter class used to provide a path for messages FROM a {@link CallDiagnosticService} back to
@@ -34,7 +33,7 @@ public class CallDiagnosticServiceAdapter extends ICallDiagnosticServiceAdapter.
     public interface TelecomAdapter {
         void displayDiagnosticMessage(String callId, int messageId, CharSequence message);
         void clearDiagnosticMessage(String callId, int messageId);
-        void sendDeviceToDeviceMessage(String callId, @DiagnosticCall.MessageType int message,
+        void sendDeviceToDeviceMessage(String callId, @CallDiagnostics.MessageType int message,
                 int value);
         void overrideDisconnectMessage(String callId, CharSequence message);
     }
@@ -91,7 +90,7 @@ public class CallDiagnosticServiceAdapter extends ICallDiagnosticServiceAdapter.
     }
 
     @Override
-    public void sendDeviceToDeviceMessage(String callId, @DiagnosticCall.MessageType int message,
+    public void sendDeviceToDeviceMessage(String callId, @CallDiagnostics.MessageType int message,
             int value)
             throws RemoteException {
         try {

@@ -30,6 +30,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.os.Build;
 import android.telecom.CallAudioState;
@@ -185,6 +186,8 @@ public class AnalyticsTests extends TelecomSystemTest {
     @MediumTest
     @Test
     public void testAnalyticsTwoCalls() throws Exception {
+        when(mTimeoutsAdapter.getCallScreeningTimeoutMillis(any(ContentResolver.class)))
+                .thenReturn((long) TEST_TIMEOUT);
         IdPair testCall1 = startAndMakeActiveIncomingCall(
                 "650-555-1212",
                 mPhoneAccountA0.getAccountHandle(),
