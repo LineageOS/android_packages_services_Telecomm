@@ -22,6 +22,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.provider.BlockedNumberContract;
 
+import com.android.server.telecom.FrameworksUtils;
 import com.android.server.telecom.R;
 
 /**
@@ -50,7 +51,7 @@ public class CallBlockDisabledActivity extends Activity {
             return;
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = FrameworksUtils.makeAlertDialogBuilder(this);
         mDialog = builder
                 .setTitle(R.string.phone_strings_emergency_call_made_dialog_title_txt)
                 .setMessage(R.string

@@ -29,6 +29,7 @@ import android.view.View;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+import com.android.server.telecom.FrameworksUtils;
 import com.android.server.telecom.R;
 
 public class BlockedNumbersAdapter extends SimpleCursorAdapter {
@@ -72,7 +73,7 @@ public class BlockedNumbersAdapter extends SimpleCursorAdapter {
         Spannable messageSpannable = new SpannableString(message);
         PhoneNumberUtils.addTtsSpan(messageSpannable, startingPosition,
                 startingPosition + formattedNumber.length());
-        AlertDialog dialog = new AlertDialog.Builder(context)
+        AlertDialog dialog = FrameworksUtils.makeAlertDialogBuilder(context)
                 .setMessage(messageSpannable)
                 .setPositiveButton(R.string.unblock_button,
                         new DialogInterface.OnClickListener() {
