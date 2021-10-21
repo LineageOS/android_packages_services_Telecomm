@@ -157,12 +157,14 @@ public class BluetoothDeviceManager {
         Set<Long> seenHiSyncIds = new LinkedHashSet<>();
         // Add the left-most active device to the seen list so that we match up with the list
         // generated in BluetoothRouteManager.
-        for (BluetoothDevice device : mBluetoothAdapter.getActiveDevices(
-                    BluetoothProfile.HEARING_AID)) {
-            if (device != null) {
-                result.add(device);
-                seenHiSyncIds.add(mHearingAidDeviceSyncIds.getOrDefault(device, -1L));
-                break;
+        if (mBluetoothAdapter != null) {
+            for (BluetoothDevice device : mBluetoothAdapter.getActiveDevices(
+                        BluetoothProfile.HEARING_AID)) {
+                if (device != null) {
+                    result.add(device);
+                    seenHiSyncIds.add(mHearingAidDeviceSyncIds.getOrDefault(device, -1L));
+                    break;
+                }
             }
         }
         synchronized (mLock) {
@@ -244,10 +246,12 @@ public class BluetoothDeviceManager {
     }
 
     public void disconnectAudio() {
-        for (BluetoothDevice device: mBluetoothAdapter.getActiveDevices(
-                    BluetoothProfile.HEARING_AID)) {
-            if (device != null) {
-                mBluetoothAdapter.setActiveDevice(null, BluetoothAdapter.ACTIVE_DEVICE_ALL);
+        if (mBluetoothAdapter != null) {
+            for (BluetoothDevice device: mBluetoothAdapter.getActiveDevices(
+                        BluetoothProfile.HEARING_AID)) {
+                if (device != null) {
+                    mBluetoothAdapter.setActiveDevice(null, BluetoothAdapter.ACTIVE_DEVICE_ALL);
+                }
             }
         }
         disconnectSco();
@@ -295,10 +299,12 @@ public class BluetoothDeviceManager {
     }
 
     public void cacheHearingAidDevice() {
-        for (BluetoothDevice device : mBluetoothAdapter.getActiveDevices(
-                    BluetoothProfile.HEARING_AID)) {
-            if (device != null) {
-                mBluetoothHearingAidActiveDeviceCache = device;
+        if (mBluetoothAdapter != null) {
+            for (BluetoothDevice device : mBluetoothAdapter.getActiveDevices(
+                        BluetoothProfile.HEARING_AID)) {
+                if (device != null) {
+                    mBluetoothHearingAidActiveDeviceCache = device;
+                }
             }
         }
     }
