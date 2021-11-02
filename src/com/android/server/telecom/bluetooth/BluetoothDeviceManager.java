@@ -250,7 +250,7 @@ public class BluetoothDeviceManager {
             for (BluetoothDevice device: mBluetoothAdapter.getActiveDevices(
                         BluetoothProfile.HEARING_AID)) {
                 if (device != null) {
-                    mBluetoothAdapter.setActiveDevice(null, BluetoothAdapter.ACTIVE_DEVICE_ALL);
+                    mBluetoothAdapter.removeActiveDevice(BluetoothAdapter.ACTIVE_DEVICE_ALL);
                 }
             }
         }
