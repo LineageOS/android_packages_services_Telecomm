@@ -239,7 +239,7 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
                 .thenReturn(Arrays.asList(device2, null));
 
         mBluetoothDeviceManager.disconnectAudio();
-        verify(mAdapter).setActiveDevice(null, BluetoothAdapter.ACTIVE_DEVICE_ALL);
+        verify(mAdapter).removeActiveDevice(BluetoothAdapter.ACTIVE_DEVICE_ALL);
         verify(mBluetoothHeadset).disconnectAudio();
     }
 
