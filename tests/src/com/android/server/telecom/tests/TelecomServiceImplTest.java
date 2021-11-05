@@ -102,7 +102,6 @@ import static org.mockito.Mockito.when;
 public class TelecomServiceImplTest extends TelecomTestCase {
 
     public static final String TEST_PACKAGE = "com.test";
-    public static final String PACKAGE_NAME = "test";
 
     public static class CallIntentProcessAdapterFake implements CallIntentProcessor.Adapter {
         @Override
@@ -181,17 +180,15 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     private static final UserHandle USER_HANDLE_16 = new UserHandle(16);
     private static final UserHandle USER_HANDLE_17 = new UserHandle(17);
     private static final PhoneAccountHandle TEL_PA_HANDLE_16 = new PhoneAccountHandle(
-            new ComponentName(PACKAGE_NAME, "telComponentName"), "0", USER_HANDLE_16);
+            new ComponentName("test", "telComponentName"), "0", USER_HANDLE_16);
     private static final PhoneAccountHandle SIP_PA_HANDLE_17 = new PhoneAccountHandle(
-            new ComponentName(PACKAGE_NAME, "sipComponentName"), "1", USER_HANDLE_17);
+            new ComponentName("test", "sipComponentName"), "1", USER_HANDLE_17);
     private static final PhoneAccountHandle TEL_PA_HANDLE_CURRENT = new PhoneAccountHandle(
-            new ComponentName(PACKAGE_NAME, "telComponentName"), "2",
-                    Binder.getCallingUserHandle());
+            new ComponentName("test", "telComponentName"), "2", Binder.getCallingUserHandle());
     private static final PhoneAccountHandle SIP_PA_HANDLE_CURRENT = new PhoneAccountHandle(
-            new ComponentName(PACKAGE_NAME, "sipComponentName"), "3",
-                    Binder.getCallingUserHandle());
-    private static final ComponentName THIRD_PARTY_CALL_SCREENING = new ComponentName(
-            "com.android.thirdparty", "com.android.thirdparty.callscreeningserviceimpl");
+            new ComponentName("test", "sipComponentName"), "3", Binder.getCallingUserHandle());
+    private static final ComponentName THIRD_PARTY_CALL_SCREENING = new ComponentName("com.android" +
+            ".thirdparty", "com.android.thirdparty.callscreeningserviceimpl");
 
     @Override
     @Before
@@ -204,7 +201,6 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         when(mockTelephonyManager.isVoiceCapable()).thenReturn(true);
 
         doReturn(mContext).when(mContext).getApplicationContext();
-        doReturn(mContext).when(mContext).createContextAsUser(any(UserHandle.class), anyInt());
         doNothing().when(mContext).sendBroadcastAsUser(any(Intent.class), any(UserHandle.class),
                 anyString());
         doAnswer(invocation -> {
@@ -462,19 +458,12 @@ public class TelecomServiceImplTest extends TelecomTestCase {
 
     @SmallTest
     @Test
-    public void testGetPhoneAccount() throws Exception {
-        when(mPackageManager.getPackageUid(anyString(), eq(0))).thenReturn(Binder.getCallingUid());
+    public void testGetPhoneAccount() throws RemoteException {
         makeAccountsVisibleToAllUsers(TEL_PA_HANDLE_16, SIP_PA_HANDLE_17);
         assertEquals(TEL_PA_HANDLE_16, mTSIBinder.getPhoneAccount(TEL_PA_HANDLE_16,
                 mContext.getPackageName()).getAccountHandle());
         assertEquals(SIP_PA_HANDLE_17, mTSIBinder.getPhoneAccount(SIP_PA_HANDLE_17,
                 mContext.getPackageName()).getAccountHandle());
-        try {
-            // Try to call the method without using the caller's package name
-            mTSIBinder.getPhoneAccount(TEL_PA_HANDLE_16, null);
-            fail("Should have thrown a SecurityException");
-        } catch (SecurityException expected) {
-        }
     }
 
     @SmallTest
