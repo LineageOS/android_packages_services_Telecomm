@@ -1627,12 +1627,10 @@ public class InCallController extends CallsManagerListenerBase implements
                         true /* ignoreDisabled */)
                         : getInCallServiceComponent(packageName,
                                 IN_CALL_SERVICE_TYPE_DEFAULT_DIALER_UI, true /* ignoreDisabled */);
-        /* TODO: in Android 12 re-enable this an InCallService is required by the dialer role.
-            if (packageName != null && defaultDialerComponent == null) {
-                // The in call service of default phone app is disabled, send notification.
-                sendCrashedInCallServiceNotification(packageName);
-            }
-        */
+        if (packageName != null && defaultDialerComponent == null) {
+            // The in call service of default phone app is disabled, send notification.
+            sendCrashedInCallServiceNotification(packageName);
+        }
         return defaultDialerComponent;
     }
 
