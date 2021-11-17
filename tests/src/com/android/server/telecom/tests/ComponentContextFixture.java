@@ -123,6 +123,11 @@ public class ComponentContextFixture implements TestFixture<Context> {
         }
 
         @Override
+        public Context createContextAsUser(UserHandle userHandle, int flags) {
+            return this;
+        }
+
+        @Override
         public String getPackageName() {
             return "com.android.server.telecom.tests";
         }
