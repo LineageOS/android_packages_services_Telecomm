@@ -160,27 +160,34 @@ public class CallAudioManager extends CallsManagerListenerBase {
             newBinForCall.add(call);
         }
         updateForegroundCall();
-        mCalls.add(call);
+        if (!call.isExternalCall()) {
+            mCalls.add(call);
+        } else if (call.isTetheredCall() && mTetheredCalls.add(call)) {
+            onCallBecomingTethered();
+        }
         sendCallStatusToBluetoothStateReceiver();
 
         onCallEnteringState(call, call.getState());
     }
 
     private void removeCall(Call call) {
-        if (!mCalls.contains(call)) {
-            return; // No guarantees that the same call won't get removed twice.
+        if (mCalls.contains(call)) {
+            // No guarantees that the same call won't get removed twice.
+            Log.d(LOG_TAG, "Call removed with id TC@%s in state %s", call.getId(),
+                    CallState.toString(call.getState()));
+
+            removeCallFromAllBins(call);
+
+            updateForegroundCall();
+            mCalls.remove(call);
+
+            sendCallStatusToBluetoothStateReceiver();
+
+            onCallLeavingState(call, call.getState());
+        } else if (mTetheredCalls.contains(call)) {
+            mTetheredCalls.remove(call);
+            onCallLeavingTethered();
         }
-
-        Log.d(LOG_TAG, "Call removed with id TC@%s in state %s", call.getId(),
-                CallState.toString(call.getState()));
-
-        removeCallFromAllBins(call);
-
-        updateForegroundCall();
-        mCalls.remove(call);
-        sendCallStatusToBluetoothStateReceiver();
-
-        onCallLeavingState(call, call.getState());
     }
 
     private void sendCallStatusToBluetoothStateReceiver() {
@@ -227,19 +234,15 @@ public class CallAudioManager extends CallsManagerListenerBase {
     public void onTetheredCallChanged(Call call, boolean isTetheredCall) {
         if (isTetheredCall) {
             Log.d(LOG_TAG, "Switching to external route because call %s became tethered "
-                    + " external call.", call.getId());
-            removeCall(call);
-            mTetheredCalls.add(call);
-            mCallAudioModeStateMachine.sendMessageWithArgs(
-                    CallAudioModeStateMachine.NEW_TETHERED_EXTERNAL_CALL,
-                    makeArgsForModeStateMachine());
-        } else {
-            mTetheredCalls.remove(call);
-            if (mTetheredCalls.size() == 0) {
-                mCallAudioModeStateMachine.sendMessageWithArgs(
-                        CallAudioModeStateMachine.NO_MORE_TETHERED_CALLS,
-                        makeArgsForModeStateMachine());
+                    + "call.", call.getId());
+            if (mTetheredCalls.add(call)) {
+                onCallBecomingTethered();
             }
+        } else {
+            Log.d(LOG_TAG, "Exit external route because call %s is no longer a tethered "
+                    + "call.", call.getId());
+            mTetheredCalls.remove(call);
+            onCallLeavingTethered();
         }
     }
 
@@ -252,7 +255,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
          * otherwise
          */
     private boolean shouldIgnoreCallForAudio(Call call) {
-        return call.getParentCall() != null || call.isExternalCall();
+        return call.getParentCall() != null || (call.isExternalCall() && !call.isTetheredCall());
     }
 
     @Override
@@ -716,6 +719,22 @@ public class CallAudioManager extends CallsManagerListenerBase {
         if (mHoldingCalls.size() == 1) {
             mCallAudioModeStateMachine.sendMessageWithArgs(
                     CallAudioModeStateMachine.NEW_HOLDING_CALL,
+                    makeArgsForModeStateMachine());
+        }
+    }
+
+    private void onCallBecomingTethered() {
+        if (mTetheredCalls.size() != 0) {
+            mCallAudioModeStateMachine.sendMessageWithArgs(
+                    CallAudioModeStateMachine.NEW_TETHERED_EXTERNAL_CALL,
+                    makeArgsForModeStateMachine());
+        }
+    }
+
+    private void onCallLeavingTethered() {
+        if (mTetheredCalls.size() == 0) {
+            mCallAudioModeStateMachine.sendMessageWithArgs(
+                    CallAudioModeStateMachine.NO_MORE_TETHERED_CALLS,
                     makeArgsForModeStateMachine());
         }
     }

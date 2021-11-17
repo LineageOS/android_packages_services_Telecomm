@@ -41,6 +41,7 @@ import android.telecom.BluetoothCallQualityReport;
 import android.telecom.CallAudioState;
 import android.telecom.CallDiagnosticService;
 import android.telecom.CallDiagnostics;
+import android.telecom.CallEndpoint;
 import android.telecom.CallerInfo;
 import android.telecom.Conference;
 import android.telecom.Connection;
@@ -76,6 +77,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -167,6 +169,14 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         void onReceivedDeviceToDeviceMessage(Call call, int messageType, int messageValue);
         void onReceivedCallQualityReport(Call call, CallQuality callQuality);
         void onCallerNumberVerificationStatusChanged(Call call, int callerNumberVerificationStatus);
+        void onActiveCallEndpointChanged(Call call, CallEndpoint callEndpoint);
+        void onAvailableCallEndpointsChanged(Call call);
+        void onCallPushFailed(Call call, CallEndpoint callEndpoint,
+                @android.telecom.Call.Callback.PushFailedReason int reason);
+        void onCallPullFailed(Call call,
+                @android.telecom.Call.Callback.PullFailedReason int reason);
+        void onAnswerFailed(Call call, CallEndpoint callEndpoint,
+                @android.telecom.Call.Callback.AnswerFailedReason int reason);
     }
 
     public abstract static class ListenerBase implements Listener {
@@ -267,6 +277,19 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         @Override
         public void onCallerNumberVerificationStatusChanged(Call call,
                 int callerNumberVerificationStatus) {}
+        @Override
+        public void onActiveCallEndpointChanged(Call call, CallEndpoint callEndpoint) {}
+        @Override
+        public void onAvailableCallEndpointsChanged(Call call) {}
+        @Override
+        public void onCallPushFailed(Call call, CallEndpoint callEndpoint,
+                @android.telecom.Call.Callback.PushFailedReason int reason) {}
+        @Override
+        public void onCallPullFailed(Call call,
+                @android.telecom.Call.Callback.PullFailedReason int reason) {}
+        @Override
+        public void onAnswerFailed(Call call, CallEndpoint callEndpoint,
+                @android.telecom.Call.Callback.AnswerFailedReason int reason) {}
     }
 
     private final CallerInfoLookupHelper.OnQueryCompleteListener mCallerInfoQueryListener =
@@ -475,6 +498,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     /** Whether an attempt has been made to load the text message responses. */
     private boolean mCannedSmsResponsesLoadingStarted = false;
 
+    private CallEndpoint mActiveCallEndpoint = null;
+    private Set<CallEndpoint> mAvailableCallEndpoints = new HashSet<>();
+
     private IVideoProvider mVideoProvider;
     private VideoProviderProxy mVideoProviderProxy;
 
@@ -484,6 +510,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private final ConnectionServiceRepository mRepository;
     private final Context mContext;
     private final CallsManager mCallsManager;
+    private final CallEndpointController mCallEndpointController;
     private final ClockProxy mClockProxy;
     private final ToastFactory mToastFactory;
     private final TelecomSystem.SyncRoot mLock;
@@ -496,6 +523,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private boolean mWasHighDefAudio = false;
     private boolean mWasWifi = false;
     private boolean mWasVolte = false;
+    private boolean mTethered = false;
 
     // For conferences which support merge/swap at their level, we retain a notion of an active
     // call. This is used for BluetoothPhoneService.  In order to support hold/merge, it must have
@@ -756,6 +784,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 CallState.ACTIVE : CallState.NEW;
         mContext = context;
         mCallsManager = callsManager;
+        mCallEndpointController = mCallsManager.getCallEndpointController();
+        mAvailableCallEndpoints = mCallEndpointController.getCallEndpoints();
         mLock = lock;
         mRepository = repository;
         mPhoneNumberUtilsAdapter = phoneNumberUtilsAdapter;
@@ -1649,6 +1679,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 Connection.PROPERTY_IS_EXTERNAL_CALL;
     }
 
+    public boolean isTetheredCall() {
+        return mTethered;
+    }
+
     public boolean isWorkCall() {
         return mIsWorkCall;
     }
@@ -1966,6 +2000,19 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         return capabilities;
     }
 
+    public void setTethered(boolean isTethered) {
+        boolean wasTethered = mTethered;
+        if (wasTethered != isTethered) {
+            Log.v(this, "setConnectionProperties: tethered call changed isTethered = %b, ",
+                    isTethered);
+            Log.addEvent(this, LogUtils.Events.IS_TETHERED, isTethered);
+            for (Listener l : mListeners) {
+                l.onTetheredCallChanged(this, isTethered);
+            }
+        }
+        mTethered = isTethered;
+    }
+
     public void setConnectionProperties(int connectionProperties) {
         Log.v(this, "setConnectionProperties: %s", Connection.propertiesToString(
                 connectionProperties));
@@ -2020,10 +2067,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                     == Connection.PROPERTY_IS_EXTERNAL_CALL;
             boolean isExternal = (connectionProperties & Connection.PROPERTY_IS_EXTERNAL_CALL)
                     == Connection.PROPERTY_IS_EXTERNAL_CALL;
-            boolean wasTethered = (previousProperties & Connection.PROPERTY_TETHERED_CALL)
-                    == Connection.PROPERTY_TETHERED_CALL;
-            boolean isTethered = (connectionProperties & Connection.PROPERTY_TETHERED_CALL)
-                    == Connection.PROPERTY_TETHERED_CALL;
             if (wasExternal != isExternal) {
                 Log.v(this, "setConnectionProperties: external call changed isExternal = %b, ",
                         isExternal);
@@ -2036,14 +2079,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 }
                 for (Listener l : mListeners) {
                     l.onExternalCallChanged(this, isExternal);
-                }
-            }
-            if (wasTethered != isTethered) {
-                Log.v(this, "setConnectionProperties: tethered call changed isTethered = %b, ",
-                        isTethered);
-                Log.addEvent(this, LogUtils.Events.IS_TETHERED, isTethered);
-                for (Listener l : mListeners) {
-                    l.onTetheredCallChanged(this, isTethered);
                 }
             }
 
@@ -2499,6 +2534,33 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             } else {
                 Log.e(this, new NullPointerException(),
                         "answer call failed due to null CS callId=%s", getId());
+            }
+            Log.addEvent(this, LogUtils.Events.REQUEST_ACCEPT);
+        }
+    }
+
+    /**
+     * Answers the call via given {@link CallEndpoint} if it is ringing.
+     *
+     * @param callEndpoint The call endpoint on which the call will be answered.
+     * @param videoState The video state in which to answer the call.
+     */
+    @VisibleForTesting
+    public void answer(CallEndpoint callEndpoint, int videoState) {
+        // Check to verify that the call is still in the ringing state.
+        if (isRinging("answer")) {
+            if (!isVideoCallingSupportedByPhoneAccount() && VideoProfile.isVideo(videoState)) {
+                // Video calling is not supported, yet the InCallService is attempting to answer as
+                // video.  We will simply answer as audio-only.
+                videoState = VideoProfile.STATE_AUDIO_ONLY;
+            }
+            if (mConnectionService != null) {
+                if (callEndpoint.getType() == CallEndpoint.ENDPOINT_TYPE_TETHERED) {
+                    mCallEndpointController.requestAnswerCall(this, callEndpoint, videoState);
+                }
+            } else {
+                Log.e(this, new NullPointerException(),
+                        "answer call externally failed due to null CS callId=%s", getId());
             }
             Log.addEvent(this, LogUtils.Events.REQUEST_ACCEPT);
         }
@@ -3006,6 +3068,29 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
         Log.addEvent(this, LogUtils.Events.REQUEST_PULL);
         mConnectionService.pullExternalCall(this);
+    }
+
+    /**
+     * Initiates a request to push the call to a {@link CallEndpoint}.
+     * @param endpoint
+     */
+    public void pushCall(CallEndpoint endpoint) {
+        if (mConnectionService == null) {
+            Log.w(this, "pushCall - call %s don't have a connection service.");
+        }
+
+        if (mCallsManager.isInEmergencyCall()) {
+            Log.w(this, "pushCall - call %s can not be pushed while an emergency"
+                    + " call is in progress.", mId);
+            mToastFactory.makeText(mContext, R.string.toast_emergency_can_not_pull_call,
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        Log.addEvent(this, LogUtils.Events.REQUEST_PULL);
+        if (endpoint.getType() == CallEndpoint.ENDPOINT_TYPE_TETHERED) {
+            mCallEndpointController.requestPushCall(this, endpoint);
+        }
     }
 
     /**
@@ -4262,5 +4347,53 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             mDisconnectFuture.complete(false);
             mDisconnectFuture = null;
         }
+    }
+
+    public void setActiveCallEndpoint(CallEndpoint callEndpoint) {
+        if (mActiveCallEndpoint == null || !mActiveCallEndpoint.equals(callEndpoint)) {
+            if (callEndpoint != null) {
+                // Set mTethered according to call endpoint type
+                setTethered(callEndpoint.getType() == CallEndpoint.ENDPOINT_TYPE_TETHERED);
+            } else {
+                // Set off mTethered
+                setTethered(false /* isTethered */);
+            }
+
+            mActiveCallEndpoint = callEndpoint;
+            for (Listener listener : mListeners) {
+                listener.onActiveCallEndpointChanged(this, callEndpoint);
+            }
+        }
+    }
+
+    public CallEndpoint getActiveCallEndpoint() {
+        return mActiveCallEndpoint;
+    }
+
+    public void updateAvailableCallEndpoints(Set<CallEndpoint> callEndpoints) {
+        if (callEndpoints != null) {
+            mAvailableCallEndpoints = callEndpoints;
+            for (Listener listener : mListeners) {
+                listener.onAvailableCallEndpointsChanged(this);
+            }
+        }
+    }
+
+    public void onAnswerFailed(CallEndpoint callEndpoint,
+            @android.telecom.Call.Callback.AnswerFailedReason int reason) {
+        for (Listener listener : mListeners) {
+            listener.onAnswerFailed(this, callEndpoint, reason);
+        }
+    }
+
+    public void onPushFailed(CallEndpoint callEndpoint,
+            @android.telecom.Call.Callback.PullFailedReason int reason) {
+        for (Listener listener : mListeners) {
+            listener.onCallPushFailed(this, callEndpoint, reason);
+        }
+    }
+
+    public Set<CallEndpoint> getAvailableCallEndpoints() {
+        return mAvailableCallEndpoints;
     }
 }
