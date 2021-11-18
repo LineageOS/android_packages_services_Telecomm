@@ -40,7 +40,7 @@
     <string name="respond_via_sms_canned_response_3" msgid="6656147963478092035">"నేను మీకు తర్వాత కాల్ చేస్తాను."</string>
     <string name="respond_via_sms_canned_response_4" msgid="9141132488345561047">"ఇప్పుడు మాట్లాడలేను. నాకు తర్వాత కాల్ చేస్తారా?"</string>
     <string name="respond_via_sms_setting_title" msgid="4762275482898830160">"శీఘ్ర ప్రతిస్పందనలు"</string>
-    <string name="respond_via_sms_setting_title_2" msgid="4914853536609553457">"శీఘ్ర ప్రతిస్పందనల సవరణ"</string>
+    <string name="respond_via_sms_setting_title_2" msgid="4914853536609553457">"క్విక్ రెస్పాన్స్‌లను ఎడిట్ చేయండి"</string>
     <string name="respond_via_sms_setting_summary" msgid="8054571501085436868"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="6579353156073272157">"శీఘ్ర ప్రతిస్పందన"</string>
     <string name="respond_via_sms_confirmation_format" msgid="2932395476561267842">"<xliff:g id="PHONE_NUMBER">%s</xliff:g>కు మెసేజ్‌ పంపబడింది."</string>
