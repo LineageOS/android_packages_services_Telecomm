@@ -56,8 +56,7 @@ public class SystemSettingsUtil {
     }
 
     public boolean applyRampingRinger(Context context) {
-        return Settings.Global.getInt(context.getContentResolver(),
-                Settings.Global.APPLY_RAMPING_RINGER, 0) == 1;
+        return context.getSystemService(AudioManager.class).isRampingRingerEnabled();
     }
 
     public boolean enableAudioCoupledVibrationForRampingRinger() {
