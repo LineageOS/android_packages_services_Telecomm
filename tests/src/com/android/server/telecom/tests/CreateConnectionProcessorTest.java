@@ -41,6 +41,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
@@ -544,6 +545,26 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         CallIdMapper mockCallIdMapper = mock(CallIdMapper.class);
         mTestCreateConnectionProcessor.handleCreateConnectionSuccess(mockCallIdMapper, null);
         verify(mMockCreateConnectionResponse).handleCreateConnectionSuccess(mockCallIdMapper, null);
+    }
+
+    /**
+     * Ensures that a self-managed phone account won't be considered when attempting to place an
+     * emergency call.
+     */
+    @SmallTest
+    @Test
+    public void testDontAttemptSelfManaged() {
+        when(mMockCall.isEmergencyCall()).thenReturn(true);
+        when(mMockCall.isTestEmergencyCall()).thenReturn(false);
+        when(mMockCall.getHandle()).thenReturn(Uri.parse(""));
+
+        PhoneAccount selfManagedAcct = makePhoneAccount("sm-acct",
+                PhoneAccount.CAPABILITY_SELF_MANAGED
+                        | PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS);
+        phoneAccounts.add(selfManagedAcct);
+
+        mTestCreateConnectionProcessor.process();
+        verify(mMockCall, never()).setTargetPhoneAccount(any(PhoneAccountHandle.class));
     }
 
     @SmallTest
