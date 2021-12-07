@@ -852,6 +852,7 @@ public class TelecomServiceImpl {
         public boolean hasManageOngoingCallsPermission(String callingPackage) {
             try {
                 Log.startSession("TSI.hMOCP");
+                enforceCallingPackage(callingPackage);
                 return PermissionChecker.checkPermissionForDataDeliveryFromDataSource(
                         mContext, Manifest.permission.MANAGE_ONGOING_CALLS,
                         Binder.getCallingPid(),
@@ -1466,6 +1467,7 @@ public class TelecomServiceImpl {
                 enforceCallingPackage(callingPackage);
 
                 PhoneAccountHandle phoneAccountHandle = null;
+                boolean clearPhoneAccountHandleExtra = false;
                 if (extras != null) {
                     phoneAccountHandle = extras.getParcelable(
                             TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE);
@@ -1477,17 +1479,24 @@ public class TelecomServiceImpl {
                 boolean isSelfManaged = phoneAccountHandle != null &&
                         isSelfManagedConnectionService(phoneAccountHandle);
                 if (isSelfManaged) {
-                    mContext.enforceCallingOrSelfPermission(Manifest.permission.MANAGE_OWN_CALLS,
-                            "Self-managed ConnectionServices require MANAGE_OWN_CALLS permission.");
+                    try {
+                        mContext.enforceCallingOrSelfPermission(
+                                Manifest.permission.MANAGE_OWN_CALLS,
+                                "Self-managed ConnectionServices require "
+                                        + "MANAGE_OWN_CALLS permission.");
+                    } catch (SecurityException e) {
+                        // Fallback to use mobile network to avoid disclosing phone account handle
+                        // package information
+                        clearPhoneAccountHandleExtra = true;
+                    }
 
-                    if (!callingPackage.equals(
+                    if (!clearPhoneAccountHandleExtra && !callingPackage.equals(
                             phoneAccountHandle.getComponentName().getPackageName())
                             && !canCallPhone(callingPackage, callingFeatureId,
                             "CALL_PHONE permission required to place calls.")) {
-                        // The caller is not allowed to place calls, so we want to ensure that it
-                        // can only place calls through itself.
-                        throw new SecurityException("Self-managed ConnectionServices can only "
-                                + "place calls through their own ConnectionService.");
+                        // The caller is not allowed to place calls, so fallback to use mobile
+                        // network.
+                        clearPhoneAccountHandleExtra = true;
                     }
                 } else if (!canCallPhone(callingPackage, callingFeatureId, "placeCall")) {
                     throw new SecurityException("Package " + callingPackage
@@ -1522,6 +1531,9 @@ public class TelecomServiceImpl {
                         final Intent intent = new Intent(hasCallPrivilegedPermission ?
                                 Intent.ACTION_CALL_PRIVILEGED : Intent.ACTION_CALL, handle);
                         if (extras != null) {
+                            if (clearPhoneAccountHandleExtra) {
+                                extras.remove(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE);
+                            }
                             extras.setDefusable(true);
                             intent.putExtras(extras);
                         }
