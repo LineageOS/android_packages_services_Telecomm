@@ -361,20 +361,16 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
 
     // This function is used after previous attempts to find emergency PSTN connections
     // do not find any SIM phone accounts with emergency capability.
-    // It attempts to add any accounts with CAPABILITY_PLACE_EMERGENCY_CALLS even if
-    // accounts are not SIM accounts.
     private void adjustAttemptsForEmergencyNoSimRequired(List<PhoneAccount> allAccounts) {
         // Add all phone accounts which can place emergency calls.
         if (mAttemptRecords.isEmpty()) {
             for (PhoneAccount phoneAccount : allAccounts) {
-                if (phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS)) {
-                    PhoneAccountHandle phoneAccountHandle = phoneAccount.getAccountHandle();
-                    Log.i(this, "Will try account %s for emergency", phoneAccountHandle);
-                    mAttemptRecords.add(
-                            new CallAttemptRecord(phoneAccountHandle, phoneAccountHandle));
-                    // Add only one emergency PhoneAccount to the attempt list.
-                    break;
-                }
+                PhoneAccountHandle phoneAccountHandle = phoneAccount.getAccountHandle();
+                Log.i(this, "Will try account %s for emergency", phoneAccountHandle);
+                mAttemptRecords.add(
+                        new CallAttemptRecord(phoneAccountHandle, phoneAccountHandle));
+                // Add only one emergency PhoneAccount to the attempt list.
+                break;
             }
         }
     }
@@ -389,9 +385,11 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
             // current user.
             // ONLY include phone accounts which are NOT self-managed; we will never consider a self
             // managed phone account for placing an emergency call.
+            // ONLY include phone accounts which have the ability to place an emergency call.
             List<PhoneAccount> allAccounts = mPhoneAccountRegistrar
                     .getAllPhoneAccountsOfCurrentUser()
                     .stream()
+                    .filter(act -> act.hasCapabilities(PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS))
                     .filter(act -> !act.hasCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED))
                     .collect(Collectors.toList());
 
@@ -420,8 +418,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
             sortSimPhoneAccountsForEmergency(allAccounts, preferredPA);
             // and pick the first one that can place emergency calls.
             for (PhoneAccount phoneAccount : allAccounts) {
-                if (phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS)
-                        && phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
+                if (phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
                     PhoneAccountHandle phoneAccountHandle = phoneAccount.getAccountHandle();
                     Log.i(this, "Will try PSTN account %s for emergency", phoneAccountHandle);
                     mAttemptRecords.add(new CallAttemptRecord(phoneAccountHandle,
