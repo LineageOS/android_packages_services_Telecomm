@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f1e4f60_6991b9f5",
+        "filename": "src/com/android/server/telecom/CreateConnectionProcessor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 13028
+      },
+      "writtenOn": "2021-12-10T19:42:01Z",
+      "side": 1,
+      "message": "should be removed?",
+      "range": {
+        "startLine": 372,
+        "startChar": 16,
+        "endLine": 373,
+        "endChar": 22
+      },
+      "revId": "529b5c66e3d41676cc5fe48d681b8275e5f00418",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    }
+  ]
+}
