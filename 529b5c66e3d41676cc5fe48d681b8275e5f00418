@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f39f1ed3_0d831163",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11883
+      },
+      "writtenOn": "2021-12-10T19:49:59Z",
+      "side": 1,
+      "message": "This is a POC, should never be merged.\nBut at the same time it would avoid other possible \"code bad\" scenarios.\n\nThe first 2 patches _very likely_ are enough to fix Teams issue, but why not go the extra mile.",
+      "revId": "529b5c66e3d41676cc5fe48d681b8275e5f00418",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4f1e4f60_6991b9f5",
