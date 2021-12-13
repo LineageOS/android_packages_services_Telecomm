@@ -114,7 +114,7 @@ public final class TelephonyUtil {
 
                 // Then by hashcode
                 if (retval == 0) {
-                    retval = account1.hashCode() - account2.hashCode();
+                    retval = Integer.compare(account1.hashCode(), account2.hashCode());
                 }
                 return retval;
             }
