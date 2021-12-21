@@ -516,7 +516,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         doReturn(PackageManager.PERMISSION_DENIED)
                 .when(mContext).checkCallingOrSelfPermission(MODIFY_PHONE_STATE);
         PackageManager pm = mContext.getPackageManager();
-        when(pm.hasSystemFeature(PackageManager.FEATURE_CONNECTION_SERVICE)).thenReturn(true);
+        when(pm.hasSystemFeature(PackageManager.FEATURE_TELECOM)).thenReturn(true);
 
         registerPhoneAccountTestHelper(phoneAccount, true);
     }
@@ -534,7 +534,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         doReturn(PackageManager.PERMISSION_DENIED)
                 .when(mContext).checkCallingOrSelfPermission(MODIFY_PHONE_STATE);
         PackageManager pm = mContext.getPackageManager();
-        when(pm.hasSystemFeature(PackageManager.FEATURE_CONNECTION_SERVICE)).thenReturn(false);
+        when(pm.hasSystemFeature(PackageManager.FEATURE_TELECOM)).thenReturn(false);
 
         registerPhoneAccountTestHelper(phoneAccount, false);
     }
@@ -623,7 +623,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         doReturn(PackageManager.PERMISSION_DENIED)
                 .when(mContext).checkCallingOrSelfPermission(MODIFY_PHONE_STATE);
         PackageManager pm = mContext.getPackageManager();
-        when(pm.hasSystemFeature(PackageManager.FEATURE_CONNECTION_SERVICE)).thenReturn(false);
+        when(pm.hasSystemFeature(PackageManager.FEATURE_TELECOM)).thenReturn(false);
 
         try {
             mTSIBinder.unregisterPhoneAccount(phHandle);

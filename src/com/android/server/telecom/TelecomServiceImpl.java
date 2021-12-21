@@ -2279,7 +2279,7 @@ public class TelecomServiceImpl {
     }
 
     private void enforceConnectionServiceFeature() {
-        enforceFeature(PackageManager.FEATURE_CONNECTION_SERVICE);
+        enforceFeature(PackageManager.FEATURE_TELECOM);
     }
 
     private void enforceRegisterSimSubscriptionPermission() {
