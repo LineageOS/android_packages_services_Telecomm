@@ -523,6 +523,25 @@ public class TelecomServiceImplTest extends TelecomTestCase {
 
     @SmallTest
     @Test
+    public void testRegisterPhoneAccountWithOldFeatureFlag() throws RemoteException {
+        // tests the case where the package does not have MODIFY_PHONE_STATE but is
+        // registering its own phone account as a third-party connection service
+        String packageNameToUse = "com.thirdparty.connectionservice";
+        PhoneAccountHandle phHandle = new PhoneAccountHandle(new ComponentName(
+                packageNameToUse, "cs"), "asdf", Binder.getCallingUserHandle());
+        PhoneAccount phoneAccount = makePhoneAccount(phHandle).build();
+
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingOrSelfPermission(MODIFY_PHONE_STATE);
+        PackageManager pm = mContext.getPackageManager();
+        when(pm.hasSystemFeature(PackageManager.FEATURE_TELECOM)).thenReturn(false);
+        when(pm.hasSystemFeature(PackageManager.FEATURE_CONNECTION_SERVICE)).thenReturn(true);
+
+        registerPhoneAccountTestHelper(phoneAccount, true);
+    }
+
+    @SmallTest
+    @Test
     public void testRegisterPhoneAccountWithoutModifyPermissionFailure() throws RemoteException {
         // tests the case where the third party package should not be allowed to register a phone
         // account due to the lack of modify permission.
