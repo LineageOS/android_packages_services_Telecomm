@@ -22,6 +22,7 @@ import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothHearingAid;
 import android.bluetooth.BluetoothLeAudio;
 import android.bluetooth.BluetoothProfile;
+import android.bluetooth.BluetoothStatusCodes;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.AudioDeviceInfo;
@@ -477,10 +478,9 @@ public class BluetoothDeviceManager {
                 Log.w(this, "Couldn't set active device to %s", address);
                 return false;
             }
-            if (!mBluetoothHeadset.isAudioOn()) {
-                return mBluetoothHeadset.connectAudio();
-            }
-            return true;
+            int scoConnectionRequest = mBluetoothHeadset.connectAudio();
+            return scoConnectionRequest == BluetoothStatusCodes.SUCCESS ||
+                scoConnectionRequest == BluetoothStatusCodes.ERROR_AUDIO_DEVICE_ALREADY_CONNECTED;
         } else {
             Log.w(this, "Attempting to turn on audio for a disconnected device");
             return false;
