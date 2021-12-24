@@ -20,8 +20,9 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothHearingAid;
-import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothLeAudio;
+import android.bluetooth.BluetoothProfile;
+import android.bluetooth.BluetoothStatusCodes;
 import android.content.ContentResolver;
 import android.os.Parcel;
 import android.telecom.Log;
@@ -90,7 +91,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         setupConnectedDevices(new BluetoothDevice[]{DEVICE1}, null, null, null, null, null);
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
                 nullable(ContentResolver.class))).thenReturn(0L);
-        when(mBluetoothHeadset.connectAudio()).thenReturn(false);
+        when(mBluetoothHeadset.connectAudio()).thenReturn(BluetoothStatusCodes.ERROR_UNKNOWN);
         executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, DEVICE1.getAddress());
         // Wait 3 times: for the first connection attempt, the retry attempt,
         // the second retry, and once more to make sure there are only three attempts.
@@ -152,7 +153,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
                               null);
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
                 nullable(ContentResolver.class))).thenReturn(0L);
-        when(mBluetoothHeadset.connectAudio()).thenReturn(false);
+        when(mBluetoothHeadset.connectAudio()).thenReturn(BluetoothStatusCodes.ERROR_UNKNOWN);
         executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, DEVICE2.getAddress());
         // Wait 3 times: the first connection attempt is accounted for in executeRoutingAction,
         // so wait twice for the retry attempt, again to make sure there are only three attempts,
@@ -234,7 +235,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         when(mDeviceManager.getBluetoothHearingAid()).thenReturn(mBluetoothHearingAid);
         when(mDeviceManager.getBluetoothAdapter()).thenReturn(mBluetoothAdapter);
         when(mDeviceManager.getLeAudioService()).thenReturn(mBluetoothLeAudio);
-        when(mBluetoothHeadset.connectAudio()).thenReturn(true);
+        when(mBluetoothHeadset.connectAudio()).thenReturn(BluetoothStatusCodes.SUCCESS);
         when(mBluetoothHeadset.setActiveDevice(nullable(BluetoothDevice.class))).thenReturn(true);
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
                 nullable(ContentResolver.class))).thenReturn(100000L);
