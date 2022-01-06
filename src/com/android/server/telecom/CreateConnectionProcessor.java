@@ -661,7 +661,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
             }
 
             // then by hashcode
-            return Integer.compare(account1.hashCode(), account2.hashCode());
+            return account1.hashCode() - account2.hashCode();
         });
     }
 
