@@ -19,7 +19,6 @@ package com.android.server.telecom.bluetooth;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothHearingAid;
-import android.bluetooth.BluetoothLeAudio;
 import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -44,10 +43,6 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
         INTENT_FILTER.addAction(BluetoothHeadset.ACTION_ACTIVE_DEVICE_CHANGED);
         INTENT_FILTER.addAction(BluetoothHearingAid.ACTION_CONNECTION_STATE_CHANGED);
         INTENT_FILTER.addAction(BluetoothHearingAid.ACTION_ACTIVE_DEVICE_CHANGED);
-        INTENT_FILTER.addAction(BluetoothLeAudio.ACTION_LE_AUDIO_CONNECTION_STATE_CHANGED);
-        INTENT_FILTER.addAction(BluetoothLeAudio.ACTION_LE_AUDIO_ACTIVE_DEVICE_CHANGED);
-        INTENT_FILTER.addAction(BluetoothLeAudio.ACTION_LE_AUDIO_GROUP_NODE_STATUS_CHANGED);
-        INTENT_FILTER.addAction(BluetoothLeAudio.ACTION_LE_AUDIO_GROUP_STATUS_CHANGED);
     }
 
     // If not in a call, BSR won't listen to the Bluetooth stack's HFP on/off messages, since
@@ -64,18 +59,13 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
                 case BluetoothHeadset.ACTION_AUDIO_STATE_CHANGED:
                     handleAudioStateChanged(intent);
                     break;
-                case BluetoothLeAudio.ACTION_LE_AUDIO_CONNECTION_STATE_CHANGED:
                 case BluetoothHearingAid.ACTION_CONNECTION_STATE_CHANGED:
                 case BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED:
                     handleConnectionStateChanged(intent);
                     break;
-                case BluetoothLeAudio.ACTION_LE_AUDIO_ACTIVE_DEVICE_CHANGED:
                 case BluetoothHearingAid.ACTION_ACTIVE_DEVICE_CHANGED:
                 case BluetoothHeadset.ACTION_ACTIVE_DEVICE_CHANGED:
                     handleActiveDeviceChanged(intent);
-                    break;
-                case BluetoothLeAudio.ACTION_LE_AUDIO_GROUP_NODE_STATUS_CHANGED:
-                    handleGroupNodeStatusChanged(intent);
                     break;
             }
         } finally {
@@ -127,52 +117,29 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
             return;
         }
 
-        int deviceType;
-        if (BluetoothLeAudio.ACTION_LE_AUDIO_CONNECTION_STATE_CHANGED.equals(intent.getAction())) {
-            deviceType = BluetoothDeviceManager.DEVICE_TYPE_LE_AUDIO;
-        } else if (BluetoothHearingAid.ACTION_CONNECTION_STATE_CHANGED.equals(intent.getAction())) {
-            deviceType = BluetoothDeviceManager.DEVICE_TYPE_HEARING_AID;
-        } else if (BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED.equals(intent.getAction())) {
-            deviceType = BluetoothDeviceManager.DEVICE_TYPE_HEADSET;
-        } else {
-            Log.w(LOG_TAG, "handleConnectionStateChanged: %s invalid device type", device);
-            return;
-        }
-
-        Log.i(LOG_TAG, "%s device %s changed state to %d",
-                BluetoothDeviceManager.getDeviceTypeString(deviceType),
+        Log.i(LOG_TAG, "Device %s changed state to %d",
                 device.getAddress(), bluetoothHeadsetState);
 
+        boolean isHearingAid = BluetoothHearingAid.ACTION_CONNECTION_STATE_CHANGED
+                .equals(intent.getAction());
         if (bluetoothHeadsetState == BluetoothProfile.STATE_CONNECTED) {
-            mBluetoothDeviceManager.onDeviceConnected(device, deviceType);
+            mBluetoothDeviceManager.onDeviceConnected(device, isHearingAid);
         } else if (bluetoothHeadsetState == BluetoothProfile.STATE_DISCONNECTED
                 || bluetoothHeadsetState == BluetoothProfile.STATE_DISCONNECTING) {
-            mBluetoothDeviceManager.onDeviceDisconnected(device, deviceType);
+            mBluetoothDeviceManager.onDeviceDisconnected(device, isHearingAid);
         }
     }
 
     private void handleActiveDeviceChanged(Intent intent) {
         BluetoothDevice device =
                 intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-        int deviceType;
-        if (BluetoothLeAudio.ACTION_LE_AUDIO_ACTIVE_DEVICE_CHANGED.equals(intent.getAction())) {
-            deviceType = BluetoothDeviceManager.DEVICE_TYPE_LE_AUDIO;
-        } else if (BluetoothHearingAid.ACTION_ACTIVE_DEVICE_CHANGED.equals(intent.getAction())) {
-            deviceType = BluetoothDeviceManager.DEVICE_TYPE_HEARING_AID;
-        } else if (BluetoothHeadset.ACTION_ACTIVE_DEVICE_CHANGED.equals(intent.getAction())) {
-            deviceType = BluetoothDeviceManager.DEVICE_TYPE_HEADSET;
-        } else {
-            Log.w(LOG_TAG, "handleActiveDeviceChanged: %s invalid device type", device);
-            return;
-        }
-
+        boolean isHearingAid =
+                BluetoothHearingAid.ACTION_ACTIVE_DEVICE_CHANGED.equals(intent.getAction());
         Log.i(LOG_TAG, "Device %s is now the preferred BT device for %s", device,
-                BluetoothDeviceManager.getDeviceTypeString(deviceType));
+                isHearingAid ? "hearing aid" : "HFP");
 
-        mBluetoothRouteManager.onActiveDeviceChanged(device, deviceType);
-        if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_HEARING_AID ||
-            deviceType == BluetoothDeviceManager.DEVICE_TYPE_LE_AUDIO) {
+        mBluetoothRouteManager.onActiveDeviceChanged(device, isHearingAid);
+        if (isHearingAid) {
             Session session = Log.createSubsession();
             SomeArgs args = SomeArgs.obtain();
             args.arg1 = session;
@@ -180,28 +147,12 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
                 mBluetoothRouteManager.sendMessage(BT_AUDIO_LOST, args);
             } else {
                 if (!mIsInCall) {
-                    Log.i(LOG_TAG, "Ignoring audio on since we're not in a call");
+                    Log.i(LOG_TAG, "Ignoring hearing aid audio on since we're not in a call");
                     return;
                 }
                 args.arg2 = device.getAddress();
                 mBluetoothRouteManager.sendMessage(BT_AUDIO_IS_ON, args);
-           }
-        }
-    }
-
-    private void handleGroupNodeStatusChanged(Intent intent) {
-        BluetoothDevice device =
-                intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-        int groupId = intent.getIntExtra(BluetoothLeAudio.EXTRA_LE_AUDIO_GROUP_ID,
-                BluetoothLeAudio.GROUP_ID_INVALID);
-        int groupNodeStatus = intent.getIntExtra(BluetoothLeAudio.EXTRA_LE_AUDIO_GROUP_NODE_STATUS,
-                -1);
-
-        if (groupNodeStatus == BluetoothLeAudio.GROUP_NODE_ADDED) {
-            mBluetoothDeviceManager.onGroupNodeAdded(device, groupId);
-        } else {
-            mBluetoothDeviceManager.onGroupNodeRemoved(device, groupId);
+            }
         }
     }
 
