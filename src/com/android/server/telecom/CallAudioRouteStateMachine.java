@@ -875,8 +875,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     return HANDLED;
                 case SWITCH_FOCUS:
                     if (msg.arg1 == NO_FOCUS) {
-                        // Only disconnect audio here instead of routing away from BT entirely.
-                        mBluetoothRouteManager.disconnectAudio();
+                        // Only disconnect SCO audio here instead of routing away from BT entirely.
+                        mBluetoothRouteManager.disconnectSco();
                         reinitialize();
                         mCallAudioManager.notifyAudioOperationsComplete();
                     } else if (msg.arg1 == RINGING_FOCUS
