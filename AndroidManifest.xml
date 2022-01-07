@@ -315,9 +315,6 @@
             <intent-filter>
                 <action android:name="android.bluetooth.IBluetoothHeadsetPhone"/>
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.bluetooth.IBluetoothLeCallControlCallback" />
-            </intent-filter>
         </service>
 
         <service android:name=".components.TelecomService"
