@@ -14,121 +14,310 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Official label of the Telecomm/Phone app, as seen in "Manage Applications"
+         and other settings UIs. This is the "app name" used in notification, recents,
+         and app info screens. -->
     <string name="telecommAppLabel" product="default">Stiùireadh nan gairmean</string>
+    <!-- Title used for the activity for placing a call. This name appears
+         in activity disambig dialogs -->
     <string name="userCallActivityLabel" product="default">Fòn</string>
+    <!-- Name for an "unknown" caller. -->
     <string name="unknown">Neo-aithnichte</string>
+    <!-- Notification strings -->
+    <!-- Missed call notification label, used when there's exactly one missed call -->
     <string name="notification_missedCallTitle">Gairm a dh’fhalbh ort</string>
+    <!-- Missed work call notification label, used when there's exactly one missed call [CHAR LIMIT=NONE] -->
     <string name="notification_missedWorkCallTitle">Gairm na h-obrach a dh’fhalbh ort</string>
+    <!-- Missed call notification label, used when there are two or more missed calls -->
     <string name="notification_missedCallsTitle">Gairmean a dh’fhalbh ort</string>
+    <!-- Missed call notification message used when there are multiple missed calls -->
     <string name="notification_missedCallsMsg">Dh’fhalbh gairmean ort (<xliff:g id="num_missed_calls">%s</xliff:g>)</string>
+    <!-- Missed call notification message used for a single missed call, including
+         the caller-id info from the missed call -->
     <string name="notification_missedCallTicker">Dh’fhalbh gairm o <xliff:g id="missed_call_from">%s</xliff:g> ort</string>
+    <!-- Message for "call back" Action, which is displayed in the missed call notificaiton.
+         The user will be able to call back to the person or the phone number.
+         [CHAR LIMIT=18] -->
     <string name="notification_missedCall_call_back">Fònaig air ais</string>
+    <!-- Message for "reply via sms" action, which is displayed in the missed call notification.
+         The user will be able to send text messages using the phone number.
+         [CHAR LIMIT=18] -->
     <string name="notification_missedCall_message">Cuir teachdaireachd</string>
+    <!-- Disconnected call notification label, used when the call has been automatically
+         disconnected by telecom to make room for a higher priority call, such as an emergency
+         call.-->
     <string name="notification_disconnectedCall_title">Chaidh crìoch a chur air a’ ghairm</string>
+    <!-- Body of the notification presented when an ongoing call is disconnected in favor of placing
+         an emergency call. This is required by some carriers. [CHAR LIMIT=NONE] -->
     <string name="notification_disconnectedCall_body">Chaidh crìoch a chur air a’ ghairm gu <xliff:g id="caller">%s</xliff:g> on a chaidh gairm-èiginn a chur.</string>
+    <!-- Body of the notification presented when an ongoing call is disconnected in favor of placing
+         an emergency call. This version is used when the call that was disconnected was also an
+         emergency call. In this case, we want to hide the exact number dialed in order to protect
+         user privacy. [CHAR LIMIT=NONE] -->
     <string name="notification_disconnectedCall_generic_body">        Chaidh crìoch a chur air a’ ghairm agad on a chaidh gairm-èiginn a chur.
     </string>
+    <!-- Title for the persistent notification presented when an app has requested that a call
+         be put into the background so that the app can access the audio from the call
+         [CHAR LIMIT=40] -->
     <string name="notification_audioProcessing_title">Gairm sa chùlaibh</string>
+    <!-- Body of the persistent notification presented when an app requests
+         that a call be put into the background so that the app can access the audio from the call.
+         [CHAR LIMIT=NONE] -->
     <string name="notification_audioProcessing_body">        Chuir <xliff:g id="audio_processing_app_name">%s</xliff:g> gairm
         dhan chùlaibh. Dh’fhaoidte gu bheil an aplacaid seo ag inntrigeadh ’s a’ cluich fuaim thar na gairme.
     </string>
+    <!-- Crashed in call service notification label, used when the in call service has crashed and
+         the system fall back to use system dialer. [CHAR LIMIT=NONE] -->
     <string name="notification_incallservice_not_responding_title">        Chan eil <xliff:g id="in_call_service_app_name">%s</xliff:g> a’ freagairt tuilleadh
     </string>
+    <!-- Body of the notification presented when an in call service crashed. [CHAR LIMIT=NONE] -->
     <string name="notification_incallservice_not_responding_body">        Chleachd a’ ghairm agad aplacaid an fhòn a thàining am broinn an uidheim agad
     </string>
+    <!-- Content description of the call muted notification icon for
+         accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
     <string name="accessibility_call_muted">Chaidh a’ ghairm a mhùchadh.</string>
+    <!-- Content description of the speakerphone enabled notification icon for
+         accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
     <string name="accessibility_speakerphone_enabled">Tha glaodhaire an fhòn an comas.</string>
+    <!-- Canned response for the "Respond via SMS" feature for incoming calls. [CHAR LIMIT=35] -->
     <string name="respond_via_sms_canned_response_1">Chan urrainn dhomh bruidhinn riut an-dràsta. Dè tha dol?</string>
+    <!-- Canned response for the "Respond via SMS" feature for incoming calls. [CHAR LIMIT=35] -->
     <string name="respond_via_sms_canned_response_2">Cuiridh mi fòn thugad an ceartair.</string>
+    <!-- Canned response for the "Respond via SMS" feature for incoming calls. [CHAR LIMIT=35] -->
     <string name="respond_via_sms_canned_response_3">Cuiridh mi fòn thugad an ceann tamaill.</string>
+    <!-- Canned response for the "Respond via SMS" feature for incoming calls. [CHAR LIMIT=35] -->
     <string name="respond_via_sms_canned_response_4">Chan urrainn dhomh bruidhinn riut an-dràsta. An cuir thu fòn thugam an ceann tamaill?</string>
+    <!-- Title of settings screen for managing the "Respond via SMS" feature. [CHAR LIMIT=30] -->
     <string name="respond_via_sms_setting_title">Grad-fhreagairtean</string>
+    <!-- Slightly more verbose title of settings screen for managing the
+         "Respond via SMS" feature. [CHAR LIMIT=30] -->
     <string name="respond_via_sms_setting_title_2">Deasaich na grad-fhreagairtean</string>
+    <!-- Settings summary string for the "Respond via SMS" feature. [CHAR LIMIT=40] -->
+    <!-- Dialog title when changing a string for the "Respond via SMS" feature. [CHAR LIMIT=30] -->
     <string name="respond_via_sms_edittext_dialog_title">Grad-fhreagairt</string>
+    <!-- "Respond via SMS": Confirmation message shown after sending
+        a text response. [CHAR LIMIT=40] -->
     <string name="respond_via_sms_confirmation_format">Chaidh an teachdaireachd a chur gu <xliff:g id="phone_number">%s</xliff:g>.</string>
+    <!-- "Respond via SMS": Error toast shown after failing to send
+        a text response. [CHAR LIMIT=40] -->
     <string name="respond_via_sms_failure_format">Cha deach an teachdaireachd a chur gu <xliff:g id="phone_number">%s</xliff:g>.</string>
+    <!-- Title of settings screen that allows user to enable and disable phone-accounts.
+         Each method for placing a call (SIM1, SIM2, SIP account, etc) has a phone-account.
+         Phone-accounts that are created by third party apps can be disabled and enabled by user.
+         [CHAR LIMIT=30] -->
     <string name="enable_account_preference_title">Cunntasan ghairmean</string>
+    <!-- Message indicating that the user is not allowed to make non-emergency outgoing phone calls
+         due to a user restriction -->
     <string name="outgoing_call_not_allowed_user_restriction">Chan eil ach gairmean èiginn ceadaichte.</string>
+    <!-- Message indicating that the user is not allowed to make non-emergency outgoing phone calls
+         due to the lack of the CALL_PHONE permission -->
     <string name="outgoing_call_not_allowed_no_permission">Chan urrainn dhan aplacaid seo gairm a-mach a chur gun chead air an fhòn.</string>
+    <!-- Call failure message displayed in an error dialog used to indicate that a phone number was not provided -->
     <string name="outgoing_call_error_no_phone_number_supplied">Airson gairm a chur, cuir a-steach àireamh dhligheach.</string>
+    <!-- Message shown when the user tries to make a video call when already in a video call. -->
     <string name="duplicate_video_call_not_allowed">Cha ghabh a’ ghairm a chur ris aig an àm seo.</string>
+    <!-- missing voicemail number -->
+    <!-- Title of the "Missing voicemail number" dialog -->
     <string name="no_vm_number">Tha àireamh a’ phuist-ghutha a dhìth</string>
+    <!-- Body text of the "Missing voicemail number" dialog -->
     <string name="no_vm_number_msg">Chan eil àireamh puist-ghutha air a’ chairt SIM.</string>
+    <!-- Button label on the "Missing voicemail number" dialog -->
     <string name="add_vm_number_str">Cuir àireamh ris</string>
+    <!-- Title of dialog used to confirm whether the user intends to change the default dialer
+            application [CHAR LIMIT=55]-->
     <string name="change_default_dialer_dialog_title">An dèan thu aplacaid bhunaiteach an fhòn dhe <xliff:g id="new_app">%s</xliff:g>?</string>
+    <!-- Confirmation text that a user taps on to change the Default Phone App-->
     <string name="change_default_dialer_dialog_affirmative">Suidhich mar a’ bhun-roghainn</string>
+    <!-- Cancel text that a user taps on to not change the Default Phone App-->
     <string name="change_default_dialer_dialog_negative">Sguir dheth</string>
+    <!-- Warning message indicating what may happen if a user allows a 3rd party app to become the default dialer.-->
     <string name="change_default_dialer_warning_message">’S urrainn dha <xliff:g id="new_app">%s</xliff:g> gairmean a chur is gach nì mun dèidhinn a stiùireadh. Cha bu chòir dhut aplacaid a shuidheachadh mar tè bhunaiteach an fhòn ach ma bhios earbsa agad innte.</string>
+    <!-- Title of dialog used to confirm whether the user intends to change the default call screening
+            application [CHAR LIMIT=55]-->
     <string name="change_default_call_screening_dialog_title">An dèan thu aplacaid bhunaiteach an sgrìnidh ghairmean dhe <xliff:g id="new_app">%s</xliff:g>?</string>
+    <!-- Warning message indicating the old call screening app will no longer be able to screen calls.-->
     <string name="change_default_call_screening_warning_message_for_disable_old_app">Chan urrainn dha <xliff:g id="old_app">%s</xliff:g> gairmean a sgrìneadh tuilleadh an uairsin.</string>
+    <!-- Warning message indicating what may happen if a user allows a 3rd party app to become the default call screening.-->
     <string name="change_default_call_screening_warning_message">Chì <xliff:g id="new_app">%s</xliff:g> fiosrachadh mu ghairmearan nach eil am measg an luchd-aithne agad agus ’s urrainn dha na gairmean sin a bhacadh. Cha bu chòir dhut aplacaid a shuidheachadh mar tè bhunaiteach an sgrìnidh ghairmean ach ma bhios earbsa agad innte.</string>
+    <!-- Confirmation text that a user taps on to change the Default call screening App-->
     <string name="change_default_call_screening_dialog_affirmative">Suidhich mar a’ bhun-roghainn</string>
+    <!-- Cancel text that a user taps on to not change the Default call screening App-->
     <string name="change_default_call_screening_dialog_negative">Sguir dheth</string>
+    <!-- Blocked numbers -->
     <string name="blocked_numbers">Àireamhan bacte</string>
+    <!-- Text shown at the beginning of the blocked numbers screen to explain what the screen is about. -->
     <string name="blocked_numbers_msg">Chan fhaigh thu gairm no teachdaireachd on a h-àireamhan bacte.</string>
+    <!-- Button to add a blocked number. -->
     <string name="block_number">Cuir àireamh ris</string>
+    <!-- Body of dialog to confirm unblocking a number. -->
     <string name="unblock_dialog_body">An dì-bhac thu <xliff:g id="number_to_block">%1$s</xliff:g>?</string>
+    <!-- Button to unblock a number. -->
     <string name="unblock_button">Dì-bhac</string>
+    <!-- Body of dialog to block a number.  -->
     <string name="add_blocked_dialog_body">Bac gairmean is teacsaichean o</string>
+    <!-- Hint shown in the edit text box for adding a blocked number -->
     <string name="add_blocked_number_hint">Àireamh fòn</string>
+    <!-- Button to block a number. -->
     <string name="block_button">Bac</string>
+    <!-- String shown to users unable to manage blocked numbers because they are not owners of the
+        device. -->
     <string name="non_primary_user">Cha sheall no stiùir ach seilbheadair an uidheim na h-àireamhan bacte.</string>
+    <!-- Description of icon to delete blocked number. -->
     <string name="delete_icon_description">Dì-bhac</string>
+    <!-- Title for butter bar shown when call blocking is disabled. -->
     <string name="blocked_numbers_butter_bar_title">Tha am bacadh dheth rè seal</string>
+    <!-- Explanation for butter bar shown when call blocking is disabled. -->
     <string name="blocked_numbers_butter_bar_body">Nuair a chuireas tu gairm no teacsa gu àireamh-èiginn, thèid am bacadh a chur dheth a dhèanamh cinnteach gun ruig na seirbheisean-èiginn thu.</string>
+    <!-- Button to re-enable blocking shown in butter bar shown when call blocking is disabled. -->
     <string name="blocked_numbers_butter_bar_button">Cuir an comas a-rithist an-dràsta</string>
+    <!-- Message to show when a number is blocked. -->
     <string name="blocked_numbers_number_blocked_message">Chaidh <xliff:g id="blocked_number">%1$s</xliff:g> a bhacadh</string>
+    <!-- Message to show when a number is unblocked. -->
     <string name="blocked_numbers_number_unblocked_message">Chaidh <xliff:g id="unblocked_number">%1$s</xliff:g> a dhì-bhacadh</string>
+    <!-- Message to show when a number cannot be blocked because it is associated with emergency services.. -->
     <string name="blocked_numbers_block_emergency_number_message">Cha ghabh àireamh-èiginn a bhacadh.</string>
+    <!-- Message to show when a number is already blocked. -->
     <string name="blocked_numbers_number_already_blocked_message">Chaidh <xliff:g id="blocked_number">%1$s</xliff:g> a bhacadh cheana.</string>
+    <!-- DO NOT TRANSLATE. Label for test Subscription 0. -->
     <string name="test_account_0_label">Q Mobile</string>
+    <!-- DO NOT TRANSLATE. Label for test Subscription 1. -->
     <string name="test_account_1_label">Market Wireless</string>
+    <!-- DO NOT TRANSLATE. Label for test Subscription 2. -->
     <string name="test_account_2_label">Sonoma Circles Talk Plus</string>
+    <!-- DO NOT TRANSLATE. Label for test Subscription 3. -->
     <string name="test_account_3_label">Bay Voice Chat Pro</string>
+    <!-- DO NOT TRANSLATE. Short description for test Subscription 0. -->
     <string name="test_account_0_short_description">Account with Q Mobile</string>
+    <!-- DO NOT TRANSLATE. Short description for test Subscription 1. -->
     <string name="test_account_1_short_description">Account with Market Wireless</string>
+    <!-- DO NOT TRANSLATE. Short description for test Subscription 2. -->
     <string name="test_account_2_short_description">Talk to everyone in your Circles!</string>
+    <!-- DO NOT TRANSLATE. Short description for test Subscription 3. -->
     <string name="test_account_3_short_description">Chat with Chat Network users</string>
+    <!-- DO NOT TRANSLATE. Hardcoded number used for restricted incoming phone numbers. -->
     <string name="handle_restricted">RESTRICTED</string>
     <string name="toast_personal_call_msg">A’ cleachdadh an daithealair pearsanta airson na gairm</string>
+    <!-- The "label" of the Notification for an incoming ringing call.
+         call_via refers to the name of the app the incoming call is coming from.
+         Example: Duo call from John Smith[CHAR LIMIT=60] -->
     <string name="notification_incoming_call">Gairm <xliff:g id="call_via">%1$s</xliff:g> o <xliff:g id="call_from">%2$s</xliff:g></string>
+    <!-- The "label" of the Notification for an incoming ringing video call.
+         call_via refers to the name of the app the incoming video call is coming from.
+         Example: Duo video call from John Smith[CHAR LIMIT=60] -->
     <string name="notification_incoming_video_call">Gairm video <xliff:g id="call_via">%1$s</xliff:g> o <xliff:g id="call_from">%2$s</xliff:g></string>
+    <!-- The "details" of a Notification for an incoming call which will cause an ongoing call to be
+         disconnected.  This message is the part of the notification that informs the user that
+         answering the current ringing call will cause a call from another app to be disconnected.
+         Example: Answering will end your Duo call [CHAR LIMIT=60] -->
     <string name="answering_ends_other_call">Ma fhreagras tu, thèid crìoch a chur air a’ ghairm <xliff:g id="call_via">%1$s</xliff:g> agad</string>
+    <!-- The "details" of a Notification for an incoming call which will cause other ongoing calls
+         to be disconnected.  This message is the part of the notification that informs the user
+         answering the current ringing call will cause calls from another app to be disconnected.
+         Example: Answering will end your Duo call [CHAR LIMIT=60] -->
     <string name="answering_ends_other_calls">Ma fhreagras tu, thèid crìoch a chur air na gairmean <xliff:g id="call_via">%1$s</xliff:g> agad</string>
+    <!-- The "details" of a Notification for an incoming call which will cause an ongoing video call
+         to be disconnected.  This message is the part of the notification that informs the user
+         that answering the current ringing call will cause a video call from another app to be
+         disconnected.
+         Example: Answering will end your Duo video call [CHAR LIMIT=60] -->
     <string name="answering_ends_other_video_call">Ma fhreagras tu, thèid crìoch a chur air a’ ghairm video <xliff:g id="call_via">%1$s</xliff:g> agad</string>
+    <!-- The "details" of a Notification for an incoming call which will cause an ongoing call
+         to be disconnected.  This message is the part of the notification that informs the user
+         that answering the current ringing call will cause an ongoing call to be disconnected.
+         Similar to answering_ends_other_call, except does not specify which app.
+         [CHAR LIMIT=60] -->
     <string name="answering_ends_other_managed_call">Ma fhreagras tu, thèid crìoch a chur air gairm a tha a’ dol air adhart</string>
+    <!-- The "details" of a Notification for an incoming call which will cause an ongoing call
+         to be disconnected.  This message is the part of the notification that informs the user
+         that answering the current ringing call will cause an ongoing call to be disconnected.
+         Similar to answering_ends_other_call, except does not specify which app.
+         [CHAR LIMIT=60] -->
     <string name="answering_ends_other_managed_calls">Ma fhreagras tu, thèid crìoch a chur air gairmean a tha a’ dol air adhart</string>
+    <!-- The "details" of a Notification for an incoming call which will cause an ongoing video call
+         to be disconnected.  This message is the part of the notification that informs the user
+         that answering the current ringing call will cause an ongoing video call to be
+         disconnected.
+         Similar to answering_ends_other_video_call, except does not specify which app.
+         [CHAR LIMIT=60] -->
     <string name="answering_ends_other_managed_video_call">Ma fhreagras tu, thèid crìoch a chur air gairm video a tha a’ dol air adhart</string>
+    <!-- The "answer" button for an incoming call. [CHAR LIMIT=60] -->
     <string name="answer_incoming_call">Freagair</string>
+    <!-- The "decline" button for an incoming call. [CHAR LIMIT=60] -->
     <string name="decline_incoming_call">Diùlt</string>
+    <!-- Error message shown to the user when an outgoing call cannot be placed because there no
+         calling service is present on the device which supports this call type.
+         This is typically encountered when the user tries to dial a SIP/VOIP call, but there are
+         no calling services present which support SIP calling. [CHAR LIMIT=none] -->
     <string name="cant_call_due_to_no_supported_service">Chan urrainn dhuinn a’ ghairm a chur o nach eil cunntas gairmeir ann a chuireas taic ris an t-seòrsa seo de ghairm.</string>
+    <!-- Error message shown to the user when an outgoing call cannot be placed due to an ongoing
+         phone call in a third-party app.  For example:
+         Call cannot be placed due to your Duo call. [CHAR LIMIT=none] -->
     <string name="cant_call_due_to_ongoing_call">Cha ghabh a’ ghairm a chur air sàilleibh na gairme <xliff:g id="other_call">%1$s</xliff:g> agad.</string>
+    <!-- Error message shown to the user when an outgoing call cannot be placed due to ongoing
+         phone calls in a third-party app.  For example:
+         Call cannot be placed due to your Duo calls. [CHAR LIMIT=none] -->
     <string name="cant_call_due_to_ongoing_calls">Cha ghabh a’ ghairm a chur air sàilleibh nan gairmean <xliff:g id="other_call">%1$s</xliff:g> agad.</string>
+    <!-- Error message shown to the user when an outgoing call cannot be placed due to an ongoing
+         phone call in a third-party app.  Unlike cant_call_due_to_ongoing_call, this is used when
+         the name of the other app is not known. [CHAR LIMIT=none] -->
     <string name="cant_call_due_to_ongoing_unknown_call">Cha ghabh a’ ghairm a chur air sàilleibh gairme am broinn aplacaid eile.</string>
+    <!-- Notification channel name for a channel containing incoming call notifications. -->
     <string name="notification_channel_incoming_call">Gairmean a-steach</string>
+    <!-- Notification channel name for a channel containing missed call notifications. -->
     <string name="notification_channel_missed_call">Gairmean a dh’fhalbh ort</string>
+    <!-- Notification channel name for a channel containing call blocking notifications. -->
     <string name="notification_channel_call_blocking">Bacadh ghairmean</string>
+    <!-- Notification channel name for a channel containing background call notifications. -->
     <string name="notification_channel_background_calls">Gairmean sa chùlaibh</string>
+    <!-- Notification channel name for a channel containing disconnected call notifications. -->
     <string name="notification_channel_disconnected_calls">Gairmean a chaidh crìoch a chur orra</string>
+    <!-- Notification channel name for a channel containing crashed phone apps service notifications. -->
     <string name="notification_channel_in_call_service_crash">Aplacaidean fòn a thuislich</string>
+    <!-- Alert dialog content used to inform the user that placing a new outgoing call will end the
+         ongoing call in the app "other_app". -->
     <string name="alert_outgoing_call">Ma chuireas tu a’ ghairm seo, thèid crìoch a chur air a’ ghairm <xliff:g id="other_app">%1$s</xliff:g> agad.</string>
+    <!-- Alert dialog content used to ask the user to confirm if they want to place a new outgoing call redirected by the app "other_app". -->
     <string name="alert_redirect_outgoing_call_or_not">Tagh mar a thèid a’ ghairm seo a chur</string>
+    <!-- A button in the alert dialog "alert_redirect_outgoing_call" to place the call with the redirected number provided by App. -->
     <string name="alert_place_outgoing_call_with_redirection">Sìn a’ ghairm air adhart le <xliff:g id="other_app">%1$s</xliff:g></string>
+    <!-- A button in the alert dialog "alert_redirect_outgoing_call" to place the call without the redirected number provided by App. -->
     <string name="alert_place_unredirect_outgoing_call">Dèan gairm leis an àireamh fòn agam</string>
+    <!-- Alert dialog content used to tell the user the call is canceled because no response from the call redirection app "other_app". -->
     <string name="alert_redirect_outgoing_call_timeout">Chan urrainn dha <xliff:g id="other_app">%1$s</xliff:g> a’ ghairm seo a chur. Feuch aplacaid sìnidh air adhart eile no cuir fios dhan luchd-leasachaidh airson taic.</string>
+    <!-- The name of a feature available under the Call settings. -->
     <string name="phone_settings_call_blocking_txt">Bacadh ghairmean</string>
+    <!-- Call type to be blocked. See the explanatory text "phone_settings_number_not_in_contact_summary_txt". -->
     <string name="phone_settings_number_not_in_contact_txt">Àireamhan nach eil ’nan luchd-aithne</string>
+    <!-- Explanatory text under the call type "phone_settings_number_not_in_contact_txt". -->
     <string name="phone_settings_number_not_in_contact_summary_txt">Bac àireamhan nach deach a chlàradh san luchd-aithne agad</string>
+    <!-- Call type to be blocked. See the explanatory text "phone_settings_private_num_summary_txt". This is also called Anonymous or Withheld depending on region. -->
     <string name="phone_settings_private_num_txt">Prìobhaideach</string>
+    <!-- Explanatory text under the call type "phone_settings_payphone_summary_txt". -->
     <string name="phone_settings_private_num_summary_txt">Bac luchd-gairm nach nochd an àireamh</string>
+    <!-- Call type to be blocked. See the explanatory text "phone_settings_private_num_summary_txt".  -->
     <string name="phone_settings_payphone_txt">Bothan-fòn</string>
+    <!-- Explanatory text under the call type "phone_settings_payphone_txt". -->
     <string name="phone_settings_payphone_summary_txt">Bac gairmean o bhothain-fhòn</string>
+    <!-- Call type to be blocked. See the explanatory text "phone_settings_unknown_summary_txt".  -->
     <string name="phone_settings_unknown_txt">Neo-aithnichte</string>
+    <!-- Explanatory text under the call type "phone_settings_unknown_txt". This occurs when no caller ID information unavailable (e.g., international calls, IP phones that operators cannot identify the caller) -->
     <string name="phone_settings_unknown_summary_txt">Bac gairmean o luchd-ghairm gun aithneachadh</string>
+    <!-- Notification. Make this translation consistent with "phone_settings_call_blocking_txt". -->
     <string name="phone_strings_call_blocking_turned_off_notification_title_txt">Bacadh ghairmean</string>
+    <!-- Notification that appears when the feature Call Blocking has been disabled. -->
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt">Chaidh bacadh ghairmean a chur à comas</string>
+    <!-- Title of the dialog "phone_strings_emergency_call_made_dialog_text_txt". -->
     <string name="phone_strings_emergency_call_made_dialog_title_txt">Chaidh gairm-èiginn a dhèanamh</string>
+    <!-- Notification details that appear when the user taps the notification "phone_strings_call_blocking_turned_off_notification_text_txt". -->
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt">Chaidh bacadh ghairmean a chur à comas ach am faigh an luchd-cobharach grèim ort.</string>
+    <!-- Window title used for the Telecom Developer Menu -->
     <string name="developer_title">Clàr-taice luchd-leasachaidh telecom</string>
+    <!-- Some carriers allow an "external" call that has been placed on another device (another
+    tablet, phone, etc...) to be transferred to this device and taken as a call. In
+    the situation that we are already in an emergency call, notify the user that the call can not
+    be taken at this time.-->
     <string name="toast_emergency_can_not_pull_call">Chan urrainn dhut gairm a thogail fhad ’s a bhios tu ann an gairm-èiginn.</string>
+    <!-- Label for a switch in the Telecom Developer Menu which is used to enable the enhanced call
+         blocking functionality (for test purposes).
+         DO NOT TRANSLATE -->
 </resources>
