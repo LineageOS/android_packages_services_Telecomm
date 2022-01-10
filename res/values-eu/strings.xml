@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="telecommAppLabel" product="default" msgid="3077225713817780583">"Deien kudeaketa"</string>
+    <string name="telecommAppLabel" product="default" msgid="1825598513414129827">"Telefono-deiak"</string>
     <string name="userCallActivityLabel" product="default" msgid="3605391260292846248">"Telefonoa"</string>
     <string name="unknown" msgid="6993977514360123431">"Ezezaguna"</string>
     <string name="notification_missedCallTitle" msgid="5060387047205532974">"Dei galdua"</string>
@@ -114,10 +114,15 @@
     <string name="phone_settings_payphone_summary_txt" msgid="3936631076065563665">"Blokeatu telefono publikoen deiak"</string>
     <string name="phone_settings_unknown_txt" msgid="3577926178354772728">"Ezezagunak"</string>
     <string name="phone_settings_unknown_summary_txt" msgid="5446657192535779645">"Blokeatu identifikatu gabeko deitzaileen deiak"</string>
+    <!-- no translation found for phone_settings_unavailable_txt (825918186053980858) -->
+    <skip />
+    <!-- no translation found for phone_settings_unavailable_summary_txt (8221686031038282633) -->
+    <skip />
     <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="2895809176537908791">"Deiak blokeatzeko aukera"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="1713632946174016619">"Desgaitu da deiak blokeatzeko aukera"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="6629412508584507377">"Larrialdi-deia egin da"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"Desgaitu da deiak blokeatzeko aukera, larrialdietako zerbitzuak zurekin harremanetan jarri ahal daitezen."</string>
     <string name="developer_title" msgid="9146088855661672353">"Telekomunikazioen garatzaileen menua"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"Ezin duzu hartu deirik larrialdi-dei bat abian den bitartean."</string>
+    <string name="cancel" msgid="6733466216239934756">"Utzi"</string>
 </resources>

@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="telecommAppLabel" product="default" msgid="3077225713817780583">"કૉલ મેનેજમેન્ટ"</string>
+    <string name="telecommAppLabel" product="default" msgid="1825598513414129827">"Phone Calls"</string>
     <string name="userCallActivityLabel" product="default" msgid="3605391260292846248">"ફોન"</string>
     <string name="unknown" msgid="6993977514360123431">"અજાણ્યું"</string>
     <string name="notification_missedCallTitle" msgid="5060387047205532974">"ચૂકી ગયેલો કૉલ"</string>
@@ -114,10 +114,15 @@
     <string name="phone_settings_payphone_summary_txt" msgid="3936631076065563665">"પે ફોન પરના કૉલ બ્લૉક કરો"</string>
     <string name="phone_settings_unknown_txt" msgid="3577926178354772728">"અજાણ્યા"</string>
     <string name="phone_settings_unknown_summary_txt" msgid="5446657192535779645">"અજાણ્યા કૉલરના કૉલ બ્લૉક કરો"</string>
+    <!-- no translation found for phone_settings_unavailable_txt (825918186053980858) -->
+    <skip />
+    <!-- no translation found for phone_settings_unavailable_summary_txt (8221686031038282633) -->
+    <skip />
     <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="2895809176537908791">"કૉલ બ્લૉક કરી રહ્યાં છીએ"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="1713632946174016619">"કૉલ બ્લૉક કરવાનું બંધ કરવામાં આવ્યું છે"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="6629412508584507377">"કટોકટીનો કૉલ કર્યો"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"કટોકટીમાં પ્રતિસાદ કરનારાઓ તમારો સંપર્ક કરી શકે તે માટે કૉલ બ્લૉક કરવાનું બંધ કરવામાં આવ્યું છે."</string>
     <string name="developer_title" msgid="9146088855661672353">"ટેલિકોમ ડેવલપર મેનૂ"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"ઇમર્જન્સી કૉલ ચાલુ હોય, ત્યારે બીજા કોઈ કૉલ લઈ શકાતા નથી."</string>
+    <string name="cancel" msgid="6733466216239934756">"રદ કરો"</string>
 </resources>
