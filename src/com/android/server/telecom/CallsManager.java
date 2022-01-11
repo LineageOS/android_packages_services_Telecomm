@@ -175,6 +175,7 @@ public class CallsManager extends Call.ListenerBase
         void onSessionModifyRequestReceived(Call call, VideoProfile videoProfile);
         void onHoldToneRequested(Call call);
         void onExternalCallChanged(Call call, boolean isExternalCall);
+        void onTetheredCallChanged(Call call, boolean isTetheredCall);
         void onDisconnectedTonePlaying(boolean isTonePlaying);
         void onConnectionTimeChanged(Call call);
         void onConferenceStateChanged(Call call, boolean isConference);
@@ -2892,12 +2893,22 @@ public class CallsManager extends Call.ListenerBase
      * .
      * @param call The call whose external property changed.
      * @param isExternalCall {@code True} if the call is now external, {@code false} otherwise.
+     * @param isTethered {@code True} if the call is now a tethered external call, {@false}
+     *                              otherwise.
      */
     @Override
     public void onExternalCallChanged(Call call, boolean isExternalCall) {
-        Log.v(this, "onConnectionPropertiesChanged: %b", isExternalCall);
+        Log.v(this, "onExternalCallChanged: %b", isExternalCall);
         for (CallsManagerListener listener : mListeners) {
             listener.onExternalCallChanged(call, isExternalCall);
+        }
+    }
+
+    @Override
+    public void onTetheredCallChanged(Call call, boolean isTetheredCall) {
+        Log.v(this, "onTetheredCallChanged: %b", isTetheredCall);
+        for (CallsManagerListener listener : mListeners) {
+            listener.onTetheredCallChanged(call, isTetheredCall);
         }
     }
 
