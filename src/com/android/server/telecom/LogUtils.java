@@ -175,6 +175,7 @@ public class LogUtils {
         public static final String SEND_VIDEO_REQUEST = "SEND_VIDEO_REQUEST";
         public static final String SEND_VIDEO_RESPONSE = "SEND_VIDEO_RESPONSE";
         public static final String IS_EXTERNAL = "IS_EXTERNAL";
+        public static final String IS_TETHERED = "IS_TETHERED";
         public static final String PROPERTY_CHANGE = "PROPERTY_CHANGE";
         public static final String CAPABILITY_CHANGE = "CAPABILITY_CHANGE";
         public static final String CONNECTION_EVENT = "CONNECTION_EVENT";

@@ -563,7 +563,10 @@ public class ParcelableCallUtils {
         android.telecom.Call.Details.PROPERTY_IS_ADHOC_CONFERENCE,
 
         Connection.PROPERTY_CROSS_SIM,
-        android.telecom.Call.Details.PROPERTY_CROSS_SIM
+        android.telecom.Call.Details.PROPERTY_CROSS_SIM,
+
+        Connection.PROPERTY_TETHERED_CALL,
+        android.telecom.Call.Details.PROPERTY_TETHERED_CALL
     };
 
     private static int convertConnectionToCallProperties(int connectionProperties) {

@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.nullable;
@@ -605,6 +606,31 @@ public class CallAudioManagerTest extends TelecomTestCase {
 
         mCallAudioManager.onCallRemoved(call);
         verifyProperCleanup();
+    }
+
+    @SmallTest
+    @Test
+    public void testOnExternalCallChanged() {
+        Call call = mock(Call.class);
+        ArgumentCaptor<CallAudioModeStateMachine.MessageArgs> captor = makeNewCaptor();
+
+        // non-tethered  call
+        mCallAudioManager.onTetheredCallChanged(call, false /* isTetheredCall */);
+        verify(mCallAudioModeStateMachine).sendMessageWithArgs(
+                eq(CallAudioModeStateMachine.NO_MORE_TETHERED_CALLS), captor.capture());
+        assertFalse(captor.getValue().hasTetheredCalls);
+
+        // tethered call
+        mCallAudioManager.onTetheredCallChanged(call, true /* isTetheredCall */);
+        verify(mCallAudioModeStateMachine).sendMessageWithArgs(
+                eq(CallAudioModeStateMachine.NEW_TETHERED_EXTERNAL_CALL), captor.capture());
+        assertTrue(captor.getValue().hasTetheredCalls);
+
+        // non-tethered call
+        mCallAudioManager.onTetheredCallChanged(call, false /* isTetheredCall */);
+        verify(mCallAudioModeStateMachine, times(2)).sendMessageWithArgs(
+                eq(CallAudioModeStateMachine.NO_MORE_TETHERED_CALLS), captor.capture());
+        assertFalse(captor.getValue().hasTetheredCalls);
     }
 
     private Call createSimulatedRingingCall() {
