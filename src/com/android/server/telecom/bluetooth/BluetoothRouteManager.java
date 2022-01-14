@@ -754,7 +754,8 @@ public class BluetoothRouteManager extends StateMachine {
                 hfpAudioOnDevice = device;
                 break;
             }
-            if (bluetoothHeadset.getAudioState(hfpAudioOnDevice)
+
+            if (hfpAudioOnDevice != null && bluetoothHeadset.getAudioState(hfpAudioOnDevice)
                     == BluetoothHeadset.STATE_AUDIO_DISCONNECTED) {
                 hfpAudioOnDevice = null;
             } else {
