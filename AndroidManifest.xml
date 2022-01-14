@@ -31,6 +31,7 @@
     <uses-permission android:name="android.permission.BIND_INCALL_SERVICE"/>
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED"/>
     <uses-permission android:name="android.permission.BROADCAST_CALLLOG_INFO"/>
     <uses-permission android:name="android.permission.BROADCAST_PHONE_ACCOUNT_REGISTRATION"/>
     <uses-permission android:name="android.permission.CALL_PRIVILEGED"/>
