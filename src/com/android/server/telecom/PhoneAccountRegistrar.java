@@ -126,6 +126,7 @@ public class PhoneAccountRegistrar {
     private static final String FILE_NAME = "phone-account-registrar-state.xml";
     @VisibleForTesting
     public static final int EXPECTED_STATE_VERSION = 9;
+    public static final int MAX_PHONE_ACCOUNT_REGISTRATIONS = 10;
 
     /** Keep in sync with the same in SipSettings.java */
     private static final String SIP_SHARED_PREFERENCES = "SIP_PREFERENCES";
@@ -636,8 +637,13 @@ public class PhoneAccountRegistrar {
         return getPhoneAccountHandles(0, null, packageName, false, userHandle);
     }
 
-    // TODO: Should we implement an artificial limit for # of accounts associated with a single
-    // ComponentName?
+    /**
+     * Performs checks before calling addOrReplacePhoneAccount(PhoneAccount)
+     *
+     * @param account The {@code PhoneAccount} to add or replace.
+     * @throws SecurityException if package does not have BIND_TELECOM_CONNECTION_SERVICE permission
+     * @throws IllegalArgumentException if MAX_PHONE_ACCOUNT_REGISTRATIONS are reached
+     */
     public void registerPhoneAccount(PhoneAccount account) {
         // Enforce the requirement that a connection service for a phone account has the correct
         // permission.
@@ -647,6 +653,19 @@ public class PhoneAccountRegistrar {
                     account.getAccountHandle());
             throw new SecurityException("PhoneAccount connection service requires "
                     + "BIND_TELECOM_CONNECTION_SERVICE permission.");
+        }
+        //Enforce an upper bound on the number of PhoneAccount's a package can register.
+        // Most apps should only require 1-2.
+        if (getPhoneAccountsForPackage(
+                account.getAccountHandle().getComponentName().getPackageName(),
+                account.getAccountHandle().getUserHandle()).size()
+                >= MAX_PHONE_ACCOUNT_REGISTRATIONS) {
+            Log.w(this, "Phone account %s reached max registration limit for package",
+                    account.getAccountHandle());
+            throw new IllegalArgumentException(
+                    "Error, cannot register phone account " + account.getAccountHandle()
+                            + " because the limit, " + MAX_PHONE_ACCOUNT_REGISTRATIONS
+                            + ", has been reached");
         }
 
         addOrReplacePhoneAccount(account);
