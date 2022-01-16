@@ -114,10 +114,8 @@
     <string name="phone_settings_payphone_summary_txt" msgid="3936631076065563665">"Blokeatu telefono publikoen deiak"</string>
     <string name="phone_settings_unknown_txt" msgid="3577926178354772728">"Ezezagunak"</string>
     <string name="phone_settings_unknown_summary_txt" msgid="5446657192535779645">"Blokeatu identifikatu gabeko deitzaileen deiak"</string>
-    <!-- no translation found for phone_settings_unavailable_txt (825918186053980858) -->
-    <skip />
-    <!-- no translation found for phone_settings_unavailable_summary_txt (8221686031038282633) -->
-    <skip />
+    <string name="phone_settings_unavailable_txt" msgid="825918186053980858">"Zenbakia agerian ez dutenak"</string>
+    <string name="phone_settings_unavailable_summary_txt" msgid="8221686031038282633">"Blokeatu zenbakia agerian ez duten deiak"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="2895809176537908791">"Deiak blokeatzeko aukera"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="1713632946174016619">"Desgaitu da deiak blokeatzeko aukera"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="6629412508584507377">"Larrialdi-deia egin da"</string>
