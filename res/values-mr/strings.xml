@@ -114,10 +114,8 @@
     <string name="phone_settings_payphone_summary_txt" msgid="3936631076065563665">"पे फोनवरून इनकमिंग कॉल ब्‍लॉक करा"</string>
     <string name="phone_settings_unknown_txt" msgid="3577926178354772728">"अज्ञात"</string>
     <string name="phone_settings_unknown_summary_txt" msgid="5446657192535779645">"अनोळखी कॉलरकडून इनकमिंग कॉल ब्‍लॉक करा"</string>
-    <!-- no translation found for phone_settings_unavailable_txt (825918186053980858) -->
-    <skip />
-    <!-- no translation found for phone_settings_unavailable_summary_txt (8221686031038282633) -->
-    <skip />
+    <string name="phone_settings_unavailable_txt" msgid="825918186053980858">"उपलब्ध नाही"</string>
+    <string name="phone_settings_unavailable_summary_txt" msgid="8221686031038282633">"नंबर उपलब्ध नसल्यास, कॉल ब्लॉक करा"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="2895809176537908791">"कॉल ब्‍लॉक करणे"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="1713632946174016619">"कॉल ब्‍लॉक करणे बंद केले"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="6629412508584507377">"आणीबाणी कॉल केला"</string>
