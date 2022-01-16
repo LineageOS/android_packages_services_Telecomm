@@ -68,14 +68,15 @@ import android.text.TextUtils;
 
 import android.telecom.CallerInfo;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 
 import java.lang.Override;
 import java.lang.String;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Creates a notification for calls that the user missed (neither answered nor rejected).
@@ -141,7 +142,7 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
     // Used to track the number of missed calls.
     private final Map<UserHandle, Integer> mMissedCallCounts;
 
-    private List<UserHandle> mUsersToLoadAfterBootComplete = new ArrayList<>();
+    private Set<UserHandle> mUsersToLoadAfterBootComplete = new ArraySet<>();
 
     public MissedCallNotifierImpl(Context context, PhoneAccountRegistrar phoneAccountRegistrar,
             DefaultDialerCache defaultDialerCache,
