@@ -76,6 +76,7 @@ import java.lang.String;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -1185,6 +1186,53 @@ public class PhoneAccountRegistrar {
             accounts.add(m);
         }
         return accounts;
+    }
+
+    /**
+     * Clean up the orphan {@code PhoneAccount}. An orphan {@code PhoneAccount} is a phone
+     * account that does not have a {@code UserHandle} or belongs to a deleted package.
+     *
+     * @return the number of orphan {@code PhoneAccount} deleted.
+     */
+    public int cleanupOrphanedPhoneAccounts() {
+        ArrayList<PhoneAccount> badAccountsList = new ArrayList<>();
+        HashMap<String, Boolean> packageLookup = new HashMap<>();
+        HashMap<PhoneAccount, Boolean> userHandleLookup = new HashMap<>();
+
+        // iterate over all accounts in registrar
+        for (PhoneAccount pa : mState.accounts) {
+            String packageName = pa.getAccountHandle().getComponentName().getPackageName();
+
+            // check if the package for the PhoneAccount is uninstalled
+            if (packageLookup.computeIfAbsent(packageName,
+                    pn -> isPackageUninstalled(pn))) {
+                badAccountsList.add(pa);
+            }
+            // check if PhoneAccount does not have a valid UserHandle (user was deleted)
+            else if (userHandleLookup.computeIfAbsent(pa,
+                    a -> isUserHandleDeletedForPhoneAccount(a))) {
+                badAccountsList.add(pa);
+            }
+        }
+
+        mState.accounts.removeAll(badAccountsList);
+
+        return badAccountsList.size();
+    }
+
+    public Boolean isPackageUninstalled(String packageName) {
+        try {
+            mContext.getPackageManager().getPackageInfo(packageName, 0);
+            return false;
+        } catch (PackageManager.NameNotFoundException e) {
+            return true;
+        }
+    }
+
+    private Boolean isUserHandleDeletedForPhoneAccount(PhoneAccount phoneAccount) {
+        UserHandle userHandle = phoneAccount.getAccountHandle().getUserHandle();
+        return (userHandle == null) ||
+                (mUserManager.getSerialNumberForUser(userHandle) == -1L);
     }
 
     //
