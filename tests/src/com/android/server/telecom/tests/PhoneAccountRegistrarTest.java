@@ -22,10 +22,16 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.annotation.Nullable;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -36,6 +42,7 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
+import android.os.PersistableBundle;
 import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -43,6 +50,7 @@ import android.telecom.Log;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
+import android.telephony.CarrierConfigManager;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Xml;
@@ -1066,6 +1074,156 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         assertEquals(1, deletedAccounts);
     }
 
+    @Test
+    public void testGetSimPhoneAccountsFromSimCallManager() throws Exception {
+        // Register the SIM PhoneAccounts
+        mComponentContextFixture.addConnectionService(
+                makeQuickConnectionServiceComponentName(), Mockito.mock(IConnectionService.class));
+        PhoneAccount sim1Account = makeQuickSimAccount(1);
+        PhoneAccountHandle sim1Handle = sim1Account.getAccountHandle();
+        registerAndEnableAccount(sim1Account);
+        PhoneAccount sim2Account = makeQuickSimAccount(2);
+        PhoneAccountHandle sim2Handle = sim2Account.getAccountHandle();
+        registerAndEnableAccount(sim2Account);
+
+        assertEquals(
+            List.of(sim1Handle, sim2Handle), mRegistrar.getSimPhoneAccountsOfCurrentUser());
+
+        // Set up the SIM call manager app + carrier configs
+        ComponentName simCallManagerComponent =
+                new ComponentName("com.carrier.app", "CarrierConnectionService");
+        PhoneAccountHandle simCallManagerHandle =
+                makeQuickAccountHandle(simCallManagerComponent, "sim-call-manager");
+        setSimCallManagerCarrierConfig(
+                1, new ComponentName("com.other.carrier", "OtherConnectionService"));
+        setSimCallManagerCarrierConfig(2, simCallManagerComponent);
+
+        // Since SIM 1 names another app, so we only get the handle for SIM 2
+        assertEquals(
+                List.of(sim2Handle),
+                mRegistrar.getSimPhoneAccountsFromSimCallManager(simCallManagerHandle));
+        // We do exact component matching, not just package name matching
+        assertEquals(
+                List.of(),
+                mRegistrar.getSimPhoneAccountsFromSimCallManager(
+                        makeQuickAccountHandle(
+                                new ComponentName("com.carrier.app", "SomeOtherUnrelatedService"),
+                                "same-pkg-but-diff-svc")));
+
+        // Results are identical after we register the PhoneAccount
+        mComponentContextFixture.addConnectionService(
+                simCallManagerComponent, Mockito.mock(IConnectionService.class));
+        PhoneAccount simCallManagerAccount =
+                new PhoneAccount.Builder(simCallManagerHandle, "SIM call manager")
+                        .setCapabilities(PhoneAccount.CAPABILITY_CONNECTION_MANAGER)
+                        .build();
+        mRegistrar.registerPhoneAccount(simCallManagerAccount);
+        assertEquals(
+                List.of(sim2Handle),
+                mRegistrar.getSimPhoneAccountsFromSimCallManager(simCallManagerHandle));
+    }
+
+    @Test
+    public void testMaybeNotifyTelephonyForVoiceServiceState() throws Exception {
+        // Register the SIM PhoneAccounts
+        mComponentContextFixture.addConnectionService(
+                makeQuickConnectionServiceComponentName(), Mockito.mock(IConnectionService.class));
+        PhoneAccount sim1Account = makeQuickSimAccount(1);
+        registerAndEnableAccount(sim1Account);
+        PhoneAccount sim2Account = makeQuickSimAccount(2);
+        registerAndEnableAccount(sim2Account);
+        // Telephony is notified by default when new SIM accounts are registered
+        verify(mComponentContextFixture.getTelephonyManager(), times(2))
+                .setVoiceServiceStateOverride(false);
+        clearInvocations(mComponentContextFixture.getTelephonyManager());
+
+        // Set up the SIM call manager app + carrier configs
+        ComponentName simCallManagerComponent =
+                new ComponentName("com.carrier.app", "CarrierConnectionService");
+        PhoneAccountHandle simCallManagerHandle =
+                makeQuickAccountHandle(simCallManagerComponent, "sim-call-manager");
+        mComponentContextFixture.addConnectionService(
+                simCallManagerComponent, Mockito.mock(IConnectionService.class));
+        setSimCallManagerCarrierConfig(1, simCallManagerComponent);
+        setSimCallManagerCarrierConfig(2, simCallManagerComponent);
+
+        // When the SIM call manager is registered without the SUPPORTS capability, telephony is
+        // still notified for consistency (e.g. runtime capability removal + re-registration).
+        PhoneAccount simCallManagerAccount =
+                new PhoneAccount.Builder(simCallManagerHandle, "SIM call manager")
+                        .setCapabilities(PhoneAccount.CAPABILITY_CONNECTION_MANAGER)
+                        .build();
+        mRegistrar.registerPhoneAccount(simCallManagerAccount);
+        verify(mComponentContextFixture.getTelephonyManager(), times(2))
+                .setVoiceServiceStateOverride(false);
+        clearInvocations(mComponentContextFixture.getTelephonyManager());
+
+        // Adding the SUPPORTS capability causes the SIMs to get notified with false again for
+        // consistency purposes
+        simCallManagerAccount =
+                copyPhoneAccountAndAddCapabilities(
+                        simCallManagerAccount,
+                        PhoneAccount.CAPABILITY_SUPPORTS_VOICE_CALLING_INDICATIONS);
+        mRegistrar.registerPhoneAccount(simCallManagerAccount);
+        verify(mComponentContextFixture.getTelephonyManager(), times(2))
+                .setVoiceServiceStateOverride(false);
+        clearInvocations(mComponentContextFixture.getTelephonyManager());
+
+        // Adding the AVAILABLE capability updates the SIMs again, this time with hasService = true
+        simCallManagerAccount =
+                copyPhoneAccountAndAddCapabilities(
+                        simCallManagerAccount, PhoneAccount.CAPABILITY_VOICE_CALLING_AVAILABLE);
+        mRegistrar.registerPhoneAccount(simCallManagerAccount);
+        verify(mComponentContextFixture.getTelephonyManager(), times(2))
+                .setVoiceServiceStateOverride(true);
+        clearInvocations(mComponentContextFixture.getTelephonyManager());
+
+        // Removing a SIM account does nothing, regardless of SIM call manager capabilities
+        mRegistrar.unregisterPhoneAccount(sim1Account.getAccountHandle());
+        verify(mComponentContextFixture.getTelephonyManager(), never())
+                .setVoiceServiceStateOverride(anyBoolean());
+        clearInvocations(mComponentContextFixture.getTelephonyManager());
+
+        // Adding a SIM account while a SIM call manager with both capabilities is registered causes
+        // a call to telephony with hasService = true
+        mRegistrar.registerPhoneAccount(sim1Account);
+        verify(mComponentContextFixture.getTelephonyManager(), times(1))
+                .setVoiceServiceStateOverride(true);
+        clearInvocations(mComponentContextFixture.getTelephonyManager());
+
+        // Removing the SIM call manager while it has both capabilities causes a call to telephony
+        // with hasService = false
+        mRegistrar.unregisterPhoneAccount(simCallManagerHandle);
+        verify(mComponentContextFixture.getTelephonyManager(), times(2))
+                .setVoiceServiceStateOverride(false);
+        clearInvocations(mComponentContextFixture.getTelephonyManager());
+
+        // Removing the SIM call manager while it has the SUPPORTS capability but not AVAILABLE
+        // still causes a call to telephony with hasService = false for consistency
+        simCallManagerAccount =
+                copyPhoneAccountAndRemoveCapabilities(
+                        simCallManagerAccount, PhoneAccount.CAPABILITY_VOICE_CALLING_AVAILABLE);
+        mRegistrar.registerPhoneAccount(simCallManagerAccount);
+        clearInvocations(mComponentContextFixture.getTelephonyManager()); // from re-registration
+        mRegistrar.unregisterPhoneAccount(simCallManagerHandle);
+        verify(mComponentContextFixture.getTelephonyManager(), times(2))
+                .setVoiceServiceStateOverride(false);
+        clearInvocations(mComponentContextFixture.getTelephonyManager());
+
+        // Finally, removing the SIM call manager while it has neither capability still causes a
+        // call to telephony with hasService = false for consistency
+        simCallManagerAccount =
+                copyPhoneAccountAndRemoveCapabilities(
+                        simCallManagerAccount,
+                        PhoneAccount.CAPABILITY_SUPPORTS_VOICE_CALLING_INDICATIONS);
+        mRegistrar.registerPhoneAccount(simCallManagerAccount);
+        clearInvocations(mComponentContextFixture.getTelephonyManager()); // from re-registration
+        mRegistrar.unregisterPhoneAccount(simCallManagerHandle);
+        verify(mComponentContextFixture.getTelephonyManager(), times(2))
+                .setVoiceServiceStateOverride(false);
+        clearInvocations(mComponentContextFixture.getTelephonyManager());
+    }
+
     private static ComponentName makeQuickConnectionServiceComponentName() {
         return new ComponentName(
                 "com.android.server.telecom.tests",
@@ -1086,6 +1244,23 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
                 "label" + idx);
     }
 
+    private static PhoneAccount copyPhoneAccountAndOverrideCapabilities(
+            PhoneAccount base, int newCapabilities) {
+        return base.toBuilder().setCapabilities(newCapabilities).build();
+    }
+
+    private static PhoneAccount copyPhoneAccountAndAddCapabilities(
+            PhoneAccount base, int capabilitiesToAdd) {
+        return copyPhoneAccountAndOverrideCapabilities(
+                base, base.getCapabilities() | capabilitiesToAdd);
+    }
+
+    private static PhoneAccount copyPhoneAccountAndRemoveCapabilities(
+            PhoneAccount base, int capabilitiesToRemove) {
+        return copyPhoneAccountAndOverrideCapabilities(
+                base, base.getCapabilities() & ~capabilitiesToRemove);
+    }
+
     private PhoneAccount makeQuickAccount(String id, int idx) {
         return makeQuickAccountBuilder(id, idx)
                 .setAddress(Uri.parse("http://foo.com/" + idx))
@@ -1096,6 +1271,44 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
                 .setShortDescription("desc" + idx)
                 .setIsEnabled(true)
                 .build();
+    }
+
+    /**
+     * Similar to {@link #makeQuickAccount}, but also hooks up {@code TelephonyManager} so that it
+     * returns {@code simId} as the account's subscriptionId.
+     */
+    private PhoneAccount makeQuickSimAccount(int simId) {
+        PhoneAccount simAccount =
+                makeQuickAccountBuilder("sim" + simId, simId)
+                        .setCapabilities(
+                                PhoneAccount.CAPABILITY_CALL_PROVIDER
+                                        | PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
+                        .setIsEnabled(true)
+                        .build();
+        when(mComponentContextFixture
+                        .getTelephonyManager()
+                        .getSubscriptionId(simAccount.getAccountHandle()))
+                .thenReturn(simId);
+        // mComponentContextFixture already sets up the createForSubscriptionId self-reference
+        when(mComponentContextFixture
+                        .getTelephonyManager()
+                        .createForPhoneAccountHandle(simAccount.getAccountHandle()))
+                .thenReturn(mComponentContextFixture.getTelephonyManager());
+        return simAccount;
+    }
+
+    /**
+     * Hooks up carrier config to point to {@code simCallManagerComponent} for the given {@code
+     * subscriptionId}.
+     */
+    private void setSimCallManagerCarrierConfig(
+            int subscriptionId, @Nullable ComponentName simCallManagerComponent) {
+        PersistableBundle config = new PersistableBundle();
+        config.putString(
+                CarrierConfigManager.KEY_DEFAULT_SIM_CALL_MANAGER_STRING,
+                simCallManagerComponent != null ? simCallManagerComponent.flattenToString() : null);
+        when(mComponentContextFixture.getCarrierConfigManager().getConfigForSubId(subscriptionId))
+                .thenReturn(config);
     }
 
     private static void roundTripPhoneAccount(PhoneAccount original) throws Exception {
