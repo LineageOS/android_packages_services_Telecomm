@@ -739,6 +739,10 @@ public class ComponentContextFixture implements TestFixture<Context> {
         return mTelephonyManager;
     }
 
+    public CarrierConfigManager getCarrierConfigManager() {
+        return mCarrierConfigManager;
+    }
+
     public NotificationManager getNotificationManager() {
         return mNotificationManager;
     }

@@ -454,6 +454,31 @@ public class PhoneAccountRegistrar {
     }
 
     /**
+     * Loops through all SIM accounts ({@link #getSimPhoneAccounts}) and returns those with SIM call
+     * manager components specified in carrier config that match {@code simCallManagerHandle}.
+     *
+     * <p>Note that this will return handles even when {@code simCallManagerHandle} has not yet been
+     * registered or was recently unregistered.
+     *
+     * <p>If the given {@code simCallManagerHandle} is not the SIM call manager for any active SIMs,
+     * returns an empty list.
+     */
+    public @NonNull List<PhoneAccountHandle> getSimPhoneAccountsFromSimCallManager(
+            @NonNull PhoneAccountHandle simCallManagerHandle) {
+        List<PhoneAccountHandle> matchingSimHandles = new ArrayList<>();
+        for (PhoneAccountHandle simHandle :
+                getSimPhoneAccounts(simCallManagerHandle.getUserHandle())) {
+            ComponentName simCallManager =
+                    getSystemSimCallManagerComponent(getSubscriptionIdForPhoneAccount(simHandle));
+            if (simCallManager == null) continue;
+            if (simCallManager.equals(simCallManagerHandle.getComponentName())) {
+                matchingSimHandles.add(simHandle);
+            }
+        }
+        return matchingSimHandles;
+    }
+
+    /**
      * Sets a filter for which {@link PhoneAccount}s will be returned from
      * {@link #filterRestrictedPhoneAccounts(List)}. If non-null, only {@link PhoneAccount}s
      * with the package name packageNameFilter will be returned. If null, no filter is set.
@@ -866,6 +891,9 @@ public class PhoneAccountRegistrar {
         } else {
             fireAccountChanged(account);
         }
+        // If this is the SIM call manager, tell telephony when the voice ServiceState override
+        // needs to be updated.
+        maybeNotifyTelephonyForVoiceServiceState(account, /* registered= */ true);
     }
 
     public void unregisterPhoneAccount(PhoneAccountHandle accountHandle) {
@@ -875,6 +903,9 @@ public class PhoneAccountRegistrar {
                 write();
                 fireAccountsChanged();
                 fireAccountUnRegistered(accountHandle);
+                // If this is the SIM call manager, tell telephony when the voice ServiceState
+                // override needs to be updated.
+                maybeNotifyTelephonyForVoiceServiceState(account, /* registered= */ false);
             }
         }
     }
@@ -1014,6 +1045,72 @@ public class PhoneAccountRegistrar {
             Log.v(this, "maybeReplaceOldAccount: Unregistering old PhoneAccount: " +
                     replacementAccount.getAccountHandle());
             unregisterPhoneAccount(replacementAccount.getAccountHandle());
+        }
+    }
+
+    private void maybeNotifyTelephonyForVoiceServiceState(
+            @NonNull PhoneAccount account, boolean registered) {
+        // TODO(b/215419665) what about SIM_SUBSCRIPTION accounts? They could theoretically also use
+        // these capabilities, but don't today. If they do start using them, then there will need to
+        // be a kind of "or" logic between SIM_SUBSCRIPTION and CONNECTION_MANAGER accounts to get
+        // the correct value of hasService for a given SIM.
+        boolean hasService = false;
+        List<PhoneAccountHandle> simHandlesToNotify;
+        if (account.hasCapabilities(PhoneAccount.CAPABILITY_CONNECTION_MANAGER)) {
+            // When we unregister the SIM call manager account, we always set hasService back to
+            // false since it is no longer providing OTT calling capability once unregistered.
+            if (registered) {
+                // Note: we do *not* early return when the SUPPORTS capability is not present
+                // because it's possible the SIM call manager could remove either capability at
+                // runtime and re-register. However, it is an error to use the AVAILABLE capability
+                // without also setting SUPPORTS.
+                hasService =
+                        account.hasCapabilities(
+                                PhoneAccount.CAPABILITY_SUPPORTS_VOICE_CALLING_INDICATIONS
+                                        | PhoneAccount.CAPABILITY_VOICE_CALLING_AVAILABLE);
+            }
+            // Notify for all SIMs that named this component as their SIM call manager in carrier
+            // config, since there may be more than one impacted SIM here.
+            simHandlesToNotify = getSimPhoneAccountsFromSimCallManager(account.getAccountHandle());
+        } else if (account.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
+            // When new SIMs get registered, we notify them of their current voice status override.
+            // If there is no SIM call manager for this SIM, we treat that as hasService = false and
+            // still notify to ensure consistency.
+            if (!registered) {
+                // We don't do anything when SIMs are unregistered because we won't have an active
+                // subId to map back to phoneId and tell telephony about; that case is handled by
+                // telephony internally.
+                return;
+            }
+            PhoneAccountHandle simCallManagerHandle =
+                    getSimCallManagerFromHandle(
+                            account.getAccountHandle(), account.getAccountHandle().getUserHandle());
+            if (simCallManagerHandle != null) {
+                PhoneAccount simCallManager = getPhoneAccountUnchecked(simCallManagerHandle);
+                hasService =
+                        simCallManager != null
+                                && simCallManager.hasCapabilities(
+                                        PhoneAccount.CAPABILITY_SUPPORTS_VOICE_CALLING_INDICATIONS
+                                                | PhoneAccount.CAPABILITY_VOICE_CALLING_AVAILABLE);
+            }
+            simHandlesToNotify = Collections.singletonList(account.getAccountHandle());
+        } else {
+            // Not a relevant account - we only care about CONNECTION_MANAGER and SIM_SUBSCRIPTION.
+            return;
+        }
+        if (simHandlesToNotify.isEmpty()) return;
+        Log.i(
+                this,
+                "Notifying telephony of voice service override change for %d SIMs, hasService = %b",
+                simHandlesToNotify.size(),
+                hasService);
+        TelephonyManager tm = mContext.getSystemService(TelephonyManager.class);
+        for (PhoneAccountHandle simHandle : simHandlesToNotify) {
+            // This may be null if there are no active SIMs but the device is still camped for
+            // emergency calls and registered a SIM_SUBSCRIPTION for that purpose.
+            TelephonyManager simTm = tm.createForPhoneAccountHandle(simHandle);
+            if (simTm == null) continue;
+            simTm.setVoiceServiceStateOverride(hasService);
         }
     }
 

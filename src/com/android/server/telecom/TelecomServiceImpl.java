@@ -532,6 +532,15 @@ public class TelecomServiceImpl {
                         if (account.hasCapabilities(PhoneAccount.CAPABILITY_MULTI_USER)) {
                             enforceRegisterMultiUser();
                         }
+                        // These capabilities are for SIM-based accounts only, so only the platform
+                        // and carrier-designated SIM call manager can register accounts with these
+                        // capabilities.
+                        if (account.hasCapabilities(
+                                        PhoneAccount.CAPABILITY_SUPPORTS_VOICE_CALLING_INDICATIONS)
+                                || account.hasCapabilities(
+                                        PhoneAccount.CAPABILITY_VOICE_CALLING_AVAILABLE)) {
+                            enforceRegisterVoiceCallingIndicationCapabilities(account);
+                        }
                         Bundle extras = account.getExtras();
                         if (extras != null
                                 && extras.getBoolean(PhoneAccount.EXTRA_SKIP_CALL_FILTERING)) {
@@ -2343,6 +2352,24 @@ public class TelecomServiceImpl {
         }
     }
 
+    private void enforceRegisterVoiceCallingIndicationCapabilities(PhoneAccount account) {
+        // Caller must be able to register a SIM PhoneAccount or be the SIM call manager (as named
+        // in carrier config) to declare the two voice indication capabilities.
+        boolean prerequisiteCapabilitiesOk =
+                account.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
+                        || account.hasCapabilities(PhoneAccount.CAPABILITY_CONNECTION_MANAGER);
+        boolean permissionsOk =
+                isCallerSimCallManagerForAnySim(account.getAccountHandle())
+                        || mContext.checkCallingOrSelfPermission(REGISTER_SIM_SUBSCRIPTION)
+                                == PackageManager.PERMISSION_GRANTED;
+        if (!prerequisiteCapabilitiesOk || !permissionsOk) {
+            throw new SecurityException(
+                    "Only SIM subscriptions and connection managers are allowed to declare "
+                            + "CAPABILITY_SUPPORTS_VOICE_CALLING_INDICATIONS and "
+                            + "CAPABILITY_VOICE_CALLING_AVAILABLE");
+        }
+    }
+
     private void enforceRegisterSkipCallFiltering() {
         if (!isCallerSystemApp()) {
             throw new SecurityException(
@@ -2551,6 +2578,29 @@ public class TelecomServiceImpl {
             }
         }
         return false;
+    }
+
+    /**
+     * Similar to {@link #isCallerSimCallManager}, but works for all SIMs and does not require
+     * {@code accountHandle} to be registered yet.
+     */
+    private boolean isCallerSimCallManagerForAnySim(PhoneAccountHandle accountHandle) {
+        if (isCallerSimCallManager(accountHandle)) {
+            // The caller has already registered a CONNECTION_MANAGER PhoneAccount, so let them pass
+            // (this allows the SIM call manager through in case of SIM switches, where carrier
+            // config may be in a transient state)
+            return true;
+        }
+        // If the caller isn't already registered, then we have to look at the active PSTN
+        // PhoneAccounts and check their carrier configs to see if any point to this one's component
+        final long token = Binder.clearCallingIdentity();
+        try {
+            return !mPhoneAccountRegistrar
+                    .getSimPhoneAccountsFromSimCallManager(accountHandle)
+                    .isEmpty();
+        } finally {
+            Binder.restoreCallingIdentity(token);
+        }
     }
 
     private boolean isPrivilegedDialerCalling(String callingPackage) {
