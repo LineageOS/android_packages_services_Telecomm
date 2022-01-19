@@ -23,6 +23,8 @@ import android.bluetooth.BluetoothHearingAid;
 import android.bluetooth.BluetoothLeAudio;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
+import android.media.AudioManager;
+import android.media.AudioDeviceInfo;
 import android.telecom.Log;
 import android.util.LocalLog;
 
@@ -142,8 +144,10 @@ public class BluetoothDeviceManager {
     private BluetoothHeadset mBluetoothHeadset;
     private BluetoothHearingAid mBluetoothHearingAid;
     private BluetoothLeAudio mBluetoothLeAudioService;
+    private boolean mLeAudioSetAsCommunicationDevice = false;
     private BluetoothDevice mBluetoothHearingAidActiveDeviceCache;
     private BluetoothAdapter mBluetoothAdapter;
+    private AudioManager mAudioManager;
 
     public BluetoothDeviceManager(Context context, BluetoothAdapter bluetoothAdapter) {
         if (bluetoothAdapter != null) {
@@ -154,6 +158,7 @@ public class BluetoothDeviceManager {
                     BluetoothProfile.HEARING_AID);
             bluetoothAdapter.getProfileProxy(context, mBluetoothProfileServiceListener,
                     BluetoothProfile.LE_AUDIO);
+            mAudioManager = context.getSystemService(AudioManager.class);
         }
     }
 
@@ -377,6 +382,7 @@ public class BluetoothDeviceManager {
                 }
             }
             disconnectSco();
+            clearLeAudioCommunicationDevice();
         }
     }
 
@@ -388,6 +394,67 @@ public class BluetoothDeviceManager {
         }
     }
 
+    public boolean isLeAudioCommunicationDevice() {
+        return mLeAudioSetAsCommunicationDevice;
+    }
+
+    public void clearLeAudioCommunicationDevice() {
+        if (!mLeAudioSetAsCommunicationDevice) {
+            return;
+        }
+        mLeAudioSetAsCommunicationDevice = false;
+
+        if (mAudioManager == null) {
+            Log.i(this, " mAudioManager is null");
+            return;
+        }
+        mAudioManager.clearCommunicationDevice();
+    }
+
+    public boolean setLeAudioCommunicationDevice() {
+        Log.i(this, "setLeAudioCommunicationDevice");
+
+        if (mLeAudioSetAsCommunicationDevice) {
+            Log.i(this, "setLeAudioCommunicationDevice already set");
+            return true;
+        }
+
+        if (mAudioManager == null) {
+            Log.w(this, " mAudioManager is null");
+            return false;
+        }
+
+        AudioDeviceInfo bleHeadset = null;
+        List<AudioDeviceInfo> devices = mAudioManager.getAvailableCommunicationDevices();
+        if (devices.size() == 0) {
+            Log.w(this, " No communication devices available.");
+            return false;
+        }
+
+        for (AudioDeviceInfo device : devices) {
+            Log.i(this, " Available device type:  " + device.getType());
+            if (device.getType() == AudioDeviceInfo.TYPE_BLE_HEADSET) {
+                bleHeadset = device;
+                break;
+            }
+        }
+
+        if (bleHeadset == null) {
+            Log.w(this, " No bleHeadset device available");
+            return false;
+        }
+
+        // Turn BLE_OUT_HEADSET ON.
+        boolean result = mAudioManager.setCommunicationDevice(bleHeadset);
+        if (!result) {
+            Log.w(this, " Could not set bleHeadset device");
+        } else {
+            Log.i(this, " bleHeadset device set");
+            mLeAudioSetAsCommunicationDevice = true;
+        }
+        return result;
+    }
+
     // Connect audio to the bluetooth device at address, checking to see whether it's
     // le audio, hearing aid or a HFP device, and using the proper BT API.
     public boolean connectAudio(String address) {
@@ -397,8 +464,11 @@ public class BluetoothDeviceManager {
                 return false;
             }
             BluetoothDevice device = mLeAudioDevicesByAddress.get(address);
-            return mBluetoothAdapter.setActiveDevice(
-                    device, BluetoothAdapter.ACTIVE_DEVICE_ALL);
+            if (mBluetoothAdapter.setActiveDevice(
+                    device, BluetoothAdapter.ACTIVE_DEVICE_ALL)) {
+                return setLeAudioCommunicationDevice();
+            }
+            return false;
         } else if (mHearingAidDevicesByAddress.containsKey(address)) {
             if (mBluetoothHearingAid == null) {
                 Log.w(this, "Attempting to turn on audio when the hearing aid service is null");
