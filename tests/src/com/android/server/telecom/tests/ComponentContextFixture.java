@@ -53,6 +53,7 @@ import android.content.res.Resources;
 import android.hardware.SensorPrivacyManager;
 import android.location.Country;
 import android.location.CountryDetector;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -488,6 +489,11 @@ public class ComponentContextFixture implements TestFixture<Context> {
         @Override
         public int getStreamVolume(int streamValueUnused) {
             return mAudioStreamValue;
+        }
+
+        @Override
+        public boolean setCommunicationDevice(AudioDeviceInfo device) {
+            return true;
         }
     }
 
