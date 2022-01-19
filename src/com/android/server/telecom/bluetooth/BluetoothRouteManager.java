@@ -606,6 +606,9 @@ public class BluetoothRouteManager extends StateMachine {
         boolean wasActiveDevicePresent = hasBtActiveDevice();
         if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_LE_AUDIO) {
             mLeAudioActiveDeviceCache = device;
+            if (device == null) {
+                mDeviceManager.clearLeAudioCommunicationDevice();
+            }
         } else if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_HEARING_AID) {
             mHearingAidActiveDeviceCache = device;
         } else if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_HEADSET) {
@@ -774,11 +777,13 @@ public class BluetoothRouteManager extends StateMachine {
         }
 
         if (bluetoothLeAudio != null) {
-            for (BluetoothDevice device : bluetoothLeAudio.getActiveDevices()) {
-                if (device != null) {
-                    leAudioActiveDevice = device;
-                    activeDevices++;
-                    break;
+            if (mDeviceManager.isLeAudioCommunicationDevice()) {
+                for (BluetoothDevice device : bluetoothLeAudio.getActiveDevices()) {
+                    if (device != null) {
+                        leAudioActiveDevice = device;
+                        activeDevices++;
+                        break;
+                    }
                 }
             }
         }
