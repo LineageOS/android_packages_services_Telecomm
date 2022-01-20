@@ -19,9 +19,11 @@ package com.android.server.telecom;
 import android.Manifest;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
@@ -132,6 +134,26 @@ public class PhoneAccountRegistrar {
                 PhoneAccount phoneAccount) {}
     }
 
+    /**
+     * Receiver for detecting when a managed profile has been removed so that PhoneAccountRegistrar
+     * can clean up orphan {@link PhoneAccount}s
+     */
+    private final BroadcastReceiver mManagedProfileReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.startSession("PARbR.oR");
+            try {
+                synchronized (mLock) {
+                    if (intent.getAction().equals(Intent.ACTION_MANAGED_PROFILE_REMOVED)) {
+                        cleanupOrphanedPhoneAccounts();
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+    };
+
     public static final String FILE_NAME = "phone-account-registrar-state.xml";
     @VisibleForTesting
     public static final int EXPECTED_STATE_VERSION = 9;
@@ -147,6 +169,7 @@ public class PhoneAccountRegistrar {
     private final SubscriptionManager mSubscriptionManager;
     private final DefaultDialerCache mDefaultDialerCache;
     private final AppLabelProxy mAppLabelProxy;
+    private final TelecomSystem.SyncRoot mLock;
     private State mState;
     private UserHandle mCurrentUserHandle;
     private String mTestPhoneAccountPackageNameFilter;
@@ -155,24 +178,30 @@ public class PhoneAccountRegistrar {
             new PhoneAccountRegistrarWriteLock() {};
 
     @VisibleForTesting
-    public PhoneAccountRegistrar(Context context, DefaultDialerCache defaultDialerCache,
-                                 AppLabelProxy appLabelProxy) {
-        this(context, FILE_NAME, defaultDialerCache, appLabelProxy);
+    public PhoneAccountRegistrar(Context context, TelecomSystem.SyncRoot lock,
+            DefaultDialerCache defaultDialerCache, AppLabelProxy appLabelProxy) {
+        this(context, lock, FILE_NAME, defaultDialerCache, appLabelProxy);
     }
 
     @VisibleForTesting
-    public PhoneAccountRegistrar(Context context, String fileName,
+    public PhoneAccountRegistrar(Context context, TelecomSystem.SyncRoot lock, String fileName,
             DefaultDialerCache defaultDialerCache, AppLabelProxy appLabelProxy) {
 
         mAtomicFile = new AtomicFile(new File(context.getFilesDir(), fileName));
 
         mState = new State();
         mContext = context;
+        mLock = lock;
         mUserManager = UserManager.get(context);
         mDefaultDialerCache = defaultDialerCache;
         mSubscriptionManager = SubscriptionManager.from(mContext);
         mAppLabelProxy = appLabelProxy;
         mCurrentUserHandle = Process.myUserHandle();
+
+        // register context based receiver to clean up orphan phone accounts
+        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_MANAGED_PROFILE_REMOVED);
+        mContext.registerReceiver(mManagedProfileReceiver, intentFilter);
+
         read();
     }
 

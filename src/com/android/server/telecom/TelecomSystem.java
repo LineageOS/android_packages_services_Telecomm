@@ -220,7 +220,7 @@ public class TelecomSystem {
         Log.startSession("TS.init");
         // Wrap this in a try block to ensure session cleanup occurs in the case of error.
         try {
-            mPhoneAccountRegistrar = new PhoneAccountRegistrar(mContext, defaultDialerCache,
+            mPhoneAccountRegistrar = new PhoneAccountRegistrar(mContext, mLock, defaultDialerCache,
                     packageName -> AppLabelProxy.Util.getAppLabel(
                             mContext.getPackageManager(), packageName));
 
