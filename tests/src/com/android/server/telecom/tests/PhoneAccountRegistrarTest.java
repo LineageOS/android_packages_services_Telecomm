@@ -28,6 +28,8 @@ import static org.mockito.Mockito.when;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.graphics.drawable.Icon;
@@ -82,6 +84,9 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
     private static final int MAX_VERSION = Integer.MAX_VALUE;
     private static final String FILE_NAME = "phone-account-registrar-test-1223.xml";
     private static final String TEST_LABEL = "right";
+    private final String PACKAGE_1 = "PACKAGE_1";
+    private final String PACKAGE_2 = "PACKAGE_2";
+    private final String COMPONENT_NAME = "com.android.server.telecom.tests.MockConnectionService";
     private PhoneAccountRegistrar mRegistrar;
     @Mock private TelecomManager mTelecomManager;
     @Mock private DefaultDialerCache mDefaultDialerCache;
@@ -1013,6 +1018,52 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         assertFalse(PhoneAccountHandle.areFromSamePackage(null, d));
         assertFalse(PhoneAccountHandle.areFromSamePackage(null, d));
         assertFalse(PhoneAccountHandle.areFromSamePackage(null, d));
+    }
+
+    /**
+     * Tests {@link PhoneAccountRegistrar#cleanupOrphanedPhoneAccounts } cleans up / deletes an
+     * orphan account.
+     */
+    @Test
+    public void testCleanUpOrphanAccounts() throws Exception {
+        // GIVEN
+        mComponentContextFixture.addConnectionService(makeQuickConnectionServiceComponentName(),
+                Mockito.mock(IConnectionService.class));
+
+        List<UserHandle> users = Arrays.asList(new UserHandle(0),
+                new UserHandle(1000));
+
+        PhoneAccount pa1 = new PhoneAccount.Builder(
+                new PhoneAccountHandle(new ComponentName(PACKAGE_1, COMPONENT_NAME), "1234",
+                        users.get(0)), "l1").build();
+        PhoneAccount pa2 = new PhoneAccount.Builder(
+                new PhoneAccountHandle(new ComponentName(PACKAGE_2, COMPONENT_NAME), "5678",
+                        users.get(1)), "l2").build();
+
+
+        registerAndEnableAccount(pa1);
+        registerAndEnableAccount(pa2);
+
+        assertEquals(1, mRegistrar.getAllPhoneAccounts(users.get(0)).size());
+        assertEquals(1, mRegistrar.getAllPhoneAccounts(users.get(1)).size());
+
+
+        // WHEN
+        when(mContext.getPackageManager().getPackageInfo(PACKAGE_1, 0))
+                .thenReturn(new PackageInfo());
+
+        when(mContext.getPackageManager().getPackageInfo(PACKAGE_2, 0))
+                .thenThrow(new PackageManager.NameNotFoundException());
+
+        when(UserManager.get(mContext).getSerialNumberForUser(users.get(0)))
+                .thenReturn(0L);
+
+        when(UserManager.get(mContext).getSerialNumberForUser(users.get(1)))
+                .thenReturn(-1L);
+
+        // THEN
+        int deletedAccounts = mRegistrar.cleanupOrphanedPhoneAccounts();
+        assertEquals(1, deletedAccounts);
     }
 
     private static ComponentName makeQuickConnectionServiceComponentName() {
