@@ -164,6 +164,8 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
                         BluetoothDeviceManager.DEVICE_TYPE_LE_AUDIO));
         receiverUnderTest.onReceive(mContext,
                 buildGroupNodeStatusChangedIntent(1, device5, BluetoothLeAudio.GROUP_NODE_ADDED));
+        when(mBluetoothLeAudio.getConnectedGroupLeadDevice(1)).thenReturn(device5);
+
         receiverUnderTest.onReceive(mContext,
                 buildConnectionActionIntent(BluetoothHeadset.STATE_DISCONNECTED, device1,
                         BluetoothDeviceManager.DEVICE_TYPE_HEADSET));
@@ -172,6 +174,7 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
                         BluetoothDeviceManager.DEVICE_TYPE_LE_AUDIO));
         receiverUnderTest.onReceive(mContext,
                 buildGroupNodeStatusChangedIntent(2, device6, BluetoothLeAudio.GROUP_NODE_ADDED));
+        when(mBluetoothLeAudio.getConnectedGroupLeadDevice(2)).thenReturn(device6);
         receiverUnderTest.onReceive(mContext,
                 buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device3,
                         BluetoothDeviceManager.DEVICE_TYPE_HEADSET));
@@ -220,7 +223,8 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
                         BluetoothDeviceManager.DEVICE_TYPE_LE_AUDIO));
         receiverUnderTest.onReceive(mContext,
                 buildGroupNodeStatusChangedIntent(1, device6, BluetoothLeAudio.GROUP_NODE_ADDED));
-        assertEquals(3, mBluetoothDeviceManager.getNumConnectedDevices());
+        when(mBluetoothLeAudio.getConnectedGroupLeadDevice(1)).thenReturn(device5);
+        assertEquals(2, mBluetoothDeviceManager.getNumConnectedDevices());
         assertEquals(2, mBluetoothDeviceManager.getUniqueConnectedDevices().size());
     }
 
