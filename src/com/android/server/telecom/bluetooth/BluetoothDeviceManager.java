@@ -38,6 +38,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class BluetoothDeviceManager {
@@ -169,8 +170,15 @@ public class BluetoothDeviceManager {
 
     private List<BluetoothDevice> getLeAudioConnectedDevices() {
         synchronized (mLock) {
-            // Filter out disconnected devices and/or those that have no group assigned
-            ArrayList<BluetoothDevice> devices = new ArrayList<>(mGroupsByDevice.keySet());
+            // Let's get devices which are a group leaders
+            ArrayList<BluetoothDevice> devices = new ArrayList<>();
+
+            for (LinkedHashMap.Entry<BluetoothDevice, Integer> entry : mGroupsByDevice.entrySet()) {
+               if (Objects.equals(entry.getKey(),
+                        mBluetoothLeAudioService.getConnectedGroupLeadDevice(entry.getValue()))) {
+                   devices.add(entry.getKey());
+               }
+            }
             devices.removeIf(device -> !mLeAudioDevicesByAddress.containsValue(device));
             return devices;
         }
@@ -224,28 +232,8 @@ public class BluetoothDeviceManager {
             }
         }
 
-        Set<Integer> seenGroupIds = new LinkedHashSet<>();
-        if (mBluetoothAdapter != null) {
-            for (BluetoothDevice device : mBluetoothAdapter.getActiveDevices(
-                        BluetoothProfile.LE_AUDIO)) {
-                if (device != null) {
-                    result.add(device);
-                    seenGroupIds.add(mGroupsByDevice.getOrDefault(device, -1));
-                    break;
-                }
-            }
-        }
-        synchronized (mLock) {
-            for (BluetoothDevice d : getLeAudioConnectedDevices()) {
-                int groupId = mGroupsByDevice.getOrDefault(d,
-                        BluetoothLeAudio.GROUP_ID_INVALID);
-                if (groupId == BluetoothLeAudio.GROUP_ID_INVALID
-                        || seenGroupIds.contains(groupId)) {
-                    continue;
-                }
-                result.add(d);
-                seenGroupIds.add(groupId);
-            }
+        if (mBluetoothLeAudioService != null) {
+            result.addAll(getLeAudioConnectedDevices());
         }
 
         return Collections.unmodifiableCollection(result);
