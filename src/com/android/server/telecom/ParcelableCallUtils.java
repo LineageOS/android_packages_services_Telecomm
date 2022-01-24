@@ -24,6 +24,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.telecom.Connection;
 import android.telecom.DisconnectCause;
+import android.telecom.Log;
 import android.telecom.ParcelableCall;
 import android.telecom.ParcelableRttCall;
 import android.telecom.TelecomManager;
@@ -255,6 +256,8 @@ public class ParcelableCallUtils {
                 .setCallerNumberVerificationStatus(call.getCallerNumberVerificationStatus())
                 .setContactDisplayName(call.getName())
                 .setActiveChildCallId(activeChildCallId)
+                .setActiveCallEndpoint(call.getActiveCallEndpoint())
+                .setAvailableCallEndpoints(call.getAvailableCallEndpoints())
                 .createParcelableCall();
     }
 
@@ -564,9 +567,6 @@ public class ParcelableCallUtils {
 
         Connection.PROPERTY_CROSS_SIM,
         android.telecom.Call.Details.PROPERTY_CROSS_SIM,
-
-        Connection.PROPERTY_TETHERED_CALL,
-        android.telecom.Call.Details.PROPERTY_TETHERED_CALL
     };
 
     private static int convertConnectionToCallProperties(int connectionProperties) {

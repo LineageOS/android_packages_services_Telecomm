@@ -16,6 +16,8 @@
 
 package com.android.server.telecom.tests;
 
+import static com.android.server.telecom.tests.CallEndpointControllerTest.ENDPOINT_1;
+
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.fail;
 
@@ -57,7 +59,6 @@ import android.os.UserHandle;
 import android.telecom.CallerInfo;
 import android.telecom.Connection;
 import android.telecom.DisconnectCause;
-import android.telecom.Log;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
@@ -74,10 +75,11 @@ import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.CallDiagnosticServiceController;
+import com.android.server.telecom.CallEndpointController;
+import com.android.server.telecom.CallEndpointControllerFactory;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
-import com.android.server.telecom.CallsManagerListenerBase;
 import com.android.server.telecom.ClockProxy;
 import com.android.server.telecom.ConnectionServiceFocusManager;
 import com.android.server.telecom.ConnectionServiceFocusManager.ConnectionServiceFocusManagerFactory;
@@ -198,6 +200,8 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private ClockProxy mClockProxy;
     @Mock private AudioProcessingNotification mAudioProcessingNotification;
     @Mock private InCallControllerFactory mInCallControllerFactory;
+    @Mock private CallEndpointControllerFactory mCallEndpointControllerFactory;
+    @Mock private CallEndpointController mCallEndpointController;
     @Mock private InCallController mInCallController;
     @Mock private ConnectionServiceFocusManager mConnectionSvrFocusMgr;
     @Mock private CallAudioRouteStateMachine mCallAudioRouteStateMachine;
@@ -225,6 +229,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 mProximitySensorManager);
         when(mInCallControllerFactory.create(any(), any(), any(), any(), any(), any(),
                 any())).thenReturn(mInCallController);
+        when(mCallEndpointControllerFactory.create(any(), any())).thenReturn(
+                mCallEndpointController);
         when(mCallAudioRouteStateMachineFactory.create(any(), any(), any(), any(), any(), any(),
                 anyInt())).thenReturn(mCallAudioRouteStateMachine);
         when(mCallAudioModeStateMachineFactory.create(any(), any()))
@@ -266,7 +272,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 mInCallControllerFactory,
                 mCallDiagnosticServiceController,
                 mRoleManagerAdapter,
-                mToastFactory);
+                mToastFactory,
+                mCallEndpointControllerFactory);
 
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SELF_MANAGED_HANDLE), any())).thenReturn(SELF_MANAGED_ACCOUNT);
@@ -1624,13 +1631,11 @@ public class CallsManagerTest extends TelecomTestCase {
         call.addListener(l);
 
         // Set call as a tethered external call
-        call.setConnectionProperties(call.getConnectionProperties()
-                | (Connection.PROPERTY_IS_EXTERNAL_CALL | Connection.PROPERTY_TETHERED_CALL));
+        call.setTethered(true /* isTethered */);
         assertTrue(tetheredCallAdded.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
 
         // Set call as a non-tethered call
-        call.setConnectionProperties(call.getConnectionProperties() &
-                (~Connection.PROPERTY_TETHERED_CALL));
+        call.setTethered(false /* isTethered */);
         assertTrue(tetheredCallRemoved.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
     }
     
