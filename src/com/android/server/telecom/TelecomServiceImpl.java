@@ -26,6 +26,7 @@ import static android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE;
 import static android.Manifest.permission.READ_SMS;
 import static android.Manifest.permission.REGISTER_SIM_SUBSCRIPTION;
 import static android.Manifest.permission.WRITE_SECURE_SETTINGS;
+import static android.Manifest.permission.MANAGE_OWN_CALLS;
 
 import android.Manifest;
 import android.app.ActivityManager;
@@ -49,6 +50,7 @@ import android.os.Process;
 import android.os.UserHandle;
 import android.provider.BlockedNumberContract;
 import android.provider.Settings;
+import android.telecom.CallEndpoint;
 import android.telecom.Log;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
@@ -67,6 +69,7 @@ import com.android.server.telecom.settings.BlockedNumbersActivity;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -225,26 +228,64 @@ public class TelecomServiceImpl {
         public List<PhoneAccountHandle> getSelfManagedPhoneAccounts(String callingPackage,
                 String callingFeatureId) {
             try {
-                Log.startSession("TSI.gSMPA", Log.getPackageAbbreviation(callingPackage));
-                if (!canReadPhoneState(callingPackage, callingFeatureId,
-                        "Requires READ_PHONE_STATE permission.")) {
-                    throw new SecurityException("Requires READ_PHONE_STATE permission.");
-                }
-                synchronized (mLock) {
-                    final UserHandle callingUserHandle = Binder.getCallingUserHandle();
-                    long token = Binder.clearCallingIdentity();
-                    try {
-                        return mPhoneAccountRegistrar.getSelfManagedPhoneAccounts(
-                                callingUserHandle);
-                    } catch (Exception e) {
-                        Log.e(this, e, "getSelfManagedPhoneAccounts");
-                        throw e;
-                    } finally {
-                        Binder.restoreCallingIdentity(token);
+                Log.startSession("TSI.gSMPA",
+                        Log.getPackageAbbreviation(callingPackage));
+                try {
+                    if (canReadPhoneState(callingPackage, callingFeatureId,
+                            "Requires READ_PHONE_STATE permission.")) {
+                        synchronized (mLock) {
+                            final UserHandle callingUserHandle = Binder.getCallingUserHandle();
+                            long token = Binder.clearCallingIdentity();
+                            try {
+                                return mPhoneAccountRegistrar.getSelfManagedPhoneAccounts(
+                                        callingUserHandle);
+                            } catch (Exception e) {
+                                Log.e(this, e, "getSelfManagedPhoneAccounts");
+                                throw e;
+                            } finally {
+                                Binder.restoreCallingIdentity(token);
+                            }
+                        }
                     }
+                } catch (SecurityException e) {
+                    //  SecurityException thrown from canReadPhoneState(...) due to READ_PHONE_STATE
+                    //   permission.  check MANAGE_OWN_CALLS permission next.
+                }
+
+                if (canReadMangeOwnCalls("Requires MANAGE_OWN_CALLS permission")) {
+                    synchronized (mLock) {
+                        final UserHandle callingUserHandle = Binder.getCallingUserHandle();
+                        long token = Binder.clearCallingIdentity();
+                        try {
+                            return mPhoneAccountRegistrar.getSelfManagedPhoneAccountsForPackage(
+                                    callingPackage,
+                                    callingUserHandle);
+                        } catch (Exception e) {
+                            Log.e(this, e,
+                                    "getSelfManagedPhoneAccountsForPackage");
+                            throw e;
+                        } finally {
+                            Binder.restoreCallingIdentity(token);
+                        }
+                    }
+                } else {
+                    throw new SecurityException(
+                            "Requires caller to be the default dialer app or at least one of the "
+                                    + "following permissions READ_PRIVILEGED_PHONE_STATE, "
+                                    + "READ_PHONE_STATE, or MANAGE_OWN_CALLS for the calling "
+                                    + "package: " + callingPackage);
                 }
             } finally {
                 Log.endSession();
+            }
+        }
+
+        private boolean canReadMangeOwnCalls(String message) {
+            try {
+                mContext.enforceCallingOrSelfPermission(MANAGE_OWN_CALLS, message);
+                return true;
+            } catch (SecurityException e) {
+                return false;
             }
         }
 
@@ -2051,6 +2092,74 @@ public class TelecomServiceImpl {
                         Binder.restoreCallingIdentity(token);
                     }
                 }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        @Override
+        public void registerCallEndpoints(List<CallEndpoint> endpoints, String callingPackage) {
+            try {
+                Log.startSession("TSI.rCE", Log.getPackageAbbreviation(callingPackage));
+                //TODO: enforce relevant permission and calling package
+                synchronized (mLock) {
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        CallEndpointController controller =
+                                mCallsManager.getCallEndpointController();
+                        if (controller != null) {
+                            controller.registerCallEndpoints(endpoints);
+                        }
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        @Override
+        public void unregisterCallEndpoints(List<CallEndpoint> endpoints, String callingPackage) {
+            try {
+                Log.startSession("TSI.uCE", Log.getPackageAbbreviation(callingPackage));
+                //TODO: enforce relevant permission and calling package
+                synchronized (mLock) {
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        CallEndpointController controller =
+                                mCallsManager.getCallEndpointController();
+                        if (controller != null) {
+                            controller.unregisterCallEndpoints(endpoints);
+                        }
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        @Override
+        public List<CallEndpoint> getCallEndpoints(String callingPackage) {
+            try {
+                Log.startSession("TSI.rCE", Log.getPackageAbbreviation(callingPackage));
+                List<CallEndpoint> result = new ArrayList<>();
+                //TODO: enforce relevant permission and calling package
+                synchronized (mLock) {
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        CallEndpointController controller =
+                                mCallsManager.getCallEndpointController();
+                        if (controller != null) {
+                            result.addAll(controller.getCallEndpoints());
+                        }
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+                return result;
             } finally {
                 Log.endSession();
             }
