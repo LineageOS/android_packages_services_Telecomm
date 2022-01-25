@@ -753,6 +753,25 @@ public class PhoneAccountRegistrar {
     }
 
     /**
+     * Retrieves a list of all {@link PhoneAccount#CAPABILITY_SELF_MANAGED} phone accounts
+     * registered by a specified package.
+     *
+     * @param packageName The name of the package that registered the phone accounts.
+     * @return The self-managed phone account handles for the given package.
+     */
+    public List<PhoneAccountHandle> getSelfManagedPhoneAccountsForPackage(String packageName,
+            UserHandle userHandle) {
+        List<PhoneAccountHandle> phoneAccountsHandles = new ArrayList<>();
+        for (PhoneAccountHandle pah : getPhoneAccountsForPackage(packageName,
+                userHandle)) {
+            if (isSelfManagedPhoneAccount(pah)) {
+                phoneAccountsHandles.add(pah);
+            }
+        }
+        return phoneAccountsHandles;
+    }
+
+    /**
      * Determines if a {@link PhoneAccountHandle} is for a self-managed {@link ConnectionService}.
      * @param handle The handle.
      * @return {@code true} if for a self-managed {@link ConnectionService}, {@code false}

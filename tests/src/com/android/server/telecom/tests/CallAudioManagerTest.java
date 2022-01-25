@@ -633,6 +633,28 @@ public class CallAudioManagerTest extends TelecomTestCase {
         assertFalse(captor.getValue().hasTetheredCalls);
     }
 
+    @Test
+    public void testExternalCallAddedAndRemoved() {
+        Call call = mock(Call.class);
+        when(call.isExternalCall()).thenReturn(true);
+        when(call.isTetheredCall()).thenReturn(true);
+        ArgumentCaptor<CallAudioModeStateMachine.MessageArgs> captor = makeNewCaptor();
+
+        // add tethered call
+        mCallAudioManager.onCallAdded(call);
+        assertFalse(mCallAudioManager.getTrackedCalls().contains(call));
+        verify(mCallAudioModeStateMachine).sendMessageWithArgs(
+                eq(CallAudioModeStateMachine.NEW_TETHERED_EXTERNAL_CALL), captor.capture());
+        assertTrue(captor.getValue().hasTetheredCalls);
+
+        // remove tethered call
+        mCallAudioManager.onCallRemoved(call);
+        assertFalse(mCallAudioManager.getTrackedCalls().contains(call));
+        verify(mCallAudioModeStateMachine).sendMessageWithArgs(
+                eq(CallAudioModeStateMachine.NO_MORE_TETHERED_CALLS), captor.capture());
+        assertFalse(captor.getValue().hasTetheredCalls);
+    }
+
     private Call createSimulatedRingingCall() {
         Call call = mock(Call.class);
         when(call.getState()).thenReturn(CallState.SIMULATED_RINGING);
