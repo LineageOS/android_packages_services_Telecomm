@@ -160,7 +160,8 @@ public class BluetoothRouteManager extends StateMachine {
                         removeDevice((String) args.arg2);
                         break;
                     case CONNECT_HFP:
-                        String actualAddress = connectBtAudio((String) args.arg2);
+                        String actualAddress = connectBtAudio((String) args.arg2,
+                            false /* switchingBtDevices*/);
 
                         if (actualAddress != null) {
                             transitionTo(getConnectingStateForAddress(actualAddress,
@@ -175,7 +176,8 @@ public class BluetoothRouteManager extends StateMachine {
                         break;
                     case RETRY_HFP_CONNECTION:
                         Log.i(LOG_TAG, "Retrying HFP connection to %s", (String) args.arg2);
-                        String retryAddress = connectBtAudio((String) args.arg2, args.argi1);
+                        String retryAddress = connectBtAudio((String) args.arg2, args.argi1,
+                            false /* switchingBtDevices*/);
 
                         if (retryAddress != null) {
                             transitionTo(getConnectingStateForAddress(retryAddress,
@@ -247,6 +249,7 @@ public class BluetoothRouteManager extends StateMachine {
 
             SomeArgs args = (SomeArgs) msg.obj;
             String address = (String) args.arg2;
+            boolean switchingBtDevices = !Objects.equals(mDeviceAddress, address);
             try {
                 switch (msg.what) {
                     case NEW_DEVICE_CONNECTED:
@@ -260,12 +263,13 @@ public class BluetoothRouteManager extends StateMachine {
                         }
                         break;
                     case CONNECT_HFP:
-                        if (Objects.equals(mDeviceAddress, address)) {
+                        if (!switchingBtDevices) {
                             // Ignore repeated connection attempts to the same device
                             break;
                         }
-                        String actualAddress = connectBtAudio(address);
 
+                        String actualAddress = connectBtAudio(address,
+                            true /* switchingBtDevices*/);
                         if (actualAddress != null) {
                             transitionTo(getConnectingStateForAddress(actualAddress,
                                     "AudioConnecting/CONNECT_HFP"));
@@ -278,16 +282,18 @@ public class BluetoothRouteManager extends StateMachine {
                         mDeviceManager.disconnectAudio();
                         break;
                     case RETRY_HFP_CONNECTION:
-                        if (Objects.equals(address, mDeviceAddress)) {
+                        if (!switchingBtDevices) {
                             Log.d(LOG_TAG, "Retry message came through while connecting.");
+                            break;
+                        }
+
+                        String retryAddress = connectBtAudio(address, args.argi1,
+                            true /* switchingBtDevices*/);
+                        if (retryAddress != null) {
+                            transitionTo(getConnectingStateForAddress(retryAddress,
+                                    "AudioConnecting/RETRY_HFP_CONNECTION"));
                         } else {
-                            String retryAddress = connectBtAudio(address, args.argi1);
-                            if (retryAddress != null) {
-                                transitionTo(getConnectingStateForAddress(retryAddress,
-                                        "AudioConnecting/RETRY_HFP_CONNECTION"));
-                            } else {
-                                Log.i(LOG_TAG, "Retry failed.");
-                            }
+                            Log.i(LOG_TAG, "Retry failed.");
                         }
                         break;
                     case CONNECTION_TIMEOUT:
@@ -361,6 +367,7 @@ public class BluetoothRouteManager extends StateMachine {
 
             SomeArgs args = (SomeArgs) msg.obj;
             String address = (String) args.arg2;
+            boolean switchingBtDevices = !Objects.equals(mDeviceAddress, address);
             try {
                 switch (msg.what) {
                     case NEW_DEVICE_CONNECTED:
@@ -373,12 +380,13 @@ public class BluetoothRouteManager extends StateMachine {
                         }
                         break;
                     case CONNECT_HFP:
-                        if (Objects.equals(mDeviceAddress, address)) {
+                        if (!switchingBtDevices) {
                             // Ignore connection to already connected device.
                             break;
                         }
-                        String actualAddress = connectBtAudio(address);
 
+                        String actualAddress = connectBtAudio(address,
+                            true /* switchingBtDevices*/);
                         if (actualAddress != null) {
                             transitionTo(getConnectingStateForAddress(address,
                                     "AudioConnected/CONNECT_HFP"));
@@ -391,16 +399,18 @@ public class BluetoothRouteManager extends StateMachine {
                         mDeviceManager.disconnectAudio();
                         break;
                     case RETRY_HFP_CONNECTION:
-                        if (Objects.equals(address, mDeviceAddress)) {
+                        if (!switchingBtDevices) {
                             Log.d(LOG_TAG, "Retry message came through while connected.");
+                            break;
+                        }
+
+                        String retryAddress = connectBtAudio(address, args.argi1,
+                            true /* switchingBtDevices*/);
+                        if (retryAddress != null) {
+                            transitionTo(getConnectingStateForAddress(retryAddress,
+                                    "AudioConnected/RETRY_HFP_CONNECTION"));
                         } else {
-                            String retryAddress = connectBtAudio(address, args.argi1);
-                            if (retryAddress != null) {
-                                transitionTo(getConnectingStateForAddress(retryAddress,
-                                        "AudioConnected/RETRY_HFP_CONNECTION"));
-                            } else {
-                                Log.i(LOG_TAG, "Retry failed.");
-                            }
+                            Log.i(LOG_TAG, "Retry failed.");
                         }
                         break;
                     case CONNECTION_TIMEOUT:
@@ -638,8 +648,8 @@ public class BluetoothRouteManager extends StateMachine {
         return mDeviceManager.getUniqueConnectedDevices();
     }
 
-    private String connectBtAudio(String address) {
-        return connectBtAudio(address, 0);
+    private String connectBtAudio(String address, boolean switchingBtDevices) {
+        return connectBtAudio(address, 0, switchingBtDevices);
     }
 
     /**
@@ -648,14 +658,20 @@ public class BluetoothRouteManager extends StateMachine {
      * Telecom from within it.
      * @param address The address that should be tried first. May be null.
      * @param retryCount The number of times this connection attempt has been retried.
+     * @param switchingBtDevices Used when there is existing audio connection to other Bt device.
      * @return The address of the device that's actually being connected to, or null if no
      * connection was successful.
      */
-    private String connectBtAudio(String address, int retryCount) {
+    private String connectBtAudio(String address, int retryCount, boolean switchingBtDevices) {
         Collection<BluetoothDevice> deviceList = mDeviceManager.getConnectedDevices();
         Optional<BluetoothDevice> matchingDevice = deviceList.stream()
                 .filter(d -> Objects.equals(d.getAddress(), address))
                 .findAny();
+
+        if (switchingBtDevices) {
+            /* When new Bluetooth connects audio, make sure previous one has disconnected audio. */
+            mDeviceManager.disconnectAudio();
+        }
 
         String actualAddress = matchingDevice.isPresent()
                 ? address : getActiveDeviceAddress();
