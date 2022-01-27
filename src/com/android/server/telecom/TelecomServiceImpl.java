@@ -361,42 +361,46 @@ public class TelecomServiceImpl {
         public PhoneAccount getPhoneAccount(PhoneAccountHandle accountHandle,
                 String callingPackage) {
             try {
-                enforceCallingPackage(callingPackage, "getPhoneAccount");
-            } catch (SecurityException se) {
-                EventLog.writeEvent(0x534e4554, "196406138", Binder.getCallingUid(),
-                        "getPhoneAccount: invalid calling package");
-                throw se;
-            }
-            synchronized (mLock) {
-                final UserHandle callingUserHandle = Binder.getCallingUserHandle();
-                if (CompatChanges.isChangeEnabled(
-                        TelecomManager.ENABLE_GET_PHONE_ACCOUNT_PERMISSION_PROTECTION,
-                        callingPackage, Binder.getCallingUserHandle())) {
-                    if (Binder.getCallingUid() != Process.SHELL_UID &&
-                            !canGetPhoneAccount(callingPackage, accountHandle)) {
-                        SecurityException e = new SecurityException("getPhoneAccount API requires" +
-                                "READ_PHONE_NUMBERS");
+                Log.startSession("TSI.gPA", Log.getPackageAbbreviation(callingPackage));
+                try {
+                    enforceCallingPackage(callingPackage, "getPhoneAccount");
+                } catch (SecurityException se) {
+                    EventLog.writeEvent(0x534e4554, "196406138", Binder.getCallingUid(),
+                            "getPhoneAccount: invalid calling package");
+                    throw se;
+                }
+                synchronized (mLock) {
+                    final UserHandle callingUserHandle = Binder.getCallingUserHandle();
+                    if (CompatChanges.isChangeEnabled(
+                            TelecomManager.ENABLE_GET_PHONE_ACCOUNT_PERMISSION_PROTECTION,
+                            callingPackage, Binder.getCallingUserHandle())) {
+                        if (Binder.getCallingUid() != Process.SHELL_UID &&
+                                !canGetPhoneAccount(callingPackage, accountHandle)) {
+                            SecurityException e = new SecurityException(
+                                    "getPhoneAccount API requires" +
+                                            "READ_PHONE_NUMBERS");
+                            Log.e(this, e, "getPhoneAccount %s", accountHandle);
+                            throw e;
+                        }
+                    }
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        // In ideal case, we should not resolve the handle across profiles. But
+                        // given the fact that profile's call is handled by its parent user's
+                        // in-call UI, parent user's in call UI need to be able to get phone account
+                        // from the profile's phone account handle.
+                        return mPhoneAccountRegistrar
+                                .getPhoneAccount(accountHandle, callingUserHandle,
+                                        /* acrossProfiles */ true);
+                    } catch (Exception e) {
                         Log.e(this, e, "getPhoneAccount %s", accountHandle);
                         throw e;
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
                     }
                 }
-                long token = Binder.clearCallingIdentity();
-                try {
-                    Log.startSession("TSI.gPA");
-                    // In ideal case, we should not resolve the handle across profiles. But given
-                    // the fact that profile's call is handled by its parent user's in-call UI,
-                    // parent user's in call UI need to be able to get phone account from the
-                    // profile's phone account handle.
-                    return mPhoneAccountRegistrar
-                            .getPhoneAccount(accountHandle, callingUserHandle,
-                                    /* acrossProfiles */ true);
-                } catch (Exception e) {
-                    Log.e(this, e, "getPhoneAccount %s", accountHandle);
-                    throw e;
-                } finally {
-                    Binder.restoreCallingIdentity(token);
-                    Log.endSession();
-                }
+            } finally {
+                Log.endSession();
             }
         }
 
@@ -489,10 +493,10 @@ public class TelecomServiceImpl {
         }
 
         @Override
-        public PhoneAccountHandle getSimCallManager(int subId) {
+        public PhoneAccountHandle getSimCallManager(int subId, String callingPackage) {
             synchronized (mLock) {
                 try {
-                    Log.startSession("TSI.gSCM");
+                    Log.startSession("TSI.gSCM", Log.getPackageAbbreviation(callingPackage));
                     final int callingUid = Binder.getCallingUid();
                     final int user = UserHandle.getUserId(callingUid);
                     long token = Binder.clearCallingIdentity();
@@ -514,10 +518,10 @@ public class TelecomServiceImpl {
         }
 
         @Override
-        public PhoneAccountHandle getSimCallManagerForUser(int user) {
+        public PhoneAccountHandle getSimCallManagerForUser(int user, String callingPackage) {
             synchronized (mLock) {
                 try {
-                    Log.startSession("TSI.gSCMFU");
+                    Log.startSession("TSI.gSCMFU", Log.getPackageAbbreviation(callingPackage));
                     final int callingUid = Binder.getCallingUid();
                     if (user != ActivityManager.getCurrentUser()) {
                         enforceCrossUserPermission(callingUid);
@@ -538,9 +542,9 @@ public class TelecomServiceImpl {
         }
 
         @Override
-        public void registerPhoneAccount(PhoneAccount account) {
+        public void registerPhoneAccount(PhoneAccount account, String callingPackage) {
             try {
-                Log.startSession("TSI.rPA");
+                Log.startSession("TSI.rPA", Log.getPackageAbbreviation(callingPackage));
                 synchronized (mLock) {
                     if (!((TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE))
                                 .isVoiceCapable()) {
@@ -620,10 +624,11 @@ public class TelecomServiceImpl {
         }
 
         @Override
-        public void unregisterPhoneAccount(PhoneAccountHandle accountHandle) {
+        public void unregisterPhoneAccount(PhoneAccountHandle accountHandle,
+                String callingPackage) {
             synchronized (mLock) {
                 try {
-                    Log.startSession("TSI.uPA");
+                    Log.startSession("TSI.uPA", Log.getPackageAbbreviation(callingPackage));
                     enforcePhoneAccountModificationForPackage(
                             accountHandle.getComponentName().getPackageName());
                     enforceUserHandleMatchesCaller(accountHandle);
@@ -666,7 +671,7 @@ public class TelecomServiceImpl {
         public boolean isVoiceMailNumber(PhoneAccountHandle accountHandle, String number,
                 String callingPackage, String callingFeatureId) {
             try {
-                Log.startSession("TSI.iVMN");
+                Log.startSession("TSI.iVMN", Log.getPackageAbbreviation(callingPackage));
                 synchronized (mLock) {
                     if (!canReadPhoneState(callingPackage, callingFeatureId, "isVoiceMailNumber")) {
                         return false;
@@ -699,7 +704,7 @@ public class TelecomServiceImpl {
         public String getVoiceMailNumber(PhoneAccountHandle accountHandle, String callingPackage,
                 String callingFeatureId) {
             try {
-                Log.startSession("TSI.gVMN");
+                Log.startSession("TSI.gVMN", Log.getPackageAbbreviation(callingPackage));
                 if (!canReadPhoneState(callingPackage, callingFeatureId, "getVoiceMailNumber")) {
                     return null;
                 }
@@ -735,7 +740,7 @@ public class TelecomServiceImpl {
         public String getLine1Number(PhoneAccountHandle accountHandle, String callingPackage,
                 String callingFeatureId) {
             try {
-                Log.startSession("getL1N");
+                Log.startSession("getL1N", Log.getPackageAbbreviation(callingPackage));
                 if (!canReadPhoneNumbers(callingPackage, callingFeatureId, "getLine1Number")) {
                     return null;
                 }
@@ -772,7 +777,7 @@ public class TelecomServiceImpl {
         @Override
         public void silenceRinger(String callingPackage) {
             try {
-                Log.startSession("TSI.sR");
+                Log.startSession("TSI.sR", Log.getPackageAbbreviation(callingPackage));
                 synchronized (mLock) {
                     enforcePermissionOrPrivilegedDialer(MODIFY_PHONE_STATE, callingPackage);
 
@@ -812,9 +817,9 @@ public class TelecomServiceImpl {
          * @see android.telecom.TelecomManager#getDefaultDialerPackage
          */
         @Override
-        public String getDefaultDialerPackage() {
+        public String getDefaultDialerPackage(String callingPackage) {
             try {
-                Log.startSession("TSI.gDDP");
+                Log.startSession("TSI.gDDP", Log.getPackageAbbreviation(callingPackage));
                 final long token = Binder.clearCallingIdentity();
                 try {
                     return mDefaultDialerCache.getDefaultDialerApplication(
@@ -856,9 +861,9 @@ public class TelecomServiceImpl {
          * @see android.telecom.TelecomManager#getSystemDialerPackage
          */
         @Override
-        public String getSystemDialerPackage() {
+        public String getSystemDialerPackage(String callingPackage) {
             try {
-                Log.startSession("TSI.gSDP");
+                Log.startSession("TSI.gSDP", Log.getPackageAbbreviation(callingPackage));
                 return mDefaultDialerCache.getSystemDialerApplication();
             } finally {
                 Log.endSession();
@@ -889,7 +894,7 @@ public class TelecomServiceImpl {
         @Override
         public boolean isInCall(String callingPackage, String callingFeatureId) {
             try {
-                Log.startSession("TSI.iIC");
+                Log.startSession("TSI.iIC", Log.getPackageAbbreviation(callingPackage));
                 if (!canReadPhoneState(callingPackage, callingFeatureId, "isInCall")) {
                     return false;
                 }
@@ -908,7 +913,7 @@ public class TelecomServiceImpl {
         @Override
         public boolean hasManageOngoingCallsPermission(String callingPackage) {
             try {
-                Log.startSession("TSI.hMOCP");
+                Log.startSession("TSI.hMOCP", Log.getPackageAbbreviation(callingPackage));
                 enforceCallingPackage(callingPackage, "hasManageOngoingCallsPermission");
                 return PermissionChecker.checkPermissionForDataDeliveryFromDataSource(
                         mContext, Manifest.permission.MANAGE_ONGOING_CALLS,
@@ -929,7 +934,7 @@ public class TelecomServiceImpl {
         @Override
         public boolean isInManagedCall(String callingPackage, String callingFeatureId) {
             try {
-                Log.startSession("TSI.iIMC");
+                Log.startSession("TSI.iIMC", Log.getPackageAbbreviation(callingPackage));
                 if (!canReadPhoneState(callingPackage, callingFeatureId, "isInManagedCall")) {
                     throw new SecurityException("Only the default dialer or caller with " +
                             "READ_PHONE_STATE permission can use this method.");
@@ -1286,9 +1291,10 @@ public class TelecomServiceImpl {
          * @see android.telecom.TelecomManager#addNewIncomingCall
          */
         @Override
-        public void addNewIncomingCall(PhoneAccountHandle phoneAccountHandle, Bundle extras) {
+        public void addNewIncomingCall(PhoneAccountHandle phoneAccountHandle, Bundle extras,
+                String callingPackage) {
             try {
-                Log.startSession("TSI.aNIC");
+                Log.startSession("TSI.aNIC", Log.getPackageAbbreviation(callingPackage));
                 synchronized (mLock) {
                     Log.i(this, "Adding new incoming call with phoneAccountHandle %s",
                             phoneAccountHandle);
@@ -1348,9 +1354,10 @@ public class TelecomServiceImpl {
          * @see android.telecom.TelecomManager#addNewIncomingConference
          */
         @Override
-        public void addNewIncomingConference(PhoneAccountHandle phoneAccountHandle, Bundle extras) {
+        public void addNewIncomingConference(PhoneAccountHandle phoneAccountHandle, Bundle extras,
+                String callingPackage) {
             try {
-                Log.startSession("TSI.aNIC");
+                Log.startSession("TSI.aNIC", Log.getPackageAbbreviation(callingPackage));
                 synchronized (mLock) {
                     Log.i(this, "Adding new incoming conference with phoneAccountHandle %s",
                             phoneAccountHandle);
@@ -1396,9 +1403,10 @@ public class TelecomServiceImpl {
          * @see android.telecom.TelecomManager#acceptHandover
          */
         @Override
-        public void acceptHandover(Uri srcAddr, int videoState, PhoneAccountHandle destAcct) {
+        public void acceptHandover(Uri srcAddr, int videoState, PhoneAccountHandle destAcct,
+                String callingPackage) {
             try {
-                Log.startSession("TSI.aHO");
+                Log.startSession("TSI.aHO", Log.getPackageAbbreviation(callingPackage));
                 synchronized (mLock) {
                     Log.i(this, "acceptHandover; srcAddr=%s, videoState=%s, dest=%s",
                             Log.pii(srcAddr), VideoProfile.videoStateToString(videoState),
@@ -1738,8 +1746,13 @@ public class TelecomServiceImpl {
          * @see android.telecom.TelecomManager#createManageBlockedNumbersIntent
          */
         @Override
-        public Intent createManageBlockedNumbersIntent() {
-            return BlockedNumbersActivity.getIntentForStartingActivity();
+        public Intent createManageBlockedNumbersIntent(String callingPackage) {
+            try {
+                Log.startSession("TSI.cMBNI", Log.getPackageAbbreviation(callingPackage));
+                return BlockedNumbersActivity.getIntentForStartingActivity();
+            } finally {
+                Log.endSession();
+            }
         }
 
 
@@ -1766,7 +1779,7 @@ public class TelecomServiceImpl {
         @Override
         public boolean isIncomingCallPermitted(PhoneAccountHandle phoneAccountHandle,
                 String callingPackage) {
-            Log.startSession("TSI.iICP");
+            Log.startSession("TSI.iICP", Log.getPackageAbbreviation(callingPackage));
             try {
                 enforceCallingPackage(callingPackage, "isIncomingCallPermitted");
                 enforcePhoneAccountHandleMatchesCaller(phoneAccountHandle, callingPackage);
@@ -1791,7 +1804,7 @@ public class TelecomServiceImpl {
         @Override
         public boolean isOutgoingCallPermitted(PhoneAccountHandle phoneAccountHandle,
                 String callingPackage) {
-            Log.startSession("TSI.iOCP");
+            Log.startSession("TSI.iOCP", Log.getPackageAbbreviation(callingPackage));
             try {
                 enforceCallingPackage(callingPackage, "isOutgoingCallPermitted");
                 enforcePhoneAccountHandleMatchesCaller(phoneAccountHandle, callingPackage);

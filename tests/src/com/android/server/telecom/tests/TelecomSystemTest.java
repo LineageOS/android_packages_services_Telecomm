@@ -118,6 +118,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class TelecomSystemTest extends TelecomTestCase {
 
+    private static final String CALLING_PACKAGE = TelecomSystemTest.class.getPackageName();
     static final int TEST_POLL_INTERVAL = 10;  // milliseconds
     static final int TEST_TIMEOUT = 1000;  // milliseconds
 
@@ -905,7 +906,7 @@ public class TelecomSystemTest extends TelecomTestCase {
                 TelecomManager.EXTRA_INCOMING_CALL_ADDRESS,
                 Uri.fromParts(PhoneAccount.SCHEME_TEL, number, null));
         mTelecomSystem.getTelecomServiceImpl().getBinder()
-                .addNewIncomingCall(phoneAccountHandle, extras);
+                .addNewIncomingCall(phoneAccountHandle, extras, CALLING_PACKAGE);
 
         verify(connectionServiceFixture.getTestDouble())
                 .createConnection(any(PhoneAccountHandle.class), anyString(),
