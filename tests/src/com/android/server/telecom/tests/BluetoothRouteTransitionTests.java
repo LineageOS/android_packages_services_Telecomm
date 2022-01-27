@@ -192,7 +192,8 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
         public int messageType; // Any of the commands from the state machine
         public BluetoothDevice messageDevice; // The device that should be specified in the message.
         public ListenerUpdate[] expectedListenerUpdates; // what the listener should expect.
-        public int expectedBluetoothInteraction; // NONE, CONNECT, or DISCONNECT
+        // NONE, CONNECT, CONNECT_SWITCH_DEVICE or DISCONNECT
+        public int expectedBluetoothInteraction;
         public BluetoothDevice expectedConnectionDevice; // Expected device to connect to.
         public String expectedFinalStateName; // Expected name of the final state.
         public BluetoothDevice[] connectedDevices; // array of connected devices
@@ -247,6 +248,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
     private static final int NONE = 1;
     private static final int CONNECT = 2;
     private static final int DISCONNECT = 3;
+    private static final int CONNECT_SWITCH_DEVICE = 4;
 
     private static final int TEST_TIMEOUT = 1000;
 
@@ -360,6 +362,10 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                 verify(mDeviceManager).connectAudio(mParams.expectedConnectionDevice.getAddress());
                 verify(mDeviceManager, never()).disconnectAudio();
                 break;
+            case CONNECT_SWITCH_DEVICE:
+                verify(mDeviceManager).disconnectAudio();
+                verify(mDeviceManager).connectAudio(mParams.expectedConnectionDevice.getAddress());
+            break;
             case DISCONNECT:
                 verify(mDeviceManager, never()).connectAudio(nullable(String.class));
                 verify(mDeviceManager).disconnectAudio();
@@ -492,7 +498,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                 .setMessageType(BluetoothRouteManager.CONNECT_HFP)
                 .setMessageDevice(DEVICE3)
                 .setExpectedListenerUpdates(ListenerUpdate.AUDIO_CONNECTED)
-                .setExpectedBluetoothInteraction(CONNECT)
+                .setExpectedBluetoothInteraction(CONNECT_SWITCH_DEVICE)
                 .setExpectedConnectionDevice(DEVICE3)
                 .setExpectedFinalStateName(BluetoothRouteManager.AUDIO_CONNECTING_STATE_NAME_PREFIX
                         + ":" + DEVICE3)
@@ -506,7 +512,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                 .setMessageType(BluetoothRouteManager.CONNECT_HFP)
                 .setMessageDevice(DEVICE3)
                 .setExpectedListenerUpdates(ListenerUpdate.AUDIO_CONNECTED)
-                .setExpectedBluetoothInteraction(CONNECT)
+                .setExpectedBluetoothInteraction(CONNECT_SWITCH_DEVICE)
                 .setExpectedConnectionDevice(DEVICE3)
                 .setExpectedFinalStateName(BluetoothRouteManager.AUDIO_CONNECTING_STATE_NAME_PREFIX
                         + ":" + DEVICE3)
