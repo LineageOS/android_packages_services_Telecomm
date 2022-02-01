@@ -314,7 +314,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
             if (mParams.hearingAidBtDevices.contains(mParams.messageDevice)) {
                 when(mBluetoothAdapter.getActiveDevices(eq(BluetoothProfile.HEARING_AID)))
                     .thenReturn(Arrays.asList(null, null));
-                when(mBluetoothLeAudio.getActiveDevices())
+                when(mBluetoothAdapter.getActiveDevices(eq(BluetoothProfile.LE_AUDIO)))
                     .thenReturn(mParams.leAudioDevices.stream()
                        .filter(device -> device != mParams.messageDevice)
                        .collect(Collectors.toList()));

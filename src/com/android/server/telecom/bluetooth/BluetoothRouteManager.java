@@ -794,7 +794,8 @@ public class BluetoothRouteManager extends StateMachine {
 
         if (bluetoothLeAudio != null) {
             if (mDeviceManager.isLeAudioCommunicationDevice()) {
-                for (BluetoothDevice device : bluetoothLeAudio.getActiveDevices()) {
+                for (BluetoothDevice device : bluetoothAdapter.getActiveDevices(
+                        BluetoothProfile.LE_AUDIO)) {
                     if (device != null) {
                         leAudioActiveDevice = device;
                         activeDevices++;
