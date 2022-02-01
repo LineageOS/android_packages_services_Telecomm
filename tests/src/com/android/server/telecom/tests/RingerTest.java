@@ -185,7 +185,7 @@ public class RingerTest extends TelecomTestCase {
     public void testNoActionWithExternalRinger() {
         mFuture.complete(false); // not using audio coupled haptics
         Bundle externalRingerExtra = new Bundle();
-        externalRingerExtra.putBoolean(TelecomManager.EXTRA_CALL_EXTERNAL_RINGER, true);
+        externalRingerExtra.putBoolean(TelecomManager.EXTRA_CALL_HAS_IN_BAND_RINGTONE, true);
         when(mockCall1.getIntentExtras()).thenReturn(externalRingerExtra);
         when(mockCall2.getIntentExtras()).thenReturn(externalRingerExtra);
         // Start call waiting to make sure that it doesn't stop when we start ringing
