@@ -206,7 +206,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
                 .thenReturn(Arrays.asList(hearingAidDevices));
         when(mBluetoothAdapter.getActiveDevices(eq(BluetoothProfile.HEARING_AID)))
                 .thenReturn(Arrays.asList(hearingAidActiveDevice, null));
-        when(mBluetoothLeAudio.getActiveDevices())
+        when(mBluetoothAdapter.getActiveDevices(eq(BluetoothProfile.LE_AUDIO)))
                 .thenReturn(Arrays.asList(leAudioDevice, null));
     }
 
