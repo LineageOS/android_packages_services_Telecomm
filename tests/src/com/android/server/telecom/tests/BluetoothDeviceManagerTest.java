@@ -423,7 +423,8 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
         verify(mAdapter, never()).setActiveDevice(nullable(BluetoothDevice.class),
                 eq(BluetoothAdapter.ACTIVE_DEVICE_PHONE_CALL));
 
-        when(mBluetoothLeAudio.getActiveDevices()).thenReturn(Arrays.asList(device5, device6));
+        when(mAdapter.getActiveDevices(eq(BluetoothProfile.LE_AUDIO)))
+                .thenReturn(Arrays.asList(device5, device6));
 
         receiverUnderTest.onReceive(mContext,
                 buildConnectionActionIntent(BluetoothHeadset.STATE_DISCONNECTED, device5,
