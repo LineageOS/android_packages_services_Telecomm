@@ -233,7 +233,7 @@ public class TelecomSystem {
                         }
                     });
             BluetoothDeviceManager bluetoothDeviceManager = new BluetoothDeviceManager(mContext,
-                    new BluetoothManager(mContext).getAdapter());
+                    mContext.getSystemService(BluetoothManager.class).getAdapter());
             BluetoothRouteManager bluetoothRouteManager = new BluetoothRouteManager(mContext, mLock,
                     bluetoothDeviceManager, new Timeouts.Adapter());
             BluetoothStateReceiver bluetoothStateReceiver = new BluetoothStateReceiver(
