@@ -46,6 +46,10 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_ROUTING"/>
     <uses-permission android:name="android.permission.MODIFY_PHONE_STATE"/>
     <uses-permission android:name="android.permission.READ_CALL_LOG"/>
+    <!-- Required to check for direct to voicemail, to load custom ringtones for incoming calls
+        which are specified on a per contact basis, and also to determine user preferred
+        PhoneAccountHandles for outgoing calls. -->
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
     <uses-permission android:name="android.permission.READ_DEVICE_CONFIG"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_PROJECTION_STATE"/>

@@ -472,7 +472,7 @@ public class Ringer {
     private boolean hasExternalRinger(Call foregroundCall) {
         Bundle intentExtras = foregroundCall.getIntentExtras();
         if (intentExtras != null) {
-            return intentExtras.getBoolean(TelecomManager.EXTRA_CALL_EXTERNAL_RINGER, false);
+            return intentExtras.getBoolean(TelecomManager.EXTRA_CALL_HAS_IN_BAND_RINGTONE, false);
         } else {
             return false;
         }
