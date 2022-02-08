@@ -236,7 +236,8 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         when(mDeviceManager.getBluetoothAdapter()).thenReturn(mBluetoothAdapter);
         when(mDeviceManager.getLeAudioService()).thenReturn(mBluetoothLeAudio);
         when(mBluetoothHeadset.connectAudio()).thenReturn(BluetoothStatusCodes.SUCCESS);
-        when(mBluetoothHeadset.setActiveDevice(nullable(BluetoothDevice.class))).thenReturn(true);
+        when(mBluetoothAdapter.setActiveDevice(nullable(BluetoothDevice.class),
+                eq(BluetoothAdapter.ACTIVE_DEVICE_ALL))).thenReturn(true);
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
                 nullable(ContentResolver.class))).thenReturn(100000L);
         when(mTimeoutsAdapter.getBluetoothPendingTimeoutMillis(
