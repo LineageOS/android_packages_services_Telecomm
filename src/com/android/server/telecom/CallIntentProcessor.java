@@ -10,7 +10,6 @@ import android.os.Looper;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.telecom.CallEndpoint;
 import android.telecom.DefaultDialerManager;
 import android.telecom.Log;
 import android.telecom.Logging.Session;
@@ -157,12 +156,6 @@ public class CallIntentProcessor {
             clientExtras.putParcelable(android.telecom.TelecomManager.EXTRA_OUTGOING_PICTURE,
                     intent.getParcelableExtra(
                             android.telecom.TelecomManager.EXTRA_OUTGOING_PICTURE));
-        }
-
-        if (intent.hasExtra(android.telecom.TelecomManager.EXTRA_START_CALL_ON_ENDPOINT)) {
-            clientExtras.putParcelable(android.telecom.TelecomManager.EXTRA_START_CALL_ON_ENDPOINT,
-                    intent.getParcelableExtra(
-                            android.telecom.TelecomManager.EXTRA_START_CALL_ON_ENDPOINT));
         }
 
         final int videoState = intent.getIntExtra( TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,

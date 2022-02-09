@@ -18,8 +18,6 @@ package com.android.server.telecom;
 
 import static android.app.AppOpsManager.OPSTR_RECORD_AUDIO;
 import static android.os.Process.myUid;
-import static android.telecom.CallEndpointSession.ACTIVATION_FAILURE_REJECTED;
-import static android.telecom.CallEndpointSession.ACTIVATION_FAILURE_UNAVAILABLE;
 
 import android.Manifest;
 import android.annotation.NonNull;
@@ -49,7 +47,6 @@ import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.telecom.CallAudioState;
-import android.telecom.CallEndpoint;
 import android.telecom.ConnectionService;
 import android.telecom.InCallService;
 import android.telecom.Log;
@@ -62,8 +59,6 @@ import android.util.ArraySet;
 
 import com.android.internal.annotations.VisibleForTesting;
 // TODO: Needed for move to system service: import com.android.internal.R;
-import com.android.internal.telecom.ICallEndpointCallback;
-import com.android.internal.telecom.ICallEndpointSession;
 import com.android.internal.telecom.IInCallService;
 import com.android.internal.util.ArrayUtils;
 import com.android.internal.util.IndentingPrintWriter;
@@ -92,7 +87,7 @@ public class InCallController extends CallsManagerListenerBase implements
     public static final String NOTIFICATION_TAG = InCallController.class.getSimpleName();
     public static final int IN_CALL_SERVICE_NOTIFICATION_ID = 3;
 
-    public abstract class InCallServiceConnection {
+    public class InCallServiceConnection {
         /**
          * Indicates that a call to {@link #connect(Call)} has succeeded and resulted in a
          * connection to an InCallService.
@@ -353,8 +348,7 @@ public class InCallController extends CallsManagerListenerBase implements
                 String packageName = mInCallServiceInfo.getComponentName().getPackageName();
                 mContext.unbindService(mServiceConnection);
                 mIsConnected = false;
-                if (mIsNullBinding && mInCallServiceInfo.getType() != IN_CALL_SERVICE_TYPE_NON_UI
-                        && mInCallServiceInfo.getType() != IN_CALL_SERVICE_TYPE_STREAMING) {
+                if (mIsNullBinding && mInCallServiceInfo.getType() != IN_CALL_SERVICE_TYPE_NON_UI) {
                     // Non-UI InCallServices are allowed to return null from onBind if they don't
                     // want to handle calls at the moment, so don't report them to the user as
                     // crashed.
@@ -546,69 +540,6 @@ public class InCallController extends CallsManagerListenerBase implements
                     super.connect(null);
                 }
             }
-        }
-    }
-
-    /**
-     * A version of InCallServiceConnection which request a call endpoint activation session on
-     * connection.
-     */
-    private class StreamingCallServiceBindingConnection extends InCallServiceBindingConnection {
-        private final CallEndpointSessionTracker mTracker;
-        private final InCallServiceInfo mInfo;
-        private final Call mCall;
-
-        public StreamingCallServiceBindingConnection(InCallServiceInfo info,
-                CallEndpointSessionTracker tracker) {
-            super(info);
-            mInfo = info;
-            mTracker = tracker;
-            mCall = tracker.getCall();
-        }
-
-        protected void onConnected(IBinder service) {
-            boolean shouldRemainConnected =
-                    InCallController.this.onConnected(mInfo, service);
-            if (shouldRemainConnected) {
-                IInCallService inCallService = mInCallServices.get(mInfo);
-                if (inCallService != null) {
-                    try {
-                        // TODO: separate this method to 2 part, an activation request returns void
-                        // and a callback return method using InCallAdapter to avoid two-way
-                        // interface
-                        ICallEndpointCallback iCallEndpointCallback =
-                                inCallService.requestCallEndpointActivation(
-                                        mTracker.getCallEndpoint(),
-                                ICallEndpointSession.Stub.asInterface(
-                                        mTracker.getSession().asBinder()));
-                        mTracker.setCallEndpointCallback(iCallEndpointCallback);
-                        return;
-                    } catch (RemoteException e) {
-                        Log.e(this, e, "Failed to request call endpoint activation: %s",
-                                mTracker.getCallEndpoint());
-                        Trace.endSection();
-                        mCallsManager.getCallEndpointController()
-                                .onCallEndpointSessionActivationFailed(mCall,
-                                        ACTIVATION_FAILURE_UNAVAILABLE);
-                    }
-                }
-            } else {
-                Log.i(this, "Failed to set the in-call adapter.");
-                Trace.endSection();
-                mCallsManager.getCallEndpointController()
-                        .onCallEndpointSessionActivationFailed(mCall,
-                                ACTIVATION_FAILURE_UNAVAILABLE);
-            }
-            disconnect();
-        }
-
-        @Override
-        public void dump(IndentingPrintWriter pw) {
-            pw.print("Streaming ICS Connection [");
-            pw.append(isConnected() ? "" : "not ").append("connected, ");
-            pw.append(isBoundAndConnectedToServices() ? "" : "not ").append("bound, ");
-            pw.append("call endpoint: ").append(mTracker.getCallEndpoint().toString());
-            pw.append("]");
         }
     }
 
@@ -978,34 +909,6 @@ public class InCallController extends CallsManagerListenerBase implements
                 int callerNumberVerificationStatus) {
             updateCall(call);
         }
-
-        @Override
-        public void onActiveCallEndpointChanged(Call call, CallEndpoint callEndpoint) {
-            updateCall(call);
-        }
-
-        @Override
-        public void onAvailableCallEndpointsChanged(Call call) {
-            updateCall(call);
-        }
-
-        @Override
-        public void onCallPullFailed(Call call,
-                @android.telecom.Call.Callback.PullFailedReason int reason) {
-            notifyCallPullFailed(call, reason);
-        }
-
-        @Override
-        public void onCallPushFailed(Call call, CallEndpoint callEndpoint,
-                @android.telecom.Call.Callback.PushFailedReason int reason) {
-            notifyCallPushFailed(call, callEndpoint, reason);
-        }
-
-        @Override
-        public void onAnswerFailed(Call call, CallEndpoint callEndpoint,
-                @android.telecom.Call.Callback.AnswerFailedReason int reason) {
-            notifyAnswerFailed(call, callEndpoint, reason);
-        }
     };
 
     private BroadcastReceiver mPackageChangedReceiver = new BroadcastReceiver() {
@@ -1073,7 +976,6 @@ public class InCallController extends CallsManagerListenerBase implements
     private static final int IN_CALL_SERVICE_TYPE_CAR_MODE_UI = 3;
     private static final int IN_CALL_SERVICE_TYPE_NON_UI = 4;
     private static final int IN_CALL_SERVICE_TYPE_COMPANION = 5;
-    private static final int IN_CALL_SERVICE_TYPE_STREAMING = 6;
 
     private static final int[] LIVE_CALL_STATES = { CallState.ACTIVE, CallState.PULLING,
             CallState.DISCONNECTING };
@@ -1603,46 +1505,6 @@ public class InCallController extends CallsManagerListenerBase implements
         }
     }
 
-    private void notifyCallPullFailed(Call call,
-            @android.telecom.Call.Callback.PullFailedReason int reason) {
-        // TODO:integrate this with current call pull methods
-        String callId = mCallIdMapper.getCallId(call);
-        if (!mInCallServices.isEmpty() && callId != null) {
-            for (IInCallService inCallService : mInCallServices.values()) {
-                try {
-                    inCallService.onCallPullFailed(callId, reason);
-                } catch (RemoteException ignored) {
-                }
-            }
-        }
-    }
-
-    private void notifyCallPushFailed(Call call, CallEndpoint callEndpoint,
-            @android.telecom.Call.Callback.PushFailedReason int reason) {
-        String callId = mCallIdMapper.getCallId(call);
-        if (!mInCallServices.isEmpty() && callId != null) {
-            for (IInCallService inCallService : mInCallServices.values()) {
-                try {
-                    inCallService.onCallPushFailed(callId, callEndpoint, reason);
-                } catch (RemoteException ignored) {
-                }
-            }
-        }
-    }
-
-    private void notifyAnswerFailed(Call call, CallEndpoint callEndpoint,
-            @android.telecom.Call.Callback.AnswerFailedReason int reason) {
-        String callId = mCallIdMapper.getCallId(call);
-        if (!mInCallServices.isEmpty() && callId != null) {
-            for (IInCallService inCallService : mInCallServices.values()) {
-                try {
-                    inCallService.onAnswerFailed(callId, callEndpoint, reason);
-                } catch (RemoteException ignored) {
-                }
-            }
-        }
-    }
-
     /**
      * Unbinds an existing bound connection to the in-call app.
      */
@@ -1653,20 +1515,15 @@ public class InCallController extends CallsManagerListenerBase implements
             // Ignore this -- we may or may not have registered it, but when we bind, we want to
             // unregister no matter what.
         }
-        unbindFromDialer();
+        if (mInCallServiceConnection != null) {
+            mInCallServiceConnection.disconnect();
+            mInCallServiceConnection = null;
+        }
         if (mNonUIInCallServiceConnections != null) {
             mNonUIInCallServiceConnections.disconnect();
             mNonUIInCallServiceConnections = null;
         }
         mInCallServices.clear();
-    }
-
-    public void unbindFromDialer() {
-        if (mInCallServiceConnection != null) {
-            mInCallServices.remove(mInCallServiceConnection.getInfo());
-            mInCallServiceConnection.disconnect();
-            mInCallServiceConnection = null;
-        }
     }
 
     /**
@@ -1929,8 +1786,6 @@ public class InCallController extends CallsManagerListenerBase implements
         // Check to see if the service holds permissions or metadata for third party apps.
         boolean isUIService = serviceInfo.metaData != null &&
                 serviceInfo.metaData.getBoolean(TelecomManager.METADATA_IN_CALL_SERVICE_UI);
-        boolean isStreamingService = serviceInfo.metaData != null &&
-                serviceInfo.metaData.getBoolean(TelecomManager.METADATA_STREAMING_TETHERED_CALLS);
 
         // Check to see if the service is a car-mode UI type by checking that it has the
         // CONTROL_INCALL_EXPERIENCE (to verify it is a system app) and that it has the
@@ -1965,10 +1820,6 @@ public class InCallController extends CallsManagerListenerBase implements
                     mCallsManager.getCurrentUserHandle().getIdentifier()));
         if (isDefaultDialerPackage && isUIService) {
             return IN_CALL_SERVICE_TYPE_DEFAULT_DIALER_UI;
-        }
-
-        if (!isUIService && !isCarModeUIService && isStreamingService) {
-            return IN_CALL_SERVICE_TYPE_STREAMING;
         }
 
         // Also allow any in-call service that has the control-experience permission (to ensure
@@ -2514,20 +2365,5 @@ public class InCallController extends CallsManagerListenerBase implements
         boolean hasUi = type == IN_CALL_SERVICE_TYPE_CAR_MODE_UI
                 || type == IN_CALL_SERVICE_TYPE_DEFAULT_DIALER_UI;
         call.maybeOnInCallServiceTrackingChanged(isAdd, hasUi);
-    }
-
-    public void requestStreamingCall(CallEndpointSessionTracker tracker) {
-        // Use getInCallServiceComponents instead of getInCallServiceComponent to avoid force
-        // binding to this package.
-        List<InCallServiceInfo> infos = getInCallServiceComponents(
-                tracker.getCallEndpoint().getComponentName(), IN_CALL_SERVICE_TYPE_STREAMING);
-        if (infos.isEmpty()) {
-            return;
-        }
-
-        // TODO: Check if info belongs to a package who is holding the STREAMING_CALL role
-        StreamingCallServiceBindingConnection connection =
-                new StreamingCallServiceBindingConnection(infos.get(0), tracker);
-        connection.connect(tracker.getCall());
     }
 }

@@ -34,7 +34,6 @@ import android.os.IInterface;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.telecom.CallAudioState;
-import android.telecom.CallEndpoint;
 import android.telecom.CallScreeningService;
 import android.telecom.Conference;
 import android.telecom.Connection;

@@ -269,15 +269,6 @@ public class TelecomSystem {
                 }
             };
 
-            CallEndpointControllerFactory callEndpointControllerFactory =
-                    new CallEndpointControllerFactory() {
-                @Override
-                public CallEndpointController create(SyncRoot lock,
-                        CallsManager callsManager) {
-                    return new CallEndpointController(lock, callsManager);
-                }
-            };
-
             CallDiagnosticServiceController callDiagnosticServiceController =
                     new CallDiagnosticServiceController(
                             new CallDiagnosticServiceController.ContextProxy() {
@@ -357,8 +348,7 @@ public class TelecomSystem {
                     inCallControllerFactory,
                     callDiagnosticServiceController,
                     roleManagerAdapter,
-                    toastFactory,
-                    callEndpointControllerFactory);
+                    toastFactory);
 
             mIncomingCallNotifier = incomingCallNotifier;
             incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {

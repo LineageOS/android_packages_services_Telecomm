@@ -19,12 +19,17 @@ package com.android.server.telecom.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 import android.content.ComponentName;
 import android.net.Uri;
@@ -33,17 +38,19 @@ import android.telecom.DisconnectCause;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android.server.telecom.Call;
-import com.android.server.telecom.CallEndpointController;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.ClockProxy;
 import com.android.server.telecom.ConnectionServiceWrapper;
+import com.android.server.telecom.InCallController;
+import com.android.server.telecom.InCallController.InCallServiceInfo;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.PhoneNumberUtilsAdapter;
 import com.android.server.telecom.TelecomSystem;
@@ -54,6 +61,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 @RunWith(AndroidJUnit4.class)
 public class CallTest extends TelecomTestCase {
@@ -79,8 +87,6 @@ public class CallTest extends TelecomTestCase {
     @Mock private Toast mMockToast;
     @Mock private PhoneNumberUtilsAdapter mMockPhoneNumberUtilsAdapter;
     @Mock private ConnectionServiceWrapper mMockConnectionService;
-    @Mock private CallEndpointController mCallEndpointController;
-    @Mock private Call.ListenerBase mListener;
 
     private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
 
@@ -94,7 +100,6 @@ public class CallTest extends TelecomTestCase {
         doReturn(new ComponentName(mContext, CallTest.class))
                 .when(mMockConnectionService).getComponentName();
         doReturn(mMockToast).when(mMockToastProxy).makeText(any(), anyInt(), anyInt());
-        doReturn(mCallEndpointController).when(mMockCallsManager).getCallEndpointController();
     }
 
     @After
@@ -340,37 +345,5 @@ public class CallTest extends TelecomTestCase {
         call.setCallDirection(Call.CALL_DIRECTION_INCOMING);
         assertTrue(hasCallDirectionChanged[0]);
         assertTrue(call.isIncoming());
-    }
-
-    @Test
-    @SmallTest
-    public void testExternalCallChanged() throws Exception {
-        Call call = new Call(
-                "1", /* callId */
-                mContext,
-                mMockCallsManager,
-                mLock,
-                null /* ConnectionServiceRepository */,
-                mMockPhoneNumberUtilsAdapter,
-                TEST_ADDRESS,
-                null /* GatewayInfo */,
-                null /* connectionManagerPhoneAccountHandle */,
-                SIM_1_HANDLE,
-                Call.CALL_DIRECTION_INCOMING,
-                false /* shouldAttachToExistingConnection*/,
-                false /* isConference */,
-                mMockClockProxy,
-                mMockToastProxy);
-        call.addListener(mListener);
-        call.setConnectionService(mMockConnectionService);
-        call.setConnectionCapabilities(Connection.CAPABILITY_CAN_PULL_CALL
-                | call.getConnectionCapabilities());
-        call.setState(CallState.ACTIVE, "");
-
-        call.setTethered(true /* isTethered */);
-        verify(mListener).onTetheredCallChanged(eq(call), eq(true));
-
-        call.setTethered(false /* isTethered */);
-        verify(mListener).onTetheredCallChanged(eq(call), eq(false));
     }
 }

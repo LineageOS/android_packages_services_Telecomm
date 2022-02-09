@@ -16,8 +16,6 @@
 
 package com.android.server.telecom.tests;
 
-import com.android.internal.telecom.ICallEndpointCallback;
-import com.android.internal.telecom.ICallEndpointSession;
 import com.android.internal.telecom.IInCallAdapter;
 import com.android.internal.telecom.IInCallService;
 
@@ -28,7 +26,6 @@ import android.os.IBinder;
 import android.os.IInterface;
 import android.os.RemoteException;
 import android.telecom.CallAudioState;
-import android.telecom.CallEndpoint;
 import android.telecom.ParcelableCall;
 
 import java.util.HashMap;
@@ -151,36 +148,6 @@ public class InCallServiceFixture implements TestFixture<IInCallService> {
 
         @Override
         public void onHandoverComplete(String callId) {}
-
-        @Override
-        public void onCallPullFailed(String callId, int reason) {}
-
-        @Override
-        public void onCallPushFailed(String callId, CallEndpoint endpoint, int reason) {}
-
-        @Override
-        public void onAnswerFailed(String callId, CallEndpoint callEndpoint, int reason) {}
-
-        @Override
-        public ICallEndpointCallback requestCallEndpointActivation(CallEndpoint callEndpoint,
-                ICallEndpointSession session) {
-            return new ICallEndpointCallback() {
-                @Override
-                public void onCallEndpointSessionActivationTimeout() throws RemoteException {
-
-                }
-
-                @Override
-                public void onCallEndpointSessionDeactivated() throws RemoteException {
-
-                }
-
-                @Override
-                public IBinder asBinder() {
-                    return null;
-                }
-            };
-        }
     }
 
     private IInCallService.Stub mInCallServiceFake = new FakeInCallService();
