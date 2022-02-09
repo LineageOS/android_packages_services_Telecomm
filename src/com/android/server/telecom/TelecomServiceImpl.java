@@ -50,7 +50,6 @@ import android.os.Process;
 import android.os.UserHandle;
 import android.provider.BlockedNumberContract;
 import android.provider.Settings;
-import android.telecom.CallEndpoint;
 import android.telecom.Log;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
@@ -69,7 +68,6 @@ import com.android.server.telecom.settings.BlockedNumbersActivity;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -2101,74 +2099,6 @@ public class TelecomServiceImpl {
                         Binder.restoreCallingIdentity(token);
                     }
                 }
-            } finally {
-                Log.endSession();
-            }
-        }
-
-        @Override
-        public void registerCallEndpoints(List<CallEndpoint> endpoints, String callingPackage) {
-            try {
-                Log.startSession("TSI.rCE", Log.getPackageAbbreviation(callingPackage));
-                //TODO: enforce relevant permission and calling package
-                synchronized (mLock) {
-                    long token = Binder.clearCallingIdentity();
-                    try {
-                        CallEndpointController controller =
-                                mCallsManager.getCallEndpointController();
-                        if (controller != null) {
-                            controller.registerCallEndpoints(endpoints);
-                        }
-                    } finally {
-                        Binder.restoreCallingIdentity(token);
-                    }
-                }
-            } finally {
-                Log.endSession();
-            }
-        }
-
-        @Override
-        public void unregisterCallEndpoints(List<CallEndpoint> endpoints, String callingPackage) {
-            try {
-                Log.startSession("TSI.uCE", Log.getPackageAbbreviation(callingPackage));
-                //TODO: enforce relevant permission and calling package
-                synchronized (mLock) {
-                    long token = Binder.clearCallingIdentity();
-                    try {
-                        CallEndpointController controller =
-                                mCallsManager.getCallEndpointController();
-                        if (controller != null) {
-                            controller.unregisterCallEndpoints(endpoints);
-                        }
-                    } finally {
-                        Binder.restoreCallingIdentity(token);
-                    }
-                }
-            } finally {
-                Log.endSession();
-            }
-        }
-
-        @Override
-        public List<CallEndpoint> getCallEndpoints(String callingPackage) {
-            try {
-                Log.startSession("TSI.rCE", Log.getPackageAbbreviation(callingPackage));
-                List<CallEndpoint> result = new ArrayList<>();
-                //TODO: enforce relevant permission and calling package
-                synchronized (mLock) {
-                    long token = Binder.clearCallingIdentity();
-                    try {
-                        CallEndpointController controller =
-                                mCallsManager.getCallEndpointController();
-                        if (controller != null) {
-                            result.addAll(controller.getCallEndpoints());
-                        }
-                    } finally {
-                        Binder.restoreCallingIdentity(token);
-                    }
-                }
-                return result;
             } finally {
                 Log.endSession();
             }

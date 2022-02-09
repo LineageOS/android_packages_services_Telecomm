@@ -19,7 +19,6 @@ package com.android.server.telecom;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
-import android.telecom.CallEndpoint;
 import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
 
@@ -560,50 +559,6 @@ class InCallAdapter extends IInCallAdapter.Stub {
                     Call call = mCallIdMapper.getCall(callId);
                     if (call != null) {
                         call.pullExternalCall();
-                    } else {
-                        Log.w(this, "pullExternalCall, unknown call id: %s", callId);
-                    }
-                }
-            } finally {
-                Binder.restoreCallingIdentity(token);
-            }
-        } finally {
-            Log.endSession();
-        }
-    }
-
-    @Override
-    public void pushCall(String callId, CallEndpoint callEndpoint) {
-        try {
-            Log.startSession("ICA.pC", mOwnerPackageAbbreviation);
-            long token = Binder.clearCallingIdentity();
-            try {
-                synchronized (mLock) {
-                    Call call = mCallIdMapper.getCall(callId);
-                    if (call != null) {
-                        call.pushCall(callEndpoint);
-                    } else {
-                        Log.w(this, "pullExternalCall, unknown call id: %s", callId);
-                    }
-                }
-            } finally {
-                Binder.restoreCallingIdentity(token);
-            }
-        } finally {
-            Log.endSession();
-        }
-    }
-
-    @Override
-    public void answerCallViaEndpoint(String callId, CallEndpoint callEndpoint, int videoState) {
-        try {
-            Log.startSession("ICA.aCE", mOwnerPackageAbbreviation);
-            long token = Binder.clearCallingIdentity();
-            try {
-                synchronized (mLock) {
-                    Call call = mCallIdMapper.getCall(callId);
-                    if (call != null) {
-                        call.answer(callEndpoint, videoState);
                     } else {
                         Log.w(this, "pullExternalCall, unknown call id: %s", callId);
                     }

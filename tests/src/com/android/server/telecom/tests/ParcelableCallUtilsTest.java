@@ -20,7 +20,6 @@ import android.telephony.ims.ImsCallProfile;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.Call;
-import com.android.server.telecom.CallEndpointController;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.ClockProxy;
@@ -47,7 +46,6 @@ public class ParcelableCallUtilsTest extends TelecomTestCase {
     @Mock private CallerInfoLookupHelper mCallerInfoLookupHelper;
     @Mock private PhoneNumberUtilsAdapter mPhoneNumberUtilsAdapter;
     @Mock private PhoneAccountRegistrar mPhoneAccountRegistrar;
-    @Mock private CallEndpointController mCallEndpointController;
     private Call mCall;
 
     @Override
@@ -59,7 +57,6 @@ public class ParcelableCallUtilsTest extends TelecomTestCase {
         when(mClockProxy.elapsedRealtime()).thenReturn(SystemClock.elapsedRealtime());
         when(mCallsManager.getCallerInfoLookupHelper()).thenReturn(mCallerInfoLookupHelper);
         when(mCallsManager.getPhoneAccountRegistrar()).thenReturn(mPhoneAccountRegistrar);
-        when(mCallsManager.getCallEndpointController()).thenReturn(mCallEndpointController);
         when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(any())).thenReturn(null);
         when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
                 .thenReturn(false);
