@@ -616,24 +616,17 @@ public class InCallController extends CallsManagerListenerBase implements
                     getInCallServiceComponent(packageName,
                             IN_CALL_SERVICE_TYPE_CAR_MODE_UI, true /* ignoreDisabed */);
 
-            if (!Objects.equals(currentConnectionInfo, carModeConnectionInfo)) {
+            if (!Objects.equals(currentConnectionInfo, carModeConnectionInfo)
+                    && carModeConnectionInfo != null) {
                 Log.i(this, "changeCarModeApp: " + currentConnectionInfo + " => "
                         + carModeConnectionInfo);
                 if (mIsConnected) {
                     mCurrentConnection.disconnect();
                 }
 
-                if (carModeConnectionInfo != null) {
-                    // Valid car mode app.
-                    mCarModeConnection = mCurrentConnection =
-                            new InCallServiceBindingConnection(carModeConnectionInfo);
-                    mIsCarMode = true;
-                } else {
-                    // The app is not enabled. Using the default dialer connection instead
-                    mCarModeConnection = null;
-                    mIsCarMode = false;
-                    mCurrentConnection = mDialerConnection;
-                }
+                mCarModeConnection = mCurrentConnection =
+                        new InCallServiceBindingConnection(carModeConnectionInfo);
+                mIsCarMode = true;
 
                 int result = mCurrentConnection.connect(null);
                 mIsConnected = result == CONNECTION_SUCCEEDED;
