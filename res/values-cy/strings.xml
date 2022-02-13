@@ -24,6 +24,18 @@
     <string name="notification_missedCallTicker">Wedi methu galwad gan <xliff:g id="missed_call_from">%s</xliff:g></string>
     <string name="notification_missedCall_call_back">Galw nôl</string>
     <string name="notification_missedCall_message">Neges</string>
+    <string name="notification_disconnectedCall_title">Galwad wedi\'i datgysylltu</string>
+    <string name="notification_disconnectedCall_body">Datgysylltwyd yr alwad â <xliff:g id="caller">%s</xliff:g> am fod galwad brys wedi ei gwneud.</string>
+    <string name="notification_disconnectedCall_generic_body">        Cafodd dy alwad ei datgysylltu am fod galwad brys wedi ei gwneud.
+    </string>
+    <string name="notification_audioProcessing_title">Galwad yn y cefndir</string>
+    <string name="notification_audioProcessing_body">        Mae <xliff:g id="audio_processing_app_name">%s</xliff:g> wedi gosod galwad yn
+        y cefndir. Gall fod yr ap hwn yn cael at ac yn chwarae sain dros yr alwad.
+    </string>
+    <string name="notification_incallservice_not_responding_title">        Stopiodd <xliff:g id="in_call_service_app_name">%s</xliff:g> ymateb
+    </string>
+    <string name="notification_incallservice_not_responding_body">        Defnyddiodd dy alwad yr ap ffôn daeth gyda dy ddyfais
+    </string>
     <string name="accessibility_call_muted">Galwad wedi\'i distewi.</string>
     <string name="accessibility_speakerphone_enabled">Seinydd uchel wedi\'i alluogi.</string>
     <string name="respond_via_sms_canned_response_1">Methu siarad nawr. Be sy\'?</string>
@@ -96,6 +108,9 @@
     <string name="notification_channel_incoming_call">Galwadau i mewn</string>
     <string name="notification_channel_missed_call">Galwadau wedi eu methu</string>
     <string name="notification_channel_call_blocking">Rhwystro Galwadau</string>
+    <string name="notification_channel_background_calls">Galwadau yn y cefndir</string>
+    <string name="notification_channel_disconnected_calls">Galwadau wedi\'u datgysylltu</string>
+    <string name="notification_channel_in_call_service_crash">Apiau ffôn wedi chwalu</string>
     <string name="alert_outgoing_call">Bydd gwneud yr alwad hon yn dod a dy alwad <xliff:g id="other_app">%1$s</xliff:g> i ben.</string>
     <string name="alert_redirect_outgoing_call_or_not">Dewisa sut i wneud yr alwad hon</string>
     <string name="alert_place_outgoing_call_with_redirection">Ailgyfierio\u2019r alwad gan ddefnyddio <xliff:g id="other_app">%1$s</xliff:g></string>
@@ -115,4 +130,5 @@
     <string name="phone_strings_emergency_call_made_dialog_title_txt">Wedi gwneud galwad brys</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt">Mae Rhwystro Galwadau wedi ei analluogi i ganiatáu’r gwasanaethau brys i gysylltu â thi.</string>
     <string name="developer_title">Dewislen Datblygwr Telathrebu</string>
+    <string name="toast_emergency_can_not_pull_call">Ni ellir gwneud galwadau tra bo galwad brys ar y gweill.</string>
 </resources>
