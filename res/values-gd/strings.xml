@@ -42,10 +42,10 @@
     <string name="no_vm_number">Tha àireamh a’ phuist-ghutha a dhìth</string>
     <string name="no_vm_number_msg">Chan eil àireamh puist-ghutha air a’ chairt SIM.</string>
     <string name="add_vm_number_str">Cuir àireamh ris</string>
-    <string name="change_default_dialer_dialog_title">An dèan thu aplacaid thùsail an fhònaidh dhe <xliff:g id="new_app">%s</xliff:g>?</string>
+    <string name="change_default_dialer_dialog_title">An dèan thu aplacaid bhunaiteach an fhòn dhe <xliff:g id="new_app">%s</xliff:g>?</string>
     <string name="change_default_dialer_dialog_affirmative">Suidhich mar a’ bhun-roghainn</string>
     <string name="change_default_dialer_dialog_negative">Sguir dheth</string>
-    <string name="change_default_dialer_warning_message">’S urrainn dha <xliff:g id="new_app">%s</xliff:g> gairmean a chur is gach nì mun dèidhinn a stiùireadh. Cha bu chòir dhut aplacaid a shuidheachadh mar tè thùsail an fhònaidh ach ma bhios earbsa agad innte.</string>
+    <string name="change_default_dialer_warning_message">’S urrainn dha <xliff:g id="new_app">%s</xliff:g> gairmean a chur is gach nì mun dèidhinn a stiùireadh. Cha bu chòir dhut aplacaid a shuidheachadh mar tè bhunaiteach an fhòn ach ma bhios earbsa agad innte.</string>
     <string name="blocked_numbers">Àireamhan bacte</string>
     <string name="blocked_numbers_msg">Chan fhaigh thu gairm no teachdaireachd on a h-àireamhan bacte.</string>
     <string name="block_number">Cuir àireamh ris</string>
@@ -73,8 +73,23 @@
     <string name="test_account_3_short_description">Chat with Chat Network users</string>
     <string name="handle_restricted">RESTRICTED</string>
     <string name="toast_personal_call_msg">A’ cleachdadh an daithealair pearsanta airson na gairm</string>
+    <string name="notification_incoming_call">Gairm <xliff:g id="call_via">%1$s</xliff:g> o <xliff:g id="call_from">%2$s</xliff:g></string>
+    <string name="notification_incoming_video_call">Gairm video <xliff:g id="call_via">%1$s</xliff:g> o <xliff:g id="call_from">%2$s</xliff:g></string>
+    <string name="answering_ends_other_call">Ma fhreagras tu, thèid crìoch a chur air a’ ghairm <xliff:g id="call_via">%1$s</xliff:g> agad</string>
+    <string name="answering_ends_other_calls">Ma fhreagras tu, thèid crìoch a chur air na gairmean <xliff:g id="call_via">%1$s</xliff:g> agad</string>
+    <string name="answering_ends_other_video_call">Ma fhreagras tu, thèid crìoch a chur air a’ ghairm video <xliff:g id="call_via">%1$s</xliff:g> agad</string>
+    <string name="answering_ends_other_managed_call">Ma fhreagras tu, thèid crìoch a chur air gairm a tha a’ dol air adhart</string>
+    <string name="answering_ends_other_managed_calls">Ma fhreagras tu, thèid crìoch a chur air gairmean a tha a’ dol air adhart</string>
+    <string name="answering_ends_other_managed_video_call">Ma fhreagras tu, thèid crìoch a chur air gairm video a tha a’ dol air adhart</string>
+    <string name="answer_incoming_call">Freagair</string>
+    <string name="decline_incoming_call">Diùlt</string>
+    <string name="cant_call_due_to_ongoing_call">Cha ghabh a’ ghairm a chur air sàilleibh na gairme <xliff:g id="other_call">%1$s</xliff:g> agad.</string>
+    <string name="cant_call_due_to_ongoing_calls">Cha ghabh a’ ghairm a chur air sàilleibh nan gairmean <xliff:g id="other_call">%1$s</xliff:g> agad.</string>
+    <string name="cant_call_due_to_ongoing_unknown_call">Cha ghabh a’ ghairm a chur air sàilleibh gairme am broinn aplacaid eile.</string>
+    <string name="notification_channel_incoming_call">Gairmean a-steach</string>
     <string name="notification_channel_missed_call">Gairmean a dh’fhalbh ort</string>
     <string name="notification_channel_call_blocking">Bacadh ghairmean</string>
+    <string name="alert_outgoing_call">Ma chuireas tu a’ ghairm seo, thèid crìoch a chur air a’ ghairm <xliff:g id="other_app">%1$s</xliff:g> agad.</string>
     <string name="phone_settings_call_blocking_txt">Bacadh ghairmean</string>
     <string name="phone_settings_number_not_in_contact_txt">Àireamhan nach eil ’nan luchd-aithne</string>
     <string name="phone_settings_number_not_in_contact_summary_txt">Bac àireamhan nach deach a chlàradh san luchd-aithne agad</string>
