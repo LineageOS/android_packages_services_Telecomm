@@ -220,7 +220,7 @@ public class TelecomSystem {
         Log.startSession("TS.init");
         // Wrap this in a try block to ensure session cleanup occurs in the case of error.
         try {
-            mPhoneAccountRegistrar = new PhoneAccountRegistrar(mContext, defaultDialerCache,
+            mPhoneAccountRegistrar = new PhoneAccountRegistrar(mContext, mLock, defaultDialerCache,
                     packageName -> AppLabelProxy.Util.getAppLabel(
                             mContext.getPackageManager(), packageName));
 
@@ -233,7 +233,7 @@ public class TelecomSystem {
                         }
                     });
             BluetoothDeviceManager bluetoothDeviceManager = new BluetoothDeviceManager(mContext,
-                    new BluetoothManager(mContext).getAdapter());
+                    mContext.getSystemService(BluetoothManager.class).getAdapter());
             BluetoothRouteManager bluetoothRouteManager = new BluetoothRouteManager(mContext, mLock,
                     bluetoothDeviceManager, new Timeouts.Adapter());
             BluetoothStateReceiver bluetoothStateReceiver = new BluetoothStateReceiver(

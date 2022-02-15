@@ -23,6 +23,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioModeStateMachine.MessageArgs;
+import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.SystemStateHelper;
 
 import org.junit.After;
@@ -40,6 +41,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -103,6 +105,7 @@ public class CallAudioModeTransitionTests extends TelecomTestCase {
     @Mock private SystemStateHelper mSystemStateHelper;
     @Mock private AudioManager mAudioManager;
     @Mock private CallAudioManager mCallAudioManager;
+    @Mock private CallAudioRouteStateMachine mCallAudioRouteStateMachine;
     private final ModeTestParameters mParams;
     private HandlerThread mTestThread;
 
@@ -137,6 +140,9 @@ public class CallAudioModeTransitionTests extends TelecomTestCase {
 
         resetMocks();
         when(mCallAudioManager.startRinging()).thenReturn(true);
+        when(mCallAudioManager.getCallAudioRouteStateMachine())
+                .thenReturn(mCallAudioRouteStateMachine);
+        doNothing().when(mCallAudioRouteStateMachine).sendMessageWithSessionInfo(anyInt());
         if (mParams.initialAudioState
                 == CallAudioModeStateMachine.ENTER_AUDIO_PROCESSING_FOCUS_FOR_TESTING) {
             when(mAudioManager.getMode())

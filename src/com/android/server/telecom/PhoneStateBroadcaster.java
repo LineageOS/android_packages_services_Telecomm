@@ -78,8 +78,7 @@ final class PhoneStateBroadcaster extends CallsManagerListenerBase {
      * Handles changes to a call's external property.  If the call becomes external, we end up
      * updating the call state to idle.  If the call becomes non-external, then the call state can
      * update to off hook.
-     *
-     * @param call The call.
+     *  @param call The call.
      * @param isExternalCall {@code True} if the call is external, {@code false} otherwise.
      */
     @Override

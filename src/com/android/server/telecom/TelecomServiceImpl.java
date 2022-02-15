@@ -26,6 +26,7 @@ import static android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE;
 import static android.Manifest.permission.READ_SMS;
 import static android.Manifest.permission.REGISTER_SIM_SUBSCRIPTION;
 import static android.Manifest.permission.WRITE_SECURE_SETTINGS;
+import static android.Manifest.permission.MANAGE_OWN_CALLS;
 
 import android.Manifest;
 import android.app.ActivityManager;
@@ -225,26 +226,64 @@ public class TelecomServiceImpl {
         public List<PhoneAccountHandle> getSelfManagedPhoneAccounts(String callingPackage,
                 String callingFeatureId) {
             try {
-                Log.startSession("TSI.gSMPA", Log.getPackageAbbreviation(callingPackage));
-                if (!canReadPhoneState(callingPackage, callingFeatureId,
-                        "Requires READ_PHONE_STATE permission.")) {
-                    throw new SecurityException("Requires READ_PHONE_STATE permission.");
-                }
-                synchronized (mLock) {
-                    final UserHandle callingUserHandle = Binder.getCallingUserHandle();
-                    long token = Binder.clearCallingIdentity();
-                    try {
-                        return mPhoneAccountRegistrar.getSelfManagedPhoneAccounts(
-                                callingUserHandle);
-                    } catch (Exception e) {
-                        Log.e(this, e, "getSelfManagedPhoneAccounts");
-                        throw e;
-                    } finally {
-                        Binder.restoreCallingIdentity(token);
+                Log.startSession("TSI.gSMPA",
+                        Log.getPackageAbbreviation(callingPackage));
+                try {
+                    if (canReadPhoneState(callingPackage, callingFeatureId,
+                            "Requires READ_PHONE_STATE permission.")) {
+                        synchronized (mLock) {
+                            final UserHandle callingUserHandle = Binder.getCallingUserHandle();
+                            long token = Binder.clearCallingIdentity();
+                            try {
+                                return mPhoneAccountRegistrar.getSelfManagedPhoneAccounts(
+                                        callingUserHandle);
+                            } catch (Exception e) {
+                                Log.e(this, e, "getSelfManagedPhoneAccounts");
+                                throw e;
+                            } finally {
+                                Binder.restoreCallingIdentity(token);
+                            }
+                        }
                     }
+                } catch (SecurityException e) {
+                    //  SecurityException thrown from canReadPhoneState(...) due to READ_PHONE_STATE
+                    //   permission.  check MANAGE_OWN_CALLS permission next.
+                }
+
+                if (canReadMangeOwnCalls("Requires MANAGE_OWN_CALLS permission")) {
+                    synchronized (mLock) {
+                        final UserHandle callingUserHandle = Binder.getCallingUserHandle();
+                        long token = Binder.clearCallingIdentity();
+                        try {
+                            return mPhoneAccountRegistrar.getSelfManagedPhoneAccountsForPackage(
+                                    callingPackage,
+                                    callingUserHandle);
+                        } catch (Exception e) {
+                            Log.e(this, e,
+                                    "getSelfManagedPhoneAccountsForPackage");
+                            throw e;
+                        } finally {
+                            Binder.restoreCallingIdentity(token);
+                        }
+                    }
+                } else {
+                    throw new SecurityException(
+                            "Requires caller to be the default dialer app or at least one of the "
+                                    + "following permissions READ_PRIVILEGED_PHONE_STATE, "
+                                    + "READ_PHONE_STATE, or MANAGE_OWN_CALLS for the calling "
+                                    + "package: " + callingPackage);
                 }
             } finally {
                 Log.endSession();
+            }
+        }
+
+        private boolean canReadMangeOwnCalls(String message) {
+            try {
+                mContext.enforceCallingOrSelfPermission(MANAGE_OWN_CALLS, message);
+                return true;
+            } catch (SecurityException e) {
+                return false;
             }
         }
 
@@ -531,6 +570,15 @@ public class TelecomServiceImpl {
                         }
                         if (account.hasCapabilities(PhoneAccount.CAPABILITY_MULTI_USER)) {
                             enforceRegisterMultiUser();
+                        }
+                        // These capabilities are for SIM-based accounts only, so only the platform
+                        // and carrier-designated SIM call manager can register accounts with these
+                        // capabilities.
+                        if (account.hasCapabilities(
+                                        PhoneAccount.CAPABILITY_SUPPORTS_VOICE_CALLING_INDICATIONS)
+                                || account.hasCapabilities(
+                                        PhoneAccount.CAPABILITY_VOICE_CALLING_AVAILABLE)) {
+                            enforceRegisterVoiceCallingIndicationCapabilities(account);
                         }
                         Bundle extras = account.getExtras();
                         if (extras != null
@@ -1883,6 +1931,31 @@ public class TelecomServiceImpl {
         }
 
         /**
+         * A method intended for test to clean up orphan {@link PhoneAccount}. An orphan
+         * {@link PhoneAccount} is a phone account belongs to an invalid {@link UserHandle} or a
+         * deleted package.
+         *
+         * @return the number of orphan {@code PhoneAccount} deleted.
+         */
+        @Override
+        public int cleanupOrphanPhoneAccounts() {
+            Log.startSession("TCI.cOPA");
+            try {
+                synchronized (mLock) {
+                    enforceShellOnly(Binder.getCallingUid(), "cleanupOrphanPhoneAccounts");
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        return mPhoneAccountRegistrar.cleanupOrphanedPhoneAccounts();
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        /**
          * A method intended for use in testing to reset car mode at all priorities.
          *
          * Runs during setup to avoid cascading failures from failing car mode CTS.
@@ -2242,7 +2315,7 @@ public class TelecomServiceImpl {
         if (result != PackageManager.PERMISSION_GRANTED) {
             // Other callers are only allowed to modify PhoneAccounts if the relevant system
             // feature is enabled ...
-            enforceConnectionServiceFeature();
+            enforceTelecomFeature();
             // ... and the PhoneAccounts they refer to are for their own package.
             enforceCallingPackage(packageName, "enforcePhoneAccountModificationForPackage");
         }
@@ -2278,8 +2351,13 @@ public class TelecomServiceImpl {
         }
     }
 
-    private void enforceConnectionServiceFeature() {
-        enforceFeature(PackageManager.FEATURE_CONNECTION_SERVICE);
+    private void enforceTelecomFeature() {
+        PackageManager pm = mContext.getPackageManager();
+        if (!pm.hasSystemFeature(PackageManager.FEATURE_TELECOM)
+                && !pm.hasSystemFeature(PackageManager.FEATURE_CONNECTION_SERVICE)) {
+            throw new UnsupportedOperationException(
+                    "System does not support feature " + PackageManager.FEATURE_TELECOM);
+        }
     }
 
     private void enforceRegisterSimSubscriptionPermission() {
@@ -2308,6 +2386,24 @@ public class TelecomServiceImpl {
         }
     }
 
+    private void enforceRegisterVoiceCallingIndicationCapabilities(PhoneAccount account) {
+        // Caller must be able to register a SIM PhoneAccount or be the SIM call manager (as named
+        // in carrier config) to declare the two voice indication capabilities.
+        boolean prerequisiteCapabilitiesOk =
+                account.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
+                        || account.hasCapabilities(PhoneAccount.CAPABILITY_CONNECTION_MANAGER);
+        boolean permissionsOk =
+                isCallerSimCallManagerForAnySim(account.getAccountHandle())
+                        || mContext.checkCallingOrSelfPermission(REGISTER_SIM_SUBSCRIPTION)
+                                == PackageManager.PERMISSION_GRANTED;
+        if (!prerequisiteCapabilitiesOk || !permissionsOk) {
+            throw new SecurityException(
+                    "Only SIM subscriptions and connection managers are allowed to declare "
+                            + "CAPABILITY_SUPPORTS_VOICE_CALLING_INDICATIONS and "
+                            + "CAPABILITY_VOICE_CALLING_AVAILABLE");
+        }
+    }
+
     private void enforceRegisterSkipCallFiltering() {
         if (!isCallerSystemApp()) {
             throw new SecurityException(
@@ -2333,14 +2429,6 @@ public class TelecomServiceImpl {
             mContext.enforceCallingOrSelfPermission(
                     android.Manifest.permission.INTERACT_ACROSS_USERS_FULL, "Must be system or have"
                             + " INTERACT_ACROSS_USERS_FULL permission");
-        }
-    }
-
-    private void enforceFeature(String feature) {
-        PackageManager pm = mContext.getPackageManager();
-        if (!pm.hasSystemFeature(feature)) {
-            throw new UnsupportedOperationException(
-                    "System does not support feature " + feature);
         }
     }
 
@@ -2523,6 +2611,29 @@ public class TelecomServiceImpl {
             }
         }
         return false;
+    }
+
+    /**
+     * Similar to {@link #isCallerSimCallManager}, but works for all SIMs and does not require
+     * {@code accountHandle} to be registered yet.
+     */
+    private boolean isCallerSimCallManagerForAnySim(PhoneAccountHandle accountHandle) {
+        if (isCallerSimCallManager(accountHandle)) {
+            // The caller has already registered a CONNECTION_MANAGER PhoneAccount, so let them pass
+            // (this allows the SIM call manager through in case of SIM switches, where carrier
+            // config may be in a transient state)
+            return true;
+        }
+        // If the caller isn't already registered, then we have to look at the active PSTN
+        // PhoneAccounts and check their carrier configs to see if any point to this one's component
+        final long token = Binder.clearCallingIdentity();
+        try {
+            return !mPhoneAccountRegistrar
+                    .getSimPhoneAccountsFromSimCallManager(accountHandle)
+                    .isEmpty();
+        } finally {
+            Binder.restoreCallingIdentity(token);
+        }
     }
 
     private boolean isPrivilegedDialerCalling(String callingPackage) {

@@ -114,6 +114,8 @@
     <string name="phone_settings_payphone_summary_txt" msgid="3936631076065563665">"പേ ഫോണുകളിൽ നിന്നുള്ള കോളുകൾ ബ്ലോക്ക് ചെയ്യുക"</string>
     <string name="phone_settings_unknown_txt" msgid="3577926178354772728">"അജ്ഞാതം"</string>
     <string name="phone_settings_unknown_summary_txt" msgid="5446657192535779645">"തിരിച്ചറിയാത്ത കോളർമാരിൽ നിന്നുള്ള കോളുകൾ ബ്ലോക്ക് ചെയ്യുക"</string>
+    <string name="phone_settings_unavailable_txt" msgid="825918186053980858">"ലഭ്യമല്ല"</string>
+    <string name="phone_settings_unavailable_summary_txt" msgid="8221686031038282633">"നമ്പർ ലഭ്യമല്ലാത്ത കോളുകൾ ബ്ലോക്ക് ചെയ്യുക"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="2895809176537908791">"കോൾ ബ്ലോക്ക് ചെയ്യൽ"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="1713632946174016619">"കോൾ ബ്ലോക്ക് ചെയ്യൽ പ്രവർത്തനരഹിതമാക്കി"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="6629412508584507377">"അടിയന്തര കോൾ ചെയ്തു"</string>

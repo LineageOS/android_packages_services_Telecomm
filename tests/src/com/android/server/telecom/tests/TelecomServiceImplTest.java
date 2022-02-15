@@ -516,6 +516,25 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         doReturn(PackageManager.PERMISSION_DENIED)
                 .when(mContext).checkCallingOrSelfPermission(MODIFY_PHONE_STATE);
         PackageManager pm = mContext.getPackageManager();
+        when(pm.hasSystemFeature(PackageManager.FEATURE_TELECOM)).thenReturn(true);
+
+        registerPhoneAccountTestHelper(phoneAccount, true);
+    }
+
+    @SmallTest
+    @Test
+    public void testRegisterPhoneAccountWithOldFeatureFlag() throws RemoteException {
+        // tests the case where the package does not have MODIFY_PHONE_STATE but is
+        // registering its own phone account as a third-party connection service
+        String packageNameToUse = "com.thirdparty.connectionservice";
+        PhoneAccountHandle phHandle = new PhoneAccountHandle(new ComponentName(
+                packageNameToUse, "cs"), "asdf", Binder.getCallingUserHandle());
+        PhoneAccount phoneAccount = makePhoneAccount(phHandle).build();
+
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingOrSelfPermission(MODIFY_PHONE_STATE);
+        PackageManager pm = mContext.getPackageManager();
+        when(pm.hasSystemFeature(PackageManager.FEATURE_TELECOM)).thenReturn(false);
         when(pm.hasSystemFeature(PackageManager.FEATURE_CONNECTION_SERVICE)).thenReturn(true);
 
         registerPhoneAccountTestHelper(phoneAccount, true);
@@ -534,7 +553,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         doReturn(PackageManager.PERMISSION_DENIED)
                 .when(mContext).checkCallingOrSelfPermission(MODIFY_PHONE_STATE);
         PackageManager pm = mContext.getPackageManager();
-        when(pm.hasSystemFeature(PackageManager.FEATURE_CONNECTION_SERVICE)).thenReturn(false);
+        when(pm.hasSystemFeature(PackageManager.FEATURE_TELECOM)).thenReturn(false);
 
         registerPhoneAccountTestHelper(phoneAccount, false);
     }
@@ -623,7 +642,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         doReturn(PackageManager.PERMISSION_DENIED)
                 .when(mContext).checkCallingOrSelfPermission(MODIFY_PHONE_STATE);
         PackageManager pm = mContext.getPackageManager();
-        when(pm.hasSystemFeature(PackageManager.FEATURE_CONNECTION_SERVICE)).thenReturn(false);
+        when(pm.hasSystemFeature(PackageManager.FEATURE_TELECOM)).thenReturn(false);
 
         try {
             mTSIBinder.unregisterPhoneAccount(phHandle);
