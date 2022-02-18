@@ -101,6 +101,7 @@ import static org.mockito.Mockito.when;
 @RunWith(JUnit4.class)
 public class TelecomServiceImplTest extends TelecomTestCase {
 
+    private static final String CALLING_PACKAGE = TelecomServiceImplTest.class.getPackageName();
     public static final String TEST_PACKAGE = "com.test";
     public static final String PACKAGE_NAME = "test";
 
@@ -602,7 +603,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
         boolean didExceptionOccur = false;
         try {
-            mTSIBinder.registerPhoneAccount(testPhoneAccount);
+            mTSIBinder.registerPhoneAccount(testPhoneAccount, CALLING_PACKAGE);
         } catch (Exception e) {
             didExceptionOccur = true;
         }
@@ -628,7 +629,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         doReturn(PackageManager.PERMISSION_GRANTED)
                 .when(mContext).checkCallingOrSelfPermission(MODIFY_PHONE_STATE);
 
-        mTSIBinder.unregisterPhoneAccount(phHandle);
+        mTSIBinder.unregisterPhoneAccount(phHandle, CALLING_PACKAGE);
         verify(mFakePhoneAccountRegistrar).unregisterPhoneAccount(phHandle);
     }
 
@@ -645,7 +646,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         when(pm.hasSystemFeature(PackageManager.FEATURE_TELECOM)).thenReturn(false);
 
         try {
-            mTSIBinder.unregisterPhoneAccount(phHandle);
+            mTSIBinder.unregisterPhoneAccount(phHandle, CALLING_PACKAGE);
         } catch (UnsupportedOperationException e) {
             // expected behavior
         }
@@ -665,7 +666,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         doNothing().when(mAppOpsManager).checkPackage(anyInt(), anyString());
         Bundle extras = createSampleExtras();
 
-        mTSIBinder.addNewIncomingCall(TEL_PA_HANDLE_CURRENT, extras);
+        mTSIBinder.addNewIncomingCall(TEL_PA_HANDLE_CURRENT, extras, CALLING_PACKAGE);
 
         addCallTestHelper(TelecomManager.ACTION_INCOMING_CALL,
                 CallIntentProcessor.KEY_IS_INCOMING_CALL, extras, false);
@@ -675,7 +676,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @Test
     public void testAddNewIncomingCallFailure() throws Exception {
         try {
-            mTSIBinder.addNewIncomingCall(TEL_PA_HANDLE_16, null);
+            mTSIBinder.addNewIncomingCall(TEL_PA_HANDLE_16, null, CALLING_PACKAGE);
         } catch (SecurityException e) {
             // expected
         }
@@ -683,7 +684,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         doThrow(new SecurityException()).when(mAppOpsManager).checkPackage(anyInt(), anyString());
 
         try {
-            mTSIBinder.addNewIncomingCall(TEL_PA_HANDLE_CURRENT, null);
+            mTSIBinder.addNewIncomingCall(TEL_PA_HANDLE_CURRENT, null, CALLING_PACKAGE);
         } catch (SecurityException e) {
             // expected
         }
