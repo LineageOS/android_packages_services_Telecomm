@@ -607,10 +607,12 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
             CallInfoFactory callInfoFactory, final UserHandle userHandle) {
         Log.d(this, "reloadFromDatabase: user=%d", userHandle.getIdentifier());
         if (TelecomSystem.getInstance() == null || !TelecomSystem.getInstance().isBootComplete()) {
-            Log.i(this, "reloadFromDatabase: Boot not yet complete -- call log db may not be "
-                    + "available. Deferring loading until boot complete for user %d",
-                    userHandle.getIdentifier());
-            mUsersToLoadAfterBootComplete.add(userHandle);
+            if (!mUsersToLoadAfterBootComplete.contains(userHandle)) {
+                Log.i(this, "reloadFromDatabase: Boot not yet complete -- call log db may not be "
+                        + "available. Deferring loading until boot complete for user %d",
+                        userHandle.getIdentifier());
+                mUsersToLoadAfterBootComplete.add(userHandle);
+            }
             return;
         }
 
