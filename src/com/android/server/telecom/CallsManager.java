@@ -2082,7 +2082,7 @@ public class CallsManager extends Call.ListenerBase
                                           int videoState, boolean shouldCancelCall,
                                           String uiAction) {
         Log.i(this, "onCallRedirectionComplete for Call %s with handle %s" +
-                " and phoneAccountHandle %s", call, handle, phoneAccountHandle);
+                " and phoneAccountHandle %s", call, Log.pii(handle), phoneAccountHandle);
 
         boolean endEarly = false;
         String disconnectReason = "";
