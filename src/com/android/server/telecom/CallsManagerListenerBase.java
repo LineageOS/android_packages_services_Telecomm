@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import android.telecom.AudioState;
 import android.telecom.CallAudioState;
 import android.telecom.VideoProfile;
 
@@ -86,10 +87,6 @@ public class CallsManagerListenerBase implements CallsManager.CallsManagerListen
 
     @Override
     public void onExternalCallChanged(Call call, boolean isExternalCall) {
-    }
-
-    @Override
-    public void onTetheredCallChanged(Call call, boolean isTetheredCall) {
     }
 
     @Override

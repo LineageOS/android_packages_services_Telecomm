@@ -46,7 +46,6 @@ public class CallAudioManager extends CallsManagerListenerBase {
     private final LinkedHashSet<Call> mRingingCalls;
     private final LinkedHashSet<Call> mHoldingCalls;
     private final LinkedHashSet<Call> mAudioProcessingCalls;
-    private final LinkedHashSet<Call> mTetheredCalls;
     private final Set<Call> mCalls;
     private final SparseArray<LinkedHashSet<Call>> mCallStateToCalls;
 
@@ -76,7 +75,6 @@ public class CallAudioManager extends CallsManagerListenerBase {
         mRingingCalls = new LinkedHashSet<>(1);
         mHoldingCalls = new LinkedHashSet<>(1);
         mAudioProcessingCalls = new LinkedHashSet<>(1);
-        mTetheredCalls = new LinkedHashSet<>(1);
         mCalls = new HashSet<>();
         mCallStateToCalls = new SparseArray<LinkedHashSet<Call>>() {{
             put(CallState.CONNECTING, mActiveDialingOrConnectingCalls);
@@ -192,26 +190,24 @@ public class CallAudioManager extends CallsManagerListenerBase {
     /**
      * Handles changes to the external state of a call.  External calls which become regular calls
      * should be tracked, and regular calls which become external should no longer be tracked.
+     *
      * @param call The call.
-     * @param isExternalCall {@code True} if the call is now external, {@code false} if it is not
+     * @param isExternalCall {@code True} if the call is now external, {@code false} if it is now
+     *      a regular call.
      */
     @Override
     public void onExternalCallChanged(Call call, boolean isExternalCall) {
-        Log.d(LOG_TAG, "Exit external route because call %s is no longer a tethered "
-                + "external call.", call.getId());
         if (isExternalCall) {
-            Log.d(LOG_TAG, "Removing call which became untethered external ID %s",
-                    call.getId());
+            Log.d(LOG_TAG, "Removing call which became external ID %s", call.getId());
             removeCall(call);
-        } else {
+        } else if (!isExternalCall) {
             Log.d(LOG_TAG, "Adding external call which was pulled with ID %s", call.getId());
             addCall(call);
 
             if (mCallsManager.isSpeakerphoneAutoEnabledForVideoCalls(call.getVideoState())) {
                 // When pulling a video call, automatically enable the speakerphone.
-                Log.d(LOG_TAG,
-                        "Switching to speaker because external video call %s was pulled." +
-                                call.getId());
+                Log.d(LOG_TAG, "Switching to speaker because external video call %s was pulled." +
+                        call.getId());
                 mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
                         CallAudioRouteStateMachine.SWITCH_SPEAKER);
             }
@@ -219,38 +215,13 @@ public class CallAudioManager extends CallsManagerListenerBase {
     }
 
     /**
-     * Handles changes to the tethered state of a call.
-     * @param call The call.
-     * @param isTetheredCall {@code True} if the call is tethered call, {@code false} otherwise
+     * Determines if {@link CallAudioManager} should do any audio routing operations for a call.
+     * We ignore child calls of a conference and external calls for audio routing purposes.
+     *
+     * @param call The call to check.
+     * @return {@code true} if the call should be ignored for audio routing, {@code false}
+     * otherwise
      */
-    @Override
-    public void onTetheredCallChanged(Call call, boolean isTetheredCall) {
-        if (isTetheredCall) {
-            Log.d(LOG_TAG, "Switching to external route because call %s became tethered "
-                    + " external call.", call.getId());
-            removeCall(call);
-            mTetheredCalls.add(call);
-            mCallAudioModeStateMachine.sendMessageWithArgs(
-                    CallAudioModeStateMachine.NEW_TETHERED_EXTERNAL_CALL,
-                    makeArgsForModeStateMachine());
-        } else {
-            mTetheredCalls.remove(call);
-            if (mTetheredCalls.size() == 0) {
-                mCallAudioModeStateMachine.sendMessageWithArgs(
-                        CallAudioModeStateMachine.NO_MORE_TETHERED_CALLS,
-                        makeArgsForModeStateMachine());
-            }
-        }
-    }
-
-        /**
-         * Determines if {@link CallAudioManager} should do any audio routing operations for a call.
-         * We ignore child calls of a conference and external calls for audio routing purposes.
-         *
-         * @param call The call to check.
-         * @return {@code true} if the call should be ignored for audio routing, {@code false}
-         * otherwise
-         */
     private boolean shouldIgnoreCallForAudio(Call call) {
         return call.getParentCall() != null || call.isExternalCall();
     }
@@ -756,7 +727,6 @@ public class CallAudioManager extends CallsManagerListenerBase {
                 .setHasHoldingCalls(mHoldingCalls.size() > 0)
                 .setHasAudioProcessingCalls(mAudioProcessingCalls.size() > 0)
                 .setIsTonePlaying(mIsTonePlaying)
-                .setHasTetheredCalls(mTetheredCalls.size() > 0)
                 .setForegroundCallIsVoip(
                         mForegroundCall != null && mForegroundCall.getIsVoipAudioMode())
                 .setSession(Log.createSubsession()).build();
