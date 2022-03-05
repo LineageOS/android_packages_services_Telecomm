@@ -1604,35 +1604,6 @@ public class CallsManagerTest extends TelecomTestCase {
                 any(DisconnectCause.class));
         verify(callSpy, never()).setDisconnectCause(any(DisconnectCause.class));
     }
-
-    @SmallTest
-    @Test
-    public void testTetheredExternalCallChanged() throws Exception {
-        Call call = createCall(SIM_1_HANDLE, CallState.NEW);
-        CountDownLatch tetheredCallAdded = new CountDownLatch(1);
-        CountDownLatch tetheredCallRemoved = new CountDownLatch(1);
-        Call.Listener l =  new Call.ListenerBase() {
-            @Override
-            public void onTetheredCallChanged(Call call, boolean isTetheredCall) {
-                if (isTetheredCall) {
-                    tetheredCallAdded.countDown();
-                } else {
-                    tetheredCallRemoved.countDown();
-                }
-            }
-        };
-        call.addListener(l);
-
-        // Set call as a tethered external call
-        call.setConnectionProperties(call.getConnectionProperties()
-                | (Connection.PROPERTY_IS_EXTERNAL_CALL | Connection.PROPERTY_TETHERED_CALL));
-        assertTrue(tetheredCallAdded.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
-
-        // Set call as a non-tethered call
-        call.setConnectionProperties(call.getConnectionProperties() &
-                (~Connection.PROPERTY_TETHERED_CALL));
-        assertTrue(tetheredCallRemoved.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
-    }
     
     /**
      * Verifies that if call state goes from DIALING to DISCONNECTED, and a call diagnostic service
