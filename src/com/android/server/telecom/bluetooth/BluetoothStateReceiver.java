@@ -184,6 +184,16 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
                     return;
                 }
                 args.arg2 = device.getAddress();
+
+                if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_LE_AUDIO) {
+                    /* In Le Audio case, once device got Active, the Telecom needs to make sure it
+                     * is set as communication device before we can say that BT_AUDIO_IS_ON
+                     */
+                    if (!mBluetoothDeviceManager.setLeAudioCommunicationDevice()) {
+                        Log.w(LOG_TAG, "Device %s cannot be use as communication device.", device);
+                        return;
+                    }
+                }
                 mBluetoothRouteManager.sendMessage(BT_AUDIO_IS_ON, args);
            }
         }
