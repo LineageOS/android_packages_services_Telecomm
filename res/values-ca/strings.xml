@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="telecommAppLabel" product="default" msgid="1825598513414129827">"Trucades telefòniques"</string>
+    <string name="telecommAppLabel" product="default" msgid="3077225713817780583">"Gestió de trucades"</string>
     <string name="userCallActivityLabel" product="default" msgid="3605391260292846248">"Telèfon"</string>
     <string name="unknown" msgid="6993977514360123431">"Desconegut"</string>
     <string name="notification_missedCallTitle" msgid="5060387047205532974">"Trucada perduda"</string>
@@ -114,13 +114,10 @@
     <string name="phone_settings_payphone_summary_txt" msgid="3936631076065563665">"Bloqueja les trucades de telèfons públics"</string>
     <string name="phone_settings_unknown_txt" msgid="3577926178354772728">"Desconeguts"</string>
     <string name="phone_settings_unknown_summary_txt" msgid="5446657192535779645">"Bloqueja les trucades de números no identificats"</string>
-    <string name="phone_settings_unavailable_txt" msgid="825918186053980858">"No disponibles"</string>
-    <string name="phone_settings_unavailable_summary_txt" msgid="8221686031038282633">"Bloqueja les trucades de números no disponibles"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="2895809176537908791">"Bloqueig de trucades"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="1713632946174016619">"El bloqueig de trucades s\'ha desactivat"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="6629412508584507377">"S\'ha fet una trucada d\'emergència"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"El bloqueig de trucades s\'ha desactivat perquè els serveis d\'emergència puguin contactar amb tu."</string>
     <string name="developer_title" msgid="9146088855661672353">"Menú per a desenvolupadors de telecomunicacions"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"No es poden respondre trucades durant una trucada d\'emergència."</string>
-    <string name="cancel" msgid="6733466216239934756">"Cancel·la"</string>
 </resources>
