@@ -284,7 +284,7 @@ public class TelecomServiceImpl {
         public List<PhoneAccountHandle> getPhoneAccountsForPackage(String packageName) {
             //TODO: Deprecate this in S
             try {
-                enforceCallingPackage(packageName);
+                enforceCallingPackage(packageName, "getPhoneAccountsForPackage");
             } catch (SecurityException se1) {
                 EventLog.writeEvent(0x534e4554, "153995334", Binder.getCallingUid(),
                         "getPhoneAccountsForPackage: invalid calling package");
@@ -319,6 +319,13 @@ public class TelecomServiceImpl {
         @Override
         public PhoneAccount getPhoneAccount(PhoneAccountHandle accountHandle,
                 String callingPackage) {
+            try {
+                enforceCallingPackage(callingPackage, "getPhoneAccount");
+            } catch (SecurityException se) {
+                EventLog.writeEvent(0x534e4554, "196406138", Binder.getCallingUid(),
+                        "getPhoneAccount: invalid calling package");
+                throw se;
+            }
             synchronized (mLock) {
                 final UserHandle callingUserHandle = Binder.getCallingUserHandle();
                 if (CompatChanges.isChangeEnabled(
@@ -852,7 +859,7 @@ public class TelecomServiceImpl {
         public boolean hasManageOngoingCallsPermission(String callingPackage) {
             try {
                 Log.startSession("TSI.hMOCP");
-                enforceCallingPackage(callingPackage);
+                enforceCallingPackage(callingPackage, "hasManageOngoingCallsPermission");
                 return PermissionChecker.checkPermissionForDataDeliveryFromDataSource(
                         mContext, Manifest.permission.MANAGE_ONGOING_CALLS,
                         Binder.getCallingPid(),
@@ -1464,7 +1471,7 @@ public class TelecomServiceImpl {
                 String callingFeatureId) {
             try {
                 Log.startSession("TSI.pC");
-                enforceCallingPackage(callingPackage);
+                enforceCallingPackage(callingPackage, "placeCall");
 
                 PhoneAccountHandle phoneAccountHandle = null;
                 boolean clearPhoneAccountHandleExtra = false;
@@ -2229,7 +2236,7 @@ public class TelecomServiceImpl {
             // feature is enabled ...
             enforceConnectionServiceFeature();
             // ... and the PhoneAccounts they refer to are for their own package.
-            enforceCallingPackage(packageName);
+            enforceCallingPackage(packageName, "enforcePhoneAccountModificationForPackage");
         }
     }
 
@@ -2245,8 +2252,22 @@ public class TelecomServiceImpl {
         }
     }
 
-    private void enforceCallingPackage(String packageName) {
-        mAppOpsManager.checkPackage(Binder.getCallingUid(), packageName);
+    private void enforceCallingPackage(String packageName, String message) {
+        int packageUid = -1;
+        int callingUid = Binder.getCallingUid();
+        PackageManager pm = mContext.createContextAsUser(
+            UserHandle.getUserHandleForUid(callingUid), 0).getPackageManager();
+        if (pm != null) {
+            try {
+                packageUid = pm.getPackageUid(packageName, 0);
+            } catch (PackageManager.NameNotFoundException e) {
+                // packageUid is -1
+            }
+        }
+        if (packageUid != callingUid && callingUid != Process.ROOT_UID) {
+            throw new SecurityException(message + ": Package " + packageName
+                + " does not belong to " + callingUid);
+        }
     }
 
     private void enforceConnectionServiceFeature() {
