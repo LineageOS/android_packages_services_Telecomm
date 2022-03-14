@@ -17,7 +17,7 @@
 package com.android.server.telecom.ui;
 
 import static android.Manifest.permission.READ_PHONE_STATE;
-import static android.app.admin.DevicePolicyResources.Strings.Dialer.NOTIFICATION_MISSED_WORK_CALL_TITLE;
+import static android.app.admin.DevicePolicyResources.Strings.Telecomm.NOTIFICATION_MISSED_WORK_CALL_TITLE;
 
 import android.annotation.NonNull;
 import android.app.BroadcastOptions;
@@ -337,9 +337,9 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
 
             CallerInfo ci = callInfo.getCallerInfo();
             if (ci != null && ci.userType == CallerInfo.USER_TYPE_WORK) {
-                titleText = mContext.getSystemService(DevicePolicyManager.class).getString(
-                        NOTIFICATION_MISSED_WORK_CALL_TITLE,
-                        () -> mContext.getString(R.string.notification_missedWorkCallTitle));
+                titleText = mContext.getSystemService(DevicePolicyManager.class).getResources()
+                        .getString(NOTIFICATION_MISSED_WORK_CALL_TITLE, () ->
+                                mContext.getString(R.string.notification_missedWorkCallTitle));
             } else {
                 titleText = mContext.getString(R.string.notification_missedCallTitle);
             }
