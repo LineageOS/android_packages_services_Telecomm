@@ -2175,6 +2175,10 @@ public class InCallController extends CallsManagerListenerBase implements
     public void handleCarModeChange(int priority, String packageName, boolean isCarMode) {
         Log.i(this, "handleCarModeChange: packageName=%s, priority=%d, isCarMode=%b",
                 packageName, priority, isCarMode);
+        if (packageName == null) {
+            Log.i(this, "handleCarModeChange: Got null packageName, ignoring");
+            return;
+        }
         // Don't ignore the signal if we are disabling car mode; package may be uninstalled.
         if (isCarMode && !isCarModeInCallService(packageName)) {
             Log.i(this, "handleCarModeChange: not a valid InCallService; packageName=%s",
