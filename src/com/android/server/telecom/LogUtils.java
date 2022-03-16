@@ -21,6 +21,8 @@ import android.os.SystemClock;
 import android.telecom.Logging.EventManager;
 import android.telecom.Logging.EventManager.TimedEventPair;
 
+import com.android.internal.annotations.VisibleForTesting;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +36,9 @@ public class LogUtils {
     private static final String LOGUTILS_TAG = "LogUtils";
 
     public static final boolean SYSTRACE_DEBUG = false; /* STOP SHIP if true */
+    private static boolean sInitializedLoggerListeners = false; // used to gate re-init of listeners
+    private static int sInitializedCounter = 0; /* For testing purposes only */
+    private static final Object sLock = new Object(); // Coarse lock for all of LogUtils
 
     public static class EventTimer {
         private long mLastElapsedMillis;
@@ -263,13 +268,41 @@ public class LogUtils {
     }
 
     public static void initLogging(Context context) {
-        android.telecom.Log.setTag(TAG);
-        android.telecom.Log.setSessionContext(context);
-        for (EventManager.TimedEventPair p : Events.Timings.sTimedEvents) {
-            android.telecom.Log.addRequestResponsePair(p);
+        android.telecom.Log.d(LOGUTILS_TAG, "initLogging: attempting to acquire LogUtils sLock");
+        synchronized (sLock) {
+            android.telecom.Log.d(LOGUTILS_TAG, "initLogging: grabbed LogUtils sLock");
+            if (!sInitializedLoggerListeners) {
+                android.telecom.Log.d(LOGUTILS_TAG,
+                        "initLogging: called for first time. Registering the EventListener &"
+                                + " SessionListener.");
+
+                android.telecom.Log.setTag(TAG);
+                android.telecom.Log.setSessionContext(context);
+                for (EventManager.TimedEventPair p : Events.Timings.sTimedEvents) {
+                    android.telecom.Log.addRequestResponsePair(p);
+                }
+                android.telecom.Log.registerEventListener(LogUtils::eventRecordAdded);
+                // Store analytics about recently completed Sessions.
+                android.telecom.Log.registerSessionListener(Analytics::addSessionTiming);
+
+                // Ensure LogUtils#initLogging(Context) is called once throughout the entire
+                // lifecycle of not only TelecomSystem, but the Testing Framework.
+                sInitializedLoggerListeners = true;
+                sInitializedCounter++; /* For testing purposes only */
+            } else {
+                android.telecom.Log.d(LOGUTILS_TAG, "initLogging: called again. Doing nothing.");
+            }
         }
-        android.telecom.Log.registerEventListener(LogUtils::eventRecordAdded);
-        // Store analytics about recently completed Sessions.
-        android.telecom.Log.registerSessionListener(Analytics::addSessionTiming);
+    }
+
+    /**
+     * Needed in order to test if the registerEventListener & registerSessionListener are ever
+     * re-initialized in the entire process of the Testing Framework or TelecomSystem.
+     *
+     * @return the number of times initLogging(Context) listeners have been initialized
+     */
+    @VisibleForTesting
+    public static int getInitializedCounter() {
+        return sInitializedCounter;
     }
 }
