@@ -46,8 +46,6 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
         INTENT_FILTER.addAction(BluetoothHearingAid.ACTION_ACTIVE_DEVICE_CHANGED);
         INTENT_FILTER.addAction(BluetoothLeAudio.ACTION_LE_AUDIO_CONNECTION_STATE_CHANGED);
         INTENT_FILTER.addAction(BluetoothLeAudio.ACTION_LE_AUDIO_ACTIVE_DEVICE_CHANGED);
-        INTENT_FILTER.addAction(BluetoothLeAudio.ACTION_LE_AUDIO_GROUP_NODE_STATUS_CHANGED);
-        INTENT_FILTER.addAction(BluetoothLeAudio.ACTION_LE_AUDIO_GROUP_STATUS_CHANGED);
     }
 
     // If not in a call, BSR won't listen to the Bluetooth stack's HFP on/off messages, since
@@ -73,9 +71,6 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
                 case BluetoothHearingAid.ACTION_ACTIVE_DEVICE_CHANGED:
                 case BluetoothHeadset.ACTION_ACTIVE_DEVICE_CHANGED:
                     handleActiveDeviceChanged(intent);
-                    break;
-                case BluetoothLeAudio.ACTION_LE_AUDIO_GROUP_NODE_STATUS_CHANGED:
-                    handleGroupNodeStatusChanged(intent);
                     break;
             }
         } finally {
@@ -196,22 +191,6 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
                 }
                 mBluetoothRouteManager.sendMessage(BT_AUDIO_IS_ON, args);
            }
-        }
-    }
-
-    private void handleGroupNodeStatusChanged(Intent intent) {
-        BluetoothDevice device =
-                intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-        int groupId = intent.getIntExtra(BluetoothLeAudio.EXTRA_LE_AUDIO_GROUP_ID,
-                BluetoothLeAudio.GROUP_ID_INVALID);
-        int groupNodeStatus = intent.getIntExtra(BluetoothLeAudio.EXTRA_LE_AUDIO_GROUP_NODE_STATUS,
-                -1);
-
-        if (groupNodeStatus == BluetoothLeAudio.GROUP_NODE_ADDED) {
-            mBluetoothDeviceManager.onGroupNodeAdded(device, groupId);
-        } else {
-            mBluetoothDeviceManager.onGroupNodeRemoved(device, groupId);
         }
     }
 
