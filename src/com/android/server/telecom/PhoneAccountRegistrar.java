@@ -166,6 +166,7 @@ public class PhoneAccountRegistrar {
     private final AtomicFile mAtomicFile;
     private final Context mContext;
     private final UserManager mUserManager;
+    private final TelephonyManager mTelephonyManager;
     private final SubscriptionManager mSubscriptionManager;
     private final DefaultDialerCache mDefaultDialerCache;
     private final AppLabelProxy mAppLabelProxy;
@@ -195,6 +196,7 @@ public class PhoneAccountRegistrar {
         mUserManager = UserManager.get(context);
         mDefaultDialerCache = defaultDialerCache;
         mSubscriptionManager = SubscriptionManager.from(mContext);
+        mTelephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
         mAppLabelProxy = appLabelProxy;
         mCurrentUserHandle = Process.myUserHandle();
 
@@ -217,9 +219,7 @@ public class PhoneAccountRegistrar {
         PhoneAccount account = getPhoneAccountUnchecked(accountHandle);
 
         if (account != null && account.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
-            TelephonyManager tm =
-                    (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
-            return tm.getSubscriptionId(accountHandle);
+            return mTelephonyManager.getSubscriptionId(accountHandle);
         }
         return SubscriptionManager.INVALID_SUBSCRIPTION_ID;
     }
@@ -1152,11 +1152,10 @@ public class PhoneAccountRegistrar {
                 "Notifying telephony of voice service override change for %d SIMs, hasService = %b",
                 simHandlesToNotify.size(),
                 hasService);
-        TelephonyManager tm = mContext.getSystemService(TelephonyManager.class);
         for (PhoneAccountHandle simHandle : simHandlesToNotify) {
             // This may be null if there are no active SIMs but the device is still camped for
             // emergency calls and registered a SIM_SUBSCRIPTION for that purpose.
-            TelephonyManager simTm = tm.createForPhoneAccountHandle(simHandle);
+            TelephonyManager simTm = mTelephonyManager.createForPhoneAccountHandle(simHandle);
             if (simTm == null) continue;
             simTm.setVoiceServiceStateOverride(hasService);
         }

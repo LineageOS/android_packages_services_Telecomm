@@ -22,8 +22,11 @@ import static android.os.Process.myUid;
 import android.Manifest;
 import android.annotation.NonNull;
 import android.app.AppOpsManager;
+import android.app.compat.CompatChanges;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.compat.annotation.ChangeId;
+import android.compat.annotation.EnabledSince;
 import android.content.AttributionSource;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -37,6 +40,7 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.hardware.SensorPrivacyManager;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -86,6 +90,16 @@ public class InCallController extends CallsManagerListenerBase implements
         AppOpsManager.OnOpActiveChangedListener {
     public static final String NOTIFICATION_TAG = InCallController.class.getSimpleName();
     public static final int IN_CALL_SERVICE_NOTIFICATION_ID = 3;
+
+    /**
+     * Enable a crash notification if the default dialer app does not implement the
+     * {@link InCallService} and the system Dialer takes over.
+     *
+     * @hide
+     */
+    @ChangeId
+    @EnabledSince(targetSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    public static final long ENABLE_NOTIFICATION_FOR_DEFAULT_DIALER_CRASH = 218903401L; // bug id
 
     public class InCallServiceConnection {
         /**
@@ -1620,10 +1634,14 @@ public class InCallController extends CallsManagerListenerBase implements
                         true /* ignoreDisabled */)
                         : getInCallServiceComponent(packageName,
                                 IN_CALL_SERVICE_TYPE_DEFAULT_DIALER_UI, true /* ignoreDisabled */);
-        if (packageName != null && defaultDialerComponent == null) {
+
+        if (packageName != null && defaultDialerComponent == null &&
+                CompatChanges.isChangeEnabled(ENABLE_NOTIFICATION_FOR_DEFAULT_DIALER_CRASH,
+                        Binder.getCallingUid())) {
             // The in call service of default phone app is disabled, send notification.
             sendCrashedInCallServiceNotification(packageName);
         }
+
         return defaultDialerComponent;
     }
 
