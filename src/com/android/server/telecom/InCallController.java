@@ -21,6 +21,7 @@ import static android.os.Process.myUid;
 
 import android.Manifest;
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.app.AppOpsManager;
 import android.app.compat.CompatChanges;
 import android.app.Notification;
@@ -90,17 +91,6 @@ public class InCallController extends CallsManagerListenerBase implements
         AppOpsManager.OnOpActiveChangedListener {
     public static final String NOTIFICATION_TAG = InCallController.class.getSimpleName();
     public static final int IN_CALL_SERVICE_NOTIFICATION_ID = 3;
-
-    /**
-     * Enable a crash notification if the default dialer app does not implement the
-     * {@link InCallService} and the system Dialer takes over.
-     *
-     * @hide
-     */
-    @ChangeId
-    @EnabledSince(targetSdkVersion = Build.VERSION_CODES.TIRAMISU)
-    public static final long ENABLE_NOTIFICATION_FOR_DEFAULT_DIALER_CRASH = 218903401L; // bug id
-
     public class InCallServiceConnection {
         /**
          * Indicates that a call to {@link #connect(Call)} has succeeded and resulted in a
@@ -1622,27 +1612,31 @@ public class InCallController extends CallsManagerListenerBase implements
         mNonUIInCallServiceConnections.connect(call);
     }
 
-    private InCallServiceInfo getDefaultDialerComponent() {
-        String packageName = mDefaultDialerCache.getDefaultDialerApplication(
+    private @Nullable InCallServiceInfo getDefaultDialerComponent() {
+        String defaultPhoneAppName = mDefaultDialerCache.getDefaultDialerApplication(
                 mCallsManager.getCurrentUserHandle().getIdentifier());
-        String systemPackageName = mDefaultDialerCache.getSystemDialerApplication();
-        Log.d(this, "Default Dialer package: " + packageName);
+        String systemPhoneAppName = mDefaultDialerCache.getSystemDialerApplication();
 
-        InCallServiceInfo defaultDialerComponent =
-                (systemPackageName != null && systemPackageName.equals(packageName))
-                        ? getInCallServiceComponent(packageName, IN_CALL_SERVICE_TYPE_SYSTEM_UI,
-                        true /* ignoreDisabled */)
-                        : getInCallServiceComponent(packageName,
+        Log.d(this, "getDefaultDialerComponent: defaultPhoneAppName=[%s]", defaultPhoneAppName);
+        Log.d(this, "getDefaultDialerComponent: systemPhoneAppName=[%s]", systemPhoneAppName);
+
+        // Get the defaultPhoneApp InCallService component...
+        InCallServiceInfo defaultPhoneAppComponent =
+                (systemPhoneAppName != null && systemPhoneAppName.equals(defaultPhoneAppName)) ?
+                        /* The defaultPhoneApp is also the systemPhoneApp. Get systemPhoneApp info*/
+                        getInCallServiceComponent(defaultPhoneAppName,
+                                IN_CALL_SERVICE_TYPE_SYSTEM_UI, true /* ignoreDisabled */)
+                        /* The defaultPhoneApp is NOT the systemPhoneApp. Get defaultPhoneApp info*/
+                        : getInCallServiceComponent(defaultPhoneAppName,
                                 IN_CALL_SERVICE_TYPE_DEFAULT_DIALER_UI, true /* ignoreDisabled */);
 
-        if (packageName != null && defaultDialerComponent == null &&
-                CompatChanges.isChangeEnabled(ENABLE_NOTIFICATION_FOR_DEFAULT_DIALER_CRASH,
-                        Binder.getCallingUid())) {
-            // The in call service of default phone app is disabled, send notification.
-            sendCrashedInCallServiceNotification(packageName);
-        }
+        Log.d(this, "getDefaultDialerComponent: defaultPhoneAppComponent=[%s]",
+                defaultPhoneAppComponent);
 
-        return defaultDialerComponent;
+        // defaultPhoneAppComponent is null in the case when the defaultPhoneApp does not implement
+        // the InCallService && is the package is different from the systemPhoneApp
+
+        return defaultPhoneAppComponent;
     }
 
     private InCallServiceInfo getCurrentCarModeComponent() {
