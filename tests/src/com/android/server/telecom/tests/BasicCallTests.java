@@ -37,6 +37,7 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import android.content.IContentProvider;
 import android.content.pm.PackageManager;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Binder;
@@ -637,14 +638,17 @@ public class BasicCallTests extends TelecomSystemTest {
         mInCallServiceFixtureX.mInCallAdapter.setAudioRoute(CallAudioState.ROUTE_SPEAKER, null);
         waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
                 .getCallAudioRouteStateMachine().getHandler(), TEST_TIMEOUT);
-        verify(audioManager, timeout(TEST_TIMEOUT))
-                .setSpeakerphoneOn(true);
+        ArgumentCaptor<AudioDeviceInfo> infoArgumentCaptor =
+                ArgumentCaptor.forClass(AudioDeviceInfo.class);
+        verify(audioManager, timeout(TEST_TIMEOUT)).setCommunicationDevice(
+                infoArgumentCaptor.capture());
+        assertEquals(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, infoArgumentCaptor.getValue().getType());
         mInCallServiceFixtureX.mInCallAdapter.setAudioRoute(CallAudioState.ROUTE_EARPIECE, null);
         waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
                 .getCallAudioRouteStateMachine().getHandler(), TEST_TIMEOUT);
         // setSpeakerPhoneOn(false) gets called once during the call initiation phase
         verify(audioManager, timeout(TEST_TIMEOUT).atLeast(1))
-                .setSpeakerphoneOn(false);
+                .clearCommunicationDevice();
 
         mConnectionServiceFixtureA.
                 sendSetDisconnected(outgoing.mConnectionId, DisconnectCause.REMOTE);
