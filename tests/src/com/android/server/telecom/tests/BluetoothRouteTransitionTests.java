@@ -440,7 +440,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                 .setInitialDevice(null)
                 .setConnectedDevices(DEVICE2, DEVICE1)
                 .setActiveDevice(DEVICE1)
-                .setMessageType(BluetoothRouteManager.CONNECT_HFP)
+                .setMessageType(BluetoothRouteManager.CONNECT_BT)
                 .setExpectedListenerUpdates(ListenerUpdate.AUDIO_CONNECTED)
                 .setExpectedBluetoothInteraction(CONNECT)
                 .setExpectedConnectionDevice(DEVICE1)
@@ -464,7 +464,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                 .build());
 
         result.add(new BluetoothRouteTestParametersBuilder()
-                .setName("Device loses HFP audio but remains connected. No fallback.")
+                .setName("Device loses BT audio but remains connected. No fallback.")
                 .setInitialBluetoothState(BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX)
                 .setInitialDevice(DEVICE2)
                 .setConnectedDevices(DEVICE2)
@@ -477,7 +477,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                 .build());
 
         result.add(new BluetoothRouteTestParametersBuilder()
-                .setName("Device loses HFP audio but remains connected."
+                .setName("Device loses BT audio but remains connected."
                         + " No fallback even though other devices available.")
                 .setInitialBluetoothState(BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX)
                 .setInitialDevice(DEVICE2)
@@ -495,7 +495,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                 .setInitialBluetoothState(BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX)
                 .setInitialDevice(DEVICE2)
                 .setConnectedDevices(DEVICE2, DEVICE1, DEVICE3)
-                .setMessageType(BluetoothRouteManager.CONNECT_HFP)
+                .setMessageType(BluetoothRouteManager.CONNECT_BT)
                 .setMessageDevice(DEVICE3)
                 .setExpectedListenerUpdates(ListenerUpdate.AUDIO_CONNECTED)
                 .setExpectedBluetoothInteraction(CONNECT_SWITCH_DEVICE)
@@ -509,7 +509,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                 .setInitialBluetoothState(BluetoothRouteManager.AUDIO_CONNECTING_STATE_NAME_PREFIX)
                 .setInitialDevice(DEVICE2)
                 .setConnectedDevices(DEVICE2, DEVICE1, DEVICE3)
-                .setMessageType(BluetoothRouteManager.CONNECT_HFP)
+                .setMessageType(BluetoothRouteManager.CONNECT_BT)
                 .setMessageDevice(DEVICE3)
                 .setExpectedListenerUpdates(ListenerUpdate.AUDIO_CONNECTED)
                 .setExpectedBluetoothInteraction(CONNECT_SWITCH_DEVICE)
@@ -628,22 +628,22 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                 .build());
 
         result.add(new BluetoothRouteTestParametersBuilder()
-                .setName("Audio routing requests HFP disconnection while a device is active")
+                .setName("Audio routing requests BT disconnection while a device is active")
                 .setInitialBluetoothState(BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX)
                 .setInitialDevice(DEVICE2)
                 .setConnectedDevices(DEVICE2, DEVICE3)
-                .setMessageType(BluetoothRouteManager.DISCONNECT_HFP)
+                .setMessageType(BluetoothRouteManager.DISCONNECT_BT)
                 .setExpectedListenerUpdates(ListenerUpdate.AUDIO_DISCONNECTED)
                 .setExpectedBluetoothInteraction(DISCONNECT)
                 .setExpectedFinalStateName(BluetoothRouteManager.AUDIO_OFF_STATE_NAME)
                 .build());
 
         result.add(new BluetoothRouteTestParametersBuilder()
-                .setName("Audio routing requests HFP disconnection while a device is pending")
+                .setName("Audio routing requests BT disconnection while a device is pending")
                 .setInitialBluetoothState(BluetoothRouteManager.AUDIO_CONNECTING_STATE_NAME_PREFIX)
                 .setInitialDevice(DEVICE2)
                 .setConnectedDevices(DEVICE2, DEVICE3)
-                .setMessageType(BluetoothRouteManager.DISCONNECT_HFP)
+                .setMessageType(BluetoothRouteManager.DISCONNECT_BT)
                 .setExpectedListenerUpdates(ListenerUpdate.AUDIO_DISCONNECTED)
                 .setExpectedBluetoothInteraction(DISCONNECT)
                 .setExpectedFinalStateName(BluetoothRouteManager.AUDIO_OFF_STATE_NAME)
@@ -683,7 +683,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
                 .setActiveDevice(DEVICE2)
                 .setConnectedDevices(DEVICE2, DEVICE3)
                 .setHearingAidBtDevices(Collections.singletonList(DEVICE2))
-                .setMessageType(BluetoothRouteManager.CONNECT_HFP)
+                .setMessageType(BluetoothRouteManager.CONNECT_BT)
                 .setMessageDevice(DEVICE2)
                 .setExpectedListenerUpdates(ListenerUpdate.AUDIO_CONNECTED)
                 .setExpectedBluetoothInteraction(NONE)
