@@ -85,14 +85,14 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
 
     @SmallTest
     @Test
-    public void testConnectHfpRetryWhileNotConnected() {
+    public void testConnectBtRetryWhileNotConnected() {
         BluetoothRouteManager sm = setupStateMachine(
                 BluetoothRouteManager.AUDIO_OFF_STATE_NAME, null);
         setupConnectedDevices(new BluetoothDevice[]{DEVICE1}, null, null, null, null, null);
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
                 nullable(ContentResolver.class))).thenReturn(0L);
         when(mBluetoothHeadset.connectAudio()).thenReturn(BluetoothStatusCodes.ERROR_UNKNOWN);
-        executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, DEVICE1.getAddress());
+        executeRoutingAction(sm, BluetoothRouteManager.CONNECT_BT, DEVICE1.getAddress());
         // Wait 3 times: for the first connection attempt, the retry attempt,
         // the second retry, and once more to make sure there are only three attempts.
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
@@ -146,7 +146,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
 
     @SmallTest
     @Test
-    public void testConnectHfpRetryWhileConnectedToAnotherDevice() {
+    public void testConnectBtRetryWhileConnectedToAnotherDevice() {
         BluetoothRouteManager sm = setupStateMachine(
                 BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX, DEVICE1);
         setupConnectedDevices(new BluetoothDevice[]{DEVICE1, DEVICE2}, null, null, null, null,
@@ -154,7 +154,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
                 nullable(ContentResolver.class))).thenReturn(0L);
         when(mBluetoothHeadset.connectAudio()).thenReturn(BluetoothStatusCodes.ERROR_UNKNOWN);
-        executeRoutingAction(sm, BluetoothRouteManager.CONNECT_HFP, DEVICE2.getAddress());
+        executeRoutingAction(sm, BluetoothRouteManager.CONNECT_BT, DEVICE2.getAddress());
         // Wait 3 times: the first connection attempt is accounted for in executeRoutingAction,
         // so wait twice for the retry attempt, again to make sure there are only three attempts,
         // and once more for good luck.
