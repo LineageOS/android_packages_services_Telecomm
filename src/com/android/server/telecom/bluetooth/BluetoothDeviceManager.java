@@ -334,6 +334,14 @@ public class BluetoothDeviceManager {
                     Log.w(this, "LE audio service null when receiving device added broadcast");
                     return;
                 }
+                /* Check if group is known. */
+                if (!mGroupsByDevice.containsKey(device)) {
+                    int groupId = mBluetoothLeAudioService.getGroupId(device);
+                    /* If it is not yet assigned, then it will be provided in the callback */
+                    if (groupId != BluetoothLeAudio.GROUP_ID_INVALID) {
+                        mGroupsByDevice.put(device, groupId);
+                    }
+                }
                 targetDeviceMap = mLeAudioDevicesByAddress;
             } else if (deviceType == DEVICE_TYPE_HEARING_AID) {
                 if (mBluetoothHearingAid == null) {
