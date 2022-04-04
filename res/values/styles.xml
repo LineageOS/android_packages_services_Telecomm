@@ -92,4 +92,9 @@
         <item name="android:lineSpacingExtra">@dimen/blocked_numbers_secondary_line_spacing</item>
         <item name="android:capitalize">sentences</item>
     </style>
+
+    <style name="CallSettingsWithoutDividerTheme" parent="Theme.Telecom.DialerSettings">
+        <item name="android:listDivider">@null</item>
+    </style>
+
 </resources>
