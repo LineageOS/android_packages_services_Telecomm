@@ -2106,6 +2106,39 @@ public class TelecomServiceImpl {
                 Log.endSession();
             }
         }
+
+        /**
+         * Determines whether there are any ongoing {@link PhoneAccount#CAPABILITY_SELF_MANAGED}
+         * calls for a given {@code packageName} and {@code userHandle}.
+         *
+         * @param packageName the package name of the app to check calls for.
+         * @param userHandle the user handle on which to check for calls.
+         * @param callingPackage The caller's package name.
+         * @return {@code true} if there are ongoing calls, {@code false} otherwise.
+         */
+        @Override
+        public boolean isInSelfManagedCall(String packageName, UserHandle userHandle,
+                String callingPackage) {
+            try {
+                if (Binder.getCallingUid() != Process.SYSTEM_UID) {
+                    throw new SecurityException("Only the system can call this API");
+                }
+                mContext.enforceCallingOrSelfPermission(READ_PRIVILEGED_PHONE_STATE,
+                        "READ_PRIVILEGED_PHONE_STATE required.");
+
+                Log.startSession("TSI.iISMC", Log.getPackageAbbreviation(callingPackage));
+                synchronized (mLock) {
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        return mCallsManager.isInSelfManagedCall(packageName, userHandle);
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
     };
 
     /**
