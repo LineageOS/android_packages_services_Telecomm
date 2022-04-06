@@ -438,7 +438,8 @@ public class InCallTonePlayer extends Thread {
             mToneMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    Log.i(this, "playMediaTone: toneResourceId=%d completed.", toneResourceId);
+                    Log.i(InCallTonePlayer.this, "playMediaTone: toneResourceId=%d completed.",
+                            toneResourceId);
                     synchronized (InCallTonePlayer.this) {
                         mState = STATE_OFF;
                     }
@@ -508,14 +509,26 @@ public class InCallTonePlayer extends Thread {
     }
 
     private void cleanUpTonePlayer() {
+        Log.d(this, "cleanUpTonePlayer(): posting cleanup");
         // Release focus on the main thread.
         mMainThreadHandler.post(new Runnable("ICTP.cUTP", mLock) {
             @Override
             public void loggedRun() {
                 if (sTonesPlaying == 0) {
-                    Log.wtf(this, "Over-releasing focus for tone player.");
-                } else if (--sTonesPlaying == 0 && mCallAudioManager != null) {
-                    mCallAudioManager.setIsTonePlaying(false);
+                    Log.wtf(InCallTonePlayer.this,
+                            "cleanUpTonePlayer(): Over-releasing focus for tone player.");
+                } else if (--sTonesPlaying == 0) {
+                    Log.i(InCallTonePlayer.this,
+                            "cleanUpTonePlayer(): tonesPlaying=%d, tone completed", sTonesPlaying);
+                    if (mCallAudioManager != null) {
+                        mCallAudioManager.setIsTonePlaying(false);
+                    } else {
+                        Log.w(InCallTonePlayer.this,
+                                "cleanUpTonePlayer(): mCallAudioManager is null!");
+                    }
+                } else {
+                    Log.i(InCallTonePlayer.this,
+                            "cleanUpTonePlayer(): tonesPlaying=%d; still playing", sTonesPlaying);
                 }
             }
         }.prepare());

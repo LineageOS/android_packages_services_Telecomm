@@ -3300,7 +3300,7 @@ public class CallsManager extends Call.ListenerBase
      *
      * @return {@code True} if there are any non-external calls, {@code false} otherwise.
      */
-    boolean hasAnyCalls() {
+    public boolean hasAnyCalls() {
         if (mCalls.isEmpty()) {
             return false;
         }
@@ -3985,6 +3985,19 @@ public class CallsManager extends Call.ListenerBase
                     dialedNumber.equals("5"));
         }
         return false;
+    }
+
+    /**
+     * Determines if there are any ongoing self managed calls for the given package/user.
+     * @param packageName The package name to check.
+     * @param userHandle The userhandle to check.
+     * @return {@code true} if the app has ongoing calls, or {@code false} otherwise.
+     */
+    public boolean isInSelfManagedCall(String packageName, UserHandle userHandle) {
+        return mCalls.stream().anyMatch(
+                c -> c.isSelfManaged()
+                && c.getTargetPhoneAccount().getComponentName().getPackageName().equals(packageName)
+                && c.getTargetPhoneAccount().getUserHandle().equals(userHandle));
     }
 
     @VisibleForTesting
