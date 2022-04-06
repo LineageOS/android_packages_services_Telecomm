@@ -214,6 +214,10 @@ public class BluetoothDeviceManager {
             // Let's get devices which are a group leaders
             ArrayList<BluetoothDevice> devices = new ArrayList<>();
 
+            if (mGroupsByDevice.isEmpty() || mBluetoothLeAudioService == null) {
+                return devices;
+            }
+
             for (LinkedHashMap.Entry<BluetoothDevice, Integer> entry : mGroupsByDevice.entrySet()) {
                if (Objects.equals(entry.getKey(),
                         mBluetoothLeAudioService.getConnectedGroupLeadDevice(entry.getValue()))) {
