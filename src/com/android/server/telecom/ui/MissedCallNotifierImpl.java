@@ -268,7 +268,9 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
                     createClearMissedCallsPendingIntent(userHandle))
             .putExtra(TelecomManager.EXTRA_NOTIFICATION_COUNT, missedCallCount)
             .putExtra(TelecomManager.EXTRA_NOTIFICATION_PHONE_NUMBER,
-                    callInfo == null ? null : callInfo.getPhoneNumber());
+                    callInfo == null ? null : callInfo.getPhoneNumber())
+            .putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE,
+                    callInfo == null ? null : callInfo.getPhoneAccountHandle());
 
         if (missedCallCount == 1 && callInfo != null) {
             final Uri handleUri = callInfo.getHandle();
