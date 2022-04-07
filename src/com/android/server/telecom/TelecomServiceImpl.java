@@ -534,12 +534,6 @@ public class TelecomServiceImpl {
             try {
                 Log.startSession("TSI.rPA", Log.getPackageAbbreviation(callingPackage));
                 synchronized (mLock) {
-                    if (!((TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE))
-                                .isVoiceCapable()) {
-                        Log.w(this,
-                                "registerPhoneAccount not allowed on non-voice capable device.");
-                        return;
-                    }
                     try {
                         enforcePhoneAccountModificationForPackage(
                                 account.getAccountHandle().getComponentName().getPackageName());
