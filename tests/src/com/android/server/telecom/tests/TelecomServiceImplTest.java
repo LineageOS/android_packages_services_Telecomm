@@ -200,10 +200,6 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         super.setUp();
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
 
-        TelephonyManager mockTelephonyManager =
-                (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
-        when(mockTelephonyManager.isVoiceCapable()).thenReturn(true);
-
         doReturn(mContext).when(mContext).getApplicationContext();
         doReturn(mContext).when(mContext).createContextAsUser(any(UserHandle.class), anyInt());
         doNothing().when(mContext).sendBroadcastAsUser(any(Intent.class), any(UserHandle.class),
