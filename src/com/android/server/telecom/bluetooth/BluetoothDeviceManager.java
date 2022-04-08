@@ -382,16 +382,8 @@ public class BluetoothDeviceManager {
     }
 
     public void disconnectAudio() {
-        if (mBluetoothAdapter != null) {
-            for (BluetoothDevice device: mBluetoothAdapter.getActiveDevices(
-                        BluetoothProfile.HEARING_AID)) {
-                if (device != null) {
-                    mBluetoothAdapter.removeActiveDevice(BluetoothAdapter.ACTIVE_DEVICE_ALL);
-                }
-            }
-            disconnectSco();
-            clearLeAudioCommunicationDevice();
-        }
+        disconnectSco();
+        clearLeAudioCommunicationDevice();
     }
 
     public void disconnectSco() {
