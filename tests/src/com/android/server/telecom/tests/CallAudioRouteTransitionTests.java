@@ -823,6 +823,30 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
                 CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED // earpieceControl
         ));
 
+        params.add(new RoutingTestParameters(
+                "Connect dock from earpiece", // name
+                CallAudioState.ROUTE_EARPIECE, // initialRoute
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER, // availableRoutes
+                ON, // speakerInteraction
+                NONE, // bluetoothInteraction
+                CallAudioRouteStateMachine.CONNECT_DOCK, // action
+                CallAudioState.ROUTE_SPEAKER, // expectedRoute
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER, // expectedAvailRoutes
+                CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED // earpieceControl
+        ));
+
+        params.add(new RoutingTestParameters(
+                "Disconnect dock from speaker", // name
+                CallAudioState.ROUTE_SPEAKER, // initialRoute
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER, // availableRoutes
+                OFF, // speakerInteraction
+                NONE, // bluetoothInteraction
+                CallAudioRouteStateMachine.DISCONNECT_DOCK, // action
+                CallAudioState.ROUTE_EARPIECE, // expectedRoute
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER, // expectedAvailRoutes
+                CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED // earpieceControl
+        ));
+
         return params;
     }
 
