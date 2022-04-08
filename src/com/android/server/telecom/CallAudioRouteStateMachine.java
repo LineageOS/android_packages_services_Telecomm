@@ -411,6 +411,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                         Log.w(this, "Ignoring switch to headset command. Not available.");
                     }
                     return HANDLED;
+                case CONNECT_DOCK:
+                    // fall through; we want to switch to speaker mode when docked and in a call.
                 case SWITCH_SPEAKER:
                 case USER_SWITCH_SPEAKER:
                     setSpeakerphoneOn(true);
@@ -486,6 +488,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                         Log.w(this, "Ignoring switch to headset command. Not available.");
                     }
                     return HANDLED;
+                case CONNECT_DOCK:
+                    // fall through; we want to go to the quiescent speaker route when out of a call
                 case SWITCH_SPEAKER:
                 case USER_SWITCH_SPEAKER:
                     transitionTo(mQuiescentSpeakerRoute);
@@ -536,10 +540,6 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     return HANDLED;
                 case BT_AUDIO_DISCONNECTED:
                     // This may be sent as a confirmation by the BT stack after switch off BT.
-                    return HANDLED;
-                case CONNECT_DOCK:
-                    setSpeakerphoneOn(true);
-                    sendInternalMessage(SWITCH_SPEAKER);
                     return HANDLED;
                 case DISCONNECT_DOCK:
                     // Nothing to do here
@@ -1273,6 +1273,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 case SPEAKER_ON:
                     // Nothing to do
                     return HANDLED;
+                case DISCONNECT_DOCK:
+                    // Fall-through; same as if speaker goes off, we want to switch baseline.
                 case SPEAKER_OFF:
                     sendInternalMessage(SWITCH_BASELINE_ROUTE, INCLUDE_BLUETOOTH_IN_BASELINE);
                     return HANDLED;
@@ -1617,6 +1619,15 @@ public class CallAudioRouteStateMachine extends StateMachine {
 
     public void quitStateMachine() {
         quitNow();
+    }
+
+    public void dump(IndentingPrintWriter pw) {
+        pw.print("Current state: ");
+        pw.println(getCurrentState().getName());
+        pw.println("Pending messages:");
+        pw.increaseIndent();
+        dumpPendingMessages(pw);
+        pw.decreaseIndent();
     }
 
     public void dumpPendingMessages(IndentingPrintWriter pw) {
