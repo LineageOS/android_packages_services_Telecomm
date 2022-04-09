@@ -540,7 +540,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
     private final NotificationManager mNotificationManager = mock(NotificationManager.class);
     private final UserManager mUserManager = mock(UserManager.class);
     private final StatusBarManager mStatusBarManager = mock(StatusBarManager.class);
-    private final SubscriptionManager mSubscriptionManager = mock(SubscriptionManager.class);
+    private SubscriptionManager mSubscriptionManager = mock(SubscriptionManager.class);
     private final CarrierConfigManager mCarrierConfigManager = mock(CarrierConfigManager.class);
     private final CountryDetector mCountryDetector = mock(CountryDetector.class);
     private final Map<String, IContentProvider> mIContentProviderByUri = new HashMap<>();
@@ -733,6 +733,10 @@ public class ComponentContextFixture implements TestFixture<Context> {
 
     public void setTelecomManager(TelecomManager telecomManager) {
         mTelecomManager = telecomManager;
+    }
+
+    public void setSubscriptionManager(SubscriptionManager subscriptionManager) {
+        mSubscriptionManager = subscriptionManager;
     }
 
     public TelephonyManager getTelephonyManager() {
