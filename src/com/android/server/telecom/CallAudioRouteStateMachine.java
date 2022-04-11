@@ -1640,8 +1640,23 @@ public class CallAudioRouteStateMachine extends StateMachine {
 
     private void setSpeakerphoneOn(boolean on) {
         Log.i(this, "turning speaker phone %s", on);
-        mAudioManager.setSpeakerphoneOn(on);
-        mStatusBarNotifier.notifySpeakerphone(on);
+        AudioDeviceInfo speakerDevice = null;
+        for (AudioDeviceInfo info : mAudioManager.getAvailableCommunicationDevices()) {
+            if (info.getType() == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER) {
+                speakerDevice = info;
+                break;
+            }
+        }
+        boolean speakerOn = false;
+        if (speakerDevice != null && on) {
+            boolean result = mAudioManager.setCommunicationDevice(speakerDevice);
+            if (result) {
+                speakerOn = true;
+            }
+        } else {
+            mAudioManager.clearCommunicationDevice();
+        }
+        mStatusBarNotifier.notifySpeakerphone(speakerOn);
     }
 
     private void setBluetoothOn(String address) {

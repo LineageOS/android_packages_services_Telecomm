@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -30,6 +31,7 @@ import static org.mockito.Mockito.when;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.IAudioService;
 import android.os.Handler;
@@ -325,11 +327,18 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
 
         switch (mParams.speakerInteraction) {
             case NONE:
-                verify(mockAudioManager, never()).setSpeakerphoneOn(any(Boolean.class));
+                verify(mockAudioManager, never()).setCommunicationDevice(
+                        any(AudioDeviceInfo.class));
                 break;
-            case ON: // fall through
+            case ON:
+                ArgumentCaptor<AudioDeviceInfo> infoArgumentCaptor = ArgumentCaptor.forClass(
+                        AudioDeviceInfo.class);
+                verify(mockAudioManager).setCommunicationDevice(infoArgumentCaptor.capture());
+                assertEquals(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER,
+                        infoArgumentCaptor.getValue().getType());
+                break;
             case OFF:
-                verify(mockAudioManager).setSpeakerphoneOn(mParams.speakerInteraction == ON);
+                verify(mockAudioManager).clearCommunicationDevice();
                 break;
             case OPTIONAL:
                 // optional, don't test
