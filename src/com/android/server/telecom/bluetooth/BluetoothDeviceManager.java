@@ -214,6 +214,10 @@ public class BluetoothDeviceManager {
             // Let's get devices which are a group leaders
             ArrayList<BluetoothDevice> devices = new ArrayList<>();
 
+            if (mGroupsByDevice.isEmpty() || mBluetoothLeAudioService == null) {
+                return devices;
+            }
+
             for (LinkedHashMap.Entry<BluetoothDevice, Integer> entry : mGroupsByDevice.entrySet()) {
                if (Objects.equals(entry.getKey(),
                         mBluetoothLeAudioService.getConnectedGroupLeadDevice(entry.getValue()))) {
@@ -329,6 +333,14 @@ public class BluetoothDeviceManager {
                 if (mBluetoothLeAudioService == null) {
                     Log.w(this, "LE audio service null when receiving device added broadcast");
                     return;
+                }
+                /* Check if group is known. */
+                if (!mGroupsByDevice.containsKey(device)) {
+                    int groupId = mBluetoothLeAudioService.getGroupId(device);
+                    /* If it is not yet assigned, then it will be provided in the callback */
+                    if (groupId != BluetoothLeAudio.GROUP_ID_INVALID) {
+                        mGroupsByDevice.put(device, groupId);
+                    }
                 }
                 targetDeviceMap = mLeAudioDevicesByAddress;
             } else if (deviceType == DEVICE_TYPE_HEARING_AID) {
