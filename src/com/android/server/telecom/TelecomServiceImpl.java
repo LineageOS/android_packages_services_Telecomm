@@ -1961,6 +1961,24 @@ public class TelecomServiceImpl {
         }
 
         @Override
+        public void requestLogMark(String message) {
+            try {
+                Log.startSession("TSI.rLM");
+                enforceShellOnly(Binder.getCallingUid(), "requestLogMark is for shell only");
+                synchronized (mLock) {
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        mCallsManager.requestLogMark(message);
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        @Override
         public void setTestPhoneAcctSuggestionComponent(String flattenedComponentName) {
             try {
                 Log.startSession("TSI.sPASA");
