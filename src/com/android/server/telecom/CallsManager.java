@@ -5596,4 +5596,16 @@ public class CallsManager extends Call.ListenerBase
             UserHandle userHandle, ConnectionServiceWrapper service) {
         mConnectionServiceRepository.setService(componentName, userHandle, service);
     }
+
+    /**
+     * Generates a log "marking".  This is a unique call event which contains a specified message.
+     * A log mark is triggered by the command: adb shell telecom log-mark MESSAGE
+     * A tester can use this when executing tests to make it very clear when a particular test step
+     * was reached.
+     * @param message the message to mark in the logs.
+     */
+    public void requestLogMark(String message) {
+        mCalls.forEach(c -> Log.addEvent(c, LogUtils.Events.USER_LOG_MARK, message));
+        Log.addEvent(null /* global */, LogUtils.Events.USER_LOG_MARK, message);
+    }
 }
