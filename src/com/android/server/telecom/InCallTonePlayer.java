@@ -182,6 +182,9 @@ public class InCallTonePlayer extends Thread {
     private static final int STATE_ON = 1;
     private static final int STATE_STOPPED = 2;
 
+    // Invalid audio stream
+    private static final int STREAM_INVALID = -1;
+
     /**
      * Keeps count of the number of actively playing tones so that we can notify CallAudioManager
      * when we need focus and when it can be release. This should only be manipulated from the main
@@ -260,6 +263,7 @@ public class InCallTonePlayer extends Thread {
             final int mediaResourceId; // The resourceId of the tone to play.  Used for media-based
                                       // tones.
 
+            int stream = STREAM_INVALID;
             switch (mToneId) {
                 case TONE_BUSY:
                     // TODO: CDMA-specific tones
@@ -327,6 +331,12 @@ public class InCallTonePlayer extends Thread {
                     toneVolume = RELATIVE_VOLUME_HIPRI;
                     toneLengthMillis = Integer.MAX_VALUE - TIMEOUT_BUFFER_MILLIS;
                     mediaResourceId = TONE_RESOURCE_ID_UNDEFINED;
+                    // When a hearing aid device or a LE audio device is used, ring back tone should
+                    // use STREAM_VOICE_CALL
+                    if (mCallAudioRoutePeripheralAdapter.isLeAudioDeviceOn()
+                            || mCallAudioRoutePeripheralAdapter.isHearingAidDeviceOn()) {
+                        stream = AudioManager.STREAM_VOICE_CALL;
+                    }
                     break;
                 case TONE_UNOBTAINABLE_NUMBER:
                     toneType = ToneGenerator.TONE_SUP_ERROR;
@@ -358,9 +368,12 @@ public class InCallTonePlayer extends Thread {
                     throw new IllegalStateException("Bad toneId: " + mToneId);
             }
 
-            int stream = AudioManager.STREAM_VOICE_CALL;
-            if (mCallAudioRoutePeripheralAdapter.isBluetoothAudioOn()) {
-                stream = AudioManager.STREAM_BLUETOOTH_SCO;
+            // Don't override already valid stream values
+            if (stream == STREAM_INVALID) {
+                stream = AudioManager.STREAM_VOICE_CALL;
+                if (mCallAudioRoutePeripheralAdapter.isBluetoothAudioOn()) {
+                    stream = AudioManager.STREAM_BLUETOOTH_SCO;
+                }
             }
 
             if (toneType != ToneGenerator.TONE_UNKNOWN) {
