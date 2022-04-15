@@ -16,16 +16,23 @@
 
 package com.android.server.telecom.tests;
 
+import static com.android.server.telecom.bluetooth.BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -34,32 +41,40 @@ import androidx.test.filters.FlakyTest;
 
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioRoutePeripheralAdapter;
+import com.android.server.telecom.CallAudioRouteStateMachine;
+import com.android.server.telecom.DockManager;
 import com.android.server.telecom.InCallTonePlayer;
 import com.android.server.telecom.TelecomSystem;
+import com.android.server.telecom.Timeouts;
+import com.android.server.telecom.WiredHeadsetManager;
+import com.android.server.telecom.bluetooth.BluetoothDeviceManager;
+import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 @RunWith(JUnit4.class)
 public class InCallTonePlayerTest extends TelecomTestCase {
 
     private InCallTonePlayer.Factory mFactory;
-
-    @Mock
     private CallAudioRoutePeripheralAdapter mCallAudioRoutePeripheralAdapter;
 
-    @Mock
-    private TelecomSystem.SyncRoot mLock;
-
-    @Mock
-    private ToneGenerator mToneGenerator;
-
-    @Mock
-    private InCallTonePlayer.ToneGeneratorFactory mToneGeneratorFactory;
+    @Mock private BluetoothRouteManager mBluetoothRouteManager;
+    @Mock private CallAudioRouteStateMachine mCallAudioRouteStateMachine;
+    @Mock private Timeouts.Adapter mTimeoutsAdapter;
+    @Mock private BluetoothDeviceManager mBluetoothDeviceManager;
+    @Mock private TelecomSystem.SyncRoot mLock;
+    @Mock private ToneGenerator mToneGenerator;
+    @Mock private InCallTonePlayer.ToneGeneratorFactory mToneGeneratorFactory;
+    @Mock private WiredHeadsetManager mWiredHeadsetManager;
+    @Mock private DockManager mDockManager;
+    @Mock private BluetoothDevice mDevice;
+    @Mock private BluetoothAdapter mBluetoothAdapter;
 
     private InCallTonePlayer.MediaPlayerAdapter mMediaPlayerAdapter =
             new InCallTonePlayer.MediaPlayerAdapter() {
@@ -110,6 +125,9 @@ public class InCallTonePlayerTest extends TelecomTestCase {
         when(mToneGeneratorFactory.get(anyInt(), anyInt())).thenReturn(mToneGenerator);
         when(mMediaPlayerFactory.get(anyInt(), any())).thenReturn(mMediaPlayerAdapter);
 
+        mCallAudioRoutePeripheralAdapter = new CallAudioRoutePeripheralAdapter(
+                mCallAudioRouteStateMachine, mBluetoothRouteManager, mWiredHeadsetManager,
+                mDockManager);
         mFactory = new InCallTonePlayer.Factory(mCallAudioRoutePeripheralAdapter, mLock,
                 mToneGeneratorFactory, mMediaPlayerFactory, mAudioManagerAdapter);
         mFactory.setCallAudioManager(mCallAudioManager);
@@ -177,6 +195,42 @@ public class InCallTonePlayerTest extends TelecomTestCase {
 
         // Verify we did play a tone.
         verify(mMediaPlayerFactory, timeout(5000)).get(anyInt(), any());
+        verify(mCallAudioManager, timeout(5000)).setIsTonePlaying(eq(true));
+    }
+
+    @SmallTest
+    @Test
+    public void testRingbackAudioStreamHeadset() {
+        when(mAudioManagerAdapter.isVolumeOverZero()).thenReturn(true);
+        mBluetoothDeviceManager.setBluetoothRouteManager(mBluetoothRouteManager);
+        when(mBluetoothRouteManager.getBluetoothAudioConnectedDevice()).thenReturn(mDevice);
+        when(mBluetoothRouteManager.isBluetoothAudioConnectedOrPending()).thenReturn(true);
+
+        when(mBluetoothRouteManager.isCachedLeAudioDevice(mDevice)).thenReturn(false);
+        when(mBluetoothRouteManager.isCachedHearingAidDevice(mDevice)).thenReturn(false);
+
+        mInCallTonePlayer = mFactory.createPlayer(InCallTonePlayer.TONE_RING_BACK);
+        assertTrue(mInCallTonePlayer.startTone());
+        verify(mToneGeneratorFactory, timeout(5000))
+                .get(eq(AudioManager.STREAM_BLUETOOTH_SCO), anyInt());
+        verify(mCallAudioManager, timeout(5000)).setIsTonePlaying(eq(true));
+    }
+
+    @SmallTest
+    @Test
+    public void testRingbackAudioStreamHearingAid() {
+        when(mAudioManagerAdapter.isVolumeOverZero()).thenReturn(true);
+        mBluetoothDeviceManager.setBluetoothRouteManager(mBluetoothRouteManager);
+        when(mBluetoothRouteManager.getBluetoothAudioConnectedDevice()).thenReturn(mDevice);
+        when(mBluetoothRouteManager.isBluetoothAudioConnectedOrPending()).thenReturn(true);
+
+        when(mBluetoothRouteManager.isCachedLeAudioDevice(mDevice)).thenReturn(false);
+        when(mBluetoothRouteManager.isCachedHearingAidDevice(mDevice)).thenReturn(true);
+
+        mInCallTonePlayer = mFactory.createPlayer(InCallTonePlayer.TONE_RING_BACK);
+        assertTrue(mInCallTonePlayer.startTone());
+        verify(mToneGeneratorFactory, timeout(5000))
+                .get(eq(AudioManager.STREAM_VOICE_CALL), anyInt());
         verify(mCallAudioManager, timeout(5000)).setIsTonePlaying(eq(true));
     }
 }
