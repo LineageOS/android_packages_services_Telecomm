@@ -644,6 +644,14 @@ public class BluetoothRouteManager extends StateMachine {
                 mHfpActiveDeviceCache != null;
     }
 
+    public boolean isCachedLeAudioDevice(BluetoothDevice device) {
+        return mLeAudioActiveDeviceCache != null && mLeAudioActiveDeviceCache.equals(device);
+    }
+
+    public boolean isCachedHearingAidDevice(BluetoothDevice device) {
+        return mHearingAidActiveDeviceCache != null && mHearingAidActiveDeviceCache.equals(device);
+    }
+
     public Collection<BluetoothDevice> getConnectedDevices() {
         return mDeviceManager.getUniqueConnectedDevices();
     }
