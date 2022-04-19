@@ -62,6 +62,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.Objects;
 
 /**
  * Wrapper for {@link IConnectionService}s, handles binding to {@link IConnectionService} and keeps
@@ -967,6 +968,31 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
 
                         if (alreadyAddedConnection != null
                                 && mCallIdMapper.getCall(callId) == null) {
+                            if (!Objects.equals(connection.getHandle(),
+                                    alreadyAddedConnection.getHandle())) {
+                                alreadyAddedConnection.setHandle(connection.getHandle());
+                            }
+                            if (connection.getHandlePresentation() !=
+                                    alreadyAddedConnection.getHandlePresentation()) {
+                                alreadyAddedConnection.setHandle(connection.getHandle(),
+                                        connection.getHandlePresentation());
+                            }
+                            if (!Objects.equals(connection.getCallerDisplayName(),
+                                    alreadyAddedConnection.getCallerDisplayName())) {
+                                alreadyAddedConnection.setCallerDisplayName(connection
+                                                .getCallerDisplayName(),
+                                        connection.getCallerDisplayNamePresentation());
+                            }
+                            if (connection.getConnectionCapabilities() !=
+                                    alreadyAddedConnection.getConnectionCapabilities()) {
+                                alreadyAddedConnection.setConnectionCapabilities(connection
+                                        .getConnectionCapabilities());
+                            }
+                            if (connection.getConnectionProperties() !=
+                                    alreadyAddedConnection.getConnectionProperties()) {
+                                alreadyAddedConnection.setConnectionCapabilities(connection
+                                        .getConnectionProperties());
+                            }
                             mCallIdMapper.addCall(alreadyAddedConnection, callId);
                             alreadyAddedConnection
                                     .replaceConnectionService(ConnectionServiceWrapper.this);
