@@ -1654,7 +1654,10 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 speakerOn = true;
             }
         } else {
-            mAudioManager.clearCommunicationDevice();
+            AudioDeviceInfo curDevice = mAudioManager.getCommunicationDevice();
+            if (curDevice != null && curDevice.getType() == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER) {
+                mAudioManager.clearCommunicationDevice();
+            }
         }
         mStatusBarNotifier.notifySpeakerphone(speakerOn);
     }
