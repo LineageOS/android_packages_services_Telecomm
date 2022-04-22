@@ -329,8 +329,7 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
                     } else {
                         performCarrierCallRedirection();
                     }
-                }
-                if (mIsCarrierRedirectionPending) {
+                } else if (mIsCarrierRedirectionPending) {
                     Log.addEvent(mCall, LogUtils.Events.REDIRECTION_COMPLETED_CARRIER);
                     mIsCarrierRedirectionPending = false;
                     mCallsManager.onCallRedirectionComplete(mCall, mDestinationUri,
