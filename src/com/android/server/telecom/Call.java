@@ -1262,7 +1262,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
     }
 
-    boolean isRingbackRequested() {
+    public boolean isRingbackRequested() {
         return mRingbackRequested;
     }
 
