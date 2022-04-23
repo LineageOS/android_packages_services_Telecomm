@@ -294,6 +294,60 @@ public class CallAudioManagerTest extends TelecomTestCase {
         verifyProperCleanup();
     }
 
+    @MediumTest
+    @Test
+    public void testRingbackStartStop() {
+        Call call = mock(Call.class);
+        ArgumentCaptor<CallAudioModeStateMachine.MessageArgs> captor = makeNewCaptor();
+        when(call.getState()).thenReturn(CallState.CONNECTING);
+        when(call.isRingbackRequested()).thenReturn(true);
+
+        mCallAudioManager.onCallAdded(call);
+        assertEquals(call, mCallAudioManager.getForegroundCall());
+        verify(mCallAudioRouteStateMachine).sendMessageWithSessionInfo(
+                CallAudioRouteStateMachine.UPDATE_SYSTEM_AUDIO_ROUTE);
+        verify(mCallAudioModeStateMachine).sendMessageWithArgs(
+                eq(CallAudioModeStateMachine.NEW_ACTIVE_OR_DIALING_CALL), captor.capture());
+        CallAudioModeStateMachine.MessageArgs expectedArgs =
+                new Builder()
+                        .setHasActiveOrDialingCalls(true)
+                        .setHasRingingCalls(false)
+                        .setHasHoldingCalls(false)
+                        .setIsTonePlaying(false)
+                        .setHasAudioProcessingCalls(false)
+                        .setForegroundCallIsVoip(false)
+                        .setSession(null)
+                        .build();
+        assertMessageArgEquality(expectedArgs, captor.getValue());
+
+        when(call.getState()).thenReturn(CallState.DIALING);
+        mCallAudioManager.onCallStateChanged(call, CallState.CONNECTING, CallState.DIALING);
+        verify(mCallAudioModeStateMachine, times(2)).sendMessageWithArgs(
+                eq(CallAudioModeStateMachine.NEW_ACTIVE_OR_DIALING_CALL), captor.capture());
+        assertMessageArgEquality(expectedArgs, captor.getValue());
+        verify(mCallAudioModeStateMachine, times(2)).sendMessageWithArgs(
+                anyInt(), any(CallAudioModeStateMachine.MessageArgs.class));
+
+        // Ensure we started ringback.
+        verify(mRingbackPlayer).startRingbackForCall(any(Call.class));
+
+        // Report state change from dialing to dialing, which happens when a call is locally
+        // disconnected.
+        mCallAudioManager.onCallStateChanged(call, CallState.DIALING, CallState.DIALING);
+        // Should not have stopped ringback.
+        verify(mRingbackPlayer, never()).stopRingbackForCall(any(Call.class));
+        // Should still only have initial ringback start
+        verify(mRingbackPlayer, times(1)).startRingbackForCall(any(Call.class));
+
+        // Report state to disconnected
+        when(call.getState()).thenReturn(CallState.DISCONNECTED);
+        mCallAudioManager.onCallStateChanged(call, CallState.DIALING, CallState.DISCONNECTED);
+        // Now we should have stopped ringback.
+        verify(mRingbackPlayer).stopRingbackForCall(any(Call.class));
+        // Should still only have initial ringback start recorded from before (don't restart it).
+        verify(mRingbackPlayer, times(1)).startRingbackForCall(any(Call.class));
+    }
+
     @SmallTest
     @Test
     public void testNewCallGoesToAudioProcessing() {
