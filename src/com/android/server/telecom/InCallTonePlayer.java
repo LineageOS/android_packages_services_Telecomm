@@ -510,11 +510,10 @@ public class InCallTonePlayer extends Thread {
      */
     @VisibleForTesting
     public void stopTone() {
-        if (mState == STATE_ON) {
-            Log.i(this, "stopTone: Stopping the tone %d.", mToneId);
-            // Notify the playback to end early.
-            mPlaybackLatch.countDown();
-        }
+        Log.i(this, "stopTone: Stopping the tone %d.", mToneId);
+        // Notify the playback to end early.
+        mPlaybackLatch.countDown();
+
         mState = STATE_STOPPED;
     }
 
