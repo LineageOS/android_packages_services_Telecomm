@@ -51,7 +51,6 @@ import android.content.pm.ServiceInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.hardware.SensorPrivacyManager;
-import android.location.Country;
 import android.location.CountryDetector;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
@@ -59,17 +58,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IInterface;
 import android.os.PersistableBundle;
-import android.os.PowerWhitelistManager;
 import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.VibratorManager;
 import android.permission.PermissionCheckerManager;
-import android.telecom.CallAudioState;
 import android.telecom.ConnectionService;
 import android.telecom.Log;
 import android.telecom.InCallService;
-import android.telecom.PhoneAccount;
 import android.telecom.TelecomManager;
 import android.telephony.CarrierConfigManager;
 import android.telephony.SubscriptionManager;
@@ -652,6 +648,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
         // Make sure we do not hide PII during testing.
         Log.setTag("TelecomTEST");
         Log.setIsExtendedLoggingEnabled(true);
+        Log.setUnitTestingEnabled(true);
         Log.VERBOSE = true;
     }
 
