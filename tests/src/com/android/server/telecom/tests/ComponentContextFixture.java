@@ -436,6 +436,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
         private int mAudioStreamValue = 1;
         private int mMode = AudioManager.MODE_NORMAL;
         private int mRingerMode = AudioManager.RINGER_MODE_NORMAL;
+        private AudioDeviceInfo mCommunicationDevice;
 
         public FakeAudioManager(Context context) {
             super(context);
@@ -492,7 +493,18 @@ public class ComponentContextFixture implements TestFixture<Context> {
         }
 
         @Override
+        public void clearCommunicationDevice() {
+            mCommunicationDevice = null;
+        }
+
+        @Override
+        public AudioDeviceInfo getCommunicationDevice() {
+            return mCommunicationDevice;
+        }
+
+        @Override
         public boolean setCommunicationDevice(AudioDeviceInfo device) {
+            mCommunicationDevice = device;
             return true;
         }
     }
