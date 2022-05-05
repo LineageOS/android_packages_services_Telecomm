@@ -150,7 +150,6 @@ public abstract class ServiceBinder {
                     Log.i(this, "Service bound %s", componentName);
 
                     Log.addEvent(mCall, LogUtils.Events.CS_BOUND, componentName);
-                    mCall = null;
 
                     // Unbind request was queued so unbind immediately.
                     if (mIsBindingAborted) {
@@ -187,6 +186,30 @@ public abstract class ServiceBinder {
                 synchronized (mLock) {
                     logServiceDisconnected("onServiceDisconnected");
                     handleDisconnect();
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        /**
+         * Handles the case where the {@link ConnectionService} we bound to returned a null binding.
+         * We want to unbind from the service and cleanup and call resources at this time.
+         * @param componentName The component of the {@link ConnectionService}.
+         */
+        @Override
+        public void onNullBinding(ComponentName componentName) {
+            try {
+                Log.startSession("SBC.oNB");
+                synchronized (mLock) {
+                    Log.w(this, "Null binding %s", componentName);
+                    Log.addEvent(mCall, "NULL_BINDING", componentName);
+                    String componentStr = componentName == null ? "null" : componentName.toString();
+                    android.util.EventLog.writeEvent(0x534e4554, "211114016", -1, componentStr);
+                    logServiceDisconnected("onNullBinding");
+                    mContext.unbindService(this);
+                    clearAbort();
+                    handleFailedConnection();
                 }
             } finally {
                 Log.endSession();
