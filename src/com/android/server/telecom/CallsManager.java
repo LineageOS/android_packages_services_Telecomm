@@ -17,6 +17,10 @@
 package com.android.server.telecom;
 
 import static android.provider.CallLog.Calls.MISSED_REASON_NOT_MISSED;
+import static android.provider.CallLog.Calls.SHORT_RING_THRESHOLD;
+import static android.provider.CallLog.Calls.USER_MISSED_NEVER_RANG;
+import static android.provider.CallLog.Calls.USER_MISSED_NO_ANSWER;
+import static android.provider.CallLog.Calls.USER_MISSED_SHORT_RING;
 import static android.telecom.TelecomManager.ACTION_POST_CALL;
 import static android.telecom.TelecomManager.DURATION_LONG;
 import static android.telecom.TelecomManager.DURATION_MEDIUM;
@@ -3142,6 +3146,22 @@ public class CallsManager extends Call.ListenerBase
             // be marked as missed.
             call.setOverrideDisconnectCauseCode(new DisconnectCause(DisconnectCause.MISSED));
         }
+        if (call.getState() == CallState.NEW
+                && disconnectCause.getCode() == DisconnectCause.MISSED) {
+            Log.i(this, "markCallAsDisconnected: missed call never rang ", call.getId());
+            call.setMissedReason(USER_MISSED_NEVER_RANG);
+        }
+        if (call.getState() == CallState.RINGING
+                || call.getState() == CallState.SIMULATED_RINGING) {
+            if (call.getStartRingTime() > 0
+                    && (mClockProxy.elapsedRealtime() - call.getStartRingTime())
+                    < SHORT_RING_THRESHOLD) {
+                Log.i(this, "markCallAsDisconnected; callid=%s, short ring.", call.getId());
+                call.setUserMissed(USER_MISSED_SHORT_RING);
+            } else if (call.getStartRingTime() > 0) {
+                call.setUserMissed(USER_MISSED_NO_ANSWER);
+            }
+        }
 
         // If a call diagnostic service is in use, we will log the original telephony-provided
         // disconnect cause, inform the CDS of the disconnection, and then chain the update of the
@@ -5607,5 +5627,10 @@ public class CallsManager extends Call.ListenerBase
     public void requestLogMark(String message) {
         mCalls.forEach(c -> Log.addEvent(c, LogUtils.Events.USER_LOG_MARK, message));
         Log.addEvent(null /* global */, LogUtils.Events.USER_LOG_MARK, message);
+    }
+
+    @VisibleForTesting
+    public Ringer getRinger() {
+        return mRinger;
     }
 }
