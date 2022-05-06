@@ -4138,8 +4138,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         return mStartRingTime;
     }
 
-    public void setStartRingTime(long startRingTime) {
-        mStartRingTime = startRingTime;
+    public void setStartRingTime() {
+        mStartRingTime = mClockProxy.elapsedRealtime();
     }
 
     public CharSequence getCallScreeningAppName() {
