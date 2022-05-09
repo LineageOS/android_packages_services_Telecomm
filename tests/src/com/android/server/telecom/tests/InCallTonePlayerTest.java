@@ -181,7 +181,9 @@ public class InCallTonePlayerTest extends TelecomTestCase {
         mInCallTonePlayer.stopTone();
         // Timeouts due to threads!
         verify(mCallAudioManager, timeout(5000)).setIsTonePlaying(eq(false));
-        verify(mToneGenerator, timeout(5000)).release();
+        // Ideally it would be nice to verify this, however release is a native method so appears to
+        // cause flakiness when testing on Cuttlefish.
+        // verify(mToneGenerator, timeout(5000)).release();
 
         // Correctness check: ensure we can't start the tone again.
         assertFalse(mInCallTonePlayer.startTone());
