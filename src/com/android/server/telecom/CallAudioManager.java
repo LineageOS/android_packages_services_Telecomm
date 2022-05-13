@@ -737,8 +737,29 @@ public class CallAudioManager extends CallsManagerListenerBase {
                 .setHasAudioProcessingCalls(mAudioProcessingCalls.size() > 0)
                 .setIsTonePlaying(mIsTonePlaying)
                 .setForegroundCallIsVoip(
-                        mForegroundCall != null && mForegroundCall.getIsVoipAudioMode())
+                        mForegroundCall != null && isCallVoip(mForegroundCall))
                 .setSession(Log.createSubsession()).build();
+    }
+
+    /**
+     * Determines if a {@link Call} is a VOIP call for audio purposes.
+     * For top level calls, we get this from {@link Call#getIsVoipAudioMode()}.  A {@link Call}
+     * representing a {@link android.telecom.Conference}, however, has no means of specifying that
+     * it is a VOIP conference, so we will get that attribute from one of the children.
+     * @param call The call.
+     * @return {@code true} if the call is a VOIP call, {@code false} if is a SIM call.
+     */
+    @VisibleForTesting
+    public boolean isCallVoip(Call call) {
+        if (call.isConference() && call.getChildCalls() != null
+                && call.getChildCalls().size() > 0 ) {
+            // If this is a conference with children, we can get the VOIP audio mode attribute from
+            // one of the children.  The Conference doesn't have a VOIP audio mode property, so we
+            // need to infer from the first child.
+            Call firstChild = call.getChildCalls().get(0);
+            return firstChild.getIsVoipAudioMode();
+        }
+        return call.getIsVoipAudioMode();
     }
 
     private HashSet<Call> getBinForCall(Call call) {

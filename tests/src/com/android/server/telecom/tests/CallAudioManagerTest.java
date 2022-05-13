@@ -45,6 +45,7 @@ import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -659,6 +660,21 @@ public class CallAudioManagerTest extends TelecomTestCase {
 
         mCallAudioManager.onCallRemoved(call);
         verifyProperCleanup();
+    }
+
+    @SmallTest
+    @Test
+    public void testGetVoipMode() {
+        Call child = mock(Call.class);
+        when(child.getIsVoipAudioMode()).thenReturn(true);
+
+        Call conference = mock(Call.class);
+        when(conference.isConference()).thenReturn(true);
+        when(conference.getIsVoipAudioMode()).thenReturn(false);
+        when(conference.getChildCalls()).thenReturn(Arrays.asList(child));
+
+        assertTrue(mCallAudioManager.isCallVoip(conference));
+        assertTrue(mCallAudioManager.isCallVoip(child));
     }
 
     private Call createSimulatedRingingCall() {
