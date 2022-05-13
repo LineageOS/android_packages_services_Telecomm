@@ -123,7 +123,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         verifyConnectionAttempt(DEVICE1, 0);
         verifyConnectionAttempt(DEVICE2, 0);
         assertEquals(BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX
-                        + ":" + HEARING_AID_DEVICE.getAddress(),
+                        + ":" + DEVICE1.getAddress(),
                 sm.getCurrentState().getName());
         sm.quitNow();
     }
