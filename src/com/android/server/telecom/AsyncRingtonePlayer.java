@@ -209,7 +209,7 @@ public class AsyncRingtonePlayer {
                         isVibrationEnabled);
                 SystemSettingsUtil systemSettingsUtil = new SystemSettingsUtil();
                 if (hasHaptics && (volumeShaperConfig == null
-                        || systemSettingsUtil.enableAudioCoupledVibrationForRampingRinger())) {
+                        || systemSettingsUtil.isAudioCoupledVibrationForRampingRingerEnabled())) {
                     AudioAttributes attributes = mRingtone.getAudioAttributes();
                     Log.d(this, "handlePlay: %s haptic channel",
                             (isVibrationEnabled ? "unmuting" : "muting"));
