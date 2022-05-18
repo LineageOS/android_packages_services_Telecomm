@@ -275,7 +275,9 @@ public class Ringer {
         VibrationEffect effect;
         CompletableFuture<Boolean> hapticsFuture = null;
         // Determine if the settings and DND mode indicate that the vibrator can be used right now.
-        boolean isVibratorEnabled = isVibratorEnabled(mContext, foregroundCall);
+        boolean isVibratorEnabled = isVibratorEnabled(mContext);
+        boolean shouldApplyRampingRinger =
+                isVibratorEnabled && mSystemSettingsUtil.isRampingRingerEnabled(mContext);
         if (attributes.isRingerAudible()) {
             mRingingCall = foregroundCall;
             Log.addEvent(foregroundCall, LogUtils.Events.START_RINGER);
@@ -283,9 +285,9 @@ public class Ringer {
             // call (for the purposes of direct-to-voicemail), the information about custom
             // ringtones should be available by the time this code executes. We can safely
             // request the custom ringtone from the call and expect it to be current.
-            if (mSystemSettingsUtil.applyRampingRinger(mContext)) {
+            if (shouldApplyRampingRinger) {
                 Log.i(this, "start ramping ringer.");
-                if (mSystemSettingsUtil.enableAudioCoupledVibrationForRampingRinger()) {
+                if (mSystemSettingsUtil.isAudioCoupledVibrationForRampingRingerEnabled()) {
                     effect = getVibrationEffectForCall(mRingtoneFactory, foregroundCall);
                 } else {
                     effect = mDefaultVibrationEffect;
@@ -331,8 +333,8 @@ public class Ringer {
                             isUsingAudioCoupledHaptics, mIsHapticPlaybackSupportedByDevice);
                     maybeStartVibration(foregroundCall, shouldRingForContact, effect,
                             isVibratorEnabled, isRingerAudible);
-                } else if (mSystemSettingsUtil.applyRampingRinger(mContext)
-                           && !mSystemSettingsUtil.enableAudioCoupledVibrationForRampingRinger()) {
+                } else if (shouldApplyRampingRinger
+                        && !mSystemSettingsUtil.isAudioCoupledVibrationForRampingRingerEnabled()) {
                     Log.i(this, "startRinging: apply ramping ringer vibration");
                     maybeStartVibration(foregroundCall, shouldRingForContact, effect,
                             isVibratorEnabled, isRingerAudible);
@@ -360,15 +362,13 @@ public class Ringer {
         VibrationEffect effect, boolean isVibrationEnabled, boolean isRingerAudible) {
         synchronized (mLock) {
             mAudioManager = mContext.getSystemService(AudioManager.class);
-            if (isVibrationEnabled
-                    && !mIsVibrating && shouldRingForContact) {
+            if (isVibrationEnabled && !mIsVibrating && shouldRingForContact) {
                 Log.addEvent(foregroundCall, LogUtils.Events.START_VIBRATOR,
                         "hasVibrator=%b, userRequestsVibrate=%b, ringerMode=%d, isVibrating=%b",
                         mVibrator.hasVibrator(),
-                        mSystemSettingsUtil.canVibrateWhenRinging(mContext),
+                        mSystemSettingsUtil.isRingVibrationEnabled(mContext),
                         mAudioManager.getRingerModeInternal(), mIsVibrating);
-                if (mSystemSettingsUtil.applyRampingRinger(mContext)
-                        && isRingerAudible) {
+                if (mSystemSettingsUtil.isRampingRingerEnabled(mContext) && isRingerAudible) {
                     Log.i(this, "start vibration for ramping ringer.");
                 } else {
                     Log.i(this, "start normal vibration.");
@@ -380,7 +380,7 @@ public class Ringer {
                 Log.addEvent(foregroundCall, LogUtils.Events.SKIP_VIBRATION,
                         "hasVibrator=%b, userRequestsVibrate=%b, ringerMode=%d, isVibrating=%b",
                         mVibrator.hasVibrator(),
-                        mSystemSettingsUtil.canVibrateWhenRinging(mContext),
+                        mSystemSettingsUtil.isRingVibrationEnabled(mContext),
                         mAudioManager.getRingerModeInternal(), mIsVibrating);
             }
         }
@@ -503,25 +503,11 @@ public class Ringer {
         }
     }
 
-    private boolean isVibratorEnabled(Context context, Call call) {
+    private boolean isVibratorEnabled(Context context) {
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        int ringerMode = audioManager.getRingerModeInternal();
-        boolean shouldVibrate;
-        if (getVibrateWhenRinging(context)) {
-            shouldVibrate = ringerMode != AudioManager.RINGER_MODE_SILENT;
-        } else {
-            shouldVibrate = ringerMode == AudioManager.RINGER_MODE_VIBRATE;
-        }
-
-        return shouldVibrate;
-    }
-
-    private boolean getVibrateWhenRinging(Context context) {
-        if (!mVibrator.hasVibrator()) {
-            return false;
-        }
-        return mSystemSettingsUtil.canVibrateWhenRinging(context)
-            || mSystemSettingsUtil.applyRampingRinger(context);
+        return mVibrator.hasVibrator()
+                && mSystemSettingsUtil.isRingVibrationEnabled(context)
+                && audioManager.getRingerModeInternal() != AudioManager.RINGER_MODE_SILENT;
     }
 
     private RingerAttributes getRingerAttributes(Call call, boolean isHfpDeviceAttached) {
