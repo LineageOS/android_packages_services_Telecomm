@@ -24,7 +24,6 @@ import android.media.Ringtone;
 import android.media.VolumeShaper;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Looper;
 import android.os.Parcel;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
@@ -48,8 +47,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -467,15 +464,15 @@ public class RingerTest extends TelecomTestCase {
 
     private void enableVibrationWhenRinging() {
         when(mockVibrator.hasVibrator()).thenReturn(true);
-        when(mockSystemSettingsUtil.canVibrateWhenRinging(any(Context.class))).thenReturn(true);
+        when(mockSystemSettingsUtil.isRingVibrationEnabled(any(Context.class))).thenReturn(true);
     }
 
     private void enableVibrationOnlyWhenNotRinging() {
         when(mockVibrator.hasVibrator()).thenReturn(true);
-        when(mockSystemSettingsUtil.canVibrateWhenRinging(any(Context.class))).thenReturn(false);
+        when(mockSystemSettingsUtil.isRingVibrationEnabled(any(Context.class))).thenReturn(false);
     }
 
     private void enableRampingRinger() {
-        when(mockSystemSettingsUtil.applyRampingRinger(any(Context.class))).thenReturn(true);
+        when(mockSystemSettingsUtil.isRampingRingerEnabled(any(Context.class))).thenReturn(true);
     }
 }
