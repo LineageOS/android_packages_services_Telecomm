@@ -254,6 +254,14 @@ public class TelecomServiceImpl {
                 String callingFeatureId) {
             try {
                 Log.startSession("TSI.gOSMPA", Log.getPackageAbbreviation(callingPackage));
+                try {
+                    enforceCallingPackage(callingPackage, "getOwnSelfManagedPhoneAccounts");
+                }
+                catch(SecurityException se){
+                    EventLog.writeEvent(0x534e4554, "231986341", Binder.getCallingUid(),
+                            "getOwnSelfManagedPhoneAccounts: invalid calling package");
+                    throw se;
+                }
                 if (!canReadMangeOwnCalls("Requires MANAGE_OWN_CALLS permission.")) {
                     throw new SecurityException("Requires MANAGE_OWN_CALLS permission.");
                 }
