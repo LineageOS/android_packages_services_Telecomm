@@ -433,6 +433,7 @@ public class BluetoothDeviceManager {
             mAudioManager.clearCommunicationDevice();
             mLeAudioSetAsCommunicationDevice = false;
         }
+        mLeAudioSetAsCommunicationDevice = false;
     }
 
     public void clearHearingAidCommunicationDevice() {
@@ -450,6 +451,7 @@ public class BluetoothDeviceManager {
             mAudioManager.clearCommunicationDevice();
             mHearingAidSetAsCommunicationDevice = false;
         }
+        mHearingAidSetAsCommunicationDevice = false;
     }
 
     public boolean setLeAudioCommunicationDevice() {
