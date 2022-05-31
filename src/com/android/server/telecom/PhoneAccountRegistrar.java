@@ -366,11 +366,11 @@ public class PhoneAccountRegistrar {
                 isSimAccount = true;
             }
 
-            Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s", accountHandle);
             mState.defaultOutgoingAccountHandles
                     .put(userHandle, new DefaultPhoneAccountHandle(userHandle, accountHandle,
                             account.getGroupId()));
         }
+        Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s", accountHandle);
 
         // Potentially update the default voice subid in SubscriptionManager.
         if (!Objects.equals(currentDefaultPhoneAccount, accountHandle)) {
