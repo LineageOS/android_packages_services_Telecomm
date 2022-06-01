@@ -263,7 +263,6 @@ public class InCallTonePlayer extends Thread {
             final int mediaResourceId; // The resourceId of the tone to play.  Used for media-based
                                       // tones.
 
-            int stream = STREAM_INVALID;
             switch (mToneId) {
                 case TONE_BUSY:
                     // TODO: CDMA-specific tones
@@ -331,12 +330,6 @@ public class InCallTonePlayer extends Thread {
                     toneVolume = RELATIVE_VOLUME_HIPRI;
                     toneLengthMillis = Integer.MAX_VALUE - TIMEOUT_BUFFER_MILLIS;
                     mediaResourceId = TONE_RESOURCE_ID_UNDEFINED;
-                    // When a hearing aid device or a LE audio device is used, ring back tone should
-                    // use STREAM_VOICE_CALL
-                    if (mCallAudioRoutePeripheralAdapter.isLeAudioDeviceOn()
-                            || mCallAudioRoutePeripheralAdapter.isHearingAidDeviceOn()) {
-                        stream = AudioManager.STREAM_VOICE_CALL;
-                    }
                     break;
                 case TONE_UNOBTAINABLE_NUMBER:
                     toneType = ToneGenerator.TONE_SUP_ERROR;
@@ -368,15 +361,18 @@ public class InCallTonePlayer extends Thread {
                     throw new IllegalStateException("Bad toneId: " + mToneId);
             }
 
-            // Don't override already valid stream values
-            if (stream == STREAM_INVALID) {
-                stream = AudioManager.STREAM_VOICE_CALL;
-                if (mCallAudioRoutePeripheralAdapter.isBluetoothAudioOn()) {
-                    stream = AudioManager.STREAM_BLUETOOTH_SCO;
-                }
+            int stream = AudioManager.STREAM_VOICE_CALL;
+            if (mCallAudioRoutePeripheralAdapter.isBluetoothAudioOn()) {
+                stream = AudioManager.STREAM_BLUETOOTH_SCO;
             }
-
             if (toneType != ToneGenerator.TONE_UNKNOWN) {
+                if (stream == AudioManager.STREAM_BLUETOOTH_SCO) {
+                    // Override audio stream for BT le device and hearing aid device
+                    if (mCallAudioRoutePeripheralAdapter.isLeAudioDeviceOn()
+                            || mCallAudioRoutePeripheralAdapter.isHearingAidDeviceOn()) {
+                        stream = AudioManager.STREAM_VOICE_CALL;
+                    }
+                }
                 playToneGeneratorTone(stream, toneVolume, toneType, toneLengthMillis);
             } else if (mediaResourceId != TONE_RESOURCE_ID_UNDEFINED) {
                 playMediaTone(stream, mediaResourceId);
