@@ -196,9 +196,10 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
                         Log.w(LOG_TAG,
                                 "Device %s cannot be use as hearing aid communication device.",
                                 device);
+                    } else {
+                        mBluetoothRouteManager.sendMessage(BT_AUDIO_IS_ON, args);
                     }
                 }
-                mBluetoothRouteManager.sendMessage(BT_AUDIO_IS_ON, args);
            }
         }
     }
