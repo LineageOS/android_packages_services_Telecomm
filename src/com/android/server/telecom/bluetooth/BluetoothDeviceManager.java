@@ -429,6 +429,7 @@ public class BluetoothDeviceManager {
         if (mAudioManager.getCommunicationDevice() != null
                 && mAudioManager.getCommunicationDevice().getType()
                 == AudioDeviceInfo.TYPE_BLE_HEADSET) {
+            mBluetoothRouteManager.onAudioLost(mAudioManager.getCommunicationDevice().getAddress());
             mAudioManager.clearCommunicationDevice();
             mLeAudioSetAsCommunicationDevice = false;
         }
@@ -493,6 +494,7 @@ public class BluetoothDeviceManager {
             Log.w(this, " Could not set bleHeadset device");
         } else {
             Log.i(this, " bleHeadset device set");
+            mBluetoothRouteManager.onAudioOn(bleHeadset.getAddress());
             mLeAudioSetAsCommunicationDevice = true;
         }
         return result;
