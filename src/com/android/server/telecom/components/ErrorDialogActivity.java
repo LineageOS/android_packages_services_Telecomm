@@ -16,7 +16,6 @@
 
 package com.android.server.telecom.components;
 
-import com.android.server.telecom.FrameworksUtils;
 import com.android.server.telecom.R;
 
 import android.app.Activity;
@@ -85,7 +84,7 @@ public class ErrorDialogActivity extends Activity {
             }
         };
 
-        final AlertDialog errorDialog = FrameworksUtils.makeAlertDialogBuilder(this)
+        final AlertDialog errorDialog = new AlertDialog.Builder(this)
                 .setMessage(msg).setPositiveButton(android.R.string.ok, clickListener)
                         .setOnCancelListener(cancelListener).create();
 
@@ -98,7 +97,7 @@ public class ErrorDialogActivity extends Activity {
     }
 
     private void showMissingVoicemailErrorDialog() {
-        FrameworksUtils.makeAlertDialogBuilder(this)
+        final AlertDialog errorDialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.no_vm_number)
                 .setMessage(R.string.no_vm_number_msg)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
