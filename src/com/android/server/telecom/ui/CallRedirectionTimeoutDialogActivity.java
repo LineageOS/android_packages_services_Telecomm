@@ -16,7 +16,6 @@
 
 package com.android.server.telecom.ui;
 
-import com.android.server.telecom.FrameworksUtils;
 import com.android.server.telecom.R;
 
 import android.app.Activity;
@@ -46,7 +45,7 @@ public class CallRedirectionTimeoutDialogActivity extends Activity {
         Log.i(this, "showDialog: timeout redirection with %s", redirectionAppName);
         CharSequence message = getString(
                 R.string.alert_redirect_outgoing_call_timeout, redirectionAppName);
-        final AlertDialog errorDialog = FrameworksUtils.makeAlertDialogBuilder(this)
+        final AlertDialog errorDialog = new AlertDialog.Builder(this)
                 .setMessage(message)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override

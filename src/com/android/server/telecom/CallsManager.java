@@ -2198,7 +2198,7 @@ public class CallsManager extends Call.ListenerBase
      * @param callId The ID of the call to show the redirection dialog for.
      */
     private void showRedirectionDialog(@NonNull String callId, @NonNull CharSequence appName) {
-        AlertDialog confirmDialog = FrameworksUtils.makeAlertDialogBuilder(mContext).create();
+        AlertDialog confirmDialog = (new AlertDialog.Builder(mContext)).create();
         LayoutInflater layoutInflater = LayoutInflater.from(mContext);
         View dialogView = layoutInflater.inflate(R.layout.call_redirection_confirm_dialog, null);
 
