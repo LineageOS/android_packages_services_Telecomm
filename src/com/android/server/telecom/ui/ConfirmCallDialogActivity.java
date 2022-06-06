@@ -16,7 +16,6 @@
 
 package com.android.server.telecom.ui;
 
-import com.android.server.telecom.FrameworksUtils;
 import com.android.server.telecom.R;
 import com.android.server.telecom.TelecomBroadcastIntentProcessor;
 import com.android.server.telecom.components.TelecomBroadcastReceiver;
@@ -49,7 +48,7 @@ public class ConfirmCallDialogActivity extends Activity {
     private void showDialog(final String callId, CharSequence ongoingAppName) {
         Log.i(this, "showDialog: confirming callId=%s, ongoing=%s", callId, ongoingAppName);
         CharSequence message = getString(R.string.alert_outgoing_call, ongoingAppName);
-        final AlertDialog errorDialog = FrameworksUtils.makeAlertDialogBuilder(this)
+        final AlertDialog errorDialog = new AlertDialog.Builder(this)
                 .setMessage(message)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
