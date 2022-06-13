@@ -381,7 +381,10 @@ public class BluetoothRouteManager extends StateMachine {
                         break;
                     case CONNECT_BT:
                         if (!switchingBtDevices) {
-                            // Ignore connection to already connected device.
+                            // Ignore connection to already connected device but still notify
+                            // CallAudioRouteStateMachine since this might be a switch from other
+                            // to this already connected BT audio
+                            mListener.onBluetoothAudioConnected();
                             break;
                         }
 
@@ -621,6 +624,9 @@ public class BluetoothRouteManager extends StateMachine {
             }
         } else if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_HEARING_AID) {
             mHearingAidActiveDeviceCache = device;
+            if (device == null) {
+                mDeviceManager.clearHearingAidCommunicationDevice();
+            }
         } else if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_HEADSET) {
             mHfpActiveDeviceCache = device;
         } else {
@@ -783,12 +789,14 @@ public class BluetoothRouteManager extends StateMachine {
         }
 
         if (bluetoothHearingAid != null) {
-            for (BluetoothDevice device : bluetoothAdapter.getActiveDevices(
+            if (mDeviceManager.isHearingAidSetAsCommunicationDevice()) {
+                for (BluetoothDevice device : bluetoothAdapter.getActiveDevices(
                         BluetoothProfile.HEARING_AID)) {
-                if (device != null) {
-                    hearingAidActiveDevice = device;
-                    activeDevices++;
-                    break;
+                    if (device != null) {
+                        hearingAidActiveDevice = device;
+                        activeDevices++;
+                        break;
+                    }
                 }
             }
         }
