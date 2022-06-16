@@ -31,6 +31,7 @@ import android.media.audio.common.AudioDevice;
 import android.telecom.Log;
 import android.util.LocalLog;
 
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.IndentingPrintWriter;
 
 import java.util.ArrayList;
@@ -174,6 +175,12 @@ public class BluetoothDeviceManager {
             new LinkedHashMap<>();
     private final LinkedHashMap<BluetoothDevice, Integer> mGroupsByDevice =
             new LinkedHashMap<>();
+    private final ArrayList<LinkedHashMap<String, BluetoothDevice>>
+            mDevicesByAddressMaps = new ArrayList<LinkedHashMap<String, BluetoothDevice>>(); {
+        mDevicesByAddressMaps.add(mHfpDevicesByAddress);
+        mDevicesByAddressMaps.add(mHearingAidDevicesByAddress);
+        mDevicesByAddressMaps.add(mLeAudioDevicesByAddress);
+    }
     private int mGroupIdActive = BluetoothLeAudio.GROUP_ID_INVALID;
     private int mGroupIdPending = BluetoothLeAudio.GROUP_ID_INVALID;
     private final LocalLog mLocalLog = new LocalLog(20);
@@ -329,8 +336,10 @@ public class BluetoothDeviceManager {
         }
     }
 
-    void onDeviceConnected(BluetoothDevice device, int deviceType) {
+    @VisibleForTesting
+    public void onDeviceConnected(BluetoothDevice device, int deviceType) {
         synchronized (mLock) {
+            clearDeviceFromDeviceMaps(device.getAddress());
             LinkedHashMap<String, BluetoothDevice> targetDeviceMap;
             if (deviceType == DEVICE_TYPE_LE_AUDIO) {
                 if (mBluetoothLeAudioService == null) {
@@ -369,6 +378,12 @@ public class BluetoothDeviceManager {
                 targetDeviceMap.put(device.getAddress(), device);
                 mBluetoothRouteManager.onDeviceAdded(device.getAddress());
             }
+        }
+    }
+
+    void clearDeviceFromDeviceMaps(String deviceAddress) {
+        for (LinkedHashMap<String, BluetoothDevice> deviceMap : mDevicesByAddressMaps) {
+            deviceMap.remove(deviceAddress);
         }
     }
 
