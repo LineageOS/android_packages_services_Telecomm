@@ -53,7 +53,9 @@ import org.mockito.stubbing.Answer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -89,6 +91,7 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
     @Mock ConnectionServiceWrapper mockConnectionServiceWrapper;
     @Mock WiredHeadsetManager mockWiredHeadsetManager;
     @Mock StatusBarNotifier mockStatusBarNotifier;
+    @Mock Call fakeSelfManagedCall;
     @Mock Call fakeCall;
     @Mock CallAudioManager mockCallAudioManager;
 
@@ -116,11 +119,16 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
         };
 
         when(mockCallsManager.getForegroundCall()).thenReturn(fakeCall);
+        when(mockCallsManager.getTrackedCalls()).thenReturn(Set.of(fakeCall));
         when(mockCallsManager.getLock()).thenReturn(mLock);
         when(mockCallsManager.hasVideoCall()).thenReturn(false);
         when(fakeCall.getConnectionService()).thenReturn(mockConnectionServiceWrapper);
         when(fakeCall.isAlive()).thenReturn(true);
         when(fakeCall.getSupportedAudioRoutes()).thenReturn(CallAudioState.ROUTE_ALL);
+        when(fakeSelfManagedCall.getConnectionService()).thenReturn(mockConnectionServiceWrapper);
+        when(fakeSelfManagedCall.isAlive()).thenReturn(true);
+        when(fakeSelfManagedCall.getSupportedAudioRoutes()).thenReturn(CallAudioState.ROUTE_ALL);
+        when(fakeSelfManagedCall.isSelfManaged()).thenReturn(true);
 
         doNothing().when(mockConnectionServiceWrapper).onCallAudioStateChanged(any(Call.class),
                 any(CallAudioState.class));
@@ -151,6 +159,51 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
         // is ensure the stateMachine construction didn't fail.  But at least we exercised the
         // autodetection code...
         assertNotNull(stateMachine);
+    }
+
+    @SmallTest
+    @Test
+    public void testTrackedCallsReceiveAudioRouteChange() {
+        CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
+                mContext,
+                mockCallsManager,
+                mockBluetoothRouteManager,
+                mockWiredHeadsetManager,
+                mockStatusBarNotifier,
+                mAudioServiceFactory,
+                CallAudioRouteStateMachine.EARPIECE_AUTO_DETECT,
+                mThreadHandler.getLooper());
+        stateMachine.setCallAudioManager(mockCallAudioManager);
+
+        Set<Call> trackedCalls = new HashSet<>(Arrays.asList(fakeCall, fakeSelfManagedCall));
+        when(mockCallsManager.getTrackedCalls()).thenReturn(trackedCalls);
+
+        // start state --> ROUTE_EARPIECE
+        CallAudioState initState = new CallAudioState(false, CallAudioState.ROUTE_EARPIECE,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER);
+        stateMachine.initialize(initState);
+
+        stateMachine.setCallAudioManager(mockCallAudioManager);
+
+        assertEquals(stateMachine.getCurrentCallAudioState().getRoute(),
+                CallAudioRouteStateMachine.ROUTE_EARPIECE);
+
+        // ROUTE_EARPIECE  --> ROUTE_SPEAKER
+        stateMachine.sendMessageWithSessionInfo(CallAudioRouteStateMachine.SWITCH_SPEAKER,
+                CallAudioRouteStateMachine.SPEAKER_ON);
+
+        stateMachine.sendMessageWithSessionInfo(
+                CallAudioRouteStateMachine.UPDATE_SYSTEM_AUDIO_ROUTE);
+
+        waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
+        waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
+
+        // assert expected end state
+        assertEquals(stateMachine.getCurrentCallAudioState().getRoute(),
+                CallAudioRouteStateMachine.ROUTE_SPEAKER);
+        // should update the audio route on all tracked calls ...
+        verify(mockConnectionServiceWrapper, times(trackedCalls.size()))
+                .onCallAudioStateChanged(any(), any());
     }
 
     @MediumTest
@@ -749,6 +802,7 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
                 mockConnectionServiceWrapper);
         fakeCall = mock(Call.class);
         when(mockCallsManager.getForegroundCall()).thenReturn(fakeCall);
+        when(mockCallsManager.getTrackedCalls()).thenReturn(Set.of(fakeCall));
         when(fakeCall.getConnectionService()).thenReturn(mockConnectionServiceWrapper);
         when(fakeCall.isAlive()).thenReturn(true);
         when(fakeCall.getSupportedAudioRoutes()).thenReturn(CallAudioState.ROUTE_ALL);
