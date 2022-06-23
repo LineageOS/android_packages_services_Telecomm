@@ -32,6 +32,8 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.content.pm.ParceledListSlice;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
@@ -176,19 +178,20 @@ public class TelecomServiceImpl {
         }
 
         @Override
-        public List<PhoneAccountHandle> getCallCapablePhoneAccounts(
+        public ParceledListSlice<PhoneAccountHandle> getCallCapablePhoneAccounts(
                 boolean includeDisabledAccounts, String callingPackage) {
             try {
                 Log.startSession("TSI.gCCPA");
                 if (!canReadPhoneState(callingPackage, "getDefaultOutgoingPhoneAccount")) {
-                    return Collections.emptyList();
+                    return ParceledListSlice.emptyList();
                 }
                 synchronized (mLock) {
                     final UserHandle callingUserHandle = Binder.getCallingUserHandle();
                     long token = Binder.clearCallingIdentity();
                     try {
-                        return mPhoneAccountRegistrar.getCallCapablePhoneAccounts(null,
-                                includeDisabledAccounts, callingUserHandle);
+                        return new ParceledListSlice<>(
+                                mPhoneAccountRegistrar.getCallCapablePhoneAccounts(null,
+                                includeDisabledAccounts, callingUserHandle));
                     } catch (Exception e) {
                         Log.e(this, e, "getCallCapablePhoneAccounts");
                         throw e;
@@ -201,20 +204,22 @@ public class TelecomServiceImpl {
             }
         }
 
+
         @Override
-        public List<PhoneAccountHandle> getPhoneAccountsSupportingScheme(String uriScheme,
-                String callingPackage) {
-            try {
+        public ParceledListSlice<PhoneAccountHandle> getPhoneAccountsSupportingScheme(
+                String uriScheme, String callingPackage) {
+             try {
                 Log.startSession("TSI.gPASS");
                 synchronized (mLock) {
                     if (!canReadPhoneState(callingPackage, "getPhoneAccountsSupportingScheme")) {
-                        return Collections.emptyList();
+                        return ParceledListSlice.emptyList();
                     }
                     final UserHandle callingUserHandle = Binder.getCallingUserHandle();
                     long token = Binder.clearCallingIdentity();
                     try {
-                        return mPhoneAccountRegistrar.getCallCapablePhoneAccounts(uriScheme, false,
-                                callingUserHandle);
+                        return new ParceledListSlice<>(mPhoneAccountRegistrar
+                                .getCallCapablePhoneAccounts(uriScheme, false,
+                                callingUserHandle));
                     } catch (Exception e) {
                         Log.e(this, e, "getPhoneAccountsSupportingScheme %s", uriScheme);
                         throw e;
@@ -228,7 +233,8 @@ public class TelecomServiceImpl {
         }
 
         @Override
-        public List<PhoneAccountHandle> getPhoneAccountsForPackage(String packageName) {
+        public ParceledListSlice<PhoneAccountHandle> getPhoneAccountsForPackage(
+                String packageName) {
             //TODO: Deprecate this in S
             try {
                 enforceCallingPackage(packageName);
@@ -251,8 +257,8 @@ public class TelecomServiceImpl {
                 long token = Binder.clearCallingIdentity();
                 try {
                     Log.startSession("TSI.gPAFP");
-                    return mPhoneAccountRegistrar.getPhoneAccountsForPackage(packageName,
-                            callingUserHandle);
+                    return new ParceledListSlice<>(mPhoneAccountRegistrar
+                            .getPhoneAccountsForPackage(packageName, callingUserHandle));
                 } catch (Exception e) {
                     Log.e(this, e, "getPhoneAccountsForPackage %s", packageName);
                     throw e;
@@ -293,7 +299,7 @@ public class TelecomServiceImpl {
                 try {
                     Log.startSession("TSI.gAPAC");
                     // This list is pre-filtered for the calling user.
-                    return getAllPhoneAccounts().size();
+                    return getAllPhoneAccounts().getList().size();
                 } catch (Exception e) {
                     Log.e(this, e, "getAllPhoneAccountsCount");
                     throw e;
@@ -304,13 +310,14 @@ public class TelecomServiceImpl {
         }
 
         @Override
-        public List<PhoneAccount> getAllPhoneAccounts() {
+        public ParceledListSlice<PhoneAccount> getAllPhoneAccounts() {
             synchronized (mLock) {
                 final UserHandle callingUserHandle = Binder.getCallingUserHandle();
                 long token = Binder.clearCallingIdentity();
                 try {
                     Log.startSession("TSI.gAPA");
-                    return mPhoneAccountRegistrar.getAllPhoneAccounts(callingUserHandle);
+                    return new ParceledListSlice<>(mPhoneAccountRegistrar
+                            .getAllPhoneAccounts(callingUserHandle));
                 } catch (Exception e) {
                     Log.e(this, e, "getAllPhoneAccounts");
                     throw e;
@@ -322,13 +329,14 @@ public class TelecomServiceImpl {
         }
 
         @Override
-        public List<PhoneAccountHandle> getAllPhoneAccountHandles() {
+        public ParceledListSlice<PhoneAccountHandle> getAllPhoneAccountHandles() {
             synchronized (mLock) {
                 final UserHandle callingUserHandle = Binder.getCallingUserHandle();
                 long token = Binder.clearCallingIdentity();
                 try {
                     Log.startSession("TSI.gAPAH");
-                    return mPhoneAccountRegistrar.getAllPhoneAccountHandles(callingUserHandle);
+                    return new ParceledListSlice<>(mPhoneAccountRegistrar
+                            .getAllPhoneAccountHandles(callingUserHandle));
                 } catch (Exception e) {
                     Log.e(this, e, "getAllPhoneAccounts");
                     throw e;
