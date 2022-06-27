@@ -64,6 +64,8 @@ import android.content.pm.PermissionInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
+import android.compat.testing.PlatformCompatChangeRule;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -102,7 +104,9 @@ import com.android.server.telecom.Timeouts;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
@@ -119,6 +123,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+
+import libcore.junit.util.compat.CoreCompatChangeRule;
 
 @RunWith(JUnit4.class)
 public class InCallControllerTests extends TelecomTestCase {
@@ -138,6 +144,9 @@ public class InCallControllerTests extends TelecomTestCase {
     @Mock Analytics.CallInfoImpl mCallInfo;
     @Mock NotificationManager mNotificationManager;
     @Mock PermissionInfo mMockPermissionInfo;
+
+    @Rule
+    public TestRule compatChangeRule = new PlatformCompatChangeRule();
 
     private static final int CURRENT_USER_ID = 900973;
     private static final String DEF_PKG = "defpkg";
@@ -909,7 +918,7 @@ public class InCallControllerTests extends TelecomTestCase {
 
    /**
      * Ensures that the {@link InCallController} will bind to an {@link InCallService} which
-     * supports third party app
+     * supports third party app.
      */
     @MediumTest
     @Test
@@ -923,6 +932,11 @@ public class InCallControllerTests extends TelecomTestCase {
             setupMockPackageManager(false /* default */, false /* nonui */, true /* appop_nonui */,
                     true /* system */, false /* external calls */, false /* self mgd in default */,
                     false /* self mgd in car*/);
+
+            ApplicationInfo applicationInfo = new ApplicationInfo();
+            applicationInfo.targetSdkVersion = Build.VERSION_CODES.TIRAMISU;
+            // set up mock call for ICSC#sendCrashedInCallServiceNotification(String)
+            when(mMockContext.getApplicationInfo()).thenReturn(applicationInfo);
 
             // Enable Third Party Companion App
             ExtendedMockito.doReturn(PermissionChecker.PERMISSION_GRANTED).when(() ->
@@ -950,6 +964,7 @@ public class InCallControllerTests extends TelecomTestCase {
 
             // Should have next bound to the third party app op non ui app.
             verifyBinding(bindIntentCaptor, 1, APPOP_NONUI_PKG, APPOP_NONUI_CLASS);
+
         } finally {
             mockitoSession.finishMocking();
         }
@@ -966,6 +981,13 @@ public class InCallControllerTests extends TelecomTestCase {
         setupMockPackageManager(false /* default */, true/* nonui */, true /* appop_nonui */,
                 true /* system */, false /* external calls */, false /* self mgd in default */,
                 false /* self mgd in car*/, true /* self managed in nonui */);
+
+        ApplicationInfo applicationInfo = new ApplicationInfo();
+        applicationInfo.targetSdkVersion = Build.VERSION_CODES.TIRAMISU;
+        when(mMockContext.getApplicationInfo()).thenReturn(applicationInfo);
+        // Package doesn't have metadata of TelecomManager.METADATA_IN_CALL_SERVICE_UI should
+        // not be the default dialer. This is to mock the default dialer is null in this case.
+        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID)).thenReturn(null);
 
         // we should bind to only the non ui app.
         mInCallController.bindToServices(mMockCall);
@@ -984,6 +1006,10 @@ public class InCallControllerTests extends TelecomTestCase {
 
         // Should have bound to the third party non ui app.
         verifyBinding(bindIntentCaptor, 0, NONUI_PKG, NONUI_CLASS);
+
+        // Verify notification is not sent by NotificationManager
+        verify(mNotificationManager, times(0)).notify(eq(InCallController.NOTIFICATION_TAG),
+                eq(InCallController.IN_CALL_SERVICE_NOTIFICATION_ID), any());
     }
 
     @MediumTest

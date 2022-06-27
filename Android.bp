@@ -54,7 +54,8 @@ android_test {
         "androidx.legacy_legacy-support-core-utils",
         "androidx.core_core",
         "androidx.fragment_fragment",
-        "androidx.test.ext.junit"
+        "androidx.test.ext.junit",
+        "platform-compat-test-rules",
     ],
     srcs: [
         "tests/src/**/*.java",
