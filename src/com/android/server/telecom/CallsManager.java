@@ -1137,6 +1137,15 @@ public class CallsManager extends Call.ListenerBase
         return mCallAudioManager.getForegroundCall();
     }
 
+    @VisibleForTesting
+    public Set<Call> getTrackedCalls() {
+        if (mCallAudioManager == null) {
+            // Happens when getTrackedCalls is called before full initialization.
+            return null;
+        }
+        return mCallAudioManager.getTrackedCalls();
+    }
+
     @Override
     public void onCallHoldFailed(Call call) {
         markAllAnsweredCallAsRinging(call, "hold");
