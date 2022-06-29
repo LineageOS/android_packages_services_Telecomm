@@ -48,6 +48,7 @@ import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * This class describes the available routes of a call as a state machine.
@@ -1764,16 +1765,18 @@ public class CallAudioRouteStateMachine extends StateMachine {
             if (force || !newCallAudioState.equals(mLastKnownCallAudioState)) {
                 mStatusBarNotifier.notifyMute(newCallAudioState.isMuted());
                 mCallsManager.onCallAudioStateChanged(mLastKnownCallAudioState, newCallAudioState);
-                updateAudioForForegroundCall(newCallAudioState);
+                updateAudioStateForTrackedCalls(newCallAudioState);
                 mLastKnownCallAudioState = newCallAudioState;
             }
         }
     }
 
-    private void updateAudioForForegroundCall(CallAudioState newCallAudioState) {
-        Call call = mCallsManager.getForegroundCall();
-        if (call != null && call.getConnectionService() != null) {
-            call.getConnectionService().onCallAudioStateChanged(call, newCallAudioState);
+    private void updateAudioStateForTrackedCalls(CallAudioState newCallAudioState) {
+        Set<Call> calls = mCallsManager.getTrackedCalls();
+        for (Call call : calls) {
+            if (call != null && call.getConnectionService() != null) {
+                call.getConnectionService().onCallAudioStateChanged(call, newCallAudioState);
+            }
         }
     }
 
