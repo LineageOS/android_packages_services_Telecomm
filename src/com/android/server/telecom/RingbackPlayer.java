@@ -19,6 +19,7 @@ package com.android.server.telecom;
 import static com.android.server.telecom.LogUtils.Events.START_RINBACK;
 import static com.android.server.telecom.LogUtils.Events.STOP_RINGBACK;
 
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 import android.telecom.Log;
 
@@ -42,8 +43,12 @@ public class RingbackPlayer {
      */
     private InCallTonePlayer mTonePlayer;
 
-    RingbackPlayer(InCallTonePlayer.Factory playerFactory) {
+    private final Object mLock;
+
+    @VisibleForTesting
+    public RingbackPlayer(InCallTonePlayer.Factory playerFactory) {
         mPlayerFactory = playerFactory;
+        mLock = new Object();
     }
 
     /**
@@ -52,25 +57,27 @@ public class RingbackPlayer {
      * @param call The call for which to ringback.
      */
     public void startRingbackForCall(Call call) {
-        Preconditions.checkState(call.getState() == CallState.DIALING);
+        synchronized (mLock) {
+            Preconditions.checkState(call.getState() == CallState.DIALING);
 
-        if (mCall == call) {
-            Log.w(this, "Ignoring duplicate requests to ring for %s.", call);
-            return;
-        }
+            if (mCall == call) {
+                Log.w(this, "Ignoring duplicate requests to ring for %s.", call);
+                return;
+            }
 
-        if (mCall != null) {
-            // We only get here for the foreground call so, there's no reason why there should
-            // exist a current dialing call.
-            Log.wtf(this, "Ringback player thinks there are two foreground-dialing calls.");
-        }
+            if (mCall != null) {
+                // We only get here for the foreground call so, there's no reason why there should
+                // exist a current dialing call.
+                Log.wtf(this, "Ringback player thinks there are two foreground-dialing calls.");
+            }
 
-        mCall = call;
-        if (mTonePlayer == null) {
-            Log.i(this, "Playing the ringback tone for %s.", call);
-            Log.addEvent(call, START_RINBACK);
-            mTonePlayer = mPlayerFactory.createPlayer(InCallTonePlayer.TONE_RING_BACK);
-            mTonePlayer.startTone();
+            mCall = call;
+            if (mTonePlayer == null) {
+                Log.i(this, "Playing the ringback tone for %s.", call);
+                Log.addEvent(call, START_RINBACK);
+                mTonePlayer = mPlayerFactory.createPlayer(InCallTonePlayer.TONE_RING_BACK);
+                mTonePlayer.startTone();
+            }
         }
     }
 
@@ -80,19 +87,27 @@ public class RingbackPlayer {
      * @param call The call for which to stop ringback.
      */
     public void stopRingbackForCall(Call call) {
-        if (mCall == call) {
-            // The foreground call is no longer dialing or is no longer the foreground call. In
-            // either case, stop the ringback tone.
-            mCall = null;
+        synchronized (mLock) {
+            if (mCall == call) {
+                // The foreground call is no longer dialing or is no longer the foreground call. In
+                // either case, stop the ringback tone.
+                mCall = null;
 
-            if (mTonePlayer == null) {
-                Log.w(this, "No player found to stop.");
-            } else {
-                Log.i(this, "Stopping the ringback tone for %s.", call);
-                Log.addEvent(call, STOP_RINGBACK);
-                mTonePlayer.stopTone();
-                mTonePlayer = null;
+                if (mTonePlayer == null) {
+                    Log.w(this, "No player found to stop.");
+                } else {
+                    Log.i(this, "Stopping the ringback tone for %s.", call);
+                    Log.addEvent(call, STOP_RINGBACK);
+                    mTonePlayer.stopTone();
+                    mTonePlayer = null;
+                }
             }
+        }
+    }
+
+    public boolean isRingbackPlaying() {
+        synchronized (mLock) {
+            return mTonePlayer != null;
         }
     }
 }
