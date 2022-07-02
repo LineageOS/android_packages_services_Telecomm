@@ -3654,6 +3654,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     public void setIsVoipAudioMode(boolean audioModeIsVoip) {
+        if (isSelfManaged() && !audioModeIsVoip) {
+            Log.i(this,
+                    "setIsVoipAudioMode: ignoring request to set self-managed audio to "
+                            + "non-voip mode");
+            return;
+        }
         if (mIsVoipAudioMode != audioModeIsVoip) {
             Log.addEvent(this, LogUtils.Events.SET_VOIP_MODE, audioModeIsVoip ? "Y" : "N");
         }
