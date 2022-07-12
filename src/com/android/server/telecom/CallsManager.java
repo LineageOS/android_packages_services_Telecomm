@@ -861,7 +861,8 @@ public class CallsManager extends Call.ListenerBase
                 }
                 mCallLogManager.logCall(incomingCall, Calls.BLOCKED_TYPE,
                         result.shouldShowNotification, result);
-            } else if (result.shouldShowNotification) {
+            }
+            if (result.shouldShowNotification) {
                 Log.i(this, "onCallScreeningCompleted: blocked call, showing notification.");
                 mMissedCallNotifier.showMissedCallNotification(
                         new MissedCallNotifier.CallInfo(incomingCall));

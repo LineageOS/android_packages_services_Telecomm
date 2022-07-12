@@ -1676,6 +1676,27 @@ public class CallsManagerTest extends TelecomTestCase {
                 new UserHandle(90210)));
     }
 
+    /**
+     * Verifies that if a {@link android.telecom.CallScreeningService} app can properly request
+     * notification show for rejected calls.
+     */
+    @SmallTest
+    @Test
+    public void testCallScreeningServiceRequestShowNotification() {
+        Call callSpy = addSpyCall(CallState.NEW);
+        CallFilteringResult result = new CallFilteringResult.Builder()
+                .setShouldAllowCall(false)
+                .setShouldReject(true)
+                .setCallScreeningComponentName("com.foo/.Blah")
+                .setCallScreeningAppName("Blah")
+                .setShouldAddToCallLog(true)
+                .setShouldShowNotification(true).build();
+
+        mCallsManager.onCallFilteringComplete(callSpy, result, false /* timeout */);
+        verify(mMissedCallNotifier).showMissedCallNotification(
+                any(MissedCallNotifier.CallInfo.class));
+    }
+
     private Call addSpyCall() {
         return addSpyCall(SIM_2_HANDLE, CallState.ACTIVE);
     }
