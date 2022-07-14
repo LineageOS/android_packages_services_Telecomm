@@ -420,10 +420,9 @@ public class BluetoothDeviceManager {
         if (!mLeAudioSetAsCommunicationDevice) {
             return;
         }
-
+        mLeAudioSetAsCommunicationDevice = false;
         if (mAudioManager == null) {
             Log.i(this, "clearLeAudioCommunicationDevice: mAudioManager is null");
-            mLeAudioSetAsCommunicationDevice = false;
             return;
         }
         if (mAudioManager.getCommunicationDevice() != null
@@ -432,24 +431,22 @@ public class BluetoothDeviceManager {
             mBluetoothRouteManager.onAudioLost(mAudioManager.getCommunicationDevice().getAddress());
             mAudioManager.clearCommunicationDevice();
         }
-        mLeAudioSetAsCommunicationDevice = false;
     }
 
     public void clearHearingAidCommunicationDevice() {
         if (!mHearingAidSetAsCommunicationDevice) {
             return;
         }
-
+        mHearingAidSetAsCommunicationDevice = false;
         if (mAudioManager == null) {
             Log.i(this, "clearHearingAidCommunicationDevice: mAudioManager is null");
-            mHearingAidSetAsCommunicationDevice = false;
+            return;
         }
         if (mAudioManager.getCommunicationDevice() != null
                 && mAudioManager.getCommunicationDevice().getType()
                 == AudioDeviceInfo.TYPE_HEARING_AID) {
             mAudioManager.clearCommunicationDevice();
         }
-        mHearingAidSetAsCommunicationDevice = false;
     }
 
     public boolean setLeAudioCommunicationDevice() {
