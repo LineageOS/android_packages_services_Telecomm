@@ -421,10 +421,9 @@ public class BluetoothDeviceManager {
         if (!mLeAudioSetAsCommunicationDevice) {
             return;
         }
-
+        mLeAudioSetAsCommunicationDevice = false;
         if (mAudioManager == null) {
             Log.i(this, "clearLeAudioCommunicationDevice: mAudioManager is null");
-            mLeAudioSetAsCommunicationDevice = false;
             return;
         }
 
@@ -441,10 +440,10 @@ public class BluetoothDeviceManager {
         if (!mHearingAidSetAsCommunicationDevice) {
             return;
         }
-
+        mHearingAidSetAsCommunicationDevice = false;
         if (mAudioManager == null) {
             Log.i(this, "clearHearingAidCommunicationDevice: mAudioManager is null");
-            mHearingAidSetAsCommunicationDevice = false;
+            return;
         }
 
         AudioDeviceInfo audioDeviceInfo = mAudioManager.getCommunicationDevice();
