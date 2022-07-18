@@ -1001,6 +1001,17 @@ public class TelecomServiceImpl {
         public int getCallStateUsingPackage(String callingPackage, String callingFeatureId) {
             try {
                 Log.startSession("TSI.getCallStateUsingPackage");
+
+                boolean privilegedUid = ((Binder.getCallingUid() == Process.ROOT_UID)
+                        || (Binder.getCallingUid() == Process.SHELL_UID));
+
+                // enforceCallingPackage but allow SHELL_UID
+                if (!privilegedUid && !callingUidMatchesPackageManagerRecords(callingPackage)) {
+                    EventLog.writeEvent(0x534e4554, "236813210", Binder.getCallingUid(),
+                            "getCallStateUsingPackage");
+                    throw new SecurityException("getCallStateUsingPackage: enforceCallingPackage");
+                }
+
                 if (CompatChanges.isChangeEnabled(
                         TelecomManager.ENABLE_GET_CALL_STATE_PERMISSION_PROTECTION, callingPackage,
                         Binder.getCallingUserHandle())) {
@@ -2382,6 +2393,20 @@ public class TelecomServiceImpl {
     }
 
     private void enforceCallingPackage(String packageName, String message) {
+        int callingUid = Binder.getCallingUid();
+
+        if (callingUid != Process.ROOT_UID &&
+                !callingUidMatchesPackageManagerRecords(packageName)) {
+            throw new SecurityException(message + ": Package " + packageName
+                    + " does not belong to " + callingUid);
+        }
+    }
+
+    /**
+     * helper method that determines whether the passed packageName uid matches the
+     * Binder.callingUid
+     */
+    private boolean callingUidMatchesPackageManagerRecords(String packageName) {
         int packageUid = -1;
         int callingUid = Binder.getCallingUid();
         PackageManager pm = mContext.createContextAsUser(
@@ -2393,10 +2418,7 @@ public class TelecomServiceImpl {
                 // packageUid is -1
             }
         }
-        if (packageUid != callingUid && callingUid != Process.ROOT_UID) {
-            throw new SecurityException(message + ": Package " + packageName
-                + " does not belong to " + callingUid);
-        }
+        return packageUid == callingUid;
     }
 
     private void enforceTelecomFeature() {
