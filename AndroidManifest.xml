@@ -136,6 +136,7 @@
              android:permission="android.permission.CALL_PHONE"
              android:excludeFromRecents="true"
              android:process=":ui"
+             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|density|fontScale|keyboard|layoutDirection|locale|navigation|smallestScreenSize|touchscreen|uiMode"
              android:exported="true">
             <!-- CALL action intent filters for the various ways of initiating an outgoing call. -->
             <intent-filter>
