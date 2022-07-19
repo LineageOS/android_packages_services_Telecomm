@@ -4945,8 +4945,9 @@ public class CallsManager extends Call.ListenerBase
         if (call.getState() == CallState.DISCONNECTED && (isPotentialMMICode(call.getHandle())
                 || isPotentialInCallMMICode(call.getHandle())) && !mCalls.contains(call)) {
             DisconnectCause disconnectCause = call.getDisconnectCause();
-            if (!TextUtils.isEmpty(disconnectCause.getDescription()) && (disconnectCause.getCode()
-                    == DisconnectCause.ERROR)) {
+            if (!TextUtils.isEmpty(disconnectCause.getDescription()) && ((disconnectCause.getCode()
+                    == DisconnectCause.ERROR) || (disconnectCause.getCode()
+                    == DisconnectCause.RESTRICTED))) {
                 Intent errorIntent = new Intent(mContext, ErrorDialogActivity.class);
                 errorIntent.putExtra(ErrorDialogActivity.ERROR_MESSAGE_STRING_EXTRA,
                         disconnectCause.getDescription());
