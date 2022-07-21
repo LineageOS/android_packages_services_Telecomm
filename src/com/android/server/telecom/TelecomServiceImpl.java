@@ -1875,6 +1875,31 @@ public class TelecomServiceImpl {
         }
 
         /**
+         * A method intended for test to clean up orphan {@link PhoneAccount}. An orphan
+         * {@link PhoneAccount} is a phone account belongs to an invalid {@link UserHandle} or a
+         * deleted package.
+         *
+         * @return the number of orphan {@code PhoneAccount} deleted.
+         */
+        @Override
+        public int cleanupOrphanPhoneAccounts() {
+            Log.startSession("TCI.cOPA");
+            try {
+                synchronized (mLock) {
+                    enforceShellOnly(Binder.getCallingUid(), "cleanupOrphanPhoneAccounts");
+                    long token = Binder.clearCallingIdentity();
+                    try {
+                        return mPhoneAccountRegistrar.cleanupOrphanedPhoneAccounts();
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        /**
          * A method intended for use in testing to reset car mode at all priorities.
          *
          * Runs during setup to avoid cascading failures from failing car mode CTS.
