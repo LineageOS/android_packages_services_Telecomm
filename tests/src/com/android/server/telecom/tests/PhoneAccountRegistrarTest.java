@@ -51,6 +51,8 @@ import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.telephony.CarrierConfigManager;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Xml;
@@ -63,6 +65,7 @@ import com.android.server.telecom.AppLabelProxy;
 import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.PhoneAccountRegistrar.DefaultPhoneAccountHandle;
+import com.android.server.telecom.TelecomSystem;
 
 import org.junit.After;
 import org.junit.Before;
@@ -82,6 +85,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -95,7 +99,9 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
     private final String PACKAGE_1 = "PACKAGE_1";
     private final String PACKAGE_2 = "PACKAGE_2";
     private final String COMPONENT_NAME = "com.android.server.telecom.tests.MockConnectionService";
+    private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
     private PhoneAccountRegistrar mRegistrar;
+    @Mock private SubscriptionManager mSubscriptionManager;
     @Mock private TelecomManager mTelecomManager;
     @Mock private DefaultDialerCache mDefaultDialerCache;
     @Mock private AppLabelProxy mAppLabelProxy;
@@ -106,6 +112,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         super.setUp();
         MockitoAnnotations.initMocks(this);
         mComponentContextFixture.setTelecomManager(mTelecomManager);
+        mComponentContextFixture.setSubscriptionManager(mSubscriptionManager);
         new File(
                 mComponentContextFixture.getTestDouble().getApplicationContext().getFilesDir(),
                 FILE_NAME)
@@ -116,7 +123,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
                 .thenReturn(TEST_LABEL);
         mRegistrar = new PhoneAccountRegistrar(
                 mComponentContextFixture.getTestDouble().getApplicationContext(),
-                FILE_NAME, mDefaultDialerCache, mAppLabelProxy);
+                mLock, FILE_NAME, mDefaultDialerCache, mAppLabelProxy);
     }
 
     @Override
@@ -1224,6 +1231,29 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         clearInvocations(mComponentContextFixture.getTelephonyManager());
     }
 
+    /**
+     * Test PhoneAccountHandle Migration Logic.
+     */
+    @Test
+    public void testPhoneAccountMigration() throws Exception {
+        PhoneAccountRegistrar.State testState = makeQuickStateWithTelephonyPhoneAccountHandle();
+        final int mTestPhoneAccountHandleSubIdInt = 123;
+        // Mock SubscriptionManager
+        SubscriptionInfo subscriptionInfo = new SubscriptionInfo(
+                mTestPhoneAccountHandleSubIdInt, "id0", 1, "a", "b", 1, 1, "test",
+                        1, null, null, null, null, false, null, null);
+        List<SubscriptionInfo> subscriptionInfoList = new ArrayList<>();
+        subscriptionInfoList.add(subscriptionInfo);
+        when(mSubscriptionManager.getAllSubscriptionInfoList()).thenReturn(subscriptionInfoList);
+        mRegistrar.migratePhoneAccountHandle(testState);
+        Collection<DefaultPhoneAccountHandle> defaultPhoneAccountHandles
+                = testState.defaultOutgoingAccountHandles.values();
+        DefaultPhoneAccountHandle defaultPhoneAccountHandle
+                = defaultPhoneAccountHandles.iterator().next();
+        assertEquals(Integer.toString(mTestPhoneAccountHandleSubIdInt),
+                defaultPhoneAccountHandle.phoneAccountHandle.getId());
+    }
+
     private static ComponentName makeQuickConnectionServiceComponentName() {
         return new ComponentName(
                 "com.android.server.telecom.tests",
@@ -1443,6 +1473,25 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         for (int i = 0; i < a.accounts.size(); i++) {
             assertPhoneAccountEquals(a.accounts.get(i), b.accounts.get(i));
         }
+    }
+
+    private PhoneAccountRegistrar.State makeQuickStateWithTelephonyPhoneAccountHandle() {
+        PhoneAccountRegistrar.State s = new PhoneAccountRegistrar.State();
+        s.accounts.add(makeQuickAccount("id0", 0));
+        s.accounts.add(makeQuickAccount("id1", 1));
+        s.accounts.add(makeQuickAccount("id2", 2));
+        PhoneAccountHandle phoneAccountHandle = new PhoneAccountHandle(new ComponentName(
+                "com.android.phone",
+                        "com.android.services.telephony.TelephonyConnectionService"), "id0");
+        UserHandle userHandle = phoneAccountHandle.getUserHandle();
+        when(UserManager.get(mContext).getSerialNumberForUser(userHandle))
+            .thenReturn(0L);
+        when(UserManager.get(mContext).getUserForSerialNumber(0L))
+            .thenReturn(userHandle);
+        s.defaultOutgoingAccountHandles
+            .put(userHandle, new DefaultPhoneAccountHandle(userHandle, phoneAccountHandle,
+                "testGroup"));
+        return s;
     }
 
     private PhoneAccountRegistrar.State makeQuickState() {

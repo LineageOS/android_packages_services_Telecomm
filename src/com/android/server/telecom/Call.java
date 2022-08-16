@@ -898,7 +898,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     @Override
     public String toString() {
         return String.format(Locale.US, "[Call id=%s, state=%s, tpac=%s, cmgr=%s, handle=%s, "
-                        + "vidst=%s, childs(%d), has_parent(%b), cap=%s, prop=%s]",
+                        + "vidst=%s, childs(%d), has_parent(%b), cap=%s, prop=%s], voip=%b",
                 mId,
                 CallState.toString(getParcelableCallState()),
                 getTargetPhoneAccount(),
@@ -908,7 +908,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 getChildCalls().size(),
                 getParentCall() != null,
                 Connection.capabilitiesToStringShort(getConnectionCapabilities()),
-                Connection.propertiesToStringShort(getConnectionProperties()));
+                Connection.propertiesToStringShort(getConnectionProperties()),
+                mIsVoipAudioMode);
     }
 
     @Override
@@ -1262,7 +1263,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
     }
 
-    boolean isRingbackRequested() {
+    public boolean isRingbackRequested() {
         return mRingbackRequested;
     }
 
@@ -3653,6 +3654,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     public void setIsVoipAudioMode(boolean audioModeIsVoip) {
+        if (mIsVoipAudioMode != audioModeIsVoip) {
+            Log.addEvent(this, LogUtils.Events.SET_VOIP_MODE, audioModeIsVoip ? "Y" : "N");
+        }
         mIsVoipAudioMode = audioModeIsVoip;
         for (Listener l : mListeners) {
             l.onIsVoipAudioModeChanged(this);
@@ -4138,8 +4142,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         return mStartRingTime;
     }
 
-    public void setStartRingTime(long startRingTime) {
-        mStartRingTime = startRingTime;
+    public void setStartRingTime() {
+        mStartRingTime = mClockProxy.elapsedRealtime();
     }
 
     public CharSequence getCallScreeningAppName() {

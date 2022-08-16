@@ -227,13 +227,16 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
 
         @Override
         public String toString() {
+            String expectedListenerUpdatesStr = expectedListenerUpdates == null ? ""
+                    : Arrays.stream(expectedListenerUpdates).map(ListenerUpdate::name)
+                            .collect(Collectors.joining(","));
             return "BluetoothRouteTestParameters{" +
                     "name='" + name + '\'' +
                     ", initialBluetoothState='" + initialBluetoothState + '\'' +
                     ", initialDevice=" + initialDevice +
                     ", messageType=" + messageType +
                     ", messageDevice='" + messageDevice + '\'' +
-                    ", expectedListenerUpdate=" + expectedListenerUpdates +
+                    ", expectedListenerUpdate='" + expectedListenerUpdatesStr + '\'' +
                     ", expectedBluetoothInteraction=" + expectedBluetoothInteraction +
                     ", expectedConnectionDevice='" + expectedConnectionDevice + '\'' +
                     ", expectedFinalStateName='" + expectedFinalStateName + '\'' +

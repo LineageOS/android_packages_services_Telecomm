@@ -17,6 +17,10 @@
 package com.android.server.telecom;
 
 import static android.provider.CallLog.Calls.MISSED_REASON_NOT_MISSED;
+import static android.provider.CallLog.Calls.SHORT_RING_THRESHOLD;
+import static android.provider.CallLog.Calls.USER_MISSED_NEVER_RANG;
+import static android.provider.CallLog.Calls.USER_MISSED_NO_ANSWER;
+import static android.provider.CallLog.Calls.USER_MISSED_SHORT_RING;
 import static android.telecom.TelecomManager.ACTION_POST_CALL;
 import static android.telecom.TelecomManager.DURATION_LONG;
 import static android.telecom.TelecomManager.DURATION_MEDIUM;
@@ -136,6 +140,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -339,10 +344,8 @@ public class CallsManager extends Call.ListenerBase
     private RespondViaSmsManager mRespondViaSmsManager;
     private final Ringer mRinger;
     private final InCallWakeLockController mInCallWakeLockController;
-    // For this set initial table size to 16 because we add 13 listeners in
-    // the CallsManager constructor.
-    private final Set<CallsManagerListener> mListeners = Collections.newSetFromMap(
-            new ConcurrentHashMap<CallsManagerListener, Boolean>(16, 0.9f, 1));
+    private final CopyOnWriteArrayList<CallsManagerListener> mListeners =
+            new CopyOnWriteArrayList<>();
     private final HeadsetMediaButton mHeadsetMediaButton;
     private final WiredHeadsetManager mWiredHeadsetManager;
     private final SystemStateHelper mSystemStateHelper;
@@ -575,7 +578,6 @@ public class CallsManager extends Call.ListenerBase
         mListeners.add(mInCallWakeLockController);
         mListeners.add(statusBarNotifier);
         mListeners.add(mCallLogManager);
-        mListeners.add(mPhoneStateBroadcaster);
         mListeners.add(mInCallController);
         mListeners.add(mCallDiagnosticServiceController);
         mListeners.add(mCallAudioManager);
@@ -585,6 +587,9 @@ public class CallsManager extends Call.ListenerBase
         mListeners.add(mHeadsetMediaButton);
         mListeners.add(mProximitySensorManager);
         mListeners.add(audioProcessingNotification);
+
+        // this needs to be after the mCallAudioManager
+        mListeners.add(mPhoneStateBroadcaster);
 
         // There is no USER_SWITCHED broadcast for user 0, handle it here explicitly.
         final UserManager userManager = UserManager.get(mContext);
@@ -2081,7 +2086,7 @@ public class CallsManager extends Call.ListenerBase
                                           int videoState, boolean shouldCancelCall,
                                           String uiAction) {
         Log.i(this, "onCallRedirectionComplete for Call %s with handle %s" +
-                " and phoneAccountHandle %s", call, handle, phoneAccountHandle);
+                " and phoneAccountHandle %s", call, Log.pii(handle), phoneAccountHandle);
 
         boolean endEarly = false;
         String disconnectReason = "";
@@ -2193,7 +2198,7 @@ public class CallsManager extends Call.ListenerBase
      * @param callId The ID of the call to show the redirection dialog for.
      */
     private void showRedirectionDialog(@NonNull String callId, @NonNull CharSequence appName) {
-        AlertDialog confirmDialog = FrameworksUtils.makeAlertDialogBuilder(mContext).create();
+        AlertDialog confirmDialog = (new AlertDialog.Builder(mContext)).create();
         LayoutInflater layoutInflater = LayoutInflater.from(mContext);
         View dialogView = layoutInflater.inflate(R.layout.call_redirection_confirm_dialog, null);
 
@@ -3142,6 +3147,22 @@ public class CallsManager extends Call.ListenerBase
             // be marked as missed.
             call.setOverrideDisconnectCauseCode(new DisconnectCause(DisconnectCause.MISSED));
         }
+        if (call.getState() == CallState.NEW
+                && disconnectCause.getCode() == DisconnectCause.MISSED) {
+            Log.i(this, "markCallAsDisconnected: missed call never rang ", call.getId());
+            call.setMissedReason(USER_MISSED_NEVER_RANG);
+        }
+        if (call.getState() == CallState.RINGING
+                || call.getState() == CallState.SIMULATED_RINGING) {
+            if (call.getStartRingTime() > 0
+                    && (mClockProxy.elapsedRealtime() - call.getStartRingTime())
+                    < SHORT_RING_THRESHOLD) {
+                Log.i(this, "markCallAsDisconnected; callid=%s, short ring.", call.getId());
+                call.setUserMissed(USER_MISSED_SHORT_RING);
+            } else if (call.getStartRingTime() > 0) {
+                call.setUserMissed(USER_MISSED_NO_ANSWER);
+            }
+        }
 
         // If a call diagnostic service is in use, we will log the original telephony-provided
         // disconnect cause, inform the CDS of the disconnection, and then chain the update of the
@@ -3300,7 +3321,7 @@ public class CallsManager extends Call.ListenerBase
      *
      * @return {@code True} if there are any non-external calls, {@code false} otherwise.
      */
-    boolean hasAnyCalls() {
+    public boolean hasAnyCalls() {
         if (mCalls.isEmpty()) {
             return false;
         }
@@ -3985,6 +4006,19 @@ public class CallsManager extends Call.ListenerBase
                     dialedNumber.equals("5"));
         }
         return false;
+    }
+
+    /**
+     * Determines if there are any ongoing self managed calls for the given package/user.
+     * @param packageName The package name to check.
+     * @param userHandle The userhandle to check.
+     * @return {@code true} if the app has ongoing calls, or {@code false} otherwise.
+     */
+    public boolean isInSelfManagedCall(String packageName, UserHandle userHandle) {
+        return mCalls.stream().anyMatch(
+                c -> c.isSelfManaged()
+                && c.getTargetPhoneAccount().getComponentName().getPackageName().equals(packageName)
+                && c.getTargetPhoneAccount().getUserHandle().equals(userHandle));
     }
 
     @VisibleForTesting
@@ -5594,5 +5628,10 @@ public class CallsManager extends Call.ListenerBase
     public void requestLogMark(String message) {
         mCalls.forEach(c -> Log.addEvent(c, LogUtils.Events.USER_LOG_MARK, message));
         Log.addEvent(null /* global */, LogUtils.Events.USER_LOG_MARK, message);
+    }
+
+    @VisibleForTesting
+    public Ringer getRinger() {
+        return mRinger;
     }
 }

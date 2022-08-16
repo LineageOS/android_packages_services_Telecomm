@@ -19,9 +19,11 @@ package com.android.server.telecom;
 import android.Manifest;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
@@ -45,6 +47,7 @@ import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telephony.CarrierConfigManager;
 import android.telephony.PhoneNumberUtils;
+import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -132,6 +135,26 @@ public class PhoneAccountRegistrar {
                 PhoneAccount phoneAccount) {}
     }
 
+    /**
+     * Receiver for detecting when a managed profile has been removed so that PhoneAccountRegistrar
+     * can clean up orphan {@link PhoneAccount}s
+     */
+    private final BroadcastReceiver mManagedProfileReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.startSession("PARbR.oR");
+            try {
+                synchronized (mLock) {
+                    if (intent.getAction().equals(Intent.ACTION_MANAGED_PROFILE_REMOVED)) {
+                        cleanupOrphanedPhoneAccounts();
+                    }
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+    };
+
     public static final String FILE_NAME = "phone-account-registrar-state.xml";
     @VisibleForTesting
     public static final int EXPECTED_STATE_VERSION = 9;
@@ -144,9 +167,11 @@ public class PhoneAccountRegistrar {
     private final AtomicFile mAtomicFile;
     private final Context mContext;
     private final UserManager mUserManager;
+    private final TelephonyManager mTelephonyManager;
     private final SubscriptionManager mSubscriptionManager;
     private final DefaultDialerCache mDefaultDialerCache;
     private final AppLabelProxy mAppLabelProxy;
+    private final TelecomSystem.SyncRoot mLock;
     private State mState;
     private UserHandle mCurrentUserHandle;
     private String mTestPhoneAccountPackageNameFilter;
@@ -155,24 +180,31 @@ public class PhoneAccountRegistrar {
             new PhoneAccountRegistrarWriteLock() {};
 
     @VisibleForTesting
-    public PhoneAccountRegistrar(Context context, DefaultDialerCache defaultDialerCache,
-                                 AppLabelProxy appLabelProxy) {
-        this(context, FILE_NAME, defaultDialerCache, appLabelProxy);
+    public PhoneAccountRegistrar(Context context, TelecomSystem.SyncRoot lock,
+            DefaultDialerCache defaultDialerCache, AppLabelProxy appLabelProxy) {
+        this(context, lock, FILE_NAME, defaultDialerCache, appLabelProxy);
     }
 
     @VisibleForTesting
-    public PhoneAccountRegistrar(Context context, String fileName,
+    public PhoneAccountRegistrar(Context context, TelecomSystem.SyncRoot lock, String fileName,
             DefaultDialerCache defaultDialerCache, AppLabelProxy appLabelProxy) {
 
         mAtomicFile = new AtomicFile(new File(context.getFilesDir(), fileName));
 
         mState = new State();
         mContext = context;
+        mLock = lock;
         mUserManager = UserManager.get(context);
         mDefaultDialerCache = defaultDialerCache;
         mSubscriptionManager = SubscriptionManager.from(mContext);
+        mTelephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
         mAppLabelProxy = appLabelProxy;
         mCurrentUserHandle = Process.myUserHandle();
+
+        // register context based receiver to clean up orphan phone accounts
+        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_MANAGED_PROFILE_REMOVED);
+        mContext.registerReceiver(mManagedProfileReceiver, intentFilter);
+
         read();
     }
 
@@ -188,9 +220,7 @@ public class PhoneAccountRegistrar {
         PhoneAccount account = getPhoneAccountUnchecked(accountHandle);
 
         if (account != null && account.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
-            TelephonyManager tm =
-                    (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
-            return tm.getSubscriptionId(accountHandle);
+            return mTelephonyManager.getSubscriptionId(accountHandle);
         }
         return SubscriptionManager.INVALID_SUBSCRIPTION_ID;
     }
@@ -336,11 +366,11 @@ public class PhoneAccountRegistrar {
                 isSimAccount = true;
             }
 
-            Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s", accountHandle);
             mState.defaultOutgoingAccountHandles
                     .put(userHandle, new DefaultPhoneAccountHandle(userHandle, accountHandle,
                             account.getGroupId()));
         }
+        Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s", accountHandle);
 
         // Potentially update the default voice subid in SubscriptionManager.
         if (!Objects.equals(currentDefaultPhoneAccount, accountHandle)) {
@@ -779,6 +809,25 @@ public class PhoneAccountRegistrar {
     }
 
     /**
+     * Retrieves a list of all {@link PhoneAccount#CAPABILITY_SELF_MANAGED} phone accounts
+     * registered by a specified package.
+     *
+     * @param packageName The name of the package that registered the phone accounts.
+     * @return The self-managed phone account handles for the given package.
+     */
+    public List<PhoneAccountHandle> getSelfManagedPhoneAccountsForPackage(String packageName,
+            UserHandle userHandle) {
+        List<PhoneAccountHandle> phoneAccountsHandles = new ArrayList<>();
+        for (PhoneAccountHandle pah : getPhoneAccountsForPackage(packageName,
+                userHandle)) {
+            if (isSelfManagedPhoneAccount(pah)) {
+                phoneAccountsHandles.add(pah);
+            }
+        }
+        return phoneAccountsHandles;
+    }
+
+    /**
      * Determines if a {@link PhoneAccountHandle} is for a self-managed {@link ConnectionService}.
      * @param handle The handle.
      * @return {@code true} if for a self-managed {@link ConnectionService}, {@code false}
@@ -1104,11 +1153,10 @@ public class PhoneAccountRegistrar {
                 "Notifying telephony of voice service override change for %d SIMs, hasService = %b",
                 simHandlesToNotify.size(),
                 hasService);
-        TelephonyManager tm = mContext.getSystemService(TelephonyManager.class);
         for (PhoneAccountHandle simHandle : simHandlesToNotify) {
             // This may be null if there are no active SIMs but the device is still camped for
             // emergency calls and registered a SIM_SUBSCRIPTION for that purpose.
-            TelephonyManager simTm = tm.createForPhoneAccountHandle(simHandle);
+            TelephonyManager simTm = mTelephonyManager.createForPhoneAccountHandle(simHandle);
             if (simTm == null) continue;
             simTm.setVoiceServiceStateOverride(hasService);
         }
@@ -1366,7 +1414,7 @@ public class PhoneAccountRegistrar {
 
         public final UserHandle userHandle;
 
-        public final PhoneAccountHandle phoneAccountHandle;
+        public PhoneAccountHandle phoneAccountHandle;
 
         public final String groupId;
 
@@ -1485,8 +1533,7 @@ public class PhoneAccountRegistrar {
         try {
             sortPhoneAccounts();
             ByteArrayOutputStream os = new ByteArrayOutputStream();
-            XmlSerializer serializer = new FastXmlSerializer();
-            serializer.setOutput(os, "utf-8");
+            XmlSerializer serializer = Xml.resolveSerializer(os);
             writeToXml(mState, serializer, mContext);
             serializer.flush();
             new AsyncXmlWriter().execute(os);
@@ -1505,12 +1552,11 @@ public class PhoneAccountRegistrar {
 
         boolean versionChanged = false;
 
-        XmlPullParser parser;
         try {
-            parser = Xml.newPullParser();
-            parser.setInput(new BufferedInputStream(is), null);
+            XmlPullParser parser = Xml.resolvePullParser(is);
             parser.nextTag();
             mState = readFromXml(parser, mContext);
+            migratePhoneAccountHandle(mState);
             versionChanged = mState.versionNumber < EXPECTED_STATE_VERSION;
 
         } catch (IOException | XmlPullParserException e) {
@@ -1553,6 +1599,50 @@ public class PhoneAccountRegistrar {
             throws IOException, XmlPullParserException {
         State s = sStateXml.readFromXml(parser, 0, context);
         return s != null ? s : new State();
+    }
+
+    /**
+     * Try to migrate the ID of default phone account handle from IccId to SubId.
+     */
+    @VisibleForTesting
+    public void migratePhoneAccountHandle(State state) {
+        if (mSubscriptionManager == null) {
+            return;
+        }
+        // Use getAllSubscirptionInfoList() to get the mapping between iccId and subId
+        // from the subscription database
+        List<SubscriptionInfo> subscriptionInfos = mSubscriptionManager
+                .getAllSubscriptionInfoList();
+        Map<UserHandle, DefaultPhoneAccountHandle> defaultPhoneAccountHandles
+                = state.defaultOutgoingAccountHandles;
+        for (Map.Entry<UserHandle, DefaultPhoneAccountHandle> entry
+                : defaultPhoneAccountHandles.entrySet()) {
+            DefaultPhoneAccountHandle defaultPhoneAccountHandle = entry.getValue();
+
+            // Migrate Telephony PhoneAccountHandle only
+            String telephonyComponentName =
+                    "com.android.phone/com.android.services.telephony.TelephonyConnectionService";
+            if (!defaultPhoneAccountHandle.phoneAccountHandle.getComponentName()
+                    .flattenToString().equals(telephonyComponentName)) {
+                continue;
+            }
+            // Migrate from IccId to SubId
+            for (SubscriptionInfo subscriptionInfo : subscriptionInfos) {
+                String phoneAccountHandleId = defaultPhoneAccountHandle.phoneAccountHandle.getId();
+                // Some phone account handle would store phone account handle id with the IccId
+                // string plus "F", and the getIccId() returns IccId string itself without "F",
+                // so here need to use "startsWith" to match.
+                if (phoneAccountHandleId != null && phoneAccountHandleId.startsWith(
+                        subscriptionInfo.getIccId())) {
+                    Log.i(this, "Found subscription ID to migrate: "
+                            + subscriptionInfo.getSubscriptionId());
+                    defaultPhoneAccountHandle.phoneAccountHandle = new PhoneAccountHandle(
+                            defaultPhoneAccountHandle.phoneAccountHandle.getComponentName(),
+                                    Integer.toString(subscriptionInfo.getSubscriptionId()));
+                    break;
+                }
+            }
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
