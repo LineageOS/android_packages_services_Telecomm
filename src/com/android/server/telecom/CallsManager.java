@@ -2097,7 +2097,7 @@ public class CallsManager extends Call.ListenerBase
                 && !phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_MULTI_USER)) {
             // Check if the phoneAccountHandle belongs to the current user
             if (phoneAccountHandle != null &&
-                    !phoneAccountHandle.getUserHandle().equals(mCurrentUserHandle)) {
+                    !phoneAccountHandle.getUserHandle().equals(call.getInitiatingUser())) {
                 phoneAccountHandle = null;
             }
         }
