@@ -2102,15 +2102,15 @@ public class CallsManager extends Call.ListenerBase
         String disconnectReason = "";
         String callRedirectionApp = mRoleManagerAdapter.getDefaultCallRedirectionApp();
 
-        boolean isPotentialEmergencyNumber;
+        boolean isEmergencyNumber;
         try {
-            isPotentialEmergencyNumber =
-                    handle != null && getTelephonyManager().isPotentialEmergencyNumber(
+            isEmergencyNumber =
+                    handle != null && getTelephonyManager().isEmergencyNumber(
                             handle.getSchemeSpecificPart());
         } catch (IllegalStateException ise) {
-            isPotentialEmergencyNumber = false;
+            isEmergencyNumber = false;
         } catch (RuntimeException r) {
-            isPotentialEmergencyNumber = false;
+            isEmergencyNumber = false;
         }
 
         if (shouldCancelCall) {
@@ -2138,7 +2138,7 @@ public class CallsManager extends Call.ListenerBase
             Log.w(this, "onCallRedirectionComplete: phoneAccountHandle is null");
             endEarly = true;
             disconnectReason = "Null phoneAccountHandle from Call Redirection Service";
-        } else if (isPotentialEmergencyNumber) {
+        } else if (isEmergencyNumber) {
             Log.w(this, "onCallRedirectionComplete: emergency number %s is redirected from Call"
                     + " Redirection Service", handle.getSchemeSpecificPart());
             endEarly = true;

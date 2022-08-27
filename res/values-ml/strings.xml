@@ -30,7 +30,8 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"ഒരു അടിയന്തര കോൾ നടക്കുന്നതിനാൽ <xliff:g id="CALLER">%s</xliff:g> എന്നയാൾക്ക് ചെയ്യുന്ന കോൾ വിച്‌ഛേദിക്കപ്പെട്ടിരിക്കുന്നു."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"ഒരു അടിയന്തര കോൾ നടക്കുന്നതിനാൽ നിങ്ങളുടെ കോൾ വിച്‌ഛേദിക്കപ്പെട്ടിരിക്കുന്നു."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"പശ്ചാത്തല കോൾ"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> കോൾ പശ്ചാത്തലത്തിലേക്ക് മാറ്റി. കോൾ ചെയ്യുമ്പോൾ ഈ ആപ്പിന് ഓഡിയോ ആക്‌സസ് ചെയ്യാനും പ്ലേ ചെയ്യാനും കഴിഞ്ഞേക്കാം."</string>
+    <!-- no translation found for notification_audioProcessing_body (8811420157964118913) -->
+    <skip />
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> ആപ്പ് പ്രതികരിക്കുന്നത് നിർത്തി"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"നിങ്ങളുടെ കോൾ, നിങ്ങളുടെ ഉപകരണത്തിനൊപ്പം ലഭ്യമായ ഫോൺ ആപ്പ് ഉപയോഗിച്ചു"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"കോൾ നിശബ്‌ദമാക്കി."</string>
