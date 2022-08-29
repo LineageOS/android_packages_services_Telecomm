@@ -41,7 +41,6 @@ import android.os.UserManager;
 import android.provider.Settings;
 import android.telecom.CallAudioState;
 import android.telecom.ConnectionService;
-import android.telecom.DefaultDialerManager;
 import android.telecom.Log;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
@@ -58,7 +57,6 @@ import android.util.Xml;
 
 // TODO: Needed for move to system service: import com.android.internal.R;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.util.FastXmlSerializer;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.internal.util.XmlUtils;
 
@@ -66,7 +64,6 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlSerializer;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -85,12 +82,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Handles writing and reading PhoneAccountHandle registration entries. This is a simple verbatim
@@ -163,7 +157,6 @@ public class PhoneAccountRegistrar {
 
     /** Keep in sync with the same in SipSettings.java */
     private static final String SIP_SHARED_PREFERENCES = "SIP_PREFERENCES";
-
     private final List<Listener> mListeners = new CopyOnWriteArrayList<>();
     private final AtomicFile mAtomicFile;
     private final Context mContext;
@@ -387,10 +380,11 @@ public class PhoneAccountRegistrar {
                             account.getGroupId()));
         }
 
-        // Potentially update the default voice subid in SubscriptionManager.
+        // Potentially update the default voice subid in SubscriptionManager so that Telephony and
+        // Telecom are in sync.
         int newSubId = accountHandle == null ? SubscriptionManager.INVALID_SUBSCRIPTION_ID :
                 getSubscriptionIdForPhoneAccount(accountHandle);
-        if (isSimAccount || accountHandle == null) {
+        if (shouldUpdateTelephonyDefaultVoiceSubId(accountHandle, isSimAccount, newSubId)) {
             int currentVoiceSubId = mSubscriptionManager.getDefaultVoiceSubscriptionId();
             if (newSubId != currentVoiceSubId) {
                 Log.i(this, "setUserSelectedOutgoingPhoneAccount: update voice sub; "
@@ -405,6 +399,26 @@ public class PhoneAccountRegistrar {
 
         write();
         fireDefaultOutgoingChanged();
+    }
+
+    private boolean shouldUpdateTelephonyDefaultVoiceSubId(PhoneAccountHandle phoneAccountHandle,
+            boolean isSimAccount, int newSubId) {
+
+        // user requests no call preference
+        if (phoneAccountHandle == null) {
+            return true;
+        }
+
+        // do not update Telephony if the newSubId is invalid
+        if (newSubId == SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+            Log.w(this, "shouldUpdateTelephonyDefaultVoiceSubId: "
+                            + "invalid subId scenario, not updating Telephony. "
+                            + "phoneAccountHandle=[%s], isSimAccount=[%b], newSubId=[%s]",
+                    phoneAccountHandle, isSimAccount, newSubId);
+            return false;
+        }
+
+        return isSimAccount;
     }
 
     boolean isUserSelectedSmsPhoneAccount(PhoneAccountHandle accountHandle) {
