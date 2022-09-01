@@ -1697,6 +1697,22 @@ public class CallsManagerTest extends TelecomTestCase {
                 any(MissedCallNotifier.CallInfo.class));
     }
 
+    @Test
+    public void testSetStateOnlyCalledOnce() {
+        // GIVEN a new self-managed call
+        Call newCall = addSpyCall();
+        doReturn(true).when(newCall).isSelfManaged();
+        newCall.setState(CallState.DISCONNECTED, "");
+
+        // WHEN ActionSetCallState is given a disconnect call
+        assertEquals(CallState.DISCONNECTED, newCall.getState());
+        // attempt to set the call active
+        mCallsManager.createActionSetCallStateAndPerformAction(newCall, CallState.ACTIVE, "");
+
+        // THEN assert remains disconnected
+        assertEquals(CallState.DISCONNECTED, newCall.getState());
+    }
+
     private Call addSpyCall() {
         return addSpyCall(SIM_2_HANDLE, CallState.ACTIVE);
     }
