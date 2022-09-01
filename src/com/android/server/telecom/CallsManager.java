@@ -5435,8 +5435,12 @@ public class CallsManager extends Call.ListenerBase
         @Override
         public void performAction() {
             synchronized (mLock) {
-                Log.d(this, "perform set call state for %s, state = %s", mCall, mState);
-                setCallState(mCall, mState, mTag);
+                Log.d(this, "performAction: current call state %s", mCall);
+                if (mCall.getState() != CallState.DISCONNECTED
+                        && mCall.getState() != CallState.DISCONNECTING) {
+                    Log.d(this, "performAction: setting to new state = %s", mState);
+                    setCallState(mCall, mState, mTag);
+                }
             }
         }
     }
@@ -5664,5 +5668,15 @@ public class CallsManager extends Call.ListenerBase
     @VisibleForTesting
     public Ringer getRinger() {
         return mRinger;
+    }
+
+
+    /**
+     * This method should only be used for testing.
+     */
+    @VisibleForTesting
+    public void createActionSetCallStateAndPerformAction(Call call, int state, String tag) {
+        ActionSetCallState actionSetCallState = new ActionSetCallState(call, state, tag);
+        actionSetCallState.performAction();
     }
 }
