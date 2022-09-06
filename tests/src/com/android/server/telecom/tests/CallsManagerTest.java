@@ -58,6 +58,9 @@ import android.telecom.CallerInfo;
 import android.telecom.Connection;
 import android.telecom.DisconnectCause;
 import android.telecom.Log;
+import android.telecom.Log;
+import android.telecom.DisconnectCause;
+import android.telecom.GatewayInfo;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
@@ -133,8 +136,12 @@ import java.util.concurrent.TimeUnit;
 @RunWith(JUnit4.class)
 public class CallsManagerTest extends TelecomTestCase {
     private static final int TEST_TIMEOUT = 5000;  // milliseconds
+    private static final int SECONDARY_USER_ID = 12;
     private static final PhoneAccountHandle SIM_1_HANDLE = new PhoneAccountHandle(
             ComponentName.unflattenFromString("com.foo/.Blah"), "Sim1");
+    private static final PhoneAccountHandle SIM_1_HANDLE_SECONDARY = new PhoneAccountHandle(
+            ComponentName.unflattenFromString("com.foo/.Blah"), "Sim1",
+            new UserHandle(SECONDARY_USER_ID));
     private static final PhoneAccountHandle SIM_2_HANDLE = new PhoneAccountHandle(
             ComponentName.unflattenFromString("com.foo/.Blah"), "Sim2");
     private static final PhoneAccountHandle CONNECTION_MGR_1_HANDLE = new PhoneAccountHandle(
@@ -1623,6 +1630,23 @@ public class CallsManagerTest extends TelecomTestCase {
         verify(mCallDiagnosticServiceController).onCallDisconnected(any(Call.class),
                 any(DisconnectCause.class));
         verify(callSpy, never()).setDisconnectCause(any(DisconnectCause.class));
+    }
+
+    @SmallTest
+    @Test
+    public void testCrossUserCallRedirectionEndEarlyForIncapablePhoneAccount() {
+        when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(eq(SIM_1_HANDLE_SECONDARY)))
+                .thenReturn(SIM_1_ACCOUNT);
+        mCallsManager.onUserSwitch(UserHandle.SYSTEM);
+
+        Call callSpy = addSpyCall(CallState.NEW);
+        mCallsManager.onCallRedirectionComplete(callSpy, TEST_ADDRESS, SIM_1_HANDLE_SECONDARY,
+                new GatewayInfo("foo", TEST_ADDRESS2, TEST_ADDRESS), true /* speakerphoneOn */,
+                VideoProfile.STATE_AUDIO_ONLY, false /* shouldCancelCall */, "" /* uiAction */);
+
+        ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
+        verify(callSpy).disconnect(argumentCaptor.capture());
+        assertTrue(argumentCaptor.getValue().contains("Unavailable phoneAccountHandle"));
     }
 
     private Call addSpyCall() {
