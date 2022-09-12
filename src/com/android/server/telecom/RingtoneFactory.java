@@ -73,11 +73,13 @@ public class RingtoneFactory {
         Uri ringtoneUri = incomingCall.getRingtone();
         Ringtone ringtone = null;
 
+        AudioAttributes audioAttrs = getRingtoneAudioAttributes();
+
         if(ringtoneUri != null && userContext != null) {
             // Ringtone URI is explicitly specified. First, try to create a Ringtone with that.
             try {
-                ringtone = RingtoneManager.getRingtone(userContext, ringtoneUri,
-                        volumeShaperConfig);
+              ringtone = RingtoneManager.getRingtone(
+                  userContext, ringtoneUri, volumeShaperConfig, audioAttrs);
             } catch (NullPointerException npe) {
                 Log.e(this, npe, "getRingtone: NPE while getting ringtone.");
             }
@@ -104,12 +106,19 @@ public class RingtoneFactory {
             }
             try {
                 ringtone = RingtoneManager.getRingtone(
-                        contextToUse, defaultRingtoneUri, volumeShaperConfig);
+                    contextToUse, defaultRingtoneUri, volumeShaperConfig, audioAttrs);
             } catch (NullPointerException npe) {
                 Log.e(this, npe, "getRingtone: NPE while getting ringtone.");
             }
         }
-        return setRingtoneAudioAttributes(ringtone);
+        return ringtone;
+    }
+
+    public AudioAttributes getRingtoneAudioAttributes() {
+        return new AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build();
     }
 
     public Ringtone getRingtone(Call incomingCall) {
@@ -121,20 +130,11 @@ public class RingtoneFactory {
     public Ringtone getHapticOnlyRingtone() {
         Uri ringtoneUri = Uri.parse("file://" + mContext.getString(
                 com.android.internal.R.string.config_defaultRingtoneVibrationSound));
-        Ringtone ringtone = RingtoneManager.getRingtone(mContext, ringtoneUri, null);
+        AudioAttributes audioAttrs = getRingtoneAudioAttributes();
+        Ringtone ringtone = RingtoneManager.getRingtone(mContext, ringtoneUri, null, audioAttrs);
         if (ringtone != null) {
             // Make sure the sound is muted.
             ringtone.setVolume(0);
-        }
-        return setRingtoneAudioAttributes(ringtone);
-    }
-
-    private Ringtone setRingtoneAudioAttributes(Ringtone ringtone) {
-        if (ringtone != null) {
-            ringtone.setAudioAttributes(new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build());
         }
         return ringtone;
     }
