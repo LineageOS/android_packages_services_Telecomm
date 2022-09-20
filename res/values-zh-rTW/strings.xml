@@ -39,7 +39,7 @@
     <string name="respond_via_sms_canned_response_2" msgid="2052951316129952406">"我待會就回電。"</string>
     <string name="respond_via_sms_canned_response_3" msgid="6656147963478092035">"我晚點回電。"</string>
     <string name="respond_via_sms_canned_response_4" msgid="9141132488345561047">"我現在不方便講話，晚點再打來好嗎？"</string>
-    <string name="respond_via_sms_setting_title" msgid="4762275482898830160">"快速回應"</string>
+    <string name="respond_via_sms_setting_title" msgid="4762275482898830160">"應答短訊"</string>
     <string name="respond_via_sms_setting_title_2" msgid="4914853536609553457">"編輯快速回應"</string>
     <string name="respond_via_sms_setting_summary" msgid="8054571501085436868"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="6579353156073272157">"快速回應"</string>
