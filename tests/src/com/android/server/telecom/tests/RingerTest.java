@@ -455,6 +455,23 @@ public class RingerTest extends TelecomTestCase {
                 .vibrate(any(VibrationEffect.class), any(VibrationAttributes.class));
     }
 
+    @SmallTest
+    @Test
+    public void testRingAndVibrateForAllowedCallInDndMode() throws Exception {
+        mRingerUnderTest.startCallWaiting(mockCall1);
+        Ringtone mockRingtone = mock(Ringtone.class);
+        when(mockRingtoneFactory.getRingtone(any(Call.class))).thenReturn(mockRingtone);
+        when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_SILENT);
+        when(mockAudioManager.getStreamVolume(AudioManager.STREAM_RING)).thenReturn(100);
+        mFuture.complete(true); // using audio coupled haptics
+        enableVibrationWhenRinging();
+        assertTrue(mRingerUnderTest.startRinging(mockCall2, true));
+        mRingCompletionFuture.get();
+        verify(mockTonePlayer).stopTone();
+        verify(mockRingtonePlayer).play(any(RingtoneFactory.class), any(Call.class), eq(null),
+                eq(true) /* isRingerAudible */, eq(true) /* isVibrationEnabled */);
+    }
+
     private void ensureRingerIsAudible() {
         Ringtone mockRingtone = mock(Ringtone.class);
         when(mockRingtoneFactory.getRingtone(any(Call.class))).thenReturn(mockRingtone);
