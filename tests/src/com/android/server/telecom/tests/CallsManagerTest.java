@@ -72,6 +72,7 @@ import android.widget.Toast;
 import com.android.server.telecom.AnomalyReporterAdapter;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.Call;
+import com.android.server.telecom.CallAnomalyWatchdog;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioRouteStateMachine;
@@ -218,6 +219,7 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private RoleManagerAdapter mRoleManagerAdapter;
     @Mock private ToastFactory mToastFactory;
     @Mock private Toast mToast;
+    @Mock private CallAnomalyWatchdog mCallAnomalyWatchdog;
     @Mock private AnomalyReporterAdapter mAnomalyReporterAdapter;
 
     private CallsManager mCallsManager;
@@ -279,7 +281,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 mCallDiagnosticServiceController,
                 mRoleManagerAdapter,
                 mToastFactory,
-                mCallEndpointControllerFactory);
+                mCallEndpointControllerFactory,
+                mCallAnomalyWatchdog);
 
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SELF_MANAGED_HANDLE), any())).thenReturn(SELF_MANAGED_ACCOUNT);
@@ -1301,21 +1304,6 @@ public class CallsManagerTest extends TelecomTestCase {
 
         assertTrue(mCallsManager.makeRoomForOutgoingEmergencyCall(newEmergencyCall));
         verify(ringingCall).reject(anyBoolean(), any(), any());
-    }
-
-    @SmallTest
-    @Test
-    public void testMakeRoomForOutgoingCallConnecting() {
-        Call ongoingCall = addSpyCall(SIM_2_HANDLE, CallState.CONNECTING);
-
-        Call newCall = createCall(SIM_1_HANDLE, CallState.NEW);
-        when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
-                .thenReturn(false);
-        newCall.setHandle(Uri.fromParts("tel", "5551213", null),
-                TelecomManager.PRESENTATION_ALLOWED);
-
-        assertTrue(mCallsManager.makeRoomForOutgoingCall(newCall));
-        verify(ongoingCall).disconnect(anyLong(), anyString());
     }
 
     /**
