@@ -53,6 +53,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.AtomicFile;
 import android.util.Base64;
+import android.util.EventLog;
 import android.util.Xml;
 
 // TODO: Needed for move to system service: import com.android.internal.R;
@@ -893,6 +894,7 @@ public class PhoneAccountRegistrar {
 
         PhoneAccount oldAccount = getPhoneAccountUnchecked(account.getAccountHandle());
         if (oldAccount != null) {
+            enforceSelfManagedAccountUnmodified(account, oldAccount);
             mState.accounts.remove(oldAccount);
             isEnabled = oldAccount.isEnabled();
             Log.i(this, "Modify account: %s", getAccountDiffString(account, oldAccount));
@@ -956,6 +958,19 @@ public class PhoneAccountRegistrar {
                 // override needs to be updated.
                 maybeNotifyTelephonyForVoiceServiceState(account, /* registered= */ false);
             }
+        }
+    }
+
+    private void enforceSelfManagedAccountUnmodified(PhoneAccount newAccount,
+            PhoneAccount oldAccount) {
+        if (oldAccount.hasCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED) &&
+                (!newAccount.hasCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED))) {
+            EventLog.writeEvent(0x534e4554, "246930197");
+            Log.w(this, "Self-managed phone account %s replaced by a non self-managed one",
+                    newAccount.getAccountHandle());
+            throw new IllegalArgumentException("Error, cannot change a self-managed "
+                    + "phone account " + newAccount.getAccountHandle()
+                    + " to other kinds of phone account");
         }
     }
 
