@@ -673,12 +673,19 @@ public class CallsManager extends Call.ListenerBase
             phoneAccount == null || phoneAccount.getExtras() == null
                 ? new Bundle()
                 : phoneAccount.getExtras();
+        TelephonyManager telephonyManager = getTelephonyManager();
         if (incomingCall.hasProperty(Connection.PROPERTY_EMERGENCY_CALLBACK_MODE) ||
+                incomingCall.hasProperty(Connection.PROPERTY_NETWORK_IDENTIFIED_EMERGENCY_CALL) ||
+                telephonyManager.isInEmergencySmsMode() ||
                 incomingCall.isSelfManaged() ||
                 extras.getBoolean(PhoneAccount.EXTRA_SKIP_CALL_FILTERING)) {
-            Log.i(this, "Skipping call filtering for %s (ecm=%b, selfMgd=%b, skipExtra=%b)",
+            Log.i(this, "Skipping call filtering for %s (ecm=%b, "
+                            + "networkIdentifiedEmergencyCall = %b, emergencySmsMode = %b, "
+                            + "selfMgd=%b, skipExtra=%b)",
                     incomingCall.getId(),
                     incomingCall.hasProperty(Connection.PROPERTY_EMERGENCY_CALLBACK_MODE),
+                    incomingCall.hasProperty(Connection.PROPERTY_NETWORK_IDENTIFIED_EMERGENCY_CALL),
+                    telephonyManager.isInEmergencySmsMode(),
                     incomingCall.isSelfManaged(),
                     extras.getBoolean(PhoneAccount.EXTRA_SKIP_CALL_FILTERING));
             onCallFilteringComplete(incomingCall, new Builder()

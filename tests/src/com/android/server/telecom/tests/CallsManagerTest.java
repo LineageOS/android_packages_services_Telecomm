@@ -944,6 +944,43 @@ public class CallsManagerTest extends TelecomTestCase {
 
     @SmallTest
     @Test
+    public void testNoFilteringOfNetworkIdentifiedEmergencyCalls() {
+        // GIVEN an incoming call which is network identified as an emergency call.
+        Call incomingCall = addSpyCall(CallState.NEW);
+        incomingCall.setConnectionProperties(Connection.PROPERTY_NETWORK_IDENTIFIED_EMERGENCY_CALL);
+        doReturn(false).when(incomingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(false).when(incomingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        doReturn(true).when(incomingCall)
+                .hasProperty(Connection.PROPERTY_NETWORK_IDENTIFIED_EMERGENCY_CALL);
+        doReturn(true).when(incomingCall).setState(anyInt(), any());
+
+        // WHEN the incoming call is successfully added.
+        mCallsManager.onSuccessfulIncomingCall(incomingCall);
+
+        // THEN the incoming call is not using call filtering
+        verify(incomingCall).setIsUsingCallFiltering(eq(false));
+    }
+
+    @SmallTest
+    @Test
+    public void testNoFilteringOfEmergencySmsModeCalls() {
+        // GIVEN an incoming call which is network identified as an emergency call.
+        Call incomingCall = addSpyCall(CallState.NEW);
+        when(mComponentContextFixture.getTelephonyManager().isInEmergencySmsMode())
+                .thenReturn(true);
+        doReturn(false).when(incomingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(false).when(incomingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        doReturn(true).when(incomingCall).setState(anyInt(), any());
+
+        // WHEN the incoming call is successfully added.
+        mCallsManager.onSuccessfulIncomingCall(incomingCall);
+
+        // THEN the incoming call is not using call filtering
+        verify(incomingCall).setIsUsingCallFiltering(eq(false));
+    }
+
+    @SmallTest
+    @Test
     public void testAcceptIncomingCallWhenHeadsetMediaButtonShortPress() {
         // GIVEN an incoming call
         Call incomingCall = addSpyCall();
