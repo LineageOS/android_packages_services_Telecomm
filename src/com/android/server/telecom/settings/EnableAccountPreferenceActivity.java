@@ -25,11 +25,15 @@ import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.view.MenuItem;
+import android.view.WindowManager;
 
 public class EnableAccountPreferenceActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+	getWindow().addPrivateFlags(
+                WindowManager.LayoutParams.PRIVATE_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS);
 
         getFragmentManager().beginTransaction()
                 .replace(android.R.id.content, new EnableAccountPreferenceFragment())
