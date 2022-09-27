@@ -47,6 +47,10 @@ public class VoipCallTransactionResult {
         return mMessage;
     }
 
+    public Call getCall(){
+        return mCall;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -58,5 +62,16 @@ public class VoipCallTransactionResult {
     @Override
     public int hashCode() {
         return Objects.hash(mResult, mMessage);
+    }
+
+    @Override
+    public String toString() {
+        return new StringBuilder().
+                append("{ VoipCallTransactionResult: [mResult: ").
+                append(mResult).
+                append("], [mCall: ").
+                append(mCall.toString()).
+                append("], [mMessage=").
+                append(mMessage).append("]  }").toString();
     }
 }
