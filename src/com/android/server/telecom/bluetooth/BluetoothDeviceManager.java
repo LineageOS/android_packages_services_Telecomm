@@ -222,10 +222,10 @@ public class BluetoothDeviceManager {
             }
 
             for (LinkedHashMap.Entry<BluetoothDevice, Integer> entry : mGroupsByDevice.entrySet()) {
-               if (Objects.equals(entry.getKey(),
+                if (Objects.equals(entry.getKey(),
                         mBluetoothLeAudioService.getConnectedGroupLeadDevice(entry.getValue()))) {
-                   devices.add(entry.getKey());
-               }
+                    devices.add(entry.getKey());
+                }
             }
             devices.removeIf(device -> !mLeAudioDevicesByAddress.containsValue(device));
             return devices;
@@ -634,6 +634,20 @@ public class BluetoothDeviceManager {
             mBluetoothAdapter.setActiveDevice(mBluetoothHearingAidActiveDeviceCache,
                     BluetoothAdapter.ACTIVE_DEVICE_ALL);
             mBluetoothHearingAidActiveDeviceCache = null;
+        }
+    }
+
+    public boolean isInbandRingingEnabled() {
+        BluetoothDevice activeDevice = mBluetoothRouteManager.getBluetoothAudioConnectedDevice();
+        Log.i(this, "isInbandRingingEnabled: activeDevice: " + activeDevice);
+        if (mBluetoothRouteManager.isCachedLeAudioDevice(activeDevice)) {
+            return true;
+        } else {
+            if (mBluetoothHeadset == null) {
+                Log.i(this, "isInbandRingingEnabled: no headset service available.");
+                return false;
+            }
+            return mBluetoothHeadset.isInbandRingingEnabled();
         }
     }
 

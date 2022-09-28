@@ -46,6 +46,7 @@ import org.mockito.Mock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
@@ -511,6 +512,27 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
         when(mockAudioManager.getCommunicationDevice()).thenReturn(mSpeakerInfo);
         mBluetoothDeviceManager.clearHearingAidCommunicationDevice();
         assertFalse(mBluetoothDeviceManager.isHearingAidSetAsCommunicationDevice());
+    }
+
+    @SmallTest
+    @Test
+    public void testInBandRingingEnabledForLeDevice() {
+        when(mBluetoothHeadset.isInbandRingingEnabled()).thenReturn(false);
+        receiverUnderTest.onReceive(mContext,
+                buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device1,
+                        BluetoothDeviceManager.DEVICE_TYPE_HEADSET));
+        receiverUnderTest.onReceive(mContext,
+                buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device2,
+                        BluetoothDeviceManager.DEVICE_TYPE_HEADSET));
+        receiverUnderTest.onReceive(mContext,
+                buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device3,
+                        BluetoothDeviceManager.DEVICE_TYPE_LE_AUDIO));
+        leAudioCallbacksTest.getValue().onGroupNodeAdded(device3, 1);
+        when(mBluetoothLeAudio.getConnectedGroupLeadDevice(1)).thenReturn(device3);
+        when(mRouteManager.getBluetoothAudioConnectedDevice()).thenReturn(device3);
+        when(mRouteManager.isCachedLeAudioDevice(eq(device3))).thenReturn(true);
+        assertEquals(3, mBluetoothDeviceManager.getNumConnectedDevices());
+        assertTrue(mBluetoothDeviceManager.isInbandRingingEnabled());
     }
 
     private Intent buildConnectionActionIntent(int state, BluetoothDevice device, int deviceType) {
