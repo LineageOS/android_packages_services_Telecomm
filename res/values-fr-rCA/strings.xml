@@ -30,8 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"L\'appel à <xliff:g id="CALLER">%s</xliff:g> a été déconnecté en raison d\'un appel d\'urgence qui a été passé."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Votre appel a été déconnecté en raison d\'un appel d\'urgence en cours de lancement."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Appel en arrière-plan"</string>
-    <!-- no translation found for notification_audioProcessing_body (8811420157964118913) -->
-    <skip />
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> traite un appel en arrière-plan. Cette application peut accéder à l\'audio de l\'appel et faire jouer un contenu audio par l\'intermédiaire de l\'appel."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> a arrêté de répondre"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Votre appel a utilisé l\'application Téléphone intégrée à votre appareil"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Son coupé"</string>
