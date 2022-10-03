@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Виклик абонента <xliff:g id="CALLER">%s</xliff:g> припинено, оскільки здійснюється екстрений виклик."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Виклик перервано, оскільки здійснюється екстрений виклик."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"У фоновий режим"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"Додаток <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> перевів виклик у фоновий режим і може відтворювати аудіо під час виклику."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"Додаток <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> обробляє виклик у фоновому режимі. Він може отримувати доступ до аудіо виклику та відтворювати під час нього своє аудіо."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"Додаток <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> не відповідає"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Поточний дзвінок було перенаправлено в додаток, що постачається разом із пристроєм"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Звук виклику вимкнено."</string>

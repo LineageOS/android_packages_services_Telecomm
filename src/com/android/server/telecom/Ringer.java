@@ -275,7 +275,7 @@ public class Ringer {
         VibrationEffect effect;
         CompletableFuture<Boolean> hapticsFuture = null;
         // Determine if the settings and DND mode indicate that the vibrator can be used right now.
-        boolean isVibratorEnabled = isVibratorEnabled(mContext);
+        boolean isVibratorEnabled = isVibratorEnabled(mContext, attributes.shouldRingForContact());
         boolean shouldApplyRampingRinger =
                 isVibratorEnabled && mSystemSettingsUtil.isRampingRingerEnabled(mContext);
         if (attributes.isRingerAudible()) {
@@ -367,7 +367,7 @@ public class Ringer {
                         "hasVibrator=%b, userRequestsVibrate=%b, ringerMode=%d, isVibrating=%b",
                         mVibrator.hasVibrator(),
                         mSystemSettingsUtil.isRingVibrationEnabled(mContext),
-                        mAudioManager.getRingerModeInternal(), mIsVibrating);
+                        mAudioManager.getRingerMode(), mIsVibrating);
                 if (mSystemSettingsUtil.isRampingRingerEnabled(mContext) && isRingerAudible) {
                     Log.i(this, "start vibration for ramping ringer.");
                 } else {
@@ -381,7 +381,7 @@ public class Ringer {
                         "hasVibrator=%b, userRequestsVibrate=%b, ringerMode=%d, isVibrating=%b",
                         mVibrator.hasVibrator(),
                         mSystemSettingsUtil.isRingVibrationEnabled(mContext),
-                        mAudioManager.getRingerModeInternal(), mIsVibrating);
+                        mAudioManager.getRingerMode(), mIsVibrating);
             }
         }
     }
@@ -503,11 +503,14 @@ public class Ringer {
         }
     }
 
-    private boolean isVibratorEnabled(Context context) {
+    private boolean isVibratorEnabled(Context context, boolean shouldRingForContact) {
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        // Use AudioManager#getRingerMode for more accurate result, instead of
+        // AudioManager#getRingerModeInternal which only useful for volume controllers
         return mVibrator.hasVibrator()
                 && mSystemSettingsUtil.isRingVibrationEnabled(context)
-                && audioManager.getRingerModeInternal() != AudioManager.RINGER_MODE_SILENT;
+                && (audioManager.getRingerMode() != AudioManager.RINGER_MODE_SILENT
+                || shouldRingForContact);
     }
 
     private RingerAttributes getRingerAttributes(Call call, boolean isHfpDeviceAttached) {
