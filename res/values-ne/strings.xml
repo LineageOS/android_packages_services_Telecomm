@@ -30,8 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"आपत्‌कालीन कल गरिएको हुनाले <xliff:g id="CALLER">%s</xliff:g> लाई गरिएको कल विच्छेद गरियो।"</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"आपत्‌कालीन कल जारी रहेको हुनाले तपाईंको कल विच्छेद गरिएको छ।"</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"पृष्ठभूमिको कल"</string>
-    <!-- no translation found for notification_audioProcessing_body (8811420157964118913) -->
-    <skip />
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ले ब्याकग्राउन्डमा कुनै कल प्रोसेस गर्दै छ। यो एपले तपाईंको कलको अडियो प्रयोग गरिरहेको र सोही अडियो प्ले गरिरहेको हुन सक्छ।"</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> ले काम गर्न छाड्यो"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"कल गर्नका लागि तपाईंको डिभाइसमा पहिल्यैदेखि रहेको फोन एप प्रयोग गरियो"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"कल म्युट भयो।"</string>
