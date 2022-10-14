@@ -101,6 +101,8 @@ public class BlockedNumbersActivity extends ListActivity
         ActionBar actionBar = getActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
+            // set the talkback voice prompt to "Back" instead of "Navigate Up"
+            actionBar.setHomeActionContentDescription(R.string.back);
         }
 
         if (!BlockedNumberContract.canCurrentUserBlockNumbers(this)) {
