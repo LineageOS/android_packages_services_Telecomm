@@ -1422,6 +1422,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
     }
 
+    public Uri getContactPhotoUri() {
+        return mCallerInfo != null ? mCallerInfo.getContactDisplayPhotoUri() : null;
+    }
+
     public String getCallerDisplayName() {
         return mCallerDisplayName;
     }
@@ -1438,6 +1442,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             for (Listener l : mListeners) {
                 l.onCallerDisplayNameChanged(this);
             }
+        }
+    }
+
+    void setContactPhotoUri(Uri contactPhotoUri) {
+        if (mCallerInfo != null) {
+            mCallerInfo.SetContactDisplayPhotoUri(contactPhotoUri);
         }
     }
 
