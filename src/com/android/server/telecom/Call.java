@@ -2227,9 +2227,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         Log.v(this, "handleCreateConnectionSuccessful %s", connection);
         setTargetPhoneAccount(connection.getPhoneAccount());
         setHandle(connection.getHandle(), connection.getHandlePresentation());
+
         setCallerDisplayName(
                 connection.getCallerDisplayName(), connection.getCallerDisplayNamePresentation());
-
         setConnectionCapabilities(connection.getConnectionCapabilities());
         setConnectionProperties(connection.getConnectionProperties());
         setIsVoipAudioMode(connection.getIsVoipAudioMode());
@@ -3373,11 +3373,14 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             return;
         }
 
+        String newName = callerInfo.getName();
+        boolean contactNameChanged = mCallerInfo == null || !mCallerInfo.getName().equals(newName);
+
         mCallerInfo = callerInfo;
         Log.i(this, "CallerInfo received for %s: %s", Log.piiHandle(mHandle), callerInfo);
 
-        if (mCallerInfo.getContactDisplayPhotoUri() == null ||
-                mCallerInfo.cachedPhotoIcon != null || mCallerInfo.cachedPhoto != null) {
+        if (mCallerInfo.getContactDisplayPhotoUri() == null || mCallerInfo.cachedPhotoIcon != null
+            || mCallerInfo.cachedPhoto != null || contactNameChanged) {
             for (Listener l : mListeners) {
                 l.onCallerInfoChanged(this);
             }

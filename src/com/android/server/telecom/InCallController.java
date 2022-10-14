@@ -805,6 +805,11 @@ public class InCallController extends CallsManagerListenerBase implements
             updateCall(call);
         }
 
+        @Override
+        public void onCallerInfoChanged(Call call) {
+            updateCall(call);
+        }
+
         /**
          * Listens for changes to extras reported by a Telecom {@link Call}.
          *
