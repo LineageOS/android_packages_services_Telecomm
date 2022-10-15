@@ -40,7 +40,7 @@
     <string name="respond_via_sms_canned_response_3" msgid="6656147963478092035">"ମୁଁ ଆପଣଙ୍କୁ ପରେ କଲ୍ କରିବି।"</string>
     <string name="respond_via_sms_canned_response_4" msgid="9141132488345561047">"ବର୍ତ୍ତମାନ କଥା ହୋ‌ଇପାରିବ ନାହିଁ। ମୋତେ ପରେ କଲ୍ କରିବେ?"</string>
     <string name="respond_via_sms_setting_title" msgid="4762275482898830160">"ଶୀଘ୍ର ଉତ୍ତର"</string>
-    <string name="respond_via_sms_setting_title_2" msgid="4914853536609553457">"ଶୀଘ୍ର ଉତ୍ତରକୁ ଏଡିଟ୍ କରନ୍ତୁ"</string>
+    <string name="respond_via_sms_setting_title_2" msgid="4914853536609553457">"ଶୀଘ୍ର ଉତ୍ତରକୁ ଏଡିଟ କରନ୍ତୁ"</string>
     <string name="respond_via_sms_setting_summary" msgid="8054571501085436868"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="6579353156073272157">"ଶୀଘ୍ର ଉତ୍ତର"</string>
     <string name="respond_via_sms_confirmation_format" msgid="2932395476561267842">"<xliff:g id="PHONE_NUMBER">%s</xliff:g>କୁ ମେସେଜ୍ ପଠାଗଲା।"</string>
@@ -55,13 +55,13 @@
     <string name="add_vm_number_str" msgid="5179510133063168998">"ନମ୍ବର୍ ଯୋଡ଼ନ୍ତୁ"</string>
     <string name="change_default_dialer_dialog_title" msgid="5861469279421508060">"<xliff:g id="NEW_APP">%s</xliff:g>କୁ ଆପଣଙ୍କ ଫୋନ୍‌ର ଡିଫଲ୍ଟ ଆପ୍ କରିବେ?"</string>
     <string name="change_default_dialer_dialog_affirmative" msgid="8604665314757739550">"ଡିଫଲ୍ଟ ସେଟ୍ କରନ୍ତୁ"</string>
-    <string name="change_default_dialer_dialog_negative" msgid="8648669840052697821">"ବାତିଲ୍‍ କରନ୍ତୁ"</string>
+    <string name="change_default_dialer_dialog_negative" msgid="8648669840052697821">"ବାତିଲ କରନ୍ତୁ"</string>
     <string name="change_default_dialer_warning_message" msgid="8461963987376916114">"<xliff:g id="NEW_APP">%s</xliff:g> କଲ୍ କରିବା ଏବଂ କଲ୍‌ର ସମସ୍ତ ଦିଗକୁ ନିୟନ୍ତ୍ରଣ କରିବାରେ ସକ୍ଷମ ହେବ। କେବଳ ନିଜର ଭରସାଯୋଗ୍ୟ ଆପ୍‌କୁ ଡିଫଲ୍ଟ ଫୋନ୍ ଆପ୍ ଭାବେ ସେଟ୍ କରିବା ଉଚିତ୍।"</string>
     <string name="change_default_call_screening_dialog_title" msgid="5365787219927262408">"<xliff:g id="NEW_APP">%s</xliff:g>କୁ ଆପଣଙ୍କ ଡିଫଲ୍ଟ କଲ୍ ସ୍କ୍ରିନିଂ ଆପ୍ କରିବେ?"</string>
     <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="2039830033533243164">"<xliff:g id="OLD_APP">%s</xliff:g> କଲ୍ ସ୍କ୍ରିନ୍‌ କରିପାରିରିବେ ନାହିଁ।"</string>
     <string name="change_default_call_screening_warning_message" msgid="9020537562292754269">"ଆପଣଙ୍କ ଯୋଗାଯୋଗରେ ନଥିବା କଲର୍‌ଙ୍କ ସମ୍ଵନ୍ଧରେ ସୂଚନା ଦେଖିବାକୁ <xliff:g id="NEW_APP">%s</xliff:g> ସକ୍ଷମ ହେବେ। କେବଳ ଆପଣ ବିଶ୍ଵାସ କରୁଥିବା ଆପ୍ସ ଡିଫଲ୍ଟ କଲ୍ ସ୍କ୍ରିନିଂ ଆପ୍ ଭାବରେ ସେଟ୍ ହେବା ଆବଶ୍ୟକ ଅଟେ।"</string>
     <string name="change_default_call_screening_dialog_affirmative" msgid="7162433828280058647">"ଡିଫଲ୍ଟ ସେଟ୍ କରନ୍ତୁ"</string>
-    <string name="change_default_call_screening_dialog_negative" msgid="1839266125623106342">"ବାତିଲ୍‌ କରନ୍ତୁ"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="1839266125623106342">"ବାତିଲ କରନ୍ତୁ"</string>
     <string name="blocked_numbers" msgid="8322134197039865180">"ବ୍ଲକ୍ କରାଯାଇଥିବା ନମ୍ବର୍"</string>
     <string name="blocked_numbers_msg" msgid="2797422132329662697">"ବ୍ଲକ୍ କରାଯାଇଥିବା ନମ୍ବର୍‌ରୁ ଆପଣ କଲ୍ କିମ୍ବା ଟେକ୍ସଟ୍ ଗ୍ରହଣ କରିପାରିବେ ନାହିଁ।"</string>
     <string name="block_number" msgid="3784343046852802722">"ଗୋଟିଏ ନମ୍ବର୍ ଯୋଡ଼ନ୍ତୁ"</string>
@@ -122,5 +122,5 @@
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"ଜରୁରିକାଳୀନ ସହାୟତା କର୍ମଚାରୀମାନେ ଆପଣଙ୍କୁ ଯୋଗଯୋଗ କରିବା ପାଇଁ କଲ୍ ଅବରୋଧକୁ ଅକ୍ଷମ କରାଯାଇଛି।"</string>
     <string name="developer_title" msgid="9146088855661672353">"ଟେଲେକମ୍ ଡେଭେଲପର୍ ମେନୁ"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"ଜରୁରୀକାଳୀନ କଲ୍ ବେଳେ ଅନ୍ୟ କଲ୍ ଉଠାଇ ପାରିବେ ନାହିଁ।"</string>
-    <string name="cancel" msgid="6733466216239934756">"ବାତିଲ୍ କରନ୍ତୁ"</string>
+    <string name="cancel" msgid="6733466216239934756">"ବାତିଲ କରନ୍ତୁ"</string>
 </resources>
