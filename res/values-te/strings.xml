@@ -69,8 +69,8 @@
     <string name="unblock_button" msgid="8732021675729981781">"అన్‌బ్లాక్ చేయి"</string>
     <string name="add_blocked_dialog_body" msgid="8599974422407139255">"దీని నుండి కాల్స్‌ మరియు మెసేజ్‌లను బ్లాక్ చేయండి"</string>
     <string name="add_blocked_number_hint" msgid="8769422085658041097">"ఫోన్ నంబర్"</string>
-    <string name="block_button" msgid="485080149164258770">"బ్లాక్ చేయి"</string>
-    <string name="non_primary_user" msgid="315564589279622098">"కేవలం పరికర యజమాని మాత్రమే బ్లాక్ చేసిన నంబర్‌లను వీక్షించగలరు మరియు నిర్వహించగలరు."</string>
+    <string name="block_button" msgid="485080149164258770">"బ్లాక్ చేయండి"</string>
+    <string name="non_primary_user" msgid="315564589279622098">"కేవలం పరికర యజమాని మాత్రమే బ్లాక్ చేసిన నంబర్‌లను చూడగలరు మరియు నిర్వహించగలరు."</string>
     <string name="delete_icon_description" msgid="5335959254954774373">"అన్‌బ్లాక్ చేస్తుంది"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="582982373755950791">"బ్లాకింగ్ తాత్కాలికంగా ఆఫ్ చేయబడింది"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="1261213114919301485">"మీరు అత్యవసర నంబర్‌కి డయల్ చేసాక లేదా వచన మెసేజ్‌ పంపాక, అత్యవసర సేవలు తిరిగి మిమ్మల్ని సంప్రదించగలిగేలా చేయడానికి బ్లాకింగ్ ఆఫ్ చేయబడుతుంది."</string>
