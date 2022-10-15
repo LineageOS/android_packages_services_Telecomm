@@ -1648,6 +1648,9 @@ public class CallsManager extends Call.ListenerBase
         // retrieved.
         CompletableFuture<List<PhoneAccountHandle>> setAccountHandle =
                 accountsForCall.whenCompleteAsync((potentialPhoneAccounts, exception) -> {
+                    if (exception != null){
+                        Log.e(TAG, exception, "Error retrieving list of potential phone accounts.");
+                    }
                     Log.i(CallsManager.this, "set outgoing call phone acct; potentialAccts=%s",
                             potentialPhoneAccounts);
                     PhoneAccountHandle phoneAccountHandle;
@@ -2437,8 +2440,17 @@ public class CallsManager extends Call.ListenerBase
                     // Drop any ongoing self-managed calls to make way for an emergency call.
                     disconnectSelfManagedCalls("place emerg call" /* reason */);
                 }
+                try {
+                    call.startCreateConnection(mPhoneAccountRegistrar);
+                } catch (Exception exception) {
+                    // If an exceptions is thrown while creating the connection, disconnect.
+                    Log.e(TAG, exception, "Exception thrown while establishing connection.");
+                    markCallAsDisconnected(call,
+                            new DisconnectCause(DisconnectCause.ERROR,
+                            "Failed to create the connection."));
+                    markCallAsRemoved(call);
+                }
 
-                call.startCreateConnection(mPhoneAccountRegistrar);
             }
         } else if (mPhoneAccountRegistrar.getCallCapablePhoneAccounts(
                 requireCallCapableAccountByHandle ? callHandleScheme : null, false,
