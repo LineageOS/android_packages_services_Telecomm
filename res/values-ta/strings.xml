@@ -30,8 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"அவசர அழைப்பு மேற்கொள்ளப்பட்டதால் <xliff:g id="CALLER">%s</xliff:g> உடனான அழைப்பு துண்டிக்கப்பட்டது."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"அவசர அழைப்பு மேற்கொள்ளப்படுவதால் உங்கள் அழைப்பு துண்டிக்கப்பட்டுள்ளது."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"பின்னணி அழைப்பு"</string>
-    <!-- no translation found for notification_audioProcessing_body (8811420157964118913) -->
-    <skip />
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> அழைப்பைப் பின்னணியில் செயலாக்குகிறது. அழைப்பின்போதே இந்த ஆப்ஸ் ஆடியோவை அணுகி அதைச் செயலாக்கக்கூடும்."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> செயலிழந்துவிட்டது"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"உங்கள் சாதனத்துடன் கிடைக்கும் மொபைல் ஆப்ஸ் மூலம் அழைப்பு மேற்கொள்ளப்பட்டது"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"அழைப்பு முடக்கப்பட்டது."</string>
