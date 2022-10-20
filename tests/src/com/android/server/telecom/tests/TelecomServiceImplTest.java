@@ -373,14 +373,9 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testGetCallCapablePhoneAccounts() throws RemoteException {
-        List<PhoneAccountHandle> fullPHList = new ArrayList<PhoneAccountHandle>() {{
-            add(TEL_PA_HANDLE_16);
-            add(SIP_PA_HANDLE_17);
-        }};
+        List<PhoneAccountHandle> fullPHList = List.of(TEL_PA_HANDLE_16, SIP_PA_HANDLE_17);
+        List<PhoneAccountHandle> smallPHList = List.of(SIP_PA_HANDLE_17);
 
-        List<PhoneAccountHandle> smallPHList = new ArrayList<PhoneAccountHandle>() {{
-            add(SIP_PA_HANDLE_17);
-        }};
         // Returns all phone accounts when getCallCapablePhoneAccounts is called.
         when(mFakePhoneAccountRegistrar
                 .getCallCapablePhoneAccounts(nullable(String.class), eq(true),
@@ -402,10 +397,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testGetCallCapablePhoneAccountsFailure() throws RemoteException {
-        List<String> enforcedPermissions = new ArrayList<String>() {{
-            add(READ_PHONE_STATE);
-            add(READ_PRIVILEGED_PHONE_STATE);
-        }};
+        List<String> enforcedPermissions = List.of(READ_PHONE_STATE, READ_PRIVILEGED_PHONE_STATE);
+
         doThrow(new SecurityException()).when(mContext).enforceCallingOrSelfPermission(
                 argThat(new AnyStringIn(enforcedPermissions)), anyString());
 
@@ -423,13 +416,9 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testGetPhoneAccountsSupportingScheme() throws RemoteException {
-        List<PhoneAccountHandle> sipPHList = new ArrayList<PhoneAccountHandle>() {{
-            add(SIP_PA_HANDLE_17);
-        }};
+        List<PhoneAccountHandle> sipPHList = List.of(SIP_PA_HANDLE_17);
+        List<PhoneAccountHandle> telPHList = List.of(TEL_PA_HANDLE_16);
 
-        List<PhoneAccountHandle> telPHList = new ArrayList<PhoneAccountHandle>() {{
-            add(TEL_PA_HANDLE_16);
-        }};
         when(mFakePhoneAccountRegistrar
                 .getCallCapablePhoneAccounts(eq("tel"), anyBoolean(), any(UserHandle.class)))
                 .thenReturn(telPHList);
@@ -449,10 +438,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testGetPhoneAccountsForPackage() throws RemoteException {
-        List<PhoneAccountHandle> phoneAccountHandleList = new ArrayList<PhoneAccountHandle>() {{
-            add(TEL_PA_HANDLE_16);
-            add(SIP_PA_HANDLE_17);
-        }};
+        List<PhoneAccountHandle> phoneAccountHandleList = List.of(
+            TEL_PA_HANDLE_16, SIP_PA_HANDLE_17);
         when(mFakePhoneAccountRegistrar
                 .getPhoneAccountsForPackage(anyString(), any(UserHandle.class)))
                 .thenReturn(phoneAccountHandleList);
@@ -481,10 +468,10 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testGetAllPhoneAccounts() throws RemoteException {
-        List<PhoneAccount> phoneAccountList = new ArrayList<PhoneAccount>() {{
-            add(makePhoneAccount(TEL_PA_HANDLE_16).build());
-            add(makePhoneAccount(SIP_PA_HANDLE_17).build());
-        }};
+        List<PhoneAccount> phoneAccountList = List.of(
+                makePhoneAccount(TEL_PA_HANDLE_16).build(),
+                makePhoneAccount(SIP_PA_HANDLE_17).build());
+
         when(mFakePhoneAccountRegistrar.getAllPhoneAccounts(any(UserHandle.class)))
                 .thenReturn(phoneAccountList);
 
