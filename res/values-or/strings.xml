@@ -123,4 +123,5 @@
     <string name="developer_title" msgid="9146088855661672353">"ଟେଲେକମ୍ ଡେଭେଲପର୍ ମେନୁ"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"ଜରୁରୀକାଳୀନ କଲ୍ ବେଳେ ଅନ୍ୟ କଲ୍ ଉଠାଇ ପାରିବେ ନାହିଁ।"</string>
     <string name="cancel" msgid="6733466216239934756">"ବାତିଲ କରନ୍ତୁ"</string>
+    <string name="back" msgid="6915955601805550206">"ପଛକୁ ଫେରନ୍ତୁ"</string>
 </resources>

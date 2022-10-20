@@ -123,4 +123,6 @@
     <string name="developer_title" msgid="9146088855661672353">"టెలికామ్ డెవలపర్ మెనూ"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"అత్యవసర కాల్‌లో వున్నప్పుడు కాల్స్‌ను స్వీకరించడానికి వీలుపడదు."</string>
     <string name="cancel" msgid="6733466216239934756">"రద్దు చేయండి"</string>
+    <!-- no translation found for back (6915955601805550206) -->
+    <skip />
 </resources>
