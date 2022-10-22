@@ -167,11 +167,9 @@ public class CallsManagerTest extends TelecomTestCase {
     private static final Uri TEST_ADDRESS = Uri.parse("tel:555-1212");
     private static final Uri TEST_ADDRESS2 = Uri.parse("tel:555-1213");
     private static final Uri TEST_ADDRESS3 = Uri.parse("tel:555-1214");
-    private static final Map<Uri, PhoneAccountHandle> CONTACT_PREFERRED_ACCOUNT =
-            new HashMap<Uri, PhoneAccountHandle>() {{
-                put(TEST_ADDRESS2, SIM_1_HANDLE);
-                put(TEST_ADDRESS3, SIM_2_HANDLE);
-    }};
+    private static final Map<Uri, PhoneAccountHandle> CONTACT_PREFERRED_ACCOUNT = Map.of(
+            TEST_ADDRESS2, SIM_1_HANDLE,
+            TEST_ADDRESS3, SIM_2_HANDLE);
 
     private static int sCallId = 1;
     private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
