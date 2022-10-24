@@ -123,4 +123,6 @@
     <string name="developer_title" msgid="9146088855661672353">"ටෙලිකොම් සංවර්ධක මෙනුව"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"හදිසි ඇමතුමක් අතරතුර ඇමතුම් ගත නොහැකිය."</string>
     <string name="cancel" msgid="6733466216239934756">"අවලංගු කරන්න"</string>
+    <!-- no translation found for back (6915955601805550206) -->
+    <skip />
 </resources>

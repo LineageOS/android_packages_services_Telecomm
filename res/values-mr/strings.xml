@@ -123,4 +123,6 @@
     <string name="developer_title" msgid="9146088855661672353">"टेलिकॉम डेव्‍हलपर मेनू"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"आणीबाणी कॉल दरम्यान कॉल घेतला जाऊ शकत नाही."</string>
     <string name="cancel" msgid="6733466216239934756">"रद्द करा"</string>
+    <!-- no translation found for back (6915955601805550206) -->
+    <skip />
 </resources>
