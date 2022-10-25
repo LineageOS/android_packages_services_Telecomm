@@ -123,4 +123,5 @@
     <string name="developer_title" msgid="9146088855661672353">"Μενού προγραμματιστών τηλεπικοινωνιών"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"Δεν είναι δυνατή η λήψη κλήσεων κατά τη διάρκεια κλήσης επείγουσας ανάγκης."</string>
     <string name="cancel" msgid="6733466216239934756">"Ακύρωση"</string>
+    <string name="back" msgid="6915955601805550206">"Πίσω"</string>
 </resources>

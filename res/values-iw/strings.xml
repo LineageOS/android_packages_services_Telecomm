@@ -123,4 +123,6 @@
     <string name="developer_title" msgid="9146088855661672353">"תפריט למפתחי מערכות תקשורת"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"אי אפשר לענות לשיחות אחרות בזמן שיחת חירום."</string>
     <string name="cancel" msgid="6733466216239934756">"ביטול"</string>
+    <!-- no translation found for back (6915955601805550206) -->
+    <skip />
 </resources>
