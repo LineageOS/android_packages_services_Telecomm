@@ -755,6 +755,46 @@ public class InCallControllerTests extends TelecomTestCase {
         assertEquals(sysDialerComponentName, bindIntentCaptor2.getValue().getComponent());
     }
 
+    @Test
+    public void testBindToService_CarModeUI_Crash() throws Exception {
+        setupMocks(false /* isExternalCall */);
+        setupMockPackageManager(true /* default */, true /* system */, true /* external calls */);
+
+        // Enable car mode
+        when(mMockSystemStateHelper.isCarModeOrProjectionActive()).thenReturn(true);
+        mInCallController.handleCarModeChange(UiModeManager.DEFAULT_PRIORITY, CAR_PKG, true);
+
+        // Now bind; we should only bind to one app.
+        mInCallController.bindToServices(mMockCall);
+
+        // Bind InCallServices
+        ArgumentCaptor<Intent> bindIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        ArgumentCaptor<ServiceConnection> serviceConnectionCaptor =
+                ArgumentCaptor.forClass(ServiceConnection.class);
+        verify(mMockContext, times(1)).bindServiceAsUser(
+                bindIntentCaptor.capture(),
+                serviceConnectionCaptor.capture(),
+                eq(serviceBindingFlags),
+                eq(UserHandle.CURRENT));
+
+        // Verify bind car mode ui
+        assertEquals(1, bindIntentCaptor.getAllValues().size());
+        verifyBinding(bindIntentCaptor, 0, CAR_PKG, CAR_CLASS);
+
+        // Emulate a crash in the CarModeUI
+        ServiceConnection serviceConnection = serviceConnectionCaptor.getValue();
+        serviceConnection.onServiceDisconnected(bindIntentCaptor.getValue().getComponent());
+
+        ArgumentCaptor<Intent> bindIntentCaptor2 = ArgumentCaptor.forClass(Intent.class);
+        verify(mMockContext, times(2)).bindServiceAsUser(
+                bindIntentCaptor2.capture(),
+                any(ServiceConnection.class),
+                eq(serviceBindingFlags),
+                eq(UserHandle.CURRENT));
+
+        verifyBinding(bindIntentCaptor2, 1, CAR_PKG, CAR_CLASS);
+    }
+
     /**
      * Ensures that the {@link InCallController} will bind to an {@link InCallService} which
      * supports external calls.
