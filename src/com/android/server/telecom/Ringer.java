@@ -19,6 +19,7 @@ package com.android.server.telecom;
 import static android.provider.CallLog.Calls.USER_MISSED_DND_MODE;
 import static android.provider.CallLog.Calls.USER_MISSED_LOW_RING_VOLUME;
 import static android.provider.CallLog.Calls.USER_MISSED_NO_VIBRATE;
+import static android.provider.Settings.Global.ZEN_MODE_OFF;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -531,7 +532,6 @@ public class Ringer {
         return mRingtonePlayer.isPlaying();
     }
 
-
     /**
      * shouldRingForContact checks if the caller matches one of the Do Not Disturb bypass
      * settings (ex. A contact or repeat caller might be able to bypass DND settings). If
@@ -546,7 +546,6 @@ public class Ringer {
         }
 
         final Uri contactUri = call.getHandle();
-
         final Bundle peopleExtras = new Bundle();
         if (contactUri != null) {
             ArrayList<Person> personList = new ArrayList<>();
@@ -575,10 +574,12 @@ public class Ringer {
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         // Use AudioManager#getRingerMode for more accurate result, instead of
         // AudioManager#getRingerModeInternal which only useful for volume controllers
+        boolean zenModeOn = mNotificationManager != null
+                && mNotificationManager.getZenMode() != ZEN_MODE_OFF;
         return mVibrator.hasVibrator()
                 && mSystemSettingsUtil.isRingVibrationEnabled(context)
                 && (audioManager.getRingerMode() != AudioManager.RINGER_MODE_SILENT
-                || shouldRingForContact);
+                || (zenModeOn && shouldRingForContact));
     }
 
     private RingerAttributes getRingerAttributes(Call call, boolean isHfpDeviceAttached) {

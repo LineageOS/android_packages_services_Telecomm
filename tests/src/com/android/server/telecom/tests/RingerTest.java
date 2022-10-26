@@ -16,6 +16,8 @@
 
 package com.android.server.telecom.tests;
 
+import static android.provider.Settings.Global.ZEN_MODE_IMPORTANT_INTERRUPTIONS;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -134,6 +136,7 @@ public class RingerTest extends TelecomTestCase {
     @Mock RingtoneFactory mockRingtoneFactory;
     @Mock Vibrator mockVibrator;
     @Mock InCallController mockInCallController;
+    @Mock NotificationManager mockNotificationManager;
     @Spy Ringer.VibrationEffectProxy spyVibrationEffectProxy;
 
     @Mock InCallTonePlayer mockTonePlayer;
@@ -161,17 +164,18 @@ public class RingerTest extends TelecomTestCase {
 
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_NORMAL);
         when(mockSystemSettingsUtil.isHapticPlaybackSupported(any(Context.class))).thenReturn(true);
-        NotificationManager notificationManager =
+        mockNotificationManager =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         when(mockTonePlayer.startTone()).thenReturn(true);
-        when(notificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
+        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
         when(mockRingtoneFactory.hasHapticChannels(any(Ringtone.class))).thenReturn(false);
         mRingerUnderTest = new Ringer(mockPlayerFactory, mContext, mockSystemSettingsUtil,
                 mockRingtonePlayer, mockRingtoneFactory, mockVibrator, spyVibrationEffectProxy,
-                mockInCallController, notificationManager);
+                mockInCallController, mNotificationManager);
         when(mockCall1.getState()).thenReturn(CallState.RINGING);
         when(mockCall2.getState()).thenReturn(CallState.RINGING);
         mRingerUnderTest.setBlockOnRingingFuture(mRingCompletionFuture);
+        mRingerUnderTest.setNotificationManager(mockNotificationManager);
     }
 
     @Override
@@ -268,9 +272,7 @@ public class RingerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testCallWaitingButNoRingForSpecificContacts() {
-        NotificationManager notificationManager =
-                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        when(notificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(false);
+        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(false);
         // Start call waiting to make sure that it does stop when we start ringing
         mRingerUnderTest.startCallWaiting(mockCall1);
         verify(mockTonePlayer).startTone();
@@ -465,8 +467,9 @@ public class RingerTest extends TelecomTestCase {
     public void testRingAndVibrateForAllowedCallInDndMode() throws Exception {
         mRingerUnderTest.startCallWaiting(mockCall1);
         Ringtone mockRingtone = mock(Ringtone.class);
+        when(mockNotificationManager.getZenMode()).thenReturn(ZEN_MODE_IMPORTANT_INTERRUPTIONS);
         when(mockRingtoneFactory.getRingtone(any(Call.class), eq(null), anyBoolean()))
-            .thenReturn(mockRingtone);
+                .thenReturn(mockRingtone);
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_SILENT);
         when(mockAudioManager.getStreamVolume(AudioManager.STREAM_RING)).thenReturn(100);
         enableVibrationWhenRinging();
