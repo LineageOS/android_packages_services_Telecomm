@@ -123,4 +123,6 @@
     <string name="developer_title" msgid="9146088855661672353">"Menu nhà phát triển dịch vụ viễn thông"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"Bạn không thể gọi điện trong khi thực hiện cuộc gọi khẩn cấp."</string>
     <string name="cancel" msgid="6733466216239934756">"Hủy"</string>
+    <!-- no translation found for back (6915955601805550206) -->
+    <skip />
 </resources>
