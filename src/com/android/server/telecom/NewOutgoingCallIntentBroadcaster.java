@@ -364,7 +364,7 @@ public class NewOutgoingCallIntentBroadcaster {
             callRedirectionWithService = callRedirectionProcessor
                     .canMakeCallRedirectionWithService();
             if (callRedirectionWithService) {
-                callRedirectionProcessor.performCallRedirection();
+                callRedirectionProcessor.performCallRedirection(mCall.getInitiatingUser());
             }
         }
 
