@@ -123,5 +123,5 @@
     <string name="developer_title" msgid="9146088855661672353">"Meni za programere iz telekoma"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"Pozivi se ne mogu primati tokom hitnog poziva"</string>
     <string name="cancel" msgid="6733466216239934756">"Otkaži"</string>
-    <string name="back" msgid="6915955601805550206">"Natrag"</string>
+    <string name="back" msgid="6915955601805550206">"Nazad"</string>
 </resources>

@@ -71,6 +71,7 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 // TODO: Needed for move to system service: import com.android.internal.R;
 
@@ -1007,6 +1008,22 @@ public class TelecomServiceImpl {
         public int getCallStateUsingPackage(String callingPackage, String callingFeatureId) {
             try {
                 Log.startSession("TSI.getCallStateUsingPackage");
+
+                // ensure the callingPackage is not spoofed
+                // skip check for privileged UIDs and throw SE if package does not match records
+                if (!isPrivilegedUid(callingPackage)
+                        && !callingUidMatchesPackageManagerRecords(callingPackage)) {
+                    EventLog.writeEvent(0x534e4554, "236813210", Binder.getCallingUid(),
+                            "getCallStateUsingPackage");
+                    Log.i(this,
+                            "getCallStateUsingPackage: packageName does not match records for "
+                                    + "callingPackage=[%s], callingUid=[%d]",
+                            callingPackage, Binder.getCallingUid());
+                    throw new SecurityException(String.format("getCallStateUsingPackage: "
+                                    + "enforceCallingPackage: callingPackage=[%s], callingUid=[%d]",
+                            callingPackage, Binder.getCallingUid()));
+                }
+
                 if (CompatChanges.isChangeEnabled(
                         TelecomManager.ENABLE_GET_CALL_STATE_PERMISSION_PROTECTION, callingPackage,
                         Binder.getCallingUserHandle())) {
@@ -1023,6 +1040,24 @@ public class TelecomServiceImpl {
             } finally {
                 Log.endSession();
             }
+        }
+
+        private boolean isPrivilegedUid(String callingPackage) {
+            int callingUid = Binder.getCallingUid();
+            boolean isPrivileged = false;
+
+            switch (callingUid) {
+                case Process.ROOT_UID:
+                case Process.SYSTEM_UID:
+                case Process.SHELL_UID:
+                    isPrivileged = true;
+                    break;
+            }
+
+            Log.i(this, "isPrivilegedUid: callingPackage=[%s], callingUid=[%d], isPrivileged=[%b]",
+                    callingPackage, callingUid, isPrivileged);
+
+            return isPrivileged;
         }
 
         /**
@@ -2388,21 +2423,42 @@ public class TelecomServiceImpl {
     }
 
     private void enforceCallingPackage(String packageName, String message) {
+        int callingUid = Binder.getCallingUid();
+
+        if (callingUid != Process.ROOT_UID &&
+                !callingUidMatchesPackageManagerRecords(packageName)) {
+            throw new SecurityException(message + ": Package " + packageName
+                    + " does not belong to " + callingUid);
+        }
+    }
+
+    /**
+     * helper method that compares the binder_uid to what the packageManager_uid reports for the
+     * passed in packageName.
+     *
+     * returns true if the binder_uid matches the packageManager_uid records
+     */
+    private boolean callingUidMatchesPackageManagerRecords(String packageName) {
         int packageUid = -1;
         int callingUid = Binder.getCallingUid();
         PackageManager pm = mContext.createContextAsUser(
-            UserHandle.getUserHandleForUid(callingUid), 0).getPackageManager();
+                UserHandle.getUserHandleForUid(callingUid), 0).getPackageManager();
+
         if (pm != null) {
             try {
                 packageUid = pm.getPackageUid(packageName, 0);
             } catch (PackageManager.NameNotFoundException e) {
-                // packageUid is -1
+                // packageUid is -1.
             }
         }
-        if (packageUid != callingUid && callingUid != Process.ROOT_UID) {
-            throw new SecurityException(message + ": Package " + packageName
-                + " does not belong to " + callingUid);
+
+        if (packageUid != callingUid) {
+            Log.i(this, "callingUidMatchesPackageManagerRecords: uid mismatch found for"
+                            + "packageName=[%s]. packageManager reports packageUid=[%d] but "
+                    + "binder reports callingUid=[%d]", packageName, packageUid, callingUid);
         }
+
+        return packageUid == callingUid;
     }
 
     private void enforceTelecomFeature() {

@@ -123,6 +123,5 @@
     <string name="developer_title" msgid="9146088855661672353">"ടെലികോം ഡെവലപ്പര്‍ മെനു"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"അടിയന്തര കോളിലായിരിക്കുമ്പോൾ കോളുകൾ എടുക്കാനാവില്ല."</string>
     <string name="cancel" msgid="6733466216239934756">"റദ്ദാക്കുക"</string>
-    <!-- no translation found for back (6915955601805550206) -->
-    <skip />
+    <string name="back" msgid="6915955601805550206">"മടങ്ങുക"</string>
 </resources>

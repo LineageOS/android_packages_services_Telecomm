@@ -123,6 +123,5 @@
     <string name="developer_title" msgid="9146088855661672353">"Telecom ဆော့ဖ်ဝဲအင်ဂျင်နီယာ မီနူး"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"အရေးပေါ်ခေါ်ဆိုမှု ပြုလုပ်နေစဉ် ဖုန်းမခေါ်နိုင်ပါ။"</string>
     <string name="cancel" msgid="6733466216239934756">"မလုပ်တော့"</string>
-    <!-- no translation found for back (6915955601805550206) -->
-    <skip />
+    <string name="back" msgid="6915955601805550206">"နောက်သို့"</string>
 </resources>
