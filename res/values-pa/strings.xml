@@ -123,6 +123,5 @@
     <string name="developer_title" msgid="9146088855661672353">"ਟੈਲੀਕੋਮ ਵਿਕਾਸਕਾਰ ਮੀਨੂ"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"ਕਿਸੇ ਸੰਕਟਕਾਲੀਨ ਕਾਲ ਦੌਰਾਨ ਹੋਰ ਕਾਲਾਂ ਨਹੀਂ ਲਈਆਂ ਜਾ ਸਕਦੀਆਂ।"</string>
     <string name="cancel" msgid="6733466216239934756">"ਰੱਦ ਕਰੋ"</string>
-    <!-- no translation found for back (6915955601805550206) -->
-    <skip />
+    <string name="back" msgid="6915955601805550206">"ਪਿੱਛੇ"</string>
 </resources>
