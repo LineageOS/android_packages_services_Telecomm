@@ -817,10 +817,11 @@ public class TelecomServiceImpl {
         public String getDefaultDialerPackage(String callingPackage) {
             try {
                 Log.startSession("TSI.gDDP", Log.getPackageAbbreviation(callingPackage));
+                int callerUserId = UserHandle.getCallingUserId();
                 final long token = Binder.clearCallingIdentity();
                 try {
                     return mDefaultDialerCache.getDefaultDialerApplication(
-                            ActivityManager.getCurrentUser());
+                            callerUserId);
                 } finally {
                     Binder.restoreCallingIdentity(token);
                 }
@@ -1668,10 +1669,11 @@ public class TelecomServiceImpl {
                 enforcePermission(MODIFY_PHONE_STATE);
                 enforcePermission(WRITE_SECURE_SETTINGS);
                 synchronized (mLock) {
+                    int callerUserId = UserHandle.getCallingUserId();
                     long token = Binder.clearCallingIdentity();
                     try {
                         return mDefaultDialerCache.setDefaultDialer(packageName,
-                                ActivityManager.getCurrentUser());
+                                callerUserId);
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
