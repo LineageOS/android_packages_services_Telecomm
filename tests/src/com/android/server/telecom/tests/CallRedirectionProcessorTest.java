@@ -193,9 +193,9 @@ public class CallRedirectionProcessorTest extends TelecomTestCase {
         startProcessWithNoGateWayInfo();
         disableUserDefinedCallRedirectionService();
         disableCarrierCallRedirectionService();
-        mProcessor.performCallRedirection();
+        mProcessor.performCallRedirection(UserHandle.CURRENT);
         verify(mContext, times(0)).bindServiceAsUser(any(Intent.class),
-                any(ServiceConnection.class), anyInt(), any(UserHandle.class));
+                any(ServiceConnection.class), anyInt(), eq(UserHandle.CURRENT));
         verify(mCallsManager, times(1)).onCallRedirectionComplete(eq(mCall), eq(mHandle),
                 eq(mPhoneAccountHandle), eq(null), eq(SPEAKER_PHONE_ON), eq(VIDEO_STATE),
                 eq(false), eq(CallRedirectionProcessor.UI_TYPE_NO_ACTION));
@@ -208,9 +208,9 @@ public class CallRedirectionProcessorTest extends TelecomTestCase {
         waitForHandlerAction(mProcessor.getHandler(), HANDLER_TIMEOUT_DELAY);
         disableUserDefinedCallRedirectionService();
         enableCarrierCallRedirectionService();
-        mProcessor.performCallRedirection();
+        mProcessor.performCallRedirection(UserHandle.CURRENT);
         verify(mContext, times(1)).bindServiceAsUser(any(Intent.class),
-                any(ServiceConnection.class), anyInt(), any(UserHandle.class));
+                any(ServiceConnection.class), anyInt(), eq(UserHandle.CURRENT));
         verify(mCallsManager, times(0)).onCallRedirectionComplete(eq(mCall), any(),
                 eq(mPhoneAccountHandle), eq(null), eq(SPEAKER_PHONE_ON), eq(VIDEO_STATE),
                 eq(false), eq(CallRedirectionProcessor.UI_TYPE_NO_ACTION));
@@ -228,9 +228,9 @@ public class CallRedirectionProcessorTest extends TelecomTestCase {
         waitForHandlerAction(mProcessor.getHandler(), HANDLER_TIMEOUT_DELAY);
         enableUserDefinedCallRedirectionService();
         disableCarrierCallRedirectionService();
-        mProcessor.performCallRedirection();
+        mProcessor.performCallRedirection(UserHandle.CURRENT);
         verify(mContext, times(1)).bindServiceAsUser(any(Intent.class),
-                any(ServiceConnection.class), anyInt(), any(UserHandle.class));
+                any(ServiceConnection.class), anyInt(), eq(UserHandle.CURRENT));
         verify(mCallsManager, times(0)).onCallRedirectionComplete(eq(mCall), any(),
                 eq(mPhoneAccountHandle), eq(null), eq(SPEAKER_PHONE_ON), eq(VIDEO_STATE),
                 eq(false), eq(CallRedirectionProcessor.UI_TYPE_USER_DEFINED_TIMEOUT));
@@ -256,10 +256,10 @@ public class CallRedirectionProcessorTest extends TelecomTestCase {
         waitForHandlerAction(mProcessor.getHandler(), HANDLER_TIMEOUT_DELAY);
         enableUserDefinedCallRedirectionService();
         enableCarrierCallRedirectionService();
-        mProcessor.performCallRedirection();
+        mProcessor.performCallRedirection(UserHandle.CURRENT);
 
         verify(mContext, times(1)).bindServiceAsUser(any(Intent.class),
-                any(ServiceConnection.class), anyInt(), any(UserHandle.class));
+                any(ServiceConnection.class), anyInt(), eq(UserHandle.CURRENT));
         verify(mCallsManager, times(0)).onCallRedirectionComplete(eq(mCall), any(),
                 eq(mPhoneAccountHandle), eq(null), eq(SPEAKER_PHONE_ON), eq(VIDEO_STATE),
                 eq(false), eq(CallRedirectionProcessor.UI_TYPE_USER_DEFINED_TIMEOUT));
@@ -294,9 +294,9 @@ public class CallRedirectionProcessorTest extends TelecomTestCase {
         startProcessWithGateWayInfo();
         enableUserDefinedCallRedirectionService();
         enableCarrierCallRedirectionService();
-        mProcessor.performCallRedirection();
+        mProcessor.performCallRedirection(UserHandle.CURRENT);
         verify(mContext, times(1)).bindServiceAsUser(any(Intent.class),
-                any(ServiceConnection.class), anyInt(), any(UserHandle.class));
+                any(ServiceConnection.class), anyInt(), eq(UserHandle.CURRENT));
         verify(mCallsManager, times(0)).onCallRedirectionComplete(eq(mCall), any(),
                 eq(mPhoneAccountHandle), eq(null), eq(SPEAKER_PHONE_ON), eq(VIDEO_STATE),
                 eq(false), eq(CallRedirectionProcessor.UI_TYPE_NO_ACTION));
@@ -313,13 +313,13 @@ public class CallRedirectionProcessorTest extends TelecomTestCase {
         enableUserDefinedCallRedirectionService();
         disableCarrierCallRedirectionService();
 
-        mProcessor.performCallRedirection();
+        mProcessor.performCallRedirection(UserHandle.CURRENT);
 
         // Capture binding and mock it out.
         ArgumentCaptor<ServiceConnection> serviceConnectionCaptor = ArgumentCaptor.forClass(
                 ServiceConnection.class);
         verify(mContext, times(1)).bindServiceAsUser(any(Intent.class),
-                serviceConnectionCaptor.capture(), anyInt(), any(UserHandle.class));
+                serviceConnectionCaptor.capture(), anyInt(), eq(UserHandle.CURRENT));
 
         // Mock out a service which performed a redirection
         IBinder mockBinder = mock(IBinder.class);
