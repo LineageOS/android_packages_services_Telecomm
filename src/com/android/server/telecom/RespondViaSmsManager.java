@@ -215,8 +215,7 @@ public class RespondViaSmsManager extends CallsManagerListenerBase {
             MessageSentReceiver receiver = new MessageSentReceiver(
                     !TextUtils.isEmpty(contactName) ? contactName : phoneNumber,
                     messageParts.size());
-            context.registerReceiver(receiver, new IntentFilter(ACTION_MESSAGE_SENT),
-                    Context.RECEIVER_NOT_EXPORTED);
+            context.registerReceiver(receiver, new IntentFilter(ACTION_MESSAGE_SENT));
             smsManager.sendMultipartTextMessage(phoneNumber, null, messageParts,
                     sentIntents/*sentIntent*/, null /*deliveryIntent*/, context.getOpPackageName(),
                     context.getAttributionTag());
