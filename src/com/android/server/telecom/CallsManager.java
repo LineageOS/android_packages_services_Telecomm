@@ -43,6 +43,7 @@ import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -113,6 +114,7 @@ import com.android.server.telecom.callfiltering.CallFilteringResult;
 import com.android.server.telecom.callfiltering.CallFilteringResult.Builder;
 import com.android.server.telecom.callfiltering.CallScreeningServiceFilter;
 import com.android.server.telecom.callfiltering.DirectToVoicemailFilter;
+import com.android.server.telecom.callfiltering.DndCallFilter;
 import com.android.server.telecom.callfiltering.IncomingCallFilterGraph;
 import com.android.server.telecom.callredirection.CallRedirectionProcessor;
 import com.android.server.telecom.components.ErrorDialogActivity;
@@ -532,7 +534,6 @@ public class CallsManager extends Call.ListenerBase
                         bluetoothManager,
                         wiredHeadsetManager,
                         mDockManager);
-
         AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         InCallTonePlayer.MediaPlayerFactory mediaPlayerFactory =
                 (resourceId, attributes) ->
@@ -553,7 +554,8 @@ public class CallsManager extends Call.ListenerBase
         mCallDiagnosticServiceController.setInCallTonePlayerFactory(playerFactory);
         mRinger = new Ringer(playerFactory, context, systemSettingsUtil, asyncRingtonePlayer,
                 ringtoneFactory, systemVibrator,
-                new Ringer.VibrationEffectProxy(), mInCallController);
+                new Ringer.VibrationEffectProxy(), mInCallController,
+                mContext.getSystemService(NotificationManager.class));
         mCallRecordingTonePlayer = new CallRecordingTonePlayer(mContext, audioManager,
                 mTimeoutsAdapter, mLock);
         mCallAudioManager = new CallAudioManager(callAudioRouteStateMachine,
@@ -717,6 +719,7 @@ public class CallsManager extends Call.ListenerBase
                 mCallerInfoLookupHelper);
         BlockCheckerFilter blockCheckerFilter = new BlockCheckerFilter(mContext, incomingCall,
                 mCallerInfoLookupHelper, new BlockCheckerAdapter());
+        DndCallFilter dndCallFilter = new DndCallFilter(incomingCall, getRinger());
         CallScreeningServiceFilter carrierCallScreeningServiceFilter =
                 new CallScreeningServiceFilter(incomingCall, carrierPackageName,
                         CallScreeningServiceFilter.PACKAGE_TYPE_CARRIER, mContext, this,
@@ -734,6 +737,7 @@ public class CallsManager extends Call.ListenerBase
                     mContext, this, appLabelProxy, converter);
         }
         graph.addFilter(voicemailFilter);
+        graph.addFilter(dndCallFilter);
         graph.addFilter(blockCheckerFilter);
         graph.addFilter(carrierCallScreeningServiceFilter);
         graph.addFilter(callScreeningServiceFilter);
