@@ -346,30 +346,4 @@ public class CallTest extends TelecomTestCase {
         assertTrue(hasCallDirectionChanged[0]);
         assertTrue(call.isIncoming());
     }
-
-    @Test
-    public void testIsSuppressedByDoNotDisturbExtra() {
-        Call call = new Call(
-                "1", /* callId */
-                mContext,
-                mMockCallsManager,
-                mLock,
-                null /* ConnectionServiceRepository */,
-                mMockPhoneNumberUtilsAdapter,
-                TEST_ADDRESS,
-                null /* GatewayInfo */,
-                null /* connectionManagerPhoneAccountHandle */,
-                SIM_1_HANDLE,
-                Call.CALL_DIRECTION_UNDEFINED,
-                false /* shouldAttachToExistingConnection*/,
-                true /* isConference */,
-                mMockClockProxy,
-                mMockToastProxy);
-
-        assertFalse(call.wasDndCheckComputedForCall());
-        assertFalse(call.isCallSuppressedByDoNotDisturb());
-        call.setCallIsSuppressedByDoNotDisturb(true);
-        assertTrue(call.wasDndCheckComputedForCall());
-        assertTrue(call.isCallSuppressedByDoNotDisturb());
-    }
 }

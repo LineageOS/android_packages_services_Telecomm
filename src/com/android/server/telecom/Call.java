@@ -1279,27 +1279,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         return mSilentRingingRequested;
     }
 
-    public void setCallIsSuppressedByDoNotDisturb(boolean isCallSuppressed) {
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(android.telecom.Call.EXTRA_IS_SUPPRESSED_BY_DO_NOT_DISTURB,
-                isCallSuppressed);
-        putExtras(SOURCE_CONNECTION_SERVICE, bundle);
-    }
-
-    public boolean isCallSuppressedByDoNotDisturb() {
-        if (getExtras() == null) {
-            return false;
-        }
-        return getExtras().getBoolean(android.telecom.Call.EXTRA_IS_SUPPRESSED_BY_DO_NOT_DISTURB);
-    }
-
-    public boolean wasDndCheckComputedForCall() {
-        if (getExtras() == null) {
-            return false;
-        }
-        return getExtras().containsKey(android.telecom.Call.EXTRA_IS_SUPPRESSED_BY_DO_NOT_DISTURB);
-    }
-
     @VisibleForTesting
     public boolean isConference() {
         return mIsConference;
