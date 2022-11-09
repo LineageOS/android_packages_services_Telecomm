@@ -70,8 +70,10 @@ import com.android.server.telecom.settings.BlockedNumbersActivity;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 // TODO: Needed for move to system service: import com.android.internal.R;
 
@@ -208,11 +210,14 @@ public class TelecomServiceImpl {
                 }
                 synchronized (mLock) {
                     final UserHandle callingUserHandle = Binder.getCallingUserHandle();
+                    boolean hasCrossUserAccess = mContext.checkCallingOrSelfPermission(
+                            Manifest.permission.INTERACT_ACROSS_USERS)
+                            == PackageManager.PERMISSION_GRANTED;
                     long token = Binder.clearCallingIdentity();
                     try {
                         return new ParceledListSlice<>(
                                 mPhoneAccountRegistrar.getCallCapablePhoneAccounts(null,
-                                includeDisabledAccounts, callingUserHandle));
+                                includeDisabledAccounts, callingUserHandle, hasCrossUserAccess));
                     } catch (Exception e) {
                         Log.e(this, e, "getCallCapablePhoneAccounts");
                         throw e;
@@ -308,7 +313,7 @@ public class TelecomServiceImpl {
                     try {
                         return new ParceledListSlice<>(mPhoneAccountRegistrar
                                 .getCallCapablePhoneAccounts(uriScheme, false,
-                                callingUserHandle));
+                                callingUserHandle, false));
                     } catch (Exception e) {
                         Log.e(this, e, "getPhoneAccountsSupportingScheme %s", uriScheme);
                         throw e;
@@ -451,7 +456,7 @@ public class TelecomServiceImpl {
                     long token = Binder.clearCallingIdentity();
                     try {
                         return new ParceledListSlice<>(mPhoneAccountRegistrar
-                                .getAllPhoneAccounts(callingUserHandle));
+                                .getAllPhoneAccounts(callingUserHandle, false));
                     } catch (Exception e) {
                         Log.e(this, e, "getAllPhoneAccounts");
                         throw e;
@@ -479,10 +484,13 @@ public class TelecomServiceImpl {
 
                 synchronized (mLock) {
                     final UserHandle callingUserHandle = Binder.getCallingUserHandle();
+                    boolean hasCrossUserAccess = mContext.checkCallingOrSelfPermission(
+                            Manifest.permission.INTERACT_ACROSS_USERS)
+                            == PackageManager.PERMISSION_GRANTED;
                     long token = Binder.clearCallingIdentity();
                     try {
                         return new ParceledListSlice<>(mPhoneAccountRegistrar
-                                .getAllPhoneAccountHandles(callingUserHandle));
+                                .getAllPhoneAccountHandles(callingUserHandle, hasCrossUserAccess));
                     } catch (Exception e) {
                         Log.e(this, e, "getAllPhoneAccounts");
                         throw e;
@@ -777,12 +785,13 @@ public class TelecomServiceImpl {
                 Log.startSession("TSI.sR", Log.getPackageAbbreviation(callingPackage));
                 synchronized (mLock) {
                     enforcePermissionOrPrivilegedDialer(MODIFY_PHONE_STATE, callingPackage);
-
+                    UserHandle callingUserHandle = Binder.getCallingUserHandle();
                     long token = Binder.clearCallingIdentity();
                     try {
                         Log.i(this, "Silence Ringer requested by %s", callingPackage);
-                        mCallsManager.getCallAudioManager().silenceRingers();
-                        mCallsManager.getInCallController().silenceRinger();
+                        Set<UserHandle> userHandles = mCallsManager.getCallAudioManager().
+                                silenceRingers(mContext, callingUserHandle);
+                        mCallsManager.getInCallController().silenceRinger(userHandles);
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
@@ -1139,9 +1148,10 @@ public class TelecomServiceImpl {
 
                 synchronized (mLock) {
 
+                    UserHandle callingUser = Binder.getCallingUserHandle();
                     long token = Binder.clearCallingIdentity();
                     try {
-                        mCallsManager.getInCallController().bringToForeground(showDialpad);
+                        mCallsManager.getInCallController().bringToForeground(showDialpad, callingUser);
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
@@ -1339,7 +1349,7 @@ public class TelecomServiceImpl {
                             // Make sure it doesn't cross the UserHandle boundary
                             enforceUserHandleMatchesCaller(phoneAccountHandle);
                             enforcePhoneAccountIsRegisteredEnabled(phoneAccountHandle,
-                                    Binder.getCallingUserHandle());
+                                    phoneAccountHandle.getUserHandle());
                             if (isSelfManagedConnectionService(phoneAccountHandle)) {
                                 // Self-managed phone account, ensure it has MANAGE_OWN_CALLS.
                                 mContext.enforceCallingOrSelfPermission(
@@ -1950,14 +1960,18 @@ public class TelecomServiceImpl {
                 synchronized (mLock) {
                     enforceShellOnly(Binder.getCallingUid(), "cleanupStuckCalls");
                     Binder.withCleanCallingIdentity(() -> {
+                        Set<UserHandle> userHandles = new HashSet<>();
                         for (Call call : mCallsManager.getCalls()) {
                             call.cleanup();
                             if (call.getState() == CallState.DISCONNECTED
                                     || call.getState() == CallState.DISCONNECTING) {
                                 mCallsManager.markCallAsRemoved(call);
                             }
+                            userHandles.add(call.getUserHandleFromTargetPhoneAccount());
                         }
-                        mCallsManager.getInCallController().unbindFromServices();
+                        for (UserHandle userHandle : userHandles) {
+                            mCallsManager.getInCallController().unbindFromServices(userHandle);
+                        }
                     });
                 }
             } finally {
