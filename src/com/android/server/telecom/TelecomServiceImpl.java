@@ -2525,9 +2525,7 @@ public class TelecomServiceImpl {
 
     private void enforceUserHandleMatchesCaller(PhoneAccountHandle accountHandle) {
         if (!Binder.getCallingUserHandle().equals(accountHandle.getUserHandle())) {
-            // Enforce INTERACT_ACROSS_USERS if the calling user handle does not match
-            // phoen account's user handle
-            enforceInAppCrossUserPermission();
+            throw new SecurityException("Calling UserHandle does not match PhoneAccountHandle's");
         }
     }
 
@@ -2544,12 +2542,6 @@ public class TelecomServiceImpl {
                     android.Manifest.permission.INTERACT_ACROSS_USERS_FULL, "Must be system or have"
                             + " INTERACT_ACROSS_USERS_FULL permission");
         }
-    }
-
-    private void enforceInAppCrossUserPermission() {
-        mContext.enforceCallingOrSelfPermission(
-                android.Manifest.permission.INTERACT_ACROSS_USERS, "Must be system or have"
-                        + " INTERACT_ACROSS_USERS permission");
     }
 
     // to be used for TestApi methods that can only be called with SHELL UID.
