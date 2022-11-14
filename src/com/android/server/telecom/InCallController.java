@@ -2151,15 +2151,31 @@ public class InCallController extends CallsManagerListenerBase implements
         return childCalls;
     }
 
-    private ParcelableCall sanitizeParcelableCallForService(
+    @VisibleForTesting
+    public ParcelableCall sanitizeParcelableCallForService(
             InCallServiceInfo info, ParcelableCall parcelableCall) {
         ParcelableCall.ParcelableCallBuilder builder =
                 ParcelableCall.ParcelableCallBuilder.fromParcelableCall(parcelableCall);
-        // Check for contacts permission. If it's not there, remove the contactsDisplayName.
         PackageManager pm = mContext.getPackageManager();
+
+        // Check for contacts permission.
         if (pm.checkPermission(Manifest.permission.READ_CONTACTS,
                 info.getComponentName().getPackageName()) != PackageManager.PERMISSION_GRANTED) {
+            // contacts permission is not present...
+
+            // removing the contactsDisplayName
             builder.setContactDisplayName(null);
+
+            // removing the Call.EXTRA_IS_SUPPRESSED_BY_DO_NOT_DISTURB extra
+            if (parcelableCall.getExtras() != null) {
+                Bundle callBundle = parcelableCall.getExtras();
+                if (callBundle.containsKey(
+                        android.telecom.Call.EXTRA_IS_SUPPRESSED_BY_DO_NOT_DISTURB)) {
+                    Bundle newBundle = callBundle.deepCopy();
+                    newBundle.remove(android.telecom.Call.EXTRA_IS_SUPPRESSED_BY_DO_NOT_DISTURB);
+                    builder.setExtras(newBundle);
+                }
+            }
         }
 
         // TODO: move all the other service-specific sanitizations in here

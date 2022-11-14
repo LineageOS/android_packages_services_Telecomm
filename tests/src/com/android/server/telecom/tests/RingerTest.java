@@ -43,6 +43,7 @@ import android.os.Parcel;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.permission.PermissionCheckerManager;
 import android.telecom.TelecomManager;
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -68,9 +69,11 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -136,6 +139,7 @@ public class RingerTest extends TelecomTestCase {
     @Mock InCallTonePlayer mockTonePlayer;
     @Mock Call mockCall1;
     @Mock Call mockCall2;
+    @Mock NotificationManager mNotificationManager;
 
     Ringer mRingerUnderTest;
     AudioManager mockAudioManager;
@@ -153,6 +157,8 @@ public class RingerTest extends TelecomTestCase {
         when(mockPlayerFactory.createPlayer(anyInt())).thenReturn(mockTonePlayer);
         mockAudioManager =
                 (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+        mNotificationManager = mContext.getSystemService(NotificationManager.class);
+
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_NORMAL);
         when(mockSystemSettingsUtil.isHapticPlaybackSupported(any(Context.class))).thenReturn(true);
         NotificationManager notificationManager =
@@ -162,7 +168,7 @@ public class RingerTest extends TelecomTestCase {
         when(mockRingtoneFactory.hasHapticChannels(any(Ringtone.class))).thenReturn(false);
         mRingerUnderTest = new Ringer(mockPlayerFactory, mContext, mockSystemSettingsUtil,
                 mockRingtonePlayer, mockRingtoneFactory, mockVibrator, spyVibrationEffectProxy,
-                mockInCallController);
+                mockInCallController, notificationManager);
         when(mockCall1.getState()).thenReturn(CallState.RINGING);
         when(mockCall2.getState()).thenReturn(CallState.RINGING);
         mRingerUnderTest.setBlockOnRingingFuture(mRingCompletionFuture);
@@ -479,6 +485,44 @@ public class RingerTest extends TelecomTestCase {
             .thenReturn(mockRingtone);
         when(mockRingtoneFactory.getHapticOnlyRingtone()).thenReturn(mockRingtone);
         return mockRingtone;
+    }
+
+    /**
+     * assert {@link Ringer#shouldRingForContact(Call, Context) } sets the Call object with suppress
+     * caller
+     *
+     * @throws Exception; should not throw exception.
+     */
+    @Test
+    public void testShouldRingForContact_CallSuppressed() throws Exception {
+        // WHEN
+        when(mockCall1.wasDndCheckComputedForCall()).thenReturn(false);
+        when(mockCall1.getHandle()).thenReturn(Uri.parse(""));
+
+        when(mContext.getSystemService(NotificationManager.class)).thenReturn(mNotificationManager);
+        when(mNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(false);
+
+        // THEN
+        assertFalse(mRingerUnderTest.shouldRingForContact(mockCall1));
+        verify(mockCall1, atLeastOnce()).setCallIsSuppressedByDoNotDisturb(true);
+    }
+
+    /**
+     * assert {@link Ringer#shouldRingForContact(Call, Context) } sets the Call object with ring
+     * caller
+     *
+     * @throws Exception; should not throw exception.
+     */
+    @Test
+    public void testShouldRingForContact_CallShouldRing() throws Exception {
+        // WHEN
+        when(mockCall1.wasDndCheckComputedForCall()).thenReturn(false);
+        when(mockCall1.getHandle()).thenReturn(Uri.parse(""));
+        when(mNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
+
+        // THEN
+        assertTrue(mRingerUnderTest.shouldRingForContact(mockCall1));
+        verify(mockCall1, atLeastOnce()).setCallIsSuppressedByDoNotDisturb(false);
     }
 
     private void ensureRingerIsAudible() {
