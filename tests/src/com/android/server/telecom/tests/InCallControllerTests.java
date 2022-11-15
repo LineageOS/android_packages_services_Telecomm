@@ -35,6 +35,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -95,6 +96,7 @@ import com.android.server.telecom.ClockProxy;
 import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.EmergencyCallHelper;
 import com.android.server.telecom.InCallController;
+import com.android.server.telecom.ParcelableCallUtils;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.R;
 import com.android.server.telecom.RoleManagerAdapter;
@@ -112,6 +114,7 @@ import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.MockitoSession;
 import org.mockito.invocation.InvocationOnMock;
@@ -144,6 +147,7 @@ public class InCallControllerTests extends TelecomTestCase {
     @Mock Analytics.CallInfoImpl mCallInfo;
     @Mock NotificationManager mNotificationManager;
     @Mock PermissionInfo mMockPermissionInfo;
+    @Mock InCallController.InCallServiceInfo mInCallServiceInfo;
 
     @Rule
     public TestRule compatChangeRule = new PlatformCompatChangeRule();
@@ -1282,6 +1286,59 @@ public class InCallControllerTests extends TelecomTestCase {
 
         // We should not have gotten informed about any calls
         verify(mockInCallService, never()).addCall(any(ParcelableCall.class));
+    }
+
+    @Test
+    public void testSanitizeDndExtraFromParcelableCall() throws Exception {
+        setupMocks(false /* isExternalCall */);
+        setupMockPackageManager(true /* default */, true /* system */, true /* external calls */);
+        when(mMockPackageManager.checkPermission(
+                matches(Manifest.permission.READ_CONTACTS),
+                matches(DEF_PKG))).thenReturn(PackageManager.PERMISSION_DENIED);
+
+        when(mMockCall.getExtras()).thenReturn(null);
+        ParcelableCall parcelableCallNullExtras = Mockito.spy(
+                ParcelableCallUtils.toParcelableCall(mMockCall,
+                        false /* includevideoProvider */,
+                        null /* phoneAccountRegistrar */,
+                        false /* supportsExternalCalls */,
+                        false /* includeRttCall */,
+                        false /* isForSystemDialer */));
+
+        when(parcelableCallNullExtras.getExtras()).thenReturn(null);
+        assertNull(parcelableCallNullExtras.getExtras());
+        when(mInCallServiceInfo.getComponentName())
+                .thenReturn(new ComponentName(DEF_PKG, DEF_CLASS));
+        // ensure sanitizeParcelableCallForService does not hit a NPE when Null extras are provided
+        mInCallController.sanitizeParcelableCallForService(mInCallServiceInfo,
+                parcelableCallNullExtras);
+
+
+        Bundle extras = new Bundle();
+        extras.putBoolean(android.telecom.Call.EXTRA_IS_SUPPRESSED_BY_DO_NOT_DISTURB, true);
+        when(mMockCall.getExtras()).thenReturn(extras);
+
+        ParcelableCall parcelableCallWithExtras = ParcelableCallUtils.toParcelableCall(mMockCall,
+                false /* includevideoProvider */,
+                null /* phoneAccountRegistrar */,
+                false /* supportsExternalCalls */,
+                false /* includeRttCall */,
+                false /* isForSystemDialer */);
+
+        // ensure sanitizeParcelableCallForService sanitizes the
+        // EXTRA_IS_SUPPRESSED_BY_DO_NOT_DISTURB from a ParcelableCall
+        // w/o  Manifest.permission.READ_CONTACTS
+        ParcelableCall sanitizedCall =
+                mInCallController.sanitizeParcelableCallForService(mInCallServiceInfo,
+                        parcelableCallWithExtras);
+
+        // sanitized call should not have the extra
+        assertFalse(sanitizedCall.getExtras().containsKey(
+                android.telecom.Call.EXTRA_IS_SUPPRESSED_BY_DO_NOT_DISTURB));
+
+        // root ParcelableCall should still have the extra
+        assertTrue(parcelableCallWithExtras.getExtras().containsKey(
+                android.telecom.Call.EXTRA_IS_SUPPRESSED_BY_DO_NOT_DISTURB));
     }
 
     private void setupMocks(boolean isExternalCall) {

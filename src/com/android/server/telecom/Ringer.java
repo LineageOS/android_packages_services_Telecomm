@@ -159,6 +159,7 @@ public class Ringer {
     private InCallTonePlayer mCallWaitingPlayer;
     private RingtoneFactory mRingtoneFactory;
     private AudioManager mAudioManager;
+    private NotificationManager mNotificationManager;
 
     /**
      * Call objects that are ringing, vibrating or call-waiting. These are used only for logging
@@ -191,7 +192,8 @@ public class Ringer {
             RingtoneFactory ringtoneFactory,
             Vibrator vibrator,
             VibrationEffectProxy vibrationEffectProxy,
-            InCallController inCallController) {
+            InCallController inCallController,
+            NotificationManager notificationManager) {
 
         mLock = new Object();
         mSystemSettingsUtil = systemSettingsUtil;
@@ -204,6 +206,7 @@ public class Ringer {
         mRingtoneFactory = ringtoneFactory;
         mInCallController = inCallController;
         mVibrationEffectProxy = vibrationEffectProxy;
+        mNotificationManager = notificationManager;
 
         if (mContext.getResources().getBoolean(R.bool.use_simple_vibration_pattern)) {
             mDefaultVibrationEffect = mVibrationEffectProxy.createWaveform(SIMPLE_VIBRATION_PATTERN,
@@ -222,6 +225,11 @@ public class Ringer {
     @VisibleForTesting
     public void setBlockOnRingingFuture(CompletableFuture<Void> future) {
         mBlockOnRingingFuture = future;
+    }
+
+    @VisibleForTesting
+    public void setNotificationManager(NotificationManager notificationManager) {
+        mNotificationManager = notificationManager;
     }
 
     public boolean startRinging(Call foregroundCall, boolean isHfpDeviceAttached) {
@@ -523,16 +531,35 @@ public class Ringer {
         return mRingtonePlayer.isPlaying();
     }
 
-    private boolean shouldRingForContact(Uri contactUri) {
-        final NotificationManager manager =
-                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+
+    /**
+     * shouldRingForContact checks if the caller matches one of the Do Not Disturb bypass
+     * settings (ex. A contact or repeat caller might be able to bypass DND settings). If
+     * matchesCallFilter returns true, this means the caller can bypass the Do Not Disturb settings
+     * and interrupt the user; otherwise call is suppressed.
+     */
+    public boolean shouldRingForContact(Call call) {
+        // avoid re-computing manager.matcherCallFilter(Bundle)
+        if (call.wasDndCheckComputedForCall()) {
+            Log.v(this, "shouldRingForContact: returning computation from DndCallFilter.");
+            return !call.isCallSuppressedByDoNotDisturb();
+        }
+
+        final Uri contactUri = call.getHandle();
+
         final Bundle peopleExtras = new Bundle();
         if (contactUri != null) {
             ArrayList<Person> personList = new ArrayList<>();
             personList.add(new Person.Builder().setUri(contactUri.toString()).build());
             peopleExtras.putParcelableArrayList(Notification.EXTRA_PEOPLE_LIST, personList);
         }
-        return manager.matchesCallFilter(peopleExtras);
+
+        // query NotificationManager
+        boolean shouldRing = mNotificationManager.matchesCallFilter(peopleExtras);
+        // store the suppressed status in the call object
+        call.setCallIsSuppressedByDoNotDisturb(!shouldRing);
+
+        return shouldRing;
     }
 
     private boolean hasExternalRinger(Call foregroundCall) {
@@ -562,7 +589,7 @@ public class Ringer {
 
         boolean isVolumeOverZero = mAudioManager.getStreamVolume(AudioManager.STREAM_RING) > 0;
         timer.record("isVolumeOverZero");
-        boolean shouldRingForContact = shouldRingForContact(call.getHandle());
+        boolean shouldRingForContact = shouldRingForContact(call);
         timer.record("shouldRingForContact");
         boolean isSelfManaged = call.isSelfManaged();
         timer.record("isSelfManaged");
