@@ -168,6 +168,8 @@ public class LogUtils {
         public static final String DIRECT_TO_VM_INITIATED = "DIRECT_TO_VM_INITIATED";
         public static final String DIRECT_TO_VM_FINISHED = "DIRECT_TO_VM_FINISHED";
         public static final String FILTERING_INITIATED = "FILTERING_INITIATED";
+        public static final String DND_PRE_CHECK_INITIATED = "DND_PRE_CHECK_INITIATED";
+        public static final String DND_PRE_CHECK_COMPLETED = "DND_PRE_CHECK_COMPLETED";
         public static final String FILTERING_COMPLETED = "FILTERING_COMPLETED";
         public static final String FILTERING_TIMED_OUT = "FILTERING_TIMED_OUT";
         public static final String REMOTELY_HELD = "REMOTELY_HELD";
@@ -222,6 +224,7 @@ public class LogUtils {
             public static final String DIRECT_TO_VM_FINISHED_TIMING = "direct_to_vm_finished";
             public static final String BLOCK_CHECK_FINISHED_TIMING = "block_check_finished";
             public static final String FILTERING_COMPLETED_TIMING = "filtering_completed";
+            public static final String DND_PRE_CHECK_COMPLETED_TIMING = "dnd_pre_check_completed";
             public static final String FILTERING_TIMED_OUT_TIMING = "filtering_timed_out";
             public static final String START_CONNECTION_TO_REQUEST_DISCONNECT_TIMING =
                     "start_connection_to_request_disconnect";
@@ -243,6 +246,8 @@ public class LogUtils {
                             BLOCK_CHECK_FINISHED_TIMING),
                     new TimedEventPair(FILTERING_INITIATED, FILTERING_COMPLETED,
                             FILTERING_COMPLETED_TIMING),
+                    new TimedEventPair(DND_PRE_CHECK_INITIATED, DND_PRE_CHECK_COMPLETED,
+                            DND_PRE_CHECK_COMPLETED_TIMING),
                     new TimedEventPair(FILTERING_INITIATED, FILTERING_TIMED_OUT,
                             FILTERING_TIMED_OUT_TIMING, 6000L),
                     new TimedEventPair(START_CONNECTION, REQUEST_DISCONNECT,
