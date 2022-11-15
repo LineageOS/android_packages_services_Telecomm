@@ -1046,7 +1046,6 @@ public class TelecomServiceImpl {
         private boolean isPrivilegedUid(String callingPackage) {
             int callingUid = Binder.getCallingUid();
             boolean isPrivileged = false;
-
             switch (callingUid) {
                 case Process.ROOT_UID:
                 case Process.SYSTEM_UID:
@@ -1054,10 +1053,6 @@ public class TelecomServiceImpl {
                     isPrivileged = true;
                     break;
             }
-
-            Log.i(this, "isPrivilegedUid: callingPackage=[%s], callingUid=[%d], isPrivileged=[%b]",
-                    callingPackage, callingUid, isPrivileged);
-
             return isPrivileged;
         }
 
@@ -2443,9 +2438,16 @@ public class TelecomServiceImpl {
     private boolean callingUidMatchesPackageManagerRecords(String packageName) {
         int packageUid = -1;
         int callingUid = Binder.getCallingUid();
-        PackageManager pm = mContext.createContextAsUser(
-                UserHandle.getUserHandleForUid(callingUid), 0).getPackageManager();
-
+        PackageManager pm;
+        try{
+            pm = mContext.createContextAsUser(
+                    UserHandle.getUserHandleForUid(callingUid), 0).getPackageManager();
+        }
+        catch (Exception e){
+            Log.i(this, "callingUidMatchesPackageManagerRecords:"
+                            + " createContextAsUser hit exception=[%s]", e.toString());
+            return false;
+        }
         if (pm != null) {
             try {
                 packageUid = pm.getPackageUid(packageName, 0);
