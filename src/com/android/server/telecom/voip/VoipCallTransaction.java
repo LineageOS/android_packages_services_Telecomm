@@ -1,0 +1,99 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.server.telecom.voip;
+
+import android.os.Handler;
+import android.os.HandlerThread;
+
+import com.android.server.telecom.LoggedHandlerExecutor;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+
+public class VoipCallTransaction {
+    //TODO: add log events
+    protected static final long TIMEOUT_LIMIT = 5000L;
+    protected final AtomicBoolean mCompleted = new AtomicBoolean(false);
+    protected String mTransactionName = this.getClass().getSimpleName();
+    private HandlerThread mHandlerThread;
+    protected Handler mHandler;
+    protected TransactionManager.TransactionCompleteListener mCompleteListener;
+    protected List<VoipCallTransaction> mSubTransactions;
+
+    public VoipCallTransaction(
+            List<VoipCallTransaction> subTransactions) {
+        mSubTransactions = subTransactions;
+        mHandlerThread = new HandlerThread(this.toString());
+        mHandlerThread.start();
+        mHandler = new Handler(mHandlerThread.getLooper());
+    }
+
+    public VoipCallTransaction() {
+        this(null /** mSubTransactions */);
+    }
+
+    public void start() {
+        // post timeout work
+        mHandler.postDelayed(() -> {
+            if (mCompleted.getAndSet(true)) {
+                return;
+            }
+            if (mCompleteListener != null) {
+                mCompleteListener.onTransactionTimeout(mTransactionName);
+            }
+            finish();
+        }, TIMEOUT_LIMIT);
+
+        scheduleTransaction();
+    }
+
+    protected void scheduleTransaction() {
+        CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
+        future.thenComposeAsync(this::processTransaction,
+                        new LoggedHandlerExecutor(mHandler, mTransactionName + "@"
+                                + hashCode() + ".pT", null))
+                .thenApplyAsync(
+                        (Function<VoipCallTransactionResult, Void>) result -> {
+                            mCompleted.set(true);
+                            if (mCompleteListener != null) {
+                                mCompleteListener.onTransactionCompleted(result, mTransactionName);
+                            }
+                            finish();
+                            return null;
+                        });
+    }
+
+    public CompletionStage<VoipCallTransactionResult> processTransaction(Void v) {
+        return CompletableFuture.completedFuture(
+                new VoipCallTransactionResult(VoipCallTransactionResult.RESULT_SUCCEED, null));
+    }
+
+    public void setCompleteListener(TransactionManager.TransactionCompleteListener listener) {
+        mCompleteListener = listener;
+    }
+
+    public void finish() {
+        // finish all sub transactions
+        if (mSubTransactions != null && mSubTransactions.size() > 0) {
+            mSubTransactions.forEach(VoipCallTransaction::finish);
+        }
+        mHandlerThread.quit();
+    }
+}
