@@ -1046,7 +1046,6 @@ public class TelecomServiceImpl {
         private boolean isPrivilegedUid(String callingPackage) {
             int callingUid = Binder.getCallingUid();
             boolean isPrivileged = false;
-
             switch (callingUid) {
                 case Process.ROOT_UID:
                 case Process.SYSTEM_UID:
@@ -1054,10 +1053,6 @@ public class TelecomServiceImpl {
                     isPrivileged = true;
                     break;
             }
-
-            Log.i(this, "isPrivilegedUid: callingPackage=[%s], callingUid=[%d], isPrivileged=[%b]",
-                    callingPackage, callingUid, isPrivileged);
-
             return isPrivileged;
         }
 
@@ -2443,9 +2438,16 @@ public class TelecomServiceImpl {
     private boolean callingUidMatchesPackageManagerRecords(String packageName) {
         int packageUid = -1;
         int callingUid = Binder.getCallingUid();
-        PackageManager pm = mContext.createContextAsUser(
-                UserHandle.getUserHandleForUid(callingUid), 0).getPackageManager();
-
+        PackageManager pm;
+        try{
+            pm = mContext.createContextAsUser(
+                    UserHandle.getUserHandleForUid(callingUid), 0).getPackageManager();
+        }
+        catch (Exception e){
+            Log.i(this, "callingUidMatchesPackageManagerRecords:"
+                            + " createContextAsUser hit exception=[%s]", e.toString());
+            return false;
+        }
         if (pm != null) {
             try {
                 packageUid = pm.getPackageUid(packageName, 0);
@@ -2525,7 +2527,9 @@ public class TelecomServiceImpl {
 
     private void enforceUserHandleMatchesCaller(PhoneAccountHandle accountHandle) {
         if (!Binder.getCallingUserHandle().equals(accountHandle.getUserHandle())) {
-            throw new SecurityException("Calling UserHandle does not match PhoneAccountHandle's");
+            // Enforce INTERACT_ACROSS_USERS if the calling user handle does not match
+            // phone account's user handle
+            enforceInAppCrossUserPermission();
         }
     }
 
@@ -2542,6 +2546,12 @@ public class TelecomServiceImpl {
                     android.Manifest.permission.INTERACT_ACROSS_USERS_FULL, "Must be system or have"
                             + " INTERACT_ACROSS_USERS_FULL permission");
         }
+    }
+
+    private void enforceInAppCrossUserPermission() {
+        mContext.enforceCallingOrSelfPermission(
+                android.Manifest.permission.INTERACT_ACROSS_USERS, "Must be system or have"
+                        + " INTERACT_ACROSS_USERS permission");
     }
 
     // to be used for TestApi methods that can only be called with SHELL UID.
