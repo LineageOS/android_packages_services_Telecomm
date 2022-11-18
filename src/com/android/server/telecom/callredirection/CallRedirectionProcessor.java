@@ -357,7 +357,8 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
     private void performUserDefinedCallRedirection(UserHandle userHandleForCallRedirection) {
         Log.d(this, "performUserDefinedCallRedirection");
         ComponentName componentName =
-                mCallRedirectionProcessorHelper.getUserDefinedCallRedirectionService();
+                mCallRedirectionProcessorHelper.
+                        getUserDefinedCallRedirectionService(userHandleForCallRedirection);
         if (componentName != null) {
             mAttempt = new CallRedirectionAttempt(componentName, SERVICE_TYPE_USER_DEFINED);
             mAttempt.process(userHandleForCallRedirection);
@@ -418,18 +419,22 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
     }
 
     /**
-     * Checks if Telecom can make call redirection with any available call redirection service.
+     * Checks if Telecom can make call redirection with any available call redirection service
+     * as the specified user.
      *
      * @return {@code true} if it can; {@code false} otherwise.
      */
-    public boolean canMakeCallRedirectionWithService() {
-        boolean canMakeCallRedirectionWithService =
-                mCallRedirectionProcessorHelper.getUserDefinedCallRedirectionService() != null
+    public boolean canMakeCallRedirectionWithServiceAsUser(
+            UserHandle userHandleForCallRedirection) {
+        boolean canMakeCallRedirectionWithServiceAsUser =
+                mCallRedirectionProcessorHelper
+                        .getUserDefinedCallRedirectionService(userHandleForCallRedirection) != null
                         || mCallRedirectionProcessorHelper.getCarrierCallRedirectionService(
                                 mPhoneAccountHandle) != null;
-        Log.i(this, "Can make call redirection with any available service: "
-                + canMakeCallRedirectionWithService);
-        return canMakeCallRedirectionWithService;
+        Log.i(this, "Can make call redirection with any "
+                + "available service as user (" + userHandleForCallRedirection
+                + ") : " + canMakeCallRedirectionWithServiceAsUser);
+        return canMakeCallRedirectionWithServiceAsUser;
     }
 
     /**

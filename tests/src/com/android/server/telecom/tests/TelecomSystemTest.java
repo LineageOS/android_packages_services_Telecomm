@@ -474,7 +474,8 @@ public class TelecomSystemTest extends TelecomTestCase {
         when(mClockProxy.currentTimeMillis()).thenReturn(TEST_CREATE_TIME);
         when(mClockProxy.elapsedRealtime()).thenReturn(TEST_CREATE_ELAPSED_TIME);
         when(mRoleManagerAdapter.getCallCompanionApps()).thenReturn(Collections.emptyList());
-        when(mRoleManagerAdapter.getDefaultCallScreeningApp()).thenReturn(null);
+        when(mRoleManagerAdapter.getDefaultCallScreeningApp(any(UserHandle.class)))
+                .thenReturn(null);
         mTelecomSystem = new TelecomSystem(
                 mComponentContextFixture.getTestDouble(),
                 (context, phoneAccountRegistrar, defaultDialerCache, mDeviceIdleControllerAdapter)
