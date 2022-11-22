@@ -2170,6 +2170,7 @@ public class InCallController extends CallsManagerListenerBase implements
 
             // removing the contactsDisplayName
             builder.setContactDisplayName(null);
+            builder.setContactPhotoUri(null);
 
             // removing the Call.EXTRA_IS_SUPPRESSED_BY_DO_NOT_DISTURB extra
             if (parcelableCall.getExtras() != null) {
