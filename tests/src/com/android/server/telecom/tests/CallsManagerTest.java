@@ -1713,6 +1713,7 @@ public class CallsManagerTest extends TelecomTestCase {
                 new UserHandle(90210)));
     }
 
+<<<<<<< TARGET BRANCH (d96a24 Merge "Fix hearing aid device audio route switch issue.")
     /**
      * Verifies that if a {@link android.telecom.CallScreeningService} app can properly request
      * notification show for rejected calls.
@@ -1750,6 +1751,8 @@ public class CallsManagerTest extends TelecomTestCase {
         assertEquals(CallState.DISCONNECTED, newCall.getState());
     }
 
+=======
+>>>>>>> SOURCE BRANCH (c1a8b0 Fix security vulnerability issue for multi user call redirec)
     @SmallTest
     @Test
     public void testCrossUserCallRedirectionEndEarlyForIncapablePhoneAccount() {
