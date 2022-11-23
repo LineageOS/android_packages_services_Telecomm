@@ -805,6 +805,11 @@ public class InCallController extends CallsManagerListenerBase implements
             updateCall(call);
         }
 
+        @Override
+        public void onCallerInfoChanged(Call call) {
+            updateCall(call);
+        }
+
         /**
          * Listens for changes to extras reported by a Telecom {@link Call}.
          *
@@ -2165,6 +2170,7 @@ public class InCallController extends CallsManagerListenerBase implements
 
             // removing the contactsDisplayName
             builder.setContactDisplayName(null);
+            builder.setContactPhotoUri(null);
 
             // removing the Call.EXTRA_IS_SUPPRESSED_BY_DO_NOT_DISTURB extra
             if (parcelableCall.getExtras() != null) {
