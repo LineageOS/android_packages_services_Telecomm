@@ -2121,11 +2121,7 @@ public class CallsManager extends Call.ListenerBase
                 && !phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_MULTI_USER)) {
             // Check if the phoneAccountHandle belongs to the current user
             if (phoneAccountHandle != null &&
-<<<<<<< TARGET BRANCH (d96a24 Merge "Fix hearing aid device audio route switch issue.")
                     !phoneAccountHandle.getUserHandle().equals(mCurrentUserHandle)) {
-=======
-                    !phoneAccountHandle.getUserHandle().equals(call.getInitiatingUser())) {
->>>>>>> SOURCE BRANCH (c1a8b0 Fix security vulnerability issue for multi user call redirec)
                 phoneAccountHandle = null;
             }
         }
@@ -2166,11 +2162,7 @@ public class CallsManager extends Call.ListenerBase
             Log.w(this, "onCallRedirectionComplete: phoneAccountHandle is unavailable");
             endEarly = true;
             disconnectReason = "Unavailable phoneAccountHandle from Call Redirection Service";
-<<<<<<< TARGET BRANCH (d96a24 Merge "Fix hearing aid device audio route switch issue.")
         } else if (isEmergencyNumber) {
-=======
-        } else if (isPotentialEmergencyNumber) {
->>>>>>> SOURCE BRANCH (c1a8b0 Fix security vulnerability issue for multi user call redirec)
             Log.w(this, "onCallRedirectionComplete: emergency number %s is redirected from Call"
                     + " Redirection Service", handle.getSchemeSpecificPart());
             endEarly = true;
