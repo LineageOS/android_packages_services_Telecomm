@@ -2091,6 +2091,16 @@ public class CallsManager extends Call.ListenerBase
         boolean endEarly = false;
         String disconnectReason = "";
         String callRedirectionApp = mRoleManagerAdapter.getDefaultCallRedirectionApp();
+        PhoneAccount phoneAccount = mPhoneAccountRegistrar
+                .getPhoneAccountUnchecked(phoneAccountHandle);
+        if (phoneAccount != null
+                && !phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_MULTI_USER)) {
+            // Check if the phoneAccountHandle belongs to the current user
+            if (phoneAccountHandle != null &&
+                    !phoneAccountHandle.getUserHandle().equals(call.getInitiatingUser())) {
+                phoneAccountHandle = null;
+            }
+        }
 
         boolean isPotentialEmergencyNumber;
         try {
@@ -2125,9 +2135,9 @@ public class CallsManager extends Call.ListenerBase
             endEarly = true;
             disconnectReason = "Null handle from Call Redirection Service";
         } else if (phoneAccountHandle == null) {
-            Log.w(this, "onCallRedirectionComplete: phoneAccountHandle is null");
+            Log.w(this, "onCallRedirectionComplete: phoneAccountHandle is unavailable");
             endEarly = true;
-            disconnectReason = "Null phoneAccountHandle from Call Redirection Service";
+            disconnectReason = "Unavailable phoneAccountHandle from Call Redirection Service";
         } else if (isPotentialEmergencyNumber) {
             Log.w(this, "onCallRedirectionComplete: emergency number %s is redirected from Call"
                     + " Redirection Service", handle.getSchemeSpecificPart());
@@ -2148,6 +2158,7 @@ public class CallsManager extends Call.ListenerBase
             return;
         }
 
+        final PhoneAccountHandle finalPhoneAccountHandle = phoneAccountHandle;
         if (uiAction.equals(CallRedirectionProcessor.UI_TYPE_USER_DEFINED_ASK_FOR_CONFIRM)) {
             Log.addEvent(call, LogUtils.Events.REDIRECTION_USER_CONFIRMATION);
             mPendingRedirectedOutgoingCall = call;
@@ -2157,7 +2168,7 @@ public class CallsManager extends Call.ListenerBase
                         @Override
                         public void loggedRun() {
                             Log.addEvent(call, LogUtils.Events.REDIRECTION_USER_CONFIRMED);
-                            call.setTargetPhoneAccount(phoneAccountHandle);
+                            call.setTargetPhoneAccount(finalPhoneAccountHandle);
                             placeOutgoingCall(call, handle, gatewayInfo, speakerphoneOn,
                                     videoState);
                         }
@@ -2167,7 +2178,7 @@ public class CallsManager extends Call.ListenerBase
                     new Runnable("CM.oCRC", mLock) {
                         @Override
                         public void loggedRun() {
-                            call.setTargetPhoneAccount(phoneAccountHandle);
+                            call.setTargetPhoneAccount(finalPhoneAccountHandle);
                             placeOutgoingCall(call, handle, null, speakerphoneOn,
                                     videoState);
                         }
