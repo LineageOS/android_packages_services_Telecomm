@@ -405,11 +405,25 @@ public class InCallController extends CallsManagerListenerBase implements
         }
 
         protected void onDisconnected() {
+            boolean shouldReconnect = mIsConnected;
             InCallController.this.onDisconnected(mInCallServiceInfo);
             disconnect();  // Unbind explicitly if we get disconnected.
             if (mListener != null) {
                 mListener.onDisconnect(InCallServiceBindingConnection.this, mCall);
             }
+            // Check if we are expected to reconnect
+            if (shouldReconnect && shouldHandleReconnect()) {
+                connect(mCall);  // reconnect
+            }
+        }
+
+        private boolean shouldHandleReconnect() {
+            int serviceType = mInCallServiceInfo.getType();
+            boolean nonUI = (serviceType == IN_CALL_SERVICE_TYPE_NON_UI)
+                    || (serviceType == IN_CALL_SERVICE_TYPE_COMPANION);
+            boolean carModeUI = (serviceType == IN_CALL_SERVICE_TYPE_CAR_MODE_UI);
+
+            return carModeUI || (nonUI && !mIsNullBinding);
         }
     }
 
