@@ -72,6 +72,8 @@ import com.android.server.telecom.Call;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioRouteStateMachine;
+import com.android.server.telecom.CallEndpointController;
+import com.android.server.telecom.CallEndpointControllerFactory;
 import com.android.server.telecom.CallDiagnosticServiceController;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallerInfoLookupHelper;
@@ -199,6 +201,8 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private AudioProcessingNotification mAudioProcessingNotification;
     @Mock private InCallControllerFactory mInCallControllerFactory;
     @Mock private InCallController mInCallController;
+    @Mock private CallEndpointControllerFactory mCallEndpointControllerFactory;
+    @Mock private CallEndpointController mCallEndpointController;
     @Mock private ConnectionServiceFocusManager mConnectionSvrFocusMgr;
     @Mock private CallAudioRouteStateMachine mCallAudioRouteStateMachine;
     @Mock private CallAudioRouteStateMachine.Factory mCallAudioRouteStateMachineFactory;
@@ -225,6 +229,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 mProximitySensorManager);
         when(mInCallControllerFactory.create(any(), any(), any(), any(), any(), any(),
                 any())).thenReturn(mInCallController);
+        when(mCallEndpointControllerFactory.create(any(), any(), any())).thenReturn(
+                mCallEndpointController);
         when(mCallAudioRouteStateMachineFactory.create(any(), any(), any(), any(), any(), any(),
                 anyInt())).thenReturn(mCallAudioRouteStateMachine);
         when(mCallAudioModeStateMachineFactory.create(any(), any()))
@@ -266,7 +272,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 mInCallControllerFactory,
                 mCallDiagnosticServiceController,
                 mRoleManagerAdapter,
-                mToastFactory);
+                mToastFactory,
+                mCallEndpointControllerFactory);
 
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SELF_MANAGED_HANDLE), any())).thenReturn(SELF_MANAGED_ACCOUNT);

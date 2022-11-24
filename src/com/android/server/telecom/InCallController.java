@@ -52,6 +52,7 @@ import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.telecom.CallAudioState;
+import android.telecom.CallEndpoint;
 import android.telecom.ConnectionService;
 import android.telecom.InCallService;
 import android.telecom.Log;
@@ -1344,6 +1345,49 @@ public class InCallController extends CallsManagerListenerBase implements
                 try {
                     inCallService.onCallAudioStateChanged(newCallAudioState);
                 } catch (RemoteException ignored) {
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onCallEndpointChanged(CallEndpoint callEndpoint) {
+        if (!mInCallServices.isEmpty()) {
+            Log.i(this, "Calling onCallEndpointChanged");
+            for (IInCallService inCallService : mInCallServices.values()) {
+                try {
+                    inCallService.onCallEndpointChanged(callEndpoint);
+                } catch (RemoteException ignored) {
+                    Log.d(this, "Remote exception calling onCallEndpointChanged");
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onAvailableCallEndpointsChanged(Set<CallEndpoint> availableCallEndpoints) {
+        if (!mInCallServices.isEmpty()) {
+            Log.i(this, "Calling onAvailableCallEndpointsChanged");
+            List<CallEndpoint> availableEndpoints = new ArrayList<>(availableCallEndpoints);
+            for (IInCallService inCallService : mInCallServices.values()) {
+                try {
+                    inCallService.onAvailableCallEndpointsChanged(availableEndpoints);
+                } catch (RemoteException ignored) {
+                    Log.d(this, "Remote exception calling onAvailableCallEndpointsChanged");
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onMuteStateChanged(boolean isMuted) {
+        if (!mInCallServices.isEmpty()) {
+            Log.i(this, "Calling onMuteStateChanged");
+            for (IInCallService inCallService : mInCallServices.values()) {
+                try {
+                    inCallService.onMuteStateChanged(isMuted);
+                } catch (RemoteException ignored) {
+                    Log.d(this, "Remote exception calling onMuteStateChanged");
                 }
             }
         }

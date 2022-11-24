@@ -410,7 +410,8 @@ public class CallAudioManager extends CallsManagerListenerBase {
      * @param bluetoothAddress the address of the desired bluetooth device, if route is
      * {@link CallAudioState#ROUTE_BLUETOOTH}.
      */
-    void setAudioRoute(int route, String bluetoothAddress) {
+    @VisibleForTesting(visibility = VisibleForTesting.Visibility.PROTECTED)
+    public void setAudioRoute(int route, String bluetoothAddress) {
         Log.v(this, "setAudioRoute, route: %s", CallAudioState.audioRouteToString(route));
         switch (route) {
             case CallAudioState.ROUTE_BLUETOOTH:

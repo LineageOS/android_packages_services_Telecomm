@@ -19,6 +19,8 @@ package com.android.server.telecom;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.ResultReceiver;
+import android.telecom.CallEndpoint;
 import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
 
@@ -386,6 +388,23 @@ class InCallAdapter extends IInCallAdapter.Stub {
             try {
                 synchronized (mLock) {
                     mCallsManager.setAudioRoute(route, bluetoothAddress);
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+        } finally {
+            Log.endSession();
+        }
+    }
+
+    @Override
+    public void requestCallEndpointChange(CallEndpoint endpoint, ResultReceiver callback) {
+        try {
+            Log.startSession(LogUtils.Sessions.ICA_SET_AUDIO_ROUTE, mOwnerPackageAbbreviation);
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    mCallsManager.requestCallEndpointChange(endpoint, callback);
                 }
             } finally {
                 Binder.restoreCallingIdentity(token);
