@@ -52,6 +52,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.OutcomeReceiver;
 import android.os.Process;
+import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.telecom.CallerInfo;
@@ -1855,6 +1856,36 @@ public class CallsManagerTest extends TelecomTestCase {
             if (!success) {
                 fail("assertOnResultWasReceived success failed");
             }
+    }
+
+    /**
+     * When queryCurrentLocation is called, check whether the result is received through the
+     * ResultReceiver.
+     * @throws Exception if {@link CompletableFuture#get()} fails.
+     */
+    @Test
+    public void testQueryCurrentLocationCheckOnReceiveResult() throws Exception {
+        ConnectionServiceWrapper service = new ConnectionServiceWrapper(
+                new ComponentName(mContext.getPackageName(),
+                        mContext.getPackageName().getClass().getName()),
+                null, mPhoneAccountRegistrar, mCallsManager, mContext, mLock, null);
+
+        CompletableFuture<String> resultFuture = new CompletableFuture<>();
+        try {
+            service.queryCurrentLocation(500L, "Test_provider",
+                    new ResultReceiver(new Handler(Looper.getMainLooper())) {
+                        @Override
+                        protected void onReceiveResult(int resultCode, Bundle result) {
+                            super.onReceiveResult(resultCode, result);
+                            resultFuture.complete("onReceiveResult");
+                        }
+                    });
+        } catch (Exception e) {
+            resultFuture.complete("Exception : " + e);
+        }
+
+        String result = resultFuture.get(1000L, TimeUnit.MILLISECONDS);
+        assertTrue(result.contains("onReceiveResult"));
     }
 
     private Call addSpyCall() {

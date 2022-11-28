@@ -52,6 +52,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.hardware.SensorPrivacyManager;
 import android.location.CountryDetector;
+import android.location.LocationManager;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -124,6 +125,9 @@ public class ComponentContextFixture implements TestFixture<Context> {
         public Context createContextAsUser(UserHandle userHandle, int flags) {
             return this;
         }
+
+        @Override
+        public Context createAttributionContext(String attributionTag) { return this; }
 
         @Override
         public String getPackageName() {
@@ -199,6 +203,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
                     return mAudioManager;
                 case Context.TELEPHONY_SERVICE:
                     return mTelephonyManager;
+                case Context.LOCATION_SERVICE:
+                    return mLocationManager;
                 case Context.APP_OPS_SERVICE:
                     return mAppOpsManager;
                 case Context.NOTIFICATION_SERVICE:
@@ -551,6 +557,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
     private final Executor mMainExecutor = mock(Executor.class);
     private final AudioManager mAudioManager = spy(new FakeAudioManager(mContext));
     private final TelephonyManager mTelephonyManager = mock(TelephonyManager.class);
+    private final LocationManager mLocationManager = mock(LocationManager.class);
     private final AppOpsManager mAppOpsManager = mock(AppOpsManager.class);
     private final NotificationManager mNotificationManager = mock(NotificationManager.class);
     private final UserManager mUserManager = mock(UserManager.class);
