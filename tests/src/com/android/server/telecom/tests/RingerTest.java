@@ -107,6 +107,11 @@ public class RingerTest extends TelecomTestCase {
         }
 
         @Override
+        public long[] computeCreateWaveformOffOnTimingsOrNull() {
+            return null; // not needed
+        }
+
+        @Override
         public void validate() {
             // not needed
         }
