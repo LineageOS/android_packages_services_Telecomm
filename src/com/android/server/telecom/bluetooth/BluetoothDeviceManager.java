@@ -434,8 +434,9 @@ public class BluetoothDeviceManager {
             Log.i(this, "clearLeAudioCommunicationDevice: mAudioManager is null");
             return;
         }
-        if (mAudioManager.getCommunicationDevice() != null
-                && mAudioManager.getCommunicationDevice().getType()
+
+        AudioDeviceInfo audioDeviceInfo = mAudioManager.getCommunicationDevice();
+        if (audioDeviceInfo != null && audioDeviceInfo.getType()
                 == AudioDeviceInfo.TYPE_BLE_HEADSET) {
             mAudioManager.clearCommunicationDevice();
         }
