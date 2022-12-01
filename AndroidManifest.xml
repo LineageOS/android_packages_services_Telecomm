@@ -277,7 +277,7 @@
         <activity android:name=".settings.EnableAccountPreferenceActivity"
              android:label="@string/enable_account_preference_title"
              android:configChanges="orientation|screenSize|keyboardHidden"
-             android:theme="@style/Theme.Telecom.DialerSettings"
+             android:theme="@style/Theme.Telecom.EnableAccount"
              android:process=":ui"
              android:exported="true">
             <intent-filter>
