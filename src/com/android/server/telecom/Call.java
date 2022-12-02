@@ -3317,15 +3317,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             return false;
         }
 
-        if (!isSimCall()) {
-            // Incoming calls to a specific sim can only respond back using SMS.
-            return false;
-        }
-
         // Is there a valid SMS application on the phone?
-        TelephonyManager simTm = mContext.getSystemService(TelephonyManager.class)
-                .createForPhoneAccountHandle(getTargetPhoneAccount());
-        if ((simTm == null) || (simTm.getAndUpdateDefaultRespondViaMessageApplication() == null)) {
+        if (mContext.getSystemService(TelephonyManager.class)
+                .getAndUpdateDefaultRespondViaMessageApplication() == null) {
             return false;
         }
 
