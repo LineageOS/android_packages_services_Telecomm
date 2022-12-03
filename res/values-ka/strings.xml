@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"ზარი <xliff:g id="CALLER">%s</xliff:g>-თან გაითიშა გადაუდებელი ზარის განთავსების გამო."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"თქვენი ზარი გაითიშა, რადგან ხორციელდება გადაუდებელი ზარი."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"ზარი ფონში"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>-მა განათავსა ზარი ფონში. ამ აპმა შეიძლება წვდომა იქონიოს აუდიოზე ზარიდან და დაუკრას ის."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ამუშავებს ზარს ფონურ რეჟიმში. ამ აპმა შეიძლება წვდომა იქონიოს აუდიოზე ზარიდან და დაუკრას ის."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g>-მა რეაგირება შეწყვიტა"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"თქვენმა ზარმა გამოიყენა ტელეფონის აპი, რომელიც თქვენს მოწყობილობას მოჰყვა"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"ზარი დადუმებულია."</string>

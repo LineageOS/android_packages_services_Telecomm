@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"అత్యవసర కాల్ చేయబడినందున <xliff:g id="CALLER">%s</xliff:g>తో కాల్ డిస్‌కనెక్ట్ చేయబడింది."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"అత్యవసర కాల్ చేయబడినందున మీ కాల్ డిస్‌కనెక్ట్ చేయబడింది."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"నేపథ్యం కాల్"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> కాల్‌ను నేపథ్యంలోకి పంపింది. కాల్ ద్వారా ఈ యాప్, ఆడియోను యాక్సెస్ ఇంకా ప్లే చేస్తుండవచ్చు."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> బ్యాక్‌గ్రౌండ్‌లో కాల్‌ను ప్రాసెస్ చేస్తోంది. ఈ యాప్ కాల్ ద్వారా ఆడియోను యాక్సెస్ చేసి ప్లే చేస్తుండవచ్చు."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> స్పందించడం ఆగిపోయింది"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"మీ కాల్, మీ పరికరంతో వచ్చిన ఫోన్ యాప్‌ను ఉపయోగించింది"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"కాల్ మ్యూట్ చేయబడింది."</string>
@@ -69,8 +69,8 @@
     <string name="unblock_button" msgid="8732021675729981781">"అన్‌బ్లాక్ చేయి"</string>
     <string name="add_blocked_dialog_body" msgid="8599974422407139255">"దీని నుండి కాల్స్‌ మరియు మెసేజ్‌లను బ్లాక్ చేయండి"</string>
     <string name="add_blocked_number_hint" msgid="8769422085658041097">"ఫోన్ నంబర్"</string>
-    <string name="block_button" msgid="485080149164258770">"బ్లాక్ చేయి"</string>
-    <string name="non_primary_user" msgid="315564589279622098">"కేవలం పరికర యజమాని మాత్రమే బ్లాక్ చేసిన నంబర్‌లను వీక్షించగలరు మరియు నిర్వహించగలరు."</string>
+    <string name="block_button" msgid="485080149164258770">"బ్లాక్ చేయండి"</string>
+    <string name="non_primary_user" msgid="315564589279622098">"కేవలం పరికర యజమాని మాత్రమే బ్లాక్ చేసిన నంబర్‌లను చూడగలరు మరియు నిర్వహించగలరు."</string>
     <string name="delete_icon_description" msgid="5335959254954774373">"అన్‌బ్లాక్ చేస్తుంది"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="582982373755950791">"బ్లాకింగ్ తాత్కాలికంగా ఆఫ్ చేయబడింది"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="1261213114919301485">"మీరు అత్యవసర నంబర్‌కి డయల్ చేసాక లేదా వచన మెసేజ్‌ పంపాక, అత్యవసర సేవలు తిరిగి మిమ్మల్ని సంప్రదించగలిగేలా చేయడానికి బ్లాకింగ్ ఆఫ్ చేయబడుతుంది."</string>

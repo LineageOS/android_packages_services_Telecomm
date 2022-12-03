@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Az Ön és <xliff:g id="CALLER">%s</xliff:g> közötti hívást a szolgáltató egy segélyhívás kezdeményezése miatt bontotta."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Segélyhívást kezdeményeztek, ezért az Ön hívását megszakítottuk."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Háttérbeli hívás"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"A(z) <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> a háttérbe helyezett egy hívást. Ez az alkalmazás hozzáférhet a híváshoz, és hangot játszhat le benne."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"A(z) <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> kezel egy hívást a háttérben. Ez az alkalmazás hozzáférhet a híváshoz, és hangot játszhat le benne."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"A(z) <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> lefagyott"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"A hívása a készülékhez mellékelt telefonalkalmazást használta"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Hívás némítva."</string>

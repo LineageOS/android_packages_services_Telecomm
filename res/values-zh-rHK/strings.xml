@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"因撥打緊急電話緣故，與<xliff:g id="CALLER">%s</xliff:g>的通話已中斷。"</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"因撥打緊急電話緣故，您的通話已中斷。"</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"背景通話"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"「<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>」已將通話放到背景。這個應用程式可以存取該通話，並透過該通話播放音訊。"</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"「<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>」正在處理背景中的通話。這個應用程式或會存取通話，或是在通話中播放音訊。"</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g>已停止回應"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"您使用了裝置隨付的手機應用程式來通話"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"通話已靜音。"</string>
