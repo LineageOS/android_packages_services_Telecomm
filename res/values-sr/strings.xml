@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Позив са <xliff:g id="CALLER">%s</xliff:g> је прекинут јер се упућује хитни позив."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Позив је прекинут јер се упућује хитни позив."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Позив у позадини"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"Апликација <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> је упутила позив у позадини. Она може да приступа звуку и пушта га током позива."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"Апликација <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> обрађује позив у позадини. Она може да приступа звуку и да га пушта током позива."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> више не реагује"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Позив је користио апликацију за телефонирање коју сте добили уз уређај"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Звук позива је искључен."</string>
