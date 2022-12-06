@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Вызов абонента <xliff:g id="CALLER">%s</xliff:g> был прекращен, так как осуществляется экстренный вызов."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Ваш вызов прекращен, так как осуществляется экстренный вызов."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Фоновый вызов"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"Приложение <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> перевело вызов в фоновый режим. Это приложение может получать доступ к аудио вызова или воспроизводить в нем свое аудио."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> обрабатывает звонок в фоновом режиме. Это приложение может получать доступ к аудио вызова или воспроизводить в нем свое аудио."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> не отвечает"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Вызов был сделан с использованием приложения, которое установлено на ваше устройство производителем."</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Звук выключен."</string>

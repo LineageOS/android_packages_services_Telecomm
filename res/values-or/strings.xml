@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"ଏକ ଜରୁରୀକାଳୀନ କଲ୍ କରାଯାଇଥିବାରୁ <xliff:g id="CALLER">%s</xliff:g>ଙ୍କୁ କରାଯାଇଥିବା କଲ୍ ବିଚ୍ଛିନ୍ନ କରାଯାଇଛି।"</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"ଏକ ଜରୁରୀକାଳୀନ କଲ୍ କରାଯାଉଥିବା ଯୋଗୁଁ ଆପଣଙ୍କ କଲ୍ ବିଚ୍ଛିନ୍ନ ହୋଇଯାଇଛି।"</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"ବ୍ୟାକ୍‌ଗ୍ରାଉଣ୍ଡ କଲ୍"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ବ୍ୟାକ୍‌ଗ୍ରାଉଣ୍ଡରେ ଏକ କଲ୍ କରିଛି। ଏହା ଆପ୍ କଲ୍ ସମୟରେ ଅଡିଓ ଆକ୍ସେସ୍ କରିପାରେ ଏବଂ ଚଲେଇପାରେ।"</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ପୃଷ୍ଠପଟରେ ଏକ କଲ ପ୍ରକ୍ରିୟାନ୍ୱିତ କରୁଛି। ଏହି ଆପ କଲ ସମୟରେ ଅଡିଓ ଆକ୍ସେସ ଏବଂ ପ୍ଲେ କରିପାରେ।"</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> ଉତ୍ତର ଦେଉନାହିଁ"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"ଆପଣଙ୍କ କଲ୍ ପାଇଁ ଆପଣଙ୍କ ଡିଭାଇସରେ ଥିବା ଫୋନ୍ ଆପ୍ ବ୍ୟବହାର କରାଯାଇଥିଲା"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"କଲ୍ ମ୍ୟୁଟ୍ କରାଯାଇଛି।"</string>
@@ -73,7 +73,7 @@
     <string name="non_primary_user" msgid="315564589279622098">"କେବଳ ଡିଭାଇସ୍‌ର ମାଲିକ ଅବରୋଧ କରାଯାଇଥିବା ନମ୍ବର୍‌କୁ ଦେଖିପାରିବେ ଓ ପରିଚାଳନା କରିପାରିବେ।"</string>
     <string name="delete_icon_description" msgid="5335959254954774373">"ଅନବ୍ଲକ୍ କରନ୍ତୁ"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="582982373755950791">"ଅସ୍ଥାୟୀରୂପେ ଅବରୋଧ ଅଫ୍ ଅଛି"</string>
-    <string name="blocked_numbers_butter_bar_body" msgid="1261213114919301485">"ଆପଣ ଗୋଟିଏ ଜରୁରିକାଳୀନ ନମ୍ବର୍‌କୁ ଡାଏଲ୍ କିମ୍ବା ଟେକ୍ସଟ୍ କରିବା ପରେ, ଜରୁରିକାଳୀନ ସେବା ଆପଣଙ୍କୁ ଯୋଗାଯୋଗ କରିବାକୁ ସୁନିଶ୍ଚିତ କରିବା ପାଇଁ ଅବରୋଧକୁ ବନ୍ଦ କରିଦିଆଯାଇଥାଏ।"</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="1261213114919301485">"ଆପଣ ଗୋଟିଏ ଜରୁରିକାଳୀନ ନମ୍ବରକୁ ଡାଏଲ କିମ୍ବା ଟେକ୍ସଟ କରିବା ପରେ, ଜରୁରିକାଳୀନ ସେବା ଆପଣଙ୍କୁ କଣ୍ଟାକ୍ଟ କରିପାରୁଛି କି ନାହିଁ ତାହା ସୁନିଶ୍ଚିତ କରିବା ପାଇଁ ଅବରୋଧକୁ ବନ୍ଦ କରି ଦିଆଯାଇଛି।"</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2704456308072489793">"ବର୍ତ୍ତମାନ ପୁନଃସକ୍ଷମ କରନ୍ତୁ"</string>
     <string name="blocked_numbers_number_blocked_message" msgid="4314736791180919167">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> ବ୍ଲକ୍ କରାଯାଇଛି"</string>
     <string name="blocked_numbers_number_unblocked_message" msgid="2933071624674945601">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> ଅନବ୍ଲକ୍ କରାଯାଇଛି"</string>
@@ -119,7 +119,7 @@
     <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="2895809176537908791">"କଲ୍‌ ବ୍ଲକିଂ"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="1713632946174016619">"କଲ୍ ବ୍ଲକିଂକୁ ଅକ୍ଷମ କରାଯାଇଛି"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="6629412508584507377">"ଜରୁରିକାଳୀନ କଲ୍ କରାଗଲା"</string>
-    <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"ଜରୁରିକାଳୀନ ସହାୟତା କର୍ମଚାରୀମାନେ ଆପଣଙ୍କୁ ଯୋଗଯୋଗ କରିବା ପାଇଁ କଲ୍ ଅବରୋଧକୁ ଅକ୍ଷମ କରାଯାଇଛି।"</string>
+    <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"ଜରୁରିକାଳୀନ ଉତ୍ତରଦାତାମାନେ ଆପଣଙ୍କୁ କଣ୍ଟାକ୍ଟ କରିବା ପାଇଁ କଲ ଅବରୋଧକୁ ଅକ୍ଷମ କରାଯାଇଛି।"</string>
     <string name="developer_title" msgid="9146088855661672353">"ଟେଲେକମ୍ ଡେଭେଲପର୍ ମେନୁ"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"ଜରୁରୀକାଳୀନ କଲ୍ ବେଳେ ଅନ୍ୟ କଲ୍ ଉଠାଇ ପାରିବେ ନାହିଁ।"</string>
     <string name="cancel" msgid="6733466216239934756">"ବାତିଲ କରନ୍ତୁ"</string>
