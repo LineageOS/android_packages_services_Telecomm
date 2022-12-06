@@ -22,7 +22,6 @@ import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothHearingAid;
 import android.bluetooth.BluetoothLeAudio;
 import android.bluetooth.BluetoothProfile;
-import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
@@ -42,6 +41,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.nullable;
@@ -49,7 +49,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -480,6 +479,20 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
 
         mBluetoothDeviceManager.connectAudio(device6.getAddress());
         verify(mAdapter).setActiveDevice(device6, BluetoothAdapter.ACTIVE_DEVICE_ALL);
+    }
+
+    @SmallTest
+    @Test
+    public void testClearHearingAidCommunicationDevice() {
+        List<AudioDeviceInfo> devices = new ArrayList<>();
+
+        when(mockAudioManager.getAvailableCommunicationDevices())
+                .thenReturn(devices);
+
+        mBluetoothDeviceManager.setHearingAidCommunicationDevice();
+        when(mockAudioManager.getCommunicationDevice()).thenReturn(null);
+        mBluetoothDeviceManager.clearHearingAidCommunicationDevice();
+        assertFalse(mBluetoothDeviceManager.isHearingAidSetAsCommunicationDevice());
     }
 
     private Intent buildConnectionActionIntent(int state, BluetoothDevice device, int deviceType) {

@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"ತುರ್ತು ಕರೆಯನ್ನು ಮಾಡುತ್ತಿರುವ ಕಾರಣ <xliff:g id="CALLER">%s</xliff:g> ಗೆ ಕರೆಯ ಕನೆಕ್ಷನ್ ಅನ್ನು ಕಡಿತಗೊಳಿಸಲಾಗಿದೆ."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"ತುರ್ತು ಕರೆಯನ್ನು ಮಾಡುತ್ತಿರುವ ಕಾರಣ ನಿಮ್ಮ ಕರೆಯನ್ನು ಕಡಿತಗೊಳಿಸಲಾಗಿದೆ."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"ಹಿನ್ನೆಲೆ ಕರೆ"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ಆ್ಯಪ್, ಕರೆಯನ್ನು ಹಿನ್ನೆಲೆಯಲ್ಲಿ ಇರಿಸಿದೆ. ಈ ಆ್ಯಪ್ ಕರೆಯ ಮೂಲಕ ಆಡಿಯೊವನ್ನು ಪ್ರವೇಶಿಸಬಹುದು ಮತ್ತು ಪ್ಲೇ ಮಾಡಬಹುದು."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ಹಿನ್ನೆಲೆಯಲ್ಲಿ ಕರೆಯನ್ನು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುತ್ತಿದೆ. ಈ ಆ್ಯಪ್ ಕರೆಯ ಮೂಲಕ ಆಡಿಯೊವನ್ನು ಪ್ರವೇಶಿಸಬಹುದು ಮತ್ತು ಪ್ಲೇ ಮಾಡಬಹುದು."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> ಪ್ರತಿಕ್ರಿಯಿಸುವುದನ್ನು ನಿಲ್ಲಿಸಿದೆ"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"ನಿಮ್ಮ ಕರೆಯು ಸಾಧನದ ಜೊತೆಗೆ ನೀಡಲಾದ ಫೋನ್ ಆ್ಯಪ್ ಅನ್ನು ಬಳಸಿದೆ."</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"ಕರೆಯನ್ನು ಮ್ಯೂಟ್ ಮಾಡಲಾಗಿದೆ."</string>

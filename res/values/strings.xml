@@ -73,8 +73,8 @@
          that a call be put into the background so that the app can access the audio from the call.
          [CHAR LIMIT=NONE] -->
     <string name="notification_audioProcessing_body">
-        <xliff:g id="audio_processing_app_name">%s</xliff:g> has placed a call into the
-        background. This app may be accessing and playing audio over the call.
+        <xliff:g id="audio_processing_app_name">%s</xliff:g> is processing a call in the background.
+        This app may be accessing and playing audio over the call.
     </string>
 
     <!-- Crashed in call service notification label, used when the in call service has crashed and
