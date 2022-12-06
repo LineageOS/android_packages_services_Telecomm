@@ -2298,17 +2298,37 @@ public class CallsManager extends Call.ListenerBase
                 mPendingRedirectedOutgoingCallInfo.remove(pendingCallId);
                 mPendingUnredirectedOutgoingCallInfo.remove(pendingCallId);
             }
+            switch (action) {
+                case TelecomBroadcastIntentProcessor.ACTION_PLACE_REDIRECTED_CALL: {
+                    Runnable r = mPendingRedirectedOutgoingCallInfo.get(callId);
+                    if (r != null) {
+                        mHandler.post(r.prepare());
+                    } else {
+                        Log.w(this, "Processing %s for canceled Call ID %s",
+                                action, callId);
+                    }
+                    break;
+                }
+                case TelecomBroadcastIntentProcessor.ACTION_PLACE_UNREDIRECTED_CALL: {
+                    Runnable r = mPendingUnredirectedOutgoingCallInfo.get(callId);
+                    if (r != null) {
+                        mHandler.post(r.prepare());
+                    } else {
+                        Log.w(this, "Processing %s for canceled Call ID %s",
+                                action, callId);
+                    }
+                    break;
+                }
+                case TelecomBroadcastIntentProcessor.ACTION_CANCEL_REDIRECTED_CALL: {
+                    Log.addEvent(mPendingRedirectedOutgoingCall,
+                            LogUtils.Events.REDIRECTION_USER_CANCELLED);
+                    mPendingRedirectedOutgoingCall.disconnect("User canceled the redirected call.");
+                    break;
+                }
+                default: {
+                    // Unexpected, ignore
+                }
 
-            if (action.equals(TelecomBroadcastIntentProcessor.ACTION_PLACE_REDIRECTED_CALL)) {
-                mHandler.post(mPendingRedirectedOutgoingCallInfo.get(callId).prepare());
-            } else if (action.equals(
-                    TelecomBroadcastIntentProcessor.ACTION_PLACE_UNREDIRECTED_CALL)) {
-                mHandler.post(mPendingUnredirectedOutgoingCallInfo.get(callId).prepare());
-            } else if (action.equals(
-                    TelecomBroadcastIntentProcessor.ACTION_CANCEL_REDIRECTED_CALL)) {
-                Log.addEvent(mPendingRedirectedOutgoingCall,
-                        LogUtils.Events.REDIRECTION_USER_CANCELLED);
-                mPendingRedirectedOutgoingCall.disconnect("User canceled the redirected call.");
             }
             mPendingRedirectedOutgoingCall = null;
             mPendingRedirectedOutgoingCallInfo.remove(callId);

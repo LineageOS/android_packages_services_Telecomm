@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"<xliff:g id="CALLER">%s</xliff:g> ਦੀ ਕਾਲ ਨੂੰ ਕਿਸੇ ਸੰਕਟਕਾਲੀਨ ਕਾਲ ਦੇ ਚਲਦੇ ਕੱਟ ਦਿੱਤਾ ਗਿਆ ਹੈ।"</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"ਕਿਸੇ ਸੰਕਟਕਾਲੀਨ ਕਾਲ ਕਰਕੇ ਤੁਹਾਡੀ ਕਾਲ ਕੱਟ ਦਿੱਤੀ ਗਈ ਹੈ।"</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Background call"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> has placed a call into the background. This app may be accessing and playing audio over the call."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ਬੈਕਗ੍ਰਾਊਂਡ ਵਿੱਚ ਕਾਲ \'ਤੇ ਪ੍ਰਕਿਰਿਆ ਕਰ ਰਹੀ ਹੈ। ਹੋ ਸਕਦਾ ਹੈ ਕਿ ਇਹ ਐਪ ਕਾਲ \'ਤੇ ਆਡੀਓ ਤੱਕ ਪਹੁੰਚ ਕਰ ਕੇ ਚਲਾ ਰਹੀ ਹੋਵੇ।"</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> ਨੇ ਕੰਮ ਕਰਨਾ ਬੰਦ ਕਰ ਦਿੱਤਾ"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"ਤੁਹਾਡੀ ਕਾਲ ਨੇ ਤੁਹਾਡੇ ਡੀਵਾਈਸ \'ਤੇ ਪਹਿਲਾਂ ਤੋਂ ਸਥਾਪਤ ਫ਼ੋਨ ਐਪ ਦੀ ਵਰਤੋਂ ਕੀਤੀ"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"ਕਾਲ ਮਿਊਟ ਕੀਤੀ।"</string>

@@ -395,7 +395,8 @@ public class CallScreeningServiceFilterTest extends TelecomTestCase {
                 .forClass(ServiceConnection.class);
         verify(mContext, timeout(CallScreeningServiceFilter.CALL_SCREENING_FILTER_TIMEOUT))
                 .bindServiceAsUser(intentCaptor.capture(), serviceCaptor.capture(),
-                eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE),
+                eq(Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE
+                        | Context.BIND_SCHEDULE_LIKE_TOP_APP),
                 eq(UserHandle.CURRENT));
 
         Intent capturedIntent = intentCaptor.getValue();

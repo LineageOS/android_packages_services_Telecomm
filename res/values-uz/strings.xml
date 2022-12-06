@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Favqulodda chaqiruv amalga oshirilayotgani uchun <xliff:g id="CALLER">%s</xliff:g> bilan suhbatingiz tugatildi."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Favqulodda chaqiruv amalga oshirilayotgani uchun joriy chaqiruvingiz to‘xtatildi."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Orqa fondagi chaqiruv"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ilovasi chaqiruvni orqa fonga joyladi. Bu ilova ovozli chaqiruvga kirishi yoki unda audio ijro etishi mumkin."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> chaqiruvni fonda qayta ishlamoqda. Bu ilova ovozli chaqiruvga kirishi yoki unda audio ijro etishi mumkin."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> javob bermayapti"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Chaqiruv qurilmangizga avvaldan o‘rnatilgan ilova orqali amalga oshirildi"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Qo‘ng‘iroq ovozi o‘chirildi."</string>

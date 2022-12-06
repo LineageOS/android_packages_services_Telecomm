@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Puhelu vastaanottajalle <xliff:g id="CALLER">%s</xliff:g> on katkaistu hätäpuhelun soittamisen vuoksi."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Puhelusi on katkaistu hätäpuhelun soittamisen vuoksi."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Taustapuhelu"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> on asettanut puhelun taustalle. Tämä sovellus voi käyttää ja toistaa ääntä puhelun päällä."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> käsittelee puhelua taustalla. Tämä sovellus voi käyttää ja toistaa audiota puhelun päällä."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> lakkasi vastaamasta"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Puhelu soitettiin laitteen mukana tulleella puhelinsovelluksella"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Puhelu mykistetty."</string>
