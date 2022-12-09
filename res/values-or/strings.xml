@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"ଏକ ଜରୁରୀକାଳୀନ କଲ୍ କରାଯାଇଥିବାରୁ <xliff:g id="CALLER">%s</xliff:g>ଙ୍କୁ କରାଯାଇଥିବା କଲ୍ ବିଚ୍ଛିନ୍ନ କରାଯାଇଛି।"</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"ଏକ ଜରୁରୀକାଳୀନ କଲ୍ କରାଯାଉଥିବା ଯୋଗୁଁ ଆପଣଙ୍କ କଲ୍ ବିଚ୍ଛିନ୍ନ ହୋଇଯାଇଛି।"</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"ବ୍ୟାକ୍‌ଗ୍ରାଉଣ୍ଡ କଲ୍"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ବ୍ୟାକ୍‌ଗ୍ରାଉଣ୍ଡରେ ଏକ କଲ୍ କରିଛି। ଏହା ଆପ୍ କଲ୍ ସମୟରେ ଅଡିଓ ଆକ୍ସେସ୍ କରିପାରେ ଏବଂ ଚଲେଇପାରେ।"</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ପୃଷ୍ଠପଟରେ ଏକ କଲ ପ୍ରକ୍ରିୟାନ୍ୱିତ କରୁଛି। ଏହି ଆପ କଲ ସମୟରେ ଅଡିଓ ଆକ୍ସେସ ଏବଂ ପ୍ଲେ କରିପାରେ।"</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> ଉତ୍ତର ଦେଉନାହିଁ"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"ଆପଣଙ୍କ କଲ୍ ପାଇଁ ଆପଣଙ୍କ ଡିଭାଇସରେ ଥିବା ଫୋନ୍ ଆପ୍ ବ୍ୟବହାର କରାଯାଇଥିଲା"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"କଲ୍ ମ୍ୟୁଟ୍ କରାଯାଇଛି।"</string>

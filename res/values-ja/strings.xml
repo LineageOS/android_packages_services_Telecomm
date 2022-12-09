@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"緊急通報番号宛に発信中のため、<xliff:g id="CALLER">%s</xliff:g> さんとの通話が切断されました。"</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"緊急通報番号宛に発信中のため、通話が切断されました。"</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"バックグラウンド通話"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> が通話をバックグラウンドに切り替えました。これで、このアプリは通話を通じて音声にアクセスして再生できます。"</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> は通話をバックグラウンドで処理しています。このアプリは通話を通じて音声にアクセスして再生できます。"</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> が応答しなくなりました"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"通話には、ご利用のデバイスにプリインストールされていた通話アプリが使用されていました"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"通話がミュートされています。"</string>

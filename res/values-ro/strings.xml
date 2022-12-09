@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Apelul către <xliff:g id="CALLER">%s</xliff:g> a fost deconectat deoarece a fost inițiat un apel de urgență."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Apelul a fost deconectat deoarece a fost inițiat un apel de urgență."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Apel în fundal"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> a inițiat un apel în fundal. Este posibil ca această aplicație să acceseze și să redea mesaje audio peste apel."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> procesează un apel în fundal. Se poate ca aplicația să acceseze și să redea mesaje audio peste apel."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> nu mai răspunde"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Apelul tău a folosit aplicația Telefon instalată pe dispozitiv"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Apel cu sunet dezactivat."</string>

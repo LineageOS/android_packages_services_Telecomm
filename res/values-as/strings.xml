@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"এট জৰুৰীকালীন কল কৰাৰ কাৰণে <xliff:g id="CALLER">%s</xliff:g>লৈ কৰা কলটোৰ সংযোগ বিচ্ছিন্ন কৰা হৈছে।"</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"এট জৰুৰীকালীন কল কৰাৰ কাৰণে আপোনাৰ কলটোৰ সংযোগ বিচ্ছিন্ন কৰা হৈছে।"</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"নেপথ্যৰ কল"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>এ নেপথ্যত এটা কল কৰিছে। এই এপ্‌টোৱে কলটোত অডিঅ’ এক্সেছ আৰু প্লে’ কৰি থাকিব পাৰে।"</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>এ নেপথ্যত এটা কল প্ৰক্ৰিয়াকৰণ কৰি আছে। এই এপ্‌টোৱে কলটো চলি থাকোঁতে অডিঅ’ এক্সেছ আৰু প্লে’ কৰি থাকিব পাৰে।"</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g>এ সঁহাৰি দিয়া বন্ধ কৰিছে"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"আপোনাৰ কলটোৱে আপোনাৰ ডিভাইচটোৰ লগত অহা ফ’ন এপ্‌টো ব্যৱহাৰ কৰিছে"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"কল মিউট কৰা হৈছে।"</string>
