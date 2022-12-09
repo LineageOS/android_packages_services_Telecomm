@@ -260,6 +260,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
                 return Context.PERMISSION_CHECKER_SERVICE;
             } else if (svcClass == SensorPrivacyManager.class) {
                 return Context.SENSOR_PRIVACY_SERVICE;
+            } else if (svcClass == NotificationManager.class) {
+                return Context.NOTIFICATION_SERVICE;
             }
             throw new UnsupportedOperationException();
         }
