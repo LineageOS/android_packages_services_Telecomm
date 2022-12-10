@@ -16,6 +16,24 @@
 
 package com.android.server.telecom.tests;
 
+import static android.provider.Settings.Global.ZEN_MODE_IMPORTANT_INTERRUPTIONS;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import android.app.NotificationManager;
 import android.content.Context;
 import android.media.AudioAttributes;
@@ -47,21 +65,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.Spy;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.ArgumentMatchers.nullable;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -116,6 +119,7 @@ public class RingerTest extends TelecomTestCase {
     @Mock RingtoneFactory mockRingtoneFactory;
     @Mock Vibrator mockVibrator;
     @Mock InCallController mockInCallController;
+    @Mock NotificationManager mockNotificationManager;
     @Spy Ringer.VibrationEffectProxy spyVibrationEffectProxy;
 
     @Mock InCallTonePlayer mockTonePlayer;
@@ -141,10 +145,10 @@ public class RingerTest extends TelecomTestCase {
                 (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_NORMAL);
         when(mockSystemSettingsUtil.isHapticPlaybackSupported(any(Context.class))).thenReturn(true);
-        NotificationManager notificationManager =
+        mockNotificationManager =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         when(mockTonePlayer.startTone()).thenReturn(true);
-        when(notificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
+        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
         when(mockRingtoneFactory.hasHapticChannels(any(Ringtone.class))).thenReturn(false);
         when(mockRingtonePlayer.play(any(RingtoneFactory.class), any(Call.class),
                 nullable(VolumeShaper.Configuration.class), anyBoolean(), anyBoolean()))
@@ -249,9 +253,7 @@ public class RingerTest extends TelecomTestCase {
     @Test
     public void testCallWaitingButNoRingForSpecificContacts() {
         mFuture.complete(false); // not using audio coupled haptics
-        NotificationManager notificationManager =
-                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        when(notificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(false);
+        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(false);
         // Start call waiting to make sure that it does stop when we start ringing
         mRingerUnderTest.startCallWaiting(mockCall1);
         verify(mockTonePlayer).startTone();
@@ -461,6 +463,7 @@ public class RingerTest extends TelecomTestCase {
         mRingerUnderTest.startCallWaiting(mockCall1);
         Ringtone mockRingtone = mock(Ringtone.class);
         when(mockRingtoneFactory.getRingtone(any(Call.class))).thenReturn(mockRingtone);
+        when(mockNotificationManager.getZenMode()).thenReturn(ZEN_MODE_IMPORTANT_INTERRUPTIONS);
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_SILENT);
         when(mockAudioManager.getStreamVolume(AudioManager.STREAM_RING)).thenReturn(100);
         mFuture.complete(true); // using audio coupled haptics
