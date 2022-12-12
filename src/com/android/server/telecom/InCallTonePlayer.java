@@ -524,7 +524,7 @@ public class InCallTonePlayer extends Thread {
         mMainThreadHandler.post(new Runnable("ICTP.cUTP", mLock) {
             @Override
             public void loggedRun() {
-                int newToneCount = sTonesPlaying.updateAndGet( t -> Math.min(0, t--));
+                int newToneCount = sTonesPlaying.updateAndGet( t -> Math.max(0, --t));
 
                 if (newToneCount == 0) {
                     Log.i(InCallTonePlayer.this,
