@@ -16,8 +16,13 @@
 
 package com.android.server.telecom;
 
+import static android.provider.CallLog.Calls.AUTO_MISSED_EMERGENCY_CALL;
+import static android.provider.CallLog.Calls.AUTO_MISSED_MAXIMUM_DIALING;
+import static android.provider.CallLog.Calls.AUTO_MISSED_MAXIMUM_RINGING;
 import static android.provider.CallLog.Calls.MISSED_REASON_NOT_MISSED;
 import static android.provider.CallLog.Calls.SHORT_RING_THRESHOLD;
+import static android.provider.CallLog.Calls.USER_MISSED_CALL_FILTERS_TIMEOUT;
+import static android.provider.CallLog.Calls.USER_MISSED_CALL_SCREENING_SERVICE_SILENCED;
 import static android.provider.CallLog.Calls.USER_MISSED_NEVER_RANG;
 import static android.provider.CallLog.Calls.USER_MISSED_NO_ANSWER;
 import static android.provider.CallLog.Calls.USER_MISSED_SHORT_RING;
@@ -32,11 +37,6 @@ import static android.telecom.TelecomManager.EXTRA_HANDLE;
 import static android.telecom.TelecomManager.MEDIUM_CALL_TIME_MS;
 import static android.telecom.TelecomManager.SHORT_CALL_TIME_MS;
 import static android.telecom.TelecomManager.VERY_SHORT_CALL_TIME_MS;
-import static android.provider.CallLog.Calls.AUTO_MISSED_EMERGENCY_CALL;
-import static android.provider.CallLog.Calls.AUTO_MISSED_MAXIMUM_DIALING;
-import static android.provider.CallLog.Calls.AUTO_MISSED_MAXIMUM_RINGING;
-import static android.provider.CallLog.Calls.USER_MISSED_CALL_FILTERS_TIMEOUT;
-import static android.provider.CallLog.Calls.USER_MISSED_CALL_SCREENING_SERVICE_SILENCED;
 
 import android.Manifest;
 import android.annotation.NonNull;
@@ -51,6 +51,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.ResolveInfoFlags;
 import android.content.pm.UserInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -1888,6 +1889,23 @@ public class CallsManager extends Call.ListenerBase
                                 return CompletableFuture.completedFuture(null);
                             }
                             if (accountSuggestions == null || accountSuggestions.isEmpty()) {
+                                Uri callUri = callToPlace.getHandle();
+                                if (PhoneAccount.SCHEME_TEL.equals(callUri.getScheme())) {
+                                    int managedProfileUserId = getManagedProfileUserId(mContext,
+                                            initiatingUser.getIdentifier());
+                                    if (managedProfileUserId != UserHandle.USER_NULL
+                                            && mPhoneAccountRegistrar.getCallCapablePhoneAccounts(
+                                            handle.getScheme(), false,
+                                            UserHandle.of(managedProfileUserId), false).size()
+                                            != 0) {
+                                        boolean dialogShown = showSwitchToManagedProfileDialog(
+                                                callUri, initiatingUser, managedProfileUserId);
+                                        if (dialogShown) {
+                                            return CompletableFuture.completedFuture(null);
+                                        }
+                                    }
+                                }
+
                                 Log.i(CallsManager.this, "Aborting call since there are no"
                                         + " available accounts.");
                                 showErrorMessage(R.string.cant_call_due_to_no_supported_service);
@@ -2024,6 +2042,41 @@ public class CallsManager extends Call.ListenerBase
                     return CompletableFuture.completedFuture(callToUse);
                 }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.pASP", mLock));
         return mLatestPostSelectionProcessingFuture;
+    }
+
+    private static int getManagedProfileUserId(Context context, int userId) {
+        UserManager um = context.getSystemService(UserManager.class);
+        List<UserInfo> userProfiles = um.getProfiles(userId);
+        for (UserInfo uInfo : userProfiles) {
+            if (uInfo.id == userId) {
+                continue;
+            }
+            if (uInfo.isManagedProfile()) {
+                return uInfo.id;
+            }
+        }
+        return UserHandle.USER_NULL;
+    }
+
+    private boolean showSwitchToManagedProfileDialog(Uri callUri, UserHandle initiatingUser,
+            int managedProfileUserId) {
+        try {
+            Intent showErrorIntent = new Intent(
+                    TelecomManager.ACTION_SHOW_SWITCH_TO_WORK_PROFILE_FOR_CALL_DIALOG, callUri);
+            showErrorIntent.addCategory(Intent.CATEGORY_DEFAULT);
+            showErrorIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            showErrorIntent.putExtra(TelecomManager.EXTRA_MANAGED_PROFILE_USER_ID,
+                    managedProfileUserId);
+
+            if (mContext.getPackageManager().queryIntentActivitiesAsUser(showErrorIntent,
+                    ResolveInfoFlags.of(0), initiatingUser).size() != 0) {
+                mContext.startActivityAsUser(showErrorIntent, initiatingUser);
+                return true;
+            }
+        } catch (Exception e) {
+            Log.w(this, "Failed to launch switch to managed profile dialog");
+        }
+        return false;
     }
 
     public void startConference(List<Uri> participants, Bundle clientExtras, String callingPackage,
