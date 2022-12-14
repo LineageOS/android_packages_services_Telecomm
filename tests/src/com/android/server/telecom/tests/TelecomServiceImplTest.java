@@ -380,11 +380,11 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         // Returns all phone accounts when getCallCapablePhoneAccounts is called.
         when(mFakePhoneAccountRegistrar
                 .getCallCapablePhoneAccounts(nullable(String.class), eq(true),
-                        nullable(UserHandle.class), eq(true))).thenReturn(fullPHList);
+                        nullable(UserHandle.class))).thenReturn(fullPHList);
         // Returns only enabled phone accounts when getCallCapablePhoneAccounts is called.
         when(mFakePhoneAccountRegistrar
                 .getCallCapablePhoneAccounts(nullable(String.class), eq(false),
-                        nullable(UserHandle.class), eq(true))).thenReturn(smallPHList);
+                        nullable(UserHandle.class))).thenReturn(smallPHList);
         makeAccountsVisibleToAllUsers(TEL_PA_HANDLE_16, SIP_PA_HANDLE_17);
 
         assertEquals(fullPHList,
@@ -411,8 +411,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         }
         assertNull(result);
         verify(mFakePhoneAccountRegistrar, never())
-                .getCallCapablePhoneAccounts(anyString(), anyBoolean(),
-                        any(UserHandle.class), anyBoolean());
+                .getCallCapablePhoneAccounts(anyString(), anyBoolean(), any(UserHandle.class));
     }
 
     @SmallTest
@@ -422,12 +421,10 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         List<PhoneAccountHandle> telPHList = List.of(TEL_PA_HANDLE_16);
 
         when(mFakePhoneAccountRegistrar
-                .getCallCapablePhoneAccounts(eq("tel"), anyBoolean(),
-                        any(UserHandle.class), anyBoolean()))
+                .getCallCapablePhoneAccounts(eq("tel"), anyBoolean(), any(UserHandle.class)))
                 .thenReturn(telPHList);
         when(mFakePhoneAccountRegistrar
-                .getCallCapablePhoneAccounts(eq("sip"), anyBoolean(),
-                        any(UserHandle.class), anyBoolean()))
+                .getCallCapablePhoneAccounts(eq("sip"), anyBoolean(), any(UserHandle.class)))
                 .thenReturn(sipPHList);
         makeAccountsVisibleToAllUsers(TEL_PA_HANDLE_16, SIP_PA_HANDLE_17);
 
@@ -476,7 +473,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 makePhoneAccount(TEL_PA_HANDLE_16).build(),
                 makePhoneAccount(SIP_PA_HANDLE_17).build());
 
-        when(mFakePhoneAccountRegistrar.getAllPhoneAccounts(any(UserHandle.class), anyBoolean()))
+        when(mFakePhoneAccountRegistrar.getAllPhoneAccounts(any(UserHandle.class)))
                 .thenReturn(phoneAccountList);
 
         assertEquals(2, mTSIBinder.getAllPhoneAccounts().getList().size());
@@ -650,20 +647,17 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testAddNewIncomingCall() throws Exception {
-        PhoneAccount phoneAccount = makePhoneAccount(TEL_PA_HANDLE_16).build();
+        PhoneAccount phoneAccount = makePhoneAccount(TEL_PA_HANDLE_CURRENT).build();
         phoneAccount.setIsEnabled(true);
         doReturn(phoneAccount).when(mFakePhoneAccountRegistrar).getPhoneAccount(
-                eq(TEL_PA_HANDLE_16), any(UserHandle.class));
+                eq(TEL_PA_HANDLE_CURRENT), any(UserHandle.class));
         doNothing().when(mAppOpsManager).checkPackage(anyInt(), anyString());
         Bundle extras = createSampleExtras();
 
-        mTSIBinder.addNewIncomingCall(TEL_PA_HANDLE_16, extras, CALLING_PACKAGE);
+        mTSIBinder.addNewIncomingCall(TEL_PA_HANDLE_CURRENT, extras, CALLING_PACKAGE);
 
-        verify(mFakePhoneAccountRegistrar).getPhoneAccount(
-                TEL_PA_HANDLE_16, TEL_PA_HANDLE_16.getUserHandle());
         addCallTestHelper(TelecomManager.ACTION_INCOMING_CALL,
-                CallIntentProcessor.KEY_IS_INCOMING_CALL, extras,
-                TEL_PA_HANDLE_16, false);
+                CallIntentProcessor.KEY_IS_INCOMING_CALL, extras, false);
     }
 
     @SmallTest
@@ -701,7 +695,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         mTSIBinder.addNewUnknownCall(TEL_PA_HANDLE_CURRENT, extras);
 
         addCallTestHelper(TelecomManager.ACTION_NEW_UNKNOWN_CALL,
-                CallIntentProcessor.KEY_IS_UNKNOWN_CALL, extras, TEL_PA_HANDLE_CURRENT, true);
+                CallIntentProcessor.KEY_IS_UNKNOWN_CALL, extras, true);
     }
 
     @SmallTest
@@ -727,8 +721,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     }
 
     private void addCallTestHelper(String expectedAction, String extraCallKey,
-            Bundle expectedExtras, PhoneAccountHandle expectedPhoneAccountHandle,
-            boolean isUnknown) {
+            Bundle expectedExtras, boolean isUnknown) {
         ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
         if (isUnknown) {
             verify(mCallIntentProcessorAdapter).processUnknownCallIntent(any(CallsManager.class),
@@ -740,7 +733,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         Intent capturedIntent = intentCaptor.getValue();
         assertEquals(expectedAction, capturedIntent.getAction());
         Bundle intentExtras = capturedIntent.getExtras();
-        assertEquals(expectedPhoneAccountHandle,
+        assertEquals(TEL_PA_HANDLE_CURRENT,
                 intentExtras.get(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE));
         assertTrue(intentExtras.getBoolean(extraCallKey));
 

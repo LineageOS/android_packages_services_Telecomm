@@ -1617,26 +1617,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         checkIfRttCapable();
     }
 
-    public UserHandle getUserHandleFromTargetPhoneAccount() {
-        return mTargetPhoneAccountHandle == null
-                ? mCallsManager.getCurrentUserHandle() :
-                mTargetPhoneAccountHandle.getUserHandle();
-    }
-
-    public PhoneAccount getPhoneAccountFromHandle() {
-        if (getTargetPhoneAccount() == null) {
-            return null;
-        }
-        PhoneAccount phoneAccount = mCallsManager.getPhoneAccountRegistrar()
-                .getPhoneAccountUnchecked(getTargetPhoneAccount());
-
-        if (phoneAccount == null) {
-            return null;
-        }
-
-        return phoneAccount;
-    }
-
     public CharSequence getTargetPhoneAccountLabel() {
         if (getTargetPhoneAccount() == null) {
             return null;

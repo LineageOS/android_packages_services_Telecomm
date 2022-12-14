@@ -16,10 +16,8 @@
 
 package com.android.server.telecom.tests;
 
-import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Binder;
@@ -57,8 +55,6 @@ import java.util.Random;
 import java.util.UUID;
 
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
@@ -79,7 +75,6 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
     private static final String TEST_PACKAGE = "com.android.server.telecom.tests";
     private static final String TEST_CLASS =
             "com.android.server.telecom.tests.MockConnectionService";
-    private static final UserHandle USER_HANDLE_10 = new UserHandle(10);
 
     @Mock
     ConnectionServiceRepository mMockConnectionServiceRepository;
@@ -142,10 +137,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
                                 SubscriptionManager.INVALID_SIM_SLOT_INDEX);
                     }
                 });
-        when(mMockAccountRegistrar.getAllPhoneAccounts(any(UserHandle.class), anyBoolean()))
-                .thenReturn(phoneAccounts);
-        when(mMockCall.getUserHandleFromTargetPhoneAccount()).
-                thenReturn(Binder.getCallingUserHandle());
+        when(mMockAccountRegistrar.getAllPhoneAccountsOfCurrentUser()).thenReturn(phoneAccounts);
     }
 
     @Override
@@ -208,7 +200,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         ConnectionServiceWrapper service = makeConnectionServiceWrapper();
         // Make sure the target phone account has the correct permissions
         PhoneAccount mFakeTargetPhoneAccount = makeQuickAccount("cm_acct",
-                PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION, null);
+                PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION);
         when(mMockAccountRegistrar.getPhoneAccountUnchecked(pAHandle)).thenReturn(
                 mFakeTargetPhoneAccount);
 
@@ -237,7 +229,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         ConnectionServiceWrapper service = makeConnectionServiceWrapper();
         when(mMockCall.getConnectionManagerPhoneAccount()).thenReturn(callManagerPAHandle);
         PhoneAccount mFakeTargetPhoneAccount = makeQuickAccount("cm_acct",
-                PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION, null);
+                PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION);
         when(mMockAccountRegistrar.getPhoneAccountUnchecked(pAHandle)).thenReturn(
                 mFakeTargetPhoneAccount);
         when(mMockCall.getConnectionService()).thenReturn(service);
@@ -277,7 +269,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         ConnectionServiceWrapper service = makeConnectionServiceWrapper();
         when(mMockCall.getConnectionManagerPhoneAccount()).thenReturn(callManagerPAHandle);
         PhoneAccount mFakeTargetPhoneAccount = makeQuickAccount("cm_acct",
-                PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION, null);
+                PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION);
         when(mMockAccountRegistrar.getPhoneAccountUnchecked(pAHandle)).thenReturn(
                 mFakeTargetPhoneAccount);
         when(mMockCall.getConnectionService()).thenReturn(service);
@@ -323,7 +315,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         // Do not use this account, even though it is a SIM subscription and can place emergency
         // calls
         ConnectionServiceWrapper service = makeConnectionServiceWrapper();
-        PhoneAccount emergencyPhoneAccount = makeEmergencyPhoneAccount("tel_emer", 0, null);
+        PhoneAccount emergencyPhoneAccount = makeEmergencyPhoneAccount("tel_emer", 0);
         mapToSubSlot(emergencyPhoneAccount, 2 /*subId*/, 1 /*slotId*/);
         phoneAccounts.add(emergencyPhoneAccount);
 
@@ -331,36 +323,6 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
 
         verify(mMockCall).setConnectionManagerPhoneAccount(eq(regularAccountHandle));
         verify(mMockCall).setTargetPhoneAccount(eq(regularAccountHandle));
-        verify(mMockCall).setConnectionService(eq(service));
-        verify(service).createConnection(eq(mMockCall), any(CreateConnectionResponse.class));
-        // Notify successful connection to call
-        CallIdMapper mockCallIdMapper = mock(CallIdMapper.class);
-        mTestCreateConnectionProcessor.handleCreateConnectionSuccess(mockCallIdMapper, null);
-        verify(mMockCreateConnectionResponse).handleCreateConnectionSuccess(mockCallIdMapper, null);
-    }
-
-    /**
-     * Ensure that when no phone accounts (visible to the user) are available for the call, we use
-     * an available sim from other another user (on the condition that the user has the
-     * INTERACT_ACROSS_USERS permission).
-     */
-    @SmallTest
-    @Test
-    public void testEmergencyCallAcrossUsers() throws Exception {
-        when(mMockCall.isEmergencyCall()).thenReturn(true);
-        when(mMockCall.isTestEmergencyCall()).thenReturn(false);
-        ConnectionServiceWrapper service = makeConnectionServiceWrapper();
-        // Add an emergency account associated with a different user and expect this to be called.
-        PhoneAccount emergencyPhoneAccount = makeEmergencyPhoneAccount("tel_emer",
-                0, USER_HANDLE_10);
-        mapToSubSlot(emergencyPhoneAccount, 1 /*subId*/, 0 /*slotId*/);
-        phoneAccounts.add(emergencyPhoneAccount);
-        PhoneAccountHandle emergencyPhoneAccountHandle = emergencyPhoneAccount.getAccountHandle();
-
-        mTestCreateConnectionProcessor.process();
-
-        verify(mMockCall).setConnectionManagerPhoneAccount(eq(emergencyPhoneAccountHandle));
-        verify(mMockCall).setTargetPhoneAccount(eq(emergencyPhoneAccountHandle));
         verify(mMockCall).setConnectionService(eq(service));
         verify(service).createConnection(eq(mMockCall), any(CreateConnectionResponse.class));
         // Notify successful connection to call
@@ -389,7 +351,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
                 "cm_acct", 0);
         phoneAccounts.add(callManagerPA);
         ConnectionServiceWrapper service = makeConnectionServiceWrapper();
-        PhoneAccount emergencyPhoneAccount = makeEmergencyPhoneAccount("tel_emer", 0, null);
+        PhoneAccount emergencyPhoneAccount = makeEmergencyPhoneAccount("tel_emer", 0);
         mapToSubSlot(emergencyPhoneAccount, 2 /*subId*/, 1 /*slotId*/);
         phoneAccounts.add(emergencyPhoneAccount);
         PhoneAccountHandle emergencyPhoneAccountHandle = emergencyPhoneAccount.getAccountHandle();
@@ -425,10 +387,10 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
                 "cm_acct", 0);
         phoneAccounts.add(callManagerPA);
         ConnectionServiceWrapper service = makeConnectionServiceWrapper();
-        PhoneAccount emergencyPhoneAccount1 = makeEmergencyPhoneAccount("tel_emer1", 0, null);
+        PhoneAccount emergencyPhoneAccount1 = makeEmergencyPhoneAccount("tel_emer1", 0);
         phoneAccounts.add(emergencyPhoneAccount1);
         mapToSubSlot(emergencyPhoneAccount1, 1 /*subId*/, 1 /*slotId*/);
-        PhoneAccount emergencyPhoneAccount2 = makeEmergencyPhoneAccount("tel_emer2", 0, null);
+        PhoneAccount emergencyPhoneAccount2 = makeEmergencyPhoneAccount("tel_emer2", 0);
         phoneAccounts.add(emergencyPhoneAccount2);
         mapToSubSlot(emergencyPhoneAccount2, 2 /*subId*/, 0 /*slotId*/);
         PhoneAccountHandle emergencyPhoneAccountHandle2 = emergencyPhoneAccount2.getAccountHandle();
@@ -456,12 +418,12 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         when(mMockCall.isEmergencyCall()).thenReturn(true);
         when(mMockCall.isTestEmergencyCall()).thenReturn(false);
         ConnectionServiceWrapper service = makeConnectionServiceWrapper();
-        PhoneAccount emergencyPhoneAccount1 = makeEmergencyPhoneAccount("tel_emer1", 0, null);
+        PhoneAccount emergencyPhoneAccount1 = makeEmergencyPhoneAccount("tel_emer1", 0);
         mapToSubSlot(emergencyPhoneAccount1, 1 /*subId*/, 0 /*slotId*/);
         setTargetPhoneAccount(mMockCall, emergencyPhoneAccount1.getAccountHandle());
         phoneAccounts.add(emergencyPhoneAccount1);
         PhoneAccount emergencyPhoneAccount2 = makeEmergencyPhoneAccount("tel_emer2",
-                PhoneAccount.CAPABILITY_EMERGENCY_PREFERRED, null);
+                PhoneAccount.CAPABILITY_EMERGENCY_PREFERRED);
         mapToSubSlot(emergencyPhoneAccount2, 2 /*subId*/, 1 /*slotId*/);
         phoneAccounts.add(emergencyPhoneAccount2);
         PhoneAccountHandle emergencyPhoneAccountHandle2 = emergencyPhoneAccount2.getAccountHandle();
@@ -493,10 +455,10 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
                 "cm_acct", 0);
         phoneAccounts.add(callManagerPA);
         ConnectionServiceWrapper service = makeConnectionServiceWrapper();
-        PhoneAccount emergencyPhoneAccount1 = makeEmergencyPhoneAccount("tel_emer1", 0, null);
+        PhoneAccount emergencyPhoneAccount1 = makeEmergencyPhoneAccount("tel_emer1", 0);
         mapToSubSlot(emergencyPhoneAccount1, 1 /*subId*/, 0 /*slotId*/);
         phoneAccounts.add(emergencyPhoneAccount1);
-        PhoneAccount emergencyPhoneAccount2 = makeEmergencyPhoneAccount("tel_emer2", 0, null);
+        PhoneAccount emergencyPhoneAccount2 = makeEmergencyPhoneAccount("tel_emer2", 0);
         // Make this the user preferred account
         mapToSubSlot(emergencyPhoneAccount2, 2 /*subId*/, 1 /*slotId*/);
         setTargetPhoneAccount(mMockCall, emergencyPhoneAccount2.getAccountHandle());
@@ -530,13 +492,13 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
                 "cm_acct", 0);
         phoneAccounts.add(callManagerPA);
         ConnectionServiceWrapper service = makeConnectionServiceWrapper();
-        PhoneAccount emergencyPhoneAccount1 = makeEmergencyPhoneAccount("tel_emer1", 0, null);
+        PhoneAccount emergencyPhoneAccount1 = makeEmergencyPhoneAccount("tel_emer1", 0);
         // make this the user preferred account
         setTargetPhoneAccount(mMockCall, emergencyPhoneAccount1.getAccountHandle());
         mapToSubSlot(emergencyPhoneAccount1, 1 /*subId*/,
                 SubscriptionManager.INVALID_SIM_SLOT_INDEX /*slotId*/);
         phoneAccounts.add(emergencyPhoneAccount1);
-        PhoneAccount emergencyPhoneAccount2 = makeEmergencyPhoneAccount("tel_emer2", 0, null);
+        PhoneAccount emergencyPhoneAccount2 = makeEmergencyPhoneAccount("tel_emer2", 0);
         mapToSubSlot(emergencyPhoneAccount2, 2 /*subId*/, 1 /*slotId*/);
         phoneAccounts.add(emergencyPhoneAccount2);
         PhoneAccountHandle emergencyPhoneAccountHandle2 = emergencyPhoneAccount2.getAccountHandle();
@@ -567,11 +529,11 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
                 "cm_acct", 0);
         phoneAccounts.add(callManagerPA);
         ConnectionServiceWrapper service = makeConnectionServiceWrapper();
-        PhoneAccount emergencyPhoneAccount1 = makeEmergencyPhoneAccount("tel_emer1", 0, null);
+        PhoneAccount emergencyPhoneAccount1 = makeEmergencyPhoneAccount("tel_emer1", 0);
         mapToSubSlot(emergencyPhoneAccount1, 1 /*subId*/,
                 SubscriptionManager.INVALID_SIM_SLOT_INDEX /*slotId*/);
         phoneAccounts.add(emergencyPhoneAccount1);
-        PhoneAccount emergencyPhoneAccount2 = makeEmergencyPhoneAccount("tel_emer2", 0, null);
+        PhoneAccount emergencyPhoneAccount2 = makeEmergencyPhoneAccount("tel_emer2", 0);
         mapToSubSlot(emergencyPhoneAccount2, 2 /*subId*/, 1 /*slotId*/);
         phoneAccounts.add(emergencyPhoneAccount2);
         PhoneAccountHandle emergencyPhoneAccountHandle2 = emergencyPhoneAccount2.getAccountHandle();
@@ -631,7 +593,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         PhoneAccount emerCallManagerPA = getNewEmergencyConnectionManagerPhoneAccount("cm_acct",
                 PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS);
         ConnectionServiceWrapper service = makeConnectionServiceWrapper();
-        PhoneAccount emergencyPhoneAccount = makeEmergencyPhoneAccount("tel_emer", 0, null);
+        PhoneAccount emergencyPhoneAccount = makeEmergencyPhoneAccount("tel_emer", 0);
         phoneAccounts.add(emergencyPhoneAccount);
         mapToSubSlot(regularAccount, 2 /*subId*/, 1 /*slotId*/);
         mTestCreateConnectionProcessor.process();
@@ -720,7 +682,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
 
     private PhoneAccount makeEmergencyTestPhoneAccount(String id, int capabilities) {
         final PhoneAccount emergencyPhoneAccount = makeQuickAccount(id, capabilities |
-                PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS, null);
+                PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS);
         PhoneAccountHandle emergencyPhoneAccountHandle = emergencyPhoneAccount.getAccountHandle();
         givePhoneAccountBindPermission(emergencyPhoneAccountHandle);
         when(mMockAccountRegistrar.getPhoneAccountUnchecked(emergencyPhoneAccountHandle))
@@ -728,11 +690,10 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         return emergencyPhoneAccount;
     }
 
-    private PhoneAccount makeEmergencyPhoneAccount(String id, int capabilities,
-            UserHandle userHandle) {
+    private PhoneAccount makeEmergencyPhoneAccount(String id, int capabilities) {
         final PhoneAccount emergencyPhoneAccount = makeQuickAccount(id, capabilities |
                 PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS |
-                        PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION, userHandle);
+                        PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION);
         PhoneAccountHandle emergencyPhoneAccountHandle = emergencyPhoneAccount.getAccountHandle();
         givePhoneAccountBindPermission(emergencyPhoneAccountHandle);
         when(mMockAccountRegistrar.getPhoneAccountUnchecked(emergencyPhoneAccountHandle))
@@ -741,7 +702,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
     }
 
     private PhoneAccount makePhoneAccount(String id, int capabilities) {
-        final PhoneAccount phoneAccount = makeQuickAccount(id, capabilities, null);
+        final PhoneAccount phoneAccount = makeQuickAccount(id, capabilities);
         PhoneAccountHandle phoneAccountHandle = phoneAccount.getAccountHandle();
         givePhoneAccountBindPermission(phoneAccountHandle);
         when(mMockAccountRegistrar.getPhoneAccountUnchecked(
@@ -759,7 +720,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
     }
 
     private PhoneAccountHandle getNewConnectionMangerHandleForCall(Call call, String id) {
-        PhoneAccountHandle callManagerPAHandle = makeQuickAccountHandle(id, null);
+        PhoneAccountHandle callManagerPAHandle = makeQuickAccountHandle(id);
         when(mMockAccountRegistrar.getSimCallManagerFromCall(eq(call))).thenReturn(
                 callManagerPAHandle);
         givePhoneAccountBindPermission(callManagerPAHandle);
@@ -767,7 +728,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
     }
 
     private PhoneAccountHandle getNewTargetPhoneAccountHandle(String id) {
-        PhoneAccountHandle pAHandle = makeQuickAccountHandle(id, null);
+        PhoneAccountHandle pAHandle = makeQuickAccountHandle(id);
         givePhoneAccountBindPermission(pAHandle);
         return pAHandle;
     }
@@ -778,7 +739,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
 
     private PhoneAccount createNewConnectionManagerPhoneAccountForCall(Call call, String id,
             int capability) {
-        PhoneAccount callManagerPA = makeQuickAccount(id, capability, null);
+        PhoneAccount callManagerPA = makeQuickAccount(id, capability);
         when(mMockAccountRegistrar.getSimCallManagerFromCall(eq(call))).thenReturn(
                 callManagerPA.getAccountHandle());
         givePhoneAccountBindPermission(callManagerPA.getAccountHandle());
@@ -788,7 +749,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
     }
 
     private PhoneAccount getNewEmergencyConnectionManagerPhoneAccount(String id, int capability) {
-        PhoneAccount callManagerPA = makeQuickAccount(id, capability, null);
+        PhoneAccount callManagerPA = makeQuickAccount(id, capability);
         when(mMockAccountRegistrar.getSimCallManagerOfCurrentUser()).thenReturn(
                 callManagerPA.getAccountHandle());
         givePhoneAccountBindPermission(callManagerPA.getAccountHandle());
@@ -805,24 +766,21 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         ConnectionServiceWrapper wrapper = mock(ConnectionServiceWrapper.class);
         when(mMockConnectionServiceRepository.getService(
                 eq(makeQuickConnectionServiceComponentName()),
-                any(UserHandle.class))).thenReturn(wrapper);
+                eq(Binder.getCallingUserHandle()))).thenReturn(wrapper);
         return wrapper;
     }
 
-    private static PhoneAccountHandle makeQuickAccountHandle(String id, UserHandle userHandle) {
-        if (userHandle == null) {
-            userHandle = Binder.getCallingUserHandle();
-        }
-        return new PhoneAccountHandle(makeQuickConnectionServiceComponentName(), id, userHandle);
+    private static PhoneAccountHandle makeQuickAccountHandle(String id) {
+        return new PhoneAccountHandle(makeQuickConnectionServiceComponentName(), id,
+                Binder.getCallingUserHandle());
     }
 
-    private PhoneAccount.Builder makeQuickAccountBuilder(String id, int idx,
-            UserHandle userHandle) {
-        return new PhoneAccount.Builder(makeQuickAccountHandle(id, userHandle), "label" + idx);
+    private PhoneAccount.Builder makeQuickAccountBuilder(String id, int idx) {
+        return new PhoneAccount.Builder(makeQuickAccountHandle(id), "label" + idx);
     }
 
-    private PhoneAccount makeQuickAccount(String id, int idx, UserHandle userHandle) {
-        return makeQuickAccountBuilder(id, idx, userHandle)
+    private PhoneAccount makeQuickAccount(String id, int idx) {
+        return makeQuickAccountBuilder(id, idx)
                 .setAddress(Uri.parse("http://foo.com/" + idx))
                 .setSubscriptionAddress(Uri.parse("tel:555-000" + idx))
                 .setCapabilities(idx)

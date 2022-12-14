@@ -22,7 +22,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.UserHandle;
 import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
@@ -167,26 +166,22 @@ public class IncomingCallNotifier extends CallsManagerListenerBase {
                 showIncomingCallNotification(mIncomingCall);
             } else if (hadIncomingCall && !hasIncomingCall) {
                 previousIncomingCall.removeListener(mCallListener);
-                hideIncomingCallNotification(
-                        previousIncomingCall.getUserHandleFromTargetPhoneAccount());
+                hideIncomingCallNotification();
             }
         }
     }
 
     private void showIncomingCallNotification(Call call) {
-        Log.i(this, "showIncomingCallNotification showCall = %s for user = %s",
-                call, call.getUserHandleFromTargetPhoneAccount());
+        Log.i(this, "showIncomingCallNotification showCall = %s", call);
 
         Notification.Builder builder = getNotificationBuilder(call,
                 mCallsManagerProxy.getActiveCall());
-        mNotificationManager.notifyAsUser(NOTIFICATION_TAG, NOTIFICATION_INCOMING_CALL,
-                builder.build(), call.getUserHandleFromTargetPhoneAccount());
+        mNotificationManager.notify(NOTIFICATION_TAG, NOTIFICATION_INCOMING_CALL, builder.build());
     }
 
-    private void hideIncomingCallNotification(UserHandle userHandle) {
-        Log.i(this, "hideIncomingCallNotification for user = %s", userHandle);
-        mNotificationManager.cancelAsUser(NOTIFICATION_TAG, NOTIFICATION_INCOMING_CALL,
-                userHandle);
+    private void hideIncomingCallNotification() {
+        Log.i(this, "hideIncomingCallNotification");
+        mNotificationManager.cancel(NOTIFICATION_TAG, NOTIFICATION_INCOMING_CALL);
     }
 
     private String getNotificationName(Call call) {
