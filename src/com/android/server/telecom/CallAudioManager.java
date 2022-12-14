@@ -17,10 +17,13 @@
 package com.android.server.telecom;
 
 import android.annotation.NonNull;
+import android.content.Context;
 import android.media.IAudioService;
 import android.media.ToneGenerator;
+import android.os.UserHandle;
 import android.telecom.CallAudioState;
 import android.telecom.Log;
+import android.telecom.PhoneAccount;
 import android.telecom.VideoProfile;
 import android.util.SparseArray;
 
@@ -450,15 +453,33 @@ public class CallAudioManager extends CallsManagerListenerBase {
                 CallAudioRouteStateMachine.INCLUDE_BLUETOOTH_IN_BASELINE);
     }
 
-    void silenceRingers() {
+    Set<UserHandle> silenceRingers(Context context, UserHandle callingUser) {
+        // Store all users from calls that were silenced so that we can silence the
+        // InCallServices which are associated with those users.
+        Set<UserHandle> userHandles = new HashSet<>();
+        boolean allCallSilenced = true;
         synchronized (mCallsManager.getLock()) {
             for (Call call : mRingingCalls) {
+                PhoneAccount targetPhoneAccount = call.getPhoneAccountFromHandle();
+                UserHandle userFromCall = call.getUserHandleFromTargetPhoneAccount();
+                // Do not try to silence calls when calling user is different from the phone account
+                // user and the account does not have CAPABILITY_MULTI_USER enabled.
+                if (!callingUser.equals(userFromCall) && !targetPhoneAccount.
+                        hasCapabilities(PhoneAccount.CAPABILITY_MULTI_USER)) {
+                    allCallSilenced = false;
+                    continue;
+                }
+                userHandles.add(userFromCall);
                 call.silence();
             }
 
-            mRinger.stopRinging();
-            mRinger.stopCallWaiting();
+            // If all the calls were silenced, we can stop the ringer.
+            if (allCallSilenced) {
+                mRinger.stopRinging();
+                mRinger.stopCallWaiting();
+            }
         }
+        return userHandles;
     }
 
     public boolean isRingtonePlaying() {

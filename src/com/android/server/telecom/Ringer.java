@@ -474,7 +474,8 @@ public class Ringer {
             return;
         }
 
-        if (mInCallController.doesConnectedDialerSupportRinging()) {
+        if (mInCallController.doesConnectedDialerSupportRinging(
+                call.getUserHandleFromTargetPhoneAccount())) {
             Log.addEvent(call, LogUtils.Events.SKIP_RINGING, "Dialer handles");
             return;
         }
@@ -610,7 +611,8 @@ public class Ringer {
         // Don't do call waiting operations or vibration unless these are false.
         boolean isTheaterModeOn = mSystemSettingsUtil.isTheaterModeOn(mContext);
         timer.record("isTheaterModeOn");
-        boolean letDialerHandleRinging = mInCallController.doesConnectedDialerSupportRinging();
+        boolean letDialerHandleRinging = mInCallController.doesConnectedDialerSupportRinging(
+                call.getUserHandleFromTargetPhoneAccount());
         timer.record("letDialerHandleRinging");
 
         Log.i(this, "startRinging timings: " + timer);
