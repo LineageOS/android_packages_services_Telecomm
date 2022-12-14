@@ -93,6 +93,9 @@ public class CallEventCallbackAckTransaction extends VoipCallTransaction {
                 case TransactionalServiceWrapper.ON_ANSWER:
                     mICallEventCallback.onAnswer(mCallId, mVideoState, receiver);
                     break;
+                case TransactionalServiceWrapper.ON_STREAMING_STARTED:
+                    mICallEventCallback.onCallStreamingStarted(mCallId, receiver);
+                    break;
             }
         } catch (RemoteException remoteException) {
             return CompletableFuture.completedFuture(TRANSACTION_FAILED);

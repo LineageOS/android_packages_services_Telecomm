@@ -88,6 +88,7 @@ public class LogUtils {
         public static final String CSW_REMOVE_CALL = "CSW.rC";
         public static final String CSW_SET_IS_CONFERENCED = "CSW.sIC";
         public static final String CSW_ADD_CONFERENCE_CALL = "CSW.aCC";
+        public static final String CSA_SET_STATE = "CSA.sSS";
     }
 
     public final static class Events {

@@ -156,6 +156,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         void onCallHoldFailed(Call call);
         void onCallSwitchFailed(Call call);
         void onConnectionEvent(Call call, String event, Bundle extras);
+        void onCallStreamingStateChanged(Call call, boolean isStreaming);
         void onExternalCallChanged(Call call, boolean isExternalCall);
         void onRttInitiationFailure(Call call, int reason);
         void onRemoteRttRequest(Call call, int requestId);
@@ -242,6 +243,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         public void onCallSwitchFailed(Call call) {}
         @Override
         public void onConnectionEvent(Call call, String event, Bundle extras) {}
+        @Override
+        public void onCallStreamingStateChanged(Call call, boolean isStreaming) {}
         @Override
         public void onExternalCallChanged(Call call, boolean isExternalCall) {}
         @Override
@@ -533,6 +536,11 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private boolean mIsSelfManaged = false;
 
     private boolean mIsTransactionalCall = false;
+
+    /**
+     * Indicates whether this call is streaming.
+     */
+    private boolean mIsStreaming = false;
 
     /**
      * Indicates whether the {@link PhoneAccount} associated with an self-managed call want to
@@ -4388,6 +4396,45 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         if (mDisconnectFuture != null) {
             mDisconnectFuture.complete(false);
             mDisconnectFuture = null;
+        }
+    }
+
+    public boolean isStreaming() {
+        synchronized (mLock) {
+            return mIsStreaming;
+        }
+    }
+
+    public void startStreaming() {
+        if (!mIsTransactionalCall) {
+            throw new UnsupportedOperationException(
+                    "Can't streaming call created by non voip apps");
+        }
+
+        synchronized (mLock) {
+            if (mIsStreaming) {
+                // ignore
+                return;
+            }
+
+            mIsStreaming = true;
+            for (Listener listener : mListeners) {
+                listener.onCallStreamingStateChanged(this, true /** isStreaming */);
+            }
+        }
+    }
+
+    public void stopStreaming() {
+        synchronized (mLock) {
+            if (!mIsStreaming) {
+                // ignore
+                return;
+            }
+
+            mIsStreaming = false;
+            for (Listener listener : mListeners) {
+                listener.onCallStreamingStateChanged(this, false /** isStreaming */);
+            }
         }
     }
 }

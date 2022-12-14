@@ -50,17 +50,19 @@ public class CallAudioModeStateMachine extends StateMachine {
         public boolean hasAudioProcessingCalls;
         public boolean isTonePlaying;
         public boolean foregroundCallIsVoip;
+        public boolean isStreaming;
         public Session session;
 
         private MessageArgs(boolean hasActiveOrDialingCalls, boolean hasRingingCalls,
                 boolean hasHoldingCalls, boolean hasAudioProcessingCalls, boolean isTonePlaying,
-                boolean foregroundCallIsVoip, Session session) {
+                boolean foregroundCallIsVoip, boolean isStreaming, Session session) {
             this.hasActiveOrDialingCalls = hasActiveOrDialingCalls;
             this.hasRingingCalls = hasRingingCalls;
             this.hasHoldingCalls = hasHoldingCalls;
             this.hasAudioProcessingCalls = hasAudioProcessingCalls;
             this.isTonePlaying = isTonePlaying;
             this.foregroundCallIsVoip = foregroundCallIsVoip;
+            this.isStreaming = isStreaming;
             this.session = session;
         }
 
@@ -73,6 +75,7 @@ public class CallAudioModeStateMachine extends StateMachine {
                     ", hasAudioProcessingCalls=" + hasAudioProcessingCalls +
                     ", isTonePlaying=" + isTonePlaying +
                     ", foregroundCallIsVoip=" + foregroundCallIsVoip +
+                    ", isStreaming=" + isStreaming +
                     ", session=" + session +
                     '}';
         }
@@ -84,6 +87,7 @@ public class CallAudioModeStateMachine extends StateMachine {
             private boolean mHasAudioProcessingCalls;
             private boolean mIsTonePlaying;
             private boolean mForegroundCallIsVoip;
+            private boolean mIsStreaming;
             private Session mSession;
 
             public Builder setHasActiveOrDialingCalls(boolean hasActiveOrDialingCalls) {
@@ -121,9 +125,15 @@ public class CallAudioModeStateMachine extends StateMachine {
                 return this;
             }
 
+            public Builder setIsStreaming(boolean isStraeming) {
+                mIsStreaming = isStraeming;
+                return this;
+            }
+
             public MessageArgs build() {
                 return new MessageArgs(mHasActiveOrDialingCalls, mHasRingingCalls, mHasHoldingCalls,
-                        mHasAudioProcessingCalls, mIsTonePlaying, mForegroundCallIsVoip, mSession);
+                        mHasAudioProcessingCalls, mIsTonePlaying, mForegroundCallIsVoip,
+                        mIsStreaming, mSession);
             }
         }
     }
@@ -138,7 +148,8 @@ public class CallAudioModeStateMachine extends StateMachine {
     public static final int ENTER_RING_FOCUS_FOR_TESTING = 4;
     public static final int ENTER_TONE_OR_HOLD_FOCUS_FOR_TESTING = 5;
     public static final int ENTER_AUDIO_PROCESSING_FOCUS_FOR_TESTING = 6;
-    public static final int ABANDON_FOCUS_FOR_TESTING = 7;
+    public static final int ENTER_STREAMING_FOCUS_FOR_TESTING = 7;
+    public static final int ABANDON_FOCUS_FOR_TESTING = 8;
 
     public static final int NO_MORE_ACTIVE_OR_DIALING_CALLS = 1001;
     public static final int NO_MORE_RINGING_CALLS = 1002;
@@ -160,6 +171,9 @@ public class CallAudioModeStateMachine extends StateMachine {
     // Used to indicate that Telecom is done doing things to the AudioManager and that it's safe
     // to release focus for other apps to take over.
     public static final int AUDIO_OPERATIONS_COMPLETE = 6001;
+
+    public static final int START_CALL_STREAMING = 7001;
+    public static final int STOP_CALL_STREAMING = 7002;
 
     public static final int RUN_RUNNABLE = 9001;
 
@@ -183,6 +197,8 @@ public class CallAudioModeStateMachine extends StateMachine {
         put(FOREGROUND_VOIP_MODE_CHANGE, "FOREGROUND_VOIP_MODE_CHANGE");
         put(RINGER_MODE_CHANGE, "RINGER_MODE_CHANGE");
         put(AUDIO_OPERATIONS_COMPLETE, "AUDIO_OPERATIONS_COMPLETE");
+        put(START_CALL_STREAMING, "START_CALL_STREAMING");
+        put(STOP_CALL_STREAMING, "STOP_CALL_STREAMING");
 
         put(RUN_RUNNABLE, "RUN_RUNNABLE");
     }};
@@ -193,6 +209,7 @@ public class CallAudioModeStateMachine extends StateMachine {
             AudioProcessingFocusState.class.getSimpleName();
     public static final String CALL_STATE_NAME = SimCallFocusState.class.getSimpleName();
     public static final String RING_STATE_NAME = RingingFocusState.class.getSimpleName();
+    public static final String STREAMING_STATE_NAME = StreamingFocusState.class.getSimpleName();
     public static final String COMMS_STATE_NAME = VoipCallFocusState.class.getSimpleName();
 
     private class BaseState extends State {
@@ -213,6 +230,9 @@ public class CallAudioModeStateMachine extends StateMachine {
                     return HANDLED;
                 case ENTER_AUDIO_PROCESSING_FOCUS_FOR_TESTING:
                     transitionTo(mAudioProcessingFocusState);
+                    return HANDLED;
+                case ENTER_STREAMING_FOCUS_FOR_TESTING:
+                    transitionTo(mStreamingFocusState);
                     return HANDLED;
                 case ABANDON_FOCUS_FOR_TESTING:
                     transitionTo(mUnfocusedState);
@@ -279,6 +299,9 @@ public class CallAudioModeStateMachine extends StateMachine {
                     Log.w(LOG_TAG, "Call was surprisingly put into hold from an unknown state." +
                             " Args are: \n" + args.toString());
                     transitionTo(mOtherFocusState);
+                    return HANDLED;
+                case START_CALL_STREAMING:
+                    transitionTo(mStreamingFocusState);
                     return HANDLED;
                 case TONE_STARTED_PLAYING:
                     // This shouldn't happen either, but perform the action anyway.
@@ -352,6 +375,9 @@ public class CallAudioModeStateMachine extends StateMachine {
                     // This shouldn't happen either, but perform the action anyway.
                     Log.w(LOG_TAG, "Tone started playing unexpectedly. Args are: \n"
                             + args.toString());
+                    return HANDLED;
+                case START_CALL_STREAMING:
+                    transitionTo(mStreamingFocusState);
                     return HANDLED;
                 case AUDIO_OPERATIONS_COMPLETE:
                     Log.i(LOG_TAG, "Abandoning audio focus: now AUDIO_PROCESSING");
@@ -625,6 +651,79 @@ public class CallAudioModeStateMachine extends StateMachine {
                     Log.w(LOG_TAG, "Should not be seeing AUDIO_OPERATIONS_COMPLETE in a focused"
                             + " state");
                     return HANDLED;
+                case START_CALL_STREAMING:
+                    transitionTo(mStreamingFocusState);
+                    return HANDLED;
+                default:
+                    // The forced focus switch commands are handled by BaseState.
+                    return NOT_HANDLED;
+            }
+        }
+    }
+
+    private class StreamingFocusState extends BaseState {
+        @Override
+        public void enter() {
+            Log.i(LOG_TAG, "Audio focus entering streaming state");
+            mAudioManager.setMode(AudioManager.MODE_CALL_REDIRECT);
+            mMostRecentMode = AudioManager.MODE_NORMAL;
+            mCallAudioManager.setCallAudioRouteFocusState(CallAudioRouteStateMachine.ACTIVE_FOCUS);
+            mCallAudioManager.getCallAudioRouteStateMachine().sendMessageWithSessionInfo(
+                    CallAudioRouteStateMachine.STREAMING_FORCE_ENABLED);
+        }
+
+        private void preExit() {
+            mCallAudioManager.getCallAudioRouteStateMachine().sendMessageWithSessionInfo(
+                    CallAudioRouteStateMachine.STREAMING_FORCE_DISABLED);
+        }
+
+        @Override
+        public boolean processMessage(Message msg) {
+            if (super.processMessage(msg) == HANDLED) {
+                return HANDLED;
+            }
+            MessageArgs args = (MessageArgs) msg.obj;
+            switch (msg.what) {
+                case NO_MORE_ACTIVE_OR_DIALING_CALLS:
+                    // Do nothing.
+                    return HANDLED;
+                case NO_MORE_RINGING_CALLS:
+                    // Do nothing.
+                    return HANDLED;
+                case NO_MORE_HOLDING_CALLS:
+                    // Do nothing.
+                    return HANDLED;
+                case NO_MORE_AUDIO_PROCESSING_CALLS:
+                    // Do nothing.
+                    return HANDLED;
+                case NEW_ACTIVE_OR_DIALING_CALL:
+                    // Only possible for emergency call
+                    BaseState destState = calculateProperStateFromArgs(args);
+                    if (destState != this) {
+                        preExit();
+                        transitionTo(destState);
+                    }
+                    return HANDLED;
+                case NEW_RINGING_CALL:
+                    // Only possible for emergency call
+                    preExit();
+                    transitionTo(mRingingFocusState);
+                    return HANDLED;
+                case NEW_HOLDING_CALL:
+                    // Do nothing.
+                    return HANDLED;
+                case NEW_AUDIO_PROCESSING_CALL:
+                    // Do nothing.
+                    return HANDLED;
+                case START_CALL_STREAMING:
+                    // Can happen as a duplicate message
+                    return HANDLED;
+                case TONE_STARTED_PLAYING:
+                    // Do nothing.
+                    return HANDLED;
+                case STOP_CALL_STREAMING:
+                    transitionTo(calculateProperStateFromArgs(args));
+                    return HANDLED;
                 default:
                     // The forced focus switch commands are handled by BaseState.
                     return NOT_HANDLED;
@@ -707,6 +806,7 @@ public class CallAudioModeStateMachine extends StateMachine {
     private final BaseState mSimCallFocusState = new SimCallFocusState();
     private final BaseState mVoipCallFocusState = new VoipCallFocusState();
     private final BaseState mAudioProcessingFocusState = new AudioProcessingFocusState();
+    private final BaseState mStreamingFocusState = new StreamingFocusState();
     private final BaseState mOtherFocusState = new OtherFocusState();
 
     private final AudioManager mAudioManager;
@@ -745,6 +845,7 @@ public class CallAudioModeStateMachine extends StateMachine {
         addState(mSimCallFocusState);
         addState(mVoipCallFocusState);
         addState(mAudioProcessingFocusState);
+        addState(mStreamingFocusState);
         addState(mOtherFocusState);
         setInitialState(mUnfocusedState);
         start();
@@ -754,6 +855,7 @@ public class CallAudioModeStateMachine extends StateMachine {
                 .setHasHoldingCalls(false)
                 .setIsTonePlaying(false)
                 .setForegroundCallIsVoip(false)
+                .setIsStreaming(false)
                 .setSession(Log.createSubsession())
                 .build());
     }
@@ -807,12 +909,15 @@ public class CallAudioModeStateMachine extends StateMachine {
         // switch to the appropriate focus.
         // Otherwise abandon focus.
 
-        // The order matters here. If there are active calls, holding focus for them takes priority.
-        // After that, we want to prioritize holding calls over ringing calls so that when a
-        // call-waiting call gets answered, there's no transition in and out of the ringing focus
-        // state. After that, we want tones since we actually hold focus during them, then the
-        // audio processing state because that will release focus.
-        if (args.hasActiveOrDialingCalls) {
+        // The order matters here. If there is streaming call, holding streaming route for them
+        // takes priority. After that, holding focus for active calls takes priority. After that, we
+        // want to prioritize holding calls over ringing calls so that when a call-waiting call gets
+        // answered, there's no transition in and out of the ringing focus state. After that, we
+        // want tones since we actually hold focus during them, then the audio processing state
+        // because that will release focus.
+        if (args.isStreaming) {
+            return mSimCallFocusState;
+        } else if (args.hasActiveOrDialingCalls) {
             if (args.foregroundCallIsVoip) {
                 return mVoipCallFocusState;
             } else {
