@@ -2458,7 +2458,7 @@ public class CallsManager extends Call.ListenerBase
             }
         } else if (mPhoneAccountRegistrar.getCallCapablePhoneAccounts(
                 requireCallCapableAccountByHandle ? callHandleScheme : null, false,
-                call.getInitiatingUser(), false).isEmpty()) {
+                call.getInitiatingUser()).isEmpty()) {
             // If there are no call capable accounts, disconnect the call.
             markCallAsDisconnected(call, new DisconnectCause(DisconnectCause.CANCELED,
                     "No registered PhoneAccounts"));
@@ -2924,8 +2924,7 @@ public class CallsManager extends Call.ListenerBase
         List<PhoneAccountHandle> allAccounts =
                 mPhoneAccountRegistrar.getCallCapablePhoneAccounts(handle.getScheme(), false, user,
                         capabilities,
-                        isEmergency ? 0 : PhoneAccount.CAPABILITY_EMERGENCY_CALLS_ONLY,
-                        isEmergency);
+                        isEmergency ? 0 : PhoneAccount.CAPABILITY_EMERGENCY_CALLS_ONLY);
         if (mMaxNumberOfSimultaneouslyActiveSims < 0) {
             mMaxNumberOfSimultaneouslyActiveSims =
                     getTelephonyManager().getMaxNumberOfSimultaneouslyActiveSims();

@@ -34,7 +34,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.NotificationManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -43,11 +42,10 @@ import android.media.VolumeShaper;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
-import android.os.UserHandle;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.telecom.PhoneAccountHandle;
+import android.permission.PermissionCheckerManager;
 import android.telecom.TelecomManager;
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -151,10 +149,6 @@ public class RingerTest extends TelecomTestCase {
     @Mock Call mockCall2;
     @Mock NotificationManager mNotificationManager;
 
-    private static final PhoneAccountHandle PA_HANDLE =
-            new PhoneAccountHandle(new ComponentName("pa_pkg", "pa_cls"),
-                    "pa_id");
-
     Ringer mRingerUnderTest;
     AudioManager mockAudioManager;
     CompletableFuture<Void> mRingCompletionFuture = new CompletableFuture<>();
@@ -185,8 +179,6 @@ public class RingerTest extends TelecomTestCase {
                 mockInCallController, mNotificationManager);
         when(mockCall1.getState()).thenReturn(CallState.RINGING);
         when(mockCall2.getState()).thenReturn(CallState.RINGING);
-        when(mockCall1.getUserHandleFromTargetPhoneAccount()).thenReturn(PA_HANDLE.getUserHandle());
-        when(mockCall2.getUserHandleFromTargetPhoneAccount()).thenReturn(PA_HANDLE.getUserHandle());
         mRingerUnderTest.setBlockOnRingingFuture(mRingCompletionFuture);
         mRingerUnderTest.setNotificationManager(mockNotificationManager);
     }
@@ -237,8 +229,7 @@ public class RingerTest extends TelecomTestCase {
 
         // Start call waiting to make sure that it doesn't stop when we start ringing
         mRingerUnderTest.startCallWaiting(mockCall1);
-        when(mockInCallController.doesConnectedDialerSupportRinging(
-                any(UserHandle.class))).thenReturn(true);
+        when(mockInCallController.doesConnectedDialerSupportRinging()).thenReturn(true);
         ensureRingerIsNotAudible();
         assertFalse(mRingerUnderTest.startRinging(mockCall2, false));
         verify(mockRingtoneFactory, never())
@@ -257,8 +248,7 @@ public class RingerTest extends TelecomTestCase {
 
         // Start call waiting to make sure that it doesn't stop when we start ringing
         mRingerUnderTest.startCallWaiting(mockCall1);
-        when(mockInCallController.doesConnectedDialerSupportRinging(
-                any(UserHandle.class))).thenReturn(true);
+        when(mockInCallController.doesConnectedDialerSupportRinging()).thenReturn(true);
         ensureRingerIsAudible();
         assertTrue(mRingerUnderTest.startRinging(mockCall2, false));
         verify(mockRingtoneFactory, never())
