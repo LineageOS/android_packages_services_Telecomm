@@ -16,8 +16,10 @@
 
 package com.android.server.telecom;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.UserHandle;
 import android.telecom.DisconnectCause;
 import android.telecom.Log;
 import android.telecom.ParcelableConference;
@@ -389,11 +391,22 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
             // current user.
             // ONLY include phone accounts which are NOT self-managed; we will never consider a self
             // managed phone account for placing an emergency call.
+            UserHandle userFromCall = mCall.getUserHandleFromTargetPhoneAccount();
             List<PhoneAccount> allAccounts = mPhoneAccountRegistrar
-                    .getAllPhoneAccountsOfCurrentUser()
+                    .getAllPhoneAccounts(userFromCall, false)
                     .stream()
                     .filter(act -> !act.hasCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED))
                     .collect(Collectors.toList());
+
+            if (allAccounts.isEmpty()) {
+                // Try using phone accounts from other users to place the call (i.e. using an
+                // available work sim) given that the current user has the INTERACT_ACROSS_USERS
+                // permission.
+                allAccounts = mPhoneAccountRegistrar.getAllPhoneAccounts(userFromCall, true)
+                        .stream()
+                        .filter(act -> !act.hasCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED))
+                        .collect(Collectors.toList());
+            }
 
             if (allAccounts.isEmpty() && mContext.getPackageManager().hasSystemFeature(
                     PackageManager.FEATURE_TELEPHONY)) {
