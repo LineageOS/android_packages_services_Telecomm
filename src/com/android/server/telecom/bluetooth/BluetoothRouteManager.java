@@ -714,7 +714,7 @@ public class BluetoothRouteManager extends StateMachine {
             return null;
         }
 
-        if (!mDeviceManager.connectAudio(actualAddress)) {
+        if (!mDeviceManager.connectAudio(actualAddress, switchingBtDevices)) {
             boolean shouldRetry = retryCount < MAX_CONNECTION_RETRIES;
             Log.w(LOG_TAG, "Could not connect to %s. Will %s", actualAddress,
                     shouldRetry ? "retry" : "not retry");
