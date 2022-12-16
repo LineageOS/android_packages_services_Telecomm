@@ -70,7 +70,7 @@
     <string name="add_blocked_dialog_body" msgid="8599974422407139255">"Blokeatu zenbaki honetatik jasotzen diren deiak eta testu-mezuak:"</string>
     <string name="add_blocked_number_hint" msgid="8769422085658041097">"Telefono-zenbakia"</string>
     <string name="block_button" msgid="485080149164258770">"Blokeatu"</string>
-    <string name="non_primary_user" msgid="315564589279622098">"Gailuaren jabeak soilik ikus eta kudea ditzake blokeatutako zenbakiak."</string>
+    <string name="non_primary_user" msgid="315564589279622098">"Gailuaren jabeak soilik ikusi eta kudea ditzake blokeatutako zenbakiak."</string>
     <string name="delete_icon_description" msgid="5335959254954774373">"Desblokeatu"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="582982373755950791">"Aldi baterako desgaitu da blokeatzeko aukera"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="1261213114919301485">"Larrialdietarako zenbakia markatu ondoren, edo zenbait horretara testu-mezua bidali ondoren, desaktibatu egingo da blokeatzeko aukera, larrialdi-zerbitzuak zurekin harremanetan jarriko direla ziurtatzeko."</string>
