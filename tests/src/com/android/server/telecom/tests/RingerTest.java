@@ -114,6 +114,11 @@ public class RingerTest extends TelecomTestCase {
         }
 
         @Override
+        public boolean areVibrationFeaturesSupported(Vibrator vibrator) {
+            return true; // not needed
+        }
+
+        @Override
         public void validate() {
             // not needed
         }
