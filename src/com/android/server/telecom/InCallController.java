@@ -1383,13 +1383,15 @@ public class InCallController extends CallsManagerListenerBase implements
     public void onCallEndpointChanged(CallEndpoint callEndpoint) {
         if (!mInCallServices.isEmpty()) {
             Log.i(this, "Calling onCallEndpointChanged");
-            for (IInCallService inCallService : mInCallServices.values()) {
-                try {
-                    inCallService.onCallEndpointChanged(callEndpoint);
-                } catch (RemoteException ignored) {
-                    Log.d(this, "Remote exception calling onCallEndpointChanged");
+            mInCallServices.values().forEach(inCallServices -> {
+                for (IInCallService inCallService : inCallServices.values()) {
+                    try {
+                        inCallService.onCallEndpointChanged(callEndpoint);
+                    } catch (RemoteException ignored) {
+                        Log.d(this, "Remote exception calling onCallEndpointChanged");
+                    }
                 }
-            }
+            });
         }
     }
 
@@ -1398,13 +1400,15 @@ public class InCallController extends CallsManagerListenerBase implements
         if (!mInCallServices.isEmpty()) {
             Log.i(this, "Calling onAvailableCallEndpointsChanged");
             List<CallEndpoint> availableEndpoints = new ArrayList<>(availableCallEndpoints);
-            for (IInCallService inCallService : mInCallServices.values()) {
-                try {
-                    inCallService.onAvailableCallEndpointsChanged(availableEndpoints);
-                } catch (RemoteException ignored) {
-                    Log.d(this, "Remote exception calling onAvailableCallEndpointsChanged");
+            mInCallServices.values().forEach(inCallServices -> {
+                for (IInCallService inCallService : inCallServices.values()) {
+                    try {
+                        inCallService.onAvailableCallEndpointsChanged(availableEndpoints);
+                    } catch (RemoteException ignored) {
+                        Log.d(this, "Remote exception calling onAvailableCallEndpointsChanged");
+                    }
                 }
-            }
+            });
         }
     }
 
@@ -1412,13 +1416,15 @@ public class InCallController extends CallsManagerListenerBase implements
     public void onMuteStateChanged(boolean isMuted) {
         if (!mInCallServices.isEmpty()) {
             Log.i(this, "Calling onMuteStateChanged");
-            for (IInCallService inCallService : mInCallServices.values()) {
-                try {
-                    inCallService.onMuteStateChanged(isMuted);
-                } catch (RemoteException ignored) {
-                    Log.d(this, "Remote exception calling onMuteStateChanged");
+            mInCallServices.values().forEach(inCallServices -> {
+                for (IInCallService inCallService : inCallServices.values()) {
+                    try {
+                        inCallService.onMuteStateChanged(isMuted);
+                    } catch (RemoteException ignored) {
+                        Log.d(this, "Remote exception calling onMuteStateChanged");
+                    }
                 }
-            }
+            });
         }
     }
 
