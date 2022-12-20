@@ -34,6 +34,7 @@ import android.os.IInterface;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.telecom.CallAudioState;
+import android.telecom.CallEndpoint;
 import android.telecom.CallScreeningService;
 import android.telecom.Conference;
 import android.telecom.Connection;
@@ -341,6 +342,18 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         public void onCallAudioStateChanged(String activeCallId, CallAudioState audioState,
                 Session.Info info)
                 throws RemoteException { }
+
+        @Override
+        public void onCallEndpointChanged(String callId, CallEndpoint callEndpoint,
+                Session.Info sessionInfo) { }
+
+        @Override
+        public void onAvailableCallEndpointsChanged(String callId,
+                List<CallEndpoint> availableCallEndpoints, Session.Info sessionInfo) { }
+
+        @Override
+        public void onMuteStateChanged(String callId, boolean isMuted,
+                Session.Info sessionInfo) { }
 
         @Override
         public void onUsingAlternativeUi(String activeCallId, boolean usingAlternativeUi,

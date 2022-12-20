@@ -29,8 +29,10 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
+import android.os.ResultReceiver;
 import android.os.UserHandle;
 import android.telecom.CallAudioState;
+import android.telecom.CallEndpoint;
 import android.telecom.CallScreeningService;
 import android.telecom.Connection;
 import android.telecom.ConnectionRequest;
@@ -712,6 +714,26 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                     logIncoming("setAudioRoute %s %s", callId,
                             CallAudioState.audioRouteToString(audioRoute));
                     mCallsManager.setAudioRoute(audioRoute, bluetoothAddress);
+                }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
+            } finally {
+                Binder.restoreCallingIdentity(token);
+                Log.endSession();
+            }
+        }
+
+        @Override
+        public void requestCallEndpointChange(String callId, CallEndpoint endpoint,
+                ResultReceiver callback, Session.Info sessionInfo) {
+            Log.startSession(sessionInfo, "CSW.rCEC", mPackageAbbreviation);
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    logIncoming("requestCallEndpointChange %s %s", callId,
+                            endpoint.getEndpointName());
+                    mCallsManager.requestCallEndpointChange(endpoint, callback);
                 }
             } catch (Throwable t) {
                 Log.e(ConnectionServiceWrapper.this, t, "");
@@ -1669,6 +1691,54 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                 mServiceInterface.onCallAudioStateChanged(callId, audioState,
                         Log.getExternalSession(TELECOM_ABBREVIATION));
             } catch (RemoteException e) {
+            }
+        }
+    }
+
+    /** @see IConnectionService#onCallEndpointChanged(String, CallEndpoint, Session.Info) */
+    @VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
+    public void onCallEndpointChanged(Call activeCall, CallEndpoint callEndpoint) {
+        final String callId = mCallIdMapper.getCallId(activeCall);
+        if (callId != null && isServiceValid("onCallEndpointChanged")) {
+            try {
+                logOutgoing("onCallEndpointChanged %s %s", callId, callEndpoint);
+                mServiceInterface.onCallEndpointChanged(callId, callEndpoint,
+                        Log.getExternalSession(TELECOM_ABBREVIATION));
+            } catch (RemoteException e) {
+                Log.d(this, "Remote exception calling onCallEndpointChanged");
+            }
+        }
+    }
+
+    /** @see IConnectionService#onAvailableCallEndpointsChanged(String, List, Session.Info) */
+    @VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
+    public void onAvailableCallEndpointsChanged(Call activeCall,
+            Set<CallEndpoint> availableCallEndpoints) {
+        final String callId = mCallIdMapper.getCallId(activeCall);
+        if (callId != null && isServiceValid("onAvailableCallEndpointsChanged")) {
+            try {
+                logOutgoing("onAvailableCallEndpointsChanged %s", callId);
+                List<CallEndpoint> availableEndpoints = new ArrayList<>(availableCallEndpoints);
+                mServiceInterface.onAvailableCallEndpointsChanged(callId, availableEndpoints,
+                        Log.getExternalSession(TELECOM_ABBREVIATION));
+            } catch (RemoteException e) {
+                Log.d(this,
+                        "Remote exception calling onAvailableCallEndpointsChanged");
+            }
+        }
+    }
+
+    /** @see IConnectionService#onMuteStateChanged(String, boolean, Session.Info) */
+    @VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
+    public void onMuteStateChanged(Call activeCall, boolean isMuted) {
+        final String callId = mCallIdMapper.getCallId(activeCall);
+        if (callId != null && isServiceValid("onMuteStateChanged")) {
+            try {
+                logOutgoing("onMuteStateChanged %s %s", callId, isMuted);
+                mServiceInterface.onMuteStateChanged(callId, isMuted,
+                        Log.getExternalSession(TELECOM_ABBREVIATION));
+            } catch (RemoteException e) {
+                Log.d(this, "Remote exception calling onMuteStateChanged");
             }
         }
     }
