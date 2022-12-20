@@ -887,7 +887,7 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                     // an emergency call.
                             mPhoneAccountRegistrar.getCallCapablePhoneAccounts(null /*uriScheme*/,
                             false /*includeDisabledAccounts*/, userHandle, 0 /*capabilities*/,
-                            0 /*excludedCapabilities*/);
+                            0 /*excludedCapabilities*/, false);
                     PhoneAccountHandle phoneAccountHandle = null;
                     for (PhoneAccountHandle accountHandle : accountHandles) {
                         if(accountHandle.equals(callingPhoneAccountHandle)) {
