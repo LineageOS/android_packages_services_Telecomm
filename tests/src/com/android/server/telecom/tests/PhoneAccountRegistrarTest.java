@@ -99,6 +99,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
     private final String PACKAGE_1 = "PACKAGE_1";
     private final String PACKAGE_2 = "PACKAGE_2";
     private final String COMPONENT_NAME = "com.android.server.telecom.tests.MockConnectionService";
+    private final UserHandle USER_HANDLE_10 = new UserHandle(10);
     private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
     private PhoneAccountRegistrar mRegistrar;
     @Mock private SubscriptionManager mSubscriptionManager;
@@ -163,7 +164,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         testBundle.putString("EXTRA_STR1", "Hello");
         testBundle.putString("EXTRA_STR2", "There");
 
-        PhoneAccount input = makeQuickAccountBuilder("id0", 0)
+        PhoneAccount input = makeQuickAccountBuilder("id0", 0, null)
                 .addSupportedUriScheme(PhoneAccount.SCHEME_TEL)
                 .addSupportedUriScheme(PhoneAccount.SCHEME_VOICEMAIL)
                 .setExtras(testBundle)
@@ -271,7 +272,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         // Put in something valid so the bundle exists.
         testBundle.putString("EXTRA_OK", "OK");
 
-        PhoneAccount input = makeQuickAccountBuilder("id0", 0)
+        PhoneAccount input = makeQuickAccountBuilder("id0", 0, null)
                 .addSupportedUriScheme(PhoneAccount.SCHEME_TEL)
                 .addSupportedUriScheme(PhoneAccount.SCHEME_VOICEMAIL)
                 .setExtras(testBundle)
@@ -309,24 +310,33 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         mComponentContextFixture.addConnectionService(makeQuickConnectionServiceComponentName(),
                 Mockito.mock(IConnectionService.class));
 
-        registerAndEnableAccount(makeQuickAccountBuilder("id" + i, i++)
+        registerAndEnableAccount(makeQuickAccountBuilder("id" + i, i++, null)
                 .setCapabilities(PhoneAccount.CAPABILITY_CONNECTION_MANAGER
                         | PhoneAccount.CAPABILITY_CALL_PROVIDER)
                 .build());
-        registerAndEnableAccount(makeQuickAccountBuilder("id" + i, i++)
+        registerAndEnableAccount(makeQuickAccountBuilder("id" + i, i++, null)
                 .setCapabilities(PhoneAccount.CAPABILITY_CONNECTION_MANAGER
                         | PhoneAccount.CAPABILITY_CALL_PROVIDER)
                 .build());
-        registerAndEnableAccount(makeQuickAccountBuilder("id" + i, i++)
+        registerAndEnableAccount(makeQuickAccountBuilder("id" + i, i++, null)
                 .setCapabilities(PhoneAccount.CAPABILITY_CONNECTION_MANAGER
                         | PhoneAccount.CAPABILITY_CALL_PROVIDER)
                 .build());
-        registerAndEnableAccount(makeQuickAccountBuilder("id" + i, i++)
+        registerAndEnableAccount(makeQuickAccountBuilder("id" + i, i++, null)
+                .setCapabilities(PhoneAccount.CAPABILITY_CONNECTION_MANAGER)
+                .build());
+        registerAndEnableAccount(makeQuickAccountBuilder("id" + i, i++, USER_HANDLE_10)
+                .setCapabilities(PhoneAccount.CAPABILITY_CONNECTION_MANAGER
+                        | PhoneAccount.CAPABILITY_CALL_PROVIDER)
+                .build());
+        registerAndEnableAccount(makeQuickAccountBuilder("id" + i, i++, USER_HANDLE_10)
                 .setCapabilities(PhoneAccount.CAPABILITY_CONNECTION_MANAGER)
                 .build());
 
-        assertEquals(4, mRegistrar.getAllPhoneAccountsOfCurrentUser().size());
-        assertEquals(3, mRegistrar.getCallCapablePhoneAccountsOfCurrentUser(null, false).size());
+        assertEquals(6, mRegistrar.
+                getAllPhoneAccounts(null, true).size());
+        assertEquals(4, mRegistrar.getCallCapablePhoneAccounts(null, false,
+                null, true).size());
         assertEquals(null, mRegistrar.getSimCallManagerOfCurrentUser());
         assertEquals(null, mRegistrar.getOutgoingPhoneAccountForSchemeOfCurrentUser(
                 PhoneAccount.SCHEME_TEL));
@@ -727,7 +737,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         registerAndEnableAccount(nonSimAccount);
         registerAndEnableAccount(simAccount);
 
-        List<PhoneAccount> accounts = mRegistrar.getAllPhoneAccounts(Process.myUserHandle());
+        List<PhoneAccount> accounts = mRegistrar.getAllPhoneAccounts(Process.myUserHandle(), false);
         assertTrue(accounts.get(0).getLabel().toString().equals("2"));
         assertTrue(accounts.get(1).getLabel().toString().equals("1"));
     }
@@ -770,7 +780,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         registerAndEnableAccount(account2);
         registerAndEnableAccount(account1);
 
-        List<PhoneAccount> accounts = mRegistrar.getAllPhoneAccounts(Process.myUserHandle());
+        List<PhoneAccount> accounts = mRegistrar.getAllPhoneAccounts(Process.myUserHandle(), false);
         assertTrue(accounts.get(0).getLabel().toString().equals("c"));
         assertTrue(accounts.get(1).getLabel().toString().equals("b"));
         assertTrue(accounts.get(2).getLabel().toString().equals("a"));
@@ -808,7 +818,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         registerAndEnableAccount(account2);
         registerAndEnableAccount(account3);
 
-        List<PhoneAccount> accounts = mRegistrar.getAllPhoneAccounts(Process.myUserHandle());
+        List<PhoneAccount> accounts = mRegistrar.getAllPhoneAccounts(Process.myUserHandle(), false);
         assertTrue(accounts.get(0).getLabel().toString().equals("a"));
         assertTrue(accounts.get(1).getLabel().toString().equals("b"));
         assertTrue(accounts.get(2).getLabel().toString().equals("c"));
@@ -886,7 +896,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         registerAndEnableAccount(account5);
         registerAndEnableAccount(account6);
 
-        List<PhoneAccount> accounts = mRegistrar.getAllPhoneAccounts(Process.myUserHandle());
+        List<PhoneAccount> accounts = mRegistrar.getAllPhoneAccounts(Process.myUserHandle(), false);
         // Sim accts ordered by sort order first
         assertTrue(accounts.get(0).getLabel().toString().equals("z"));
         assertTrue(accounts.get(1).getLabel().toString().equals("y"));
@@ -910,14 +920,14 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
     public void testGetByEnabledState() throws Exception {
         mComponentContextFixture.addConnectionService(makeQuickConnectionServiceComponentName(),
                 Mockito.mock(IConnectionService.class));
-        mRegistrar.registerPhoneAccount(makeQuickAccountBuilder("id1", 1)
+        mRegistrar.registerPhoneAccount(makeQuickAccountBuilder("id1", 1, null)
                 .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER)
                 .build());
 
         assertEquals(0, mRegistrar.getCallCapablePhoneAccounts(PhoneAccount.SCHEME_TEL,
-                false /* includeDisabled */, Process.myUserHandle()).size());
+                false /* includeDisabled */, Process.myUserHandle(), false).size());
         assertEquals(1, mRegistrar.getCallCapablePhoneAccounts(PhoneAccount.SCHEME_TEL,
-                true /* includeDisabled */, Process.myUserHandle()).size());
+                true /* includeDisabled */, Process.myUserHandle(), false).size());
     }
 
     /**
@@ -930,21 +940,21 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
     public void testGetByScheme() throws Exception {
         mComponentContextFixture.addConnectionService(makeQuickConnectionServiceComponentName(),
                 Mockito.mock(IConnectionService.class));
-        registerAndEnableAccount(makeQuickAccountBuilder("id1", 1)
+        registerAndEnableAccount(makeQuickAccountBuilder("id1", 1, null)
                 .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER)
                 .setSupportedUriSchemes(Arrays.asList(PhoneAccount.SCHEME_SIP))
                 .build());
-        registerAndEnableAccount(makeQuickAccountBuilder("id2", 2)
+        registerAndEnableAccount(makeQuickAccountBuilder("id2", 2, null)
                 .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER)
                 .setSupportedUriSchemes(Arrays.asList(PhoneAccount.SCHEME_TEL))
                 .build());
 
         assertEquals(1, mRegistrar.getCallCapablePhoneAccounts(PhoneAccount.SCHEME_SIP,
-                false /* includeDisabled */, Process.myUserHandle()).size());
+                false /* includeDisabled */, Process.myUserHandle(), false).size());
         assertEquals(1, mRegistrar.getCallCapablePhoneAccounts(PhoneAccount.SCHEME_TEL,
-                false /* includeDisabled */, Process.myUserHandle()).size());
+                false /* includeDisabled */, Process.myUserHandle(), false).size());
         assertEquals(2, mRegistrar.getCallCapablePhoneAccounts(null, false /* includeDisabled */,
-                Process.myUserHandle()).size());
+                Process.myUserHandle(), false).size());
     }
 
     /**
@@ -957,23 +967,24 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
     public void testGetByCapability() throws Exception {
         mComponentContextFixture.addConnectionService(makeQuickConnectionServiceComponentName(),
                 Mockito.mock(IConnectionService.class));
-        registerAndEnableAccount(makeQuickAccountBuilder("id1", 1)
+        registerAndEnableAccount(makeQuickAccountBuilder("id1", 1, null)
                 .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER
                         | PhoneAccount.CAPABILITY_VIDEO_CALLING)
                 .setSupportedUriSchemes(Arrays.asList(PhoneAccount.SCHEME_SIP))
                 .build());
-        registerAndEnableAccount(makeQuickAccountBuilder("id2", 2)
+        registerAndEnableAccount(makeQuickAccountBuilder("id2", 2, null)
                 .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER)
                 .setSupportedUriSchemes(Arrays.asList(PhoneAccount.SCHEME_SIP))
                 .build());
 
         assertEquals(1, mRegistrar.getCallCapablePhoneAccounts(PhoneAccount.SCHEME_SIP,
-                false /* includeDisabled */, Process.myUserHandle()).size(),
+                false /* includeDisabled */, Process.myUserHandle(), false).size(),
                 PhoneAccount.CAPABILITY_VIDEO_CALLING);
         assertEquals(2, mRegistrar.getCallCapablePhoneAccounts(PhoneAccount.SCHEME_SIP,
-                false /* includeDisabled */, Process.myUserHandle()).size(), 0 /* none extra */);
+                false /* includeDisabled */, Process.myUserHandle(), false)
+                .size(), 0 /* none extra */);
         assertEquals(0, mRegistrar.getCallCapablePhoneAccounts(PhoneAccount.SCHEME_SIP,
-                false /* includeDisabled */, Process.myUserHandle()).size(),
+                false /* includeDisabled */, Process.myUserHandle(), false).size(),
                 PhoneAccount.CAPABILITY_RTT);
     }
 
@@ -1059,8 +1070,8 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         registerAndEnableAccount(pa1);
         registerAndEnableAccount(pa2);
 
-        assertEquals(1, mRegistrar.getAllPhoneAccounts(users.get(0)).size());
-        assertEquals(1, mRegistrar.getAllPhoneAccounts(users.get(1)).size());
+        assertEquals(1, mRegistrar.getAllPhoneAccounts(users.get(0), false).size());
+        assertEquals(1, mRegistrar.getAllPhoneAccounts(users.get(1), false).size());
 
 
         // WHEN
@@ -1268,9 +1279,17 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         return new PhoneAccountHandle(name, id, Process.myUserHandle());
     }
 
-    private PhoneAccount.Builder makeQuickAccountBuilder(String id, int idx) {
+    private static PhoneAccountHandle makeQuickAccountHandleForUser(
+            String id, UserHandle userHandle) {
+        return new PhoneAccountHandle(makeQuickConnectionServiceComponentName(), id, userHandle);
+    }
+
+    private PhoneAccount.Builder makeQuickAccountBuilder(
+            String id, int idx, UserHandle userHandle) {
         return new PhoneAccount.Builder(
-                makeQuickAccountHandle(id),
+                userHandle == null
+                        ? makeQuickAccountHandle(id)
+                        : makeQuickAccountHandleForUser(id, userHandle),
                 "label" + idx);
     }
 
@@ -1292,7 +1311,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
     }
 
     private PhoneAccount makeQuickAccount(String id, int idx) {
-        return makeQuickAccountBuilder(id, idx)
+        return makeQuickAccountBuilder(id, idx, null)
                 .setAddress(Uri.parse("http://foo.com/" + idx))
                 .setSubscriptionAddress(Uri.parse("tel:555-000" + idx))
                 .setCapabilities(idx)
@@ -1309,7 +1328,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
      */
     private PhoneAccount makeQuickSimAccount(int simId) {
         PhoneAccount simAccount =
-                makeQuickAccountBuilder("sim" + simId, simId)
+                makeQuickAccountBuilder("sim" + simId, simId, null)
                         .setCapabilities(
                                 PhoneAccount.CAPABILITY_CALL_PROVIDER
                                         | PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
