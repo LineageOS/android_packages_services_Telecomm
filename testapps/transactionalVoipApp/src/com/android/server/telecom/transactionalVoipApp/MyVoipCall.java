@@ -18,9 +18,11 @@ package com.android.server.telecom.transactionalVoipApp;
 
 
 import android.telecom.CallAudioState;
+import android.telecom.CallEndpoint;
 import android.telecom.CallControl;
 import android.telecom.CallEventCallback;
 import android.util.Log;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 
@@ -71,18 +73,32 @@ public class MyVoipCall implements CallEventCallback {
     }
 
     @Override
-    public void onCallAudioStateChanged(@NonNull CallAudioState callAudioState) {
-        Log.i(TAG, String.format("onCallAudioStateChanged: state=[%s]", callAudioState.toString()));
-    }
-
-    @Override
     public void onCallStreamingStarted(@NonNull Consumer<Boolean> wasCompleted) {
         Log.i(TAG, String.format("onCallStreamingStarted: callId=[%s]", mCallId));
+        wasCompleted.accept(Boolean.TRUE);
     }
 
     @Override
     public void onCallStreamingFailed(int reason) {
-        Log.i(TAG, String.format("onCallStreamingFailed: callId[%s], reason=[%s]", mCallId,
-                reason));
+        Log.i(TAG, String.format("onCallStreamingFailed: id=[%s], reason=[%d]", mCallId, reason));
+    }
+
+    @Override
+    public void onCallEndpointChanged(@NonNull CallEndpoint newCallEndpoint) {
+        Log.i(TAG, String.format("onCallEndpointChanged: endpoint=[%s]", newCallEndpoint));
+    }
+
+    @Override
+    public void onAvailableCallEndpointsChanged(
+            @NonNull List<CallEndpoint> availableEndpoints) {
+        Log.i(TAG, String.format("onAvailableCallEndpointsChanged: callId=[%s]", mCallId));
+        for (CallEndpoint endpoint : availableEndpoints) {
+            Log.i(TAG, String.format("endpoint=[%s]", endpoint));
+        }
+    }
+
+    @Override
+    public void onMuteStateChanged(boolean isMuted) {
+
     }
 }
