@@ -383,4 +383,16 @@
     <string name="cancel">Cancel</string>
     <!-- Button label for generic back action [CHAR LIMIT=20] -->
     <string name="back">Back</string>
+    <!-- The user-visible name of the earpiece type CallEndpoint -->
+    <string name="callendpoint_name_earpiece">Earpiece</string>
+    <!-- The user-visible name of the bluetooth type CallEndpoint -->
+    <string name="callendpoint_name_bluetooth">Bluetooth</string>
+    <!-- The user-visible name of the wired headset type CallEndpoint -->
+    <string name="callendpoint_name_wiredheadset">Wired headset</string>
+    <!-- The user-visible name of the speaker type CallEndpoint -->
+    <string name="callendpoint_name_speaker">Speaker</string>
+    <!-- The user-visible name of the streaming type CallEndpoint -->
+    <string name="callendpoint_name_streaming">External</string>
+    <!-- The user-visible name of the unknown new type CallEndpoint -->
+    <string name="callendpoint_name_unknown">Unknown</string>
 </resources>

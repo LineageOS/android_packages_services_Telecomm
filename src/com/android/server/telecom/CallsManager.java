@@ -66,6 +66,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.PersistableBundle;
 import android.os.Process;
+import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.os.SystemVibrator;
 import android.os.Trace;
@@ -77,6 +78,7 @@ import android.provider.CallLog.Calls;
 import android.provider.Settings;
 import android.sysprop.TelephonyProperties;
 import android.telecom.CallAudioState;
+import android.telecom.CallEndpoint;
 import android.telecom.CallScreeningService;
 import android.telecom.CallerInfo;
 import android.telecom.Conference;
@@ -174,6 +176,9 @@ public class CallsManager extends Call.ListenerBase
         void onIncomingCallAnswered(Call call);
         void onIncomingCallRejected(Call call, boolean rejectWithMessage, String textMessage);
         void onCallAudioStateChanged(CallAudioState oldAudioState, CallAudioState newAudioState);
+        void onCallEndpointChanged(CallEndpoint callEndpoint);
+        void onAvailableCallEndpointsChanged(Set<CallEndpoint> availableCallEndpoints);
+        void onMuteStateChanged(boolean isMuted);
         void onRingbackRequested(Call call, boolean ringback);
         void onIsConferencedChanged(Call call);
         void onIsVoipAudioModeChanged(Call call);
@@ -376,6 +381,7 @@ public class CallsManager extends Call.ListenerBase
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final EmergencyCallHelper mEmergencyCallHelper;
     private final RoleManagerAdapter mRoleManagerAdapter;
+    private final CallEndpointController mCallEndpointController;
 
     private final ConnectionServiceFocusManager.CallsManagerRequester mRequester =
             new ConnectionServiceFocusManager.CallsManagerRequester() {
@@ -496,7 +502,8 @@ public class CallsManager extends Call.ListenerBase
             InCallControllerFactory inCallControllerFactory,
             CallDiagnosticServiceController callDiagnosticServiceController,
             RoleManagerAdapter roleManagerAdapter,
-            ToastFactory toastFactory) {
+            ToastFactory toastFactory,
+            CallEndpointControllerFactory callEndpointControllerFactory) {
         mContext = context;
         mLock = lock;
         mPhoneNumberUtilsAdapter = phoneNumberUtilsAdapter;
@@ -550,6 +557,7 @@ public class CallsManager extends Call.ListenerBase
         mInCallController = inCallControllerFactory.create(context, mLock, this,
                 systemStateHelper, defaultDialerCache, mTimeoutsAdapter,
                 emergencyCallHelper);
+        mCallEndpointController = callEndpointControllerFactory.create(context, mLock, this);
         mCallDiagnosticServiceController = callDiagnosticServiceController;
         mCallDiagnosticServiceController.setInCallTonePlayerFactory(playerFactory);
         mRinger = new Ringer(playerFactory, context, systemSettingsUtil, asyncRingtonePlayer,
@@ -581,6 +589,7 @@ public class CallsManager extends Call.ListenerBase
         mListeners.add(statusBarNotifier);
         mListeners.add(mCallLogManager);
         mListeners.add(mInCallController);
+        mListeners.add(mCallEndpointController);
         mListeners.add(mCallDiagnosticServiceController);
         mListeners.add(mCallAudioManager);
         mListeners.add(mCallRecordingTonePlayer);
@@ -1191,6 +1200,10 @@ public class CallsManager extends Call.ListenerBase
 
     InCallController getInCallController() {
         return mInCallController;
+    }
+
+    public CallEndpointController getCallEndpointController() {
+        return mCallEndpointController;
     }
 
     EmergencyCallHelper getEmergencyCallHelper() {
@@ -3010,6 +3023,14 @@ public class CallsManager extends Call.ListenerBase
         mCallAudioManager.setAudioRoute(route, bluetoothAddress);
     }
 
+    /**
+      * Called by the in-call UI to change the CallEndpoint
+      */
+    @VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
+    public void requestCallEndpointChange(CallEndpoint endpoint, ResultReceiver callback) {
+        mCallEndpointController.requestCallEndpointChange(endpoint, callback);
+    }
+
     /** Called by the in-call UI to turn the proximity sensor on. */
     void turnOnProximitySensor() {
         mProximitySensorManager.turnOn();
@@ -3065,6 +3086,30 @@ public class CallsManager extends Call.ListenerBase
         Log.v(this, "onAudioStateChanged, audioState: %s -> %s", oldAudioState, newAudioState);
         for (CallsManagerListener listener : mListeners) {
             listener.onCallAudioStateChanged(oldAudioState, newAudioState);
+        }
+    }
+
+    @VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
+    public void updateCallEndpoint(CallEndpoint callEndpoint) {
+        Log.v(this, "updateCallEndpoint");
+        for (CallsManagerListener listener : mListeners) {
+            listener.onCallEndpointChanged(callEndpoint);
+        }
+    }
+
+    @VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
+    public void updateAvailableCallEndpoints(Set<CallEndpoint> availableCallEndpoints) {
+        Log.v(this, "updateAvailableCallEndpoints");
+        for (CallsManagerListener listener : mListeners) {
+            listener.onAvailableCallEndpointsChanged(availableCallEndpoints);
+        }
+    }
+
+    @VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
+    public void updateMuteState(boolean isMuted) {
+        Log.v(this, "updateMuteState");
+        for (CallsManagerListener listener : mListeners) {
+            listener.onMuteStateChanged(isMuted);
         }
     }
 
