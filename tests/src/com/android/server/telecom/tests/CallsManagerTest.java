@@ -174,6 +174,8 @@ public class CallsManagerTest extends TelecomTestCase {
             TEST_ADDRESS2, SIM_1_HANDLE,
             TEST_ADDRESS3, SIM_2_HANDLE);
 
+    private static final String DEFAULT_CALL_SCREENING_APP = "com.foo.call_screen_app";
+
     private static int sCallId = 1;
     private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
     @Mock private CallerInfoLookupHelper mCallerInfoLookupHelper;
@@ -1444,6 +1446,7 @@ public class CallsManagerTest extends TelecomTestCase {
         Call screenedCall = mock(Call.class);
         Bundle extra = new Bundle();
         when(screenedCall.getIntentExtras()).thenReturn(extra);
+        when(screenedCall.getTargetPhoneAccount()).thenReturn(SIM_1_HANDLE);
         String appName = "blah";
         CallFilteringResult result = new CallFilteringResult.Builder()
                 .setShouldAllowCall(true)
@@ -1801,6 +1804,74 @@ public class CallsManagerTest extends TelecomTestCase {
         ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
         verify(callSpy).disconnect(argumentCaptor.capture());
         assertTrue(argumentCaptor.getValue().contains("Unavailable phoneAccountHandle"));
+    }
+
+    /**
+     * Verifies that target phone account is set in startOutgoingCall. The multi-user functionality
+     * is dependent on the call's phone account handle being present so this test ensures that
+     * existing outgoing call flow does not break from future updates.
+     * @throws Exception
+     */
+    @Test
+    public void testStartOutgoingCall_TargetPhoneAccountSet() throws Exception {
+        // Ensure contact info lookup succeeds
+        doAnswer(invocation -> {
+            Uri handle = invocation.getArgument(0);
+            CallerInfo info = new CallerInfo();
+            CompletableFuture<Pair<Uri, CallerInfo>> callerInfoFuture = new CompletableFuture<>();
+            callerInfoFuture.complete(new Pair<>(handle, info));
+            return callerInfoFuture;
+        }).when(mCallerInfoLookupHelper).startLookup(any(Uri.class));
+
+        // Ensure we have candidate phone account handle info.
+        when(mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(any(), any())).thenReturn(
+                SIM_1_HANDLE);
+        when(mPhoneAccountRegistrar.getCallCapablePhoneAccounts(any(), anyBoolean(),
+                any(), anyInt(), anyInt(), anyBoolean())).thenReturn(
+                new ArrayList<>(Arrays.asList(SIM_1_HANDLE, SIM_2_HANDLE)));
+
+        // start an outgoing call
+        CompletableFuture<Call> callFuture = mCallsManager.startOutgoingCall(
+                TEST_ADDRESS, SIM_2_HANDLE, new Bundle(),
+                UserHandle.CURRENT, new Intent(), "com.test.stuff");
+        Call outgoingCall = callFuture.get();
+        // assert call was created
+        assertNotNull(outgoingCall);
+        // assert target phone account was set
+        assertNotNull(outgoingCall.getTargetPhoneAccount());
+    }
+
+    /**
+     * Verifies that target phone account is set before call filtering occurs.
+     * @throws Exception
+     */
+    @SmallTest
+    @Test
+    public void testOnSuccessfulIncomingCall_TargetPhoneAccountSet() throws Exception {
+        Call incomingCall = addSpyCall(CallState.NEW);
+        doReturn(false).when(incomingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(false).when(incomingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        doReturn(true).when(incomingCall).isSelfManaged();
+        doReturn(true).when(incomingCall).setState(anyInt(), any());
+        // assert phone account is present before onSuccessfulIncomingCall is called
+        assertNotNull(incomingCall.getTargetPhoneAccount());
+    }
+
+    /**
+     * Verifies that outgoing call's post call package name is set during
+     * onSuccessfulOutgoingCall.
+     * @throws Exception
+     */
+    @SmallTest
+    @Test
+    public void testPostCallPackageNameSetOnSuccessfulOutgoingCall() throws Exception {
+        Call outgoingCall = addSpyCall(CallState.NEW);
+        when(mCallsManager.getRoleManagerAdapter().getDefaultCallScreeningApp(
+                outgoingCall.getUserHandleFromTargetPhoneAccount()))
+                .thenReturn(DEFAULT_CALL_SCREENING_APP);
+        assertNull(outgoingCall.getPostCallPackageName());
+        mCallsManager.onSuccessfulOutgoingCall(outgoingCall, CallState.CONNECTING);
+        assertEquals(DEFAULT_CALL_SCREENING_APP, outgoingCall.getPostCallPackageName());
     }
 
     public class LatchedOutcomeReceiver implements OutcomeReceiver<Boolean,

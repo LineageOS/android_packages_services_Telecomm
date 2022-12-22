@@ -153,8 +153,9 @@ public class CallRedirectionProcessorTest extends TelecomTestCase {
     }
 
     private void enableUserDefinedCallRedirectionService() {
-        when(mCallRedirectionProcessorHelper.getUserDefinedCallRedirectionService()).thenReturn(
-                USER_DEFINED_SERVICE_TEST_COMPONENT_NAME);
+        when(mCallRedirectionProcessorHelper
+                .getUserDefinedCallRedirectionService(any(UserHandle.class)))
+                .thenReturn(USER_DEFINED_SERVICE_TEST_COMPONENT_NAME);
     }
 
     private void enableCarrierCallRedirectionService() {
@@ -163,8 +164,9 @@ public class CallRedirectionProcessorTest extends TelecomTestCase {
     }
 
     private void disableUserDefinedCallRedirectionService() {
-        when(mCallRedirectionProcessorHelper.getUserDefinedCallRedirectionService()).thenReturn(
-                null);
+        when(mCallRedirectionProcessorHelper
+                .getUserDefinedCallRedirectionService(any(UserHandle.class)))
+                .thenReturn(null);
     }
 
     private void disableCarrierCallRedirectionService() {

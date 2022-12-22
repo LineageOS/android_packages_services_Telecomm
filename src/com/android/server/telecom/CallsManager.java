@@ -655,9 +655,11 @@ public class CallsManager extends Call.ListenerBase
     }
 
     @Override
+    @VisibleForTesting
     public void onSuccessfulOutgoingCall(Call call, int callState) {
         Log.v(this, "onSuccessfulOutgoingCall, %s", call);
-        call.setPostCallPackageName(getRoleManagerAdapter().getDefaultCallScreeningApp());
+        call.setPostCallPackageName(getRoleManagerAdapter().getDefaultCallScreeningApp(
+                call.getUserHandleFromTargetPhoneAccount()));
 
         setCallState(call, callState, "successful outgoing call");
         if (!mCalls.contains(call)) {
@@ -722,8 +724,11 @@ public class CallsManager extends Call.ListenerBase
     private IncomingCallFilterGraph setUpCallFilterGraph(Call incomingCall) {
         incomingCall.setIsUsingCallFiltering(true);
         String carrierPackageName = getCarrierPackageName();
-        String defaultDialerPackageName = TelecomManager.from(mContext).getDefaultDialerPackage();
-        String userChosenPackageName = getRoleManagerAdapter().getDefaultCallScreeningApp();
+        UserHandle userHandle = incomingCall.getUserHandleFromTargetPhoneAccount();
+        String defaultDialerPackageName = TelecomManager.from(mContext).
+                getDefaultDialerPackage(userHandle);
+        String userChosenPackageName = getRoleManagerAdapter().
+                getDefaultCallScreeningApp(userHandle);
         AppLabelProxy appLabelProxy = packageName -> AppLabelProxy.Util.getAppLabel(
                 mContext.getPackageManager(), packageName);
         ParcelableCallUtils.Converter converter = new ParcelableCallUtils.Converter();
@@ -838,7 +843,9 @@ public class CallsManager extends Call.ListenerBase
 
         if (result.shouldAllowCall) {
             incomingCall.setPostCallPackageName(
-                    getRoleManagerAdapter().getDefaultCallScreeningApp());
+                    getRoleManagerAdapter().getDefaultCallScreeningApp(
+                            incomingCall.getUserHandleFromTargetPhoneAccount()
+                    ));
 
             Log.i(this, "onCallFilteringComplete: allow call.");
             if (hasMaximumManagedRingingCalls(incomingCall)) {
@@ -1884,6 +1891,8 @@ public class CallsManager extends Call.ListenerBase
             dialerSelectPhoneAccountFuture.thenAcceptBothAsync(contactLookupFuture,
                     (callPhoneAccountHandlePair, uriCallerInfoPair) -> {
                         Call theCall = callPhoneAccountHandlePair.first;
+                        UserHandle userHandleForCallScreening = theCall.
+                                getUserHandleFromTargetPhoneAccount();
                         boolean isInContacts = uriCallerInfoPair.second != null
                                 && uriCallerInfoPair.second.contactExists;
                         Log.d(CallsManager.this, "outgoingCallIdStage: isInContacts=%s",
@@ -1894,10 +1903,12 @@ public class CallsManager extends Call.ListenerBase
                         PackageManager packageManager = mContext.getPackageManager();
                         int permission = packageManager.checkPermission(
                                 Manifest.permission.READ_CONTACTS,
-                                mRoleManagerAdapter.getDefaultCallScreeningApp());
+                                mRoleManagerAdapter.
+                                        getDefaultCallScreeningApp(userHandleForCallScreening));
                         Log.d(CallsManager.this,
                                 "default call screening service package %s has permissions=%s",
-                                mRoleManagerAdapter.getDefaultCallScreeningApp(),
+                                mRoleManagerAdapter.
+                                        getDefaultCallScreeningApp(userHandleForCallScreening),
                                 permission == PackageManager.PERMISSION_GRANTED);
                         if ((!isInContacts) || (permission == PackageManager.PERMISSION_GRANTED)) {
                             bindForOutgoingCallerId(theCall);
@@ -2008,7 +2019,8 @@ public class CallsManager extends Call.ListenerBase
     private void bindForOutgoingCallerId(Call theCall) {
         // Find the user chosen call screening app.
         String callScreeningApp =
-                mRoleManagerAdapter.getDefaultCallScreeningApp();
+                mRoleManagerAdapter.getDefaultCallScreeningApp(
+                        theCall.getUserHandleFromTargetPhoneAccount());
 
         CompletableFuture future =
                 new CallScreeningServiceHelper(mContext,
@@ -2164,14 +2176,18 @@ public class CallsManager extends Call.ListenerBase
 
         boolean endEarly = false;
         String disconnectReason = "";
-        String callRedirectionApp = mRoleManagerAdapter.getDefaultCallRedirectionApp();
+        String callRedirectionApp = mRoleManagerAdapter.getDefaultCallRedirectionApp(
+                phoneAccountHandle.getUserHandle());
         PhoneAccount phoneAccount = mPhoneAccountRegistrar
                 .getPhoneAccountUnchecked(phoneAccountHandle);
         if (phoneAccount != null
                 && !phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_MULTI_USER)) {
+            // Note that mCurrentUserHandle may not actually be the current user, i.e.
+            // in the case of work profiles
+            UserHandle currentUserHandle = call.getUserHandleFromTargetPhoneAccount();
             // Check if the phoneAccountHandle belongs to the current user
             if (phoneAccountHandle != null &&
-                    !phoneAccountHandle.getUserHandle().equals(mCurrentUserHandle)) {
+                    !phoneAccountHandle.getUserHandle().equals(currentUserHandle)) {
                 phoneAccountHandle = null;
             }
         }
