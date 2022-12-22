@@ -154,7 +154,8 @@ public class ConnectionServiceFocusManager {
     }
 
     private static final int[] PRIORITY_FOCUS_CALL_STATE = new int[] {
-            CallState.ACTIVE, CallState.CONNECTING, CallState.DIALING, CallState.AUDIO_PROCESSING
+            CallState.ACTIVE, CallState.CONNECTING, CallState.DIALING, CallState.AUDIO_PROCESSING,
+            CallState.RINGING
     };
 
     private static final int MSG_REQUEST_FOCUS = 1;
@@ -348,13 +349,14 @@ public class ConnectionServiceFocusManager {
     public List<CallFocus> getAllCall() { return mCalls; }
 
     private void updateConnectionServiceFocus(ConnectionServiceFocus connSvrFocus) {
+        Log.i(this, "updateConnectionServiceFocus connSvr = %s", connSvrFocus);
         if (!Objects.equals(mCurrentFocus, connSvrFocus)) {
             if (connSvrFocus != null) {
                 connSvrFocus.setConnectionServiceFocusListener(mConnectionServiceFocusListener);
                 connSvrFocus.connectionServiceFocusGained();
             }
             mCurrentFocus = connSvrFocus;
-            Log.d(this, "updateConnectionServiceFocus connSvr = %s", connSvrFocus);
+            Log.i(this, "updateConnectionServiceFocus connSvr = %s", connSvrFocus);
         }
     }
 
@@ -362,6 +364,7 @@ public class ConnectionServiceFocusManager {
         mCurrentFocusCall = null;
 
         if (mCurrentFocus == null) {
+            Log.d(this, "updateCurrentFocusCall: mCurrentFocus is null");
             return;
         }
 
