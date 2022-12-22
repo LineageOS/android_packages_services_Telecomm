@@ -189,6 +189,7 @@ public class CallsManager extends Call.ListenerBase
         void onSessionModifyRequestReceived(Call call, VideoProfile videoProfile);
         void onHoldToneRequested(Call call);
         void onExternalCallChanged(Call call, boolean isExternalCall);
+        void onCallStreamingStateChanged(Call call, boolean isStreaming);
         void onDisconnectedTonePlaying(boolean isTonePlaying);
         void onConnectionTimeChanged(Call call);
         void onConferenceStateChanged(Call call, boolean isConference);
@@ -384,6 +385,7 @@ public class CallsManager extends Call.ListenerBase
     private final EmergencyCallHelper mEmergencyCallHelper;
     private final RoleManagerAdapter mRoleManagerAdapter;
     private final CallEndpointController mCallEndpointController;
+    private final CallStreamingController mCallStreamingController;
 
     private final ConnectionServiceFocusManager.CallsManagerRequester mRequester =
             new ConnectionServiceFocusManager.CallsManagerRequester() {
@@ -586,6 +588,7 @@ public class CallsManager extends Call.ListenerBase
         mClockProxy = clockProxy;
         mToastFactory = toastFactory;
         mRoleManagerAdapter = roleManagerAdapter;
+        mCallStreamingController = new CallStreamingController(mContext);
 
         mListeners.add(mInCallWakeLockController);
         mListeners.add(statusBarNotifier);
@@ -600,6 +603,7 @@ public class CallsManager extends Call.ListenerBase
         mListeners.add(mHeadsetMediaButton);
         mListeners.add(mProximitySensorManager);
         mListeners.add(audioProcessingNotification);
+        mListeners.add(mCallStreamingController);
 
         // this needs to be after the mCallAudioManager
         mListeners.add(mPhoneStateBroadcaster);
@@ -3018,6 +3022,14 @@ public class CallsManager extends Call.ListenerBase
         Log.v(this, "onConnectionPropertiesChanged: %b", isExternalCall);
         for (CallsManagerListener listener : mListeners) {
             listener.onExternalCallChanged(call, isExternalCall);
+        }
+    }
+
+    @Override
+    public void onCallStreamingStateChanged(Call call, boolean isStreaming) {
+        Log.v(this, "onCallStreamingStateChanged: %b", isStreaming);
+        for (CallsManagerListener listener : mListeners) {
+            listener.onCallStreamingStateChanged(call, isStreaming);
         }
     }
 
@@ -5758,7 +5770,8 @@ public class CallsManager extends Call.ListenerBase
      * call, or a number which has been identified by the number as an emergency call.
      * @return {@code true} if there is an ongoing emergency call, {@code false} otherwise.
      */
-    public boolean isInEmergencyCall() {
+    public boolean
+    isInEmergencyCall() {
         return mCalls.stream().filter(c -> (c.isEmergencyCall()
                 || c.isNetworkIdentifiedEmergencyCall()) && !c.isDisconnected()).count() > 0;
     }
@@ -5896,5 +5909,9 @@ public class CallsManager extends Call.ListenerBase
     public void createActionSetCallStateAndPerformAction(Call call, int state, String tag) {
         ActionSetCallState actionSetCallState = new ActionSetCallState(call, state, tag);
         actionSetCallState.performAction();
+    }
+
+    public CallStreamingController getCallStreamingController() {
+        return mCallStreamingController;
     }
 }

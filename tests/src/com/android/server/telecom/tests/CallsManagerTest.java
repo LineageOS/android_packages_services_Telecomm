@@ -1649,7 +1649,35 @@ public class CallsManagerTest extends TelecomTestCase {
                 any(DisconnectCause.class));
         verify(callSpy, never()).setDisconnectCause(any(DisconnectCause.class));
     }
-    
+
+    @SmallTest
+    @Test
+    public void testCallStreamingStateChanged() throws Exception {
+        Call call = createCall(SIM_1_HANDLE, CallState.NEW);
+        call.setIsTransactionalCall(true);
+        CountDownLatch streamingStarted = new CountDownLatch(1);
+        CountDownLatch streamingStopped = new CountDownLatch(1);
+        Call.Listener l = new Call.ListenerBase() {
+            @Override
+            public void onCallStreamingStateChanged(Call call, boolean isStreaming) {
+                if (isStreaming) {
+                    streamingStarted.countDown();
+                } else {
+                    streamingStopped.countDown();
+                }
+            }
+        };
+        call.addListener(l);
+
+        // Start call streaming
+        call.startStreaming();
+        assertTrue(streamingStarted.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
+
+        // Stop call streaming
+        call.stopStreaming();
+        assertTrue(streamingStopped.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
+    }
+
     /**
      * Verifies that if call state goes from DIALING to DISCONNECTED, and a call diagnostic service
      * IS in use, it would call onCallDisconnected of the CallDiagnosticService

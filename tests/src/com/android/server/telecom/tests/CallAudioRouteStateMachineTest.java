@@ -753,6 +753,37 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
         assertEquals(expectedState, stateMachine.getCurrentCallAudioState());
     }
 
+    @SmallTest
+    @Test
+    public void testStreamingRoute() {
+        CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
+                mContext,
+                mockCallsManager,
+                mockBluetoothRouteManager,
+                mockWiredHeadsetManager,
+                mockStatusBarNotifier,
+                mAudioServiceFactory,
+                CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED,
+                mThreadHandler.getLooper());
+        stateMachine.setCallAudioManager(mockCallAudioManager);
+
+        CallAudioState initState = new CallAudioState(false, CallAudioState.ROUTE_EARPIECE,
+            CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER);
+        stateMachine.initialize(initState);
+
+        stateMachine.sendMessageWithSessionInfo(CallAudioRouteStateMachine.STREAMING_FORCE_ENABLED);
+        CallAudioState expectedEndState = new CallAudioState(false,
+                CallAudioState.ROUTE_STREAMING, CallAudioState.ROUTE_STREAMING);
+
+        waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
+        verifyNewSystemCallAudioState(initState, expectedEndState);
+        resetMocks();
+        stateMachine.sendMessageWithSessionInfo(
+                CallAudioRouteStateMachine.STREAMING_FORCE_DISABLED);
+        waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
+        assertEquals(initState, stateMachine.getCurrentCallAudioState());
+    }
+
     private void initializationTestHelper(CallAudioState expectedState,
             int earpieceControl) {
         when(mockWiredHeadsetManager.isPluggedIn()).thenReturn(
