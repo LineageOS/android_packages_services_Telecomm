@@ -280,6 +280,12 @@ public class CallEndpointController extends CallsManagerListenerBase {
             return true;
         }
         if (newState.getRoute() == CallAudioState.ROUTE_BLUETOOTH) {
+            if (oldState.getActiveBluetoothDevice() == null) {
+                if (newState.getActiveBluetoothDevice() == null) {
+                    return false;
+                }
+                return true;
+            }
             return !oldState.getActiveBluetoothDevice().equals(newState.getActiveBluetoothDevice());
         }
         return false;
