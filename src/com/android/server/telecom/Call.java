@@ -29,9 +29,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.OutcomeReceiver;
 import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
 import android.os.RemoteException;
+import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.os.Trace;
 import android.os.UserHandle;
@@ -92,7 +94,6 @@ import java.util.stream.Collectors;
  *  from the time the call intent was received by Telecom (vs. the time the call was
  *  connected etc).
  */
-@VisibleForTesting
 public class Call implements CreateConnectionResponse, EventManager.Loggable,
         ConnectionServiceFocusManager.CallFocus {
     public final static String CALL_ID_UNKNOWN = "-1";
@@ -381,6 +382,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      */
     private ConnectionServiceWrapper mConnectionService;
 
+    private TransactionalServiceWrapper mTransactionalService;
+
     private boolean mIsEmergencyCall;
 
     // The Call is considered an emergency call for testing, but will not actually connect to
@@ -528,6 +531,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * See {@link PhoneAccount#CAPABILITY_SELF_MANAGED} for more information.
      */
     private boolean mIsSelfManaged = false;
+
+    private boolean mIsTransactionalCall = false;
 
     /**
      * Indicates whether the {@link PhoneAccount} associated with an self-managed call want to
@@ -1038,7 +1043,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     @Override
     public ConnectionServiceFocusManager.ConnectionServiceFocus getConnectionServiceWrapper() {
-        return mConnectionService;
+        return (!mIsTransactionalCall ? mConnectionService : mTransactionalService);
     }
 
     @VisibleForTesting
@@ -1767,6 +1772,25 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         setConnectionProperties(getConnectionProperties());
     }
 
+    public boolean isTransactionalCall() {
+        return mIsTransactionalCall;
+    }
+
+    public void setIsTransactionalCall(boolean isTransactionalCall) {
+        mIsTransactionalCall = isTransactionalCall;
+
+        // Connection properties will add/remove the PROPERTY_SELF_MANAGED.
+        setConnectionProperties(getConnectionProperties());
+    }
+
+    public void setTransactionServiceWrapper(TransactionalServiceWrapper service) {
+        mTransactionalService = service;
+    }
+
+    public TransactionalServiceWrapper getTransactionServiceWrapper() {
+        return mTransactionalService;
+    }
+
     public boolean visibleToInCallService() {
         return mVisibleToInCallService;
     }
@@ -2044,8 +2068,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                     createRttStreams();
                     // Call startRtt to pass the RTT pipes down to the connection service.
                     // They already turned on the RTT property so no request should be sent.
-                    mConnectionService.startRtt(this,
-                            getInCallToCsRttPipeForCs(), getCsToInCallRttPipeForCs());
+                    if (mConnectionService != null) {
+                        mConnectionService.startRtt(this,
+                                getInCallToCsRttPipeForCs(), getCsToInCallRttPipeForCs());
+                    }
                     mWasEverRtt = true;
                     if (isEmergencyCall()) {
                         mCallsManager.mute(false);
@@ -2146,7 +2172,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         return mConferenceLevelActiveCall;
     }
 
-    @VisibleForTesting
     public ConnectionServiceWrapper getConnectionService() {
         return mConnectionService;
     }
@@ -2462,7 +2487,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 // Override the disconnect cause to MISSED
                 setOverrideDisconnectCauseCode(new DisconnectCause(DisconnectCause.MISSED));
             }
-            if (mConnectionService == null) {
+            if (mTransactionalService != null) {
+                mTransactionalService.onDisconnect(this, getDisconnectCause());
+                Log.i(this, "Send Disconnect to transactional service for call");
+            } else if (mConnectionService == null) {
                 Log.e(this, new Exception(), "disconnect() request on a call without a"
                         + " connection service.");
             } else {
@@ -2531,6 +2559,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             // {@link ConnectionServiceAdapter#setActive} and other set* methods.
             if (mConnectionService != null) {
                 mConnectionService.answer(this, videoState);
+            } else if (mTransactionalService != null) {
+                mTransactionalService.onAnswer(this, videoState);
             } else {
                 Log.e(this, new NullPointerException(),
                         "answer call failed due to null CS callId=%s", getId());
@@ -2622,7 +2652,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             // ringing. Since the call is already active on the connectionservice side, we want to
             // hangup, not reject.
             setOverrideDisconnectCauseCode(new DisconnectCause(DisconnectCause.REJECTED));
-            if (mConnectionService != null) {
+            if (mTransactionalService != null) {
+                mTransactionalService.onReject(this, DisconnectCause.REJECTED);
+            } else if (mConnectionService != null) {
                 mConnectionService.disconnect(this);
             } else {
                 Log.e(this, new NullPointerException(),
@@ -2633,7 +2665,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             // Ensure video state history tracks video state at time of rejection.
             mVideoStateHistory |= mVideoState;
 
-            if (mConnectionService != null) {
+            if (mTransactionalService != null) {
+                mTransactionalService.onReject(this, DisconnectCause.REJECTED);
+            } else if (mConnectionService != null) {
                 mConnectionService.reject(this, rejectWithMessage, textMessage);
             } else {
                 Log.e(this, new NullPointerException(),
@@ -2654,7 +2688,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             // hangup, not reject.
             // Since its simulated reason we can't pass along the reject reason.
             setOverrideDisconnectCauseCode(new DisconnectCause(DisconnectCause.REJECTED));
-            if (mConnectionService != null) {
+            if (mTransactionalService != null) {
+                mTransactionalService.onReject(this, DisconnectCause.REJECTED);
+            } else if (mConnectionService != null) {
                 mConnectionService.disconnect(this);
             } else {
                 Log.e(this, new NullPointerException(),
@@ -2664,8 +2700,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         } else if (isRinging("reject") || isAnswered("reject")) {
             // Ensure video state history tracks video state at time of rejection.
             mVideoStateHistory |= mVideoState;
-
-            if (mConnectionService != null) {
+            if (mTransactionalService != null) {
+                mTransactionalService.onReject(this, rejectReason);
+            } else if (mConnectionService != null) {
                 mConnectionService.rejectWithReason(this, rejectReason);
             } else {
                 Log.e(this, new NullPointerException(),
@@ -2684,7 +2721,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     @VisibleForTesting
     public void transfer(Uri number, boolean isConfirmationRequired) {
         if (mState == CallState.ACTIVE || mState == CallState.ON_HOLD) {
-            if (mConnectionService != null) {
+            if (mTransactionalService != null) {
+                Log.i(this, "transfer: called on TransactionalService. doing nothing");
+            } else if (mConnectionService != null) {
                 mConnectionService.transfer(this, number, isConfirmationRequired);
             } else {
                 Log.e(this, new NullPointerException(),
@@ -2704,7 +2743,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     public void transfer(Call otherCall) {
         if (mState == CallState.ACTIVE &&
                 (otherCall != null && otherCall.getState() == CallState.ON_HOLD)) {
-            if (mConnectionService != null) {
+            if (mTransactionalService != null) {
+                Log.i(this, "transfer: called on TransactionalService. doing nothing");
+            } else if (mConnectionService != null) {
                 mConnectionService.transfer(this, otherCall);
             } else {
                 Log.e(this, new NullPointerException(),
@@ -2724,7 +2765,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     public void hold(String reason) {
         if (mState == CallState.ACTIVE) {
-            if (mConnectionService != null) {
+            if (mTransactionalService != null) {
+                mTransactionalService.onSetInactive(this);
+            } else if (mConnectionService != null) {
                 mConnectionService.hold(this);
             } else {
                 Log.e(this, new NullPointerException(),
@@ -2744,7 +2787,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     public void unhold(String reason) {
         if (mState == CallState.ON_HOLD) {
-            if (mConnectionService != null) {
+            if (mTransactionalService != null){
+                mTransactionalService.onSetActive(this);
+            } else if (mConnectionService != null){
                 mConnectionService.unhold(this);
             } else {
                 Log.e(this, new NullPointerException(),
@@ -2769,7 +2814,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
     }
 
-    @VisibleForTesting
     public boolean isActive() {
         return mState == CallState.ACTIVE;
     }
@@ -2835,7 +2879,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
         // If the change originated from an InCallService, notify the connection service.
         if (source == SOURCE_INCALL_SERVICE) {
-            if (mConnectionService != null) {
+            if (mTransactionalService != null) {
+                Log.i(this, "putExtras: called on TransactionalService. doing nothing");
+            } else if (mConnectionService != null) {
                 mConnectionService.onExtrasChanged(this, mExtras);
             } else {
                 Log.e(this, new NullPointerException(),
@@ -2870,7 +2916,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
         // If the change originated from an InCallService, notify the connection service.
         if (source == SOURCE_INCALL_SERVICE) {
-            if (mConnectionService != null) {
+            if (mTransactionalService != null) {
+                Log.i(this, "removeExtras: called on TransactionalService. doing nothing");
+            } else if (mConnectionService != null) {
                 mConnectionService.onExtrasChanged(this, mExtras);
             } else {
                 Log.e(this, new NullPointerException(),
@@ -2924,7 +2972,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     void postDialContinue(boolean proceed) {
-        if (mConnectionService != null) {
+        if (mTransactionalService != null) {
+            Log.i(this, "postDialContinue: called on TransactionalService. doing nothing");
+        } else if (mConnectionService != null) {
             mConnectionService.onPostDialContinue(this, proceed);
         } else {
             Log.e(this, new NullPointerException(),
@@ -2933,7 +2983,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     void conferenceWith(Call otherCall) {
-        if (mConnectionService == null) {
+        if (mTransactionalService != null) {
+            Log.i(this, "conferenceWith: called on TransactionalService. doing nothing");
+        } else if (mConnectionService == null) {
             Log.w(this, "conference requested on a call without a connection service.");
         } else {
             Log.addEvent(this, LogUtils.Events.CONFERENCE_WITH, otherCall);
@@ -2942,7 +2994,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     void splitFromConference() {
-        if (mConnectionService == null) {
+        if (mTransactionalService != null) {
+            Log.i(this, "splitFromConference: called on TransactionalService. doing nothing");
+        } else if (mConnectionService == null) {
             Log.w(this, "splitting from conference call without a connection service");
         } else {
             Log.addEvent(this, LogUtils.Events.SPLIT_FROM_CONFERENCE);
@@ -2952,7 +3006,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     @VisibleForTesting
     public void mergeConference() {
-        if (mConnectionService == null) {
+        if (mTransactionalService != null) {
+            Log.i(this, "mergeConference: called on TransactionalService. doing nothing");
+        } else if (mConnectionService == null) {
             Log.w(this, "merging conference calls without a connection service.");
         } else if (can(Connection.CAPABILITY_MERGE_CONFERENCE)) {
             Log.addEvent(this, LogUtils.Events.CONFERENCE_WITH);
@@ -2963,7 +3019,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     @VisibleForTesting
     public void swapConference() {
-        if (mConnectionService == null) {
+        if (mTransactionalService != null) {
+            Log.i(this, "swapConference: called on TransactionalService. doing nothing");
+        } else if (mConnectionService == null) {
             Log.w(this, "swapping conference calls without a connection service.");
         } else if (can(Connection.CAPABILITY_SWAP_CONFERENCE)) {
             Log.addEvent(this, LogUtils.Events.SWAP);
@@ -2989,7 +3047,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     public void addConferenceParticipants(List<Uri> participants) {
-        if (mConnectionService == null) {
+        if (mTransactionalService != null) {
+            Log.i(this, "addConferenceParticipants: called on TransactionalService. doing nothing");
+        } else if (mConnectionService == null) {
             Log.w(this, "adding conference participants without a connection service.");
         } else if (can(Connection.CAPABILITY_ADD_PARTICIPANT)) {
             Log.addEvent(this, LogUtils.Events.ADD_PARTICIPANT);
@@ -3017,6 +3077,11 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * If there is an ongoing emergency call, pull requests are also ignored.
      */
     public void pullExternalCall() {
+        if (mTransactionalService != null) {
+            Log.i(this, "transfer: called on TransactionalService. doing nothing");
+            return;
+        }
+
         if (mConnectionService == null) {
             Log.w(this, "pulling a call without a connection service.");
         }
@@ -3064,7 +3129,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * @param extras Associated extras.
      */
     public void sendCallEvent(String event, int targetSdkVer, Bundle extras) {
-        if (mConnectionService != null) {
+        if (mTransactionalService != null) {
+            Log.i(this, "sendCallEvent: called on TransactionalService. doing nothing");
+        } else if (mConnectionService != null) {
             if (android.telecom.Call.EVENT_REQUEST_HANDOVER.equals(event)) {
                 if (targetSdkVer > Build.VERSION_CODES.P) {
                     Log.e(this, new Exception(), "sendCallEvent failed. Use public api handoverTo" +
@@ -3497,7 +3564,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     public void stopRtt() {
-        if (mConnectionService != null) {
+        if (mTransactionalService != null) {
+            Log.i(this, "stopRtt: called on TransactionalService. doing nothing");
+        } else if (mConnectionService != null) {
             mConnectionService.stopRtt(this);
         } else {
             // If this gets called by the in-call app before the connection service is set, we'll
@@ -3507,6 +3576,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     public void sendRttRequest() {
+        if (mTransactionalService != null) {
+            Log.i(this, "sendRttRequest: called on TransactionalService. doing nothing");
+            return;
+        }
         createRttStreams();
         mConnectionService.startRtt(this, getInCallToCsRttPipeForCs(), getCsToInCallRttPipeForCs());
     }
@@ -3554,6 +3627,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
         if (id != mPendingRttRequestId) {
             Log.w(this, "Response ID %d does not match expected %d", id, mPendingRttRequestId);
+            return;
+        }
+        if (mTransactionalService != null) {
+            Log.i(this, "handleRttRequestResponse: called on TransactionalService. doing nothing");
             return;
         }
         if (accept) {
@@ -4223,6 +4300,11 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     public void maybeOnInCallServiceTrackingChanged(boolean isTracking, boolean hasUi) {
+        if (mTransactionalService != null) {
+            Log.i(this,
+                    "maybeOnInCallServiceTrackingChanged: called on TransactionalService");
+            return;
+        }
         if (mConnectionService == null) {
             Log.w(this, "maybeOnInCallServiceTrackingChanged() request on a call"
                     + " without a connection service.");

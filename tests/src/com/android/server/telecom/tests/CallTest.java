@@ -18,15 +18,18 @@ package com.android.server.telecom.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -54,6 +57,7 @@ import com.android.server.telecom.InCallController.InCallServiceInfo;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.PhoneNumberUtilsAdapter;
 import com.android.server.telecom.TelecomSystem;
+import com.android.server.telecom.TransactionalServiceWrapper;
 import com.android.server.telecom.ui.ToastFactory;
 
 import org.junit.After;
@@ -87,6 +91,7 @@ public class CallTest extends TelecomTestCase {
     @Mock private Toast mMockToast;
     @Mock private PhoneNumberUtilsAdapter mMockPhoneNumberUtilsAdapter;
     @Mock private ConnectionServiceWrapper mMockConnectionService;
+    @Mock private TransactionalServiceWrapper mMockTransactionalService;
 
     private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
 
@@ -371,5 +376,88 @@ public class CallTest extends TelecomTestCase {
         call.setCallIsSuppressedByDoNotDisturb(true);
         assertTrue(call.wasDndCheckComputedForCall());
         assertTrue(call.isCallSuppressedByDoNotDisturb());
+    }
+
+    @Test
+    public void testGetConnectionServiceWrapper() {
+        Call call = new Call(
+                "1", /* callId */
+                mContext,
+                mMockCallsManager,
+                mLock,
+                null /* ConnectionServiceRepository */,
+                mMockPhoneNumberUtilsAdapter,
+                TEST_ADDRESS,
+                null /* GatewayInfo */,
+                null /* connectionManagerPhoneAccountHandle */,
+                SIM_1_HANDLE,
+                Call.CALL_DIRECTION_UNDEFINED,
+                false /* shouldAttachToExistingConnection*/,
+                true /* isConference */,
+                mMockClockProxy,
+                mMockToastProxy);
+
+        assertNull(call.getConnectionServiceWrapper());
+        assertFalse(call.isTransactionalCall());
+        call.setConnectionService(mMockConnectionService);
+        assertEquals(mMockConnectionService, call.getConnectionServiceWrapper());
+        call.setIsTransactionalCall(true);
+        assertTrue(call.isTransactionalCall());
+        assertNull(call.getConnectionServiceWrapper());
+        call.setTransactionServiceWrapper(mMockTransactionalService);
+        assertEquals(mMockTransactionalService, call.getTransactionServiceWrapper());
+    }
+
+    @Test
+    public void testCallEventCallbacksWereCalled() {
+        Call call = new Call(
+                "1", /* callId */
+                mContext,
+                mMockCallsManager,
+                mLock,
+                null /* ConnectionServiceRepository */,
+                mMockPhoneNumberUtilsAdapter,
+                TEST_ADDRESS,
+                null /* GatewayInfo */,
+                null /* connectionManagerPhoneAccountHandle */,
+                SIM_1_HANDLE,
+                Call.CALL_DIRECTION_UNDEFINED,
+                false /* shouldAttachToExistingConnection*/,
+                true /* isConference */,
+                mMockClockProxy,
+                mMockToastProxy);
+
+        // setup
+        call.setIsTransactionalCall(true);
+        assertTrue(call.isTransactionalCall());
+        assertNull(call.getConnectionServiceWrapper());
+        call.setTransactionServiceWrapper(mMockTransactionalService);
+        assertEquals(mMockTransactionalService, call.getTransactionServiceWrapper());
+
+        // assert CallEventCallback#onSetInactive is called
+        call.setState(CallState.ACTIVE, "test");
+        call.hold();
+        verify(mMockTransactionalService, times(1)).onSetInactive(call);
+
+        // assert CallEventCallback#onSetActive is called
+        call.setState(CallState.ON_HOLD, "test");
+        call.unhold();
+        verify(mMockTransactionalService, times(1)).onSetActive(call);
+
+        // assert CallEventCallback#onAnswer is called
+        call.setState(CallState.RINGING, "test");
+        call.answer(0);
+        verify(mMockTransactionalService, times(1)).onAnswer(call, 0);
+
+        // assert CallEventCallback#onReject is called
+        call.setState(CallState.RINGING, "test");
+        call.reject(0);
+        verify(mMockTransactionalService, times(1)).onReject(call, 0);
+
+        // assert CallEventCallback#onDisconnect is called
+        call.setState(CallState.ACTIVE, "test");
+        call.disconnect();
+        verify(mMockTransactionalService, times(1)).onDisconnect(call,
+                call.getDisconnectCause());
     }
 }
