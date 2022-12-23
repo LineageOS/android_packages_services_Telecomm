@@ -27,10 +27,6 @@ import static android.Manifest.permission.READ_SMS;
 import static android.Manifest.permission.REGISTER_SIM_SUBSCRIPTION;
 import static android.Manifest.permission.WRITE_SECURE_SETTINGS;
 import static android.Manifest.permission.MANAGE_OWN_CALLS;
-import static android.telecom.CallAttributes.DIRECTION_INCOMING;
-import static android.telecom.CallAttributes.DIRECTION_OUTGOING;
-import static android.telecom.TelecomManager.TELECOM_TRANSACTION_SUCCESS;
-import static android.telecom.CallException.CODE_ERROR_UNKNOWN;
 
 import android.Manifest;
 import android.app.ActivityManager;
@@ -51,15 +47,10 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.OutcomeReceiver;
 import android.os.Process;
-import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.BlockedNumberContract;
 import android.provider.Settings;
-import android.telecom.CallAttributes;
-
-import android.telecom.CallException;
 import android.telecom.Log;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
@@ -71,20 +62,10 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.EventLog;
 
-import androidx.annotation.NonNull;
-
-import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.telecom.ICallControl;
-import com.android.internal.telecom.ICallEventCallback;
 import com.android.internal.telecom.ITelecomService;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
 import com.android.server.telecom.settings.BlockedNumbersActivity;
-import com.android.server.telecom.voip.IncomingCallTransaction;
-import com.android.server.telecom.voip.OutgoingCallTransaction;
-import com.android.server.telecom.voip.TransactionManager;
-import com.android.server.telecom.voip.VoipCallTransaction;
-import com.android.server.telecom.voip.VoipCallTransactionResult;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -131,106 +112,12 @@ public class TelecomServiceImpl {
         }
     }
 
-    private static final String TAG = "TelecomServiceImpl";
     private static final String TIME_LINE_ARG = "timeline";
     private static final int DEFAULT_VIDEO_STATE = -1;
     private static final String PERMISSION_HANDLE_CALL_INTENT =
             "android.permission.HANDLE_CALL_INTENT";
-    private static final String ADD_CALL_ERR_MSG = "Call could not be created or found. "
-            + "Retry operation.";
 
     private final ITelecomService.Stub mBinderImpl = new ITelecomService.Stub() {
-
-        @Override
-        public void addCall(CallAttributes callAttributes, ICallEventCallback callEventCallback,
-                String callId, String callingPackage) {
-            try {
-                Log.startSession("TSI.aC", Log.getPackageAbbreviation(callingPackage));
-                Log.i(TAG, "addCall: id=[%s], attributes=[%s]", callId, callAttributes);
-                PhoneAccountHandle handle = callAttributes.getPhoneAccountHandle();
-
-                // enforce permissions and arguments
-                enforcePermission(android.Manifest.permission.MANAGE_OWN_CALLS);
-                enforceUserHandleMatchesCaller(handle);
-                enforcePhoneAccountIsNotManaged(handle);// only allow self-managed packages (temp.)
-                enforcePhoneAccountIsRegisteredEnabled(handle, handle.getUserHandle());
-                enforceCallingPackage(callingPackage, "addCall");
-
-                VoipCallTransaction transaction = null;
-                // create transaction based on the call direction
-                switch (callAttributes.getDirection()) {
-                    case DIRECTION_OUTGOING:
-                        transaction = new OutgoingCallTransaction(callId, mContext, callAttributes,
-                                mCallsManager);
-                        break;
-                    case DIRECTION_INCOMING:
-                        transaction = new IncomingCallTransaction(callId, callAttributes,
-                                mCallsManager);
-                        break;
-                    default:
-                        throw new IllegalArgumentException(String.format("Invalid Call Direction. "
-                                        + "Was [%d] but should be within [%d,%d]",
-                                callAttributes.getDirection(), DIRECTION_INCOMING,
-                                DIRECTION_OUTGOING));
-                }
-
-                mTransactionManager.addTransaction(transaction, new OutcomeReceiver<>() {
-                    @Override
-                    public void onResult(VoipCallTransactionResult result) {
-                        Log.d(TAG, "addCall: onResult");
-                        Call call = result.getCall();
-
-                        if (call == null || !call.getId().equals(callId)) {
-                            Log.i(TAG, "addCall: onResult: call is null or id mismatch");
-                            onAddCallControl(callId, callEventCallback, null,
-                                    new CallException(ADD_CALL_ERR_MSG, CODE_ERROR_UNKNOWN));
-                            return;
-                        }
-
-                        TransactionalServiceWrapper serviceWrapper =
-                                mTransactionalServiceRepository
-                                        .addNewCallForTransactionalServiceWrapper(handle,
-                                                callEventCallback, mCallsManager, call);
-
-                        call.setTransactionServiceWrapper(serviceWrapper);
-                        ICallControl clientCallControl = serviceWrapper.getICallControl();
-
-                        if (clientCallControl == null) {
-                            throw new IllegalStateException("TransactionalServiceWrapper"
-                                    + "#ICallControl is null.");
-                        }
-
-                        // finally, send objects back to the client
-                        onAddCallControl(callId, callEventCallback, clientCallControl, null);
-                    }
-
-                    @Override
-                    public void onError(@NonNull CallException exception) {
-                        Log.d(TAG, "addCall: onError: e=[%s]", exception.toString());
-                        onAddCallControl(callId, callEventCallback, null, exception);
-                    }
-                });
-            } finally {
-                Log.endSession();
-            }
-        }
-
-        private void onAddCallControl(String callId, ICallEventCallback callEventCallback,
-                ICallControl callControl, CallException callException) {
-            try {
-                if (callException == null) {
-                    callEventCallback.onAddCallControl(callId, TELECOM_TRANSACTION_SUCCESS,
-                            callControl, null);
-                } else {
-                    callEventCallback.onAddCallControl(callId,
-                            CallException.CODE_ERROR_UNKNOWN,
-                            null, callException);
-                }
-            } catch (RemoteException remoteException) {
-                throw remoteException.rethrowAsRuntimeException();
-            }
-        }
-
         @Override
         public PhoneAccountHandle getDefaultOutgoingPhoneAccount(String uriScheme,
                 String callingPackage, String callingFeatureId) {
@@ -2368,8 +2255,6 @@ public class TelecomServiceImpl {
     private final SubscriptionManagerAdapter mSubscriptionManagerAdapter;
     private final SettingsSecureAdapter mSettingsSecureAdapter;
     private final TelecomSystem.SyncRoot mLock;
-    private TransactionManager mTransactionManager;
-    private final TransactionalServiceRepository mTransactionalServiceRepository;
 
     public TelecomServiceImpl(
             Context context,
@@ -2406,14 +2291,6 @@ public class TelecomServiceImpl {
                             defaultDialer);
             mContext.sendBroadcastAsUser(intent, UserHandle.of(userId));
         });
-
-        mTransactionManager = TransactionManager.getInstance();
-        mTransactionalServiceRepository = new TransactionalServiceRepository();
-    }
-
-    @VisibleForTesting
-    public void setTransactionManager(TransactionManager transactionManager){
-        mTransactionManager = transactionManager;
     }
 
     public ITelecomService.Stub getBinder() {
@@ -2523,29 +2400,6 @@ public class TelecomServiceImpl {
         if(!phoneAccount.isEnabled()) {
             EventLog.writeEvent(0x534e4554, "26864502", Binder.getCallingUid(), "E");
             throw new SecurityException("This PhoneAccountHandle is not enabled for this user!");
-        }
-    }
-
-    // Enforce that the PhoneAccountHandle is tied to a self-managed package and not managed (aka
-    // sim calling, etc.)
-    private void enforcePhoneAccountIsNotManaged(PhoneAccountHandle phoneAccountHandle) {
-        PhoneAccount phoneAccount = mPhoneAccountRegistrar.getPhoneAccount(phoneAccountHandle,
-                phoneAccountHandle.getUserHandle());
-        if (phoneAccount == null) {
-            throw new IllegalArgumentException("enforcePhoneAccountIsNotManaged:"
-                    + " phoneAccount is null");
-        }
-        if (phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)) {
-            throw new IllegalArgumentException("enforcePhoneAccountIsNotManaged:"
-                    + " CAPABILITY_SIM_SUBSCRIPTION is not allowed");
-        }
-        if (phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER)) {
-            throw new IllegalArgumentException("enforcePhoneAccountIsNotManaged:"
-                    + " CAPABILITY_CALL_PROVIDER is not allowed");
-        }
-        if (phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_CONNECTION_MANAGER)) {
-            throw new IllegalArgumentException("enforcePhoneAccountIsNotManaged:"
-                    + " CAPABILITY_CONNECTION_MANAGER is not allowed");
         }
     }
 

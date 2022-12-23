@@ -26,10 +26,6 @@ public class SerialTransaction extends VoipCallTransaction {
         super(subTransactions);
     }
 
-    public void appendTransaction(VoipCallTransaction transaction){
-        mSubTransactions.add(transaction);
-    }
-
     @Override
     public void start() {
         // post timeout work

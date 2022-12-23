@@ -17,9 +17,6 @@
 package com.android.server.telecom.voip;
 
 import android.os.OutcomeReceiver;
-import android.telecom.TelecomManager;
-import android.telecom.CallException;
-import android.util.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -41,6 +38,7 @@ public class TransactionManager {
     private TransactionManager() {
         mTransactions = new ArrayDeque<>();
         mCurrentTransaction = null;
+
     }
 
     public static TransactionManager getInstance() {
@@ -58,27 +56,24 @@ public class TransactionManager {
     }
 
     public void addTransaction(VoipCallTransaction transaction,
-            OutcomeReceiver<VoipCallTransactionResult, CallException> receiver) {
+            OutcomeReceiver<VoipCallTransactionResult, Exception> receiver) {
         synchronized (sLock) {
             mTransactions.add(transaction);
             transaction.setCompleteListener(new TransactionCompleteListener() {
                 @Override
                 public void onTransactionCompleted(VoipCallTransactionResult result,
-                        String transactionName){
-                    Log.i(TAG, String.format("transaction completed: with result=[%d]",
-                            result.getResult()));
-                    if (result.getResult() == TelecomManager.TELECOM_TRANSACTION_SUCCESS) {
+                        String transactionName) {
+                    if (result.getResult() == 0
+                        /* TODO: change this to static value in TelecomManager */) {
                         receiver.onResult(result);
                     } else {
-                        receiver.onError(
-                                new CallException(result.getMessage(),
-                                        result.getResult()));
+                        receiver.onError(new Exception());
                     }
                     finishTransaction();
                 }
 
                 @Override
-                public void onTransactionTimeout(String transactionName){
+                public void onTransactionTimeout(String transactionName) {
                     receiver.onResult(new VoipCallTransactionResult(
                             VoipCallTransactionResult.RESULT_FAILED, transactionName + " timeout"));
                     finishTransaction();

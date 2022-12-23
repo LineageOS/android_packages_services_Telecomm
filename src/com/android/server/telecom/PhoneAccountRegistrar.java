@@ -41,6 +41,7 @@ import android.os.UserManager;
 import android.provider.Settings;
 import android.telecom.CallAudioState;
 import android.telecom.ConnectionService;
+import android.telecom.DefaultDialerManager;
 import android.telecom.Log;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
@@ -57,6 +58,7 @@ import android.util.Xml;
 
 // TODO: Needed for move to system service: import com.android.internal.R;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.util.FastXmlSerializer;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.internal.util.XmlUtils;
 
@@ -64,6 +66,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlSerializer;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -82,9 +85,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Handles writing and reading PhoneAccountHandle registration entries. This is a simple verbatim
@@ -853,8 +859,7 @@ public class PhoneAccountRegistrar {
     public void registerPhoneAccount(PhoneAccount account) {
         // Enforce the requirement that a connection service for a phone account has the correct
         // permission.
-        if (!hasTransactionalCallCapabilites(account) &&
-                !phoneAccountRequiresBindPermission(account.getAccountHandle())) {
+        if (!phoneAccountRequiresBindPermission(account.getAccountHandle())) {
             Log.w(this,
                     "Phone account %s does not have BIND_TELECOM_CONNECTION_SERVICE permission.",
                     account.getAccountHandle());
@@ -892,15 +897,6 @@ public class PhoneAccountRegistrar {
         // source app provides or else an third party app could enable itself.
         boolean isEnabled = false;
         boolean isNewAccount;
-
-        // add self-managed capability for transactional accounts that are missing it
-        if (hasTransactionalCallCapabilites(account) &&
-                !account.hasCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED)) {
-            account = account.toBuilder()
-                    .setCapabilities(account.getCapabilities()
-                            | PhoneAccount.CAPABILITY_SELF_MANAGED)
-                    .build();
-        }
 
         PhoneAccount oldAccount = getPhoneAccountUnchecked(account.getAccountHandle());
         if (oldAccount != null) {
@@ -1200,11 +1196,6 @@ public class PhoneAccountRegistrar {
             Log.w(this, "phoneAccount %s not found", phoneAccountHandle.getComponentName());
             return false;
         }
-
-        if (hasTransactionalCallCapabilites(getPhoneAccountUnchecked(phoneAccountHandle))) {
-            return false;
-        }
-
         for (ResolveInfo resolveInfo : resolveInfos) {
             ServiceInfo serviceInfo = resolveInfo.serviceInfo;
             if (serviceInfo == null) {
@@ -1221,15 +1212,6 @@ public class PhoneAccountRegistrar {
             }
         }
         return true;
-    }
-
-    @VisibleForTesting
-    public boolean hasTransactionalCallCapabilites(PhoneAccount phoneAccount) {
-        if (phoneAccount == null) {
-            return false;
-        }
-        return phoneAccount.hasCapabilities(
-                PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS);
     }
 
     //

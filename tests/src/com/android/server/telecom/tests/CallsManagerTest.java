@@ -50,7 +50,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.OutcomeReceiver;
 import android.os.Process;
 import android.os.SystemClock;
 import android.os.UserHandle;
@@ -61,7 +60,6 @@ import android.telecom.GatewayInfo;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
-import android.telecom.CallException;
 import android.telecom.VideoProfile;
 import android.telephony.TelephonyManager;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -124,6 +122,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -1773,88 +1772,6 @@ public class CallsManagerTest extends TelecomTestCase {
         ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
         verify(callSpy).disconnect(argumentCaptor.capture());
         assertTrue(argumentCaptor.getValue().contains("Unavailable phoneAccountHandle"));
-    }
-
-    public class LatchedOutcomeReceiver implements OutcomeReceiver<Boolean,
-            CallException> {
-        CountDownLatch mCountDownLatch;
-        Boolean mIsOnResultExpected;
-
-        public LatchedOutcomeReceiver(CountDownLatch latch, boolean isOnResultExpected){
-            mCountDownLatch = latch;
-            mIsOnResultExpected = isOnResultExpected;
-        }
-
-        @Override
-        public void onResult(Boolean result) {
-            if(mIsOnResultExpected) {
-                mCountDownLatch.countDown();
-            }
-        }
-
-        @Override
-        public void onError(CallException error) {
-            OutcomeReceiver.super.onError(error);
-            if(!mIsOnResultExpected){
-                mCountDownLatch.countDown();
-            }
-        }
-    }
-
-    @SmallTest
-    @Test
-    public void testCanHold() {
-        Call newCall = addSpyCall();
-        when(newCall.isTransactionalCall()).thenReturn(true);
-        when(newCall.can(Connection.CAPABILITY_SUPPORT_HOLD)).thenReturn(false);
-        assertFalse(mCallsManager.canHold(newCall));
-        when(newCall.can(Connection.CAPABILITY_SUPPORT_HOLD)).thenReturn(true);
-        assertTrue(mCallsManager.canHold(newCall));
-    }
-
-    @MediumTest
-    @Test
-    public void testHoldTransactional() throws Exception {
-        CountDownLatch latch = new CountDownLatch(1);
-        Call newCall = addSpyCall();
-
-        // case 1: no active call, no need to put the call on hold
-        when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(null);
-        mCallsManager.transactionHoldPotentialActiveCallForNewCall(newCall,
-                new LatchedOutcomeReceiver(latch, true));
-        waitForCountDownLatch(latch);
-
-        // case 2: active call == new call, no need to put the call on hold
-        latch = new CountDownLatch(1);
-        when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(newCall);
-        mCallsManager.transactionHoldPotentialActiveCallForNewCall(newCall,
-                new LatchedOutcomeReceiver(latch, true));
-        waitForCountDownLatch(latch);
-
-        // case 3: cannot hold current active call early check
-        Call cannotHoldCall = addSpyCall(SIM_1_HANDLE, null,
-                CallState.ACTIVE, 0, 0);
-        latch = new CountDownLatch(1);
-        when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(cannotHoldCall);
-        mCallsManager.transactionHoldPotentialActiveCallForNewCall(newCall,
-                new LatchedOutcomeReceiver(latch, false));
-        waitForCountDownLatch(latch);
-
-        // case 4: activeCall != newCall && canHold(activeCall)
-        Call canHoldCall = addSpyCall(SIM_1_HANDLE, null,
-                CallState.ACTIVE, Connection.CAPABILITY_HOLD, 0);
-        latch = new CountDownLatch(1);
-        when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(canHoldCall);
-        mCallsManager.transactionHoldPotentialActiveCallForNewCall(newCall,
-                new LatchedOutcomeReceiver(latch, true));
-        waitForCountDownLatch(latch);
-    }
-
-    public void waitForCountDownLatch(CountDownLatch latch) throws InterruptedException {
-            boolean success = latch.await(5000, TimeUnit.MILLISECONDS);
-            if (!success) {
-                fail("assertOnResultWasReceived success failed");
-            }
     }
 
     private Call addSpyCall() {
