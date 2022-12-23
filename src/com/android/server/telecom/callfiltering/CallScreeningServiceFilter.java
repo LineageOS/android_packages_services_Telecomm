@@ -24,6 +24,7 @@ import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.UserHandle;
 import android.provider.CallLog;
 import android.telecom.CallScreeningService;
 import android.telecom.Log;
@@ -316,7 +317,7 @@ public class CallScreeningServiceFilter extends CallFilter {
         CallScreeningServiceConnection connection = new CallScreeningServiceConnection(
                 resultFuture);
         if (!CallScreeningServiceHelper.bindCallScreeningService(mContext,
-                mCallsManager.getCurrentUserHandle(), mPackageName, connection)) {
+                mCall.getUserHandleFromTargetPhoneAccount(), mPackageName, connection)) {
             Log.i(this, "Call screening service binding failed.");
             resultFuture.complete(mPriorStageResult);
         } else {

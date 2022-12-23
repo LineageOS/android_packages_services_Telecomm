@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * Provides a default implementation for listeners of CallsManager.
  */
-public class CallsManagerListenerBase implements CallsManager.CallsManagerListener {
+public abstract class CallsManagerListenerBase implements CallsManager.CallsManagerListener {
     @Override
     public void onCallAdded(Call call) {
     }
@@ -101,6 +101,10 @@ public class CallsManagerListenerBase implements CallsManager.CallsManagerListen
 
     @Override
     public void onExternalCallChanged(Call call, boolean isExternalCall) {
+    }
+
+    @Override
+    public void onCallStreamingStateChanged(Call call, boolean isStreaming) {
     }
 
     @Override

@@ -16,9 +16,9 @@
 
 package com.android.server.telecom;
 
-import static android.telecom.TelecomManager.TELECOM_TRANSACTION_SUCCESS;
 import static android.telecom.CallException.CODE_CALL_IS_NOT_BEING_TRACKED;
 import static android.telecom.CallException.TRANSACTION_EXCEPTION_KEY;
+import static android.telecom.TelecomManager.TELECOM_TRANSACTION_SUCCESS;
 
 import android.content.ComponentName;
 import android.os.Bundle;
@@ -28,21 +28,23 @@ import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.telecom.CallAudioState;
 import android.telecom.CallException;
+import android.telecom.CallStreamingService;
 import android.telecom.DisconnectCause;
-import android.telecom.PhoneAccountHandle;
 import android.telecom.Log;
+import android.telecom.PhoneAccountHandle;
 
 import androidx.annotation.VisibleForTesting;
 
 import com.android.internal.telecom.ICallControl;
 import com.android.internal.telecom.ICallEventCallback;
 import com.android.server.telecom.voip.CallEventCallbackAckTransaction;
-import com.android.server.telecom.voip.HoldCallTransaction;
 import com.android.server.telecom.voip.EndCallTransaction;
+import com.android.server.telecom.voip.HoldActiveCallForNewCallTransaction;
+import com.android.server.telecom.voip.HoldCallTransaction;
+import com.android.server.telecom.voip.ParallelTransaction;
+import com.android.server.telecom.voip.RequestFocusTransaction;
 import com.android.server.telecom.voip.SerialTransaction;
 import com.android.server.telecom.voip.TransactionManager;
-import com.android.server.telecom.voip.HoldActiveCallForNewCallTransaction;
-import com.android.server.telecom.voip.RequestFocusTransaction;
 import com.android.server.telecom.voip.VoipCallTransaction;
 import com.android.server.telecom.voip.VoipCallTransactionResult;
 
@@ -64,6 +66,7 @@ public class TransactionalServiceWrapper implements
     public static final String SET_INACTIVE = "SetInactive";
     public static final String REJECT = "Reject";
     public static final String DISCONNECT = "Disconnect";
+    public static final String START_STREAMING = "StartStreaming";
 
     // CallEventCallback : Telecom --> Client (ex. voip app)
     public static final String ON_SET_ACTIVE = "onSetActive";
@@ -71,6 +74,7 @@ public class TransactionalServiceWrapper implements
     public static final String ON_ANSWER = "onAnswer";
     public static final String ON_REJECT = "onReject";
     public static final String ON_DISCONNECT = "onDisconnect";
+    public static final String ON_STREAMING_STARTED = "onStreamingStarted";
 
     private final CallsManager mCallsManager;
     private final ICallEventCallback mICallEventCallback;
@@ -83,6 +87,7 @@ public class TransactionalServiceWrapper implements
     private final String mPackageName;
     // needs to be non-final for testing
     private TransactionManager mTransactionManager;
+    private CallStreamingController mStreamingController;
 
     public TransactionalServiceWrapper(ICallEventCallback callEventCallback,
             CallsManager callsManager, PhoneAccountHandle phoneAccountHandle, Call call,
@@ -96,12 +101,17 @@ public class TransactionalServiceWrapper implements
         // init instance vars
         mPackageName = phoneAccountHandle.getComponentName().getPackageName();
         mTransactionManager = TransactionManager.getInstance();
+        mStreamingController = mCallsManager.getCallStreamingController();
         mLock = new Object();
     }
 
     @VisibleForTesting
     public void setTransactionManager(TransactionManager transactionManager) {
         mTransactionManager = transactionManager;
+    }
+
+    public TransactionManager getTransactionManager() {
+        return mTransactionManager;
     }
 
     public PhoneAccountHandle getPhoneAccountHandle() {
@@ -115,6 +125,13 @@ public class TransactionalServiceWrapper implements
             }
         }
     }
+
+    public Call getCallById(String callId) {
+        synchronized (mLock) {
+            return mTrackedCalls.get(callId);
+        }
+    }
+
     @VisibleForTesting
     public boolean untrackCall(Call call) {
         Call removedCall = null;
@@ -210,6 +227,17 @@ public class TransactionalServiceWrapper implements
             }
         }
 
+        @Override
+        public void startCallStreaming(String callId, android.os.ResultReceiver callback)
+                throws RemoteException {
+            try {
+                Log.startSession("TSW.sCS");
+                createTransactions(callId, callback, START_STREAMING, 0);
+            } finally {
+                Log.endSession();
+            }
+        }
+
         private void createTransactions(String callId, ResultReceiver callback, String action,
                 int code) {
             Log.d(TAG, "createTransactions: callId=" + callId);
@@ -228,35 +256,38 @@ public class TransactionalServiceWrapper implements
                         addTransactionsToManager(
                                 new HoldCallTransaction(mCallsManager, call), callback);
                         break;
+                    case START_STREAMING:
+                        addTransactionsToManager(createStartStreamingTransaction(call), callback);
+                        break;
                 }
             } else {
                 Log.i(TAG, action + ": mCallsManager does not contain call with id=" + callId);
                 callback.send(CODE_CALL_IS_NOT_BEING_TRACKED, new Bundle());
             }
         }
-
-        private void addTransactionsToManager(VoipCallTransaction transaction,
-                ResultReceiver callback) {
-            Log.d(TAG, "addTransactionsToManager");
-
-            mTransactionManager.addTransaction(transaction, new OutcomeReceiver<>() {
-                @Override
-                public void onResult(VoipCallTransactionResult result) {
-                    Log.d(TAG, "addTransactionsToManager: onResult:");
-                    callback.send(TELECOM_TRANSACTION_SUCCESS, new Bundle());
-                }
-
-                @Override
-                public void onError(CallException exception) {
-                    Log.d(TAG, "addTransactionsToManager: onError");
-                    Bundle extras = new Bundle();
-                    extras.putParcelable(TRANSACTION_EXCEPTION_KEY, exception);
-                    callback.send(exception == null ? CallException.CODE_ERROR_UNKNOWN :
-                            exception.getCode(), extras);
-                }
-            });
-        }
     };
+
+    private void addTransactionsToManager(VoipCallTransaction transaction,
+            ResultReceiver callback) {
+        Log.d(TAG, "addTransactionsToManager");
+
+        mTransactionManager.addTransaction(transaction, new OutcomeReceiver<>() {
+            @Override
+            public void onResult(VoipCallTransactionResult result) {
+                Log.d(TAG, "addTransactionsToManager: onResult:");
+                callback.send(TELECOM_TRANSACTION_SUCCESS, new Bundle());
+            }
+
+            @Override
+            public void onError(CallException exception) {
+                Log.d(TAG, "addTransactionsToManager: onError");
+                Bundle extras = new Bundle();
+                extras.putParcelable(TRANSACTION_EXCEPTION_KEY, exception);
+                callback.send(exception == null ? CallException.CODE_ERROR_UNKNOWN :
+                        exception.getCode(), extras);
+            }
+        });
+    }
 
     public ICallControl getICallControl() {
         return mICallControl;
@@ -392,6 +423,42 @@ public class TransactionalServiceWrapper implements
         }
     }
 
+    public void onCallStreamingStarted(Call call) {
+        try {
+            Log.startSession("TSW.oCSS");
+            Log.d(TAG, String.format(Locale.US, "onCallStreamingStarted: callId=[%s]",
+                    call.getId()));
+
+            mTransactionManager.addTransaction(
+                    new CallEventCallbackAckTransaction(mICallEventCallback, ON_STREAMING_STARTED,
+                            call.getId(), 0), new OutcomeReceiver<>() {
+                        @Override
+                        public void onResult(VoipCallTransactionResult result) {
+                        }
+
+                        @Override
+                        public void onError(CallException exception) {
+                            Log.i(TAG, "onCallStreamingStarted: onError: with e=[%e]",
+                                    exception);
+                            stopCallStreaming(call);
+                        }
+                    }
+            );
+        } finally {
+            Log.endSession();
+        }
+    }
+
+    public void onCallStreamingFailed(Call call,
+            @CallStreamingService.StreamingFailedReason int streamingFailedReason) {
+        if (call != null) {
+            try {
+                mICallEventCallback.onCallStreamingFailed(call.getId(), streamingFailedReason);
+            } catch (RemoteException e) {
+            }
+        }
+    }
+
     // TODO:: replace with onCallEndpointChanged when CLs are merged
     public void onCallAudioStateChanged(Call call, CallAudioState callAudioState) {
         if (call != null) {
@@ -479,5 +546,55 @@ public class TransactionalServiceWrapper implements
     @Override
     public ComponentName getComponentName() {
         return mPhoneAccountHandle.getComponentName();
+    }
+
+    /***
+     *********************************************************************************************
+     **                    CallStreaming                                                        **
+     *********************************************************************************************
+     */
+
+    private SerialTransaction createStartStreamingTransaction(Call call) {
+        // start streaming transaction flow:
+        //     make sure there's no ongoing streaming call --> bind to EXO
+        //                                                 `-> change audio mode
+        // create list for multiple transactions
+        List<VoipCallTransaction> transactions = new ArrayList<>();
+
+        // add t1. make sure no ongoing streaming call
+        transactions.add(new CallStreamingController.QueryCallStreamingTransaction(mCallsManager));
+
+        // create list for parallel transactions
+        List<VoipCallTransaction> subTransactions = new ArrayList<>();
+        // add t2.1 bind to call streaming service
+        subTransactions.add(mStreamingController.getCallStreamingServiceTransaction(
+                mCallsManager.getContext(), this, call));
+        // add t2.2 audio route operations
+        subTransactions.add(new CallStreamingController.AudioInterceptionTransaction(call, true));
+
+        // add t2
+        transactions.add(new ParallelTransaction(subTransactions));
+        // send off to Transaction Manager to process
+        return new SerialTransaction(transactions);
+    }
+
+    private VoipCallTransaction createStopStreamingTransaction(Call call) {
+        // TODO: implement this
+        // Stop streaming transaction flow:
+        List<VoipCallTransaction> transactions = new ArrayList<>();
+
+        // 1. unbind to call streaming service
+        transactions.add(mStreamingController.getUnbindStreamingServiceTransaction());
+        // 2. audio route operations
+        transactions.add(new CallStreamingController.AudioInterceptionTransaction(call, false));
+        return new ParallelTransaction(transactions);
+    }
+
+
+    public void stopCallStreaming(Call call) {
+        if (call != null && call.isStreaming()) {
+            VoipCallTransaction stopStreamingTransaction = createStopStreamingTransaction(call);
+            addTransactionsToManager(stopStreamingTransaction, new ResultReceiver(null));
+        }
     }
 }

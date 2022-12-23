@@ -74,4 +74,15 @@ public class MyVoipCall implements CallEventCallback {
     public void onCallAudioStateChanged(@NonNull CallAudioState callAudioState) {
         Log.i(TAG, String.format("onCallAudioStateChanged: state=[%s]", callAudioState.toString()));
     }
+
+    @Override
+    public void onCallStreamingStarted(@NonNull Consumer<Boolean> wasCompleted) {
+        Log.i(TAG, String.format("onCallStreamingStarted: callId=[%s]", mCallId));
+    }
+
+    @Override
+    public void onCallStreamingFailed(int reason) {
+        Log.i(TAG, String.format("onCallStreamingFailed: callId[%s], reason=[%s]", mCallId,
+                reason));
+    }
 }
