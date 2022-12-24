@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.os.OutcomeReceiver;
+import android.telecom.CallException;
 import android.util.Log;
 
 import androidx.test.filters.SmallTest;
@@ -121,7 +122,7 @@ public class VoipCallTransactionTest extends TelecomTestCase {
         subTransactions.add(t2);
         subTransactions.add(t3);
         CompletableFuture<VoipCallTransactionResult> resultFuture = new CompletableFuture<>();
-        OutcomeReceiver<VoipCallTransactionResult, Exception> outcomeReceiver =
+        OutcomeReceiver<VoipCallTransactionResult, CallException> outcomeReceiver =
                 resultFuture::complete;
         String expectedLog = "t1 success;\nt2 success;\nt3 success;\n";
         mTransactionManager.addTransaction(new SerialTransaction(subTransactions), outcomeReceiver);
@@ -145,15 +146,15 @@ public class VoipCallTransactionTest extends TelecomTestCase {
         subTransactions.add(t2);
         subTransactions.add(t3);
         CompletableFuture<String> exceptionFuture = new CompletableFuture<>();
-        OutcomeReceiver<VoipCallTransactionResult, Exception> outcomeReceiver =
-                new OutcomeReceiver<VoipCallTransactionResult, Exception>() {
+        OutcomeReceiver<VoipCallTransactionResult, CallException> outcomeReceiver =
+                new OutcomeReceiver<VoipCallTransactionResult, CallException>() {
                     @Override
                     public void onResult(VoipCallTransactionResult result) {
 
                     }
 
                     @Override
-                    public void onError(Exception e) {
+                    public void onError(CallException e) {
                         exceptionFuture.complete(e.getMessage());
                     }
                 };
@@ -179,7 +180,7 @@ public class VoipCallTransactionTest extends TelecomTestCase {
         subTransactions.add(t2);
         subTransactions.add(t3);
         CompletableFuture<VoipCallTransactionResult> resultFuture = new CompletableFuture<>();
-        OutcomeReceiver<VoipCallTransactionResult, Exception> outcomeReceiver =
+        OutcomeReceiver<VoipCallTransactionResult, CallException> outcomeReceiver =
                 resultFuture::complete;
         mTransactionManager.addTransaction(new ParallelTransaction(subTransactions),
                 outcomeReceiver);
@@ -206,15 +207,15 @@ public class VoipCallTransactionTest extends TelecomTestCase {
         subTransactions.add(t2);
         subTransactions.add(t3);
         CompletableFuture<String> exceptionFuture = new CompletableFuture<>();
-        OutcomeReceiver<VoipCallTransactionResult, Exception> outcomeReceiver =
-                new OutcomeReceiver<VoipCallTransactionResult, Exception>() {
+        OutcomeReceiver<VoipCallTransactionResult, CallException> outcomeReceiver =
+                new OutcomeReceiver<VoipCallTransactionResult, CallException>() {
             @Override
             public void onResult(VoipCallTransactionResult result) {
 
             }
 
             @Override
-            public void onError(Exception e) {
+            public void onError(CallException e) {
                 exceptionFuture.complete(e.getMessage());
             }
         };
@@ -231,7 +232,7 @@ public class VoipCallTransactionTest extends TelecomTestCase {
         VoipCallTransaction t = new TestVoipCallTransaction("t", 10000L,
                 TestVoipCallTransaction.SUCCESS);
         CompletableFuture<VoipCallTransactionResult> resultFuture = new CompletableFuture<>();
-        OutcomeReceiver<VoipCallTransactionResult, Exception> outcomeReceiver =
+        OutcomeReceiver<VoipCallTransactionResult, CallException> outcomeReceiver =
                 resultFuture::complete;
         mTransactionManager.addTransaction(t, outcomeReceiver);
         VoipCallTransactionResult result = resultFuture.get(7000L, TimeUnit.MILLISECONDS);

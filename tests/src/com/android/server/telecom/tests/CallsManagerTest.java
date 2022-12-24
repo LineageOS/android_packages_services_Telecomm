@@ -50,6 +50,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.OutcomeReceiver;
 import android.os.Process;
 import android.os.SystemClock;
 import android.os.UserHandle;
@@ -60,6 +61,7 @@ import android.telecom.GatewayInfo;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
+import android.telecom.CallException;
 import android.telecom.VideoProfile;
 import android.telephony.TelephonyManager;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -122,7 +124,6 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -172,6 +173,8 @@ public class CallsManagerTest extends TelecomTestCase {
     private static final Map<Uri, PhoneAccountHandle> CONTACT_PREFERRED_ACCOUNT = Map.of(
             TEST_ADDRESS2, SIM_1_HANDLE,
             TEST_ADDRESS3, SIM_2_HANDLE);
+
+    private static final String DEFAULT_CALL_SCREENING_APP = "com.foo.call_screen_app";
 
     private static int sCallId = 1;
     private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
@@ -1443,6 +1446,7 @@ public class CallsManagerTest extends TelecomTestCase {
         Call screenedCall = mock(Call.class);
         Bundle extra = new Bundle();
         when(screenedCall.getIntentExtras()).thenReturn(extra);
+        when(screenedCall.getTargetPhoneAccount()).thenReturn(SIM_1_HANDLE);
         String appName = "blah";
         CallFilteringResult result = new CallFilteringResult.Builder()
                 .setShouldAllowCall(true)
@@ -1648,7 +1652,35 @@ public class CallsManagerTest extends TelecomTestCase {
                 any(DisconnectCause.class));
         verify(callSpy, never()).setDisconnectCause(any(DisconnectCause.class));
     }
-    
+
+    @SmallTest
+    @Test
+    public void testCallStreamingStateChanged() throws Exception {
+        Call call = createCall(SIM_1_HANDLE, CallState.NEW);
+        call.setIsTransactionalCall(true);
+        CountDownLatch streamingStarted = new CountDownLatch(1);
+        CountDownLatch streamingStopped = new CountDownLatch(1);
+        Call.Listener l = new Call.ListenerBase() {
+            @Override
+            public void onCallStreamingStateChanged(Call call, boolean isStreaming) {
+                if (isStreaming) {
+                    streamingStarted.countDown();
+                } else {
+                    streamingStopped.countDown();
+                }
+            }
+        };
+        call.addListener(l);
+
+        // Start call streaming
+        call.startStreaming();
+        assertTrue(streamingStarted.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
+
+        // Stop call streaming
+        call.stopStreaming();
+        assertTrue(streamingStopped.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
+    }
+
     /**
      * Verifies that if call state goes from DIALING to DISCONNECTED, and a call diagnostic service
      * IS in use, it would call onCallDisconnected of the CallDiagnosticService
@@ -1772,6 +1804,156 @@ public class CallsManagerTest extends TelecomTestCase {
         ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
         verify(callSpy).disconnect(argumentCaptor.capture());
         assertTrue(argumentCaptor.getValue().contains("Unavailable phoneAccountHandle"));
+    }
+
+    /**
+     * Verifies that target phone account is set in startOutgoingCall. The multi-user functionality
+     * is dependent on the call's phone account handle being present so this test ensures that
+     * existing outgoing call flow does not break from future updates.
+     * @throws Exception
+     */
+    @Test
+    public void testStartOutgoingCall_TargetPhoneAccountSet() throws Exception {
+        // Ensure contact info lookup succeeds
+        doAnswer(invocation -> {
+            Uri handle = invocation.getArgument(0);
+            CallerInfo info = new CallerInfo();
+            CompletableFuture<Pair<Uri, CallerInfo>> callerInfoFuture = new CompletableFuture<>();
+            callerInfoFuture.complete(new Pair<>(handle, info));
+            return callerInfoFuture;
+        }).when(mCallerInfoLookupHelper).startLookup(any(Uri.class));
+
+        // Ensure we have candidate phone account handle info.
+        when(mPhoneAccountRegistrar.getOutgoingPhoneAccountForScheme(any(), any())).thenReturn(
+                SIM_1_HANDLE);
+        when(mPhoneAccountRegistrar.getCallCapablePhoneAccounts(any(), anyBoolean(),
+                any(), anyInt(), anyInt(), anyBoolean())).thenReturn(
+                new ArrayList<>(Arrays.asList(SIM_1_HANDLE, SIM_2_HANDLE)));
+
+        // start an outgoing call
+        CompletableFuture<Call> callFuture = mCallsManager.startOutgoingCall(
+                TEST_ADDRESS, SIM_2_HANDLE, new Bundle(),
+                UserHandle.CURRENT, new Intent(), "com.test.stuff");
+        Call outgoingCall = callFuture.get();
+        // assert call was created
+        assertNotNull(outgoingCall);
+        // assert target phone account was set
+        assertNotNull(outgoingCall.getTargetPhoneAccount());
+    }
+
+    /**
+     * Verifies that target phone account is set before call filtering occurs.
+     * @throws Exception
+     */
+    @SmallTest
+    @Test
+    public void testOnSuccessfulIncomingCall_TargetPhoneAccountSet() throws Exception {
+        Call incomingCall = addSpyCall(CallState.NEW);
+        doReturn(false).when(incomingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(false).when(incomingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        doReturn(true).when(incomingCall).isSelfManaged();
+        doReturn(true).when(incomingCall).setState(anyInt(), any());
+        // assert phone account is present before onSuccessfulIncomingCall is called
+        assertNotNull(incomingCall.getTargetPhoneAccount());
+    }
+
+    /**
+     * Verifies that outgoing call's post call package name is set during
+     * onSuccessfulOutgoingCall.
+     * @throws Exception
+     */
+    @SmallTest
+    @Test
+    public void testPostCallPackageNameSetOnSuccessfulOutgoingCall() throws Exception {
+        Call outgoingCall = addSpyCall(CallState.NEW);
+        when(mCallsManager.getRoleManagerAdapter().getDefaultCallScreeningApp(
+                outgoingCall.getUserHandleFromTargetPhoneAccount()))
+                .thenReturn(DEFAULT_CALL_SCREENING_APP);
+        assertNull(outgoingCall.getPostCallPackageName());
+        mCallsManager.onSuccessfulOutgoingCall(outgoingCall, CallState.CONNECTING);
+        assertEquals(DEFAULT_CALL_SCREENING_APP, outgoingCall.getPostCallPackageName());
+    }
+
+    public class LatchedOutcomeReceiver implements OutcomeReceiver<Boolean,
+            CallException> {
+        CountDownLatch mCountDownLatch;
+        Boolean mIsOnResultExpected;
+
+        public LatchedOutcomeReceiver(CountDownLatch latch, boolean isOnResultExpected){
+            mCountDownLatch = latch;
+            mIsOnResultExpected = isOnResultExpected;
+        }
+
+        @Override
+        public void onResult(Boolean result) {
+            if(mIsOnResultExpected) {
+                mCountDownLatch.countDown();
+            }
+        }
+
+        @Override
+        public void onError(CallException error) {
+            OutcomeReceiver.super.onError(error);
+            if(!mIsOnResultExpected){
+                mCountDownLatch.countDown();
+            }
+        }
+    }
+
+    @SmallTest
+    @Test
+    public void testCanHold() {
+        Call newCall = addSpyCall();
+        when(newCall.isTransactionalCall()).thenReturn(true);
+        when(newCall.can(Connection.CAPABILITY_SUPPORT_HOLD)).thenReturn(false);
+        assertFalse(mCallsManager.canHold(newCall));
+        when(newCall.can(Connection.CAPABILITY_SUPPORT_HOLD)).thenReturn(true);
+        assertTrue(mCallsManager.canHold(newCall));
+    }
+
+    @MediumTest
+    @Test
+    public void testHoldTransactional() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        Call newCall = addSpyCall();
+
+        // case 1: no active call, no need to put the call on hold
+        when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(null);
+        mCallsManager.transactionHoldPotentialActiveCallForNewCall(newCall,
+                new LatchedOutcomeReceiver(latch, true));
+        waitForCountDownLatch(latch);
+
+        // case 2: active call == new call, no need to put the call on hold
+        latch = new CountDownLatch(1);
+        when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(newCall);
+        mCallsManager.transactionHoldPotentialActiveCallForNewCall(newCall,
+                new LatchedOutcomeReceiver(latch, true));
+        waitForCountDownLatch(latch);
+
+        // case 3: cannot hold current active call early check
+        Call cannotHoldCall = addSpyCall(SIM_1_HANDLE, null,
+                CallState.ACTIVE, 0, 0);
+        latch = new CountDownLatch(1);
+        when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(cannotHoldCall);
+        mCallsManager.transactionHoldPotentialActiveCallForNewCall(newCall,
+                new LatchedOutcomeReceiver(latch, false));
+        waitForCountDownLatch(latch);
+
+        // case 4: activeCall != newCall && canHold(activeCall)
+        Call canHoldCall = addSpyCall(SIM_1_HANDLE, null,
+                CallState.ACTIVE, Connection.CAPABILITY_HOLD, 0);
+        latch = new CountDownLatch(1);
+        when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(canHoldCall);
+        mCallsManager.transactionHoldPotentialActiveCallForNewCall(newCall,
+                new LatchedOutcomeReceiver(latch, true));
+        waitForCountDownLatch(latch);
+    }
+
+    public void waitForCountDownLatch(CountDownLatch latch) throws InterruptedException {
+            boolean success = latch.await(5000, TimeUnit.MILLISECONDS);
+            if (!success) {
+                fail("assertOnResultWasReceived success failed");
+            }
     }
 
     private Call addSpyCall() {
