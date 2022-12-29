@@ -124,4 +124,16 @@
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"Ekki er hægt að svara símtölum meðan á neyðarsímtali stendur."</string>
     <string name="cancel" msgid="6733466216239934756">"Hætta við"</string>
     <string name="back" msgid="6915955601805550206">"Til baka"</string>
+    <!-- no translation found for callendpoint_name_earpiece (7047285080319678594) -->
+    <skip />
+    <!-- no translation found for callendpoint_name_bluetooth (210210953208913172) -->
+    <skip />
+    <!-- no translation found for callendpoint_name_wiredheadset (6860787176412079742) -->
+    <skip />
+    <!-- no translation found for callendpoint_name_speaker (1971760468695323189) -->
+    <skip />
+    <!-- no translation found for callendpoint_name_streaming (2337595450408275576) -->
+    <skip />
+    <!-- no translation found for callendpoint_name_unknown (2199074708477193852) -->
+    <skip />
 </resources>

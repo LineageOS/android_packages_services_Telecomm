@@ -55,13 +55,13 @@
     <string name="add_vm_number_str" msgid="5179510133063168998">"నంబర్‌ను జోడించండి"</string>
     <string name="change_default_dialer_dialog_title" msgid="5861469279421508060">"<xliff:g id="NEW_APP">%s</xliff:g>ను మీ ఆటోమేటిక్ ఫోన్ యాప్‌గా చేయాలా?"</string>
     <string name="change_default_dialer_dialog_affirmative" msgid="8604665314757739550">"ఆటోమేటిక్‌గా సెట్ చేయండి"</string>
-    <string name="change_default_dialer_dialog_negative" msgid="8648669840052697821">"రద్దు చేయి"</string>
+    <string name="change_default_dialer_dialog_negative" msgid="8648669840052697821">"రద్దు చేయండి"</string>
     <string name="change_default_dialer_warning_message" msgid="8461963987376916114">"<xliff:g id="NEW_APP">%s</xliff:g> అన్ని రకాల కాల్స్‌ను చేయగలదు, సంబంధిత అన్ని అంశాలను కంట్రోల్ చేయగలదు. మీరు విశ్వసించే యాప్‌లను మాత్రమే ఆటోమేటిక్ ఫోన్ యాప్‌గా సెట్ చేయాలి."</string>
     <string name="change_default_call_screening_dialog_title" msgid="5365787219927262408">"<xliff:g id="NEW_APP">%s</xliff:g>ను మీ ఆటోమేటిక్ కాల్ స్క్రీనింగ్ యాప్‌గా సెట్ చేయాలా?"</string>
     <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="2039830033533243164">"<xliff:g id="OLD_APP">%s</xliff:g> ఇకపై స్క్రీన్ కాల్స్‌ను చేయలేదు."</string>
     <string name="change_default_call_screening_warning_message" msgid="9020537562292754269">"<xliff:g id="NEW_APP">%s</xliff:g> మీ కాంటాక్టుల్లో లేని కాలర్ల సమాచారాన్ని చూడగలుగుతుంది, అలాగే ఈ కాల్స్‌ను బ్లాక్ చేయగలుగుతుంది. మీరు విశ్వసించే యాప్‌లను మాత్రమే ఆటోమేటిక్ కాల్ స్క్రీనింగ్‌ యాప్‌గా సెట్ చేయాలి."</string>
     <string name="change_default_call_screening_dialog_affirmative" msgid="7162433828280058647">"ఆటోమేటిక్‌గా సెట్ చేయండి"</string>
-    <string name="change_default_call_screening_dialog_negative" msgid="1839266125623106342">"రద్దు చేయి"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="1839266125623106342">"రద్దు చేయండి"</string>
     <string name="blocked_numbers" msgid="8322134197039865180">"బ్లాక్ చేయబడిన నంబర్‌లు"</string>
     <string name="blocked_numbers_msg" msgid="2797422132329662697">"మీరు బ్లాక్ చేయబడిన నంబర్‌ల నుండి కాల్స్‌ లేదా వచన మెసేజ్‌లను స్వీకరించరు."</string>
     <string name="block_number" msgid="3784343046852802722">"నంబర్‌ను జోడించండి"</string>
@@ -124,4 +124,16 @@
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"అత్యవసర కాల్‌లో వున్నప్పుడు కాల్స్‌ను స్వీకరించడానికి వీలుపడదు."</string>
     <string name="cancel" msgid="6733466216239934756">"రద్దు చేయండి"</string>
     <string name="back" msgid="6915955601805550206">"వెనుకకు"</string>
+    <!-- no translation found for callendpoint_name_earpiece (7047285080319678594) -->
+    <skip />
+    <!-- no translation found for callendpoint_name_bluetooth (210210953208913172) -->
+    <skip />
+    <!-- no translation found for callendpoint_name_wiredheadset (6860787176412079742) -->
+    <skip />
+    <!-- no translation found for callendpoint_name_speaker (1971760468695323189) -->
+    <skip />
+    <!-- no translation found for callendpoint_name_streaming (2337595450408275576) -->
+    <skip />
+    <!-- no translation found for callendpoint_name_unknown (2199074708477193852) -->
+    <skip />
 </resources>
