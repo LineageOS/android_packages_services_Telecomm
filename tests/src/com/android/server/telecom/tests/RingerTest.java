@@ -50,6 +50,7 @@ import android.os.Vibrator;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.view.accessibility.AccessibilityManager;
 
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.Call;
@@ -149,12 +150,13 @@ public class RingerTest extends TelecomTestCase {
     @Mock Vibrator mockVibrator;
     @Mock InCallController mockInCallController;
     @Mock NotificationManager mockNotificationManager;
+    @Mock AccessibilityManager mockAccessibilityManager;
+
     @Spy Ringer.VibrationEffectProxy spyVibrationEffectProxy;
 
     @Mock InCallTonePlayer mockTonePlayer;
     @Mock Call mockCall1;
     @Mock Call mockCall2;
-    @Mock NotificationManager mNotificationManager;
 
     private static final PhoneAccountHandle PA_HANDLE =
             new PhoneAccountHandle(new ComponentName("pa_pkg", "pa_cls"),
@@ -174,26 +176,22 @@ public class RingerTest extends TelecomTestCase {
             return new UriVibrationEffect(ringtoneUriForEffect);
         }).when(spyVibrationEffectProxy).get(any(), any());
         when(mockPlayerFactory.createPlayer(anyInt())).thenReturn(mockTonePlayer);
-        mockAudioManager =
-                (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-        mNotificationManager = mContext.getSystemService(NotificationManager.class);
-
+        mockAudioManager = mContext.getSystemService(AudioManager.class);
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_NORMAL);
         when(mockSystemSettingsUtil.isHapticPlaybackSupported(any(Context.class))).thenReturn(true);
-        mockNotificationManager =
-                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        mockNotificationManager =mContext.getSystemService(NotificationManager.class);
+        mockAccessibilityManager = mContext.getSystemService(AccessibilityManager.class);
         when(mockTonePlayer.startTone()).thenReturn(true);
         when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
         when(mockRingtoneFactory.hasHapticChannels(any(Ringtone.class))).thenReturn(false);
         mRingerUnderTest = new Ringer(mockPlayerFactory, mContext, mockSystemSettingsUtil,
                 mockRingtonePlayer, mockRingtoneFactory, mockVibrator, spyVibrationEffectProxy,
-                mockInCallController, mNotificationManager);
+                mockInCallController, mockNotificationManager, mockAccessibilityManager);
         when(mockCall1.getState()).thenReturn(CallState.RINGING);
         when(mockCall2.getState()).thenReturn(CallState.RINGING);
         when(mockCall1.getUserHandleFromTargetPhoneAccount()).thenReturn(PA_HANDLE.getUserHandle());
         when(mockCall2.getUserHandleFromTargetPhoneAccount()).thenReturn(PA_HANDLE.getUserHandle());
         mRingerUnderTest.setBlockOnRingingFuture(mRingCompletionFuture);
-        mRingerUnderTest.setNotificationManager(mockNotificationManager);
     }
 
     @Override
@@ -522,8 +520,9 @@ public class RingerTest extends TelecomTestCase {
         when(mockCall1.wasDndCheckComputedForCall()).thenReturn(false);
         when(mockCall1.getHandle()).thenReturn(Uri.parse(""));
 
-        when(mContext.getSystemService(NotificationManager.class)).thenReturn(mNotificationManager);
-        when(mNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(false);
+        when(mContext.getSystemService(NotificationManager.class)).thenReturn(
+                mockNotificationManager);
+        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(false);
 
         // THEN
         assertFalse(mRingerUnderTest.shouldRingForContact(mockCall1));
@@ -541,11 +540,58 @@ public class RingerTest extends TelecomTestCase {
         // WHEN
         when(mockCall1.wasDndCheckComputedForCall()).thenReturn(false);
         when(mockCall1.getHandle()).thenReturn(Uri.parse(""));
-        when(mNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
+        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
 
         // THEN
         assertTrue(mRingerUnderTest.shouldRingForContact(mockCall1));
         verify(mockCall1, atLeastOnce()).setCallIsSuppressedByDoNotDisturb(false);
+    }
+
+    @Test
+    public void testNoFlashNotificationWhenCallSuppressed() {
+        ensureRingtoneMocked();
+        // Start call waiting to make sure that it doesn't stop when we start ringing
+        mRingerUnderTest.startCallWaiting(mockCall1);
+        when(mockCall2.wasDndCheckComputedForCall()).thenReturn(false);
+        when(mockCall2.getHandle()).thenReturn(Uri.parse(""));
+        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(false);
+
+        assertFalse(mRingerUnderTest.shouldRingForContact(mockCall2));
+        assertFalse(mRingerUnderTest.startRinging(mockCall2, false));
+        verify(mockAccessibilityManager, never())
+                .startFlashNotificationSequence(any(Context.class), anyInt());
+    }
+
+    @Test
+    public void testStartFlashNotificationWhenRingStarts()  {
+        ensureRingtoneMocked();
+        // Start call waiting to make sure that it doesn't stop when we start ringing
+        mRingerUnderTest.startCallWaiting(mockCall1);
+        when(mockCall2.wasDndCheckComputedForCall()).thenReturn(false);
+        when(mockCall2.getHandle()).thenReturn(Uri.parse(""));
+        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
+
+        assertTrue(mRingerUnderTest.shouldRingForContact(mockCall2));
+        assertTrue(mRingerUnderTest.startRinging(mockCall2, false));
+        verify(mockAccessibilityManager, atLeastOnce())
+                .startFlashNotificationSequence(any(Context.class), anyInt());
+    }
+
+    @Test
+    public void testStopFlashNotificationWhenRingStops() {
+        ensureRingtoneMocked();
+        // Start call waiting to make sure that it doesn't stop when we start ringing
+        mRingerUnderTest.startCallWaiting(mockCall1);
+        when(mockCall2.wasDndCheckComputedForCall()).thenReturn(false);
+        when(mockCall2.getHandle()).thenReturn(Uri.parse(""));
+        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
+
+        assertTrue(mRingerUnderTest.shouldRingForContact(mockCall2));
+        assertTrue(mRingerUnderTest.startRinging(mockCall2, false));
+        mRingerUnderTest.stopRinging();
+        verify(mockAccessibilityManager, atLeastOnce())
+                .stopFlashNotificationSequence(any(Context.class));
+
     }
 
     private void ensureRingerIsAudible() {

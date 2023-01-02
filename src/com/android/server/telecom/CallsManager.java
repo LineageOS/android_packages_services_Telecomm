@@ -106,6 +106,7 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.accessibility.AccessibilityManager;
 import android.widget.Button;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -600,7 +601,8 @@ public class CallsManager extends Call.ListenerBase
         mRinger = new Ringer(playerFactory, context, systemSettingsUtil, asyncRingtonePlayer,
                 ringtoneFactory, systemVibrator,
                 new Ringer.VibrationEffectProxy(), mInCallController,
-                mContext.getSystemService(NotificationManager.class));
+                mContext.getSystemService(NotificationManager.class),
+                mContext.getSystemService(AccessibilityManager.class));
         mCallRecordingTonePlayer = new CallRecordingTonePlayer(mContext, audioManager,
                 mTimeoutsAdapter, mLock);
         mCallAudioManager = new CallAudioManager(callAudioRouteStateMachine,
