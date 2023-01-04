@@ -124,16 +124,10 @@
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"ઇમર્જન્સી કૉલ ચાલુ હોય, ત્યારે બીજા કોઈ કૉલ લઈ શકાતા નથી."</string>
     <string name="cancel" msgid="6733466216239934756">"રદ કરો"</string>
     <string name="back" msgid="6915955601805550206">"પાછળ"</string>
-    <!-- no translation found for callendpoint_name_earpiece (7047285080319678594) -->
-    <skip />
-    <!-- no translation found for callendpoint_name_bluetooth (210210953208913172) -->
-    <skip />
-    <!-- no translation found for callendpoint_name_wiredheadset (6860787176412079742) -->
-    <skip />
-    <!-- no translation found for callendpoint_name_speaker (1971760468695323189) -->
-    <skip />
-    <!-- no translation found for callendpoint_name_streaming (2337595450408275576) -->
-    <skip />
-    <!-- no translation found for callendpoint_name_unknown (2199074708477193852) -->
-    <skip />
+    <string name="callendpoint_name_earpiece" msgid="7047285080319678594">"ઇયરપીસ"</string>
+    <string name="callendpoint_name_bluetooth" msgid="210210953208913172">"બ્લૂટૂથ"</string>
+    <string name="callendpoint_name_wiredheadset" msgid="6860787176412079742">"વાયરવાળું હૅડસેટ"</string>
+    <string name="callendpoint_name_speaker" msgid="1971760468695323189">"સ્પીકર"</string>
+    <string name="callendpoint_name_streaming" msgid="2337595450408275576">"બાહ્ય"</string>
+    <string name="callendpoint_name_unknown" msgid="2199074708477193852">"અજાણ"</string>
 </resources>
