@@ -287,6 +287,12 @@ public class PhoneAccountRegistrar {
         if (account != null) {
             return defaultPhoneAccountHandle.phoneAccountHandle;
         }
+
+        Log.v(this,
+                "getUserSelectedOutgoingPhoneAccount: defaultPhoneAccountHandle"
+                        + ".phoneAccountHandle=[%s] is not registered or owned by %s"
+                , defaultPhoneAccountHandle.phoneAccountHandle, userHandle);
+
         return null;
     }
 
@@ -343,6 +349,15 @@ public class PhoneAccountRegistrar {
                 mState.defaultOutgoingAccountHandles.get(userHandle);
         PhoneAccountHandle currentDefaultPhoneAccount = currentDefaultInfo == null ? null :
                 currentDefaultInfo.phoneAccountHandle;
+
+        Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s", accountHandle);
+
+        if (Objects.equals(currentDefaultPhoneAccount, accountHandle)) {
+            Log.i(this, "setUserSelectedOutgoingPhoneAccount: "
+                    + "no change in default phoneAccountHandle.  current is same as new.");
+            return;
+        }
+
         boolean isSimAccount = false;
         if (accountHandle == null) {
             // Asking to clear the default outgoing is a valid request
@@ -371,24 +386,21 @@ public class PhoneAccountRegistrar {
                     .put(userHandle, new DefaultPhoneAccountHandle(userHandle, accountHandle,
                             account.getGroupId()));
         }
-        Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s", accountHandle);
 
         // Potentially update the default voice subid in SubscriptionManager.
-        if (!Objects.equals(currentDefaultPhoneAccount, accountHandle)) {
-            int newSubId = accountHandle == null ? SubscriptionManager.INVALID_SUBSCRIPTION_ID :
-                    getSubscriptionIdForPhoneAccount(accountHandle);
-            if (isSimAccount || accountHandle == null) {
-                int currentVoiceSubId = mSubscriptionManager.getDefaultVoiceSubscriptionId();
-                if (newSubId != currentVoiceSubId) {
-                    Log.i(this, "setUserSelectedOutgoingPhoneAccount: update voice sub; "
-                            + "account=%s, subId=%d", accountHandle, newSubId);
-                    mSubscriptionManager.setDefaultVoiceSubscriptionId(newSubId);
-                }
+        int newSubId = accountHandle == null ? SubscriptionManager.INVALID_SUBSCRIPTION_ID :
+                getSubscriptionIdForPhoneAccount(accountHandle);
+        if (isSimAccount || accountHandle == null) {
+            int currentVoiceSubId = mSubscriptionManager.getDefaultVoiceSubscriptionId();
+            if (newSubId != currentVoiceSubId) {
+                Log.i(this, "setUserSelectedOutgoingPhoneAccount: update voice sub; "
+                        + "account=%s, subId=%d", accountHandle, newSubId);
+                mSubscriptionManager.setDefaultVoiceSubscriptionId(newSubId);
             } else {
-                Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s is not a sub", accountHandle);
+                Log.i(this, "setUserSelectedOutgoingPhoneAccount: no change to voice sub");
             }
         } else {
-            Log.i(this, "setUserSelectedOutgoingPhoneAccount: no change to voice sub");
+            Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s is not a sub", accountHandle);
         }
 
         write();
