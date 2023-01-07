@@ -65,7 +65,7 @@ public class RingtoneFactory {
     }
 
     public Ringtone getRingtone(Call incomingCall,
-        @Nullable VolumeShaper.Configuration volumeShaperConfig, boolean hapticChannelsMuted) {
+            @Nullable VolumeShaper.Configuration volumeShaperConfig, boolean hapticChannelsMuted) {
         AudioAttributes audioAttrs = getDefaultRingtoneAudioAttributes(hapticChannelsMuted);
 
         // Use the default ringtone of the work profile if the contact is a work profile contact.
@@ -75,16 +75,16 @@ public class RingtoneFactory {
         Uri ringtoneUri = incomingCall.getRingtone();
         Ringtone ringtone = null;
 
-        if(ringtoneUri != null && userContext != null) {
+        if (ringtoneUri != null && userContext != null) {
             // Ringtone URI is explicitly specified. First, try to create a Ringtone with that.
             try {
-              ringtone = RingtoneManager.getRingtone(
-                  userContext, ringtoneUri, volumeShaperConfig, audioAttrs);
-            } catch (NullPointerException npe) {
-                Log.e(this, npe, "getRingtone: NPE while getting ringtone.");
+                ringtone = RingtoneManager.getRingtone(
+                        userContext, ringtoneUri, volumeShaperConfig, audioAttrs);
+            } catch (Exception e) {
+                Log.e(this, e, "getRingtone: exception while getting ringtone.");
             }
         }
-        if(ringtone == null) {
+        if (ringtone == null) {
             // Contact didn't specify ringtone or custom Ringtone creation failed. Get default
             // ringtone for user or profile.
             Context contextToUse = hasDefaultRingtoneForUser(userContext) ? userContext : mContext;
@@ -108,9 +108,9 @@ public class RingtoneFactory {
 
             try {
                 ringtone = RingtoneManager.getRingtone(
-                    contextToUse, defaultRingtoneUri, volumeShaperConfig, audioAttrs);
-            } catch (NullPointerException npe) {
-                Log.e(this, npe, "getRingtone: NPE while getting ringtone.");
+                        contextToUse, defaultRingtoneUri, volumeShaperConfig, audioAttrs);
+            } catch (Exception e) {
+                Log.e(this, e, "getRingtone: exception while getting ringtone.");
             }
         }
         return ringtone;
