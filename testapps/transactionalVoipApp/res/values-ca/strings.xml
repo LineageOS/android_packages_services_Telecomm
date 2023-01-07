@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="2907804426411305091">"Activitat de prova de l\'API transaccional"</string>
+    <string name="register_phone_account" msgid="1920315963082350332">"Registra el compte del telèfon"</string>
+    <string name="direction_outgoing" msgid="2535369086068422248">"sortint"</string>
+    <string name="direction_incoming" msgid="3279919900558410227">"entrant"</string>
+    <string name="add_call_1" msgid="5825706540046010457">"afegeix la trucada 1"</string>
+    <string name="disconnect_call_1" msgid="2687960802565131403">"desconnecta la trucada 1"</string>
+    <string name="add_call_2" msgid="6706005258041717434">"afegeix la trucada 2"</string>
+    <string name="set_call_active" msgid="248748409907478011">"defineix la trucada 2 com a activa"</string>
+    <string name="disconnect_call_2" msgid="133113412102219516">"desconnecta la trucada 2"</string>
+</resources>

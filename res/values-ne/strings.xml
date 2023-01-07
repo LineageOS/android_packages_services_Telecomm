@@ -124,16 +124,10 @@
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"आपत्‌कालीन कल चलिराखेको बेलामा अरु कल स्वीकार गर्न सकिँदैन।"</string>
     <string name="cancel" msgid="6733466216239934756">"रद्द गर्नुहोस्"</string>
     <string name="back" msgid="6915955601805550206">"पछाडि"</string>
-    <!-- no translation found for callendpoint_name_earpiece (7047285080319678594) -->
-    <skip />
-    <!-- no translation found for callendpoint_name_bluetooth (210210953208913172) -->
-    <skip />
-    <!-- no translation found for callendpoint_name_wiredheadset (6860787176412079742) -->
-    <skip />
-    <!-- no translation found for callendpoint_name_speaker (1971760468695323189) -->
-    <skip />
-    <!-- no translation found for callendpoint_name_streaming (2337595450408275576) -->
-    <skip />
-    <!-- no translation found for callendpoint_name_unknown (2199074708477193852) -->
-    <skip />
+    <string name="callendpoint_name_earpiece" msgid="7047285080319678594">"इयरपस"</string>
+    <string name="callendpoint_name_bluetooth" msgid="210210953208913172">"ब्लुटुथ"</string>
+    <string name="callendpoint_name_wiredheadset" msgid="6860787176412079742">"तारसहितको हेडसेट"</string>
+    <string name="callendpoint_name_speaker" msgid="1971760468695323189">"स्पिकर"</string>
+    <string name="callendpoint_name_streaming" msgid="2337595450408275576">"बाह्य"</string>
+    <string name="callendpoint_name_unknown" msgid="2199074708477193852">"अज्ञात"</string>
 </resources>
