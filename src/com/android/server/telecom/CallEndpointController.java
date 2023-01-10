@@ -164,6 +164,10 @@ public class CallEndpointController extends CallsManagerListenerBase {
             if (call != null && call.getConnectionService() != null) {
                 call.getConnectionService().onCallEndpointChanged(call, mActiveCallEndpoint);
             }
+            else if (call != null && call.getTransactionServiceWrapper() != null) {
+                call.getTransactionServiceWrapper()
+                        .onCallEndpointChanged(call, mActiveCallEndpoint);
+            }
         }
     }
 
@@ -176,6 +180,10 @@ public class CallEndpointController extends CallsManagerListenerBase {
                 call.getConnectionService().onAvailableCallEndpointsChanged(call,
                         mAvailableCallEndpoints);
             }
+            else if (call != null && call.getTransactionServiceWrapper() != null) {
+                call.getTransactionServiceWrapper()
+                        .onAvailableCallEndpointsChanged(call, mAvailableCallEndpoints);
+            }
         }
     }
 
@@ -186,6 +194,9 @@ public class CallEndpointController extends CallsManagerListenerBase {
         for (Call call : calls) {
             if (call != null && call.getConnectionService() != null) {
                 call.getConnectionService().onMuteStateChanged(call, isMuted);
+            }
+            else if (call != null && call.getTransactionServiceWrapper() != null) {
+                call.getTransactionServiceWrapper().onMuteStateChanged(call, isMuted);
             }
         }
     }
