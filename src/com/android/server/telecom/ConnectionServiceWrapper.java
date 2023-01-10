@@ -33,7 +33,6 @@ import android.os.ResultReceiver;
 import android.os.UserHandle;
 import android.telecom.CallAudioState;
 import android.telecom.CallEndpoint;
-import android.telecom.CallScreeningService;
 import android.telecom.Connection;
 import android.telecom.ConnectionRequest;
 import android.telecom.ConnectionService;
@@ -775,7 +774,7 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                     Bundle.setDefusable(extras, true);
                     Call call = mCallIdMapper.getCall(callId);
                     if (call != null) {
-                        call.putExtras(Call.SOURCE_CONNECTION_SERVICE, extras);
+                        call.putConnectionServiceExtras(extras);
                     }
                 }
             } catch (Throwable t) {

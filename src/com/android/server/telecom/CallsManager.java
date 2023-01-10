@@ -1365,7 +1365,7 @@ public class CallsManager extends Call.ListenerBase
                     dropCallExtras.putCharSequence(
                             Connection.EXTRA_ANSWERING_DROPS_FG_CALL_APP_NAME, droppedApp);
                     Log.i(this, "Incoming managed call will drop %s call.", droppedApp);
-                    call.putExtras(Call.SOURCE_CONNECTION_SERVICE, dropCallExtras);
+                    call.putConnectionServiceExtras(dropCallExtras);
                 }
             }
 
@@ -2952,7 +2952,7 @@ public class CallsManager extends Call.ListenerBase
     }
 
     @Override
-    public void onExtrasChanged(Call c, int source, Bundle extras) {
+    public void onExtrasChanged(Call c, int source, Bundle extras, String requestingPackageName) {
         if (source != Call.SOURCE_CONNECTION_SERVICE) {
             return;
         }
@@ -3812,7 +3812,7 @@ public class CallsManager extends Call.ListenerBase
         call.setVideoState(parcelableConference.getVideoState());
         call.setVideoProvider(parcelableConference.getVideoProvider());
         call.setStatusHints(parcelableConference.getStatusHints());
-        call.putExtras(Call.SOURCE_CONNECTION_SERVICE, parcelableConference.getExtras());
+        call.putConnectionServiceExtras(parcelableConference.getExtras());
         // In case this Conference was added via a ConnectionManager, keep track of the original
         // Connection ID as created by the originating ConnectionService.
         Bundle extras = parcelableConference.getExtras();
@@ -4757,7 +4757,7 @@ public class CallsManager extends Call.ListenerBase
         call.setCallerDisplayName(connection.getCallerDisplayName(),
                 connection.getCallerDisplayNamePresentation());
         call.addListener(this);
-        call.putExtras(Call.SOURCE_CONNECTION_SERVICE, connection.getExtras());
+        call.putConnectionServiceExtras(connection.getExtras());
 
         Log.i(this, "createCallForExistingConnection: %s", connection);
         Call parentCall = null;

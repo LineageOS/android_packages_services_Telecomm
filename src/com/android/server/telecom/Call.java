@@ -29,11 +29,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.OutcomeReceiver;
 import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
 import android.os.RemoteException;
-import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.os.Trace;
 import android.os.UserHandle;
@@ -139,7 +137,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         void onCallerInfoChanged(Call call);
         void onIsVoipAudioModeChanged(Call call);
         void onStatusHintsChanged(Call call);
-        void onExtrasChanged(Call c, int source, Bundle extras);
+        void onExtrasChanged(Call c, int source, Bundle extras, String requestingPackageName);
         void onExtrasRemoved(Call c, int source, List<String> keys);
         void onHandleChanged(Call call);
         void onCallerDisplayNameChanged(Call call);
@@ -208,7 +206,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         @Override
         public void onStatusHintsChanged(Call call) {}
         @Override
-        public void onExtrasChanged(Call c, int source, Bundle extras) {}
+        public void onExtrasChanged(Call c, int source, Bundle extras,
+                String requestingPackageName) {}
         @Override
         public void onExtrasRemoved(Call c, int source, List<String> keys) {}
         @Override
@@ -1285,7 +1284,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         Bundle bundle = new Bundle();
         bundle.putBoolean(android.telecom.Call.EXTRA_SILENT_RINGING_REQUESTED,
                 silentRingingRequested);
-        putExtras(SOURCE_CONNECTION_SERVICE, bundle);
+        putConnectionServiceExtras(bundle);
     }
 
     public boolean isSilentRingingRequested() {
@@ -1296,7 +1295,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         Bundle bundle = new Bundle();
         bundle.putBoolean(android.telecom.Call.EXTRA_IS_SUPPRESSED_BY_DO_NOT_DISTURB,
                 isCallSuppressed);
-        putExtras(SOURCE_CONNECTION_SERVICE, bundle);
+        putConnectionServiceExtras(bundle);
     }
 
     public boolean isCallSuppressedByDoNotDisturb() {
@@ -2285,7 +2284,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         setVideoState(conference.getVideoState());
         setRingbackRequested(conference.isRingbackRequested());
         setStatusHints(conference.getStatusHints());
-        putExtras(SOURCE_CONNECTION_SERVICE, conference.getExtras());
+        putConnectionServiceExtras(conference.getExtras());
 
         switch (mCallDirection) {
             case CALL_DIRECTION_INCOMING:
@@ -2322,7 +2321,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         setVideoState(connection.getVideoState());
         setRingbackRequested(connection.isRingbackRequested());
         setStatusHints(connection.getStatusHints());
-        putExtras(SOURCE_CONNECTION_SERVICE, connection.getExtras());
+        putConnectionServiceExtras(connection.getExtras());
 
         mConferenceableCalls.clear();
         for (String id : connection.getConferenceableConnectionIds()) {
@@ -2832,18 +2831,45 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     /**
+     * Adds extras to the extras bundle associated with this {@link Call}, as made by a
+     * {@link ConnectionService} or other non {@link android.telecom.InCallService} source.
+     *
+     * @param extras The extras.
+     */
+    public void putConnectionServiceExtras(Bundle extras) {
+        putExtras(SOURCE_CONNECTION_SERVICE, extras, null);
+    }
+
+    /**
+     * Adds extras to the extras bundle associated with this {@link Call}, as made by a
+     * {@link android.telecom.InCallService}.
+     * @param extras the extras.
+     * @param requestingPackageName the package name of the {@link android.telecom.InCallService}
+     *                              which requested the extras changed; required so that when we
+     *                              have {@link InCallController} notify other
+     *                              {@link android.telecom.InCallService}s we don't notify the
+     *                              originator of their own change.
+     */
+    public void putInCallServiceExtras(Bundle extras, String requestingPackageName) {
+        putExtras(SOURCE_INCALL_SERVICE, extras, requestingPackageName);
+    }
+
+    /**
      * Adds extras to the extras bundle associated with this {@link Call}.
      *
      * Note: this method needs to know the source of the extras change (see
      * {@link #SOURCE_CONNECTION_SERVICE}, {@link #SOURCE_INCALL_SERVICE}).  Extras changes which
-     * originate from a connection service will only be notified to incall services.  Likewise,
-     * changes originating from the incall services will only notify the connection service of the
-     * change.
+     * originate from a connection service will only be notified to incall services.  Changes
+     * originating from the InCallServices will notify the connection service of the
+     * change, as well as other InCallServices other than the originator.
      *
      * @param source The source of the extras addition.
      * @param extras The extras.
+     * @param requestingPackageName The package name which requested the extras change.  For
+     *                              {@link #SOURCE_INCALL_SERVICE} will be populated with the
+     *                              package name of the ICS that requested the change.
      */
-    public void putExtras(int source, Bundle extras) {
+    private void putExtras(int source, Bundle extras, String requestingPackageName) {
         if (extras == null) {
             return;
         }
@@ -2853,7 +2879,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         mExtras.putAll(extras);
 
         for (Listener l : mListeners) {
-            l.onExtrasChanged(this, source, extras);
+            l.onExtrasChanged(this, source, extras, requestingPackageName);
         }
 
         // If mExtra shows that the call using Volte, record it with mWasVolte
@@ -2887,6 +2913,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
         // If the change originated from an InCallService, notify the connection service.
         if (source == SOURCE_INCALL_SERVICE) {
+            Log.addEvent(this, LogUtils.Events.ICS_EXTRAS_CHANGED);
             if (mTransactionalService != null) {
                 Log.i(this, "putExtras: called on TransactionalService. doing nothing");
             } else if (mConnectionService != null) {
