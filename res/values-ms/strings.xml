@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Panggilan kepada <xliff:g id="CALLER">%s</xliff:g> telah diputuskan sambungannya kerana panggilan kecemasan sedang dibuat."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Panggilan anda telah diputuskan sambungan kerana panggilan kecemasan sedang dibuat."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Panggilan latar blkg"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> telah meletakkan panggilan dalam latar belakang Apl ini mungkin mengakses dan memainkan audio mengatasi panggilan."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> sedang memproses panggilan pada latar. Apl ini mungkin mengakses dan memainkan audio mengatasi panggilan."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> telah berhenti memberikan respons"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Panggilan anda telah menggunakan aplikasi telefon yang disertakan bersama peranti anda"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Panggilan diredam."</string>

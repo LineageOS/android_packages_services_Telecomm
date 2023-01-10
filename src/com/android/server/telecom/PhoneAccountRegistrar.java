@@ -53,6 +53,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.AtomicFile;
 import android.util.Base64;
+import android.util.EventLog;
 import android.util.Xml;
 
 // TODO: Needed for move to system service: import com.android.internal.R;
@@ -286,6 +287,12 @@ public class PhoneAccountRegistrar {
         if (account != null) {
             return defaultPhoneAccountHandle.phoneAccountHandle;
         }
+
+        Log.v(this,
+                "getUserSelectedOutgoingPhoneAccount: defaultPhoneAccountHandle"
+                        + ".phoneAccountHandle=[%s] is not registered or owned by %s"
+                , defaultPhoneAccountHandle.phoneAccountHandle, userHandle);
+
         return null;
     }
 
@@ -342,6 +349,15 @@ public class PhoneAccountRegistrar {
                 mState.defaultOutgoingAccountHandles.get(userHandle);
         PhoneAccountHandle currentDefaultPhoneAccount = currentDefaultInfo == null ? null :
                 currentDefaultInfo.phoneAccountHandle;
+
+        Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s", accountHandle);
+
+        if (Objects.equals(currentDefaultPhoneAccount, accountHandle)) {
+            Log.i(this, "setUserSelectedOutgoingPhoneAccount: "
+                    + "no change in default phoneAccountHandle.  current is same as new.");
+            return;
+        }
+
         boolean isSimAccount = false;
         if (accountHandle == null) {
             // Asking to clear the default outgoing is a valid request
@@ -370,24 +386,21 @@ public class PhoneAccountRegistrar {
                     .put(userHandle, new DefaultPhoneAccountHandle(userHandle, accountHandle,
                             account.getGroupId()));
         }
-        Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s", accountHandle);
 
         // Potentially update the default voice subid in SubscriptionManager.
-        if (!Objects.equals(currentDefaultPhoneAccount, accountHandle)) {
-            int newSubId = accountHandle == null ? SubscriptionManager.INVALID_SUBSCRIPTION_ID :
-                    getSubscriptionIdForPhoneAccount(accountHandle);
-            if (isSimAccount || accountHandle == null) {
-                int currentVoiceSubId = mSubscriptionManager.getDefaultVoiceSubscriptionId();
-                if (newSubId != currentVoiceSubId) {
-                    Log.i(this, "setUserSelectedOutgoingPhoneAccount: update voice sub; "
-                            + "account=%s, subId=%d", accountHandle, newSubId);
-                    mSubscriptionManager.setDefaultVoiceSubscriptionId(newSubId);
-                }
+        int newSubId = accountHandle == null ? SubscriptionManager.INVALID_SUBSCRIPTION_ID :
+                getSubscriptionIdForPhoneAccount(accountHandle);
+        if (isSimAccount || accountHandle == null) {
+            int currentVoiceSubId = mSubscriptionManager.getDefaultVoiceSubscriptionId();
+            if (newSubId != currentVoiceSubId) {
+                Log.i(this, "setUserSelectedOutgoingPhoneAccount: update voice sub; "
+                        + "account=%s, subId=%d", accountHandle, newSubId);
+                mSubscriptionManager.setDefaultVoiceSubscriptionId(newSubId);
             } else {
-                Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s is not a sub", accountHandle);
+                Log.i(this, "setUserSelectedOutgoingPhoneAccount: no change to voice sub");
             }
         } else {
-            Log.i(this, "setUserSelectedOutgoingPhoneAccount: no change to voice sub");
+            Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s is not a sub", accountHandle);
         }
 
         write();
@@ -893,6 +906,7 @@ public class PhoneAccountRegistrar {
 
         PhoneAccount oldAccount = getPhoneAccountUnchecked(account.getAccountHandle());
         if (oldAccount != null) {
+            enforceSelfManagedAccountUnmodified(account, oldAccount);
             mState.accounts.remove(oldAccount);
             isEnabled = oldAccount.isEnabled();
             Log.i(this, "Modify account: %s", getAccountDiffString(account, oldAccount));
@@ -956,6 +970,19 @@ public class PhoneAccountRegistrar {
                 // override needs to be updated.
                 maybeNotifyTelephonyForVoiceServiceState(account, /* registered= */ false);
             }
+        }
+    }
+
+    private void enforceSelfManagedAccountUnmodified(PhoneAccount newAccount,
+            PhoneAccount oldAccount) {
+        if (oldAccount.hasCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED) &&
+                (!newAccount.hasCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED))) {
+            EventLog.writeEvent(0x534e4554, "246930197");
+            Log.w(this, "Self-managed phone account %s replaced by a non self-managed one",
+                    newAccount.getAccountHandle());
+            throw new IllegalArgumentException("Error, cannot change a self-managed "
+                    + "phone account " + newAccount.getAccountHandle()
+                    + " to other kinds of phone account");
         }
     }
 

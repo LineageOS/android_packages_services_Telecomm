@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Telefonata me <xliff:g id="CALLER">%s</xliff:g> është shkëputur sepse është kryer një telefonatë urgjence."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Telefonata jote është shkëputur sepse është kryer një telefonatë urgjence."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Telefonatë në sfond"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> e ka vendosur një telefonatë në sfond. Ky aplikacion mund të ketë qasje dhe të luajë audio mbi telefonatë."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> po përpunon një telefonatë në sfond. Ky aplikacion mund të ketë qasje dhe të luajë audio mbi telefonatë."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> nuk përgjigjet më"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Telefonata jote ka përdorur aplikacionin e telefonit që ke marrë me pajisjen tënde"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Telefonata kaloi në heshtje."</string>

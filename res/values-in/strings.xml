@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Panggilan kepada <xliff:g id="CALLER">%s</xliff:g> terputus karena ada panggilan darurat."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Panggilan Anda terputus karena ada panggilan darurat."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Panggilan latar belakang"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> telah menempatkan panggilan telepon ke latar belakang. Aplikasi ini mungkin mengakses dan memutar audio melalui panggilan telepon."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> sedang memproses panggilan di latar belakang. Aplikasi ini mungkin mengakses dan memutar audio dari panggilan telepon."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> berhenti merespons"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Panggilan Anda menggunakan aplikasi telepon bawaan perangkat Anda"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Panggilan disenyapkan."</string>

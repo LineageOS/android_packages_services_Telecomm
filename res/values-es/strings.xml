@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Se ha interrumpido la llamada a <xliff:g id="CALLER">%s</xliff:g> debido a una llamada de emergencia."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Se ha interrumpido tu llamada debido a una llamada de emergencia."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Llamada en segundo plano"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ha llamado en segundo plano. Puede que esta aplicación acceda al audio y lo reproduzca durante la llamada."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> está procesando una llamada en segundo plano. Puede que esta aplicación acceda al audio y lo reproduzca durante la llamada."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> ha dejado de responder"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"La llamada se utilizó la aplicación para teléfonos que venía con tu dispositivo"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Llamada silenciada"</string>
