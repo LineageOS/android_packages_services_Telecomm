@@ -69,6 +69,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Pair;
 import android.widget.Toast;
 
+import com.android.server.telecom.AnomalyReporterAdapter;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallAudioManager;
@@ -126,6 +127,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -216,6 +218,7 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private RoleManagerAdapter mRoleManagerAdapter;
     @Mock private ToastFactory mToastFactory;
     @Mock private Toast mToast;
+    @Mock private AnomalyReporterAdapter mAnomalyReporterAdapter;
 
     private CallsManager mCallsManager;
 
@@ -1312,6 +1315,28 @@ public class CallsManagerTest extends TelecomTestCase {
                 TelecomManager.PRESENTATION_ALLOWED);
 
         assertTrue(mCallsManager.makeRoomForOutgoingCall(newCall));
+        verify(ongoingCall).disconnect(anyLong(), anyString());
+    }
+
+    /**
+     * Verifies that an anomaly report is triggered when a stuck/zombie call is found and force
+     * disconnected when making room for an outgoing call.
+     */
+    @SmallTest
+    @Test
+    public void testAnomalyReportedWhenMakeRoomForOutgoingCallConnecting() {
+        mCallsManager.setAnomalyReporterAdapter(mAnomalyReporterAdapter);
+        Call ongoingCall = addSpyCall(SIM_2_HANDLE, CallState.CONNECTING);
+
+        Call newCall = createCall(SIM_1_HANDLE, CallState.NEW);
+        when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
+                .thenReturn(false);
+        newCall.setHandle(TEST_ADDRESS, TelecomManager.PRESENTATION_ALLOWED);
+
+        assertTrue(mCallsManager.makeRoomForOutgoingCall(newCall));
+        verify(mAnomalyReporterAdapter).reportAnomaly(
+                CallsManager.LIVE_CALL_STUCK_CONNECTING_ERROR_UUID,
+                CallsManager.LIVE_CALL_STUCK_CONNECTING_ERROR_MSG);
         verify(ongoingCall).disconnect(anyLong(), anyString());
     }
 
