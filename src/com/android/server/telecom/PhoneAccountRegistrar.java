@@ -154,6 +154,8 @@ public class PhoneAccountRegistrar {
     @VisibleForTesting
     public static final int EXPECTED_STATE_VERSION = 9;
     public static final int MAX_PHONE_ACCOUNT_REGISTRATIONS = 10;
+    public static final int MAX_PHONE_ACCOUNT_EXTAS_KEY_PAIR_LIMIT = 100;
+    public static final int MAX_PHONE_ACCOUNT_FIELD_CHAR_LIMIT = 256;
 
     /** Keep in sync with the same in SipSettings.java */
     private static final String SIP_SHARED_PREFERENCES = "SIP_PREFERENCES";
@@ -874,8 +876,61 @@ public class PhoneAccountRegistrar {
                             + " because the limit, " + MAX_PHONE_ACCOUNT_REGISTRATIONS
                             + ", has been reached");
         }
+        // Enforce a character limit on all PA and PAH string or char-sequence fields.
+        enforceCharacterLimit(account);
 
         addOrReplacePhoneAccount(account);
+    }
+
+    /**
+     * All {@link PhoneAccount} and{@link PhoneAccountHandle} String and Char-Sequence fields
+     * should be restricted to character limit of MAX_PHONE_ACCOUNT_CHAR_LIMIT to prevent exceptions
+     * when writing large character streams to XML-Serializer.
+     *
+     * @param account to enforce character limit checks on
+     */
+    public void enforceCharacterLimit(PhoneAccount account) {
+        if (account == null) {
+            return;
+        }
+        PhoneAccountHandle handle = account.getAccountHandle();
+
+        String[] fields =
+                {"Package Name", "Class Name", "PhoneAccountHandle Id", "Label", "ShortDescription",
+                        "GroupId"};
+        CharSequence[] args = {handle.getComponentName().getPackageName(),
+                handle.getComponentName().getClassName(), handle.getId(), account.getLabel(),
+                account.getShortDescription(), account.getGroupId()};
+
+        for (int i = 0; i < fields.length; i++) {
+            if (args[i] != null && args[i].length() > MAX_PHONE_ACCOUNT_FIELD_CHAR_LIMIT) {
+                throw new IllegalArgumentException("The PhoneAccount or PhoneAccountHandle"
+                        + fields[i] + " field has an invalid character count. PhoneAccount and "
+                        + "PhoneAccountHandle String and Char-Sequence fields are limited to "
+                        + MAX_PHONE_ACCOUNT_FIELD_CHAR_LIMIT + " characters.");
+            }
+        }
+
+        Bundle extras = account.getExtras();
+        if (extras != null) {
+            if (extras.keySet().size() > MAX_PHONE_ACCOUNT_EXTAS_KEY_PAIR_LIMIT) {
+                throw new IllegalArgumentException("The PhoneAccount#mExtras is limited to " +
+                        MAX_PHONE_ACCOUNT_EXTAS_KEY_PAIR_LIMIT + " (key,value) pairs.");
+            }
+
+            for (String key : extras.keySet()) {
+                Object value = extras.get(key);
+
+                if ((key != null && key.length() > MAX_PHONE_ACCOUNT_FIELD_CHAR_LIMIT) ||
+                        (value instanceof String &&
+                                ((String) value).length() > MAX_PHONE_ACCOUNT_FIELD_CHAR_LIMIT)) {
+                    throw new IllegalArgumentException("The PhoneAccount#mExtras contains a String"
+                            + " key or value that has an invalid character count. PhoneAccount and "
+                            + "PhoneAccountHandle String and Char-Sequence fields are limited to "
+                            + MAX_PHONE_ACCOUNT_FIELD_CHAR_LIMIT + " characters.");
+                }
+            }
+        }
     }
 
     /**

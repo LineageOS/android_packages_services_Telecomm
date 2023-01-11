@@ -23,11 +23,8 @@ import android.Manifest;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.AppOpsManager;
-import android.app.compat.CompatChanges;
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.compat.annotation.ChangeId;
-import android.compat.annotation.EnabledSince;
 import android.content.AttributionSource;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -41,7 +38,6 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.hardware.SensorPrivacyManager;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -491,7 +487,7 @@ public class InCallController extends CallsManagerListenerBase implements
                 Bundle extras = new Bundle();
                 extras.putLong(android.telecom.Call.EXTRA_LAST_EMERGENCY_CALLBACK_TIME_MILLIS,
                         mEmergencyCallHelper.getLastEmergencyCallTimeMillis());
-                call.putExtras(Call.SOURCE_CONNECTION_SERVICE, extras);
+                call.putConnectionServiceExtras(extras);
             }
 
             // If we are here, we didn't or could not connect to child. So lets connect ourselves.
@@ -806,7 +802,7 @@ public class InCallController extends CallsManagerListenerBase implements
 
         @Override
         public void onConnectionPropertiesChanged(Call call, boolean didRttChange) {
-            updateCall(call, false /* includeVideoProvider */, didRttChange);
+            updateCall(call, false /* includeVideoProvider */, didRttChange, null);
         }
 
         @Override
@@ -816,7 +812,7 @@ public class InCallController extends CallsManagerListenerBase implements
 
         @Override
         public void onVideoCallProviderChanged(Call call) {
-            updateCall(call, true /* videoProviderChanged */, false);
+            updateCall(call, true /* videoProviderChanged */, false, null);
         }
 
         @Override
@@ -833,21 +829,26 @@ public class InCallController extends CallsManagerListenerBase implements
          * Listens for changes to extras reported by a Telecom {@link Call}.
          *
          * Extras changes can originate from a {@link ConnectionService} or an {@link InCallService}
-         * so we will only trigger an update of the call information if the source of the extras
-         * change was a {@link ConnectionService}.
+         * so we will only trigger an update of the call information if the source of the
+         * extras change was a {@link ConnectionService}.
          *
-         * @param call The call.
-         * @param source The source of the extras change ({@link Call#SOURCE_CONNECTION_SERVICE} or
+         * @param call   The call.
+         * @param source The source of the extras change
+         *               ({@link Call#SOURCE_CONNECTION_SERVICE} or
          *               {@link Call#SOURCE_INCALL_SERVICE}).
          * @param extras The extras.
          */
         @Override
-        public void onExtrasChanged(Call call, int source, Bundle extras) {
-            // Do not inform InCallServices of changes which originated there.
-            if (source == Call.SOURCE_INCALL_SERVICE) {
-                return;
+        public void onExtrasChanged(Call call, int source, Bundle extras,
+                String requestingPackageName) {
+            if (source == Call.SOURCE_CONNECTION_SERVICE) {
+                updateCall(call);
+            } else if (source == Call.SOURCE_INCALL_SERVICE && requestingPackageName != null) {
+                // If the change originated from another InCallService, we'll propagate the change
+                // to all other InCallServices running, EXCEPT the one who made the original change.
+                updateCall(call, false /* videoProviderChanged */, false /* rttInfoChanged */,
+                        requestingPackageName);
             }
-            updateCall(call);
         }
 
         /**
@@ -918,7 +919,7 @@ public class InCallController extends CallsManagerListenerBase implements
         @Override
         public void onRttInitiationFailure(Call call, int reason) {
             notifyRttInitiationFailure(call, reason);
-            updateCall(call, false, true);
+            updateCall(call, false, true, null);
         }
 
         @Override
@@ -2100,19 +2101,24 @@ public class InCallController extends CallsManagerListenerBase implements
      * @param call The {@link Call}.
      */
     private void updateCall(Call call) {
-        updateCall(call, false /* videoProviderChanged */, false);
+        updateCall(call, false /* videoProviderChanged */, false, null);
     }
 
     /**
      * Informs all {@link InCallService} instances of the updated call information.
      *
-     * @param call The {@link Call}.
+     * @param call                 The {@link Call}.
      * @param videoProviderChanged {@code true} if the video provider changed, {@code false}
-     *      otherwise.
-     * @param rttInfoChanged {@code true} if any information about the RTT session changed,
-     * {@code false} otherwise.
+     *                             otherwise.
+     * @param rttInfoChanged       {@code true} if any information about the RTT session changed,
+     *                             {@code false} otherwise.
+     * @param exceptPackageName    When specified, this package name will not get a call update.
+     *                             Used ONLY from {@link Call#putConnectionServiceExtras(int, Bundle, String)} to
+     *                             ensure we can propagate extras changes between InCallServices but
+     *                             not inform the requestor of their own change.
      */
-    private void updateCall(Call call, boolean videoProviderChanged, boolean rttInfoChanged) {
+    private void updateCall(Call call, boolean videoProviderChanged, boolean rttInfoChanged,
+            String exceptPackageName) {
         UserHandle userFromCall = getUserFromCall(call);
         if (mInCallServices.containsKey(userFromCall)) {
             Log.i(this, "Sending updateCall %s", call);
@@ -2120,6 +2126,16 @@ public class InCallController extends CallsManagerListenerBase implements
             for (Map.Entry<InCallServiceInfo, IInCallService> entry : mInCallServices.
                     get(userFromCall).entrySet()) {
                 InCallServiceInfo info = entry.getKey();
+                ComponentName componentName = info.getComponentName();
+
+                // If specified, skip ICS if it matches the package name.  Used for cases where on
+                // ICS makes an update to extras and we want to skip updating the same ICS with the
+                // change that it implemented.
+                if (exceptPackageName != null
+                        && componentName.getPackageName().equals(exceptPackageName)) {
+                    continue;
+                }
+
                 if (call.isExternalCall() && !info.isExternalCallsSupported()) {
                     continue;
                 }
@@ -2138,7 +2154,6 @@ public class InCallController extends CallsManagerListenerBase implements
                                 mInCallServiceConnections.get(userFromCall).getInfo()),
                         info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI ||
                         info.getType() == IN_CALL_SERVICE_TYPE_NON_UI);
-                ComponentName componentName = info.getComponentName();
                 IInCallService inCallService = entry.getValue();
                 componentsUpdated.add(componentName);
 
