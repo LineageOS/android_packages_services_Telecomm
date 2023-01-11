@@ -26,7 +26,7 @@ import android.os.IBinder;
 import android.os.OutcomeReceiver;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
-import android.telecom.CallAudioState;
+import android.telecom.CallEndpoint;
 import android.telecom.CallException;
 import android.telecom.CallStreamingService;
 import android.telecom.DisconnectCause;
@@ -38,9 +38,10 @@ import androidx.annotation.VisibleForTesting;
 import com.android.internal.telecom.ICallControl;
 import com.android.internal.telecom.ICallEventCallback;
 import com.android.server.telecom.voip.CallEventCallbackAckTransaction;
+import com.android.server.telecom.voip.EndpointChangeTransaction;
+import com.android.server.telecom.voip.HoldCallTransaction;
 import com.android.server.telecom.voip.EndCallTransaction;
 import com.android.server.telecom.voip.HoldActiveCallForNewCallTransaction;
-import com.android.server.telecom.voip.HoldCallTransaction;
 import com.android.server.telecom.voip.ParallelTransaction;
 import com.android.server.telecom.voip.RequestFocusTransaction;
 import com.android.server.telecom.voip.SerialTransaction;
@@ -52,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Implements {@link android.telecom.CallEventCallback} and {@link android.telecom.CallControl}
@@ -265,6 +267,17 @@ public class TransactionalServiceWrapper implements
                 callback.send(CODE_CALL_IS_NOT_BEING_TRACKED, new Bundle());
             }
         }
+
+        @Override
+        public void requestCallEndpointChange(CallEndpoint endpoint, ResultReceiver callback) {
+            try {
+                Log.startSession("TSW.rCEC");
+                addTransactionsToManager(new EndpointChangeTransaction(endpoint, mCallsManager),
+                        callback);
+            } finally {
+                Log.endSession();
+            }
+        }
     };
 
     private void addTransactionsToManager(VoipCallTransaction transaction,
@@ -363,6 +376,7 @@ public class TransactionalServiceWrapper implements
                         public void onResult(VoipCallTransactionResult result) {
                             mCallsManager.markCallAsOnHold(call);
                         }
+
                         @Override
                         public void onError(CallException exception) {
                             Log.i(TAG, "onSetInactive: onError: with e=[%e]", exception);
@@ -459,11 +473,29 @@ public class TransactionalServiceWrapper implements
         }
     }
 
-    // TODO:: replace with onCallEndpointChanged when CLs are merged
-    public void onCallAudioStateChanged(Call call, CallAudioState callAudioState) {
+    public void onCallEndpointChanged(Call call, CallEndpoint endpoint) {
         if (call != null) {
             try {
-                mICallEventCallback.onCallAudioStateChanged(call.getId(), callAudioState);
+                mICallEventCallback.onCallEndpointChanged(call.getId(), endpoint);
+            } catch (RemoteException e) {
+            }
+        }
+    }
+
+    public void onAvailableCallEndpointsChanged(Call call, Set<CallEndpoint> endpoints) {
+        if (call != null) {
+            try {
+                mICallEventCallback.onAvailableCallEndpointsChanged(call.getId(),
+                        endpoints.stream().toList());
+            } catch (RemoteException e) {
+            }
+        }
+    }
+
+    public void onMuteStateChanged(Call call, boolean isMuted) {
+        if (call != null) {
+            try {
+                mICallEventCallback.onMuteStateChanged(call.getId(), isMuted);
             } catch (RemoteException e) {
             }
         }

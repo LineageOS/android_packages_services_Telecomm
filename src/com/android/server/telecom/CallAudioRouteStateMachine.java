@@ -1856,12 +1856,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
         Set<Call> calls = mCallsManager.getTrackedCalls();
         for (Call call : calls) {
             if (call != null && call.getConnectionService() != null) {
-                if (call.isTransactionalCall() && call.getTransactionServiceWrapper() != null) {
-                    call.getTransactionServiceWrapper().onCallAudioStateChanged(call,
-                            newCallAudioState);
-                } else {
-                    call.getConnectionService().onCallAudioStateChanged(call, newCallAudioState);
-                }
+                call.getConnectionService().onCallAudioStateChanged(call, newCallAudioState);
             }
         }
     }

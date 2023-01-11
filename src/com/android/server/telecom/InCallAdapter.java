@@ -621,7 +621,9 @@ class InCallAdapter extends IInCallAdapter.Stub {
                 synchronized (mLock) {
                     Call call = mCallIdMapper.getCall(callId);
                     if (call != null) {
-                        call.putExtras(Call.SOURCE_INCALL_SERVICE, extras);
+                        // Make sure to identify the ICS that originated the extras change so that
+                        // InCallController can propagate these out to other ICSes.
+                        call.putInCallServiceExtras(extras, mOwnerPackageName);
                     } else {
                         Log.w(this, "putExtras, unknown call id: %s", callId);
                     }
