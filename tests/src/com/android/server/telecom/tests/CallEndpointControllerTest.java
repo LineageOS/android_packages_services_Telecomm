@@ -17,6 +17,7 @@
 package com.android.server.telecom.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -78,6 +79,8 @@ public class CallEndpointControllerTest extends TelecomTestCase {
     private static final CallAudioState audioState6 = new CallAudioState(false,
             CallAudioState.ROUTE_EARPIECE, CallAudioState.ROUTE_EARPIECE, null,
             availableBluetooth1);
+    private static final CallAudioState audioState7 = new CallAudioState(false,
+            CallAudioState.ROUTE_STREAMING, CallAudioState.ROUTE_ALL, null, availableBluetooth1);
 
     private CallEndpointController mCallEndpointController;
 
@@ -128,6 +131,27 @@ public class CallEndpointControllerTest extends TelecomTestCase {
         verify(mConnectionService, times(1)).onCallEndpointChanged(eq(mCall), eq(endpoint));
         verify(mCallsManager, never()).updateAvailableCallEndpoints(any());
         verify(mConnectionService, never()).onAvailableCallEndpointsChanged(any(), any());
+        verify(mCallsManager, never()).updateMuteState(anyBoolean());
+        verify(mConnectionService, never()).onMuteStateChanged(any(), anyBoolean());
+    }
+
+    @Test
+    public void testCurrentEndpointChangedToStreaming() throws Exception {
+        mCallEndpointController.onCallAudioStateChanged(audioState1, audioState7);
+        CallEndpoint endpoint = mCallEndpointController.getCurrentCallEndpoint();
+        Set<CallEndpoint> availableEndpoints = mCallEndpointController.getAvailableEndpoints();
+
+        // Only Streaming is available, but it will not be reported via the available endpoints list
+        assertEquals(0, availableEndpoints.size());
+        assertNotNull(availableEndpoints);
+        // type of current CallEndpoint is Streaming
+        assertEquals(CallEndpoint.TYPE_STREAMING, endpoint.getEndpointType());
+
+        verify(mCallsManager).updateCallEndpoint(eq(endpoint));
+        verify(mConnectionService, times(1)).onCallEndpointChanged(eq(mCall), eq(endpoint));
+        verify(mCallsManager).updateAvailableCallEndpoints(eq(availableEndpoints));
+        verify(mConnectionService, times(1)).onAvailableCallEndpointsChanged(eq(mCall),
+                eq(availableEndpoints));
         verify(mCallsManager, never()).updateMuteState(anyBoolean());
         verify(mConnectionService, never()).onMuteStateChanged(any(), anyBoolean());
     }
