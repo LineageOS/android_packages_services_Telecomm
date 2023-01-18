@@ -75,17 +75,4 @@ public class CallControlTest extends TelecomTestCase {
                 control.setInactive(Runnable::run, result -> {
                 }));
     }
-
-    @Test
-    public void testClose() {
-        // GIVEN
-        CallControl control = new CallControl(CALL_ID_1, mICallControl, mRepository, mHandle);
-
-        // WHEN
-        control.close();
-
-        // THEN
-        verify(mRepository, times(1))
-                .removeCallFromServiceWrapper(mHandle, CALL_ID_1);
-    }
 }
