@@ -145,6 +145,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -236,6 +237,27 @@ public class CallsManager extends Call.ListenerBase
     private static final int MAXIMUM_OUTGOING_CALLS = 1;
     private static final int MAXIMUM_TOP_LEVEL_CALLS = 2;
     private static final int MAXIMUM_SELF_MANAGED_CALLS = 10;
+
+    /**
+     * Anomaly Report UUIDs and corresponding error descriptions specific to CallsManager.
+     */
+    public static final UUID LIVE_CALL_STUCK_CONNECTING_ERROR_UUID =
+            UUID.fromString("3f95808c-9134-11ed-a1eb-0242ac120002");
+    public static final String LIVE_CALL_STUCK_CONNECTING_ERROR_MSG =
+            "Force disconnected a live call that was stuck in CONNECTING state.";
+    public static final UUID LIVE_CALL_STUCK_CONNECTING_EMERGENCY_ERROR_UUID =
+            UUID.fromString("744fdf86-9137-11ed-a1eb-0242ac120002");
+    public static final String LIVE_CALL_STUCK_CONNECTING_EMERGENCY_ERROR_MSG =
+            "Found a live call that was stuck in CONNECTING state while attempting to place an "
+                    + "emergency call.";
+    public static final UUID CALL_REMOVAL_EXECUTION_ERROR_UUID =
+            UUID.fromString("030b8b16-9139-11ed-a1eb-0242ac120002");
+    public static final String CALL_REMOVAL_EXECUTION_ERROR_MSG =
+            "Exception thrown while executing call removal";
+    public static final UUID EXCEPTION_WHILE_ESTABLISHING_CONNECTION_ERROR_UUID =
+            UUID.fromString("1c4eed7c-9132-11ed-a1eb-0242ac120002");
+    public static final String EXCEPTION_WHILE_ESTABLISHING_CONNECTION_ERROR_MSG =
+            "Exception thrown while establishing connection.";
 
     private static final int[] OUTGOING_CALL_STATES =
             {CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING,
@@ -413,6 +435,8 @@ public class CallsManager extends Call.ListenerBase
     private LinkedList<HandlerThread> mGraphHandlerThreads;
 
     private boolean mHasActiveRttCall = false;
+
+    private AnomalyReporterAdapter mAnomalyReporter = new AnomalyReporterAdapterImpl();
 
     /**
      * Listener to PhoneAccountRegistrar events.
@@ -1283,6 +1307,11 @@ public class CallsManager extends Call.ListenerBase
     @VisibleForTesting
     public void removeListener(CallsManagerListener listener) {
         mListeners.remove(listener);
+    }
+
+    @VisibleForTesting
+    public void setAnomalyReporterAdapter(AnomalyReporterAdapter mAnomalyReporterAdapter){
+        mAnomalyReporter = mAnomalyReporterAdapter;
     }
 
     void processIncomingConference(PhoneAccountHandle phoneAccountHandle, Bundle extras) {
@@ -2513,8 +2542,12 @@ public class CallsManager extends Call.ListenerBase
                 try {
                     call.startCreateConnection(mPhoneAccountRegistrar);
                 } catch (Exception exception) {
-                    // If an exceptions is thrown while creating the connection, disconnect.
+                    // If an exceptions is thrown while creating the connection, prompt the user to
+                    // generate a bugreport and force disconnect.
                     Log.e(TAG, exception, "Exception thrown while establishing connection.");
+                    mAnomalyReporter.reportAnomaly(
+                            EXCEPTION_WHILE_ESTABLISHING_CONNECTION_ERROR_UUID,
+                            EXCEPTION_WHILE_ESTABLISHING_CONNECTION_ERROR_MSG);
                     markCallAsDisconnected(call,
                             new DisconnectCause(DisconnectCause.ERROR,
                             "Failed to create the connection."));
@@ -3475,6 +3508,8 @@ public class CallsManager extends Call.ListenerBase
         }, new LoggedHandlerExecutor(mHandler, "CM.pR", mLock))
                 .exceptionally((throwable) -> {
                     Log.e(TAG, throwable, "Error while executing call removal");
+                    mAnomalyReporter.reportAnomaly(CALL_REMOVAL_EXECUTION_ERROR_UUID,
+                            CALL_REMOVAL_EXECUTION_ERROR_MSG);
                     return null;
                 });
     }
@@ -4492,6 +4527,12 @@ public class CallsManager extends Call.ListenerBase
             return true;
         }
 
+        // If the live call is stuck in a connecting state, prompt the user to generate a bugreport.
+        if (liveCall.getState() == CallState.CONNECTING) {
+            mAnomalyReporter.reportAnomaly(LIVE_CALL_STUCK_CONNECTING_EMERGENCY_ERROR_UUID,
+                    LIVE_CALL_STUCK_CONNECTING_EMERGENCY_ERROR_MSG);
+        }
+
         // If we have the max number of held managed calls and we're placing an emergency call,
         // we'll disconnect the ongoing call if it cannot be held.
         if (hasMaximumManagedHoldingCalls(emergencyCall) && !canHold(liveCall)) {
@@ -4591,8 +4632,10 @@ public class CallsManager extends Call.ListenerBase
         }
 
         // If the live call is stuck in a connecting state, then we should disconnect it in favor
-        // of the new outgoing call.
+        // of the new outgoing call and prompt the user to generate a bugreport.
         if (liveCall.getState() == CallState.CONNECTING) {
+            mAnomalyReporter.reportAnomaly(LIVE_CALL_STUCK_CONNECTING_ERROR_UUID,
+                    LIVE_CALL_STUCK_CONNECTING_ERROR_MSG);
             liveCall.disconnect("Force disconnect CONNECTING call.");
             return true;
         }

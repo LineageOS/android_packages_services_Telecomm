@@ -52,6 +52,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.OutcomeReceiver;
 import android.os.Process;
+import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.telecom.CallerInfo;
@@ -69,6 +70,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Pair;
 import android.widget.Toast;
 
+import com.android.server.telecom.AnomalyReporterAdapter;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallAudioManager;
@@ -126,6 +128,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -216,6 +219,7 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private RoleManagerAdapter mRoleManagerAdapter;
     @Mock private ToastFactory mToastFactory;
     @Mock private Toast mToast;
+    @Mock private AnomalyReporterAdapter mAnomalyReporterAdapter;
 
     private CallsManager mCallsManager;
 
@@ -1316,6 +1320,28 @@ public class CallsManagerTest extends TelecomTestCase {
     }
 
     /**
+     * Verifies that an anomaly report is triggered when a stuck/zombie call is found and force
+     * disconnected when making room for an outgoing call.
+     */
+    @SmallTest
+    @Test
+    public void testAnomalyReportedWhenMakeRoomForOutgoingCallConnecting() {
+        mCallsManager.setAnomalyReporterAdapter(mAnomalyReporterAdapter);
+        Call ongoingCall = addSpyCall(SIM_2_HANDLE, CallState.CONNECTING);
+
+        Call newCall = createCall(SIM_1_HANDLE, CallState.NEW);
+        when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
+                .thenReturn(false);
+        newCall.setHandle(TEST_ADDRESS, TelecomManager.PRESENTATION_ALLOWED);
+
+        assertTrue(mCallsManager.makeRoomForOutgoingCall(newCall));
+        verify(mAnomalyReporterAdapter).reportAnomaly(
+                CallsManager.LIVE_CALL_STUCK_CONNECTING_ERROR_UUID,
+                CallsManager.LIVE_CALL_STUCK_CONNECTING_ERROR_MSG);
+        verify(ongoingCall).disconnect(anyLong(), anyString());
+    }
+
+    /**
      * Verifies that changes to a {@link PhoneAccount}'s
      * {@link PhoneAccount#CAPABILITY_VIDEO_CALLING} capability will be reflected on a call.
      * @throws Exception
@@ -1954,6 +1980,36 @@ public class CallsManagerTest extends TelecomTestCase {
             if (!success) {
                 fail("assertOnResultWasReceived success failed");
             }
+    }
+
+    /**
+     * When queryCurrentLocation is called, check whether the result is received through the
+     * ResultReceiver.
+     * @throws Exception if {@link CompletableFuture#get()} fails.
+     */
+    @Test
+    public void testQueryCurrentLocationCheckOnReceiveResult() throws Exception {
+        ConnectionServiceWrapper service = new ConnectionServiceWrapper(
+                new ComponentName(mContext.getPackageName(),
+                        mContext.getPackageName().getClass().getName()),
+                null, mPhoneAccountRegistrar, mCallsManager, mContext, mLock, null);
+
+        CompletableFuture<String> resultFuture = new CompletableFuture<>();
+        try {
+            service.queryCurrentLocation(500L, "Test_provider",
+                    new ResultReceiver(new Handler(Looper.getMainLooper())) {
+                        @Override
+                        protected void onReceiveResult(int resultCode, Bundle result) {
+                            super.onReceiveResult(resultCode, result);
+                            resultFuture.complete("onReceiveResult");
+                        }
+                    });
+        } catch (Exception e) {
+            resultFuture.complete("Exception : " + e);
+        }
+
+        String result = resultFuture.get(1000L, TimeUnit.MILLISECONDS);
+        assertTrue(result.contains("onReceiveResult"));
     }
 
     private Call addSpyCall() {

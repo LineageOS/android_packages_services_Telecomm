@@ -29,7 +29,7 @@ import com.android.internal.annotations.VisibleForTesting;
  */
 @VisibleForTesting
 public class StatusBarNotifier extends CallsManagerListenerBase {
-    private static final String SLOT_MUTE = "mute";
+    private static final String SLOT_MUTE = "telecom_mute";
     private static final String SLOT_SPEAKERPHONE = "speakerphone";
 
     private final Context mContext;
