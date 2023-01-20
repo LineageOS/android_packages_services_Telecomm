@@ -46,6 +46,7 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
+import android.telephony.AnomalyReporter;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -211,6 +212,7 @@ public class TelecomSystem {
             DeviceIdleControllerAdapter deviceIdleControllerAdapter) {
         mContext = context.getApplicationContext();
         LogUtils.initLogging(mContext);
+        AnomalyReporter.initialize(mContext);
         DefaultDialerManagerAdapter defaultDialerAdapter =
                 new DefaultDialerCache.DefaultDialerManagerAdapterImpl();
 
