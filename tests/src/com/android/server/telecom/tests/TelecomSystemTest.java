@@ -380,13 +380,15 @@ public class TelecomSystemTest extends TelecomTestCase {
 
     @Override
     public void tearDown() throws Exception {
-        mTelecomSystem.getCallsManager().waitOnHandlers();
-        LinkedList<HandlerThread> handlerThreads = mTelecomSystem.getCallsManager()
-                .getGraphHandlerThreads();
-        for (HandlerThread handlerThread : handlerThreads) {
-            handlerThread.quitSafely();
+        if (mTelecomSystem != null && mTelecomSystem.getCallsManager() != null) {
+            mTelecomSystem.getCallsManager().waitOnHandlers();
+            LinkedList<HandlerThread> handlerThreads = mTelecomSystem.getCallsManager()
+                    .getGraphHandlerThreads();
+            for (HandlerThread handlerThread : handlerThreads) {
+                handlerThread.quitSafely();
+            }
+            handlerThreads.clear();
         }
-        handlerThreads.clear();
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         waitForHandlerAction(mHandlerThread.getThreadHandler(), TEST_TIMEOUT);
         // Bring down the threads that are active.
@@ -397,12 +399,19 @@ public class TelecomSystemTest extends TelecomTestCase {
             // don't do anything
         }
 
-        mConnectionServiceFocusManager.getHandler().removeCallbacksAndMessages(null);
-        waitForHandlerAction(mConnectionServiceFocusManager.getHandler(), TEST_TIMEOUT);
-        mConnectionServiceFocusManager.getHandler().getLooper().quit();
+        if (mConnectionServiceFocusManager != null) {
+            mConnectionServiceFocusManager.getHandler().removeCallbacksAndMessages(null);
+            waitForHandlerAction(mConnectionServiceFocusManager.getHandler(), TEST_TIMEOUT);
+            mConnectionServiceFocusManager.getHandler().getLooper().quit();
+        }
 
-        mConnectionServiceFixtureA.waitForHandlerToClear();
-        mConnectionServiceFixtureB.waitForHandlerToClear();
+        if (mConnectionServiceFixtureA != null) {
+            mConnectionServiceFixtureA.waitForHandlerToClear();
+        }
+
+        if (mConnectionServiceFixtureA != null) {
+            mConnectionServiceFixtureB.waitForHandlerToClear();
+        }
 
         // Forcefully clean all sessions at the end of the test, which will also log any stale
         // sessions for debugging.

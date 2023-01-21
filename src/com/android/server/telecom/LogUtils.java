@@ -212,6 +212,7 @@ public class LogUtils {
                 "CALL_DIAGNOSTIC_SERVICE_TIMEOUT";
         public static final String VERSTAT_CHANGED = "VERSTAT_CHANGED";
         public static final String SET_VOIP_MODE = "SET_VOIP_MODE";
+        public static final String STATE_TIMEOUT = "STATE_TIMEOUT";
         public static final String ICS_EXTRAS_CHANGED = "ICS_EXTRAS_CHANGED";
 
         public static class Timings {

@@ -1670,8 +1670,14 @@ public class TelecomServiceImpl {
                     throw new SecurityException("Package " + callingPackage + " is not allowed"
                             + " to start conference call");
                 }
-                mCallsManager.startConference(participants, extras, callingPackage,
-                        Binder.getCallingUserHandle());
+
+                long token = Binder.clearCallingIdentity();
+                try {
+                    mCallsManager.startConference(participants, extras, callingPackage,
+                            Binder.getCallingUserHandle());
+                } finally {
+                    Binder.restoreCallingIdentity(token);
+                }
             } finally {
                 Log.endSession();
             }
