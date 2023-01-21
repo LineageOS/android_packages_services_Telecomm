@@ -347,7 +347,7 @@ public class CallAnomalyWatchdog extends CallsManagerListenerBase implements Cal
     private void writeCallStateChangedAtom(Call call) {
         TelecomStatsLog.write(TelecomStatsLog.CALL_STATE_CHANGED, call.getState(),
                 DisconnectCause.ERROR, call.isSelfManaged(),
-                call.isExternalCall());
+                call.isExternalCall(), call.isEmergencyCall());
     }
 
     /**
