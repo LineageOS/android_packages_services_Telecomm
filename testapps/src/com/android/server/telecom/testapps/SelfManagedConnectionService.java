@@ -87,6 +87,7 @@ public class SelfManagedConnectionService extends ConnectionService {
         mCallList.notifyConnectionServiceFocusGained();
     }
 
+    @SuppressWarnings("CatchAndPrintStackTrace")
     private Connection createSelfManagedConnection(ConnectionRequest request, boolean isIncoming,
             boolean isHandover) {
         SelfManagedConnection connection = new SelfManagedConnection(mCallList,
@@ -101,11 +102,13 @@ public class SelfManagedConnectionService extends ConnectionService {
         connection.setCallerDisplayName(TEST_NAMES[random.nextInt(TEST_NAMES.length)],
                 TelecomManager.PRESENTATION_ALLOWED);
         connection.setExtras(request.getExtras());
-        if (isIncoming) {
-            connection.setIsIncomingCallUiShowing(request.shouldShowIncomingCallUi());
-            connection.setRinging();
-        } else {
-            connection.setDialing();
+        if (!request.getAddress().getSchemeSpecificPart().equals("123")) {
+            if (isIncoming) {
+                connection.setIsIncomingCallUiShowing(request.shouldShowIncomingCallUi());
+                connection.setRinging();
+            } else {
+                connection.setDialing();
+            }
         }
         Bundle requestExtras = request.getExtras();
         if (requestExtras != null) {
@@ -139,6 +142,11 @@ public class SelfManagedConnectionService extends ConnectionService {
         connection.setVideoState(request.getVideoState());
         Log.i(this, "createSelfManagedConnection %s", connection);
         mCallList.addConnection(connection);
+        try {
+            Thread.sleep(8000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return connection;
     }
 }

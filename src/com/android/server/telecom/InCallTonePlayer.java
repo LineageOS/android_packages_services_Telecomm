@@ -206,9 +206,6 @@ public class InCallTonePlayer extends Thread {
     /** For tones which are not generated using ToneGenerator. */
     private MediaPlayerAdapter mToneMediaPlayer = null;
 
-    /** Used for lookup in handling disconnected tone future completion*/
-    private String mCallId;
-
     /** Telecom lock object. */
     private final TelecomSystem.SyncRoot mLock;
 
@@ -515,10 +512,6 @@ public class InCallTonePlayer extends Thread {
         sTonesPlaying.set(0);
     }
 
-    public void setCallIdForDisconnectedToneFuture(String callId) {
-        mCallId = callId;
-    }
-
     private void cleanUpTonePlayer() {
         Log.d(this, "cleanUpTonePlayer(): posting cleanup");
         // Release focus on the main thread.
@@ -542,9 +535,5 @@ public class InCallTonePlayer extends Thread {
                 }
             }
         }.prepare());
-        // try to complete disconnected tone future for mCallId (if present)
-        if (mCallId != null) {
-            mCallAudioManager.completeDisconnectedToneFuture(mCallId);
-        }
     }
 }

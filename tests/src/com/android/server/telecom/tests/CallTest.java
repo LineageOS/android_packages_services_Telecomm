@@ -36,8 +36,10 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 import android.content.ComponentName;
 import android.net.Uri;
+import android.os.Parcel;
 import android.telecom.Connection;
 import android.telecom.DisconnectCause;
+import android.telecom.ParcelableConnection;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -47,6 +49,7 @@ import android.widget.Toast;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android.server.telecom.Call;
+import com.android.server.telecom.CallIdMapper;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
@@ -66,6 +69,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+
+import java.util.Collections;
 
 @RunWith(AndroidJUnit4.class)
 public class CallTest extends TelecomTestCase {
@@ -100,6 +105,7 @@ public class CallTest extends TelecomTestCase {
         super.setUp();
         doReturn(mMockCallerInfoLookupHelper).when(mMockCallsManager).getCallerInfoLookupHelper();
         doReturn(mMockPhoneAccountRegistrar).when(mMockCallsManager).getPhoneAccountRegistrar();
+        doReturn(0L).when(mMockClockProxy).elapsedRealtime();
         doReturn(SIM_1_ACCOUNT).when(mMockPhoneAccountRegistrar).getPhoneAccountUnchecked(
                 eq(SIM_1_HANDLE));
         doReturn(new ComponentName(mContext, CallTest.class))
@@ -137,6 +143,84 @@ public class CallTest extends TelecomTestCase {
         assertTrue(call.hasGoneActiveBefore());
         call.setState(CallState.AUDIO_PROCESSING, "");
         assertTrue(call.hasGoneActiveBefore());
+    }
+
+    /**
+     * Basic tests to check which call states are considered transitory.
+     */
+    @Test
+    @SmallTest
+    public void testIsCallStateTransitory() {
+        assertTrue(CallState.isTransitoryState(CallState.NEW));
+        assertTrue(CallState.isTransitoryState(CallState.CONNECTING));
+        assertTrue(CallState.isTransitoryState(CallState.DISCONNECTING));
+        assertTrue(CallState.isTransitoryState(CallState.ANSWERED));
+
+        assertFalse(CallState.isTransitoryState(CallState.SELECT_PHONE_ACCOUNT));
+        assertFalse(CallState.isTransitoryState(CallState.DIALING));
+        assertFalse(CallState.isTransitoryState(CallState.RINGING));
+        assertFalse(CallState.isTransitoryState(CallState.ACTIVE));
+        assertFalse(CallState.isTransitoryState(CallState.ON_HOLD));
+        assertFalse(CallState.isTransitoryState(CallState.DISCONNECTED));
+        assertFalse(CallState.isTransitoryState(CallState.ABORTED));
+        assertFalse(CallState.isTransitoryState(CallState.PULLING));
+        assertFalse(CallState.isTransitoryState(CallState.AUDIO_PROCESSING));
+        assertFalse(CallState.isTransitoryState(CallState.SIMULATED_RINGING));
+    }
+
+    /**
+     * Basic tests to check which call states are considered intermediate.
+     */
+    @Test
+    @SmallTest
+    public void testIsCallStateIntermediate() {
+        assertTrue(CallState.isIntermediateState(CallState.DIALING));
+        assertTrue(CallState.isIntermediateState(CallState.RINGING));
+
+        assertFalse(CallState.isIntermediateState(CallState.NEW));
+        assertFalse(CallState.isIntermediateState(CallState.CONNECTING));
+        assertFalse(CallState.isIntermediateState(CallState.DISCONNECTING));
+        assertFalse(CallState.isIntermediateState(CallState.ANSWERED));
+        assertFalse(CallState.isIntermediateState(CallState.SELECT_PHONE_ACCOUNT));
+        assertFalse(CallState.isIntermediateState(CallState.ACTIVE));
+        assertFalse(CallState.isIntermediateState(CallState.ON_HOLD));
+        assertFalse(CallState.isIntermediateState(CallState.DISCONNECTED));
+        assertFalse(CallState.isIntermediateState(CallState.ABORTED));
+        assertFalse(CallState.isIntermediateState(CallState.PULLING));
+        assertFalse(CallState.isIntermediateState(CallState.AUDIO_PROCESSING));
+        assertFalse(CallState.isIntermediateState(CallState.SIMULATED_RINGING));
+    }
+
+    @SmallTest
+    @Test
+    public void testIsCreateConnectionComplete() {
+        // A new call with basic info.
+        Call call = new Call(
+                "1", /* callId */
+                mContext,
+                mMockCallsManager,
+                mLock,
+                null /* ConnectionServiceRepository */,
+                mMockPhoneNumberUtilsAdapter,
+                TEST_ADDRESS,
+                null /* GatewayInfo */,
+                null /* connectionManagerPhoneAccountHandle */,
+                SIM_1_HANDLE,
+                Call.CALL_DIRECTION_INCOMING,
+                false /* shouldAttachToExistingConnection*/,
+                false /* isConference */,
+                mMockClockProxy,
+                mMockToastProxy);
+
+        // To start with connection creation isn't complete.
+        assertFalse(call.isCreateConnectionComplete());
+
+        // Need the bare minimum to get connection creation to complete.
+        ParcelableConnection connection = new ParcelableConnection(null, 0, 0, 0, 0, null, 0, null,
+                0, null, 0, false, false, 0L, 0L, null, null, Collections.emptyList(), null, null,
+                0, 0);
+        call.handleCreateConnectionSuccess(Mockito.mock(CallIdMapper.class), connection);
+        assertTrue(call.isCreateConnectionComplete());
     }
 
     @Test
