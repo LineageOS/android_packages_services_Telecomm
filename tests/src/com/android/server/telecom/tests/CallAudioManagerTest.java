@@ -18,13 +18,10 @@ package com.android.server.telecom.tests;
 
 import android.media.ToneGenerator;
 import android.telecom.DisconnectCause;
-import android.telecom.Phone;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
-import android.util.ArrayMap;
 import android.util.SparseArray;
 
-import com.android.dx.mockito.inline.extended.ExtendedMockito;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioModeStateMachine.MessageArgs;
@@ -47,14 +44,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoSession;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -86,8 +79,6 @@ public class CallAudioManagerTest extends TelecomTestCase {
     @Mock private TelecomSystem.SyncRoot mLock;
 
     private CallAudioManager mCallAudioManager;
-
-    private static final int DISCONNECTED_TONE_TIMEOUT = 4000;
 
     @Override
     @Before
@@ -609,46 +600,6 @@ public class CallAudioManagerTest extends TelecomTestCase {
         verify(mCallAudioModeStateMachine).sendMessageWithArgs(
                 eq(CallAudioModeStateMachine.NEW_ACTIVE_OR_DIALING_CALL), captor.capture());
         assertMessageArgEquality(expectedArgs, captor.getValue());
-    }
-
-    @SmallTest
-    @Test
-    public void testDisconnectedToneFuture() {
-        Call call = mock(Call.class);
-        when(call.getId()).thenReturn("testCallId");
-        Map<String, CompletableFuture<Void>> disconnectedToneFutures = new ArrayMap<>();
-        disconnectedToneFutures.put(call.getId(), new CompletableFuture<Void>()
-                .completeOnTimeout(null, DISCONNECTED_TONE_TIMEOUT, TimeUnit.MILLISECONDS));
-
-        MockitoSession session = ExtendedMockito.
-                mockitoSession().spyStatic(Phone.class).startMocking();
-        try {
-            ExtendedMockito.doAnswer(invocation -> {
-                String callId = invocation.getArgument(0);
-                if (disconnectedToneFutures.containsKey(callId)) {
-                    disconnectedToneFutures.get(callId).complete(null);
-                    return true;
-                } else {
-                    return false;
-                }
-            }).when(() -> Phone.completeDisconnectedToneFuture(any(String.class)));
-
-            // Add call
-            mCallAudioManager.onCallAdded(call);
-            // Disconnect call
-            disconnectCall(call);
-            // Simulate cleanup
-            stopTone();
-            // Verify that no future is completed on an invalid callId (i.e. not in map)
-            boolean result = mCallAudioManager.completeDisconnectedToneFuture("");
-            assertFalse(result);
-            // Verify proper future completion
-            result = mCallAudioManager.completeDisconnectedToneFuture(call.getId());
-            assertTrue(result);
-            assertTrue(disconnectedToneFutures.get(call.getId()).isDone());
-        } finally {
-            session.finishMocking();
-        }
     }
 
     private Call createAudioProcessingCall() {

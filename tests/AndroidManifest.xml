@@ -23,6 +23,7 @@
         android:minSdkVersion="23"
         android:targetSdkVersion="33" />
 
+    <uses-permission android:name="android.permission.READ_DEVICE_CONFIG"/>
     <!-- TODO: Needed because we call BluetoothAdapter.getDefaultAdapter() statically, and
          BluetoothAdapter is a final class. -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
