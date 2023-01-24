@@ -731,6 +731,8 @@ public class TelecomServiceImpl {
 
                         final long token = Binder.clearCallingIdentity();
                         try {
+                            Log.i(this, "registerPhoneAccount: account=%s",
+                                    account);
                             mPhoneAccountRegistrar.registerPhoneAccount(account);
                         } finally {
                             Binder.restoreCallingIdentity(token);
