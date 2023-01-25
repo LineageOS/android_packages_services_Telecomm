@@ -865,10 +865,13 @@ public class PhoneAccountRegistrar {
         }
         //Enforce an upper bound on the number of PhoneAccount's a package can register.
         // Most apps should only require 1-2.
-        if (getPhoneAccountsForPackage(
+        int numberRegisteredPhoneAccountsForPackage = getPhoneAccountsForPackage(
                 account.getAccountHandle().getComponentName().getPackageName(),
-                account.getAccountHandle().getUserHandle()).size()
-                >= MAX_PHONE_ACCOUNT_REGISTRATIONS) {
+                account.getAccountHandle().getUserHandle()).size();
+        Log.i(this, "registerPhoneAccount: The number of phone accounts currently"
+                        + " registered by this package is %s. The maximum allowable number is %s.",
+                numberRegisteredPhoneAccountsForPackage, MAX_PHONE_ACCOUNT_REGISTRATIONS);
+        if (numberRegisteredPhoneAccountsForPackage >= MAX_PHONE_ACCOUNT_REGISTRATIONS) {
             Log.w(this, "Phone account %s reached max registration limit for package",
                     account.getAccountHandle());
             throw new IllegalArgumentException(
@@ -879,6 +882,8 @@ public class PhoneAccountRegistrar {
         // Enforce a character limit on all PA and PAH string or char-sequence fields.
         enforceCharacterLimit(account);
 
+        Log.i(this, "registerPhoneAccount: Adding or replacing PhoneAccount=%s",
+                account);
         addOrReplacePhoneAccount(account);
     }
 
@@ -1237,7 +1242,11 @@ public class PhoneAccountRegistrar {
             // This may be null if there are no active SIMs but the device is still camped for
             // emergency calls and registered a SIM_SUBSCRIPTION for that purpose.
             TelephonyManager simTm = mTelephonyManager.createForPhoneAccountHandle(simHandle);
-            if (simTm == null) continue;
+            if (simTm == null) {
+                Log.i(this, "maybeNotifyTelephonyForVoiceServiceState: "
+                        + "simTm is null.");
+                continue;
+            }
             simTm.setVoiceServiceStateOverride(hasService);
         }
     }
