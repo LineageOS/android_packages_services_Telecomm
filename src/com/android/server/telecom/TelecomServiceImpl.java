@@ -60,13 +60,9 @@ import android.provider.Settings;
 import android.telecom.CallAttributes;
 
 import android.telecom.CallException;
-import android.telecom.CallAttributes;
-import android.telecom.CallException;
-import android.telecom.CallStreamingService;
 import android.telecom.Log;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
-import android.telecom.StreamingCall;
 import android.telecom.TelecomAnalytics;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
@@ -92,10 +88,8 @@ import com.android.server.telecom.voip.VoipCallTransactionResult;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 // TODO: Needed for move to system service: import com.android.internal.R;
@@ -469,7 +463,7 @@ public class TelecomServiceImpl {
                 try {
                     Log.startSession("TSI.gPAFP");
                     return new ParceledListSlice<>(mPhoneAccountRegistrar
-                            .getPhoneAccountsForPackage(packageName, callingUserHandle));
+                            .getAllPhoneAccountHandlesForPackage(callingUserHandle, packageName));
                 } catch (Exception e) {
                     Log.e(this, e, "getPhoneAccountsForPackage %s", packageName);
                     throw e;
