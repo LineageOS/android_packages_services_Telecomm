@@ -1508,6 +1508,7 @@ public class InCallController extends CallsManagerListenerBase implements
             }
 
             if (shouldStart) {
+                // Note, not checking return value, as this op call is merely for tracing use
                 mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_CAMERA, myUid(),
                         mContext.getOpPackageName(), false, null, null);
                 mSensorPrivacyManager.showSensorUseDialog(SensorPrivacyManager.Sensors.CAMERA);
@@ -2480,6 +2481,7 @@ public class InCallController extends CallsManagerListenerBase implements
                 && !isCarrierPrivilegedUsingMicDuringVoipCall();
         if (wasUsingMicrophone != mIsCallUsingMicrophone) {
             if (mIsCallUsingMicrophone) {
+                // Note, not checking return value, as this op call is merely for tracing use
                 mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_MICROPHONE, myUid(),
                         mContext.getOpPackageName(), false, null, null);
                 mSensorPrivacyManager.showSensorUseDialog(SensorPrivacyManager.Sensors.MICROPHONE);
