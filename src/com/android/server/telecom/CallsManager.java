@@ -858,8 +858,7 @@ public class CallsManager extends Call.ListenerBase
         }
 
         // Get rid of the call composer attachments that aren't wanted
-        if (result.mIsResponseFromSystemDialer && result.mCallScreeningResponse != null
-                && result.mCallScreeningResponse.getCallComposerAttachmentsToShow() >= 0) {
+        if (result.mIsResponseFromSystemDialer && result.mCallScreeningResponse != null) {
             int attachmentMask = result.mCallScreeningResponse.getCallComposerAttachmentsToShow();
             if ((attachmentMask
                     & CallScreeningService.CallResponse.CALL_COMPOSER_ATTACHMENT_LOCATION) == 0) {
@@ -1395,7 +1394,7 @@ public class CallsManager extends Call.ListenerBase
                         PhoneAccount.EXTRA_ADD_SELF_MANAGED_CALLS_TO_INCALLSERVICE, true));
             } else {
                 // Incoming call is managed, the active call is self-managed and can't be held.
-                // We need to set extras on it to indicate whether answering will cause a 
+                // We need to set extras on it to indicate whether answering will cause a
                 // active self-managed call to drop.
                 Call activeCall = (Call) mConnectionSvrFocusMgr.getCurrentFocusCall();
                 if (activeCall != null && !canHold(activeCall) && activeCall.isSelfManaged()) {

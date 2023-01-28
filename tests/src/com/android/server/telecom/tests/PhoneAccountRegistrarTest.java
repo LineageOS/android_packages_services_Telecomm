@@ -22,11 +22,17 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyObject;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -83,6 +89,8 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1560,7 +1568,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
     public void testInvalidExtraElementsExceedsLimitAndThrowsException() {
         // GIVEN
         int invalidBundleExtrasLimit =
-                PhoneAccountRegistrar.MAX_PHONE_ACCOUNT_EXTAS_KEY_PAIR_LIMIT + 1;
+                PhoneAccountRegistrar.MAX_PHONE_ACCOUNT_EXTRAS_KEY_PAIR_LIMIT + 1;
         Bundle extras = new Bundle();
         for (int i = 0; i < invalidBundleExtrasLimit; i++) {
             extras.putString(UUID.randomUUID().toString(), "value");
@@ -1581,7 +1589,85 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         }
     }
 
-    private static PhoneAccount.Builder makeBuilderWithBindCapabilities(PhoneAccountHandle handle){
+    /**
+     * Ensure an IllegalArgumentException is thrown when adding more than 10 schemes for a single
+     * account
+     */
+    @Test
+    public void testLimitOnSchemeCount() {
+        PhoneAccountHandle handle = makeQuickAccountHandle(TEST_ID);
+        PhoneAccount.Builder builder = new PhoneAccount.Builder(handle, TEST_LABEL);
+        for (int i = 0; i < PhoneAccountRegistrar.MAX_PHONE_ACCOUNT_REGISTRATIONS + 1; i++) {
+            builder.addSupportedUriScheme(Integer.toString(i));
+        }
+        try {
+            mRegistrar.enforceLimitsOnSchemes(builder.build());
+            fail("should have hit exception in enforceLimitOnSchemes");
+        } catch (IllegalArgumentException e) {
+            // pass test
+        }
+    }
+
+    /**
+     * Ensure an IllegalArgumentException is thrown when adding more 256 chars for a single
+     * account
+     */
+    @Test
+    public void testLimitOnSchemeLength() {
+        PhoneAccountHandle handle = makeQuickAccountHandle(TEST_ID);
+        PhoneAccount.Builder builder = new PhoneAccount.Builder(handle, TEST_LABEL);
+        builder.addSupportedUriScheme(INVALID_STR);
+        try {
+            mRegistrar.enforceLimitsOnSchemes(builder.build());
+            fail("should have hit exception in enforceLimitOnSchemes");
+        } catch (IllegalArgumentException e) {
+            // pass test
+        }
+    }
+
+    /**
+     * Ensure an IllegalArgumentException is thrown when adding an address over the limit
+     */
+    @Test
+    public void testLimitOnAddress() {
+        String text = "a".repeat(100);
+        PhoneAccountHandle handle = makeQuickAccountHandle(TEST_ID);
+        PhoneAccount.Builder builder = makeBuilderWithBindCapabilities(handle)
+                .setAddress(Uri.fromParts(text, text, text));
+        try {
+            mRegistrar.registerPhoneAccount(builder.build());
+            fail("failed to throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // pass test
+        }
+        finally {
+            mRegistrar.unregisterPhoneAccount(handle);
+        }
+    }
+
+    /**
+     * Ensure an IllegalArgumentException is thrown when an Icon that throws an IOException is given
+     */
+    @Test
+    public void testLimitOnIcon() throws Exception {
+        Icon mockIcon = mock(Icon.class);
+        // GIVEN
+        PhoneAccount.Builder builder = makeBuilderWithBindCapabilities(
+                makeQuickAccountHandle(TEST_ID)).setIcon(mockIcon);
+        try {
+            // WHEN
+            Mockito.doThrow(new IOException())
+                    .when(mockIcon).writeToStream(any(OutputStream.class));
+            //THEN
+            mRegistrar.enforceIconSizeLimit(builder.build());
+            fail("failed to throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // pass test
+            assertTrue(e.getMessage().contains(PhoneAccountRegistrar.ICON_ERROR_MSG));
+        }
+    }
+
+    private static PhoneAccount.Builder makeBuilderWithBindCapabilities(PhoneAccountHandle handle) {
         return new PhoneAccount.Builder(handle, TEST_LABEL)
                 .setCapabilities(PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS);
     }
