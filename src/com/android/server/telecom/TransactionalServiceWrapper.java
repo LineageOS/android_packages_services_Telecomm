@@ -188,7 +188,7 @@ public class TransactionalServiceWrapper implements
                 throws RemoteException {
             try {
                 Log.startSession("TSW.sA");
-                createTransactions(callId, callback, SET_ACTIVE, 0);
+                createTransactions(callId, callback, SET_ACTIVE);
             } finally {
                 Log.endSession();
             }
@@ -199,7 +199,7 @@ public class TransactionalServiceWrapper implements
                 throws RemoteException {
             try {
                 Log.startSession("TSW.sI");
-                createTransactions(callId, callback, SET_INACTIVE, 0);
+                createTransactions(callId, callback, SET_INACTIVE);
             } finally {
                 Log.endSession();
             }
@@ -211,19 +211,7 @@ public class TransactionalServiceWrapper implements
                 throws RemoteException {
             try {
                 Log.startSession("TSW.d");
-                createTransactions(callId, callback, DISCONNECT, disconnectCause.getCode());
-            } finally {
-                Log.endSession();
-            }
-        }
-
-        @Override
-        public void rejectCall(String callId, android.os.ResultReceiver callback)
-                throws RemoteException {
-            try {
-                Log.startSession("TSW.rC");
-                createTransactions(callId, callback, REJECT,
-                        android.telecom.Call.REJECT_REASON_DECLINED);
+                createTransactions(callId, callback, DISCONNECT, disconnectCause);
             } finally {
                 Log.endSession();
             }
@@ -234,14 +222,14 @@ public class TransactionalServiceWrapper implements
                 throws RemoteException {
             try {
                 Log.startSession("TSW.sCS");
-                createTransactions(callId, callback, START_STREAMING, 0);
+                createTransactions(callId, callback, START_STREAMING);
             } finally {
                 Log.endSession();
             }
         }
 
         private void createTransactions(String callId, ResultReceiver callback, String action,
-                int code) {
+                Object... objects) {
             Log.d(TAG, "createTransactions: callId=" + callId);
             Call call = mTrackedCalls.get(callId);
             if (call != null) {
@@ -249,10 +237,9 @@ public class TransactionalServiceWrapper implements
                     case SET_ACTIVE:
                         addTransactionsToManager(createSetActiveTransactions(call), callback);
                         break;
-                    case REJECT:
                     case DISCONNECT:
                         addTransactionsToManager(new EndCallTransaction(mCallsManager,
-                                action.equals(DISCONNECT), code, call), callback);
+                                (DisconnectCause) objects[0], call), callback);
                         break;
                     case SET_INACTIVE:
                         addTransactionsToManager(

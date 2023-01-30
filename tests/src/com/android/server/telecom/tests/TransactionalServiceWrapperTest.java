@@ -121,7 +121,6 @@ public class TransactionalServiceWrapperTest extends TelecomTestCase {
     public void testCallControlSetActive() throws RemoteException {
         // GIVEN
         mTransactionalServiceWrapper.trackCall(mMockCall1);
-        //when(mCallsManager.getCallObjectFromCallId(CALL_ID_1)).thenReturn(mMockCall1);
 
         // WHEN
         ICallControl callControl = mTransactionalServiceWrapper.getICallControl();
@@ -136,11 +135,11 @@ public class TransactionalServiceWrapperTest extends TelecomTestCase {
     public void testCallControlRejectCall() throws RemoteException {
         // GIVEN
         mTransactionalServiceWrapper.trackCall(mMockCall1);
-        //when(mCallsManager.getCallObjectFromCallId(CALL_ID_1)).thenReturn(mMockCall1);
 
         // WHEN
         ICallControl callControl = mTransactionalServiceWrapper.getICallControl();
-        callControl.rejectCall(CALL_ID_1, new ResultReceiver(null));
+        callControl.disconnect(CALL_ID_1, new DisconnectCause(DisconnectCause.REJECTED),
+                new ResultReceiver(null));
 
         //THEN
         verify(mTransactionManager, times(1))
@@ -151,7 +150,6 @@ public class TransactionalServiceWrapperTest extends TelecomTestCase {
     public void testCallControlDisconnectCall() throws RemoteException {
         // GIVEN
         mTransactionalServiceWrapper.trackCall(mMockCall1);
-        //when(mCallsManager.getCallObjectFromCallId(CALL_ID_1)).thenReturn(mMockCall1);
 
         // WHEN
         ICallControl callControl = mTransactionalServiceWrapper.getICallControl();
@@ -167,7 +165,6 @@ public class TransactionalServiceWrapperTest extends TelecomTestCase {
     public void testCallControlSetInactive() throws RemoteException {
         // GIVEN
         mTransactionalServiceWrapper.trackCall(mMockCall1);
-        //when(mCallsManager.getCallObjectFromCallId(CALL_ID_1)).thenReturn(mMockCall1);
 
         // WHEN
         ICallControl callControl = mTransactionalServiceWrapper.getICallControl();
