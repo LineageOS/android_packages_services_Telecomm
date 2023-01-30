@@ -53,9 +53,8 @@ public class RequestFocusTransaction extends VoipCallTransaction {
             @Override
             public void onError(CallException exception) {
                 Log.d(TAG, "processTransaction: onError");
-
                 future.complete(new VoipCallTransactionResult(
-                        VoipCallTransactionResult.RESULT_FAILED, null));
+                        exception.getCode(), exception.getMessage()));
             }
         });
 
