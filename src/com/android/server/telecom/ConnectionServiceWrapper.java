@@ -452,7 +452,13 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                             childCall.setParentAndChildCall(null);
                         } else {
                             Call conferenceCall = mCallIdMapper.getCall(conferenceCallId);
-                            childCall.setParentAndChildCall(conferenceCall);
+                            // In a situation where a cmgr is used, the conference should be tracked
+                            // by that cmgr's instance of CSW. The cmgr instance of CSW will track
+                            // and properly set the parent and child calls so the request from the
+                            // original Telephony instance of CSW can be ignored.
+                            if (conferenceCall != null){
+                                childCall.setParentAndChildCall(conferenceCall);
+                            }
                         }
                     } else {
                         // Log.w(this, "setIsConferenced, unknown call id: %s", args.arg1);
