@@ -1278,7 +1278,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             int statsdDisconnectCause = (newState == CallState.DISCONNECTED) ?
                     getDisconnectCause().getCode() : DisconnectCause.UNKNOWN;
             TelecomStatsLog.write(TelecomStatsLog.CALL_STATE_CHANGED, newState,
-                    statsdDisconnectCause, isSelfManaged(), isExternalCall());
+                    statsdDisconnectCause, isSelfManaged(), isExternalCall(), isEmergencyCall());
         }
         return true;
     }
