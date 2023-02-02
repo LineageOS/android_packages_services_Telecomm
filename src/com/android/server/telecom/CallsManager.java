@@ -125,6 +125,7 @@ import com.android.server.telecom.callredirection.CallRedirectionProcessor;
 import com.android.server.telecom.components.ErrorDialogActivity;
 import com.android.server.telecom.components.TelecomBroadcastReceiver;
 import com.android.server.telecom.settings.BlockedNumbersUtil;
+import com.android.server.telecom.stats.CallFailureCause;
 import com.android.server.telecom.ui.AudioProcessingNotification;
 import com.android.server.telecom.ui.CallRedirectionTimeoutDialogActivity;
 import com.android.server.telecom.ui.ConfirmCallDialogActivity;
@@ -1496,16 +1497,20 @@ public class CallsManager extends Call.ListenerBase
             }
         }
 
-        if (!isHandoverAllowed || (call.isSelfManaged() && !isIncomingCallPermitted(call,
-                call.getTargetPhoneAccount()))) {
+        CallFailureCause startFailCause =
+                checkIncomingCallPermitted(call, call.getTargetPhoneAccount());
+        if (!isHandoverAllowed ||
+                (call.isSelfManaged() && !startFailCause.isSuccess())) {
             if (isConference) {
                 notifyCreateConferenceFailed(phoneAccountHandle, call);
             } else {
                 if (hasMaximumManagedRingingCalls(call)) {
                     call.setMissedReason(AUTO_MISSED_MAXIMUM_RINGING);
+                    call.setStartFailCause(CallFailureCause.MAX_RINGING_CALLS);
                     mCallLogManager.logCall(call, Calls.MISSED_TYPE,
                             true /*showNotificationForMissedCall*/, null /*CallFilteringResult*/);
                 }
+                call.setStartFailCause(startFailCause);
                 notifyCreateConnectionFailed(phoneAccountHandle, call);
             }
         } else if (isInEmergencyCall()) {
@@ -1514,6 +1519,7 @@ public class CallsManager extends Call.ListenerBase
             // rejected since the user did not explicitly reject.
             call.setMissedReason(AUTO_MISSED_EMERGENCY_CALL);
             call.getAnalytics().setMissedReason(call.getMissedReason());
+            call.setStartFailCause(CallFailureCause.IN_EMERGENCY_CALL);
             mCallLogManager.logCall(call, Calls.MISSED_TYPE,
                     true /*showNotificationForMissedCall*/, null /*CallFilteringResult*/);
             if (isConference) {
@@ -1829,6 +1835,7 @@ public class CallsManager extends Call.ListenerBase
                             notifyCreateConnectionFailed(
                                     finalCall.getTargetPhoneAccount(), finalCall);
                         }
+                        finalCall.setStartFailCause(CallFailureCause.IN_EMERGENCY_CALL);
                         return CompletableFuture.completedFuture(null);
                     }
 
@@ -3292,6 +3299,7 @@ public class CallsManager extends Call.ListenerBase
                 Log.i(this, "holdActiveCallForNewCall: Holding active %s before making %s active.",
                         activeCall.getId(), call.getId());
                 activeCall.hold();
+                call.increaseHeldByThisCallCount();
                 return true;
             } else {
                 // This call does not support hold. If it is from a different connection
@@ -4534,6 +4542,7 @@ public class CallsManager extends Call.ListenerBase
             }
             //  If the user tries to make two outgoing calls to different emergency call numbers,
             //  we will try to connect the first outgoing call and reject the second.
+            emergencyCall.setStartFailCause(CallFailureCause.IN_EMERGENCY_CALL);
             return false;
         }
 
@@ -4621,12 +4630,14 @@ public class CallsManager extends Call.ListenerBase
         if (canHold(liveCall)) {
             Log.i(this, "makeRoomForOutgoingEmergencyCall: holding live call.");
             emergencyCall.getAnalytics().setCallIsAdditional(true);
+            emergencyCall.increaseHeldByThisCallCount();
             liveCall.getAnalytics().setCallIsInterrupted(true);
             liveCall.hold("calling " + emergencyCall.getId());
             return true;
         }
 
         // The live call cannot be held so we're out of luck here.  There's no room.
+        emergencyCall.setStartFailCause(CallFailureCause.CANNOT_HOLD_CALL);
         return false;
     }
 
@@ -4668,6 +4679,7 @@ public class CallsManager extends Call.ListenerBase
                         + " of new outgoing call.");
                 return true;
             }
+            call.setStartFailCause(CallFailureCause.MAX_OUTGOING_CALLS);
             return false;
         }
 
@@ -4716,6 +4728,7 @@ public class CallsManager extends Call.ListenerBase
         }
 
         // The live call cannot be held so we're out of luck here.  There's no room.
+        call.setStartFailCause(CallFailureCause.CANNOT_HOLD_CALL);
         return false;
     }
 
@@ -4940,23 +4953,42 @@ public class CallsManager extends Call.ListenerBase
 
     public boolean isIncomingCallPermitted(Call excludeCall,
                                            PhoneAccountHandle phoneAccountHandle) {
+        return checkIncomingCallPermitted(excludeCall, phoneAccountHandle).isSuccess();
+    }
+
+    private CallFailureCause checkIncomingCallPermitted(
+            Call call, PhoneAccountHandle phoneAccountHandle) {
         if (phoneAccountHandle == null) {
-            return false;
+            return CallFailureCause.INVALID_USE;
         }
+
         PhoneAccount phoneAccount =
                 mPhoneAccountRegistrar.getPhoneAccountUnchecked(phoneAccountHandle);
         if (phoneAccount == null) {
-            return false;
+            return CallFailureCause.INVALID_USE;
         }
-        if (isInEmergencyCall()) return false;
 
-        if (!phoneAccount.isSelfManaged()) {
-            return !hasMaximumManagedRingingCalls(excludeCall) &&
-                    !hasMaximumManagedHoldingCalls(excludeCall);
-        } else {
-            return !hasMaximumSelfManagedRingingCalls(excludeCall, phoneAccountHandle) &&
-                    !hasMaximumSelfManagedCalls(excludeCall, phoneAccountHandle);
+        if (isInEmergencyCall()) {
+            return CallFailureCause.IN_EMERGENCY_CALL;
         }
+
+        if (phoneAccount.isSelfManaged()) {
+            if (hasMaximumSelfManagedRingingCalls(call, phoneAccountHandle)) {
+                return CallFailureCause.MAX_RINGING_CALLS;
+            }
+            if (hasMaximumSelfManagedCalls(call, phoneAccountHandle)) {
+                return CallFailureCause.MAX_SELF_MANAGED_CALLS;
+            }
+        } else {
+            if (hasMaximumManagedRingingCalls(call)) {
+                return CallFailureCause.MAX_RINGING_CALLS;
+            }
+            if (hasMaximumManagedHoldingCalls(call)) {
+                return CallFailureCause.MAX_HOLD_CALLS;
+            }
+        }
+
+        return CallFailureCause.NONE;
     }
 
     public boolean isOutgoingCallPermitted(PhoneAccountHandle phoneAccountHandle) {
