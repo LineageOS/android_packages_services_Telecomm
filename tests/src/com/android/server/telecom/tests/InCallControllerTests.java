@@ -89,6 +89,7 @@ import com.android.dx.mockito.inline.extended.ExtendedMockito;
 import com.android.internal.telecom.IInCallAdapter;
 import com.android.internal.telecom.IInCallService;
 import com.android.server.telecom.Analytics;
+import com.android.server.telecom.AnomalyReporterAdapter;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.CarModeTracker;
@@ -148,6 +149,7 @@ public class InCallControllerTests extends TelecomTestCase {
     @Mock NotificationManager mNotificationManager;
     @Mock PermissionInfo mMockPermissionInfo;
     @Mock InCallController.InCallServiceInfo mInCallServiceInfo;
+    @Mock private AnomalyReporterAdapter mAnomalyReporterAdapter;
 
     @Rule
     public TestRule compatChangeRule = new PlatformCompatChangeRule();
@@ -419,6 +421,60 @@ public class InCallControllerTests extends TelecomTestCase {
                 TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE));
         assertEquals(callExtras, bindIntent.getExtras().getParcelable(
                 TelecomManager.EXTRA_OUTGOING_CALL_EXTRAS));
+    }
+
+    @MediumTest
+    @Test
+    public void testBindToService_OutgoingCall_FailToBind_AnomalyReported() throws Exception {
+        mInCallController.setAnomalyReporterAdapter(mAnomalyReporterAdapter);
+        when(mMockContext.bindServiceAsUser(any(Intent.class), any(ServiceConnection.class),
+                anyInt(), any(UserHandle.class))).thenReturn(false);
+        Bundle callExtras = new Bundle();
+        callExtras.putBoolean("whatever", true);
+
+        when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
+        when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
+        when(mMockCallsManager.isInEmergencyCall()).thenReturn(false);
+        when(mMockCall.isIncoming()).thenReturn(false);
+        when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
+        when(mMockCall.getIntentExtras()).thenReturn(callExtras);
+        when(mMockCall.isExternalCall()).thenReturn(false);
+        when(mTimeoutsAdapter.getEmergencyCallbackWindowMillis(any(ContentResolver.class)))
+                .thenReturn(300_000L);
+
+        setupMockPackageManager(false /* default */, true /* system */, false /* external calls */);
+        mInCallController.bindToServices(mMockCall);
+
+        verify(mAnomalyReporterAdapter).reportAnomaly(InCallController.BIND_TO_IN_CALL_ERROR_UUID,
+                InCallController.BIND_TO_IN_CALL_ERROR_MSG);
+    }
+
+    @MediumTest
+    @Test
+    public void testBindToService_OutgoingEmergCall_FailToBind_AnomalyReported() throws Exception {
+        mInCallController.setAnomalyReporterAdapter(mAnomalyReporterAdapter);
+        when(mMockContext.bindServiceAsUser(any(Intent.class), any(ServiceConnection.class),
+                anyInt(), any(UserHandle.class))).thenReturn(false);
+        Bundle callExtras = new Bundle();
+        callExtras.putBoolean("whatever", true);
+
+        when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
+        when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
+        when(mMockCallsManager.isInEmergencyCall()).thenReturn(false);
+        when(mMockCall.isEmergencyCall()).thenReturn(true);
+        when(mMockCall.isIncoming()).thenReturn(false);
+        when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
+        when(mMockCall.getIntentExtras()).thenReturn(callExtras);
+        when(mMockCall.isExternalCall()).thenReturn(false);
+        when(mTimeoutsAdapter.getEmergencyCallbackWindowMillis(any(ContentResolver.class)))
+                .thenReturn(300_000L);
+
+        setupMockPackageManager(false /* default */, true /* system */, false /* external calls */);
+        mInCallController.bindToServices(mMockCall);
+
+        verify(mAnomalyReporterAdapter).reportAnomaly(
+                InCallController.BIND_TO_IN_CALL_EMERGENCY_ERROR_UUID,
+                InCallController.BIND_TO_IN_CALL_EMERGENCY_ERROR_MSG);
     }
 
     @MediumTest

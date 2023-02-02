@@ -265,6 +265,15 @@ public class CallsManager extends Call.ListenerBase
             UUID.fromString("1c4eed7c-9132-11ed-a1eb-0242ac120002");
     public static final String EXCEPTION_WHILE_ESTABLISHING_CONNECTION_ERROR_MSG =
             "Exception thrown while establishing connection.";
+    public static final UUID EXCEPTION_RETRIEVING_PHONE_ACCOUNTS_ERROR_UUID =
+            UUID.fromString("b68c881d-0ed8-4f31-9342-8bf416c96d18");
+    public static final String EXCEPTION_RETRIEVING_PHONE_ACCOUNTS_ERROR_MSG =
+            "Exception thrown while retrieving list of potential phone accounts.";
+    public static final UUID EXCEPTION_RETRIEVING_PHONE_ACCOUNTS_EMERGENCY_ERROR_UUID =
+            UUID.fromString("f272f89d-fb3a-4004-aa2d-20b8d679467e");
+    public static final String EXCEPTION_RETRIEVING_PHONE_ACCOUNTS_EMERGENCY_ERROR_MSG =
+            "Exception thrown while retrieving list of potential phone accounts when placing an "
+                    + "emergency call.";
 
     private static final int[] OUTGOING_CALL_STATES =
             {CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING,
@@ -1756,6 +1765,15 @@ public class CallsManager extends Call.ListenerBase
                 accountsForCall.whenCompleteAsync((potentialPhoneAccounts, exception) -> {
                     if (exception != null){
                         Log.e(TAG, exception, "Error retrieving list of potential phone accounts.");
+                        if (finalCall.isEmergencyCall()) {
+                            mAnomalyReporter.reportAnomaly(
+                                    EXCEPTION_RETRIEVING_PHONE_ACCOUNTS_EMERGENCY_ERROR_UUID,
+                                    EXCEPTION_RETRIEVING_PHONE_ACCOUNTS_EMERGENCY_ERROR_MSG);
+                        } else {
+                            mAnomalyReporter.reportAnomaly(
+                                    EXCEPTION_RETRIEVING_PHONE_ACCOUNTS_ERROR_UUID,
+                                    EXCEPTION_RETRIEVING_PHONE_ACCOUNTS_ERROR_MSG);
+                        }
                     }
                     Log.i(CallsManager.this, "set outgoing call phone acct; potentialAccts=%s",
                             potentialPhoneAccounts);
