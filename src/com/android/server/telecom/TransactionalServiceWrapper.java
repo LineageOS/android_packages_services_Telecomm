@@ -32,6 +32,7 @@ import android.telecom.CallStreamingService;
 import android.telecom.DisconnectCause;
 import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
+import android.text.TextUtils;
 
 import androidx.annotation.VisibleForTesting;
 
@@ -250,8 +251,15 @@ public class TransactionalServiceWrapper implements
                         break;
                 }
             } else {
-                Log.i(TAG, action + ": mCallsManager does not contain call with id=" + callId);
-                callback.send(CODE_CALL_IS_NOT_BEING_TRACKED, new Bundle());
+                Bundle exceptionBundle = new Bundle();
+                exceptionBundle.putParcelable(TRANSACTION_EXCEPTION_KEY,
+                        new CallException(TextUtils.formatSimple(
+                        "Telecom cannot process [%s] because the call with id=[%s] is no longer "
+                                + "being tracked. This is most likely a result of the call "
+                                + "already being disconnected and removed. Try re-adding the call"
+                                + " via TelecomManager#addCall", action, callId),
+                                CODE_CALL_IS_NOT_BEING_TRACKED));
+                callback.send(CODE_CALL_IS_NOT_BEING_TRACKED, exceptionBundle);
             }
         }
 

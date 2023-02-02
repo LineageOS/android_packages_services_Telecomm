@@ -125,6 +125,7 @@ public class TransactionTests extends TelecomTestCase {
                 new HoldCallTransaction(mCallsManager, spyCall);
 
         // WHEN
+        when(mCallsManager.canHold(spyCall)).thenReturn(true);
         doAnswer(invocation -> {
             Call call = invocation.getArgument(0);
             call.setState(CallState.ON_HOLD, "manual set");
