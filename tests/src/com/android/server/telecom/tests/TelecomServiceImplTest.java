@@ -50,6 +50,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.internal.telecom.ICallEventCallback;
 import com.android.internal.telecom.ITelecomService;
+import com.android.server.telecom.AnomalyReporterAdapter;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallIntentProcessor;
 import com.android.server.telecom.CallState;
@@ -188,6 +189,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @Mock private ApplicationInfo mApplicationInfo;
     @Mock private ICallEventCallback mICallEventCallback;
     @Mock private TransactionManager mTransactionManager;
+    @Mock private AnomalyReporterAdapter mAnomalyReporterAdapter;
 
     private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
 
@@ -238,6 +240,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 mSettingsSecureAdapter,
                 mLock);
         telecomServiceImpl.setTransactionManager(mTransactionManager);
+        telecomServiceImpl.setAnomalyReporterAdapter(mAnomalyReporterAdapter);
         mTSIBinder = telecomServiceImpl.getBinder();
         mComponentContextFixture.setTelecomManager(mTelecomManager);
         when(mTelecomManager.getDefaultDialerPackage()).thenReturn(DEFAULT_DIALER_PACKAGE);
@@ -720,6 +723,23 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 .when(mContext).checkCallingOrSelfPermission(MODIFY_PHONE_STATE);
 
         registerPhoneAccountTestHelper(phoneAccount, true);
+    }
+
+    @SmallTest
+    @Test
+    public void testRegisterPhoneAccountWithoutPermissionAnomalyReported() throws RemoteException {
+        PhoneAccountHandle handle = new PhoneAccountHandle(
+                new ComponentName("package", "cs"), "test", Binder.getCallingUserHandle());
+        PhoneAccount account = makeSelfManagedPhoneAccount(handle).build();
+
+        List<String> enforcedPermissions = List.of(MANAGE_OWN_CALLS);
+        doThrow(new SecurityException()).when(mContext).enforceCallingOrSelfPermission(
+                argThat(new AnyStringIn(enforcedPermissions)), any());
+
+        registerPhoneAccountTestHelper(account, false);
+        verify(mAnomalyReporterAdapter).reportAnomaly(
+                TelecomServiceImpl.REGISTER_PHONE_ACCOUNT_ERROR_UUID,
+                TelecomServiceImpl.REGISTER_PHONE_ACCOUNT_ERROR_MSG);
     }
 
     @SmallTest

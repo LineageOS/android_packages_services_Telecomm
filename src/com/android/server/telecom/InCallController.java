@@ -75,6 +75,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -88,6 +89,29 @@ public class InCallController extends CallsManagerListenerBase implements
         AppOpsManager.OnOpActiveChangedListener {
     public static final String NOTIFICATION_TAG = InCallController.class.getSimpleName();
     public static final int IN_CALL_SERVICE_NOTIFICATION_ID = 3;
+    private AnomalyReporterAdapter mAnomalyReporter = new AnomalyReporterAdapterImpl();
+
+    /**
+     * Anomaly Report UUIDs and corresponding error descriptions specific to InCallController.
+     */
+    public static final UUID SET_IN_CALL_ADAPTER_ERROR_UUID =
+            UUID.fromString("0c2adf96-353a-433c-afe9-1e5564f304f9");
+    public static final String SET_IN_CALL_ADAPTER_ERROR_MSG =
+            "Exception thrown while setting the in-call adapter.";
+    public static final UUID BIND_TO_IN_CALL_ERROR_UUID =
+            UUID.fromString("1261231d-b16a-4e0c-a322-623f8bb8e599");
+    public static final String BIND_TO_IN_CALL_ERROR_MSG =
+            "Failed to connect when attempting to bind to InCall.";
+    public static final UUID BIND_TO_IN_CALL_EMERGENCY_ERROR_UUID =
+            UUID.fromString("9ec8f1f0-3f0b-4079-9e9f-325f1262a8c7");
+    public static final String BIND_TO_IN_CALL_EMERGENCY_ERROR_MSG =
+            "Outgoing emergency call failed to connect when attempting to bind to InCall.";
+
+    @VisibleForTesting
+    public void setAnomalyReporterAdapter(AnomalyReporterAdapter mAnomalyReporterAdapter){
+        mAnomalyReporter = mAnomalyReporterAdapter;
+    }
+
     public class InCallServiceConnection {
         /**
          * Indicates that a call to {@link #connect(Call)} has succeeded and resulted in a
@@ -325,6 +349,13 @@ public class InCallController extends CallsManagerListenerBase implements
                         | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS
                         | Context.BIND_SCHEDULE_LIKE_TOP_APP, userToBind)) {
                 Log.w(this, "Failed to connect.");
+                if (call != null && call.isEmergencyCall()) {
+                    mAnomalyReporter.reportAnomaly(BIND_TO_IN_CALL_EMERGENCY_ERROR_UUID,
+                            BIND_TO_IN_CALL_EMERGENCY_ERROR_MSG);
+                } else {
+                    mAnomalyReporter.reportAnomaly(BIND_TO_IN_CALL_ERROR_UUID,
+                            BIND_TO_IN_CALL_ERROR_MSG);
+                }
                 mIsConnected = false;
             }
 
@@ -2009,7 +2040,6 @@ public class InCallController extends CallsManagerListenerBase implements
         mInCallServices.putIfAbsent(userHandle,
                 new ArrayMap<InCallController.InCallServiceInfo, IInCallService>());
         mInCallServices.get(userHandle).put(info, inCallService);
-
         try {
             inCallService.setInCallAdapter(
                     new InCallAdapter(
@@ -2019,6 +2049,8 @@ public class InCallController extends CallsManagerListenerBase implements
                             info.getComponentName().getPackageName()));
         } catch (RemoteException e) {
             Log.e(this, e, "Failed to set the in-call adapter.");
+            mAnomalyReporter.reportAnomaly(SET_IN_CALL_ADAPTER_ERROR_UUID,
+                    SET_IN_CALL_ADAPTER_ERROR_MSG);
             Trace.endSection();
             return false;
         }
