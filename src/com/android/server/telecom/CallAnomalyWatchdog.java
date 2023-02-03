@@ -26,6 +26,7 @@ import android.util.LocalLog;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.IndentingPrintWriter;
+import com.android.server.telecom.stats.CallStateChangedAtomWriter;
 
 import java.util.Collections;
 import java.util.Map;
@@ -345,9 +346,12 @@ public class CallAnomalyWatchdog extends CallsManagerListenerBase implements Cal
     }
 
     private void writeCallStateChangedAtom(Call call) {
-        TelecomStatsLog.write(TelecomStatsLog.CALL_STATE_CHANGED, call.getState(),
-                DisconnectCause.ERROR, call.isSelfManaged(),
-                call.isExternalCall(), call.isEmergencyCall());
+        new CallStateChangedAtomWriter()
+                .setDisconnectCause(call.getDisconnectCause())
+                .setSelfManaged(call.isSelfManaged())
+                .setExternalCall(call.isExternalCall())
+                .setEmergencyCall(call.isEmergencyCall())
+                .write(call.getState());
     }
 
     /**

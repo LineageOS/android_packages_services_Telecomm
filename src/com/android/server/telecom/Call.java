@@ -68,6 +68,8 @@ import android.widget.Toast;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telecom.IVideoProvider;
 import com.android.internal.util.Preconditions;
+import com.android.server.telecom.stats.CallFailureCause;
+import com.android.server.telecom.stats.CallStateChangedAtomWriter;
 import com.android.server.telecom.ui.ToastFactory;
 
 import java.io.IOException;
@@ -506,6 +508,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private final String mId;
     private String mConnectionId;
     private Analytics.CallInfo mAnalytics = new Analytics.CallInfo();
+    private CallStateChangedAtomWriter mCallStateChangedAtomWriter =
+            new CallStateChangedAtomWriter();
     private char mPlayingDtmfTone;
 
     private boolean mWasConferencePreviouslyMerged = false;
@@ -799,6 +803,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         mCreationTimeMillis = mClockProxy.currentTimeMillis();
         mMissedReason = MISSED_REASON_NOT_MISSED;
         mStartRingTime = 0;
+
+        mCallStateChangedAtomWriter.setExistingCallCount(callsManager.getCalls().size());
     }
 
     /**
@@ -1275,10 +1281,15 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 }
                 Log.addEvent(this, event, stringData);
             }
-            int statsdDisconnectCause = (newState == CallState.DISCONNECTED) ?
-                    getDisconnectCause().getCode() : DisconnectCause.UNKNOWN;
-            TelecomStatsLog.write(TelecomStatsLog.CALL_STATE_CHANGED, newState,
-                    statsdDisconnectCause, isSelfManaged(), isExternalCall(), isEmergencyCall());
+
+            mCallStateChangedAtomWriter
+                    .setDisconnectCause(getDisconnectCause())
+                    .setSelfManaged(isSelfManaged())
+                    .setExternalCall(isExternalCall())
+                    .setEmergencyCall(isEmergencyCall())
+                    .setDurationSeconds(Long.valueOf(
+                        (mDisconnectTimeMillis - mConnectTimeMillis) / 1000).intValue())
+                    .write(newState);
         }
         return true;
     }
@@ -1650,6 +1661,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
         checkIfVideoCapable();
         checkIfRttCapable();
+
+        if (accountHandle != null) {
+            mCallStateChangedAtomWriter.setUid(
+                    accountHandle.getComponentName().getPackageName(),
+                    mContext.getPackageManager());
+        }
     }
 
     public UserHandle getUserHandleFromTargetPhoneAccount() {
@@ -4356,6 +4373,14 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     public void setCallScreeningComponentName(String callScreeningComponentName) {
         mCallScreeningComponentName = callScreeningComponentName;
+    }
+
+    public void setStartFailCause(CallFailureCause cause) {
+        mCallStateChangedAtomWriter.setStartFailCause(cause);
+    }
+
+    public void increaseHeldByThisCallCount() {
+        mCallStateChangedAtomWriter.increaseHeldCallCount();
     }
 
     public void maybeOnInCallServiceTrackingChanged(boolean isTracking, boolean hasUi) {

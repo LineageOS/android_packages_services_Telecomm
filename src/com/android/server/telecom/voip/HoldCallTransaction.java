@@ -16,6 +16,7 @@
 
 package com.android.server.telecom.voip;
 
+import android.telecom.CallException;
 import android.util.Log;
 
 import com.android.server.telecom.Call;
@@ -38,11 +39,17 @@ public class HoldCallTransaction extends VoipCallTransaction {
     @Override
     public CompletionStage<VoipCallTransactionResult> processTransaction(Void v) {
         Log.d(TAG, "processTransaction");
+        CompletableFuture<VoipCallTransactionResult> future = new CompletableFuture<>();
 
-        mCallsManager.markCallAsOnHold(mCall);
-
-        return CompletableFuture.completedFuture(
-                new VoipCallTransactionResult(VoipCallTransactionResult.RESULT_SUCCEED,
-                        "holdCallTransaction complete"));
+        if (mCallsManager.canHold(mCall)) {
+            mCallsManager.markCallAsOnHold(mCall);
+            future.complete(new VoipCallTransactionResult(
+                    VoipCallTransactionResult.RESULT_SUCCEED, null));
+        } else {
+            Log.d(TAG, "processTransaction: onError");
+            future.complete(new VoipCallTransactionResult(
+                    CallException.CODE_CANNOT_HOLD_CURRENT_ACTIVE_CALL, "cannot hold call"));
+        }
+        return future;
     }
 }

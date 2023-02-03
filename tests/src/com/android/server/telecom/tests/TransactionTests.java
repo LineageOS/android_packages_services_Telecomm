@@ -102,7 +102,7 @@ public class TransactionTests extends TelecomTestCase {
     public void testEndCallTransactionWithDisconnect() throws Exception {
         // GIVEN
         EndCallTransaction transaction =
-                new EndCallTransaction(mCallsManager, true, 0, mMockCall1);
+                new EndCallTransaction(mCallsManager,  new DisconnectCause(0), mMockCall1);
 
         // WHEN
         transaction.processTransaction(null);
@@ -111,24 +111,6 @@ public class TransactionTests extends TelecomTestCase {
         verify(mCallsManager, times(1))
                 .markCallAsDisconnected(mMockCall1, new DisconnectCause(0));
         verify(mCallsManager, never())
-                .rejectCall(mMockCall1, 0);
-        verify(mCallsManager, times(1))
-                .markCallAsRemoved(mMockCall1);
-    }
-
-    @Test
-    public void testEndCallTransactionWithReject() throws Exception {
-        // GIVEN
-        EndCallTransaction transaction =
-                new EndCallTransaction(mCallsManager, false, 0, mMockCall1);
-
-        // WHEN
-        transaction.processTransaction(null);
-
-        // THEN
-        verify(mCallsManager, never())
-                .markCallAsDisconnected(mMockCall1, new DisconnectCause(0));
-        verify(mCallsManager, times(1))
                 .rejectCall(mMockCall1, 0);
         verify(mCallsManager, times(1))
                 .markCallAsRemoved(mMockCall1);
@@ -143,6 +125,7 @@ public class TransactionTests extends TelecomTestCase {
                 new HoldCallTransaction(mCallsManager, spyCall);
 
         // WHEN
+        when(mCallsManager.canHold(spyCall)).thenReturn(true);
         doAnswer(invocation -> {
             Call call = invocation.getArgument(0);
             call.setState(CallState.ON_HOLD, "manual set");
