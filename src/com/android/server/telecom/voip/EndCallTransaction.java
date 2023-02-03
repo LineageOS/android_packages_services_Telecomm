@@ -20,6 +20,7 @@ import android.telecom.DisconnectCause;
 import android.util.Log;
 
 import com.android.server.telecom.Call;
+import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallsManager;
 
 import java.util.concurrent.CompletableFuture;
@@ -31,31 +32,30 @@ import java.util.concurrent.CompletionStage;
 public class EndCallTransaction extends VoipCallTransaction {
     private static final String TAG = EndCallTransaction.class.getSimpleName();
     private final CallsManager mCallsManager;
-    private final boolean mIsDisconnect;
-    private final int mCode;
     private final Call mCall;
+    private DisconnectCause mCause;
 
-    public EndCallTransaction(CallsManager callsManager, boolean isDisconnect, int code,
-            Call call) {
+    public EndCallTransaction(CallsManager callsManager, DisconnectCause cause, Call call) {
         mCallsManager = callsManager;
-        mIsDisconnect = isDisconnect;
-        mCode = code;
+        mCause = cause;
         mCall = call;
     }
 
     @Override
     public CompletionStage<VoipCallTransactionResult> processTransaction(Void v) {
-        Log.d(TAG, String.format("processTransaction: isDisconnect=[%b]", mIsDisconnect));
+        int code = mCause.getCode();
+        Log.d(TAG, String.format("processTransaction: mCode=[%d], mCall=[%s]", code, mCall));
 
-        if (mIsDisconnect) {
-            mCallsManager.markCallAsDisconnected(mCall, new DisconnectCause(mCode));
-        } else {
-            mCallsManager.rejectCall(mCall, mCode);
+        if (mCall.getState() == CallState.RINGING && code == DisconnectCause.LOCAL) {
+            mCause = new DisconnectCause(DisconnectCause.REJECTED,
+                    "overrode cause in EndCallTransaction");
         }
+
+        mCallsManager.markCallAsDisconnected(mCall, mCause);
         mCallsManager.markCallAsRemoved(mCall);
 
         return CompletableFuture.completedFuture(
                 new VoipCallTransactionResult(VoipCallTransactionResult.RESULT_SUCCEED,
-                        "endCallTransaction complete"));
+                        "EndCallTransaction: RESULT_SUCCEED"));
     }
 }

@@ -17,6 +17,7 @@
 package com.android.server.telecom.tests;
 
 import static android.telecom.CallException.CODE_CALL_CANNOT_BE_SET_TO_ACTIVE;
+import static android.telecom.CallException.CODE_ERROR_UNKNOWN;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
@@ -51,14 +52,6 @@ public class CallExceptionTests extends TelecomTestCase {
     }
 
     @Test
-    public void testSimpleException() {
-        String message = "test message";
-        CallException exception = new CallException(message);
-        assertTrue(exception.getMessage().contains(message));
-        assertEquals(CallException.CODE_ERROR_UNKNOWN, exception.getCode());
-    }
-
-    @Test
     public void testExceptionWithCode() {
         String message = "test message";
         CallException exception = new CallException(message, CODE_CALL_CANNOT_BE_SET_TO_ACTIVE);
@@ -69,7 +62,7 @@ public class CallExceptionTests extends TelecomTestCase {
     @Test
     public void testDescribeContents() {
         String message = "test message";
-        CallException exception = new CallException(message);
+        CallException exception = new CallException(message, CODE_ERROR_UNKNOWN);
         assertEquals(0, exception.describeContents());
     }
 
@@ -77,7 +70,7 @@ public class CallExceptionTests extends TelecomTestCase {
     public void testWriteToParcel() {
         // GIVEN
         String message = "test message";
-        CallException exception = new CallException(message);
+        CallException exception = new CallException(message, CODE_ERROR_UNKNOWN);
 
         // WHEN
         exception.writeToParcel(mParcel, 0);
