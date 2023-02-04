@@ -850,12 +850,7 @@ public class BluetoothRouteManager extends StateMachine {
      */
     @VisibleForTesting
     public boolean isInbandRingingEnabled() {
-        BluetoothHeadset bluetoothHeadset = mDeviceManager.getBluetoothHeadset();
-        if (bluetoothHeadset == null) {
-            Log.i(this, "isInbandRingingEnabled: no headset service available.");
-            return false;
-        }
-        return bluetoothHeadset.isInbandRingingEnabled();
+        return mDeviceManager.isInbandRingingEnabled();
     }
 
     private boolean addDevice(String address) {
