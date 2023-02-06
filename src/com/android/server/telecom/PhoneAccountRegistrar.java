@@ -873,7 +873,7 @@ public class PhoneAccountRegistrar {
     public void registerPhoneAccount(PhoneAccount account) {
         // Enforce the requirement that a connection service for a phone account has the correct
         // permission.
-        if (!hasTransactionalCallCapabilites(account) &&
+        if (!hasTransactionalCallCapabilities(account) &&
                 !phoneAccountRequiresBindPermission(account.getAccountHandle())) {
             Log.w(this,
                     "Phone account %s does not have BIND_TELECOM_CONNECTION_SERVICE permission.",
@@ -1062,7 +1062,7 @@ public class PhoneAccountRegistrar {
         boolean isNewAccount;
 
         // add self-managed capability for transactional accounts that are missing it
-        if (hasTransactionalCallCapabilites(account) &&
+        if (hasTransactionalCallCapabilities(account) &&
                 !account.hasCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED)) {
             account = account.toBuilder()
                     .setCapabilities(account.getCapabilities()
@@ -1367,13 +1367,13 @@ public class PhoneAccountRegistrar {
      * @return {@code True} if the phone account has permission.
      */
     public boolean phoneAccountRequiresBindPermission(PhoneAccountHandle phoneAccountHandle) {
-        List<ResolveInfo> resolveInfos = resolveComponent(phoneAccountHandle);
-        if (resolveInfos.isEmpty()) {
-            Log.w(this, "phoneAccount %s not found", phoneAccountHandle.getComponentName());
+        if (hasTransactionalCallCapabilities(getPhoneAccountUnchecked(phoneAccountHandle))) {
             return false;
         }
 
-        if (hasTransactionalCallCapabilites(getPhoneAccountUnchecked(phoneAccountHandle))) {
+        List<ResolveInfo> resolveInfos = resolveComponent(phoneAccountHandle);
+        if (resolveInfos.isEmpty()) {
+            Log.w(this, "phoneAccount %s not found", phoneAccountHandle.getComponentName());
             return false;
         }
 
@@ -1396,7 +1396,7 @@ public class PhoneAccountRegistrar {
     }
 
     @VisibleForTesting
-    public boolean hasTransactionalCallCapabilites(PhoneAccount phoneAccount) {
+    public boolean hasTransactionalCallCapabilities(PhoneAccount phoneAccount) {
         if (phoneAccount == null) {
             return false;
         }
@@ -1530,7 +1530,10 @@ public class PhoneAccountRegistrar {
             }
             PhoneAccountHandle handle = m.getAccountHandle();
 
-            if (resolveComponent(handle).isEmpty()) {
+            // PhoneAccounts with CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS do not require a
+            // ConnectionService and will fail [resolveComponent(PhoneAccountHandle)]. Bypass
+            // the [resolveComponent(PhoneAccountHandle)] for transactional accounts.
+            if (!hasTransactionalCallCapabilities(m) && resolveComponent(handle).isEmpty()) {
                 // This component cannot be resolved anymore; skip this one.
                 continue;
             }
