@@ -37,6 +37,7 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.telecom.Log;
 import android.telecom.TelecomManager;
+import android.view.accessibility.AccessibilityManager;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.LogUtils.EventTimer;
@@ -161,6 +162,7 @@ public class Ringer {
     private RingtoneFactory mRingtoneFactory;
     private AudioManager mAudioManager;
     private NotificationManager mNotificationManager;
+    private AccessibilityManager mAccessibilityManager;
 
     /**
      * Call objects that are ringing, vibrating or call-waiting. These are used only for logging
@@ -194,7 +196,8 @@ public class Ringer {
             Vibrator vibrator,
             VibrationEffectProxy vibrationEffectProxy,
             InCallController inCallController,
-            NotificationManager notificationManager) {
+            NotificationManager notificationManager,
+            AccessibilityManager accessibilityManager) {
 
         mLock = new Object();
         mSystemSettingsUtil = systemSettingsUtil;
@@ -208,6 +211,7 @@ public class Ringer {
         mInCallController = inCallController;
         mVibrationEffectProxy = vibrationEffectProxy;
         mNotificationManager = notificationManager;
+        mAccessibilityManager = accessibilityManager;
 
         if (mContext.getResources().getBoolean(R.bool.use_simple_vibration_pattern)) {
             mDefaultVibrationEffect = mVibrationEffectProxy.createWaveform(SIMPLE_VIBRATION_PATTERN,
@@ -261,7 +265,7 @@ public class Ringer {
             attributes = ringerAttributesFuture.get(
                     RINGER_ATTRIBUTES_TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (ExecutionException | InterruptedException | TimeoutException e) {
-            // Keep attributs as null
+            // Keep attributes as null
             Log.i(this, "getAttributes error: " + e);
         }
 
@@ -289,6 +293,13 @@ public class Ringer {
         }
 
         stopCallWaiting();
+
+        final boolean shouldFlash = attributes.shouldRingForContact();
+        if (mAccessibilityManager != null && shouldFlash) {
+            Log.addEvent(foregroundCall, LogUtils.Events.FLASH_NOTIFICATION_START);
+            getHandler().post(() -> mAccessibilityManager.startFlashNotificationSequence(mContext,
+                    AccessibilityManager.FLASH_REASON_CALL));
+        }
 
         // Determine if the settings and DND mode indicate that the vibrator can be used right now.
         final boolean isVibratorEnabled =
@@ -427,6 +438,7 @@ public class Ringer {
                     "hasVibrator=%b, userRequestsVibrate=%b, ringerMode=%d, isVibrating=%b",
                     mVibrator.hasVibrator(), mSystemSettingsUtil.isRingVibrationEnabled(mContext),
                     mAudioManager.getRingerMode(), mIsVibrating);
+                mVibratingCall = foregroundCall;
                 mIsVibrating = true;
                 mVibrator.vibrate(effect, VIBRATION_ATTRIBUTES);
                 Log.i(this, "start vibration.");
@@ -499,6 +511,12 @@ public class Ringer {
     }
 
     public void stopRinging() {
+        final Call foregroundCall = mRingingCall != null ? mRingingCall : mVibratingCall;
+        if (mAccessibilityManager != null) {
+            Log.addEvent(foregroundCall, LogUtils.Events.FLASH_NOTIFICATION_STOP);
+            getHandler().post(() -> mAccessibilityManager.stopFlashNotificationSequence(mContext));
+        }
+
         synchronized (mLock) {
             if (mRingingCall != null) {
                 Log.addEvent(mRingingCall, LogUtils.Events.STOP_RINGER);
