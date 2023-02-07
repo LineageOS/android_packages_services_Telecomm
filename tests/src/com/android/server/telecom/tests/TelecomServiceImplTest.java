@@ -23,6 +23,7 @@ import static android.Manifest.permission.READ_PHONE_NUMBERS;
 import static android.Manifest.permission.READ_PHONE_STATE;
 import static android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE;
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.content.ComponentName;
@@ -215,6 +216,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         doReturn(mContext).when(mContext).createContextAsUser(any(UserHandle.class), anyInt());
         doNothing().when(mContext).sendBroadcastAsUser(any(Intent.class), any(UserHandle.class),
                 anyString());
+        when(mContext.checkCallingOrSelfPermission(Manifest.permission.INTERACT_ACROSS_USERS))
+                .thenReturn(PackageManager.PERMISSION_GRANTED);
         doAnswer(invocation -> {
             mDefaultDialerObserver = invocation.getArgument(1);
             return null;
@@ -1219,8 +1222,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     public void testEndCallWithNoForegroundCall() throws Exception {
         Call call = mock(Call.class);
         when(call.getState()).thenReturn(CallState.ACTIVE);
-        when(mFakeCallsManager.getFirstCallWithState(any()))
-                .thenReturn(call);
+        when(mFakeCallsManager.getFirstCallWithState(any())).thenReturn(call);
         assertTrue(mTSIBinder.endCall(TEST_PACKAGE));
         verify(mFakeCallsManager).disconnectCall(eq(call));
     }
@@ -1261,14 +1263,16 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testIsInCall() throws Exception {
-        when(mFakeCallsManager.hasOngoingCalls()).thenReturn(true);
+        when(mFakeCallsManager.hasOngoingCalls(any(UserHandle.class), anyBoolean()))
+                .thenReturn(true);
         assertTrue(mTSIBinder.isInCall(DEFAULT_DIALER_PACKAGE, null));
     }
 
     @SmallTest
     @Test
     public void testNotIsInCall() throws Exception {
-        when(mFakeCallsManager.hasOngoingCalls()).thenReturn(false);
+        when(mFakeCallsManager.hasOngoingCalls(any(UserHandle.class), anyBoolean()))
+                .thenReturn(false);
         assertFalse(mTSIBinder.isInCall(DEFAULT_DIALER_PACKAGE, null));
     }
 
@@ -1283,20 +1287,22 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         } catch (SecurityException e) {
             // desired result
         }
-        verify(mFakeCallsManager, never()).hasOngoingCalls();
+        verify(mFakeCallsManager, never()).hasOngoingCalls(any(UserHandle.class), anyBoolean());
     }
 
     @SmallTest
     @Test
     public void testIsInManagedCall() throws Exception {
-        when(mFakeCallsManager.hasOngoingManagedCalls()).thenReturn(true);
+        when(mFakeCallsManager.hasOngoingManagedCalls(any(UserHandle.class), anyBoolean()))
+                .thenReturn(true);
         assertTrue(mTSIBinder.isInManagedCall(DEFAULT_DIALER_PACKAGE, null));
     }
 
     @SmallTest
     @Test
     public void testNotIsInManagedCall() throws Exception {
-        when(mFakeCallsManager.hasOngoingManagedCalls()).thenReturn(false);
+        when(mFakeCallsManager.hasOngoingManagedCalls(any(UserHandle.class), anyBoolean()))
+                .thenReturn(false);
         assertFalse(mTSIBinder.isInManagedCall(DEFAULT_DIALER_PACKAGE, null));
     }
 
@@ -1311,7 +1317,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         } catch (SecurityException e) {
             // desired result
         }
-        verify(mFakeCallsManager, never()).hasOngoingCalls();
+        verify(mFakeCallsManager, never()).hasOngoingCalls(any(UserHandle.class), anyBoolean());
     }
 
     /**

@@ -327,15 +327,12 @@ public class TelecomServiceImpl {
                 }
                 synchronized (mLock) {
                     final UserHandle callingUserHandle = Binder.getCallingUserHandle();
-                    boolean hasCrossUserAccess = mContext.checkCallingOrSelfPermission(
-                            Manifest.permission.INTERACT_ACROSS_USERS)
-                            == PackageManager.PERMISSION_GRANTED;
                     long token = Binder.clearCallingIdentity();
                     try {
                         return new ParceledListSlice<>(
                                 mPhoneAccountRegistrar.getCallCapablePhoneAccounts(null,
                                         includeDisabledAccounts, callingUserHandle,
-                                        hasCrossUserAccess));
+                                        hasInAppCrossUserPermission()));
                     } catch (Exception e) {
                         Log.e(this, e, "getCallCapablePhoneAccounts");
                         throw e;
@@ -601,13 +598,11 @@ public class TelecomServiceImpl {
 
                 synchronized (mLock) {
                     final UserHandle callingUserHandle = Binder.getCallingUserHandle();
-                    boolean hasCrossUserAccess = mContext.checkCallingOrSelfPermission(
-                            Manifest.permission.INTERACT_ACROSS_USERS)
-                            == PackageManager.PERMISSION_GRANTED;
                     long token = Binder.clearCallingIdentity();
                     try {
                         return new ParceledListSlice<>(mPhoneAccountRegistrar
-                                .getAllPhoneAccountHandles(callingUserHandle, hasCrossUserAccess));
+                                .getAllPhoneAccountHandles(callingUserHandle,
+                                        hasInAppCrossUserPermission()));
                     } catch (Exception e) {
                         Log.e(this, e, "getAllPhoneAccounts");
                         throw e;
@@ -907,7 +902,8 @@ public class TelecomServiceImpl {
                     try {
                         Log.i(this, "Silence Ringer requested by %s", callingPackage);
                         Set<UserHandle> userHandles = mCallsManager.getCallAudioManager().
-                                silenceRingers(mContext, callingUserHandle);
+                                silenceRingers(mContext, callingUserHandle,
+                                        hasInAppCrossUserPermission());
                         mCallsManager.getInCallController().silenceRinger(userHandles);
                     } finally {
                         Binder.restoreCallingIdentity(token);
@@ -1024,7 +1020,8 @@ public class TelecomServiceImpl {
                 }
 
                 synchronized (mLock) {
-                    return mCallsManager.hasOngoingCalls();
+                    return mCallsManager.hasOngoingCalls(Binder.getCallingUserHandle(),
+                            hasInAppCrossUserPermission());
                 }
             } finally {
                 Log.endSession();
@@ -1065,7 +1062,8 @@ public class TelecomServiceImpl {
                 }
 
                 synchronized (mLock) {
-                    return mCallsManager.hasOngoingManagedCalls();
+                    return mCallsManager.hasOngoingManagedCalls(Binder.getCallingUserHandle(),
+                            hasInAppCrossUserPermission());
                 }
             } finally {
                 Log.endSession();
@@ -2745,6 +2743,12 @@ public class TelecomServiceImpl {
         mContext.enforceCallingOrSelfPermission(
                 android.Manifest.permission.INTERACT_ACROSS_USERS, "Must be system or have"
                         + " INTERACT_ACROSS_USERS permission");
+    }
+
+    private boolean hasInAppCrossUserPermission() {
+        return mContext.checkCallingOrSelfPermission(
+                Manifest.permission.INTERACT_ACROSS_USERS)
+                == PackageManager.PERMISSION_GRANTED;
     }
 
     // to be used for TestApi methods that can only be called with SHELL UID.
