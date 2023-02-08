@@ -21,6 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.ComponentName;
@@ -28,6 +29,7 @@ import android.net.Uri;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 
+import com.android.server.telecom.AnomalyReporterAdapter;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallAnomalyWatchdog;
 import com.android.server.telecom.CallState;
@@ -81,6 +83,7 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
     @Mock private ToastFactory mMockToastProxy;
     @Mock private PhoneNumberUtilsAdapter mMockPhoneNumberUtilsAdapter;
     @Mock private ConnectionServiceWrapper mMockConnectionService;
+    @Mock private AnomalyReporterAdapter mAnomalyReporterAdapter;
 
     @Override
     @Before
@@ -114,12 +117,28 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
                 .when(mMockConnectionService).getComponentName();
         mCallAnomalyWatchdog = new CallAnomalyWatchdog(mTestScheduledExecutorService, mLock,
                 mTimeouts, mMockClockProxy);
+        mCallAnomalyWatchdog.setAnomalyReporterAdapter(mAnomalyReporterAdapter);
     }
 
     @Override
     @After
     public void tearDown() throws Exception {
         super.tearDown();
+    }
+
+    /**
+     * Helper function that setups the call being tested.
+     */
+    private Call setupCallHelper(int callState, boolean isCreateConnectionComplete,
+            ConnectionServiceWrapper service, boolean isVoipAudioMode, boolean isEmergencyCall) {
+        Call call = getCall();
+        call.setState(callState, "foo");
+        call.setIsCreateConnectionComplete(isCreateConnectionComplete);
+        if (service != null) call.setConnectionService(service);
+        call.setIsVoipAudioMode(isVoipAudioMode);
+        call.setIsEmergencyCall(isEmergencyCall);
+        mCallAnomalyWatchdog.onCallAdded(call);
+        return call;
     }
 
     /**
@@ -269,12 +288,7 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
      */
      @Test
     public void testAddVoipRingingCall() {
-        Call call = getCall();
-        call.setState(CallState.RINGING, "foo");
-        call.setIsCreateConnectionComplete(false);
-        call.setIsVoipAudioMode(true);
-        call.setIsEmergencyCall(false);
-        mCallAnomalyWatchdog.onCallCreated(call);
+        Call call = setupCallHelper(CallState.RINGING, false, null, true, false);
 
         // Newly created call which hasn't been added; should schedule timeout.
         assertEquals(1, mTestScheduledExecutorService.getNumberOfScheduledRunnables());
@@ -308,12 +322,7 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
      */
     @Test
     public void testAddVoipEmergencyRingingCall() {
-        Call call = getCall();
-        call.setState(CallState.RINGING, "foo");
-        call.setIsCreateConnectionComplete(false);
-        call.setIsVoipAudioMode(true);
-        call.setIsEmergencyCall(true);
-        mCallAnomalyWatchdog.onCallCreated(call);
+        Call call = setupCallHelper(CallState.RINGING, false, null, true, true);
 
         // Newly created call which hasn't been added; should schedule timeout.
         assertEquals(1, mTestScheduledExecutorService.getNumberOfScheduledRunnables());
@@ -348,12 +357,7 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
      */
     @Test
     public void testAddNonVoipRingingCall() {
-        Call call = getCall();
-        call.setState(CallState.RINGING, "foo");
-        call.setIsCreateConnectionComplete(false);
-        call.setIsVoipAudioMode(false);
-        call.setIsEmergencyCall(false);
-        mCallAnomalyWatchdog.onCallCreated(call);
+        Call call = setupCallHelper(CallState.RINGING, false, null, false, false);
 
         // Newly created call which hasn't been added; should schedule timeout.
         assertEquals(1, mTestScheduledExecutorService.getNumberOfScheduledRunnables());
@@ -388,12 +392,7 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
      */
     @Test
     public void testAddNonVoipEmergencyRingingCall() {
-        Call call = getCall();
-        call.setState(CallState.RINGING, "foo");
-        call.setIsCreateConnectionComplete(false);
-        call.setIsVoipAudioMode(false);
-        call.setIsEmergencyCall(true);
-        mCallAnomalyWatchdog.onCallCreated(call);
+        Call call = setupCallHelper(CallState.RINGING, false, null, false, true);
 
         // Newly created call which hasn't been added; should schedule timeout.
         assertEquals(1, mTestScheduledExecutorService.getNumberOfScheduledRunnables());
@@ -426,12 +425,7 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
      */
     @Test
     public void testAddVoipRingingCallTimeoutWithoutConnection() {
-        Call call = getCall();
-        call.setState(CallState.RINGING, "foo");
-        call.setIsCreateConnectionComplete(false);
-        call.setIsVoipAudioMode(true);
-        call.setIsEmergencyCall(false);
-        mCallAnomalyWatchdog.onCallCreated(call);
+        setupCallHelper(CallState.RINGING, false, null, true, false);
 
         // Newly created call which hasn't been added; should schedule timeout.
         assertEquals(1, mTestScheduledExecutorService.getNumberOfScheduledRunnables());
@@ -454,12 +448,7 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
      */
     @Test
     public void testAddVoipEmergencyRingingCallTimeoutWithoutConnection() {
-        Call call = getCall();
-        call.setState(CallState.RINGING, "foo");
-        call.setIsCreateConnectionComplete(false);
-        call.setIsVoipAudioMode(true);
-        call.setIsEmergencyCall(true);
-        mCallAnomalyWatchdog.onCallCreated(call);
+        setupCallHelper(CallState.RINGING, false, null, true, true);
 
         // Newly created call which hasn't been added; should schedule timeout.
         assertEquals(1, mTestScheduledExecutorService.getNumberOfScheduledRunnables());
@@ -483,12 +472,7 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
      */
     @Test
     public void testAddNonVoipRingingCallTimeoutWithoutConnection() {
-        Call call = getCall();
-        call.setState(CallState.RINGING, "foo");
-        call.setIsCreateConnectionComplete(false);
-        call.setIsVoipAudioMode(false);
-        call.setIsEmergencyCall(false);
-        mCallAnomalyWatchdog.onCallCreated(call);
+        setupCallHelper(CallState.RINGING, false, null, false, false);;
 
         // Newly created call which hasn't been added; should schedule timeout.
         assertEquals(1, mTestScheduledExecutorService.getNumberOfScheduledRunnables());
@@ -511,12 +495,7 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
      */
     @Test
     public void testAddNonVoipEmergencyRingingCallTimeoutWithoutConnection() {
-        Call call = getCall();
-        call.setState(CallState.RINGING, "foo");
-        call.setIsCreateConnectionComplete(false);
-        call.setIsVoipAudioMode(false);
-        call.setIsEmergencyCall(true);
-        mCallAnomalyWatchdog.onCallCreated(call);
+        setupCallHelper(CallState.RINGING, false, null, false, true);
 
         // Newly created call which hasn't been added; should schedule timeout.
         assertEquals(1, mTestScheduledExecutorService.getNumberOfScheduledRunnables());
@@ -540,13 +519,7 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
      */
     @Test
     public void testAddVoipRingingCallTimeoutWithConnection() {
-        Call call = getCall();
-        call.setState(CallState.RINGING, "foo");
-        call.setIsCreateConnectionComplete(true);
-        call.setConnectionService(mMockConnectionService);
-        call.setIsVoipAudioMode(true);
-        call.setIsEmergencyCall(false);
-        mCallAnomalyWatchdog.onCallAdded(call);
+        setupCallHelper(CallState.RINGING, true, mMockConnectionService, true, false);
 
         // Newly created call which hasn't been added; should schedule timeout.
         assertEquals(1, mTestScheduledExecutorService.getNumberOfScheduledRunnables());
@@ -569,13 +542,7 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
      */
     @Test
     public void testAddVoipEmergencyRingingCallTimeoutWithConnection() {
-        Call call = getCall();
-        call.setState(CallState.RINGING, "foo");
-        call.setIsCreateConnectionComplete(true);
-        call.setConnectionService(mMockConnectionService);
-        call.setIsVoipAudioMode(true);
-        call.setIsEmergencyCall(true);
-        mCallAnomalyWatchdog.onCallAdded(call);
+        setupCallHelper(CallState.RINGING, true, mMockConnectionService, true, true);
 
         // Newly created call which hasn't been added; should schedule timeout.
         assertEquals(1, mTestScheduledExecutorService.getNumberOfScheduledRunnables());
@@ -599,13 +566,7 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
      */
     @Test
     public void testAddNonVoipRingingCallTimeoutWithConnection() {
-        Call call = getCall();
-        call.setState(CallState.RINGING, "foo");
-        call.setIsCreateConnectionComplete(true);
-        call.setConnectionService(mMockConnectionService);
-        call.setIsVoipAudioMode(false);
-        call.setIsEmergencyCall(false);
-        mCallAnomalyWatchdog.onCallAdded(call);
+        setupCallHelper(CallState.RINGING, true, mMockConnectionService, false, false);
 
         // Newly created call which hasn't been added; should schedule timeout.
         assertEquals(1, mTestScheduledExecutorService.getNumberOfScheduledRunnables());
@@ -628,13 +589,7 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
      */
     @Test
     public void testAddNonVoipEmergencyRingingCallTimeoutWithConnection() {
-        Call call = getCall();
-        call.setState(CallState.RINGING, "foo");
-        call.setIsCreateConnectionComplete(true);
-        call.setConnectionService(mMockConnectionService);
-        call.setIsVoipAudioMode(false);
-        call.setIsEmergencyCall(true);
-        mCallAnomalyWatchdog.onCallAdded(call);
+        setupCallHelper(CallState.RINGING, true, mMockConnectionService, false, true);
 
         // Newly created call which hasn't been added; should schedule timeout.
         assertEquals(1, mTestScheduledExecutorService.getNumberOfScheduledRunnables());
@@ -659,12 +614,7 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
     @Test
     public void testVoipPlaceCallTimeout() {
         // Call will start in connecting state
-        Call call = getCall();
-        call.setState(CallState.CONNECTING, "foo");
-        call.setIsCreateConnectionComplete(false);
-        call.setIsVoipAudioMode(true);
-        call.setIsEmergencyCall(false);
-        mCallAnomalyWatchdog.onCallCreated(call);
+        Call call = setupCallHelper(CallState.CONNECTING, false, null, true, false);
 
         // Assume it is created but the app never sets it to a proper state
         call.setIsCreateConnectionComplete(false);
@@ -682,18 +632,61 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
     }
 
     /**
+     * Emulate the case where a new outgoing VoIP call is added to the watchdog.
+     * In this case, the timeout will fire in transitory state and should report an anomaly.
+     */
+    @Test
+    public void testVoipPlaceCallTimeoutReportAnomaly() {
+        // Call will start in connecting state
+        Call call = setupCallHelper(CallState.CONNECTING, false, null, true, false);
+
+        // Assume it is created but the app never sets it to a proper state
+        call.setIsCreateConnectionComplete(false);
+        mCallAnomalyWatchdog.onCallAdded(call);
+
+        // Move the clock to fire the timeout.
+        when(mMockClockProxy.elapsedRealtime()).thenReturn(TEST_VOIP_TRANSITORY_MILLIS + 1);
+        mTestScheduledExecutorService.advanceTime(TEST_VOIP_TRANSITORY_MILLIS + 1);
+
+        //Ensure an anomaly was reported
+        verify(mAnomalyReporterAdapter).reportAnomaly(
+                CallAnomalyWatchdog.WATCHDOG_DISCONNECTED_STUCK_CALL_UUID,
+                CallAnomalyWatchdog.WATCHDOG_DISCONNECTED_STUCK_CALL_MSG);
+    }
+
+    /**
+     * Emulate the case where a new outgoing VoIP emergency call is added to the watchdog.
+     * In this case, the timeout will fire in transitory state and should report an emergency
+     * anomaly.
+     */
+    @Test
+    public void testVoipEmergencyPlaceCallTimeoutReportAnomaly() {
+        // Call will start in connecting state
+        Call call = setupCallHelper(CallState.CONNECTING, false, null, true, true);
+
+        // Assume it is created but the app never sets it to a proper state
+        call.setIsCreateConnectionComplete(false);
+        mCallAnomalyWatchdog.onCallAdded(call);
+
+        // Move the clock to fire the timeout.
+        when(mMockClockProxy.elapsedRealtime()).
+                thenReturn(TEST_VOIP_EMERGENCY_TRANSITORY_MILLIS + 1);
+        mTestScheduledExecutorService.advanceTime(TEST_VOIP_EMERGENCY_TRANSITORY_MILLIS + 1);
+
+        //Ensure an anomaly was reported
+        verify(mAnomalyReporterAdapter).reportAnomaly(
+                CallAnomalyWatchdog.WATCHDOG_DISCONNECTED_STUCK_EMERGENCY_CALL_UUID,
+                CallAnomalyWatchdog.WATCHDOG_DISCONNECTED_STUCK_EMERGENCY_CALL_MSG);
+    }
+
+    /**
      * Emulate the case where a new outgoing VoIP emergency call is added to the watchdog.
      * In this case, the timeout will fire in transitory state.
      */
     @Test
     public void testVoipEmergencyPlaceCallTimeout() {
         // Call will start in connecting state
-        Call call = getCall();
-        call.setState(CallState.CONNECTING, "foo");
-        call.setIsCreateConnectionComplete(false);
-        call.setIsVoipAudioMode(true);
-        call.setIsEmergencyCall(true);
-        mCallAnomalyWatchdog.onCallCreated(call);
+        Call call = setupCallHelper(CallState.CONNECTING, false, null, true, true);
 
         // Assume it is created but the app never sets it to a proper state
         call.setIsCreateConnectionComplete(false);
@@ -718,12 +711,7 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
     @Test
     public void testNonVoipPlaceCallTimeout() {
         // Call will start in connecting state
-        Call call = getCall();
-        call.setState(CallState.CONNECTING, "foo");
-        call.setIsCreateConnectionComplete(false);
-        call.setIsVoipAudioMode(false);
-        call.setIsEmergencyCall(false);
-        mCallAnomalyWatchdog.onCallCreated(call);
+        Call call = setupCallHelper(CallState.CONNECTING, false, null, false, false);
 
         // Assume it is created but the app never sets it to a proper state
         call.setIsCreateConnectionComplete(false);
@@ -747,12 +735,7 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
     @Test
     public void testNonVoipEmergencyPlaceCallTimeout() {
         // Call will start in connecting state
-        Call call = getCall();
-        call.setState(CallState.CONNECTING, "foo");
-        call.setIsCreateConnectionComplete(false);
-        call.setIsVoipAudioMode(false);
-        call.setIsEmergencyCall(true);
-        mCallAnomalyWatchdog.onCallCreated(call);
+        Call call = setupCallHelper(CallState.CONNECTING, false, null, false, true);
 
         // Assume it is created but the app never sets it to a proper state
         call.setIsCreateConnectionComplete(false);
