@@ -522,6 +522,8 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
     @Test
     public void testInBandRingingEnabledForLeDevice() {
         when(mBluetoothHeadset.isInbandRingingEnabled()).thenReturn(false);
+        when(mBluetoothLeAudio.isInbandRingtoneEnabled(1)).thenReturn(true);
+        when(mBluetoothLeAudio.getGroupId(eq(device3))).thenReturn(1);
         receiverUnderTest.onReceive(mContext,
                 buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device1,
                         BluetoothDeviceManager.DEVICE_TYPE_HEADSET));

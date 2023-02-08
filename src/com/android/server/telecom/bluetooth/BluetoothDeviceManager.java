@@ -650,7 +650,12 @@ public class BluetoothDeviceManager {
         BluetoothDevice activeDevice = mBluetoothRouteManager.getBluetoothAudioConnectedDevice();
         Log.i(this, "isInbandRingingEnabled: activeDevice: " + activeDevice);
         if (mBluetoothRouteManager.isCachedLeAudioDevice(activeDevice)) {
-            return true;
+            if (mBluetoothLeAudioService == null) {
+                Log.i(this, "isInbandRingingEnabled: no leaudio service available.");
+                return false;
+            }
+            int groupId = mBluetoothLeAudioService.getGroupId(activeDevice);
+            return mBluetoothLeAudioService.isInbandRingtoneEnabled(groupId);
         } else {
             if (mBluetoothHeadset == null) {
                 Log.i(this, "isInbandRingingEnabled: no headset service available.");

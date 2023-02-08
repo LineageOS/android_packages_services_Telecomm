@@ -214,6 +214,8 @@ public class LogUtils {
         public static final String SET_VOIP_MODE = "SET_VOIP_MODE";
         public static final String STATE_TIMEOUT = "STATE_TIMEOUT";
         public static final String ICS_EXTRAS_CHANGED = "ICS_EXTRAS_CHANGED";
+        public static final String FLASH_NOTIFICATION_START = "FLASH_NOTIFICATION_START";
+        public static final String FLASH_NOTIFICATION_STOP = "FLASH_NOTIFICATION_STOP";
 
         public static class Timings {
             public static final String ACCEPT_TIMING = "accept";
