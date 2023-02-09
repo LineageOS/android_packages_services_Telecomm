@@ -135,7 +135,7 @@ public class VoipAppMainActivity extends Activity {
 
                     }
                 },
-                call);
+                call, call);
     }
 
     private void setCallActive(MyVoipCall call) {
