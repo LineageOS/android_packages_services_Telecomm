@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -110,6 +111,7 @@ public class CallAnomalyWatchdog extends CallsManagerListenerBase implements Cal
     private final TelecomSystem.SyncRoot mLock;
     private final Timeouts.Adapter mTimeoutAdapter;
     private final ClockProxy mClockProxy;
+    private AnomalyReporterAdapter mAnomalyReporter = new AnomalyReporterAdapterImpl();
     // Pre-allocate space for 2 calls; realistically thats all we should ever need (tm)
     private final Map<Call, ScheduledFuture<?>> mScheduledFutureMap = new ConcurrentHashMap<>(2);
     private final Map<Call, WatchdogCallState> mWatchdogCallStateMap = new ConcurrentHashMap<>(2);
@@ -125,6 +127,22 @@ public class CallAnomalyWatchdog extends CallsManagerListenerBase implements Cal
      */
     private static final String ENABLE_DISCONNECT_CALL_ON_STUCK_STATE =
             "enable_disconnect_call_on_stuck_state";
+    /**
+     * Anomaly Report UUIDs and corresponding event descriptions specific to CallAnomalyWatchdog.
+     */
+    public static final UUID WATCHDOG_DISCONNECTED_STUCK_CALL_UUID =
+            UUID.fromString("4b093985-c78f-45e3-a9fe-5319f397b025");
+    public static final String WATCHDOG_DISCONNECTED_STUCK_CALL_MSG =
+            "Telecom CallAnomalyWatchdog caught and disconnected a stuck/zombie call.";
+    public static final UUID WATCHDOG_DISCONNECTED_STUCK_EMERGENCY_CALL_UUID =
+            UUID.fromString("d57d8aab-d723-485e-a0dd-d1abb0f346c8");
+    public static final String WATCHDOG_DISCONNECTED_STUCK_EMERGENCY_CALL_MSG =
+            "Telecom CallAnomalyWatchdog caught and disconnected a stuck/zombie emergency call.";
+
+    @VisibleForTesting
+    public void setAnomalyReporterAdapter(AnomalyReporterAdapter mAnomalyReporterAdapter){
+        mAnomalyReporter = mAnomalyReporterAdapter;
+    }
 
     public CallAnomalyWatchdog(ScheduledExecutorService executorService,
             TelecomSystem.SyncRoot lock,
@@ -306,6 +324,15 @@ public class CallAnomalyWatchdog extends CallsManagerListenerBase implements Cal
                     Log.addEvent(call, STATE_TIMEOUT, newState);
                     mLocalLog.log("STATE_TIMEOUT; callId=" + call.getId() + " in state "
                             + newState);
+                    if (call.isEmergencyCall()){
+                        mAnomalyReporter.reportAnomaly(
+                                WATCHDOG_DISCONNECTED_STUCK_EMERGENCY_CALL_UUID,
+                                WATCHDOG_DISCONNECTED_STUCK_EMERGENCY_CALL_MSG);
+                    } else {
+                        mAnomalyReporter.reportAnomaly(
+                                WATCHDOG_DISCONNECTED_STUCK_CALL_UUID,
+                                WATCHDOG_DISCONNECTED_STUCK_CALL_MSG);
+                    }
 
                     if (isEnabledDisconnect) {
                         call.setOverrideDisconnectCauseCode(
