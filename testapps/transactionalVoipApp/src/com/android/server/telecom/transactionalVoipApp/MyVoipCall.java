@@ -16,8 +16,7 @@
 
 package com.android.server.telecom.transactionalVoipApp;
 
-
-import android.telecom.CallAudioState;
+import android.telecom.CallControlCallback;
 import android.telecom.CallEndpoint;
 import android.telecom.CallControl;
 import android.telecom.CallEventCallback;
@@ -28,7 +27,7 @@ import androidx.annotation.NonNull;
 
 import java.util.function.Consumer;
 
-public class MyVoipCall implements CallEventCallback {
+public class MyVoipCall implements CallControlCallback, CallEventCallback {
 
     private static final String TAG = "MyVoipCall";
     private final String mCallId;
@@ -99,6 +98,5 @@ public class MyVoipCall implements CallEventCallback {
 
     @Override
     public void onMuteStateChanged(boolean isMuted) {
-
     }
 }
