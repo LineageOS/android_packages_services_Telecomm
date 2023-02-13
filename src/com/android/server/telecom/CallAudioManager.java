@@ -486,19 +486,20 @@ public class CallAudioManager extends CallsManagerListenerBase {
                 CallAudioRouteStateMachine.INCLUDE_BLUETOOTH_IN_BASELINE);
     }
 
-    Set<UserHandle> silenceRingers(Context context, UserHandle callingUser) {
+    Set<UserHandle> silenceRingers(Context context, UserHandle callingUser,
+            boolean hasCrossUserPermission) {
         // Store all users from calls that were silenced so that we can silence the
         // InCallServices which are associated with those users.
         Set<UserHandle> userHandles = new HashSet<>();
         boolean allCallSilenced = true;
         synchronized (mCallsManager.getLock()) {
             for (Call call : mRingingCalls) {
-                PhoneAccount targetPhoneAccount = call.getPhoneAccountFromHandle();
                 UserHandle userFromCall = call.getUserHandleFromTargetPhoneAccount();
                 // Do not try to silence calls when calling user is different from the phone account
-                // user and the account does not have CAPABILITY_MULTI_USER enabled.
-                if (!callingUser.equals(userFromCall) && !targetPhoneAccount.
-                        hasCapabilities(PhoneAccount.CAPABILITY_MULTI_USER)) {
+                // user, the account does not have CAPABILITY_MULTI_USER enabled, or if the user
+                // does not have the INTERACT_ACROSS_USERS permission enabled.
+                if (!hasCrossUserPermission && !mCallsManager
+                        .isCallVisibleForUser(call, callingUser)) {
                     allCallSilenced = false;
                     continue;
                 }
