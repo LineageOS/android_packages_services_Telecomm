@@ -61,6 +61,7 @@ import android.media.MediaPlayer;
 import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -3678,10 +3679,6 @@ public class CallsManager extends Call.ListenerBase
         return false;
     }
 
-    boolean hasActiveOrHoldingCall() {
-        return getFirstCallWithState(CallState.ACTIVE, CallState.ON_HOLD) != null;
-    }
-
     boolean hasRingingCall() {
         return getFirstCallWithState(CallState.RINGING, CallState.ANSWERED) != null;
     }
@@ -3801,15 +3798,6 @@ public class CallsManager extends Call.ListenerBase
 
     public Call getActiveCall() {
         return getFirstCallWithState(CallState.ACTIVE);
-    }
-
-    Call getDialingCall() {
-        return getFirstCallWithState(CallState.DIALING);
-    }
-
-    @VisibleForTesting
-    public Call getHeldCall() {
-        return getFirstCallWithState(CallState.ON_HOLD);
     }
 
     public Call getHeldCallByConnectionService(PhoneAccountHandle targetPhoneAccount) {
@@ -4424,6 +4412,60 @@ public class CallsManager extends Call.ListenerBase
         return (int) callsStream.count();
     }
 
+    /**
+     * Determines the number of calls (visible to the calling user) matching the specified criteria.
+     * This is an overloaded method which is being used in a security patch to fix up the call
+     * state type APIs which are acting across users when they should not be.
+     *
+     * See {@link TelecomManager#isInCall()} and {@link TelecomManager#isInManagedCall()}.
+     *
+     * @param callFilter indicates whether to include just managed calls
+     *                   ({@link #CALL_FILTER_MANAGED}), self-managed calls
+     *                   ({@link #CALL_FILTER_SELF_MANAGED}), or all calls
+     *                   ({@link #CALL_FILTER_ALL}).
+     * @param excludeCall Where {@code non-null}, this call is excluded from the count.
+     * @param callingUser Where {@code non-null}, call visibility is scoped to this
+     *                    {@link UserHandle}.
+     * @param hasCrossUserAccess indicates if calling user has the INTERACT_ACROSS_USERS permission.
+     * @param phoneAccountHandle Where {@code non-null}, calls for this {@link PhoneAccountHandle}
+     *                           are excluded from the count.
+     * @param states The list of {@link CallState}s to include in the count.
+     * @return Count of calls matching criteria.
+     */
+    @VisibleForTesting
+    public int getNumCallsWithState(final int callFilter, Call excludeCall,
+            UserHandle callingUser, boolean hasCrossUserAccess,
+            PhoneAccountHandle phoneAccountHandle, int... states) {
+
+        Set<Integer> desiredStates = IntStream.of(states).boxed().collect(Collectors.toSet());
+
+        Stream<Call> callsStream = mCalls.stream()
+                .filter(call -> desiredStates.contains(call.getState()) &&
+                        call.getParentCall() == null && !call.isExternalCall());
+
+        if (callFilter == CALL_FILTER_MANAGED) {
+            callsStream = callsStream.filter(call -> !call.isSelfManaged());
+        } else if (callFilter == CALL_FILTER_SELF_MANAGED) {
+            callsStream = callsStream.filter(call -> call.isSelfManaged());
+        }
+
+        // If a call to exclude was specified, filter it out.
+        if (excludeCall != null) {
+            callsStream = callsStream.filter(call -> call != excludeCall);
+        }
+
+        // If a phone account handle was specified, only consider calls for that phone account.
+        if (phoneAccountHandle != null) {
+            callsStream = callsStream.filter(
+                    call -> phoneAccountHandle.equals(call.getTargetPhoneAccount()));
+        }
+
+        callsStream = callsStream.filter(
+                call -> hasCrossUserAccess || isCallVisibleForUser(call, callingUser));
+
+        return (int) callsStream.count();
+    }
+
     private boolean hasMaximumLiveCalls(Call exceptCall) {
         return MAXIMUM_LIVE_CALLS <= getNumCallsWithState(CALL_FILTER_ALL,
                 exceptCall, null /* phoneAccountHandle*/, LIVE_CALL_STATES);
@@ -4518,23 +4560,29 @@ public class CallsManager extends Call.ListenerBase
     /**
      * Determines if there are any ongoing managed or self-managed calls.
      * Note: The {@link #ONGOING_CALL_STATES} are
+     * @param callingUser The user to scope the calls to.
+     * @param hasCrossUserAccess indicates if user has the INTERACT_ACROSS_USERS permission.
      * @return {@code true} if there are ongoing managed or self-managed calls, {@code false}
      *      otherwise.
      */
-    public boolean hasOngoingCalls() {
+    public boolean hasOngoingCalls(UserHandle callingUser, boolean hasCrossUserAccess) {
         return getNumCallsWithState(
                 CALL_FILTER_ALL, null /* excludeCall */,
+                callingUser, hasCrossUserAccess,
                 null /* phoneAccountHandle */,
                 ONGOING_CALL_STATES) > 0;
     }
 
     /**
      * Determines if there are any ongoing managed calls.
+     * @param callingUser The user to scope the calls to.
+     * @param hasCrossUserAccess indicates if user has the INTERACT_ACROSS_USERS permission.
      * @return {@code true} if there are ongoing managed calls, {@code false} otherwise.
      */
-    public boolean hasOngoingManagedCalls() {
+    public boolean hasOngoingManagedCalls(UserHandle callingUser, boolean hasCrossUserAccess) {
         return getNumCallsWithState(
                 CALL_FILTER_MANAGED, null /* excludeCall */,
+                callingUser, hasCrossUserAccess,
                 null /* phoneAccountHandle */,
                 ONGOING_CALL_STATES) > 0;
     }
@@ -6012,6 +6060,19 @@ public class CallsManager extends Call.ListenerBase
         mCalls.stream()
                 .filter(c -> phoneAccount.getAccountHandle().equals(c.getTargetPhoneAccount()))
                 .forEach(c -> c.setVideoCallingSupportedByPhoneAccount(isVideoNowSupported));
+    }
+
+    /**
+     * Determines if a {@link Call} is visible to the calling user. If the {@link PhoneAccount} has
+     * CAPABILITY_MULTI_USER, or the user handle associated with the {@link PhoneAccount} is the
+     * same as the calling user, the call is visible to the user.
+     * @param call
+     * @return {@code true} if call is visible to the calling user
+     */
+    boolean isCallVisibleForUser(Call call, UserHandle userHandle) {
+        return call.getUserHandleFromTargetPhoneAccount().equals(userHandle)
+                || call.getPhoneAccountFromHandle()
+                .hasCapabilities(PhoneAccount.CAPABILITY_MULTI_USER);
     }
 
     /**
