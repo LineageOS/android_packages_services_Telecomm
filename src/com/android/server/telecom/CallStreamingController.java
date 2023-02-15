@@ -18,6 +18,7 @@ package com.android.server.telecom;
 
 import static android.telecom.CallStreamingService.STREAMING_FAILED_SENDER_BINDING_ERROR;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.role.RoleManager;
 import android.content.ComponentName;
@@ -206,6 +207,15 @@ public class CallStreamingController extends CallsManagerListenerBase {
             }
 
             ServiceInfo serviceInfo = infos.get(0).serviceInfo;
+
+            if (serviceInfo.permission == null || !serviceInfo.permission.equals(
+                    Manifest.permission.BIND_CALL_STREAMING_SERVICE)) {
+                android.telecom.Log.w(TAG, "Must require BIND_CALL_STREAMING_SERVICE: " +
+                        serviceInfo.packageName);
+                future.complete(new VoipCallTransactionResult(
+                        VoipCallTransactionResult.RESULT_FAILED, MESSAGE));
+                return future;
+            }
             Intent intent = new Intent(CallStreamingService.SERVICE_INTERFACE);
             intent.setComponent(serviceInfo.getComponentName());
 
