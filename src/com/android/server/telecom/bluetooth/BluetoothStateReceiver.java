@@ -16,6 +16,7 @@
 
 package com.android.server.telecom.bluetooth;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothHearingAid;
@@ -25,6 +26,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Bundle;
 import android.telecom.Log;
 import android.telecom.Logging.Session;
 
@@ -84,7 +86,7 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
                 intent.getIntExtra(BluetoothHeadset.EXTRA_STATE,
                         BluetoothHeadset.STATE_AUDIO_DISCONNECTED);
         BluetoothDevice device =
-                intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice.class);
         if (device == null) {
             Log.w(LOG_TAG, "Got null device from broadcast. " +
                     "Ignoring.");
@@ -115,7 +117,7 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
         int bluetoothHeadsetState = intent.getIntExtra(BluetoothHeadset.EXTRA_STATE,
                 BluetoothHeadset.STATE_DISCONNECTED);
         BluetoothDevice device =
-                intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice.class);
 
         if (device == null) {
             Log.w(LOG_TAG, "Got null device from broadcast. " +
@@ -149,7 +151,7 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
 
     private void handleActiveDeviceChanged(Intent intent) {
         BluetoothDevice device =
-                intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice.class);
 
         int deviceType;
         if (BluetoothLeAudio.ACTION_LE_AUDIO_ACTIVE_DEVICE_CHANGED.equals(intent.getAction())) {
@@ -181,11 +183,31 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
                 }
                 args.arg2 = device.getAddress();
 
+                boolean usePreferredAudioProfile = false;
+                BluetoothAdapter bluetoothAdapter = mBluetoothDeviceManager.getBluetoothAdapter();
+                int preferredDuplexProfile = BluetoothProfile.LE_AUDIO;
+                if (bluetoothAdapter != null) {
+                    Bundle preferredAudioProfiles = bluetoothAdapter.getPreferredAudioProfiles(
+                            device);
+                    if (preferredAudioProfiles != null && !preferredAudioProfiles.isEmpty()
+                            && preferredAudioProfiles.getInt(BluetoothAdapter.AUDIO_MODE_DUPLEX)
+                            != 0) {
+                        Log.i(this, "Preferred duplex profile for device=" + device + " is "
+                                + preferredAudioProfiles.getInt(
+                                BluetoothAdapter.AUDIO_MODE_DUPLEX));
+                        usePreferredAudioProfile = true;
+                        preferredDuplexProfile =
+                                preferredAudioProfiles.getInt(BluetoothAdapter.AUDIO_MODE_DUPLEX);
+                    }
+                }
+
                 if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_LE_AUDIO) {
                     /* In Le Audio case, once device got Active, the Telecom needs to make sure it
                      * is set as communication device before we can say that BT_AUDIO_IS_ON
                      */
-                    if (!mBluetoothDeviceManager.setLeAudioCommunicationDevice()) {
+                    if ((!usePreferredAudioProfile
+                            || preferredDuplexProfile == BluetoothProfile.LE_AUDIO)
+                            && !mBluetoothDeviceManager.setLeAudioCommunicationDevice()) {
                         Log.w(LOG_TAG,
                                 "Device %s cannot be use as LE audio communication device.",
                                 device);
