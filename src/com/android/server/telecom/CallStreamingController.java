@@ -185,9 +185,8 @@ public class CallStreamingController extends CallsManagerListenerBase {
                 return future;
             }
 
-            // TODO: change this role to RoleManager.ROLE_STREAMING
-            List<String> holders = roleManager.getRoleHoldersAsUser(RoleManager.ROLE_DIALER,
-                    mUserHandle);
+            List<String> holders = roleManager.getRoleHoldersAsUser(
+                    RoleManager.ROLE_SYSTEM_CALL_STREAMING, mUserHandle);
             if (holders.isEmpty()) {
                 Log.e(TAG, "Can't find streaming app");
                 future.complete(new VoipCallTransactionResult(
