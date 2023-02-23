@@ -363,7 +363,8 @@ public class TelecomSystem {
                     roleManagerAdapter,
                     toastFactory,
                     callEndpointControllerFactory,
-                    callAnomalyWatchdog);
+                    callAnomalyWatchdog,
+                    Executors.newSingleThreadExecutor());
 
             mIncomingCallNotifier = incomingCallNotifier;
             incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {

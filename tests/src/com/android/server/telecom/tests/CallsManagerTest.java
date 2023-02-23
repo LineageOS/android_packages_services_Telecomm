@@ -48,6 +48,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -136,6 +137,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -294,7 +296,9 @@ public class CallsManagerTest extends TelecomTestCase {
                 mRoleManagerAdapter,
                 mToastFactory,
                 mCallEndpointControllerFactory,
-                mCallAnomalyWatchdog);
+                mCallAnomalyWatchdog,
+                // Just do async tasks synchronously to support testing.
+                command -> command.run());
 
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SELF_MANAGED_HANDLE), any())).thenReturn(SELF_MANAGED_ACCOUNT);
@@ -2411,6 +2415,50 @@ public class CallsManagerTest extends TelecomTestCase {
         mCallsManager.onRingbackRequested(call, ringback);
 
         verify(listener).onRingbackRequested(call, ringback);
+    }
+
+    @MediumTest
+    @Test
+    public void testSetCallDialingAndDontIncreaseVolume() {
+        // Start with a non zero volume.
+        mComponentContextFixture.getAudioManager().setStreamVolume(AudioManager.STREAM_VOICE_CALL,
+                4, 0 /* flags */);
+
+        Call call = mock(Call.class);
+        mCallsManager.markCallAsDialing(call);
+
+        // We set the volume to non-zero above, so expect 1
+        verify(mComponentContextFixture.getAudioManager(), times(1)).setStreamVolume(
+                eq(AudioManager.STREAM_VOICE_CALL), anyInt(), anyInt());
+    }
+    @MediumTest
+    @Test
+    public void testSetCallDialingAndIncreaseVolume() {
+        // Start with a zero volume stream.
+        mComponentContextFixture.getAudioManager().setStreamVolume(AudioManager.STREAM_VOICE_CALL,
+                0, 0 /* flags */);
+
+        Call call = mock(Call.class);
+        mCallsManager.markCallAsDialing(call);
+
+        // We set the volume to zero above, so expect 2
+        verify(mComponentContextFixture.getAudioManager(), times(2)).setStreamVolume(
+                eq(AudioManager.STREAM_VOICE_CALL), anyInt(), anyInt());
+    }
+
+    @MediumTest
+    @Test
+    public void testSetCallActiveAndDontIncreaseVolume() {
+        // Start with a non-zero volume.
+        mComponentContextFixture.getAudioManager().setStreamVolume(AudioManager.STREAM_VOICE_CALL,
+                4, 0 /* flags */);
+
+        Call call = mock(Call.class);
+        mCallsManager.markCallAsActive(call);
+
+        // We set the volume to non-zero above, so expect 1 only.
+        verify(mComponentContextFixture.getAudioManager(), times(1)).setStreamVolume(
+                eq(AudioManager.STREAM_VOICE_CALL), anyInt(), anyInt());
     }
 
     @MediumTest
