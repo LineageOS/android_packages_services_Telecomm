@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -425,11 +426,6 @@ public class CallTest extends TelecomTestCase {
         call.setState(CallState.RINGING, "test");
         call.answer(0);
         verify(mMockTransactionalService, times(1)).onAnswer(call, 0);
-
-        // assert CallEventCallback#onReject is called
-        call.setState(CallState.RINGING, "test");
-        call.reject(0);
-        verify(mMockTransactionalService, times(1)).onReject(call, 0);
 
         // assert CallEventCallback#onDisconnect is called
         call.setState(CallState.ACTIVE, "test");

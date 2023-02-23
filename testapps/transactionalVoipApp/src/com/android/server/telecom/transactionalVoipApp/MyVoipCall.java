@@ -21,6 +21,7 @@ import android.telecom.CallControlCallback;
 import android.telecom.CallEndpoint;
 import android.telecom.CallControl;
 import android.telecom.CallEventCallback;
+import android.telecom.DisconnectCause;
 import android.util.Log;
 
 import java.util.List;
@@ -62,13 +63,8 @@ public class MyVoipCall implements CallControlCallback, CallEventCallback {
     }
 
     @Override
-    public void onReject(@NonNull Consumer<Boolean> wasCompleted) {
-        Log.i(TAG, String.format("onReject: callId=[%s]", mCallId));
-        wasCompleted.accept(Boolean.TRUE);
-    }
-
-    @Override
-    public void onDisconnect(@NonNull Consumer<Boolean> wasCompleted) {
+    public void onDisconnect(@NonNull DisconnectCause cause,
+            @NonNull Consumer<Boolean> wasCompleted) {
         Log.i(TAG, String.format("onDisconnect: callId=[%s]", mCallId));
         wasCompleted.accept(Boolean.TRUE);
     }
