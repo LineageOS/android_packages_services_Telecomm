@@ -89,6 +89,7 @@ import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.PhoneNumberUtilsAdapterImpl;
 import com.android.server.telecom.ProximitySensorManager;
 import com.android.server.telecom.ProximitySensorManagerFactory;
+import com.android.server.telecom.Ringer;
 import com.android.server.telecom.RoleManagerAdapter;
 import com.android.server.telecom.StatusBarNotifier;
 import com.android.server.telecom.SystemStateHelper;
@@ -208,6 +209,8 @@ public class TelecomSystemTest extends TelecomTestCase {
     @Mock RoleManagerAdapter mRoleManagerAdapter;
     @Mock ToneGenerator mToneGenerator;
     @Mock DeviceIdleControllerAdapter mDeviceIdleControllerAdapter;
+
+    @Mock Ringer.AccessibilityManagerAdapter mAccessibilityManagerAdapter;
 
     final ComponentName mInCallServiceComponentNameX =
             new ComponentName(
@@ -537,7 +540,7 @@ public class TelecomSystemTest extends TelecomTestCase {
                             ContactsAsyncHelper.ContentResolverAdapter adapter) {
                         return new ContactsAsyncHelper(adapter, mHandlerThread.getLooper());
                     }
-                }, mDeviceIdleControllerAdapter);
+                }, mDeviceIdleControllerAdapter, mAccessibilityManagerAdapter);
 
         mComponentContextFixture.setTelecomManager(new TelecomManager(
                 mComponentContextFixture.getTestDouble(),
