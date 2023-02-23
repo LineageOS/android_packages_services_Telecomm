@@ -558,7 +558,8 @@ public class CallsManager extends Call.ListenerBase
             ToastFactory toastFactory,
             CallEndpointControllerFactory callEndpointControllerFactory,
             CallAnomalyWatchdog callAnomalyWatchdog,
-            Executor asyncTaskExecutor) {
+            Executor asyncTaskExecutor,
+            Ringer.AccessibilityManagerAdapter accessibilityManagerAdapter) {
         mContext = context;
         mLock = lock;
         mPhoneNumberUtilsAdapter = phoneNumberUtilsAdapter;
@@ -619,7 +620,7 @@ public class CallsManager extends Call.ListenerBase
                 ringtoneFactory, systemVibrator,
                 new Ringer.VibrationEffectProxy(), mInCallController,
                 mContext.getSystemService(NotificationManager.class),
-                mContext.getSystemService(AccessibilityManager.class));
+                accessibilityManagerAdapter);
         mCallRecordingTonePlayer = new CallRecordingTonePlayer(mContext, audioManager,
                 mTimeoutsAdapter, mLock);
         mCallAudioManager = new CallAudioManager(callAudioRouteStateMachine,
