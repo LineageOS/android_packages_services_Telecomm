@@ -2701,7 +2701,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             // hangup, not reject.
             setOverrideDisconnectCauseCode(new DisconnectCause(DisconnectCause.REJECTED));
             if (mTransactionalService != null) {
-                mTransactionalService.onReject(this, DisconnectCause.REJECTED);
+                mTransactionalService.onDisconnect(this,
+                        new DisconnectCause(DisconnectCause.REJECTED));
             } else if (mConnectionService != null) {
                 mConnectionService.disconnect(this);
             } else {
@@ -2714,7 +2715,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             mVideoStateHistory |= mVideoState;
 
             if (mTransactionalService != null) {
-                mTransactionalService.onReject(this, DisconnectCause.REJECTED);
+                mTransactionalService.onDisconnect(this,
+                        new DisconnectCause(DisconnectCause.REJECTED));
             } else if (mConnectionService != null) {
                 mConnectionService.reject(this, rejectWithMessage, textMessage);
             } else {
@@ -2737,7 +2739,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             // Since its simulated reason we can't pass along the reject reason.
             setOverrideDisconnectCauseCode(new DisconnectCause(DisconnectCause.REJECTED));
             if (mTransactionalService != null) {
-                mTransactionalService.onReject(this, DisconnectCause.REJECTED);
+                mTransactionalService.onDisconnect(this,
+                        new DisconnectCause(DisconnectCause.REJECTED));
             } else if (mConnectionService != null) {
                 mConnectionService.disconnect(this);
             } else {
@@ -2749,7 +2752,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             // Ensure video state history tracks video state at time of rejection.
             mVideoStateHistory |= mVideoState;
             if (mTransactionalService != null) {
-                mTransactionalService.onReject(this, rejectReason);
+                mTransactionalService.onDisconnect(this,
+                        new DisconnectCause(DisconnectCause.REJECTED));
             } else if (mConnectionService != null) {
                 mConnectionService.rejectWithReason(this, rejectReason);
             } else {

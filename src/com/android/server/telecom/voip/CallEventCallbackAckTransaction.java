@@ -22,6 +22,7 @@ import static android.telecom.CallException.CODE_OPERATION_TIMED_OUT;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.telecom.DisconnectCause;
 import android.util.Log;
 
 import com.android.internal.telecom.ICallEventCallback;
@@ -41,7 +42,10 @@ public class CallEventCallbackAckTransaction extends VoipCallTransaction {
     private final ICallEventCallback mICallEventCallback;
     private final String mAction;
     private final String mCallId;
-    private final int mVideoState;
+    // optional values
+    private int mVideoState = 0;
+    private DisconnectCause mDisconnectCause = null;
+
     private final VoipCallTransactionResult TRANSACTION_FAILED = new VoipCallTransactionResult(
             CODE_OPERATION_TIMED_OUT, "failed to complete the operation before timeout");
 
@@ -61,12 +65,28 @@ public class CallEventCallbackAckTransaction extends VoipCallTransaction {
         }
     }
 
+    public CallEventCallbackAckTransaction(ICallEventCallback service, String action,
+            String callId) {
+        mICallEventCallback = service;
+        mAction = action;
+        mCallId = callId;
+    }
+
+
     public CallEventCallbackAckTransaction(ICallEventCallback service, String action, String callId,
             int videoState) {
         mICallEventCallback = service;
         mAction = action;
         mCallId = callId;
         mVideoState = videoState;
+    }
+
+    public CallEventCallbackAckTransaction(ICallEventCallback service, String action, String callId,
+            DisconnectCause cause) {
+        mICallEventCallback = service;
+        mAction = action;
+        mCallId = callId;
+        mDisconnectCause = cause;
     }
 
 
@@ -82,10 +102,7 @@ public class CallEventCallbackAckTransaction extends VoipCallTransaction {
                     mICallEventCallback.onSetInactive(mCallId, receiver);
                     break;
                 case TransactionalServiceWrapper.ON_DISCONNECT:
-                    mICallEventCallback.onDisconnect(mCallId, receiver);
-                    break;
-                case TransactionalServiceWrapper.ON_REJECT:
-                    mICallEventCallback.onReject(mCallId, receiver);
+                    mICallEventCallback.onDisconnect(mCallId, mDisconnectCause, receiver);
                     break;
                 case TransactionalServiceWrapper.ON_SET_ACTIVE:
                     mICallEventCallback.onSetActive(mCallId, receiver);
