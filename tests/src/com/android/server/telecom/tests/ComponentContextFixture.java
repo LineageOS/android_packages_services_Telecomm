@@ -783,6 +783,10 @@ public class ComponentContextFixture implements TestFixture<Context> {
         return mTelephonyManager;
     }
 
+    public AudioManager getAudioManager() {
+        return mAudioManager;
+    }
+
     public CarrierConfigManager getCarrierConfigManager() {
         return mCarrierConfigManager;
     }

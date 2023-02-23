@@ -3205,9 +3205,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * @param extras Associated extras.
      */
     public void sendCallEvent(String event, int targetSdkVer, Bundle extras) {
-        if (mTransactionalService != null) {
-            Log.i(this, "sendCallEvent: called on TransactionalService. doing nothing");
-        } else if (mConnectionService != null) {
+        if (mConnectionService != null || mTransactionalService != null) {
             if (android.telecom.Call.EVENT_REQUEST_HANDOVER.equals(event)) {
                 if (targetSdkVer > Build.VERSION_CODES.P) {
                     Log.e(this, new Exception(), "sendCallEvent failed. Use public api handoverTo" +
@@ -3230,8 +3228,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 if (extras == null) {
                     Log.w(this, "sendCallEvent: %s event received with null extras.",
                             android.telecom.Call.EVENT_REQUEST_HANDOVER);
-                    mConnectionService.sendCallEvent(this,
-                            android.telecom.Call.EVENT_HANDOVER_FAILED, null);
+                    sendEventToService(this, android.telecom.Call.EVENT_HANDOVER_FAILED,
+                            null);
                     return;
                 }
                 Parcelable parcelable = extras.getParcelable(
@@ -3239,8 +3237,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 if (!(parcelable instanceof PhoneAccountHandle) || parcelable == null) {
                     Log.w(this, "sendCallEvent: %s event received with invalid handover acct.",
                             android.telecom.Call.EVENT_REQUEST_HANDOVER);
-                    mConnectionService.sendCallEvent(this,
-                            android.telecom.Call.EVENT_HANDOVER_FAILED, null);
+                    sendEventToService(this, android.telecom.Call.EVENT_HANDOVER_FAILED, null);
                     return;
                 }
                 PhoneAccountHandle phoneAccountHandle = (PhoneAccountHandle) parcelable;
@@ -3263,11 +3260,22 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                     ));
                 }
                 Log.addEvent(this, LogUtils.Events.CALL_EVENT, event);
-                mConnectionService.sendCallEvent(this, event, extras);
+                sendEventToService(this, event, extras);
             }
         } else {
             Log.e(this, new NullPointerException(),
                     "sendCallEvent failed due to null CS callId=%s", getId());
+        }
+    }
+
+    /**
+     *  This method should only be called from sendCallEvent(String, int, Bundle).
+     */
+    private void sendEventToService(Call call, String event, Bundle extras) {
+        if (mConnectionService != null) {
+            mConnectionService.sendCallEvent(call, event, extras);
+        } else if (mTransactionalService != null) {
+            mTransactionalService.onEvent(call, event, extras);
         }
     }
 

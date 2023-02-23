@@ -273,6 +273,28 @@ public class TransactionalServiceWrapper implements
                 Log.endSession();
             }
         }
+
+        /**
+         * Application would like to inform InCallServices of an event
+         */
+        @Override
+        public void sendEvent(String callId, String event, Bundle extras) {
+            try {
+                Log.startSession("TSW.sE");
+                Call call = mTrackedCalls.get(callId);
+                if (call != null) {
+                    call.onConnectionEvent(event, extras);
+                }
+                else{
+                    Log.i(TAG,
+                            "sendEvent: was called but there is no call with id=[%s] cannot be "
+                                    + "found. Most likely the call has been disconnected");
+                }
+            }
+            finally {
+                Log.endSession();
+            }
+        }
     };
 
     private void addTransactionsToManager(VoipCallTransaction transaction,
@@ -503,6 +525,15 @@ public class TransactionalServiceWrapper implements
                 mICallEventCallback.removeCallFromTransactionalServiceWrapper(call.getId());
                 // remove the call from this class/wrapper (server side)
                 untrackCall(call);
+            } catch (RemoteException e) {
+            }
+        }
+    }
+
+    public void onEvent(Call call, String event, Bundle extras){
+        if (call != null) {
+            try {
+                mICallEventCallback.onEvent(call.getId(), event, extras);
             } catch (RemoteException e) {
             }
         }
