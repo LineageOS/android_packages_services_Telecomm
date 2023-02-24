@@ -111,11 +111,11 @@ public class CallStreamingController extends CallsManagerListenerBase {
 
             if (mCallsManager.getCallStreamingController().isStreaming()) {
                 future.complete(new VoipCallTransactionResult(
-                        VoipCallTransactionResult.RESULT_SUCCEED, null));
-            } else {
-                future.complete(new VoipCallTransactionResult(
                         VoipCallTransactionResult.RESULT_FAILED,
                         "STREAMING_FAILED_ALREADY_STREAMING"));
+            } else {
+                future.complete(new VoipCallTransactionResult(
+                        VoipCallTransactionResult.RESULT_SUCCEED, null));
             }
 
             return future;

@@ -31,6 +31,7 @@ import android.os.UserManager;
 import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
 import android.telephony.AnomalyReporter;
+import android.view.accessibility.AccessibilityManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -208,7 +209,8 @@ public class TelecomSystem {
             ClockProxy clockProxy,
             RoleManagerAdapter roleManagerAdapter,
             ContactsAsyncHelper.Factory contactsAsyncHelperFactory,
-            DeviceIdleControllerAdapter deviceIdleControllerAdapter) {
+            DeviceIdleControllerAdapter deviceIdleControllerAdapter,
+            Ringer.AccessibilityManagerAdapter accessibilityManagerAdapter) {
         mContext = context.getApplicationContext();
         LogUtils.initLogging(mContext);
         AnomalyReporter.initialize(mContext);
@@ -332,6 +334,7 @@ public class TelecomSystem {
             CallAnomalyWatchdog callAnomalyWatchdog = new CallAnomalyWatchdog(
                     Executors.newSingleThreadScheduledExecutor(),
                     mLock, timeoutsAdapter, clockProxy);
+
             mCallsManager = new CallsManager(
                     mContext,
                     mLock,
@@ -364,7 +367,8 @@ public class TelecomSystem {
                     toastFactory,
                     callEndpointControllerFactory,
                     callAnomalyWatchdog,
-                    Executors.newSingleThreadExecutor());
+                    Executors.newSingleThreadExecutor(),
+                    accessibilityManagerAdapter);
 
             mIncomingCallNotifier = incomingCallNotifier;
             incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {

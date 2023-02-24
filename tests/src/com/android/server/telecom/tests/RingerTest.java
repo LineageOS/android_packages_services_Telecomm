@@ -150,7 +150,7 @@ public class RingerTest extends TelecomTestCase {
     @Mock Vibrator mockVibrator;
     @Mock InCallController mockInCallController;
     @Mock NotificationManager mockNotificationManager;
-    @Mock AccessibilityManager mockAccessibilityManager;
+    @Mock Ringer.AccessibilityManagerAdapter mockAccessibilityManagerAdapter;
 
     @Spy Ringer.VibrationEffectProxy spyVibrationEffectProxy;
 
@@ -180,13 +180,12 @@ public class RingerTest extends TelecomTestCase {
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_NORMAL);
         when(mockSystemSettingsUtil.isHapticPlaybackSupported(any(Context.class))).thenReturn(true);
         mockNotificationManager =mContext.getSystemService(NotificationManager.class);
-        mockAccessibilityManager = mContext.getSystemService(AccessibilityManager.class);
         when(mockTonePlayer.startTone()).thenReturn(true);
         when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
         when(mockRingtoneFactory.hasHapticChannels(any(Ringtone.class))).thenReturn(false);
         mRingerUnderTest = new Ringer(mockPlayerFactory, mContext, mockSystemSettingsUtil,
                 mockRingtonePlayer, mockRingtoneFactory, mockVibrator, spyVibrationEffectProxy,
-                mockInCallController, mockNotificationManager, mockAccessibilityManager);
+                mockInCallController, mockNotificationManager, mockAccessibilityManagerAdapter);
         when(mockCall1.getState()).thenReturn(CallState.RINGING);
         when(mockCall2.getState()).thenReturn(CallState.RINGING);
         when(mockCall1.getUserHandleFromTargetPhoneAccount()).thenReturn(PA_HANDLE.getUserHandle());
@@ -558,7 +557,7 @@ public class RingerTest extends TelecomTestCase {
 
         assertFalse(mRingerUnderTest.shouldRingForContact(mockCall2));
         assertFalse(mRingerUnderTest.startRinging(mockCall2, false));
-        verify(mockAccessibilityManager, never())
+        verify(mockAccessibilityManagerAdapter, never())
                 .startFlashNotificationSequence(any(Context.class), anyInt());
     }
 
@@ -573,7 +572,7 @@ public class RingerTest extends TelecomTestCase {
 
         assertTrue(mRingerUnderTest.shouldRingForContact(mockCall2));
         assertTrue(mRingerUnderTest.startRinging(mockCall2, false));
-        verify(mockAccessibilityManager, atLeastOnce())
+        verify(mockAccessibilityManagerAdapter, atLeastOnce())
                 .startFlashNotificationSequence(any(Context.class), anyInt());
     }
 
@@ -589,7 +588,7 @@ public class RingerTest extends TelecomTestCase {
         assertTrue(mRingerUnderTest.shouldRingForContact(mockCall2));
         assertTrue(mRingerUnderTest.startRinging(mockCall2, false));
         mRingerUnderTest.stopRinging();
-        verify(mockAccessibilityManager, atLeastOnce())
+        verify(mockAccessibilityManagerAdapter, atLeastOnce())
                 .stopFlashNotificationSequence(any(Context.class));
 
     }
