@@ -47,6 +47,7 @@ import com.android.server.telecom.ClockProxy;
 import com.android.server.telecom.PhoneNumberUtilsAdapter;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.ui.ToastFactory;
+import com.android.server.telecom.voip.AnswerCallTransaction;
 import com.android.server.telecom.voip.EndCallTransaction;
 import com.android.server.telecom.voip.HoldCallTransaction;
 import com.android.server.telecom.voip.IncomingCallTransaction;
@@ -152,7 +153,23 @@ public class TransactionTests extends TelecomTestCase {
 
         // THEN
         verify(mCallsManager, times(1))
-                .transactionRequestNewFocusCall(eq(mMockCall1), isA(OutcomeReceiver.class));
+                .transactionRequestNewFocusCall(eq(mMockCall1), eq(CallState.ACTIVE),
+                        isA(OutcomeReceiver.class));
+    }
+
+    @Test
+    public void testAnswerCallTransaction() throws Exception {
+        // GIVEN
+        AnswerCallTransaction transaction =
+                new AnswerCallTransaction(mCallsManager, mMockCall1, 0);
+
+        // WHEN
+        transaction.processTransaction(null);
+
+        // THEN
+        verify(mCallsManager, times(1))
+                .transactionRequestNewFocusCall(eq(mMockCall1), eq(CallState.ANSWERED),
+                        isA(OutcomeReceiver.class));
     }
 
     @Test
