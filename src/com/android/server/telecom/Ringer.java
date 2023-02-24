@@ -21,6 +21,7 @@ import static android.provider.CallLog.Calls.USER_MISSED_LOW_RING_VOLUME;
 import static android.provider.CallLog.Calls.USER_MISSED_NO_VIBRATE;
 import static android.provider.Settings.Global.ZEN_MODE_OFF;
 
+import android.annotation.NonNull;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Person;
@@ -54,20 +55,25 @@ import java.util.concurrent.TimeoutException;
  */
 @VisibleForTesting
 public class Ringer {
-  /**
-   * Flag only for local debugging. Do not submit enabled.
-   */
-  private static final boolean DEBUG_RINGER = false;
-
-  public static class VibrationEffectProxy {
-    public VibrationEffect createWaveform(long[] timings, int[] amplitudes, int repeat) {
-      return VibrationEffect.createWaveform(timings, amplitudes, repeat);
+    public interface AccessibilityManagerAdapter {
+        boolean startFlashNotificationSequence(@NonNull Context context,
+                @AccessibilityManager.FlashNotificationReason int reason);
+        boolean stopFlashNotificationSequence(@NonNull Context context);
     }
+    /**
+     * Flag only for local debugging. Do not submit enabled.
+     */
+    private static final boolean DEBUG_RINGER = false;
 
-    public VibrationEffect get(Uri ringtoneUri, Context context) {
-      return VibrationEffect.get(ringtoneUri, context);
+    public static class VibrationEffectProxy {
+        public VibrationEffect createWaveform(long[] timings, int[] amplitudes, int repeat) {
+            return VibrationEffect.createWaveform(timings, amplitudes, repeat);
+        }
+
+        public VibrationEffect get(Uri ringtoneUri, Context context) {
+            return VibrationEffect.get(ringtoneUri, context);
+        }
     }
-  }
     @VisibleForTesting
     public VibrationEffect mDefaultVibrationEffect;
 
@@ -162,7 +168,7 @@ public class Ringer {
     private RingtoneFactory mRingtoneFactory;
     private AudioManager mAudioManager;
     private NotificationManager mNotificationManager;
-    private AccessibilityManager mAccessibilityManager;
+    private AccessibilityManagerAdapter mAccessibilityManagerAdapter;
 
     /**
      * Call objects that are ringing, vibrating or call-waiting. These are used only for logging
@@ -197,7 +203,7 @@ public class Ringer {
             VibrationEffectProxy vibrationEffectProxy,
             InCallController inCallController,
             NotificationManager notificationManager,
-            AccessibilityManager accessibilityManager) {
+            AccessibilityManagerAdapter accessibilityManagerAdapter) {
 
         mLock = new Object();
         mSystemSettingsUtil = systemSettingsUtil;
@@ -211,7 +217,7 @@ public class Ringer {
         mInCallController = inCallController;
         mVibrationEffectProxy = vibrationEffectProxy;
         mNotificationManager = notificationManager;
-        mAccessibilityManager = accessibilityManager;
+        mAccessibilityManagerAdapter = accessibilityManagerAdapter;
 
         if (mContext.getResources().getBoolean(R.bool.use_simple_vibration_pattern)) {
             mDefaultVibrationEffect = mVibrationEffectProxy.createWaveform(SIMPLE_VIBRATION_PATTERN,
@@ -295,10 +301,11 @@ public class Ringer {
         stopCallWaiting();
 
         final boolean shouldFlash = attributes.shouldRingForContact();
-        if (mAccessibilityManager != null && shouldFlash) {
+        if (mAccessibilityManagerAdapter != null && shouldFlash) {
             Log.addEvent(foregroundCall, LogUtils.Events.FLASH_NOTIFICATION_START);
-            getHandler().post(() -> mAccessibilityManager.startFlashNotificationSequence(mContext,
-                    AccessibilityManager.FLASH_REASON_CALL));
+            getHandler().post(() ->
+                    mAccessibilityManagerAdapter.startFlashNotificationSequence(mContext,
+                        AccessibilityManager.FLASH_REASON_CALL));
         }
 
         // Determine if the settings and DND mode indicate that the vibrator can be used right now.
@@ -512,9 +519,10 @@ public class Ringer {
 
     public void stopRinging() {
         final Call foregroundCall = mRingingCall != null ? mRingingCall : mVibratingCall;
-        if (mAccessibilityManager != null) {
+        if (mAccessibilityManagerAdapter != null) {
             Log.addEvent(foregroundCall, LogUtils.Events.FLASH_NOTIFICATION_STOP);
-            getHandler().post(() -> mAccessibilityManager.stopFlashNotificationSequence(mContext));
+            getHandler().post(() ->
+                    mAccessibilityManagerAdapter.stopFlashNotificationSequence(mContext));
         }
 
         synchronized (mLock) {

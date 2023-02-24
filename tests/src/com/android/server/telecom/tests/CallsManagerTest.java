@@ -106,6 +106,7 @@ import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.PhoneNumberUtilsAdapter;
 import com.android.server.telecom.ProximitySensorManager;
 import com.android.server.telecom.ProximitySensorManagerFactory;
+import com.android.server.telecom.Ringer;
 import com.android.server.telecom.RoleManagerAdapter;
 import com.android.server.telecom.SystemStateHelper;
 import com.android.server.telecom.TelecomSystem;
@@ -235,6 +236,7 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private Toast mToast;
     @Mock private CallAnomalyWatchdog mCallAnomalyWatchdog;
     @Mock private AnomalyReporterAdapter mAnomalyReporterAdapter;
+    @Mock private Ringer.AccessibilityManagerAdapter mAccessibilityManagerAdapter;
 
     private CallsManager mCallsManager;
 
@@ -298,7 +300,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 mCallEndpointControllerFactory,
                 mCallAnomalyWatchdog,
                 // Just do async tasks synchronously to support testing.
-                command -> command.run());
+                command -> command.run(),
+                mAccessibilityManagerAdapter);
 
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SELF_MANAGED_HANDLE), any())).thenReturn(SELF_MANAGED_ACCOUNT);
