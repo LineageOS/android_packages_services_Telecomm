@@ -5960,18 +5960,24 @@ public class CallsManager extends Call.ListenerBase
         }
     }
 
-    // driver method to create and execute a new TransactionalFocusRequestCallback
-    public void transactionRequestNewFocusCall(Call call,
+    /**
+     * Intended for ongoing or new calls that would like to go active/answered and need to
+     * update the mConnectionSvrFocusMgr before setting the state
+     */
+    public void transactionRequestNewFocusCall(Call call, int newCallState,
             OutcomeReceiver<Boolean, CallException> callback) {
         Log.d(this, "transactionRequestNewFocusCall");
-        PendingAction pendingAction = new ActionSetCallState(call, CallState.ACTIVE,
+        PendingAction pendingAction = new ActionSetCallState(call, newCallState,
                 "transactional ActionSetCallState");
         mConnectionSvrFocusMgr
                 .requestFocus(call,
                         new TransactionalFocusRequestCallback(pendingAction, call, callback));
     }
 
-    // request a new call focus and ensure the request was successful
+    /**
+     * Request a new call focus and ensure the request was successful via an OutcomeReceiver. Also,
+     * include a PendingAction that will execute if the call focus change is successful.
+     */
     @VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
     public class TransactionalFocusRequestCallback implements
             ConnectionServiceFocusManager.RequestFocusCallback {
@@ -5990,26 +5996,18 @@ public class CallsManager extends Call.ListenerBase
         @Override
         public void onRequestFocusDone(ConnectionServiceFocusManager.CallFocus call) {
             Call currentCallFocus = (Call) mConnectionSvrFocusMgr.getCurrentFocusCall();
-
-            if (currentCallFocus == null) {
-                Log.i(this, "TransactionalFocusRequestCallback: "
-                        + "currentCallFocus is null.");
-                mCallback.onError(new CallException("currentCallFocus is null",
+            // verify the update was successful before updating the state
+            Log.i(this, "tFRC: currentCallFocus=[%s], targetFocus=[%s]",
+                    mTargetCallFocus, currentCallFocus);
+            if (currentCallFocus == null ||
+                    !currentCallFocus.getId().equals(mTargetCallFocus.getId())) {
+                mCallback.onError(new CallException("failed to switch focus to requested call",
                         CallException.CODE_CALL_CANNOT_BE_SET_TO_ACTIVE));
                 return;
             }
-
-            Log.i(this, "TransactionalFocusRequestCallback: targetId=[%s], "
-                    + "currentId=[%s]", mTargetCallFocus.getId(), currentCallFocus.getId());
-            if (!currentCallFocus.getId().equals(mTargetCallFocus.getId())) {
-                Log.i(this, "TransactionalFocusRequestCallback: "
-                        + "currentCallFocus is not equal to targetCallFocus.");
-                mCallback.onError(new CallException("current focus is not target focus",
-                        CallException.CODE_CALL_CANNOT_BE_SET_TO_ACTIVE));
-                return;
-            }
-            mPendingAction.performAction();
-            mCallback.onResult(true);
+            // at this point, we know the FocusManager is able to update successfully
+            mPendingAction.performAction(); // set the call state
+            mCallback.onResult(true); // complete the transaction
         }
     }
 
