@@ -59,15 +59,15 @@ import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.provider.BlockedNumberContract;
-import android.telecom.CallerInfo;
+import android.telecom.CallException;
 import android.telecom.CallScreeningService;
+import android.telecom.CallerInfo;
 import android.telecom.Connection;
 import android.telecom.DisconnectCause;
 import android.telecom.GatewayInfo;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
-import android.telecom.CallException;
 import android.telecom.VideoProfile;
 import android.telephony.CarrierConfigManager;
 import android.telephony.TelephonyManager;
@@ -83,9 +83,9 @@ import com.android.server.telecom.CallAnomalyWatchdog;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioRouteStateMachine;
+import com.android.server.telecom.CallDiagnosticServiceController;
 import com.android.server.telecom.CallEndpointController;
 import com.android.server.telecom.CallEndpointControllerFactory;
-import com.android.server.telecom.CallDiagnosticServiceController;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
@@ -94,6 +94,7 @@ import com.android.server.telecom.ConnectionServiceFocusManager;
 import com.android.server.telecom.ConnectionServiceFocusManager.ConnectionServiceFocusManagerFactory;
 import com.android.server.telecom.ConnectionServiceWrapper;
 import com.android.server.telecom.DefaultDialerCache;
+import com.android.server.telecom.EmergencyCallDiagnosticLogger;
 import com.android.server.telecom.EmergencyCallHelper;
 import com.android.server.telecom.HandoverState;
 import com.android.server.telecom.HeadsetMediaButton;
@@ -116,8 +117,8 @@ import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.WiredHeadsetManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
-import com.android.server.telecom.callfiltering.CallFilteringResult;
 import com.android.server.telecom.callfiltering.BlockedNumbersAdapter;
+import com.android.server.telecom.callfiltering.CallFilteringResult;
 import com.android.server.telecom.ui.AudioProcessingNotification;
 import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import com.android.server.telecom.ui.ToastFactory;
@@ -237,6 +238,8 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private ToastFactory mToastFactory;
     @Mock private Toast mToast;
     @Mock private CallAnomalyWatchdog mCallAnomalyWatchdog;
+
+    @Mock private EmergencyCallDiagnosticLogger mEmergencyCallDiagnosticLogger;
     @Mock private AnomalyReporterAdapter mAnomalyReporterAdapter;
     @Mock private Ringer.AccessibilityManagerAdapter mAccessibilityManagerAdapter;
     @Mock private BlockedNumbersAdapter mBlockedNumbersAdapter;
@@ -306,7 +309,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 // Just do async tasks synchronously to support testing.
                 command -> command.run(),
                 mBlockedNumbersAdapter,
-                TransactionManager.getTestInstance());
+                TransactionManager.getTestInstance(),
+                mEmergencyCallDiagnosticLogger);
 
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SELF_MANAGED_HANDLE), any())).thenReturn(SELF_MANAGED_ACCOUNT);
