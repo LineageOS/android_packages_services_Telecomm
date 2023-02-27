@@ -52,16 +52,16 @@
     <string name="duplicate_video_call_not_allowed" msgid="5754746140185781159">"ఈ సమయంలో కాల్‌ను జోడించడం సాధ్యపడదు."</string>
     <string name="no_vm_number" msgid="2179959110602180844">"వాయిస్ మెయిల్ నంబర్ లేదు"</string>
     <string name="no_vm_number_msg" msgid="1339245731058529388">"సిమ్ కార్డులో వాయిస్ మెయిల్ నంబర్ ఏదీ నిల్వ చేయబడలేదు."</string>
-    <string name="add_vm_number_str" msgid="5179510133063168998">"నంబర్‌ను జోడించు"</string>
+    <string name="add_vm_number_str" msgid="5179510133063168998">"నంబర్‌ను జోడించండి"</string>
     <string name="change_default_dialer_dialog_title" msgid="5861469279421508060">"<xliff:g id="NEW_APP">%s</xliff:g>ను మీ ఆటోమేటిక్ ఫోన్ యాప్‌గా చేయాలా?"</string>
     <string name="change_default_dialer_dialog_affirmative" msgid="8604665314757739550">"ఆటోమేటిక్‌గా సెట్ చేయండి"</string>
-    <string name="change_default_dialer_dialog_negative" msgid="8648669840052697821">"రద్దు చేయి"</string>
+    <string name="change_default_dialer_dialog_negative" msgid="8648669840052697821">"రద్దు చేయండి"</string>
     <string name="change_default_dialer_warning_message" msgid="8461963987376916114">"<xliff:g id="NEW_APP">%s</xliff:g> అన్ని రకాల కాల్స్‌ను చేయగలదు, సంబంధిత అన్ని అంశాలను కంట్రోల్ చేయగలదు. మీరు విశ్వసించే యాప్‌లను మాత్రమే ఆటోమేటిక్ ఫోన్ యాప్‌గా సెట్ చేయాలి."</string>
     <string name="change_default_call_screening_dialog_title" msgid="5365787219927262408">"<xliff:g id="NEW_APP">%s</xliff:g>ను మీ ఆటోమేటిక్ కాల్ స్క్రీనింగ్ యాప్‌గా సెట్ చేయాలా?"</string>
     <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="2039830033533243164">"<xliff:g id="OLD_APP">%s</xliff:g> ఇకపై స్క్రీన్ కాల్స్‌ను చేయలేదు."</string>
     <string name="change_default_call_screening_warning_message" msgid="9020537562292754269">"<xliff:g id="NEW_APP">%s</xliff:g> మీ కాంటాక్టుల్లో లేని కాలర్ల సమాచారాన్ని చూడగలుగుతుంది, అలాగే ఈ కాల్స్‌ను బ్లాక్ చేయగలుగుతుంది. మీరు విశ్వసించే యాప్‌లను మాత్రమే ఆటోమేటిక్ కాల్ స్క్రీనింగ్‌ యాప్‌గా సెట్ చేయాలి."</string>
     <string name="change_default_call_screening_dialog_affirmative" msgid="7162433828280058647">"ఆటోమేటిక్‌గా సెట్ చేయండి"</string>
-    <string name="change_default_call_screening_dialog_negative" msgid="1839266125623106342">"రద్దు చేయి"</string>
+    <string name="change_default_call_screening_dialog_negative" msgid="1839266125623106342">"రద్దు చేయండి"</string>
     <string name="blocked_numbers" msgid="8322134197039865180">"బ్లాక్ చేయబడిన నంబర్‌లు"</string>
     <string name="blocked_numbers_msg" msgid="2797422132329662697">"మీరు బ్లాక్ చేయబడిన నంబర్‌ల నుండి కాల్స్‌ లేదా వచన మెసేజ్‌లను స్వీకరించరు."</string>
     <string name="block_number" msgid="3784343046852802722">"నంబర్‌ను జోడించండి"</string>
@@ -74,7 +74,7 @@
     <string name="delete_icon_description" msgid="5335959254954774373">"అన్‌బ్లాక్ చేస్తుంది"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="582982373755950791">"బ్లాకింగ్ తాత్కాలికంగా ఆఫ్ చేయబడింది"</string>
     <string name="blocked_numbers_butter_bar_body" msgid="1261213114919301485">"మీరు అత్యవసర నంబర్‌కి డయల్ చేసాక లేదా వచన మెసేజ్‌ పంపాక, అత్యవసర సేవలు తిరిగి మిమ్మల్ని సంప్రదించగలిగేలా చేయడానికి బ్లాకింగ్ ఆఫ్ చేయబడుతుంది."</string>
-    <string name="blocked_numbers_butter_bar_button" msgid="2704456308072489793">"ఇప్పుడే మళ్లీ ప్రారంభించు"</string>
+    <string name="blocked_numbers_butter_bar_button" msgid="2704456308072489793">"ఇప్పుడే మళ్లీ ప్రారంభించండి"</string>
     <string name="blocked_numbers_number_blocked_message" msgid="4314736791180919167">"<xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g> బ్లాక్ చేయబడింది"</string>
     <string name="blocked_numbers_number_unblocked_message" msgid="2933071624674945601">"<xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g> అన్‌బ్లాక్ చేయబడింది"</string>
     <string name="blocked_numbers_block_emergency_number_message" msgid="4198550501500893890">"అత్యవసర నంబర్‌ను బ్లాక్ చేయడం సాధ్యపడలేదు."</string>
