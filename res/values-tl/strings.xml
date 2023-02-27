@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Nadiskonekta ang tawag kay <xliff:g id="CALLER">%s</xliff:g> dahil sa ginagawang pang-emergency na tawag."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Nadiskonekta ang iyong tawag dahil sa ginagawang pang-emergency na tawag."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Tawag sa background"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"Naglagay ng tawag ang <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> sa background. Posibleng ina-access at pine-play ng app na ito ang audio sa tawag."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"Pinoproseso ng <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ang isang tawag sa background. Posibleng ina-access at pine-play ng app na ito ang audio sa tawag."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"Huminto ang <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> sa pagtugon"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Ginamit ng tawag mo ang app na telepono na kasama sa iyong device"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Naka-mute ang tawag."</string>

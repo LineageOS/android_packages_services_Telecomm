@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"ہنگامی کال کی وجہ سے <xliff:g id="CALLER">%s</xliff:g> کی کال کو غیر منسلک کر دیا گیا ہے۔"</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"ہنگامی کال لگائے جانے کی وجہ سے آپ کی کال غیر منسلک ہوگئی ہے۔"</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"پس منظر کی کال"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> نے پس منظر میں کال لگا دیا ہے۔ یہ ایپ کال کے دوران آواز تک رسائی حاصل اور چلا سکتی ہے۔"</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> پس منظر میں کال پر کارروائی کر رہی ہے۔ یہ ایپ کال کے دوران آواز تک رسائی حاصل اور چلا سکتی ہے۔"</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> نے جواب دینا بند کر دیا"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"آپ کی کال نے آپ کے آلہ کے ساتھ آئی ہوئی فون ایپ کا استعمال کیا"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"کال خاموش کر دی گئی۔"</string>
