@@ -269,7 +269,8 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
                 mockStatusBarNotifier,
                 mAudioServiceFactory,
                 mParams.earpieceControl,
-                mHandlerThread.getLooper());
+                mHandlerThread.getLooper(),
+                Runnable::run /** do async stuff sync for test purposes */);
         stateMachine.setCallAudioManager(mockCallAudioManager);
 
         setupMocksForParams(stateMachine, mParams);
@@ -365,7 +366,8 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
                 mockStatusBarNotifier,
                 mAudioServiceFactory,
                 mParams.earpieceControl,
-                mHandlerThread.getLooper());
+                mHandlerThread.getLooper(),
+                Runnable::run /** do async stuff sync for test purposes */);
         stateMachine.setCallAudioManager(mockCallAudioManager);
 
         // Set up bluetooth and speakerphone state
