@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -311,7 +312,7 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
                 break;
             case ON:
                 if (mParams.expectedBluetoothDevice == null) {
-                    verify(mockBluetoothRouteManager).connectBluetoothAudio(null);
+                    verify(mockBluetoothRouteManager, atLeastOnce()).connectBluetoothAudio(null);
                 } else {
                     verify(mockBluetoothRouteManager).connectBluetoothAudio(
                             mParams.expectedBluetoothDevice.getAddress());

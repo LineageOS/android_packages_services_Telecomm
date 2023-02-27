@@ -189,7 +189,9 @@ public class BluetoothDeviceManager {
     private boolean mLeAudioSetAsCommunicationDevice = false;
     private String mLeAudioDevice;
     private String mHearingAidDevice;
+    private String mScoDevice;
     private boolean mHearingAidSetAsCommunicationDevice = false;
+    private boolean mScoSetAsCommunicationDevice = false;
     private BluetoothDevice mBluetoothHearingAidActiveDeviceCache;
     private BluetoothAdapter mBluetoothAdapter;
     private AudioManager mAudioManager;
@@ -398,12 +400,13 @@ public class BluetoothDeviceManager {
     }
 
     public void disconnectAudio() {
-        disconnectSco();
+        disconnectScoAudio();
         clearLeAudioCommunicationDevice();
         clearHearingAidCommunicationDevice();
     }
 
-    public void disconnectSco() {
+    public void disconnectScoAudio() {
+        clearScoAudioCommunicationDevice();
         if (mBluetoothHeadset == null) {
             Log.w(this, "Trying to disconnect audio but no headset service exists.");
         } else {
@@ -417,6 +420,10 @@ public class BluetoothDeviceManager {
 
     public boolean isHearingAidSetAsCommunicationDevice() {
         return mHearingAidSetAsCommunicationDevice;
+    }
+
+    public boolean isScoSetAsCommunicationDevice() {
+        return mScoSetAsCommunicationDevice;
     }
 
     public void clearLeAudioCommunicationDevice() {
@@ -468,41 +475,73 @@ public class BluetoothDeviceManager {
         }
     }
 
-    public boolean setLeAudioCommunicationDevice() {
+    public void clearScoAudioCommunicationDevice() {
+        Log.i(this, "clearScoCommunicationDevice: mScoSetAsCommunicationDevice = "
+                + mScoSetAsCommunicationDevice);
+        if (!mScoSetAsCommunicationDevice) {
+            return;
+        }
+        mScoSetAsCommunicationDevice = false;
+        if (mScoDevice != null) {
+            mBluetoothRouteManager.onAudioLost(mScoDevice);
+            mScoDevice = null;
+        }
+
+        if (mAudioManager == null) {
+            Log.i(this, "clearScoCommunicationDevice: mAudioManager is null");
+            return;
+        }
+
+        AudioDeviceInfo audioDeviceInfo = mAudioManager.getCommunicationDevice();
+        if (audioDeviceInfo != null && audioDeviceInfo.getType()
+                == AudioDeviceInfo.TYPE_BLUETOOTH_SCO) {
+            mAudioManager.clearCommunicationDevice();
+        }
+    }
+
+    public boolean setLeAudioCommunicationDevice(BluetoothDevice leAudioDevice) {
         Log.i(this, "setLeAudioCommunicationDevice");
 
-        if (mLeAudioSetAsCommunicationDevice) {
-            Log.i(this, "setLeAudioCommunicationDevice already set");
+        // Ensure that the device being set isn't one we have set already.
+        if (mLeAudioSetAsCommunicationDevice && leAudioDevice.getAddress().equals(mLeAudioDevice)) {
+            Log.i(this, "No change in LE audio device.");
             return true;
         }
 
         if (mAudioManager == null) {
-            Log.w(this, " mAudioManager is null");
+            Log.w(this, "mAudioManager is null");
             return false;
         }
 
         AudioDeviceInfo bleHeadset = null;
         List<AudioDeviceInfo> devices = mAudioManager.getAvailableCommunicationDevices();
         if (devices.size() == 0) {
-            Log.w(this, " No communication devices available.");
+            Log.w(this, "No communication devices available.");
             return false;
         }
 
         for (AudioDeviceInfo device : devices) {
             Log.i(this, " Available device type:  " + device.getType());
-            if (device.getType() == AudioDeviceInfo.TYPE_BLE_HEADSET) {
+            // Make sure we find a device that hasn't been set already.
+            if (device.getType() == AudioDeviceInfo.TYPE_BLE_HEADSET
+                    && !device.getAddress().equals(mLeAudioDevice)) {
                 bleHeadset = device;
                 break;
             }
         }
 
         if (bleHeadset == null) {
-            Log.w(this, " No bleHeadset device available");
+            Log.w(this, "No bleHeadset device available");
             return false;
         }
 
-        // clear hearing aid communication device if set
+        // Clear hearing aid or SCO communication device if set
         clearHearingAidCommunicationDevice();
+        clearScoAudioCommunicationDevice();
+        // Check if another LE audio device was set as the communication device already and clear it
+        if (mLeAudioDevice != null) {
+            clearLeAudioCommunicationDevice();
+        }
 
         // Turn BLE_OUT_HEADSET ON.
         boolean result = mAudioManager.setCommunicationDevice(bleHeadset);
@@ -526,19 +565,19 @@ public class BluetoothDeviceManager {
         }
 
         if (mAudioManager == null) {
-            Log.w(this, " mAudioManager is null");
+            Log.w(this, "mAudioManager is null");
             return false;
         }
 
         AudioDeviceInfo hearingAid = null;
         List<AudioDeviceInfo> devices = mAudioManager.getAvailableCommunicationDevices();
         if (devices.size() == 0) {
-            Log.w(this, " No communication devices available.");
+            Log.w(this, "No communication devices available.");
             return false;
         }
 
         for (AudioDeviceInfo device : devices) {
-            Log.i(this, " Available device type:  " + device.getType());
+            Log.i(this, "Available device type:  " + device.getType());
             if (device.getType() == AudioDeviceInfo.TYPE_HEARING_AID) {
                 hearingAid = device;
                 break;
@@ -546,23 +585,72 @@ public class BluetoothDeviceManager {
         }
 
         if (hearingAid == null) {
-            Log.w(this, " No hearingAid device available");
+            Log.w(this, "No hearingAid device available");
             return false;
         }
 
-        // clear LE audio communication device if set
+        // clear LE or SCO audio communication device if set
         clearLeAudioCommunicationDevice();
+        clearScoAudioCommunicationDevice();
 
         // Turn hearing aid ON.
         boolean result = mAudioManager.setCommunicationDevice(hearingAid);
         if (!result) {
-            Log.w(this, " Could not set hearingAid device");
+            Log.w(this, "Could not set hearingAid device");
         } else {
-            Log.i(this, " hearingAid device set");
+            Log.i(this, "hearingAid device set");
             mHearingAidDevice = hearingAid.getAddress();
             mHearingAidSetAsCommunicationDevice = true;
         }
         return result;
+    }
+
+    public boolean setScoAudioCommunicationDevice() {
+        Log.i(this, "setScoCommunicationDevice");
+
+        if (mScoSetAsCommunicationDevice) {
+            Log.i(this, "mScoSetAsCommunicationDevice already set");
+            return true;
+        }
+
+        if (mAudioManager == null) {
+            Log.w(this, "mAudioManager is null");
+            return false;
+        }
+
+        AudioDeviceInfo scoAudio = null;
+        List<AudioDeviceInfo> devices = mAudioManager.getAvailableCommunicationDevices();
+        if (devices.size() == 0) {
+            Log.w(this, "No communication devices available.");
+            return false;
+        }
+
+        for (AudioDeviceInfo device : devices) {
+            Log.i(this, "Available device type:  " + device.getType());
+            if (device.getType() == AudioDeviceInfo.TYPE_BLUETOOTH_SCO) {
+                scoAudio = device;
+                break;
+            }
+        }
+
+        if (scoAudio == null) {
+            Log.w(this, "No scoAudio device available");
+            return false;
+        }
+
+        // clear LE or hearing aid audio communication device if set
+        clearLeAudioCommunicationDevice();
+        clearHearingAidCommunicationDevice();
+
+        // Set SCO communication device.
+        boolean result = mAudioManager.setCommunicationDevice(scoAudio);
+        if (!result) {
+            Log.w(this, "Could not set scoAudio device");
+            return false;
+        }
+        mScoSetAsCommunicationDevice = true;
+        mScoDevice = scoAudio.getAddress();
+        return true;
     }
 
     // Connect audio to the bluetooth device at address, checking to see whether it's
@@ -578,10 +666,11 @@ public class BluetoothDeviceManager {
                     device, BluetoothAdapter.ACTIVE_DEVICE_ALL)) {
 
                 /* ACTION_ACTIVE_DEVICE_CHANGED intent will trigger setting communication device.
-                 * Only after receiving ACTION_ACTIVE_DEVICE_CHANGED it is known that device that
-                 * will be audio switched to is available to be choose as communication device */
+                 * Only after receiving ACTION_ACTIVE_DEVICE_CHANGED is it known that the device
+                 * that will be audio switched to is available to be chosen as communication device.
+                 */
                 if (!switchingBtDevices) {
-                    return setLeAudioCommunicationDevice();
+                    return setLeAudioCommunicationDevice(device);
                 }
 
                 return true;
@@ -597,8 +686,9 @@ public class BluetoothDeviceManager {
                     BluetoothAdapter.ACTIVE_DEVICE_ALL)) {
 
                 /* ACTION_ACTIVE_DEVICE_CHANGED intent will trigger setting communication device.
-                 * Only after receiving ACTION_ACTIVE_DEVICE_CHANGED it is known that device that
-                 * will be audio switched to is available to be choose as communication device */
+                 * Only after receiving ACTION_ACTIVE_DEVICE_CHANGED is it known that the device
+                 * that will be audio switched to is available to be chosen as communication device.
+                 */
                 if (!switchingBtDevices) {
                     return setHearingAidCommunicationDevice();
                 }
@@ -613,14 +703,29 @@ public class BluetoothDeviceManager {
                 return false;
             }
             boolean success = mBluetoothAdapter.setActiveDevice(device,
-                BluetoothAdapter.ACTIVE_DEVICE_PHONE_CALL);
+                    BluetoothAdapter.ACTIVE_DEVICE_PHONE_CALL);
             if (!success) {
                 Log.w(this, "Couldn't set active device to %s", address);
                 return false;
             }
+            /* ACTION_ACTIVE_DEVICE_CHANGED intent will trigger setting communication device.
+             * Only after receiving ACTION_ACTIVE_DEVICE_CHANGED is it known that the device that
+             * will be audio switched to is available to be chosen as communication device.
+             */
+            if (!switchingBtDevices && !setScoAudioCommunicationDevice()) {
+                // If the communication device cannot be set, we should not try connecting the SCO
+                // audio device
+                return false;
+            }
             int scoConnectionRequest = mBluetoothHeadset.connectAudio();
-            return scoConnectionRequest == BluetoothStatusCodes.SUCCESS ||
-                scoConnectionRequest == BluetoothStatusCodes.ERROR_AUDIO_DEVICE_ALREADY_CONNECTED;
+            boolean scoSuccessfulConnection = scoConnectionRequest ==
+                    BluetoothStatusCodes.SUCCESS || scoConnectionRequest ==
+                    BluetoothStatusCodes.ERROR_AUDIO_DEVICE_ALREADY_CONNECTED;
+            if (!scoSuccessfulConnection) {
+                // Clear communication device if we're unable to connect to BT headset audio
+                clearScoAudioCommunicationDevice();
+            }
+            return scoSuccessfulConnection;
         } else {
             Log.w(this, "Attempting to turn on audio for a disconnected device");
             return false;

@@ -630,6 +630,9 @@ public class BluetoothRouteManager extends StateMachine {
             }
         } else if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_HEADSET) {
             mHfpActiveDeviceCache = device;
+            if (device == null) {
+                mDeviceManager.clearScoAudioCommunicationDevice();
+            }
         } else {
             return;
         }
@@ -783,17 +786,19 @@ public class BluetoothRouteManager extends StateMachine {
 
         int activeDevices = 0;
         if (bluetoothHeadset != null) {
-            for (BluetoothDevice device : bluetoothAdapter.getActiveDevices(
-                        BluetoothProfile.HEADSET)) {
-                hfpAudioOnDevice = device;
-                break;
-            }
-
-            if (hfpAudioOnDevice != null && bluetoothHeadset.getAudioState(hfpAudioOnDevice)
-                    == BluetoothHeadset.STATE_AUDIO_DISCONNECTED) {
-                hfpAudioOnDevice = null;
-            } else {
-                activeDevices++;
+            /* We can have a case where we have an active headset device but neither
+               BluetoothDeviceManager#connectAudio nor
+               BluetoothStateReceiver#handleActiveDeviceChanged have been called to set the
+               communication device. In this case, we should count the active device and try to set
+               the communication device.
+            */
+            if (mDeviceManager.isScoSetAsCommunicationDevice() ||
+                    bluetoothAdapter.getActiveDevices(BluetoothProfile.HEADSET) != null) {
+                mDeviceManager.setScoAudioCommunicationDevice();
+                hfpAudioOnDevice = getHfpAudioOnDevice(bluetoothAdapter, bluetoothHeadset);
+                if (hfpAudioOnDevice != null) {
+                    activeDevices++;
+                }
             }
         }
 
@@ -842,6 +847,21 @@ public class BluetoothRouteManager extends StateMachine {
         return hfpAudioOnDevice;
     }
 
+    private BluetoothDevice getHfpAudioOnDevice(BluetoothAdapter bluetoothAdapter,
+            BluetoothHeadset bluetoothHeadset) {
+        BluetoothDevice hfpAudioOnDevice = null;
+        for (BluetoothDevice device : bluetoothAdapter.getActiveDevices(
+                BluetoothProfile.HEADSET)) {
+            hfpAudioOnDevice = device;
+            break;
+        }
+
+        if (hfpAudioOnDevice != null && bluetoothHeadset.getAudioState(hfpAudioOnDevice)
+                == BluetoothHeadset.STATE_AUDIO_DISCONNECTED) {
+            hfpAudioOnDevice = null;
+        }
+        return hfpAudioOnDevice;
+    }
     /**
      * Check if in-band ringing is currently enabled. In-band ringing could be disabled during an
      * active connection.

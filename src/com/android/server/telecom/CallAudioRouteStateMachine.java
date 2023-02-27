@@ -47,6 +47,7 @@ import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -234,6 +235,9 @@ public class CallAudioRouteStateMachine extends StateMachine {
 
     public static final String NAME = CallAudioRouteStateMachine.class.getName();
 
+    private boolean mActiveEarpieceSetAsCommunicationDevice = false;
+    private boolean mActiveHeadsetSetAsCommunicationDevice = false;
+
     @Override
     protected void onPreHandleMessage(Message msg) {
         if (msg.obj != null && msg.obj instanceof SomeArgs) {
@@ -371,6 +375,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
         public void enter() {
             super.enter();
             setSpeakerphoneOn(false);
+            setActiveEarpieceCommunicationDevice();
             CallAudioState newState = new CallAudioState(mIsMuted, ROUTE_EARPIECE,
                     mAvailableRoutes, null,
                     mBluetoothRouteManager.getConnectedDevices());
@@ -401,6 +406,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 case SWITCH_BLUETOOTH:
                 case USER_SWITCH_BLUETOOTH:
                     if ((mAvailableRoutes & ROUTE_BLUETOOTH) != 0) {
+                        clearActiveEarpieceCommunicationDevice();
                         if (mAudioFocusType == ACTIVE_FOCUS
                                 || mBluetoothRouteManager.isInbandRingingEnabled()) {
                             String address = (msg.obj instanceof SomeArgs) ?
@@ -417,6 +423,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 case SWITCH_HEADSET:
                 case USER_SWITCH_HEADSET:
                     if ((mAvailableRoutes & ROUTE_WIRED_HEADSET) != 0) {
+                        clearActiveEarpieceCommunicationDevice();
                         transitionTo(mActiveHeadsetRoute);
                     } else {
                         Log.w(this, "Ignoring switch to headset command. Not available.");
@@ -426,6 +433,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     // fall through; we want to switch to speaker mode when docked and in a call.
                 case SWITCH_SPEAKER:
                 case USER_SWITCH_SPEAKER:
+                    clearActiveEarpieceCommunicationDevice();
                     setSpeakerphoneOn(true);
                     // fall through
                 case SPEAKER_ON:
@@ -579,6 +587,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
         public void enter() {
             super.enter();
             setSpeakerphoneOn(false);
+            setActiveHeadsetCommunicationDevice();
             CallAudioState newState = new CallAudioState(mIsMuted, ROUTE_WIRED_HEADSET,
                     mAvailableRoutes, null, mBluetoothRouteManager.getConnectedDevices());
             setSystemAudioState(newState, true);
@@ -600,6 +609,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 case SWITCH_EARPIECE:
                 case USER_SWITCH_EARPIECE:
                     if ((mAvailableRoutes & ROUTE_EARPIECE) != 0) {
+                        clearActiveHeadsetCommunicationDevice();
                         transitionTo(mActiveEarpieceRoute);
                     } else {
                         Log.w(this, "Ignoring switch to earpiece command. Not available.");
@@ -615,6 +625,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                                 || mBluetoothRouteManager.isInbandRingingEnabled()) {
                             String address = (msg.obj instanceof SomeArgs) ?
                                     (String) ((SomeArgs) msg.obj).arg2 : null;
+                            clearActiveHeadsetCommunicationDevice();
                             // Omit transition to ActiveBluetoothRoute until actual connection.
                             setBluetoothOn(address);
                         } else {
@@ -631,6 +642,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     return HANDLED;
                 case SWITCH_SPEAKER:
                 case USER_SWITCH_SPEAKER:
+                    clearActiveHeadsetCommunicationDevice();
                     setSpeakerphoneOn(true);
                     // fall through
                 case SPEAKER_ON:
@@ -793,6 +805,12 @@ public class CallAudioRouteStateMachine extends StateMachine {
         public void enter() {
             super.enter();
             setSpeakerphoneOn(false);
+            // Try arbitrarily connecting to BT audio if we haven't already. This handles
+            // the edge case of when the audio route is in a quiescent route while in-call and
+            // the BT connection fails to be set. Previously, the logic was to setBluetoothOn in
+            // ACTIVE_FOCUS but the route would still remain in a quiescent route, so instead we
+            // should be transitioning directly into the active route.
+            setBluetoothOn(null);
             CallAudioState newState = new CallAudioState(mIsMuted, ROUTE_BLUETOOTH,
                     mAvailableRoutes, mBluetoothRouteManager.getBluetoothAudioConnectedDevice(),
                     mBluetoothRouteManager.getConnectedDevices());
@@ -1065,7 +1083,9 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     return HANDLED;
                 case SWITCH_FOCUS:
                     if (msg.arg1 == ACTIVE_FOCUS) {
-                        setBluetoothOn(null);
+                        // It is possible that the connection to BT will fail while in-call, in
+                        // which case, we want to transition into the active route.
+                        transitionTo(mActiveBluetoothRoute);
                     } else if (msg.arg1 == RINGING_FOCUS) {
                         if (mBluetoothRouteManager.isInbandRingingEnabled()) {
                             setBluetoothOn(null);
@@ -1786,6 +1806,119 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 Log.i(this, "disconnecting bluetooth audio");
                 mBluetoothRouteManager.disconnectBluetoothAudio();
             }
+        }
+    }
+
+    private void setActiveHeadsetCommunicationDevice() {
+        Log.i(this, "setActiveHeadsetCommunicationDevice");
+
+        if (mActiveHeadsetSetAsCommunicationDevice) {
+            Log.i(this, "mActiveHeadsetSetAsCommunicationDevice already set");
+            return;
+        }
+
+        AudioDeviceInfo activeHeadset = null;
+        List<AudioDeviceInfo> devices = mAudioManager.getAvailableCommunicationDevices();
+        if (devices.size() == 0) {
+            Log.w(this, "No communication devices available.");
+            return;
+        }
+
+        for (AudioDeviceInfo device : devices) {
+            Log.i(this, "Available device type: " + device.getType());
+            if (device.getType() == AudioDeviceInfo.TYPE_WIRED_HEADSET
+                    || device.getType() == AudioDeviceInfo.TYPE_USB_HEADSET) {
+                activeHeadset = device;
+                break;
+            }
+        }
+
+        if (activeHeadset == null) {
+            Log.w(this, "No activeHeadset device available");
+            return;
+        }
+
+
+        // Turn TYPE_WIRED_HEADSET ON.
+        boolean result = mAudioManager.setCommunicationDevice(activeHeadset);
+        if (!result) {
+            Log.w(this, "Could not set activeHeadset device");
+        } else {
+            Log.i(this, "activeHeadset device set");
+            mActiveHeadsetSetAsCommunicationDevice = true;
+        }
+    }
+
+    private void setActiveEarpieceCommunicationDevice() {
+        Log.i(this, "setActiveEarpieceCommunicationDevice");
+
+        if (mActiveEarpieceSetAsCommunicationDevice) {
+            Log.i(this, "mActiveEarpieceSetAsCommunicationDevice already set");
+            return;
+        }
+
+        AudioDeviceInfo activeEarpiece = null;
+        List<AudioDeviceInfo> devices = mAudioManager.getAvailableCommunicationDevices();
+        if (devices.size() == 0) {
+            Log.w(this, "No communication devices available.");
+            return;
+        }
+
+        for (AudioDeviceInfo device : devices) {
+            Log.i(this, "Available device type: " + device.getType());
+            if (device.getType() == AudioDeviceInfo.TYPE_BUILTIN_EARPIECE) {
+                activeEarpiece = device;
+                break;
+            }
+        }
+
+        if (activeEarpiece == null) {
+            Log.w(this, "No active earpiece device available");
+            return;
+        }
+
+        // Turn TYPE_BUILTIN_EARPIECE ON.
+        boolean result = mAudioManager.setCommunicationDevice(activeEarpiece);
+        if (!result) {
+            Log.w(this, "Could not set active earpiece device");
+        } else {
+            Log.i(this, "Active earpiece device set");
+            mActiveEarpieceSetAsCommunicationDevice = true;
+        }
+    }
+
+    public void clearActiveEarpieceCommunicationDevice() {
+        Log.i(this, "clearActiveEarpieceCommunicationDevice:" +
+                "mActiveEarpieceSetAsCommunicationDevice = " +
+                mActiveEarpieceSetAsCommunicationDevice);
+
+        if (!mActiveEarpieceSetAsCommunicationDevice) {
+            return;
+        }
+        mActiveEarpieceSetAsCommunicationDevice = false;
+
+        AudioDeviceInfo audioDeviceInfo = mAudioManager.getCommunicationDevice();
+        if (audioDeviceInfo != null && audioDeviceInfo.getType()
+                == AudioDeviceInfo.TYPE_BUILTIN_EARPIECE) {
+            mAudioManager.clearCommunicationDevice();
+        }
+    }
+
+    public void clearActiveHeadsetCommunicationDevice() {
+        Log.i(this, "clearActiveHeadsetCommunicationDevice:" +
+                "mActiveHeadsetSetAsCommunicationDevice = " +
+                mActiveHeadsetSetAsCommunicationDevice);
+
+        if (!mActiveHeadsetSetAsCommunicationDevice) {
+            return;
+        }
+        mActiveHeadsetSetAsCommunicationDevice = false;
+
+        AudioDeviceInfo audioDeviceInfo = mAudioManager.getCommunicationDevice();
+        if (audioDeviceInfo != null && (audioDeviceInfo.getType()
+                == AudioDeviceInfo.TYPE_WIRED_HEADSET
+                || audioDeviceInfo.getType() == AudioDeviceInfo.TYPE_USB_HEADSET)) {
+            mAudioManager.clearCommunicationDevice();
         }
     }
 
