@@ -554,6 +554,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     return HANDLED;
                 case STREAMING_FORCE_ENABLED:
                     transitionTo(mStreamingState);
+                    return HANDLED;
                 default:
                     return NOT_HANDLED;
             }
