@@ -177,7 +177,7 @@ public class CallStreamingController extends CallsManagerListenerBase {
             CompletableFuture<VoipCallTransactionResult> future = new CompletableFuture<>();
 
             RoleManager roleManager = mContext.getSystemService(RoleManager.class);
-            PackageManager packageManager = mContext.getSystemService(PackageManager.class);
+            PackageManager packageManager = mContext.getPackageManager();
             if (roleManager == null || packageManager == null) {
                 Log.e(TAG, "Can't find system service");
                 future.complete(new VoipCallTransactionResult(
