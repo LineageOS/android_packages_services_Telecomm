@@ -2600,8 +2600,17 @@ public class InCallController extends CallsManagerListenerBase implements
 
     private UserHandle getUserFromCall(Call call) {
         // Call may never be specified, so we can fall back to using the CallManager current user.
-        return call == null
-                ? mCallsManager.getCurrentUserHandle()
-                : call.getUserHandleFromTargetPhoneAccount();
+        if (call == null) {
+            return mCallsManager.getCurrentUserHandle();
+        } else {
+            UserHandle userFromCall = call.getUserHandleFromTargetPhoneAccount();
+            UserManager userManager = mContext.getSystemService(UserManager.class);
+            // Emergency call should never be blocked, so if the user associated with call is in
+            // quite mode, use the primary user for the emergency call.
+            if (call.isEmergencyCall() && userManager.isQuietModeEnabled(userFromCall)) {
+                return mCallsManager.getCurrentUserHandle();
+            }
+            return userFromCall;
+        }
     }
 }
