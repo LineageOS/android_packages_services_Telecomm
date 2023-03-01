@@ -1667,6 +1667,23 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         }
     }
 
+    /**
+     * Ensure an IllegalArgumentException is thrown when providing a SubscriptionAddress that
+     * exceeds the PhoneAccountRegistrar limit.
+     */
+    @Test
+    public void testLimitOnSubscriptionAddress() throws Exception {
+        String text = "a".repeat(100);
+        PhoneAccount.Builder builder =  new PhoneAccount.Builder(makeQuickAccountHandle(TEST_ID),
+                TEST_LABEL).setSubscriptionAddress(Uri.fromParts(text, text, text));
+        try {
+            mRegistrar.enforceCharacterLimit(builder.build());
+            fail("failed to throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // pass test
+        }
+    }
+
     private static PhoneAccount.Builder makeBuilderWithBindCapabilities(PhoneAccountHandle handle) {
         return new PhoneAccount.Builder(handle, TEST_LABEL)
                 .setCapabilities(PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS);
