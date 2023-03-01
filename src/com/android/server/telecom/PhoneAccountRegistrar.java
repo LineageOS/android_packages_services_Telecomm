@@ -962,18 +962,20 @@ public class PhoneAccountRegistrar {
 
         String[] fields =
                 {"Package Name", "Class Name", "PhoneAccountHandle Id", "Label", "ShortDescription",
-                        "GroupId", "Address"};
+                        "GroupId", "Address", "SubscriptionAddress"};
         CharSequence[] args = {handle.getComponentName().getPackageName(),
                 handle.getComponentName().getClassName(), handle.getId(), account.getLabel(),
                 account.getShortDescription(), account.getGroupId(),
-                (account.getAddress() != null ? account.getAddress().toString() : "")};
+                (account.getAddress() != null ? account.getAddress().toString() : ""),
+                (account.getSubscriptionAddress() != null ?
+                        account.getSubscriptionAddress().toString() : "")};
 
         for (int i = 0; i < fields.length; i++) {
             if (args[i] != null && args[i].length() > MAX_PHONE_ACCOUNT_FIELD_CHAR_LIMIT) {
                 EventLog.writeEvent(0x534e4554, "259064622", Binder.getCallingUid(),
                         "enforceCharacterLimit");
-                throw new IllegalArgumentException("The PhoneAccount or PhoneAccountHandle"
-                        + fields[i] + " field has an invalid character count. PhoneAccount and "
+                throw new IllegalArgumentException("The PhoneAccount or PhoneAccountHandle ["
+                        + fields[i] + "] field has an invalid character count. PhoneAccount and "
                         + "PhoneAccountHandle String and Char-Sequence fields are limited to "
                         + MAX_PHONE_ACCOUNT_FIELD_CHAR_LIMIT + " characters.");
             }
