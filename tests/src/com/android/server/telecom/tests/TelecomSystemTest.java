@@ -113,6 +113,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -512,7 +513,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                             WiredHeadsetManager wiredHeadsetManager,
                             StatusBarNotifier statusBarNotifier,
                             CallAudioManager.AudioServiceFactory audioServiceFactory,
-                            int earpieceControl) {
+                            int earpieceControl,
+                            Executor asyncTaskExecutor) {
                         return new CallAudioRouteStateMachine(context,
                                 callsManager,
                                 bluetoothManager,
@@ -521,7 +523,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                                 audioServiceFactory,
                                 // Force enable an earpiece for the end-to-end tests
                                 CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED,
-                                mHandlerThread.getLooper());
+                                mHandlerThread.getLooper(),
+                                Runnable::run /* async tasks as now sync for testing! */);
                     }
                 },
                 new CallAudioModeStateMachine.Factory() {
@@ -540,7 +543,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                             ContactsAsyncHelper.ContentResolverAdapter adapter) {
                         return new ContactsAsyncHelper(adapter, mHandlerThread.getLooper());
                     }
-                }, mDeviceIdleControllerAdapter, mAccessibilityManagerAdapter);
+                }, mDeviceIdleControllerAdapter, mAccessibilityManagerAdapter,
+                Runnable::run);
 
         mComponentContextFixture.setTelecomManager(new TelecomManager(
                 mComponentContextFixture.getTestDouble(),
