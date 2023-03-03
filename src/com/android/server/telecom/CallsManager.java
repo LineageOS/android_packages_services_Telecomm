@@ -734,8 +734,7 @@ public class CallsManager extends Call.ListenerBase
 
     @Override
     public void onFailedOutgoingCall(Call call, DisconnectCause disconnectCause) {
-        Log.v(this, "onFailedOutgoingCall, call: %s", call);
-
+        Log.i(this, "onFailedOutgoingCall for call %s", call);
         markCallAsRemoved(call);
     }
 
@@ -990,14 +989,15 @@ public class CallsManager extends Call.ListenerBase
 
     @Override
     public void onFailedIncomingCall(Call call) {
+        Log.i(this, "onFailedIncomingCall for call %s", call);
         setCallState(call, CallState.DISCONNECTED, "failed incoming call");
         call.removeListener(this);
     }
 
     @Override
     public void onSuccessfulUnknownCall(Call call, int callState) {
-        setCallState(call, callState, "successful unknown call");
         Log.i(this, "onSuccessfulUnknownCall for call %s", call);
+        setCallState(call, callState, "successful unknown call");
         addCall(call);
     }
 
