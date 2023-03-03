@@ -20,6 +20,7 @@ import static android.provider.Settings.Global.ZEN_MODE_IMPORTANT_INTERRUPTIONS;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -44,6 +45,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -591,6 +593,20 @@ public class RingerTest extends TelecomTestCase {
         verify(mockAccessibilityManagerAdapter, atLeastOnce())
                 .stopFlashNotificationSequence(any(Context.class));
 
+    }
+
+    @SmallTest
+    @Test
+    public void testNoRingingForQuietProfile() {
+        UserManager um = mContext.getSystemService(UserManager.class);
+        when(um.isManagedProfile(PA_HANDLE.getUserHandle().getIdentifier())).thenReturn(true);
+        when(um.isQuietModeEnabled(PA_HANDLE.getUserHandle())).thenReturn(true);
+        // We don't want to acquire audio focus when self-managed
+        assertFalse(mRingerUnderTest.startRinging(mockCall2, true));
+        verify(mockTonePlayer, never()).stopTone();
+        verify(mockRingtonePlayer, never()).play(any(Ringtone.class));
+        verify(mockVibrator, never())
+                .vibrate(any(VibrationEffect.class), any(VibrationAttributes.class));
     }
 
     private void ensureRingerIsAudible() {
