@@ -79,13 +79,15 @@ public class StatusBarNotifier extends CallsManagerListenerBase {
         mIsShowingMute = isMuted;
     }
 
+    /**
+     * Update the status bar manager with the new speakerphone state.
+     *
+     * IMPORTANT: DO NOT call into any Telecom code here; this is usually scheduled on an async
+     * executor to save Telecom from blocking on outgoing binder calls.
+     * @param isSpeakerphone
+     */
     @VisibleForTesting
     public void notifySpeakerphone(boolean isSpeakerphone) {
-        // Never display anything if there are no calls.
-        if (!mCallsManager.hasAnyCalls()) {
-            isSpeakerphone = false;
-        }
-
         if (mIsShowingSpeakerphone == isSpeakerphone) {
             return;
         }

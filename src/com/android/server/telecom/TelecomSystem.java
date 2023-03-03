@@ -53,6 +53,7 @@ import com.android.server.telecom.ui.ToastFactory;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 /**
@@ -210,7 +211,8 @@ public class TelecomSystem {
             RoleManagerAdapter roleManagerAdapter,
             ContactsAsyncHelper.Factory contactsAsyncHelperFactory,
             DeviceIdleControllerAdapter deviceIdleControllerAdapter,
-            Ringer.AccessibilityManagerAdapter accessibilityManagerAdapter) {
+            Ringer.AccessibilityManagerAdapter accessibilityManagerAdapter,
+            Executor asyncTaskExecutor) {
         mContext = context.getApplicationContext();
         LogUtils.initLogging(mContext);
         AnomalyReporter.initialize(mContext);
@@ -367,8 +369,8 @@ public class TelecomSystem {
                     toastFactory,
                     callEndpointControllerFactory,
                     callAnomalyWatchdog,
-                    Executors.newSingleThreadExecutor(),
-                    accessibilityManagerAdapter);
+                    accessibilityManagerAdapter,
+                    asyncTaskExecutor);
 
             mIncomingCallNotifier = incomingCallNotifier;
             incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {

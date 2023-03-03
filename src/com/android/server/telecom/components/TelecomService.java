@@ -63,6 +63,8 @@ import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.MissedCallNotifierImpl;
 import com.android.server.telecom.ui.NotificationChannelManager;
 
+import java.util.concurrent.Executors;
+
 /**
  * Implementation of the ITelecom interface.
  */
@@ -208,7 +210,8 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                     return context.getSystemService(AccessibilityManager.class)
                                             .stopFlashNotificationSequence(context);
                                 }
-                            }));
+                            },
+                            Executors.newSingleThreadExecutor()));
         }
     }
 
