@@ -165,23 +165,26 @@ public class CallAnomalyWatchdog extends CallsManagerListenerBase implements Cal
     }
 
     /**
+     * Override of {@link CallsManagerListenerBase} to track when calls are created but
+     * intentionally not added to mCalls. These calls should no longer be tracked by the
+     * CallAnomalyWatchdog.
+     * @param call the call
+     */
+
+    @Override
+    public void onCallCreatedButNeverAdded(Call call) {
+        Log.i(this, "onCallCreatedButNeverAdded: call=%s", call.toString());
+        stopTrackingCall(call);
+    }
+
+    /**
      * Override of {@link CallsManagerListenerBase} to track when calls are removed
      * @param call the call
      */
     @Override
     public void onCallRemoved(Call call) {
-        if (mScheduledFutureMap.containsKey(call)) {
-            ScheduledFuture<?> existingTimeout = mScheduledFutureMap.get(call);
-            existingTimeout.cancel(false /* cancelIfRunning */);
-            mScheduledFutureMap.remove(call);
-        }
-        if (mCallsPendingDestruction.contains(call)) {
-            mCallsPendingDestruction.remove(call);
-        }
-        if (mWatchdogCallStateMap.containsKey(call)) {
-            mWatchdogCallStateMap.remove(call);
-        }
-        call.removeListener(this);
+        Log.i(this, "onCallRemoved: call=%s", call.toString());
+        stopTrackingCall(call);
     }
 
     /**
@@ -192,7 +195,10 @@ public class CallAnomalyWatchdog extends CallsManagerListenerBase implements Cal
      * @param newState the new state
      */
     @Override
-    public void onCallStateChanged(Call call, int oldState, int newState) { maybeTrackCall(call); }
+    public void onCallStateChanged(Call call, int oldState, int newState) {
+        Log.i(this, "onCallStateChanged: call=%s", call.toString());
+        maybeTrackCall(call);
+    }
 
     /**
      * Override of {@link Call.Listener} so we can capture successful creation of calls.
@@ -211,7 +217,8 @@ public class CallAnomalyWatchdog extends CallsManagerListenerBase implements Cal
      */
     @Override
     public void onFailedOutgoingCall(Call call, DisconnectCause disconnectCause) {
-        maybeTrackCall(call);
+        Log.i(this, "onFailedOutgoingCall: call=%s", call.toString());
+        stopTrackingCall(call);
     }
 
     /**
@@ -229,7 +236,27 @@ public class CallAnomalyWatchdog extends CallsManagerListenerBase implements Cal
      */
     @Override
     public void onFailedIncomingCall(Call call) {
-        maybeTrackCall(call);
+        Log.i(this, "onFailedIncomingCall: call=%s", call.toString());
+        stopTrackingCall(call);
+    }
+
+    /**
+     * Helper method used to stop CallAnomalyWatchdog from tracking or destroying the call.
+     * @param call the call.
+     */
+    private void stopTrackingCall(Call call) {
+        if (mScheduledFutureMap.containsKey(call)) {
+            ScheduledFuture<?> existingTimeout = mScheduledFutureMap.get(call);
+            existingTimeout.cancel(false /* cancelIfRunning */);
+            mScheduledFutureMap.remove(call);
+        }
+        if (mCallsPendingDestruction.contains(call)) {
+            mCallsPendingDestruction.remove(call);
+        }
+        if (mWatchdogCallStateMap.containsKey(call)) {
+            mWatchdogCallStateMap.remove(call);
+        }
+        call.removeListener(this);
     }
 
     /**
@@ -273,7 +300,7 @@ public class CallAnomalyWatchdog extends CallsManagerListenerBase implements Cal
         }
     }
 
-    private long getTimeoutMillis(Call call, WatchdogCallState state) {
+    public long getTimeoutMillis(Call call, WatchdogCallState state) {
         boolean isVoip = call.getIsVoipAudioMode();
         boolean isEmergency = call.isEmergencyCall();
 
