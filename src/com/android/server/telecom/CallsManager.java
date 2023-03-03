@@ -556,8 +556,8 @@ public class CallsManager extends Call.ListenerBase
             ToastFactory toastFactory,
             CallEndpointControllerFactory callEndpointControllerFactory,
             CallAnomalyWatchdog callAnomalyWatchdog,
-            Executor asyncTaskExecutor,
-            Ringer.AccessibilityManagerAdapter accessibilityManagerAdapter) {
+            Ringer.AccessibilityManagerAdapter accessibilityManagerAdapter,
+            Executor asyncTaskExecutor) {
         mContext = context;
         mLock = lock;
         mPhoneNumberUtilsAdapter = phoneNumberUtilsAdapter;
@@ -585,7 +585,8 @@ public class CallsManager extends Call.ListenerBase
                         wiredHeadsetManager,
                         statusBarNotifier,
                         audioServiceFactory,
-                        CallAudioRouteStateMachine.EARPIECE_AUTO_DETECT
+                        CallAudioRouteStateMachine.EARPIECE_AUTO_DETECT,
+                        asyncTaskExecutor
                 );
         callAudioRouteStateMachine.initialize();
 
