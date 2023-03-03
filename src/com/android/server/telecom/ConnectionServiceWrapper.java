@@ -1597,7 +1597,7 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
             public void onSuccess() {
                 String callId = mCallIdMapper.getCallId(call);
                 if (callId == null) {
-                    Log.w(ConnectionServiceWrapper.this, "Call not present"
+                    Log.i(ConnectionServiceWrapper.this, "Call not present"
                             + " in call id mapper, maybe it was aborted before the bind"
                             + " completed successfully?");
                     response.handleCreateConnectionFailure(
