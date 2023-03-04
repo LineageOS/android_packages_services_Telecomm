@@ -3659,6 +3659,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         if (mTransactionalService != null) {
             Log.i(this, "stopRtt: called on TransactionalService. doing nothing");
         } else if (mConnectionService != null) {
+            Log.addEvent(this, LogUtils.Events.REQUEST_RTT, "stop");
             mConnectionService.stopRtt(this);
         } else {
             // If this gets called by the in-call app before the connection service is set, we'll
@@ -3672,6 +3673,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             Log.i(this, "sendRttRequest: called on TransactionalService. doing nothing");
             return;
         }
+        Log.addEvent(this, LogUtils.Events.REQUEST_RTT, "start");
         createRttStreams();
         mConnectionService.startRtt(this, getInCallToCsRttPipeForCs(), getCsToInCallRttPipeForCs());
     }
@@ -3695,12 +3697,14 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     public void onRttConnectionFailure(int reason) {
         Log.i(this, "Got RTT initiation failure with reason %d", reason);
+        Log.addEvent(this, LogUtils.Events.ON_RTT_FAILED, "reason="  + reason);
         for (Listener l : mListeners) {
             l.onRttInitiationFailure(this, reason);
         }
     }
 
     public void onRemoteRttRequest() {
+        Log.addEvent(this, LogUtils.Events.ON_RTT_REQUEST);
         if (isRttCall()) {
             Log.w(this, "Remote RTT request on a call that's already RTT");
             return;
@@ -3725,6 +3729,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             Log.i(this, "handleRttRequestResponse: called on TransactionalService. doing nothing");
             return;
         }
+        Log.addEvent(this, LogUtils.Events.RESPOND_TO_RTT_REQUEST, "id=" + id + ", accept="
+                + accept);
         if (accept) {
             createRttStreams();
             Log.i(this, "RTT request %d accepted.", id);
@@ -4001,7 +4007,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     public void setRttMode(int mode) {
         mRttMode = mode;
-        // TODO: hook this up to CallAudioManager
+        Log.addEvent(this, LogUtils.Events.SET_RRT_MODE, "mode=" + mode);
+        // TODO: hook this up to CallAudioManager.
     }
 
     /**
