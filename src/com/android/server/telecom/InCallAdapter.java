@@ -695,7 +695,7 @@ class InCallAdapter extends IInCallAdapter.Stub {
     @Override
     public void sendRttRequest(String callId) {
         try {
-            Log.startSession("ICA.sRR");
+            Log.startSession("ICA.sRR", mOwnerPackageAbbreviation);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -717,7 +717,7 @@ class InCallAdapter extends IInCallAdapter.Stub {
     @Override
     public void respondToRttRequest(String callId, int id, boolean accept) {
         try {
-            Log.startSession("ICA.rTRR");
+            Log.startSession("ICA.rTRR", mOwnerPackageAbbreviation);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -739,7 +739,7 @@ class InCallAdapter extends IInCallAdapter.Stub {
     @Override
     public void stopRtt(String callId) {
         try {
-            Log.startSession("ICA.sRTT");
+            Log.startSession("ICA.sRTT", mOwnerPackageAbbreviation);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
@@ -761,11 +761,16 @@ class InCallAdapter extends IInCallAdapter.Stub {
     @Override
     public void setRttMode(String callId, int mode) {
         try {
-            Log.startSession("ICA.sRM");
+            Log.startSession("ICA.sRM", mOwnerPackageAbbreviation);
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
-                    // TODO
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null) {
+                        call.setRttMode(mode);
+                    } else {
+                        Log.w(this, "setRttMode(): call %s not found", callId);
+                    }
                 }
             } finally {
                 Binder.restoreCallingIdentity(token);
