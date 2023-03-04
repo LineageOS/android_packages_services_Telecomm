@@ -33,6 +33,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.UserHandle;
+import android.os.UserManager;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -291,6 +293,10 @@ public class Ringer {
             if (attributes.isSilentRingingRequested()) {
                 Log.addEvent(foregroundCall, LogUtils.Events.SKIP_RINGING, "Silent ringing "
                         + "requested");
+            }
+            if (attributes.isWorkProfileInQuietMode()) {
+                Log.addEvent(foregroundCall, LogUtils.Events.SKIP_RINGING,
+                        "Work profile in quiet mode");
             }
             if (mBlockOnRingingFuture != null) {
                 mBlockOnRingingFuture.complete(null);
@@ -640,16 +646,20 @@ public class Ringer {
         boolean letDialerHandleRinging = mInCallController.doesConnectedDialerSupportRinging(
                 call.getUserHandleFromTargetPhoneAccount());
         timer.record("letDialerHandleRinging");
+        boolean isWorkProfileInQuietMode =
+                isProfileInQuietMode(call.getUserHandleFromTargetPhoneAccount());
+        timer.record("isWorkProfileInQuietMode");
 
         Log.i(this, "startRinging timings: " + timer);
         boolean endEarly = isTheaterModeOn || letDialerHandleRinging || isSelfManaged ||
-                hasExternalRinger || isSilentRingingRequested;
+                hasExternalRinger || isSilentRingingRequested || isWorkProfileInQuietMode;
 
         if (endEarly) {
             Log.i(this, "Ending early -- isTheaterModeOn=%s, letDialerHandleRinging=%s, " +
-                            "isSelfManaged=%s, hasExternalRinger=%s, silentRingingRequested=%s",
+                            "isSelfManaged=%s, hasExternalRinger=%s, silentRingingRequested=%s, " +
+                            "isWorkProfileInQuietMode=%s",
                     isTheaterModeOn, letDialerHandleRinging, isSelfManaged, hasExternalRinger,
-                    isSilentRingingRequested);
+                    isSilentRingingRequested, isWorkProfileInQuietMode);
         }
 
         // Acquire audio focus under any of the following conditions:
@@ -657,8 +667,8 @@ public class Ringer {
         // 2. Volume is over zero, we should ring for the contact, and there's a audible ringtone
         //    present. (This check is deferred until ringer knows the ringtone)
         // 3. The call is self-managed.
-        boolean shouldAcquireAudioFocus =
-            (isHfpDeviceAttached && shouldRingForContact) || isSelfManaged;
+        boolean shouldAcquireAudioFocus = !isWorkProfileInQuietMode &&
+                ((isHfpDeviceAttached && shouldRingForContact) || isSelfManaged);
 
         // Set missed reason according to attributes
         if (!isVolumeOverZero) {
@@ -676,7 +686,13 @@ public class Ringer {
                 .setInaudibleReason(inaudibleReason)
                 .setShouldRingForContact(shouldRingForContact)
                 .setSilentRingingRequested(isSilentRingingRequested)
+                .setWorkProfileQuietMode(isWorkProfileInQuietMode)
                 .build();
+    }
+
+    private boolean isProfileInQuietMode(UserHandle user) {
+        UserManager um = mContext.getSystemService(UserManager.class);
+        return um.isManagedProfile(user.getIdentifier()) && um.isQuietModeEnabled(user);
     }
 
     private Handler getHandler() {
