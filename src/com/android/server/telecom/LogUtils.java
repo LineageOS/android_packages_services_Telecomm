@@ -109,6 +109,11 @@ public class LogUtils {
         public static final String SET_SELECT_PHONE_ACCOUNT = "SET_SELECT_PHONE_ACCOUNT";
         public static final String SET_AUDIO_PROCESSING = "SET_AUDIO_PROCESSING";
         public static final String SET_SIMULATED_RINGING = "SET_SIMULATED_RINGING";
+        public static final String REQUEST_RTT = "REQUEST_RTT";
+        public static final String RESPOND_TO_RTT_REQUEST = "RESPOND_TO_RTT_REQUEST";
+        public static final String SET_RRT_MODE = "SET_RTT_MODE";
+        public static final String ON_RTT_FAILED = "ON_RTT_FAILED";
+        public static final String ON_RTT_REQUEST = "ON_RTT_REQUEST";
         public static final String REQUEST_HOLD = "REQUEST_HOLD";
         public static final String REQUEST_UNHOLD = "REQUEST_UNHOLD";
         public static final String REQUEST_DISCONNECT = "REQUEST_DISCONNECT";
