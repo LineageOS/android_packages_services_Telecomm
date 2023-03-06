@@ -21,11 +21,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.ComponentName;
 import android.net.Uri;
+import android.telecom.DisconnectCause;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 
@@ -753,6 +755,90 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
         mTestScheduledExecutorService.
                 advanceTime(TEST_NON_VOIP_EMERGENCY_TRANSITORY_MILLIS + 1);
     }
+
+    /**
+     * Emulate the case where a new incoming call is created but the connection fails for a known
+     * reason before being added to CallsManager. In this case, the watchdog should stop tracking
+     * the call and not trigger an anomaly report.
+     */
+    @Test
+    public void testIncomingCallCreatedButNotAddedNoAnomalyReport() {
+        //The call is created:
+        Call call = getCall();
+        call.setState(CallState.NEW, "foo");
+        call.setIsCreateConnectionComplete(false);
+        mCallAnomalyWatchdog.onCallCreated(call);
+
+        //The connection fails before being added to CallsManager for a known reason:
+        call.handleCreateConnectionFailure(new DisconnectCause(DisconnectCause.CANCELED));
+
+        // Move the clock forward:
+        when(mMockClockProxy.elapsedRealtime()).
+                thenReturn(TEST_NON_VOIP_INTERMEDIATE_MILLIS + 1);
+        mTestScheduledExecutorService.advanceTime(TEST_NON_VOIP_INTERMEDIATE_MILLIS + 1);
+
+        //Ensure an anomaly report is not generated:
+        verify(mAnomalyReporterAdapter, never()).reportAnomaly(
+                CallAnomalyWatchdog.WATCHDOG_DISCONNECTED_STUCK_CALL_UUID,
+                CallAnomalyWatchdog.WATCHDOG_DISCONNECTED_STUCK_CALL_MSG);
+    }
+
+    /**
+     * Emulate the case where a new outgoing call is created but the connection fails for a known
+     * reason before being added to CallsManager. In this case, the watchdog should stop tracking
+     * the call and not trigger an anomaly report.
+     */
+    @Test
+    public void testOutgoingCallCreatedButNotAddedNoAnomalyReport() {
+        //The call is created:
+        Call call = getCall();
+        call.setCallDirection(Call.CALL_DIRECTION_OUTGOING);
+        call.setState(CallState.NEW, "foo");
+        call.setIsCreateConnectionComplete(false);
+        mCallAnomalyWatchdog.onCallCreated(call);
+
+        //The connection fails before being added to CallsManager for a known reason.
+        call.handleCreateConnectionFailure(new DisconnectCause(DisconnectCause.CANCELED));
+
+        // Move the clock forward:
+        when(mMockClockProxy.elapsedRealtime()).
+                thenReturn(TEST_NON_VOIP_INTERMEDIATE_MILLIS + 1);
+        mTestScheduledExecutorService.advanceTime(TEST_NON_VOIP_INTERMEDIATE_MILLIS + 1);
+
+        //Ensure an anomaly report is not generated:
+        verify(mAnomalyReporterAdapter, never()).reportAnomaly(
+                CallAnomalyWatchdog.WATCHDOG_DISCONNECTED_STUCK_CALL_UUID,
+                CallAnomalyWatchdog.WATCHDOG_DISCONNECTED_STUCK_CALL_MSG);
+    }
+
+    /**
+     * Emulate the case where a new incoming call is created but the connection fails for a known
+     * reason before being added to CallsManager and CallsManager notifies the watchdog by invoking
+     * onCallCreatedButNeverAdded(). In this case, the watchdog should stop tracking
+     * the call and not trigger an anomaly report.
+     */
+    @Test
+    public void testCallCreatedButNotAddedPreventsAnomalyReport() {
+        //The call is created:
+        Call call = getCall();
+        call.setState(CallState.NEW, "foo");
+        call.setIsCreateConnectionComplete(false);
+        mCallAnomalyWatchdog.onCallCreated(call);
+
+        //Telecom cancels the connection before adding it to CallsManager:
+        mCallAnomalyWatchdog.onCallCreatedButNeverAdded(call);
+
+        // Move the clock forward:
+        when(mMockClockProxy.elapsedRealtime()).
+                thenReturn(TEST_NON_VOIP_INTERMEDIATE_MILLIS + 1);
+        mTestScheduledExecutorService.advanceTime(TEST_NON_VOIP_INTERMEDIATE_MILLIS + 1);
+
+        //Ensure an anomaly report is not generated:
+        verify(mAnomalyReporterAdapter, never()).reportAnomaly(
+                CallAnomalyWatchdog.WATCHDOG_DISCONNECTED_STUCK_CALL_UUID,
+                CallAnomalyWatchdog.WATCHDOG_DISCONNECTED_STUCK_CALL_MSG);
+    }
+
 
     /**
      * @return an instance of {@link Call} for testing purposes.
