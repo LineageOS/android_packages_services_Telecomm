@@ -17,6 +17,7 @@
 package com.android.server.telecom;
 
 import static android.provider.CallLog.Calls.MISSED_REASON_NOT_MISSED;
+import static android.telecom.Call.EVENT_DISPLAY_SOS_MESSAGE;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -4083,6 +4084,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 l.onReceivedCallQualityReport(this, callQuality);
             }
         } else {
+            if (event.equals(EVENT_DISPLAY_SOS_MESSAGE) && !isEmergencyCall()) {
+                Log.w(this, "onConnectionEvent: EVENT_DISPLAY_SOS_MESSAGE is sent "
+                        + "without an emergency call");
+                return;
+            }
+
             for (Listener l : mListeners) {
                 l.onConnectionEvent(this, event, extras);
             }
