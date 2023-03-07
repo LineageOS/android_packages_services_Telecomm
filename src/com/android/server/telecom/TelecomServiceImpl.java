@@ -1813,7 +1813,7 @@ public class TelecomServiceImpl {
                         }
                         mUserCallIntentProcessorFactory.create(mContext, userHandle)
                                 .processIntent(
-                                        intent, callingPackage, isSelfManaged ||
+                                        intent, callingPackage, isSelfManaged,
                                                 (hasCallAppOp && hasCallPermission),
                                         true /* isLocalInvocation */);
                     } finally {
