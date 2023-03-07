@@ -1125,7 +1125,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
             boolean shouldNonEmergencyBeAllowed) {
         ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
         verify(mUserCallIntentProcessor).processIntent(intentCaptor.capture(), anyString(),
-                eq(shouldNonEmergencyBeAllowed), eq(true));
+                eq(false), eq(shouldNonEmergencyBeAllowed), eq(true));
         Intent capturedIntent = intentCaptor.getValue();
         assertEquals(Intent.ACTION_CALL, capturedIntent.getAction());
         assertEquals(expectedHandle, capturedIntent.getData());
@@ -1148,7 +1148,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         }
 
         verify(mUserCallIntentProcessor, never())
-                .processIntent(any(Intent.class), anyString(), anyBoolean(), eq(true));
+                .processIntent(any(Intent.class), anyString(), eq(false), anyBoolean(), eq(true));
     }
 
     @SmallTest
