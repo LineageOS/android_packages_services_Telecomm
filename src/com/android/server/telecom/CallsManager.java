@@ -135,6 +135,7 @@ import com.android.server.telecom.ui.ConfirmCallDialogActivity;
 import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.ToastFactory;
+import com.android.server.telecom.voip.VoipCallMonitor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -433,6 +434,7 @@ public class CallsManager extends Call.ListenerBase
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final EmergencyCallHelper mEmergencyCallHelper;
     private final RoleManagerAdapter mRoleManagerAdapter;
+    private final VoipCallMonitor mVoipCallMonitor;
     private final CallEndpointController mCallEndpointController;
     private final CallAnomalyWatchdog mCallAnomalyWatchdog;
     private final CallStreamingController mCallStreamingController;
@@ -646,6 +648,7 @@ public class CallsManager extends Call.ListenerBase
         mClockProxy = clockProxy;
         mToastFactory = toastFactory;
         mRoleManagerAdapter = roleManagerAdapter;
+        mVoipCallMonitor = new VoipCallMonitor(mContext, mLock);
         mCallStreamingController = new CallStreamingController(mContext);
 
         mListeners.add(mInCallWakeLockController);
@@ -666,6 +669,9 @@ public class CallsManager extends Call.ListenerBase
 
         // this needs to be after the mCallAudioManager
         mListeners.add(mPhoneStateBroadcaster);
+        mListeners.add(mVoipCallMonitor);
+
+        mVoipCallMonitor.startMonitor();
 
         // There is no USER_SWITCHED broadcast for user 0, handle it here explicitly.
         final UserManager userManager = UserManager.get(mContext);
@@ -1397,6 +1403,8 @@ public class CallsManager extends Call.ListenerBase
         // set properties for transactional call
         if (extras.containsKey(TelecomManager.TRANSACTION_CALL_ID_KEY)) {
             call.setIsTransactionalCall(true);
+            call.setOwnerPid(extras.getInt(CallAttributes.CALLER_PID, -1));
+            extras.remove(CallAttributes.CALLER_PID);
             call.setConnectionCapabilities(
                     extras.getInt(CallAttributes.CALL_CAPABILITIES_KEY,
                             CallAttributes.SUPPORTS_SET_INACTIVE), true);
@@ -1705,6 +1713,8 @@ public class CallsManager extends Call.ListenerBase
 
             if (extras.containsKey(TelecomManager.TRANSACTION_CALL_ID_KEY)) {
                 call.setIsTransactionalCall(true);
+                call.setOwnerPid(extras.getInt(CallAttributes.CALLER_PID, -1));
+                extras.remove(CallAttributes.CALLER_PID);
                 call.setConnectionCapabilities(
                         extras.getInt(CallAttributes.CALL_CAPABILITIES_KEY,
                                 CallAttributes.SUPPORTS_SET_INACTIVE), true);
@@ -6206,6 +6216,10 @@ public class CallsManager extends Call.ListenerBase
         return mRinger;
     }
 
+    @VisibleForTesting
+    public VoipCallMonitor getVoipCallMonitor() {
+        return mVoipCallMonitor;
+    }
 
     /**
      * This method should only be used for testing.

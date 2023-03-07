@@ -43,14 +43,21 @@ public class OutgoingCallTransaction extends VoipCallTransaction {
     private final String mCallingPackage;
     private final CallAttributes mCallAttributes;
     private final CallsManager mCallsManager;
+    private final Bundle mExtras;
+
+    public OutgoingCallTransaction(String callId, Context context, CallAttributes callAttributes,
+            CallsManager callsManager, Bundle extras) {
+        mCallId = callId;
+        mContext = context;
+        mCallAttributes = callAttributes;
+        mCallsManager = callsManager;
+        mExtras = extras;
+        mCallingPackage = mContext.getOpPackageName();
+    }
 
     public OutgoingCallTransaction(String callId, Context context, CallAttributes callAttributes,
             CallsManager callsManager) {
-        mCallId = callId;
-        mContext = context;
-        mCallingPackage = mContext.getOpPackageName();
-        mCallAttributes = callAttributes;
-        mCallsManager = callsManager;
+        this(callId, context, callAttributes, callsManager, new Bundle());
     }
 
     @Override
@@ -112,13 +119,12 @@ public class OutgoingCallTransaction extends VoipCallTransaction {
         }
     }
 
-    private Bundle generateExtras(CallAttributes callAttributes){
-        Bundle extras = new Bundle();
-        extras.setDefusable(true);
-        extras.putString(TelecomManager.TRANSACTION_CALL_ID_KEY, mCallId);
-        extras.putInt(CALL_CAPABILITIES_KEY, callAttributes.getCallCapabilities());
-        extras.putInt(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
+    private Bundle generateExtras(CallAttributes callAttributes) {
+        mExtras.setDefusable(true);
+        mExtras.putString(TelecomManager.TRANSACTION_CALL_ID_KEY, mCallId);
+        mExtras.putInt(CALL_CAPABILITIES_KEY, callAttributes.getCallCapabilities());
+        mExtras.putInt(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
                 callAttributes.getCallType());
-        return extras;
+        return mExtras;
     }
 }
