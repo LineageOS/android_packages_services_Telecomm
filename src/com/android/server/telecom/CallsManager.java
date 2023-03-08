@@ -1564,6 +1564,8 @@ public class CallsManager extends Call.ListenerBase
             // transactional calls should skip Call#startCreateConnection below
             // as that is meant for Call objects with a ConnectionServiceWrapper
             call.setState(CallState.RINGING, "explicitly set new incoming to ringing");
+            // Transactional calls don't get created via a connection service; they are added now.
+            call.setIsCreateConnectionComplete(true);
             addCall(call);
         } else {
             call.startCreateConnection(mPhoneAccountRegistrar);
@@ -3966,7 +3968,11 @@ public class CallsManager extends Call.ListenerBase
                 connectElapsedTime,
                 mClockProxy,
                 mToastFactory);
-        notifyCallCreated(call);
+
+        // Unlike connections, conferences are not created first and then notified as create
+        // connection complete from the CS.  They originate from the CS and are reported directly to
+        // telecom where they're added (see below).
+        call.setIsCreateConnectionComplete(true);
 
         setCallState(call, Call.getStateFromConnectionState(parcelableConference.getState()),
                 "new conference call");
@@ -5025,6 +5031,9 @@ public class CallsManager extends Call.ListenerBase
                 call.setParentCall(parentCall);
             }
         }
+        // Existing connections originate from a connection service, so they are completed creation
+        // by the ConnectionService implicitly.
+        call.setIsCreateConnectionComplete(true);
         addCall(call);
         if (parentCall != null) {
             // Now, set the call as a child of the parent since it has been added to Telecom.  This
