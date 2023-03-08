@@ -2000,6 +2000,48 @@ public class CallsManagerTest extends TelecomTestCase {
                 SELF_MANAGED_HANDLE.getUserHandle()));
     }
 
+    /**
+     * Emulate the case where a new incoming call is created but the connection fails for a known
+     * reason before being added to CallsManager. In this case, the listeners should be notified
+     * properly.
+     */
+    @Test
+    public void testIncomingCallCreatedButNotAddedNotifyListener() {
+        //The call is created and a listener is added:
+        Call incomingCall = createCall(SIM_2_HANDLE, null, CallState.NEW);
+        CallsManager.CallsManagerListener listener = mock(CallsManager.CallsManagerListener.class);
+        mCallsManager.addListener(listener);
+
+        //The connection fails before being added to CallsManager for a known reason:
+        incomingCall.handleCreateConnectionFailure(new DisconnectCause(DisconnectCause.CANCELED));
+
+        //Ensure the listener is notified properly:
+        verify(listener).onCallCreatedButNeverAdded(incomingCall);
+    }
+
+    /**
+     * Emulate the case where a new incoming call is created but the connection fails for a known
+     * reason after being added to CallsManager. Since the call was added to CallsManager, the
+     * listeners should not be notified via onCallCreatedButNeverAdded().
+     */
+    @Test
+    public void testIncomingCallCreatedAndAddedDoNotNotifyListener() {
+        //The call is created and a listener is added:
+        Call incomingCall = createCall(SIM_2_HANDLE, null, CallState.NEW);
+        CallsManager.CallsManagerListener listener = mock(CallsManager.CallsManagerListener.class);
+        mCallsManager.addListener(listener);
+
+        //The call is added to CallsManager:
+        mCallsManager.addCall(incomingCall);
+
+        //The connection fails after being added to CallsManager for a known reason:
+        incomingCall.handleCreateConnectionFailure(new DisconnectCause(DisconnectCause.CANCELED));
+
+        //Since the call was added to CallsManager, onCallCreatedButNeverAdded shouldn't be invoked:
+        verify(listener, never()).onCallCreatedButNeverAdded(incomingCall);
+    }
+
+
     @Test
     public void testIsInSelfManagedCallOnlySelfManaged() {
         Call selfManagedCall = createCall(SELF_MANAGED_HANDLE, CallState.ACTIVE);

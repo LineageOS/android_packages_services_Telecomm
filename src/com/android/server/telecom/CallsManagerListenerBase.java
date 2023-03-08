@@ -35,6 +35,10 @@ public abstract class CallsManagerListenerBase implements CallsManager.CallsMana
     }
 
     @Override
+    public void onCallCreatedButNeverAdded(Call call) {
+    }
+
+    @Override
     public void onCallStateChanged(Call call, int oldState, int newState) {
     }
 
