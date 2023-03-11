@@ -170,7 +170,7 @@ public class InCallTonePlayer extends Thread {
 
     private static final int RELATIVE_VOLUME_EMERGENCY = 100;
     private static final int RELATIVE_VOLUME_HIPRI = 80;
-    private static final int RELATIVE_VOLUME_LOPRI = 50;
+    private static final int RELATIVE_VOLUME_LOPRI = 30;
     private static final int RELATIVE_VOLUME_UNDEFINED = -1;
 
     // Buffer time (in msec) to add on to the tone timeout value. Needed mainly when the timeout
