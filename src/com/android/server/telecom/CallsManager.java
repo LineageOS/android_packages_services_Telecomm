@@ -286,6 +286,10 @@ public class CallsManager extends Call.ListenerBase
     public static final String EMERGENCY_CALL_DISCONNECTED_BEFORE_BEING_ADDED_ERROR_MSG =
             "An emergency call was disconnected after the connection was created but before the "
                     + "call was successfully added to CallsManager.";
+    public static final UUID EMERGENCY_CALL_ABORTED_NO_PHONE_ACCOUNTS_ERROR_UUID =
+            UUID.fromString("2e994acb-1997-4345-8bf3-bad04303de26");
+    public static final String EMERGENCY_CALL_ABORTED_NO_PHONE_ACCOUNTS_ERROR_MSG =
+            "An emergency call was aborted since there were no available phone accounts.";
 
     private static final int[] OUTGOING_CALL_STATES =
             {CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING,
@@ -1960,6 +1964,12 @@ public class CallsManager extends Call.ListenerBase
                                 Log.i(CallsManager.this, "Aborting call since there are no"
                                         + " available accounts.");
                                 showErrorMessage(R.string.cant_call_due_to_no_supported_service);
+                                mListeners.forEach(l -> l.onCallCreatedButNeverAdded(callToPlace));
+                                if (callToPlace.isEmergencyCall()){
+                                    mAnomalyReporter.reportAnomaly(
+                                            EMERGENCY_CALL_ABORTED_NO_PHONE_ACCOUNTS_ERROR_UUID,
+                                            EMERGENCY_CALL_ABORTED_NO_PHONE_ACCOUNTS_ERROR_MSG);
+                                }
                                 return CompletableFuture.completedFuture(null);
                             }
                             boolean needsAccountSelection = accountSuggestions.size() > 1
