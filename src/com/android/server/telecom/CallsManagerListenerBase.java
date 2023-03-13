@@ -35,7 +35,7 @@ public abstract class CallsManagerListenerBase implements CallsManager.CallsMana
     }
 
     @Override
-    public void onCallCreatedButNeverAdded(Call call) {
+    public void onCreateConnectionFailed(Call call) {
     }
 
     @Override
