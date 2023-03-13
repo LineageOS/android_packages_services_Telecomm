@@ -392,7 +392,7 @@ public final class Timeouts {
      */
     public static long getNonVoipCallIntermediateStateTimeoutMillis() {
         return DeviceConfig.getLong(DeviceConfig.NAMESPACE_TELEPHONY,
-                INTERMEDIATE_STATE_NON_VOIP_NORMAL_TIMEOUT_MILLIS, 60000L);
+                INTERMEDIATE_STATE_NON_VOIP_NORMAL_TIMEOUT_MILLIS, 120000L);
     }
 
     /**
