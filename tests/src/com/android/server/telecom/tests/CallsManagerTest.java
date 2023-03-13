@@ -2041,6 +2041,37 @@ public class CallsManagerTest extends TelecomTestCase {
         verify(listener, never()).onCallCreatedButNeverAdded(incomingCall);
     }
 
+    /**
+     * Emulate the case where a new outgoing call is created but is aborted before being added to
+     * CallsManager since there are no available phone accounts. In this case, the listeners
+     * should be notified properly.
+     */
+    @Test
+    public void testAbortOutgoingCallNoPhoneAccountsNotifyListeners() throws Exception {
+        // Setup a new outgoing call and add a listener
+        Call newCall = addSpyCall(CallState.NEW);
+        CallsManager.CallsManagerListener listener = mock(CallsManager.CallsManagerListener.class);
+        mCallsManager.addListener(listener);
+
+        // Ensure contact info lookup succeeds but do not set the phone account info
+        doAnswer(invocation -> {
+            Uri handle = invocation.getArgument(0);
+            CallerInfo info = new CallerInfo();
+            CompletableFuture<Pair<Uri, CallerInfo>> callerInfoFuture = new CompletableFuture<>();
+            callerInfoFuture.complete(new Pair<>(handle, info));
+            return callerInfoFuture;
+        }).when(mCallerInfoLookupHelper).startLookup(any(Uri.class));
+
+        // Start the outgoing call
+        CompletableFuture<Call> callFuture = mCallsManager.startOutgoingCall(
+                newCall.getHandle(), newCall.getTargetPhoneAccount(), new Bundle(),
+                UserHandle.CURRENT, new Intent(), "com.test.stuff");
+        Call result = callFuture.get(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
+
+        //Ensure the listener is notified properly:
+        verify(listener).onCallCreatedButNeverAdded(any());
+        assertNull(result);
+    }
 
     @Test
     public void testIsInSelfManagedCallOnlySelfManaged() {
