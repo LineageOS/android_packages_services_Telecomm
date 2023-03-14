@@ -23,8 +23,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyObject;
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -707,7 +705,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
                 .setCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED)
                 .build();
 
-        assertFalse(mRegistrar.hasTransactionalCallCapabilites(accountWithoutCapability));
+        assertFalse(mRegistrar.hasTransactionalCallCapabilities(accountWithoutCapability));
 
         try {
             mRegistrar.registerPhoneAccount(accountWithoutCapability);
@@ -730,7 +728,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
                         PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS)
                 .build();
 
-        assertTrue(mRegistrar.hasTransactionalCallCapabilites(accountWithCapability));
+        assertTrue(mRegistrar.hasTransactionalCallCapabilities(accountWithCapability));
 
         try {
             mRegistrar.registerPhoneAccount(accountWithCapability);
@@ -752,7 +750,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
                         PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS)
                 .build();
 
-        assertTrue(mRegistrar.hasTransactionalCallCapabilites(accountWithCapability));
+        assertTrue(mRegistrar.hasTransactionalCallCapabilities(accountWithCapability));
 
         try {
             // WHEN
@@ -1681,6 +1679,24 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
             fail("failed to throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // pass test
+        }
+    }
+
+    /**
+     * PhoneAccounts with CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS do not require a
+     * ConnectionService. Ensure that such an account can be registered and fetched.
+     */
+    @Test
+    public void testFetchingTransactionalAccounts() {
+        PhoneAccount account = makeBuilderWithBindCapabilities(
+                makeQuickAccountHandle(TEST_ID)).build();
+
+        try {
+            assertEquals(0, mRegistrar.getAllPhoneAccounts(null, true).size());
+            registerAndEnableAccount(account);
+            assertEquals(1, mRegistrar.getAllPhoneAccounts(null, true).size());
+        } finally {
+            mRegistrar.unregisterPhoneAccount(account.getAccountHandle());
         }
     }
 
