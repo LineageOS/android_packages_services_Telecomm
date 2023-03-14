@@ -55,9 +55,6 @@ public class DndCallFilter extends CallFilter {
         // query NotificationManager to determine if the call should ring or be suppressed
         boolean shouldSuppress = !mRinger.shouldRingForContact(mCall);
 
-        // store the shouldSuppress value in the call object which will be passed to InCallServices
-        mCall.setCallIsSuppressedByDoNotDisturb(shouldSuppress);
-
         // end timer
         Log.addEvent(mCall, LogUtils.Events.DND_PRE_CHECK_COMPLETED, shouldSuppress);
 

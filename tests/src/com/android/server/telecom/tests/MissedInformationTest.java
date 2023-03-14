@@ -356,6 +356,7 @@ public class MissedInformationTest extends TelecomSystemTest {
         doReturn(mNotificationManager).when(mSpyContext)
                 .getSystemService(Context.NOTIFICATION_SERVICE);
         doReturn(false).when(mNotificationManager).matchesCallFilter(any(Bundle.class));
+        doReturn(false).when(mIncomingCall).wasDndCheckComputedForCall();
         mCallsManager.getRinger().setNotificationManager(mNotificationManager);
 
         CallFilteringResult result = new CallFilteringResult.Builder()
