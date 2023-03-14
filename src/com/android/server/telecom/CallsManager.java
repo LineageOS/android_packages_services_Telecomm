@@ -78,6 +78,7 @@ import android.os.UserManager;
 import android.provider.BlockedNumberContract;
 import android.provider.BlockedNumberContract.SystemContract;
 import android.provider.CallLog.Calls;
+import android.provider.DeviceConfig;
 import android.provider.Settings;
 import android.sysprop.TelephonyProperties;
 import android.telecom.CallAttributes;
@@ -1944,19 +1945,23 @@ public class CallsManager extends Call.ListenerBase
                                 return CompletableFuture.completedFuture(null);
                             }
                             if (accountSuggestions == null || accountSuggestions.isEmpty()) {
-                                Uri callUri = callToPlace.getHandle();
-                                if (PhoneAccount.SCHEME_TEL.equals(callUri.getScheme())) {
-                                    int managedProfileUserId = getManagedProfileUserId(mContext,
-                                            initiatingUser.getIdentifier());
-                                    if (managedProfileUserId != UserHandle.USER_NULL
-                                            && mPhoneAccountRegistrar.getCallCapablePhoneAccounts(
-                                            handle.getScheme(), false,
-                                            UserHandle.of(managedProfileUserId), false).size()
-                                            != 0) {
-                                        boolean dialogShown = showSwitchToManagedProfileDialog(
-                                                callUri, initiatingUser, managedProfileUserId);
-                                        if (dialogShown) {
-                                            return CompletableFuture.completedFuture(null);
+                                if (isSwitchToManagedProfileDialogFlagEnabled()) {
+                                    Uri callUri = callToPlace.getHandle();
+                                    if (PhoneAccount.SCHEME_TEL.equals(callUri.getScheme())) {
+                                        int managedProfileUserId = getManagedProfileUserId(mContext,
+                                                initiatingUser.getIdentifier());
+                                        if (managedProfileUserId != UserHandle.USER_NULL
+                                                &&
+                                                mPhoneAccountRegistrar.getCallCapablePhoneAccounts(
+                                                        handle.getScheme(), false,
+                                                        UserHandle.of(managedProfileUserId),
+                                                        false).size()
+                                                        != 0) {
+                                            boolean dialogShown = showSwitchToManagedProfileDialog(
+                                                    callUri, initiatingUser, managedProfileUserId);
+                                            if (dialogShown) {
+                                                return CompletableFuture.completedFuture(null);
+                                            }
                                         }
                                     }
                                 }
@@ -2117,6 +2122,11 @@ public class CallsManager extends Call.ListenerBase
             }
         }
         return UserHandle.USER_NULL;
+    }
+
+    private boolean isSwitchToManagedProfileDialogFlagEnabled() {
+        return DeviceConfig.getBoolean(DeviceConfig.NAMESPACE_DEVICE_POLICY_MANAGER,
+                "enable_switch_to_managed_profile_dialog", false);
     }
 
     private boolean showSwitchToManagedProfileDialog(Uri callUri, UserHandle initiatingUser,
