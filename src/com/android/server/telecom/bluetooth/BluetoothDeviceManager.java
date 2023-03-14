@@ -188,6 +188,7 @@ public class BluetoothDeviceManager {
     private BluetoothLeAudio mBluetoothLeAudioService;
     private boolean mLeAudioSetAsCommunicationDevice = false;
     private String mLeAudioDevice;
+    private String mHearingAidDevice;
     private boolean mHearingAidSetAsCommunicationDevice = false;
     private BluetoothDevice mBluetoothHearingAidActiveDeviceCache;
     private BluetoothAdapter mBluetoothAdapter;
@@ -444,10 +445,17 @@ public class BluetoothDeviceManager {
     }
 
     public void clearHearingAidCommunicationDevice() {
+        Log.i(this, "clearHearingAidCommunicationDevice: mHearingAidSetAsCommunicationDevice = "
+                + mHearingAidSetAsCommunicationDevice);
         if (!mHearingAidSetAsCommunicationDevice) {
             return;
         }
         mHearingAidSetAsCommunicationDevice = false;
+        if (mHearingAidDevice != null) {
+            mBluetoothRouteManager.onAudioLost(mHearingAidDevice);
+            mHearingAidDevice = null;
+        }
+
         if (mAudioManager == null) {
             Log.i(this, "clearHearingAidCommunicationDevice: mAudioManager is null");
             return;
@@ -551,6 +559,7 @@ public class BluetoothDeviceManager {
             Log.w(this, " Could not set hearingAid device");
         } else {
             Log.i(this, " hearingAid device set");
+            mHearingAidDevice = hearingAid.getAddress();
             mHearingAidSetAsCommunicationDevice = true;
         }
         return result;

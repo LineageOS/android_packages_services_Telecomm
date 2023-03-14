@@ -63,6 +63,8 @@ import java.util.List;
 
 @RunWith(JUnit4.class)
 public class BluetoothDeviceManagerTest extends TelecomTestCase {
+    private static final String DEVICE_ADDRESS_1 = "00:00:00:00:00:01";
+
     @Mock BluetoothRouteManager mRouteManager;
     @Mock BluetoothHeadset mBluetoothHeadset;
     @Mock BluetoothAdapter mAdapter;
@@ -499,6 +501,7 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
     @Test
     public void testClearHearingAidCommunicationDevice() {
         AudioDeviceInfo mockAudioDeviceInfo = mock(AudioDeviceInfo.class);
+        when(mockAudioDeviceInfo.getAddress()).thenReturn(DEVICE_ADDRESS_1);
         when(mockAudioDeviceInfo.getType()).thenReturn(AudioDeviceInfo.TYPE_HEARING_AID);
         List<AudioDeviceInfo> devices = new ArrayList<>();
         devices.add(mockAudioDeviceInfo);
@@ -511,6 +514,7 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
         mBluetoothDeviceManager.setHearingAidCommunicationDevice();
         when(mockAudioManager.getCommunicationDevice()).thenReturn(mSpeakerInfo);
         mBluetoothDeviceManager.clearHearingAidCommunicationDevice();
+        verify(mRouteManager).onAudioLost(eq(DEVICE_ADDRESS_1));
         assertFalse(mBluetoothDeviceManager.isHearingAidSetAsCommunicationDevice());
     }
 
