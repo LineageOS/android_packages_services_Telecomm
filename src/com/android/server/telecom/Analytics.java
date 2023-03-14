@@ -48,6 +48,16 @@ import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
 
+import static android.provider.CallLog.Calls.AUTO_MISSED_EMERGENCY_CALL;
+import static android.provider.CallLog.Calls.AUTO_MISSED_MAXIMUM_DIALING;
+import static android.provider.CallLog.Calls.AUTO_MISSED_MAXIMUM_RINGING;
+import static android.provider.CallLog.Calls.USER_MISSED_CALL_FILTERS_TIMEOUT;
+import static android.provider.CallLog.Calls.USER_MISSED_CALL_SCREENING_SERVICE_SILENCED;
+import static android.provider.CallLog.Calls.USER_MISSED_DND_MODE;
+import static android.provider.CallLog.Calls.USER_MISSED_LOW_RING_VOLUME;
+import static android.provider.CallLog.Calls.USER_MISSED_NEVER_RANG;
+import static android.provider.CallLog.Calls.USER_MISSED_NO_VIBRATE;
+import static android.provider.CallLog.Calls.USER_MISSED_SHORT_RING;
 import static android.telecom.ParcelableCallAnalytics.AnalyticsEvent;
 import static android.telecom.TelecomAnalytics.SessionTiming;
 
@@ -542,7 +552,30 @@ public class Analytics {
 
         private String getMissedReasonString() {
             //TODO: Implement this
-            return null;
+            StringBuilder s =  new StringBuilder();
+            s.append('[');
+            if ((missedReason & AUTO_MISSED_EMERGENCY_CALL) != 0) {
+                s.append("emergency]");
+                return s.toString();
+            } else if ((missedReason & AUTO_MISSED_MAXIMUM_DIALING) != 0) {
+                s.append("max_dialing]");
+                return s.toString();
+            } else if ((missedReason & AUTO_MISSED_MAXIMUM_RINGING) != 0) {
+                s.append("max_ringing]");
+                return s.toString();
+            }
+
+            // user missed
+            if ((missedReason & USER_MISSED_SHORT_RING) != 0) s.append("short_ring ");
+            if ((missedReason & USER_MISSED_DND_MODE) != 0) s.append("dnd ");
+            if ((missedReason & USER_MISSED_LOW_RING_VOLUME) != 0) s.append("low_volume ");
+            if ((missedReason & USER_MISSED_NO_VIBRATE) != 0) s.append("no_vibrate ");
+            if ((missedReason & USER_MISSED_CALL_SCREENING_SERVICE_SILENCED) != 0)
+                s.append("css_silenced ");
+            if ((missedReason & USER_MISSED_CALL_FILTERS_TIMEOUT) != 0) s.append("filter_timeout ");
+            if ((missedReason & USER_MISSED_NEVER_RANG) != 0) s.append("no_ring ");
+            s.append("]");
+            return s.toString();
         }
 
         private String getInCallServicesString() {
