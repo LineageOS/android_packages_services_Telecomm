@@ -187,6 +187,8 @@ public class BluetoothDeviceManager {
     private boolean mLeAudioCallbackRegistered = false;
     private BluetoothLeAudio mBluetoothLeAudioService;
     private boolean mLeAudioSetAsCommunicationDevice = false;
+    private String mLeAudioDevice;
+    private String mHearingAidDevice;
     private boolean mHearingAidSetAsCommunicationDevice = false;
     private BluetoothDevice mBluetoothHearingAidActiveDeviceCache;
     private BluetoothAdapter mBluetoothAdapter;
@@ -418,10 +420,17 @@ public class BluetoothDeviceManager {
     }
 
     public void clearLeAudioCommunicationDevice() {
+        Log.i(this, "clearLeAudioCommunicationDevice: mLeAudioSetAsCommunicationDevice = " +
+                mLeAudioSetAsCommunicationDevice + " device = " + mLeAudioDevice);
         if (!mLeAudioSetAsCommunicationDevice) {
             return;
         }
         mLeAudioSetAsCommunicationDevice = false;
+        if (mLeAudioDevice != null) {
+            mBluetoothRouteManager.onAudioLost(mLeAudioDevice);
+            mLeAudioDevice = null;
+        }
+
         if (mAudioManager == null) {
             Log.i(this, "clearLeAudioCommunicationDevice: mAudioManager is null");
             return;
@@ -430,18 +439,22 @@ public class BluetoothDeviceManager {
         AudioDeviceInfo audioDeviceInfo = mAudioManager.getCommunicationDevice();
         if (audioDeviceInfo != null && audioDeviceInfo.getType()
                 == AudioDeviceInfo.TYPE_BLE_HEADSET) {
-            mBluetoothRouteManager.onAudioLost(audioDeviceInfo.getAddress());
             mAudioManager.clearCommunicationDevice();
-            mLeAudioSetAsCommunicationDevice = false;
         }
-        mLeAudioSetAsCommunicationDevice = false;
     }
 
     public void clearHearingAidCommunicationDevice() {
+        Log.i(this, "clearHearingAidCommunicationDevice: mHearingAidSetAsCommunicationDevice = "
+                + mHearingAidSetAsCommunicationDevice);
         if (!mHearingAidSetAsCommunicationDevice) {
             return;
         }
         mHearingAidSetAsCommunicationDevice = false;
+        if (mHearingAidDevice != null) {
+            mBluetoothRouteManager.onAudioLost(mHearingAidDevice);
+            mHearingAidDevice = null;
+        }
+
         if (mAudioManager == null) {
             Log.i(this, "clearHearingAidCommunicationDevice: mAudioManager is null");
             return;
@@ -500,6 +513,7 @@ public class BluetoothDeviceManager {
             Log.i(this, " bleHeadset device set");
             mBluetoothRouteManager.onAudioOn(bleHeadset.getAddress());
             mLeAudioSetAsCommunicationDevice = true;
+            mLeAudioDevice = bleHeadset.getAddress();
         }
         return result;
     }
@@ -546,6 +560,7 @@ public class BluetoothDeviceManager {
             Log.w(this, " Could not set hearingAid device");
         } else {
             Log.i(this, " hearingAid device set");
+            mHearingAidDevice = hearingAid.getAddress();
             mHearingAidSetAsCommunicationDevice = true;
         }
         return result;
@@ -553,7 +568,7 @@ public class BluetoothDeviceManager {
 
     // Connect audio to the bluetooth device at address, checking to see whether it's
     // le audio, hearing aid or a HFP device, and using the proper BT API.
-    public boolean connectAudio(String address) {
+    public boolean connectAudio(String address, boolean switchingBtDevices) {
         if (mLeAudioDevicesByAddress.containsKey(address)) {
             if (mBluetoothLeAudioService == null) {
                 Log.w(this, "Attempting to turn on audio when the le audio service is null");
@@ -562,7 +577,15 @@ public class BluetoothDeviceManager {
             BluetoothDevice device = mLeAudioDevicesByAddress.get(address);
             if (mBluetoothAdapter.setActiveDevice(
                     device, BluetoothAdapter.ACTIVE_DEVICE_ALL)) {
-                return setLeAudioCommunicationDevice();
+
+                /* ACTION_ACTIVE_DEVICE_CHANGED intent will trigger setting communication device.
+                 * Only after receiving ACTION_ACTIVE_DEVICE_CHANGED it is known that device that
+                 * will be audio switched to is available to be choose as communication device */
+                if (!switchingBtDevices) {
+                    return setLeAudioCommunicationDevice();
+                }
+
+                return true;
             }
             return false;
         } else if (mHearingAidDevicesByAddress.containsKey(address)) {
@@ -573,7 +596,15 @@ public class BluetoothDeviceManager {
             if (mBluetoothAdapter.setActiveDevice(
                     mHearingAidDevicesByAddress.get(address),
                     BluetoothAdapter.ACTIVE_DEVICE_ALL)) {
-                return setHearingAidCommunicationDevice();
+
+                /* ACTION_ACTIVE_DEVICE_CHANGED intent will trigger setting communication device.
+                 * Only after receiving ACTION_ACTIVE_DEVICE_CHANGED it is known that device that
+                 * will be audio switched to is available to be choose as communication device */
+                if (!switchingBtDevices) {
+                    return setHearingAidCommunicationDevice();
+                }
+
+                return true;
             }
             return false;
         } else if (mHfpDevicesByAddress.containsKey(address)) {
