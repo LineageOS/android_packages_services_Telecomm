@@ -877,6 +877,9 @@ public class CallsManager extends Call.ListenerBase
             return;
         }
 
+        // Store the shouldSuppress value in the call object which will be passed to InCallServices
+        incomingCall.setCallIsSuppressedByDoNotDisturb(result.shouldSuppressCallDueToDndStatus);
+
         // Inform our connection service that call filtering is done (if it was performed at all).
         if (incomingCall.isUsingCallFiltering()) {
             boolean isInContacts = incomingCall.getCallerInfo() != null
