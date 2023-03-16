@@ -215,6 +215,7 @@ public class TelecomSystem {
             Executor asyncTaskExecutor) {
         mContext = context.getApplicationContext();
         LogUtils.initLogging(mContext);
+        android.telecom.Log.setLock(mLock);
         AnomalyReporter.initialize(mContext);
         DefaultDialerManagerAdapter defaultDialerAdapter =
                 new DefaultDialerCache.DefaultDialerManagerAdapterImpl();
