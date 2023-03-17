@@ -47,6 +47,7 @@ public class OutgoingCallTransaction extends VoipCallTransaction {
 
     public OutgoingCallTransaction(String callId, Context context, CallAttributes callAttributes,
             CallsManager callsManager, Bundle extras) {
+        super(callsManager.getLock());
         mCallId = callId;
         mContext = context;
         mCallAttributes = callAttributes;
