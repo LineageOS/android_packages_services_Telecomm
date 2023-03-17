@@ -16,14 +16,17 @@
 
 package com.android.server.telecom.voip;
 
+import com.android.server.telecom.TelecomSystem;
+
 import java.util.List;
 
 /**
  * A VoipCallTransaction implementation that its sub transactions will be executed in serial
  */
 public class SerialTransaction extends VoipCallTransaction {
-    public SerialTransaction(List<VoipCallTransaction> subTransactions) {
-        super(subTransactions);
+    public SerialTransaction(List<VoipCallTransaction> subTransactions,
+            TelecomSystem.SyncRoot lock) {
+        super(subTransactions, lock);
     }
 
     public void appendTransaction(VoipCallTransaction transaction){

@@ -32,6 +32,7 @@ public class EndpointChangeTransaction extends VoipCallTransaction {
     private final CallsManager mCallsManager;
 
     public EndpointChangeTransaction(CallEndpoint endpoint, CallsManager callsManager) {
+        super(callsManager.getLock());
         mCallEndpoint = endpoint;
         mCallsManager = callsManager;
     }

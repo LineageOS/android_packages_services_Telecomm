@@ -136,6 +136,7 @@ import com.android.server.telecom.ui.ConfirmCallDialogActivity;
 import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.ToastFactory;
+import com.android.server.telecom.voip.TransactionManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -441,6 +442,7 @@ public class CallsManager extends Call.ListenerBase
     private final CallAnomalyWatchdog mCallAnomalyWatchdog;
     private final CallStreamingController mCallStreamingController;
     private final BlockedNumbersAdapter mBlockedNumbersAdapter;
+    private final TransactionManager mTransactionManager;
 
     private final ConnectionServiceFocusManager.CallsManagerRequester mRequester =
             new ConnectionServiceFocusManager.CallsManagerRequester() {
@@ -549,7 +551,8 @@ public class CallsManager extends Call.ListenerBase
             CallAnomalyWatchdog callAnomalyWatchdog,
             Ringer.AccessibilityManagerAdapter accessibilityManagerAdapter,
             Executor asyncTaskExecutor,
-            BlockedNumbersAdapter blockedNumbersAdapter) {
+            BlockedNumbersAdapter blockedNumbersAdapter,
+            TransactionManager transactionManager) {
         mContext = context;
         mLock = lock;
         mPhoneNumberUtilsAdapter = phoneNumberUtilsAdapter;
@@ -632,8 +635,9 @@ public class CallsManager extends Call.ListenerBase
         mClockProxy = clockProxy;
         mToastFactory = toastFactory;
         mRoleManagerAdapter = roleManagerAdapter;
-        mCallStreamingController = new CallStreamingController(mContext);
+        mTransactionManager = transactionManager;
         mBlockedNumbersAdapter = blockedNumbersAdapter;
+        mCallStreamingController = new CallStreamingController(mContext, mLock);
 
         mListeners.add(mInCallWakeLockController);
         mListeners.add(statusBarNotifier);
