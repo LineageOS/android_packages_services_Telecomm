@@ -352,9 +352,6 @@ public class InCallController extends CallsManagerListenerBase implements
                 if (call != null && call.isEmergencyCall()) {
                     mAnomalyReporter.reportAnomaly(BIND_TO_IN_CALL_EMERGENCY_ERROR_UUID,
                             BIND_TO_IN_CALL_EMERGENCY_ERROR_MSG);
-                } else {
-                    mAnomalyReporter.reportAnomaly(BIND_TO_IN_CALL_ERROR_UUID,
-                            BIND_TO_IN_CALL_ERROR_MSG);
                 }
                 mIsConnected = false;
             }
