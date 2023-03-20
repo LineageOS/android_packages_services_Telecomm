@@ -292,6 +292,51 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         assertEquals(SIP_PA_HANDLE_17, returnedHandleSip);
     }
 
+    /**
+     * Clear the groupId from the PhoneAccount if a package does NOT have MODIFY_PHONE_STATE
+     */
+    @SmallTest
+    @Test
+    public void testGroupIdIsClearedWhenPermissionIsMissing() throws RemoteException {
+        // GIVEN
+        PhoneAccount phoneAccount = makePhoneAccount(TEL_PA_HANDLE_CURRENT)
+                .setGroupId("testId")
+                .build();
+        // WHEN
+        doReturn(phoneAccount).when(mFakePhoneAccountRegistrar).getPhoneAccount(
+                eq(TEL_PA_HANDLE_CURRENT), any(UserHandle.class), anyBoolean());
+        doNothing().when(mAppOpsManager).checkPackage(anyInt(), anyString());
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingPermission(MODIFY_PHONE_STATE);
+        // THEN
+        PhoneAccount account =
+                mTSIBinder.getPhoneAccount(TEL_PA_HANDLE_CURRENT, PACKAGE_NAME);
+        assertEquals("***", account.getGroupId());
+    }
+
+    /**
+     * Ensure groupId is not cleared if a package has MODIFY_PHONE_STATE
+     */
+    @SmallTest
+    @Test
+    public void testGroupIdIsNotCleared() throws RemoteException {
+        // GIVEN
+        final String groupId = "testId";
+        PhoneAccount phoneAccount = makePhoneAccount(TEL_PA_HANDLE_CURRENT)
+                .setGroupId(groupId)
+                .build();
+        // WHEN
+        doReturn(phoneAccount).when(mFakePhoneAccountRegistrar).getPhoneAccount(
+                eq(TEL_PA_HANDLE_CURRENT), any(UserHandle.class), anyBoolean());
+        doNothing().when(mAppOpsManager).checkPackage(anyInt(), anyString());
+        doReturn(PackageManager.PERMISSION_GRANTED)
+                .when(mContext).checkCallingPermission(MODIFY_PHONE_STATE);
+        // THEN
+        PhoneAccount account =
+                mTSIBinder.getPhoneAccount(TEL_PA_HANDLE_CURRENT, DEFAULT_DIALER_PACKAGE);
+        assertEquals(groupId, account.getGroupId());
+    }
+
     @SmallTest
     @Test
     public void testGetDefaultOutgoingPhoneAccountSucceedsIfCallerIsSimCallManager()
@@ -608,6 +653,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testGetPhoneAccount() throws Exception {
+        doReturn(PackageManager.PERMISSION_GRANTED)
+                .when(mContext).checkCallingPermission(MODIFY_PHONE_STATE);
         makeAccountsVisibleToAllUsers(TEL_PA_HANDLE_16, SIP_PA_HANDLE_17);
         assertEquals(TEL_PA_HANDLE_16, mTSIBinder.getPhoneAccount(TEL_PA_HANDLE_16,
                 mContext.getPackageName()).getAccountHandle());
