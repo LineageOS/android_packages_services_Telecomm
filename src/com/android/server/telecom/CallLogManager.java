@@ -386,7 +386,12 @@ public final class CallLogManager extends CallsManagerListenerBase {
         if (okayToLog) {
             AddCallArgs args = new AddCallArgs(mContext, paramBuilder.build(),
                     logCallCompletedListener);
+            Log.addEvent(call, LogUtils.Events.LOG_CALL, "number=" + Log.piiHandle(logNumber)
+                    + ",postDial=" + Log.piiHandle(call.getPostDialDigits()) + ",pres="
+                    + call.getHandlePresentation());
             logCallAsync(args);
+        } else {
+            Log.addEvent(call, LogUtils.Events.SKIP_CALL_LOG);
         }
     }
 
