@@ -16,6 +16,7 @@
 
 package com.android.server.telecom.tests;
 
+import static android.Manifest.permission.MODIFY_PHONE_STATE;
 import static android.provider.CallLog.Calls.AUTO_MISSED_EMERGENCY_CALL;
 import static android.provider.CallLog.Calls.AUTO_MISSED_MAXIMUM_DIALING;
 import static android.provider.CallLog.Calls.AUTO_MISSED_MAXIMUM_RINGING;
@@ -117,6 +118,8 @@ public class MissedInformationTest extends TelecomSystemTest {
         mPackageManager = mContext.getPackageManager();
         when(mPackageManager.getPackageUid(anyString(), eq(0))).thenReturn(Binder.getCallingUid());
         mCountDownLatch  = new CountDownLatch(1);
+        doReturn(PackageManager.PERMISSION_GRANTED)
+                .when(mContext).checkCallingPermission(MODIFY_PHONE_STATE);
     }
 
     @Override
