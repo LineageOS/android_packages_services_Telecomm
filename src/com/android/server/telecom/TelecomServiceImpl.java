@@ -90,6 +90,7 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -544,15 +545,18 @@ public class TelecomServiceImpl {
                             throw e;
                         }
                     }
+                    Set<String> permissions = computePermissionsForBoundPackage(
+                            Set.of(MODIFY_PHONE_STATE), null);
                     long token = Binder.clearCallingIdentity();
                     try {
                         // In ideal case, we should not resolve the handle across profiles. But
                         // given the fact that profile's call is handled by its parent user's
                         // in-call UI, parent user's in call UI need to be able to get phone account
                         // from the profile's phone account handle.
-                        return mPhoneAccountRegistrar
+                        PhoneAccount account = mPhoneAccountRegistrar
                                 .getPhoneAccount(accountHandle, callingUserHandle,
                                         /* acrossProfiles */ true);
+                        return maybeCleansePhoneAccount(account, permissions);
                     } catch (Exception e) {
                         Log.e(this, e, "getPhoneAccount %s", accountHandle);
                         mAnomalyReporter.reportAnomaly(GET_PHONE_ACCOUNT_ERROR_UUID,
@@ -2713,6 +2717,46 @@ public class TelecomServiceImpl {
         }
 
         return packageUid == callingUid;
+    }
+
+    /**
+     * Note: This method should be called BEFORE clearing the binder identity.
+     *
+     * @param permissionsToValidate      set of permissions that should be checked
+     * @param alreadyComputedPermissions a list of permissions that were already checked
+     * @return all the permissions that
+     */
+    private Set<String> computePermissionsForBoundPackage(
+            Set<String> permissionsToValidate,
+            Set<String> alreadyComputedPermissions) {
+        Set<String> permissions = Objects.requireNonNullElseGet(alreadyComputedPermissions,
+                HashSet::new);
+        for (String permission : permissionsToValidate) {
+            if (mContext.checkCallingPermission(permission) == PackageManager.PERMISSION_GRANTED) {
+                permissions.add(permission);
+            }
+        }
+        return permissions;
+    }
+
+    /**
+     * This method should be used to clear {@link PhoneAccount} properties based on a
+     * callingPackages permissions.
+     *
+     * @param account     to clear properties from
+     * @param permissions the list of permissions the callingPackge has
+     * @return the account that callingPackage will receive
+     */
+    private PhoneAccount maybeCleansePhoneAccount(PhoneAccount account,
+            Set<String> permissions) {
+        if (account == null) {
+            return null;
+        }
+        PhoneAccount.Builder accountBuilder = new PhoneAccount.Builder(account);
+        if (!permissions.contains(MODIFY_PHONE_STATE)) {
+            accountBuilder.setGroupId("***");
+        }
+        return accountBuilder.build();
     }
 
     private void enforceTelecomFeature() {
