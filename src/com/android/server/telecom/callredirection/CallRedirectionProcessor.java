@@ -141,6 +141,19 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
             }
 
             @Override
+            public void onNullBinding(ComponentName componentName) {
+                // Make sure we unbind the service if onBind returns null
+                Log.startSession("CRSC.oNB");
+                try {
+                    synchronized (mTelecomLock) {
+                        finishCallRedirection();
+                    }
+                } finally {
+                    Log.endSession();
+                }
+            }
+
+            @Override
             public void onServiceDisconnected(ComponentName componentName) {
                 Log.startSession("CRSC.oSD");
                 try {
