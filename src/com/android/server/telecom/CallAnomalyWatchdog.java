@@ -153,8 +153,12 @@ public class CallAnomalyWatchdog extends CallsManagerListenerBase implements Cal
         mClockProxy = clockProxy;
     }
 
+    /**
+     * Start tracking a call that we're waiting for a ConnectionService to create.
+     * @param call the call.
+     */
     @Override
-    public void onCallCreated(Call call) {
+    public void onStartCreateConnection(Call call) {
         maybeTrackCall(call);
         call.addListener(this);
     }
@@ -165,15 +169,13 @@ public class CallAnomalyWatchdog extends CallsManagerListenerBase implements Cal
     }
 
     /**
-     * Override of {@link CallsManagerListenerBase} to track when calls are created but
-     * intentionally not added to mCalls. These calls should no longer be tracked by the
-     * CallAnomalyWatchdog.
+     * Override of {@link CallsManagerListenerBase} to track when calls have failed to be created by
+     * a ConnectionService.  These calls should no longer be tracked by the CallAnomalyWatchdog.
      * @param call the call
      */
-
     @Override
-    public void onCallCreatedButNeverAdded(Call call) {
-        Log.i(this, "onCallCreatedButNeverAdded: call=%s", call.toString());
+    public void onCreateConnectionFailed(Call call) {
+        Log.i(this, "onCreateConnectionFailed: call=%s", call.toString());
         stopTrackingCall(call);
     }
 
