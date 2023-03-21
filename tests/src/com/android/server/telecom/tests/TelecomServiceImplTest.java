@@ -1114,12 +1114,18 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         }
     }
 
+    /**
+     * Place a managed call with no PhoneAccount specified and ensure no security exception is
+     * thrown.
+     */
     @SmallTest
     @Test
     public void testPlaceCallWithNonEmergencyPermission() throws Exception {
         Uri handle = Uri.parse("tel:6505551234");
         Bundle extras = createSampleExtras();
 
+        // We have passed in the DEFAULT_DIALER_PACKAGE for this test, so canCallPhone is always
+        // true.
         when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_CALL_PHONE), anyInt(), anyString(),
                 nullable(String.class), nullable(String.class)))
                 .thenReturn(AppOpsManager.MODE_ALLOWED);
@@ -1129,15 +1135,351 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
 
         mTSIBinder.placeCall(handle, extras, DEFAULT_DIALER_PACKAGE, null);
-        placeCallTestHelper(handle, extras, true);
+        placeCallTestHelper(handle, extras, /*isSelfManagedExpected*/ false,
+                /*shouldNonEmergencyBeAllowed*/ true);
     }
 
+    /**
+     * Ensure that we get a SecurityException if the UID of the caller doesn't match the UID of the
+     * UID of the package name passed in.
+     */
+    @SmallTest
+    @Test
+    public void testPlaceCall_enforceCallingPackageFailure() throws Exception {
+        Uri handle = Uri.parse("tel:6505551234");
+        Bundle extras = createSampleExtras();
+        // callingPackage matches the PhoneAccountHandle, so this is an app with a self-managed
+        // ConnectionService.
+        extras.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, TEL_PA_HANDLE_CURRENT);
+
+        // Return a non-matching UID for testing purposes.
+        when(mPackageManager.getPackageUid(anyString(), eq(0))).thenReturn(-1);
+        try {
+            mTSIBinder.placeCall(handle, extras, PACKAGE_NAME, null);
+            fail("Expected SecurityException because calling package doesn't match");
+        } catch(SecurityException e) {
+            // expected
+        }
+    }
+
+    /**
+     * In the case that there is a self-managed call request and MANAGE_OWN_CALLS is granted, ensure
+     * that placeCall does not generate a SecurityException.
+     */
+    @SmallTest
+    @Test
+    public void testPlaceCall_selfManaged_permissionGranted() throws Exception {
+        doReturn(false).when(mDefaultDialerCache).isDefaultOrSystemDialer(
+                eq(DEFAULT_DIALER_PACKAGE), anyInt());
+        when(mFakePhoneAccountRegistrar.getPhoneAccountUnchecked(TEL_PA_HANDLE_CURRENT)).thenReturn(
+                makeSelfManagedPhoneAccount(TEL_PA_HANDLE_CURRENT).build());
+        Uri handle = Uri.parse("tel:6505551234");
+        Bundle extras = createSampleExtras();
+        // callingPackage matches the PhoneAccountHandle, so this is an app with a self-managed
+        // ConnectionService.
+        extras.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, TEL_PA_HANDLE_CURRENT);
+
+        // pass MANAGE_OWN_CALLS check, but do not have CALL_PHONE
+        doNothing().when(mContext).enforceCallingOrSelfPermission(
+                eq(Manifest.permission.MANAGE_OWN_CALLS), anyString());
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingPermission(CALL_PHONE);
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
+
+        try {
+            mTSIBinder.placeCall(handle, extras, PACKAGE_NAME, null);
+            placeCallTestHelper(handle, extras, /*isSelfManagedExpected*/ true,
+                    /*shouldNonEmergencyBeAllowed*/ false);
+        } catch(SecurityException e) {
+            fail("Unexpected SecurityException - MANAGE_OWN_CALLS is set");
+        }
+    }
+
+    /**
+     * In the case that the placeCall API is being used place a self-managed call
+     * (phone account is marked self-managed and the calling application owns that PhoneAccount),
+     * ensure that the call gets placed as not self-managed as to not disclose PA info.
+     */
+    @SmallTest
+    @Test
+    public void testPlaceCall_selfManaged_noPermission() throws Exception {
+        doReturn(false).when(mDefaultDialerCache).isDefaultOrSystemDialer(
+                eq(DEFAULT_DIALER_PACKAGE), anyInt());
+        when(mFakePhoneAccountRegistrar.getPhoneAccountUnchecked(TEL_PA_HANDLE_CURRENT)).thenReturn(
+                makeSelfManagedPhoneAccount(TEL_PA_HANDLE_CURRENT).build());
+        Uri handle = Uri.parse("tel:6505551234");
+        Bundle extras = createSampleExtras();
+        // callingPackage matches the PhoneAccountHandle, so this is an app with a self-managed
+        // ConnectionService.
+        extras.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, TEL_PA_HANDLE_CURRENT);
+
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingPermission(CALL_PHONE);
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
+        doThrow(new SecurityException()).when(mContext).enforceCallingOrSelfPermission(
+                eq(Manifest.permission.MANAGE_OWN_CALLS), anyString());
+
+        try {
+            mTSIBinder.placeCall(handle, extras, PACKAGE_NAME, null);
+            placeCallTestHelper(handle, extras, /*isSelfManagedExpected*/ true,
+                    /*shouldNonEmergencyBeAllowed*/ false);
+        } catch(SecurityException e) {
+            fail("Unexpected SecurityException - MANAGE_OWN_CALLS is not set, so call should be "
+                    + "placed with no PhoneAccount");
+        }
+    }
+
+    /**
+     * In the case that there is a self-managed call request and the app doesn't own that
+     * PhoneAccount, we will need to check CALL_PHONE. If they do not have CALL_PHONE permission,
+     * we need to throw a security exception.
+     */
+    @SmallTest
+    @Test
+    public void testPlaceCall_selfManaged_permissionFail() throws Exception {
+        doReturn(false).when(mDefaultDialerCache).isDefaultOrSystemDialer(
+                eq(DEFAULT_DIALER_PACKAGE), anyInt());
+        when(mFakePhoneAccountRegistrar.getPhoneAccountUnchecked(TEL_PA_HANDLE_CURRENT)).thenReturn(
+                makeSelfManagedPhoneAccount(TEL_PA_HANDLE_CURRENT).build());
+        Uri handle = Uri.parse("tel:6505551234");
+        Bundle extras = createSampleExtras();
+        // callingPackage doesn't match the PhoneAccountHandle package
+        extras.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, TEL_PA_HANDLE_CURRENT);
+
+        // pass MANAGE_OWN_CALLS check, but do not have CALL PHONE
+        doNothing().when(mContext).enforceCallingOrSelfPermission(
+                eq(Manifest.permission.MANAGE_OWN_CALLS), anyString());
+        doThrow(new SecurityException())
+                .when(mContext).enforceCallingOrSelfPermission(eq(CALL_PHONE), anyString());
+
+        try {
+            // Calling package is received and is not the same as PACKAGE_NAME
+            mTSIBinder.placeCall(handle, extras, PACKAGE_NAME + "2", null);
+            fail("Expected a SecurityException - CALL_PHONE was not granted");
+        } catch(SecurityException e) {
+            // expected
+        }
+    }
+
+    /**
+     * In the case that there is a self-managed call request and the app doesn't own that
+     * PhoneAccount, we will need to check CALL_PHONE. If they have the CALL_PHONE permission, but
+     * the app op has been denied, this should throw a security exception.
+     */
+    @SmallTest
+    @Test
+    public void testPlaceCall_selfManaged_appOpPermissionFail() throws Exception {
+        doReturn(false).when(mDefaultDialerCache).isDefaultOrSystemDialer(
+                eq(DEFAULT_DIALER_PACKAGE), anyInt());
+        when(mFakePhoneAccountRegistrar.getPhoneAccountUnchecked(TEL_PA_HANDLE_CURRENT)).thenReturn(
+                makeSelfManagedPhoneAccount(TEL_PA_HANDLE_CURRENT).build());
+        Uri handle = Uri.parse("tel:6505551234");
+        Bundle extras = createSampleExtras();
+        // callingPackage doesn't match the PhoneAccountHandle package.
+        extras.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, TEL_PA_HANDLE_CURRENT);
+
+        // pass MANAGE_OWN_CALLS check, but do not have CALL PHONE
+        doNothing().when(mContext).enforceCallingOrSelfPermission(
+                eq(Manifest.permission.MANAGE_OWN_CALLS), anyString());
+        doReturn(PackageManager.PERMISSION_GRANTED)
+                .when(mContext).checkCallingPermission(CALL_PHONE);
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
+        doNothing().when(mContext).enforceCallingOrSelfPermission(eq(CALL_PHONE), anyString());
+        when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_CALL_PHONE), anyInt(), anyString(),
+                nullable(String.class), nullable(String.class)))
+                .thenReturn(AppOpsManager.MODE_ERRORED);
+        try {
+            mTSIBinder.placeCall(handle, extras, PACKAGE_NAME + "2", null);
+            placeCallTestHelper(handle, extras, /*isSelfManagedExpected*/ true,
+                    /*shouldNonEmergencyBeAllowed*/ false);
+        } catch(SecurityException e) {
+            fail("Unexpected SecurityException - MANAGE_OWN_CALLS is set, so call should be "
+                    + "placed with no PhoneAccount");
+        }
+    }
+
+    /**
+     * In the case that there is a self-managed call request and the app doesn't own that
+     * PhoneAccount, we will need to check CALL_PHONE. If they have the correct permissions, the
+     * call will go through, however we will have removed the self-managed PhoneAccountHandle. The
+     * call will go through as a normal managed call request with no PhoneAccountHandle.
+     */
+    @SmallTest
+    @Test
+    public void testPlaceCall_selfManaged_differentCallingPackage() throws Exception {
+        doReturn(false).when(mDefaultDialerCache).isDefaultOrSystemDialer(
+                eq(DEFAULT_DIALER_PACKAGE), anyInt());
+        when(mFakePhoneAccountRegistrar.getPhoneAccountUnchecked(TEL_PA_HANDLE_CURRENT)).thenReturn(
+                makeSelfManagedPhoneAccount(TEL_PA_HANDLE_CURRENT).build());
+        Uri handle = Uri.parse("tel:6505551234");
+        Bundle extras = createSampleExtras();
+        // callingPackage doesn't match the PhoneAccountHandle package
+        extras.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, TEL_PA_HANDLE_CURRENT);
+
+        // simulate default dialer so CALL_PHONE is granted.
+        when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_CALL_PHONE), anyInt(), anyString(),
+                nullable(String.class), nullable(String.class)))
+                .thenReturn(AppOpsManager.MODE_ALLOWED);
+        doReturn(PackageManager.PERMISSION_GRANTED)
+                .when(mContext).checkCallingPermission(CALL_PHONE);
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
+
+        // We expect the call to go through with no PhoneAccount specified, since the request
+        // contained a self-managed PhoneAccountHandle that didn't belong to this app.
+        Bundle expectedExtras = extras.deepCopy();
+        expectedExtras.remove(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE);
+        try {
+            mTSIBinder.placeCall(handle, extras, DEFAULT_DIALER_PACKAGE, null);
+        } catch (SecurityException e) {
+            fail("Unexpected SecurityException - CTS is default dialer and MANAGE_OWN_CALLS is not"
+                    + " required. Exception: " + e);
+        }
+        placeCallTestHelper(handle, extras, /*isSelfManagedExpected*/ true,
+                /*shouldNonEmergencyBeAllowed*/ true);
+    }
+
+    /**
+     * In the case that there is a managed call request and the app owns that
+     * PhoneAccount (but is not a self-managed), we will still need to check CALL_PHONE.
+     */
+    @SmallTest
+    @Test
+    public void testPlaceCall_samePackage_managedPhoneAccount_permissionFail() throws Exception {
+        doReturn(false).when(mDefaultDialerCache).isDefaultOrSystemDialer(
+                eq(DEFAULT_DIALER_PACKAGE), anyInt());
+        when(mFakePhoneAccountRegistrar.getPhoneAccountUnchecked(TEL_PA_HANDLE_CURRENT)).thenReturn(
+                makePhoneAccount(TEL_PA_HANDLE_CURRENT).build());
+        Uri handle = Uri.parse("tel:6505551234");
+        Bundle extras = createSampleExtras();
+        // callingPackage doesn't match the PhoneAccountHandle package
+        extras.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, TEL_PA_HANDLE_CURRENT);
+
+        // CALL_PHONE is not granted to the device.
+        doThrow(new SecurityException())
+                .when(mContext).enforceCallingOrSelfPermission(
+                        eq(Manifest.permission.MANAGE_OWN_CALLS), anyString());
+        doThrow(new SecurityException())
+                .when(mContext).enforceCallingOrSelfPermission(eq(CALL_PHONE), anyString());
+
+        try {
+            mTSIBinder.placeCall(handle, extras, PACKAGE_NAME + "2", null);
+            fail("Expected a SecurityException - CALL_PHONE is not granted");
+        } catch(SecurityException e) {
+            // expected
+        }
+    }
+
+    /**
+     * In the case that there is a managed call request and the app owns that
+     * PhoneAccount (but is not a self-managed), we will still need to check CALL_PHONE.
+     */
+    @SmallTest
+    @Test
+    public void testPlaceCall_samePackage_managedPhoneAccount_AppOpFail() throws Exception {
+        doReturn(false).when(mDefaultDialerCache).isDefaultOrSystemDialer(
+                eq(DEFAULT_DIALER_PACKAGE), anyInt());
+        when(mFakePhoneAccountRegistrar.getPhoneAccountUnchecked(TEL_PA_HANDLE_CURRENT)).thenReturn(
+                makePhoneAccount(TEL_PA_HANDLE_CURRENT).build());
+        Uri handle = Uri.parse("tel:6505551234");
+        Bundle extras = createSampleExtras();
+        // callingPackage matches the PhoneAccountHandle, but this is not a self managed phone
+        // account.
+        extras.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, TEL_PA_HANDLE_CURRENT);
+
+        // CALL_PHONE is granted, but the app op is not
+        doThrow(new SecurityException())
+                .when(mContext).enforceCallingOrSelfPermission(
+                        eq(Manifest.permission.MANAGE_OWN_CALLS), anyString());
+        doNothing().when(mContext).enforceCallingOrSelfPermission(eq(CALL_PHONE), anyString());
+        when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_CALL_PHONE), anyInt(), anyString(),
+                nullable(String.class), nullable(String.class)))
+                .thenReturn(AppOpsManager.MODE_ERRORED);
+
+        try {
+            mTSIBinder.placeCall(handle, extras, PACKAGE_NAME + "2", null);
+            fail("Expected a SecurityException - CALL_PHONE app op is denied");
+        } catch(SecurityException e) {
+            // expected
+        }
+    }
+
+    /**
+     * Since this is a self-managed call being requested, even though we do not have CALL_PHONE
+     * permissions, we still consider non-emergency allowed because this is a self-managed call.
+     */
+    @SmallTest
+    @Test
+    public void testPlaceCall_selfManaged_nonEmergencyPermission() throws Exception {
+        doReturn(false).when(mDefaultDialerCache).isDefaultOrSystemDialer(
+                eq(DEFAULT_DIALER_PACKAGE), anyInt());
+        when(mFakePhoneAccountRegistrar.getPhoneAccountUnchecked(TEL_PA_HANDLE_CURRENT)).thenReturn(
+                makeSelfManagedPhoneAccount(TEL_PA_HANDLE_CURRENT).build());
+        Uri handle = Uri.parse("tel:6505551234");
+        Bundle extras = createSampleExtras();
+        // callingPackage matches the PhoneAccountHandle, so this is an app with a self-managed
+        // ConnectionService.
+        extras.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, TEL_PA_HANDLE_CURRENT);
+
+        // enforceCallingOrSelfPermission is implicitly granted for MANAGE_OWN_CALLS here and
+        // CALL_PHONE is not required.
+        when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_CALL_PHONE), anyInt(), anyString(),
+                nullable(String.class), nullable(String.class)))
+                .thenReturn(AppOpsManager.MODE_IGNORED);
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingPermission(CALL_PHONE);
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
+
+        mTSIBinder.placeCall(handle, extras, PACKAGE_NAME, null);
+        placeCallTestHelper(handle, extras, /*isSelfManagedExpected*/ true,
+                /*shouldNonEmergencyBeAllowed*/ false);
+    }
+
+    /**
+     * Default dialer is calling placeCall and has CALL_PHONE granted, so non-emergency calls
+     * are allowed.
+     */
+    @SmallTest
+    @Test
+    public void testPlaceCall_managed_nonEmergencyGranted() throws Exception {
+        doReturn(false).when(mDefaultDialerCache).isDefaultOrSystemDialer(
+                eq(DEFAULT_DIALER_PACKAGE), anyInt());
+        Uri handle = Uri.parse("tel:6505551234");
+        Bundle extras = createSampleExtras();
+        // callingPackage doesn't match the PhoneAccountHandle, so this app does not have a
+        // self-managed ConnectionService
+        extras.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, TEL_PA_HANDLE_CURRENT);
+
+        // CALL_PHONE granted
+        when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_CALL_PHONE), anyInt(), anyString(),
+                nullable(String.class), nullable(String.class)))
+                .thenReturn(AppOpsManager.MODE_ALLOWED);
+        doReturn(PackageManager.PERMISSION_GRANTED)
+                .when(mContext).checkCallingPermission(CALL_PHONE);
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
+
+        mTSIBinder.placeCall(handle, extras, DEFAULT_DIALER_PACKAGE, null);
+        placeCallTestHelper(handle, extras, /*isSelfManagedExpected*/ false,
+                /*shouldNonEmergencyBeAllowed*/ true);
+    }
+
+    /**
+     * The default dialer is requesting to place a call and CALL_PHONE is granted, however
+     * OP_CALL_PHONE app op is denied to that app, so non-emergency calls will be denied.
+     */
     @SmallTest
     @Test
     public void testPlaceCallWithAppOpsOff() throws Exception {
         Uri handle = Uri.parse("tel:6505551234");
         Bundle extras = createSampleExtras();
 
+        // We have passed in the DEFAULT_DIALER_PACKAGE for this test, so canCallPhone is always
+        // true.
         when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_CALL_PHONE), anyInt(), anyString(),
                 nullable(String.class), nullable(String.class)))
                 .thenReturn(AppOpsManager.MODE_IGNORED);
@@ -1147,15 +1489,21 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
 
         mTSIBinder.placeCall(handle, extras, DEFAULT_DIALER_PACKAGE, null);
-        placeCallTestHelper(handle, extras, false);
+        placeCallTestHelper(handle, extras, /*isSelfManagedExpected*/ false,
+                /*shouldNonEmergencyBeAllowed*/ false);
     }
 
+    /**
+     * The default dialer is requesting to place a call, however CALL_PHONE is denied to that app,
+     * so non-emergency calls will be denied.
+     */
     @SmallTest
     @Test
     public void testPlaceCallWithNoCallingPermission() throws Exception {
         Uri handle = Uri.parse("tel:6505551234");
         Bundle extras = createSampleExtras();
 
+        // We are assumed to be default dialer in this test, so canCallPhone is always true.
         when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_CALL_PHONE), anyInt(), anyString(),
                 nullable(String.class), nullable(String.class)))
                 .thenReturn(AppOpsManager.MODE_ALLOWED);
@@ -1165,31 +1513,76 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
 
         mTSIBinder.placeCall(handle, extras, DEFAULT_DIALER_PACKAGE, null);
-        placeCallTestHelper(handle, extras, false);
+        placeCallTestHelper(handle, extras, /*isSelfManagedExpected*/ false,
+                /*shouldNonEmergencyBeAllowed*/ false);
     }
 
+    /**
+     * Ensure the expected handle, extras, and non-emergency call permission checks have been
+     * correctly included in the ACTION_CALL intent as part of the
+     * {@link UserCallIntentProcessor#processIntent} method called during the placeCall procedure.
+     * @param expectedHandle Expected outgoing number handle
+     * @param expectedExtras Expected extras in the ACTION_CALL intent.
+     * @param shouldNonEmergencyBeAllowed true if non-emergency calls should be allowed, false if
+     *                                    permission checks failed for non-emergency.
+     */
     private void placeCallTestHelper(Uri expectedHandle, Bundle expectedExtras,
-            boolean shouldNonEmergencyBeAllowed) {
+            boolean isSelfManagedExpected, boolean shouldNonEmergencyBeAllowed) {
         ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
         verify(mUserCallIntentProcessor).processIntent(intentCaptor.capture(), anyString(),
-                eq(false), eq(shouldNonEmergencyBeAllowed), eq(true));
+                eq(isSelfManagedExpected), eq(shouldNonEmergencyBeAllowed), eq(true));
         Intent capturedIntent = intentCaptor.getValue();
         assertEquals(Intent.ACTION_CALL, capturedIntent.getAction());
         assertEquals(expectedHandle, capturedIntent.getData());
         assertTrue(areBundlesEqual(expectedExtras, capturedIntent.getExtras()));
     }
 
+    /**
+     * Ensure that if the caller was never granted CALL_PHONE (and is not the default dialer), a
+     * SecurityException is thrown.
+     */
     @SmallTest
     @Test
     public void testPlaceCallFailure() throws Exception {
         Uri handle = Uri.parse("tel:6505551234");
         Bundle extras = createSampleExtras();
 
+        // The app is not considered a privileged dialer and does not have the CALL_PHONE
+        // permission.
         doThrow(new SecurityException())
                 .when(mContext).enforceCallingOrSelfPermission(eq(CALL_PHONE), anyString());
 
         try {
             mTSIBinder.placeCall(handle, extras, "arbitrary_package_name", null);
+            fail("Expected SecurityException because CALL_PHONE was not granted to caller");
+        } catch (SecurityException e) {
+            // expected
+        }
+
+        verify(mUserCallIntentProcessor, never())
+                .processIntent(any(Intent.class), anyString(), eq(false), anyBoolean(), eq(true));
+    }
+
+    /**
+     * Ensure that if the caller was granted CALL_PHONE, but did not get the OP_CALL_PHONE app op
+     * (and is not the default dialer), a SecurityException is thrown.
+     */
+    @SmallTest
+    @Test
+    public void testPlaceCallAppOpFailure() throws Exception {
+        Uri handle = Uri.parse("tel:6505551234");
+        Bundle extras = createSampleExtras();
+
+        // The app is not considered a privileged dialer and does not have the OP_CALL_PHONE
+        // app op.
+        doNothing().when(mContext).enforceCallingOrSelfPermission(eq(CALL_PHONE), anyString());
+        when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_CALL_PHONE), anyInt(), anyString(),
+                nullable(String.class), nullable(String.class)))
+                .thenReturn(AppOpsManager.MODE_IGNORED);
+
+        try {
+            mTSIBinder.placeCall(handle, extras, "arbitrary_package_name", null);
+            fail("Expected SecurityException because CALL_PHONE was not granted to caller");
         } catch (SecurityException e) {
             // expected
         }
