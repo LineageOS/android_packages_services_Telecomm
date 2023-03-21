@@ -135,10 +135,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -2016,13 +2014,13 @@ public class CallsManagerTest extends TelecomTestCase {
         incomingCall.handleCreateConnectionFailure(new DisconnectCause(DisconnectCause.CANCELED));
 
         //Ensure the listener is notified properly:
-        verify(listener).onCallCreatedButNeverAdded(incomingCall);
+        verify(listener).onCreateConnectionFailed(incomingCall);
     }
 
     /**
      * Emulate the case where a new incoming call is created but the connection fails for a known
      * reason after being added to CallsManager. Since the call was added to CallsManager, the
-     * listeners should not be notified via onCallCreatedButNeverAdded().
+     * listeners should not be notified via onCreateConnectionFailed().
      */
     @Test
     public void testIncomingCallCreatedAndAddedDoNotNotifyListener() {
@@ -2037,8 +2035,8 @@ public class CallsManagerTest extends TelecomTestCase {
         //The connection fails after being added to CallsManager for a known reason:
         incomingCall.handleCreateConnectionFailure(new DisconnectCause(DisconnectCause.CANCELED));
 
-        //Since the call was added to CallsManager, onCallCreatedButNeverAdded shouldn't be invoked:
-        verify(listener, never()).onCallCreatedButNeverAdded(incomingCall);
+        //Since the call was added to CallsManager, onCreateConnectionFailed shouldn't be invoked:
+        verify(listener, never()).onCreateConnectionFailed(incomingCall);
     }
 
     /**
@@ -2069,7 +2067,7 @@ public class CallsManagerTest extends TelecomTestCase {
         Call result = callFuture.get(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
 
         //Ensure the listener is notified properly:
-        verify(listener).onCallCreatedButNeverAdded(any());
+        verify(listener).onCreateConnectionFailed(any());
         assertNull(result);
     }
 

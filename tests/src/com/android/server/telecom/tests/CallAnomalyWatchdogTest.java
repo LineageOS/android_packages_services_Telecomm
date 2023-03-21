@@ -767,7 +767,7 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
         Call call = getCall();
         call.setState(CallState.NEW, "foo");
         call.setIsCreateConnectionComplete(false);
-        mCallAnomalyWatchdog.onCallCreated(call);
+        mCallAnomalyWatchdog.onStartCreateConnection(call);
 
         //The connection fails before being added to CallsManager for a known reason:
         call.handleCreateConnectionFailure(new DisconnectCause(DisconnectCause.CANCELED));
@@ -795,7 +795,7 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
         call.setCallDirection(Call.CALL_DIRECTION_OUTGOING);
         call.setState(CallState.NEW, "foo");
         call.setIsCreateConnectionComplete(false);
-        mCallAnomalyWatchdog.onCallCreated(call);
+        mCallAnomalyWatchdog.onStartCreateConnection(call);
 
         //The connection fails before being added to CallsManager for a known reason.
         call.handleCreateConnectionFailure(new DisconnectCause(DisconnectCause.CANCELED));
@@ -814,8 +814,8 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
     /**
      * Emulate the case where a new incoming call is created but the connection fails for a known
      * reason before being added to CallsManager and CallsManager notifies the watchdog by invoking
-     * onCallCreatedButNeverAdded(). In this case, the watchdog should stop tracking
-     * the call and not trigger an anomaly report.
+     * {@link CallsManager.CallsManagerListener#onCreateConnectionFailed(Call)}.
+     * In this case, the watchdog should stop tracking the call and not trigger an anomaly report.
      */
     @Test
     public void testCallCreatedButNotAddedPreventsAnomalyReport() {
@@ -823,10 +823,10 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
         Call call = getCall();
         call.setState(CallState.NEW, "foo");
         call.setIsCreateConnectionComplete(false);
-        mCallAnomalyWatchdog.onCallCreated(call);
+        mCallAnomalyWatchdog.onStartCreateConnection(call);
 
         //Telecom cancels the connection before adding it to CallsManager:
-        mCallAnomalyWatchdog.onCallCreatedButNeverAdded(call);
+        mCallAnomalyWatchdog.onCreateConnectionFailed(call);
 
         // Move the clock forward:
         when(mMockClockProxy.elapsedRealtime()).
