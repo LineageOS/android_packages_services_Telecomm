@@ -140,7 +140,8 @@ public class UserCallIntentProcessor {
             }
         }
 
-        if (!canCallNonEmergency && !TelephonyUtil.shouldProcessAsEmergency(mContext, handle)) {
+        if (!isSelfManaged && !canCallNonEmergency &&
+                !TelephonyUtil.shouldProcessAsEmergency(mContext, handle)) {
             showErrorDialogForRestrictedOutgoingCall(mContext,
                     R.string.outgoing_call_not_allowed_no_permission);
             Log.w(this, "Rejecting non-emergency phone call because "
