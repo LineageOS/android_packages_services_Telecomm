@@ -105,6 +105,8 @@ public class LogUtils {
         public static final String SET_RINGING = "SET_RINGING";
         public static final String SET_ANSWERED = "SET_ANSWERED";
         public static final String SET_DISCONNECTED = "SET_DISCONNECTED";
+        public static final String SKIP_CALL_LOG = "SKIP_CALL_LOG";
+        public static final String LOG_CALL = "LOG_CALL";
         public static final String SET_DISCONNECTING = "SET_DISCONNECTING";
         public static final String SET_SELECT_PHONE_ACCOUNT = "SET_SELECT_PHONE_ACCOUNT";
         public static final String SET_AUDIO_PROCESSING = "SET_AUDIO_PROCESSING";
