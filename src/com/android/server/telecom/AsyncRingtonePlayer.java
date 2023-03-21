@@ -18,9 +18,7 @@ package com.android.server.telecom;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.media.AudioAttributes;
 import android.media.Ringtone;
-import android.media.RingtoneManager;
 import android.media.VolumeShaper;
 import android.net.Uri;
 import android.os.Handler;
@@ -31,6 +29,9 @@ import android.telecom.Logging.Session;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.os.SomeArgs;
 import com.android.internal.util.Preconditions;
+
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 /**
  * Plays the default ringtone. Uses {@link Ringtone} in a separate thread so that this class can be
@@ -57,13 +58,16 @@ public class AsyncRingtonePlayer {
      * If {@link VolumeShaper.Configuration} is specified, it is applied to the ringtone to change
      * the volume of the ringtone as it plays.
      *
-     * @param ringtone The {@link Ringtone}.
+     * @param ringtoneSupplier The {@link Ringtone} factory.
+     * @param ringtoneConsumer The {@link Ringtone} post-creation callback (to start the vibration).
      */
-    public void play(@NonNull Ringtone ringtone) {
+    public void play(@NonNull Supplier<Ringtone> ringtoneSupplier,
+            BiConsumer<Ringtone, Boolean> ringtoneConsumer) {
         Log.d(this, "Posting play.");
         SomeArgs args = SomeArgs.obtain();
-        args.arg1 = ringtone;
-        args.arg2 = Log.createSubsession();
+        args.arg1 = ringtoneSupplier;
+        args.arg2 = ringtoneConsumer;
+        args.arg3 = Log.createSubsession();
         postMessage(EVENT_PLAY, true /* shouldCreateHandler */, args);
     }
 
@@ -122,30 +126,44 @@ public class AsyncRingtonePlayer {
      * Starts the actual playback of the ringtone. Executes on ringtone-thread.
      */
     private void handlePlay(SomeArgs args) {
-        Ringtone ringtone = (Ringtone) args.arg1;
-        Session session = (Session) args.arg2;
+        Supplier<Ringtone> ringtoneSupplier = (Supplier<Ringtone>) args.arg1;
+        BiConsumer<Ringtone, Boolean> ringtoneConsumer = (BiConsumer<Ringtone, Boolean>) args.arg2;
+        Session session = (Session) args.arg3;
         args.recycle();
 
         Log.continueSession(session, "ARP.hP");
         try {
-            // don't bother with any of this if there is an EVENT_STOP waiting.
+            // Don't bother with any of this if there is an EVENT_STOP waiting, but give the
+            // consumer a chance to do anything no matter what.
             if (mHandler.hasMessages(EVENT_STOP)) {
+                ringtoneConsumer.accept(null, /* stopped= */ true);
                 return;
             }
+            Ringtone ringtone = null;
+            try {
+                ringtone = ringtoneSupplier.get();
 
-            ThreadUtil.checkNotOnMainThread();
-
-            setRingtone(ringtone);
-            Uri uri = mRingtone.getUri();
-            String uriString = (uri != null ? uri.toSafeString() : "");
-            Log.i(this, "handlePlay: Play ringtone. Uri: " + uriString);
-            mRingtone.setLooping(true);
-            if (mRingtone.isPlaying()) {
-                Log.d(this, "Ringtone already playing.");
-                return;
+                // setRingtone even if null - it also stops any current ringtone to be consistent
+                // with the overall state.
+                setRingtone(ringtone);
+                if (mRingtone == null) {
+                    // The ringtoneConsumer can still vibrate at this stage.
+                    Log.w(this, "No ringtone was found bail out from playing.");
+                    return;
+                }
+                Uri uri = mRingtone.getUri();
+                String uriString = (uri != null ? uri.toSafeString() : "");
+                Log.i(this, "handlePlay: Play ringtone. Uri: " + uriString);
+                mRingtone.setLooping(true);
+                if (mRingtone.isPlaying()) {
+                    Log.d(this, "Ringtone already playing.");
+                    return;
+                }
+                mRingtone.play();
+                Log.i(this, "Play ringtone, looping.");
+            } finally {
+                ringtoneConsumer.accept(ringtone, /* stopped= */ false);
             }
-            mRingtone.play();
-            Log.i(this, "Play ringtone, looping.");
         } finally {
             Log.cancelSubsession(session);
         }

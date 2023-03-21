@@ -66,6 +66,9 @@ public class RingtoneFactory {
 
     public Ringtone getRingtone(Call incomingCall,
             @Nullable VolumeShaper.Configuration volumeShaperConfig, boolean hapticChannelsMuted) {
+        // Initializing ringtones on the main thread can deadlock
+        ThreadUtil.checkNotOnMainThread();
+
         AudioAttributes audioAttrs = getDefaultRingtoneAudioAttributes(hapticChannelsMuted);
 
         // Use the default ringtone of the work profile if the contact is a work profile contact.
@@ -116,7 +119,7 @@ public class RingtoneFactory {
         return ringtone;
     }
 
-    public AudioAttributes getDefaultRingtoneAudioAttributes(boolean hapticChannelsMuted) {
+    private AudioAttributes getDefaultRingtoneAudioAttributes(boolean hapticChannelsMuted) {
         return new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
@@ -127,6 +130,8 @@ public class RingtoneFactory {
     /** Returns a ringtone to be used when ringer is not audible for the incoming call. */
     @Nullable
     public Ringtone getHapticOnlyRingtone() {
+        // Initializing ringtones on the main thread can deadlock
+        ThreadUtil.checkNotOnMainThread();
         Uri ringtoneUri = Uri.parse("file://" + mContext.getString(
                 com.android.internal.R.string.config_defaultRingtoneVibrationSound));
         AudioAttributes audioAttrs = getDefaultRingtoneAudioAttributes(
