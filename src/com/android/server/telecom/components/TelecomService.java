@@ -26,6 +26,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.ServiceManager;
 import android.os.SystemClock;
+import android.provider.BlockedNumberContract;
 import android.telecom.Log;
 
 import android.telecom.CallerInfoAsyncQuery;
@@ -59,6 +60,8 @@ import com.android.server.telecom.RoleManagerAdapterImpl;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.TelecomWakeLock;
 import com.android.server.telecom.Timeouts;
+import com.android.server.telecom.callfiltering.BlockedNumbersAdapter;
+import com.android.server.telecom.settings.BlockedNumbersUtil;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.MissedCallNotifierImpl;
 import com.android.server.telecom.ui.NotificationChannelManager;
@@ -158,7 +161,7 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                             new InCallWakeLockControllerFactory() {
                                 @Override
                                 public InCallWakeLockController create(Context context,
-                                                                       CallsManager callsManager) {
+                                        CallsManager callsManager) {
                                     return new InCallWakeLockController(
                                             new TelecomWakeLock(context,
                                                     PowerManager.FULL_WAKE_LOCK,
@@ -211,7 +214,22 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                             .stopFlashNotificationSequence(context);
                                 }
                             },
-                            Executors.newSingleThreadExecutor()));
+                            Executors.newSingleThreadExecutor(),
+                            new BlockedNumbersAdapter() {
+                                @Override
+                                public boolean shouldShowEmergencyCallNotification(Context
+                                        context) {
+                                    return BlockedNumberContract.SystemContract
+                                            .shouldShowEmergencyCallNotification(context);
+                                }
+
+                                @Override
+                                public void updateEmergencyCallNotification(Context context,
+                                        boolean showNotification) {
+                                    BlockedNumbersUtil.updateEmergencyCallNotification(context,
+                                            showNotification);
+                                }
+                            }));
         }
     }
 
