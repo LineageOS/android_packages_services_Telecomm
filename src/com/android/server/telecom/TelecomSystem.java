@@ -31,7 +31,6 @@ import android.os.UserManager;
 import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
 import android.telephony.AnomalyReporter;
-import android.view.accessibility.AccessibilityManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -42,6 +41,7 @@ import com.android.server.telecom.DefaultDialerCache.DefaultDialerManagerAdapter
 import com.android.server.telecom.bluetooth.BluetoothDeviceManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
+import com.android.server.telecom.callfiltering.BlockedNumbersAdapter;
 import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
 import com.android.server.telecom.ui.AudioProcessingNotification;
@@ -212,7 +212,8 @@ public class TelecomSystem {
             ContactsAsyncHelper.Factory contactsAsyncHelperFactory,
             DeviceIdleControllerAdapter deviceIdleControllerAdapter,
             Ringer.AccessibilityManagerAdapter accessibilityManagerAdapter,
-            Executor asyncTaskExecutor) {
+            Executor asyncTaskExecutor,
+            BlockedNumbersAdapter blockedNumbersAdapter) {
         mContext = context.getApplicationContext();
         LogUtils.initLogging(mContext);
         AnomalyReporter.initialize(mContext);
@@ -370,7 +371,8 @@ public class TelecomSystem {
                     callEndpointControllerFactory,
                     callAnomalyWatchdog,
                     accessibilityManagerAdapter,
-                    asyncTaskExecutor);
+                    asyncTaskExecutor,
+                    blockedNumbersAdapter);
 
             mIncomingCallNotifier = incomingCallNotifier;
             incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {
