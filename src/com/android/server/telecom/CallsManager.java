@@ -100,7 +100,9 @@ import android.telecom.PhoneAccountSuggestion;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.telephony.CarrierConfigManager;
+import android.telephony.CellIdentity;
 import android.telephony.PhoneNumberUtils;
+import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -1711,6 +1713,23 @@ public class CallsManager extends Call.ListenerBase
             }
 
             call.initAnalytics(callingPackage, creationLogs.toString());
+
+            // Log info for emergency call
+            if (call.isEmergencyCall()) {
+                String simNumeric = "";
+                String networkNumeric = "";
+                int defaultVoiceSubId = SubscriptionManager.getDefaultVoiceSubscriptionId();
+                if (defaultVoiceSubId != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+                    TelephonyManager tm = getTelephonyManager().createForSubscriptionId(
+                            defaultVoiceSubId);
+                    CellIdentity cellIdentity = tm.getLastKnownCellIdentity();
+                    simNumeric = tm.getSimOperatorNumeric();
+                    networkNumeric = (cellIdentity != null) ? cellIdentity.getPlmn() : "";
+                }
+                TelecomStatsLog.write(TelecomStatsLog.EMERGENCY_NUMBER_DIALED,
+                            handle.getSchemeSpecificPart(),
+                            callingPackage, simNumeric, networkNumeric);
+            }
 
             // Ensure new calls related to self-managed calls/connections are set as such.  This
             // will be overridden when the actual connection is returned in startCreateConnection,
