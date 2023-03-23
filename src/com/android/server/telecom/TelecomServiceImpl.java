@@ -1747,7 +1747,6 @@ public class TelecomServiceImpl {
                 enforceCallingPackage(callingPackage, "placeCall");
 
                 PhoneAccountHandle phoneAccountHandle = null;
-                boolean clearPhoneAccountHandleExtra = false;
                 if (extras != null) {
                     phoneAccountHandle = extras.getParcelable(
                             TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE);
@@ -1756,33 +1755,42 @@ public class TelecomServiceImpl {
                         extras.remove(TelecomManager.EXTRA_IS_HANDOVER);
                     }
                 }
-                boolean isSelfManaged = phoneAccountHandle != null &&
+                ComponentName phoneAccountComponentName = phoneAccountHandle != null
+                        ? phoneAccountHandle.getComponentName() : null;
+                String phoneAccountPackageName = phoneAccountComponentName != null
+                        ? phoneAccountComponentName.getPackageName() : null;
+                boolean isCallerOwnerOfPhoneAccount =
+                        callingPackage.equals(phoneAccountPackageName);
+                boolean isSelfManagedPhoneAccount =
                         isSelfManagedConnectionService(phoneAccountHandle);
-                if (isSelfManaged) {
-                    try {
-                        mContext.enforceCallingOrSelfPermission(
-                                Manifest.permission.MANAGE_OWN_CALLS,
-                                "Self-managed ConnectionServices require "
-                                        + "MANAGE_OWN_CALLS permission.");
-                    } catch (SecurityException e) {
-                        // Fallback to use mobile network to avoid disclosing phone account handle
-                        // package information
-                        clearPhoneAccountHandleExtra = true;
-                    }
-
-                    if (!clearPhoneAccountHandleExtra && !callingPackage.equals(
-                            phoneAccountHandle.getComponentName().getPackageName())
-                            && !canCallPhone(callingPackage, callingFeatureId,
-                            "CALL_PHONE permission required to place calls.")) {
-                        // The caller is not allowed to place calls, so fallback to use mobile
-                        // network.
-                        clearPhoneAccountHandleExtra = true;
-                    }
-                } else if (!canCallPhone(callingPackage, callingFeatureId, "placeCall")) {
+                // Ensure the app's calling package matches the PhoneAccount package name before
+                // checking self-managed status so that we do not leak installed package
+                // information.
+                boolean isSelfManagedRequest = isCallerOwnerOfPhoneAccount &&
+                        isSelfManagedPhoneAccount;
+                if (isSelfManagedRequest) {
+                    // The package name of the caller matches the package name of the
+                    // PhoneAccountHandle, so ensure the app has MANAGE_OWN_CALLS permission if
+                    // self-managed.
+                    mContext.enforceCallingOrSelfPermission(
+                            Manifest.permission.MANAGE_OWN_CALLS,
+                            "Self-managed ConnectionServices require MANAGE_OWN_CALLS permission.");
+                } else if (!canCallPhone(callingPackage, callingFeatureId,
+                        "CALL_PHONE permission required to place calls.")) {
+                    // not self-managed, so CALL_PHONE is required.
                     mAnomalyReporter.reportAnomaly(PLACE_CALL_SECURITY_EXCEPTION_ERROR_UUID,
                             PLACE_CALL_SECURITY_EXCEPTION_ERROR_MSG);
-                    throw new SecurityException("Package " + callingPackage
-                            + " is not allowed to place phone calls");
+                    throw new SecurityException(
+                            "CALL_PHONE permission required to place calls.");
+                }
+
+                // An application can not place a call with a self-managed PhoneAccount that
+                // they do not own. If this is the case (and the app has CALL_PHONE permission),
+                // remove the PhoneAccount from the request and place the call as if it was a
+                // managed call request with no PhoneAccount specified.
+                if (!isCallerOwnerOfPhoneAccount && isSelfManagedPhoneAccount) {
+                    // extras can not be null if isSelfManagedPhoneAccount is true
+                    extras.remove(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE);
                 }
 
                 // Note: we can still get here for the default/system dialer, even if the Phone
@@ -1813,16 +1821,12 @@ public class TelecomServiceImpl {
                         final Intent intent = new Intent(hasCallPrivilegedPermission ?
                                 Intent.ACTION_CALL_PRIVILEGED : Intent.ACTION_CALL, handle);
                         if (extras != null) {
-                            if (clearPhoneAccountHandleExtra) {
-                                extras.remove(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE);
-                            }
                             extras.setDefusable(true);
                             intent.putExtras(extras);
                         }
                         mUserCallIntentProcessorFactory.create(mContext, userHandle)
-                                .processIntent(
-                                        intent, callingPackage, isSelfManaged,
-                                                (hasCallAppOp && hasCallPermission),
+                                .processIntent(intent, callingPackage, isSelfManagedRequest,
+                                        (hasCallAppOp && hasCallPermission),
                                         true /* isLocalInvocation */);
                     } finally {
                         Binder.restoreCallingIdentity(token);

@@ -1214,20 +1214,14 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         // ConnectionService.
         extras.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, TEL_PA_HANDLE_CURRENT);
 
-        doReturn(PackageManager.PERMISSION_DENIED)
-                .when(mContext).checkCallingPermission(CALL_PHONE);
-        doReturn(PackageManager.PERMISSION_DENIED)
-                .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
         doThrow(new SecurityException()).when(mContext).enforceCallingOrSelfPermission(
                 eq(Manifest.permission.MANAGE_OWN_CALLS), anyString());
 
         try {
             mTSIBinder.placeCall(handle, extras, PACKAGE_NAME, null);
-            placeCallTestHelper(handle, extras, /*isSelfManagedExpected*/ true,
-                    /*shouldNonEmergencyBeAllowed*/ false);
+            fail("Expected SecurityException because MANAGE_OWN_CALLS is not set");
         } catch(SecurityException e) {
-            fail("Unexpected SecurityException - MANAGE_OWN_CALLS is not set, so call should be "
-                    + "placed with no PhoneAccount");
+            // expected
         }
     }
 
@@ -1283,21 +1277,15 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         // pass MANAGE_OWN_CALLS check, but do not have CALL PHONE
         doNothing().when(mContext).enforceCallingOrSelfPermission(
                 eq(Manifest.permission.MANAGE_OWN_CALLS), anyString());
-        doReturn(PackageManager.PERMISSION_GRANTED)
-                .when(mContext).checkCallingPermission(CALL_PHONE);
-        doReturn(PackageManager.PERMISSION_DENIED)
-                .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
         doNothing().when(mContext).enforceCallingOrSelfPermission(eq(CALL_PHONE), anyString());
         when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_CALL_PHONE), anyInt(), anyString(),
                 nullable(String.class), nullable(String.class)))
                 .thenReturn(AppOpsManager.MODE_ERRORED);
         try {
             mTSIBinder.placeCall(handle, extras, PACKAGE_NAME + "2", null);
-            placeCallTestHelper(handle, extras, /*isSelfManagedExpected*/ true,
-                    /*shouldNonEmergencyBeAllowed*/ false);
+            fail("Expected a SecurityException - CALL_PHONE app op is denied");
         } catch(SecurityException e) {
-            fail("Unexpected SecurityException - MANAGE_OWN_CALLS is set, so call should be "
-                    + "placed with no PhoneAccount");
+            // expected
         }
     }
 
@@ -1338,7 +1326,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
             fail("Unexpected SecurityException - CTS is default dialer and MANAGE_OWN_CALLS is not"
                     + " required. Exception: " + e);
         }
-        placeCallTestHelper(handle, extras, /*isSelfManagedExpected*/ true,
+        placeCallTestHelper(handle, extras, /*isSelfManagedExpected*/ false,
                 /*shouldNonEmergencyBeAllowed*/ true);
     }
 
@@ -1408,8 +1396,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     }
 
     /**
-     * Since this is a self-managed call being requested, even though we do not have CALL_PHONE
-     * permissions, we still consider non-emergency allowed because this is a self-managed call.
+     * Since this is a self-managed call being requested, so ensure we report the call as
+     * self-managed and without non-emergency permissions.
      */
     @SmallTest
     @Test
@@ -2094,6 +2082,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     }
 
     private static boolean areBundlesEqual(Bundle b1, Bundle b2) {
+        if (b1.keySet().size() != b2.keySet().size()) return false;
+
         for (String key1 : b1.keySet()) {
             if (!b1.get(key1).equals(b2.get(key1))) {
                 return false;
