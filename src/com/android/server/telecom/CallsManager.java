@@ -60,7 +60,6 @@ import android.media.AudioSystem;
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -123,6 +122,7 @@ import com.android.server.telecom.callfiltering.CallScreeningServiceFilter;
 import com.android.server.telecom.callfiltering.DirectToVoicemailFilter;
 import com.android.server.telecom.callfiltering.DndCallFilter;
 import com.android.server.telecom.callfiltering.IncomingCallFilterGraph;
+import com.android.server.telecom.callfiltering.BlockedNumbersAdapter;
 import com.android.server.telecom.callredirection.CallRedirectionProcessor;
 import com.android.server.telecom.components.ErrorDialogActivity;
 import com.android.server.telecom.components.TelecomBroadcastReceiver;
@@ -440,6 +440,7 @@ public class CallsManager extends Call.ListenerBase
     private final CallEndpointController mCallEndpointController;
     private final CallAnomalyWatchdog mCallAnomalyWatchdog;
     private final CallStreamingController mCallStreamingController;
+    private final BlockedNumbersAdapter mBlockedNumbersAdapter;
 
     private final ConnectionServiceFocusManager.CallsManagerRequester mRequester =
             new ConnectionServiceFocusManager.CallsManagerRequester() {
@@ -501,33 +502,13 @@ public class CallsManager extends Call.ListenerBase
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.startSession("CM.CCCR");
             String action = intent.getAction();
             if (CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED.equals(action)
                     || SystemContract.ACTION_BLOCK_SUPPRESSION_STATE_CHANGED.equals(action)) {
-                new UpdateEmergencyCallNotificationTask().doInBackground(
-                        Pair.create(context, Log.createSubsession()));
+                updateEmergencyCallNotificationAsync(context);
             }
         }
     };
-
-    private static class UpdateEmergencyCallNotificationTask
-            extends AsyncTask<Pair<Context, Session>, Void, Void> {
-        @SafeVarargs
-        @Override
-        protected final Void doInBackground(Pair<Context, Session>... args) {
-            if (args == null || args.length != 1 || args[0] == null) {
-                Log.e(this, new IllegalArgumentException(), "Incorrect invocation");
-                return null;
-            }
-            Log.continueSession(args[0].second, "CM.UECNT");
-            Context context = args[0].first;
-            BlockedNumbersUtil.updateEmergencyCallNotification(context,
-                    SystemContract.shouldShowEmergencyCallNotification(context));
-            Log.endSession();
-            return null;
-        }
-    }
 
     /**
      * Initializes the required Telecom components.
@@ -567,7 +548,8 @@ public class CallsManager extends Call.ListenerBase
             CallEndpointControllerFactory callEndpointControllerFactory,
             CallAnomalyWatchdog callAnomalyWatchdog,
             Ringer.AccessibilityManagerAdapter accessibilityManagerAdapter,
-            Executor asyncTaskExecutor) {
+            Executor asyncTaskExecutor,
+            BlockedNumbersAdapter blockedNumbersAdapter) {
         mContext = context;
         mLock = lock;
         mPhoneNumberUtilsAdapter = phoneNumberUtilsAdapter;
@@ -652,6 +634,7 @@ public class CallsManager extends Call.ListenerBase
         mRoleManagerAdapter = roleManagerAdapter;
         mVoipCallMonitor = new VoipCallMonitor(mContext, mLock);
         mCallStreamingController = new CallStreamingController(mContext);
+        mBlockedNumbersAdapter = blockedNumbersAdapter;
 
         mListeners.add(mInCallWakeLockController);
         mListeners.add(statusBarNotifier);
@@ -4981,6 +4964,25 @@ public class CallsManager extends Call.ListenerBase
                         "ensureCallAudible: voice call stream has volume 0. Adjusting to default.");
                 am.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
                         AudioSystem.getDefaultStreamVolume(AudioManager.STREAM_VOICE_CALL), 0);
+            }
+        });
+    }
+
+    /**
+     * Asynchronously updates the emergency call notification.
+     * @param context the context for the update.
+     */
+    private void updateEmergencyCallNotificationAsync(Context context) {
+        mAsyncTaskExecutor.execute(() -> {
+            Log.startSession("CM.UEMCNA");
+            try {
+                boolean shouldShow = mBlockedNumbersAdapter.shouldShowEmergencyCallNotification(
+                        context);
+                Log.i(CallsManager.this, "updateEmergencyCallNotificationAsync; show=%b",
+                        shouldShow);
+                mBlockedNumbersAdapter.updateEmergencyCallNotification(context, shouldShow);
+            } finally {
+                Log.endSession();
             }
         });
     }

@@ -96,6 +96,7 @@ import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.WiredHeadsetManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
+import com.android.server.telecom.callfiltering.BlockedNumbersAdapter;
 import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 
@@ -211,6 +212,8 @@ public class TelecomSystemTest extends TelecomTestCase {
     @Mock DeviceIdleControllerAdapter mDeviceIdleControllerAdapter;
 
     @Mock Ringer.AccessibilityManagerAdapter mAccessibilityManagerAdapter;
+    @Mock
+    BlockedNumbersAdapter mBlockedNumbersAdapter;
 
     final ComponentName mInCallServiceComponentNameX =
             new ComponentName(
@@ -544,7 +547,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                         return new ContactsAsyncHelper(adapter, mHandlerThread.getLooper());
                     }
                 }, mDeviceIdleControllerAdapter, mAccessibilityManagerAdapter,
-                Runnable::run);
+                Runnable::run,
+                mBlockedNumbersAdapter);
 
         mComponentContextFixture.setTelecomManager(new TelecomManager(
                 mComponentContextFixture.getTestDouble(),

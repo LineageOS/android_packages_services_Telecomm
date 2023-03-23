@@ -356,30 +356,34 @@ public class ComponentContextFixture implements TestFixture<Context> {
 
         @Override
         public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter) {
-            // TODO -- this is called by WiredHeadsetManager!!!
+            mBroadcastReceivers.add(receiver);
             return null;
         }
 
         @Override
         public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter, int flags) {
+            mBroadcastReceivers.add(receiver);
             return null;
         }
 
         @Override
         public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter,
                 String broadcastPermission, Handler scheduler) {
+            mBroadcastReceivers.add(receiver);
             return null;
         }
 
         @Override
         public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter,
                 String broadcastPermission, Handler scheduler, int flags) {
+            mBroadcastReceivers.add(receiver);
             return null;
         }
 
         @Override
         public Intent registerReceiverAsUser(BroadcastReceiver receiver, UserHandle handle,
                 IntentFilter filter, String broadcastPermission, Handler scheduler) {
+            mBroadcastReceivers.add(receiver);
             return null;
         }
 
@@ -603,6 +607,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
             mock(PermissionCheckerManager.class);
     private final PermissionInfo mPermissionInfo = mock(PermissionInfo.class);
     private final SensorPrivacyManager mSensorPrivacyManager = mock(SensorPrivacyManager.class);
+    private final List<BroadcastReceiver> mBroadcastReceivers = new ArrayList<>();
 
     private TelecomManager mTelecomManager = mock(TelecomManager.class);
 
@@ -805,6 +810,10 @@ public class ComponentContextFixture implements TestFixture<Context> {
 
     public NotificationManager getNotificationManager() {
         return mNotificationManager;
+    }
+
+    public List<BroadcastReceiver> getBroadcastReceivers() {
+        return mBroadcastReceivers;
     }
 
     private void addService(String action, ComponentName name, IInterface service) {
