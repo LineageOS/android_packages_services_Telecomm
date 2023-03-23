@@ -16,10 +16,12 @@
 
 package com.android.server.telecom;
 
+import android.app.BroadcastOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.os.Bundle;
 import android.os.UserHandle;
 import android.telecom.Log;
 import android.widget.Toast;
@@ -247,8 +249,14 @@ public final class TelecomBroadcastIntentProcessor {
      * Closes open system dialogs and the notification shade.
      */
     private void closeSystemDialogs(Context context) {
-        Intent intent = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
-        context.sendBroadcastAsUser(intent, UserHandle.ALL);
+        Intent intent = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
+                .addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+        Bundle options = BroadcastOptions.makeBasic()
+                .setDeliveryGroupPolicy(BroadcastOptions.DELIVERY_GROUP_POLICY_MOST_RECENT)
+                .setDeferralPolicy(BroadcastOptions.DEFERRAL_POLICY_UNTIL_ACTIVE)
+                .toBundle();
+        context.sendBroadcastAsUser(intent, UserHandle.ALL, null /* receiverPermission */,
+                options);
     }
 
     private void sendSmsIntent(Intent intent, UserHandle userHandle) {
