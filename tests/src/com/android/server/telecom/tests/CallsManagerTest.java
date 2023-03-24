@@ -70,6 +70,7 @@ import android.telecom.TelecomManager;
 import android.telecom.CallException;
 import android.telecom.VideoProfile;
 import android.telephony.CarrierConfigManager;
+import android.telephony.PhoneCapability;
 import android.telephony.TelephonyManager;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -240,6 +241,7 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private AnomalyReporterAdapter mAnomalyReporterAdapter;
     @Mock private Ringer.AccessibilityManagerAdapter mAccessibilityManagerAdapter;
     @Mock private BlockedNumbersAdapter mBlockedNumbersAdapter;
+    @Mock private PhoneCapability mPhoneCapability;
 
     private CallsManager mCallsManager;
 
@@ -331,6 +333,26 @@ public class CallsManagerTest extends TelecomTestCase {
         assertEquals(0, mCallsManager.constructPossiblePhoneAccounts(null, null, false, false).size());
     }
 
+    private Call constructOngoingCall(String callId, PhoneAccountHandle phoneAccountHandle) {
+        Call ongoingCall = new Call(
+                callId,
+                mContext,
+                mCallsManager,
+                mLock,
+                null /* ConnectionServiceRepository */,
+                mPhoneNumberUtilsAdapter,
+                TEST_ADDRESS,
+                null /* GatewayInfo */,
+                null /* connectionManagerPhoneAccountHandle */,
+                phoneAccountHandle,
+                Call.CALL_DIRECTION_INCOMING,
+                false /* shouldAttachToExistingConnection*/,
+                false /* isConference */,
+                mClockProxy,
+                mToastFactory);
+        ongoingCall.setState(CallState.ACTIVE, "just cuz");
+        return ongoingCall;
+    }
     /**
      * Verify behavior for multisim devices where we want to ensure that the active sim is used for
      * placing a new call.
@@ -341,23 +363,7 @@ public class CallsManagerTest extends TelecomTestCase {
     public void testConstructPossiblePhoneAccountsMultiSimActive() throws Exception {
         setupMsimAccounts();
 
-        Call ongoingCall = new Call(
-                "1", /* callId */
-                mContext,
-                mCallsManager,
-                mLock,
-                null /* ConnectionServiceRepository */,
-                mPhoneNumberUtilsAdapter,
-                TEST_ADDRESS,
-                null /* GatewayInfo */,
-                null /* connectionManagerPhoneAccountHandle */,
-                SIM_2_HANDLE,
-                Call.CALL_DIRECTION_INCOMING,
-                false /* shouldAttachToExistingConnection*/,
-                false /* isConference */,
-                mClockProxy,
-                mToastFactory);
-        ongoingCall.setState(CallState.ACTIVE, "just cuz");
+        Call ongoingCall = constructOngoingCall("1", SIM_2_HANDLE);
         mCallsManager.addCall(ongoingCall);
 
         List<PhoneAccountHandle> phoneAccountHandles = mCallsManager.constructPossiblePhoneAccounts(
@@ -378,6 +384,47 @@ public class CallsManagerTest extends TelecomTestCase {
         List<PhoneAccountHandle> phoneAccountHandles = mCallsManager.constructPossiblePhoneAccounts(
                 TEST_ADDRESS, null, false, false);
         assertEquals(2, phoneAccountHandles.size());
+    }
+
+    /**
+     * For DSDA-enabled multisim devices with an ongoing call, verify that both SIMs'
+     * PhoneAccountHandles are constructed while placing a new call.
+     * @throws Exception
+     */
+    @MediumTest
+    @Test
+    public void testConstructPossiblePhoneAccountsMultiSimActive_dsdaCallingPossible() throws
+            Exception {
+        setupMsimAccounts();
+        setMaxActiveVoiceSubscriptions(2);
+
+        Call ongoingCall = constructOngoingCall("1", SIM_2_HANDLE);
+        mCallsManager.addCall(ongoingCall);
+
+        List<PhoneAccountHandle> phoneAccountHandles = mCallsManager.constructPossiblePhoneAccounts(
+                TEST_ADDRESS, null, false, false);
+        assertEquals(2, phoneAccountHandles.size());
+    }
+
+    /**
+     * For DSDA-enabled multisim devices with an ongoing call, verify that only the active SIMs'
+     * PhoneAccountHandle is constructed while placing an emergency call.
+     * @throws Exception
+     */
+    @MediumTest
+    @Test
+    public void testConstructPossiblePhoneAccountsMultiSimActive_dsdaCallingPossible_emergencyCall()
+            throws Exception {
+        setupMsimAccounts();
+        setMaxActiveVoiceSubscriptions(2);
+
+        Call ongoingCall = constructOngoingCall("1", SIM_2_HANDLE);
+        mCallsManager.addCall(ongoingCall);
+
+        List<PhoneAccountHandle> phoneAccountHandles = mCallsManager.constructPossiblePhoneAccounts(
+                TEST_ADDRESS, null, false, true /* isEmergency */);
+        assertEquals(1, phoneAccountHandles.size());
+        assertEquals(SIM_2_HANDLE, phoneAccountHandles.get(0));
     }
 
     private void setupCallerInfoLookupHelper() {
@@ -2861,5 +2908,11 @@ public class CallsManagerTest extends TelecomTestCase {
                 new ArrayList<>(Arrays.asList(SIM_1_HANDLE, SIM_2_HANDLE)));
         when(mPhoneAccountRegistrar.getSimPhoneAccountsOfCurrentUser()).thenReturn(
                 new ArrayList<>(Arrays.asList(SIM_1_HANDLE, SIM_2_HANDLE)));
+    }
+
+    private void setMaxActiveVoiceSubscriptions(int num) {
+        TelephonyManager mockTelephonyManager = mComponentContextFixture.getTelephonyManager();
+        when(mockTelephonyManager.getPhoneCapability()).thenReturn(mPhoneCapability);
+        when(mPhoneCapability.getMaxActiveVoiceSubscriptions()).thenReturn(num);
     }
 }
