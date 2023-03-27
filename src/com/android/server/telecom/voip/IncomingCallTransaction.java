@@ -40,6 +40,7 @@ public class IncomingCallTransaction extends VoipCallTransaction {
 
     public IncomingCallTransaction(String callId, CallAttributes callAttributes,
             CallsManager callsManager) {
+        super(callsManager.getLock());
         mCallId = callId;
         mCallAttributes = callAttributes;
         mCallsManager = callsManager;

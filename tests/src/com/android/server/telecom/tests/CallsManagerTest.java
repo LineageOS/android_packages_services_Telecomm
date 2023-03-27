@@ -121,6 +121,7 @@ import com.android.server.telecom.callfiltering.BlockedNumbersAdapter;
 import com.android.server.telecom.ui.AudioProcessingNotification;
 import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import com.android.server.telecom.ui.ToastFactory;
+import com.android.server.telecom.voip.TransactionManager;
 
 import org.junit.After;
 import org.junit.Before;
@@ -304,7 +305,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 mAccessibilityManagerAdapter,
                 // Just do async tasks synchronously to support testing.
                 command -> command.run(),
-                mBlockedNumbersAdapter);
+                mBlockedNumbersAdapter,
+                TransactionManager.getTestInstance());
 
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SELF_MANAGED_HANDLE), any())).thenReturn(SELF_MANAGED_ACCOUNT);
