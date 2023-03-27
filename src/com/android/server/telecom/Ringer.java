@@ -441,7 +441,11 @@ public class Ringer {
                 }
             };
             deferBlockOnRingingFuture = true;  // Run in vibrationLogic.
-            mRingtonePlayer.play(ringtoneSupplier, vibrationLogic);
+            if (ringtoneSupplier != null) {
+                mRingtonePlayer.play(ringtoneSupplier, vibrationLogic);
+            } else {
+                vibrationLogic.accept(/* ringtone= */ null, /* stopped= */ false);
+            }
 
             // shouldAcquireAudioFocus is meant to be true, but that check is deferred to here
             // because until now is when we actually know if the ringtone loading worked.
