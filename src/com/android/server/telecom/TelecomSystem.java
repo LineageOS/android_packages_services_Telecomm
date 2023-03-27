@@ -217,6 +217,7 @@ public class TelecomSystem {
             BlockedNumbersAdapter blockedNumbersAdapter) {
         mContext = context.getApplicationContext();
         LogUtils.initLogging(mContext);
+        android.telecom.Log.setLock(mLock);
         AnomalyReporter.initialize(mContext);
         DefaultDialerManagerAdapter defaultDialerAdapter =
                 new DefaultDialerCache.DefaultDialerManagerAdapterImpl();
