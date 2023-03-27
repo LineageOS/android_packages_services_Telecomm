@@ -49,6 +49,7 @@ import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.MissedCallNotifierImpl.MissedCallNotifierImplFactory;
 import com.android.server.telecom.ui.ToastFactory;
+import com.android.server.telecom.voip.TransactionManager;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -337,6 +338,7 @@ public class TelecomSystem {
             CallAnomalyWatchdog callAnomalyWatchdog = new CallAnomalyWatchdog(
                     Executors.newSingleThreadScheduledExecutor(),
                     mLock, timeoutsAdapter, clockProxy);
+            TransactionManager transactionManager = TransactionManager.getInstance();
 
             mCallsManager = new CallsManager(
                     mContext,
@@ -372,8 +374,8 @@ public class TelecomSystem {
                     callAnomalyWatchdog,
                     accessibilityManagerAdapter,
                     asyncTaskExecutor,
-                    blockedNumbersAdapter);
-
+                    blockedNumbersAdapter,
+                    transactionManager);
             mIncomingCallNotifier = incomingCallNotifier;
             incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {
                 @Override

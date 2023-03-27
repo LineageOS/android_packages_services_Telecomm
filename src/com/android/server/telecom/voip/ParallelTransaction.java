@@ -16,6 +16,8 @@
 
 package com.android.server.telecom.voip;
 
+import com.android.server.telecom.TelecomSystem;
+
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -23,8 +25,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * A VoipCallTransaction implementation that its sub transactions will be executed in parallel
  */
 public class ParallelTransaction extends VoipCallTransaction {
-    public ParallelTransaction(List<VoipCallTransaction> subTransactions) {
-        super(subTransactions);
+    public ParallelTransaction(List<VoipCallTransaction> subTransactions,
+            TelecomSystem.SyncRoot lock) {
+        super(subTransactions, lock);
     }
 
     @Override
