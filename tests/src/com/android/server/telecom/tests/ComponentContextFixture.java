@@ -55,7 +55,9 @@ import android.location.CountryDetector;
 import android.location.LocationManager;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
+import android.os.BugreportManager;
 import android.os.Bundle;
+import android.os.DropBoxManager;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IInterface;
@@ -278,8 +280,12 @@ public class ComponentContextFixture implements TestFixture<Context> {
                 return Context.NOTIFICATION_SERVICE;
             } else if (svcClass == AccessibilityManager.class) {
                 return Context.ACCESSIBILITY_SERVICE;
+            } else if (svcClass == DropBoxManager.class) {
+                return Context.DROPBOX_SERVICE;
+            } else if (svcClass == BugreportManager.class) {
+                return Context.BUGREPORT_SERVICE;
             }
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException(svcClass.getName());
         }
 
         @Override

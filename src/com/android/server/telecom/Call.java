@@ -3923,6 +3923,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         return mCallDirection == CALL_DIRECTION_UNKNOWN;
     }
 
+    public boolean isOutgoing() {
+        return mCallDirection == CALL_DIRECTION_OUTGOING;
+    }
+
     /**
      * Determines if this call is in a disconnecting state.
      *

@@ -19,6 +19,7 @@ package com.android.server.telecom;
 import static android.Manifest.permission.CALL_PHONE;
 import static android.Manifest.permission.CALL_PRIVILEGED;
 import static android.Manifest.permission.DUMP;
+import static android.Manifest.permission.MANAGE_OWN_CALLS;
 import static android.Manifest.permission.MODIFY_PHONE_STATE;
 import static android.Manifest.permission.READ_PHONE_NUMBERS;
 import static android.Manifest.permission.READ_PHONE_STATE;
@@ -26,11 +27,10 @@ import static android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE;
 import static android.Manifest.permission.READ_SMS;
 import static android.Manifest.permission.REGISTER_SIM_SUBSCRIPTION;
 import static android.Manifest.permission.WRITE_SECURE_SETTINGS;
-import static android.Manifest.permission.MANAGE_OWN_CALLS;
 import static android.telecom.CallAttributes.DIRECTION_INCOMING;
 import static android.telecom.CallAttributes.DIRECTION_OUTGOING;
-import static android.telecom.TelecomManager.TELECOM_TRANSACTION_SUCCESS;
 import static android.telecom.CallException.CODE_ERROR_UNKNOWN;
+import static android.telecom.TelecomManager.TELECOM_TRANSACTION_SUCCESS;
 
 import android.Manifest;
 import android.app.ActivityManager;
@@ -58,7 +58,6 @@ import android.os.UserHandle;
 import android.provider.BlockedNumberContract;
 import android.provider.Settings;
 import android.telecom.CallAttributes;
-
 import android.telecom.CallException;
 import android.telecom.Log;
 import android.telecom.PhoneAccount;
@@ -1933,19 +1932,21 @@ public class TelecomServiceImpl {
             }
 
 
-            if (args.length > 0 && Analytics.ANALYTICS_DUMPSYS_ARG.equals(args[0])) {
+            if (args != null && args.length > 0 && Analytics.ANALYTICS_DUMPSYS_ARG.equals(
+                    args[0])) {
                 Binder.withCleanCallingIdentity(() ->
                         Analytics.dumpToEncodedProto(mContext, writer, args));
                 return;
             }
 
-            boolean isTimeLineView = (args.length > 0 && TIME_LINE_ARG.equalsIgnoreCase(args[0]));
+            boolean isTimeLineView =
+                    (args != null && args.length > 0 && TIME_LINE_ARG.equalsIgnoreCase(args[0]));
 
             final IndentingPrintWriter pw = new IndentingPrintWriter(writer, "  ");
             if (mCallsManager != null) {
                 pw.println("CallsManager: ");
                 pw.increaseIndent();
-                mCallsManager.dump(pw);
+                mCallsManager.dump(pw, args);
                 pw.decreaseIndent();
 
                 pw.println("PhoneAccountRegistrar: ");
