@@ -3187,7 +3187,10 @@ public class CallsManager extends Call.ListenerBase
                         isEmergency);
         // Only one SIM PhoneAccount can be active at one time for DSDS. Only that SIM PhoneAccount
         // should be available if a call is already active on the SIM account.
-        if (!isDsdaCallingPossible()) {
+        // Similarly, the emergency call should be attempted over the same PhoneAccount as the
+        // ongoing call. However, if the ongoing call is over cross-SIM registration, then the
+        // emergency call will be attempted over a different Phone object at a later stage.
+        if (isEmergency || !isDsdaCallingPossible()) {
             List<PhoneAccountHandle> simAccounts =
                     mPhoneAccountRegistrar.getSimPhoneAccountsOfCurrentUser();
             PhoneAccountHandle ongoingCallAccount = null;
