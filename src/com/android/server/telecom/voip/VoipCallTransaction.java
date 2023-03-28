@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 
 import com.android.server.telecom.LoggedHandlerExecutor;
+import com.android.server.telecom.TelecomSystem;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -36,17 +37,19 @@ public class VoipCallTransaction {
     protected Handler mHandler;
     protected TransactionManager.TransactionCompleteListener mCompleteListener;
     protected List<VoipCallTransaction> mSubTransactions;
+    private TelecomSystem.SyncRoot mLock;
 
     public VoipCallTransaction(
-            List<VoipCallTransaction> subTransactions) {
+            List<VoipCallTransaction> subTransactions, TelecomSystem.SyncRoot lock) {
         mSubTransactions = subTransactions;
         mHandlerThread = new HandlerThread(this.toString());
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
+        mLock = lock;
     }
 
-    public VoipCallTransaction() {
-        this(null /** mSubTransactions */);
+    public VoipCallTransaction(TelecomSystem.SyncRoot lock) {
+        this(null /** mSubTransactions */, lock);
     }
 
     public void start() {
@@ -68,7 +71,7 @@ public class VoipCallTransaction {
         CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
         future.thenComposeAsync(this::processTransaction,
                         new LoggedHandlerExecutor(mHandler, mTransactionName + "@"
-                                + hashCode() + ".pT", null))
+                                + hashCode() + ".pT", mLock))
                 .thenApplyAsync(
                         (Function<VoipCallTransactionResult, Void>) result -> {
                             mCompleted.set(true);

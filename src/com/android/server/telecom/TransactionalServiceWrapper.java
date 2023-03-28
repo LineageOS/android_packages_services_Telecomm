@@ -86,7 +86,7 @@ public class TransactionalServiceWrapper implements
     private ConnectionServiceFocusManager.ConnectionServiceFocusListener mConnSvrFocusListener;
     // init when constructor is called
     private final Hashtable<String, Call> mTrackedCalls = new Hashtable<>();
-    private final Object mLock;
+    private final TelecomSystem.SyncRoot mLock;
     private final String mPackageName;
     // needs to be non-final for testing
     private TransactionManager mTransactionManager;
@@ -105,7 +105,7 @@ public class TransactionalServiceWrapper implements
         mPackageName = phoneAccountHandle.getComponentName().getPackageName();
         mTransactionManager = TransactionManager.getInstance();
         mStreamingController = mCallsManager.getCallStreamingController();
-        mLock = new Object();
+        mLock = mCallsManager.getLock();
     }
 
     @VisibleForTesting
@@ -378,7 +378,7 @@ public class TransactionalServiceWrapper implements
         SerialTransaction serialTransactions = createSetActiveTransactions(call);
         serialTransactions.appendTransaction(
                 new CallEventCallbackAckTransaction(mICallEventCallback,
-                        action, call.getId(), videoState));
+                        action, call.getId(), videoState, mLock));
 
         // do CallsManager workload before asking client and
         //   reset CallsManager state if client does NOT ack
@@ -403,7 +403,7 @@ public class TransactionalServiceWrapper implements
             Log.i(TAG, String.format(Locale.US, "onSetInactive: callId=[%s]", call.getId()));
             mTransactionManager.addTransaction(
                     new CallEventCallbackAckTransaction(mICallEventCallback,
-                            ON_SET_INACTIVE, call.getId()), new OutcomeReceiver<>() {
+                            ON_SET_INACTIVE, call.getId(), mLock), new OutcomeReceiver<>() {
                         @Override
                         public void onResult(VoipCallTransactionResult result) {
                             mCallsManager.markCallAsOnHold(call);
@@ -426,7 +426,7 @@ public class TransactionalServiceWrapper implements
 
             mTransactionManager.addTransaction(
                     new CallEventCallbackAckTransaction(mICallEventCallback, ON_DISCONNECT,
-                            call.getId(), cause), new OutcomeReceiver<>() {
+                            call.getId(), cause, mLock), new OutcomeReceiver<>() {
                         @Override
                         public void onResult(VoipCallTransactionResult result) {
                             removeCallFromCallsManager(call, cause);
@@ -451,7 +451,7 @@ public class TransactionalServiceWrapper implements
 
             mTransactionManager.addTransaction(
                     new CallEventCallbackAckTransaction(mICallEventCallback, ON_STREAMING_STARTED,
-                            call.getId()), new OutcomeReceiver<>() {
+                            call.getId(), mLock), new OutcomeReceiver<>() {
                         @Override
                         public void onResult(VoipCallTransactionResult result) {
                         }
@@ -560,7 +560,7 @@ public class TransactionalServiceWrapper implements
         transactions.add(new RequestFocusTransaction(mCallsManager, call));
 
         // send off to Transaction Manager to process
-        return new SerialTransaction(transactions);
+        return new SerialTransaction(transactions, mLock);
     }
 
     private SerialTransaction createSetAnswerTransactions(Call call, int videoState) {
@@ -574,7 +574,7 @@ public class TransactionalServiceWrapper implements
         transactions.add(new AnswerCallTransaction(mCallsManager, call, videoState));
 
         // send off to Transaction Manager to process
-        return new SerialTransaction(transactions);
+        return new SerialTransaction(transactions, mLock);
     }
 
     /***
@@ -631,12 +631,13 @@ public class TransactionalServiceWrapper implements
         subTransactions.add(mStreamingController.getCallStreamingServiceTransaction(
                 mCallsManager.getContext(), this, call));
         // add t2.2 audio route operations
-        subTransactions.add(new CallStreamingController.AudioInterceptionTransaction(call, true));
+        subTransactions.add(new CallStreamingController.AudioInterceptionTransaction(call,
+                true, mLock));
 
         // add t2
-        transactions.add(new ParallelTransaction(subTransactions));
+        transactions.add(new ParallelTransaction(subTransactions, mLock));
         // send off to Transaction Manager to process
-        return new SerialTransaction(transactions);
+        return new SerialTransaction(transactions, mLock);
     }
 
     private VoipCallTransaction createStopStreamingTransaction(Call call) {
@@ -647,8 +648,9 @@ public class TransactionalServiceWrapper implements
         // 1. unbind to call streaming service
         transactions.add(mStreamingController.getUnbindStreamingServiceTransaction());
         // 2. audio route operations
-        transactions.add(new CallStreamingController.AudioInterceptionTransaction(call, false));
-        return new ParallelTransaction(transactions);
+        transactions.add(new CallStreamingController.AudioInterceptionTransaction(call,
+                false, mLock));
+        return new ParallelTransaction(transactions, mLock);
     }
 
 

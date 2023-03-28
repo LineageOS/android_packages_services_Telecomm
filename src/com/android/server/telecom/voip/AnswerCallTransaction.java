@@ -41,6 +41,7 @@ public class AnswerCallTransaction extends VoipCallTransaction {
     private final int mVideoState;
 
     public AnswerCallTransaction(CallsManager callsManager, Call call, int videoState) {
+        super(callsManager.getLock());
         mCallsManager = callsManager;
         mCall = call;
         mVideoState = videoState;

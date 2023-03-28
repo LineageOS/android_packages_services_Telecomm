@@ -36,6 +36,7 @@ public class EndCallTransaction extends VoipCallTransaction {
     private DisconnectCause mCause;
 
     public EndCallTransaction(CallsManager callsManager, DisconnectCause cause, Call call) {
+        super(callsManager.getLock());
         mCallsManager = callsManager;
         mCause = cause;
         mCall = call;
