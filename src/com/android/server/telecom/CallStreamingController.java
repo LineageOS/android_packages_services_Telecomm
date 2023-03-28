@@ -54,10 +54,12 @@ public class CallStreamingController extends CallsManagerListenerBase {
     private CallStreamingServiceConnection mConnection;
     private boolean mIsStreaming;
     private final Object mLock;
+    private TelecomSystem.SyncRoot mTelecomLock;
 
-    public CallStreamingController(Context context) {
+    public CallStreamingController(Context context, TelecomSystem.SyncRoot telecomLock) {
         mLock = new Object();
         mContext = context;
+        mTelecomLock = telecomLock;
     }
 
     private void onConnectedInternal(Call call, TransactionalServiceWrapper wrapper,
@@ -101,6 +103,7 @@ public class CallStreamingController extends CallsManagerListenerBase {
         private final CallsManager mCallsManager;
 
         public QueryCallStreamingTransaction(CallsManager callsManager) {
+            super(callsManager.getLock());
             mCallsManager = callsManager;
         }
 
@@ -128,7 +131,9 @@ public class CallStreamingController extends CallsManagerListenerBase {
         private Call mCall;
         private boolean mEnterInterception;
 
-        public AudioInterceptionTransaction(Call call, boolean enterInterception) {
+        public AudioInterceptionTransaction(Call call, boolean enterInterception,
+                TelecomSystem.SyncRoot lock) {
+            super(lock);
             mCall = call;
             mEnterInterception = enterInterception;
         }
@@ -164,6 +169,7 @@ public class CallStreamingController extends CallsManagerListenerBase {
 
         public StreamingServiceTransaction(Context context, TransactionalServiceWrapper wrapper,
                 Call call) {
+            super(mTelecomLock);
             mWrapper = wrapper;
             mCall = call;
             mUserHandle = mCall.getInitiatingUser();
@@ -240,6 +246,7 @@ public class CallStreamingController extends CallsManagerListenerBase {
         private static final String TAG = "UnbindStreamingServiceTransaction";
 
         public UnbindStreamingServiceTransaction() {
+            super(mTelecomLock);
         }
 
         @SuppressLint("LongLogTag")
@@ -305,6 +312,7 @@ public class CallStreamingController extends CallsManagerListenerBase {
         @StreamingCall.StreamingCallState int mState;
 
         public CallStreamingStateChangeTransaction(@StreamingCall.StreamingCallState int state) {
+            super(mTelecomLock);
             mState = state;
         }
 

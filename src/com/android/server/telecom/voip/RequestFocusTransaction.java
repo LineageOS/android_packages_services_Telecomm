@@ -34,6 +34,7 @@ public class RequestFocusTransaction extends VoipCallTransaction {
     private final Call mCall;
 
     public RequestFocusTransaction(CallsManager callsManager, Call call) {
+        super(callsManager.getLock());
         mCallsManager = callsManager;
         mCall = call;
     }

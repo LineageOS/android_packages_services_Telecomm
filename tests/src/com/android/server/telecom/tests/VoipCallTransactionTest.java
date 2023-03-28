@@ -25,6 +25,7 @@ import android.util.Log;
 
 import androidx.test.filters.SmallTest;
 
+import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.voip.ParallelTransaction;
 import com.android.server.telecom.voip.SerialTransaction;
 import com.android.server.telecom.voip.TransactionManager;
@@ -49,6 +50,7 @@ import java.util.concurrent.TimeoutException;
 public class VoipCallTransactionTest extends TelecomTestCase {
     private StringBuilder mLog;
     private TransactionManager mTransactionManager;
+    private static final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
 
     private class TestVoipCallTransaction extends VoipCallTransaction {
         public static final int SUCCESS = 0;
@@ -60,7 +62,7 @@ public class VoipCallTransactionTest extends TelecomTestCase {
         private int mType;
 
         public TestVoipCallTransaction(String name, long sleepTime, int type) {
-            super();
+            super(mLock);
             mName = name;
             mSleepTime = sleepTime;
             mType = type;
@@ -125,7 +127,8 @@ public class VoipCallTransactionTest extends TelecomTestCase {
         OutcomeReceiver<VoipCallTransactionResult, CallException> outcomeReceiver =
                 resultFuture::complete;
         String expectedLog = "t1 success;\nt2 success;\nt3 success;\n";
-        mTransactionManager.addTransaction(new SerialTransaction(subTransactions), outcomeReceiver);
+        mTransactionManager.addTransaction(new SerialTransaction(subTransactions, mLock),
+                outcomeReceiver);
         assertEquals(VoipCallTransactionResult.RESULT_SUCCEED,
                 resultFuture.get(5000L, TimeUnit.MILLISECONDS).getResult());
         assertEquals(expectedLog, mLog.toString());
@@ -158,7 +161,7 @@ public class VoipCallTransactionTest extends TelecomTestCase {
                         exceptionFuture.complete(e.getMessage());
                     }
                 };
-        mTransactionManager.addTransaction(new SerialTransaction(subTransactions),
+        mTransactionManager.addTransaction(new SerialTransaction(subTransactions, mLock),
                 outcomeReceiver);
         exceptionFuture.get(5000L, TimeUnit.MILLISECONDS);
         String expectedLog = "t1 success;\nt2 failed;\n";
@@ -182,7 +185,7 @@ public class VoipCallTransactionTest extends TelecomTestCase {
         CompletableFuture<VoipCallTransactionResult> resultFuture = new CompletableFuture<>();
         OutcomeReceiver<VoipCallTransactionResult, CallException> outcomeReceiver =
                 resultFuture::complete;
-        mTransactionManager.addTransaction(new ParallelTransaction(subTransactions),
+        mTransactionManager.addTransaction(new ParallelTransaction(subTransactions, mLock),
                 outcomeReceiver);
         assertEquals(VoipCallTransactionResult.RESULT_SUCCEED,
                 resultFuture.get(5000L, TimeUnit.MILLISECONDS).getResult());
@@ -219,7 +222,7 @@ public class VoipCallTransactionTest extends TelecomTestCase {
                 exceptionFuture.complete(e.getMessage());
             }
         };
-        mTransactionManager.addTransaction(new ParallelTransaction(subTransactions),
+        mTransactionManager.addTransaction(new ParallelTransaction(subTransactions, mLock),
                 outcomeReceiver);
         exceptionFuture.get(5000L, TimeUnit.MILLISECONDS);
         assertTrue(mLog.toString().contains("t2 failed;\n"));

@@ -100,6 +100,7 @@ public class RingerTest extends TelecomTestCase {
             new PhoneAccountHandle(new ComponentName("pa_pkg", "pa_cls"),
                     "pa_id");
 
+    boolean mIsHapticPlaybackSupported = true;  // Note: initializeRinger() after changes.
     AsyncRingtonePlayer asyncRingtonePlayer = new AsyncRingtonePlayer();
     Ringer mRingerUnderTest;
     AudioManager mockAudioManager;
@@ -114,18 +115,28 @@ public class RingerTest extends TelecomTestCase {
         when(mockPlayerFactory.createPlayer(anyInt())).thenReturn(mockTonePlayer);
         mockAudioManager = mContext.getSystemService(AudioManager.class);
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_NORMAL);
-        when(mockSystemSettingsUtil.isHapticPlaybackSupported(any(Context.class))).thenReturn(true);
+        when(mockSystemSettingsUtil.isHapticPlaybackSupported(any(Context.class)))
+                .thenAnswer((invocation) -> mIsHapticPlaybackSupported);
         mockNotificationManager =mContext.getSystemService(NotificationManager.class);
         when(mockTonePlayer.startTone()).thenReturn(true);
         when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
         when(mockRingtoneFactory.hasHapticChannels(any(Ringtone.class))).thenReturn(false);
-        mRingerUnderTest = new Ringer(mockPlayerFactory, mContext, mockSystemSettingsUtil,
-                asyncRingtonePlayer, mockRingtoneFactory, mockVibrator, spyVibrationEffectProxy,
-                mockInCallController, mockNotificationManager, mockAccessibilityManagerAdapter);
         when(mockCall1.getState()).thenReturn(CallState.RINGING);
         when(mockCall2.getState()).thenReturn(CallState.RINGING);
         when(mockCall1.getUserHandleFromTargetPhoneAccount()).thenReturn(PA_HANDLE.getUserHandle());
         when(mockCall2.getUserHandleFromTargetPhoneAccount()).thenReturn(PA_HANDLE.getUserHandle());
+
+        createRingerUnderTest();
+    }
+
+    /**
+     * (Re-)Creates the Ringer for the test. This needs to be called if changing final properties,
+     * like mIsHapticPlaybackSupported.
+     */
+    private void createRingerUnderTest() {
+        mRingerUnderTest = new Ringer(mockPlayerFactory, mContext, mockSystemSettingsUtil,
+                asyncRingtonePlayer, mockRingtoneFactory, mockVibrator, spyVibrationEffectProxy,
+                mockInCallController, mockNotificationManager, mockAccessibilityManagerAdapter);
         // This future is used to wait for AsyncRingtonePlayer to finish its part.
         mRingerUnderTest.setBlockOnRingingFuture(mRingCompletionFuture);
     }
@@ -292,6 +303,24 @@ public class RingerTest extends TelecomTestCase {
         verify(mockRingtoneFactory, times(1)).getHapticOnlyRingtone();
         verifyNoMoreInteractions(mockRingtoneFactory);
         verify(mockRingtone).play();
+
+        // Play default vibration when future completes with no audio coupled haptics
+        verify(mockVibrator).vibrate(eq(mRingerUnderTest.mDefaultVibrationEffect),
+                any(VibrationAttributes.class));
+    }
+
+    @SmallTest
+    @Test
+    public void testVibrateButNoRingForSilentRingtoneWithoutAudioHapticSupport() throws Exception {
+        mIsHapticPlaybackSupported = false;
+        createRingerUnderTest();  // Needed after changing haptic playback support.
+        mRingerUnderTest.startCallWaiting(mockCall1);
+        when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_VIBRATE);
+        when(mockAudioManager.getStreamVolume(AudioManager.STREAM_RING)).thenReturn(0);
+        enableVibrationWhenRinging();
+        assertFalse(startRingingAndWaitForAsync(mockCall2, false));
+        verify(mockTonePlayer).stopTone();
+        verifyZeroInteractions(mockRingtoneFactory);
 
         // Play default vibration when future completes with no audio coupled haptics
         verify(mockVibrator).vibrate(eq(mRingerUnderTest.mDefaultVibrationEffect),
@@ -543,8 +572,8 @@ public class RingerTest extends TelecomTestCase {
     }
 
     private void setIsUsingHaptics(Ringtone mockRingtone, boolean useHaptics) {
-        when(mockSystemSettingsUtil.isHapticPlaybackSupported(any(Context.class)))
-            .thenReturn(useHaptics);
+        // Note: using haptics can also depend on mIsHapticPlaybackSupported. If changing
+        // that, the ringerUnderTest needs to be re-created.
         when(mockSystemSettingsUtil.isAudioCoupledVibrationForRampingRingerEnabled())
             .thenReturn(useHaptics);
         when(mockRingtone.hasHapticChannels()).thenReturn(useHaptics);
