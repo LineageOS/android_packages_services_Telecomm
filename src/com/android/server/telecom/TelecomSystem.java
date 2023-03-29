@@ -26,11 +26,14 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.BugreportManager;
+import android.os.DropBoxManager;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
 import android.telephony.AnomalyReporter;
+import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -336,11 +339,17 @@ public class TelecomSystem {
                 }
             };
 
+            EmergencyCallDiagnosticLogger emergencyCallDiagnosticLogger =
+                    new EmergencyCallDiagnosticLogger(mContext.getSystemService(
+                            TelephonyManager.class), mContext.getSystemService(
+                            BugreportManager.class), timeoutsAdapter, mContext.getSystemService(
+                            DropBoxManager.class), asyncTaskExecutor, clockProxy);
+
             CallAnomalyWatchdog callAnomalyWatchdog = new CallAnomalyWatchdog(
                     Executors.newSingleThreadScheduledExecutor(),
-                    mLock, timeoutsAdapter, clockProxy);
-            TransactionManager transactionManager = TransactionManager.getInstance();
+                    mLock, timeoutsAdapter, clockProxy, emergencyCallDiagnosticLogger);
 
+            TransactionManager transactionManager = TransactionManager.getInstance();
             mCallsManager = new CallsManager(
                     mContext,
                     mLock,
@@ -376,7 +385,9 @@ public class TelecomSystem {
                     accessibilityManagerAdapter,
                     asyncTaskExecutor,
                     blockedNumbersAdapter,
-                    transactionManager);
+                    transactionManager,
+                    emergencyCallDiagnosticLogger);
+
             mIncomingCallNotifier = incomingCallNotifier;
             incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {
                 @Override
