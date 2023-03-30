@@ -40,7 +40,6 @@ import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -156,7 +155,8 @@ public class BlockedNumbersActivity extends ListActivity
             }
         };
         registerReceiver(mBlockingStatusReceiver, new IntentFilter(
-                BlockedNumberContract.SystemContract.ACTION_BLOCK_SUPPRESSION_STATE_CHANGED));
+                BlockedNumberContract.SystemContract.ACTION_BLOCK_SUPPRESSION_STATE_CHANGED),
+                Context.RECEIVER_EXPORTED);
 
         getLoaderManager().initLoader(0, null, this);
     }
