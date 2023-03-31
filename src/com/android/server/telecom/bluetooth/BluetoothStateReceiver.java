@@ -166,45 +166,41 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
                 BluetoothDeviceManager.getDeviceTypeString(deviceType));
 
         mBluetoothRouteManager.onActiveDeviceChanged(device, deviceType);
-
-        Session session = Log.createSubsession();
-        SomeArgs args = SomeArgs.obtain();
-        args.arg1 = session;
-        if (device == null) {
-            mBluetoothRouteManager.sendMessage(BT_AUDIO_LOST, args);
-        } else {
-            if (!mIsInCall) {
-                Log.i(LOG_TAG, "Ignoring audio on since we're not in a call");
-                return;
-            }
-            args.arg2 = device.getAddress();
-            if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_LE_AUDIO) {
-                /* In Le Audio case, once device got Active, the Telecom needs to make sure it
-                 * is set as communication device before we can say that BT_AUDIO_IS_ON
-                 */
-                if (!mBluetoothDeviceManager.setLeAudioCommunicationDevice(device)) {
-                    Log.w(LOG_TAG,
-                            "Device %s cannot be used as LE audio communication device.",
-                            device);
+        if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_HEARING_AID ||
+            deviceType == BluetoothDeviceManager.DEVICE_TYPE_LE_AUDIO) {
+            Session session = Log.createSubsession();
+            SomeArgs args = SomeArgs.obtain();
+            args.arg1 = session;
+            if (device == null) {
+                mBluetoothRouteManager.sendMessage(BT_AUDIO_LOST, args);
+            } else {
+                if (!mIsInCall) {
+                    Log.i(LOG_TAG, "Ignoring audio on since we're not in a call");
                     return;
                 }
-            } else if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_HEARING_AID) {
-                /* deviceType == BluetoothDeviceManager.DEVICE_TYPE_HEARING_AID */
-                if (!mBluetoothDeviceManager.setHearingAidCommunicationDevice()) {
-                    Log.w(LOG_TAG,
-                            "Device %s cannot be used as hearing aid communication device.",
-                            device);
+                args.arg2 = device.getAddress();
+
+                if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_LE_AUDIO) {
+                    /* In Le Audio case, once device got Active, the Telecom needs to make sure it
+                     * is set as communication device before we can say that BT_AUDIO_IS_ON
+                     */
+                    if (!mBluetoothDeviceManager.setLeAudioCommunicationDevice()) {
+                        Log.w(LOG_TAG,
+                                "Device %s cannot be use as LE audio communication device.",
+                                device);
+                        return;
+                    }
                 } else {
-                    mBluetoothRouteManager.sendMessage(BT_AUDIO_IS_ON, args);
+                    /* deviceType == BluetoothDeviceManager.DEVICE_TYPE_HEARING_AID */
+                    if (!mBluetoothDeviceManager.setHearingAidCommunicationDevice()) {
+                        Log.w(LOG_TAG,
+                                "Device %s cannot be use as hearing aid communication device.",
+                                device);
+                    } else {
+                        mBluetoothRouteManager.sendMessage(BT_AUDIO_IS_ON, args);
+                    }
                 }
-            } else {
-                /* deviceType == BluetoothDeviceManager.DEVICE_TYPE_HEADSET */
-                if (!mBluetoothDeviceManager.setScoAudioCommunicationDevice()) {
-                    Log.w(LOG_TAG,
-                            "Device %s cannot be used as SCO audio communication device.",
-                            device);
-                }
-            }
+           }
         }
     }
 
