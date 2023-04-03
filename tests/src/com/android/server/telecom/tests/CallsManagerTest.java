@@ -81,6 +81,7 @@ import com.android.server.telecom.AnomalyReporterAdapter;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallAnomalyWatchdog;
+import com.android.server.telecom.CallAudioCommunicationDeviceTracker;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioRouteStateMachine;
@@ -245,6 +246,7 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private Ringer.AccessibilityManagerAdapter mAccessibilityManagerAdapter;
     @Mock private BlockedNumbersAdapter mBlockedNumbersAdapter;
     @Mock private PhoneCapability mPhoneCapability;
+    @Mock private CallAudioCommunicationDeviceTracker mCommunicationDeviceTracker;
 
     private CallsManager mCallsManager;
 
@@ -264,7 +266,7 @@ public class CallsManagerTest extends TelecomTestCase {
         when(mCallEndpointControllerFactory.create(any(), any(), any())).thenReturn(
                 mCallEndpointController);
         when(mCallAudioRouteStateMachineFactory.create(any(), any(), any(), any(), any(), any(),
-                anyInt(), any())).thenReturn(mCallAudioRouteStateMachine);
+                anyInt(), any(), any())).thenReturn(mCallAudioRouteStateMachine);
         when(mCallAudioModeStateMachineFactory.create(any(), any()))
                 .thenReturn(mCallAudioModeStateMachine);
         when(mClockProxy.currentTimeMillis()).thenReturn(System.currentTimeMillis());
@@ -312,7 +314,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 command -> command.run(),
                 mBlockedNumbersAdapter,
                 TransactionManager.getTestInstance(),
-                mEmergencyCallDiagnosticLogger);
+                mEmergencyCallDiagnosticLogger,
+                mCommunicationDeviceTracker);
 
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SELF_MANAGED_HANDLE), any())).thenReturn(SELF_MANAGED_ACCOUNT);

@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -40,6 +41,7 @@ import android.telecom.CallAudioState;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.Call;
+import com.android.server.telecom.CallAudioCommunicationDeviceTracker;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.CallsManager;
@@ -155,6 +157,7 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
     @Mock StatusBarNotifier mockStatusBarNotifier;
     @Mock Call fakeCall;
     @Mock CallAudioManager mockCallAudioManager;
+    private CallAudioCommunicationDeviceTracker mCommunicationDeviceTracker;
     private CallAudioManager.AudioServiceFactory mAudioServiceFactory;
     private static final int TEST_TIMEOUT = 500;
     private AudioManager mockAudioManager;
@@ -174,6 +177,8 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
         mHandlerThread.start();
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
         mockAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+        mCommunicationDeviceTracker = new CallAudioCommunicationDeviceTracker(mContext);
+        mCommunicationDeviceTracker.setBluetoothRouteManager(mockBluetoothRouteManager);
 
         mAudioServiceFactory = new CallAudioManager.AudioServiceFactory() {
             @Override
@@ -270,7 +275,8 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
                 mAudioServiceFactory,
                 mParams.earpieceControl,
                 mHandlerThread.getLooper(),
-                Runnable::run /** do async stuff sync for test purposes */);
+                Runnable::run /** do async stuff sync for test purposes */,
+                mCommunicationDeviceTracker);
         stateMachine.setCallAudioManager(mockCallAudioManager);
 
         setupMocksForParams(stateMachine, mParams);
@@ -311,7 +317,7 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
                 break;
             case ON:
                 if (mParams.expectedBluetoothDevice == null) {
-                    verify(mockBluetoothRouteManager).connectBluetoothAudio(null);
+                    verify(mockBluetoothRouteManager, atLeastOnce()).connectBluetoothAudio(null);
                 } else {
                     verify(mockBluetoothRouteManager).connectBluetoothAudio(
                             mParams.expectedBluetoothDevice.getAddress());
@@ -367,7 +373,8 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
                 mAudioServiceFactory,
                 mParams.earpieceControl,
                 mHandlerThread.getLooper(),
-                Runnable::run /** do async stuff sync for test purposes */);
+                Runnable::run /** do async stuff sync for test purposes */,
+                mCommunicationDeviceTracker);
         stateMachine.setCallAudioManager(mockCallAudioManager);
 
         // Set up bluetooth and speakerphone state

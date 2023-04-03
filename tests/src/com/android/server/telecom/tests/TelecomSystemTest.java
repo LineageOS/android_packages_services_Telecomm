@@ -69,6 +69,7 @@ import android.telephony.TelephonyRegistryManager;
 
 import com.android.internal.telecom.IInCallAdapter;
 import com.android.server.telecom.AsyncRingtonePlayer;
+import com.android.server.telecom.CallAudioCommunicationDeviceTracker;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioRouteStateMachine;
@@ -214,6 +215,8 @@ public class TelecomSystemTest extends TelecomTestCase {
     @Mock Ringer.AccessibilityManagerAdapter mAccessibilityManagerAdapter;
     @Mock
     BlockedNumbersAdapter mBlockedNumbersAdapter;
+    @Mock
+    CallAudioCommunicationDeviceTracker mCommunicationDeviceTracker;
 
     final ComponentName mInCallServiceComponentNameX =
             new ComponentName(
@@ -517,7 +520,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                             StatusBarNotifier statusBarNotifier,
                             CallAudioManager.AudioServiceFactory audioServiceFactory,
                             int earpieceControl,
-                            Executor asyncTaskExecutor) {
+                            Executor asyncTaskExecutor,
+                            CallAudioCommunicationDeviceTracker communicationDeviceTracker) {
                         return new CallAudioRouteStateMachine(context,
                                 callsManager,
                                 bluetoothManager,
@@ -527,7 +531,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                                 // Force enable an earpiece for the end-to-end tests
                                 CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED,
                                 mHandlerThread.getLooper(),
-                                Runnable::run /* async tasks as now sync for testing! */);
+                                Runnable::run /* async tasks as now sync for testing! */,
+                                communicationDeviceTracker);
                     }
                 },
                 new CallAudioModeStateMachine.Factory() {

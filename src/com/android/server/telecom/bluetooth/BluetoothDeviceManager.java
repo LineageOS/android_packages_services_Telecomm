@@ -32,6 +32,7 @@ import android.telecom.Log;
 import android.util.LocalLog;
 
 import com.android.internal.util.IndentingPrintWriter;
+import com.android.server.telecom.CallAudioCommunicationDeviceTracker;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -194,8 +195,10 @@ public class BluetoothDeviceManager {
     private BluetoothAdapter mBluetoothAdapter;
     private AudioManager mAudioManager;
     private Executor mExecutor;
+    private CallAudioCommunicationDeviceTracker mCommunicationDeviceTracker;
 
-    public BluetoothDeviceManager(Context context, BluetoothAdapter bluetoothAdapter) {
+    public BluetoothDeviceManager(Context context, BluetoothAdapter bluetoothAdapter,
+            CallAudioCommunicationDeviceTracker communicationDeviceTracker) {
         if (bluetoothAdapter != null) {
             mBluetoothAdapter = bluetoothAdapter;
             bluetoothAdapter.getProfileProxy(context, mBluetoothProfileServiceListener,
@@ -206,6 +209,7 @@ public class BluetoothDeviceManager {
                     BluetoothProfile.LE_AUDIO);
             mAudioManager = context.getSystemService(AudioManager.class);
             mExecutor = context.getMainExecutor();
+            mCommunicationDeviceTracker = communicationDeviceTracker;
         }
     }
 
@@ -398,12 +402,7 @@ public class BluetoothDeviceManager {
     }
 
     public void disconnectAudio() {
-        disconnectSco();
-        clearLeAudioCommunicationDevice();
-        clearHearingAidCommunicationDevice();
-    }
-
-    public void disconnectSco() {
+        mCommunicationDeviceTracker.clearBtCommunicationDevice();
         if (mBluetoothHeadset == null) {
             Log.w(this, "Trying to disconnect audio but no headset service exists.");
         } else {
@@ -581,7 +580,8 @@ public class BluetoothDeviceManager {
                  * Only after receiving ACTION_ACTIVE_DEVICE_CHANGED it is known that device that
                  * will be audio switched to is available to be choose as communication device */
                 if (!switchingBtDevices) {
-                    return setLeAudioCommunicationDevice();
+                    return mCommunicationDeviceTracker.setCommunicationDevice(
+                            AudioDeviceInfo.TYPE_BLE_HEADSET, device);
                 }
 
                 return true;
@@ -600,7 +600,8 @@ public class BluetoothDeviceManager {
                  * Only after receiving ACTION_ACTIVE_DEVICE_CHANGED it is known that device that
                  * will be audio switched to is available to be choose as communication device */
                 if (!switchingBtDevices) {
-                    return setHearingAidCommunicationDevice();
+                    return mCommunicationDeviceTracker.setCommunicationDevice(
+                            AudioDeviceInfo.TYPE_HEARING_AID, null);
                 }
 
                 return true;
