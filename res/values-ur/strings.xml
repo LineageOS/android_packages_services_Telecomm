@@ -120,7 +120,7 @@
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="1713632946174016619">"کال مسدود کرنا غیر فعال ہو گیا ہے"</string>
     <string name="phone_strings_emergency_call_made_dialog_title_txt" msgid="6629412508584507377">"ہنگامی کال کی گئی"</string>
     <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt" msgid="3140411733995271126">"ہنگامی حالت میں جواب دہندگان کو آپ سے رابطہ کرنے کی اجازت دینے کیلئے کال مسدود کرنا غیر فعال ہو گیا ہے۔"</string>
-    <string name="developer_title" msgid="9146088855661672353">"ٹیلی کام ڈویلپر مینو"</string>
+    <string name="developer_title" msgid="9146088855661672353">"ٹیلی کام ڈویلپر مینیو"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"ہنگامی کال کے دوران کالز نہیں لی جائیں گی۔"</string>
     <string name="cancel" msgid="6733466216239934756">"منسوخ کریں"</string>
 </resources>
