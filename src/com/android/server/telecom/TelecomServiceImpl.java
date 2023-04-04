@@ -193,6 +193,10 @@ public class TelecomServiceImpl {
                 enforcePhoneAccountIsRegisteredEnabled(handle, handle.getUserHandle());
                 enforceCallingPackage(callingPackage, "addCall");
 
+                // add extras about info used for FGS delegation
+                Bundle extras = new Bundle();
+                extras.putInt(CallAttributes.CALLER_PID, Binder.getCallingPid());
+
                 VoipCallTransaction transaction = null;
                 // create transaction based on the call direction
                 switch (callAttributes.getDirection()) {
@@ -202,7 +206,7 @@ public class TelecomServiceImpl {
                         break;
                     case DIRECTION_INCOMING:
                         transaction = new IncomingCallTransaction(callId, callAttributes,
-                                mCallsManager);
+                                mCallsManager, extras);
                         break;
                     default:
                         throw new IllegalArgumentException(String.format("Invalid Call Direction. "
