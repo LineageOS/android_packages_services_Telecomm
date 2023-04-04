@@ -28,6 +28,9 @@ android_app {
     static_libs: [
         "androidx.annotation_annotation",
     ],
+    libs: [
+        "services",
+    ],
     resource_dirs: ["res"],
     proto: {
         type: "nano",
