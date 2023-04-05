@@ -214,7 +214,7 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                             .stopFlashNotificationSequence(context);
                                 }
                             },
-                            Executors.newSingleThreadExecutor(),
+                            Executors.newCachedThreadPool(),
                             new BlockedNumbersAdapter() {
                                 @Override
                                 public boolean shouldShowEmergencyCallNotification(Context
