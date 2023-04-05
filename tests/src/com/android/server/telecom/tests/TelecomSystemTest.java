@@ -394,6 +394,7 @@ public class TelecomSystemTest extends TelecomTestCase {
                 handlerThread.quitSafely();
             }
             handlerThreads.clear();
+            mTelecomSystem.getCallsManager().getVoipCallMonitor().stopMonitor();
         }
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         waitForHandlerAction(mHandlerThread.getThreadHandler(), TEST_TIMEOUT);
