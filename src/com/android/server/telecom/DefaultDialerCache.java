@@ -265,7 +265,7 @@ public class DefaultDialerCache {
             if (packageName == null ||
                     Objects.equals(packageName, mCurrentDefaultDialerPerUser.get(userId))) {
                 String newDefaultDialer = refreshCacheForUser(userId);
-                Log.i(LOG_TAG, "Refreshing default dialer for user %d: now %s",
+                Log.v(LOG_TAG, "Refreshing default dialer for user %d: now %s",
                         userId, newDefaultDialer);
             }
         }
