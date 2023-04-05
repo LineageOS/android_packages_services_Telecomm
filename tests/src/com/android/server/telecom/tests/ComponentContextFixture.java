@@ -59,7 +59,9 @@ import android.os.BugreportManager;
 import android.os.Bundle;
 import android.os.DropBoxManager;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IInterface;
+import android.os.Looper;
 import android.os.PersistableBundle;
 import android.os.Process;
 import android.os.UserHandle;
@@ -112,6 +114,7 @@ import static org.mockito.Mockito.when;
  * property points to an application context implementing all the nontrivial functionality.
  */
 public class ComponentContextFixture implements TestFixture<Context> {
+    private HandlerThread mHandlerThread;
 
     public class FakeApplicationContext extends MockContext {
         @Override
@@ -308,6 +311,15 @@ public class ComponentContextFixture implements TestFixture<Context> {
         @Override
         public AttributionSource getAttributionSource() {
             return mAttributionSource;
+        }
+
+        @Override
+        public Looper getMainLooper() {
+            if (mHandlerThread == null) {
+                mHandlerThread = new HandlerThread(this.getClass().getSimpleName());
+                mHandlerThread.start();
+            }
+            return mHandlerThread.getLooper();
         }
 
         @Override
