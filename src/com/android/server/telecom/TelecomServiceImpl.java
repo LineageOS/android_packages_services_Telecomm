@@ -36,6 +36,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.content.pm.ParceledListSlice;
 import android.content.pm.ResolveInfo;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
@@ -469,6 +470,9 @@ public class TelecomServiceImpl {
                             enforceRegisterMultiUser();
                         }
                         enforceUserHandleMatchesCaller(account.getAccountHandle());
+                        // Validate the profile boundary of the given image URI.
+                        validateAccountIconUserBoundary(account.getIcon());
+
                         final long token = Binder.clearCallingIdentity();
                         try {
                             mPhoneAccountRegistrar.registerPhoneAccount(account);
@@ -1819,5 +1823,23 @@ public class TelecomServiceImpl {
 
         // If only TX or RX were set (or neither), the video state is valid.
         return remainingState == 0;
+    }
+
+    private void validateAccountIconUserBoundary(Icon icon) {
+        // Refer to Icon#getUriString for context. The URI string is invalid for icons of
+        // incompatible types.
+        if (icon != null && (icon.getType() == Icon.TYPE_URI
+                /*|| icon.getType() == Icon.TYPE_URI_ADAPTIVE_BITMAP*/)) {
+            String encodedUser = icon.getUri().getEncodedUserInfo();
+            // If there is no encoded user, the URI is calling into the calling user space
+            if (encodedUser != null) {
+                int userId = Integer.parseInt(encodedUser);
+                if (userId != UserHandle.getUserId(Binder.getCallingUid())) {
+                    // If we are transcending the profile boundary, throw an error.
+                    throw new IllegalArgumentException("Attempting to register a phone account with"
+                            + " an image icon belonging to another user.");
+                }
+            }
+        }
     }
 }
