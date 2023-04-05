@@ -1371,10 +1371,6 @@ public class PhoneAccountRegistrar {
      * @return {@code True} if the phone account has permission.
      */
     public boolean phoneAccountRequiresBindPermission(PhoneAccountHandle phoneAccountHandle) {
-        if (hasTransactionalCallCapabilities(getPhoneAccountUnchecked(phoneAccountHandle))) {
-            return false;
-        }
-
         List<ResolveInfo> resolveInfos = resolveComponent(phoneAccountHandle);
         if (resolveInfos.isEmpty()) {
             Log.w(this, "phoneAccount %s not found", phoneAccountHandle.getComponentName());
