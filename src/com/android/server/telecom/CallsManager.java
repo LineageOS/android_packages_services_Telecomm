@@ -556,8 +556,8 @@ public class CallsManager extends Call.ListenerBase
             Executor asyncTaskExecutor,
             BlockedNumbersAdapter blockedNumbersAdapter,
             TransactionManager transactionManager,
-            EmergencyCallDiagnosticLogger emergencyCallDiagnosticLogger) {
-
+            EmergencyCallDiagnosticLogger emergencyCallDiagnosticLogger,
+            CallAudioCommunicationDeviceTracker communicationDeviceTracker) {
         mContext = context;
         mLock = lock;
         mPhoneNumberUtilsAdapter = phoneNumberUtilsAdapter;
@@ -587,7 +587,8 @@ public class CallsManager extends Call.ListenerBase
                         statusBarNotifier,
                         audioServiceFactory,
                         CallAudioRouteStateMachine.EARPIECE_AUTO_DETECT,
-                        asyncTaskExecutor
+                        asyncTaskExecutor,
+                        communicationDeviceTracker
                 );
         callAudioRouteStateMachine.initialize();
 
@@ -1982,7 +1983,7 @@ public class CallsManager extends Call.ListenerBase
                                         + " available accounts.");
                                 showErrorMessage(R.string.cant_call_due_to_no_supported_service);
                                 mListeners.forEach(l -> l.onCreateConnectionFailed(callToPlace));
-                                if (callToPlace.isEmergencyCall()){
+                                if (callToPlace.isEmergencyCall()) {
                                     mAnomalyReporter.reportAnomaly(
                                             EMERGENCY_CALL_ABORTED_NO_PHONE_ACCOUNTS_ERROR_UUID,
                                             EMERGENCY_CALL_ABORTED_NO_PHONE_ACCOUNTS_ERROR_MSG);

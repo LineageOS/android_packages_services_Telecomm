@@ -25,10 +25,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioDeviceInfo;
 import android.telecom.Log;
 import android.telecom.Logging.Session;
 
 import com.android.internal.os.SomeArgs;
+import com.android.server.telecom.CallAudioCommunicationDeviceTracker;
 
 import static com.android.server.telecom.bluetooth.BluetoothRouteManager.BT_AUDIO_IS_ON;
 import static com.android.server.telecom.bluetooth.BluetoothRouteManager.BT_AUDIO_LOST;
@@ -53,6 +55,7 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
     private boolean mIsInCall = false;
     private final BluetoothRouteManager mBluetoothRouteManager;
     private final BluetoothDeviceManager mBluetoothDeviceManager;
+    private CallAudioCommunicationDeviceTracker mCommunicationDeviceTracker;
 
     public void onReceive(Context context, Intent intent) {
         Log.startSession("BSR.oR");
@@ -184,7 +187,8 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
                     /* In Le Audio case, once device got Active, the Telecom needs to make sure it
                      * is set as communication device before we can say that BT_AUDIO_IS_ON
                      */
-                    if (!mBluetoothDeviceManager.setLeAudioCommunicationDevice()) {
+                    if (!mCommunicationDeviceTracker.setCommunicationDevice(
+                            AudioDeviceInfo.TYPE_BLE_HEADSET, device)) {
                         Log.w(LOG_TAG,
                                 "Device %s cannot be use as LE audio communication device.",
                                 device);
@@ -192,7 +196,8 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
                     }
                 } else {
                     /* deviceType == BluetoothDeviceManager.DEVICE_TYPE_HEARING_AID */
-                    if (!mBluetoothDeviceManager.setHearingAidCommunicationDevice()) {
+                    if (!mCommunicationDeviceTracker.setCommunicationDevice(
+                            AudioDeviceInfo.TYPE_HEARING_AID, null)) {
                         Log.w(LOG_TAG,
                                 "Device %s cannot be use as hearing aid communication device.",
                                 device);
@@ -209,9 +214,11 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
     }
 
     public BluetoothStateReceiver(BluetoothDeviceManager deviceManager,
-            BluetoothRouteManager routeManager) {
+            BluetoothRouteManager routeManager,
+            CallAudioCommunicationDeviceTracker communicationDeviceTracker) {
         mBluetoothDeviceManager = deviceManager;
         mBluetoothRouteManager = routeManager;
+        mCommunicationDeviceTracker = communicationDeviceTracker;
     }
 
     public void setIsInCall(boolean isInCall) {

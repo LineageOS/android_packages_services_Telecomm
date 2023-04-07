@@ -243,13 +243,17 @@ public class TelecomSystem {
                             return context.getContentResolver().openInputStream(uri);
                         }
                     });
+            CallAudioCommunicationDeviceTracker communicationDeviceTracker = new
+                    CallAudioCommunicationDeviceTracker(mContext);
             BluetoothDeviceManager bluetoothDeviceManager = new BluetoothDeviceManager(mContext,
-                    mContext.getSystemService(BluetoothManager.class).getAdapter());
+                    mContext.getSystemService(BluetoothManager.class).getAdapter(),
+                    communicationDeviceTracker);
             BluetoothRouteManager bluetoothRouteManager = new BluetoothRouteManager(mContext, mLock,
-                    bluetoothDeviceManager, new Timeouts.Adapter());
+                    bluetoothDeviceManager, new Timeouts.Adapter(), communicationDeviceTracker);
             BluetoothStateReceiver bluetoothStateReceiver = new BluetoothStateReceiver(
-                    bluetoothDeviceManager, bluetoothRouteManager);
+                    bluetoothDeviceManager, bluetoothRouteManager, communicationDeviceTracker);
             mContext.registerReceiver(bluetoothStateReceiver, BluetoothStateReceiver.INTENT_FILTER);
+            communicationDeviceTracker.setBluetoothRouteManager(bluetoothRouteManager);
 
             WiredHeadsetManager wiredHeadsetManager = new WiredHeadsetManager(mContext);
             SystemStateHelper systemStateHelper = new SystemStateHelper(mContext, mLock);
@@ -386,8 +390,8 @@ public class TelecomSystem {
                     asyncTaskExecutor,
                     blockedNumbersAdapter,
                     transactionManager,
-                    emergencyCallDiagnosticLogger);
-
+                    emergencyCallDiagnosticLogger,
+                    communicationDeviceTracker);
             mIncomingCallNotifier = incomingCallNotifier;
             incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {
                 @Override

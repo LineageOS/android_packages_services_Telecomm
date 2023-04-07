@@ -28,6 +28,7 @@ import android.telecom.Log;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.internal.os.SomeArgs;
+import com.android.server.telecom.CallAudioCommunicationDeviceTracker;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.bluetooth.BluetoothDeviceManager;
@@ -263,6 +264,7 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
     @Mock private BluetoothLeAudio mBluetoothLeAudio;
     @Mock private Timeouts.Adapter mTimeoutsAdapter;
     @Mock private BluetoothRouteManager.BluetoothStateListener mListener;
+    @Mock private CallAudioCommunicationDeviceTracker mCommunicationDeviceTracker;
 
     @Override
     @Before
@@ -413,7 +415,8 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
         when(mTimeoutsAdapter.getBluetoothPendingTimeoutMillis(
                 nullable(ContentResolver.class))).thenReturn(100000L);
         BluetoothRouteManager sm = new BluetoothRouteManager(mContext,
-                new TelecomSystem.SyncRoot() { }, mDeviceManager, mTimeoutsAdapter);
+                new TelecomSystem.SyncRoot() { }, mDeviceManager,
+                mTimeoutsAdapter, mCommunicationDeviceTracker);
         sm.setListener(mListener);
         sm.setInitialStateForTesting(initialState, initialDevice);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);

@@ -23,6 +23,7 @@ import android.bluetooth.BluetoothHearingAid;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothLeAudio;
 import android.content.Context;
+import android.media.AudioDeviceInfo;
 import android.os.Message;
 import android.telecom.Log;
 import android.telecom.Logging.Session;
@@ -33,6 +34,7 @@ import com.android.internal.os.SomeArgs;
 import com.android.internal.util.IState;
 import com.android.internal.util.State;
 import com.android.internal.util.StateMachine;
+import com.android.server.telecom.CallAudioCommunicationDeviceTracker;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
 
@@ -469,15 +471,18 @@ public class BluetoothRouteManager extends StateMachine {
     private BluetoothDevice mHearingAidActiveDeviceCache = null;
     private BluetoothDevice mLeAudioActiveDeviceCache = null;
     private BluetoothDevice mMostRecentlyReportedActiveDevice = null;
+    private CallAudioCommunicationDeviceTracker mCommunicationDeviceTracker;
 
     public BluetoothRouteManager(Context context, TelecomSystem.SyncRoot lock,
-            BluetoothDeviceManager deviceManager, Timeouts.Adapter timeoutsAdapter) {
+            BluetoothDeviceManager deviceManager, Timeouts.Adapter timeoutsAdapter,
+            CallAudioCommunicationDeviceTracker communicationDeviceTracker) {
         super(BluetoothRouteManager.class.getSimpleName());
         mContext = context;
         mLock = lock;
         mDeviceManager = deviceManager;
         mDeviceManager.setBluetoothRouteManager(this);
         mTimeoutsAdapter = timeoutsAdapter;
+        mCommunicationDeviceTracker = communicationDeviceTracker;
 
         mAudioOffState = new AudioOffState();
         addState(mAudioOffState);
@@ -621,12 +626,14 @@ public class BluetoothRouteManager extends StateMachine {
         if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_LE_AUDIO) {
             mLeAudioActiveDeviceCache = device;
             if (device == null) {
-                mDeviceManager.clearLeAudioCommunicationDevice();
+                mCommunicationDeviceTracker.clearCommunicationDevice(
+                        AudioDeviceInfo.TYPE_BLE_HEADSET);
             }
         } else if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_HEARING_AID) {
             mHearingAidActiveDeviceCache = device;
             if (device == null) {
-                mDeviceManager.clearHearingAidCommunicationDevice();
+                mCommunicationDeviceTracker.clearCommunicationDevice(
+                        AudioDeviceInfo.TYPE_HEARING_AID);
             }
         } else if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_HEADSET) {
             mHfpActiveDeviceCache = device;
@@ -798,7 +805,8 @@ public class BluetoothRouteManager extends StateMachine {
         }
 
         if (bluetoothHearingAid != null) {
-            if (mDeviceManager.isHearingAidSetAsCommunicationDevice()) {
+            if (mCommunicationDeviceTracker.isAudioDeviceSetForType(
+                    AudioDeviceInfo.TYPE_HEARING_AID)) {
                 for (BluetoothDevice device : bluetoothAdapter.getActiveDevices(
                         BluetoothProfile.HEARING_AID)) {
                     if (device != null) {
@@ -811,7 +819,8 @@ public class BluetoothRouteManager extends StateMachine {
         }
 
         if (bluetoothLeAudio != null) {
-            if (mDeviceManager.isLeAudioCommunicationDevice()) {
+            if (mCommunicationDeviceTracker.isAudioDeviceSetForType(
+                    AudioDeviceInfo.TYPE_BLE_HEADSET)) {
                 for (BluetoothDevice device : bluetoothAdapter.getActiveDevices(
                         BluetoothProfile.LE_AUDIO)) {
                     if (device != null) {
