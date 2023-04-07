@@ -195,14 +195,15 @@ public class TelecomServiceImpl {
 
                 // add extras about info used for FGS delegation
                 Bundle extras = new Bundle();
-                extras.putInt(CallAttributes.CALLER_PID, Binder.getCallingPid());
+                extras.putInt(CallAttributes.CALLER_UID_KEY, Binder.getCallingUid());
+                extras.putInt(CallAttributes.CALLER_PID_KEY, Binder.getCallingPid());
 
                 VoipCallTransaction transaction = null;
                 // create transaction based on the call direction
                 switch (callAttributes.getDirection()) {
                     case DIRECTION_OUTGOING:
                         transaction = new OutgoingCallTransaction(callId, mContext, callAttributes,
-                                mCallsManager);
+                                mCallsManager, extras);
                         break;
                     case DIRECTION_INCOMING:
                         transaction = new IncomingCallTransaction(callId, callAttributes,
