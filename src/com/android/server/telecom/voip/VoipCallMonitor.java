@@ -143,8 +143,9 @@ public class VoipCallMonitor extends CallsManagerListenerBase {
                     k -> new HashSet<>());
             callList.add(call);
 
-            mHandler.post(() -> startFGSDelegation(call.getOwnerPid(),
-                    phoneAccountHandle.getUserHandle().getIdentifier(), call));
+            mHandler.post(
+                    () -> startFGSDelegation(call.getCallingPackageIdentity().mCallingPackagePid,
+                            call.getCallingPackageIdentity().mCallingPackageUid, call));
         }
     }
 

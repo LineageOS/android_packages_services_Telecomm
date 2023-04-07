@@ -212,6 +212,7 @@ public class VoipCallMonitorTest extends TelecomTestCase {
         when(call.isTransactionalCall()).thenReturn(true);
         when(call.getExtras()).thenReturn(new Bundle());
         when(call.getId()).thenReturn(id);
+        when(call.getCallingPackageIdentity()).thenReturn( new Call.CallingPackageIdentity() );
         return call;
     }
 }
