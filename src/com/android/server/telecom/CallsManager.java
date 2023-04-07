@@ -1405,8 +1405,7 @@ public class CallsManager extends Call.ListenerBase
         // set properties for transactional call
         if (extras.containsKey(TelecomManager.TRANSACTION_CALL_ID_KEY)) {
             call.setIsTransactionalCall(true);
-            call.setOwnerPid(extras.getInt(CallAttributes.CALLER_PID, -1));
-            extras.remove(CallAttributes.CALLER_PID);
+            call.setCallingPackageIdentity(extras);
             call.setConnectionCapabilities(
                     extras.getInt(CallAttributes.CALL_CAPABILITIES_KEY,
                             CallAttributes.SUPPORTS_SET_INACTIVE), true);
@@ -1717,8 +1716,7 @@ public class CallsManager extends Call.ListenerBase
 
             if (extras.containsKey(TelecomManager.TRANSACTION_CALL_ID_KEY)) {
                 call.setIsTransactionalCall(true);
-                call.setOwnerPid(extras.getInt(CallAttributes.CALLER_PID, -1));
-                extras.remove(CallAttributes.CALLER_PID);
+                call.setCallingPackageIdentity(extras);
                 call.setConnectionCapabilities(
                         extras.getInt(CallAttributes.CALL_CAPABILITIES_KEY,
                                 CallAttributes.SUPPORTS_SET_INACTIVE), true);
