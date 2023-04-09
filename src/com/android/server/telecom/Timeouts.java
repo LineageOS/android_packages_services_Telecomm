@@ -416,7 +416,7 @@ public final class Timeouts {
      */
     public static long getNonVoipCallTransitoryStateTimeoutMillis() {
         return DeviceConfig.getLong(DeviceConfig.NAMESPACE_TELEPHONY,
-                TRANSITORY_STATE_NON_VOIP_NORMAL_TIMEOUT_MILLIS, 5000L);
+                TRANSITORY_STATE_NON_VOIP_NORMAL_TIMEOUT_MILLIS, 10000L);
     }
 
     /**
@@ -426,7 +426,7 @@ public final class Timeouts {
      */
     public static long getNonVoipEmergencyCallTransitoryStateTimeoutMillis() {
         return DeviceConfig.getLong(DeviceConfig.NAMESPACE_TELEPHONY,
-                TRANSITORY_STATE_NON_VOIP_EMERGENCY_TIMEOUT_MILLIS, 5000L);
+                TRANSITORY_STATE_NON_VOIP_EMERGENCY_TIMEOUT_MILLIS, 10000L);
     }
 
     /**
