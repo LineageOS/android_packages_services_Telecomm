@@ -51,7 +51,7 @@
     <string name="outgoing_call_error_no_phone_number_supplied" msgid="7665135102566099778">"కాల్ చేయడానికి, చెల్లుబాటు అయ్యే నంబర్‌ను నమోదు చేయండి."</string>
     <string name="duplicate_video_call_not_allowed" msgid="5754746140185781159">"ఈ సమయంలో కాల్‌ను జోడించడం సాధ్యపడదు."</string>
     <string name="no_vm_number" msgid="2179959110602180844">"వాయిస్ మెయిల్ నంబర్ లేదు"</string>
-    <string name="no_vm_number_msg" msgid="1339245731058529388">"సిమ్ కార్డులో వాయిస్ మెయిల్ నంబర్ ఏదీ నిల్వ చేయబడలేదు."</string>
+    <string name="no_vm_number_msg" msgid="1339245731058529388">"సిమ్ కార్డులో వాయిస్ మెయిల్ నంబర్ ఏదీ స్టోరేజ్‌ చేయబడలేదు."</string>
     <string name="add_vm_number_str" msgid="5179510133063168998">"నంబర్‌ను జోడించండి"</string>
     <string name="change_default_dialer_dialog_title" msgid="5861469279421508060">"<xliff:g id="NEW_APP">%s</xliff:g>ను మీ ఆటోమేటిక్ ఫోన్ యాప్‌గా చేయాలా?"</string>
     <string name="change_default_dialer_dialog_affirmative" msgid="8604665314757739550">"ఆటోమేటిక్‌గా సెట్ చేయండి"</string>
