@@ -63,7 +63,7 @@ public class RingbackPlayerTest extends TelecomTestCase {
         doAnswer(x -> {
             new Thread(() -> {
                 try {
-                    latch.wait();
+                    latch.await();
                 } catch (InterruptedException e) {
                     // Ignore
                 }
