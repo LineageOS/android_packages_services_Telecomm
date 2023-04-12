@@ -691,6 +691,54 @@ public class CallsManagerTest extends TelecomTestCase {
         verify(heldCall).unhold(any());
     }
 
+    /**
+     * Ensures we don't auto-unhold a call from a different app when we locally disconnect a call.
+     */
+    @SmallTest
+    @Test
+    public void testDontUnholdCallsBetweenConnectionServices() {
+        // GIVEN a CallsManager with ongoing call
+        Call ongoingCall = addSpyCall(SIM_1_HANDLE, CallState.ACTIVE);
+        when(ongoingCall.isDisconnectHandledViaFuture()).thenReturn(false);
+        doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
+
+        // and a held call which has different ConnectionService
+        Call heldCall = addSpyCall(VOIP_1_HANDLE, CallState.ON_HOLD);
+
+        // Disconnect and cleanup the active ongoing call.
+        mCallsManager.disconnectCall(ongoingCall);
+        mCallsManager.markCallAsRemoved(ongoingCall);
+
+        // Should not unhold the held call since its in another app.
+        verify(heldCall, never()).unhold();
+    }
+
+    /**
+     * Ensures we do auto-unhold a call from the same app when we locally disconnect a call.
+     */
+    @SmallTest
+    @Test
+    public void testUnholdCallWhenDisconnectingInSameApp() {
+        // GIVEN a CallsManager with ongoing call
+        Call ongoingCall = addSpyCall(SIM_1_HANDLE, CallState.ACTIVE);
+        when(ongoingCall.isDisconnectHandledViaFuture()).thenReturn(false);
+        doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
+        doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
+
+        // and a held call which has same ConnectionService
+        Call heldCall = addSpyCall(SIM_1_HANDLE, CallState.ON_HOLD);
+
+        // Disconnect and cleanup the active ongoing call.
+        mCallsManager.disconnectCall(ongoingCall);
+        mCallsManager.markCallAsRemoved(ongoingCall);
+
+        // Should auto-unhold the held call since its in the same app.
+        verify(heldCall).unhold();
+    }
+
     @SmallTest
     @Test
     public void testUnholdCallWhenOngoingEmergCallCanNotBeHeldAndFromDifferentConnectionService() {

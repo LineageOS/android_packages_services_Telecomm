@@ -3657,40 +3657,57 @@ public class CallsManager extends Call.ListenerBase
      * @param call The call.
      */
     private void performRemoval(Call call) {
-        mInCallController.getBindingFuture().thenRunAsync(() -> {
-            call.maybeCleanupHandover();
-            removeCall(call);
-            Call foregroundCall = mCallAudioManager.getPossiblyHeldForegroundCall();
-            if (mLocallyDisconnectingCalls.contains(call)) {
-                boolean isDisconnectingChildCall = call.isDisconnectingChildCall();
-                Log.v(this, "performRemoval: isDisconnectingChildCall = "
-                        + isDisconnectingChildCall + "call -> %s", call);
-                mLocallyDisconnectingCalls.remove(call);
-                // Auto-unhold the foreground call due to a locally disconnected call, except if the
-                // call which was disconnected is a member of a conference (don't want to auto
-                // un-hold the conference if we remove a member of the conference).
-                if (!isDisconnectingChildCall && foregroundCall != null
-                        && foregroundCall.getState() == CallState.ON_HOLD) {
-                    foregroundCall.unhold();
-                }
-            } else if (foregroundCall != null &&
-                    !foregroundCall.can(Connection.CAPABILITY_SUPPORT_HOLD) &&
-                    foregroundCall.getState() == CallState.ON_HOLD) {
+        if (mInCallController.getBindingFuture() != null) {
+            mInCallController.getBindingFuture().thenRunAsync(() -> {
+                        doRemoval(call);
+                    }, new LoggedHandlerExecutor(mHandler, "CM.pR", mLock))
+                    .exceptionally((throwable) -> {
+                        Log.e(TAG, throwable, "Error while executing call removal");
+                        mAnomalyReporter.reportAnomaly(CALL_REMOVAL_EXECUTION_ERROR_UUID,
+                                CALL_REMOVAL_EXECUTION_ERROR_MSG);
+                        return null;
+                    });
+        } else {
+            doRemoval(call);
+        }
+    }
 
-                // The new foreground call is on hold, however the carrier does not display the hold
-                // button in the UI.  Therefore, we need to auto unhold the held call since the user
-                // has no means of unholding it themselves.
-                Log.i(this, "performRemoval: Auto-unholding held foreground call (call doesn't "
-                        + "support hold)");
+    /**
+     * Code to perform removal of a call.  Called above from {@link #performRemoval(Call)} either
+     * async (in live code) or sync (in testing).
+     * @param call the call to remove.
+     */
+    private void doRemoval(Call call) {
+        call.maybeCleanupHandover();
+        removeCall(call);
+        Call foregroundCall = mCallAudioManager.getPossiblyHeldForegroundCall();
+        if (mLocallyDisconnectingCalls.contains(call)) {
+            boolean isDisconnectingChildCall = call.isDisconnectingChildCall();
+            Log.v(this, "performRemoval: isDisconnectingChildCall = "
+                    + isDisconnectingChildCall + "call -> %s", call);
+            mLocallyDisconnectingCalls.remove(call);
+            // Auto-unhold the foreground call due to a locally disconnected call, except if the
+            // call which was disconnected is a member of a conference (don't want to auto
+            // un-hold the conference if we remove a member of the conference).
+            // Also, ensure that the call we're removing is from the same ConnectionService as
+            // the one we're removing.  We don't want to auto-unhold between ConnectionService
+            // implementations, especially if one is managed and the other is a VoIP CS.
+            if (!isDisconnectingChildCall && foregroundCall != null
+                    && foregroundCall.getState() == CallState.ON_HOLD
+                    && areFromSameSource(foregroundCall, call)) {
                 foregroundCall.unhold();
             }
-        }, new LoggedHandlerExecutor(mHandler, "CM.pR", mLock))
-                .exceptionally((throwable) -> {
-                    Log.e(TAG, throwable, "Error while executing call removal");
-                    mAnomalyReporter.reportAnomaly(CALL_REMOVAL_EXECUTION_ERROR_UUID,
-                            CALL_REMOVAL_EXECUTION_ERROR_MSG);
-                    return null;
-                });
+        } else if (foregroundCall != null &&
+                !foregroundCall.can(Connection.CAPABILITY_SUPPORT_HOLD) &&
+                foregroundCall.getState() == CallState.ON_HOLD) {
+
+            // The new foreground call is on hold, however the carrier does not display the hold
+            // button in the UI.  Therefore, we need to auto unhold the held call since the user
+            // has no means of unholding it themselves.
+            Log.i(this, "performRemoval: Auto-unholding held foreground call (call doesn't "
+                    + "support hold)");
+            foregroundCall.unhold();
+        }
     }
 
     /**
