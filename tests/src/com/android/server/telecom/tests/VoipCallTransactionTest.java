@@ -211,7 +211,7 @@ public class VoipCallTransactionTest extends TelecomTestCase {
         subTransactions.add(t3);
         CompletableFuture<String> exceptionFuture = new CompletableFuture<>();
         OutcomeReceiver<VoipCallTransactionResult, CallException> outcomeReceiver =
-                new OutcomeReceiver<VoipCallTransactionResult, CallException>() {
+                new OutcomeReceiver<>() {
             @Override
             public void onResult(VoipCallTransactionResult result) {
 
@@ -234,12 +234,20 @@ public class VoipCallTransactionTest extends TelecomTestCase {
             throws ExecutionException, InterruptedException, TimeoutException {
         VoipCallTransaction t = new TestVoipCallTransaction("t", 10000L,
                 TestVoipCallTransaction.SUCCESS);
-        CompletableFuture<VoipCallTransactionResult> resultFuture = new CompletableFuture<>();
+        CompletableFuture<String> exceptionFuture = new CompletableFuture<>();
         OutcomeReceiver<VoipCallTransactionResult, CallException> outcomeReceiver =
-                resultFuture::complete;
-        mTransactionManager.addTransaction(t, outcomeReceiver);
-        VoipCallTransactionResult result = resultFuture.get(7000L, TimeUnit.MILLISECONDS);
-        assertEquals(VoipCallTransactionResult.RESULT_FAILED, result.getResult());
-        assertTrue(result.getMessage().contains("timeout"));
+                new OutcomeReceiver<>() {
+                    @Override
+                    public void onResult(VoipCallTransactionResult result) {
+
+                    }
+
+                    @Override
+                    public void onError(CallException e) {
+                        exceptionFuture.complete(e.getMessage());
+                    }
+                };        mTransactionManager.addTransaction(t, outcomeReceiver);
+        String message = exceptionFuture.get(7000L, TimeUnit.MILLISECONDS);
+        assertTrue(message.contains("timeout"));
     }
 }
