@@ -6091,34 +6091,53 @@ public class CallsManager extends Call.ListenerBase
     }
 
     /**
-     * Intended for ongoing or new calls that would like to go active/answered and need to
-     * update the mConnectionSvrFocusMgr before setting the state
+     * This helper mainly requests mConnectionSvrFocusMgr to update the call focus via a
+     * {@link TransactionalFocusRequestCallback}.  However, in the case of a held call, the
+     * state must be set first and then a request must be made.
+     *
+     * @param newCallFocus          to set active/answered
+     * @param resultCallback        that back propagates the focusManager result
+     *
+     * Note: This method should only be called if there are no active calls.
      */
-    public void transactionRequestNewFocusCall(Call call, int newCallState,
-            OutcomeReceiver<Boolean, CallException> callback) {
-        Log.d(this, "transactionRequestNewFocusCall");
-        PendingAction pendingAction = new ActionSetCallState(call, newCallState,
-                "transactional ActionSetCallState");
+    public void requestNewCallFocusAndVerify(Call newCallFocus,
+            OutcomeReceiver<Boolean, CallException> resultCallback) {
+        int currentCallState = newCallFocus.getState();
+        PendingAction pendingAction = null;
+
+        // if the current call is in a state that can become the new call focus, we can set the
+        // state afterwards...
+        if (ConnectionServiceFocusManager.PRIORITY_FOCUS_CALL_STATE.contains(currentCallState)) {
+            pendingAction = new ActionSetCallState(newCallFocus, CallState.ACTIVE,
+                    "vCFC: pending action set state");
+        } else {
+            // However, HELD calls need to be set to ACTIVE before requesting call focus.
+            setCallState(newCallFocus, CallState.ACTIVE, "vCFC: immediately set active");
+        }
+
         mConnectionSvrFocusMgr
-                .requestFocus(call,
-                        new TransactionalFocusRequestCallback(pendingAction, call, callback));
+                .requestFocus(newCallFocus,
+                        new TransactionalFocusRequestCallback(pendingAction, currentCallState,
+                                newCallFocus, resultCallback));
     }
 
     /**
      * Request a new call focus and ensure the request was successful via an OutcomeReceiver. Also,
-     * include a PendingAction that will execute if the call focus change is successful.
+     * conditionally include a PendingAction that will execute if and only if the call focus change
+     * is successful.
      */
     @VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
     public class TransactionalFocusRequestCallback implements
             ConnectionServiceFocusManager.RequestFocusCallback {
         private PendingAction mPendingAction;
-        @NonNull
-        private Call mTargetCallFocus;
+        private int mPreviousCallState;
+        @NonNull private Call mTargetCallFocus;
         private OutcomeReceiver<Boolean, CallException> mCallback;
 
-        TransactionalFocusRequestCallback(PendingAction pendingAction, @NonNull Call call,
-                OutcomeReceiver<Boolean, CallException> callback) {
+        TransactionalFocusRequestCallback(PendingAction pendingAction, int previousState,
+                @NonNull Call call, OutcomeReceiver<Boolean, CallException> callback) {
             mPendingAction = pendingAction;
+            mPreviousCallState = previousState;
             mTargetCallFocus = call;
             mCallback = callback;
         }
@@ -6131,12 +6150,18 @@ public class CallsManager extends Call.ListenerBase
                     mTargetCallFocus, currentCallFocus);
             if (currentCallFocus == null ||
                     !currentCallFocus.getId().equals(mTargetCallFocus.getId())) {
+                // possibly reset the call state
+                if (mTargetCallFocus.getState() != mPreviousCallState) {
+                    mTargetCallFocus.setState(mPreviousCallState, "resetting call state");
+                }
                 mCallback.onError(new CallException("failed to switch focus to requested call",
                         CallException.CODE_CALL_CANNOT_BE_SET_TO_ACTIVE));
                 return;
             }
             // at this point, we know the FocusManager is able to update successfully
-            mPendingAction.performAction(); // set the call state
+            if (mPendingAction != null) {
+                mPendingAction.performAction(); // set the call state
+            }
             mCallback.onResult(true); // complete the transaction
         }
     }
