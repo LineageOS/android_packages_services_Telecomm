@@ -16,6 +16,8 @@
 
 package com.android.server.telecom.voip;
 
+import static android.telecom.CallException.CODE_OPERATION_TIMED_OUT;
+
 import android.os.OutcomeReceiver;
 import android.telecom.TelecomManager;
 import android.telecom.CallException;
@@ -79,8 +81,8 @@ public class TransactionManager {
 
                 @Override
                 public void onTransactionTimeout(String transactionName){
-                    receiver.onResult(new VoipCallTransactionResult(
-                            VoipCallTransactionResult.RESULT_FAILED, transactionName + " timeout"));
+                    receiver.onError(new CallException(transactionName + " timeout",
+                            CODE_OPERATION_TIMED_OUT));
                     finishTransaction();
                 }
             });
