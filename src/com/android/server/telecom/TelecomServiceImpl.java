@@ -368,12 +368,13 @@ public class TelecomServiceImpl {
                 }
                 synchronized (mLock) {
                     final UserHandle callingUserHandle = Binder.getCallingUserHandle();
+                    boolean crossUserAccess = hasInAppCrossUserPermission();
                     long token = Binder.clearCallingIdentity();
                     try {
                         return new ParceledListSlice<>(
                                 mPhoneAccountRegistrar.getCallCapablePhoneAccounts(null,
                                         includeDisabledAccounts, callingUserHandle,
-                                        hasInAppCrossUserPermission()));
+                                        crossUserAccess));
                     } catch (Exception e) {
                         Log.e(this, e, "getCallCapablePhoneAccounts");
                         mAnomalyReporter.reportAnomaly(GET_CALL_CAPABLE_ACCOUNTS_ERROR_UUID,
@@ -646,11 +647,12 @@ public class TelecomServiceImpl {
 
                 synchronized (mLock) {
                     final UserHandle callingUserHandle = Binder.getCallingUserHandle();
+                    boolean crossUserAccess = hasInAppCrossUserPermission();
                     long token = Binder.clearCallingIdentity();
                     try {
                         return new ParceledListSlice<>(mPhoneAccountRegistrar
                                 .getAllPhoneAccountHandles(callingUserHandle,
-                                        hasInAppCrossUserPermission()));
+                                        crossUserAccess));
                     } catch (Exception e) {
                         Log.e(this, e, "getAllPhoneAccounts");
                         throw e;
@@ -957,12 +959,13 @@ public class TelecomServiceImpl {
                 synchronized (mLock) {
                     enforcePermissionOrPrivilegedDialer(MODIFY_PHONE_STATE, callingPackage);
                     UserHandle callingUserHandle = Binder.getCallingUserHandle();
+                    boolean crossUserAccess = hasInAppCrossUserPermission();
                     long token = Binder.clearCallingIdentity();
                     try {
                         Log.i(this, "Silence Ringer requested by %s", callingPackage);
                         Set<UserHandle> userHandles = mCallsManager.getCallAudioManager().
                                 silenceRingers(mContext, callingUserHandle,
-                                        hasInAppCrossUserPermission());
+                                        crossUserAccess);
                         mCallsManager.getInCallController().silenceRinger(userHandles);
                     } finally {
                         Binder.restoreCallingIdentity(token);
