@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -153,10 +154,9 @@ public class ConnectionServiceFocusManager {
         void setCallsManagerListener(CallsManager.CallsManagerListener listener);
     }
 
-    private static final int[] PRIORITY_FOCUS_CALL_STATE = new int[] {
-            CallState.ACTIVE, CallState.CONNECTING, CallState.DIALING, CallState.AUDIO_PROCESSING,
-            CallState.RINGING
-    };
+    public static final Set<Integer> PRIORITY_FOCUS_CALL_STATE
+            = Set.of(CallState.ACTIVE, CallState.CONNECTING, CallState.DIALING,
+            CallState.AUDIO_PROCESSING, CallState.RINGING);
 
     private static final int MSG_REQUEST_FOCUS = 1;
     private static final int MSG_RELEASE_CONNECTION_FOCUS = 2;
@@ -374,17 +374,15 @@ public class ConnectionServiceFocusManager {
                         && call.isFocusable())
                 .collect(Collectors.toList());
 
-        for (int i = 0; i < PRIORITY_FOCUS_CALL_STATE.length; i++) {
-            for (CallFocus call : calls) {
-                if (call.getState() == PRIORITY_FOCUS_CALL_STATE[i]) {
-                    mCurrentFocusCall = call;
-                    Log.d(this, "updateCurrentFocusCall %s", mCurrentFocusCall);
-                    return;
-                }
+        for (CallFocus call : calls) {
+            if (PRIORITY_FOCUS_CALL_STATE.contains(call.getState())) {
+                mCurrentFocusCall = call;
+                Log.i(this, "updateCurrentFocusCall %s", mCurrentFocusCall);
+                return;
             }
         }
 
-        Log.d(this, "updateCurrentFocusCall = null");
+        Log.i(this, "updateCurrentFocusCall = null");
     }
 
     private void onRequestFocusDone(FocusRequest focusRequest) {
