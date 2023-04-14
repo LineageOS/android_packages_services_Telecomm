@@ -26,13 +26,13 @@ import com.android.server.telecom.CallsManager;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public class HoldActiveCallForNewCallTransaction extends VoipCallTransaction {
+public class MaybeHoldCallForNewCallTransaction extends VoipCallTransaction {
 
-    private static final String TAG = HoldActiveCallForNewCallTransaction.class.getSimpleName();
+    private static final String TAG = MaybeHoldCallForNewCallTransaction.class.getSimpleName();
     private final CallsManager mCallsManager;
     private final Call mCall;
 
-    public HoldActiveCallForNewCallTransaction(CallsManager callsManager, Call call) {
+    public MaybeHoldCallForNewCallTransaction(CallsManager callsManager, Call call) {
         super(callsManager.getLock());
         mCallsManager = callsManager;
         mCall = call;

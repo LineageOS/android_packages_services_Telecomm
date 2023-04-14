@@ -22,6 +22,7 @@ import static android.telecom.CallException.CODE_OPERATION_TIMED_OUT;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.telecom.CallAttributes;
 import android.telecom.DisconnectCause;
 import android.util.Log;
 
@@ -44,7 +45,7 @@ public class CallEventCallbackAckTransaction extends VoipCallTransaction {
     private final String mAction;
     private final String mCallId;
     // optional values
-    private int mVideoState = 0;
+    private int mVideoState = CallAttributes.AUDIO_CALL;
     private DisconnectCause mDisconnectCause = null;
 
     private final VoipCallTransactionResult TRANSACTION_FAILED = new VoipCallTransactionResult(
