@@ -22,27 +22,51 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/title"
-        android:layout_width="fill_parent"
+        android:id="@+id/getCallIdTextView"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/app_name"/>
+        android:text="@string/get_call_id"
+    />
+
+    <Button
+        android:id="@+id/answer_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/answer"/>
+
+    <Button
+        android:id="@+id/set_call_active_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/set_call_active"/>
+
+    <Button
+        android:id="@+id/set_call_inactive_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/set_call_inactive"/>
+
+    <Button
+        android:id="@+id/disconnect_call_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/disconnect_call"/>
+
+    <Button
+        android:id="@+id/start_stream_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/start_stream"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <Button
-            android:id="@+id/registerButton"
+        <TextView
+            android:id="@+id/current_endpoint"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/register_phone_account"/>
-
-        <Button
-            android:id="@+id/startForegroundService"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/start_foreground_service"
         />
 
         <LinearLayout
@@ -51,18 +75,23 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/startOutgoingCall"
+                android:id="@+id/request_earpiece"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/start_outgoing"
-            />
+                android:text="@string/request_earpiece_endpoint"/>
 
             <Button
-                android:id="@+id/startIncomingCall"
+                android:id="@+id/request_speaker"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/start_incoming"
-            />
+                android:text="@string/request_speaker_endpoint"/>
+
+            <Button
+                android:id="@+id/request_bluetooth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/request_bluetooth_endpoint"/>
         </LinearLayout>
+
     </LinearLayout>
 </LinearLayout>
