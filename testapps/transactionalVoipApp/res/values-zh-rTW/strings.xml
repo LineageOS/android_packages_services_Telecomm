@@ -18,12 +18,31 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name" msgid="2907804426411305091">"交易 API 測試活動"</string>
+    <!-- no translation found for in_call_activity_name (7545884666442897585) -->
+    <skip />
     <string name="register_phone_account" msgid="1920315963082350332">"註冊電話帳戶"</string>
-    <string name="direction_outgoing" msgid="2535369086068422248">"撥出通話"</string>
-    <string name="direction_incoming" msgid="3279919900558410227">"來電"</string>
-    <string name="add_call_1" msgid="5825706540046010457">"新增通話 1"</string>
-    <string name="disconnect_call_1" msgid="2687960802565131403">"中斷通話 1"</string>
-    <string name="add_call_2" msgid="6706005258041717434">"新增通話 2"</string>
-    <string name="set_call_active" msgid="248748409907478011">"將通話 2 設為啟用"</string>
-    <string name="disconnect_call_2" msgid="133113412102219516">"中斷通話 2"</string>
+    <!-- no translation found for start_foreground_service (8968755699895128574) -->
+    <skip />
+    <!-- no translation found for start_outgoing (1441644037370361864) -->
+    <skip />
+    <!-- no translation found for start_incoming (6444983300186361271) -->
+    <skip />
+    <!-- no translation found for get_call_id (5513943242738347108) -->
+    <skip />
+    <!-- no translation found for set_call_active (3365404393507589899) -->
+    <skip />
+    <!-- no translation found for answer (5423590397665409939) -->
+    <skip />
+    <!-- no translation found for set_call_inactive (7106775211368705195) -->
+    <skip />
+    <!-- no translation found for disconnect_call (1349412380315371385) -->
+    <skip />
+    <!-- no translation found for request_earpiece_endpoint (6649571985089296573) -->
+    <skip />
+    <!-- no translation found for request_speaker_endpoint (1033259535289845405) -->
+    <skip />
+    <!-- no translation found for request_bluetooth_endpoint (5933254250623451836) -->
+    <skip />
+    <!-- no translation found for start_stream (3567634786280097431) -->
+    <skip />
 </resources>
