@@ -801,6 +801,9 @@ public class InCallController extends CallsManagerListenerBase implements
             }
             Call callToConnectWith = mCallIdMapper.getCalls().iterator().next();
             for (InCallServiceBindingConnection newConnection : newConnections) {
+                // Ensure we track the new sub-connection so that when we later disconnect we will
+                // be able to disconnect it.
+                mSubConnections.add(newConnection);
                 newConnection.connect(callToConnectWith);
             }
         }
@@ -2189,7 +2192,8 @@ public class InCallController extends CallsManagerListenerBase implements
      * Adds the call to the list of calls tracked by the {@link InCallController}.
      * @param call The call to add.
      */
-    private void addCall(Call call) {
+    @VisibleForTesting
+    public void addCall(Call call) {
         if (mCallIdMapper.getCalls().size() == 0) {
             mAppOpsManager.startWatchingActive(new String[] { OPSTR_RECORD_AUDIO },
                     java.lang.Runnable::run, this);
