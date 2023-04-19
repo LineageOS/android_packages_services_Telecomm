@@ -150,6 +150,7 @@ import java.util.concurrent.TimeUnit;
 @RunWith(JUnit4.class)
 public class CallsManagerTest extends TelecomTestCase {
     private static final int TEST_TIMEOUT = 5000;  // milliseconds
+    private static final long STATE_TIMEOUT = 5000L;
     private static final int SECONDARY_USER_ID = 12;
     private static final PhoneAccountHandle SIM_1_HANDLE = new PhoneAccountHandle(
             ComponentName.unflattenFromString("com.foo/.Blah"), "Sim1");
@@ -277,6 +278,9 @@ public class CallsManagerTest extends TelecomTestCase {
                 .thenReturn(mDisconnectedCallNotifier);
         when(mTimeoutsAdapter.getCallDiagnosticServiceTimeoutMillis(any(ContentResolver.class)))
                 .thenReturn(2000L);
+        when(mTimeoutsAdapter.getNonVoipCallTransitoryStateTimeoutMillis())
+                .thenReturn(STATE_TIMEOUT);
+        when(mClockProxy.elapsedRealtime()).thenReturn(0L);
         mCallsManager = new CallsManager(
                 mComponentContextFixture.getTestDouble().getApplicationContext(),
                 mLock,
@@ -1566,11 +1570,33 @@ public class CallsManagerTest extends TelecomTestCase {
                 .thenReturn(false);
         newCall.setHandle(TEST_ADDRESS, TelecomManager.PRESENTATION_ALLOWED);
 
+        // Make sure enough time has passed that we'd drop the connecting call.
+        when(mClockProxy.elapsedRealtime()).thenReturn(STATE_TIMEOUT + 10L);
         assertTrue(mCallsManager.makeRoomForOutgoingCall(newCall));
         verify(mAnomalyReporterAdapter).reportAnomaly(
                 CallsManager.LIVE_CALL_STUCK_CONNECTING_ERROR_UUID,
                 CallsManager.LIVE_CALL_STUCK_CONNECTING_ERROR_MSG);
         verify(ongoingCall).disconnect(anyLong(), anyString());
+    }
+
+    /**
+     * Verifies that we won't auto-disconnect an outgoing CONNECTING call unless it has timed out.
+     */
+    @SmallTest
+    @Test
+    public void testDontDisconnectConnectingCallWhenNotTimedOut() {
+        mCallsManager.setAnomalyReporterAdapter(mAnomalyReporterAdapter);
+        Call ongoingCall = addSpyCall(SIM_2_HANDLE, CallState.CONNECTING);
+
+        Call newCall = createCall(SIM_1_HANDLE, CallState.NEW);
+        when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
+                .thenReturn(false);
+        newCall.setHandle(TEST_ADDRESS, TelecomManager.PRESENTATION_ALLOWED);
+
+        // Make sure it has been a short time so we don't try to disconnect the call
+        when(mClockProxy.elapsedRealtime()).thenReturn(STATE_TIMEOUT / 2);
+        assertFalse(mCallsManager.makeRoomForOutgoingCall(newCall));
+        verify(ongoingCall, never()).disconnect(anyLong(), anyString());
     }
 
     @SmallTest
@@ -1646,6 +1672,7 @@ public class CallsManagerTest extends TelecomTestCase {
         Call ongoingCall = addSpyCall(SIM_2_HANDLE, CallState.CONNECTING);
         Call newCall = createCall(SIM_1_HANDLE, CallState.NEW);
 
+        when(mClockProxy.elapsedRealtime()).thenReturn(STATE_TIMEOUT + 10L);
         assertTrue(mCallsManager.makeRoomForOutgoingCall(newCall));
         verify(ongoingCall).disconnect(anyLong(), anyString());
     }
@@ -1655,7 +1682,7 @@ public class CallsManagerTest extends TelecomTestCase {
     public void testMakeRoomForOutgoingCallForSameCall() {
         addSpyCall(SIM_2_HANDLE, CallState.CONNECTING);
         Call ongoingCall2 = addSpyCall();
-
+        when(mClockProxy.elapsedRealtime()).thenReturn(STATE_TIMEOUT + 10L);
         assertTrue(mCallsManager.makeRoomForOutgoingCall(ongoingCall2));
     }
 
