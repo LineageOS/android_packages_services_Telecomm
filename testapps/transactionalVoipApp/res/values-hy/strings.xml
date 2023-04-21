@@ -18,31 +18,18 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name" msgid="2907804426411305091">"Գործարքային API-ների փորձարկման գործողություն"</string>
-    <!-- no translation found for in_call_activity_name (7545884666442897585) -->
-    <skip />
+    <string name="in_call_activity_name" msgid="7545884666442897585">"Գործարքներ զանգի ժամանակ"</string>
     <string name="register_phone_account" msgid="1920315963082350332">"Հեռախոսի հաշվի գրանցում"</string>
-    <!-- no translation found for start_foreground_service (8968755699895128574) -->
-    <skip />
-    <!-- no translation found for start_outgoing (1441644037370361864) -->
-    <skip />
-    <!-- no translation found for start_incoming (6444983300186361271) -->
-    <skip />
-    <!-- no translation found for get_call_id (5513943242738347108) -->
-    <skip />
-    <!-- no translation found for set_call_active (3365404393507589899) -->
-    <skip />
-    <!-- no translation found for answer (5423590397665409939) -->
-    <skip />
-    <!-- no translation found for set_call_inactive (7106775211368705195) -->
-    <skip />
-    <!-- no translation found for disconnect_call (1349412380315371385) -->
-    <skip />
-    <!-- no translation found for request_earpiece_endpoint (6649571985089296573) -->
-    <skip />
-    <!-- no translation found for request_speaker_endpoint (1033259535289845405) -->
-    <skip />
-    <!-- no translation found for request_bluetooth_endpoint (5933254250623451836) -->
-    <skip />
-    <!-- no translation found for start_stream (3567634786280097431) -->
-    <skip />
+    <string name="start_foreground_service" msgid="8968755699895128574">"Գործարկել FGS-ը (ՄԹ-ի սիմուլացիա + հավելված ֆոնային ռեժիմում)"</string>
+    <string name="start_outgoing" msgid="1441644037370361864">"Սկսել ելքային զանգ"</string>
+    <string name="start_incoming" msgid="6444983300186361271">"Սկսել մուտքային զանգ"</string>
+    <string name="get_call_id" msgid="5513943242738347108">"զանգի նույնացուցիչ սահմանված չէ"</string>
+    <string name="set_call_active" msgid="3365404393507589899">"ակտիվացնել"</string>
+    <string name="answer" msgid="5423590397665409939">"պատասխանել"</string>
+    <string name="set_call_inactive" msgid="7106775211368705195">"ապակտիվացնել"</string>
+    <string name="disconnect_call" msgid="1349412380315371385">"անջատել"</string>
+    <string name="request_earpiece_endpoint" msgid="6649571985089296573">"Լսափող"</string>
+    <string name="request_speaker_endpoint" msgid="1033259535289845405">"Բարձրախոս"</string>
+    <string name="request_bluetooth_endpoint" msgid="5933254250623451836">"Bluetooth"</string>
+    <string name="start_stream" msgid="3567634786280097431">"սկսել հեռարձակում"</string>
 </resources>
