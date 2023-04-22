@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"<xliff:g id="CALLER">%s</xliff:g> के साथ चल रहे कॉल को डिसकनेक्ट किया गया क्योंकि एक आपातकालीन कॉल किया जा रहा है."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"एक आपातकालीन कॉल किया जा रहा है, इसलिए आपका कॉल डिसकनेक्ट कर दिया गया है."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"बैकग्राउंड कॉल"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> ने कॉल को बैकग्राउंड में रखा है हो सकता है कि यह ऐप्लिकेशन आपके कॉल से ऑडियो ऐक्सेस करके उसे चला रहा हो."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>, बैकग्राउंड में कॉल को प्रोसेस कर रहा है. ऐसा हो सकता है कि यह ऐप्लिकेशन आपके कॉल से ऑडियो को ऐक्सेस करके चला रहा हो."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> ऐप्लिकेशन बंद हो गया है"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"कॉल करने के लिए, आपके डिवाइस में पहले से मौजूद फ़ोन ऐप्लिकेशन का इस्तेमाल किया गया"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"कॉल म्‍यूट की गई."</string>

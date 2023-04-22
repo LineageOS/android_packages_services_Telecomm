@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Skambutis kontaktui <xliff:g id="CALLER">%s</xliff:g> buvo atjungtas dėl atliekamo skambučio pagalbos numeriu."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Skambutis buvo atjungtas dėl atliekamo skambučio pagalbos numeriu."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Skambutis fone"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"Programa „<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>“ perkėlė skambutį į foną. Ši programa gali pasiekti ir leisti garsą vykstant skambučiui."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"„<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>“ apdoroja skambutį fone. Ši programa gali pasiekti ir leisti garsą vykstant skambučiui."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"Programa „<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g>“ nebereaguoja"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Atliekant skambutį buvo naudojama telefono programa, kuri buvo įrenginyje jį įsigijus"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Skambutis nutildytas."</string>

@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Η κλήση προς <xliff:g id="CALLER">%s</xliff:g> αποσυνδέθηκε λόγω πραγματοποίησης κλήσης έκτακτης ανάγκης."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Η κλήση σας αποσυνδέθηκε λόγω πραγματοποίησης κλήσης έκτακτης ανάγκης."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Κλήση στο παρασκήνιο"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"Η εφαρμογή <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> πραγματοποίησε μια κλήση στο παρασκήνιο. Η εφαρμογή αυτή ενδέχεται να έχει δικαίωμα προσπέλασης και αναπαραγωγής ήχου κατά τη διάρκεια της κλήσης."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"Η εφαρμογή <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> επεξεργάζεται μια κλήση στο παρασκήνιο. Η εφαρμογή αυτή ενδέχεται να έχει δικαίωμα πρόσβασης και αναπαραγωγής ήχου κατά τη διάρκεια της κλήσης."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"Η εφαρμογή <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> έπαψε να αποκρίνεται"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Η κλήση σας πραγματοποιήθηκε μέσω της αρχικής εφαρμογής τηλεφώνου της συσκευής σας."</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Η κλήση τέθηκε σε σίγαση."</string>

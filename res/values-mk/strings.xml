@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Повикот до <xliff:g id="CALLER">%s</xliff:g> се исклучи поради воспоставувањето итен повик."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Повикот ќе се исклучи поради воспоставувањето итен повик."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Повик во заднина"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> воспостави повик во заднината. Апликацијава можеби пристапува до и пушта аудио во повикот."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> обработува повик во заднината. Апликацијава можеби пристапува до и пушта аудио во повикот."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> падна"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Повикот се обави на апликацијата за телефон што дојде со уредот"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Повикот е со исклучен звук"</string>

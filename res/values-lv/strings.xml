@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Zvans lietotājam <xliff:g id="CALLER">%s</xliff:g> ir pārtraukts, jo tiek veikts ārkārtas izsaukums."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Jūsu zvans ir pārtraukts, jo tiek veikts ārkārtas izsaukums."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Saruna fonā"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> pārcēla sarunu uz darbību fonā. Sarunas laikā šī lietotne var piekļūt audio saturam un to atskaņot."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> apstrādā zvanu fonā. Sarunas laikā šī lietotne var piekļūt audio saturam un to atskaņot."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> pārtrauca reaģēt"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Zvanam tika izmantota jūsu ierīcē iebūvētā tālruņa lietotne"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Zvana skaņa ir izslēgta."</string>

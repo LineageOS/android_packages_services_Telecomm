@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Cuộc gọi đến <xliff:g id="CALLER">%s</xliff:g> đã bị ngắt kết nối do một cuộc gọi khẩn cấp được thực hiện."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Cuộc gọi của bạn đã bị ngắt kết nối do một cuộc gọi khẩn cấp đang được thực hiện."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Cuộc gọi trong nền"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> đã gọi điện ở chế độ nền. Ứng dụng này có thể đang truy cập và phát âm thanh qua cuộc gọi."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> đang xử lý cuộc gọi ở chế độ nền. Ứng dụng này có thể đang truy cập và phát âm thanh qua cuộc gọi."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> đã dừng phản hồi"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Cuộc gọi của bạn đã dùng ứng dụng dành cho điện thoại đi kèm với thiết bị"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Đã tắt tiếng cuộc gọi."</string>

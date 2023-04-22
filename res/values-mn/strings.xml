@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Яаралтай дуудлага ирсэн тул <xliff:g id="CALLER">%s</xliff:g> руу хийсэн дуудлагыг салгалаа."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Яаралтай дуудлага ирсэн тул таны дуудлагыг салгалаа."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Арын дуудлага"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> дуудлагыг ард оруулсан байна. Энэхүү апп нь дуудлагаар аудиод хандаж, тоглуулж байна."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> нь дэвсгэрт дуудлага боловсруулж байна. Энэ апп дуудлагаар аудиод хандаж, мөн аудио тоглуулж байж магадгүй."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> хариу өгөхөө больсон"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Таны дуудлагыг таны төхөөрөмжтэй хамт ирсэн гар утасны аппаар хийсэн"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Дууг хаасан."</string>

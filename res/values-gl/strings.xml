@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Desconectouse a chamada a <xliff:g id="CALLER">%s</xliff:g> porque se realizou unha chamada de emerxencia."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Desconectouse a chamada porque se realizou unha chamada de emerxencia."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Chamada seg. plano"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> chamou en segundo plano. Pode que esta aplicación acceda ao audio e o reproduza durante a chamada."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> está procesando unha chamada en segundo plano. Pode que esta aplicación acceda ao audio e o reproduza durante a chamada."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> deixou de responder"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Usouse a aplicación para teléfonos que ven co teu dispositivo na chamada"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Chamada silenciada"</string>

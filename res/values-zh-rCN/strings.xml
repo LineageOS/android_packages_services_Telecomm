@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"由于要进行紧急呼叫，与 <xliff:g id="CALLER">%s</xliff:g> 的通话已中断。"</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"由于要进行紧急呼叫，您的通话已中断。"</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"后台通话"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> 已将通话切换到后台进行。此应用可以接入通话，并播放通话音频。"</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"“<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>”正在后台处理通话。此应用可在通话期间获取和播放音频。"</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g>已停止响应"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"系统使用您设备自带的电话应用拨打了电话"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"通话已静音。"</string>
@@ -89,7 +89,7 @@
     <string name="answering_ends_other_managed_calls" msgid="3974069768615307659">"如果接听此来电，您当前的通话会中断。"</string>
     <string name="answering_ends_other_managed_video_call" msgid="1988508241432031327">"如果接听此来电，您当前的视频通话会中断。"</string>
     <string name="answer_incoming_call" msgid="2045888814782215326">"接听"</string>
-    <string name="decline_incoming_call" msgid="922147089348451310">"拒绝"</string>
+    <string name="decline_incoming_call" msgid="922147089348451310">"拒接"</string>
     <string name="cant_call_due_to_no_supported_service" msgid="1635626384149947077">"无法拨出电话，因为没有通话帐号支持拨打这类电话。"</string>
     <string name="cant_call_due_to_ongoing_call" msgid="8004235328451385493">"由于当前正在进行 <xliff:g id="OTHER_CALL">%1$s</xliff:g> 通话，因此无法拨打电话。"</string>
     <string name="cant_call_due_to_ongoing_calls" msgid="6379163795277824868">"由于当前正在进行 <xliff:g id="OTHER_CALL">%1$s</xliff:g> 通话，因此无法拨打电话。"</string>

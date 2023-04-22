@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"A chamada para <xliff:g id="CALLER">%s</xliff:g> foi desconectada porque uma chamada de emergência está sendo realizada."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Sua chamada foi desconectada porque uma chamada de emergência está sendo feita."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Chamada em 2º plano"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"O app <xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> colocou uma chamada em segundo plano. Talvez ele esteja acessando e tocando o áudio durante a chamada."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> está processando uma chamada em segundo plano. Talvez ele esteja acessando e tocando o áudio durante a chamada."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"O app <xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> parou de responder"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"A chamada usou o aplicativo de telefone que veio com seu dispositivo"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Chamada sem áudio."</string>

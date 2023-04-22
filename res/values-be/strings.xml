@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"Выклік да абанента <xliff:g id="CALLER">%s</xliff:g> перарваны, бо выконваецца экстранны выклік."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"Бягучы выклік перарваны, бо выконваецца экстранны выклік."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"Фонавы выклік"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"Праграма \"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>\" перавяла выклік у фонавы рэжым і можа прайграваць аўдыя падчас выкліку."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"Праграма \"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>\" апрацоўвае выклік у фонавым рэжыме. Яна можа прайграваць аўдыя падчас выкліку."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"Праграма \"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g>\" не адказвае"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"Выклік зроблены ў стандартнай праграме \"Тэлефон\" на прыладзе"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"Гук выключаны."</string>

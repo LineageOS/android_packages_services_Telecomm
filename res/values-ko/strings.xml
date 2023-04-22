@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"긴급 전화 연결로 인해 <xliff:g id="CALLER">%s</xliff:g>님에게 건 통화가 연결 해제되었습니다."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"긴급 전화 연결로 인해 통화가 연결 해제되었습니다."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"백그라운드 통화"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g>에서 통화를 백그라운드로 전환했습니다. 앱이 통화에 사용되는 오디오에 액세스하거나 재생 중일 수 있습니다."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> 앱이 백그라운드에서 통화를 처리하는 중입니다. 앱이 통화에 사용되는 오디오에 액세스하거나 재생 중일 수 있습니다."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g>의 응답이 중지됨"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"기기의 기본 전화 앱을 사용하여 통화했습니다."</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"통화가 음소거되었습니다."</string>

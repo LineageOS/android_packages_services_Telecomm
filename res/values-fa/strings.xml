@@ -30,7 +30,7 @@
     <string name="notification_disconnectedCall_body" msgid="600491714584417536">"به‌دلیل انجام تماسی اضطراری، تماس با <xliff:g id="CALLER">%s</xliff:g> قطع شده است."</string>
     <string name="notification_disconnectedCall_generic_body" msgid="5282765206349184853">"به‌دلیل برقراری تماس اضطراری، تماس شما قطع شده است."</string>
     <string name="notification_audioProcessing_title" msgid="1619035039880584575">"تماس پس‌زمینه"</string>
-    <string name="notification_audioProcessing_body" msgid="6397005913770420388">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> تماسی را در پس‌زمینه قرار داد. ممکن است این برنامه درحین تماس به صدا دسترسی پیدا کند و آن را پخش کند."</string>
+    <string name="notification_audioProcessing_body" msgid="8811420157964118913">"<xliff:g id="AUDIO_PROCESSING_APP_NAME">%s</xliff:g> درحال پردازش تماس در پس‌زمینه است. ممکن است این برنامه درحین تماس به صدا دسترسی پیدا کند و آن را پخش کند."</string>
     <string name="notification_incallservice_not_responding_title" msgid="5347557574288598548">"<xliff:g id="IN_CALL_SERVICE_APP_NAME">%s</xliff:g> متوقف شد"</string>
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"تماستان بااستفاده از برنامه تلفن ارائه‌شده در دستگاهتان برقرار شد"</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"تماس نادیده گرفته شد."</string>
