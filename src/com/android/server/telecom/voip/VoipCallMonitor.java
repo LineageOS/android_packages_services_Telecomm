@@ -37,6 +37,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.LocalServices;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallsManagerListenerBase;
+import com.android.server.telecom.LogUtils;
 import com.android.server.telecom.TelecomSystem;
 
 import java.util.ArrayList;
@@ -182,12 +183,14 @@ public class VoipCallMonitor extends CallsManagerListenerBase {
             ServiceConnection fgsConnection = new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName name, IBinder service) {
+                    Log.addEvent(call, LogUtils.Events.GAINED_FGS_DELEGATION);
                     mServices.put(handle, this);
                     startMonitorWorks(call);
                 }
 
                 @Override
                 public void onServiceDisconnected(ComponentName name) {
+                    Log.addEvent(call, LogUtils.Events.LOST_FGS_DELEGATION);
                     mServices.remove(handle);
                 }
             };
