@@ -65,6 +65,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.compat.testing.PlatformCompatChangeRule;
 import android.net.Uri;
@@ -152,6 +153,7 @@ public class InCallControllerTests extends TelecomTestCase {
     @Mock InCallController.InCallServiceInfo mInCallServiceInfo;
     @Mock private AnomalyReporterAdapter mAnomalyReporterAdapter;
     @Mock UserManager mMockUserManager;
+    @Mock UserInfo mMockUserInfo;
 
     @Rule
     public TestRule compatChangeRule = new PlatformCompatChangeRule();
@@ -292,6 +294,11 @@ public class InCallControllerTests extends TelecomTestCase {
                 .thenReturn(PackageManager.PERMISSION_DENIED);
 
         when(mMockCallsManager.getAudioState()).thenReturn(new CallAudioState(false, 0, 0));
+
+        when(mMockContext.getSystemService(eq(Context.USER_SERVICE))).thenReturn(mMockUserManager);
+        // Mock user info to allow binding on user stored in the phone account (mUserHandle).
+        when(mMockUserManager.getUserInfo(anyInt())).thenReturn(mMockUserInfo);
+        when(mMockUserInfo.isManagedProfile()).thenReturn(true);
     }
 
     @Override
@@ -1578,6 +1585,26 @@ public class InCallControllerTests extends TelecomTestCase {
         // root ParcelableCall should still have the extra
         assertTrue(parcelableCallWithExtras.getExtras().containsKey(
                 android.telecom.Call.EXTRA_IS_SUPPRESSED_BY_DO_NOT_DISTURB));
+    }
+
+    @Test
+    public void testSecondaryUserCallBindToCurrentUser() throws Exception {
+        setupMocks(true /* isExternalCall */);
+        setupMockPackageManager(true /* default */, true /* system */, false /* external calls */);
+        // Force the difference between the phone account user and current user. This is supposed to
+        // simulate a secondary user placing a call over an unassociated sim.
+        assertFalse(mUserHandle.equals(UserHandle.USER_CURRENT));
+        when(mMockUserInfo.isManagedProfile()).thenReturn(false);
+
+        mInCallController.bindToServices(mMockCall);
+
+        // Bind InCallService on UserHandle.CURRENT and not the user from the call (mUserHandle)
+        ArgumentCaptor<Intent> bindIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mMockContext, times(1)).bindServiceAsUser(
+                bindIntentCaptor.capture(),
+                any(ServiceConnection.class),
+                eq(serviceBindingFlags),
+                eq(UserHandle.CURRENT));
     }
 
     private void setupMocks(boolean isExternalCall) {
