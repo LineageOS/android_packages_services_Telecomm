@@ -336,6 +336,10 @@ public class InCallController extends CallsManagerListenerBase implements
             mIsConnected = true;
             mInCallServiceInfo.setBindingStartTime(mClockProxy.elapsedRealtime());
             UserHandle userToBind = getUserFromCall(call);
+            boolean isManagedProfile = UserUtil.isManagedProfile(mContext, userToBind);
+            // Note that UserHandle.CURRENT fails to capture the work profile, so we need to handle
+            // it separately to ensure that the ICS is bound to the appropriate user.
+            userToBind = isManagedProfile ? userToBind : UserHandle.CURRENT;
             if (!mContext.bindServiceAsUser(intent, mServiceConnection,
                     Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE
                         | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS
