@@ -517,6 +517,43 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
     }
 
     /**
+     * Ensure that the call goes out on the PhoneAccount for the incoming call and not the
+     * Telephony preferred emergency account.
+     */
+    @SmallTest
+    @Test
+    public void testMTEmergencyCallMultiSimUserPreferred() throws Exception {
+        when(mMockCall.isEmergencyCall()).thenReturn(true);
+        when(mMockCall.isTestEmergencyCall()).thenReturn(false);
+        when(mMockCall.isIncoming()).thenReturn(true);
+        ConnectionServiceWrapper service = makeConnectionServiceWrapper();
+        PhoneAccount emergencyPhoneAccount1 = makeEmergencyPhoneAccount("tel_emer1", 0, null);
+        mapToSubSlot(emergencyPhoneAccount1, 1 /*subId*/, 0 /*slotId*/);
+        setTargetPhoneAccount(mMockCall, emergencyPhoneAccount1.getAccountHandle());
+        phoneAccounts.add(emergencyPhoneAccount1);
+        // Make this the user preferred phone account
+        setTargetPhoneAccount(mMockCall, emergencyPhoneAccount1.getAccountHandle());
+        PhoneAccount emergencyPhoneAccount2 = makeEmergencyPhoneAccount("tel_emer2",
+                PhoneAccount.CAPABILITY_EMERGENCY_PREFERRED, null);
+        mapToSubSlot(emergencyPhoneAccount2, 2 /*subId*/, 1 /*slotId*/);
+        phoneAccounts.add(emergencyPhoneAccount2);
+        PhoneAccountHandle emergencyPhoneAccountHandle2 = emergencyPhoneAccount2.getAccountHandle();
+
+        mTestCreateConnectionProcessor.process();
+
+        verify(mMockCall).setConnectionManagerPhoneAccount(
+                eq(emergencyPhoneAccount1.getAccountHandle()));
+        // The account we're using to place the call should be the user preferred account
+        verify(mMockCall).setTargetPhoneAccount(eq(emergencyPhoneAccount1.getAccountHandle()));
+        verify(mMockCall).setConnectionService(eq(service));
+        verify(service).createConnection(eq(mMockCall), any(CreateConnectionResponse.class));
+        // Notify successful connection to call
+        CallIdMapper mockCallIdMapper = mock(CallIdMapper.class);
+        mTestCreateConnectionProcessor.handleCreateConnectionSuccess(mockCallIdMapper, null);
+        verify(mMockCreateConnectionResponse).handleCreateConnectionSuccess(mockCallIdMapper, null);
+    }
+
+    /**
      * If the user preferred PhoneAccount is associated with an invalid slot, place on the other,
      * valid slot.
      */
