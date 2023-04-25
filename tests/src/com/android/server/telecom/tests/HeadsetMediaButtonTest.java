@@ -18,6 +18,7 @@ package com.android.server.telecom.tests;
 
 import android.content.Intent;
 import android.media.session.MediaSession;
+import android.telecom.CallEndpoint;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.KeyEvent;
@@ -80,7 +81,7 @@ public class HeadsetMediaButtonTest extends TelecomTestCase {
     }
 
     /**
-     * Nominal case; just add a call and remove it.
+     * Nominal case; just add a call and remove it; this happens when the audio state is earpiece.
      */
     @SmallTest
     @Test
@@ -90,14 +91,95 @@ public class HeadsetMediaButtonTest extends TelecomTestCase {
         when(mMockCallsManager.hasAnyCalls()).thenReturn(true);
         mHeadsetMediaButton.onCallAdded(regularCall);
         waitForHandlerAction(mHeadsetMediaButton.getHandler(), TEST_TIMEOUT_MILLIS);
+        verify(mMediaSessionAdapter, never()).setActive(eq(true));
+
+        // Report that the endpoint is earpiece and other routes that don't matter
+        mHeadsetMediaButton.onCallEndpointChanged(
+                new CallEndpoint("Earpiece", CallEndpoint.TYPE_EARPIECE));
+        mHeadsetMediaButton.onCallEndpointChanged(
+                new CallEndpoint("Speaker", CallEndpoint.TYPE_SPEAKER));
+        mHeadsetMediaButton.onCallEndpointChanged(
+                new CallEndpoint("BT", CallEndpoint.TYPE_BLUETOOTH));
+        waitForHandlerAction(mHeadsetMediaButton.getHandler(), TEST_TIMEOUT_MILLIS);
+        verify(mMediaSessionAdapter, never()).setActive(eq(true));
+
+        // ... and thus we see how the original code isn't amenable to tests.
+        when(mMediaSessionAdapter.isActive()).thenReturn(false);
+
+        // Still should not have done anything; we never hit wired headset
+        mHeadsetMediaButton.onCallRemoved(regularCall);
+        waitForHandlerAction(mHeadsetMediaButton.getHandler(), TEST_TIMEOUT_MILLIS);
+        verify(mMediaSessionAdapter, never()).setActive(eq(false));
+    }
+
+    /**
+     * Call is added and then routed to headset after call start
+     */
+    @SmallTest
+    @Test
+    public void testAddCallThenRouteToHeadset() {
+        Call regularCall = getRegularCall();
+
+        mHeadsetMediaButton.onCallAdded(regularCall);
+        waitForHandlerAction(mHeadsetMediaButton.getHandler(), TEST_TIMEOUT_MILLIS);
+        verify(mMediaSessionAdapter, never()).setActive(eq(true));
+
+        mHeadsetMediaButton.onCallEndpointChanged(
+                new CallEndpoint("Wired Headset", CallEndpoint.TYPE_WIRED_HEADSET));
+        waitForHandlerAction(mHeadsetMediaButton.getHandler(), TEST_TIMEOUT_MILLIS);
         verify(mMediaSessionAdapter).setActive(eq(true));
+
         // ... and thus we see how the original code isn't amenable to tests.
         when(mMediaSessionAdapter.isActive()).thenReturn(true);
 
-        when(mMockCallsManager.hasAnyCalls()).thenReturn(false);
+        // Remove the one call; we should release the session.
         mHeadsetMediaButton.onCallRemoved(regularCall);
         waitForHandlerAction(mHeadsetMediaButton.getHandler(), TEST_TIMEOUT_MILLIS);
         verify(mMediaSessionAdapter).setActive(eq(false));
+        when(mMediaSessionAdapter.isActive()).thenReturn(false);
+
+        // Add a new call; make sure we go active once more.
+        mHeadsetMediaButton.onCallAdded(regularCall);
+        mHeadsetMediaButton.onCallEndpointChanged(
+                new CallEndpoint("Wired Headset", CallEndpoint.TYPE_WIRED_HEADSET));
+        waitForHandlerAction(mHeadsetMediaButton.getHandler(), TEST_TIMEOUT_MILLIS);
+        verify(mMediaSessionAdapter, times(2)).setActive(eq(true));
+    }
+
+    /**
+     * Call is added and then routed to headset after call start
+     */
+    @SmallTest
+    @Test
+    public void testAddCallThenRouteToHeadsetAndBack() {
+        Call regularCall = getRegularCall();
+
+        when(mMockCallsManager.hasAnyCalls()).thenReturn(true);
+        mHeadsetMediaButton.onCallAdded(regularCall);
+        waitForHandlerAction(mHeadsetMediaButton.getHandler(), TEST_TIMEOUT_MILLIS);
+        verify(mMediaSessionAdapter, never()).setActive(eq(true));
+
+        mHeadsetMediaButton.onCallEndpointChanged(
+                new CallEndpoint("Wired Headset", CallEndpoint.TYPE_WIRED_HEADSET));
+        waitForHandlerAction(mHeadsetMediaButton.getHandler(), TEST_TIMEOUT_MILLIS);
+        verify(mMediaSessionAdapter).setActive(eq(true));
+
+        // ... and thus we see how the original code isn't amenable to tests.
+        when(mMediaSessionAdapter.isActive()).thenReturn(true);
+
+        mHeadsetMediaButton.onCallEndpointChanged(
+                new CallEndpoint("Earpiece", CallEndpoint.TYPE_EARPIECE));
+        waitForHandlerAction(mHeadsetMediaButton.getHandler(), TEST_TIMEOUT_MILLIS);
+        verify(mMediaSessionAdapter).setActive(eq(false));
+        when(mMediaSessionAdapter.isActive()).thenReturn(false);
+
+        // Remove the one call; we should not release again.
+        mHeadsetMediaButton.onCallRemoved(regularCall);
+        waitForHandlerAction(mHeadsetMediaButton.getHandler(), TEST_TIMEOUT_MILLIS);
+        // Remember, mockito counts total invocations; we should have went active once and then
+        // inactive again when we hit earpiece.
+        verify(mMediaSessionAdapter, times(1)).setActive(eq(true));
+        verify(mMediaSessionAdapter, times(1)).setActive(eq(false));
     }
 
     /**
@@ -111,6 +193,8 @@ public class HeadsetMediaButtonTest extends TelecomTestCase {
         // Start with a regular old call.
         when(mMockCallsManager.hasAnyCalls()).thenReturn(true);
         mHeadsetMediaButton.onCallAdded(regularCall);
+        mHeadsetMediaButton.onCallEndpointChanged(
+                new CallEndpoint("Wired Headset", CallEndpoint.TYPE_WIRED_HEADSET));
         waitForHandlerAction(mHeadsetMediaButton.getHandler(), TEST_TIMEOUT_MILLIS);
         verify(mMediaSessionAdapter).setActive(eq(true));
         when(mMediaSessionAdapter.isActive()).thenReturn(true);
@@ -122,6 +206,7 @@ public class HeadsetMediaButtonTest extends TelecomTestCase {
         // Expect to set session inactive.
         waitForHandlerAction(mHeadsetMediaButton.getHandler(), TEST_TIMEOUT_MILLIS);
         verify(mMediaSessionAdapter).setActive(eq(false));
+        when(mMediaSessionAdapter.isActive()).thenReturn(false);
 
         // For good measure lets make it non-external again.
         when(regularCall.isExternalCall()).thenReturn(false);
@@ -129,7 +214,7 @@ public class HeadsetMediaButtonTest extends TelecomTestCase {
         mHeadsetMediaButton.onExternalCallChanged(regularCall, false);
         // Expect to set session active.
         waitForHandlerAction(mHeadsetMediaButton.getHandler(), TEST_TIMEOUT_MILLIS);
-        verify(mMediaSessionAdapter).setActive(eq(true));
+        verify(mMediaSessionAdapter, times(2)).setActive(eq(true));
     }
 
     @MediumTest
@@ -139,6 +224,8 @@ public class HeadsetMediaButtonTest extends TelecomTestCase {
         when(externalCall.isExternalCall()).thenReturn(true);
 
         mHeadsetMediaButton.onCallAdded(externalCall);
+        mHeadsetMediaButton.onCallEndpointChanged(
+                new CallEndpoint("Wired Headset", CallEndpoint.TYPE_WIRED_HEADSET));
         waitForHandlerAction(mHeadsetMediaButton.getHandler(), TEST_TIMEOUT_MILLIS);
         verify(mMediaSessionAdapter, never()).setActive(eq(true));
 
