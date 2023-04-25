@@ -477,6 +477,7 @@ public class CallsManager extends Call.ListenerBase
 
     private AnomalyReporterAdapter mAnomalyReporter = new AnomalyReporterAdapterImpl();
 
+    private final MmiUtils mMmiUtils = new MmiUtils();
     /**
      * Listener to PhoneAccountRegistrar events.
      */
@@ -1864,7 +1865,7 @@ public class CallsManager extends Call.ListenerBase
         CompletableFuture<Call> makeRoomForCall = setAccountHandle.thenComposeAsync(
                 potentialPhoneAccounts -> {
                     Log.i(CallsManager.this, "make room for outgoing call stage");
-                    if (isPotentialInCallMMICode(handle) && !isSelfManaged) {
+                    if (mMmiUtils.isPotentialInCallMMICode(handle) && !isSelfManaged) {
                         return CompletableFuture.completedFuture(finalCall);
                     }
                     // If a call is being reused, then it has already passed the
@@ -2107,7 +2108,7 @@ public class CallsManager extends Call.ListenerBase
                     setIntentExtrasAndStartTime(callToUse, extras);
                     setCallSourceToAnalytics(callToUse, originalIntent);
 
-                    if (isPotentialMMICode(handle) && !isSelfManaged) {
+                    if (mMmiUtils.isPotentialMMICode(handle) && !isSelfManaged) {
                         // Do not add the call if it is a potential MMI code.
                         callToUse.addListener(this);
                     } else if (!mCalls.contains(callToUse)) {
@@ -4421,37 +4422,6 @@ public class CallsManager extends Call.ListenerBase
         }
     }
 
-    private boolean isPotentialMMICode(Uri handle) {
-        return (handle != null && handle.getSchemeSpecificPart() != null
-                && handle.getSchemeSpecificPart().contains("#"));
-    }
-
-    /**
-     * Determines if a dialed number is potentially an In-Call MMI code.  In-Call MMI codes are
-     * MMI codes which can be dialed when one or more calls are in progress.
-     * <P>
-     * Checks for numbers formatted similar to the MMI codes defined in:
-     * {@link com.android.internal.telephony.Phone#handleInCallMmiCommands(String)}
-     *
-     * @param handle The URI to call.
-     * @return {@code True} if the URI represents a number which could be an in-call MMI code.
-     */
-    private boolean isPotentialInCallMMICode(Uri handle) {
-        if (handle != null && handle.getSchemeSpecificPart() != null &&
-                handle.getScheme() != null &&
-                handle.getScheme().equals(PhoneAccount.SCHEME_TEL)) {
-
-            String dialedNumber = handle.getSchemeSpecificPart();
-            return (dialedNumber.equals("0") ||
-                    (dialedNumber.startsWith("1") && dialedNumber.length() <= 2) ||
-                    (dialedNumber.startsWith("2") && dialedNumber.length() <= 2) ||
-                    dialedNumber.equals("3") ||
-                    dialedNumber.equals("4") ||
-                    dialedNumber.equals("5"));
-        }
-        return false;
-    }
-
     /**
      * Determines if there are any ongoing self managed calls for the given package/user.
      * @param packageName The package name to check.
@@ -5524,8 +5494,10 @@ public class CallsManager extends Call.ListenerBase
     * @param call The call.
     */
     private void maybeShowErrorDialogOnDisconnect(Call call) {
-        if (call.getState() == CallState.DISCONNECTED && (isPotentialMMICode(call.getHandle())
-                || isPotentialInCallMMICode(call.getHandle())) && !mCalls.contains(call)) {
+        if (call.getState() == CallState.DISCONNECTED && (mMmiUtils.isPotentialMMICode(
+                call.getHandle())
+                || mMmiUtils.isPotentialInCallMMICode(call.getHandle())) && !mCalls.contains(
+                call)) {
             DisconnectCause disconnectCause = call.getDisconnectCause();
             if (!TextUtils.isEmpty(disconnectCause.getDescription()) && ((disconnectCause.getCode()
                     == DisconnectCause.ERROR) || (disconnectCause.getCode()
