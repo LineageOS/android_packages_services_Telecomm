@@ -56,6 +56,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.DefaultDialerCache;
+import com.android.server.telecom.MmiUtils;
 import com.android.server.telecom.NewOutgoingCallIntentBroadcaster;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.PhoneNumberUtilsAdapter;
@@ -93,6 +94,7 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
     @Mock private RoleManagerAdapter mRoleManagerAdapter;
     @Mock private DefaultDialerCache mDefaultDialerCache;
 
+    @Mock private MmiUtils mMmiUtils;
     private PhoneNumberUtilsAdapter mPhoneNumberUtilsAdapter = new PhoneNumberUtilsAdapterImpl();
 
     @Override
@@ -259,6 +261,58 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
         assertEquals(Intent.ACTION_DIAL, dialerIntent.getAction());
         assertEquals(handle, dialerIntent.getData());
         assertEquals(Intent.FLAG_ACTIVITY_NEW_TASK, dialerIntent.getFlags());
+    }
+
+    @Test
+    public void testDangerousMmiCodeWithNonDefaultDialer() {
+        Uri handle = Uri.parse("tel:*21*1234567#");
+        doReturn(true).when(mMmiUtils).isDangerousMmiOrVerticalCode(handle);
+        Intent intent = new Intent(Intent.ACTION_CALL, handle);
+
+        String ui_package_string = "sample_string_1";
+        String dialer_default_class_string = "sample_string_2";
+        mComponentContextFixture.putResource(com.android.internal.R.string.config_defaultDialer,
+                ui_package_string);
+        mComponentContextFixture.putResource(R.string.dialer_default_class,
+                dialer_default_class_string);
+        when(mDefaultDialerCache.getSystemDialerApplication()).thenReturn(ui_package_string);
+        when(mDefaultDialerCache.getDialtactsSystemDialerComponent()).thenReturn(
+                new ComponentName(ui_package_string, dialer_default_class_string));
+
+        int result = processIntent(intent, false).disconnectCause;
+
+        assertEquals(DisconnectCause.OUTGOING_CANCELED, result);
+        verifyNoBroadcastSent();
+        verifyNoCallPlaced();
+
+        ArgumentCaptor<Intent> dialerIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mContext).startActivityAsUser(dialerIntentCaptor.capture(), any(UserHandle.class));
+        Intent dialerIntent = dialerIntentCaptor.getValue();
+        assertEquals(new ComponentName(ui_package_string, dialer_default_class_string),
+                dialerIntent.getComponent());
+        assertEquals(Intent.ACTION_DIAL, dialerIntent.getAction());
+        assertEquals(handle, dialerIntent.getData());
+        assertEquals(Intent.FLAG_ACTIVITY_NEW_TASK, dialerIntent.getFlags());
+    }
+
+    @Test
+    public void testNonDangerousMmiCodeWithNonDefaultDialer() {
+        Uri handle = Uri.parse("tel:*12*1234567#");
+        doReturn(false).when(mMmiUtils).isDangerousMmiOrVerticalCode(handle);
+        Intent intent = new Intent(Intent.ACTION_CALL, handle);
+
+        String ui_package_string = "sample_string_1";
+        String dialer_default_class_string = "sample_string_2";
+        mComponentContextFixture.putResource(com.android.internal.R.string.config_defaultDialer,
+                ui_package_string);
+        mComponentContextFixture.putResource(R.string.dialer_default_class,
+                dialer_default_class_string);
+        when(mDefaultDialerCache.getSystemDialerApplication()).thenReturn(ui_package_string);
+        when(mDefaultDialerCache.getDialtactsSystemDialerComponent()).thenReturn(
+                new ComponentName(ui_package_string, dialer_default_class_string));
+
+        int result = processIntent(intent, false).disconnectCause;
+        assertEquals(DisconnectCause.NOT_DISCONNECTED, result);
     }
 
     @SmallTest
@@ -488,7 +542,7 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
             boolean isDefaultPhoneApp) {
         NewOutgoingCallIntentBroadcaster b = new NewOutgoingCallIntentBroadcaster(
                 mContext, mCallsManager, intent, mPhoneNumberUtilsAdapter,
-                isDefaultPhoneApp, mDefaultDialerCache);
+                isDefaultPhoneApp, mDefaultDialerCache, mMmiUtils);
         NewOutgoingCallIntentBroadcaster.CallDisposition cd = b.evaluateCall();
         if (cd.disconnectCause == DisconnectCause.NOT_DISCONNECTED) {
             b.processCall(mCall, cd);
