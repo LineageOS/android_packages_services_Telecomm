@@ -505,8 +505,20 @@ public class RingerTest extends TelecomTestCase {
 
     @Test
     public void testStopFlashNotificationWhenRingStops() throws Exception {
-        ensureRingtoneMocked();
+        Ringtone mockRingtone = mock(Ringtone.class);
+        when(mockRingtoneFactory.getRingtone(
+                any(Call.class), nullable(VolumeShaper.Configuration.class), anyBoolean()))
+                .thenAnswer(x -> {
+                    // Be slow to create ringtone.
+                    try {
+                        Thread.sleep(300);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                    return mockRingtone;
+                });
         // Start call waiting to make sure that it doesn't stop when we start ringing
+        enableVibrationWhenRinging();
         mRingerUnderTest.startCallWaiting(mockCall1);
         when(mockCall2.wasDndCheckComputedForCall()).thenReturn(false);
         when(mockCall2.getHandle()).thenReturn(Uri.parse(""));
@@ -518,6 +530,8 @@ public class RingerTest extends TelecomTestCase {
         verify(mockAccessibilityManagerAdapter, atLeastOnce())
                 .stopFlashNotificationSequence(any(Context.class));
         mRingCompletionFuture.get();  // Don't leak async work.
+        verify(mockVibrator, never())  // cancelled before it started.
+                .vibrate(any(VibrationEffect.class), any(VibrationAttributes.class));
     }
 
     @SmallTest
