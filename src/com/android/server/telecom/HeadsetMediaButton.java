@@ -23,10 +23,15 @@ import android.media.session.MediaSession;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.telecom.CallAudioState;
+import android.telecom.CallEndpoint;
 import android.telecom.Log;
+import android.util.ArraySet;
 import android.view.KeyEvent;
 
 import com.android.internal.annotations.VisibleForTesting;
+
+import java.util.Set;
 
 /**
  * Static class to handle listening to the headset media buttons.
@@ -149,8 +154,10 @@ public class HeadsetMediaButton extends CallsManagerListenerBase {
     private final Context mContext;
     private final CallsManager mCallsManager;
     private final TelecomSystem.SyncRoot mLock;
+    private final Set<Call> mCalls = new ArraySet<>();
     private MediaSessionAdapter mSession;
     private KeyEvent mLastHookEvent;
+    private @CallEndpoint.EndpointType int mCurrentEndpointType;
 
     /**
      * Constructor used for testing purposes to initialize a {@link HeadsetMediaButton} with a
@@ -212,7 +219,7 @@ public class HeadsetMediaButton extends CallsManagerListenerBase {
             return mCallsManager.onMediaButton(LONG_PRESS);
         } else if (event.getAction() == KeyEvent.ACTION_UP) {
             // We should not judge SHORT_PRESS by ACTION_UP event repeatCount, because it always
-            // return 0.
+            // returns 0.
             // Actually ACTION_DOWN event repeatCount only increases when LONG_PRESS performed.
             if (mLastHookEvent != null && mLastHookEvent.getRepeatCount() == 0) {
                 return mCallsManager.onMediaButton(SHORT_PRESS);
@@ -226,50 +233,70 @@ public class HeadsetMediaButton extends CallsManagerListenerBase {
         return true;
     }
 
+    @Override
+    public void onCallEndpointChanged(CallEndpoint callEndpoint) {
+        mCurrentEndpointType = callEndpoint.getEndpointType();
+        Log.i(this, "onCallEndpointChanged: endPoint=%s", callEndpoint);
+        maybeChangeSessionState();
+    }
+
     /** ${inheritDoc} */
     @Override
     public void onCallAdded(Call call) {
-        if (call.isExternalCall()) {
-            return;
-        }
-        handleCallAddition();
+        handleCallAddition(call);
     }
 
     /**
      * Triggers session activation due to call addition.
      */
-    private void handleCallAddition() {
-        mMediaSessionHandler.obtainMessage(MSG_MEDIA_SESSION_SET_ACTIVE, 1, 0).sendToTarget();
-    }
-
-    /** ${inheritDoc} */
-    @Override
-    public void onCallRemoved(Call call) {
-        if (call.isExternalCall()) {
-            return;
-        }
-        handleCallRemoval();
+    private void handleCallAddition(Call call) {
+        mCalls.add(call);
+        maybeChangeSessionState();
     }
 
     /**
-     * Triggers session deactivation due to call removal.
+     * Based on whether there are tracked calls and the audio is routed to a wired headset,
+     * potentially activate or deactive the media session.
      */
-    private void handleCallRemoval() {
-        if (!mCallsManager.hasAnyCalls()) {
+    private void maybeChangeSessionState() {
+        boolean hasNonExternalCalls = !mCalls.isEmpty()
+                && mCalls.stream().anyMatch(c -> !c.isExternalCall());
+        if (hasNonExternalCalls && mCurrentEndpointType == CallEndpoint.TYPE_WIRED_HEADSET) {
+            Log.i(this, "maybeChangeSessionState: hasCalls=%b, currentEndpointType=%s, ACTIVATE",
+                    hasNonExternalCalls, CallEndpoint.endpointTypeToString(mCurrentEndpointType));
+            mMediaSessionHandler.obtainMessage(MSG_MEDIA_SESSION_SET_ACTIVE, 1, 0).sendToTarget();
+        } else {
+            Log.i(this, "maybeChangeSessionState: hasCalls=%b, currentEndpointType=%s, DEACTIVATE",
+                    hasNonExternalCalls, CallEndpoint.endpointTypeToString(mCurrentEndpointType));
             mMediaSessionHandler.obtainMessage(MSG_MEDIA_SESSION_SET_ACTIVE, 0, 0).sendToTarget();
         }
     }
 
     /** ${inheritDoc} */
     @Override
-    public void onExternalCallChanged(Call call, boolean isExternalCall) {
-        // Note: We don't use the onCallAdded/onCallRemoved methods here since they do checks to see
-        // if the call is external or not and would skip the session activation/deactivation.
-        if (isExternalCall) {
-            handleCallRemoval();
-        } else {
-            handleCallAddition();
+    public void onCallRemoved(Call call) {
+        handleCallRemoval(call);
+    }
+
+    /**
+     * Triggers session deactivation due to call removal.
+     */
+    private void handleCallRemoval(Call call) {
+        // If we were tracking the call, potentially change session state.
+        if (mCalls.remove(call)) {
+            if (mCalls.isEmpty()) {
+                // When there are no calls, don't cache that we previously had a wired headset
+                // connected; we'll be updated on the next call.
+                mCurrentEndpointType = CallEndpoint.TYPE_UNKNOWN;
+            }
+            maybeChangeSessionState();
         }
+    }
+
+    /** ${inheritDoc} */
+    @Override
+    public void onExternalCallChanged(Call call, boolean isExternalCall) {
+        maybeChangeSessionState();
     }
 
     @VisibleForTesting
