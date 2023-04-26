@@ -4575,7 +4575,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             throw new UnsupportedOperationException(
                     "Can't streaming call created by non voip apps");
         }
-
+        Log.addEvent(this, LogUtils.Events.START_STREAMING);
         synchronized (mLock) {
             if (mIsStreaming) {
                 // ignore
@@ -4595,7 +4595,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 // ignore
                 return;
             }
-
+            Log.addEvent(this, LogUtils.Events.STOP_STREAMING);
             mIsStreaming = false;
             for (Listener listener : mListeners) {
                 listener.onCallStreamingStateChanged(this, false /** isStreaming */);
