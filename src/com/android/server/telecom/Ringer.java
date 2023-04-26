@@ -176,7 +176,7 @@ public class Ringer {
 
     /**
      * Call objects that are ringing, vibrating or call-waiting. These are used only for logging
-     * purposes.
+     * purposes (except mVibratingCall is also used to ensure consistency).
      */
     private Call mRingingCall;
     private Call mVibratingCall;
@@ -406,17 +406,32 @@ public class Ringer {
                         foregroundCall, mVolumeShaperConfig, finalHapticChannelsMuted);
             }
 
+            // If vibration will be done, reserve the vibrator.
+            boolean vibratorReserved = isVibratorEnabled && attributes.shouldRingForContact()
+                && tryReserveVibration(foregroundCall);
+            if (!vibratorReserved) {
+                foregroundCall.setUserMissed(USER_MISSED_NO_VIBRATE);
+                Log.addEvent(foregroundCall, LogUtils.Events.SKIP_VIBRATION,
+                        "hasVibrator=%b, userRequestsVibrate=%b, ringerMode=%d, "
+                                + "isVibratorEnabled=%b",
+                        mVibrator.hasVibrator(),
+                        mSystemSettingsUtil.isRingVibrationEnabled(mContext),
+                        mAudioManager.getRingerMode(), isVibratorEnabled);
+            }
+
             // The vibration logic depends on the loaded ringtone, but we need to defer the ringtone
             // load to the async ringtone thread. Hence, we bundle up the final part of this method
             // for that thread to run after loading the ringtone. This logic is intended to run even
             // if the loaded ringtone is null. However if a stop event arrives before the ringtone
             // creation finishes, then this consumer can be skipped.
             final boolean finalUseCustomVibrationEffect = useCustomVibrationEffect;
-            final RingerAttributes finalAttributes = attributes;
-            BiConsumer<Ringtone, Boolean> vibrationLogic = (Ringtone ringtone, Boolean stopped) -> {
+            BiConsumer<Ringtone, Boolean> afterRingtoneLogic =
+                    (Ringtone ringtone, Boolean stopped) -> {
                 try {
-                    if (stopped.booleanValue()) {
-                        return;  // don't start vibration if the ringing is already abandoned.
+                    if (stopped.booleanValue() || !vibratorReserved) {
+                        // don't start vibration if the ringing is already abandoned, or the
+                        // vibrator wasn't reserved. This still triggers the mBlockOnRingingFuture.
+                        return;
                     }
                     final VibrationEffect vibrationEffect;
                     if (ringtone != null && finalUseCustomVibrationEffect) {
@@ -431,8 +446,7 @@ public class Ringer {
                     boolean isUsingAudioCoupledHaptics =
                             !finalHapticChannelsMuted && ringtone != null
                                     && ringtone.hasHapticChannels();
-                    vibrateIfNeeded(isUsingAudioCoupledHaptics, finalAttributes, foregroundCall,
-                            vibrationEffect, isVibratorEnabled);
+                    vibrateIfNeeded(isUsingAudioCoupledHaptics, foregroundCall, vibrationEffect);
                 } finally {
                     // This is used to signal to tests that the async play() call has completed.
                     if (mBlockOnRingingFuture != null) {
@@ -442,9 +456,9 @@ public class Ringer {
             };
             deferBlockOnRingingFuture = true;  // Run in vibrationLogic.
             if (ringtoneSupplier != null) {
-                mRingtonePlayer.play(ringtoneSupplier, vibrationLogic);
+                mRingtonePlayer.play(ringtoneSupplier, afterRingtoneLogic);
             } else {
-                vibrationLogic.accept(/* ringtone= */ null, /* stopped= */ false);
+                afterRingtoneLogic.accept(/* ringtone= */ null, /* stopped= */ false);
             }
 
             // shouldAcquireAudioFocus is meant to be true, but that check is deferred to here
@@ -460,10 +474,31 @@ public class Ringer {
         }
     }
 
-    private void vibrateIfNeeded(boolean isUsingAudioCoupledHaptics, RingerAttributes attributes,
-        Call foregroundCall, VibrationEffect effect, boolean isVibratorEnabled) {
-        final boolean shouldRingForContact = attributes.shouldRingForContact();
+    /**
+     * Try to reserve the vibrator for this call, returning false if it's already committed.
+     * The vibration will be started by AsyncRingtonePlayer to ensure timing is aligned with the
+     * audio. The logic uses mVibratingCall to say which call is currently getting ready to vibrate,
+     * or actually vibrating (indicated by mIsVibrating).
+     *
+     * Once reserved, the vibrateIfNeeded method is expected to be called. Note that if
+     * audio-coupled haptics were used instead of vibrator, the reservation still stays until
+     * ringing is stopped, because the vibrator is exclusive to a single vibration source.
+     *
+     * Note that this "reservation" is only local to the Ringer - it's not locking the vibrator, so
+     * if it's busy with some other important vibration, this ringer's one may not displace it.
+     */
+    private boolean tryReserveVibration(Call foregroundCall) {
+        synchronized (mLock) {
+            if (mVibratingCall != null || mIsVibrating) {
+                return false;
+            }
+            mVibratingCall = foregroundCall;
+            return true;
+        }
+   }
 
+    private void vibrateIfNeeded(boolean isUsingAudioCoupledHaptics, Call foregroundCall,
+            VibrationEffect effect) {
         if (isUsingAudioCoupledHaptics) {
             Log.addEvent(
                 foregroundCall, LogUtils.Events.SKIP_VIBRATION, "using audio-coupled haptics");
@@ -471,22 +506,17 @@ public class Ringer {
         }
 
         synchronized (mLock) {
-            if (isVibratorEnabled && !mIsVibrating && shouldRingForContact) {
+            // Ensure the reservation is live. The mIsVibrating check should be redundant.
+            if (foregroundCall == mVibratingCall && !mIsVibrating) {
                 Log.addEvent(foregroundCall, LogUtils.Events.START_VIBRATOR,
                     "hasVibrator=%b, userRequestsVibrate=%b, ringerMode=%d, isVibrating=%b",
                     mVibrator.hasVibrator(), mSystemSettingsUtil.isRingVibrationEnabled(mContext),
                     mAudioManager.getRingerMode(), mIsVibrating);
-                mVibratingCall = foregroundCall;
                 mIsVibrating = true;
                 mVibrator.vibrate(effect, VIBRATION_ATTRIBUTES);
                 Log.i(this, "start vibration.");
-            } else {
-                foregroundCall.setUserMissed(USER_MISSED_NO_VIBRATE);
-                Log.addEvent(foregroundCall, LogUtils.Events.SKIP_VIBRATION,
-                    "hasVibrator=%b, userRequestsVibrate=%b, ringerMode=%d, isVibrating=%b",
-                    mVibrator.hasVibrator(), mSystemSettingsUtil.isRingVibrationEnabled(mContext),
-                    mAudioManager.getRingerMode(), mIsVibrating);
             }
+            // else stopped already: this isn't started unless a reservation was made.
         }
     }
 
@@ -565,8 +595,8 @@ public class Ringer {
                 Log.addEvent(mVibratingCall, LogUtils.Events.STOP_VIBRATOR);
                 mVibrator.cancel();
                 mIsVibrating = false;
-                mVibratingCall = null;
             }
+            mVibratingCall = null;  // Prevents vibrations from starting via AsyncRingtonePlayer.
         }
     }
 
