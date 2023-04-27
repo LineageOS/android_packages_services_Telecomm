@@ -25,7 +25,9 @@ import android.telecom.CallAudioState;
 import android.telecom.CallEndpoint;
 import android.telecom.CallEndpointException;
 import android.telecom.Log;
+
 import com.android.internal.annotations.VisibleForTesting;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.HashSet;
@@ -96,6 +98,12 @@ public class CallEndpointController extends CallsManagerListenerBase {
             return;
         }
 
+        if (isCurrentEndpointRequestedEndpoint(route, bluetoothAddress)) {
+            Log.d(this, "requestCallEndpointChange: requested endpoint is already active");
+            callback.send(CallEndpoint.ENDPOINT_OPERATION_SUCCESS, new Bundle());
+            return;
+        }
+
         if (mPendingChangeRequest != null && !mPendingChangeRequest.isDone()) {
             mPendingChangeRequest.complete(RESULT_ANOTHER_REQUEST);
             mPendingChangeRequest = null;
@@ -114,6 +122,27 @@ public class CallEndpointController extends CallsManagerListenerBase {
         });
         mRequestedEndpointId = endpoint.getIdentifier();
         mCallsManager.getCallAudioManager().setAudioRoute(route, bluetoothAddress);
+    }
+
+    public boolean isCurrentEndpointRequestedEndpoint(int requestedRoute, String requestedAddress) {
+        if (mCallsManager.getCallAudioManager() == null
+                || mCallsManager.getCallAudioManager().getCallAudioState() == null) {
+            return false;
+        }
+        CallAudioState currentAudioState = mCallsManager.getCallAudioManager().getCallAudioState();
+        // requested non-bt endpoint is already active
+        if (requestedRoute != CallAudioState.ROUTE_BLUETOOTH &&
+                requestedRoute == currentAudioState.getRoute()) {
+            return true;
+        }
+        // requested bt endpoint is already active
+        if (requestedRoute == CallAudioState.ROUTE_BLUETOOTH &&
+                currentAudioState.getActiveBluetoothDevice() != null &&
+                requestedAddress.equals(
+                        currentAudioState.getActiveBluetoothDevice().getAddress())) {
+            return true;
+        }
+        return false;
     }
 
     private Bundle getErrorResult(int result) {
@@ -165,8 +194,7 @@ public class CallEndpointController extends CallsManagerListenerBase {
         for (Call call : calls) {
             if (call != null && call.getConnectionService() != null) {
                 call.getConnectionService().onCallEndpointChanged(call, mActiveCallEndpoint);
-            }
-            else if (call != null && call.getTransactionServiceWrapper() != null) {
+            } else if (call != null && call.getTransactionServiceWrapper() != null) {
                 call.getTransactionServiceWrapper()
                         .onCallEndpointChanged(call, mActiveCallEndpoint);
             }
@@ -181,8 +209,7 @@ public class CallEndpointController extends CallsManagerListenerBase {
             if (call != null && call.getConnectionService() != null) {
                 call.getConnectionService().onAvailableCallEndpointsChanged(call,
                         mAvailableCallEndpoints);
-            }
-            else if (call != null && call.getTransactionServiceWrapper() != null) {
+            } else if (call != null && call.getTransactionServiceWrapper() != null) {
                 call.getTransactionServiceWrapper()
                         .onAvailableCallEndpointsChanged(call, mAvailableCallEndpoints);
             }
@@ -196,8 +223,7 @@ public class CallEndpointController extends CallsManagerListenerBase {
         for (Call call : calls) {
             if (call != null && call.getConnectionService() != null) {
                 call.getConnectionService().onMuteStateChanged(call, isMuted);
-            }
-            else if (call != null && call.getTransactionServiceWrapper() != null) {
+            } else if (call != null && call.getTransactionServiceWrapper() != null) {
                 call.getTransactionServiceWrapper().onMuteStateChanged(call, isMuted);
             }
         }
@@ -207,7 +233,7 @@ public class CallEndpointController extends CallsManagerListenerBase {
         Set<CallEndpoint> newAvailableEndpoints = new HashSet<>();
         Map<ParcelUuid, String> newBluetoothDevices = new HashMap<>();
 
-        mRouteToTypeMap.forEach((route, type)->{
+        mRouteToTypeMap.forEach((route, type) -> {
             if ((state.getSupportedRouteMask() & route) != 0) {
                 if (type == CallEndpoint.TYPE_STREAMING) {
                     if (state.getRoute() == CallAudioState.ROUTE_STREAMING) {
