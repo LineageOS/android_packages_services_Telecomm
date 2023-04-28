@@ -72,9 +72,10 @@ public class RingtoneFactory {
         AudioAttributes audioAttrs = getDefaultRingtoneAudioAttributes(hapticChannelsMuted);
 
         // Use the default ringtone of the work profile if the contact is a work profile contact.
+        // or the default ringtone of the receiving user.
         Context userContext = isWorkContact(incomingCall) ?
                 getWorkProfileContextForUser(mCallsManager.getCurrentUserHandle()) :
-                getContextForUserHandle(mCallsManager.getCurrentUserHandle());
+                getContextForUserHandle(incomingCall.getUserHandleFromTargetPhoneAccount());
         Uri ringtoneUri = incomingCall.getRingtone();
         Ringtone ringtone = null;
 

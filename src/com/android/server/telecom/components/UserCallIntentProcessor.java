@@ -105,7 +105,7 @@ public class UserCallIntentProcessor {
             handle = Uri.fromParts(PhoneAccount.SCHEME_SIP, uriString, null);
         }
 
-       if(!isSelfManaged && !isLocalInvocation) {
+       if(!isSelfManaged) {
             // Check DISALLOW_OUTGOING_CALLS restriction. Note: We are skipping this
             // check in a managed profile user because this check can always be bypassed
             // by copying and pasting the phone number into the personal dialer.

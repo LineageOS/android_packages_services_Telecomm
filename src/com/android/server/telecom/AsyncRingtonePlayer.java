@@ -140,9 +140,15 @@ public class AsyncRingtonePlayer {
                 return;
             }
             Ringtone ringtone = null;
+            boolean hasStopped = false;
             try {
                 ringtone = ringtoneSupplier.get();
-
+                // Ringtone supply can be slow. Re-check for stop event.
+                if (mHandler.hasMessages(EVENT_STOP)) {
+                    hasStopped = true;
+                    ringtone.stop();  // proactively release the ringtone.
+                    return;
+                }
                 // setRingtone even if null - it also stops any current ringtone to be consistent
                 // with the overall state.
                 setRingtone(ringtone);
@@ -162,7 +168,7 @@ public class AsyncRingtonePlayer {
                 mRingtone.play();
                 Log.i(this, "Play ringtone, looping.");
             } finally {
-                ringtoneConsumer.accept(ringtone, /* stopped= */ false);
+                ringtoneConsumer.accept(ringtone, hasStopped);
             }
         } finally {
             Log.cancelSubsession(session);

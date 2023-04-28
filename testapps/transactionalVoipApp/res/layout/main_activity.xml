@@ -38,53 +38,31 @@
             android:layout_height="wrap_content"
             android:text="@string/register_phone_account"/>
 
-        <ToggleButton
-            android:id="@+id/callDirectionButton"
+        <Button
+            android:id="@+id/startForegroundService"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textOff="@string/direction_outgoing"
-            android:textOn="@string/direction_incoming"
+            android:text="@string/start_foreground_service"
         />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-            <Button
-                android:id="@+id/add_call_1_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/add_call_1"/>
 
             <Button
-                android:id="@+id/disconnect_call_1_button"
+                android:id="@+id/startOutgoingCall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/disconnect_call_1"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+                android:text="@string/start_outgoing"
+            />
 
             <Button
-                android:id="@+id/add_call_2_button"
+                android:id="@+id/startIncomingCall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/add_call_2"/>
-
-            <Button
-                android:id="@+id/set_call_2_active_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/set_call_active"/>
-
-            <Button
-                android:id="@+id/disconnect_call_2_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/disconnect_call_2"/>
+                android:text="@string/start_incoming"
+            />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

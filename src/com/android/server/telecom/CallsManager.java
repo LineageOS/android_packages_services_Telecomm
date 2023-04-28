@@ -477,6 +477,7 @@ public class CallsManager extends Call.ListenerBase
 
     private AnomalyReporterAdapter mAnomalyReporter = new AnomalyReporterAdapterImpl();
 
+    private final MmiUtils mMmiUtils = new MmiUtils();
     /**
      * Listener to PhoneAccountRegistrar events.
      */
@@ -1863,7 +1864,7 @@ public class CallsManager extends Call.ListenerBase
         CompletableFuture<Call> makeRoomForCall = setAccountHandle.thenComposeAsync(
                 potentialPhoneAccounts -> {
                     Log.i(CallsManager.this, "make room for outgoing call stage");
-                    if (isPotentialInCallMMICode(handle) && !isSelfManaged) {
+                    if (mMmiUtils.isPotentialInCallMMICode(handle) && !isSelfManaged) {
                         return CompletableFuture.completedFuture(finalCall);
                     }
                     // If a call is being reused, then it has already passed the
@@ -2106,7 +2107,7 @@ public class CallsManager extends Call.ListenerBase
                     setIntentExtrasAndStartTime(callToUse, extras);
                     setCallSourceToAnalytics(callToUse, originalIntent);
 
-                    if (isPotentialMMICode(handle) && !isSelfManaged) {
+                    if (mMmiUtils.isPotentialMMICode(handle) && !isSelfManaged) {
                         // Do not add the call if it is a potential MMI code.
                         callToUse.addListener(this);
                     } else if (!mCalls.contains(callToUse)) {
@@ -4420,37 +4421,6 @@ public class CallsManager extends Call.ListenerBase
         }
     }
 
-    private boolean isPotentialMMICode(Uri handle) {
-        return (handle != null && handle.getSchemeSpecificPart() != null
-                && handle.getSchemeSpecificPart().contains("#"));
-    }
-
-    /**
-     * Determines if a dialed number is potentially an In-Call MMI code.  In-Call MMI codes are
-     * MMI codes which can be dialed when one or more calls are in progress.
-     * <P>
-     * Checks for numbers formatted similar to the MMI codes defined in:
-     * {@link com.android.internal.telephony.Phone#handleInCallMmiCommands(String)}
-     *
-     * @param handle The URI to call.
-     * @return {@code True} if the URI represents a number which could be an in-call MMI code.
-     */
-    private boolean isPotentialInCallMMICode(Uri handle) {
-        if (handle != null && handle.getSchemeSpecificPart() != null &&
-                handle.getScheme() != null &&
-                handle.getScheme().equals(PhoneAccount.SCHEME_TEL)) {
-
-            String dialedNumber = handle.getSchemeSpecificPart();
-            return (dialedNumber.equals("0") ||
-                    (dialedNumber.startsWith("1") && dialedNumber.length() <= 2) ||
-                    (dialedNumber.startsWith("2") && dialedNumber.length() <= 2) ||
-                    dialedNumber.equals("3") ||
-                    dialedNumber.equals("4") ||
-                    dialedNumber.equals("5"));
-        }
-        return false;
-    }
-
     /**
      * Determines if there are any ongoing self managed calls for the given package/user.
      * @param packageName The package name to check.
@@ -4881,9 +4851,18 @@ public class CallsManager extends Call.ListenerBase
             return true;
         }
 
-        // If the live call is stuck in a connecting state, then we should disconnect it in favor
-        // of the new outgoing call and prompt the user to generate a bugreport.
-        if (liveCall.getState() == CallState.CONNECTING) {
+        // If the live call is stuck in a connecting state for longer than the transitory timeout,
+        // then we should disconnect it in favor of the new outgoing call and prompt the user to
+        // generate a bugreport.
+        // TODO: In the future we should let the CallAnomalyWatchDog do this disconnection of the
+        // live call stuck in the connecting state.  Unfortunately that code will get tripped up by
+        // calls that have a longer than expected new outgoing call broadcast response time.  This
+        // mitigation is intended to catch calls stuck in a CONNECTING state for a long time that
+        // block outgoing calls.  However, if the user dials two calls in quick succession it will
+        // result in both calls getting disconnected, which is not optimal.
+        if (liveCall.getState() == CallState.CONNECTING
+                && ((mClockProxy.elapsedRealtime() - liveCall.getCreationElapsedRealtimeMillis())
+                > mTimeoutsAdapter.getNonVoipCallTransitoryStateTimeoutMillis())) {
             mAnomalyReporter.reportAnomaly(LIVE_CALL_STUCK_CONNECTING_ERROR_UUID,
                     LIVE_CALL_STUCK_CONNECTING_ERROR_MSG);
             liveCall.disconnect("Force disconnect CONNECTING call.");
@@ -5514,8 +5493,10 @@ public class CallsManager extends Call.ListenerBase
     * @param call The call.
     */
     private void maybeShowErrorDialogOnDisconnect(Call call) {
-        if (call.getState() == CallState.DISCONNECTED && (isPotentialMMICode(call.getHandle())
-                || isPotentialInCallMMICode(call.getHandle())) && !mCalls.contains(call)) {
+        if (call.getState() == CallState.DISCONNECTED && (mMmiUtils.isPotentialMMICode(
+                call.getHandle())
+                || mMmiUtils.isPotentialInCallMMICode(call.getHandle())) && !mCalls.contains(
+                call)) {
             DisconnectCause disconnectCause = call.getDisconnectCause();
             if (!TextUtils.isEmpty(disconnectCause.getDescription()) && ((disconnectCause.getCode()
                     == DisconnectCause.ERROR) || (disconnectCause.getCode()
@@ -6090,34 +6071,53 @@ public class CallsManager extends Call.ListenerBase
     }
 
     /**
-     * Intended for ongoing or new calls that would like to go active/answered and need to
-     * update the mConnectionSvrFocusMgr before setting the state
+     * This helper mainly requests mConnectionSvrFocusMgr to update the call focus via a
+     * {@link TransactionalFocusRequestCallback}.  However, in the case of a held call, the
+     * state must be set first and then a request must be made.
+     *
+     * @param newCallFocus          to set active/answered
+     * @param resultCallback        that back propagates the focusManager result
+     *
+     * Note: This method should only be called if there are no active calls.
      */
-    public void transactionRequestNewFocusCall(Call call, int newCallState,
-            OutcomeReceiver<Boolean, CallException> callback) {
-        Log.d(this, "transactionRequestNewFocusCall");
-        PendingAction pendingAction = new ActionSetCallState(call, newCallState,
-                "transactional ActionSetCallState");
+    public void requestNewCallFocusAndVerify(Call newCallFocus,
+            OutcomeReceiver<Boolean, CallException> resultCallback) {
+        int currentCallState = newCallFocus.getState();
+        PendingAction pendingAction = null;
+
+        // if the current call is in a state that can become the new call focus, we can set the
+        // state afterwards...
+        if (ConnectionServiceFocusManager.PRIORITY_FOCUS_CALL_STATE.contains(currentCallState)) {
+            pendingAction = new ActionSetCallState(newCallFocus, CallState.ACTIVE,
+                    "vCFC: pending action set state");
+        } else {
+            // However, HELD calls need to be set to ACTIVE before requesting call focus.
+            setCallState(newCallFocus, CallState.ACTIVE, "vCFC: immediately set active");
+        }
+
         mConnectionSvrFocusMgr
-                .requestFocus(call,
-                        new TransactionalFocusRequestCallback(pendingAction, call, callback));
+                .requestFocus(newCallFocus,
+                        new TransactionalFocusRequestCallback(pendingAction, currentCallState,
+                                newCallFocus, resultCallback));
     }
 
     /**
      * Request a new call focus and ensure the request was successful via an OutcomeReceiver. Also,
-     * include a PendingAction that will execute if the call focus change is successful.
+     * conditionally include a PendingAction that will execute if and only if the call focus change
+     * is successful.
      */
     @VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
     public class TransactionalFocusRequestCallback implements
             ConnectionServiceFocusManager.RequestFocusCallback {
         private PendingAction mPendingAction;
-        @NonNull
-        private Call mTargetCallFocus;
+        private int mPreviousCallState;
+        @NonNull private Call mTargetCallFocus;
         private OutcomeReceiver<Boolean, CallException> mCallback;
 
-        TransactionalFocusRequestCallback(PendingAction pendingAction, @NonNull Call call,
-                OutcomeReceiver<Boolean, CallException> callback) {
+        TransactionalFocusRequestCallback(PendingAction pendingAction, int previousState,
+                @NonNull Call call, OutcomeReceiver<Boolean, CallException> callback) {
             mPendingAction = pendingAction;
+            mPreviousCallState = previousState;
             mTargetCallFocus = call;
             mCallback = callback;
         }
@@ -6130,12 +6130,18 @@ public class CallsManager extends Call.ListenerBase
                     mTargetCallFocus, currentCallFocus);
             if (currentCallFocus == null ||
                     !currentCallFocus.getId().equals(mTargetCallFocus.getId())) {
+                // possibly reset the call state
+                if (mTargetCallFocus.getState() != mPreviousCallState) {
+                    mTargetCallFocus.setState(mPreviousCallState, "resetting call state");
+                }
                 mCallback.onError(new CallException("failed to switch focus to requested call",
                         CallException.CODE_CALL_CANNOT_BE_SET_TO_ACTIVE));
                 return;
             }
             // at this point, we know the FocusManager is able to update successfully
-            mPendingAction.performAction(); // set the call state
+            if (mPendingAction != null) {
+                mPendingAction.performAction(); // set the call state
+            }
             mCallback.onResult(true); // complete the transaction
         }
     }
