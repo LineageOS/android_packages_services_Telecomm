@@ -197,7 +197,7 @@ public class VoipCallMonitorTest extends TelecomTestCase {
         ServiceConnection conn2 = captor2.getValue();
         conn2.onServiceConnected(mHandle1User1.getComponentName(), service);
 
-        mMonitor.stopFGSDelegation(mHandle1User1);
+        mMonitor.stopFGSDelegation(call1);
         verify(mActivityManagerInternal, timeout(TIMEOUT).times(1))
                 .stopForegroundServiceDelegate(eq(conn2));
         conn2.onServiceDisconnected(mHandle1User1.getComponentName());
