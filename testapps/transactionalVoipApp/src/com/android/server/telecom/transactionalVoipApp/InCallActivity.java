@@ -254,14 +254,14 @@ public class InCallActivity extends Activity {
                 new OutcomeReceiver<Void, CallException>() {
                     @Override
                     public void onResult(Void result) {
-                        Log.i(TAG, String.format("success w/ %s", tag));
+                        Log.i(TAG, String.format("requestEndpointChange: success w/ %s", tag));
                         updateCurrentEndpointWithOnResult(endpoint);
                     }
 
                     @Override
                     public void onError(CallException e) {
-                        Log.i(TAG, String.format("%s :failed to switch to endpoint=[%s],"
-                                + " due to exception=[%s]", tag, endpoint, e.toString()));
+                        Log.i(TAG, String.format("requestEndpointChange: %s failed to switch to "
+                                + "endpoint=[%s] due to exception=[%s]", tag, endpoint, e));
                     }
                 });
     }
