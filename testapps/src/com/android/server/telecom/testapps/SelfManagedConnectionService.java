@@ -142,11 +142,6 @@ public class SelfManagedConnectionService extends ConnectionService {
         connection.setVideoState(request.getVideoState());
         Log.i(this, "createSelfManagedConnection %s", connection);
         mCallList.addConnection(connection);
-        try {
-            Thread.sleep(8000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         return connection;
     }
 }
