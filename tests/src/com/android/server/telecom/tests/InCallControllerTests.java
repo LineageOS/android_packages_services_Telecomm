@@ -1002,6 +1002,107 @@ public class InCallControllerTests extends TelecomTestCase {
     }
 
     /**
+     * Tests a case where InCallController DOES NOT bind to ANY InCallServices when the call is
+     * first added, but then one becomes available after the call starts.  This test was originally
+     * added to reproduce a bug which would cause the call id mapper in the InCallController to not
+     * track a newly added call unless something was bound when the call was first added.
+     * @throws Exception
+     */
+    @MediumTest
+    @Test
+    public void testNoInitialBinding() throws Exception {
+        Bundle callExtras = new Bundle();
+        callExtras.putBoolean("whatever", true);
+
+        // Make a basic call
+        when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
+        when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
+        when(mMockCallsManager.isInEmergencyCall()).thenReturn(true);
+        when(mMockCall.isEmergencyCall()).thenReturn(true);
+        when(mMockContext.getSystemService(eq(UserManager.class)))
+                .thenReturn(mMockUserManager);
+        when(mMockUserManager.isQuietModeEnabled(any(UserHandle.class))).thenReturn(false);
+        when(mMockCall.isIncoming()).thenReturn(false);
+        when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
+        when(mMockCall.getIntentExtras()).thenReturn(callExtras);
+        when(mMockCall.isExternalCall()).thenReturn(false);
+        when(mMockCall.isSelfManaged()).thenReturn(true);
+        when(mMockCall.visibleToInCallService()).thenReturn(true);
+
+        // Dialer doesn't handle these calls, but non-UI ICS does.
+        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID))
+                .thenReturn(DEF_PKG);
+        ArgumentCaptor<ServiceConnection> serviceConnectionCaptor =
+                ArgumentCaptor.forClass(ServiceConnection.class);
+        when(mMockContext.bindServiceAsUser(any(Intent.class), serviceConnectionCaptor.capture(),
+                eq(serviceBindingFlags),
+                eq(mUserHandle))).thenReturn(true);
+        when(mTimeoutsAdapter.getEmergencyCallbackWindowMillis(any(ContentResolver.class)))
+                .thenReturn(300_000L);
+
+        // Setup package manager; there is a dialer and disable non-ui ICS
+        when(mMockPackageManager.queryIntentServicesAsUser(
+                any(Intent.class), anyInt(), anyInt())).thenReturn(
+                Arrays.asList(
+                        getDefResolveInfo(false /* externalCalls */, false /* selfMgd */),
+                        getNonUiResolveinfo(true /* selfManaged */,
+                                false /* isEnabled */)
+                )
+        );
+        when(mMockPackageManager
+                .getComponentEnabledSetting(new ComponentName(DEF_PKG, DEF_CLASS)))
+                .thenReturn(PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
+        when(mMockPackageManager
+                .getComponentEnabledSetting(new ComponentName(NONUI_PKG, NONUI_CLASS)))
+                .thenReturn(PackageManager.COMPONENT_ENABLED_STATE_DISABLED);
+
+        // Add the call.
+        mInCallController.onCallAdded(mMockCall);
+
+        // There will be 4 calls for the various types of ICS; this is normal.
+        verify(mMockPackageManager, times(4)).queryIntentServicesAsUser(
+                any(Intent.class),
+                eq(PackageManager.GET_META_DATA | PackageManager.MATCH_DISABLED_COMPONENTS),
+                eq(CURRENT_USER_ID));
+
+        // Verify no bind at this point
+        ArgumentCaptor<Intent> bindIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mMockContext, never()).bindServiceAsUser(
+                bindIntentCaptor.capture(),
+                any(ServiceConnection.class),
+                eq(serviceBindingFlags),
+                eq(mUserHandle));
+
+        // Setup mocks to enable non-ui ICS
+        when(mMockPackageManager.queryIntentServicesAsUser(
+                any(Intent.class), anyInt(), anyInt())).thenReturn(
+                Arrays.asList(
+                        getDefResolveInfo(false /* externalCalls */, false /* selfMgd */),
+                        getNonUiResolveinfo(true /* selfManaged */,
+                                true /* isEnabled */)
+                )
+        );
+        when(mMockPackageManager
+                .getComponentEnabledSetting(new ComponentName(NONUI_PKG, NONUI_CLASS)))
+                .thenReturn(PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
+
+        // Emulate a late enable of the non-ui ICS
+        Intent packageUpdated = new Intent(Intent.ACTION_PACKAGE_CHANGED);
+        packageUpdated.setData(Uri.fromParts("package", NONUI_PKG, null));
+        packageUpdated.putExtra(Intent.EXTRA_CHANGED_COMPONENT_NAME_LIST,
+                new String[] {NONUI_CLASS});
+        packageUpdated.putExtra(Intent.EXTRA_UID, NONUI_UID);
+        mRegisteredReceiver.onReceive(mMockContext, packageUpdated);
+
+        // Make sure we bound to it.
+        verify(mMockContext, times(1)).bindServiceAsUser(
+                bindIntentCaptor.capture(),
+                any(ServiceConnection.class),
+                eq(serviceBindingFlags),
+                eq(mUserHandle));
+    }
+
+    /**
      * Ensures that the {@link InCallController} will bind to an {@link InCallService} which
      * supports external calls.
      */
