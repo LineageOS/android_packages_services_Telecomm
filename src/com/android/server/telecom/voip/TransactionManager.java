@@ -26,6 +26,8 @@ import android.util.Log;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 
 public class TransactionManager {
@@ -63,30 +65,31 @@ public class TransactionManager {
             OutcomeReceiver<VoipCallTransactionResult, CallException> receiver) {
         synchronized (sLock) {
             mTransactions.add(transaction);
-            transaction.setCompleteListener(new TransactionCompleteListener() {
-                @Override
-                public void onTransactionCompleted(VoipCallTransactionResult result,
-                        String transactionName){
-                    Log.i(TAG, String.format("transaction completed: with result=[%d]",
-                            result.getResult()));
-                    if (result.getResult() == TelecomManager.TELECOM_TRANSACTION_SUCCESS) {
-                        receiver.onResult(result);
-                    } else {
-                        receiver.onError(
-                                new CallException(result.getMessage(),
-                                        result.getResult()));
-                    }
-                    finishTransaction();
-                }
-
-                @Override
-                public void onTransactionTimeout(String transactionName){
-                    receiver.onError(new CallException(transactionName + " timeout",
-                            CODE_OPERATION_TIMED_OUT));
-                    finishTransaction();
-                }
-            });
         }
+        transaction.setCompleteListener(new TransactionCompleteListener() {
+            @Override
+            public void onTransactionCompleted(VoipCallTransactionResult result,
+                    String transactionName){
+                Log.i(TAG, String.format("transaction completed: with result=[%d]",
+                        result.getResult()));
+                if (result.getResult() == TelecomManager.TELECOM_TRANSACTION_SUCCESS) {
+                    receiver.onResult(result);
+                } else {
+                    receiver.onError(
+                            new CallException(result.getMessage(),
+                                    result.getResult()));
+                }
+                finishTransaction();
+            }
+
+            @Override
+            public void onTransactionTimeout(String transactionName){
+                receiver.onError(new CallException(transactionName + " timeout",
+                        CODE_OPERATION_TIMED_OUT));
+                finishTransaction();
+            }
+        });
+
         startTransactions();
     }
 
@@ -102,8 +105,8 @@ public class TransactionManager {
                 return;
             }
             mCurrentTransaction = mTransactions.poll();
-            mCurrentTransaction.start();
         }
+        mCurrentTransaction.start();
     }
 
     private void finishTransaction() {
@@ -115,10 +118,12 @@ public class TransactionManager {
 
     @VisibleForTesting
     public void clear() {
+        List<VoipCallTransaction> pendingTransactions;
         synchronized (sLock) {
-            for (VoipCallTransaction transaction : mTransactions) {
-                transaction.finish();
-            }
+            pendingTransactions = new ArrayList<>(mTransactions);
+        }
+        for (VoipCallTransaction transaction : pendingTransactions) {
+            transaction.finish();
         }
     }
 }
