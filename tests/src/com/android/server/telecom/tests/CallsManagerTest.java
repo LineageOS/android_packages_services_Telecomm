@@ -166,6 +166,8 @@ public class CallsManagerTest extends TelecomTestCase {
             ComponentName.unflattenFromString("com.voip/.Stuff"), "Voip1");
     private static final PhoneAccountHandle SELF_MANAGED_HANDLE = new PhoneAccountHandle(
             ComponentName.unflattenFromString("com.baz/.Self"), "Self");
+    private static final PhoneAccountHandle SELF_MANAGED_2_HANDLE = new PhoneAccountHandle(
+            ComponentName.unflattenFromString("com.baz/.Self2"), "Self2");
     private static final PhoneAccount SIM_1_ACCOUNT = new PhoneAccount.Builder(SIM_1_HANDLE, "Sim1")
             .setCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION
                     | PhoneAccount.CAPABILITY_CALL_PROVIDER
@@ -187,6 +189,11 @@ public class CallsManagerTest extends TelecomTestCase {
             .build();
     private static final PhoneAccount SELF_MANAGED_ACCOUNT = new PhoneAccount.Builder(
             SELF_MANAGED_HANDLE, "Self")
+            .setCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED)
+            .setIsEnabled(true)
+            .build();
+    private static final PhoneAccount SELF_MANAGED_2_ACCOUNT = new PhoneAccount.Builder(
+            SELF_MANAGED_2_HANDLE, "Self2")
             .setCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED)
             .setIsEnabled(true)
             .build();
@@ -818,7 +825,7 @@ public class CallsManagerTest extends TelecomTestCase {
         mCallsManager.answerCall(incomingCall, VideoProfile.STATE_AUDIO_ONLY);
 
         // THEN the ongoing call is held and the focus request for incoming call is sent
-        verify(ongoingCall).hold();
+        verify(ongoingCall).hold(anyString());
         verifyFocusRequestAndExecuteCallback(incomingCall);
 
         // and the incoming call is answered.
@@ -1026,7 +1033,7 @@ public class CallsManagerTest extends TelecomTestCase {
         mCallsManager.markCallAsActive(newCall);
 
         // THEN the ongoing call is held
-        verify(ongoingCall).hold();
+        verify(ongoingCall).hold(anyString());
         verifyFocusRequestAndExecuteCallback(newCall);
 
         // and the new call is active
@@ -1681,6 +1688,57 @@ public class CallsManagerTest extends TelecomTestCase {
         Call ongoingCall2 = addSpyCall();
         when(mClockProxy.elapsedRealtime()).thenReturn(STATE_TIMEOUT + 10L);
         assertTrue(mCallsManager.makeRoomForOutgoingCall(ongoingCall2));
+    }
+
+    /**
+     * Test where a VoIP app adds another new call and has one active already; ensure we hold the
+     * active call.  This assumes same connection service in the same app.
+     */
+    @SmallTest
+    @Test
+    public void testMakeRoomForOutgoingCallForSameVoipApp() {
+        Call activeCall = addSpyCall(SELF_MANAGED_HANDLE, null /* connMgr */,
+                CallState.ACTIVE, Connection.CAPABILITY_HOLD | Connection.CAPABILITY_SUPPORT_HOLD,
+                0 /* properties */);
+        Call newDialingCall = createCall(SELF_MANAGED_HANDLE, CallState.DIALING);
+        newDialingCall.setConnectionProperties(Connection.CAPABILITY_HOLD
+                        | Connection.CAPABILITY_SUPPORT_HOLD);
+        assertTrue(mCallsManager.makeRoomForOutgoingCall(newDialingCall));
+        verify(activeCall).hold(anyString());
+    }
+
+    /**
+     * Test where a VoIP app adds another new call and has one active already; ensure we hold the
+     * active call.  This assumes different connection services in the same app.
+     */
+    @SmallTest
+    @Test
+    public void testMakeRoomForOutgoingCallForSameVoipAppDifferentConnectionService() {
+        Call activeCall = addSpyCall(SELF_MANAGED_HANDLE, null /* connMgr */,
+                CallState.ACTIVE, Connection.CAPABILITY_HOLD | Connection.CAPABILITY_SUPPORT_HOLD,
+                0 /* properties */);
+        Call newDialingCall = createCall(SELF_MANAGED_2_HANDLE, CallState.DIALING);
+        newDialingCall.setConnectionProperties(Connection.CAPABILITY_HOLD
+                | Connection.CAPABILITY_SUPPORT_HOLD);
+        assertTrue(mCallsManager.makeRoomForOutgoingCall(newDialingCall));
+        verify(activeCall).hold(anyString());
+    }
+
+    /**
+     * Test where a VoIP app adds another new call and has one active already; ensure we hold the
+     * active call.  This assumes different connection services in the same app.
+     */
+    @SmallTest
+    @Test
+    public void testMakeRoomForOutgoingCallForSameNonVoipApp() {
+        Call activeCall = addSpyCall(SIM_1_HANDLE, null /* connMgr */,
+                CallState.ACTIVE, Connection.CAPABILITY_HOLD | Connection.CAPABILITY_SUPPORT_HOLD,
+                0 /* properties */);
+        Call newDialingCall = createCall(SIM_1_HANDLE, CallState.DIALING);
+        newDialingCall.setConnectionProperties(Connection.CAPABILITY_HOLD
+                | Connection.CAPABILITY_SUPPORT_HOLD);
+        assertTrue(mCallsManager.makeRoomForOutgoingCall(newDialingCall));
+        verify(activeCall, never()).hold(anyString());
     }
 
     @SmallTest
@@ -2968,6 +3026,10 @@ public class CallsManagerTest extends TelecomTestCase {
                 mClockProxy,
                 mToastFactory);
         ongoingCall.setState(initialState, "just cuz");
+        if (targetPhoneAccount == SELF_MANAGED_HANDLE
+                || targetPhoneAccount == SELF_MANAGED_2_HANDLE) {
+            ongoingCall.setIsSelfManaged(true);
+        }
         return ongoingCall;
     }
 
