@@ -425,6 +425,15 @@ public class TransactionalServiceWrapper implements
 
                     @Override
                     public void onError(CallException exception) {
+                        if (isAnswerRequest) {
+                            // This also sends the signal to untrack from TSW and the client_TSW
+                            removeCallFromCallsManager(call,
+                                    new DisconnectCause(DisconnectCause.REJECTED,
+                                            "client rejected to answer the call;"
+                                                    + " force disconnecting"));
+                        } else {
+                            mCallsManager.markCallAsOnHold(call);
+                        }
                         maybeResetForegroundCall(foregroundCallBeforeSwap, wasActive);
                     }
                 });
