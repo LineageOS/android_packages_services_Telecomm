@@ -4086,6 +4086,15 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * @param extras The extras.
      */
     public void onConnectionEvent(String event, Bundle extras) {
+        if (mIsTransactionalCall) {
+            // send the Event directly to the ICS via the InCallController listener
+            for (Listener l : mListeners) {
+                l.onConnectionEvent(this, event, extras);
+            }
+            // Don't run the below block since it applies to Calls that are attached to a
+            // ConnectionService
+            return;
+        }
         // Don't log call quality reports; they're quite frequent and will clog the log.
         if (!Connection.EVENT_CALL_QUALITY_REPORT.equals(event)) {
             Log.addEvent(this, LogUtils.Events.CONNECTION_EVENT, event);
