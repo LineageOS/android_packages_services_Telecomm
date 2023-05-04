@@ -665,7 +665,9 @@ public class CallAudioModeStateMachine extends StateMachine {
         @Override
         public void enter() {
             Log.i(LOG_TAG, "Audio focus entering streaming state");
-            mAudioManager.setMode(AudioManager.MODE_CALL_REDIRECT);
+            mLocalLog.log("Enter Streaming");
+            mLocalLog.log("Mode MODE_COMMUNICATION_REDIRECT");
+            mAudioManager.setMode(AudioManager.MODE_COMMUNICATION_REDIRECT);
             mMostRecentMode = AudioManager.MODE_NORMAL;
             mCallAudioManager.setCallAudioRouteFocusState(CallAudioRouteStateMachine.ACTIVE_FOCUS);
             mCallAudioManager.getCallAudioRouteStateMachine().sendMessageWithSessionInfo(
@@ -685,7 +687,8 @@ public class CallAudioModeStateMachine extends StateMachine {
             MessageArgs args = (MessageArgs) msg.obj;
             switch (msg.what) {
                 case NO_MORE_ACTIVE_OR_DIALING_CALLS:
-                    // Do nothing.
+                    // Switch to either ringing, holding, or inactive
+                    transitionTo(calculateProperStateFromArgs(args));
                     return HANDLED;
                 case NO_MORE_RINGING_CALLS:
                     // Do nothing.
