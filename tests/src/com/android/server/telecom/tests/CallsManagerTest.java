@@ -16,6 +16,8 @@
 
 package com.android.server.telecom.tests;
 
+import static android.provider.CallLog.Calls.USER_MISSED_NOT_RUNNING;
+
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.fail;
 
@@ -58,7 +60,9 @@ import android.os.Process;
 import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.provider.BlockedNumberContract;
+import android.provider.Telephony;
 import android.telecom.CallException;
 import android.telecom.CallScreeningService;
 import android.telecom.CallerInfo;
@@ -2355,6 +2359,65 @@ public class CallsManagerTest extends TelecomTestCase {
         assertNull(outgoingCall.getPostCallPackageName());
         mCallsManager.onSuccessfulOutgoingCall(outgoingCall, CallState.CONNECTING);
         assertEquals(DEFAULT_CALL_SCREENING_APP, outgoingCall.getPostCallPackageName());
+    }
+
+    @SmallTest
+    @Test
+    public void testRejectIncomingCallOnPAHInactive() throws Exception {
+        ConnectionServiceWrapper service = mock(ConnectionServiceWrapper.class);
+        doReturn(SIM_2_HANDLE.getComponentName()).when(service).getComponentName();
+        mCallsManager.addConnectionServiceRepositoryCache(SIM_2_HANDLE.getComponentName(),
+                SIM_2_HANDLE.getUserHandle(), service);
+
+        UserManager um = mContext.getSystemService(UserManager.class);
+        when(um.isQuietModeEnabled(eq(SIM_2_HANDLE.getUserHandle()))).thenReturn(true);
+        Call newCall = mCallsManager.processIncomingCallIntent(
+                SIM_2_HANDLE, new Bundle(), false);
+
+        verify(service, timeout(TEST_TIMEOUT)).createConnectionFailed(any());
+        assertFalse(newCall.isInECBM());
+        assertEquals(USER_MISSED_NOT_RUNNING, newCall.getMissedReason());
+    }
+
+    @SmallTest
+    @Test
+    public void testAcceptIncomingCallOnPAHInactiveAndECBMActive() throws Exception {
+        ConnectionServiceWrapper service = mock(ConnectionServiceWrapper.class);
+        doReturn(SIM_2_HANDLE.getComponentName()).when(service).getComponentName();
+        mCallsManager.addConnectionServiceRepositoryCache(SIM_2_HANDLE.getComponentName(),
+                SIM_2_HANDLE.getUserHandle(), service);
+
+        when(mEmergencyCallHelper.isLastOutgoingEmergencyCallPAH(eq(SIM_2_HANDLE)))
+                .thenReturn(true);
+        UserManager um = mContext.getSystemService(UserManager.class);
+        when(um.isQuietModeEnabled(eq(SIM_2_HANDLE.getUserHandle()))).thenReturn(true);
+        Call newCall = mCallsManager.processIncomingCallIntent(
+                SIM_2_HANDLE, new Bundle(), false);
+
+        assertTrue(newCall.isInECBM());
+        verify(service, timeout(TEST_TIMEOUT).times(0)).createConnectionFailed(any());
+    }
+
+    @SmallTest
+    @Test
+    public void testAcceptIncomingEmergencyCallOnPAHInactive() throws Exception {
+        ConnectionServiceWrapper service = mock(ConnectionServiceWrapper.class);
+        doReturn(SIM_2_HANDLE.getComponentName()).when(service).getComponentName();
+        mCallsManager.addConnectionServiceRepositoryCache(SIM_2_HANDLE.getComponentName(),
+                SIM_2_HANDLE.getUserHandle(), service);
+
+        Bundle extras = new Bundle();
+        extras.putParcelable(TelecomManager.EXTRA_INCOMING_CALL_ADDRESS, TEST_ADDRESS);
+        TelephonyManager tm = mContext.getSystemService(TelephonyManager.class);
+        UserManager um = mContext.getSystemService(UserManager.class);
+        when(um.isQuietModeEnabled(eq(SIM_2_HANDLE.getUserHandle()))).thenReturn(true);
+        when(tm.isEmergencyNumber(any(String.class))).thenReturn(true);
+        Call newCall = mCallsManager.processIncomingCallIntent(
+                SIM_2_HANDLE, extras, false);
+
+        assertFalse(newCall.isInECBM());
+        assertTrue(newCall.isEmergencyCall());
+        verify(service, timeout(TEST_TIMEOUT).times(0)).createConnectionFailed(any());
     }
 
     public class LatchedOutcomeReceiver implements OutcomeReceiver<Boolean,
