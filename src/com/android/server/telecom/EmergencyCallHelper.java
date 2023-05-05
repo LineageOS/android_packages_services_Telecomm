@@ -21,6 +21,8 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.UserHandle;
 import android.telecom.Log;
+import android.telecom.PhoneAccountHandle;
+
 import com.android.internal.annotations.VisibleForTesting;
 
 /**
@@ -34,6 +36,7 @@ public class EmergencyCallHelper {
     private final DefaultDialerCache mDefaultDialerCache;
     private final Timeouts.Adapter mTimeoutsAdapter;
     private UserHandle mLocationPermissionGrantedToUser;
+    private PhoneAccountHandle mLastOutgoingEmergencyCallPAH;
 
     //stores the original state of permissions that dialer had
     private boolean mHadFineLocation = false;
@@ -46,6 +49,7 @@ public class EmergencyCallHelper {
     private boolean mBackgroundLocationGranted = false;
 
     private long mLastEmergencyCallTimestampMillis;
+    private long mLastOutgoingEmergencyCallTimestampMillis;
 
     @VisibleForTesting
     public EmergencyCallHelper(
@@ -63,7 +67,7 @@ public class EmergencyCallHelper {
             grantLocationPermission(userHandle);
         }
         if (call != null && call.isEmergencyCall()) {
-            recordEmergencyCallTime();
+            recordEmergencyCall(call);
         }
     }
 
@@ -78,13 +82,35 @@ public class EmergencyCallHelper {
         return mLastEmergencyCallTimestampMillis;
     }
 
-    private void recordEmergencyCallTime() {
-        mLastEmergencyCallTimestampMillis = System.currentTimeMillis();
+    void setLastOutgoingEmergencyCallPAH(PhoneAccountHandle accountHandle) {
+        mLastOutgoingEmergencyCallPAH = accountHandle;
     }
 
-    private boolean isInEmergencyCallbackWindow() {
-        return System.currentTimeMillis() - getLastEmergencyCallTimeMillis()
+    public boolean isLastOutgoingEmergencyCallPAH(PhoneAccountHandle currentCallHandle) {
+        boolean ecbmActive = mLastOutgoingEmergencyCallPAH != null
+                && isInEmergencyCallbackWindow(mLastOutgoingEmergencyCallTimestampMillis)
+                && currentCallHandle != null
+                && currentCallHandle.equals(mLastOutgoingEmergencyCallPAH);
+        if (ecbmActive) {
+            Log.i(this, "ECBM is enabled for %s. The last recorded call timestamp was at %s",
+                    currentCallHandle, mLastOutgoingEmergencyCallTimestampMillis);
+        }
+
+        return ecbmActive;
+    }
+
+    boolean isInEmergencyCallbackWindow(long lastEmergencyCallTimestampMillis) {
+        return System.currentTimeMillis() - lastEmergencyCallTimestampMillis
                 < mTimeoutsAdapter.getEmergencyCallbackWindowMillis(mContext.getContentResolver());
+    }
+
+    private void recordEmergencyCall(Call call) {
+        mLastEmergencyCallTimestampMillis = System.currentTimeMillis();
+        if (!call.isIncoming()) {
+            // ECBM is applicable to MO emergency calls
+            mLastOutgoingEmergencyCallTimestampMillis = mLastEmergencyCallTimestampMillis;
+            mLastOutgoingEmergencyCallPAH = call.getTargetPhoneAccount();
+        }
     }
 
     private boolean shouldGrantTemporaryLocationPermission(Call call) {
@@ -96,7 +122,8 @@ public class EmergencyCallHelper {
             Log.i(this, "ShouldGrantTemporaryLocationPermission, no call");
             return false;
         }
-        if (!call.isEmergencyCall() && !isInEmergencyCallbackWindow()) {
+        if (!call.isEmergencyCall() && !isInEmergencyCallbackWindow(
+                getLastEmergencyCallTimeMillis())) {
             Log.i(this, "ShouldGrantTemporaryLocationPermission, not emergency");
             return false;
         }
