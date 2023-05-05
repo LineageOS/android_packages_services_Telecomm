@@ -24,6 +24,7 @@ import static android.provider.CallLog.Calls.SHORT_RING_THRESHOLD;
 import static android.provider.CallLog.Calls.USER_MISSED_CALL_FILTERS_TIMEOUT;
 import static android.provider.CallLog.Calls.USER_MISSED_CALL_SCREENING_SERVICE_SILENCED;
 import static android.provider.CallLog.Calls.USER_MISSED_NEVER_RANG;
+import static android.provider.CallLog.Calls.USER_MISSED_NOT_RUNNING;
 import static android.provider.CallLog.Calls.USER_MISSED_NO_ANSWER;
 import static android.provider.CallLog.Calls.USER_MISSED_SHORT_RING;
 import static android.telecom.TelecomManager.ACTION_POST_CALL;
@@ -446,6 +447,7 @@ public class CallsManager extends Call.ListenerBase
     private final CallStreamingController mCallStreamingController;
     private final BlockedNumbersAdapter mBlockedNumbersAdapter;
     private final TransactionManager mTransactionManager;
+    private final UserManager mUserManager;
 
     private final ConnectionServiceFocusManager.CallsManagerRequester mRequester =
             new ConnectionServiceFocusManager.CallsManagerRequester() {
@@ -686,6 +688,7 @@ public class CallsManager extends Call.ListenerBase
 
         mCallAnomalyWatchdog = callAnomalyWatchdog;
         mAsyncTaskExecutor = asyncTaskExecutor;
+        mUserManager = mContext.getSystemService(UserManager.class);
     }
 
     public void setIncomingCallNotifier(IncomingCallNotifier incomingCallNotifier) {
@@ -1535,7 +1538,22 @@ public class CallsManager extends Call.ListenerBase
 
         CallFailureCause startFailCause =
                 checkIncomingCallPermitted(call, call.getTargetPhoneAccount());
-        if (!isHandoverAllowed ||
+        // Check if the target phone account is possibly in ECBM.
+        call.setIsInECBM(getEmergencyCallHelper()
+                .isLastOutgoingEmergencyCallPAH(call.getTargetPhoneAccount()));
+        if (mUserManager.isQuietModeEnabled(call.getUserHandleFromTargetPhoneAccount())
+                && !call.isEmergencyCall() && !call.isInECBM()) {
+            Log.d(TAG, "Rejecting non-emergency call because the owner %s is not running.",
+                    phoneAccountHandle.getUserHandle());
+            call.setMissedReason(USER_MISSED_NOT_RUNNING);
+            call.setStartFailCause(CallFailureCause.INVALID_USE);
+            if (isConference) {
+                notifyCreateConferenceFailed(phoneAccountHandle, call);
+            } else {
+                notifyCreateConnectionFailed(phoneAccountHandle, call);
+            }
+        }
+        else if (!isHandoverAllowed ||
                 (call.isSelfManaged() && !startFailCause.isSuccess())) {
             if (isConference) {
                 notifyCreateConferenceFailed(phoneAccountHandle, call);
