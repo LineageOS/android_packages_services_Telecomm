@@ -595,6 +595,34 @@ public class InCallControllerTests extends TelecomTestCase {
     @MediumTest
     @Test
     public void
+    testBindToService_UserAssociatedWithCallIsInQuietMode_NonEmergCallECBM_BindsToPrimaryUser()
+            throws Exception {
+        when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
+        when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
+        when(mMockCall.isEmergencyCall()).thenReturn(false);
+        when(mMockCall.isInECBM()).thenReturn(true);
+        when(mMockCall.getUserHandleFromTargetPhoneAccount()).thenReturn(DUMMY_USER_HANDLE);
+        when(mMockContext.getSystemService(eq(UserManager.class)))
+                .thenReturn(mMockUserManager);
+        when(mMockUserManager.isQuietModeEnabled(any(UserHandle.class))).thenReturn(true);
+        setupMockPackageManager(true /* default */, true /* system */, false /* external calls */);
+        setupMockPackageManagerLocationPermission(SYS_PKG, false /* granted */);
+
+        mInCallController.bindToServices(mMockCall);
+
+        ArgumentCaptor<Intent> bindIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mMockContext, times(1)).bindServiceAsUser(
+                bindIntentCaptor.capture(),
+                any(ServiceConnection.class),
+                eq(serviceBindingFlags),
+                eq(mUserHandle));
+        Intent bindIntent = bindIntentCaptor.getValue();
+        assertEquals(InCallService.SERVICE_INTERFACE, bindIntent.getAction());
+    }
+
+    @MediumTest
+    @Test
+    public void
     testBindToService_UserAssociatedWithCallNotInQuietMode_EmergCallInCallUi_BindsToAssociatedUser()
         throws Exception {
         when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
