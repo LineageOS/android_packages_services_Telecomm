@@ -24,6 +24,7 @@ import static android.provider.CallLog.Calls.SHORT_RING_THRESHOLD;
 import static android.provider.CallLog.Calls.USER_MISSED_CALL_FILTERS_TIMEOUT;
 import static android.provider.CallLog.Calls.USER_MISSED_CALL_SCREENING_SERVICE_SILENCED;
 import static android.provider.CallLog.Calls.USER_MISSED_NEVER_RANG;
+import static android.provider.CallLog.Calls.USER_MISSED_NOT_RUNNING;
 import static android.provider.CallLog.Calls.USER_MISSED_NO_ANSWER;
 import static android.provider.CallLog.Calls.USER_MISSED_SHORT_RING;
 import static android.telecom.TelecomManager.ACTION_POST_CALL;
@@ -446,6 +447,7 @@ public class CallsManager extends Call.ListenerBase
     private final CallStreamingController mCallStreamingController;
     private final BlockedNumbersAdapter mBlockedNumbersAdapter;
     private final TransactionManager mTransactionManager;
+    private final UserManager mUserManager;
 
     private final ConnectionServiceFocusManager.CallsManagerRequester mRequester =
             new ConnectionServiceFocusManager.CallsManagerRequester() {
@@ -685,6 +687,7 @@ public class CallsManager extends Call.ListenerBase
 
         mCallAnomalyWatchdog = callAnomalyWatchdog;
         mAsyncTaskExecutor = asyncTaskExecutor;
+        mUserManager = mContext.getSystemService(UserManager.class);
     }
 
     public void setIncomingCallNotifier(IncomingCallNotifier incomingCallNotifier) {
@@ -1534,7 +1537,22 @@ public class CallsManager extends Call.ListenerBase
 
         CallFailureCause startFailCause =
                 checkIncomingCallPermitted(call, call.getTargetPhoneAccount());
-        if (!isHandoverAllowed ||
+        // Check if the target phone account is possibly in ECBM.
+        call.setIsInECBM(getEmergencyCallHelper()
+                .isLastOutgoingEmergencyCallPAH(call.getTargetPhoneAccount()));
+        if (mUserManager.isQuietModeEnabled(call.getUserHandleFromTargetPhoneAccount())
+                && !call.isEmergencyCall() && !call.isInECBM()) {
+            Log.d(TAG, "Rejecting non-emergency call because the owner %s is not running.",
+                    phoneAccountHandle.getUserHandle());
+            call.setMissedReason(USER_MISSED_NOT_RUNNING);
+            call.setStartFailCause(CallFailureCause.INVALID_USE);
+            if (isConference) {
+                notifyCreateConferenceFailed(phoneAccountHandle, call);
+            } else {
+                notifyCreateConnectionFailed(phoneAccountHandle, call);
+            }
+        }
+        else if (!isHandoverAllowed ||
                 (call.isSelfManaged() && !startFailCause.isSuccess())) {
             if (isConference) {
                 notifyCreateConferenceFailed(phoneAccountHandle, call);
@@ -3412,10 +3430,11 @@ public class CallsManager extends Call.ListenerBase
      */
     boolean holdActiveCallForNewCall(Call call) {
         Call activeCall = (Call) mConnectionSvrFocusMgr.getCurrentFocusCall();
-        Log.i(this, "holdActiveCallForNewCall, newCall: %s, activeCall: %s", call, activeCall);
+        Log.i(this, "holdActiveCallForNewCall, newCall: %s, activeCall: %s", call.getId(),
+                (activeCall == null ? "<none>" : activeCall.getId()));
         if (activeCall != null && activeCall != call) {
             if (canHold(activeCall)) {
-                activeCall.hold();
+                activeCall.hold("swap to " + call.getId());
                 return true;
             } else if (supportsHold(activeCall)
                     && areFromSameSource(activeCall, call)) {
@@ -4900,12 +4919,25 @@ public class CallsManager extends Call.ListenerBase
                     liveCallPhoneAccount);
         }
 
-        // First thing, if we are trying to make a call with the same phone account as the live
-        // call, then allow it so that the connection service can make its own decision about
-        // how to handle the new call relative to the current one.
+        // First thing, for managed calls, if we are trying to make a call with the same phone
+        // account as the live call, then allow it so that the connection service can make its own
+        // decision about how to handle the new call relative to the current one.
+        // Note: This behavior is primarily in place because Telephony historically manages the
+        // state of the calls it tracks by itself, holding and unholding as needed.  Self-managed
+        // calls, even though from the same package are normally held/unheld automatically by
+        // Telecom.  Calls within a single ConnectionService get held/unheld automatically during
+        // "swap" operations by CallsManager#holdActiveCallForNewCall.  There is, however, a quirk
+        // in that if an app declares TWO different ConnectionServices, holdActiveCallForNewCall
+        // would not work correctly because focus switches between ConnectionServices, yet we
+        // tended to assume that if the calls are from the same package that the hold/unhold should
+        // be done by the app.  That was a bad assumption as it meant that we could have two active
+        // calls.
+        // TODO(b/280826075): We need to come back and revisit all this logic in a holistic manner.
         if (PhoneAccountHandle.areFromSamePackage(liveCallPhoneAccount,
-                call.getTargetPhoneAccount())) {
-            Log.i(this, "makeRoomForOutgoingCall: phoneAccount matches.");
+                call.getTargetPhoneAccount())
+                && !call.isSelfManaged()
+                && !liveCall.isSelfManaged()) {
+            Log.i(this, "makeRoomForOutgoingCall: managed phoneAccount matches");
             call.getAnalytics().setCallIsAdditional(true);
             liveCall.getAnalytics().setCallIsInterrupted(true);
             return true;
@@ -5483,6 +5515,13 @@ public class CallsManager extends Call.ListenerBase
             pw.println("mRoleManager:");
             pw.increaseIndent();
             impl.dump(pw);
+            pw.decreaseIndent();
+        }
+
+        if (mConnectionSvrFocusMgr != null) {
+            pw.println("mConnectionSvrFocusMgr:");
+            pw.increaseIndent();
+            mConnectionSvrFocusMgr.dump(pw);
             pw.decreaseIndent();
         }
     }
