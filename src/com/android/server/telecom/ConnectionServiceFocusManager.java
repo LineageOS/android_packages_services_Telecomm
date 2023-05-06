@@ -25,8 +25,10 @@ import android.os.Message;
 import android.telecom.Log;
 import android.telecom.Logging.Session;
 import android.text.TextUtils;
+import android.util.LocalLog;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.util.IndentingPrintWriter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +43,7 @@ import java.util.stream.Collectors;
 public class ConnectionServiceFocusManager {
     private static final String TAG = "ConnectionSvrFocusMgr";
     private static final int GET_CURRENT_FOCUS_TIMEOUT_MILLIS = 1000;
+    private final LocalLog mLocalLog = new LocalLog(20);
 
     /** Factory interface used to create the {@link ConnectionServiceFocusManager} instance. */
     public interface ConnectionServiceFocusManagerFactory {
@@ -124,6 +127,11 @@ public class ConnectionServiceFocusManager {
          * @return {@code True} if this call can receive focus, {@code false} otherwise.
          */
         boolean isFocusable();
+
+        /**
+         * @return the ID of the focusable for debug purposes.
+         */
+        String getId();
     }
 
     /** Interface define a call back for focus request event. */
@@ -361,10 +369,11 @@ public class ConnectionServiceFocusManager {
     }
 
     private void updateCurrentFocusCall() {
+        CallFocus previousFocus = mCurrentFocusCall;
         mCurrentFocusCall = null;
 
         if (mCurrentFocus == null) {
-            Log.d(this, "updateCurrentFocusCall: mCurrentFocus is null");
+            Log.i(this, "updateCurrentFocusCall: mCurrentFocus is null");
             return;
         }
 
@@ -377,11 +386,16 @@ public class ConnectionServiceFocusManager {
         for (CallFocus call : calls) {
             if (PRIORITY_FOCUS_CALL_STATE.contains(call.getState())) {
                 mCurrentFocusCall = call;
+                if (previousFocus != call) {
+                    mLocalLog.log(call.getId());
+                }
                 Log.i(this, "updateCurrentFocusCall %s", mCurrentFocusCall);
                 return;
             }
         }
-
+        if (previousFocus != null) {
+            mLocalLog.log("<none>");
+        }
         Log.i(this, "updateCurrentFocusCall = null");
     }
 
@@ -475,6 +489,11 @@ public class ConnectionServiceFocusManager {
                 && Objects.equals(mCurrentFocus, call.getConnectionServiceWrapper())) {
             updateCurrentFocusCall();
         }
+    }
+
+    public void dump(IndentingPrintWriter pw) {
+        pw.println("Call Focus History:");
+        mLocalLog.dump(pw);
     }
 
     private final class FocusManagerHandler extends Handler {
