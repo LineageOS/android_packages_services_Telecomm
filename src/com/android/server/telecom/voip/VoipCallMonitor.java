@@ -207,8 +207,10 @@ public class VoipCallMonitor extends CallsManagerListenerBase {
         synchronized (mLock) {
             Log.i(this, "stopFGSDelegation of handle %s", handle);
             Set<Call> calls = mPhoneAccountHandleListMap.get(handle);
-            for (Call call : calls) {
-                stopMonitorWorks(call);
+            if (calls != null) {
+                for (Call call : calls) {
+                    stopMonitorWorks(call);
+                }
             }
             mPhoneAccountHandleListMap.remove(handle);
 
