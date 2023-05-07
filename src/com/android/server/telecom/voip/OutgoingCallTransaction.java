@@ -18,6 +18,7 @@ package com.android.server.telecom.voip;
 
 import static android.Manifest.permission.CALL_PRIVILEGED;
 import static android.telecom.CallAttributes.CALL_CAPABILITIES_KEY;
+import static android.telecom.CallAttributes.DISPLAY_NAME_KEY;
 import static android.telecom.CallException.CODE_CALL_NOT_PERMITTED_AT_PRESENT_TIME;
 
 import android.content.Context;
@@ -126,6 +127,7 @@ public class OutgoingCallTransaction extends VoipCallTransaction {
         mExtras.putInt(CALL_CAPABILITIES_KEY, callAttributes.getCallCapabilities());
         mExtras.putInt(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
                 callAttributes.getCallType());
+        mExtras.putCharSequence(DISPLAY_NAME_KEY, callAttributes.getDisplayName());
         return mExtras;
     }
 }

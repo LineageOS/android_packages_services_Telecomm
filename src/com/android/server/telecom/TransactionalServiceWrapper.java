@@ -682,6 +682,7 @@ public class TransactionalServiceWrapper implements
 
 
     public void stopCallStreaming(Call call) {
+        Log.i(this, "stopCallStreaming; callid=%s", call.getId());
         if (call != null && call.isStreaming()) {
             VoipCallTransaction stopStreamingTransaction = createStopStreamingTransaction(call);
             addTransactionsToManager(stopStreamingTransaction, new ResultReceiver(null));
