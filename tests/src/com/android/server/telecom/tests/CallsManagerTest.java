@@ -126,6 +126,7 @@ import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
 import com.android.server.telecom.callfiltering.BlockedNumbersAdapter;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
 import com.android.server.telecom.ui.AudioProcessingNotification;
+import com.android.server.telecom.ui.CallStreamingNotification;
 import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import com.android.server.telecom.ui.ToastFactory;
 import com.android.server.telecom.voip.TransactionManager;
@@ -259,6 +260,7 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private BlockedNumbersAdapter mBlockedNumbersAdapter;
     @Mock private PhoneCapability mPhoneCapability;
     @Mock private CallAudioCommunicationDeviceTracker mCommunicationDeviceTracker;
+    @Mock private CallStreamingNotification mCallStreamingNotification;
 
     private CallsManager mCallsManager;
 
@@ -330,7 +332,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 mBlockedNumbersAdapter,
                 TransactionManager.getTestInstance(),
                 mEmergencyCallDiagnosticLogger,
-                mCommunicationDeviceTracker);
+                mCommunicationDeviceTracker,
+                mCallStreamingNotification);
 
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SELF_MANAGED_HANDLE), any())).thenReturn(SELF_MANAGED_ACCOUNT);

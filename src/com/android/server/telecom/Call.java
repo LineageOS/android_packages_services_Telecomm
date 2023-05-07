@@ -999,6 +999,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         s.append(SimpleDateFormat.getDateTimeInstance().format(new Date(getCreationTimeMillis())));
         s.append("]");
         s.append(isIncoming() ? "(MT - incoming)" : "(MO - outgoing)");
+        s.append("(User=");
+        s.append(getInitiatingUser());
+        s.append(")");
         s.append("\n\t");
 
         PhoneAccountHandle targetPhoneAccountHandle = getTargetPhoneAccount();

@@ -41,6 +41,7 @@ import static android.telecom.TelecomManager.VERY_SHORT_CALL_TIME_MS;
 
 import android.Manifest;
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
@@ -132,6 +133,7 @@ import com.android.server.telecom.components.TelecomBroadcastReceiver;
 import com.android.server.telecom.stats.CallFailureCause;
 import com.android.server.telecom.ui.AudioProcessingNotification;
 import com.android.server.telecom.ui.CallRedirectionTimeoutDialogActivity;
+import com.android.server.telecom.ui.CallStreamingNotification;
 import com.android.server.telecom.ui.ConfirmCallDialogActivity;
 import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import com.android.server.telecom.ui.IncomingCallNotifier;
@@ -448,6 +450,7 @@ public class CallsManager extends Call.ListenerBase
     private final BlockedNumbersAdapter mBlockedNumbersAdapter;
     private final TransactionManager mTransactionManager;
     private final UserManager mUserManager;
+    private final CallStreamingNotification mCallStreamingNotification;
 
     private final ConnectionServiceFocusManager.CallsManagerRequester mRequester =
             new ConnectionServiceFocusManager.CallsManagerRequester() {
@@ -560,7 +563,9 @@ public class CallsManager extends Call.ListenerBase
             BlockedNumbersAdapter blockedNumbersAdapter,
             TransactionManager transactionManager,
             EmergencyCallDiagnosticLogger emergencyCallDiagnosticLogger,
-            CallAudioCommunicationDeviceTracker communicationDeviceTracker) {
+            CallAudioCommunicationDeviceTracker communicationDeviceTracker,
+            CallStreamingNotification callStreamingNotification) {
+
         mContext = context;
         mLock = lock;
         mPhoneNumberUtilsAdapter = phoneNumberUtilsAdapter;
@@ -649,6 +654,7 @@ public class CallsManager extends Call.ListenerBase
         mTransactionManager = transactionManager;
         mBlockedNumbersAdapter = blockedNumbersAdapter;
         mCallStreamingController = new CallStreamingController(mContext, mLock);
+        mCallStreamingNotification = callStreamingNotification;
 
         mListeners.add(mInCallWakeLockController);
         mListeners.add(statusBarNotifier);
@@ -670,6 +676,7 @@ public class CallsManager extends Call.ListenerBase
         // this needs to be after the mCallAudioManager
         mListeners.add(mPhoneStateBroadcaster);
         mListeners.add(mVoipCallMonitor);
+        mListeners.add(mCallStreamingNotification);
 
         mVoipCallMonitor.startMonitor();
 
@@ -1415,6 +1422,15 @@ public class CallsManager extends Call.ListenerBase
                     extras.getInt(CallAttributes.CALL_CAPABILITIES_KEY,
                             CallAttributes.SUPPORTS_SET_INACTIVE), true);
             call.setTargetPhoneAccount(phoneAccountHandle);
+            if (extras.containsKey(CallAttributes.DISPLAY_NAME_KEY)) {
+                CharSequence displayName = extras.getCharSequence(CallAttributes.DISPLAY_NAME_KEY);
+                if (!TextUtils.isEmpty(displayName)) {
+                    call.setCallerDisplayName(displayName.toString(),
+                            TelecomManager.PRESENTATION_ALLOWED);
+                }
+            }
+            // Incoming address was set via EXTRA_INCOMING_CALL_ADDRESS above.
+            call.setInitiatingUser(phoneAccountHandle.getUserHandle());
         }
 
         // Ensure new calls related to self-managed calls/connections are set as such. This will
@@ -1699,7 +1715,6 @@ public class CallsManager extends Call.ListenerBase
         boolean isReusedCall;
         Uri handle = isConference ? Uri.parse("tel:conf-factory") : participants.get(0);
         Call call = reuseOutgoingCall(handle);
-
         PhoneAccount account =
                 mPhoneAccountRegistrar.getPhoneAccount(requestedAccountHandle, initiatingUser);
         Bundle phoneAccountExtra = account != null ? account.getExtras() : null;
@@ -1740,6 +1755,14 @@ public class CallsManager extends Call.ListenerBase
                 call.setConnectionCapabilities(
                         extras.getInt(CallAttributes.CALL_CAPABILITIES_KEY,
                                 CallAttributes.SUPPORTS_SET_INACTIVE), true);
+                if (extras.containsKey(CallAttributes.DISPLAY_NAME_KEY)) {
+                    CharSequence displayName = extras.getCharSequence(
+                            CallAttributes.DISPLAY_NAME_KEY);
+                    if (!TextUtils.isEmpty(displayName)) {
+                        call.setCallerDisplayName(displayName.toString(),
+                                TelecomManager.PRESENTATION_ALLOWED);
+                    }
+                }
                 call.setTargetPhoneAccount(requestedAccountHandle);
             }
 
@@ -6365,5 +6388,31 @@ public class CallsManager extends Call.ListenerBase
 
     public CallStreamingController getCallStreamingController() {
         return mCallStreamingController;
+    }
+
+    /**
+     * Given a call identified by call id, get the instance from the list of calls.
+     * @param callId the call id.
+     * @return the call, or null if not found.
+     */
+    public @Nullable Call getCall(@NonNull String callId) {
+        Optional<Call> foundCall = mCalls.stream().filter(
+                c -> c.getId().equals(callId)).findFirst();
+        if (foundCall.isPresent()) {
+            return foundCall.get();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Triggers stopping of call streaming for a call by launching a stop streaming transaction.
+     * @param call the call.
+     */
+    public void stopCallStreaming(@NonNull Call call) {
+        if (call.getTransactionServiceWrapper() == null) {
+            return;
+        }
+        call.getTransactionServiceWrapper().stopCallStreaming(call);
     }
 }
