@@ -82,10 +82,17 @@ public class EmergencyCallHelper {
         return mLastEmergencyCallTimestampMillis;
     }
 
-    void setLastOutgoingEmergencyCallPAH(PhoneAccountHandle accountHandle) {
+    @VisibleForTesting
+    public void setLastOutgoingEmergencyCallTimestampMillis(long timestampMillis) {
+        mLastOutgoingEmergencyCallTimestampMillis = timestampMillis;
+    }
+
+    @VisibleForTesting
+    public void setLastOutgoingEmergencyCallPAH(PhoneAccountHandle accountHandle) {
         mLastOutgoingEmergencyCallPAH = accountHandle;
     }
 
+    @VisibleForTesting
     public boolean isLastOutgoingEmergencyCallPAH(PhoneAccountHandle currentCallHandle) {
         boolean ecbmActive = mLastOutgoingEmergencyCallPAH != null
                 && isInEmergencyCallbackWindow(mLastOutgoingEmergencyCallTimestampMillis)
