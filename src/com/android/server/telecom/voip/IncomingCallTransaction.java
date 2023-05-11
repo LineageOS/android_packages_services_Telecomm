@@ -17,6 +17,7 @@
 package com.android.server.telecom.voip;
 
 import static android.telecom.CallAttributes.CALL_CAPABILITIES_KEY;
+import static android.telecom.CallAttributes.DISPLAY_NAME_KEY;
 
 import android.os.Bundle;
 import android.telecom.CallAttributes;
@@ -80,6 +81,9 @@ public class IncomingCallTransaction extends VoipCallTransaction {
         mExtras.putString(TelecomManager.TRANSACTION_CALL_ID_KEY, mCallId);
         mExtras.putInt(CALL_CAPABILITIES_KEY, callAttributes.getCallCapabilities());
         mExtras.putInt(TelecomManager.EXTRA_INCOMING_VIDEO_STATE, callAttributes.getCallType());
+        mExtras.putCharSequence(DISPLAY_NAME_KEY, callAttributes.getDisplayName());
+        mExtras.putParcelable(TelecomManager.EXTRA_INCOMING_CALL_ADDRESS,
+                callAttributes.getAddress());
         return mExtras;
     }
 }
