@@ -18,6 +18,7 @@ package com.android.server.telecom.voip;
 
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.telecom.Log;
 
 import com.android.server.telecom.LoggedHandlerExecutor;
 import com.android.server.telecom.TelecomSystem;
@@ -80,7 +81,11 @@ public class VoipCallTransaction {
                             }
                             finish();
                             return null;
-                        });
+                        })
+                .exceptionally((throwable) -> {
+                    Log.e(this, throwable, "Error while executing transaction.");
+                    return null;
+                });;
     }
 
     public CompletionStage<VoipCallTransactionResult> processTransaction(Void v) {
