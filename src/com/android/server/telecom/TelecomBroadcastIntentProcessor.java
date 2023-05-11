@@ -101,6 +101,10 @@ public final class TelecomBroadcastIntentProcessor {
     public static final String ACTION_CANCEL_REDIRECTED_CALL =
             "com.android.server.telecom.CANCEL_REDIRECTED_CALL";
 
+    public static final String ACTION_HANGUP_CALL = "com.android.server.telecom.HANGUP_CALL";
+    public static final String ACTION_STOP_STREAMING =
+            "com.android.server.telecom.ACTION_STOP_STREAMING";
+
     public static final String EXTRA_USERHANDLE = "userhandle";
     public static final String EXTRA_REDIRECTION_OUTGOING_CALL_ID =
             "android.telecom.extra.REDIRECTION_OUTGOING_CALL_ID";
@@ -239,6 +243,26 @@ public final class TelecomBroadcastIntentProcessor {
                 mCallsManager.processRedirectedOutgoingCallAfterUserInteraction(
                         intent.getStringExtra(EXTRA_REDIRECTION_OUTGOING_CALL_ID),
                         ACTION_CANCEL_REDIRECTED_CALL);
+            } finally {
+                Log.endSession();
+            }
+        } else if (ACTION_HANGUP_CALL.equals(action)) {
+            Log.startSession("TBIP.aHC", "streamingDialog");
+            try {
+                Call call = mCallsManager.getCall(intent.getData().getSchemeSpecificPart());
+                if (call != null) {
+                    mCallsManager.disconnectCall(call);
+                }
+            } finally {
+                Log.endSession();
+            }
+        } else if (ACTION_STOP_STREAMING.equals(action)) {
+            Log.startSession("TBIP.aSS", "streamingDialog");
+            try {
+                Call call = mCallsManager.getCall(intent.getData().getSchemeSpecificPart());
+                if (call != null) {
+                    mCallsManager.stopCallStreaming(call);
+                }
             } finally {
                 Log.endSession();
             }
