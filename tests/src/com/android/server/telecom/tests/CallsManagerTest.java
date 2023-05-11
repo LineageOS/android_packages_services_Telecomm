@@ -945,6 +945,64 @@ public class CallsManagerTest extends TelecomTestCase {
 
     @SmallTest
     @Test
+    public void testAnswerThirdCallWhenTwoCallsOnDifferentSims_disconnectsHeldCall() {
+        // Given an ongoing call on SIM1
+        Call ongoingCall = addSpyCall(SIM_1_HANDLE, CallState.ACTIVE);
+        doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        doReturn(CallState.ACTIVE).when(ongoingCall).getState();
+        when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
+
+        // And a held call on SIM2, which belongs to the same ConnectionService
+        Call heldCall = addSpyCall(SIM_2_HANDLE, CallState.ON_HOLD);
+        doReturn(CallState.ON_HOLD).when(heldCall).getState();
+
+        // on answering an incoming call on SIM1, which belongs to the same ConnectionService
+        Call incomingCall = addSpyCall(SIM_1_HANDLE, CallState.RINGING);
+        mCallsManager.answerCall(incomingCall, VideoProfile.STATE_AUDIO_ONLY);
+
+        // THEN the previous held call is disconnected
+        verify(heldCall).disconnect();
+
+        // and the ongoing call is held
+        verify(ongoingCall).hold();
+
+        // and the focus request is sent
+        verifyFocusRequestAndExecuteCallback(incomingCall);
+        // and the incoming call is answered
+        verify(incomingCall).answer(VideoProfile.STATE_AUDIO_ONLY);
+    }
+
+    @SmallTest
+    @Test
+    public void testAnswerThirdCallDifferentSimWhenTwoCallsOnSameSim_disconnectsHeldCall() {
+        // Given an ongoing call on SIM1
+        Call ongoingCall = addSpyCall(SIM_1_HANDLE, CallState.ACTIVE);
+        doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        doReturn(CallState.ACTIVE).when(ongoingCall).getState();
+        when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
+
+        // And a held call on SIM1
+        Call heldCall = addSpyCall(SIM_1_HANDLE, CallState.ON_HOLD);
+        doReturn(CallState.ON_HOLD).when(heldCall).getState();
+
+        // on answering an incoming call on SIM2, which belongs to the same ConnectionService
+        Call incomingCall = addSpyCall(SIM_2_HANDLE, CallState.RINGING);
+        mCallsManager.answerCall(incomingCall, VideoProfile.STATE_AUDIO_ONLY);
+
+        // THEN the previous held call is disconnected
+        verify(heldCall).disconnect();
+
+        // and the ongoing call is held
+        verify(ongoingCall).hold();
+
+        // and the focus request is sent
+        verifyFocusRequestAndExecuteCallback(incomingCall);
+        // and the incoming call is answered
+        verify(incomingCall).answer(VideoProfile.STATE_AUDIO_ONLY);
+    }
+
+    @SmallTest
+    @Test
     public void testAnswerCallWhenNoOngoingCallExisted() {
         // GIVEN a CallsManager with no ongoing call.
 
