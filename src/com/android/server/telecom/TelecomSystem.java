@@ -48,6 +48,7 @@ import com.android.server.telecom.callfiltering.BlockedNumbersAdapter;
 import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
 import com.android.server.telecom.ui.AudioProcessingNotification;
+import com.android.server.telecom.ui.CallStreamingNotification;
 import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.MissedCallNotifierImpl.MissedCallNotifierImplFactory;
@@ -350,6 +351,12 @@ public class TelecomSystem {
                     mLock, timeoutsAdapter, clockProxy, emergencyCallDiagnosticLogger);
 
             TransactionManager transactionManager = TransactionManager.getInstance();
+
+            CallStreamingNotification callStreamingNotification =
+                    new CallStreamingNotification(mContext,
+                            packageName -> AppLabelProxy.Util.getAppLabel(
+                                    mContext.getPackageManager(), packageName), asyncTaskExecutor);
+
             mCallsManager = new CallsManager(
                     mContext,
                     mLock,
@@ -386,7 +393,8 @@ public class TelecomSystem {
                     asyncTaskExecutor,
                     blockedNumbersAdapter,
                     transactionManager,
-                    emergencyCallDiagnosticLogger);
+                    emergencyCallDiagnosticLogger,
+                    callStreamingNotification);
 
             mIncomingCallNotifier = incomingCallNotifier;
             incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {

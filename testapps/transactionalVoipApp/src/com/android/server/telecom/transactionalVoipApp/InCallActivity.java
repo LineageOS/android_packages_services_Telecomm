@@ -57,6 +57,11 @@ public class InCallActivity extends Activity {
         setContentView(R.layout.in_call_activity);
 
         Bundle extras = getIntent().getExtras();
+        // Copy the extras with properties like call direction into the extras so the below
+        // code can access them.
+        if (extras != null && extras.containsKey(Utils.sEXTRAS_KEY)) {
+            extras.putAll(extras.getBundle(Utils.sEXTRAS_KEY));
+        }
         if (extras != null) {
             mCallDirection = extras.getInt(Utils.sCALL_DIRECTION_KEY, DIRECTION_INCOMING);
         }
@@ -211,7 +216,7 @@ public class InCallActivity extends Activity {
                         Utils.PHONE_ACCOUNT_HANDLE,
                         mCallDirection,
                         "Alan Turing",
-                        Uri.parse("tel:6506959001")).build();
+                        Uri.parse("tel:+16506959001")).build();
 
         mTelecomManager.addCall(callAttributes, Runnable::run,
                 new OutcomeReceiver<CallControl, CallException>() {
