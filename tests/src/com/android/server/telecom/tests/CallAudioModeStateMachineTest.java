@@ -117,7 +117,7 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
         when(mCallAudioManager.startRinging()).thenReturn(false);
 
         sm.sendMessage(CallAudioModeStateMachine.START_CALL_STREAMING, new Builder()
-                .setHasActiveOrDialingCalls(false)
+                .setHasActiveOrDialingCalls(true)
                 .setHasRingingCalls(false)
                 .setHasHoldingCalls(false)
                 .setIsTonePlaying(false)
