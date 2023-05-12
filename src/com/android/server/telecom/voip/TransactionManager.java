@@ -70,8 +70,8 @@ public class TransactionManager {
             @Override
             public void onTransactionCompleted(VoipCallTransactionResult result,
                     String transactionName){
-                Log.i(TAG, String.format("transaction completed: with result=[%d]",
-                        result.getResult()));
+                Log.i(TAG, String.format("transaction %s completed: with result=[%d]",
+                        transactionName, result.getResult()));
                 if (result.getResult() == TelecomManager.TELECOM_TRANSACTION_SUCCESS) {
                     receiver.onResult(result);
                 } else {
@@ -84,6 +84,7 @@ public class TransactionManager {
 
             @Override
             public void onTransactionTimeout(String transactionName){
+                Log.i(TAG, String.format("transaction %s timeout", transactionName));
                 receiver.onError(new CallException(transactionName + " timeout",
                         CODE_OPERATION_TIMED_OUT));
                 finishTransaction();
