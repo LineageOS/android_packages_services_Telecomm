@@ -46,6 +46,7 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.app.NotificationManager;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -54,6 +55,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.ResolveInfoFlags;
+import android.content.pm.ResolveInfo;
 import android.content.pm.UserInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -114,6 +116,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.app.IntentForwarderActivity;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
@@ -2184,23 +2187,95 @@ public class CallsManager extends Call.ListenerBase
 
     private boolean showSwitchToManagedProfileDialog(Uri callUri, UserHandle initiatingUser,
             int managedProfileUserId) {
-        try {
-            Intent showErrorIntent = new Intent(
-                    TelecomManager.ACTION_SHOW_SWITCH_TO_WORK_PROFILE_FOR_CALL_DIALOG, callUri);
-            showErrorIntent.addCategory(Intent.CATEGORY_DEFAULT);
-            showErrorIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            showErrorIntent.putExtra(TelecomManager.EXTRA_MANAGED_PROFILE_USER_ID,
-                    managedProfileUserId);
-
-            if (mContext.getPackageManager().queryIntentActivitiesAsUser(showErrorIntent,
-                    ResolveInfoFlags.of(0), initiatingUser).size() != 0) {
-                mContext.startActivityAsUser(showErrorIntent, initiatingUser);
-                return true;
-            }
-        } catch (Exception e) {
-            Log.w(this, "Failed to launch switch to managed profile dialog");
+        // Note that the ACTION_CALL intent will resolve to Telecomm's UserCallActivity
+        // even if there is no dialer. Hence we explicitly check for whether a default dialer
+        // exists instead of relying on ActivityNotFound when sending the call intent.
+        if (TextUtils.isEmpty(
+                mDefaultDialerCache.getDefaultDialerApplication(managedProfileUserId))) {
+            Log.i(
+                    this,
+                    "Work profile telephony: default dialer app missing, showing error dialog.");
+            return maybeShowErrorDialog(callUri, managedProfileUserId, initiatingUser);
         }
-        return false;
+
+        UserManager userManager = mContext.getSystemService(UserManager.class);
+        if (userManager.isQuietModeEnabled(UserHandle.of(managedProfileUserId))) {
+            Log.i(
+                    this,
+                    "Work profile telephony: quiet mode enabled, showing error dialog");
+            return maybeShowErrorDialog(callUri, managedProfileUserId, initiatingUser);
+        }
+        Log.i(
+                this,
+                "Work profile telephony: show forwarding call to managed profile dialog");
+        return maybeRedirectToIntentForwarder(callUri, initiatingUser);
+    }
+
+    private boolean maybeRedirectToIntentForwarder(
+            Uri callUri,
+            UserHandle initiatingUser) {
+        // Note: This intent is selected to match the CALL_MANAGED_PROFILE filter in
+        // DefaultCrossProfileIntentFiltersUtils. This ensures that it is redirected to
+        // IntentForwarderActivity.
+        Intent forwardCallIntent = new Intent(Intent.ACTION_CALL, callUri);
+        forwardCallIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        ResolveInfo resolveInfos =
+                mContext.getPackageManager()
+                        .resolveActivityAsUser(
+                                forwardCallIntent,
+                                ResolveInfoFlags.of(0),
+                                initiatingUser.getIdentifier());
+        // Check that the intent will actually open the resolver rather than looping to the personal
+        // profile. This should not happen due to the cross profile intent filters.
+        if (resolveInfos == null
+                || !resolveInfos
+                    .getComponentInfo()
+                    .getComponentName()
+                    .getShortClassName()
+                    .equals(IntentForwarderActivity.FORWARD_INTENT_TO_MANAGED_PROFILE)) {
+            Log.w(
+                    this,
+                    "Work profile telephony: Intent would not resolve to forwarder activity.");
+            return false;
+        }
+
+        try {
+            mContext.startActivityAsUser(forwardCallIntent, initiatingUser);
+            return true;
+        } catch (ActivityNotFoundException e) {
+            Log.e(this, e, "Unable to start call intent for work telephony");
+            return false;
+        }
+    }
+
+    private boolean maybeShowErrorDialog(
+            Uri callUri,
+            int managedProfileUserId,
+            UserHandle initiatingUser) {
+        Intent showErrorIntent =
+                    new Intent(
+                            TelecomManager.ACTION_SHOW_SWITCH_TO_WORK_PROFILE_FOR_CALL_DIALOG,
+                            callUri);
+        showErrorIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        showErrorIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        showErrorIntent.putExtra(
+                TelecomManager.EXTRA_MANAGED_PROFILE_USER_ID, managedProfileUserId);
+        if (mContext.getPackageManager()
+                .queryIntentActivitiesAsUser(
+                        showErrorIntent,
+                        ResolveInfoFlags.of(0),
+                        initiatingUser)
+                .isEmpty()) {
+            return false;
+        }
+        try {
+            mContext.startActivityAsUser(showErrorIntent, initiatingUser);
+            return true;
+        } catch (ActivityNotFoundException e) {
+            Log.e(
+                    this, e,"Work profile telephony: Unable to show error dialog");
+            return false;
+        }
     }
 
     public void startConference(List<Uri> participants, Bundle clientExtras, String callingPackage,
