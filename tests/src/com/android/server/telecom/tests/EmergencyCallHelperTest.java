@@ -19,9 +19,11 @@ package com.android.server.telecom.tests;
 import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
-import android.content.Context;
+import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.os.UserHandle;
+import android.telecom.PhoneAccountHandle;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.server.telecom.Call;
@@ -34,19 +36,20 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.any;
 
 @RunWith(JUnit4.class)
 public class EmergencyCallHelperTest extends TelecomTestCase {
@@ -62,6 +65,7 @@ public class EmergencyCallHelperTest extends TelecomTestCase {
   private UserHandle mUserHandle;
   @Mock
   private Call mCall;
+  @Mock private PhoneAccountHandle mPhoneAccountHandle;
 
   @Override
   @Before
@@ -86,6 +90,8 @@ public class EmergencyCallHelperTest extends TelecomTestCase {
     when(mCall.isEmergencyCall()).thenReturn(true);
     when(mContext.getResources().getBoolean(R.bool.grant_location_permission_enabled)).thenReturn(
         true);
+    when(mTimeoutsAdapter.getEmergencyCallbackWindowMillis(any(ContentResolver.class))).thenReturn(
+            5000L);
   }
 
   @Override
@@ -244,5 +250,22 @@ public class EmergencyCallHelperTest extends TelecomTestCase {
     verifyGrantInvokedFor(ACCESS_BACKGROUND_LOCATION);
     verifyRevokeNotInvokedFor(ACCESS_FINE_LOCATION);
     verifyRevokeInvokedFor(ACCESS_BACKGROUND_LOCATION);
+  }
+
+  @SmallTest
+  @Test
+  public void testIsLastOutgoingEmergencyCallPAH() {
+    PhoneAccountHandle dummyHandle = new PhoneAccountHandle(new ComponentName("pkg", "cls"), "foo");
+    long currentTimeMillis = System.currentTimeMillis();
+    mEmergencyCallHelper.setLastOutgoingEmergencyCallPAH(mPhoneAccountHandle);
+    mEmergencyCallHelper.setLastOutgoingEmergencyCallTimestampMillis(currentTimeMillis);
+
+    // Verify that ECBM is active on mPhoneAccountHandle.
+    assertTrue(mEmergencyCallHelper.isLastOutgoingEmergencyCallPAH(mPhoneAccountHandle));
+    assertFalse(mEmergencyCallHelper.isLastOutgoingEmergencyCallPAH(dummyHandle));
+
+    // Expire ECBM and verify that mPhoneAccountHandle is no longer supported for ECBM.
+    mEmergencyCallHelper.setLastOutgoingEmergencyCallTimestampMillis(currentTimeMillis/2);
+    assertFalse(mEmergencyCallHelper.isLastOutgoingEmergencyCallPAH(mPhoneAccountHandle));
   }
 }
