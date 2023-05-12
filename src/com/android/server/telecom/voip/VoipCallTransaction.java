@@ -38,7 +38,7 @@ public class VoipCallTransaction {
     protected Handler mHandler;
     protected TransactionManager.TransactionCompleteListener mCompleteListener;
     protected List<VoipCallTransaction> mSubTransactions;
-    private TelecomSystem.SyncRoot mLock;
+    protected TelecomSystem.SyncRoot mLock;
 
     public VoipCallTransaction(
             List<VoipCallTransaction> subTransactions, TelecomSystem.SyncRoot lock) {
@@ -55,37 +55,40 @@ public class VoipCallTransaction {
 
     public void start() {
         // post timeout work
-        mHandler.postDelayed(() -> {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        mHandler.postDelayed(() -> future.complete(null), TIMEOUT_LIMIT);
+        future.thenApplyAsync((x) -> {
             if (mCompleted.getAndSet(true)) {
-                return;
+                return null;
             }
             if (mCompleteListener != null) {
                 mCompleteListener.onTransactionTimeout(mTransactionName);
             }
             finish();
-        }, TIMEOUT_LIMIT);
+            return null;
+        }, new LoggedHandlerExecutor(mHandler, mTransactionName + "@" + hashCode()
+                + ".s", mLock));
 
         scheduleTransaction();
     }
 
     protected void scheduleTransaction() {
+        LoggedHandlerExecutor executor = new LoggedHandlerExecutor(mHandler,
+                mTransactionName + "@" + hashCode() + ".pT", mLock);
         CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
-        future.thenComposeAsync(this::processTransaction,
-                        new LoggedHandlerExecutor(mHandler, mTransactionName + "@"
-                                + hashCode() + ".pT", mLock))
-                .thenApplyAsync(
-                        (Function<VoipCallTransactionResult, Void>) result -> {
-                            mCompleted.set(true);
-                            if (mCompleteListener != null) {
-                                mCompleteListener.onTransactionCompleted(result, mTransactionName);
-                            }
-                            finish();
-                            return null;
-                        })
-                .exceptionally((throwable) -> {
+        future.thenComposeAsync(this::processTransaction, executor)
+                .thenApplyAsync((Function<VoipCallTransactionResult, Void>) result -> {
+                    mCompleted.set(true);
+                    if (mCompleteListener != null) {
+                        mCompleteListener.onTransactionCompleted(result, mTransactionName);
+                    }
+                    finish();
+                    return null;
+                    }, executor)
+                .exceptionallyAsync((throwable -> {
                     Log.e(this, throwable, "Error while executing transaction.");
                     return null;
-                });;
+                }), executor);
     }
 
     public CompletionStage<VoipCallTransactionResult> processTransaction(Void v) {
