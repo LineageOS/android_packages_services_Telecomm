@@ -31,6 +31,7 @@ import android.os.UserHandle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.telecom.Log;
+import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -38,6 +39,7 @@ import com.android.server.LocalServices;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallsManagerListenerBase;
 import com.android.server.telecom.LogUtils;
+import com.android.server.telecom.LoggedHandlerExecutor;
 import com.android.server.telecom.TelecomSystem;
 
 import java.util.ArrayList;
@@ -46,6 +48,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 public class VoipCallMonitor extends CallsManagerListenerBase {
 
@@ -62,8 +65,10 @@ public class VoipCallMonitor extends CallsManagerListenerBase {
     private final Handler mHandler;
     private final Context mContext;
     private List<StatusBarNotification> mPendingSBN;
+    private TelecomSystem.SyncRoot mSyncRoot;
 
     public VoipCallMonitor(Context context, TelecomSystem.SyncRoot lock) {
+        mSyncRoot = lock;
         mContext = context;
         mHandlerThread = new HandlerThread(this.getClass().getSimpleName());
         mHandlerThread.start();
@@ -108,7 +113,7 @@ public class VoipCallMonitor extends CallsManagerListenerBase {
                     Call call = mNotifications.getOrDefault(sbn.toString(), null);
                     if (call != null) {
                         mNotifications.remove(sbn.toString(), call);
-                        stopFGSDelegation(call.getTargetPhoneAccount());
+                        stopFGSDelegation(call);
                     }
                 }
             }
@@ -146,9 +151,12 @@ public class VoipCallMonitor extends CallsManagerListenerBase {
                     k -> new HashSet<>());
             callList.add(call);
 
-            mHandler.post(
-                    () -> startFGSDelegation(call.getCallingPackageIdentity().mCallingPackagePid,
-                            call.getCallingPackageIdentity().mCallingPackageUid, call));
+            CompletableFuture.completedFuture(null).thenComposeAsync(
+                    (x) -> {
+                        startFGSDelegation(call.getCallingPackageIdentity().mCallingPackagePid,
+                                call.getCallingPackageIdentity().mCallingPackageUid, call);
+                        return null;
+                    }, new LoggedHandlerExecutor(mHandler, "VCM.oCA", mSyncRoot));
         }
     }
 
@@ -166,7 +174,7 @@ public class VoipCallMonitor extends CallsManagerListenerBase {
             callList.remove(call);
 
             if (callList.isEmpty()) {
-                stopFGSDelegation(phoneAccountHandle);
+                stopFGSDelegation(call);
             }
         }
     }
@@ -183,19 +191,22 @@ public class VoipCallMonitor extends CallsManagerListenerBase {
             ServiceConnection fgsConnection = new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName name, IBinder service) {
-                    Log.addEvent(call, LogUtils.Events.GAINED_FGS_DELEGATION);
                     mServices.put(handle, this);
                     startMonitorWorks(call);
                 }
 
                 @Override
                 public void onServiceDisconnected(ComponentName name) {
-                    Log.addEvent(call, LogUtils.Events.LOST_FGS_DELEGATION);
                     mServices.remove(handle);
                 }
             };
             try {
-                mActivityManagerInternal.startForegroundServiceDelegate(options, fgsConnection);
+                if (mActivityManagerInternal
+                        .startForegroundServiceDelegate(options, fgsConnection)) {
+                    Log.addEvent(call, LogUtils.Events.GAINED_FGS_DELEGATION);
+                } else {
+                    Log.addEvent(call, LogUtils.Events.GAIN_FGS_DELEGATION_FAILED);
+                }
             } catch (Exception e) {
                 Log.i(this, "startForegroundServiceDelegate failed due to: " + e);
             }
@@ -203,13 +214,14 @@ public class VoipCallMonitor extends CallsManagerListenerBase {
     }
 
     @VisibleForTesting
-    public void stopFGSDelegation(PhoneAccountHandle handle) {
+    public void stopFGSDelegation(Call call) {
         synchronized (mLock) {
-            Log.i(this, "stopFGSDelegation of handle %s", handle);
+            Log.i(this, "stopFGSDelegation of call %s", call);
+            PhoneAccountHandle handle = call.getTargetPhoneAccount();
             Set<Call> calls = mPhoneAccountHandleListMap.get(handle);
             if (calls != null) {
-                for (Call call : calls) {
-                    stopMonitorWorks(call);
+                for (Call c : calls) {
+                    stopMonitorWorks(c);
                 }
             }
             mPhoneAccountHandleListMap.remove(handle);
@@ -218,6 +230,7 @@ public class VoipCallMonitor extends CallsManagerListenerBase {
                 ServiceConnection fgsConnection = mServices.get(handle);
                 if (fgsConnection != null) {
                     mActivityManagerInternal.stopForegroundServiceDelegate(fgsConnection);
+                    Log.addEvent(call, LogUtils.Events.LOST_FGS_DELEGATION);
                 }
             }
         }
@@ -245,16 +258,19 @@ public class VoipCallMonitor extends CallsManagerListenerBase {
             if (!sbnMatched) {
                 // Only continue to
                 mPendingCalls.add(call);
-                mHandler.postDelayed(() -> {
-                    synchronized (mLock) {
-                        if (mPendingCalls.contains(call)) {
-                            Log.i(this, "Notification for voip-call %s haven't "
-                                    + "posted in time, stop delegation.", call.getId());
-                            stopFGSDelegation(call.getTargetPhoneAccount());
-                            mPendingCalls.remove(call);
-                        }
-                    }
-                }, 5000L);
+                CompletableFuture<Void> future = new CompletableFuture<>();
+                mHandler.postDelayed(() -> future.complete(null), 5000L);
+                future.thenComposeAsync(
+                        (x) -> {
+                            if (mPendingCalls.contains(call)) {
+                                Log.i(this, "Notification for voip-call %s haven't "
+                                        + "posted in time, stop delegation.", call.getId());
+                                stopFGSDelegation(call);
+                                mPendingCalls.remove(call);
+                                return null;
+                            }
+                            return null;
+                        }, new LoggedHandlerExecutor(mHandler, "VCM.sMN", mSyncRoot));
             }
         }
     }
