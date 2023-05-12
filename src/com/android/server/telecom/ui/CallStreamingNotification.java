@@ -70,7 +70,7 @@ public class CallStreamingNotification extends CallsManagerListenerBase implemen
     private final AppLabelProxy mAppLabelProxy;
     // An executor that can be used to fire off async tasks that do not block Telecom in any manner.
     private final Executor mAsyncTaskExecutor;
-    // The call which is treaming.
+    // The call which is streaming.
     private Call mStreamingCall;
     // Lock for notification post/remove -- these happen outside the Telecom sync lock.
     private final Object mNotificationLock = new Object();
@@ -126,20 +126,6 @@ public class CallStreamingNotification extends CallsManagerListenerBase implemen
     }
 
     /**
-     * Handles changes to the caller info for a call.  Used to ensure we can update the photo uri
-     * if one was found.
-     * @param call the call which the caller info changed on.
-     */
-    @Override
-    public void onCallerInfoChanged(Call call) {
-        if (call == mStreamingCall) {
-            Log.i(this, "onCallerInfoChanged: call=%s, photoUri=%b", call.getId(),
-                    call.getContactPhotoUri());
-            enqueueStreamingNotification(call);
-        }
-    }
-
-    /**
      * Change the streaming call we are tracking.
      * @param call the call.
      */
@@ -163,19 +149,12 @@ public class CallStreamingNotification extends CallsManagerListenerBase implemen
         mAsyncTaskExecutor.execute(() -> {
             Icon contactPhotoIcon = null;
             try {
-                if (contactPhotoBitmap != null) {
-                    // Make the icon rounded... because there has to be hoops to jump through.
-                    RoundedBitmapDrawable roundedDrawable = RoundedBitmapDrawableFactory.create(
-                            mContext.getResources(), contactPhotoBitmap);
-                    roundedDrawable.setCornerRadius(Math.max(contactPhotoBitmap.getWidth(),
-                            contactPhotoBitmap.getHeight()) / 2.0f);
-                    contactPhotoIcon = Icon.createWithBitmap(drawableToBitmap(roundedDrawable,
-                            contactPhotoBitmap.getWidth(), contactPhotoBitmap.getHeight()));
-                }
+                contactPhotoIcon = Icon.createWithResource(mContext.getResources(),
+                        R.drawable.person_circle);
             } catch (Exception e) {
                 // All loads of things can do wrong when working with bitmaps and images, so to
                 // ensure Telecom doesn't crash, lets try/catch to be sure.
-                Log.e(this, e, "enqueueStreamingNotification: Couldn't build rounded icon");
+                Log.e(this, e, "enqueueStreamingNotification: Couldn't build avatar icon");
             }
             showStreamingNotification(call.getId(),
                     call.getUserHandleFromTargetPhoneAccount(), call.getCallerDisplayName(),
