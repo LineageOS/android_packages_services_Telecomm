@@ -62,7 +62,7 @@ public class VoipCallTransactionTest extends TelecomTestCase {
         private int mType;
 
         public TestVoipCallTransaction(String name, long sleepTime, int type) {
-            super(mLock);
+            super(VoipCallTransactionTest.this.mLock);
             mName = name;
             mSleepTime = sleepTime;
             mType = type;
