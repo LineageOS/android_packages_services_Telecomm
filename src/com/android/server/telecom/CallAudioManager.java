@@ -795,7 +795,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
                 .setHasHoldingCalls(mHoldingCalls.size() > 0)
                 .setHasAudioProcessingCalls(mAudioProcessingCalls.size() > 0)
                 .setIsTonePlaying(mIsTonePlaying)
-                .setIsStreaming(mStreamingCall != null)
+                .setIsStreaming((mStreamingCall != null) && (!mStreamingCall.isDisconnected()))
                 .setForegroundCallIsVoip(
                         mForegroundCall != null && isCallVoip(mForegroundCall))
                 .setSession(Log.createSubsession()).build();
