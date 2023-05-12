@@ -224,6 +224,7 @@ public class LogUtils {
         public static final String FLASH_NOTIFICATION_START = "FLASH_NOTIFICATION_START";
         public static final String FLASH_NOTIFICATION_STOP = "FLASH_NOTIFICATION_STOP";
         public static final String GAINED_FGS_DELEGATION = "GAINED_FGS_DELEGATION";
+        public static final String GAIN_FGS_DELEGATION_FAILED = "GAIN_FGS_DELEGATION_FAILED";
         public static final String LOST_FGS_DELEGATION = "LOST_FGS_DELEGATION";
         public static final String START_STREAMING = "START_STREAMING";
         public static final String STOP_STREAMING = "STOP_STREAMING";
