@@ -27,6 +27,7 @@ android_app {
     ],
     static_libs: [
         "androidx.annotation_annotation",
+        "androidx.core_core",
     ],
     libs: [
         "services",

@@ -534,6 +534,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private boolean mWasHighDefAudio = false;
     private boolean mWasWifi = false;
     private boolean mWasVolte = false;
+    private boolean mDestroyed = false;
 
     // For conferences which support merge/swap at their level, we retain a notion of an active
     // call. This is used for BluetoothPhoneService.  In order to support hold/merge, it must have
@@ -929,6 +930,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     public void destroy() {
+        if (mDestroyed) {
+            return;
+        }
         // We should not keep these bitmaps around because the Call objects may be held for logging
         // purposes.
         // TODO: Make a container object that only stores the information we care about for Logging.
@@ -939,6 +943,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         closeRttStreams();
 
         Log.addEvent(this, LogUtils.Events.DESTROYED);
+        mDestroyed = true;
     }
 
     private void closeRttStreams() {
@@ -999,6 +1004,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         s.append(SimpleDateFormat.getDateTimeInstance().format(new Date(getCreationTimeMillis())));
         s.append("]");
         s.append(isIncoming() ? "(MT - incoming)" : "(MO - outgoing)");
+        s.append("(User=");
+        s.append(getInitiatingUser());
+        s.append(")");
         s.append("\n\t");
 
         PhoneAccountHandle targetPhoneAccountHandle = getTargetPhoneAccount();

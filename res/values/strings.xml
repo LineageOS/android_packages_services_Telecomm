@@ -321,6 +321,10 @@
     <string name="notification_channel_disconnected_calls">Disconnected calls</string>
     <!-- Notification channel name for a channel containing crashed phone apps service notifications. -->
     <string name="notification_channel_in_call_service_crash">Crashed phone apps</string>
+    <!-- Notification channel name for a channel containing notifications related to call streaming.
+         Call streaming is a feature where an app can use another device like a tablet to see and
+         control a call taking place on their phone. -->
+    <string name="notification_channel_call_streaming">Call streaming</string>
 
     <!-- Alert dialog content used to inform the user that placing a new outgoing call will end the
          ongoing call in the app "other_app". -->
@@ -395,4 +399,20 @@
     <string name="callendpoint_name_streaming">External</string>
     <!-- The user-visible name of the unknown new type CallEndpoint -->
     <string name="callendpoint_name_unknown">Unknown</string>
+
+    <!-- The content of a notification shown when a call is being streamed to another device.
+         Call streaming is a feature where a user can see and interact with a call from another
+         device like a tablet while the call takes place on their phone. -->
+    <string name="call_streaming_notification_body">Streaming audio to other device</string>
+    <!-- A notification action which is shown when a call is being streamed to another device.
+         Tapping the action will hang up the call.
+         Call streaming is a feature where a user can see and interact with a call from another
+         device like a tablet while the call takes place on their phone. -->
+    <string name="call_streaming_notification_action_hang_up">Hang up</string>
+    <!-- A notification action which is shown when a call is being streamed to another device.
+         Tapping the action will move the call back to the phone from the device it is being
+         streamed to.
+         Call streaming is a feature where a user can see and interact with a call from another
+         device like a tablet while the call takes place on their phone. -->
+    <string name="call_streaming_notification_action_switch_here">Switch here</string>
 </resources>
