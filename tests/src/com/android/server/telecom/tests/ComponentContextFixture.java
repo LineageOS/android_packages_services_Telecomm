@@ -81,8 +81,10 @@ import android.test.mock.MockContext;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -800,6 +802,11 @@ public class ComponentContextFixture implements TestFixture<Context> {
 
     public void putStringArrayResource(int id, String[] value) {
         when(mResources.getStringArray(eq(id))).thenReturn(value);
+    }
+
+    public void putRawResource(int id, String content) {
+        when(mResources.openRawResource(id))
+                .thenReturn(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
     }
 
     public void setTelecomManager(TelecomManager telecomManager) {

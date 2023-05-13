@@ -47,6 +47,7 @@ import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
 import com.android.server.telecom.callfiltering.BlockedNumbersAdapter;
 import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
+import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.ui.AudioProcessingNotification;
 import com.android.server.telecom.ui.CallStreamingNotification;
 import com.android.server.telecom.ui.DisconnectedCallNotifier;
@@ -224,7 +225,8 @@ public class TelecomSystem {
             Ringer.AccessibilityManagerAdapter accessibilityManagerAdapter,
             Executor asyncTaskExecutor,
             Executor asyncCallAudioTaskExecutor,
-            BlockedNumbersAdapter blockedNumbersAdapter) {
+            BlockedNumbersAdapter blockedNumbersAdapter,
+            FeatureFlags featureFlags) {
         mContext = context.getApplicationContext();
         LogUtils.initLogging(mContext);
         android.telecom.Log.setLock(mLock);
@@ -406,7 +408,8 @@ public class TelecomSystem {
                     transactionManager,
                     emergencyCallDiagnosticLogger,
                     communicationDeviceTracker,
-                    callStreamingNotification);
+                    callStreamingNotification,
+                    featureFlags);
 
             mIncomingCallNotifier = incomingCallNotifier;
             incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {

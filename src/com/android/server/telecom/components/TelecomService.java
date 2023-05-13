@@ -61,6 +61,7 @@ import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.TelecomWakeLock;
 import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.callfiltering.BlockedNumbersAdapter;
+import com.android.server.telecom.flags.FeatureFlagsImpl;
 import com.android.server.telecom.settings.BlockedNumbersUtil;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.MissedCallNotifierImpl;
@@ -230,7 +231,8 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                     BlockedNumbersUtil.updateEmergencyCallNotification(context,
                                             showNotification);
                                 }
-                            }));
+                            },
+                            new FeatureFlagsImpl()));
         }
     }
 
