@@ -100,6 +100,8 @@
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"Арын дуудлагууд"</string>
     <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"Салсан дуудлагууд"</string>
     <string name="notification_channel_in_call_service_crash" msgid="7313237519166984267">"Гэмтсэн гар утасны аппууд"</string>
+    <!-- no translation found for notification_channel_call_streaming (5100510699787538991) -->
+    <skip />
     <string name="alert_outgoing_call" msgid="5319895109298927431">"Энэ дуудлагыг хийснээр таны <xliff:g id="OTHER_APP">%1$s</xliff:g> дуудлагыг дуусгана."</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"Энэ дуудлагыг хэрхэн хийхийг сонгох"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="5221065030959024121">"<xliff:g id="OTHER_APP">%1$s</xliff:g>-г ашиглан дуудлагыг дахин чиглүүлэх"</string>
@@ -130,4 +132,10 @@
     <string name="callendpoint_name_speaker" msgid="1971760468695323189">"Чанга яригч"</string>
     <string name="callendpoint_name_streaming" msgid="2337595450408275576">"Гадны"</string>
     <string name="callendpoint_name_unknown" msgid="2199074708477193852">"Тодорхойгүй"</string>
+    <!-- no translation found for call_streaming_notification_body (502216105683378263) -->
+    <skip />
+    <!-- no translation found for call_streaming_notification_action_hang_up (7017663335289063827) -->
+    <skip />
+    <!-- no translation found for call_streaming_notification_action_switch_here (3524180754186221228) -->
+    <skip />
 </resources>
