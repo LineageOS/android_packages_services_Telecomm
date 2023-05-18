@@ -100,6 +100,7 @@
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"Opkald i baggrunden"</string>
     <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"Afbrudte opkald"</string>
     <string name="notification_channel_in_call_service_crash" msgid="7313237519166984267">"Opkaldsapps, der er gået ned"</string>
+    <string name="notification_channel_call_streaming" msgid="5100510699787538991">"Opkaldsstreaming"</string>
     <string name="alert_outgoing_call" msgid="5319895109298927431">"Hvis du foretager dette opkald, afsluttes dit opkald i <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"Vælg, hvordan du vil foretage dette opkald"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="5221065030959024121">"Omdiriger opkaldet ved hjælp af <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
@@ -130,4 +131,7 @@
     <string name="callendpoint_name_speaker" msgid="1971760468695323189">"Højttaler"</string>
     <string name="callendpoint_name_streaming" msgid="2337595450408275576">"Ekstern"</string>
     <string name="callendpoint_name_unknown" msgid="2199074708477193852">"Ukendt"</string>
+    <string name="call_streaming_notification_body" msgid="502216105683378263">"Streamer lyd til en anden enhed"</string>
+    <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Læg på"</string>
+    <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Skift hertil"</string>
 </resources>
