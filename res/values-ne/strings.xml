@@ -100,6 +100,7 @@
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"ब्याकग्राउन्डका कलहरू"</string>
     <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"विच्छेद गरिएका कल"</string>
     <string name="notification_channel_in_call_service_crash" msgid="7313237519166984267">"फोनमा रहेका क्र्यास भएका एपहरू"</string>
+    <string name="notification_channel_call_streaming" msgid="5100510699787538991">"कल स्ट्रिमिङ"</string>
     <string name="alert_outgoing_call" msgid="5319895109298927431">"यो कल गर्नुले तपाईंको <xliff:g id="OTHER_APP">%1$s</xliff:g> कल अन्त्य गर्दछ।"</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"यो कल गर्ने तरिका छनौट गर्नुहोस्"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="5221065030959024121">"<xliff:g id="OTHER_APP">%1$s</xliff:g> प्रयोग गरी कल रिडाइरेक्ट गर्नुहोस्"</string>
@@ -130,4 +131,7 @@
     <string name="callendpoint_name_speaker" msgid="1971760468695323189">"स्पिकर"</string>
     <string name="callendpoint_name_streaming" msgid="2337595450408275576">"बाह्य"</string>
     <string name="callendpoint_name_unknown" msgid="2199074708477193852">"अज्ञात"</string>
+    <string name="call_streaming_notification_body" msgid="502216105683378263">"अर्को डिभाइसमा अडियो स्ट्रिम गरिँदै छ"</string>
+    <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"कल काट्नुहोस्"</string>
+    <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"यहाँ गई बदल्नुहोस्"</string>
 </resources>

@@ -100,6 +100,7 @@
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"പശ്ചാത്തല കോളുകൾ"</string>
     <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"വിച്ഛേദിക്കപ്പെട്ട കോളുകൾ"</string>
     <string name="notification_channel_in_call_service_crash" msgid="7313237519166984267">"ക്രാഷായ ഫോൺ ആപ്പുകൾ"</string>
+    <string name="notification_channel_call_streaming" msgid="5100510699787538991">"കോൾ സ്ട്രീമിംഗ്"</string>
     <string name="alert_outgoing_call" msgid="5319895109298927431">"ഈ കോൾ ചെയ്യുന്നത് നിങ്ങളുടെ <xliff:g id="OTHER_APP">%1$s</xliff:g> കോൾ അവസാനിക്കാനിടയാക്കും."</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"ഈ കോൾ എങ്ങനെ ചെയ്യണമെന്ന് തിരഞ്ഞെടുക്കുക"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="5221065030959024121">"<xliff:g id="OTHER_APP">%1$s</xliff:g> ഉപയോഗിച്ച് കോൾ റീഡയറക്‌റ്റ് ചെയ്യുക"</string>
@@ -130,4 +131,7 @@
     <string name="callendpoint_name_speaker" msgid="1971760468695323189">"സ്പീക്കർ"</string>
     <string name="callendpoint_name_streaming" msgid="2337595450408275576">"എക്സ്റ്റേണൽ സ്‌ട്രീമിംഗ്"</string>
     <string name="callendpoint_name_unknown" msgid="2199074708477193852">"അജ്ഞാതം"</string>
+    <string name="call_streaming_notification_body" msgid="502216105683378263">"ഓഡിയോ മറ്റൊരു ഉപകരണത്തിലേക്ക് സ്‌ട്രീം ചെയ്യുന്നു"</string>
+    <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"മാറ്റി വയ്‌ക്കുക"</string>
+    <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"ഇവിടേക്ക് മാറുക"</string>
 </resources>
