@@ -100,8 +100,7 @@
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"பின்னணி அழைப்புகள்"</string>
     <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"துண்டிக்கப்பட்ட அழைப்புகள்"</string>
     <string name="notification_channel_in_call_service_crash" msgid="7313237519166984267">"சிதைவடைந்த மொபைல் ஆப்ஸ்"</string>
-    <!-- no translation found for notification_channel_call_streaming (5100510699787538991) -->
-    <skip />
+    <string name="notification_channel_call_streaming" msgid="5100510699787538991">"அழைப்பு ஸ்ட்ரீமிங்"</string>
     <string name="alert_outgoing_call" msgid="5319895109298927431">"புதிய அழைப்பைச் செய்தால், செயலில் உள்ள <xliff:g id="OTHER_APP">%1$s</xliff:g> அழைப்பு துண்டிக்கப்படும்."</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"இந்த அழைப்பை எவ்வாறு மேற்கொள்ள வேண்டும் எனத் தேர்ந்தெடுக்கவும்"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="5221065030959024121">"<xliff:g id="OTHER_APP">%1$s</xliff:g>ஐப் பயன்படுத்தி அழைப்பைத் திருப்பி விடு"</string>
@@ -132,10 +131,7 @@
     <string name="callendpoint_name_speaker" msgid="1971760468695323189">"ஸ்பீக்கர்"</string>
     <string name="callendpoint_name_streaming" msgid="2337595450408275576">"வெளிப்புறச் சாதனம்"</string>
     <string name="callendpoint_name_unknown" msgid="2199074708477193852">"தெரியவில்லை"</string>
-    <!-- no translation found for call_streaming_notification_body (502216105683378263) -->
-    <skip />
-    <!-- no translation found for call_streaming_notification_action_hang_up (7017663335289063827) -->
-    <skip />
-    <!-- no translation found for call_streaming_notification_action_switch_here (3524180754186221228) -->
-    <skip />
+    <string name="call_streaming_notification_body" msgid="502216105683378263">"வேறு சாதனத்திற்கு ஆடியோவை ஸ்ட்ரீம் செய்கிறது"</string>
+    <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"அழைப்பைத் துண்டி"</string>
+    <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"இங்கே மாற்று"</string>
 </resources>
