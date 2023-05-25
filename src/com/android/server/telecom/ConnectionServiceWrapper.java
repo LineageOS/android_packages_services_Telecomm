@@ -2481,12 +2481,12 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
     private void logIncoming(String msg, Object... params) {
         // Keep these as debug; the incoming logging is traced on a package level through the
         // session logging.
-        Log.i(this, "CS -> TC[" + Log.getPackageAbbreviation(mComponentName) + "]:"
+        Log.d(this, "CS -> TC[" + Log.getPackageAbbreviation(mComponentName) + "]:"
                 + " isRCS = " + this.mIsRemoteConnectionService + ": " + msg, params);
     }
 
     private void logOutgoing(String msg, Object... params) {
-        Log.i(this, "TC -> CS[" + Log.getPackageAbbreviation(mComponentName) + "]:"
+        Log.d(this, "TC -> CS[" + Log.getPackageAbbreviation(mComponentName) + "]:"
                 + " isRCS = " + this.mIsRemoteConnectionService + ": " + msg, params);
     }
 
