@@ -2856,8 +2856,6 @@ public class CallsManager extends Call.ListenerBase
             call.answer(videoState);
         } else {
             // Hold or disconnect the active call and request call focus for the incoming call.
-            Call activeCall = (Call) mConnectionSvrFocusMgr.getCurrentFocusCall();
-            Log.d(this, "answerCall: Incoming call = %s Ongoing call %s", call, activeCall);
             holdActiveCallForNewCall(call);
             mConnectionSvrFocusMgr.requestFocus(
                     call,

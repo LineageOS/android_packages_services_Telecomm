@@ -26,6 +26,8 @@ import android.telecom.Log;
 import android.telecom.Logging.Session;
 import android.text.TextUtils;
 import android.util.LocalLog;
+import android.util.LogPrinter;
+import android.util.Printer;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.IndentingPrintWriter;
@@ -35,6 +37,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +47,11 @@ public class ConnectionServiceFocusManager {
     private static final String TAG = "ConnectionSvrFocusMgr";
     private static final int GET_CURRENT_FOCUS_TIMEOUT_MILLIS = 1000;
     private final LocalLog mLocalLog = new LocalLog(20);
+    private final AnomalyReporterAdapter mAnomalyReporter = new AnomalyReporterAdapterImpl();
+    public static final UUID WATCHDOG_GET_CALL_FOCUS_TIMEOUT_UUID =
+            UUID.fromString("edd7334a-ef87-432b-a1d0-a2f23959c73e");
+    public static final String WATCHDOG_GET_CALL_FOCUS_TIMEOUT_MSG =
+            "Telecom CallAnomalyWatchdog detected a timeout while getting the call focus.";
 
     /** Factory interface used to create the {@link ConnectionServiceFocusManager} instance. */
     public interface ConnectionServiceFocusManagerFactory {
@@ -333,7 +341,17 @@ public class ConnectionServiceFocusManager {
                 return syncCallFocus.orElse(null);
             } else {
                 Log.w(TAG, "Timed out waiting for synchronous current focus. Returning possibly"
-                        + " inaccurate result");
+                        + " inaccurate result. returning currentFocusCall=[%s]", mCurrentFocusCall);
+
+                // dump the state of the handler to better understand the timeout
+                mEventHandler.dump(
+                        new LogPrinter(android.util.Log.INFO, TAG), "CsFocusMgr_timeout");
+
+                // report the timeout
+                mAnomalyReporter.reportAnomaly(
+                        WATCHDOG_GET_CALL_FOCUS_TIMEOUT_UUID,
+                        WATCHDOG_GET_CALL_FOCUS_TIMEOUT_MSG);
+
                 return mCurrentFocusCall;
             }
         } catch (InterruptedException e) {
