@@ -28,7 +28,6 @@
     <!-- Prevents the activity manager from delaying any activity-start
          requests by this package, including requests immediately after
          the user presses "home". -->
-    <uses-permission android:name="android.permission.BIND_CONNECTION_SERVICE"/>
     <uses-permission android:name="android.permission.BIND_INCALL_SERVICE"/>
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
