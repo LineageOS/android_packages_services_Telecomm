@@ -357,7 +357,7 @@ public class CallExtrasTest extends TelecomSystemTest {
     @LargeTest
     @Test
     public void testConferenceSetExtras() throws Exception {
-        ParcelableCall call = makeConferenceCall();
+        ParcelableCall call = makeConferenceCall(null, null);
         String conferenceId = call.getId();
 
         Conference conference = mConnectionServiceFixtureA.mLatestConference;
@@ -400,7 +400,7 @@ public class CallExtrasTest extends TelecomSystemTest {
     @LargeTest
     @Test
     public void testConferenceExtraOperations() throws Exception {
-        ParcelableCall call = makeConferenceCall();
+        ParcelableCall call = makeConferenceCall(null, null);
         String conferenceId = call.getId();
         Conference conference = mConnectionServiceFixtureA.mLatestConference;
         assertNotNull(conference);
@@ -436,7 +436,7 @@ public class CallExtrasTest extends TelecomSystemTest {
     @LargeTest
     @Test
     public void testConferenceICS() throws Exception {
-        ParcelableCall call = makeConferenceCall();
+        ParcelableCall call = makeConferenceCall(null, null);
         String conferenceId = call.getId();
         Conference conference = mConnectionServiceFixtureA.mLatestConference;
 
