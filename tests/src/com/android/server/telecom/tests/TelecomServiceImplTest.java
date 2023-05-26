@@ -1151,9 +1151,9 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 nullable(String.class), nullable(String.class)))
                 .thenReturn(AppOpsManager.MODE_ALLOWED);
         doReturn(PackageManager.PERMISSION_GRANTED)
-                .when(mContext).checkCallingPermission(CALL_PHONE);
+                .when(mContext).checkCallingOrSelfPermission(CALL_PHONE);
         doReturn(PackageManager.PERMISSION_DENIED)
-                .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
+                .when(mContext).checkCallingOrSelfPermission(CALL_PRIVILEGED);
 
         mTSIBinder.placeCall(handle, extras, DEFAULT_DIALER_PACKAGE, null);
         placeCallTestHelper(handle, extras, /*isSelfManagedExpected*/ false,
@@ -1204,9 +1204,9 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         doNothing().when(mContext).enforceCallingOrSelfPermission(
                 eq(Manifest.permission.MANAGE_OWN_CALLS), anyString());
         doReturn(PackageManager.PERMISSION_DENIED)
-                .when(mContext).checkCallingPermission(CALL_PHONE);
+                .when(mContext).checkCallingOrSelfPermission(CALL_PHONE);
         doReturn(PackageManager.PERMISSION_DENIED)
-                .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
+                .when(mContext).checkCallingOrSelfPermission(CALL_PRIVILEGED);
 
         try {
             mTSIBinder.placeCall(handle, extras, PACKAGE_NAME, null);
@@ -1266,6 +1266,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         // pass MANAGE_OWN_CALLS check, but do not have CALL PHONE
         doNothing().when(mContext).enforceCallingOrSelfPermission(
                 eq(Manifest.permission.MANAGE_OWN_CALLS), anyString());
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingOrSelfPermission(CALL_PRIVILEGED);
         doThrow(new SecurityException())
                 .when(mContext).enforceCallingOrSelfPermission(eq(CALL_PHONE), anyString());
 
@@ -1299,6 +1301,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         doNothing().when(mContext).enforceCallingOrSelfPermission(
                 eq(Manifest.permission.MANAGE_OWN_CALLS), anyString());
         doNothing().when(mContext).enforceCallingOrSelfPermission(eq(CALL_PHONE), anyString());
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingOrSelfPermission(CALL_PRIVILEGED);
         when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_CALL_PHONE), anyInt(), anyString(),
                 nullable(String.class), nullable(String.class)))
                 .thenReturn(AppOpsManager.MODE_ERRORED);
@@ -1333,9 +1337,9 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 nullable(String.class), nullable(String.class)))
                 .thenReturn(AppOpsManager.MODE_ALLOWED);
         doReturn(PackageManager.PERMISSION_GRANTED)
-                .when(mContext).checkCallingPermission(CALL_PHONE);
+                .when(mContext).checkCallingOrSelfPermission(CALL_PHONE);
         doReturn(PackageManager.PERMISSION_DENIED)
-                .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
+                .when(mContext).checkCallingOrSelfPermission(CALL_PRIVILEGED);
 
         // We expect the call to go through with no PhoneAccount specified, since the request
         // contained a self-managed PhoneAccountHandle that didn't belong to this app.
@@ -1371,6 +1375,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         doThrow(new SecurityException())
                 .when(mContext).enforceCallingOrSelfPermission(
                         eq(Manifest.permission.MANAGE_OWN_CALLS), anyString());
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingOrSelfPermission(CALL_PRIVILEGED);
         doThrow(new SecurityException())
                 .when(mContext).enforceCallingOrSelfPermission(eq(CALL_PHONE), anyString());
 
@@ -1403,6 +1409,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         doThrow(new SecurityException())
                 .when(mContext).enforceCallingOrSelfPermission(
                         eq(Manifest.permission.MANAGE_OWN_CALLS), anyString());
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingOrSelfPermission(CALL_PRIVILEGED);
         doNothing().when(mContext).enforceCallingOrSelfPermission(eq(CALL_PHONE), anyString());
         when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_CALL_PHONE), anyInt(), anyString(),
                 nullable(String.class), nullable(String.class)))
@@ -1439,9 +1447,9 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 nullable(String.class), nullable(String.class)))
                 .thenReturn(AppOpsManager.MODE_IGNORED);
         doReturn(PackageManager.PERMISSION_DENIED)
-                .when(mContext).checkCallingPermission(CALL_PHONE);
+                .when(mContext).checkCallingOrSelfPermission(CALL_PHONE);
         doReturn(PackageManager.PERMISSION_DENIED)
-                .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
+                .when(mContext).checkCallingOrSelfPermission(CALL_PRIVILEGED);
 
         mTSIBinder.placeCall(handle, extras, PACKAGE_NAME, null);
         placeCallTestHelper(handle, extras, /*isSelfManagedExpected*/ true,
@@ -1468,13 +1476,49 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 nullable(String.class), nullable(String.class)))
                 .thenReturn(AppOpsManager.MODE_ALLOWED);
         doReturn(PackageManager.PERMISSION_GRANTED)
-                .when(mContext).checkCallingPermission(CALL_PHONE);
+                .when(mContext).checkCallingOrSelfPermission(CALL_PHONE);
         doReturn(PackageManager.PERMISSION_DENIED)
-                .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
+                .when(mContext).checkCallingOrSelfPermission(CALL_PRIVILEGED);
 
         mTSIBinder.placeCall(handle, extras, DEFAULT_DIALER_PACKAGE, null);
         placeCallTestHelper(handle, extras, /*isSelfManagedExpected*/ false,
                 /*shouldNonEmergencyBeAllowed*/ true);
+    }
+
+    /**
+     * In the case that there is a managed normal call request and the app has CALL_PRIVILEGED
+     * permission, place call should complete successfully.
+     */
+    @SmallTest
+    @Test
+    public void testPlaceCallPrivileged() throws Exception {
+        doReturn(false).when(mDefaultDialerCache).isDefaultOrSystemDialer(
+                eq(DEFAULT_DIALER_PACKAGE), anyInt());
+        Uri handle = Uri.parse("tel:6505551234");
+
+        // CALL_PHONE is not granted, but CALL_PRIVILEGED is
+        doThrow(new SecurityException())
+                .when(mContext).enforceCallingOrSelfPermission(
+                        eq(Manifest.permission.MANAGE_OWN_CALLS), anyString());
+        doReturn(PackageManager.PERMISSION_GRANTED)
+                .when(mContext).checkCallingOrSelfPermission(CALL_PRIVILEGED);
+        doThrow(new SecurityException()).when(mContext).enforceCallingOrSelfPermission(
+                eq(CALL_PHONE), anyString());
+        when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_CALL_PHONE), anyInt(), anyString(),
+                nullable(String.class), nullable(String.class)))
+                .thenReturn(AppOpsManager.MODE_ERRORED);
+
+        try {
+            mTSIBinder.placeCall(handle, null, PACKAGE_NAME + "2", null);
+        } catch(SecurityException e) {
+            fail("Expected no SecurityException - CALL_PRIVILEGED is granted");
+        }
+        ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mUserCallIntentProcessor).processIntent(intentCaptor.capture(), anyString(),
+                eq(false), eq(true), eq(true));
+        Intent capturedIntent = intentCaptor.getValue();
+        assertEquals(Intent.ACTION_CALL_PRIVILEGED, capturedIntent.getAction());
+        assertEquals(handle, capturedIntent.getData());
     }
 
     /**
@@ -1493,9 +1537,9 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 nullable(String.class), nullable(String.class)))
                 .thenReturn(AppOpsManager.MODE_IGNORED);
         doReturn(PackageManager.PERMISSION_GRANTED)
-                .when(mContext).checkCallingPermission(CALL_PHONE);
+                .when(mContext).checkCallingOrSelfPermission(CALL_PHONE);
         doReturn(PackageManager.PERMISSION_DENIED)
-                .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
+                .when(mContext).checkCallingOrSelfPermission(CALL_PRIVILEGED);
 
         mTSIBinder.placeCall(handle, extras, DEFAULT_DIALER_PACKAGE, null);
         placeCallTestHelper(handle, extras, /*isSelfManagedExpected*/ false,
@@ -1517,9 +1561,9 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 nullable(String.class), nullable(String.class)))
                 .thenReturn(AppOpsManager.MODE_ALLOWED);
         doReturn(PackageManager.PERMISSION_DENIED)
-                .when(mContext).checkCallingPermission(CALL_PHONE);
+                .when(mContext).checkCallingOrSelfPermission(CALL_PHONE);
         doReturn(PackageManager.PERMISSION_DENIED)
-                .when(mContext).checkCallingPermission(CALL_PRIVILEGED);
+                .when(mContext).checkCallingOrSelfPermission(CALL_PRIVILEGED);
 
         mTSIBinder.placeCall(handle, extras, DEFAULT_DIALER_PACKAGE, null);
         placeCallTestHelper(handle, extras, /*isSelfManagedExpected*/ false,
@@ -1560,6 +1604,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         // permission.
         doThrow(new SecurityException())
                 .when(mContext).enforceCallingOrSelfPermission(eq(CALL_PHONE), anyString());
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingOrSelfPermission(CALL_PRIVILEGED);
 
         try {
             mTSIBinder.placeCall(handle, extras, "arbitrary_package_name", null);
@@ -1585,6 +1631,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
         // The app is not considered a privileged dialer and does not have the OP_CALL_PHONE
         // app op.
         doNothing().when(mContext).enforceCallingOrSelfPermission(eq(CALL_PHONE), anyString());
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext).checkCallingOrSelfPermission(CALL_PRIVILEGED);
         when(mAppOpsManager.noteOp(eq(AppOpsManager.OP_CALL_PHONE), anyInt(), anyString(),
                 nullable(String.class), nullable(String.class)))
                 .thenReturn(AppOpsManager.MODE_IGNORED);
