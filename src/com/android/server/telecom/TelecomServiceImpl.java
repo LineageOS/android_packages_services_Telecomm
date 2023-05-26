@@ -1811,14 +1811,14 @@ public class TelecomServiceImpl {
                         Binder.getCallingUid(), callingPackage, callingFeatureId, null)
                         == AppOpsManager.MODE_ALLOWED;
 
-                final boolean hasCallPermission = mContext.checkCallingPermission(CALL_PHONE) ==
-                        PackageManager.PERMISSION_GRANTED;
+                final boolean hasCallPermission = mContext.checkCallingOrSelfPermission(CALL_PHONE)
+                        == PackageManager.PERMISSION_GRANTED;
                 // The Emergency Dialer has call privileged permission and uses this to place
                 // emergency calls.  We ensure permission checks in
                 // NewOutgoingCallIntentBroadcaster#process pass by sending this to
                 // Telecom as an ACTION_CALL_PRIVILEGED intent (which makes sense since the
                 // com.android.phone process has that permission).
-                final boolean hasCallPrivilegedPermission = mContext.checkCallingPermission(
+                final boolean hasCallPrivilegedPermission = mContext.checkCallingOrSelfPermission(
                         CALL_PRIVILEGED) == PackageManager.PERMISSION_GRANTED;
 
                 synchronized (mLock) {
@@ -1833,7 +1833,8 @@ public class TelecomServiceImpl {
                         }
                         mUserCallIntentProcessorFactory.create(mContext, userHandle)
                                 .processIntent(intent, callingPackage, isSelfManagedRequest,
-                                        (hasCallAppOp && hasCallPermission),
+                                        (hasCallAppOp && hasCallPermission)
+                                                || hasCallPrivilegedPermission,
                                         true /* isLocalInvocation */);
                     } finally {
                         Binder.restoreCallingIdentity(token);
@@ -3002,6 +3003,11 @@ public class TelecomServiceImpl {
         // The system/default dialer can always read phone state - so that emergency calls will
         // still work.
         if (isPrivilegedDialerCalling(callingPackage)) {
+            return true;
+        }
+
+        if (mContext.checkCallingOrSelfPermission(CALL_PRIVILEGED)
+                == PackageManager.PERMISSION_GRANTED) {
             return true;
         }
 
