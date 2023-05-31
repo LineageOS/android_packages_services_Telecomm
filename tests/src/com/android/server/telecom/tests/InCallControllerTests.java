@@ -233,8 +233,8 @@ public class InCallControllerTests extends TelecomTestCase {
         doAnswer(invocation -> {
             mRegisteredReceiver = invocation.getArgument(0);
             return null;
-        }).when(mMockContext).registerReceiver(any(BroadcastReceiver.class),
-                any(IntentFilter.class));
+        }).when(mMockContext).registerReceiverAsUser(any(BroadcastReceiver.class),
+                any(), any(IntentFilter.class), any(), any());
 
         ArgumentCaptor<SystemStateHelper.SystemStateListener> systemStateListenerArgumentCaptor
                 = ArgumentCaptor.forClass(SystemStateHelper.SystemStateListener.class);
