@@ -60,6 +60,7 @@ public class SerialTransaction extends VoipCallTransaction {
                         public void onTransactionCompleted(VoipCallTransactionResult result,
                                 String transactionName) {
                             if (result.getResult() != VoipCallTransactionResult.RESULT_SUCCEED) {
+                                handleTransactionFailure();
                                 CompletableFuture.completedFuture(null).thenApplyAsync(
                                         (x) -> {
                                             VoipCallTransactionResult mainResult =
@@ -88,6 +89,7 @@ public class SerialTransaction extends VoipCallTransaction {
 
                         @Override
                         public void onTransactionTimeout(String transactionName) {
+                            handleTransactionFailure();
                             CompletableFuture.completedFuture(null).thenApplyAsync(
                                     (x) -> {
                                         VoipCallTransactionResult mainResult =
@@ -111,4 +113,6 @@ public class SerialTransaction extends VoipCallTransaction {
             scheduleTransaction();
         }
     }
+
+    public void handleTransactionFailure() {}
 }
