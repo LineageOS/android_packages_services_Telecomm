@@ -1707,6 +1707,11 @@ public class InCallController extends CallsManagerListenerBase implements
         return mInCallServices;
     }
 
+    @VisibleForTesting
+    public Map<UserHandle, CarSwappingInCallServiceConnection> getInCallServiceConnections() {
+        return mInCallServiceConnections;
+    }
+
     void silenceRinger(Set<UserHandle> userHandles) {
         userHandles.forEach(userHandle -> {
             if (mInCallServices.containsKey(userHandle)) {
@@ -2865,7 +2870,7 @@ public class InCallController extends CallsManagerListenerBase implements
         if (call == null) {
             return mCallsManager.getCurrentUserHandle();
         } else {
-            UserHandle userFromCall = call.getUserHandleFromTargetPhoneAccount();
+            UserHandle userFromCall = call.getAssociatedUser();
             UserManager userManager = mContext.getSystemService(UserManager.class);
             // Emergency call should never be blocked, so if the user associated with call is in
             // quite mode, use the primary user for the emergency call.
