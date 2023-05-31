@@ -262,7 +262,8 @@ public class TransactionalServiceWrapper implements
                                 new HoldCallTransaction(mCallsManager, call), callback);
                         break;
                     case START_STREAMING:
-                        addTransactionsToManager(createStartStreamingTransaction(call), callback);
+                        addTransactionsToManager(mStreamingController.getStartStreamingTransaction(mCallsManager,
+                                TransactionalServiceWrapper.this, call, mLock), callback);
                         break;
                 }
             } else {
@@ -336,7 +337,7 @@ public class TransactionalServiceWrapper implements
         }
     };
 
-    private void addTransactionsToManager(VoipCallTransaction transaction,
+    public void addTransactionsToManager(VoipCallTransaction transaction,
             ResultReceiver callback) {
         Log.d(TAG, "addTransactionsToManager");
 
@@ -642,49 +643,11 @@ public class TransactionalServiceWrapper implements
      *********************************************************************************************
      */
 
-    private SerialTransaction createStartStreamingTransaction(Call call) {
-        // start streaming transaction flow:
-        //     make sure there's no ongoing streaming call --> bind to EXO
-        //                                                 `-> change audio mode
-        // create list for multiple transactions
-        List<VoipCallTransaction> transactions = new ArrayList<>();
-
-        // add t1. make sure no ongoing streaming call
-        transactions.add(new CallStreamingController.QueryCallStreamingTransaction(mCallsManager));
-
-        // create list for parallel transactions
-        List<VoipCallTransaction> subTransactions = new ArrayList<>();
-        // add t2.1 bind to call streaming service
-        subTransactions.add(mStreamingController.getCallStreamingServiceTransaction(
-                mCallsManager.getContext(), this, call));
-        // add t2.2 audio route operations
-        subTransactions.add(new CallStreamingController.AudioInterceptionTransaction(call,
-                true, mLock));
-
-        // add t2
-        transactions.add(new ParallelTransaction(subTransactions, mLock));
-        // send off to Transaction Manager to process
-        return new SerialTransaction(transactions, mLock);
-    }
-
-    private VoipCallTransaction createStopStreamingTransaction(Call call) {
-        // TODO: implement this
-        // Stop streaming transaction flow:
-        List<VoipCallTransaction> transactions = new ArrayList<>();
-
-        // 1. unbind to call streaming service
-        transactions.add(mStreamingController.getUnbindStreamingServiceTransaction());
-        // 2. audio route operations
-        transactions.add(new CallStreamingController.AudioInterceptionTransaction(call,
-                false, mLock));
-        return new ParallelTransaction(transactions, mLock);
-    }
-
-
     public void stopCallStreaming(Call call) {
         Log.i(this, "stopCallStreaming; callid=%s", call.getId());
         if (call != null && call.isStreaming()) {
-            VoipCallTransaction stopStreamingTransaction = createStopStreamingTransaction(call);
+            VoipCallTransaction stopStreamingTransaction = mStreamingController
+                    .getStopStreamingTransaction(call, mLock);
             addTransactionsToManager(stopStreamingTransaction, new ResultReceiver(null));
         }
     }

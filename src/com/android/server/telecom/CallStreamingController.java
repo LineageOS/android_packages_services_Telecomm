@@ -39,9 +39,12 @@ import android.telecom.StreamingCall;
 import android.telecom.Log;
 
 import com.android.internal.telecom.ICallStreamingService;
+import com.android.server.telecom.voip.ParallelTransaction;
+import com.android.server.telecom.voip.SerialTransaction;
 import com.android.server.telecom.voip.VoipCallTransaction;
 import com.android.server.telecom.voip.VoipCallTransactionResult;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -263,6 +266,51 @@ public class CallStreamingController extends CallsManagerListenerBase {
                     null));
             return future;
         }
+    }
+
+    public class StartStreamingTransaction extends SerialTransaction {
+        private Call mCall;
+
+        public StartStreamingTransaction(List<VoipCallTransaction> subTransactions, Call call,
+                TelecomSystem.SyncRoot lock) {
+            super(subTransactions, lock);
+            mCall = call;
+        }
+
+        @Override
+        public void handleTransactionFailure() {
+            mTransactionalServiceWrapper.stopCallStreaming(mCall);
+        }
+    }
+
+    public VoipCallTransaction getStartStreamingTransaction(CallsManager callsManager,
+            TransactionalServiceWrapper wrapper, Call call, TelecomSystem.SyncRoot lock) {
+        // start streaming transaction flow:
+        //     1. make sure there's no ongoing streaming call --> bind to EXO
+        //     2. change audio mode
+        //     3. bind to EXO
+        // If bind to EXO failed, add transaction for stop the streaming
+
+        // create list for multiple transactions
+        List<VoipCallTransaction> transactions = new ArrayList<>();
+        transactions.add(new QueryCallStreamingTransaction(callsManager));
+        transactions.add(new AudioInterceptionTransaction(call, true, lock));
+        transactions.add(getCallStreamingServiceTransaction(
+                callsManager.getContext(), wrapper, call));
+        return new StartStreamingTransaction(transactions, call, lock);
+    }
+
+    public VoipCallTransaction getStopStreamingTransaction(Call call, TelecomSystem.SyncRoot lock) {
+        // TODO: implement this
+        // Stop streaming transaction flow:
+        List<VoipCallTransaction> transactions = new ArrayList<>();
+
+        // 1. unbind to call streaming service
+        transactions.add(getUnbindStreamingServiceTransaction());
+        // 2. audio route operations
+        transactions.add(new CallStreamingController.AudioInterceptionTransaction(call,
+                false, lock));
+        return new ParallelTransaction(transactions, lock);
     }
 
     @Override
