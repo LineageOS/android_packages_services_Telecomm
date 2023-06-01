@@ -51,8 +51,9 @@ public class NotificationChannelManager {
     };
 
     public void createChannels(Context context) {
-        context.registerReceiver(mLocaleChangeReceiver,
-                new IntentFilter(Intent.ACTION_LOCALE_CHANGED));
+        IntentFilter localeChangedfilter = new IntentFilter(Intent.ACTION_LOCALE_CHANGED);
+        localeChangedfilter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+        context.registerReceiver(mLocaleChangeReceiver, localeChangedfilter);
 
         createOrUpdateAll(context);
     }

@@ -116,6 +116,11 @@ public class TelecomSystem {
                 .addDataAuthority(DialerCodeReceiver.TELECOM_SECRET_CODE_MARK, null);
         DIALER_SECRET_CODE_FILTER
                 .addDataAuthority(DialerCodeReceiver.TELECOM_SECRET_CODE_MENU, null);
+
+        USER_SWITCHED_FILTER.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+        USER_STARTING_FILTER.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+        BOOT_COMPLETE_FILTER.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+        DIALER_SECRET_CODE_FILTER.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
     }
 
     private static TelecomSystem INSTANCE = null;
