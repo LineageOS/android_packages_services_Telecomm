@@ -205,6 +205,7 @@ public class PhoneAccountRegistrar {
 
         // register context based receiver to clean up orphan phone accounts
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_MANAGED_PROFILE_REMOVED);
+        intentFilter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
         mContext.registerReceiver(mManagedProfileReceiver, intentFilter);
 
         read();
