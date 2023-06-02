@@ -160,6 +160,7 @@ public class DefaultDialerCache {
         packageIntentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
         packageIntentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         packageIntentFilter.addDataScheme("package");
+        packageIntentFilter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
         context.registerReceiverAsUser(mReceiver, UserHandle.ALL, packageIntentFilter, null, null);
 
         IntentFilter bootIntentFilter = new IntentFilter(Intent.ACTION_BOOT_COMPLETED);

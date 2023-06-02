@@ -1119,7 +1119,9 @@ public class InCallController extends CallsManagerListenerBase implements
         mSystemStateHelper.addListener(mSystemStateListener);
         mClockProxy = clockProxy;
         restrictPhoneCallOps();
-        mContext.registerReceiver(mUserAddedReceiver, new IntentFilter(Intent.ACTION_USER_ADDED));
+        IntentFilter userAddedFilter = new IntentFilter(Intent.ACTION_USER_ADDED);
+        userAddedFilter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+        mContext.registerReceiver(mUserAddedReceiver, userAddedFilter);
     }
 
     private void restrictPhoneCallOps() {

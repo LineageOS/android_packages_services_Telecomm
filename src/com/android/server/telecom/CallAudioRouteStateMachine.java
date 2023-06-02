@@ -1660,12 +1660,19 @@ public class CallAudioRouteStateMachine extends StateMachine {
         mAvailableRoutes = mDeviceSupportedRoutes & getCurrentCallSupportedRoutes();
         mIsMuted = initState.isMuted();
         mWasOnSpeaker = false;
-        mContext.registerReceiver(mMuteChangeReceiver,
-                new IntentFilter(AudioManager.ACTION_MICROPHONE_MUTE_CHANGED));
-        mContext.registerReceiver(mMuteChangeReceiver,
-                new IntentFilter(AudioManager.STREAM_MUTE_CHANGED_ACTION));
-        mContext.registerReceiver(mSpeakerPhoneChangeReceiver,
-                new IntentFilter(AudioManager.ACTION_SPEAKERPHONE_STATE_CHANGED));
+        IntentFilter micMuteChangedFilter = new IntentFilter(
+                AudioManager.ACTION_MICROPHONE_MUTE_CHANGED);
+        micMuteChangedFilter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+        mContext.registerReceiver(mMuteChangeReceiver, micMuteChangedFilter);
+
+        IntentFilter muteChangedFilter = new IntentFilter(AudioManager.STREAM_MUTE_CHANGED_ACTION);
+        muteChangedFilter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+        mContext.registerReceiver(mMuteChangeReceiver, muteChangedFilter);
+
+        IntentFilter speakerChangedFilter = new IntentFilter(
+                AudioManager.ACTION_SPEAKERPHONE_STATE_CHANGED);
+        speakerChangedFilter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+        mContext.registerReceiver(mSpeakerPhoneChangeReceiver, speakerChangedFilter);
 
         mStatusBarNotifier.notifyMute(initState.isMuted());
         // We used to call mStatusBarNotifier.notifySpeakerphone, but that makes no sense as there
