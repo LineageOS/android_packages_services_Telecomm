@@ -689,6 +689,7 @@ public class CallsManager extends Call.ListenerBase
         // Register BroadcastReceiver to handle enhanced call blocking feature related event.
         IntentFilter intentFilter = new IntentFilter(
                 CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED);
+        intentFilter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
         intentFilter.addAction(SystemContract.ACTION_BLOCK_SUPPRESSION_STATE_CHANGED);
         context.registerReceiver(mReceiver, intentFilter, Context.RECEIVER_EXPORTED);
         mGraphHandlerThreads = new LinkedList<>();
