@@ -47,7 +47,7 @@
     <string name="respond_via_sms_failure_format" msgid="5198680980054596391">"Ezin izan da bidali mezua <xliff:g id="PHONE_NUMBER">%s</xliff:g> zenbakira."</string>
     <string name="enable_account_preference_title" msgid="6949224486748457976">"Deiak egiteko kontuak"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="3424338207838851646">"Larrialdi-deiak bakarrik egin daitezke."</string>
-    <string name="outgoing_call_not_allowed_no_permission" msgid="8590468836581488679">"Aplikazioak deitu ahal izan dezan, telefonoaren eginbidea erabiltzeko baimena behar du."</string>
+    <string name="outgoing_call_not_allowed_no_permission" msgid="8590468836581488679">"Aplikazioak irteerako deiak egin ahal izan ditzan, telefonoaren eginbidea erabiltzeko baimena behar du."</string>
     <string name="outgoing_call_error_no_phone_number_supplied" msgid="7665135102566099778">"Deitzeko, idatzi balio duen zenbaki bat."</string>
     <string name="duplicate_video_call_not_allowed" msgid="5754746140185781159">"Une honetan ezin da deirik gehitu."</string>
     <string name="no_vm_number" msgid="2179959110602180844">"Erantzungailuaren zenbakia falta da"</string>
@@ -94,7 +94,7 @@
     <string name="cant_call_due_to_ongoing_call" msgid="8004235328451385493">"Ezin da egin deia, beste dei bat abian delako <xliff:g id="OTHER_CALL">%1$s</xliff:g> zerbitzuan."</string>
     <string name="cant_call_due_to_ongoing_calls" msgid="6379163795277824868">"Ezin da egin deia, beste dei batzuk abian direlako <xliff:g id="OTHER_CALL">%1$s</xliff:g> zerbitzuan."</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="8243532328969433172">"Ezin da egin deia, beste dei bat abian delako beste aplikazio batean."</string>
-    <string name="notification_channel_incoming_call" msgid="5245550964701715662">"Jasotako deiak"</string>
+    <string name="notification_channel_incoming_call" msgid="5245550964701715662">"Sarrerako deiak"</string>
     <string name="notification_channel_missed_call" msgid="7168893015283909012">"Dei galduak"</string>
     <string name="notification_channel_call_blocking" msgid="2028807677868598710">"Deiak blokeatzeko aukera"</string>
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"Atzeko planoko deiak"</string>
