@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
 
 import com.android.internal.telecom.ICallEventCallback;
@@ -28,8 +29,8 @@ import java.util.Map;
  * more calls.
  */
 public class TransactionalServiceRepository {
-
-    private static final Map<PhoneAccountHandle, TransactionalServiceWrapper> lookupTable =
+    private static final String TAG = TransactionalServiceRepository.class.getSimpleName();
+    private static final Map<PhoneAccountHandle, TransactionalServiceWrapper> mServiceLookupTable =
             new HashMap<>();
 
     public TransactionalServiceRepository() {
@@ -38,12 +39,15 @@ public class TransactionalServiceRepository {
     public TransactionalServiceWrapper addNewCallForTransactionalServiceWrapper
             (PhoneAccountHandle phoneAccountHandle, ICallEventCallback callEventCallback,
                     CallsManager callsManager, Call call) {
-
-        TransactionalServiceWrapper service = null;
+        TransactionalServiceWrapper service;
+        // Only create a new TransactionalServiceWrapper if this is the first call for a package.
+        // Otherwise, get the existing TSW and add the new call to the service.
         if (!hasExistingServiceWrapper(phoneAccountHandle)) {
+            Log.d(TAG, "creating a new TSW; handle=[%s]", phoneAccountHandle);
             service = new TransactionalServiceWrapper(callEventCallback,
                     callsManager, phoneAccountHandle, call, this);
         } else {
+            Log.d(TAG, "add a new call to an existing TSW; handle=[%s]", phoneAccountHandle);
             service = getTransactionalServiceWrapper(phoneAccountHandle);
             if (service == null) {
                 throw new IllegalStateException("service is null");
@@ -52,25 +56,25 @@ public class TransactionalServiceRepository {
             }
         }
 
-        lookupTable.put(phoneAccountHandle, service);
+        mServiceLookupTable.put(phoneAccountHandle, service);
 
         return service;
     }
 
     public TransactionalServiceWrapper getTransactionalServiceWrapper(PhoneAccountHandle pah) {
-        return lookupTable.get(pah);
+        return mServiceLookupTable.get(pah);
     }
 
     public boolean hasExistingServiceWrapper(PhoneAccountHandle pah) {
-        return lookupTable.containsKey(pah);
+        return mServiceLookupTable.containsKey(pah);
     }
 
     public boolean removeServiceWrapper(PhoneAccountHandle pah) {
+        Log.i(TAG, "removeServiceWrapper: for phoneAccountHandle=[%s]", pah);
         if (!hasExistingServiceWrapper(pah)) {
             return false;
         }
-        lookupTable.remove(pah);
+        mServiceLookupTable.remove(pah);
         return true;
     }
-
 }
