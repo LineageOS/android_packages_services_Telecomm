@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.ArgumentMatchers.nullable;
@@ -154,6 +155,7 @@ public class InCallControllerTests extends TelecomTestCase {
     @Mock private AnomalyReporterAdapter mAnomalyReporterAdapter;
     @Mock UserManager mMockUserManager;
     @Mock UserInfo mMockUserInfo;
+    @Mock UserInfo mMockChildUserInfo; //work profile
 
     @Rule
     public TestRule compatChangeRule = new PlatformCompatChangeRule();
@@ -197,6 +199,10 @@ public class InCallControllerTests extends TelecomTestCase {
     private final int serviceBindingFlags = Context.BIND_AUTO_CREATE
         | Context.BIND_FOREGROUND_SERVICE | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS
         | Context.BIND_SCHEDULE_LIKE_TOP_APP;
+
+    private UserHandle mChildUserHandle = UserHandle.of(10);
+    private @Mock Call mMockChildUserCall;
+    private UserHandle mParentUserHandle = UserHandle.of(1);
 
     @Override
     @Before
@@ -296,6 +302,8 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCallsManager.getAudioState()).thenReturn(new CallAudioState(false, 0, 0));
 
         when(mMockContext.getSystemService(eq(Context.USER_SERVICE))).thenReturn(mMockUserManager);
+        when(mMockContext.getSystemService(eq(UserManager.class)))
+                .thenReturn(mMockUserManager);
         // Mock user info to allow binding on user stored in the phone account (mUserHandle).
         when(mMockUserManager.getUserInfo(anyInt())).thenReturn(mMockUserInfo);
         when(mMockUserInfo.isManagedProfile()).thenReturn(true);
@@ -1734,6 +1742,69 @@ public class InCallControllerTests extends TelecomTestCase {
                 any(ServiceConnection.class),
                 eq(serviceBindingFlags),
                 eq(UserHandle.CURRENT));
+    }
+
+    private void setupMocksForWorkProfileTest() {
+        when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
+        when(mMockCallsManager.isInEmergencyCall()).thenReturn(false);
+        when(mMockChildUserCall.isIncoming()).thenReturn(false);
+        when(mMockChildUserCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
+        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID)).thenReturn(DEF_PKG);
+        when(mMockContext.bindServiceAsUser(any(Intent.class), any(ServiceConnection.class),
+                anyInt(), any())).thenReturn(true);
+        when(mMockChildUserCall.isExternalCall()).thenReturn(false);
+        when(mMockChildUserCall.isSelfManaged()).thenReturn(true);
+        when(mMockChildUserCall.visibleToInCallService()).thenReturn(true);
+
+        //Setup up parent and child/work profile relation
+        when(mMockUserInfo.getUserHandle()).thenReturn(mParentUserHandle);
+        when(mMockChildUserInfo.getUserHandle()).thenReturn(mChildUserHandle);
+        when(mMockUserInfo.isManagedProfile()).thenReturn(false);
+        when(mMockChildUserInfo.isManagedProfile()).thenReturn(true);
+        when(mMockChildUserCall.getUserHandleFromTargetPhoneAccount()).thenReturn(mChildUserHandle);
+        when(mMockCallsManager.getCurrentUserHandle()).thenReturn(mChildUserHandle);
+        when(mMockUserManager.getProfileParent(mChildUserHandle.getIdentifier())).thenReturn(
+                mMockUserInfo);
+        when(mMockUserManager.getProfileParent(mChildUserHandle)).thenReturn(mParentUserHandle);
+        when(mMockUserManager.getUserInfo(eq(mParentUserHandle.getIdentifier()))).thenReturn(
+                mMockUserInfo);
+        when(mMockUserManager.getUserInfo(eq(mChildUserHandle.getIdentifier()))).thenReturn(
+                mMockChildUserInfo);
+        when(mMockUserManager.isManagedProfile(mChildUserHandle.getIdentifier())).thenReturn(true);
+        when(mMockUserManager.isManagedProfile(mParentUserHandle.getIdentifier())).thenReturn(
+                false);
+    }
+
+    @Test
+    public void testManagedProfileCallQueriesIcsUsingParentUserToo() throws Exception {
+        setupMocksForWorkProfileTest();
+        setupMockPackageManager(true /* default */, true /* system */, false /* external calls */);
+        setupMockPackageManager(true /* default */,
+                true /*useNonUiInCalls*/, true /*useAppOpNonUiInCalls*/,
+                true /*useSystemDialer*/, false /*includeExternalCalls*/,
+                true /*includeSelfManagedCallsInDefaultDialer*/,
+                true /*includeSelfManagedCallsInCarModeDialer*/,
+                true /*includeSelfManagedCallsInNonUi*/);
+
+        //pass in call by child/work-profileuser
+        mInCallController.bindToServices(mMockChildUserCall);
+
+        // Verify that queryIntentServicesAsUser is also called with parent handle
+        // Query for the different InCallServices
+        ArgumentCaptor<Integer> userIdCaptor = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<Intent> queryIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        ArgumentCaptor<Integer> flagCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(mMockPackageManager, times(6)).queryIntentServicesAsUser(
+                queryIntentCaptor.capture(), flagCaptor.capture(), userIdCaptor.capture());
+        List<Integer> userIds = userIdCaptor.getAllValues();
+
+        //check if queryIntentServices was called with child user handle
+        assertTrue("no query parent user handle",
+                userIds.contains(mChildUserHandle.getIdentifier()));
+        //check if queryIntentServices was also called with parent user handle
+        assertTrue("no query parent user handle",
+                userIds.contains(mParentUserHandle.getIdentifier()));
+
     }
 
     private void setupMocks(boolean isExternalCall) {
