@@ -25,6 +25,7 @@ import static org.mockito.Mockito.isA;
 
 
 import android.content.ComponentName;
+import android.os.IBinder;
 import android.os.OutcomeReceiver;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
@@ -69,6 +70,7 @@ public class TransactionalServiceWrapperTest extends TelecomTestCase {
     @Mock private TransactionManager mTransactionManager;
     @Mock private ICallEventCallback mCallEventCallback;
     @Mock private TransactionalServiceRepository mRepository;
+    @Mock private IBinder mIBinder;
     private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() {};
 
     @Override
@@ -79,7 +81,7 @@ public class TransactionalServiceWrapperTest extends TelecomTestCase {
         Mockito.when(mMockCall1.getId()).thenReturn(CALL_ID_1);
         Mockito.when(mMockCall2.getId()).thenReturn(CALL_ID_2);
         Mockito.when(mCallsManager.getLock()).thenReturn(mLock);
-
+        Mockito.when(mCallEventCallback.asBinder()).thenReturn(mIBinder);
         mTransactionalServiceWrapper = new TransactionalServiceWrapper(mCallEventCallback,
                 mCallsManager, SERVICE_HANDLE, mMockCall1, mRepository);
 
