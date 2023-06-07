@@ -38,5 +38,6 @@
     <string name="request_bluetooth_endpoint">Bluetooth</string>
     <!-- extra functionality -->
     <string name="start_stream">start streaming</string>
+    <string name="crash_app">throw exception</string>
 
 </resources>
