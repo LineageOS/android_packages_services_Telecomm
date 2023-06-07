@@ -51,17 +51,17 @@ import com.android.server.telecom.voip.VoipCallTransaction;
 import com.android.server.telecom.voip.VoipCallTransactionResult;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Implements {@link android.telecom.CallEventCallback} and {@link android.telecom.CallControl}
  * on a per-client basis which is tied to a {@link PhoneAccountHandle}
  */
 public class TransactionalServiceWrapper implements
-        ConnectionServiceFocusManager.ConnectionServiceFocus, IBinder.DeathRecipient {
+        ConnectionServiceFocusManager.ConnectionServiceFocus {
     private static final String TAG = TransactionalServiceWrapper.class.getSimpleName();
 
     // CallControl : Client (ex. voip app) --> Telecom
@@ -84,12 +84,24 @@ public class TransactionalServiceWrapper implements
     private final TransactionalServiceRepository mRepository;
     private ConnectionServiceFocusManager.ConnectionServiceFocusListener mConnSvrFocusListener;
     // init when constructor is called
-    private final Hashtable<String, Call> mTrackedCalls = new Hashtable<>();
+    private final ConcurrentHashMap<String, Call> mTrackedCalls = new ConcurrentHashMap<>();
     private final TelecomSystem.SyncRoot mLock;
     private final String mPackageName;
     // needs to be non-final for testing
     private TransactionManager mTransactionManager;
     private CallStreamingController mStreamingController;
+
+
+    // Each TransactionalServiceWrapper should have their own Binder.DeathRecipient to clean up
+    // any calls in the event the application crashes or is force stopped.
+    private final IBinder.DeathRecipient mAppDeathListener = new IBinder.DeathRecipient() {
+        @Override
+        public void binderDied() {
+            Log.i(TAG, "binderDied: for package=[%s]; cleaning calls", mPackageName);
+            cleanupTransactionalServiceWrapper();
+            mICallEventCallback.asBinder().unlinkToDeath(this, 0);
+        }
+    };
 
     public TransactionalServiceWrapper(ICallEventCallback callEventCallback,
             CallsManager callsManager, PhoneAccountHandle phoneAccountHandle, Call call,
@@ -105,6 +117,7 @@ public class TransactionalServiceWrapper implements
         mTransactionManager = TransactionManager.getInstance();
         mStreamingController = mCallsManager.getCallStreamingController();
         mLock = mCallsManager.getLock();
+        setDeathRecipient(callEventCallback);
     }
 
     @VisibleForTesting
@@ -125,12 +138,6 @@ public class TransactionalServiceWrapper implements
             if (call != null) {
                 mTrackedCalls.put(call.getId(), call);
             }
-        }
-    }
-
-    public Call getCallById(String callId) {
-        synchronized (mLock) {
-            return mTrackedCalls.get(callId);
         }
     }
 
@@ -158,23 +165,12 @@ public class TransactionalServiceWrapper implements
         return callCount;
     }
 
-    @Override
-    public void binderDied() {
-        // remove all tacked calls from CallsManager && frameworks side
-        for (String id : mTrackedCalls.keySet()) {
-            Call call = mTrackedCalls.get(id);
-            mCallsManager.markCallAsDisconnected(call, new DisconnectCause(DisconnectCause.ERROR));
-            mCallsManager.removeCall(call);
-            // remove calls from Frameworks side
-            if (mICallEventCallback != null) {
-                try {
-                    mICallEventCallback.removeCallFromTransactionalServiceWrapper(call.getId());
-                } catch (RemoteException e) {
-                    // pass
-                }
-            }
+    public void cleanupTransactionalServiceWrapper() {
+        for (Call call : mTrackedCalls.values()) {
+            mCallsManager.markCallAsDisconnected(call,
+                    new DisconnectCause(DisconnectCause.ERROR, "process died"));
+            mCallsManager.removeCall(call); // This will clear mTrackedCalls && ClientTWS
         }
-        mTrackedCalls.clear();
     }
 
     /***
@@ -556,10 +552,10 @@ public class TransactionalServiceWrapper implements
             try {
                 // remove the call from frameworks wrapper (client side)
                 mICallEventCallback.removeCallFromTransactionalServiceWrapper(call.getId());
-                // remove the call from this class/wrapper (server side)
-                untrackCall(call);
             } catch (RemoteException e) {
             }
+            // remove the call from this class/wrapper (server side)
+            untrackCall(call);
         }
     }
 
@@ -603,6 +599,15 @@ public class TransactionalServiceWrapper implements
         transactions.add(new RequestNewActiveCallTransaction(mCallsManager, call));
 
         return new SerialTransaction(transactions, mLock);
+    }
+
+    private void setDeathRecipient(ICallEventCallback callEventCallback) {
+        try {
+            callEventCallback.asBinder().linkToDeath(mAppDeathListener, 0);
+        } catch (Exception e) {
+            Log.w(TAG, "setDeathRecipient: hit exception=[%s] trying to link binder to death",
+                    e.toString());
+        }
     }
 
     /***
