@@ -39,5 +39,6 @@
     <!-- extra functionality -->
     <string name="start_stream">start streaming</string>
     <string name="crash_app">throw exception</string>
+    <string name="update_notification"> update notification to ongoing call style</string>
 
 </resources>
