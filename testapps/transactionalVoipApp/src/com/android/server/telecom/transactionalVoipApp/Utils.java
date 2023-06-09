@@ -17,6 +17,7 @@
 package com.android.server.telecom.transactionalVoipApp;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Person;
 import android.content.ComponentName;
@@ -38,9 +39,11 @@ import java.util.List;
 
 public class Utils {
     public static final String TAG = "TransactionalAppUtils";
+    public static final String CALLER_NAME = "Sundar Pichai";
     public static final String sEXTRAS_KEY = "ExtrasKey";
     public static final String sCALL_DIRECTION_KEY = "CallDirectionKey";
     public static final String CHANNEL_ID = "TelecomVoipAppChannelId";
+    public static final int CALL_NOTIFICATION_ID = 123456;
     private static final int SAMPLING_RATE_HZ = 44100;
 
     public static final PhoneAccountHandle PHONE_ACCOUNT_HANDLE = new PhoneAccountHandle(
@@ -70,13 +73,36 @@ public class Utils {
                 .setContentTitle("Incoming call")
                 .setSmallIcon(R.drawable.ic_android_black_24dp)
                 .setStyle(Notification.CallStyle.forIncomingCall(
-                        new Person.Builder().setName("Tom Stu").setImportant(true).build(),
+                        new Person.Builder().setName(CALLER_NAME).setImportant(true).build(),
                         pendingAnswer, pendingReject)
                 )
                 .setFullScreenIntent(pendingAnswer, true)
                 .build();
 
         return callStyleNotification;
+    }
+
+
+    public static void updateCallStyleNotification_toOngoingCall(Context context) {
+        PendingIntent ongoingCall = PendingIntent.getActivity(context, 0,
+                new Intent(""), PendingIntent.FLAG_IMMUTABLE);
+
+        Notification callStyleNotification = new Notification.Builder(context,
+                CHANNEL_ID)
+                .setContentText("active call in the TransactionalTestApp")
+                .setContentTitle("Ongoing call")
+                .setSmallIcon(R.drawable.ic_android_black_24dp)
+                .setStyle(Notification.CallStyle.forOngoingCall(
+                        new Person.Builder().setName(CALLER_NAME).setImportant(true).build(),
+                        ongoingCall)
+                )
+                .setFullScreenIntent(ongoingCall, true)
+                .build();
+
+        NotificationManager notificationManager =
+                context.getSystemService(NotificationManager.class);
+
+        notificationManager.notify(CALL_NOTIFICATION_ID, callStyleNotification);
     }
 
     public static MediaPlayer createMediaPlayer(Context context) {

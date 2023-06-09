@@ -36,6 +36,7 @@ import android.telecom.PhoneAccountHandle;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.LocalServices;
 import com.android.server.telecom.Call;
+
 import com.android.server.telecom.CallsManagerListenerBase;
 import com.android.server.telecom.LogUtils;
 import com.android.server.telecom.LoggedHandlerExecutor;
@@ -46,6 +47,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -89,13 +91,21 @@ public class VoipCallMonitor extends CallsManagerListenerBase {
                         boolean sbnMatched = false;
                         for (Call call : mNotificationPendingCalls) {
                             if (info.matchesCall(call)) {
+                                Log.i(this, "onNotificationPosted: found a pending "
+                                                + "callId=[%s] for the call notification w/ "
+                                                + "id=[%s]",
+                                        call.getId(), sbn.getId());
                                 mNotificationPendingCalls.remove(call);
                                 mNotificationInfoToCallMap.put(info, call);
                                 sbnMatched = true;
                                 break;
                             }
                         }
-                        if (!sbnMatched) {
+                        if (!sbnMatched &&
+                                !mCachedNotifications.contains(info) /* don't re-add if update */) {
+                            Log.i(this, "onNotificationPosted: could not find a"
+                                            + "call for the call notification w/ id=[%s]",
+                                    sbn.getId());
                             // notification may post before we started to monitor the call, cache
                             // this notification and try to match it later with new added call.
                             mCachedNotifications.add(info);
@@ -154,7 +164,6 @@ public class VoipCallMonitor extends CallsManagerListenerBase {
             Set<Call> callList = mAccountHandleToCallMap.computeIfAbsent(phoneAccountHandle,
                     k -> new HashSet<>());
             callList.add(call);
-
             CompletableFuture.completedFuture(null).thenComposeAsync(
                     (x) -> {
                         startFGSDelegation(call.getCallingPackageIdentity().mCallingPackagePid,
@@ -223,11 +232,15 @@ public class VoipCallMonitor extends CallsManagerListenerBase {
             Log.i(this, "stopFGSDelegation of call %s", call);
             PhoneAccountHandle handle = call.getTargetPhoneAccount();
             Set<Call> calls = mAccountHandleToCallMap.get(handle);
+
+            // Every call for the package that is losing foreground service delegation should be
+            // removed from tracking maps/contains in this class
             if (calls != null) {
                 for (Call c : calls) {
-                    stopMonitorWorks(c);
+                    stopMonitorWorks(c); // remove the call from tacking in this class
                 }
             }
+
             mAccountHandleToCallMap.remove(handle);
 
             if (mActivityManagerInternal != null) {
@@ -253,6 +266,8 @@ public class VoipCallMonitor extends CallsManagerListenerBase {
             boolean sbnMatched = false;
             for (NotificationInfo info : mCachedNotifications) {
                 if (info.matchesCall(call)) {
+                    Log.i(this, "startMonitorNotification: found a cached call "
+                            + "notification for call=[%s]", call);
                     mCachedNotifications.remove(info);
                     mNotificationInfoToCallMap.put(info, call);
                     sbnMatched = true;
@@ -261,6 +276,8 @@ public class VoipCallMonitor extends CallsManagerListenerBase {
             }
             if (!sbnMatched) {
                 // Only continue to
+                Log.i(this, "startMonitorNotification: could not find a call"
+                        + " notification for the call=[%s];", call);
                 mNotificationPendingCalls.add(call);
                 CompletableFuture<Void> future = new CompletableFuture<>();
                 mHandler.postDelayed(() -> future.complete(null), 5000L);
@@ -288,12 +305,7 @@ public class VoipCallMonitor extends CallsManagerListenerBase {
         mActivityManagerInternal = ami;
     }
 
-    @VisibleForTesting
-    public void setNotificationListenerService(NotificationListenerService listener) {
-        mNotificationListener = listener;
-    }
-
-    private class NotificationInfo {
+    private static class NotificationInfo extends Object {
         private String mPackageName;
         private UserHandle mUserHandle;
 
@@ -305,8 +317,49 @@ public class VoipCallMonitor extends CallsManagerListenerBase {
         boolean matchesCall(Call call) {
             PhoneAccountHandle accountHandle = call.getTargetPhoneAccount();
             return mPackageName != null && mPackageName.equals(
-                   accountHandle.getComponentName().getPackageName())
+                    accountHandle.getComponentName().getPackageName())
                     && mUserHandle != null && mUserHandle.equals(accountHandle.getUserHandle());
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof NotificationInfo)) {
+                return false;
+            }
+            NotificationInfo that = (NotificationInfo) obj;
+            return Objects.equals(this.mPackageName, that.mPackageName)
+                    && Objects.equals(this.mUserHandle, that.mUserHandle);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(mPackageName, mUserHandle);
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("{ NotificationInfo: [mPackageName: ")
+                    .append(mPackageName)
+                    .append("], [mUserHandle=")
+                    .append(mUserHandle)
+                    .append("]  }");
+            return sb.toString();
+        }
+    }
+
+    @VisibleForTesting
+    public void postNotification(StatusBarNotification statusBarNotification) {
+        mNotificationListener.onNotificationPosted(statusBarNotification);
+    }
+
+    @VisibleForTesting
+    public void removeNotification(StatusBarNotification statusBarNotification) {
+        mNotificationListener.onNotificationRemoved(statusBarNotification);
+    }
+
+    @VisibleForTesting
+    public Set<Call> getCallsForHandle(PhoneAccountHandle handle){
+        return mAccountHandleToCallMap.get(handle);
     }
 }
