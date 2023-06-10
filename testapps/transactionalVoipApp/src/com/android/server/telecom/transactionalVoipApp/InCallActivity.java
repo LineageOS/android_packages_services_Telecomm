@@ -21,11 +21,9 @@ import static android.telecom.CallAttributes.DIRECTION_INCOMING;
 import static android.telecom.CallAttributes.DIRECTION_OUTGOING;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.MediaPlayer;
-import android.net.StringNetworkSpecifier;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.OutcomeReceiver;
@@ -174,8 +172,15 @@ public class InCallActivity extends Activity {
                         "Intentionally throwing RuntimeException from InCallActivity");
             }
         });
-    }
 
+        findViewById(R.id.updateCallStyleNotification).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Utils.updateCallStyleNotification_toOngoingCall(getApplicationContext());
+                    }
+                });
+    }
 
     @Override
     protected void onStop() {

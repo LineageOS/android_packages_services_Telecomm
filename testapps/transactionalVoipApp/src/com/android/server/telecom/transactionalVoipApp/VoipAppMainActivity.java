@@ -99,7 +99,7 @@ public class VoipAppMainActivity extends Activity {
     }
 
     private void startInCallActivity(int direction) {
-        mNotificationManager.notify(123456,
+        mNotificationManager.notify(Utils.CALL_NOTIFICATION_ID,
                 Utils.createCallStyleNotification(getApplicationContext()));
         Bundle extras = new Bundle();
         extras.putInt(Utils.sCALL_DIRECTION_KEY, direction);
