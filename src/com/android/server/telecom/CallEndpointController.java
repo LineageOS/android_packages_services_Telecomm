@@ -247,8 +247,9 @@ public class CallEndpointController extends CallsManagerListenerBase {
                     for (BluetoothDevice device : state.getSupportedBluetoothDevices()) {
                         CallEndpoint endpoint = findMatchingBluetoothEndpoint(device);
                         if (endpoint == null) {
+                            String deviceName = device.getName();
                             endpoint = new CallEndpoint(
-                                    device.getName() != null ? device.getName() : "",
+                                    deviceName != null ? deviceName : "",
                                     CallEndpoint.TYPE_BLUETOOTH);
                         }
                         newAvailableEndpoints.add(endpoint);
