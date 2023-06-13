@@ -32,4 +32,7 @@
     <string name="request_speaker_endpoint" msgid="1033259535289845405">"ସ୍ପିକର"</string>
     <string name="request_bluetooth_endpoint" msgid="5933254250623451836">"ବ୍ଲୁଟୁଥ"</string>
     <string name="start_stream" msgid="3567634786280097431">"ଷ୍ଟ୍ରିମିଂ ଆରମ୍ଭ କରନ୍ତୁ"</string>
+    <string name="crash_app" msgid="2548690390730057704">"ଥ୍ରୋ ଏକ୍ସସେପସନ"</string>
+    <!-- no translation found for update_notification (8677916482672588779) -->
+    <skip />
 </resources>
