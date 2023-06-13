@@ -32,4 +32,8 @@
     <string name="request_speaker_endpoint" msgid="1033259535289845405">"ස්පීකරය"</string>
     <string name="request_bluetooth_endpoint" msgid="5933254250623451836">"බ්ලූටූත්"</string>
     <string name="start_stream" msgid="3567634786280097431">"ප්‍රවාහය අරඹන්න"</string>
+    <!-- no translation found for crash_app (2548690390730057704) -->
+    <skip />
+    <!-- no translation found for update_notification (8677916482672588779) -->
+    <skip />
 </resources>
