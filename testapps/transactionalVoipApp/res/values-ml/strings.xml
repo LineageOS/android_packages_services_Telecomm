@@ -32,4 +32,6 @@
     <string name="request_speaker_endpoint" msgid="1033259535289845405">"സ്പീക്കർ"</string>
     <string name="request_bluetooth_endpoint" msgid="5933254250623451836">"Bluetooth"</string>
     <string name="start_stream" msgid="3567634786280097431">"സ്‌ട്രീമിംഗ് ആരംഭിക്കുക"</string>
+    <string name="crash_app" msgid="2548690390730057704">"ഒഴിവാക്കൽ ത്രോ ചെയ്യുക"</string>
+    <string name="update_notification" msgid="8677916482672588779">"സജീവമായ കോൾ ശൈലിയിലേക്ക് അറിയിപ്പ് അപ്ഡേറ്റ് ചെയ്യുക"</string>
 </resources>
