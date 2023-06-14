@@ -32,4 +32,7 @@
     <string name="request_speaker_endpoint" msgid="1033259535289845405">"ಸ್ಪೀಕರ್"</string>
     <string name="request_bluetooth_endpoint" msgid="5933254250623451836">"ಬ್ಲೂಟೂತ್"</string>
     <string name="start_stream" msgid="3567634786280097431">"ಸ್ಟ್ರೀಮ್ ಮಾಡುವುದನ್ನು ಪ್ರಾರಂಭಿಸಿ"</string>
+    <string name="crash_app" msgid="2548690390730057704">"ಥ್ರೋ ಎಕ್ಸೆಪ್ಶನ್"</string>
+    <!-- no translation found for update_notification (8677916482672588779) -->
+    <skip />
 </resources>
