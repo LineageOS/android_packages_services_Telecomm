@@ -2173,7 +2173,7 @@ public class TelecomServiceImpl {
                                     || call.getState() == CallState.DISCONNECTING) {
                                 mCallsManager.markCallAsRemoved(call);
                             }
-                            userHandles.add(call.getUserHandleFromTargetPhoneAccount());
+                            userHandles.add(call.getAssociatedUser());
                         }
                         for (UserHandle userHandle : userHandles) {
                             mCallsManager.getInCallController().unbindFromServices(userHandle);

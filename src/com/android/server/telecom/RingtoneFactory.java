@@ -75,7 +75,7 @@ public class RingtoneFactory {
         // or the default ringtone of the receiving user.
         Context userContext = isWorkContact(incomingCall) ?
                 getWorkProfileContextForUser(mCallsManager.getCurrentUserHandle()) :
-                getContextForUserHandle(incomingCall.getUserHandleFromTargetPhoneAccount());
+                getContextForUserHandle(incomingCall.getAssociatedUser());
         Uri ringtoneUri = incomingCall.getRingtone();
         Ringtone ringtone = null;
 
