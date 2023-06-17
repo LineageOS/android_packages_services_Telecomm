@@ -552,7 +552,7 @@ public class Ringer {
         }
 
         if (mInCallController.doesConnectedDialerSupportRinging(
-                call.getUserHandleFromTargetPhoneAccount())) {
+                call.getAssociatedUser())) {
             Log.addEvent(call, LogUtils.Events.SKIP_RINGING, "Dialer handles");
             return;
         }
@@ -689,10 +689,10 @@ public class Ringer {
         boolean isTheaterModeOn = mSystemSettingsUtil.isTheaterModeOn(mContext);
         timer.record("isTheaterModeOn");
         boolean letDialerHandleRinging = mInCallController.doesConnectedDialerSupportRinging(
-                call.getUserHandleFromTargetPhoneAccount());
+                call.getAssociatedUser());
         timer.record("letDialerHandleRinging");
         boolean isWorkProfileInQuietMode =
-                isProfileInQuietMode(call.getUserHandleFromTargetPhoneAccount());
+                isProfileInQuietMode(call.getAssociatedUser());
         timer.record("isWorkProfileInQuietMode");
 
         Log.i(this, "startRinging timings: " + timer);

@@ -47,6 +47,7 @@ import android.os.RemoteException;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.permission.PermissionManager;
 import android.telecom.CallAudioState;
 import android.telecom.CallEndpoint;
 import android.telecom.ConnectionService;
@@ -146,16 +147,20 @@ public class InCallController extends CallsManagerListenerBase implements
         private long mBindingStartTime;
         private long mDisconnectTime;
 
+        private boolean mHasCrossUserOrProfilePerm;
+
         public InCallServiceInfo(ComponentName componentName,
                 boolean isExternalCallsSupported,
                 boolean isSelfManageCallsSupported,
-                int type) {
+                int type, boolean hasCrossUserOrProfilePerm) {
             mComponentName = componentName;
             mIsExternalCallsSupported = isExternalCallsSupported;
             mIsSelfManagedCallsSupported = isSelfManageCallsSupported;
             mType = type;
+            mHasCrossUserOrProfilePerm = hasCrossUserOrProfilePerm;
         }
 
+        public boolean hasCrossUserOrProfilePermission() { return mHasCrossUserOrProfilePerm; }
         public ComponentName getComponentName() {
             return mComponentName;
         }
@@ -292,8 +297,19 @@ public class InCallController extends CallsManagerListenerBase implements
         private boolean mIsNullBinding = false;
         private NotificationManager mNotificationManager;
 
+        //this is really used for cases where the userhandle for a call
+        //does not match what we want to use for bindAsUser
+        private final UserHandle mUserHandleToUseForBinding;
+
         public InCallServiceBindingConnection(InCallServiceInfo info) {
             mInCallServiceInfo = info;
+            mUserHandleToUseForBinding = null;
+        }
+
+        public InCallServiceBindingConnection(InCallServiceInfo info,
+                UserHandle userHandleToUseForBinding) {
+            mInCallServiceInfo = info;
+            mUserHandleToUseForBinding = userHandleToUseForBinding;
         }
 
         @Override
@@ -335,14 +351,31 @@ public class InCallController extends CallsManagerListenerBase implements
             Log.i(this, "Attempting to bind to InCall %s, with %s", mInCallServiceInfo, intent);
             mIsConnected = true;
             mInCallServiceInfo.setBindingStartTime(mClockProxy.elapsedRealtime());
-            UserHandle userToBind = getUserFromCall(call);
-            boolean isManagedProfile = UserUtil.isManagedProfile(mContext, userToBind);
+            boolean isManagedProfile = UserUtil.isManagedProfile(mContext, userFromCall);
             // Note that UserHandle.CURRENT fails to capture the work profile, so we need to handle
             // it separately to ensure that the ICS is bound to the appropriate user. If ECBM is
             // active, we know that a work sim was previously used to place a MO emergency call. We
             // need to ensure that we bind to the CURRENT_USER in this case, as the work user would
             // not be running (handled in getUserFromCall).
-            userToBind = isManagedProfile ? userToBind : UserHandle.CURRENT;
+            UserHandle userToBind = isManagedProfile ? userFromCall : UserHandle.CURRENT;
+            if ((mInCallServiceInfo.mType == IN_CALL_SERVICE_TYPE_NON_UI
+                    || mInCallServiceInfo.mType == IN_CALL_SERVICE_TYPE_CAR_MODE_UI) && (
+                    mUserHandleToUseForBinding != null)) {
+                //guarding change for non-UI/carmode-UI services which may not be present for
+                // work profile.
+                //In this case, we use the parent user handle. (This also seems to be more
+                // accurate that USER_CURRENT since we queried/discovered the packages using the
+                // parent handle)
+                if (mInCallServiceInfo.hasCrossUserOrProfilePermission()) {
+                    userToBind = mUserHandleToUseForBinding;
+                } else {
+                    Log.i(this,
+                            "service does not have INTERACT_ACROSS_PROFILES or "
+                                    + "INTERACT_ACROSS_USERS permission");
+                }
+            }
+            Log.i(this, "using user id: %s for binding. User from Call is: %s", userToBind,
+                    userFromCall);
             if (!mContext.bindServiceAsUser(intent, mServiceConnection,
                     Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE
                         | Context.BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS
@@ -668,7 +701,7 @@ public class InCallController extends CallsManagerListenerBase implements
                 }
 
                 mCarModeConnection = mCurrentConnection =
-                        new InCallServiceBindingConnection(carModeConnectionInfo);
+                        new InCallServiceBindingConnection(carModeConnectionInfo, userHandle);
                 mIsCarMode = true;
 
                 int result = mCurrentConnection.connect(null);
@@ -960,34 +993,137 @@ public class InCallController extends CallsManagerListenerBase implements
         }
     };
 
+    private UserHandle findChildManagedProfileUser(UserHandle parent, UserManager um) {
+        UserHandle childManagedProfileUser = null;
+
+        //find child managed profile user (if any)
+        List<UserHandle> allUsers = um.getAllProfiles();
+        for (UserHandle u : allUsers) {
+            if ((um.getProfileParent(u) != null) && (um.getProfileParent(u).equals(parent))
+                    && um.isManagedProfile(u.getIdentifier())) {
+                //found managed profile child
+                Log.i(this,
+                        "Child managed profile user found: " + u.getIdentifier());
+                childManagedProfileUser = u;
+                break;
+            }
+        }
+        return childManagedProfileUser;
+    }
     private BroadcastReceiver mPackageChangedReceiver = new BroadcastReceiver() {
+        private List<InCallController.InCallServiceInfo> getNonUiInCallServiceInfoList(
+                Intent intent, UserHandle userHandle) {
+            String changedPackage = intent.getData().getSchemeSpecificPart();
+            List<InCallController.InCallServiceInfo> inCallServiceInfoList =
+                    Arrays.stream(intent.getStringArrayExtra(
+                                    Intent.EXTRA_CHANGED_COMPONENT_NAME_LIST))
+                            .map((className) ->
+                                    ComponentName.createRelative(changedPackage,
+                                            className))
+                            .filter(mKnownNonUiInCallServices::contains)
+                            .flatMap(componentName -> getInCallServiceComponents(
+                                    userHandle, componentName,
+                                    IN_CALL_SERVICE_TYPE_NON_UI).stream())
+                            .collect(Collectors.toList());
+            return ((inCallServiceInfoList != null) ? inCallServiceInfoList : new ArrayList<>());
+        }
+
+        //Here we query components using the userHandle. We then also query components using the
+        //parent userHandle (if any) while removing duplicates. For non-dup components found using
+        //parent userHandle, we use the overloaded InCallServiceBindingConnection constructor.
+        @SuppressWarnings("ReturnValueIgnored")
+        private List<InCallServiceBindingConnection> getNonUiInCallServiceBindingConnectionList(
+                Intent intent, @NonNull UserHandle userHandle, UserHandle parentUserHandle) {
+            List<InCallServiceBindingConnection> result = new ArrayList<>();
+            List<InCallController.InCallServiceInfo> serviceInfoListForParent = new ArrayList<>();
+
+            //query and add components for the child
+            List<InCallController.InCallServiceInfo> serviceInfoListForUser =
+                    getNonUiInCallServiceInfoList(intent, userHandle);
+
+            //if user has a parent, get components for parents
+            if (parentUserHandle != null) {
+                serviceInfoListForParent = getNonUiInCallServiceInfoList(intent, parentUserHandle);
+            }
+
+            serviceInfoListForUser
+                    .stream()
+                    .map(InCallServiceBindingConnection::new)
+                    .collect(Collectors.toCollection(() -> result));
+
+            serviceInfoListForParent
+                    .stream()
+                    .filter((e) -> !(serviceInfoListForUser.contains(e)))
+                    .map((serviceinfo) -> new InCallServiceBindingConnection(serviceinfo,
+                            parentUserHandle))
+                    .collect(Collectors.toCollection(() -> result));
+
+            return result;
+        }
+
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.startSession("ICC.pCR");
+            UserManager um = mContext.getSystemService(UserManager.class);
             try {
                 if (Intent.ACTION_PACKAGE_CHANGED.equals(intent.getAction())) {
                     synchronized (mLock) {
-                        String changedPackage = intent.getData().getSchemeSpecificPart();
                         int uid = intent.getIntExtra(Intent.EXTRA_UID, 0);
                         UserHandle userHandle = UserHandle.getUserHandleForUid(uid);
-                        List<InCallServiceBindingConnection> componentsToBind =
-                                Arrays.stream(intent.getStringArrayExtra(
-                                        Intent.EXTRA_CHANGED_COMPONENT_NAME_LIST))
-                                        .map((className) ->
-                                                ComponentName.createRelative(changedPackage,
-                                                        className))
-                                        .filter(mKnownNonUiInCallServices::contains)
-                                        .flatMap(componentName -> getInCallServiceComponents(
-                                                userHandle, componentName,
-                                                IN_CALL_SERVICE_TYPE_NON_UI).stream())
-                                        .map(InCallServiceBindingConnection::new)
-                                        .collect(Collectors.toList());
+                        boolean isManagedProfile = um.isManagedProfile(userHandle.getIdentifier());
 
-                        if (mNonUIInCallServiceConnections.containsKey(userHandle)) {
-                            mNonUIInCallServiceConnections.get(userHandle).
-                                    addConnections(componentsToBind);
+                        /*
+                        There are two possibilities here:
+                         1) We get a work-profile/managed userHandle. In this case we need to check
+                         if there are any ongoing calls for that user. If yes, then process further
+                         by querying component using this user handle (also bindAsUser using this
+                          handle). Else safely ignore it.
+                                OR
+                         2) We get the primary/non-managed userHandle. In this case, we have two
+                          sub-cases to handle:
+                                   a) If there are ongoing calls for this user, query components
+                                   using this user and addConnections
+                                   b) If there are ongoing calls for the child of this user, we
+                                   also addConnections to that child (but invoke bindAsUser later
+                                    with the parent handle).
+
+                         */
+
+                        UserHandle childManagedProfileUser = findChildManagedProfileUser(
+                                userHandle, um);
+                        boolean isUserKeyPresent = mNonUIInCallServiceConnections.containsKey(
+                                userHandle);
+                        boolean isChildUserKeyPresent = (childManagedProfileUser == null) ? false
+                                : mNonUIInCallServiceConnections.containsKey(
+                                        childManagedProfileUser);
+                        List<InCallServiceBindingConnection> componentsToBindForUser = null;
+                        List<InCallServiceBindingConnection> componentsToBindForChild = null;
+
+                        if(isUserKeyPresent) {
+                            componentsToBindForUser =
+                                    getNonUiInCallServiceBindingConnectionList(intent,
+                                            userHandle, null);
+                        }
+                        if (isChildUserKeyPresent) {
+                            componentsToBindForChild =
+                                    getNonUiInCallServiceBindingConnectionList(intent,
+                                            childManagedProfileUser, userHandle);
                         }
 
+                        Log.i(this,
+                                "isUserKeyPresent:%b isChildKeyPresent:%b isManagedProfile:%b "
+                                        + "user:%d",
+                                isUserKeyPresent, isChildUserKeyPresent, isManagedProfile,
+                                userHandle.getIdentifier());
+
+                        if (isUserKeyPresent && componentsToBindForUser != null) {
+                            mNonUIInCallServiceConnections.get(userHandle).
+                                    addConnections(componentsToBindForUser);
+                        }
+                        if (isChildUserKeyPresent && componentsToBindForChild != null) {
+                            mNonUIInCallServiceConnections.get(childManagedProfileUser).
+                                    addConnections(componentsToBindForChild);
+                        }
                         // If the current car mode app become enabled from disabled, update
                         // the connection to binding
                         updateCarModeForConnections();
@@ -1571,6 +1707,11 @@ public class InCallController extends CallsManagerListenerBase implements
         return mInCallServices;
     }
 
+    @VisibleForTesting
+    public Map<UserHandle, CarSwappingInCallServiceConnection> getInCallServiceConnections() {
+        return mInCallServiceConnections;
+    }
+
     void silenceRinger(Set<UserHandle> userHandles) {
         userHandles.forEach(userHandle -> {
             if (mInCallServices.containsKey(userHandle)) {
@@ -1691,6 +1832,14 @@ public class InCallController extends CallsManagerListenerBase implements
     @VisibleForTesting
     public void bindToServices(Call call) {
         UserHandle userFromCall = getUserFromCall(call);
+        UserHandle parentUser = null;
+        UserManager um = mContext.getSystemService(UserManager.class);
+
+        if (um.isManagedProfile(userFromCall.getIdentifier())) {
+            parentUser = um.getProfileParent(userFromCall);
+            Log.i(this, "child:%s  parent:%s", userFromCall, parentUser);
+        }
+
         if (!mInCallServiceConnections.containsKey(userFromCall)) {
             InCallServiceConnection dialerInCall = null;
             InCallServiceInfo defaultDialerComponentInfo = getDefaultDialerComponent(userFromCall);
@@ -1710,10 +1859,24 @@ public class InCallController extends CallsManagerListenerBase implements
 
             InCallServiceConnection carModeInCall = null;
             InCallServiceInfo carModeComponentInfo = getCurrentCarModeComponent(userFromCall);
+            InCallServiceInfo carModeComponentInfoForParentUser = null;
+            if(parentUser != null) {
+                //query using parent user too
+                carModeComponentInfoForParentUser = getCurrentCarModeComponent(
+                        parentUser);
+            }
+
             if (carModeComponentInfo != null &&
                     !carModeComponentInfo.getComponentName().equals(
                             mDefaultDialerCache.getSystemDialerComponent())) {
                 carModeInCall = new InCallServiceBindingConnection(carModeComponentInfo);
+            } else if (carModeComponentInfo == null &&
+                    carModeComponentInfoForParentUser != null &&
+                    !carModeComponentInfoForParentUser.getComponentName().equals(
+                            mDefaultDialerCache.getSystemDialerComponent())) {
+                carModeInCall = new InCallServiceBindingConnection(
+                        carModeComponentInfoForParentUser, parentUser);
+                Log.i(this, "Using car mode component queried using parent handle");
             }
 
             mInCallServiceConnections.put(userFromCall,
@@ -1747,12 +1910,43 @@ public class InCallController extends CallsManagerListenerBase implements
 
     private void updateNonUiInCallServices(Call call) {
         UserHandle userFromCall = getUserFromCall(call);
+        UserHandle parentUser = null;
+
+        UserManager um = mContext.getSystemService(UserManager.class);
+        if(um.isManagedProfile(userFromCall.getIdentifier()))
+        {
+            parentUser = um.getProfileParent(userFromCall);
+        }
+
         List<InCallServiceInfo> nonUIInCallComponents =
                 getInCallServiceComponents(userFromCall, IN_CALL_SERVICE_TYPE_NON_UI);
+        List<InCallServiceInfo> nonUIInCallComponentsForParent = new ArrayList<>();
+        if(parentUser != null)
+        {
+            //also get Non-UI services using parent handle.
+            nonUIInCallComponentsForParent =
+                    getInCallServiceComponents(parentUser, IN_CALL_SERVICE_TYPE_NON_UI);
+
+        }
         List<InCallServiceBindingConnection> nonUIInCalls = new LinkedList<>();
         for (InCallServiceInfo serviceInfo : nonUIInCallComponents) {
             nonUIInCalls.add(new InCallServiceBindingConnection(serviceInfo));
         }
+
+        //add nonUI InCall services queried using parent user (if any)
+        for (InCallServiceInfo serviceInfo : nonUIInCallComponentsForParent) {
+            if (nonUIInCallComponents.contains(serviceInfo)) {
+                //skip dups
+                Log.i(this, "skipped duplicate component found using parent user: "
+                        + serviceInfo.getComponentName());
+            } else {
+                nonUIInCalls.add(new InCallServiceBindingConnection(serviceInfo, parentUser));
+                Log.i(this,
+                        "added component queried using parent user: "
+                                + serviceInfo.getComponentName());
+            }
+        }
+
         List<String> callCompanionApps = mCallsManager
                 .getRoleManagerAdapter().getCallCompanionApps();
         if (callCompanionApps != null && !callCompanionApps.isEmpty()) {
@@ -1819,7 +2013,7 @@ public class InCallController extends CallsManagerListenerBase implements
             // Last Resort: Try to bind to the ComponentName given directly.
             Log.e(this, new Exception(), "Package Manager could not find ComponentName: "
                     + componentName + ". Trying to bind anyway.");
-            return new InCallServiceInfo(componentName, false, false, type);
+            return new InCallServiceInfo(componentName, false, false, type, false);
         }
     }
 
@@ -1854,6 +2048,34 @@ public class InCallController extends CallsManagerListenerBase implements
         return getInCallServiceComponents(userHandle, packageName,
                 componentName, requestedType, true /* ignoreDisabled */);
     }
+    private boolean canInteractAcrossUsersOrProfiles(ServiceInfo serviceInfo,
+            PackageManager packageManager) {
+        String op = AppOpsManager.permissionToOp("android.permission.INTERACT_ACROSS_PROFILES");
+        String[] uidPackages = packageManager.getPackagesForUid(serviceInfo.applicationInfo.uid);
+
+        boolean hasInteractAcrossProfiles = Arrays.stream(uidPackages).anyMatch(
+                p -> ((packageManager.checkPermission(
+                        Manifest.permission.INTERACT_ACROSS_PROFILES,
+                        p) == PackageManager.PERMISSION_GRANTED)
+                ));
+        boolean hasInteractAcrossUsers = Arrays.stream(uidPackages).anyMatch(
+                p -> ((packageManager.checkPermission(
+                        Manifest.permission.INTERACT_ACROSS_USERS,
+                        p) == PackageManager.PERMISSION_GRANTED)
+                ));
+        boolean hasInteractAcrossProfilesAppOp = Arrays.stream(uidPackages).anyMatch(
+                p -> (AppOpsManager.MODE_ALLOWED == mAppOpsManager.checkOpNoThrow(
+                        op, serviceInfo.applicationInfo.uid, p))
+        );
+        Log.i(this,
+                "packageName:%s INTERACT_ACROSS_USERS:%b INTERACT_ACROSS_PROFILES:%b "
+                        + "INTERACT_ACROSS_PROFILES_APPOP:%b",
+                uidPackages[0], hasInteractAcrossUsers, hasInteractAcrossProfiles,
+                hasInteractAcrossProfilesAppOp);
+
+        return (hasInteractAcrossUsers || hasInteractAcrossProfiles
+                || hasInteractAcrossProfilesAppOp);
+    }
 
     private List<InCallServiceInfo> getInCallServiceComponents(UserHandle userHandle,
             String packageName, ComponentName componentName,
@@ -1867,11 +2089,16 @@ public class InCallController extends CallsManagerListenerBase implements
         if (componentName != null) {
             serviceIntent.setComponent(componentName);
         }
+        Log.i(this,
+                "getComponents, pkgname: " + packageName + " comp: " + componentName + " userid: "
+                        + userHandle.getIdentifier() + " requestedType: " + requestedType);
         PackageManager packageManager = mContext.getPackageManager();
         Context userContext = mContext.createContextAsUser(userHandle,
                 0 /* flags */);
         PackageManager userPackageManager = userContext != null ?
                 userContext.getPackageManager() : packageManager;
+
+
         for (ResolveInfo entry : packageManager.queryIntentServicesAsUser(
                 serviceIntent,
                 PackageManager.GET_META_DATA | PackageManager.MATCH_DISABLED_COMPONENTS,
@@ -1888,6 +2115,10 @@ public class InCallController extends CallsManagerListenerBase implements
 
                 int currentType = getInCallServiceType(userHandle,
                         entry.serviceInfo, packageManager, packageName);
+
+                boolean hasInteractAcrossUserOrProfilePerm = canInteractAcrossUsersOrProfiles(
+                        entry.serviceInfo, packageManager);
+
                 ComponentName foundComponentName =
                         new ComponentName(serviceInfo.packageName, serviceInfo.name);
                 if (requestedType == IN_CALL_SERVICE_TYPE_NON_UI) {
@@ -1903,9 +2134,16 @@ public class InCallController extends CallsManagerListenerBase implements
                     isRequestedType = requestedType == currentType;
                 }
 
+                Log.i(this,
+                        "found:%s isRequestedtype:%b isEnabled:%b ignoreDisabled:%b "
+                                + "hasCrossProfilePerm:%b",
+                        foundComponentName, isRequestedType, isEnabled, ignoreDisabled,
+                        hasInteractAcrossUserOrProfilePerm);
+
                 if ((!ignoreDisabled || isEnabled) && isRequestedType) {
                     retval.add(new InCallServiceInfo(foundComponentName, isExternalCallsSupported,
-                            isSelfManageCallsSupported, requestedType));
+                            isSelfManageCallsSupported, requestedType,
+                            hasInteractAcrossUserOrProfilePerm));
                 }
             }
         }
@@ -2439,19 +2677,48 @@ public class InCallController extends CallsManagerListenerBase implements
         Log.i(this, "updateCarModeForConnections: car mode apps: %s",
                 mCarModeTracker.getCarModeApps().stream().collect(Collectors.joining(", ")));
 
-        if (mInCallServiceConnections.containsKey(mCallsManager.getCurrentUserHandle())) {
-            CarSwappingInCallServiceConnection inCallServiceConnection = mInCallServiceConnections.
-                    get(mCallsManager.getCurrentUserHandle());
-            if (shouldUseCarModeUI()) {
-                Log.i(this, "updateCarModeForConnections: potentially update car mode app.");
-                inCallServiceConnection.changeCarModeApp(mCarModeTracker.getCurrentCarModePackage(),
-                        mCallsManager.getCurrentUserHandle());
-            } else {
-                if (inCallServiceConnection.isCarMode()) {
-                    Log.i(this, "updateCarModeForConnections: car mode no longer "
-                            + "applicable; disabling");
-                    inCallServiceConnection.disableCarMode();
-                }
+        UserManager um = mContext.getSystemService(UserManager.class);
+        UserHandle currentUser = mCallsManager.getCurrentUserHandle();
+        UserHandle childUser = findChildManagedProfileUser(currentUser, um);
+
+        CarSwappingInCallServiceConnection inCallServiceConnectionForCurrentUser = null;
+        CarSwappingInCallServiceConnection inCallServiceConnectionForChildUser = null;
+
+        Log.i(this, "update carmode current:%s parent:%s", currentUser, childUser);
+        if (mInCallServiceConnections.containsKey(currentUser)) {
+            inCallServiceConnectionForCurrentUser = mInCallServiceConnections.
+                    get(currentUser);
+        }
+        if (childUser != null && mInCallServiceConnections.containsKey(childUser)) {
+            inCallServiceConnectionForChildUser = mInCallServiceConnections.
+                    get(childUser);
+        }
+
+        if (shouldUseCarModeUI()) {
+            Log.i(this, "updateCarModeForConnections: potentially update car mode app.");
+            //always pass current user to changeCarMode. That will ultimately be used for bindAsUser
+            if (inCallServiceConnectionForCurrentUser != null) {
+                inCallServiceConnectionForCurrentUser.changeCarModeApp(
+                        mCarModeTracker.getCurrentCarModePackage(),
+                        currentUser);
+            }
+            if (inCallServiceConnectionForChildUser != null) {
+                inCallServiceConnectionForChildUser.changeCarModeApp(
+                        mCarModeTracker.getCurrentCarModePackage(),
+                        currentUser);
+            }
+        } else {
+            if (inCallServiceConnectionForCurrentUser != null
+                    && inCallServiceConnectionForCurrentUser.isCarMode()) {
+                Log.i(this, "updateCarModeForConnections: car mode no longer "
+                        + "applicable for current user; disabling");
+                inCallServiceConnectionForCurrentUser.disableCarMode();
+            }
+            if (inCallServiceConnectionForChildUser != null
+                    && inCallServiceConnectionForChildUser.isCarMode()) {
+                Log.i(this, "updateCarModeForConnections: car mode no longer "
+                        + "applicable for child user; disabling");
+                inCallServiceConnectionForChildUser.disableCarMode();
             }
         }
     }
@@ -2603,7 +2870,7 @@ public class InCallController extends CallsManagerListenerBase implements
         if (call == null) {
             return mCallsManager.getCurrentUserHandle();
         } else {
-            UserHandle userFromCall = call.getUserHandleFromTargetPhoneAccount();
+            UserHandle userFromCall = call.getAssociatedUser();
             UserManager userManager = mContext.getSystemService(UserManager.class);
             // Emergency call should never be blocked, so if the user associated with call is in
             // quite mode, use the primary user for the emergency call.

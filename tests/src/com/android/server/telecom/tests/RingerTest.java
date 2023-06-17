@@ -123,8 +123,8 @@ public class RingerTest extends TelecomTestCase {
         when(mockRingtoneFactory.hasHapticChannels(any(Ringtone.class))).thenReturn(false);
         when(mockCall1.getState()).thenReturn(CallState.RINGING);
         when(mockCall2.getState()).thenReturn(CallState.RINGING);
-        when(mockCall1.getUserHandleFromTargetPhoneAccount()).thenReturn(PA_HANDLE.getUserHandle());
-        when(mockCall2.getUserHandleFromTargetPhoneAccount()).thenReturn(PA_HANDLE.getUserHandle());
+        when(mockCall1.getAssociatedUser()).thenReturn(PA_HANDLE.getUserHandle());
+        when(mockCall2.getAssociatedUser()).thenReturn(PA_HANDLE.getUserHandle());
 
         createRingerUnderTest();
     }
