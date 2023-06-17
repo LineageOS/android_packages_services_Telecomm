@@ -129,7 +129,7 @@ public class CallScreeningServiceFilterTest extends TelecomTestCase {
 
         when(mCallsManager.getCurrentUserHandle()).thenReturn(UserHandle.CURRENT);
         when(mCall.getId()).thenReturn(CALL_ID);
-        when(mCall.getUserHandleFromTargetPhoneAccount()).
+        when(mCall.getAssociatedUser()).
                 thenReturn(PA_HANDLE.getUserHandle());
         when(mContext.getPackageManager()).thenReturn(mPackageManager);
         when(mContext.getSystemService(TelecomManager.class))

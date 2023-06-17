@@ -563,10 +563,7 @@ public class PhoneAccountRegistrar {
         if (call == null) {
             return null;
         }
-        UserHandle userHandle = call.getInitiatingUser();
-        if (userHandle == null) {
-            userHandle = call.getTargetPhoneAccount().getUserHandle();
-        }
+        UserHandle userHandle = call.getAssociatedUser();
         PhoneAccountHandle targetPhoneAccount = call.getTargetPhoneAccount();
         Log.d(this, "getSimCallManagerFromCall: callId=%s, targetPhac=%s",
                 call.getId(), targetPhoneAccount);
