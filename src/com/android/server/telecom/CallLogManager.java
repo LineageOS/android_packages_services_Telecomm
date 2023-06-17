@@ -324,7 +324,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
         }
 
         PhoneAccount phoneAccount = mPhoneAccountRegistrar.getPhoneAccountUnchecked(accountHandle);
-        UserHandle initiatingUser = call.getInitiatingUser();
+        UserHandle initiatingUser = call.getAssociatedUser();
         if (phoneAccount != null &&
                 phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_MULTI_USER)) {
             if (initiatingUser != null &&

@@ -168,19 +168,19 @@ public class IncomingCallNotifier extends CallsManagerListenerBase {
             } else if (hadIncomingCall && !hasIncomingCall) {
                 previousIncomingCall.removeListener(mCallListener);
                 hideIncomingCallNotification(
-                        previousIncomingCall.getUserHandleFromTargetPhoneAccount());
+                        previousIncomingCall.getAssociatedUser());
             }
         }
     }
 
     private void showIncomingCallNotification(Call call) {
         Log.i(this, "showIncomingCallNotification showCall = %s for user = %s",
-                call, call.getUserHandleFromTargetPhoneAccount());
+                call, call.getAssociatedUser());
 
         Notification.Builder builder = getNotificationBuilder(call,
                 mCallsManagerProxy.getActiveCall());
         mNotificationManager.notifyAsUser(NOTIFICATION_TAG, NOTIFICATION_INCOMING_CALL,
-                builder.build(), call.getUserHandleFromTargetPhoneAccount());
+                builder.build(), call.getAssociatedUser());
     }
 
     private void hideIncomingCallNotification(UserHandle userHandle) {
