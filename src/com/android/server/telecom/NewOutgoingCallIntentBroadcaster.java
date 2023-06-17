@@ -382,14 +382,14 @@ public class NewOutgoingCallIntentBroadcaster {
              * broadcasting.
              */
             callRedirectionWithService = callRedirectionProcessor
-                    .canMakeCallRedirectionWithServiceAsUser(mCall.getInitiatingUser());
+                    .canMakeCallRedirectionWithServiceAsUser(mCall.getAssociatedUser());
             if (callRedirectionWithService) {
-                callRedirectionProcessor.performCallRedirection(mCall.getInitiatingUser());
+                callRedirectionProcessor.performCallRedirection(mCall.getAssociatedUser());
             }
         }
 
         if (disposition.sendBroadcast) {
-            UserHandle targetUser = mCall.getInitiatingUser();
+            UserHandle targetUser = mCall.getAssociatedUser();
             Log.i(this, "Sending NewOutgoingCallBroadcast for %s to %s", mCall, targetUser);
             broadcastIntent(mIntent, disposition.number,
                     !disposition.callImmediately && !callRedirectionWithService, targetUser);

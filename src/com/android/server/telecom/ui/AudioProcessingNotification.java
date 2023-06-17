@@ -54,7 +54,7 @@ public class AudioProcessingNotification extends CallsManagerListenerBase {
         } else if (oldState == CallState.AUDIO_PROCESSING
                 && newState != CallState.AUDIO_PROCESSING) {
             cancelAudioProcessingNotification(
-                    call.getUserHandleFromTargetPhoneAccount());
+                    call.getAssociatedUser());
         }
     }
 
@@ -69,7 +69,7 @@ public class AudioProcessingNotification extends CallsManagerListenerBase {
     public void onCallRemoved(Call call) {
         if (call == mCallInAudioProcessing) {
             cancelAudioProcessingNotification(
-                    call.getUserHandleFromTargetPhoneAccount());
+                    call.getAssociatedUser());
         }
     }
 
@@ -80,7 +80,7 @@ public class AudioProcessingNotification extends CallsManagerListenerBase {
      */
     private void showAudioProcessingNotification(Call call) {
         Log.i(this, "showAudioProcessingNotification for user = %s",
-                call.getUserHandleFromTargetPhoneAccount());
+                call.getAssociatedUser());
         mCallInAudioProcessing = call;
 
         Notification.Builder builder = new Notification.Builder(mContext,
@@ -97,7 +97,7 @@ public class AudioProcessingNotification extends CallsManagerListenerBase {
         Notification notification = builder.build();
 
         mNotificationManager.notifyAsUser(NOTIFICATION_TAG, AUDIO_PROCESSING_NOTIFICATION_ID,
-                notification, mCallInAudioProcessing.getUserHandleFromTargetPhoneAccount());
+                notification, mCallInAudioProcessing.getAssociatedUser());
     }
 
     /** Cancels the audio processing notification. */

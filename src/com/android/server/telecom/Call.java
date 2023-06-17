@@ -362,7 +362,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     private PhoneAccountHandle mRemotePhoneAccountHandle;
 
-    private UserHandle mInitiatingUser;
+    private UserHandle mAssociatedUser;
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
@@ -830,8 +830,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 ? PhoneNumberUtils.extractPostDialPortion(handle.getSchemeSpecificPart()) : "";
         mGatewayInfo = gatewayInfo;
         setConnectionManagerPhoneAccount(connectionManagerPhoneAccountHandle);
-        setTargetPhoneAccount(targetPhoneAccountHandle);
         mCallDirection = callDirection;
+        setTargetPhoneAccount(targetPhoneAccountHandle);
         mIsConference = isConference;
         mShouldAttachToExistingConnection = shouldAttachToExistingConnection
                 || callDirection == CALL_DIRECTION_INCOMING;
@@ -1005,7 +1005,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         s.append("]");
         s.append(isIncoming() ? "(MT - incoming)" : "(MO - outgoing)");
         s.append("(User=");
-        s.append(getInitiatingUser());
+        s.append(getAssociatedUser());
         s.append(")");
         s.append("\n\t");
 
@@ -1732,13 +1732,11 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             mCallStateChangedAtomWriter.setUid(
                     accountHandle.getComponentName().getPackageName(),
                     mContext.getPackageManager());
+            // Set the associated user for the call for MT calls based on the target phone account.
+            if (isIncoming() && !accountHandle.getUserHandle().equals(mAssociatedUser)) {
+                setAssociatedUser(accountHandle.getUserHandle());
+            }
         }
-    }
-
-    public UserHandle getUserHandleFromTargetPhoneAccount() {
-        return mTargetPhoneAccountHandle == null
-                ? mCallsManager.getCurrentUserHandle() :
-                mTargetPhoneAccountHandle.getUserHandle();
     }
 
     public PhoneAccount getPhoneAccountFromHandle() {
@@ -1985,7 +1983,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         if (phoneAccount != null) {
             final UserHandle userHandle;
             if (phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_MULTI_USER)) {
-                userHandle = mInitiatingUser;
+                userHandle = mAssociatedUser;
             } else {
                 userHandle = mTargetPhoneAccountHandle.getUserHandle();
             }
@@ -4017,19 +4015,26 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     /**
-     * @return user handle of user initiating the outgoing call.
+     * It's possible that the target phone account isn't set when a user hasn't selected a
+     * default sim to place a call. Instead of using the user from the target phone account to
+     * associate the user with a call, we'll use mAssociatedUser instead. For MT calls, we will
+     * continue to use the target phone account user (as it's always set) and for MO calls, we will
+     * use the initiating user instead.
+     *
+     * @return user handle of user associated with the call.
      */
-    public UserHandle getInitiatingUser() {
-        return mInitiatingUser;
+    public UserHandle getAssociatedUser() {
+        return mAssociatedUser;
     }
 
     /**
-     * Set the user handle of user initiating the outgoing call.
-     * @param initiatingUser
+     * Set the user handle of user associated with the call.
+     * @param associatedUser
      */
-    public void setInitiatingUser(UserHandle initiatingUser) {
-        Preconditions.checkNotNull(initiatingUser);
-        mInitiatingUser = initiatingUser;
+    public void setAssociatedUser(UserHandle associatedUser) {
+        Log.i(this, "Setting associated user for call");
+        Preconditions.checkNotNull(associatedUser);
+        mAssociatedUser = associatedUser;
     }
 
     static int getStateFromConnectionState(int state) {

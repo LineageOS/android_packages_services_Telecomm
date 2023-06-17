@@ -157,7 +157,7 @@ public class CallStreamingNotification extends CallsManagerListenerBase implemen
                 Log.e(this, e, "enqueueStreamingNotification: Couldn't build avatar icon");
             }
             showStreamingNotification(call.getId(),
-                    call.getUserHandleFromTargetPhoneAccount(), call.getCallerDisplayName(),
+                    call.getAssociatedUser(), call.getCallerDisplayName(),
                     call.getHandle(), contactPhotoIcon,
                     call.getTargetPhoneAccount().getComponentName().getPackageName(),
                     call.getConnectTimeMillis());
