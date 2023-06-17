@@ -150,7 +150,7 @@ public class MissedInformationTest extends TelecomSystemTest {
     public void testEmergencyCallPlacing() throws Exception {
         Analytics.dumpToParcelableAnalytics();
         setUpEmergencyCall();
-        when(mEmergencyCall.getUserHandleFromTargetPhoneAccount()).
+        when(mEmergencyCall.getAssociatedUser()).
                 thenReturn(mPhoneAccountA0.getAccountHandle().getUserHandle());
         mCallsManager.addCall(mEmergencyCall);
         assertTrue(mCallsManager.isInEmergencyCall());

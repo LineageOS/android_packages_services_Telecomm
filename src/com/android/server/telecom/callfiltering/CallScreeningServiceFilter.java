@@ -319,7 +319,7 @@ public class CallScreeningServiceFilter extends CallFilter {
         CallScreeningServiceConnection connection = new CallScreeningServiceConnection(
                 resultFuture);
         if (!CallScreeningServiceHelper.bindCallScreeningService(mContext,
-                mCall.getUserHandleFromTargetPhoneAccount(), mPackageName, connection)) {
+                mCall.getAssociatedUser(), mPackageName, connection)) {
             Log.i(this, "Call screening service binding failed.");
             resultFuture.complete(mPriorStageResult);
         } else {
