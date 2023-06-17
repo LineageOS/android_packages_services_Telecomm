@@ -101,7 +101,7 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        when(mCall.getInitiatingUser()).thenReturn(UserHandle.CURRENT);
+        when(mCall.getAssociatedUser()).thenReturn(UserHandle.CURRENT);
         when(mCallsManager.getLock()).thenReturn(new TelecomSystem.SyncRoot() { });
         when(mCallsManager.getSystemStateHelper()).thenReturn(mSystemStateHelper);
         when(mCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
