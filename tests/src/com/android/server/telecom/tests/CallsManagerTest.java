@@ -2473,7 +2473,7 @@ public class CallsManagerTest extends TelecomTestCase {
     public void testPostCallPackageNameSetOnSuccessfulOutgoingCall() throws Exception {
         Call outgoingCall = addSpyCall(CallState.NEW);
         when(mCallsManager.getRoleManagerAdapter().getDefaultCallScreeningApp(
-                outgoingCall.getUserHandleFromTargetPhoneAccount()))
+                outgoingCall.getAssociatedUser()))
                 .thenReturn(DEFAULT_CALL_SCREENING_APP);
         assertNull(outgoingCall.getPostCallPackageName());
         mCallsManager.onSuccessfulOutgoingCall(outgoingCall, CallState.CONNECTING);
