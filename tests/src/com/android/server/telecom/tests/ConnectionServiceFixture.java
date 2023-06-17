@@ -70,6 +70,8 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
     public CountDownLatch mExtrasLock = new CountDownLatch(1);
     static int NOT_SPECIFIED = 0;
     public static final String STATUS_HINTS_EXTRA = "updateStatusHints";
+    public static final PhoneAccountHandle TEST_PHONE_ACCOUNT_HANDLE =
+            new PhoneAccountHandle(new ComponentName("pkg", "cls"), "test");
 
     /**
      * Implementation of ConnectionService that performs no-ops for tasks normally meant for
@@ -196,7 +198,7 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
 
     public class FakeConference extends Conference {
         public FakeConference() {
-            super(null);
+            super(TEST_PHONE_ACCOUNT_HANDLE);
             setConnectionCapabilities(
                     Connection.CAPABILITY_SUPPORT_HOLD
                             | Connection.CAPABILITY_HOLD

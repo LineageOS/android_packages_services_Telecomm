@@ -182,7 +182,7 @@ public class CallStreamingController extends CallsManagerListenerBase {
             super(mTelecomLock);
             mWrapper = wrapper;
             mCall = call;
-            mUserHandle = mCall.getInitiatingUser();
+            mUserHandle = mCall.getAssociatedUser();
             mContext = context;
         }
 

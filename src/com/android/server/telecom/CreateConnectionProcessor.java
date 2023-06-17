@@ -391,7 +391,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
             // current user.
             // ONLY include phone accounts which are NOT self-managed; we will never consider a self
             // managed phone account for placing an emergency call.
-            UserHandle userFromCall = mCall.getUserHandleFromTargetPhoneAccount();
+            UserHandle userFromCall = mCall.getAssociatedUser();
             List<PhoneAccount> allAccounts = mPhoneAccountRegistrar
                     .getAllPhoneAccounts(userFromCall, false)
                     .stream()
