@@ -144,7 +144,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
                 });
         when(mMockAccountRegistrar.getAllPhoneAccounts(any(UserHandle.class), anyBoolean()))
                 .thenReturn(phoneAccounts);
-        when(mMockCall.getUserHandleFromTargetPhoneAccount()).
+        when(mMockCall.getAssociatedUser()).
                 thenReturn(Binder.getCallingUserHandle());
     }
 

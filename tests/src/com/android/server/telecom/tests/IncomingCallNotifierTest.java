@@ -75,7 +75,7 @@ public class IncomingCallNotifierTest extends TelecomTestCase {
 
         when(mAudioCall.getVideoState()).thenReturn(VideoProfile.STATE_AUDIO_ONLY);
         when(mAudioCall.getTargetPhoneAccountLabel()).thenReturn("Bar");
-        when(mAudioCall.getUserHandleFromTargetPhoneAccount()).
+        when(mAudioCall.getAssociatedUser()).
                 thenReturn(UserHandle.CURRENT);
         when(mVideoCall.getVideoState()).thenReturn(VideoProfile.STATE_BIDIRECTIONAL);
         when(mVideoCall.getTargetPhoneAccountLabel()).thenReturn("Bar");
@@ -84,7 +84,7 @@ public class IncomingCallNotifierTest extends TelecomTestCase {
         when(mRingingCall.getState()).thenReturn(CallState.RINGING);
         when(mRingingCall.getVideoState()).thenReturn(VideoProfile.STATE_AUDIO_ONLY);
         when(mRingingCall.getTargetPhoneAccountLabel()).thenReturn("Foo");
-        when(mRingingCall.getUserHandleFromTargetPhoneAccount()).
+        when(mRingingCall.getAssociatedUser()).
                 thenReturn(UserHandle.CURRENT);
         when(mRingingCall.getHandoverState()).thenReturn(HandoverState.HANDOVER_NONE);
     }
