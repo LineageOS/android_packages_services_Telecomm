@@ -251,6 +251,7 @@ public class InCallActivity extends Activity {
                     @Override
                     public void onResult(CallControl callControl) {
                         Log.i(TAG, "addCall: onResult: callback fired");
+                        Utils.postIncomingCallStyleNotification(getApplicationContext());
                         mVoipCall.onAddCallControl(callControl);
                         updateCallId();
                         updateCurrentEndpoint();
@@ -275,7 +276,8 @@ public class InCallActivity extends Activity {
         mAudioRecord.stop();
         try {
             mAudioRecord.unregisterAudioRecordingCallback(mAudioRecordingCallback);
-        } catch (IllegalArgumentException e) {
+            Utils.clearNotification(getApplicationContext());
+        } catch (Exception e) {
             // pass through
         }
     }
