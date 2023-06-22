@@ -60,6 +60,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
@@ -694,6 +695,16 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
         verify(mockBluetoothRouteManager, atLeastOnce())
                 .connectBluetoothAudio(eq(bluetoothDevice1.getAddress()));
         assertTrue(stateMachine.isInActiveState());
+
+        // Switch to inactive, pretending that the call disconnected.
+        stateMachine.sendMessageWithSessionInfo(CallAudioRouteStateMachine.SWITCH_FOCUS,
+                CallAudioRouteStateMachine.NO_FOCUS);
+        waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
+
+        // Make sure that we've successfully switched to the quiescent BT route
+        assertEquals(CallAudioState.ROUTE_BLUETOOTH,
+                stateMachine.getCurrentCallAudioState().getRoute());
+        assertFalse(stateMachine.isInActiveState());
     }
 
     @SmallTest
