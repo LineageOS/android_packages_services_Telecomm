@@ -660,6 +660,7 @@ public class BluetoothDeviceManager {
                 if (!switchingBtDevices) {
                     return setLeAudioCommunicationDevice();
                 }
+                return true;
             }
             return false;
         } else if (callProfile == BluetoothProfile.HEARING_AID) {
@@ -670,6 +671,7 @@ public class BluetoothDeviceManager {
                 if (!switchingBtDevices) {
                     return setHearingAidCommunicationDevice();
                 }
+                return true;
             }
             return false;
         } else if (callProfile == BluetoothProfile.HEADSET) {
