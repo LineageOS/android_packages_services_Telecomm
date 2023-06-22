@@ -660,6 +660,7 @@ public class BluetoothDeviceManager {
                     return mCommunicationDeviceTracker.setCommunicationDevice(
                             AudioDeviceInfo.TYPE_BLE_HEADSET, device);
                 }
+                return true;
             }
             return false;
         } else if (callProfile == BluetoothProfile.HEARING_AID) {
@@ -671,6 +672,7 @@ public class BluetoothDeviceManager {
                     return mCommunicationDeviceTracker.setCommunicationDevice(
                             AudioDeviceInfo.TYPE_HEARING_AID, null);
                 }
+                return true;
             }
             return false;
         } else if (callProfile == BluetoothProfile.HEADSET) {
