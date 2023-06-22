@@ -733,6 +733,24 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
 
     @SmallTest
     @Test
+    public void testConnectedDevicesDoNotContainDuplicateDevices() {
+        BluetoothDevice hfpDevice = mock(BluetoothDevice.class);
+        when(hfpDevice.getAddress()).thenReturn("00:00:00:00:00:00");
+        when(hfpDevice.getType()).thenReturn(BluetoothDeviceManager.DEVICE_TYPE_HEADSET);
+        BluetoothDevice leDevice = mock(BluetoothDevice.class);
+        when(hfpDevice.getAddress()).thenReturn("00:00:00:00:00:00");
+        when(hfpDevice.getType()).thenReturn(BluetoothDeviceManager.DEVICE_TYPE_LE_AUDIO);
+
+        mBluetoothDeviceManager.onDeviceConnected(hfpDevice,
+                BluetoothDeviceManager.DEVICE_TYPE_HEADSET);
+        mBluetoothDeviceManager.onDeviceConnected(leDevice,
+                BluetoothDeviceManager.DEVICE_TYPE_LE_AUDIO);
+
+        assertEquals(1, mBluetoothDeviceManager.getNumConnectedDevices());
+    }
+
+    @SmallTest
+    @Test
     public void testInBandRingingEnabledForLeDevice() {
         when(mBluetoothHeadset.isInbandRingingEnabled()).thenReturn(false);
         when(mBluetoothLeAudio.isInbandRingtoneEnabled(1)).thenReturn(true);
