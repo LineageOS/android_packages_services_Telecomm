@@ -77,11 +77,16 @@ public class Utils {
                         pendingAnswer, pendingReject)
                 )
                 .setFullScreenIntent(pendingAnswer, true)
+                .setOngoing(true)
                 .build();
 
         return callStyleNotification;
     }
 
+    public static void postIncomingCallStyleNotification(Context context) {
+        NotificationManager nm = context.getSystemService(NotificationManager.class);
+        nm.notify(Utils.CALL_NOTIFICATION_ID, createCallStyleNotification(context));
+    }
 
     public static void updateCallStyleNotification_toOngoingCall(Context context) {
         PendingIntent ongoingCall = PendingIntent.getActivity(context, 0,
@@ -97,12 +102,21 @@ public class Utils {
                         ongoingCall)
                 )
                 .setFullScreenIntent(ongoingCall, true)
+                .setOngoing(true)
                 .build();
 
         NotificationManager notificationManager =
                 context.getSystemService(NotificationManager.class);
 
         notificationManager.notify(CALL_NOTIFICATION_ID, callStyleNotification);
+    }
+
+    public static void clearNotification(Context context) {
+        NotificationManager notificationManager =
+                context.getSystemService(NotificationManager.class);
+        if (notificationManager != null) {
+            notificationManager.cancel(CALL_NOTIFICATION_ID);
+        }
     }
 
     public static MediaPlayer createMediaPlayer(Context context) {
