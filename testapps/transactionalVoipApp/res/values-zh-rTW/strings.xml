@@ -33,6 +33,5 @@
     <string name="request_bluetooth_endpoint" msgid="5933254250623451836">"藍牙"</string>
     <string name="start_stream" msgid="3567634786280097431">"開始串流播放"</string>
     <string name="crash_app" msgid="2548690390730057704">"擲回例外狀況"</string>
-    <!-- no translation found for update_notification (8677916482672588779) -->
-    <skip />
+    <string name="update_notification" msgid="8677916482672588779">"將通知更新為通話中樣式"</string>
 </resources>
