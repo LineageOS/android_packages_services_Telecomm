@@ -32,8 +32,6 @@
     <string name="request_speaker_endpoint" msgid="1033259535289845405">"स्पीकर"</string>
     <string name="request_bluetooth_endpoint" msgid="5933254250623451836">"ब्लूटूथ"</string>
     <string name="start_stream" msgid="3567634786280097431">"स्ट्रीम करणे सुरू करा"</string>
-    <!-- no translation found for crash_app (2548690390730057704) -->
-    <skip />
-    <!-- no translation found for update_notification (8677916482672588779) -->
-    <skip />
+    <string name="crash_app" msgid="2548690390730057704">"एक्सेप्शन जोडा"</string>
+    <string name="update_notification" msgid="8677916482672588779">"सुरू असलेल्या कॉल शैलीवर सूचना अपडेट करा"</string>
 </resources>
