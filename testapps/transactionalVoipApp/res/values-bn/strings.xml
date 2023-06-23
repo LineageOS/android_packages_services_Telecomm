@@ -32,8 +32,6 @@
     <string name="request_speaker_endpoint" msgid="1033259535289845405">"স্পিকার"</string>
     <string name="request_bluetooth_endpoint" msgid="5933254250623451836">"ব্লুটুথ"</string>
     <string name="start_stream" msgid="3567634786280097431">"স্ট্রিমিং শুরু করুন"</string>
-    <!-- no translation found for crash_app (2548690390730057704) -->
-    <skip />
-    <!-- no translation found for update_notification (8677916482672588779) -->
-    <skip />
+    <string name="crash_app" msgid="2548690390730057704">"এক্সেপশন যোগ করুন"</string>
+    <string name="update_notification" msgid="8677916482672588779">"চালু থাকা কলের স্টাইলে আপডেট সংক্রান্ত বিজ্ঞপ্তি"</string>
 </resources>
