@@ -175,6 +175,8 @@ public class CallsManagerTest extends TelecomTestCase {
             ComponentName.unflattenFromString("com.baz/.Self"), "Self");
     private static final PhoneAccountHandle SELF_MANAGED_2_HANDLE = new PhoneAccountHandle(
             ComponentName.unflattenFromString("com.baz/.Self2"), "Self2");
+    private static final PhoneAccountHandle WORK_HANDLE = new PhoneAccountHandle(
+            ComponentName.unflattenFromString("com.foo/.Blah"), "work", new UserHandle(10));
     private static final PhoneAccountHandle SELF_MANAGED_W_CUSTOM_HANDLE = new PhoneAccountHandle(
             new ComponentName(TEST_PACKAGE_NAME, "class"), "1", TEST_USER_HANDLE);
     private static final PhoneAccount SIM_1_ACCOUNT = new PhoneAccount.Builder(SIM_1_HANDLE, "Sim1")
@@ -206,11 +208,19 @@ public class CallsManagerTest extends TelecomTestCase {
             .setCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED)
             .setIsEnabled(true)
             .build();
+    private static final PhoneAccount WORK_ACCOUNT = new PhoneAccount.Builder(
+            WORK_HANDLE, "work")
+            .setCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION
+                    | PhoneAccount.CAPABILITY_CALL_PROVIDER
+                    | PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS)
+            .setIsEnabled(true)
+            .build();
     private static final PhoneAccount SM_W_DIFFERENT_PACKAGE_AND_USER = new PhoneAccount.Builder(
             SELF_MANAGED_W_CUSTOM_HANDLE, "Self")
             .setCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED)
             .setIsEnabled(true)
             .build();
+
     private static final Uri TEST_ADDRESS = Uri.parse("tel:555-1212");
     private static final Uri TEST_ADDRESS2 = Uri.parse("tel:555-1213");
     private static final Uri TEST_ADDRESS3 = Uri.parse("tel:555-1214");
@@ -349,6 +359,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 eq(SIM_1_HANDLE), any())).thenReturn(SIM_1_ACCOUNT);
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SIM_2_HANDLE), any())).thenReturn(SIM_2_ACCOUNT);
+        when(mPhoneAccountRegistrar.getPhoneAccount(
+                eq(WORK_HANDLE), any())).thenReturn(WORK_ACCOUNT);
         when(mToastFactory.makeText(any(), anyInt(), anyInt())).thenReturn(mToast);
         when(mToastFactory.makeText(any(), any(), anyInt())).thenReturn(mToast);
     }
@@ -2493,7 +2505,30 @@ public class CallsManagerTest extends TelecomTestCase {
 
     @SmallTest
     @Test
-    public void testRejectIncomingCallOnPAHInactive() throws Exception {
+    public void testRejectIncomingCallOnPAHInactive_SecondaryUser() throws Exception {
+        ConnectionServiceWrapper service = mock(ConnectionServiceWrapper.class);
+        doReturn(WORK_HANDLE.getComponentName()).when(service).getComponentName();
+        mCallsManager.addConnectionServiceRepositoryCache(WORK_HANDLE.getComponentName(),
+                WORK_HANDLE.getUserHandle(), service);
+
+        UserManager um = mContext.getSystemService(UserManager.class);
+        UserHandle newUser = new UserHandle(11);
+        when(mCallsManager.getCurrentUserHandle()).thenReturn(newUser);
+        when(um.isUserAdmin(eq(newUser.getIdentifier()))).thenReturn(false);
+        when(um.isQuietModeEnabled(eq(WORK_HANDLE.getUserHandle()))).thenReturn(false);
+        when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(eq(WORK_HANDLE)))
+                .thenReturn(WORK_ACCOUNT);
+        Call newCall = mCallsManager.processIncomingCallIntent(
+                WORK_HANDLE, new Bundle(), false);
+
+        verify(service, timeout(TEST_TIMEOUT)).createConnectionFailed(any());
+        assertFalse(newCall.isInECBM());
+        assertEquals(USER_MISSED_NOT_RUNNING, newCall.getMissedReason());
+    }
+
+    @SmallTest
+    @Test
+    public void testRejectIncomingCallOnPAHInactive_ProfilePaused() throws Exception {
         ConnectionServiceWrapper service = mock(ConnectionServiceWrapper.class);
         doReturn(SIM_2_HANDLE.getComponentName()).when(service).getComponentName();
         mCallsManager.addConnectionServiceRepositoryCache(SIM_2_HANDLE.getComponentName(),
@@ -2523,6 +2558,30 @@ public class CallsManagerTest extends TelecomTestCase {
         when(um.isQuietModeEnabled(eq(SIM_2_HANDLE.getUserHandle()))).thenReturn(true);
         Call newCall = mCallsManager.processIncomingCallIntent(
                 SIM_2_HANDLE, new Bundle(), false);
+
+        assertTrue(newCall.isInECBM());
+        verify(service, timeout(TEST_TIMEOUT).times(0)).createConnectionFailed(any());
+    }
+
+    @SmallTest
+    @Test
+    public void testAcceptIncomingCallOnPAHInactiveAndECBMActive_SecondaryUser() throws Exception {
+        ConnectionServiceWrapper service = mock(ConnectionServiceWrapper.class);
+        doReturn(WORK_HANDLE.getComponentName()).when(service).getComponentName();
+        mCallsManager.addConnectionServiceRepositoryCache(SIM_2_HANDLE.getComponentName(),
+                WORK_HANDLE.getUserHandle(), service);
+
+        when(mEmergencyCallHelper.isLastOutgoingEmergencyCallPAH(eq(WORK_HANDLE)))
+                .thenReturn(true);
+        UserManager um = mContext.getSystemService(UserManager.class);
+        UserHandle newUser = new UserHandle(11);
+        when(mCallsManager.getCurrentUserHandle()).thenReturn(newUser);
+        when(um.isUserAdmin(eq(newUser.getIdentifier()))).thenReturn(false);
+        when(um.isQuietModeEnabled(eq(WORK_HANDLE.getUserHandle()))).thenReturn(false);
+        when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(eq(WORK_HANDLE)))
+                .thenReturn(WORK_ACCOUNT);
+        Call newCall = mCallsManager.processIncomingCallIntent(
+                WORK_HANDLE, new Bundle(), false);
 
         assertTrue(newCall.isInECBM());
         verify(service, timeout(TEST_TIMEOUT).times(0)).createConnectionFailed(any());
@@ -3103,6 +3162,9 @@ public class CallsManagerTest extends TelecomTestCase {
         // WHEN
         when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(any()))
                 .thenReturn(SM_W_DIFFERENT_PACKAGE_AND_USER);
+        UserManager um = mContext.getSystemService(UserManager.class);
+        when(um.isUserAdmin(eq(mCallsManager.getCurrentUserHandle().getIdentifier())))
+                .thenReturn(true);
 
         // THEN
         mCallsManager.processIncomingCallIntent(SELF_MANAGED_W_CUSTOM_HANDLE, new Bundle(), false);

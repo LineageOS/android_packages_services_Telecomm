@@ -1574,7 +1574,14 @@ public class CallsManager extends Call.ListenerBase
         // Check if the target phone account is possibly in ECBM.
         call.setIsInECBM(getEmergencyCallHelper()
                 .isLastOutgoingEmergencyCallPAH(call.getTargetPhoneAccount()));
-        if (mUserManager.isQuietModeEnabled(call.getAssociatedUser())
+        // If the phone account user profile is paused or the call isn't visible to the secondary/
+        // guest user, reject the non-emergency incoming call. When the current user is the admin,
+        // we need to allow the calls to go through if the work profile isn't paused. We should
+        // always allow emergency calls and also allow non-emergency calls when ECBM is active for
+        // the phone account.
+        if ((mUserManager.isQuietModeEnabled(call.getAssociatedUser())
+                || (!mUserManager.isUserAdmin(mCurrentUserHandle.getIdentifier())
+                && !isCallVisibleForUser(call, mCurrentUserHandle)))
                 && !call.isEmergencyCall() && !call.isInECBM()) {
             Log.d(TAG, "Rejecting non-emergency call because the owner %s is not running.",
                     phoneAccountHandle.getUserHandle());
