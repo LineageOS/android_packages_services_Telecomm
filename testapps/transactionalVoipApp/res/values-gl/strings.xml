@@ -32,8 +32,6 @@
     <string name="request_speaker_endpoint" msgid="1033259535289845405">"Altofalante"</string>
     <string name="request_bluetooth_endpoint" msgid="5933254250623451836">"Bluetooth"</string>
     <string name="start_stream" msgid="3567634786280097431">"iniciar reprodución en tempo real"</string>
-    <!-- no translation found for crash_app (2548690390730057704) -->
-    <skip />
-    <!-- no translation found for update_notification (8677916482672588779) -->
-    <skip />
+    <string name="crash_app" msgid="2548690390730057704">"activar excepción"</string>
+    <string name="update_notification" msgid="8677916482672588779">"actualiza a notificación en función do estilo da chamada en curso"</string>
 </resources>
