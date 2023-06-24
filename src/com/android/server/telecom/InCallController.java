@@ -2875,7 +2875,11 @@ public class InCallController extends CallsManagerListenerBase implements
             // Emergency call should never be blocked, so if the user associated with call is in
             // quite mode, use the primary user for the emergency call.
             if ((call.isEmergencyCall() || call.isInECBM())
-                    && userManager.isQuietModeEnabled(userFromCall)) {
+                    && (userManager.isQuietModeEnabled(userFromCall)
+                    // We should also account for secondary/guest users where the profile may not
+                    // necessarily be paused.
+                    || !userManager.isUserAdmin(mCallsManager.getCurrentUserHandle()
+                    .getIdentifier()))) {
                 return mCallsManager.getCurrentUserHandle();
             }
             return userFromCall;
