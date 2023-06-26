@@ -16,6 +16,12 @@
 
 package com.android.server.telecom.voip;
 
+import static android.app.ForegroundServiceDelegationOptions.DELEGATION_SERVICE_PHONE_CALL;
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA;
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE;
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL;
+
 import android.app.ActivityManager;
 import android.app.ActivityManagerInternal;
 import android.app.ForegroundServiceDelegationOptions;
@@ -199,8 +205,11 @@ public class VoipCallMonitor extends CallsManagerListenerBase {
             ForegroundServiceDelegationOptions options = new ForegroundServiceDelegationOptions(pid,
                     uid, handle.getComponentName().getPackageName(), null /* clientAppThread */,
                     false /* isSticky */, String.valueOf(handle.hashCode()),
-                    0 /* foregroundServiceType */,
-                    ForegroundServiceDelegationOptions.DELEGATION_SERVICE_PHONE_CALL);
+                    FOREGROUND_SERVICE_TYPE_PHONE_CALL |
+                    FOREGROUND_SERVICE_TYPE_MICROPHONE |
+                    FOREGROUND_SERVICE_TYPE_CAMERA |
+                    FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE /* foregroundServiceTypes */,
+                    DELEGATION_SERVICE_PHONE_CALL /* delegationService */);
             ServiceConnection fgsConnection = new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName name, IBinder service) {
