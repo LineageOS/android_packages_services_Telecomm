@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 
 import android.test.suitebuilder.annotation.SmallTest;
 
+import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.CallAudioRoutePeripheralAdapter;
 import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.DockManager;
@@ -47,6 +48,7 @@ public class CallAudioRoutePeripheralAdapterTest extends TelecomTestCase {
     @Mock private BluetoothRouteManager mBluetoothRouteManager;
     @Mock private WiredHeadsetManager mWiredHeadsetManager;
     @Mock private DockManager mDockManager;
+    @Mock private AsyncRingtonePlayer mRingtonePlayer;
 
     @Override
     @Before
@@ -57,7 +59,8 @@ public class CallAudioRoutePeripheralAdapterTest extends TelecomTestCase {
                 mCallAudioRouteStateMachine,
                 mBluetoothRouteManager,
                 mWiredHeadsetManager,
-                mDockManager);
+                mDockManager,
+                mRingtonePlayer);
     }
 
     @Override
@@ -126,6 +129,16 @@ public class CallAudioRoutePeripheralAdapterTest extends TelecomTestCase {
         mAdapter.onBluetoothAudioConnected();
         verify(mCallAudioRouteStateMachine).sendMessageWithSessionInfo(
                 CallAudioRouteStateMachine.BT_AUDIO_CONNECTED);
+        verify(mRingtonePlayer).updateBtActiveState(true);
+    }
+
+    @SmallTest
+    @Test
+    public void testOnBluetoothAudioConnecting() {
+        mAdapter.onBluetoothAudioConnecting();
+        verify(mCallAudioRouteStateMachine).sendMessageWithSessionInfo(
+                CallAudioRouteStateMachine.BT_AUDIO_CONNECTED);
+        verify(mRingtonePlayer).updateBtActiveState(false);
     }
 
     @SmallTest
@@ -134,6 +147,7 @@ public class CallAudioRoutePeripheralAdapterTest extends TelecomTestCase {
         mAdapter.onBluetoothAudioDisconnected();
         verify(mCallAudioRouteStateMachine).sendMessageWithSessionInfo(
                 CallAudioRouteStateMachine.BT_AUDIO_DISCONNECTED);
+        verify(mRingtonePlayer).updateBtActiveState(false);
     }
 
     @SmallTest
