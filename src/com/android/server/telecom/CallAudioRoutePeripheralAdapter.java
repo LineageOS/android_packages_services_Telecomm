@@ -27,14 +27,17 @@ public class CallAudioRoutePeripheralAdapter implements WiredHeadsetManager.List
 
     private final CallAudioRouteStateMachine mCallAudioRouteStateMachine;
     private final BluetoothRouteManager mBluetoothRouteManager;
+    private final AsyncRingtonePlayer mRingtonePlayer;
 
     public CallAudioRoutePeripheralAdapter(
             CallAudioRouteStateMachine callAudioRouteStateMachine,
             BluetoothRouteManager bluetoothManager,
             WiredHeadsetManager wiredHeadsetManager,
-            DockManager dockManager) {
+            DockManager dockManager,
+            AsyncRingtonePlayer ringtonePlayer) {
         mCallAudioRouteStateMachine = callAudioRouteStateMachine;
         mBluetoothRouteManager = bluetoothManager;
+        mRingtonePlayer = ringtonePlayer;
 
         mBluetoothRouteManager.setListener(this);
         wiredHeadsetManager.addListener(this);
@@ -75,12 +78,22 @@ public class CallAudioRoutePeripheralAdapter implements WiredHeadsetManager.List
 
     @Override
     public void onBluetoothAudioConnected() {
+        mRingtonePlayer.updateBtActiveState(true);
+        mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+                CallAudioRouteStateMachine.BT_AUDIO_CONNECTED);
+    }
+
+    @Override
+    public void onBluetoothAudioConnecting() {
+        mRingtonePlayer.updateBtActiveState(false);
+        // Pretend like audio is connected when communicating w/ CARSM.
         mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
                 CallAudioRouteStateMachine.BT_AUDIO_CONNECTED);
     }
 
     @Override
     public void onBluetoothAudioDisconnected() {
+        mRingtonePlayer.updateBtActiveState(false);
         mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
                 CallAudioRouteStateMachine.BT_AUDIO_DISCONNECTED);
     }
