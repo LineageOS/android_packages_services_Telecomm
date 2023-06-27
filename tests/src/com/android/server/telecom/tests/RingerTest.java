@@ -30,6 +30,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -125,6 +126,9 @@ public class RingerTest extends TelecomTestCase {
         when(mockCall2.getState()).thenReturn(CallState.RINGING);
         when(mockCall1.getAssociatedUser()).thenReturn(PA_HANDLE.getUserHandle());
         when(mockCall2.getAssociatedUser()).thenReturn(PA_HANDLE.getUserHandle());
+        // Set BT active state in tests to ensure that we do not end up blocking tests for 1 sec
+        // waiting for BT to connect in unit tests by default.
+        asyncRingtonePlayer.updateBtActiveState(true);
 
         createRingerUnderTest();
     }
@@ -432,6 +436,48 @@ public class RingerTest extends TelecomTestCase {
         verifyNoMoreInteractions(mockRingtoneFactory);
         verify(mockTonePlayer).stopTone();
         verify(mockRingtone).play();
+    }
+
+    @SmallTest
+    @Test
+    public void testDelayRingerForBtHfpDevices() throws Exception {
+        asyncRingtonePlayer.updateBtActiveState(false);
+        Ringtone mockRingtone = ensureRingtoneMocked();
+
+        ensureRingerIsAudible();
+        assertTrue(mRingerUnderTest.startRinging(mockCall1, true));
+        assertTrue(mRingerUnderTest.isRinging());
+        // We should not have the ringtone play until BT moves active
+        verify(mockRingtone, never()).play();
+
+        asyncRingtonePlayer.updateBtActiveState(true);
+        mRingCompletionFuture.get();
+        verify(mockRingtoneFactory, times(1))
+                .getRingtone(any(Call.class), nullable(VolumeShaper.Configuration.class),
+                        anyBoolean());
+        verifyNoMoreInteractions(mockRingtoneFactory);
+        verify(mockRingtone).play();
+
+        mRingerUnderTest.stopRinging();
+        verify(mockRingtone, timeout(1000/*ms*/)).stop();
+        assertFalse(mRingerUnderTest.isRinging());
+    }
+
+    @SmallTest
+    @Test
+    public void testUnblockRingerForStopCommand() throws Exception {
+        asyncRingtonePlayer.updateBtActiveState(false);
+        Ringtone mockRingtone = ensureRingtoneMocked();
+
+        ensureRingerIsAudible();
+        assertTrue(mRingerUnderTest.startRinging(mockCall1, true));
+        // We should not have the ringtone play until BT moves active
+        verify(mockRingtone, never()).play();
+
+        // We are not setting BT active, but calling stop ringing while the other thread is waiting
+        // for BT active should also unblock it.
+        mRingerUnderTest.stopRinging();
+        verify(mockRingtone, timeout(1000/*ms*/)).stop();
     }
 
     /**

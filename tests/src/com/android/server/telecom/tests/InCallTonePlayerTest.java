@@ -35,6 +35,7 @@ import android.media.MediaPlayer;
 import android.media.ToneGenerator;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioRoutePeripheralAdapter;
 import com.android.server.telecom.CallAudioRouteStateMachine;
@@ -69,6 +70,7 @@ public class InCallTonePlayerTest extends TelecomTestCase {
     @Mock private InCallTonePlayer.ToneGeneratorFactory mToneGeneratorFactory;
     @Mock private WiredHeadsetManager mWiredHeadsetManager;
     @Mock private DockManager mDockManager;
+    @Mock private AsyncRingtonePlayer mRingtonePlayer;
     @Mock private BluetoothDevice mDevice;
     @Mock private BluetoothAdapter mBluetoothAdapter;
 
@@ -124,7 +126,7 @@ public class InCallTonePlayerTest extends TelecomTestCase {
 
         mCallAudioRoutePeripheralAdapter = new CallAudioRoutePeripheralAdapter(
                 mCallAudioRouteStateMachine, mBluetoothRouteManager, mWiredHeadsetManager,
-                mDockManager);
+                mDockManager, mRingtonePlayer);
         mFactory = new InCallTonePlayer.Factory(mCallAudioRoutePeripheralAdapter, mLock,
                 mToneGeneratorFactory, mMediaPlayerFactory, mAudioManagerAdapter);
         mFactory.setCallAudioManager(mCallAudioManager);

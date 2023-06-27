@@ -80,6 +80,7 @@ public class BluetoothRouteManager extends StateMachine {
         void onBluetoothActiveDevicePresent();
         void onBluetoothActiveDeviceGone();
         void onBluetoothAudioConnected();
+        void onBluetoothAudioConnecting();
         void onBluetoothAudioDisconnected();
         /**
          * This gets called when we get an unexpected state change from Bluetooth. Their stack does
@@ -233,8 +234,7 @@ public class BluetoothRouteManager extends StateMachine {
             sendMessageDelayed(CONNECTION_TIMEOUT, args,
                     mTimeoutsAdapter.getBluetoothPendingTimeoutMillis(
                             mContext.getContentResolver()));
-            // Pretend like audio is connected when communicating w/ CARSM.
-            mListener.onBluetoothAudioConnected();
+            mListener.onBluetoothAudioConnecting();
         }
 
         @Override

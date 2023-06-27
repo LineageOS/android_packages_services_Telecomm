@@ -617,7 +617,8 @@ public class CallsManager extends Call.ListenerBase
                         callAudioRouteStateMachine,
                         bluetoothManager,
                         wiredHeadsetManager,
-                        mDockManager);
+                        mDockManager,
+                        asyncRingtonePlayer);
         AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         InCallTonePlayer.MediaPlayerFactory mediaPlayerFactory =
                 (resourceId, attributes) ->
