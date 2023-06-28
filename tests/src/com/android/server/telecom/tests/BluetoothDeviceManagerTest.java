@@ -423,6 +423,7 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
         List<AudioDeviceInfo> devices = new ArrayList<>();
         devices.add(mockAudioDeviceInfo);
 
+        when(mockAudioManager.getCommunicationDevice()).thenReturn(mSpeakerInfo);
         when(mockAudioManager.getAvailableCommunicationDevices())
                 .thenReturn(devices);
         when(mockAudioManager.setCommunicationDevice(eq(mockAudioDeviceInfo)))
@@ -458,6 +459,7 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
         List<AudioDeviceInfo> devices = new ArrayList<>();
         devices.add(mockAudioDeviceInfo);
 
+        when(mockAudioManager.getCommunicationDevice()).thenReturn(mSpeakerInfo);
         when(mockAudioManager.getAvailableCommunicationDevices())
                         .thenReturn(devices);
         when(mockAudioManager.setCommunicationDevice(mockAudioDeviceInfo))
