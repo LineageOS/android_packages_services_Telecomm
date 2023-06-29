@@ -4738,15 +4738,21 @@ public class CallsManager extends Call.ListenerBase
 
     /**
      * Determines the number of unholdable calls present in a connection service other than the one
-     * the passed phone account belonds to.
+     * the passed phone account belongs to. If a ConnectionService has not been associated with an
+     * outgoing call yet (for example, it is in the SELECT_PHONE_ACCOUNT state), then we do not
+     * count that call because it is not tracked as an active call yet.
      * @param phoneAccountHandle The handle of the PhoneAccount.
      * @return Number of unholdable calls owned by other connection service.
      */
     public int getNumUnholdableCallsForOtherConnectionService(
             PhoneAccountHandle phoneAccountHandle) {
         return (int) mCalls.stream().filter(call ->
-                !phoneAccountHandle.getComponentName().equals(
-                        call.getTargetPhoneAccount().getComponentName())
+                // If this convention needs to be changed, answerCall will need to be modified to
+                // change what an "active call" is so that the call in SELECT_PHONE_ACCOUNT state
+                // will be properly cancelled.
+                call.getTargetPhoneAccount() != null
+                        && !phoneAccountHandle.getComponentName().equals(
+                                call.getTargetPhoneAccount().getComponentName())
                         && call.getParentCall() == null
                         && !call.isExternalCall()
                         && !canHold(call)).count();
