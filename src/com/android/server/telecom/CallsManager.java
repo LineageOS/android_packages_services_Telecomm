@@ -572,6 +572,7 @@ public class CallsManager extends Call.ListenerBase
             CallAnomalyWatchdog callAnomalyWatchdog,
             Ringer.AccessibilityManagerAdapter accessibilityManagerAdapter,
             Executor asyncTaskExecutor,
+            Executor asyncCallAudioTaskExecutor,
             BlockedNumbersAdapter blockedNumbersAdapter,
             TransactionManager transactionManager,
             EmergencyCallDiagnosticLogger emergencyCallDiagnosticLogger,
@@ -607,7 +608,7 @@ public class CallsManager extends Call.ListenerBase
                         statusBarNotifier,
                         audioServiceFactory,
                         CallAudioRouteStateMachine.EARPIECE_AUTO_DETECT,
-                        asyncTaskExecutor,
+                        asyncCallAudioTaskExecutor,
                         communicationDeviceTracker
                 );
         callAudioRouteStateMachine.initialize();

@@ -554,6 +554,7 @@ public class TelecomSystemTest extends TelecomTestCase {
                     }
                 }, mDeviceIdleControllerAdapter, mAccessibilityManagerAdapter,
                 Runnable::run,
+                Runnable::run,
                 mBlockedNumbersAdapter);
 
         mComponentContextFixture.setTelecomManager(new TelecomManager(

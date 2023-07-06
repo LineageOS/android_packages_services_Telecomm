@@ -223,6 +223,7 @@ public class TelecomSystem {
             DeviceIdleControllerAdapter deviceIdleControllerAdapter,
             Ringer.AccessibilityManagerAdapter accessibilityManagerAdapter,
             Executor asyncTaskExecutor,
+            Executor asyncCallAudioTaskExecutor,
             BlockedNumbersAdapter blockedNumbersAdapter) {
         mContext = context.getApplicationContext();
         LogUtils.initLogging(mContext);
@@ -400,6 +401,7 @@ public class TelecomSystem {
                     callAnomalyWatchdog,
                     accessibilityManagerAdapter,
                     asyncTaskExecutor,
+                    asyncCallAudioTaskExecutor,
                     blockedNumbersAdapter,
                     transactionManager,
                     emergencyCallDiagnosticLogger,
