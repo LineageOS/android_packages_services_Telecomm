@@ -215,6 +215,7 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                 }
                             },
                             Executors.newCachedThreadPool(),
+                            Executors.newSingleThreadExecutor(),
                             new BlockedNumbersAdapter() {
                                 @Override
                                 public boolean shouldShowEmergencyCallNotification(Context
