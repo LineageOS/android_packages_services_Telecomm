@@ -36,6 +36,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.stream.Collectors;
+
 
 public class CallAudioManager extends CallsManagerListenerBase {
 
@@ -116,7 +118,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
             // State did not change, so no need to do anything.
             return;
         }
-        Log.d(LOG_TAG, "Call state changed for TC@%s: %s -> %s", call.getId(),
+        Log.i(this, "onCallStateChanged: Call state changed for TC@%s: %s -> %s", call.getId(),
                 CallState.toString(oldState), CallState.toString(newState));
 
         removeCallFromAllBins(call);
@@ -761,6 +763,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     private void updateForegroundCall() {
         Call oldForegroundCall = mForegroundCall;
+
         if (mActiveDialingOrConnectingCalls.size() > 0) {
             // Give preference for connecting calls over active/dialing for foreground-ness.
             Call possibleConnectingCall = null;
@@ -769,8 +772,21 @@ public class CallAudioManager extends CallsManagerListenerBase {
                     possibleConnectingCall = call;
                 }
             }
-            mForegroundCall = possibleConnectingCall == null ?
-                    mActiveDialingOrConnectingCalls.iterator().next() : possibleConnectingCall;
+            // Prefer a connecting call
+            if (possibleConnectingCall != null) {
+                mForegroundCall = possibleConnectingCall;
+            } else {
+                // Next, prefer an active or dialing call which is not in the process of being
+                // disconnected.
+                mForegroundCall = mActiveDialingOrConnectingCalls
+                        .stream()
+                        .filter(c -> (c.getState() == CallState.ACTIVE
+                                || c.getState() == CallState.DIALING)
+                                && !c.isLocallyDisconnecting())
+                        .findFirst()
+                        // If we can't find one, then just fall back to the first one.
+                        .orElse(mActiveDialingOrConnectingCalls.iterator().next());
+            }
         } else if (mRingingCalls.size() > 0) {
             mForegroundCall = mRingingCalls.iterator().next();
         } else if (mHoldingCalls.size() > 0) {
@@ -778,10 +794,24 @@ public class CallAudioManager extends CallsManagerListenerBase {
         } else {
             mForegroundCall = null;
         }
-
+        Log.i(this, "updateForegroundCall; oldFg=%s, newFg=%s, aDC=%s, ring=%s, hold=%s",
+                (oldForegroundCall == null ? "none" : oldForegroundCall.getId()),
+                (mForegroundCall == null ? "none" : mForegroundCall.getId()),
+                mActiveDialingOrConnectingCalls.stream().map(c -> c.getId()).collect(
+                        Collectors.joining(",")),
+                mRingingCalls.stream().map(c -> c.getId()).collect(Collectors.joining(",")),
+                mHoldingCalls.stream().map(c -> c.getId()).collect(Collectors.joining(","))
+        );
         if (mForegroundCall != oldForegroundCall) {
             mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
                     CallAudioRouteStateMachine.UPDATE_SYSTEM_AUDIO_ROUTE);
+
+            if (mForegroundCall != null) {
+                // Ensure the voip audio mode for the new foreground call is taken into account.
+                mCallAudioModeStateMachine.sendMessageWithArgs(
+                        CallAudioModeStateMachine.FOREGROUND_VOIP_MODE_CHANGE,
+                        makeArgsForModeStateMachine());
+            }
             mDtmfLocalTonePlayer.onForegroundCallChanged(oldForegroundCall, mForegroundCall);
             maybePlayHoldTone();
         }
