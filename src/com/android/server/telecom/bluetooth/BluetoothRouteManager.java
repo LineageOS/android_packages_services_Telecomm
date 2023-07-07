@@ -652,6 +652,10 @@ public class BluetoothRouteManager extends StateMachine {
         }
     }
 
+    public BluetoothDevice getMostRecentlyReportedActiveDevice() {
+        return mMostRecentlyReportedActiveDevice;
+    }
+
     public boolean hasBtActiveDevice() {
         return mLeAudioActiveDeviceCache != null ||
                 mHearingAidActiveDeviceCache != null ||
