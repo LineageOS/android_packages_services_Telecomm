@@ -345,6 +345,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 mAccessibilityManagerAdapter,
                 // Just do async tasks synchronously to support testing.
                 command -> command.run(),
+                // For call audio tasks
+                command -> command.run(),
                 mBlockedNumbersAdapter,
                 TransactionManager.getTestInstance(),
                 mEmergencyCallDiagnosticLogger,
