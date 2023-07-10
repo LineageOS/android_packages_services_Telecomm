@@ -59,6 +59,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -277,7 +278,8 @@ public class CallAudioManagerTest extends TelecomTestCase {
         verify(mCallAudioModeStateMachine, times(2)).sendMessageWithArgs(
                 eq(CallAudioModeStateMachine.NEW_ACTIVE_OR_DIALING_CALL), captor.capture());
         assertMessageArgEquality(expectedArgs, captor.getValue());
-        verify(mCallAudioModeStateMachine, times(2)).sendMessageWithArgs(
+        // Expet another invocation due to audio mode change signal.
+        verify(mCallAudioModeStateMachine, times(3)).sendMessageWithArgs(
                 anyInt(), any(CallAudioModeStateMachine.MessageArgs.class));
 
 
@@ -286,7 +288,7 @@ public class CallAudioManagerTest extends TelecomTestCase {
         verify(mCallAudioModeStateMachine, times(3)).sendMessageWithArgs(
                 eq(CallAudioModeStateMachine.NEW_ACTIVE_OR_DIALING_CALL), captor.capture());
         assertMessageArgEquality(expectedArgs, captor.getValue());
-        verify(mCallAudioModeStateMachine, times(3)).sendMessageWithArgs(
+        verify(mCallAudioModeStateMachine, times(4)).sendMessageWithArgs(
                 anyInt(), any(CallAudioModeStateMachine.MessageArgs.class));
 
         disconnectCall(call);
@@ -327,7 +329,8 @@ public class CallAudioManagerTest extends TelecomTestCase {
         verify(mCallAudioModeStateMachine, times(2)).sendMessageWithArgs(
                 eq(CallAudioModeStateMachine.NEW_ACTIVE_OR_DIALING_CALL), captor.capture());
         assertMessageArgEquality(expectedArgs, captor.getValue());
-        verify(mCallAudioModeStateMachine, times(2)).sendMessageWithArgs(
+        // Expect an extra time due to audio mode change signal
+        verify(mCallAudioModeStateMachine, times(3)).sendMessageWithArgs(
                 anyInt(), any(CallAudioModeStateMachine.MessageArgs.class));
 
         // Ensure we started ringback.
@@ -700,6 +703,73 @@ public class CallAudioManagerTest extends TelecomTestCase {
         verify(mCallAudioModeStateMachine).sendMessageWithArgs(
                 eq(CallAudioModeStateMachine.STOP_CALL_STREAMING), captor.capture());
         assertFalse(captor.getValue().isStreaming);
+    }
+
+    @SmallTest
+    @Test
+    public void testTriggerAudioManagerModeChange() {
+        // Start with an incoming PSTN call
+        Call pstnCall = mock(Call.class);
+        when(pstnCall.getState()).thenReturn(CallState.RINGING);
+        when(pstnCall.getIsVoipAudioMode()).thenReturn(false);
+        ArgumentCaptor<CallAudioModeStateMachine.MessageArgs> captor = makeNewCaptor();
+
+        // Add the call
+        mCallAudioManager.onCallAdded(pstnCall);
+        verify(mCallAudioModeStateMachine).sendMessageWithArgs(
+                eq(CallAudioModeStateMachine.FOREGROUND_VOIP_MODE_CHANGE), captor.capture());
+        CallAudioModeStateMachine.MessageArgs expectedArgs =
+                new Builder()
+                        .setHasActiveOrDialingCalls(false)
+                        .setHasRingingCalls(true)
+                        .setHasHoldingCalls(false)
+                        .setIsTonePlaying(false)
+                        .setHasAudioProcessingCalls(false)
+                        .setForegroundCallIsVoip(false)
+                        .setSession(null)
+                        .setForegroundCallIsVoip(false)
+                        .build();
+        assertMessageArgEquality(expectedArgs, captor.getValue());
+        clearInvocations(mCallAudioModeStateMachine); // Avoid verifying for previous calls
+
+        // Make call active; don't expect there to be an audio mode transition.
+        when(pstnCall.getState()).thenReturn(CallState.ACTIVE);
+        mCallAudioManager.onCallStateChanged(pstnCall, CallState.RINGING, CallState.ACTIVE);
+        verify(mCallAudioModeStateMachine, never()).sendMessageWithArgs(
+                eq(CallAudioModeStateMachine.FOREGROUND_VOIP_MODE_CHANGE),
+                any(CallAudioModeStateMachine.MessageArgs.class));
+        clearInvocations(mCallAudioModeStateMachine); // Avoid verifying for previous calls
+
+        // Add a new Voip call in ringing state; this should not result in a direct audio mode
+        // change.
+        Call voipCall = mock(Call.class);
+        when(voipCall.getState()).thenReturn(CallState.RINGING);
+        when(voipCall.getIsVoipAudioMode()).thenReturn(true);
+        mCallAudioManager.onCallAdded(voipCall);
+        verify(mCallAudioModeStateMachine, never()).sendMessageWithArgs(
+                eq(CallAudioModeStateMachine.FOREGROUND_VOIP_MODE_CHANGE),
+                any(CallAudioModeStateMachine.MessageArgs.class));
+        clearInvocations(mCallAudioModeStateMachine); // Avoid verifying for previous calls
+
+        // Make voip call active and set the PSTN call to locally disconnecting; the new foreground
+        // call will be the voip call.
+        when(pstnCall.isLocallyDisconnecting()).thenReturn(true);
+        when(voipCall.getState()).thenReturn(CallState.ACTIVE);
+        mCallAudioManager.onCallStateChanged(voipCall, CallState.RINGING, CallState.ACTIVE);
+        verify(mCallAudioModeStateMachine).sendMessageWithArgs(
+                eq(CallAudioModeStateMachine.FOREGROUND_VOIP_MODE_CHANGE), captor.capture());
+        CallAudioModeStateMachine.MessageArgs expectedArgs2 =
+                new Builder()
+                        .setHasActiveOrDialingCalls(true)
+                        .setHasRingingCalls(false)
+                        .setHasHoldingCalls(false)
+                        .setIsTonePlaying(false)
+                        .setHasAudioProcessingCalls(false)
+                        .setForegroundCallIsVoip(false)
+                        .setSession(null)
+                        .setForegroundCallIsVoip(true)
+                        .build();
+        assertMessageArgEquality(expectedArgs2, captor.getValue());
     }
 
     private Call createSimulatedRingingCall() {
