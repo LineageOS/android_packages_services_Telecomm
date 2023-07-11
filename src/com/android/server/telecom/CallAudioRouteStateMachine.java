@@ -1772,17 +1772,15 @@ public class CallAudioRouteStateMachine extends StateMachine {
         final boolean hasAnyCalls = mCallsManager.hasAnyCalls();
         // These APIs are all via two-way binder calls so can potentially block Telecom.  Since none
         // of this has to happen in the Telecom lock we'll offload it to the async executor.
-        mAsyncTaskExecutor.execute(() -> {
-            boolean speakerOn = false;
-            if (on) {
-                speakerOn = mCommunicationDeviceTracker.setCommunicationDevice(
-                        AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, null);
-            } else {
-                mCommunicationDeviceTracker.clearCommunicationDevice(
-                        AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
-            }
-            mStatusBarNotifier.notifySpeakerphone(hasAnyCalls && speakerOn);
-        });
+        boolean speakerOn = false;
+        if (on) {
+            speakerOn = mCommunicationDeviceTracker.setCommunicationDevice(
+                    AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, null);
+        } else {
+            mCommunicationDeviceTracker.clearCommunicationDevice(
+                    AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+        }
+        mStatusBarNotifier.notifySpeakerphone(hasAnyCalls && speakerOn);
     }
 
     private void setBluetoothOn(String address) {
