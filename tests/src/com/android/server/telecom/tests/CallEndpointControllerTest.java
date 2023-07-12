@@ -17,6 +17,7 @@
 package com.android.server.telecom.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,7 +51,9 @@ import org.mockito.Mock;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RunWith(JUnit4.class)
 public class CallEndpointControllerTest extends TelecomTestCase {
@@ -81,6 +84,9 @@ public class CallEndpointControllerTest extends TelecomTestCase {
             availableBluetooth1);
     private static final CallAudioState audioState7 = new CallAudioState(false,
             CallAudioState.ROUTE_STREAMING, CallAudioState.ROUTE_ALL, null, availableBluetooth1);
+    private static final CallAudioState audioState8 = new CallAudioState(false,
+            CallAudioState.ROUTE_EARPIECE, CallAudioState.ROUTE_ALL, bluetoothDevice1,
+            availableBluetooth2);
 
     private CallEndpointController mCallEndpointController;
 
@@ -175,6 +181,65 @@ public class CallEndpointControllerTest extends TelecomTestCase {
         verify(mConnectionService, never()).onAvailableCallEndpointsChanged(any(), any());
         verify(mCallsManager, never()).updateMuteState(anyBoolean());
         verify(mConnectionService, never()).onMuteStateChanged(any(), anyBoolean());
+    }
+
+    /**
+     * Ensure that {@link CallAudioManager#setAudioRoute(int, String)} is invoked when the user
+     * requests to switch to a bluetooth CallEndpoint.  This is an edge case where bluetooth is not
+     * the current CallEndpoint but the CallAudioState shows the bluetooth device is
+     * active/available.
+     */
+    @Test
+    public void testSwitchFromEarpieceToBluetooth() {
+        // simulate an audio state where the EARPIECE is active but a bluetooth device is active.
+        mCallEndpointController.onCallAudioStateChanged(null, audioState8 /* Ear but BT active */);
+        CallEndpoint btEndpoint = mCallEndpointController.getAvailableEndpoints().stream()
+                .filter(e -> e.getEndpointType() == CallEndpoint.TYPE_BLUETOOTH)
+                .toList().get(0); // get the only available BT endpoint
+
+        // verify the CallEndpointController shows EARPIECE active + BT endpoint is active device
+        assertEquals(CallEndpoint.TYPE_EARPIECE,
+                mCallEndpointController.getCurrentCallEndpoint().getEndpointType());
+        assertNotNull(btEndpoint);
+
+        // request an endpoint change from earpiece to the bluetooth
+        doReturn(audioState8).when(mCallAudioManager).getCallAudioState();
+        mCallEndpointController.requestCallEndpointChange(btEndpoint, mResultReceiver);
+
+        // verify the transaction was successful and CallAudioManager#setAudioRoute was called
+        verify(mResultReceiver, never()).send(eq(CallEndpoint.ENDPOINT_OPERATION_FAILED), any());
+        verify(mCallAudioManager, times(1)).setAudioRoute(eq(CallAudioState.ROUTE_BLUETOOTH),
+                eq(bluetoothDevice1.getAddress()));
+    }
+
+
+    /**
+     * Ensure that {@link CallAudioManager#setAudioRoute(int, String)} is invoked when the user
+     * requests to switch to from one bluetooth device to another.
+     */
+    @Test
+    public void testBtDeviceSwitch() {
+        // bluetoothDevice1 should start as active and bluetoothDevice2 is available
+        mCallEndpointController.onCallAudioStateChanged(null, audioState2 /* BT active D1 */);
+        CallEndpoint currentEndpoint = mCallEndpointController.getCurrentCallEndpoint();
+        List<CallEndpoint> btEndpoints = mCallEndpointController.getAvailableEndpoints().stream()
+                .filter(e -> e.getEndpointType() == CallEndpoint.TYPE_BLUETOOTH)
+                .toList(); // get the only available BT endpoint
+
+        // verify the initial state of the test
+        assertEquals(2, btEndpoints.size());
+        assertEquals(CallEndpoint.TYPE_BLUETOOTH, currentEndpoint.getEndpointType());
+        assertEquals(currentEndpoint, btEndpoints.get(0));
+        assertNotEquals(currentEndpoint, btEndpoints.get(1));
+
+        // request an endpoint change from BT D1 --> BT D2
+        doReturn(audioState2).when(mCallAudioManager).getCallAudioState();
+        mCallEndpointController.requestCallEndpointChange(btEndpoints.get(1), mResultReceiver);
+
+        // verify the transaction was successful and CallAudioManager#setAudioRoute was called
+        verify(mResultReceiver, never()).send(eq(CallEndpoint.ENDPOINT_OPERATION_FAILED), any());
+        verify(mCallAudioManager, times(1)).setAudioRoute(eq(CallAudioState.ROUTE_BLUETOOTH),
+                eq(bluetoothDevice2.getAddress()));
     }
 
     @Test
