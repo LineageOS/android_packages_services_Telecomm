@@ -1741,28 +1741,30 @@ public class CallAudioRouteStateMachine extends StateMachine {
         final boolean hasAnyCalls = mCallsManager.hasAnyCalls();
         // These APIs are all via two-way binder calls so can potentially block Telecom.  Since none
         // of this has to happen in the Telecom lock we'll offload it to the async executor.
+
+        AudioDeviceInfo speakerDevice = null;
+        for (AudioDeviceInfo info : mAudioManager.getAvailableCommunicationDevices()) {
+            if (info.getType() == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER) {
+                speakerDevice = info;
+                break;
+            }
+        }
+        boolean speakerOn = false;
+        if (speakerDevice != null && on) {
+            boolean result = mAudioManager.setCommunicationDevice(speakerDevice);
+            if (result) {
+                speakerOn = true;
+            }
+        } else {
+            AudioDeviceInfo curDevice = mAudioManager.getCommunicationDevice();
+            if (curDevice != null
+                    && curDevice.getType() == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER) {
+                mAudioManager.clearCommunicationDevice();
+            }
+        }
+        final boolean isSpeakerOn = speakerOn;
         mAsyncTaskExecutor.execute(() -> {
-            AudioDeviceInfo speakerDevice = null;
-            for (AudioDeviceInfo info : mAudioManager.getAvailableCommunicationDevices()) {
-                if (info.getType() == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER) {
-                    speakerDevice = info;
-                    break;
-                }
-            }
-            boolean speakerOn = false;
-            if (speakerDevice != null && on) {
-                boolean result = mAudioManager.setCommunicationDevice(speakerDevice);
-                if (result) {
-                    speakerOn = true;
-                }
-            } else {
-                AudioDeviceInfo curDevice = mAudioManager.getCommunicationDevice();
-                if (curDevice != null
-                        && curDevice.getType() == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER) {
-                    mAudioManager.clearCommunicationDevice();
-                }
-            }
-            mStatusBarNotifier.notifySpeakerphone(hasAnyCalls && speakerOn);
+            mStatusBarNotifier.notifySpeakerphone(hasAnyCalls && isSpeakerOn);
         });
     }
 
