@@ -87,7 +87,7 @@ public class CallEndpointController extends CallsManagerListenerBase {
     }
 
     public void requestCallEndpointChange(CallEndpoint endpoint, ResultReceiver callback) {
-        Log.d(this, "requestCallEndpointChange %s", endpoint);
+        Log.i(this, "requestCallEndpointChange %s", endpoint);
         int route = mTypeToRouteMap.get(endpoint.getEndpointType());
         String bluetoothAddress = getBluetoothAddress(endpoint);
 
@@ -99,7 +99,6 @@ public class CallEndpointController extends CallsManagerListenerBase {
         }
 
         if (isCurrentEndpointRequestedEndpoint(route, bluetoothAddress)) {
-            Log.d(this, "requestCallEndpointChange: requested endpoint is already active");
             callback.send(CallEndpoint.ENDPOINT_OPERATION_SUCCESS, new Bundle());
             return;
         }
@@ -130,19 +129,25 @@ public class CallEndpointController extends CallsManagerListenerBase {
             return false;
         }
         CallAudioState currentAudioState = mCallsManager.getCallAudioManager().getCallAudioState();
-        // requested non-bt endpoint is already active
-        if (requestedRoute != CallAudioState.ROUTE_BLUETOOTH &&
-                requestedRoute == currentAudioState.getRoute()) {
-            return true;
-        }
-        // requested bt endpoint is already active
-        if (requestedRoute == CallAudioState.ROUTE_BLUETOOTH &&
-                currentAudioState.getActiveBluetoothDevice() != null &&
-                requestedAddress.equals(
-                        currentAudioState.getActiveBluetoothDevice().getAddress())) {
-            return true;
+        if (requestedRoute == currentAudioState.getRoute()) {
+            if (requestedRoute != CallAudioState.ROUTE_BLUETOOTH) {
+                // The audio route (earpiece, speaker, etc.) is already active
+                // and Telecom can ignore the spam request!
+                Log.i(this, "iCERE: user requested a non-BT route that is already active");
+                return true;
+            } else if (hasSameBluetoothAddress(currentAudioState, requestedAddress)) {
+                // if the requested (BT route, device) is active, ignore the request...
+                Log.i(this, "iCERE: user requested a BT endpoint that is already active");
+                return true;
+            }
         }
         return false;
+    }
+
+    public boolean hasSameBluetoothAddress(CallAudioState audioState, String requestedAddress) {
+        boolean hasActiveBtDevice = audioState.getActiveBluetoothDevice() != null;
+        return hasActiveBtDevice && requestedAddress.equals(
+                audioState.getActiveBluetoothDevice().getAddress());
     }
 
     private Bundle getErrorResult(int result) {
