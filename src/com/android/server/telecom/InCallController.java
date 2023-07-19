@@ -2121,7 +2121,7 @@ public class InCallController extends CallsManagerListenerBase implements
 
                 ComponentName foundComponentName =
                         new ComponentName(serviceInfo.packageName, serviceInfo.name);
-                if (requestedType == IN_CALL_SERVICE_TYPE_NON_UI) {
+                if (currentType == IN_CALL_SERVICE_TYPE_NON_UI) {
                     mKnownNonUiInCallServices.add(foundComponentName);
                 }
 
