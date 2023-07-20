@@ -353,6 +353,40 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
                 PhoneAccount.SCHEME_TEL));
     }
 
+    /**
+     * Verify when a {@link android.telecom.ConnectionService} is disabled or cannot be resolved,
+     * all phone accounts are unregistered when calling
+     * {@link  PhoneAccountRegistrar#getAccountsForPackage_BypassResolveComp(String, UserHandle)}.
+     */
+    @Test
+    public void testCannotResolveServiceUnregistersAccounts() throws Exception {
+        ComponentName componentName = makeQuickConnectionServiceComponentName();
+        PhoneAccount account = makeQuickAccountBuilder("0", 0, USER_HANDLE_10)
+                .setCapabilities(PhoneAccount.CAPABILITY_CONNECTION_MANAGER
+                        | PhoneAccount.CAPABILITY_CALL_PROVIDER).build();
+        // add the ConnectionService and register a single phone account for it
+        mComponentContextFixture.addConnectionService(componentName,
+                Mockito.mock(IConnectionService.class));
+        registerAndEnableAccount(account);
+        // verify the start state
+        assertEquals(1,
+                mRegistrar.getAccountsForPackage_BypassResolveComp(componentName.getPackageName(),
+                        USER_HANDLE_10).size());
+        // remove the ConnectionService so that the account cannot be resolved anymore
+        mComponentContextFixture.removeConnectionService(componentName,
+                Mockito.mock(IConnectionService.class));
+        // verify the account is unregistered when fetching the phone accounts for the package
+        assertEquals(1,
+                mRegistrar.getAccountsForPackage_BypassResolveComp(componentName.getPackageName(),
+                        USER_HANDLE_10).size());
+        assertEquals(0,mRegistrar.cleanupUnresolvableConnectionServiceAccounts(
+                mRegistrar.getAccountsForPackage_BypassResolveComp(componentName.getPackageName(),
+                USER_HANDLE_10)).size());
+        assertEquals(0,
+                mRegistrar.getAccountsForPackage_BypassResolveComp(componentName.getPackageName(),
+                        USER_HANDLE_10).size());
+    }
+
     @MediumTest
     @Test
     public void testSimCallManager() throws Exception {
