@@ -126,6 +126,7 @@ public class BlockCheckerFilter extends CallFilter {
                     .setShouldReject(true)
                     .setShouldAddToCallLog(true)
                     .setShouldShowNotification(false)
+                    .setShouldSilence(true)
                     .setCallBlockReason(getBlockReason(blockStatus))
                     .setCallScreeningAppName(null)
                     .setCallScreeningComponentName(null)
