@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.UiModeManager;
 import android.app.role.RoleManager;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -31,6 +32,7 @@ import android.widget.Toast;
 
 public class TestDialerActivity extends Activity {
     private static final int REQUEST_CODE_SET_DEFAULT_DIALER = 1;
+    private static int sEntryNumber = 1;
 
     private EditText mNumberView;
     private CheckBox mRttCheckbox;
@@ -75,6 +77,13 @@ public class TestDialerActivity extends Activity {
             @Override
             public void onClick(View v) {
                 cancelMissedCallNotification();
+            }
+        });
+
+        findViewById(R.id.add_call_log_entries).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addCallLogEntries();
             }
         });
 
@@ -236,5 +245,24 @@ public class TestDialerActivity extends Activity {
         Intent intent = new Intent(ImsRcsManager.ACTION_SHOW_CAPABILITY_DISCOVERY_OPT_IN);
         intent.putExtra(Settings.EXTRA_SUB_ID, SubscriptionManager.getDefaultSubscriptionId());
         startActivity(intent);
+    }
+
+    private void addCallLogEntries() {
+        ContentResolver contentResolver = getContentResolver();
+        for (int ix = 0; ix < 1000; ix ++) {
+            ContentValues values = new ContentValues();
+            String number = String.format("1650%07d", sEntryNumber++);
+            values.put(Calls.TYPE, Calls.OUTGOING_TYPE);
+            values.put(Calls.NUMBER, number);
+            values.put(Calls.NUMBER_PRESENTATION, Calls.PRESENTATION_ALLOWED);
+            values.put(Calls.DATE, System.currentTimeMillis());
+            values.put(Calls.DURATION, 10);
+            values.put(Calls.PHONE_ACCOUNT_COMPONENT_NAME, "com.android.phone/com.android.services.telephony.TelephonyConnectionService");
+            values.put(Calls.PHONE_ACCOUNT_ID, 1);
+            values.put(Calls.PHONE_ACCOUNT_ADDRESS, "650-555-1212");
+            values.put(Calls.NEW, 1);
+            contentResolver.insert(Calls.CONTENT_URI, values);
+        }
+
     }
 }
