@@ -101,4 +101,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/send_contact_discovery" />
+
+    <Button
+        android:id="@+id/add_call_log_entries"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Fill Call Log" />
 </LinearLayout>
