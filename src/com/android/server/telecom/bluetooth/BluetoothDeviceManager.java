@@ -104,9 +104,13 @@ public class BluetoothDeviceManager {
                                 logString = "Got BluetoothLeAudio: "
                                         + mBluetoothLeAudioService;
                                 if (!mLeAudioCallbackRegistered) {
-                                    mBluetoothLeAudioService.registerCallback(
-                                                mExecutor, mLeAudioCallbacks);
-                                    mLeAudioCallbackRegistered = true;
+                                    try {
+                                        mBluetoothLeAudioService.registerCallback(
+                                                    mExecutor, mLeAudioCallbacks);
+                                        mLeAudioCallbackRegistered = true;
+                                    } catch (IllegalStateException e) {
+                                        logString += ", but Bluetooth is down";
+                                    }
                                 }
                             } else {
                                 logString = "Connected to non-requested bluetooth service." +
