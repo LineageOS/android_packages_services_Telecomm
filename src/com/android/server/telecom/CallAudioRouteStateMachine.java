@@ -1215,7 +1215,13 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     // Expected, since we just transitioned here
                     return HANDLED;
                 case SPEAKER_OFF:
-                    sendInternalMessage(SWITCH_BASELINE_ROUTE, INCLUDE_BLUETOOTH_IN_BASELINE);
+                    // Check if we already requested to connect to other devices and just waiting
+                    // for their response. In some cases, this SPEAKER_OFF message may come in
+                    // before the response, we can just ignore the message here to not re-evaluate
+                    // the baseline route incorrectly
+                    if (!mBluetoothRouteManager.isBluetoothAudioConnectedOrPending()) {
+                        sendInternalMessage(SWITCH_BASELINE_ROUTE, INCLUDE_BLUETOOTH_IN_BASELINE);
+                    }
                     return HANDLED;
                 case SWITCH_FOCUS:
                     if (msg.arg1 == NO_FOCUS) {
