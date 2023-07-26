@@ -61,7 +61,8 @@ public class BluetoothDeviceManager {
             public void onGroupStatusChanged(int groupId, int groupStatus) {}
             @Override
             public void onGroupNodeAdded(BluetoothDevice device, int groupId) {
-                Log.i(this, device.getAddress() + " group added " + groupId);
+                Log.i(this, (device == null ? "device is null" : device.getAddress())
+                        + " group added " + groupId);
                 if (device == null || groupId == BluetoothLeAudio.GROUP_ID_INVALID) {
                     Log.w(this, "invalid parameter");
                     return;
@@ -73,6 +74,8 @@ public class BluetoothDeviceManager {
             }
             @Override
             public void onGroupNodeRemoved(BluetoothDevice device, int groupId) {
+                Log.i(this, (device == null ? "device is null" : device.getAddress())
+                        + " group removed " + groupId);
                 if (device == null || groupId == BluetoothLeAudio.GROUP_ID_INVALID) {
                     Log.w(this, "invalid parameter");
                     return;
@@ -88,7 +91,7 @@ public class BluetoothDeviceManager {
             new BluetoothProfile.ServiceListener() {
                 @Override
                 public void onServiceConnected(int profile, BluetoothProfile proxy) {
-                    Log.startSession("BMSL.oSC");
+                    Log.startSession("BPSL.oSC");
                     try {
                         synchronized (mLock) {
                             String logString;
@@ -126,7 +129,7 @@ public class BluetoothDeviceManager {
 
                 @Override
                 public void onServiceDisconnected(int profile) {
-                    Log.startSession("BMSL.oSD");
+                    Log.startSession("BPSL.oSD");
                     try {
                         synchronized (mLock) {
                             LinkedHashMap<String, BluetoothDevice> lostServiceDevices;
