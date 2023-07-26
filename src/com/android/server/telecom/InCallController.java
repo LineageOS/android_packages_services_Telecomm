@@ -2885,4 +2885,25 @@ public class InCallController extends CallsManagerListenerBase implements
             return userFromCall;
         }
     }
+
+    /**
+     * Useful for debugging purposes and called on the command line via
+     * an "adb shell telecom command".
+     *
+     * @return true if a particular non-ui InCallService package is bound in a call.
+     */
+    public boolean isNonUiInCallServiceBound(String packageName) {
+        for (NonUIInCallServiceConnectionCollection ics : mNonUIInCallServiceConnections.values()) {
+            for (InCallServiceBindingConnection connection : ics.getSubConnections()) {
+                InCallServiceInfo serviceInfo = connection.mInCallServiceInfo;
+                Log.i(this, "isNonUiInCallServiceBound: found serviceInfo=[%s]", serviceInfo);
+                if (serviceInfo != null &&
+                        serviceInfo.mComponentName.getPackageName().contains(packageName)) {
+                    Log.i(this, "isNonUiInCallServiceBound: found target package");
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
