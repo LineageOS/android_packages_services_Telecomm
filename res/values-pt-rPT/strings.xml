@@ -65,7 +65,7 @@
     <string name="blocked_numbers" msgid="8322134197039865180">"Números bloqueados"</string>
     <string name="blocked_numbers_msg" msgid="2797422132329662697">"Não irá receber chamadas ou mensagens de texto de números bloqueados."</string>
     <string name="block_number" msgid="3784343046852802722">"Adicionar um número"</string>
-    <string name="unblock_dialog_body" msgid="2723393535797217261">"Pretende desbloquear <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
+    <string name="unblock_dialog_body" msgid="2723393535797217261">"Quer desbloquear <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>?"</string>
     <string name="unblock_button" msgid="8732021675729981781">"Desbloquear"</string>
     <string name="add_blocked_dialog_body" msgid="8599974422407139255">"Bloquear chamadas e mensagens de texto de"</string>
     <string name="add_blocked_number_hint" msgid="8769422085658041097">"Número de telefone"</string>
@@ -102,7 +102,7 @@
     <string name="notification_channel_in_call_service_crash" msgid="7313237519166984267">"Apps Telefone com falhas"</string>
     <string name="notification_channel_call_streaming" msgid="5100510699787538991">"Streaming de chamadas"</string>
     <string name="alert_outgoing_call" msgid="5319895109298927431">"Ao efetuar esta chamada, irá terminar a chamada na app <xliff:g id="OTHER_APP">%1$s</xliff:g>."</string>
-    <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"Escolha como pretende efetuar esta chamada"</string>
+    <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"Escolha como quer efetuar esta chamada"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="5221065030959024121">"Redirecionar chamada através de <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
     <string name="alert_place_unredirect_outgoing_call" msgid="2467608535225764006">"Ligar com o meu número de telefone"</string>
     <string name="alert_redirect_outgoing_call_timeout" msgid="5568101425637373060">"Não é possível efetuar uma chamada através da app <xliff:g id="OTHER_APP">%1$s</xliff:g>. Experimente utilizar uma app de redirecionamento de chamadas diferente ou contactar o programador para obter ajuda."</string>
