@@ -72,6 +72,7 @@ public class BlockCheckerFilterTest extends TelecomTestCase {
     private static final CallFilteringResult BLOCK_RESULT = new CallFilteringResult.Builder()
             .setShouldAllowCall(false)
             .setShouldReject(true)
+            .setShouldSilence(true)
             .setShouldAddToCallLog(true)
             .setShouldShowNotification(false)
             .setCallBlockReason(CallLog.Calls.BLOCK_REASON_BLOCKED_NUMBER)
