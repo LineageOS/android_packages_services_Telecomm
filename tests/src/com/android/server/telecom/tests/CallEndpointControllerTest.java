@@ -229,17 +229,26 @@ public class CallEndpointControllerTest extends TelecomTestCase {
         // verify the initial state of the test
         assertEquals(2, btEndpoints.size());
         assertEquals(CallEndpoint.TYPE_BLUETOOTH, currentEndpoint.getEndpointType());
-        assertEquals(currentEndpoint, btEndpoints.get(0));
-        assertNotEquals(currentEndpoint, btEndpoints.get(1));
+
+        CallEndpoint otherBluetoothEndpoint = null;
+        for (CallEndpoint e : btEndpoints) {
+            if (!e.equals(currentEndpoint)) {
+                otherBluetoothEndpoint = e;
+            }
+        }
+
+        assertNotNull(otherBluetoothEndpoint);
+        assertNotEquals(currentEndpoint, otherBluetoothEndpoint);
 
         // request an endpoint change from BT D1 --> BT D2
         doReturn(audioState2).when(mCallAudioManager).getCallAudioState();
-        mCallEndpointController.requestCallEndpointChange(btEndpoints.get(1), mResultReceiver);
+        mCallEndpointController.requestCallEndpointChange(otherBluetoothEndpoint, mResultReceiver);
 
         // verify the transaction was successful and CallAudioManager#setAudioRoute was called
         verify(mResultReceiver, never()).send(eq(CallEndpoint.ENDPOINT_OPERATION_FAILED), any());
-        verify(mCallAudioManager, times(1)).setAudioRoute(eq(CallAudioState.ROUTE_BLUETOOTH),
-                eq(bluetoothDevice2.getAddress()));
+        verify(mCallAudioManager, times(1))
+                .setAudioRoute(eq(CallAudioState.ROUTE_BLUETOOTH),
+                        eq(bluetoothDevice2.getAddress()));
     }
 
     @Test
