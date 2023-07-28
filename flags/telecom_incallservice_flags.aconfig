@@ -1,0 +1,8 @@
+package: "com.android.server.telecom.flags"
+
+flag {
+  name: "early_binding_to_incall_service"
+  namespace: "telecom"
+  description: "Binds to InCallServices when call requires no call filtering on watch"
+  bug: "282113261"
+}
