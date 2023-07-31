@@ -655,7 +655,8 @@ public class CallsManager extends Call.ListenerBase
         mTtyManager = new TtyManager(context, mWiredHeadsetManager);
         mProximitySensorManager = proximitySensorManagerFactory.create(context, this);
         mPhoneStateBroadcaster = new PhoneStateBroadcaster(this);
-        mCallLogManager = new CallLogManager(context, phoneAccountRegistrar, mMissedCallNotifier);
+        mCallLogManager = new CallLogManager(context, phoneAccountRegistrar, mMissedCallNotifier,
+                mAnomalyReporter, asyncCallAudioTaskExecutor);
         mConnectionServiceRepository =
                 new ConnectionServiceRepository(mPhoneAccountRegistrar, mContext, mLock, this);
         mInCallWakeLockController = inCallWakeLockControllerFactory.create(context, this);
@@ -1381,8 +1382,11 @@ public class CallsManager extends Call.ListenerBase
     }
 
     @VisibleForTesting
-    public void setAnomalyReporterAdapter(AnomalyReporterAdapter mAnomalyReporterAdapter){
-        mAnomalyReporter = mAnomalyReporterAdapter;
+    public void setAnomalyReporterAdapter(AnomalyReporterAdapter anomalyReporterAdapter){
+        mAnomalyReporter = anomalyReporterAdapter;
+        if (mCallLogManager != null) {
+            mCallLogManager.setAnomalyReporterAdapter(anomalyReporterAdapter);
+        }
     }
 
     void processIncomingConference(PhoneAccountHandle phoneAccountHandle, Bundle extras) {
