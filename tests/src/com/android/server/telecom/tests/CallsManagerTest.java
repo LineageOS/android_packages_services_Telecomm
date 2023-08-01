@@ -2400,9 +2400,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 .setShouldShowNotification(true).build();
 
         mCallsManager.onCallFilteringComplete(callSpy, result, false /* timeout */);
-        // TODO: Fix this check
-        //verify(mMissedCallNotifier).showMissedCallNotification(
-        //        any(MissedCallNotifier.CallInfo.class));
+        verify(mMissedCallNotifier).showMissedCallNotification(
+                any(MissedCallNotifier.CallInfo.class));
     }
 
     @Test
