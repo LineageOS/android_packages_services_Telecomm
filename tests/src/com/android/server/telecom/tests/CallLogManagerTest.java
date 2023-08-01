@@ -65,7 +65,6 @@ import android.test.suitebuilder.annotation.SmallTest;
 import androidx.test.filters.FlakyTest;
 
 import com.android.server.telecom.Analytics;
-import com.android.server.telecom.AnomalyReporterAdapter;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallLogManager;
 import com.android.server.telecom.CallState;
@@ -124,8 +123,6 @@ public class CallLogManagerTest extends TelecomTestCase {
     PhoneAccountRegistrar mMockPhoneAccountRegistrar;
     @Mock
     MissedCallNotifier mMissedCallNotifier;
-    @Mock
-    AnomalyReporterAdapter mAnomalyReporterAdapter;
 
     @Override
     @Before
@@ -133,7 +130,7 @@ public class CallLogManagerTest extends TelecomTestCase {
         super.setUp();
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
         mCallLogManager = new CallLogManager(mContext, mMockPhoneAccountRegistrar,
-                mMissedCallNotifier, mAnomalyReporterAdapter, Runnable::run);
+                mMissedCallNotifier);
         mDefaultAccountHandle = new PhoneAccountHandle(
                 new ComponentName("com.android.server.telecom.tests", "CallLogManagerTest"),
                 TEST_PHONE_ACCOUNT_ID,
