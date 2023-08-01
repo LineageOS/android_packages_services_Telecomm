@@ -19,20 +19,17 @@ package com.android.server.telecom;
 import static android.provider.CallLog.Calls.BLOCK_REASON_NOT_BLOCKED;
 import static android.telephony.CarrierConfigManager.KEY_SUPPORT_IMS_CONFERENCE_EVENT_PACKAGE_BOOL;
 
-import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.location.Country;
 import android.location.CountryDetector;
 import android.location.Location;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Looper;
 import android.os.UserHandle;
 import android.os.PersistableBundle;
-import android.os.UserManager;
 import android.provider.CallLog;
 import android.provider.CallLog.Calls;
 import android.telecom.Connection;
@@ -45,7 +42,6 @@ import android.telecom.VideoProfile;
 import android.telephony.CarrierConfigManager;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.SubscriptionManager;
-import android.util.Pair;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
@@ -53,8 +49,6 @@ import com.android.server.telecom.callfiltering.CallFilteringResult;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.Executor;
 import java.util.stream.Stream;
 
 /**
@@ -74,19 +68,16 @@ public final class CallLogManager extends CallsManagerListenerBase {
      */
     private static class AddCallArgs {
         public AddCallArgs(Context context, CallLog.AddCallParams params,
-                @Nullable LogCallCompletedListener logCallCompletedListener,
-                @NonNull String callId) {
+                @Nullable LogCallCompletedListener logCallCompletedListener) {
             this.context = context;
             this.params = params;
             this.logCallCompletedListener = logCallCompletedListener;
-            this.callId = callId;
 
         }
         // Since the members are accessed directly, we don't use the
         // mXxxx notation.
         public final Context context;
         public final CallLog.AddCallParams params;
-        public final String callId;
         @Nullable
         public final LogCallCompletedListener logCallCompletedListener;
     }
@@ -97,17 +88,11 @@ public final class CallLogManager extends CallsManagerListenerBase {
     // TODO: come up with a better way to indicate in a android.telecom.DisconnectCause that
     // a conference was merged successfully
     private static final String REASON_IMS_MERGED_SUCCESSFULLY = "IMS_MERGED_SUCCESSFULLY";
-    private static final UUID LOG_CALL_FAILED_ANOMALY_ID =
-            UUID.fromString("1c4c15f3-ab4f-459c-b9ef-43d2988bae82");
-    private static final String LOG_CALL_FAileD_ANOMALY_DESC =
-            "Failed to record a call to the call log.";
 
     private final Context mContext;
     private final CarrierConfigManager mCarrierConfigManager;
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
     private final MissedCallNotifier mMissedCallNotifier;
-    private final Executor mCallLogExecutor;
-    private AnomalyReporterAdapter mAnomalyReporterAdapter;
     private static final String ACTION_CALLS_TABLE_ADD_ENTRY =
                 "com.android.server.telecom.intent.action.CALLS_ADD_ENTRY";
     private static final String PERMISSION_PROCESS_CALLLOG_INFO =
@@ -119,15 +104,12 @@ public final class CallLogManager extends CallsManagerListenerBase {
     private String mCurrentCountryIso;
 
     public CallLogManager(Context context, PhoneAccountRegistrar phoneAccountRegistrar,
-            MissedCallNotifier missedCallNotifier, AnomalyReporterAdapter anomalyReporterAdapter,
-            Executor executor) {
+            MissedCallNotifier missedCallNotifier) {
         mContext = context;
         mCarrierConfigManager = (CarrierConfigManager) mContext
                 .getSystemService(Context.CARRIER_CONFIG_SERVICE);
         mPhoneAccountRegistrar = phoneAccountRegistrar;
         mMissedCallNotifier = missedCallNotifier;
-        mAnomalyReporterAdapter = anomalyReporterAdapter;
-        mCallLogExecutor = executor;
         mLock = new Object();
     }
 
@@ -258,10 +240,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
             logCall(call, type, new LogCallCompletedListener() {
                 @Override
                 public void onLogCompleted(@Nullable Uri uri) {
-                    mContext.getMainExecutor().execute(() -> {
-                        mMissedCallNotifier.showMissedCallNotification(
-                                new MissedCallNotifier.CallInfo(call));
-                    });
+                    mMissedCallNotifier.showMissedCallNotification(
+                            new MissedCallNotifier.CallInfo(call));
                 }
             }, result);
         } else {
@@ -405,7 +385,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
                 okayToLogCall(accountHandle, logNumber, call.isEmergencyCall());
         if (okayToLog) {
             AddCallArgs args = new AddCallArgs(mContext, paramBuilder.build(),
-                    logCallCompletedListener, call.getId());
+                    logCallCompletedListener);
             Log.addEvent(call, LogUtils.Events.LOG_CALL, "number=" + Log.piiHandle(logNumber)
                     + ",postDial=" + Log.piiHandle(call.getPostDialDigits()) + ",pres="
                     + call.getHandlePresentation());
@@ -511,60 +491,66 @@ public final class CallLogManager extends CallsManagerListenerBase {
      * Adds the call defined by the parameters in the provided AddCallArgs to the CallLogProvider
      * using an AsyncTask to avoid blocking the main thread.
      *
-     * @param c Prepopulated call details.
+     * @param args Prepopulated call details.
+     * @return A handle to the AsyncTask that will add the call to the call log asynchronously.
      */
-    public void logCallAsync(final AddCallArgs c) {
-        mCallLogExecutor.execute(() -> {
-            Uri result;
-            try {
-                // May block.
-                ContentResolver resolver = c.context.getContentResolver();
-                Pair<Integer, Integer> startStats = getCallLogStats(resolver);
-                Log.i(TAG, "LogCall; about to log callId=%s, "
-                                + "startCount=%d, startMaxId=%d",
-                        c.callId, startStats.first, startStats.second);
+    public AsyncTask<AddCallArgs, Void, Uri[]> logCallAsync(AddCallArgs args) {
+        return new LogCallAsyncTask().execute(args);
+    }
 
-                result = Calls.addCall(c.context, c.params);
-                Pair<Integer, Integer> endStats = getCallLogStats(resolver);
-                Log.i(TAG, "LogCall; logged callId=%s, uri=%s, "
-                                + "endCount=%d, endMaxId=%s",
-                        c.callId, result, endStats.first, endStats.second);
-                if ((endStats.second - startStats.second) <= 0) {
-                    // No call was added or even worse we lost a call in the log.  Trigger an
-                    // anomaly report.  Note: it technically possible that an app modified the
-                    // call log while we were writing to it here; that is pretty unlikely, and
-                    // the goal here is to try and identify potential anomalous conditions with
-                    // logging calls.
-                    mAnomalyReporterAdapter.reportAnomaly(LOG_CALL_FAILED_ANOMALY_ID,
-                            LOG_CALL_FAileD_ANOMALY_DESC);
+    /**
+     * Helper AsyncTask to access the call logs database asynchronously since database operations
+     * can take a long time depending on the system's load. Since it extends AsyncTask, it uses
+     * its own thread pool.
+     */
+    private class LogCallAsyncTask extends AsyncTask<AddCallArgs, Void, Uri[]> {
+
+        private LogCallCompletedListener[] mListeners;
+
+        @Override
+        protected Uri[] doInBackground(AddCallArgs... callList) {
+            int count = callList.length;
+            Uri[] result = new Uri[count];
+            mListeners = new LogCallCompletedListener[count];
+            for (int i = 0; i < count; i++) {
+                AddCallArgs c = callList[i];
+                mListeners[i] = c.logCallCompletedListener;
+                try {
+                    // May block.
+                    result[i] = Calls.addCall(c.context, c.params);
+                } catch (Exception e) {
+                    // This is very rare but may happen in legitimate cases.
+                    // E.g. If the phone is encrypted and thus write request fails, it may cause
+                    // some kind of Exception (right now it is IllegalArgumentException, but this
+                    // might change).
+                    //
+                    // We don't want to crash the whole process just because of that, so just log
+                    // it instead.
+                    Log.e(TAG, e, "Exception raised during adding CallLog entry.");
+                    result[i] = null;
                 }
-            } catch (Exception e) {
-                // This is very rare but may happen in legitimate cases.
-                // E.g. If the phone is encrypted and thus write request fails, it may cause
-                // some kind of Exception (right now it is IllegalArgumentException, but this
-                // might change).
-                //
-                // We don't want to crash the whole process just because of that, so just log
-                // it instead.
-                Log.e(TAG, e, "LogCall: Exception raised adding callId=%s", c.callId);
-                result = null;
-                mAnomalyReporterAdapter.reportAnomaly(LOG_CALL_FAILED_ANOMALY_ID,
-                        LOG_CALL_FAileD_ANOMALY_DESC);
             }
+            return result;
+        }
 
-            /*
-             Performs a simple correctness check to make sure the call was written in the
-             database.
-             Typically there is only one result per call so it is easy to identify which one
-             failed.
-             */
-            if (result == null) {
-                Log.w(TAG, "LogCall: Failed to write call to the log.");
+        @Override
+        protected void onPostExecute(Uri[] result) {
+            for (int i = 0; i < result.length; i++) {
+                Uri uri = result[i];
+                /*
+                 Performs a simple correctness check to make sure the call was written in the
+                 database.
+                 Typically there is only one result per call so it is easy to identify which one
+                 failed.
+                 */
+                if (uri == null) {
+                    Log.w(TAG, "Failed to write call to the log.");
+                }
+                if (mListeners[i] != null) {
+                    mListeners[i].onLogCompleted(uri);
+                }
             }
-            if (c.logCallCompletedListener != null) {
-                c.logCallCompletedListener.onLogCompleted(result);
-            }
-        });
+        }
     }
 
     private void sendAddCallBroadcast(int callType, long duration) {
@@ -615,56 +601,5 @@ public final class CallLogManager extends CallsManagerListenerBase {
             }
             return mCurrentCountryIso;
         }
-    }
-
-    /**
-     * Returns a pair containing the number of rows in the call log, as well as the maximum call log
-     * ID.  There is a limit of 500 entries in the call log for a phone account, so once we hit 500
-     * we can reasonably expect that number to not change before and after logging a call.
-     * We determine the maximum ID in the call log since this is a way we can objectively check if
-     * the provider did record a call log entry or not.  Ideally there should me more call log
-     * entries after logging than before, and certainly not less.
-     * @param resolver content resolver
-     * @return pair with number of rows in the call log and max id.
-     */
-    private Pair<Integer, Integer> getCallLogStats(@NonNull ContentResolver resolver) {
-        try {
-            final UserManager userManager = mContext.getSystemService(UserManager.class);
-            final int currentUserId = userManager.getProcessUserId();
-
-            // Use shadow provider based on current user unlock state.
-            Uri providerUri;
-            if (userManager.isUserUnlocked(currentUserId)) {
-                providerUri = Calls.CONTENT_URI;
-            } else {
-                providerUri = Calls.SHADOW_CONTENT_URI;
-            }
-            int maxCallId = -1;
-            int numFound;
-            Cursor countCursor = resolver.query(providerUri,
-                    new String[]{Calls._ID},
-                    null,
-                    null,
-                    Calls._ID + " DESC");
-            try {
-                numFound = countCursor.getCount();
-                if (numFound > 0) {
-                    countCursor.moveToFirst();
-                    maxCallId = countCursor.getInt(0);
-                }
-            } finally {
-                countCursor.close();
-            }
-            return new Pair<>(numFound, maxCallId);
-        } catch (Exception e) {
-            // Oh jeepers, we crashed getting the call count.
-            Log.e(TAG, e, "getCountOfCallLogRows: failed");
-            return new Pair<>(-1, -1);
-        }
-    }
-
-    @VisibleForTesting
-    public void setAnomalyReporterAdapter(AnomalyReporterAdapter anomalyReporterAdapter){
-        mAnomalyReporterAdapter = anomalyReporterAdapter;
     }
 }
