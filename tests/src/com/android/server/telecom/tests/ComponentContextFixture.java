@@ -124,7 +124,9 @@ public class ComponentContextFixture implements TestFixture<Context> {
 
         @Override
         public Executor getMainExecutor() {
-            return Runnable::run;
+            // TODO: This doesn't actually execute anything as we don't need to do so for now, but
+            //  future users might need it.
+            return mMainExecutor;
         }
 
         @Override
