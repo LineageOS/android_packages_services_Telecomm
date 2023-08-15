@@ -19,7 +19,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name" msgid="2907804426411305091">"事务性 API 测试活动"</string>
     <string name="in_call_activity_name" msgid="7545884666442897585">"通话活动中的事务"</string>
-    <string name="register_phone_account" msgid="1920315963082350332">"注册电话帐号"</string>
+    <string name="register_phone_account" msgid="1920315963082350332">"注册电话账号"</string>
     <string name="start_foreground_service" msgid="8968755699895128574">"启动 FGS（在后台模拟 MT + 应用）"</string>
     <string name="start_outgoing" msgid="1441644037370361864">"开始去电"</string>
     <string name="start_incoming" msgid="6444983300186361271">"开始来电"</string>
