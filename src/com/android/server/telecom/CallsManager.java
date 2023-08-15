@@ -132,6 +132,7 @@ import com.android.server.telecom.callfiltering.IncomingCallFilterGraph;
 import com.android.server.telecom.callredirection.CallRedirectionProcessor;
 import com.android.server.telecom.components.ErrorDialogActivity;
 import com.android.server.telecom.components.TelecomBroadcastReceiver;
+import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.stats.CallFailureCause;
 import com.android.server.telecom.ui.AudioProcessingNotification;
@@ -2313,6 +2314,15 @@ public class CallsManager extends Call.ListenerBase
 
          PhoneAccountHandle phoneAccountHandle = clientExtras.getParcelable(
                  TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE);
+         PhoneAccount account =
+                mPhoneAccountRegistrar.getPhoneAccount(phoneAccountHandle, initiatingUser);
+         boolean isSelfManaged = account != null && account.isSelfManaged();
+         // Enforce outgoing call restriction for conference calls. This is handled via
+         // UserCallIntentProcessor for normal MO calls.
+         if (UserUtil.hasOutgoingCallsUserRestriction(mContext, initiatingUser,
+                 null, isSelfManaged, CallsManager.class.getCanonicalName())) {
+             return;
+         }
          CompletableFuture<Call> callFuture = startOutgoingCall(participants, phoneAccountHandle,
                  clientExtras, initiatingUser, null/* originalIntent */, callingPackage,
                  true/* isconference*/);
