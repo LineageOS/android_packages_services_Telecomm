@@ -45,7 +45,7 @@
     <string name="respond_via_sms_edittext_dialog_title" msgid="6579353156073272157">"快速回复"</string>
     <string name="respond_via_sms_confirmation_format" msgid="2932395476561267842">"讯息已发送至 <xliff:g id="PHONE_NUMBER">%s</xliff:g>。"</string>
     <string name="respond_via_sms_failure_format" msgid="5198680980054596391">"未能将信息发送到 <xliff:g id="PHONE_NUMBER">%s</xliff:g>。"</string>
-    <string name="enable_account_preference_title" msgid="6949224486748457976">"通话帐号"</string>
+    <string name="enable_account_preference_title" msgid="6949224486748457976">"通话账号"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="3424338207838851646">"只能拨打紧急呼救电话。"</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="8590468836581488679">"此应用没有电话权限，无法拨出电话。"</string>
     <string name="outgoing_call_error_no_phone_number_supplied" msgid="7665135102566099778">"要拨打电话，请输入有效的电话号码。"</string>
@@ -90,7 +90,7 @@
     <string name="answering_ends_other_managed_video_call" msgid="1988508241432031327">"如果接听此来电，您当前的视频通话会中断。"</string>
     <string name="answer_incoming_call" msgid="2045888814782215326">"接听"</string>
     <string name="decline_incoming_call" msgid="922147089348451310">"拒接"</string>
-    <string name="cant_call_due_to_no_supported_service" msgid="1635626384149947077">"无法拨出电话，因为没有通话帐号支持拨打这类电话。"</string>
+    <string name="cant_call_due_to_no_supported_service" msgid="1635626384149947077">"无法拨出电话，因为没有通话账号支持拨打这类电话。"</string>
     <string name="cant_call_due_to_ongoing_call" msgid="8004235328451385493">"由于当前正在进行 <xliff:g id="OTHER_CALL">%1$s</xliff:g> 通话，因此无法拨打电话。"</string>
     <string name="cant_call_due_to_ongoing_calls" msgid="6379163795277824868">"由于当前正在进行 <xliff:g id="OTHER_CALL">%1$s</xliff:g> 通话，因此无法拨打电话。"</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="8243532328969433172">"由于当前正在通过其他应用通话，因此无法拨打电话。"</string>
