@@ -17,7 +17,7 @@
 package com.android.server.telecom;
 
 import static android.provider.CallLog.Calls.MISSED_REASON_NOT_MISSED;
-import static android.telecom.Call.EVENT_DISPLAY_SOS_MESSAGE;
+import static android.telephony.TelephonyManager.EVENT_DISPLAY_SOS_MESSAGE;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
