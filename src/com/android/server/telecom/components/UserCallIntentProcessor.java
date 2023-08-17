@@ -132,7 +132,7 @@ public class UserCallIntentProcessor {
                         final Intent adminSupportIntent = dpm.createAdminSupportIntent(
                                 UserManager.DISALLOW_OUTGOING_CALLS);
                         if (adminSupportIntent != null) {
-                            mContext.startActivity(adminSupportIntent);
+                            mContext.startActivityAsUser(adminSupportIntent, mUserHandle);
                         }
                         return;
                     }
