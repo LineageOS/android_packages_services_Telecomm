@@ -57,6 +57,7 @@ import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.os.vibrator.persistence.VibrationXmlParser;
 import android.os.Vibrator;
+import android.os.VibratorInfo;
 import android.platform.test.flag.junit.CheckFlagsRule;
 import android.platform.test.flag.junit.DeviceFlagsValueProvider;
 import android.telecom.PhoneAccountHandle;
@@ -109,6 +110,7 @@ public class RingerTest extends TelecomTestCase {
     @Mock SystemSettingsUtil mockSystemSettingsUtil;
     @Mock RingtoneFactory mockRingtoneFactory;
     @Mock Vibrator mockVibrator;
+    @Mock VibratorInfo mockVibratorInfo;
     @Mock InCallController mockInCallController;
     @Mock NotificationManager mockNotificationManager;
     @Mock Ringer.AccessibilityManagerAdapter mockAccessibilityManagerAdapter;
@@ -139,6 +141,7 @@ public class RingerTest extends TelecomTestCase {
         when(mockPlayerFactory.createPlayer(anyInt())).thenReturn(mockTonePlayer);
         mockAudioManager = mContext.getSystemService(AudioManager.class);
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_NORMAL);
+        when(mockVibrator.getInfo()).thenReturn(mockVibratorInfo);
         when(mockSystemSettingsUtil.isHapticPlaybackSupported(any(Context.class)))
                 .thenAnswer((invocation) -> mIsHapticPlaybackSupported);
         mockNotificationManager =mContext.getSystemService(NotificationManager.class);
@@ -187,7 +190,7 @@ public class RingerTest extends TelecomTestCase {
                     </vibration>
                 """,
                 /* useSimpleVibration= */ true);
-        when(mockVibrator.areVibrationFeaturesSupported(any())).thenReturn(true);
+        when(mockVibratorInfo.areVibrationFeaturesSupported(any())).thenReturn(true);
 
         createRingerUnderTest();
 
@@ -212,7 +215,7 @@ public class RingerTest extends TelecomTestCase {
                     </vibration>
                 """,
                 /* useSimpleVibration= */ false);
-        when(mockVibrator.areVibrationFeaturesSupported(any())).thenReturn(true);
+        when(mockVibratorInfo.areVibrationFeaturesSupported(any())).thenReturn(true);
 
         createRingerUnderTest();
 
@@ -236,7 +239,7 @@ public class RingerTest extends TelecomTestCase {
                     </vibration>
                 """,
                 /* useSimpleVibration= */ false);
-        when(mockVibrator.areVibrationFeaturesSupported(any())).thenReturn(true);
+        when(mockVibratorInfo.areVibrationFeaturesSupported(any())).thenReturn(true);
 
         createRingerUnderTest();
 
@@ -256,7 +259,7 @@ public class RingerTest extends TelecomTestCase {
                     </vibration>
                 """,
                 /* useSimpleVibration= */ false);
-        when(mockVibrator.areVibrationFeaturesSupported(any())).thenReturn(true);
+        when(mockVibratorInfo.areVibrationFeaturesSupported(any())).thenReturn(true);
 
         createRingerUnderTest();
 
@@ -285,7 +288,7 @@ public class RingerTest extends TelecomTestCase {
                     </vibration>
                 """,
                 /* useSimpleVibration= */ false);
-        when(mockVibrator.areVibrationFeaturesSupported(
+        when(mockVibratorInfo.areVibrationFeaturesSupported(
                 eq(VibrationEffect.createPredefined(EFFECT_CLICK)))).thenReturn(false);
 
         createRingerUnderTest();
@@ -300,7 +303,7 @@ public class RingerTest extends TelecomTestCase {
         mockVibrationResourceValues(
                 /* defaultVibrationContent= */ "bad serialization",
                 /* useSimpleVibration= */ false);
-        when(mockVibrator.areVibrationFeaturesSupported(any())).thenReturn(true);
+        when(mockVibratorInfo.areVibrationFeaturesSupported(any())).thenReturn(true);
 
         createRingerUnderTest();
 
@@ -313,7 +316,7 @@ public class RingerTest extends TelecomTestCase {
         when(mFeatureFlags.useDeviceProvidedSerializedRingerVibration()).thenReturn(true);
         mockVibrationResourceValues(
                 /* defaultVibrationContent= */ "", /* useSimpleVibration= */ false);
-        when(mockVibrator.areVibrationFeaturesSupported(any())).thenReturn(true);
+        when(mockVibratorInfo.areVibrationFeaturesSupported(any())).thenReturn(true);
 
         createRingerUnderTest();
 
