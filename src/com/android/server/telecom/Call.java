@@ -30,6 +30,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.OutcomeReceiver;
 import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
 import android.os.RemoteException;
@@ -43,6 +44,7 @@ import android.telecom.CallAttributes;
 import android.telecom.CallAudioState;
 import android.telecom.CallDiagnosticService;
 import android.telecom.CallDiagnostics;
+import android.telecom.CallException;
 import android.telecom.CallerInfo;
 import android.telecom.Conference;
 import android.telecom.Connection;
@@ -73,6 +75,9 @@ import com.android.internal.util.Preconditions;
 import com.android.server.telecom.stats.CallFailureCause;
 import com.android.server.telecom.stats.CallStateChangedAtomWriter;
 import com.android.server.telecom.ui.ToastFactory;
+import com.android.server.telecom.voip.TransactionManager;
+import com.android.server.telecom.voip.VerifyCallStateChangeTransaction;
+import com.android.server.telecom.voip.VoipCallTransactionResult;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -117,6 +122,24 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private static final int INVALID_RTT_REQUEST_ID = -1;
 
     private static final char NO_DTMF_TONE = '\0';
+
+
+    /**
+     * Listener for CallState changes which can be leveraged by a Transaction.
+     */
+    public interface CallStateListener {
+        void onCallStateChanged(int newCallState);
+    }
+
+    public List<CallStateListener> mCallStateListeners = new ArrayList<>();
+
+    public void addCallStateListener(CallStateListener newListener) {
+        mCallStateListeners.add(newListener);
+    }
+
+    public boolean removeCallStateListener(CallStateListener newListener) {
+        return mCallStateListeners.remove(newListener);
+    }
 
     /**
      * Listener for events on the call.
@@ -1326,6 +1349,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                     stringData = stringData == null ? data.toString() : stringData + "> " + data;
                 }
                 Log.addEvent(this, event, stringData);
+            }
+
+            for (CallStateListener listener : mCallStateListeners) {
+                listener.onCallStateChanged(newState);
             }
 
             mCallStateChangedAtomWriter
@@ -2898,11 +2925,16 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         hold(null /* reason */);
     }
 
+    /**
+     * This method requests the ConnectionService or TransactionalService hosting the call to put
+     * the call on hold
+     */
     public void hold(String reason) {
         if (mState == CallState.ACTIVE) {
             if (mTransactionalService != null) {
                 mTransactionalService.onSetInactive(this);
             } else if (mConnectionService != null) {
+                awaitCallStateChangeAndMaybeDisconnectCall(CallState.ON_HOLD, isSelfManaged(), "hold");
                 mConnectionService.hold(this);
             } else {
                 Log.e(this, new NullPointerException(),
@@ -2910,6 +2942,27 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             }
             Log.addEvent(this, LogUtils.Events.REQUEST_HOLD, reason);
         }
+    }
+
+    /**
+     * helper that can be used for any callback that requests a call state change and wants to
+     * verify the change
+     */
+    public void awaitCallStateChangeAndMaybeDisconnectCall(int targetCallState,
+            boolean shouldDisconnectUponTimeout, String callingMethod) {
+        TransactionManager tm = TransactionManager.getInstance();
+        tm.addTransaction(new VerifyCallStateChangeTransaction(mCallsManager,
+                this, targetCallState, shouldDisconnectUponTimeout), new OutcomeReceiver<>() {
+            @Override
+            public void onResult(VoipCallTransactionResult result) {
+            }
+
+            @Override
+            public void onError(CallException e) {
+                Log.i(this, "awaitCallStateChangeAndMaybeDisconnectCall: %s: onError"
+                        + " due to CallException=[%s]", callingMethod, e);
+            }
+        });
     }
 
     /**
