@@ -297,6 +297,10 @@ public class CallsManager extends Call.ListenerBase
             UUID.fromString("2e994acb-1997-4345-8bf3-bad04303de26");
     public static final String EMERGENCY_CALL_ABORTED_NO_PHONE_ACCOUNTS_ERROR_MSG =
             "An emergency call was aborted since there were no available phone accounts.";
+    public static final UUID DEFAULT_CALLING_ACCOUNT_MISMATCH_UUID =
+            UUID.fromString("64b6d6b0-3c7c-11ee-be56-0242ac120002");
+    public static final String DEFAULT_CALLING_ACCOUNT_MISMATCH_MSG =
+            "Telecom and Telephony have different default calling accounts.";
 
     private static final int[] OUTGOING_CALL_STATES =
             {CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING,
@@ -2195,7 +2199,31 @@ public class CallsManager extends Call.ListenerBase
                     }
                     return CompletableFuture.completedFuture(callToUse);
                 }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.pASP", mLock));
+        maybeGenAnomReportForDefaultMismatch(initiatingUser);
         return mLatestPostSelectionProcessingFuture;
+    }
+
+    /**
+     * If the Telecom default outgoing account ID is not the same as the Telephony voice sub ID,
+     * this can cause unwanted behavior.
+     */
+    private void maybeGenAnomReportForDefaultMismatch(UserHandle userHandle) {
+        try {
+            PhoneAccountHandle handle =
+                    mPhoneAccountRegistrar.getUserSelectedOutgoingPhoneAccount(userHandle);
+            int currentTelecomId = -1;
+            if (handle != null) {
+                currentTelecomId = Integer.parseInt(handle.getId());
+            }
+            int currentVoiceSubId = SubscriptionManager.getDefaultVoiceSubscriptionId();
+            if (currentTelecomId != currentVoiceSubId) {
+                mAnomalyReporter.reportAnomaly(
+                        DEFAULT_CALLING_ACCOUNT_MISMATCH_UUID,
+                        DEFAULT_CALLING_ACCOUNT_MISMATCH_MSG);
+            }
+        } catch (Exception e) {
+            // ignore exceptions.  This should not affect the outgoing call.
+        }
     }
 
     private static int getManagedProfileUserId(Context context, int userId) {
