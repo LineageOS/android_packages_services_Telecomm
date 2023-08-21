@@ -338,7 +338,8 @@ public class TransactionTests extends TelecomTestCase {
                 false /* shouldAttachToExistingConnection*/,
                 false /* isConference */,
                 mClockProxy,
-                mToastFactory);
+                mToastFactory,
+                mFeatureFlags);
 
         Call callSpy = Mockito.spy(call);
 
