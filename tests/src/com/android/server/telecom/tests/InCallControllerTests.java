@@ -141,6 +141,8 @@ public class InCallControllerTests extends TelecomTestCase {
     @Mock PackageManager mMockPackageManager;
     @Mock PermissionCheckerManager mMockPermissionCheckerManager;
     @Mock Call mMockCall;
+    @Mock Call mMockSystemCall1;
+    @Mock Call mMockSystemCall2;
     @Mock Resources mMockResources;
     @Mock AppOpsManager mMockAppOpsManager;
     @Mock MockContext mMockContext;
@@ -586,6 +588,7 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.isEmergencyCall()).thenReturn(true);
         when(mMockCall.isIncoming()).thenReturn(true);
         when(mMockCall.getAssociatedUser()).thenReturn(DUMMY_USER_HANDLE);
+        when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
         when(mMockContext.getSystemService(eq(UserManager.class)))
             .thenReturn(mMockUserManager);
         when(mMockUserManager.isQuietModeEnabled(any(UserHandle.class))).thenReturn(true);
@@ -615,6 +618,7 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.isInECBM()).thenReturn(true);
         when(mMockCall.isIncoming()).thenReturn(true);
         when(mMockCall.getAssociatedUser()).thenReturn(DUMMY_USER_HANDLE);
+        when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
         when(mMockContext.getSystemService(eq(UserManager.class)))
                 .thenReturn(mMockUserManager);
         when(mMockUserManager.isQuietModeEnabled(any(UserHandle.class))).thenReturn(true);
@@ -645,6 +649,7 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.isInECBM()).thenReturn(true);
         when(mMockCall.isIncoming()).thenReturn(true);
         when(mMockCall.getAssociatedUser()).thenReturn(DUMMY_USER_HANDLE);
+        when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
         when(mMockContext.getSystemService(eq(UserManager.class)))
                 .thenReturn(mMockUserManager);
         when(mMockUserManager.isQuietModeEnabled(any(UserHandle.class))).thenReturn(false);
@@ -1835,6 +1840,67 @@ public class InCallControllerTests extends TelecomTestCase {
 
         // Verify that the mapping was properly removed.
         assertNull(mInCallController.getInCallServiceConnections().get(testUser));
+    }
+
+    @Test
+    public void testRemoveAllServiceConnections_MultiUser() throws Exception {
+        when(mFeatureFlags.workProfileAssociatedUser()).thenReturn(true);
+        setupMocks(false /* isExternalCall */);
+        setupMockPackageManager(true /* default */, true /* system */, false /* external calls */);
+        UserHandle workUser = new UserHandle(12);
+        UserManager um = mContext.getSystemService(UserManager.class);
+        when(um.getUserInfo(anyInt())).thenReturn(mMockUserInfo);
+        when(mMockUserInfo.isManagedProfile()).thenReturn(false);
+        when(mMockCall.getAssociatedUser()).thenReturn(workUser);
+        setupFakeSystemCall(mMockSystemCall1, 1);
+        setupFakeSystemCall(mMockSystemCall2, 2);
+
+        // Add "work" call to service. The mapping should've been inserted
+        // with the workUser as the key.
+        mInCallController.onCallAdded(mMockCall);
+        // Add system call to service. The mapping should've been
+        // inserted with the system user as the key.
+        mInCallController.onCallAdded(mMockSystemCall1);
+
+        ArgumentCaptor<Intent> bindIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        // Make sure we bound to the system call as well as the work call.
+        verify(mMockContext, times(2)).bindServiceAsUser(
+                bindIntentCaptor.capture(),
+                any(ServiceConnection.class),
+                eq(serviceBindingFlags),
+                eq(UserHandle.CURRENT));
+        assertTrue(mInCallController.getInCallServiceConnections().containsKey(workUser));
+        assertTrue(mInCallController.getInCallServiceConnections().containsKey(UserHandle.SYSTEM));
+
+        // Remove the work call. This leverages getUserFromCall to remove the ICS mapping.
+        when(mMockCallsManager.getCalls()).thenReturn(Collections.singletonList(mMockSystemCall1));
+        mInCallController.onCallRemoved(mMockCall);
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
+        // Verify that the mapping was properly removed.
+        assertNull(mInCallController.getInCallServiceConnections().get(workUser));
+        // Verify mapping for system user is still present.
+        assertNotNull(mInCallController.getInCallServiceConnections().get(UserHandle.SYSTEM));
+
+        // Add another system call
+        mInCallController.onCallAdded(mMockSystemCall2);
+        when(mMockCallsManager.getCalls()).thenReturn(Collections.singletonList(mMockSystemCall2));
+        // Remove first system call and verify that mapping is present
+        mInCallController.onCallRemoved(mMockSystemCall1);
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
+        // Verify mapping for system user is still present.
+        assertNotNull(mInCallController.getInCallServiceConnections().get(UserHandle.SYSTEM));
+        // Remove last system call and verify that connection isn't present in ICS mapping.
+        when(mMockCallsManager.getCalls()).thenReturn(Collections.emptyList());
+        mInCallController.onCallRemoved(mMockSystemCall2);
+        waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
+        assertNull(mInCallController.getInCallServiceConnections().get(UserHandle.SYSTEM));
+    }
+
+    private void setupFakeSystemCall(@Mock Call call, int id) {
+        when(call.getAssociatedUser()).thenReturn(UserHandle.SYSTEM);
+        when(call.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
+        when(call.getAnalytics()).thenReturn(new Analytics.CallInfo());
+        when(call.getId()).thenReturn("TC@" + id);
     }
 
     private void setupMocksForWorkProfileTest() {

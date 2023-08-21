@@ -72,6 +72,7 @@ import android.widget.Toast;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telecom.IVideoProvider;
 import com.android.internal.util.Preconditions;
+import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.stats.CallFailureCause;
 import com.android.server.telecom.stats.CallStateChangedAtomWriter;
 import com.android.server.telecom.ui.ToastFactory;
@@ -786,6 +787,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      */
     private CompletableFuture<Boolean> mDisconnectFuture;
 
+    private FeatureFlags mFlags;
+
     /**
      * Persists the specified parameters and initializes the new instance.
      * @param context The context.
@@ -817,11 +820,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             boolean shouldAttachToExistingConnection,
             boolean isConference,
             ClockProxy clockProxy,
-            ToastFactory toastFactory) {
+            ToastFactory toastFactory,
+            FeatureFlags featureFlags) {
         this(callId, context, callsManager, lock, repository, phoneNumberUtilsAdapter,
                handle, null, gatewayInfo, connectionManagerPhoneAccountHandle,
                targetPhoneAccountHandle, callDirection, shouldAttachToExistingConnection,
-               isConference, clockProxy, toastFactory);
+               isConference, clockProxy, toastFactory, featureFlags);
 
     }
 
@@ -841,8 +845,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             boolean shouldAttachToExistingConnection,
             boolean isConference,
             ClockProxy clockProxy,
-            ToastFactory toastFactory) {
+            ToastFactory toastFactory,
+            FeatureFlags featureFlags) {
 
+        mFlags = featureFlags;
         mId = callId;
         mConnectionId = callId;
         mState = (isConference && callDirection != CALL_DIRECTION_INCOMING &&
@@ -892,6 +898,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * connection, regardless of whether it's incoming or outgoing.
      * @param connectTimeMillis The connection time of the call.
      * @param clockProxy
+     * @param featureFlags The telecom feature flags.
      */
     Call(
             String callId,
@@ -910,11 +917,13 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             long connectTimeMillis,
             long connectElapsedTimeMillis,
             ClockProxy clockProxy,
-            ToastFactory toastFactory) {
+            ToastFactory toastFactory,
+            FeatureFlags featureFlags) {
         this(callId, context, callsManager, lock, repository,
                 phoneNumberUtilsAdapter, handle, gatewayInfo,
                 connectionManagerPhoneAccountHandle, targetPhoneAccountHandle, callDirection,
-                shouldAttachToExistingConnection, isConference, clockProxy, toastFactory);
+                shouldAttachToExistingConnection, isConference, clockProxy, toastFactory,
+                featureFlags);
 
         mConnectTimeMillis = connectTimeMillis;
         mConnectElapsedTimeMillis = connectElapsedTimeMillis;
@@ -1766,8 +1775,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                     accountHandle.getComponentName().getPackageName(),
                     mContext.getPackageManager());
             // Set the associated user for the call for MT calls based on the target phone account.
-            if (isIncoming() && !accountHandle.getUserHandle().equals(mAssociatedUser)) {
-                setAssociatedUser(accountHandle.getUserHandle());
+            UserHandle associatedUser = UserUtil.getAssociatedUserForCall(
+                    mFlags.workProfileAssociatedUser(),
+                    mCallsManager.getPhoneAccountRegistrar(), mCallsManager.getCurrentUserHandle(),
+                    accountHandle);
+            if (isIncoming() && !associatedUser.equals(mAssociatedUser)) {
+                setAssociatedUser(associatedUser);
             }
         }
     }
@@ -4092,7 +4105,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * @param associatedUser
      */
     public void setAssociatedUser(UserHandle associatedUser) {
-        Log.i(this, "Setting associated user for call");
+        Log.i(this, "Setting associated user for call: %s", associatedUser);
         Preconditions.checkNotNull(associatedUser);
         mAssociatedUser = associatedUser;
     }
