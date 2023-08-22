@@ -123,4 +123,11 @@
     <string name="developer_title" msgid="9146088855661672353">"ଟେଲେକମ୍ ଡେଭେଲପର୍ ମେନୁ"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"ଜରୁରୀକାଳୀନ କଲ୍ ବେଳେ ଅନ୍ୟ କଲ୍ ଉଠାଇ ପାରିବେ ନାହିଁ।"</string>
     <string name="cancel" msgid="6733466216239934756">"ବାତିଲ କରନ୍ତୁ"</string>
+    <string name="back" msgid="6915955601805550206">"ପଛକୁ ଫେରନ୍ତୁ"</string>
+    <string name="callendpoint_name_earpiece" msgid="7047285080319678594">"ଇୟରପିସ"</string>
+    <string name="callendpoint_name_bluetooth" msgid="210210953208913172">"ବ୍ଲୁଟୁଥ"</string>
+    <string name="callendpoint_name_wiredheadset" msgid="6860787176412079742">"ତାରଯୁକ୍ତ ହେଡସେଟ"</string>
+    <string name="callendpoint_name_speaker" msgid="1971760468695323189">"ସ୍ପିକର"</string>
+    <string name="callendpoint_name_streaming" msgid="2337595450408275576">"ଏକ୍ସଟର୍ନଲ"</string>
+    <string name="callendpoint_name_unknown" msgid="2199074708477193852">"ଅଜଣା"</string>
 </resources>

@@ -123,4 +123,11 @@
     <string name="developer_title" msgid="9146088855661672353">"Menu Telecom Developer"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"Impossible de prendre un appel au cours d\'un appel d\'urgence."</string>
     <string name="cancel" msgid="6733466216239934756">"Annuler"</string>
+    <string name="back" msgid="6915955601805550206">"Retour"</string>
+    <string name="callendpoint_name_earpiece" msgid="7047285080319678594">"Écouteur"</string>
+    <string name="callendpoint_name_bluetooth" msgid="210210953208913172">"Bluetooth"</string>
+    <string name="callendpoint_name_wiredheadset" msgid="6860787176412079742">"Casque filaire"</string>
+    <string name="callendpoint_name_speaker" msgid="1971760468695323189">"Haut-parleur"</string>
+    <string name="callendpoint_name_streaming" msgid="2337595450408275576">"Externe"</string>
+    <string name="callendpoint_name_unknown" msgid="2199074708477193852">"Inconnu"</string>
 </resources>

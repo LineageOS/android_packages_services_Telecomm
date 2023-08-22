@@ -108,7 +108,7 @@
     <string name="phone_settings_call_blocking_txt" msgid="7311523114822507178">"কল অৱৰোধ"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="2602249106007265757">"আপোনাৰ সর্ম্পকসূচীত নথকা"</string>
     <string name="phone_settings_number_not_in_contact_summary_txt" msgid="963327038085718969">"আপোনাৰ সর্ম্পকসূচীত নথকা নম্বৰ অৱৰোধ কৰক"</string>
-    <string name="phone_settings_private_num_txt" msgid="6339272760338475619">"ব্যক্তিগত"</string>
+    <string name="phone_settings_private_num_txt" msgid="6339272760338475619">"ব্য়ক্তিগত"</string>
     <string name="phone_settings_private_num_summary_txt" msgid="6755758240544021037">"যিসকল কল কৰোঁতাই তেওঁলোকৰ নম্বৰ প্ৰকাশ নকৰে তেওঁলোকক অৱৰোধ কৰক"</string>
     <string name="phone_settings_payphone_txt" msgid="5003987966052543965">"পে\'ফ\'ন"</string>
     <string name="phone_settings_payphone_summary_txt" msgid="3936631076065563665">"পে\'ফ\'নৰ পৰা অহা কল অৱৰোধ কৰক"</string>
@@ -123,4 +123,11 @@
     <string name="developer_title" msgid="9146088855661672353">"দূৰ-সংযোগ সম্পৰ্কীয় বিকাশকৰ্তাৰ মেনু"</string>
     <string name="toast_emergency_can_not_pull_call" msgid="9074229465338410869">"কোনো জৰুৰীকালীন কলত থাকিলে কলসমূহ গ্ৰহণ কৰিব নোৱাৰি।"</string>
     <string name="cancel" msgid="6733466216239934756">"বাতিল কৰক"</string>
+    <string name="back" msgid="6915955601805550206">"উভতি যাওক"</string>
+    <string name="callendpoint_name_earpiece" msgid="7047285080319678594">"ইয়েৰপিচ"</string>
+    <string name="callendpoint_name_bluetooth" msgid="210210953208913172">"ব্লুটুথ"</string>
+    <string name="callendpoint_name_wiredheadset" msgid="6860787176412079742">"তাঁৰযুক্ত হেডছেট"</string>
+    <string name="callendpoint_name_speaker" msgid="1971760468695323189">"স্পীকাৰ"</string>
+    <string name="callendpoint_name_streaming" msgid="2337595450408275576">"বাহ্যিক"</string>
+    <string name="callendpoint_name_unknown" msgid="2199074708477193852">"অজ্ঞাত"</string>
 </resources>

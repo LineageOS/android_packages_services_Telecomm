@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="2907804426411305091">"Transactional API से जुड़ी टेस्ट गतिविधि"</string>
+    <!-- no translation found for in_call_activity_name (7545884666442897585) -->
+    <skip />
+    <string name="register_phone_account" msgid="1920315963082350332">"Phone Account में रजिस्टर करें"</string>
+    <!-- no translation found for start_foreground_service (8968755699895128574) -->
+    <skip />
+    <!-- no translation found for start_outgoing (1441644037370361864) -->
+    <skip />
+    <!-- no translation found for start_incoming (6444983300186361271) -->
+    <skip />
+    <!-- no translation found for get_call_id (5513943242738347108) -->
+    <skip />
+    <!-- no translation found for set_call_active (3365404393507589899) -->
+    <skip />
+    <!-- no translation found for answer (5423590397665409939) -->
+    <skip />
+    <!-- no translation found for set_call_inactive (7106775211368705195) -->
+    <skip />
+    <!-- no translation found for disconnect_call (1349412380315371385) -->
+    <skip />
+    <!-- no translation found for request_earpiece_endpoint (6649571985089296573) -->
+    <skip />
+    <!-- no translation found for request_speaker_endpoint (1033259535289845405) -->
+    <skip />
+    <!-- no translation found for request_bluetooth_endpoint (5933254250623451836) -->
+    <skip />
+    <!-- no translation found for start_stream (3567634786280097431) -->
+    <skip />
+</resources>
