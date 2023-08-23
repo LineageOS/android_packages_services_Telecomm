@@ -21,7 +21,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -34,6 +33,7 @@ import static org.mockito.Mockito.verify;
 
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -726,6 +726,52 @@ public class CallTest extends TelecomTestCase {
                 argThat(extras -> {
                     return extras.getInt(android.telecom.Call.EXTRA_DIAGNOSTIC_MESSAGE_ID) == id;
                 }));
+    }
+
+    @Test
+    @SmallTest
+    public void testExcludesInCallServiceFromDoNotLogCallExtra() {
+        Call call = createCall("any");
+        Bundle extra = new Bundle();
+        extra.putBoolean(TelecomManager.EXTRA_DO_NOT_LOG_CALL, true);
+
+        call.putInCallServiceExtras(extra, "packageName");
+
+        assertFalse(call.getExtras().containsKey(TelecomManager.EXTRA_DO_NOT_LOG_CALL));
+    }
+
+    @Test
+    @SmallTest
+    public void testExcludesConnectionServiceWithoutModifyStatePermissionFromDoNotLogCallExtra() {
+        PackageManager packageManager = mContext.getPackageManager();
+        Bundle extra = new Bundle();
+        extra.putBoolean(TelecomManager.EXTRA_DO_NOT_LOG_CALL, true);
+        String packageName = SIM_1_HANDLE.getComponentName().getPackageName();
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(packageManager)
+                .checkPermission(android.Manifest.permission.MODIFY_PHONE_STATE, packageName);
+        Call call = createCall("any");
+
+        call.putConnectionServiceExtras(extra);
+
+        assertFalse(call.getExtras().containsKey(TelecomManager.EXTRA_DO_NOT_LOG_CALL));
+    }
+
+    @Test
+    @SmallTest
+    public void testDoesNotExcludeConnectionServiceWithModifyStatePermissionFromDoNotLogCallExtra() {
+        String packageName = SIM_1_HANDLE.getComponentName().getPackageName();
+        Bundle extra = new Bundle();
+        extra.putBoolean(TelecomManager.EXTRA_DO_NOT_LOG_CALL, true);
+        PackageManager packageManager = mContext.getPackageManager();
+        doReturn(PackageManager.PERMISSION_GRANTED)
+                .when(packageManager)
+                .checkPermission(android.Manifest.permission.MODIFY_PHONE_STATE, packageName);
+        Call call = createCall("any");
+
+        call.putConnectionServiceExtras(extra);
+
+        assertTrue(call.getExtras().containsKey(TelecomManager.EXTRA_DO_NOT_LOG_CALL));
     }
 
     private Call createCall(String id) {
