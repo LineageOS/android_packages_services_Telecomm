@@ -40,6 +40,7 @@ import android.os.UserManager;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.os.vibrator.persistence.ParsedVibration;
 import android.os.vibrator.persistence.VibrationXmlParser;
 import android.telecom.Log;
 import android.telecom.TelecomManager;
@@ -779,14 +780,20 @@ public class Ringer {
     }
 
     @Nullable
-    private static VibrationEffect loadSerializedDefaultRingVibration(Resources resources) {
-
+    private static VibrationEffect loadSerializedDefaultRingVibration(
+            Resources resources, Vibrator vibrator) {
         try {
             InputStream vibrationInputStream =
                     resources.openRawResource(
                             com.android.internal.R.raw.default_ringtone_vibration_effect);
-            return VibrationXmlParser.parse(
-                    new InputStreamReader(vibrationInputStream, StandardCharsets.UTF_8));
+            ParsedVibration parsedVibration = VibrationXmlParser
+                    .parseDocument(
+                            new InputStreamReader(vibrationInputStream, StandardCharsets.UTF_8));
+            if (parsedVibration == null) {
+                Log.w(TAG, "Got null parsed default ring vibration effect.");
+                return null;
+            }
+            return parsedVibration.resolve(vibrator);
         } catch (IOException | Resources.NotFoundException e) {
             Log.e(TAG, e, "Error parsing default ring vibration effect.");
             return null;
@@ -806,8 +813,8 @@ public class Ringer {
         }
 
         if (featureFlags.useDeviceProvidedSerializedRingerVibration()) {
-            VibrationEffect parsedEffect = loadSerializedDefaultRingVibration(resources);
-            if (parsedEffect != null && vibrator.areVibrationFeaturesSupported(parsedEffect)) {
+            VibrationEffect parsedEffect = loadSerializedDefaultRingVibration(resources, vibrator);
+            if (parsedEffect != null) {
                 Log.i(TAG, "Using parsed default ring vibration.");
                 // Make the parsed effect repeating to make it vibrate continuously during ring.
                 // If the effect is already repeating, this API call is a no-op.
