@@ -664,19 +664,16 @@ public final class CallLogManager extends CallsManagerListenerBase {
             }
             int maxCallId = -1;
             int numFound;
-            Cursor countCursor = resolver.query(providerUri,
+            try (Cursor countCursor = resolver.query(providerUri,
                     new String[]{Calls._ID},
                     null,
                     null,
-                    Calls._ID + " DESC");
-            try {
+                    Calls._ID + " DESC")) {
                 numFound = countCursor.getCount();
                 if (numFound > 0) {
                     countCursor.moveToFirst();
                     maxCallId = countCursor.getInt(0);
                 }
-            } finally {
-                countCursor.close();
             }
             return new Pair<>(numFound, maxCallId);
         } catch (Exception e) {
