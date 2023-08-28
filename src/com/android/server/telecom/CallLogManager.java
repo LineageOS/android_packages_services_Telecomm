@@ -24,6 +24,7 @@ import android.annotation.Nullable;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Country;
 import android.location.CountryDetector;
@@ -50,6 +51,7 @@ import android.util.Pair;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -117,8 +119,11 @@ public final class CallLogManager extends CallsManagerListenerBase {
     private Object mLock;
     private String mCurrentCountryIso;
 
+    private final FeatureFlags mFeatureFlags;
+
     public CallLogManager(Context context, PhoneAccountRegistrar phoneAccountRegistrar,
-            MissedCallNotifier missedCallNotifier, AnomalyReporterAdapter anomalyReporterAdapter) {
+            MissedCallNotifier missedCallNotifier, AnomalyReporterAdapter anomalyReporterAdapter,
+            FeatureFlags featureFlags) {
         mContext = context;
         mCarrierConfigManager = (CarrierConfigManager) mContext
                 .getSystemService(Context.CARRIER_CONFIG_SERVICE);
@@ -126,6 +131,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
         mMissedCallNotifier = missedCallNotifier;
         mAnomalyReporterAdapter = anomalyReporterAdapter;
         mLock = new Object();
+        mFeatureFlags = featureFlags;
     }
 
     @Override
@@ -166,7 +172,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
      * Call is NOT a child call from a conference which was remotely hosted.
      * Call is NOT simulating a single party conference.
      * Call was NOT explicitly canceled, except for disconnecting from a conference.
-     * Call is NOT an external call
+     * Call is NOT an external call or an external call on watch.
      * Call is NOT disconnected because of merging into a conference.
      * Call is NOT a self-managed call OR call is a self-managed call which has indicated it
      * should be logged in its PhoneAccount
@@ -215,8 +221,10 @@ public final class CallLogManager extends CallsManagerListenerBase {
                     & Connection.CAPABILITY_DISCONNECT_FROM_CONFERENCE)
                     == Connection.CAPABILITY_DISCONNECT_FROM_CONFERENCE;
         }
-        // An external call
-        if (call.isExternalCall()) {
+        // An external and non-watch call
+        if (call.isExternalCall() && (!mContext.getPackageManager().hasSystemFeature(
+                PackageManager.FEATURE_WATCH)
+                || !mFeatureFlags.telecomLogExternalWearableCalls())) {
             return false;
         }
 

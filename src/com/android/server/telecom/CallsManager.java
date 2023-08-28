@@ -665,7 +665,7 @@ public class CallsManager extends Call.ListenerBase
         mProximitySensorManager = proximitySensorManagerFactory.create(context, this);
         mPhoneStateBroadcaster = new PhoneStateBroadcaster(this);
         mCallLogManager = new CallLogManager(context, phoneAccountRegistrar, mMissedCallNotifier,
-                mAnomalyReporter);
+                mAnomalyReporter, featureFlags);
         mConnectionServiceRepository =
                 new ConnectionServiceRepository(mPhoneAccountRegistrar, mContext, mLock, this);
         mInCallWakeLockController = inCallWakeLockControllerFactory.create(context, this);
