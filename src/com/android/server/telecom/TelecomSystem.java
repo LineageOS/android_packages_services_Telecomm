@@ -453,7 +453,7 @@ public class TelecomSystem {
             }
 
             mCallIntentProcessor = new CallIntentProcessor(mContext, mCallsManager,
-                    defaultDialerCache);
+                    defaultDialerCache, featureFlags);
             mTelecomBroadcastIntentProcessor = new TelecomBroadcastIntentProcessor(
                     mContext, mCallsManager);
 
@@ -477,6 +477,7 @@ public class TelecomSystem {
                     defaultDialerCache,
                     new TelecomServiceImpl.SubscriptionManagerAdapterImpl(),
                     new TelecomServiceImpl.SettingsSecureAdapterImpl(),
+                    featureFlags,
                     mLock);
         } finally {
             Log.endSession();

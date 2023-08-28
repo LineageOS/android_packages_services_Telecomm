@@ -63,6 +63,7 @@ import com.android.server.telecom.TelecomServiceImpl;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
+import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.voip.IncomingCallTransaction;
 import com.android.server.telecom.voip.OutgoingCallTransaction;
 import com.android.server.telecom.voip.TransactionManager;
@@ -122,7 +123,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     public static class CallIntentProcessAdapterFake implements CallIntentProcessor.Adapter {
         @Override
         public void processOutgoingCallIntent(Context context, CallsManager callsManager,
-                Intent intent, String callingPackage) {
+                Intent intent, String callingPackage, FeatureFlags flags) {
 
         }
 
@@ -192,6 +193,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @Mock private ICallEventCallback mICallEventCallback;
     @Mock private TransactionManager mTransactionManager;
     @Mock private AnomalyReporterAdapter mAnomalyReporterAdapter;
+    @Mock private FeatureFlags mFeatureFlags;
 
     private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
 
@@ -242,6 +244,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 mDefaultDialerCache,
                 mSubscriptionManagerAdapter,
                 mSettingsSecureAdapter,
+                mFeatureFlags,
                 mLock);
         telecomServiceImpl.setTransactionManager(mTransactionManager);
         telecomServiceImpl.setAnomalyReporterAdapter(mAnomalyReporterAdapter);

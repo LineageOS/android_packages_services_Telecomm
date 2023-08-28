@@ -79,6 +79,7 @@ import com.android.internal.telecom.ICallEventCallback;
 import com.android.internal.telecom.ITelecomService;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
+import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.settings.BlockedNumbersActivity;
 import com.android.server.telecom.voip.IncomingCallTransaction;
 import com.android.server.telecom.voip.OutgoingCallTransaction;
@@ -2138,7 +2139,7 @@ public class TelecomServiceImpl {
                     try {
                         Log.i(this, "handleCallIntent: handling call intent");
                         mCallIntentProcessorAdapter.processOutgoingCallIntent(mContext,
-                                mCallsManager, intent, callingPackage);
+                                mCallsManager, intent, callingPackage, mFeatureFlags);
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
@@ -2511,6 +2512,7 @@ public class TelecomServiceImpl {
     private final TelecomSystem.SyncRoot mLock;
     private TransactionManager mTransactionManager;
     private final TransactionalServiceRepository mTransactionalServiceRepository;
+    private final FeatureFlags mFeatureFlags;
 
     public TelecomServiceImpl(
             Context context,
@@ -2521,6 +2523,7 @@ public class TelecomServiceImpl {
             DefaultDialerCache defaultDialerCache,
             SubscriptionManagerAdapter subscriptionManagerAdapter,
             SettingsSecureAdapter settingsSecureAdapter,
+            FeatureFlags featureFlags,
             TelecomSystem.SyncRoot lock) {
         mContext = context;
         mAppOpsManager = (AppOpsManager) mContext.getSystemService(Context.APP_OPS_SERVICE);
@@ -2528,6 +2531,7 @@ public class TelecomServiceImpl {
         mPackageManager = mContext.getPackageManager();
 
         mCallsManager = callsManager;
+        mFeatureFlags = featureFlags;
         mLock = lock;
         mPhoneAccountRegistrar = phoneAccountRegistrar;
         mUserCallIntentProcessorFactory = userCallIntentProcessorFactory;

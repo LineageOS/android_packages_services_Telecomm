@@ -27,6 +27,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import android.Manifest;
+import android.annotation.Nullable;
+import android.annotation.RequiresPermission;
 import android.app.AppOpsManager;
 import android.app.NotificationManager;
 import android.app.StatusBarManager;
@@ -413,6 +415,12 @@ public class ComponentContextFixture implements TestFixture<Context> {
         @Override
         public void sendBroadcastAsUser(Intent intent, UserHandle user, String receiverPermission,
                 Bundle options) {
+            // Override so that this can be verified via spy.
+        }
+
+        @Override
+        public void sendBroadcastAsUser(Intent intent, UserHandle user, String receiverPermission,
+                int appOp) {
             // Override so that this can be verified via spy.
         }
 
