@@ -89,6 +89,7 @@ import com.android.server.telecom.voip.VoipCallTransactionResult;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -1968,12 +1969,39 @@ public class TelecomServiceImpl {
                 pw.increaseIndent();
                 Analytics.dump(pw);
                 pw.decreaseIndent();
+
+                pw.println("Flag Configurations: ");
+                pw.increaseIndent();
+                reflectAndPrintFlagConfigs(pw);
+                pw.decreaseIndent();
             }
             if (isTimeLineView) {
                 Log.dumpEventsTimeline(pw);
             } else {
                 Log.dumpEvents(pw);
             }
+        }
+
+        /**
+         * Print all feature flag configurations that Telecom is using for debugging purposes.
+         */
+        private void reflectAndPrintFlagConfigs(IndentingPrintWriter pw) {
+
+            try {
+                // Look away, a forbidden technique (reflection) is being used to allow us to get
+                // all flag configs without having to add them manually to this method.
+                Method[] methods = FeatureFlags.class.getMethods();
+                if (methods.length == 0) {
+                    pw.println("NONE");
+                    return;
+                }
+                for (Method m : methods) {
+                    pw.println(m.getName() + "-> " + m.invoke(mFeatureFlags));
+                }
+            } catch (Exception e) {
+                pw.println("[ERROR]");
+            }
+
         }
 
         /**
