@@ -41,8 +41,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/non_primary_user"
                     android:paddingTop="@dimen/blocked_numbers_large_padding"
-                    android:paddingLeft="@dimen/blocked_numbers_large_padding"
-                    android:paddingRight="@dimen/blocked_numbers_large_padding"
+                    android:paddingStart="@dimen/blocked_numbers_large_padding"
+                    android:paddingEnd="@dimen/blocked_numbers_large_padding"
                     style="@style/BlockedNumbersTextPrimary2"
                     android:visibility="gone" />
 
@@ -62,8 +62,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingTop="@dimen/blocked_numbers_large_padding"
-                        android:paddingLeft="@dimen/blocked_numbers_large_padding"
-                        android:paddingRight="@dimen/blocked_numbers_large_padding">
+                        android:paddingStart="@dimen/blocked_numbers_large_padding"
+                        android:paddingEnd="@dimen/blocked_numbers_large_padding">
 
                     <TextView
                             android:layout_width="wrap_content"
