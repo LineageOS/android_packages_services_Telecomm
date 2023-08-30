@@ -1,6 +1,7 @@
 package com.android.server.telecom;
 
 import com.android.server.telecom.components.ErrorDialogActivity;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import android.content.Context;
 import android.content.Intent;
@@ -32,7 +33,7 @@ import java.util.concurrent.CompletableFuture;
 public class CallIntentProcessor {
     public interface Adapter {
         void processOutgoingCallIntent(Context context, CallsManager callsManager,
-                Intent intent, String callingPackage);
+                Intent intent, String callingPackage, FeatureFlags featureFlags);
         void processIncomingCallIntent(CallsManager callsManager, Intent intent);
         void processUnknownCallIntent(CallsManager callsManager, Intent intent);
     }
@@ -45,9 +46,9 @@ public class CallIntentProcessor {
 
         @Override
         public void processOutgoingCallIntent(Context context, CallsManager callsManager,
-                Intent intent, String callingPackage) {
+                Intent intent, String callingPackage, FeatureFlags featureFlags) {
             CallIntentProcessor.processOutgoingCallIntent(context, callsManager, intent,
-                    callingPackage, mDefaultDialerCache);
+                    callingPackage, mDefaultDialerCache, featureFlags);
         }
 
         @Override
@@ -73,12 +74,14 @@ public class CallIntentProcessor {
     private final Context mContext;
     private final CallsManager mCallsManager;
     private final DefaultDialerCache mDefaultDialerCache;
+    private final FeatureFlags mFeatureFlags;
 
     public CallIntentProcessor(Context context, CallsManager callsManager,
-            DefaultDialerCache defaultDialerCache) {
+            DefaultDialerCache defaultDialerCache, FeatureFlags featureFlags) {
         this.mContext = context;
         this.mCallsManager = callsManager;
         this.mDefaultDialerCache = defaultDialerCache;
+        this.mFeatureFlags = featureFlags;
     }
 
     public void processIntent(Intent intent, String callingPackage) {
@@ -90,7 +93,7 @@ public class CallIntentProcessor {
             processUnknownCallIntent(mCallsManager, intent);
         } else {
             processOutgoingCallIntent(mContext, mCallsManager, intent, callingPackage,
-                    mDefaultDialerCache);
+                    mDefaultDialerCache, mFeatureFlags);
         }
         Trace.endSection();
     }
@@ -107,7 +110,8 @@ public class CallIntentProcessor {
             CallsManager callsManager,
             Intent intent,
             String callingPackage,
-            DefaultDialerCache defaultDialerCache) {
+            DefaultDialerCache defaultDialerCache,
+            FeatureFlags featureFlags) {
 
         Uri handle = intent.getData();
         String scheme = handle.getScheme();
@@ -182,10 +186,9 @@ public class CallIntentProcessor {
         boolean isPrivilegedDialer = defaultDialerCache.isDefaultOrSystemDialer(callingPackage,
                 initiatingUser.getIdentifier());
 
-
         NewOutgoingCallIntentBroadcaster broadcaster = new NewOutgoingCallIntentBroadcaster(
                 context, callsManager, intent, callsManager.getPhoneNumberUtilsAdapter(),
-                isPrivilegedDialer, defaultDialerCache, new MmiUtils());
+                isPrivilegedDialer, defaultDialerCache, new MmiUtils(), featureFlags);
 
         // If the broadcaster comes back with an immediate error, disconnect and show a dialog.
         NewOutgoingCallIntentBroadcaster.CallDisposition disposition = broadcaster.evaluateCall();
