@@ -100,6 +100,7 @@
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"Apeluri în fundal"</string>
     <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"Apeluri deconectate"</string>
     <string name="notification_channel_in_call_service_crash" msgid="7313237519166984267">"Aplicații pentru telefon blocate"</string>
+    <string name="notification_channel_call_streaming" msgid="5100510699787538991">"Streaming de apeluri"</string>
     <string name="alert_outgoing_call" msgid="5319895109298927431">"Dacă inițiezi acest apel, cel din <xliff:g id="OTHER_APP">%1$s</xliff:g> va fi încheiat."</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"Alege cum vrei să inițiezi apelul"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="5221065030959024121">"Redirecționezi apelul folosind <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
@@ -130,4 +131,7 @@
     <string name="callendpoint_name_speaker" msgid="1971760468695323189">"Difuzor"</string>
     <string name="callendpoint_name_streaming" msgid="2337595450408275576">"Extern"</string>
     <string name="callendpoint_name_unknown" msgid="2199074708477193852">"Necunoscut"</string>
+    <string name="call_streaming_notification_body" msgid="502216105683378263">"Streaming audio pe alt dispozitiv"</string>
+    <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Încheie apelul"</string>
+    <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Treci la alt cont aici"</string>
 </resources>

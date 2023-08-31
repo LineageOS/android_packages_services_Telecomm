@@ -45,7 +45,7 @@
     <string name="respond_via_sms_edittext_dialog_title" msgid="6579353156073272157">"快速回复"</string>
     <string name="respond_via_sms_confirmation_format" msgid="2932395476561267842">"讯息已发送至 <xliff:g id="PHONE_NUMBER">%s</xliff:g>。"</string>
     <string name="respond_via_sms_failure_format" msgid="5198680980054596391">"未能将信息发送到 <xliff:g id="PHONE_NUMBER">%s</xliff:g>。"</string>
-    <string name="enable_account_preference_title" msgid="6949224486748457976">"通话帐号"</string>
+    <string name="enable_account_preference_title" msgid="6949224486748457976">"通话账号"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="3424338207838851646">"只能拨打紧急呼救电话。"</string>
     <string name="outgoing_call_not_allowed_no_permission" msgid="8590468836581488679">"此应用没有电话权限，无法拨出电话。"</string>
     <string name="outgoing_call_error_no_phone_number_supplied" msgid="7665135102566099778">"要拨打电话，请输入有效的电话号码。"</string>
@@ -90,7 +90,7 @@
     <string name="answering_ends_other_managed_video_call" msgid="1988508241432031327">"如果接听此来电，您当前的视频通话会中断。"</string>
     <string name="answer_incoming_call" msgid="2045888814782215326">"接听"</string>
     <string name="decline_incoming_call" msgid="922147089348451310">"拒接"</string>
-    <string name="cant_call_due_to_no_supported_service" msgid="1635626384149947077">"无法拨出电话，因为没有通话帐号支持拨打这类电话。"</string>
+    <string name="cant_call_due_to_no_supported_service" msgid="1635626384149947077">"无法拨出电话，因为没有通话账号支持拨打这类电话。"</string>
     <string name="cant_call_due_to_ongoing_call" msgid="8004235328451385493">"由于当前正在进行 <xliff:g id="OTHER_CALL">%1$s</xliff:g> 通话，因此无法拨打电话。"</string>
     <string name="cant_call_due_to_ongoing_calls" msgid="6379163795277824868">"由于当前正在进行 <xliff:g id="OTHER_CALL">%1$s</xliff:g> 通话，因此无法拨打电话。"</string>
     <string name="cant_call_due_to_ongoing_unknown_call" msgid="8243532328969433172">"由于当前正在通过其他应用通话，因此无法拨打电话。"</string>
@@ -100,6 +100,7 @@
     <string name="notification_channel_background_calls" msgid="7785659903711350506">"后台通话"</string>
     <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"通话中断"</string>
     <string name="notification_channel_in_call_service_crash" msgid="7313237519166984267">"手机应用崩溃"</string>
+    <string name="notification_channel_call_streaming" msgid="5100510699787538991">"通话流式传输"</string>
     <string name="alert_outgoing_call" msgid="5319895109298927431">"拨打此电话将导致<xliff:g id="OTHER_APP">%1$s</xliff:g>通话结束。"</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"选择拨打此电话的方式"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="5221065030959024121">"使用<xliff:g id="OTHER_APP">%1$s</xliff:g>转移呼叫"</string>
@@ -130,4 +131,7 @@
     <string name="callendpoint_name_speaker" msgid="1971760468695323189">"免提"</string>
     <string name="callendpoint_name_streaming" msgid="2337595450408275576">"外部"</string>
     <string name="callendpoint_name_unknown" msgid="2199074708477193852">"未知"</string>
+    <string name="call_streaming_notification_body" msgid="502216105683378263">"将音频流式传输到其他设备"</string>
+    <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"挂断"</string>
+    <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"在此处切换"</string>
 </resources>
