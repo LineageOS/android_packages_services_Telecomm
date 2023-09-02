@@ -758,11 +758,10 @@ public class CallsManager extends Call.ListenerBase
     @Override
     @VisibleForTesting
     public void onSuccessfulOutgoingCall(Call call, int callState) {
-        Log.v(this, "onSuccessfulOutgoingCall, %s", call);
+        Log.v(this, "onSuccessfulOutgoingCall, call=[%s], state=[%d]", call, callState);
         call.setPostCallPackageName(getRoleManagerAdapter().getDefaultCallScreeningApp(
                 call.getAssociatedUser()));
 
-        setCallState(call, callState, "successful outgoing call");
         if (!mCalls.contains(call)) {
             // Call was not added previously in startOutgoingCall due to it being a potential MMI
             // code, so add it now.
@@ -774,7 +773,13 @@ public class CallsManager extends Call.ListenerBase
             listener.onConnectionServiceChanged(call, null, call.getConnectionService());
         }
 
-        markCallAsDialing(call);
+        // Allow the ConnectionService to start the call in the active state. This case is helpful
+        // for conference calls or meetings that can skip the dialing stage.
+        if (callState == CallState.ACTIVE) {
+            setCallState(call, callState, "skipping the dialing state and setting active");
+        } else {
+            markCallAsDialing(call);
+        }
     }
 
     @Override

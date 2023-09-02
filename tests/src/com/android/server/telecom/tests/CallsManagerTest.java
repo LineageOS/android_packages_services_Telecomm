@@ -2508,6 +2508,30 @@ public class CallsManagerTest extends TelecomTestCase {
         assertEquals(DEFAULT_CALL_SCREENING_APP, outgoingCall.getPostCallPackageName());
     }
 
+    /**
+     * Verify the only call state set from calling onSuccessfulOutgoingCall is CallState.DIALING.
+     */
+    @SmallTest
+    @Test
+    public void testOutgoingCallStateIsSetToAPreviousStateAndIgnored() {
+        Call outgoingCall = addSpyCall(CallState.CONNECTING);
+        mCallsManager.onSuccessfulOutgoingCall(outgoingCall, CallState.NEW);
+        verify(outgoingCall, never()).setState(eq(CallState.NEW), any());
+        verify(outgoingCall, times(1)).setState(eq(CallState.DIALING), any());
+    }
+
+    /**
+     * Verify a ConnectionService can start the call in the active state and avoid the dialing state
+     */
+    @SmallTest
+    @Test
+    public void testOutgoingCallStateCanAvoidDialingAndGoStraightToActive() {
+        Call outgoingCall = addSpyCall(CallState.CONNECTING);
+        mCallsManager.onSuccessfulOutgoingCall(outgoingCall, CallState.ACTIVE);
+        verify(outgoingCall, never()).setState(eq(CallState.DIALING), any());
+        verify(outgoingCall, times(1)).setState(eq(CallState.ACTIVE), any());
+    }
+
     @SmallTest
     @Test
     public void testRejectIncomingCallOnPAHInactive_SecondaryUser() throws Exception {
