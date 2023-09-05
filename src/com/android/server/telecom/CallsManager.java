@@ -288,11 +288,6 @@ public class CallsManager extends Call.ListenerBase
     public static final String EXCEPTION_RETRIEVING_PHONE_ACCOUNTS_EMERGENCY_ERROR_MSG =
             "Exception thrown while retrieving list of potential phone accounts when placing an "
                     + "emergency call.";
-    public static final UUID EMERGENCY_CALL_DISCONNECTED_BEFORE_BEING_ADDED_ERROR_UUID =
-            UUID.fromString("f9a916c8-8d61-4550-9ad3-11c2e84f6364");
-    public static final String EMERGENCY_CALL_DISCONNECTED_BEFORE_BEING_ADDED_ERROR_MSG =
-            "An emergency call was disconnected after the connection was created but before the "
-                    + "call was successfully added to CallsManager.";
     public static final UUID EMERGENCY_CALL_ABORTED_NO_PHONE_ACCOUNTS_ERROR_UUID =
             UUID.fromString("2e994acb-1997-4345-8bf3-bad04303de26");
     public static final String EMERGENCY_CALL_ABORTED_NO_PHONE_ACCOUNTS_ERROR_MSG =
@@ -3762,11 +3757,6 @@ public class CallsManager extends Call.ListenerBase
         // Notify listeners that the call was disconnected before being added to CallsManager.
         // Listeners will not receive onAdded or onRemoved callbacks.
         if (!mCalls.contains(call)) {
-            if (call.isEmergencyCall()) {
-                mAnomalyReporter.reportAnomaly(
-                        EMERGENCY_CALL_DISCONNECTED_BEFORE_BEING_ADDED_ERROR_UUID,
-                        EMERGENCY_CALL_DISCONNECTED_BEFORE_BEING_ADDED_ERROR_MSG);
-            }
             mListeners.forEach(l -> l.onCreateConnectionFailed(call));
         }
 
