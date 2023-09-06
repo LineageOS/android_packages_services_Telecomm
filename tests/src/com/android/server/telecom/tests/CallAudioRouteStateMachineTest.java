@@ -21,6 +21,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.IAudioService;
@@ -215,6 +216,57 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
         // should update the audio route on all tracked calls ...
         verify(mockConnectionServiceWrapper, times(trackedCalls.size()))
                 .onCallAudioStateChanged(any(), any());
+    }
+
+    @SmallTest
+    @Test
+    public void testSystemAudioStateIsUpdated() {
+        CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
+                mContext,
+                mockCallsManager,
+                mockBluetoothRouteManager,
+                mockWiredHeadsetManager,
+                mockStatusBarNotifier,
+                mAudioServiceFactory,
+                CallAudioRouteStateMachine.EARPIECE_AUTO_DETECT,
+                mThreadHandler.getLooper(),
+                Runnable::run /** do async stuff sync for test purposes */,
+                mCommunicationDeviceTracker);
+        stateMachine.setCallAudioManager(mockCallAudioManager);
+
+        Set<Call> trackedCalls = new HashSet<>(Arrays.asList(fakeCall, fakeSelfManagedCall));
+        when(mockCallsManager.getTrackedCalls()).thenReturn(trackedCalls);
+
+        // start state --> ROUTE_EARPIECE
+        CallAudioState initState = new CallAudioState(false, CallAudioState.ROUTE_EARPIECE,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER);
+        stateMachine.initialize(initState);
+
+        stateMachine.setCallAudioManager(mockCallAudioManager);
+
+        assertEquals(stateMachine.getCurrentCallAudioState().getRoute(),
+                CallAudioRouteStateMachine.ROUTE_EARPIECE);
+
+        // ROUTE_EARPIECE  --> ROUTE_SPEAKER
+        stateMachine.sendMessageWithSessionInfo(CallAudioRouteStateMachine.SWITCH_SPEAKER,
+                CallAudioRouteStateMachine.SPEAKER_ON);
+
+        stateMachine.sendMessageWithSessionInfo(
+                CallAudioRouteStateMachine.UPDATE_SYSTEM_AUDIO_ROUTE);
+
+        waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
+        waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
+
+        CallAudioState expectedCallAudioState = stateMachine.getLastKnownCallAudioState();
+
+        // assert expected end state
+        assertEquals(stateMachine.getCurrentCallAudioState().getRoute(),
+                CallAudioRouteStateMachine.ROUTE_SPEAKER);
+        // should update the audio route on all tracked calls ...
+        verify(mockConnectionServiceWrapper, times(trackedCalls.size()))
+                .onCallAudioStateChanged(any(), any());
+
+        assertEquals(expectedCallAudioState, stateMachine.getCurrentCallAudioState());
     }
 
     @MediumTest
