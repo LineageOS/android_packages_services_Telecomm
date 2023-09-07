@@ -26,7 +26,8 @@ aconfig_declarations {
       "telecom_ringer_flag_declarations.aconfig",
       "telecom_api_flags.aconfig",
       "telecom_call_filtering_flags.aconfig",
-      "telecom_incallservice_flags.aconfig"
+      "telecom_incallservice_flags.aconfig",
+      "telecom_default_phone_account_flags.aconfig",
     ],
 }
 
