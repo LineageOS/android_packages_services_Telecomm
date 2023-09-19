@@ -20,8 +20,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothHearingAid;
-import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothLeAudio;
+import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.media.AudioDeviceInfo;
 import android.os.Message;
@@ -38,12 +38,10 @@ import com.android.server.telecom.CallAudioCommunicationDeviceTracker;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -138,7 +136,7 @@ public class BluetoothRouteManager extends StateMachine {
                 Log.w(LOG_TAG, "Entering AudioOff state but device %s appears to be connected. " +
                         "Switching to audio-on state for that device.", erroneouslyConnectedDevice);
                 // change this to just transition to the new audio on state
-                transitionToActualState();
+                transitionToActualState(null /* excludeAddress */);
             }
             cleanupStatesForDisconnectedDevices();
             if (mListener != null) {
@@ -261,7 +259,7 @@ public class BluetoothRouteManager extends StateMachine {
                     case LOST_DEVICE:
                         removeDevice((String) args.arg2);
                         if (Objects.equals(address, mDeviceAddress)) {
-                            transitionToActualState();
+                            transitionToActualState(null /* excludeAddress */);
                         }
                         break;
                     case CONNECT_BT:
@@ -301,7 +299,7 @@ public class BluetoothRouteManager extends StateMachine {
                     case CONNECTION_TIMEOUT:
                         Log.i(LOG_TAG, "Connection with device %s timed out.",
                                 mDeviceAddress);
-                        transitionToActualState();
+                        transitionToActualState(null /* excludeAddress */);
                         break;
                     case BT_AUDIO_IS_ON:
                         if (Objects.equals(mDeviceAddress, address)) {
@@ -318,7 +316,7 @@ public class BluetoothRouteManager extends StateMachine {
                         if (Objects.equals(mDeviceAddress, address) || address == null) {
                             Log.i(LOG_TAG, "Connection with device %s failed.",
                                     mDeviceAddress);
-                            transitionToActualState();
+                            transitionToActualState(address);
                         } else {
                             Log.w(LOG_TAG, "Got BT lost message for device %s while" +
                                     " connecting to %s.", address, mDeviceAddress);
@@ -378,7 +376,7 @@ public class BluetoothRouteManager extends StateMachine {
                     case LOST_DEVICE:
                         removeDevice((String) args.arg2);
                         if (Objects.equals(address, mDeviceAddress)) {
-                            transitionToActualState();
+                            transitionToActualState(null /* excludeAddress */);
                         }
                         break;
                     case CONNECT_BT:
@@ -435,7 +433,7 @@ public class BluetoothRouteManager extends StateMachine {
                     case BT_AUDIO_LOST:
                         if (Objects.equals(mDeviceAddress, address) || address == null) {
                             Log.i(LOG_TAG, "BT connection with device %s lost.", mDeviceAddress);
-                            transitionToActualState();
+                            transitionToActualState(address);
                         } else {
                             Log.w(LOG_TAG, "Got BT lost message for device %s while" +
                                     " connected to %s.", address, mDeviceAddress);
@@ -721,7 +719,7 @@ public class BluetoothRouteManager extends StateMachine {
                 actualAddress)) {
             Log.i(this, "trying to connect to already connected device -- skipping connection"
                     + " and going into the actual connected state.");
-            transitionToActualState();
+            transitionToActualState(null /* excludeAddress */);
             return null;
         }
 
@@ -757,9 +755,10 @@ public class BluetoothRouteManager extends StateMachine {
         return null;
     }
 
-    private void transitionToActualState() {
+    private void transitionToActualState(String excludeAddress) {
         BluetoothDevice possiblyAlreadyConnectedDevice = getBluetoothAudioConnectedDevice();
-        if (possiblyAlreadyConnectedDevice != null) {
+        if (possiblyAlreadyConnectedDevice != null
+                && !possiblyAlreadyConnectedDevice.getAddress().equals(excludeAddress)) {
             Log.i(LOG_TAG, "Device %s is already connected; going to AudioConnected.",
                     possiblyAlreadyConnectedDevice);
             transitionTo(getConnectedStateForAddress(

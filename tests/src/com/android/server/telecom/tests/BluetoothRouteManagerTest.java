@@ -16,6 +16,15 @@
 
 package com.android.server.telecom.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
@@ -46,16 +55,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.nullable;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(JUnit4.class)
 public class BluetoothRouteManagerTest extends TelecomTestCase {
@@ -170,6 +169,19 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
                         + ":" + DEVICE1.getAddress(),
                 sm.getCurrentState().getName());
         sm.getHandler().removeMessages(BluetoothRouteManager.CONNECTION_TIMEOUT);
+        sm.quitNow();
+    }
+
+    @SmallTest
+    @Test
+    public void testSkipInactiveBtDeviceWhenEvaluateActualState() {
+        BluetoothRouteManager sm = setupStateMachine(
+                BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX, HEARING_AID_DEVICE);
+        setupConnectedDevices(null, new BluetoothDevice[]{HEARING_AID_DEVICE},
+                null, null, HEARING_AID_DEVICE, null);
+        executeRoutingAction(sm, BluetoothRouteManager.BT_AUDIO_LOST,
+                HEARING_AID_DEVICE.getAddress());
+        assertEquals(BluetoothRouteManager.AUDIO_OFF_STATE_NAME, sm.getCurrentState().getName());
         sm.quitNow();
     }
 
