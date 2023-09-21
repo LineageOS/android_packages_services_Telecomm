@@ -33,7 +33,6 @@ import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
-import android.os.Process;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.os.UserHandle;
@@ -65,6 +64,7 @@ import com.android.internal.telecom.IConnectionServiceAdapter;
 import com.android.internal.telecom.IVideoProvider;
 import com.android.internal.telecom.RemoteServiceCallback;
 import com.android.internal.util.Preconditions;
+import com.android.server.telecom.flags.Flags;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -72,13 +72,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.Objects;
 
 /**
  * Wrapper for {@link IConnectionService}s, handles binding to {@link IConnectionService} and keeps
@@ -91,9 +92,12 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         ConnectionServiceFocusManager.ConnectionServiceFocus {
 
     private static final String TELECOM_ABBREVIATION = "cast";
+    private static final long SERVICE_BINDING_TIMEOUT = 15000L;
     private CompletableFuture<Pair<Integer, Location>> mQueryLocationFuture = null;
     private @Nullable CancellationSignal mOngoingQueryLocationRequest = null;
     private final ExecutorService mQueryLocationExecutor = Executors.newSingleThreadExecutor();
+    private ScheduledExecutorService mScheduledExecutor =
+            Executors.newSingleThreadScheduledExecutor();
 
     private final class Adapter extends IConnectionServiceAdapter.Stub {
 
@@ -1600,7 +1604,22 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         .setParticipants(call.getParticipants())
                         .setIsAdhocConferenceCall(call.isAdhocConferenceCall())
                         .build();
-
+                if (Flags.unbindTimeoutConnections()) {
+                    android.telecom.Logging.Runnable r =
+                            new android.telecom.Logging.Runnable("CSW.cC", mLock) {
+                        @Override
+                        public void loggedRun() {
+                            if (!call.isCreateConnectionComplete()) {
+                                Log.e(this, new Exception(), "Conference %s creation timeout",
+                                        getComponentName());
+                                response.handleCreateConferenceFailure(
+                                        new DisconnectCause(DisconnectCause.ERROR));
+                            }
+                        }
+                    };
+                    mScheduledExecutor.schedule(r.getRunnableToCancel(), SERVICE_BINDING_TIMEOUT,
+                            TimeUnit.MILLISECONDS);
+                }
                 try {
                     mServiceInterface.createConference(
                             call.getConnectionManagerPhoneAccount(),
@@ -1609,7 +1628,6 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                             call.shouldAttachToExistingConnection(),
                             call.isUnknown(),
                             Log.getExternalSession(TELECOM_ABBREVIATION));
-
                 } catch (RemoteException e) {
                     Log.e(this, e, "Failure to createConference -- %s", getComponentName());
                     mPendingResponses.remove(callId).handleCreateConferenceFailure(
@@ -1642,6 +1660,7 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                     Log.i(ConnectionServiceWrapper.this, "Call not present"
                             + " in call id mapper, maybe it was aborted before the bind"
                             + " completed successfully?");
+
                     response.handleCreateConnectionFailure(
                             new DisconnectCause(DisconnectCause.CANCELED));
                     return;
@@ -1703,6 +1722,23 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         .setRttPipeToInCall(call.getCsToInCallRttPipeForCs())
                         .build();
 
+                if (Flags.unbindTimeoutConnections()) {
+                    android.telecom.Logging.Runnable r =
+                            new android.telecom.Logging.Runnable("CSW.cC", mLock) {
+                                @Override
+                                public void loggedRun() {
+                                    if (!call.isCreateConnectionComplete()) {
+                                        Log.e(this, new Exception(),
+                                                "Connection %s creation timeout",
+                                                getComponentName());
+                                        response.handleCreateConnectionFailure(
+                                                new DisconnectCause(DisconnectCause.ERROR));
+                                    }
+                                }
+                            };
+                    mScheduledExecutor.schedule(r.getRunnableToCancel(), SERVICE_BINDING_TIMEOUT,
+                            TimeUnit.MILLISECONDS);
+                }
                 try {
                     mServiceInterface.createConnection(
                             call.getConnectionManagerPhoneAccount(),
@@ -1711,7 +1747,6 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                             call.shouldAttachToExistingConnection(),
                             call.isUnknown(),
                             Log.getExternalSession(TELECOM_ABBREVIATION));
-
                 } catch (RemoteException e) {
                     Log.e(this, e, "Failure to createConnection -- %s", getComponentName());
                     mPendingResponses.remove(callId).handleCreateConnectionFailure(
@@ -2160,7 +2195,8 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         }
     }
 
-    void addCall(Call call) {
+    @VisibleForTesting
+    public void addCall(Call call) {
         if (mCallIdMapper.getCallId(call) == null) {
             mCallIdMapper.addCall(call);
         }
@@ -2628,5 +2664,10 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         sb.append(mComponentName);
         sb.append("]");
         return sb.toString();
+    }
+
+    @VisibleForTesting
+    public void setScheduledExecutorService(ScheduledExecutorService service) {
+        mScheduledExecutor = service;
     }
 }

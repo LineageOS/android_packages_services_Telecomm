@@ -13,3 +13,10 @@ flag {
   description: "When set, call details/extras id updates to Telecom APIs for Android V are active."
   bug: "301713560"
 }
+
+flag {
+  name: "unbind_timeout_connections"
+  namespace: "telecom"
+  description: "When set, Telecom will auto-unbind if a ConnectionService returns no connections after some time."
+  bug: "293458004"
+}
