@@ -25,19 +25,19 @@
             android:id="@+id/icon"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:paddingTop="@dimen/blocked_numbers_large_padding"
-            android:paddingRight="@dimen/blocked_numbers_large_padding"
-            android:paddingLeft="@dimen/blocked_numbers_large_padding"
+            android:paddingEnd="@dimen/blocked_numbers_large_padding"
+            android:paddingStart="@dimen/blocked_numbers_large_padding"
             android:src="@drawable/ic_status_blocked_orange_40dp"/>
 
     <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/icon"
+            android:layout_toEndOf="@id/icon"
             android:paddingTop="@dimen/blocked_numbers_large_padding"
-            android:paddingRight="@dimen/blocked_numbers_large_padding"
+            android:paddingEnd="@dimen/blocked_numbers_large_padding"
             android:text="@string/blocked_numbers_butter_bar_title"
             style="@style/BlockedNumbersTextPrimary2" />
 
@@ -45,11 +45,11 @@
             android:id="@+id/description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/icon"
+            android:layout_toEndOf="@id/icon"
             android:layout_below="@id/title"
             android:paddingTop="@dimen/blocked_numbers_large_padding"
             android:paddingBottom="@dimen/blocked_numbers_large_padding"
-            android:paddingRight="@dimen/blocked_numbers_large_padding"
+            android:paddingEnd="@dimen/blocked_numbers_large_padding"
             android:text="@string/blocked_numbers_butter_bar_body"
             style="@style/BlockedNumbersTextSecondary" />
 
@@ -57,9 +57,9 @@
             android:id="@+id/reenable_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/icon"
+            android:layout_toEndOf="@id/icon"
             android:layout_below="@id/description"
-            android:paddingRight="@dimen/blocked_numbers_large_padding"
+            android:paddingEnd="@dimen/blocked_numbers_large_padding"
             android:text="@string/blocked_numbers_butter_bar_button"
             style="@style/BlockedNumbersButton"
             android:background="?android:attr/selectableItemBackgroundBorderless" />

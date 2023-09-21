@@ -22,7 +22,9 @@ aconfig_declarations {
     name: "telecom_flags",
     package: "com.android.server.telecom.flags",
     srcs: [
+      "telecom_broadcast_flags.aconfig",
       "telecom_ringer_flag_declarations.aconfig",
+      "telecom_api_flags.aconfig",
     ],
 }
 

@@ -1,0 +1,8 @@
+package: "com.android.server.telecom.flags"
+
+flag {
+  name: "voip_app_actions_support"
+  namespace: "telecom"
+  description: "When set, Telecom support for additional VOIP application actions is active."
+  bug: "296934278"
+}

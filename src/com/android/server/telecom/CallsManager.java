@@ -132,6 +132,7 @@ import com.android.server.telecom.callfiltering.IncomingCallFilterGraph;
 import com.android.server.telecom.callredirection.CallRedirectionProcessor;
 import com.android.server.telecom.components.ErrorDialogActivity;
 import com.android.server.telecom.components.TelecomBroadcastReceiver;
+import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.stats.CallFailureCause;
 import com.android.server.telecom.ui.AudioProcessingNotification;
@@ -287,15 +288,14 @@ public class CallsManager extends Call.ListenerBase
     public static final String EXCEPTION_RETRIEVING_PHONE_ACCOUNTS_EMERGENCY_ERROR_MSG =
             "Exception thrown while retrieving list of potential phone accounts when placing an "
                     + "emergency call.";
-    public static final UUID EMERGENCY_CALL_DISCONNECTED_BEFORE_BEING_ADDED_ERROR_UUID =
-            UUID.fromString("f9a916c8-8d61-4550-9ad3-11c2e84f6364");
-    public static final String EMERGENCY_CALL_DISCONNECTED_BEFORE_BEING_ADDED_ERROR_MSG =
-            "An emergency call was disconnected after the connection was created but before the "
-                    + "call was successfully added to CallsManager.";
     public static final UUID EMERGENCY_CALL_ABORTED_NO_PHONE_ACCOUNTS_ERROR_UUID =
             UUID.fromString("2e994acb-1997-4345-8bf3-bad04303de26");
     public static final String EMERGENCY_CALL_ABORTED_NO_PHONE_ACCOUNTS_ERROR_MSG =
             "An emergency call was aborted since there were no available phone accounts.";
+    public static final UUID DEFAULT_CALLING_ACCOUNT_MISMATCH_UUID =
+            UUID.fromString("64b6d6b0-3c7c-11ee-be56-0242ac120002");
+    public static final String DEFAULT_CALLING_ACCOUNT_MISMATCH_MSG =
+            "Telecom and Telephony have different default calling accounts.";
 
     private static final int[] OUTGOING_CALL_STATES =
             {CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING,
@@ -464,6 +464,7 @@ public class CallsManager extends Call.ListenerBase
     private final TransactionManager mTransactionManager;
     private final UserManager mUserManager;
     private final CallStreamingNotification mCallStreamingNotification;
+    private final FeatureFlags mFeatureFlags;
 
     private final ConnectionServiceFocusManager.CallsManagerRequester mRequester =
             new ConnectionServiceFocusManager.CallsManagerRequester() {
@@ -672,6 +673,7 @@ public class CallsManager extends Call.ListenerBase
         mBlockedNumbersAdapter = blockedNumbersAdapter;
         mCallStreamingController = new CallStreamingController(mContext, mLock);
         mCallStreamingNotification = callStreamingNotification;
+        mFeatureFlags = featureFlags;
 
         mListeners.add(mInCallController);
         mListeners.add(mInCallWakeLockController);
@@ -751,11 +753,10 @@ public class CallsManager extends Call.ListenerBase
     @Override
     @VisibleForTesting
     public void onSuccessfulOutgoingCall(Call call, int callState) {
-        Log.v(this, "onSuccessfulOutgoingCall, %s", call);
+        Log.v(this, "onSuccessfulOutgoingCall, call=[%s], state=[%d]", call, callState);
         call.setPostCallPackageName(getRoleManagerAdapter().getDefaultCallScreeningApp(
                 call.getAssociatedUser()));
 
-        setCallState(call, callState, "successful outgoing call");
         if (!mCalls.contains(call)) {
             // Call was not added previously in startOutgoingCall due to it being a potential MMI
             // code, so add it now.
@@ -767,7 +768,13 @@ public class CallsManager extends Call.ListenerBase
             listener.onConnectionServiceChanged(call, null, call.getConnectionService());
         }
 
-        markCallAsDialing(call);
+        // Allow the ConnectionService to start the call in the active state. This case is helpful
+        // for conference calls or meetings that can skip the dialing stage.
+        if (callState == CallState.ACTIVE) {
+            setCallState(call, callState, "skipping the dialing state and setting active");
+        } else {
+            markCallAsDialing(call);
+        }
     }
 
     @Override
@@ -2194,7 +2201,31 @@ public class CallsManager extends Call.ListenerBase
                     }
                     return CompletableFuture.completedFuture(callToUse);
                 }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.pASP", mLock));
+        maybeGenAnomReportForDefaultMismatch(initiatingUser);
         return mLatestPostSelectionProcessingFuture;
+    }
+
+    /**
+     * If the Telecom default outgoing account ID is not the same as the Telephony voice sub ID,
+     * this can cause unwanted behavior.
+     */
+    private void maybeGenAnomReportForDefaultMismatch(UserHandle userHandle) {
+        try {
+            PhoneAccountHandle handle =
+                    mPhoneAccountRegistrar.getUserSelectedOutgoingPhoneAccount(userHandle);
+            int currentTelecomId = -1;
+            if (handle != null) {
+                currentTelecomId = Integer.parseInt(handle.getId());
+            }
+            int currentVoiceSubId = SubscriptionManager.getDefaultVoiceSubscriptionId();
+            if (currentTelecomId != currentVoiceSubId) {
+                mAnomalyReporter.reportAnomaly(
+                        DEFAULT_CALLING_ACCOUNT_MISMATCH_UUID,
+                        DEFAULT_CALLING_ACCOUNT_MISMATCH_MSG);
+            }
+        } catch (Exception e) {
+            // ignore exceptions.  This should not affect the outgoing call.
+        }
     }
 
     private static int getManagedProfileUserId(Context context, int userId) {
@@ -2313,6 +2344,15 @@ public class CallsManager extends Call.ListenerBase
 
          PhoneAccountHandle phoneAccountHandle = clientExtras.getParcelable(
                  TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE);
+         PhoneAccount account =
+                mPhoneAccountRegistrar.getPhoneAccount(phoneAccountHandle, initiatingUser);
+         boolean isSelfManaged = account != null && account.isSelfManaged();
+         // Enforce outgoing call restriction for conference calls. This is handled via
+         // UserCallIntentProcessor for normal MO calls.
+         if (UserUtil.hasOutgoingCallsUserRestriction(mContext, initiatingUser,
+                 null, isSelfManaged, CallsManager.class.getCanonicalName())) {
+             return;
+         }
          CompletableFuture<Call> callFuture = startOutgoingCall(participants, phoneAccountHandle,
                  clientExtras, initiatingUser, null/* originalIntent */, callingPackage,
                  true/* isconference*/);
@@ -2890,6 +2930,10 @@ public class CallsManager extends Call.ListenerBase
             call.answer(videoState);
         } else {
             // Hold or disconnect the active call and request call focus for the incoming call.
+            Bundle bundle = new Bundle();
+            bundle.putLong(TelecomManager.EXTRA_CALL_ANSWERED_TIME_MILLIS,
+                     mClockProxy.currentTimeMillis());
+            call.putConnectionServiceExtras(bundle);
             holdActiveCallForNewCall(call);
             mConnectionSvrFocusMgr.requestFocus(
                     call,
@@ -3722,11 +3766,6 @@ public class CallsManager extends Call.ListenerBase
         // Notify listeners that the call was disconnected before being added to CallsManager.
         // Listeners will not receive onAdded or onRemoved callbacks.
         if (!mCalls.contains(call)) {
-            if (call.isEmergencyCall()) {
-                mAnomalyReporter.reportAnomaly(
-                        EMERGENCY_CALL_DISCONNECTED_BEFORE_BEING_ADDED_ERROR_UUID,
-                        EMERGENCY_CALL_DISCONNECTED_BEFORE_BEING_ADDED_ERROR_MSG);
-            }
             mListeners.forEach(l -> l.onCreateConnectionFailed(call));
         }
 
