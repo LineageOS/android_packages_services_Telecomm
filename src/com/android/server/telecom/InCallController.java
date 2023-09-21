@@ -2430,7 +2430,9 @@ public class InCallController extends CallsManagerListenerBase implements
                 try {
                     inCallService.updateCall(
                             sanitizeParcelableCallForService(info, parcelableCall));
-                } catch (RemoteException ignored) {
+                } catch (RemoteException exception) {
+                    Log.w(this, "Call status update did not send to: "
+                                + componentName +" successfully with error " + exception);
                 }
             }
             Log.i(this, "Components updated: %s", componentsUpdated);
