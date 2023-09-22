@@ -101,7 +101,7 @@
     <string name="notification_channel_disconnected_calls" msgid="8228636543997645757">"Αποσυνδεδεμένες κλήσεις"</string>
     <string name="notification_channel_in_call_service_crash" msgid="7313237519166984267">"Εφαρμογές τηλεφώνου που αντιμετώπισαν σφάλμα λειτουργίας"</string>
     <string name="notification_channel_call_streaming" msgid="5100510699787538991">"Ροή κλήσης"</string>
-    <string name="alert_outgoing_call" msgid="5319895109298927431">"Εάν πραγματοποιήσετε αυτήν την κλήση, η κλήση σας μέσω <xliff:g id="OTHER_APP">%1$s</xliff:g> θα τερματιστεί."</string>
+    <string name="alert_outgoing_call" msgid="5319895109298927431">"Εάν πραγματοποιήσετε αυτή την κλήση, η κλήση σας μέσω <xliff:g id="OTHER_APP">%1$s</xliff:g> θα τερματιστεί."</string>
     <string name="alert_redirect_outgoing_call_or_not" msgid="665409645789521636">"Επιλέξτε πώς θα πραγματοποιήσετε την κλήση"</string>
     <string name="alert_place_outgoing_call_with_redirection" msgid="5221065030959024121">"Ανακατεύθυνση της κλήσης μέσω <xliff:g id="OTHER_APP">%1$s</xliff:g>"</string>
     <string name="alert_place_unredirect_outgoing_call" msgid="2467608535225764006">"Κλήση μέσω του αριθμού τηλεφώνου μου"</string>
