@@ -3716,7 +3716,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
 
         String newName = callerInfo.getName();
-        boolean contactNameChanged = mCallerInfo == null || !mCallerInfo.getName().equals(newName);
+        boolean contactNameChanged = mCallerInfo == null ||
+                !Objects.equals(mCallerInfo.getName(), newName);
 
         mCallerInfo = callerInfo;
         Log.i(this, "CallerInfo received for %s: %s", Log.piiHandle(mHandle), callerInfo);
