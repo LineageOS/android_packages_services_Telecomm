@@ -58,6 +58,7 @@ import com.android.server.telecom.CallIntentProcessor;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.DefaultDialerCache;
+import com.android.server.telecom.InCallController;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.TelecomServiceImpl;
 import com.android.server.telecom.TelecomSystem;
@@ -197,6 +198,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @Mock private AnomalyReporterAdapter mAnomalyReporterAdapter;
     @Mock private FeatureFlags mFeatureFlags;
 
+    @Mock private InCallController mInCallController;
+
     private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
 
     private static final String DEFAULT_DIALER_PACKAGE = "com.google.android.dialer";
@@ -223,6 +226,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
 
         doReturn(mContext).when(mContext).getApplicationContext();
         doReturn(mContext).when(mContext).createContextAsUser(any(UserHandle.class), anyInt());
+        when(mFakeCallsManager.getInCallController()).thenReturn(mInCallController);
         doNothing().when(mContext).sendBroadcastAsUser(any(Intent.class), any(UserHandle.class),
                 anyString());
         when(mContext.checkCallingOrSelfPermission(Manifest.permission.INTERACT_ACROSS_USERS))
@@ -265,6 +269,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
 
         mPackageManager = mContext.getPackageManager();
         when(mPackageManager.getPackageUid(anyString(), eq(0))).thenReturn(Binder.getCallingUid());
+        when(mFeatureFlags.earlyBindingToIncallService()).thenReturn(true);
     }
 
     @Override
@@ -1045,10 +1050,86 @@ public class TelecomServiceImplTest extends TelecomTestCase {
 
         verify(mFakePhoneAccountRegistrar).getPhoneAccount(
                 TEL_PA_HANDLE_16, TEL_PA_HANDLE_16.getUserHandle());
+        verify(mInCallController, never()).bindToServices(any());
         addCallTestHelper(TelecomManager.ACTION_INCOMING_CALL,
                 CallIntentProcessor.KEY_IS_INCOMING_CALL, extras,
                 TEL_PA_HANDLE_16, false);
     }
+
+    @SmallTest
+    @Test
+    public void testAddNewIncomingFlagDisabledNoEarlyBinding() throws Exception {
+        when(mFeatureFlags.earlyBindingToIncallService()).thenReturn(false);
+        PhoneAccount phoneAccount = makeSkipCallFilteringPhoneAccount(TEL_PA_HANDLE_16).build();
+        phoneAccount.setIsEnabled(true);
+        doReturn(phoneAccount).when(mFakePhoneAccountRegistrar).getPhoneAccount(
+                eq(TEL_PA_HANDLE_16), any(UserHandle.class));
+        doReturn(phoneAccount).when(mFakePhoneAccountRegistrar).getPhoneAccountUnchecked(
+                eq(TEL_PA_HANDLE_16));
+        doNothing().when(mAppOpsManager).checkPackage(anyInt(), anyString());
+        when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_WATCH)).thenReturn(true);
+        Bundle extras = createSampleExtras();
+
+        mTSIBinder.addNewIncomingCall(TEL_PA_HANDLE_16, extras, CALLING_PACKAGE);
+
+        verify(mInCallController, never()).bindToServices(null);
+    }
+
+    @SmallTest
+    @Test
+    public void testAddNewIncomingCallEarlyBindingForNoCallFilterCalls() throws Exception {
+        PhoneAccount phoneAccount = makeSkipCallFilteringPhoneAccount(TEL_PA_HANDLE_16).build();
+        phoneAccount.setIsEnabled(true);
+        doReturn(phoneAccount).when(mFakePhoneAccountRegistrar).getPhoneAccount(
+                eq(TEL_PA_HANDLE_16), any(UserHandle.class));
+        doReturn(phoneAccount).when(mFakePhoneAccountRegistrar).getPhoneAccountUnchecked(
+                eq(TEL_PA_HANDLE_16));
+        doNothing().when(mAppOpsManager).checkPackage(anyInt(), anyString());
+        when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_WATCH)).thenReturn(true);
+        Bundle extras = createSampleExtras();
+
+        mTSIBinder.addNewIncomingCall(TEL_PA_HANDLE_16, extras, CALLING_PACKAGE);
+
+        verify(mInCallController).bindToServices(null);
+    }
+
+    @SmallTest
+    @Test
+    public void testAddNewIncomingCallEarlyBindingNotEnableForNonWatchDevices() throws Exception {
+        PhoneAccount phoneAccount = makeSkipCallFilteringPhoneAccount(TEL_PA_HANDLE_16).build();
+        phoneAccount.setIsEnabled(true);
+        doReturn(phoneAccount).when(mFakePhoneAccountRegistrar).getPhoneAccount(
+                eq(TEL_PA_HANDLE_16), any(UserHandle.class));
+        doReturn(phoneAccount).when(mFakePhoneAccountRegistrar).getPhoneAccountUnchecked(
+                eq(TEL_PA_HANDLE_16));
+        doNothing().when(mAppOpsManager).checkPackage(anyInt(), anyString());
+        when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_WATCH)).thenReturn(false);
+        Bundle extras = createSampleExtras();
+
+        mTSIBinder.addNewIncomingCall(TEL_PA_HANDLE_16, extras, CALLING_PACKAGE);
+
+        verify(mInCallController, never()).bindToServices(null);
+    }
+
+    @SmallTest
+    @Test
+    public void testAddNewIncomingCallEarlyBindingNotEnableForPhoneAccountHasCallFilters()
+            throws Exception {
+        PhoneAccount phoneAccount = makePhoneAccount(TEL_PA_HANDLE_16).build();
+        phoneAccount.setIsEnabled(true);
+        doReturn(phoneAccount).when(mFakePhoneAccountRegistrar).getPhoneAccount(
+                eq(TEL_PA_HANDLE_16), any(UserHandle.class));
+        doReturn(phoneAccount).when(mFakePhoneAccountRegistrar).getPhoneAccountUnchecked(
+                eq(TEL_PA_HANDLE_16));
+        doNothing().when(mAppOpsManager).checkPackage(anyInt(), anyString());
+        when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_WATCH)).thenReturn(true);
+        Bundle extras = createSampleExtras();
+
+        mTSIBinder.addNewIncomingCall(TEL_PA_HANDLE_16, extras, CALLING_PACKAGE);
+
+        verify(mInCallController, never()).bindToServices(null);
+    }
+
 
     @SmallTest
     @Test
@@ -2169,6 +2250,12 @@ public class TelecomServiceImplTest extends TelecomTestCase {
 
     private PhoneAccount.Builder makePhoneAccount(PhoneAccountHandle paHandle) {
         return new PhoneAccount.Builder(paHandle, "testLabel");
+    }
+
+    private PhoneAccount.Builder makeSkipCallFilteringPhoneAccount(PhoneAccountHandle paHandle) {
+        Bundle extras = new Bundle();
+        extras.putBoolean(PhoneAccount.EXTRA_SKIP_CALL_FILTERING, true);
+        return new PhoneAccount.Builder(paHandle, "testLabel").setExtras(extras);
     }
 
     private Bundle createSampleExtras() {

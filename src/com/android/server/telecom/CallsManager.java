@@ -1313,7 +1313,7 @@ public class CallsManager extends Call.ListenerBase
         return mCallAudioManager;
     }
 
-    InCallController getInCallController() {
+    public InCallController getInCallController() {
         return mInCallController;
     }
 

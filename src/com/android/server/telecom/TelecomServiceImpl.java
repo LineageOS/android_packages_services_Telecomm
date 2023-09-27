@@ -1553,6 +1553,23 @@ public class TelecomServiceImpl {
                             }
                             mCallIntentProcessorAdapter.processIncomingCallIntent(
                                     mCallsManager, intent);
+                            if (mFeatureFlags.earlyBindingToIncallService()) {
+                                PhoneAccount account =
+                                        mPhoneAccountRegistrar.getPhoneAccountUnchecked(
+                                                phoneAccountHandle);
+                                Bundle accountExtra =
+                                        account == null ? new Bundle() : account.getExtras();
+                                PackageManager packageManager = mContext.getPackageManager();
+                                // Start binding to InCallServices for wearable calls that do not
+                                // require call filtering. This is to wake up default dialer earlier
+                                // to mitigate InCallService binding latency.
+                                if (packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH)
+                                        && accountExtra != null && accountExtra.getBoolean(
+                                        PhoneAccount.EXTRA_SKIP_CALL_FILTERING,
+                                        false)) {
+                                    mCallsManager.getInCallController().bindToServices(null);
+                                }
+                            }
                         } finally {
                             Binder.restoreCallingIdentity(token);
                         }
