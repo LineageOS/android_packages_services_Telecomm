@@ -129,6 +129,7 @@ import com.android.server.telecom.callfiltering.CallScreeningServiceFilter;
 import com.android.server.telecom.callfiltering.DirectToVoicemailFilter;
 import com.android.server.telecom.callfiltering.DndCallFilter;
 import com.android.server.telecom.callfiltering.IncomingCallFilterGraph;
+import com.android.server.telecom.callfiltering.IncomingCallFilterGraphProvider;
 import com.android.server.telecom.callredirection.CallRedirectionProcessor;
 import com.android.server.telecom.components.ErrorDialogActivity;
 import com.android.server.telecom.components.TelecomBroadcastReceiver;
@@ -466,6 +467,8 @@ public class CallsManager extends Call.ListenerBase
     private final CallStreamingNotification mCallStreamingNotification;
     private final FeatureFlags mFeatureFlags;
 
+    private final IncomingCallFilterGraphProvider mIncomingCallFilterGraphProvider;
+
     private final ConnectionServiceFocusManager.CallsManagerRequester mRequester =
             new ConnectionServiceFocusManager.CallsManagerRequester() {
                 @Override
@@ -580,7 +583,8 @@ public class CallsManager extends Call.ListenerBase
             EmergencyCallDiagnosticLogger emergencyCallDiagnosticLogger,
             CallAudioCommunicationDeviceTracker communicationDeviceTracker,
             CallStreamingNotification callStreamingNotification,
-            FeatureFlags featureFlags) {
+            FeatureFlags featureFlags,
+            IncomingCallFilterGraphProvider incomingCallFilterGraphProvider) {
 
         mContext = context;
         mLock = lock;
@@ -599,6 +603,7 @@ public class CallsManager extends Call.ListenerBase
         mEmergencyCallHelper = emergencyCallHelper;
         mCallerInfoLookupHelper = callerInfoLookupHelper;
         mEmergencyCallDiagnosticLogger = emergencyCallDiagnosticLogger;
+        mIncomingCallFilterGraphProvider = incomingCallFilterGraphProvider;
 
         mDtmfLocalTonePlayer =
                 new DtmfLocalTonePlayer(new DtmfLocalTonePlayer.ToneGeneratorProxy());
@@ -793,11 +798,12 @@ public class CallsManager extends Call.ListenerBase
                 ? new Bundle()
                 : phoneAccount.getExtras();
         TelephonyManager telephonyManager = getTelephonyManager();
+        boolean performDndFilter = mFeatureFlags.skipFilterPhoneAccountPerformDndFilter();
         if (incomingCall.hasProperty(Connection.PROPERTY_EMERGENCY_CALLBACK_MODE) ||
                 incomingCall.hasProperty(Connection.PROPERTY_NETWORK_IDENTIFIED_EMERGENCY_CALL) ||
                 telephonyManager.isInEmergencySmsMode() ||
                 incomingCall.isSelfManaged() ||
-                extras.getBoolean(PhoneAccount.EXTRA_SKIP_CALL_FILTERING)) {
+                (!performDndFilter && extras.getBoolean(PhoneAccount.EXTRA_SKIP_CALL_FILTERING))) {
             Log.i(this, "Skipping call filtering for %s (ecm=%b, "
                             + "networkIdentifiedEmergencyCall = %b, emergencySmsMode = %b, "
                             + "selfMgd=%b, skipExtra=%b)",
@@ -815,10 +821,25 @@ public class CallsManager extends Call.ListenerBase
                     .build(), false);
             incomingCall.setIsUsingCallFiltering(false);
             return;
+        } else if (performDndFilter && extras.getBoolean(PhoneAccount.EXTRA_SKIP_CALL_FILTERING)) {
+            IncomingCallFilterGraph graph = setupDndFilterOnlyGraph(incomingCall);
+            graph.performFiltering();
+            return;
         }
 
         IncomingCallFilterGraph graph = setUpCallFilterGraph(incomingCall);
         graph.performFiltering();
+    }
+
+    private IncomingCallFilterGraph setupDndFilterOnlyGraph(Call incomingHfpCall) {
+        incomingHfpCall.setIsUsingCallFiltering(true);
+        DndCallFilter dndCallFilter = new DndCallFilter(incomingHfpCall, mRinger);
+        IncomingCallFilterGraph graph = mIncomingCallFilterGraphProvider.createGraph(
+                incomingHfpCall,
+                this::onCallFilteringComplete, mContext, mTimeoutsAdapter, mLock);
+        graph.addFilter(dndCallFilter);
+        mGraphHandlerThreads.add(graph.getHandlerThread());
+        return graph;
     }
 
     private IncomingCallFilterGraph setUpCallFilterGraph(Call incomingCall) {
@@ -833,7 +854,7 @@ public class CallsManager extends Call.ListenerBase
                 mContext.getPackageManager(), packageName);
         ParcelableCallUtils.Converter converter = new ParcelableCallUtils.Converter();
 
-        IncomingCallFilterGraph graph = new IncomingCallFilterGraph(incomingCall,
+        IncomingCallFilterGraph graph = mIncomingCallFilterGraphProvider.createGraph(incomingCall,
                 this::onCallFilteringComplete, mContext, mTimeoutsAdapter, mLock);
         DirectToVoicemailFilter voicemailFilter = new DirectToVoicemailFilter(incomingCall,
                 mCallerInfoLookupHelper);

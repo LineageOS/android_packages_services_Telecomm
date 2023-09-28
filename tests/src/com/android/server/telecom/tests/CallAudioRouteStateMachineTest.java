@@ -260,6 +260,7 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
             foundValid = true;
         }
         assertTrue(foundValid);
+        verify(mockBluetoothRouteManager, timeout(1000L)).getBluetoothAudioConnectedDevice();
     }
 
     @MediumTest
