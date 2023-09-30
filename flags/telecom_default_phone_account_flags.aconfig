@@ -1,0 +1,8 @@
+package: "com.android.server.telecom.flags"
+
+flag {
+  name: "telephony_has_default_but_telecom_does_not"
+  namespace: "telecom"
+  description: "Telecom is requesting the user to select a sim account to place the outgoing call on but the user has a default account in the settings"
+  bug: "302397094"
+}

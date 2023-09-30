@@ -133,7 +133,6 @@ import com.android.server.telecom.callfiltering.IncomingCallFilterGraphProvider;
 import com.android.server.telecom.callredirection.CallRedirectionProcessor;
 import com.android.server.telecom.components.ErrorDialogActivity;
 import com.android.server.telecom.components.TelecomBroadcastReceiver;
-import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.stats.CallFailureCause;
 import com.android.server.telecom.ui.AudioProcessingNotification;
@@ -293,10 +292,10 @@ public class CallsManager extends Call.ListenerBase
             UUID.fromString("2e994acb-1997-4345-8bf3-bad04303de26");
     public static final String EMERGENCY_CALL_ABORTED_NO_PHONE_ACCOUNTS_ERROR_MSG =
             "An emergency call was aborted since there were no available phone accounts.";
-    public static final UUID DEFAULT_CALLING_ACCOUNT_MISMATCH_UUID =
-            UUID.fromString("64b6d6b0-3c7c-11ee-be56-0242ac120002");
-    public static final String DEFAULT_CALLING_ACCOUNT_MISMATCH_MSG =
-            "Telecom and Telephony have different default calling accounts.";
+    public static final UUID TELEPHONY_HAS_DEFAULT_BUT_TELECOM_DOES_NOT_UUID =
+            UUID.fromString("0a86157c-50ca-11ee-be56-0242ac120002");
+    public static final String TELEPHONY_HAS_DEFAULT_BUT_TELECOM_DOES_NOT_MSG =
+            "Telephony has a default MO acct but Telecom prompted user for MO";
 
     private static final int[] OUTGOING_CALL_STATES =
             {CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT, CallState.DIALING,
@@ -2098,6 +2097,21 @@ public class CallsManager extends Call.ListenerBase
                                 return CompletableFuture.completedFuture(Pair.create(callToPlace,
                                         accountSuggestions.get(0).getPhoneAccountHandle()));
                             }
+
+                            // At this point Telecom is requesting the user to select a phone
+                            // account. However, Telephony is reporting that the user has a default
+                            // outgoing account (which is denoted by a non-negative subId number).
+                            // At some point, Telecom and Telephony are out of sync with the default
+                            // outgoing calling account.
+                            if(mFeatureFlags.telephonyHasDefaultButTelecomDoesNot()) {
+                                if (SubscriptionManager.getDefaultVoiceSubscriptionId() !=
+                                        SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+                                    mAnomalyReporter.reportAnomaly(
+                                            TELEPHONY_HAS_DEFAULT_BUT_TELECOM_DOES_NOT_UUID,
+                                            TELEPHONY_HAS_DEFAULT_BUT_TELECOM_DOES_NOT_MSG);
+                                }
+                            }
+
                             // This is the state where the user is expected to select an account
                             callToPlace.setState(CallState.SELECT_PHONE_ACCOUNT,
                                     "needs account selection");
@@ -2222,31 +2236,7 @@ public class CallsManager extends Call.ListenerBase
                     }
                     return CompletableFuture.completedFuture(callToUse);
                 }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.pASP", mLock));
-        maybeGenAnomReportForDefaultMismatch(initiatingUser);
         return mLatestPostSelectionProcessingFuture;
-    }
-
-    /**
-     * If the Telecom default outgoing account ID is not the same as the Telephony voice sub ID,
-     * this can cause unwanted behavior.
-     */
-    private void maybeGenAnomReportForDefaultMismatch(UserHandle userHandle) {
-        try {
-            PhoneAccountHandle handle =
-                    mPhoneAccountRegistrar.getUserSelectedOutgoingPhoneAccount(userHandle);
-            int currentTelecomId = -1;
-            if (handle != null) {
-                currentTelecomId = Integer.parseInt(handle.getId());
-            }
-            int currentVoiceSubId = SubscriptionManager.getDefaultVoiceSubscriptionId();
-            if (currentTelecomId != currentVoiceSubId) {
-                mAnomalyReporter.reportAnomaly(
-                        DEFAULT_CALLING_ACCOUNT_MISMATCH_UUID,
-                        DEFAULT_CALLING_ACCOUNT_MISMATCH_MSG);
-            }
-        } catch (Exception e) {
-            // ignore exceptions.  This should not affect the outgoing call.
-        }
     }
 
     private static int getManagedProfileUserId(Context context, int userId) {
