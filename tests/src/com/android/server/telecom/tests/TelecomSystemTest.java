@@ -38,6 +38,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.annotation.Nullable;
 import android.app.AppOpsManager;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
@@ -121,7 +122,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Implements mocks and functionality required to implement telecom system tests.
  */
-public class TelecomSystemTest extends TelecomTestCase {
+public class TelecomSystemTest extends TelecomTestCase{
 
     private static final String CALLING_PACKAGE = TelecomSystemTest.class.getPackageName();
     static final int TEST_POLL_INTERVAL = 10;  // milliseconds
@@ -169,7 +170,7 @@ public class TelecomSystemTest extends TelecomTestCase {
         }
 
         @Override
-        public void showMissedCallNotification(CallInfo call) {
+        public void showMissedCallNotification(CallInfo call, @Nullable Uri uri) {
             missedCallsNotified.add(call);
         }
 
@@ -501,7 +502,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                 .thenReturn(null);
         mTelecomSystem = new TelecomSystem(
                 mComponentContextFixture.getTestDouble(),
-                (context, phoneAccountRegistrar, defaultDialerCache, mDeviceIdleControllerAdapter)
+                (context, phoneAccountRegistrar, defaultDialerCache, mDeviceIdleControllerAdapter,
+                        mFeatureFlag)
                         -> mMissedCallNotifier,
                 mCallerInfoAsyncQueryFactoryFixture.getTestDouble(),
                 headsetMediaButtonFactory,

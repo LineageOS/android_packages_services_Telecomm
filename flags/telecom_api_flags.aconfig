@@ -20,3 +20,10 @@ flag {
   description: "When set, Telecom will auto-unbind if a ConnectionService returns no connections after some time."
   bug: "293458004"
 }
+
+flag{
+  name: "add_call_uri_for_missed_calls"
+  namespace: "telecom"
+  description: "The key is used for dialer apps to mark missed calls as read when it gets the notification on reboot."
+  bug: "292597423"
+}

@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import android.annotation.Nullable;
 import android.net.Uri;
 import android.os.UserHandle;
 import android.telecom.PhoneAccountHandle;
@@ -85,7 +86,7 @@ public interface MissedCallNotifier extends CallsManager.CallsManagerListener {
 
     void clearMissedCalls(UserHandle userHandle);
 
-    void showMissedCallNotification(CallInfo call);
+    void showMissedCallNotification(CallInfo call, @Nullable Uri uri);
 
     void reloadAfterBootComplete(CallerInfoLookupHelper callerInfoLookupHelper,
             CallInfoFactory callInfoFactory);

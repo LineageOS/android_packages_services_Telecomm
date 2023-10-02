@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -368,6 +369,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 VIA_NUMBER_STRING, // viaNumber
                 null
         );
+        when(mFeatureFlags.addCallUriForMissedCalls()).thenReturn(true);
         mCallLogManager.onCallStateChanged(fakeIncomingCall, CallState.ACTIVE,
                 CallState.DISCONNECTED);
         ContentValues insertedValues = verifyInsertionWithCapture(CURRENT_USER_ID);
@@ -377,7 +379,7 @@ public class CallLogManagerTest extends TelecomTestCase {
 
     @MediumTest
     @Test
-    public void testLogCallDirectionMissed() {
+    public void testLogCallDirectionMissedAddCallUriForMissedCallsFlagOff() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, CURRENT_USER_ID));
         Call fakeMissedCall = makeFakeCall(
@@ -393,6 +395,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 VIA_NUMBER_STRING, // viaNumber
                 null
         );
+        when(mFeatureFlags.addCallUriForMissedCalls()).thenReturn(false);
 
         mCallLogManager.onCallStateChanged(fakeMissedCall, CallState.ACTIVE,
                 CallState.DISCONNECTED);
@@ -401,7 +404,39 @@ public class CallLogManagerTest extends TelecomTestCase {
                 Integer.valueOf(CallLog.Calls.MISSED_TYPE));
         // Timeout needed because showMissedCallNotification is called from onPostExecute.
         verify(mMissedCallNotifier, timeout(TEST_TIMEOUT_MILLIS))
-                .showMissedCallNotification(any(MissedCallNotifier.CallInfo.class));
+                .showMissedCallNotification(any(MissedCallNotifier.CallInfo.class),
+                        /* uri= */ eq(null));
+    }
+
+    @MediumTest
+    @Test
+    public void testLogCallDirectionMissedAddCallUriForMissedCallsFlagOn() {
+        when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
+                .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, CURRENT_USER_ID));
+        Call fakeMissedCall = makeFakeCall(
+                DisconnectCause.MISSED, // disconnectCauseCode
+                false, // isConference
+                true, // isIncoming
+                1L, // creationTimeMillis
+                1000L, // ageMillis
+                TEL_PHONEHANDLE, // callHandle
+                mDefaultAccountHandle, // phoneAccountHandle
+                NO_VIDEO_STATE, // callVideoState
+                POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
+                null
+        );
+        when(mFeatureFlags.addCallUriForMissedCalls()).thenReturn(true);
+
+        mCallLogManager.onCallStateChanged(fakeMissedCall, CallState.ACTIVE,
+                CallState.DISCONNECTED);
+        ContentValues insertedValues = verifyInsertionWithCapture(CURRENT_USER_ID);
+        assertEquals(insertedValues.getAsInteger(CallLog.Calls.TYPE),
+                Integer.valueOf(CallLog.Calls.MISSED_TYPE));
+        // Timeout needed because showMissedCallNotification is called from onPostExecute.
+        verify(mMissedCallNotifier, timeout(TEST_TIMEOUT_MILLIS))
+                .showMissedCallNotification(any(MissedCallNotifier.CallInfo.class),
+                        /* uri= */ any(Uri.class));
     }
 
     @MediumTest

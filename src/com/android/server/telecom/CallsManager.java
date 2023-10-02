@@ -1021,7 +1021,7 @@ public class CallsManager extends Call.ListenerBase
             if (result.shouldShowNotification) {
                 Log.i(this, "onCallScreeningCompleted: blocked call, showing notification.");
                 mMissedCallNotifier.showMissedCallNotification(
-                        new MissedCallNotifier.CallInfo(incomingCall));
+                        new MissedCallNotifier.CallInfo(incomingCall), /* uri= */ null);
             }
         }
     }
