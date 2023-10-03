@@ -23,6 +23,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
@@ -1739,9 +1740,13 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 }
                 return;
             case UPDATE_SYSTEM_AUDIO_ROUTE:
-                updateInternalCallAudioState();
+                // Ensure available routes is updated.
                 updateRouteForForegroundCall();
-                resendSystemAudioState();
+                // Ensure current audio state gets updated to take this into account.
+                updateInternalCallAudioState();
+                // Either resend the current audio state as it stands, or update to reflect any
+                // changes put into place based on mAvailableRoutes
+                setSystemAudioState(mCurrentCallAudioState, true);
                 return;
             case RUN_RUNNABLE:
                 java.lang.Runnable r = (java.lang.Runnable) msg.obj;
@@ -1882,6 +1887,11 @@ public class CallAudioRouteStateMachine extends StateMachine {
 
     private void resendSystemAudioState() {
         setSystemAudioState(mLastKnownCallAudioState, true);
+    }
+
+    @VisibleForTesting
+    public CallAudioState getLastKnownCallAudioState() {
+        return mLastKnownCallAudioState;
     }
 
     private void setSystemAudioState(CallAudioState newCallAudioState, boolean force) {

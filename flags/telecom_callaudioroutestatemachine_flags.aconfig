@@ -1,0 +1,8 @@
+package: "com.android.server.telecom.flags"
+
+flag {
+  name: "available_routes_never_updated_after_set_system_audio_state"
+  namespace: "telecom"
+  description: "Fix supported routes wrongly include bluetooth issue."
+  bug: "292599751"
+}
