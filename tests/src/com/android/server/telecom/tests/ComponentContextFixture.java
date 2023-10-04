@@ -415,6 +415,11 @@ public class ComponentContextFixture implements TestFixture<Context> {
         }
 
         @Override
+        public void sendBroadcastAsUser(Intent intent, UserHandle user, String receiverPermission) {
+            // Override so that this can be verified via spy.
+        }
+
+        @Override
         public void sendBroadcastAsUser(Intent intent, UserHandle user, String receiverPermission,
                 Bundle options) {
             // Override so that this can be verified via spy.
