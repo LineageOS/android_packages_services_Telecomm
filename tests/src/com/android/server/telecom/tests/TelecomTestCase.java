@@ -48,11 +48,11 @@ public abstract class TelecomTestCase {
         Log.setUnitTestingEnabled(true);
         mMockitoHelper.setUp(InstrumentationRegistry.getContext(), getClass());
         MockitoAnnotations.initMocks(this);
+
         mComponentContextFixture = new ComponentContextFixture(mFeatureFlags);
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
         Log.setSessionContext(mComponentContextFixture.getTestDouble().getApplicationContext());
         Log.getSessionManager().mCleanStaleSessions = null;
-        MockitoAnnotations.initMocks(this);
     }
 
     public void tearDown() throws Exception {

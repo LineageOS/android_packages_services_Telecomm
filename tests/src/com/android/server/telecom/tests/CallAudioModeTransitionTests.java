@@ -16,6 +16,10 @@
 
 package com.android.server.telecom.tests;
 
+import static com.android.server.telecom.CallAudioModeStateMachine.CALL_AUDIO_FOCUS_REQUEST;
+import static com.android.server.telecom.CallAudioModeStateMachine.RING_AUDIO_FOCUS_REQUEST;
+
+import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.HandlerThread;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -37,6 +41,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
@@ -130,13 +135,14 @@ public class CallAudioModeTransitionTests extends TelecomTestCase {
     @SmallTest
     public void modeTransitionTest() {
         CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mSystemStateHelper,
-                mAudioManager, mTestThread.getLooper());
+                mAudioManager, mTestThread.getLooper(), mFeatureFlags);
         sm.setCallAudioManager(mCallAudioManager);
         sm.sendMessage(mParams.initialAudioState);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
 
         resetMocks();
         when(mCallAudioManager.startRinging()).thenReturn(true);
+        when(mFeatureFlags.telecomResolveHiddenDependencies()).thenReturn(false);
         if (mParams.initialAudioState
                 == CallAudioModeStateMachine.ENTER_AUDIO_PROCESSING_FOCUS_FOR_TESTING) {
             when(mAudioManager.getMode())

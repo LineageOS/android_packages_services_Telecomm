@@ -304,7 +304,7 @@ public class CallsManagerTest extends TelecomTestCase {
                 mCallEndpointController);
         when(mCallAudioRouteStateMachineFactory.create(any(), any(), any(), any(), any(), any(),
                 anyInt(), any(), any())).thenReturn(mCallAudioRouteStateMachine);
-        when(mCallAudioModeStateMachineFactory.create(any(), any()))
+        when(mCallAudioModeStateMachineFactory.create(any(), any(), any()))
                 .thenReturn(mCallAudioModeStateMachine);
         when(mClockProxy.currentTimeMillis()).thenReturn(System.currentTimeMillis());
         when(mClockProxy.elapsedRealtime()).thenReturn(SystemClock.elapsedRealtime());
@@ -3046,7 +3046,6 @@ public class CallsManagerTest extends TelecomTestCase {
         Call call = addSpyCall(CONNECTION_MGR_1_HANDLE, CallState.NEW);
         when(call.getHandoverDestinationCall()).thenReturn(destinationCall);
         when(call.getHandoverState()).thenReturn(HandoverState.HANDOVER_FROM_STARTED);
-
         mCallsManager.createActionSetCallStateAndPerformAction(
                 call, CallState.DISCONNECTED, "");
 

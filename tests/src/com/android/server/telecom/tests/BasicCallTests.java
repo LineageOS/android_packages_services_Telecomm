@@ -43,6 +43,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Icon;
 import android.media.AudioDeviceInfo;
+import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Binder;
@@ -110,6 +111,7 @@ public class BasicCallTests extends TelecomSystemTest {
         doReturn(mContext).when(mContext).createContextAsUser(any(UserHandle.class), anyInt());
         mPackageManager = mContext.getPackageManager();
         when(mPackageManager.getPackageUid(anyString(), eq(0))).thenReturn(Binder.getCallingUid());
+        when(mFeatureFlags.telecomResolveHiddenDependencies()).thenReturn(false);
     }
 
     @Override

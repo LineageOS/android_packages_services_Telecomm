@@ -542,9 +542,9 @@ public class TelecomSystemTest extends TelecomTestCase {
                 new CallAudioModeStateMachine.Factory() {
                     @Override
                     public CallAudioModeStateMachine create(SystemStateHelper systemStateHelper,
-                            AudioManager am) {
+                            AudioManager am, FeatureFlags featureFlags) {
                         return new CallAudioModeStateMachine(systemStateHelper, am,
-                                mHandlerThread.getLooper());
+                                mHandlerThread.getLooper(), featureFlags);
                     }
                 },
                 mClockProxy,
