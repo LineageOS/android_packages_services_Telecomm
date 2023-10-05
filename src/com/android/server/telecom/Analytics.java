@@ -72,96 +72,101 @@ public class Analytics {
     private static final String CLEAR_ANALYTICS_ARG = "clear";
 
     public static final Map<String, Integer> sLogEventToAnalyticsEvent = Map.ofEntries(
-                entry(LogUtils.Events.SET_SELECT_PHONE_ACCOUNT,
-                        AnalyticsEvent.SET_SELECT_PHONE_ACCOUNT),
-                entry(LogUtils.Events.REQUEST_HOLD, AnalyticsEvent.REQUEST_HOLD),
-                entry(LogUtils.Events.REQUEST_UNHOLD, AnalyticsEvent.REQUEST_UNHOLD),
-                entry(LogUtils.Events.SWAP, AnalyticsEvent.SWAP),
-                entry(LogUtils.Events.SKIP_RINGING, AnalyticsEvent.SKIP_RINGING),
-                entry(LogUtils.Events.CONFERENCE_WITH, AnalyticsEvent.CONFERENCE_WITH),
-                entry(LogUtils.Events.SPLIT_FROM_CONFERENCE, AnalyticsEvent.SPLIT_CONFERENCE),
-                entry(LogUtils.Events.SET_PARENT, AnalyticsEvent.SET_PARENT),
-                entry(LogUtils.Events.MUTE, AnalyticsEvent.MUTE),
-                entry(LogUtils.Events.UNMUTE, AnalyticsEvent.UNMUTE),
-                entry(LogUtils.Events.AUDIO_ROUTE_BT, AnalyticsEvent.AUDIO_ROUTE_BT),
-                entry(LogUtils.Events.AUDIO_ROUTE_EARPIECE, AnalyticsEvent.AUDIO_ROUTE_EARPIECE),
-                entry(LogUtils.Events.AUDIO_ROUTE_HEADSET, AnalyticsEvent.AUDIO_ROUTE_HEADSET),
-                entry(LogUtils.Events.AUDIO_ROUTE_SPEAKER, AnalyticsEvent.AUDIO_ROUTE_SPEAKER),
-                entry(LogUtils.Events.SILENCE, AnalyticsEvent.SILENCE),
-                entry(LogUtils.Events.SCREENING_COMPLETED, AnalyticsEvent.SCREENING_COMPLETED),
-                entry(LogUtils.Events.BLOCK_CHECK_FINISHED, AnalyticsEvent.BLOCK_CHECK_FINISHED),
-                entry(LogUtils.Events.DIRECT_TO_VM_FINISHED, AnalyticsEvent.DIRECT_TO_VM_FINISHED),
-                entry(LogUtils.Events.REMOTELY_HELD, AnalyticsEvent.REMOTELY_HELD),
-                entry(LogUtils.Events.REMOTELY_UNHELD, AnalyticsEvent.REMOTELY_UNHELD),
-                entry(LogUtils.Events.REQUEST_PULL, AnalyticsEvent.REQUEST_PULL),
-                entry(LogUtils.Events.REQUEST_ACCEPT, AnalyticsEvent.REQUEST_ACCEPT),
-                entry(LogUtils.Events.REQUEST_REJECT, AnalyticsEvent.REQUEST_REJECT),
-                entry(LogUtils.Events.SET_ACTIVE, AnalyticsEvent.SET_ACTIVE),
-                entry(LogUtils.Events.SET_DISCONNECTED, AnalyticsEvent.SET_DISCONNECTED),
-                entry(LogUtils.Events.SET_HOLD, AnalyticsEvent.SET_HOLD),
-                entry(LogUtils.Events.SET_DIALING, AnalyticsEvent.SET_DIALING),
-                entry(LogUtils.Events.START_CONNECTION, AnalyticsEvent.START_CONNECTION),
-                entry(LogUtils.Events.BIND_CS, AnalyticsEvent.BIND_CS),
-                entry(LogUtils.Events.CS_BOUND, AnalyticsEvent.CS_BOUND),
-                entry(LogUtils.Events.SCREENING_SENT, AnalyticsEvent.SCREENING_SENT),
-                entry(LogUtils.Events.DIRECT_TO_VM_INITIATED,
-                        AnalyticsEvent.DIRECT_TO_VM_INITIATED),
-                entry(LogUtils.Events.BLOCK_CHECK_INITIATED, AnalyticsEvent.BLOCK_CHECK_INITIATED),
-                entry(LogUtils.Events.FILTERING_INITIATED, AnalyticsEvent.FILTERING_INITIATED),
-                entry(LogUtils.Events.FILTERING_COMPLETED, AnalyticsEvent.FILTERING_COMPLETED),
-                entry(LogUtils.Events.FILTERING_TIMED_OUT, AnalyticsEvent.FILTERING_TIMED_OUT));
+            entry(LogUtils.Events.SET_SELECT_PHONE_ACCOUNT,
+                    AnalyticsEvent.SET_SELECT_PHONE_ACCOUNT),
+            entry(LogUtils.Events.REQUEST_HOLD, AnalyticsEvent.REQUEST_HOLD),
+            entry(LogUtils.Events.REQUEST_UNHOLD, AnalyticsEvent.REQUEST_UNHOLD),
+            entry(LogUtils.Events.SWAP, AnalyticsEvent.SWAP),
+            entry(LogUtils.Events.SKIP_RINGING, AnalyticsEvent.SKIP_RINGING),
+            entry(LogUtils.Events.CONFERENCE_WITH, AnalyticsEvent.CONFERENCE_WITH),
+            entry(LogUtils.Events.SPLIT_FROM_CONFERENCE, AnalyticsEvent.SPLIT_CONFERENCE),
+            entry(LogUtils.Events.SET_PARENT, AnalyticsEvent.SET_PARENT),
+            entry(LogUtils.Events.MUTE, AnalyticsEvent.MUTE),
+            entry(LogUtils.Events.UNMUTE, AnalyticsEvent.UNMUTE),
+            entry(LogUtils.Events.AUDIO_ROUTE_BT, AnalyticsEvent.AUDIO_ROUTE_BT),
+            entry(LogUtils.Events.AUDIO_ROUTE_EARPIECE, AnalyticsEvent.AUDIO_ROUTE_EARPIECE),
+            entry(LogUtils.Events.AUDIO_ROUTE_HEADSET, AnalyticsEvent.AUDIO_ROUTE_HEADSET),
+            entry(LogUtils.Events.AUDIO_ROUTE_SPEAKER, AnalyticsEvent.AUDIO_ROUTE_SPEAKER),
+            entry(LogUtils.Events.SILENCE, AnalyticsEvent.SILENCE),
+            entry(LogUtils.Events.SCREENING_COMPLETED, AnalyticsEvent.SCREENING_COMPLETED),
+            entry(LogUtils.Events.BLOCK_CHECK_FINISHED, AnalyticsEvent.BLOCK_CHECK_FINISHED),
+            entry(LogUtils.Events.DIRECT_TO_VM_FINISHED, AnalyticsEvent.DIRECT_TO_VM_FINISHED),
+            entry(LogUtils.Events.REMOTELY_HELD, AnalyticsEvent.REMOTELY_HELD),
+            entry(LogUtils.Events.REMOTELY_UNHELD, AnalyticsEvent.REMOTELY_UNHELD),
+            entry(LogUtils.Events.REQUEST_PULL, AnalyticsEvent.REQUEST_PULL),
+            entry(LogUtils.Events.REQUEST_ACCEPT, AnalyticsEvent.REQUEST_ACCEPT),
+            entry(LogUtils.Events.REQUEST_REJECT, AnalyticsEvent.REQUEST_REJECT),
+            entry(LogUtils.Events.SET_ACTIVE, AnalyticsEvent.SET_ACTIVE),
+            entry(LogUtils.Events.SET_DISCONNECTED, AnalyticsEvent.SET_DISCONNECTED),
+            entry(LogUtils.Events.SET_HOLD, AnalyticsEvent.SET_HOLD),
+            entry(LogUtils.Events.SET_DIALING, AnalyticsEvent.SET_DIALING),
+            entry(LogUtils.Events.START_CONNECTION, AnalyticsEvent.START_CONNECTION),
+            entry(LogUtils.Events.BIND_CS, AnalyticsEvent.BIND_CS),
+            entry(LogUtils.Events.CS_BOUND, AnalyticsEvent.CS_BOUND),
+            entry(LogUtils.Events.SCREENING_SENT, AnalyticsEvent.SCREENING_SENT),
+            entry(LogUtils.Events.DIRECT_TO_VM_INITIATED,
+                    AnalyticsEvent.DIRECT_TO_VM_INITIATED),
+            entry(LogUtils.Events.BLOCK_CHECK_INITIATED, AnalyticsEvent.BLOCK_CHECK_INITIATED),
+            entry(LogUtils.Events.FILTERING_INITIATED, AnalyticsEvent.FILTERING_INITIATED),
+            entry(LogUtils.Events.FILTERING_COMPLETED, AnalyticsEvent.FILTERING_COMPLETED),
+            entry(LogUtils.Events.FILTERING_TIMED_OUT, AnalyticsEvent.FILTERING_TIMED_OUT),
+            entry(LogUtils.Events.DND_PRE_CHECK_INITIATED, AnalyticsEvent.DND_CHECK_INITIATED),
+            entry(LogUtils.Events.DND_PRE_CHECK_COMPLETED, AnalyticsEvent.DND_CHECK_COMPLETED));
 
     public static final Map<String, Integer> sLogSessionToSessionId = Map.ofEntries(
-                entry(LogUtils.Sessions.ICA_ANSWER_CALL, SessionTiming.ICA_ANSWER_CALL),
-                entry(LogUtils.Sessions.ICA_REJECT_CALL, SessionTiming.ICA_REJECT_CALL),
-                entry(LogUtils.Sessions.ICA_DISCONNECT_CALL, SessionTiming.ICA_DISCONNECT_CALL),
-                entry(LogUtils.Sessions.ICA_HOLD_CALL, SessionTiming.ICA_HOLD_CALL),
-                entry(LogUtils.Sessions.ICA_UNHOLD_CALL, SessionTiming.ICA_UNHOLD_CALL),
-                entry(LogUtils.Sessions.ICA_MUTE, SessionTiming.ICA_MUTE),
-                entry(LogUtils.Sessions.ICA_SET_AUDIO_ROUTE, SessionTiming.ICA_SET_AUDIO_ROUTE),
-                entry(LogUtils.Sessions.ICA_CONFERENCE, SessionTiming.ICA_CONFERENCE),
-                entry(LogUtils.Sessions.CSW_HANDLE_CREATE_CONNECTION_COMPLETE,
-                        SessionTiming.CSW_HANDLE_CREATE_CONNECTION_COMPLETE),
-                entry(LogUtils.Sessions.CSW_SET_ACTIVE, SessionTiming.CSW_SET_ACTIVE),
-                entry(LogUtils.Sessions.CSW_SET_RINGING, SessionTiming.CSW_SET_RINGING),
-                entry(LogUtils.Sessions.CSW_SET_DIALING, SessionTiming.CSW_SET_DIALING),
-                entry(LogUtils.Sessions.CSW_SET_DISCONNECTED, SessionTiming.CSW_SET_DISCONNECTED),
-                entry(LogUtils.Sessions.CSW_SET_ON_HOLD, SessionTiming.CSW_SET_ON_HOLD),
-                entry(LogUtils.Sessions.CSW_REMOVE_CALL, SessionTiming.CSW_REMOVE_CALL),
-                entry(LogUtils.Sessions.CSW_SET_IS_CONFERENCED, SessionTiming.CSW_SET_IS_CONFERENCED),
-                entry(LogUtils.Sessions.CSW_ADD_CONFERENCE_CALL,
-                        SessionTiming.CSW_ADD_CONFERENCE_CALL));
+            entry(LogUtils.Sessions.ICA_ANSWER_CALL, SessionTiming.ICA_ANSWER_CALL),
+            entry(LogUtils.Sessions.ICA_REJECT_CALL, SessionTiming.ICA_REJECT_CALL),
+            entry(LogUtils.Sessions.ICA_DISCONNECT_CALL, SessionTiming.ICA_DISCONNECT_CALL),
+            entry(LogUtils.Sessions.ICA_HOLD_CALL, SessionTiming.ICA_HOLD_CALL),
+            entry(LogUtils.Sessions.ICA_UNHOLD_CALL, SessionTiming.ICA_UNHOLD_CALL),
+            entry(LogUtils.Sessions.ICA_MUTE, SessionTiming.ICA_MUTE),
+            entry(LogUtils.Sessions.ICA_SET_AUDIO_ROUTE, SessionTiming.ICA_SET_AUDIO_ROUTE),
+            entry(LogUtils.Sessions.ICA_CONFERENCE, SessionTiming.ICA_CONFERENCE),
+            entry(LogUtils.Sessions.CSW_HANDLE_CREATE_CONNECTION_COMPLETE,
+                    SessionTiming.CSW_HANDLE_CREATE_CONNECTION_COMPLETE),
+            entry(LogUtils.Sessions.CSW_SET_ACTIVE, SessionTiming.CSW_SET_ACTIVE),
+            entry(LogUtils.Sessions.CSW_SET_RINGING, SessionTiming.CSW_SET_RINGING),
+            entry(LogUtils.Sessions.CSW_SET_DIALING, SessionTiming.CSW_SET_DIALING),
+            entry(LogUtils.Sessions.CSW_SET_DISCONNECTED, SessionTiming.CSW_SET_DISCONNECTED),
+            entry(LogUtils.Sessions.CSW_SET_ON_HOLD, SessionTiming.CSW_SET_ON_HOLD),
+            entry(LogUtils.Sessions.CSW_REMOVE_CALL, SessionTiming.CSW_REMOVE_CALL),
+            entry(LogUtils.Sessions.CSW_SET_IS_CONFERENCED, SessionTiming.CSW_SET_IS_CONFERENCED),
+            entry(LogUtils.Sessions.CSW_ADD_CONFERENCE_CALL,
+                    SessionTiming.CSW_ADD_CONFERENCE_CALL));
 
     public static final Map<String, Integer> sLogEventTimingToAnalyticsEventTiming = Map.ofEntries(
-                entry(LogUtils.Events.Timings.ACCEPT_TIMING,
-                        ParcelableCallAnalytics.EventTiming.ACCEPT_TIMING),
-                entry(LogUtils.Events.Timings.REJECT_TIMING,
-                        ParcelableCallAnalytics.EventTiming.REJECT_TIMING),
-                entry(LogUtils.Events.Timings.DISCONNECT_TIMING,
-                        ParcelableCallAnalytics.EventTiming.DISCONNECT_TIMING),
-                entry(LogUtils.Events.Timings.HOLD_TIMING,
-                        ParcelableCallAnalytics.EventTiming.HOLD_TIMING),
-                entry(LogUtils.Events.Timings.UNHOLD_TIMING,
-                        ParcelableCallAnalytics.EventTiming.UNHOLD_TIMING),
-                entry(LogUtils.Events.Timings.OUTGOING_TIME_TO_DIALING_TIMING,
-                        ParcelableCallAnalytics.EventTiming.OUTGOING_TIME_TO_DIALING_TIMING),
-                entry(LogUtils.Events.Timings.BIND_CS_TIMING,
-                        ParcelableCallAnalytics.EventTiming.BIND_CS_TIMING),
-                entry(LogUtils.Events.Timings.SCREENING_COMPLETED_TIMING,
-                        ParcelableCallAnalytics.EventTiming.SCREENING_COMPLETED_TIMING),
-                entry(LogUtils.Events.Timings.DIRECT_TO_VM_FINISHED_TIMING,
-                        ParcelableCallAnalytics.EventTiming.DIRECT_TO_VM_FINISHED_TIMING),
-                entry(LogUtils.Events.Timings.BLOCK_CHECK_FINISHED_TIMING,
-                        ParcelableCallAnalytics.EventTiming.BLOCK_CHECK_FINISHED_TIMING),
-                entry(LogUtils.Events.Timings.FILTERING_COMPLETED_TIMING,
-                        ParcelableCallAnalytics.EventTiming.FILTERING_COMPLETED_TIMING),
-                entry(LogUtils.Events.Timings.FILTERING_TIMED_OUT_TIMING,
-                        ParcelableCallAnalytics.EventTiming.FILTERING_TIMED_OUT_TIMING),
-                entry(LogUtils.Events.Timings.START_CONNECTION_TO_REQUEST_DISCONNECT_TIMING,
-                        ParcelableCallAnalytics.EventTiming.
-                                START_CONNECTION_TO_REQUEST_DISCONNECT_TIMING));
+            entry(LogUtils.Events.Timings.ACCEPT_TIMING,
+                    ParcelableCallAnalytics.EventTiming.ACCEPT_TIMING),
+            entry(LogUtils.Events.Timings.REJECT_TIMING,
+                    ParcelableCallAnalytics.EventTiming.REJECT_TIMING),
+            entry(LogUtils.Events.Timings.DISCONNECT_TIMING,
+                    ParcelableCallAnalytics.EventTiming.DISCONNECT_TIMING),
+            entry(LogUtils.Events.Timings.HOLD_TIMING,
+                    ParcelableCallAnalytics.EventTiming.HOLD_TIMING),
+            entry(LogUtils.Events.Timings.UNHOLD_TIMING,
+                    ParcelableCallAnalytics.EventTiming.UNHOLD_TIMING),
+            entry(LogUtils.Events.Timings.OUTGOING_TIME_TO_DIALING_TIMING,
+                    ParcelableCallAnalytics.EventTiming.OUTGOING_TIME_TO_DIALING_TIMING),
+            entry(LogUtils.Events.Timings.BIND_CS_TIMING,
+                    ParcelableCallAnalytics.EventTiming.BIND_CS_TIMING),
+            entry(LogUtils.Events.Timings.SCREENING_COMPLETED_TIMING,
+                    ParcelableCallAnalytics.EventTiming.SCREENING_COMPLETED_TIMING),
+            entry(LogUtils.Events.Timings.DIRECT_TO_VM_FINISHED_TIMING,
+                    ParcelableCallAnalytics.EventTiming.DIRECT_TO_VM_FINISHED_TIMING),
+            entry(LogUtils.Events.Timings.BLOCK_CHECK_FINISHED_TIMING,
+                    ParcelableCallAnalytics.EventTiming.BLOCK_CHECK_FINISHED_TIMING),
+            entry(LogUtils.Events.Timings.FILTERING_COMPLETED_TIMING,
+                    ParcelableCallAnalytics.EventTiming.FILTERING_COMPLETED_TIMING),
+            entry(LogUtils.Events.Timings.FILTERING_TIMED_OUT_TIMING,
+                    ParcelableCallAnalytics.EventTiming.FILTERING_TIMED_OUT_TIMING),
+            entry(LogUtils.Events.Timings.START_CONNECTION_TO_REQUEST_DISCONNECT_TIMING,
+                    ParcelableCallAnalytics.EventTiming.
+                            START_CONNECTION_TO_REQUEST_DISCONNECT_TIMING),
+            entry(LogUtils.Events.Timings.DND_PRE_CHECK_COMPLETED_TIMING,
+                    ParcelableCallAnalytics.EventTiming.DND_PRE_CALL_PRE_CHECK_TIMING));
 
     public static final Map<Integer, String> sSessionIdToLogSession = new HashMap<>();
+
     static {
         for (Map.Entry<String, Integer> e : sLogSessionToSessionId.entrySet()) {
             sSessionIdToLogSession.put(e.getValue(), e.getKey());
@@ -228,12 +233,12 @@ public class Analytics {
         public long startTime;  // start time in milliseconds since the epoch. 0 if not yet set.
         public long endTime;  // end time in milliseconds since the epoch. 0 if not yet set.
         public int callDirection;  // one of UNKNOWN_DIRECTION, INCOMING_DIRECTION,
-                                   // or OUTGOING_DIRECTION.
+        // or OUTGOING_DIRECTION.
         public boolean isAdditionalCall = false;  // true if the call came in while another call was
-                                                  // in progress or if the user dialed this call
-                                                  // while in the middle of another call.
+        // in progress or if the user dialed this call
+        // while in the middle of another call.
         public boolean isInterrupted = false;  // true if the call was interrupted by an incoming
-                                               // or outgoing call.
+        // or outgoing call.
         public int callTechnologies;  // bitmask denoting which technologies a call used.
 
         // true if the Telecom Call object was created from an existing connection via
@@ -432,17 +437,17 @@ public class Analytics {
             TelecomLogClass.CallLog analyticsProto = toProto();
             List<ParcelableCallAnalytics.AnalyticsEvent> events =
                     Arrays.stream(analyticsProto.callEvents)
-                    .map(callEventProto -> new ParcelableCallAnalytics.AnalyticsEvent(
-                                callEventProto.getEventName(),
-                                callEventProto.getTimeSinceLastEventMillis())
-                    ).collect(Collectors.toList());
+                            .map(callEventProto -> new ParcelableCallAnalytics.AnalyticsEvent(
+                                    callEventProto.getEventName(),
+                                    callEventProto.getTimeSinceLastEventMillis())
+                            ).collect(Collectors.toList());
 
             List<ParcelableCallAnalytics.EventTiming> timings =
                     Arrays.stream(analyticsProto.callTimings)
-                    .map(callTimingProto -> new ParcelableCallAnalytics.EventTiming(
-                            callTimingProto.getTimingName(),
-                            callTimingProto.getTimeMillis())
-                    ).collect(Collectors.toList());
+                            .map(callTimingProto -> new ParcelableCallAnalytics.EventTiming(
+                                    callTimingProto.getTimingName(),
+                                    callTimingProto.getTimeMillis())
+                            ).collect(Collectors.toList());
 
             ParcelableCallAnalytics result = new ParcelableCallAnalytics(
                     // rounds down to nearest 5 minute mark
@@ -498,7 +503,7 @@ public class Analytics {
                     .setConnectionProperties(callProperties)
                     .setCallSource(callSource);
 
-            result.connectionService = new String[] {connectionService};
+            result.connectionService = new String[]{connectionService};
             if (callEvents != null) {
                 result.callEvents = convertLogEventsToProtoEvents(callEvents.getEvents());
                 result.callTimings = callEvents.extractEventTimings().stream()
@@ -547,7 +552,6 @@ public class Analytics {
         }
 
         private String getMissedReasonString() {
-            //TODO: Implement this
             StringBuilder s =  new StringBuilder();
             s.append('[');
             if ((missedReason & AUTO_MISSED_EMERGENCY_CALL) != 0) {
@@ -608,6 +612,7 @@ public class Analytics {
             }
         }
     }
+
     public static final String TAG = "TelecomAnalytics";
 
     // Constants for call direction
@@ -842,13 +847,13 @@ public class Analytics {
     }
 
     @VisibleForTesting
-    public static long roundToOneSigFig(long val)  {
+    public static long roundToOneSigFig(long val) {
         if (val == 0) {
             return val;
         }
         int logVal = (int) Math.floor(Math.log10(val < 0 ? -val : val));
         double s = Math.pow(10, logVal);
-        double dec =  val / s;
+        double dec = val / s;
         return (long) (Math.round(dec) * s);
     }
 }
