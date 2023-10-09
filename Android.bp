@@ -28,7 +28,7 @@ android_app {
     static_libs: [
         "androidx.annotation_annotation",
         "androidx.core_core",
-        "telecom_flags-lib",
+        "telecom_flags_core_java_lib",
     ],
     libs: [
         "services",
@@ -62,7 +62,7 @@ android_test {
         "androidx.fragment_fragment",
         "androidx.test.ext.junit",
         "platform-compat-test-rules",
-        "telecom_flags-lib",
+        "telecom_flags_core_java_lib",
     ],
     srcs: [
         "tests/src/**/*.java",

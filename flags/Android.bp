@@ -31,8 +31,3 @@ aconfig_declarations {
       "telecom_callaudioroutestatemachine_flags.aconfig"
     ],
 }
-
-java_aconfig_library {
-    name: "telecom_flags-lib",
-    aconfig_declarations: "telecom_flags"
-}
