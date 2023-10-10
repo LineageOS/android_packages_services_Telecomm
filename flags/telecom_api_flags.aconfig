@@ -6,3 +6,10 @@ flag {
   description: "When set, Telecom support for additional VOIP application actions is active."
   bug: "296934278"
 }
+
+flag {
+  name: "call_details_id_changes"
+  namespace: "telecom"
+  description: "When set, call details/extras id updates to Telecom APIs for Android V are active."
+  bug: "301713560"
+}
