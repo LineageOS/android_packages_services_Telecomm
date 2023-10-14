@@ -357,14 +357,57 @@ public class NewOutgoingCallIntentBroadcaster {
 
     public void processCall(Call call, CallDisposition disposition) {
         mCall = call;
-        if (disposition.callImmediately || mFeatureFlags.isNewOutgoingCallBroadcastUnblocking()) {
-            boolean speakerphoneOn = mIntent.getBooleanExtra(
-                    TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE, false);
-            int videoState = mIntent.getIntExtra(
-                    TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
-                    VideoProfile.STATE_AUDIO_ONLY);
-            placeOutgoingCallImmediately(mCall, disposition.callingAddress, null,
-                    speakerphoneOn, videoState);
+
+        // If the new outgoing call broadast doesn't block, trigger the legacy process call
+        // behavior and exit out here.
+        if (!mFeatureFlags.isNewOutgoingCallBroadcastUnblocking()) {
+            legacyProcessCall(disposition);
+            return;
+        }
+        boolean callRedirectionWithService = false;
+        // Only try to do redirection if it was requested and we're not calling immediately.
+        // We can expect callImmediately to be true for emergency calls and voip calls.
+        if (disposition.requestRedirection && !disposition.callImmediately) {
+            CallRedirectionProcessor callRedirectionProcessor = new CallRedirectionProcessor(
+                    mContext, mCallsManager, mCall, disposition.callingAddress,
+                    mCallsManager.getPhoneAccountRegistrar(),
+                    getGateWayInfoFromIntent(mIntent, mIntent.getData()),
+                    mIntent.getBooleanExtra(TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE,
+                            false),
+                    mIntent.getIntExtra(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
+                            VideoProfile.STATE_AUDIO_ONLY));
+            /**
+             * If there is an available {@link android.telecom.CallRedirectionService}, use the
+             * {@link CallRedirectionProcessor} to perform call redirection instead of using
+             * broadcasting.
+             */
+            callRedirectionWithService = callRedirectionProcessor
+                    .canMakeCallRedirectionWithServiceAsUser(mCall.getAssociatedUser());
+            if (callRedirectionWithService) {
+                callRedirectionProcessor.performCallRedirection(mCall.getAssociatedUser());
+            }
+        }
+
+        // If no redirection was kicked off, place the call now.
+        if (!callRedirectionWithService) {
+            callImmediately(disposition);
+        }
+
+        // Finally, send the non-blocking broadcast if we're supposed to (ie for any non-voip call).
+        if (disposition.sendBroadcast) {
+            UserHandle targetUser = mCall.getAssociatedUser();
+            broadcastIntent(mIntent, disposition.number, false /* receiverRequired */, targetUser);
+        }
+    }
+
+    /**
+     * The legacy non-flagged version of processing a call.  Although there is some code duplication
+     * if makes the new flow cleaner to read.
+     * @param disposition
+     */
+    private void legacyProcessCall(CallDisposition disposition) {
+        if (disposition.callImmediately) {
+            callImmediately(disposition);
 
             // Don't return but instead continue and send the ACTION_NEW_OUTGOING_CALL broadcast
             // so that third parties can still inspect (but not intercept) the outgoing call. When
@@ -399,6 +442,20 @@ public class NewOutgoingCallIntentBroadcaster {
             broadcastIntent(mIntent, disposition.number,
                     !disposition.callImmediately && !callRedirectionWithService, targetUser);
         }
+    }
+
+    /**
+     * Place a call immediately.
+     * @param disposition The disposition; used for retrieving the address of the call.
+     */
+    private void callImmediately(CallDisposition disposition) {
+        boolean speakerphoneOn = mIntent.getBooleanExtra(
+                TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE, false);
+        int videoState = mIntent.getIntExtra(
+                TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
+                VideoProfile.STATE_AUDIO_ONLY);
+        placeOutgoingCallImmediately(mCall, disposition.callingAddress, null,
+                speakerphoneOn, videoState);
     }
 
     /**
