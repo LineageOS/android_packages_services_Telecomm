@@ -16,12 +16,10 @@
 
 package com.android.server.telecom.tests;
 
-import static android.provider.Settings.Global.ZEN_MODE_IMPORTANT_INTERRUPTIONS;
 import static android.os.VibrationEffect.EFFECT_CLICK;
-
+import static android.provider.Settings.Global.ZEN_MODE_IMPORTANT_INTERRUPTIONS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -44,7 +42,6 @@ import static org.mockito.Mockito.when;
 import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.res.Resources;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.Ringtone;
@@ -55,7 +52,6 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
-import android.os.vibrator.persistence.VibrationXmlParser;
 import android.os.Vibrator;
 import android.os.VibratorInfo;
 import android.platform.test.flag.junit.CheckFlagsRule;
@@ -63,8 +59,6 @@ import android.platform.test.flag.junit.DeviceFlagsValueProvider;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.test.suitebuilder.annotation.SmallTest;
-
-import androidx.test.InstrumentationRegistry;
 
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.Call;
@@ -85,8 +79,8 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.Spy;
 
-import java.util.concurrent.CompletableFuture;
 import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
 
 @RunWith(JUnit4.class)
 public class RingerTest extends TelecomTestCase {
@@ -137,6 +131,7 @@ public class RingerTest extends TelecomTestCase {
     public void setUp() throws Exception {
         super.setUp();
         mContext = spy(mComponentContextFixture.getTestDouble().getApplicationContext());
+        when(mFeatureFlags.telecomResolveHiddenDependencies()).thenReturn(true);
         doReturn(URI_VIBRATION_EFFECT).when(spyVibrationEffectProxy).get(any(), any());
         when(mockPlayerFactory.createPlayer(anyInt())).thenReturn(mockTonePlayer);
         mockAudioManager = mContext.getSystemService(AudioManager.class);
@@ -146,7 +141,7 @@ public class RingerTest extends TelecomTestCase {
                 .thenAnswer((invocation) -> mIsHapticPlaybackSupported);
         mockNotificationManager =mContext.getSystemService(NotificationManager.class);
         when(mockTonePlayer.startTone()).thenReturn(true);
-        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
+        when(mockNotificationManager.matchesCallFilter(any(Uri.class))).thenReturn(true);
         when(mockRingtoneFactory.hasHapticChannels(any(Ringtone.class))).thenReturn(false);
         when(mockCall1.getState()).thenReturn(CallState.RINGING);
         when(mockCall2.getState()).thenReturn(CallState.RINGING);
@@ -403,7 +398,7 @@ public class RingerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testCallWaitingButNoRingForSpecificContacts() throws Exception {
-        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(false);
+        when(mockNotificationManager.matchesCallFilter(any(Uri.class))).thenReturn(false);
         // Start call waiting to make sure that it does stop when we start ringing
         mRingerUnderTest.startCallWaiting(mockCall1);
         verify(mockTonePlayer).startTone();
@@ -664,7 +659,7 @@ public class RingerTest extends TelecomTestCase {
         when(mContext.getSystemService(NotificationManager.class)).thenReturn(
                 mockNotificationManager);
         // suppress the call
-        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(false);
+        when(mockNotificationManager.matchesCallFilter(any(Uri.class))).thenReturn(false);
 
         // run the method under test
         assertFalse(mRingerUnderTest.shouldRingForContact(mockCall1));
@@ -673,7 +668,7 @@ public class RingerTest extends TelecomTestCase {
         // verify we never set the call object and matchesCallFilter is called
         verify(mockCall1, never()).setCallIsSuppressedByDoNotDisturb(true);
         verify(mockNotificationManager, times(1))
-                .matchesCallFilter(any(Bundle.class));
+                .matchesCallFilter(any(Uri.class));
     }
 
     /**
@@ -686,7 +681,6 @@ public class RingerTest extends TelecomTestCase {
         when(mockCall1.wasDndCheckComputedForCall()).thenReturn(false);
         when(mockCall1.getHandle()).thenReturn(Uri.parse(""));
         // alert the user of the call
-        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
 
         // run the method under test
         assertTrue(mRingerUnderTest.shouldRingForContact(mockCall1));
@@ -695,7 +689,7 @@ public class RingerTest extends TelecomTestCase {
         // verify we never set the call object and matchesCallFilter is called
         verify(mockCall1, never()).setCallIsSuppressedByDoNotDisturb(false);
         verify(mockNotificationManager, times(1))
-                .matchesCallFilter(any(Bundle.class));
+                .matchesCallFilter(any(Uri.class));
     }
 
     /**
@@ -711,7 +705,7 @@ public class RingerTest extends TelecomTestCase {
         // THEN
         assertFalse(mRingerUnderTest.shouldRingForContact(mockCall1));
         verify(mockCall1, never()).setCallIsSuppressedByDoNotDisturb(false);
-        verify(mockNotificationManager, never()).matchesCallFilter(any(Bundle.class));
+        verify(mockNotificationManager, never()).matchesCallFilter(any(Uri.class));
     }
 
     @Test
@@ -721,7 +715,7 @@ public class RingerTest extends TelecomTestCase {
         mRingerUnderTest.startCallWaiting(mockCall1);
         when(mockCall2.wasDndCheckComputedForCall()).thenReturn(false);
         when(mockCall2.getHandle()).thenReturn(Uri.parse(""));
-        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(false);
+        when(mockNotificationManager.matchesCallFilter(any(Uri.class))).thenReturn(false);
 
         assertFalse(mRingerUnderTest.shouldRingForContact(mockCall2));
         assertFalse(startRingingAndWaitForAsync(mockCall2, false));
@@ -736,7 +730,6 @@ public class RingerTest extends TelecomTestCase {
         mRingerUnderTest.startCallWaiting(mockCall1);
         when(mockCall2.wasDndCheckComputedForCall()).thenReturn(false);
         when(mockCall2.getHandle()).thenReturn(Uri.parse(""));
-        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
 
         assertTrue(mRingerUnderTest.shouldRingForContact(mockCall2));
         assertTrue(startRingingAndWaitForAsync(mockCall2, false));
@@ -763,7 +756,6 @@ public class RingerTest extends TelecomTestCase {
         mRingerUnderTest.startCallWaiting(mockCall1);
         when(mockCall2.wasDndCheckComputedForCall()).thenReturn(false);
         when(mockCall2.getHandle()).thenReturn(Uri.parse(""));
-        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
 
         assertTrue(mRingerUnderTest.shouldRingForContact(mockCall2));
         assertTrue(mRingerUnderTest.startRinging(mockCall2, false));
