@@ -98,8 +98,8 @@ android_test {
     platform_apis: true,
     certificate: "platform",
     jacoco: {
-        include_filter: ["com.android.server.telecom.*"],
-        exclude_filter: ["com.android.server.telecom.tests.*"],
+        include_filter: ["com.android.server.telecom.**"],
+        exclude_filter: ["com.android.server.telecom.tests.**"],
     },
     test_suites: ["device-tests"],
     defaults: ["SettingsLibDefaults"],
