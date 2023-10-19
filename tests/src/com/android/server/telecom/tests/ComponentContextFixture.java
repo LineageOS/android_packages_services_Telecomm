@@ -777,6 +777,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
                 componentName.getPackageName() });
         when(mPackageManager.checkPermission(eq(Manifest.permission.CONTROL_INCALL_EXPERIENCE),
                 eq(componentName.getPackageName()))).thenReturn(PackageManager.PERMISSION_GRANTED);
+        when(mPackageManager.checkPermission(eq(Manifest.permission.INTERACT_ACROSS_USERS),
+                eq(componentName.getPackageName()))).thenReturn(PackageManager.PERMISSION_GRANTED);
         when(mPermissionCheckerManager.checkPermission(
                 eq(Manifest.permission.CONTROL_INCALL_EXPERIENCE),
                 any(AttributionSourceState.class), anyString(), anyBoolean(), anyBoolean(),
