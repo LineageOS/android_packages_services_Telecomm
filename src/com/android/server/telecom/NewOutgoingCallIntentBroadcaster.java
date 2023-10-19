@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AppOpsManager;
 import android.app.BroadcastOptions;
@@ -487,11 +488,18 @@ public class NewOutgoingCallIntentBroadcaster {
             broadcastIntent.addFlags(Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND);
             Log.i(this, "broadcastIntent: Sending non-blocking for %s to %s", mCall.getId(),
                     targetUser);
-            mContext.sendBroadcastAsUser(
-                    broadcastIntent,
-                    targetUser,
-                    android.Manifest.permission.PROCESS_OUTGOING_CALLS,
-                    AppOpsManager.OP_PROCESS_OUTGOING_CALLS);  // initialExtras
+            if (mFeatureFlags.telecomResolveHiddenDependencies()) {
+                mContext.sendBroadcastAsUser(
+                        broadcastIntent,
+                        targetUser,
+                        Manifest.permission.PROCESS_OUTGOING_CALLS);
+            } else {
+                mContext.sendBroadcastAsUser(
+                        broadcastIntent,
+                        targetUser,
+                        android.Manifest.permission.PROCESS_OUTGOING_CALLS,
+                        AppOpsManager.OP_PROCESS_OUTGOING_CALLS);  // initialExtras
+            }
         } else {
             Log.i(this, "broadcastIntent: Sending ordered for %s to %s, waitForResult=%b",
                     mCall.getId(), targetUser, receiverRequired);

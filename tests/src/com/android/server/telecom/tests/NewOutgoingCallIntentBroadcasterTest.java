@@ -544,8 +544,7 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
         verify(mContext, never()).sendBroadcastAsUser(
                 any(Intent.class),
                 eq(UserHandle.CURRENT),
-                eq(android.Manifest.permission.PROCESS_OUTGOING_CALLS),
-                eq(AppOpsManager.OP_PROCESS_OUTGOING_CALLS));
+                eq(android.Manifest.permission.PROCESS_OUTGOING_CALLS));
     }
 
     /**
