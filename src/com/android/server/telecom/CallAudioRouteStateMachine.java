@@ -23,7 +23,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
@@ -45,6 +44,7 @@ import com.android.internal.util.IndentingPrintWriter;
 import com.android.internal.util.State;
 import com.android.internal.util.StateMachine;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -85,7 +85,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 CallAudioManager.AudioServiceFactory audioServiceFactory,
                 int earpieceControl,
                 Executor asyncTaskExecutor,
-                CallAudioCommunicationDeviceTracker communicationDeviceTracker) {
+                CallAudioCommunicationDeviceTracker communicationDeviceTracker,
+                FeatureFlags featureFlags) {
             return new CallAudioRouteStateMachine(context,
                     callsManager,
                     bluetoothManager,
@@ -94,7 +95,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
                     audioServiceFactory,
                     earpieceControl,
                     asyncTaskExecutor,
-                    communicationDeviceTracker);
+                    communicationDeviceTracker,
+                    featureFlags);
         }
     }
     /** Values for CallAudioRouteStateMachine constructor's earPieceRouting arg. */
@@ -918,8 +920,13 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 case SWITCH_FOCUS:
                     if (msg.arg1 == NO_FOCUS) {
                         // Only disconnect audio here instead of routing away from BT entirely.
-                        mBluetoothRouteManager.disconnectAudio();
-                        transitionTo(mQuiescentBluetoothRoute);
+                        if (mFeatureFlags.transitRouteBeforeAudioDisconnectBt()) {
+                            transitionTo(mQuiescentBluetoothRoute);
+                            mBluetoothRouteManager.disconnectAudio();
+                        } else {
+                            mBluetoothRouteManager.disconnectAudio();
+                            transitionTo(mQuiescentBluetoothRoute);
+                        }
                         mCallAudioManager.notifyAudioOperationsComplete();
                     } else if (msg.arg1 == RINGING_FOCUS
                             && !mBluetoothRouteManager.isInbandRingingEnabled()) {
@@ -1548,6 +1555,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
 
     private CallAudioManager mCallAudioManager;
     private CallAudioCommunicationDeviceTracker mCommunicationDeviceTracker;
+    private FeatureFlags mFeatureFlags;
 
     public CallAudioRouteStateMachine(
             Context context,
@@ -1558,7 +1566,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
             CallAudioManager.AudioServiceFactory audioServiceFactory,
             int earpieceControl,
             Executor asyncTaskExecutor,
-            CallAudioCommunicationDeviceTracker communicationDeviceTracker) {
+            CallAudioCommunicationDeviceTracker communicationDeviceTracker,
+            FeatureFlags featureFlags) {
         super(NAME);
         mContext = context;
         mCallsManager = callsManager;
@@ -1570,6 +1579,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
         mLock = callsManager.getLock();
         mAsyncTaskExecutor = asyncTaskExecutor;
         mCommunicationDeviceTracker = communicationDeviceTracker;
+        mFeatureFlags = featureFlags;
         createStates(earpieceControl);
     }
 
@@ -1582,7 +1592,8 @@ public class CallAudioRouteStateMachine extends StateMachine {
             StatusBarNotifier statusBarNotifier,
             CallAudioManager.AudioServiceFactory audioServiceFactory,
             int earpieceControl, Looper looper, Executor asyncTaskExecutor,
-            CallAudioCommunicationDeviceTracker communicationDeviceTracker) {
+            CallAudioCommunicationDeviceTracker communicationDeviceTracker,
+            FeatureFlags featureFlags) {
         super(NAME, looper);
         mContext = context;
         mCallsManager = callsManager;
@@ -1594,7 +1605,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
         mLock = callsManager.getLock();
         mAsyncTaskExecutor = asyncTaskExecutor;
         mCommunicationDeviceTracker = communicationDeviceTracker;
-
+        mFeatureFlags = featureFlags;
         createStates(earpieceControl);
     }
 

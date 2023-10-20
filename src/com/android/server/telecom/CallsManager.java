@@ -616,7 +616,8 @@ public class CallsManager extends Call.ListenerBase
                         audioServiceFactory,
                         CallAudioRouteStateMachine.EARPIECE_AUTO_DETECT,
                         asyncCallAudioTaskExecutor,
-                        communicationDeviceTracker
+                        communicationDeviceTracker,
+                        featureFlags
                 );
         callAudioRouteStateMachine.initialize();
 
