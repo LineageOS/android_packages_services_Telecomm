@@ -36,6 +36,7 @@ import com.android.server.telecom.RingbackPlayer;
 import com.android.server.telecom.Ringer;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import org.junit.After;
 import org.junit.Before;
@@ -79,6 +80,8 @@ public class CallAudioManagerTest extends TelecomTestCase {
     @Mock private BluetoothStateReceiver mBluetoothStateReceiver;
     @Mock private TelecomSystem.SyncRoot mLock;
 
+    @Mock private FeatureFlags mFlags;
+
     private CallAudioManager mCallAudioManager;
 
     @Override
@@ -94,6 +97,7 @@ public class CallAudioManagerTest extends TelecomTestCase {
             return mockInCallTonePlayer;
         }).when(mPlayerFactory).createPlayer(anyInt());
         when(mCallsManager.getLock()).thenReturn(mLock);
+        when(mFlags.ensureAudioModeUpdatesOnForegroundCallChange()).thenReturn(true);
         mCallAudioManager = new CallAudioManager(
                 mCallAudioRouteStateMachine,
                 mCallsManager,
@@ -102,7 +106,8 @@ public class CallAudioManagerTest extends TelecomTestCase {
                 mRinger,
                 mRingbackPlayer,
                 mBluetoothStateReceiver,
-                mDtmfLocalTonePlayer);
+                mDtmfLocalTonePlayer,
+                mFlags);
     }
 
     @Override
@@ -278,24 +283,38 @@ public class CallAudioManagerTest extends TelecomTestCase {
         verify(mCallAudioModeStateMachine, times(2)).sendMessageWithArgs(
                 eq(CallAudioModeStateMachine.NEW_ACTIVE_OR_DIALING_CALL), captor.capture());
         assertMessageArgEquality(expectedArgs, captor.getValue());
-        // Expet another invocation due to audio mode change signal.
-        verify(mCallAudioModeStateMachine, times(3)).sendMessageWithArgs(
-                anyInt(), any(CallAudioModeStateMachine.MessageArgs.class));
-
+        if (mFlags.ensureAudioModeUpdatesOnForegroundCallChange()) {
+            // Expect another invocation due to audio mode change signal.
+            verify(mCallAudioModeStateMachine, times(3)).sendMessageWithArgs(
+                    anyInt(), any(CallAudioModeStateMachine.MessageArgs.class));
+        } else {
+            verify(mCallAudioModeStateMachine, times(2)).sendMessageWithArgs(
+                    anyInt(), any(CallAudioModeStateMachine.MessageArgs.class));
+        }
 
         when(call.getState()).thenReturn(CallState.ACTIVE);
         mCallAudioManager.onCallStateChanged(call, CallState.DIALING, CallState.ACTIVE);
         verify(mCallAudioModeStateMachine, times(3)).sendMessageWithArgs(
                 eq(CallAudioModeStateMachine.NEW_ACTIVE_OR_DIALING_CALL), captor.capture());
         assertMessageArgEquality(expectedArgs, captor.getValue());
-        verify(mCallAudioModeStateMachine, times(4)).sendMessageWithArgs(
-                anyInt(), any(CallAudioModeStateMachine.MessageArgs.class));
-
+        if (mFlags.ensureAudioModeUpdatesOnForegroundCallChange()) {
+            verify(mCallAudioModeStateMachine, times(4)).sendMessageWithArgs(
+                    anyInt(), any(CallAudioModeStateMachine.MessageArgs.class));
+        } else {
+            verify(mCallAudioModeStateMachine, times(3)).sendMessageWithArgs(
+                    anyInt(), any(CallAudioModeStateMachine.MessageArgs.class));
+        }
         disconnectCall(call);
         stopTone();
 
         mCallAudioManager.onCallRemoved(call);
         verifyProperCleanup();
+    }
+
+    @Test
+    public void testSingleOutgoingCallWithoutAudioModeUpdateOnForegroundCallChange() {
+        when(mFlags.ensureAudioModeUpdatesOnForegroundCallChange()).thenReturn(false);
+        testSingleOutgoingCall();
     }
 
     @MediumTest
@@ -329,9 +348,14 @@ public class CallAudioManagerTest extends TelecomTestCase {
         verify(mCallAudioModeStateMachine, times(2)).sendMessageWithArgs(
                 eq(CallAudioModeStateMachine.NEW_ACTIVE_OR_DIALING_CALL), captor.capture());
         assertMessageArgEquality(expectedArgs, captor.getValue());
-        // Expect an extra time due to audio mode change signal
-        verify(mCallAudioModeStateMachine, times(3)).sendMessageWithArgs(
-                anyInt(), any(CallAudioModeStateMachine.MessageArgs.class));
+        if (mFlags.ensureAudioModeUpdatesOnForegroundCallChange()) {
+            // Expect an extra time due to audio mode change signal
+            verify(mCallAudioModeStateMachine, times(3)).sendMessageWithArgs(
+                    anyInt(), any(CallAudioModeStateMachine.MessageArgs.class));
+        } else {
+            verify(mCallAudioModeStateMachine, times(2)).sendMessageWithArgs(
+                    anyInt(), any(CallAudioModeStateMachine.MessageArgs.class));
+        }
 
         // Ensure we started ringback.
         verify(mRingbackPlayer).startRingbackForCall(any(Call.class));
@@ -351,6 +375,12 @@ public class CallAudioManagerTest extends TelecomTestCase {
         verify(mRingbackPlayer).stopRingbackForCall(any(Call.class));
         // Should still only have initial ringback start recorded from before (don't restart it).
         verify(mRingbackPlayer, times(1)).startRingbackForCall(any(Call.class));
+    }
+
+    @Test
+    public void testRingbackStartStopWithoutAudioModeUpdateOnForegroundCallChange() {
+        when(mFlags.ensureAudioModeUpdatesOnForegroundCallChange()).thenReturn(false);
+        testRingbackStartStop();
     }
 
     @SmallTest
@@ -708,6 +738,10 @@ public class CallAudioManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testTriggerAudioManagerModeChange() {
+        if (!mFlags.ensureAudioModeUpdatesOnForegroundCallChange()) {
+            // Skip if the new behavior isn't in use.
+            return;
+        }
         // Start with an incoming PSTN call
         Call pstnCall = mock(Call.class);
         when(pstnCall.getState()).thenReturn(CallState.RINGING);
