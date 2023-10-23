@@ -15,6 +15,13 @@ flag {
 }
 
 flag {
+  name: "ignore_auto_route_to_watch_device"
+  namespace: "telecom"
+  description: "Ignore auto routing to wearable devices."
+  bug: "294378768"
+}
+
+flag {
   name: "transit_route_before_audio_disconnect_bt"
   namespace: "telecom"
   description: "Fix audio route transition issue on call disconnection when bt audio connected."

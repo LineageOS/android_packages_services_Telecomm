@@ -17,6 +17,7 @@
 package com.android.server.telecom.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothHearingAid;
@@ -37,6 +38,7 @@ import com.android.internal.util.StateMachine;
 import com.android.server.telecom.CallAudioCommunicationDeviceTracker;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -470,10 +472,12 @@ public class BluetoothRouteManager extends StateMachine {
     private BluetoothDevice mLeAudioActiveDeviceCache = null;
     private BluetoothDevice mMostRecentlyReportedActiveDevice = null;
     private CallAudioCommunicationDeviceTracker mCommunicationDeviceTracker;
+    private FeatureFlags mFeatureFlags;
 
     public BluetoothRouteManager(Context context, TelecomSystem.SyncRoot lock,
             BluetoothDeviceManager deviceManager, Timeouts.Adapter timeoutsAdapter,
-            CallAudioCommunicationDeviceTracker communicationDeviceTracker) {
+            CallAudioCommunicationDeviceTracker communicationDeviceTracker,
+            FeatureFlags featureFlags) {
         super(BluetoothRouteManager.class.getSimpleName());
         mContext = context;
         mLock = lock;
@@ -481,6 +485,7 @@ public class BluetoothRouteManager extends StateMachine {
         mDeviceManager.setBluetoothRouteManager(this);
         mTimeoutsAdapter = timeoutsAdapter;
         mCommunicationDeviceTracker = communicationDeviceTracker;
+        mFeatureFlags = featureFlags;
 
         mAudioOffState = new AudioOffState();
         addState(mAudioOffState);
@@ -672,6 +677,31 @@ public class BluetoothRouteManager extends StateMachine {
         return mDeviceManager.getUniqueConnectedDevices();
     }
 
+    public boolean isWatch(BluetoothDevice device) {
+        if (device == null) {
+            Log.i(this, "isWatch: device is null. Returning false");
+            return false;
+        }
+
+        BluetoothClass deviceClass = device.getBluetoothClass();
+        if (deviceClass != null && deviceClass.getDeviceClass()
+                == BluetoothClass.Device.WEARABLE_WRIST_WATCH) {
+            return true;
+        }
+
+        // Check metadata
+        byte[] deviceType = device.getMetadata(BluetoothDevice.METADATA_DEVICE_TYPE);
+        if (deviceType == null) {
+            return false;
+        }
+        String deviceTypeStr = new String(deviceType);
+        if (deviceTypeStr.equals(BluetoothDevice.DEVICE_TYPE_WATCH)) {
+            return true;
+        }
+
+        return false;
+    }
+
     private String connectBtAudio(String address, boolean switchingBtDevices) {
         return connectBtAudio(address, 0, switchingBtDevices);
     }
@@ -701,10 +731,19 @@ public class BluetoothRouteManager extends StateMachine {
                 ? address : getActiveDeviceAddress();
         if (actualAddress == null) {
             Log.i(this, "No device specified and BT stack has no active device."
-                    + " Using arbitrary device");
+                    + " Using arbitrary device - except watch");
             if (deviceList.size() > 0) {
-                actualAddress = deviceList.iterator().next().getAddress();
-            } else {
+                for (BluetoothDevice device : deviceList) {
+                    if (mFeatureFlags.ignoreAutoRouteToWatchDevice() && isWatch(device)) {
+                        Log.i(this, "Skipping a watch device: " + device);
+                        continue;
+                    }
+                    actualAddress = device.getAddress();
+                    break;
+                }
+            }
+
+            if (actualAddress == null) {
                 Log.i(this, "No devices available at all. Not connecting.");
                 return null;
             }

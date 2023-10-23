@@ -2022,6 +2022,30 @@ public class CallAudioRouteStateMachine extends StateMachine {
         return false;
     }
 
+    private boolean isWatchActiveOrOnlyWatchesAvailable() {
+        if (!mFeatureFlags.ignoreAutoRouteToWatchDevice()) {
+            return false;
+        }
+
+        boolean containsWatchDevice = false;
+        boolean containsNonWatchDevice = false;
+        Collection<BluetoothDevice> connectedBtDevices =
+                mBluetoothRouteManager.getConnectedDevices();
+
+        for (BluetoothDevice connectedDevice: connectedBtDevices) {
+            if (mBluetoothRouteManager.isWatch(connectedDevice)) {
+                containsWatchDevice = true;
+            } else {
+                containsNonWatchDevice = true;
+            }
+        }
+
+        // Don't ignore switch if watch is already the active device.
+        return containsWatchDevice && !containsNonWatchDevice
+                && !mBluetoothRouteManager.isWatch(
+                        mBluetoothRouteManager.getBluetoothAudioConnectedDevice());
+    }
+
     private int calculateBaselineRouteMessage(boolean isExplicitUserRequest,
             boolean includeBluetooth) {
         boolean isSkipEarpiece = false;
@@ -2034,7 +2058,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
         }
         if ((mAvailableRoutes & ROUTE_BLUETOOTH) != 0
                 && !mHasUserExplicitlyLeftBluetooth
-                && includeBluetooth) {
+                && includeBluetooth && !isWatchActiveOrOnlyWatchesAvailable()) {
             return isExplicitUserRequest ? USER_SWITCH_BLUETOOTH : SWITCH_BLUETOOTH;
         } else if ((mAvailableRoutes & ROUTE_EARPIECE) != 0 && !isSkipEarpiece) {
             return isExplicitUserRequest ? USER_SWITCH_EARPIECE : SWITCH_EARPIECE;
