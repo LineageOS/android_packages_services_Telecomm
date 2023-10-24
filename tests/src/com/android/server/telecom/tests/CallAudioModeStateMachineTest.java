@@ -66,7 +66,7 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
         mTestThread = new HandlerThread("CallAudioModeStateMachineTest");
         mTestThread.start();
         super.setUp();
-        when(mCallAudioManager.getCallAudioRouteStateMachine())
+        when(mCallAudioManager.getCallAudioRouteAdapter())
                 .thenReturn(mCallAudioRouteStateMachine);
         when(mFeatureFlags.telecomResolveHiddenDependencies()).thenReturn(false);
     }

@@ -727,12 +727,12 @@ public class CallAudioModeStateMachine extends StateMachine {
             mAudioManager.setMode(AudioManager.MODE_COMMUNICATION_REDIRECT);
             mMostRecentMode = AudioManager.MODE_NORMAL;
             mCallAudioManager.setCallAudioRouteFocusState(CallAudioRouteStateMachine.ACTIVE_FOCUS);
-            mCallAudioManager.getCallAudioRouteStateMachine().sendMessageWithSessionInfo(
+            mCallAudioManager.getCallAudioRouteAdapter().sendMessageWithSessionInfo(
                     CallAudioRouteStateMachine.STREAMING_FORCE_ENABLED);
         }
 
         private void preExit() {
-            mCallAudioManager.getCallAudioRouteStateMachine().sendMessageWithSessionInfo(
+            mCallAudioManager.getCallAudioRouteAdapter().sendMessageWithSessionInfo(
                     CallAudioRouteStateMachine.STREAMING_FORCE_DISABLED);
         }
 

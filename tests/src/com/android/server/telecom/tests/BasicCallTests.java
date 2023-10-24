@@ -43,16 +43,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Icon;
 import android.media.AudioDeviceInfo;
-import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.Process;
 import android.os.UserHandle;
-import android.os.UserManager;
 import android.provider.BlockedNumberContract;
 import android.telecom.Call;
 import android.telecom.CallAudioState;
@@ -650,7 +646,7 @@ public class BasicCallTests extends TelecomSystemTest {
 
         mInCallServiceFixtureX.mInCallAdapter.setAudioRoute(CallAudioState.ROUTE_SPEAKER, null);
         waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
-                .getCallAudioRouteStateMachine().getHandler(), TEST_TIMEOUT);
+                .getCallAudioRouteAdapter().getAdapterHandler(), TEST_TIMEOUT);
         ArgumentCaptor<AudioDeviceInfo> infoArgumentCaptor =
                 ArgumentCaptor.forClass(AudioDeviceInfo.class);
         verify(audioManager, timeout(TEST_TIMEOUT).atLeast(1))
@@ -658,7 +654,7 @@ public class BasicCallTests extends TelecomSystemTest {
         assertEquals(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, infoArgumentCaptor.getValue().getType());
         mInCallServiceFixtureX.mInCallAdapter.setAudioRoute(CallAudioState.ROUTE_EARPIECE, null);
         waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
-                .getCallAudioRouteStateMachine().getHandler(), TEST_TIMEOUT);
+                .getCallAudioRouteAdapter().getAdapterHandler(), TEST_TIMEOUT);
         // setSpeakerPhoneOn(false) gets called once during the call initiation phase
         verify(audioManager, timeout(TEST_TIMEOUT).atLeast(1))
                 .clearCommunicationDevice();
@@ -669,7 +665,7 @@ public class BasicCallTests extends TelecomSystemTest {
         waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
                 .getCallAudioModeStateMachine().getHandler(), TEST_TIMEOUT);
         waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
-                .getCallAudioRouteStateMachine().getHandler(), TEST_TIMEOUT);
+                .getCallAudioRouteAdapter().getAdapterHandler(), TEST_TIMEOUT);
         verify(audioManager, timeout(TEST_TIMEOUT))
                 .abandonAudioFocusForCall();
         verify(audioManager, timeout(TEST_TIMEOUT).atLeastOnce())
@@ -1199,7 +1195,7 @@ public class BasicCallTests extends TelecomSystemTest {
                 .getState());
         mInCallServiceFixtureX.mInCallAdapter.mute(true);
         waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
-                .getCallAudioRouteStateMachine().getHandler(), TEST_TIMEOUT);
+                .getCallAudioRouteAdapter().getAdapterHandler(), TEST_TIMEOUT);
         assertTrue(mTelecomSystem.getCallsManager().getAudioState().isMuted());
 
         // Make an emergency call.
@@ -1208,14 +1204,14 @@ public class BasicCallTests extends TelecomSystemTest {
         assertEquals(Call.STATE_DIALING, mInCallServiceFixtureX.getCall(emergencyCall.mCallId)
                 .getState());
         waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
-                .getCallAudioRouteStateMachine().getHandler(), TEST_TIMEOUT);
+                .getCallAudioRouteAdapter().getAdapterHandler(), TEST_TIMEOUT);
         // Should be unmute automatically.
         assertFalse(mTelecomSystem.getCallsManager().getAudioState().isMuted());
 
         // Toggle mute during an emergency call.
         mTelecomSystem.getCallsManager().getCallAudioManager().toggleMute();
         waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
-                .getCallAudioRouteStateMachine().getHandler(), TEST_TIMEOUT);
+                .getCallAudioRouteAdapter().getAdapterHandler(), TEST_TIMEOUT);
         // Should keep unmute.
         assertFalse(mTelecomSystem.getCallsManager().getAudioState().isMuted());
 

@@ -295,17 +295,17 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
         if (mParams.initialRoute == CallAudioState.ROUTE_BLUETOOTH) {
             stateMachine.sendMessageWithSessionInfo(CallAudioRouteStateMachine.BT_AUDIO_CONNECTED);
         }
-        waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
+        waitForHandlerAction(stateMachine.getAdapterHandler(), TEST_TIMEOUT);
 
         // Clear invocations on mocks to discard stuff from initialization
         clearInvocations();
 
         sendActionToStateMachine(stateMachine);
 
-        waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
-        waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
+        waitForHandlerAction(stateMachine.getAdapterHandler(), TEST_TIMEOUT);
+        waitForHandlerAction(stateMachine.getAdapterHandler(), TEST_TIMEOUT);
 
-        Handler h = stateMachine.getHandler();
+        Handler h = stateMachine.getAdapterHandler();
         waitForHandlerAction(h, TEST_TIMEOUT);
         stateMachine.quitStateMachine();
 
@@ -397,8 +397,8 @@ public class CallAudioRouteTransitionTests extends TelecomTestCase {
         // Omit the focus-getting statement
         sendActionToStateMachine(stateMachine);
 
-        waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
-        waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
+        waitForHandlerAction(stateMachine.getAdapterHandler(), TEST_TIMEOUT);
+        waitForHandlerAction(stateMachine.getAdapterHandler(), TEST_TIMEOUT);
 
         stateMachine.quitStateMachine();
 

@@ -8,6 +8,13 @@ flag {
 }
 
 flag {
+  name: "use_refactored_audio_route_switching"
+  namespace: "telecom"
+  description: "Refactored audio routing"
+  bug: "306395598"
+}
+
+flag {
   name: "ensure_audio_mode_updates_on_foreground_call_change"
   namespace: "telecom"
   description: "Ensure that the audio mode is updated anytime the foreground call changes."

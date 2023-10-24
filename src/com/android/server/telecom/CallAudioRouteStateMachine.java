@@ -29,6 +29,7 @@ import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.IAudioService;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
@@ -74,7 +75,7 @@ import java.util.concurrent.Executor;
  *     from a wired headset
  * mIsMuted: a boolean indicating whether the audio is muted
  */
-public class CallAudioRouteStateMachine extends StateMachine {
+public class CallAudioRouteStateMachine extends StateMachine implements CallAudioRouteAdapter {
 
     public static class Factory {
         public CallAudioRouteStateMachine create(
@@ -1723,6 +1724,11 @@ public class CallAudioRouteStateMachine extends StateMachine {
         sendMessage(message, arg, 0, args);
     }
 
+    @Override
+    public void sendMessage(int message, Runnable r) {
+        super.sendMessage(message, r);
+    }
+
     /**
      * This is for state-independent changes in audio route (i.e. muting or runnables)
      * @param msg that couldn't be handled.
@@ -1789,7 +1795,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
     }
 
     public void dumpPendingMessages(IndentingPrintWriter pw) {
-        getHandler().getLooper().dump(pw::println, "");
+        getAdapterHandler().getLooper().dump(pw::println, "");
     }
 
     public boolean isHfpDeviceAvailable() {
@@ -2124,5 +2130,9 @@ public class CallAudioRouteStateMachine extends StateMachine {
         base |= add;
 
         return base;
+    }
+
+    public Handler getAdapterHandler() {
+        return getHandler();
     }
 }

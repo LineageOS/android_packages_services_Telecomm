@@ -606,24 +606,28 @@ public class CallsManager extends Call.ListenerBase
 
         mDtmfLocalTonePlayer =
                 new DtmfLocalTonePlayer(new DtmfLocalTonePlayer.ToneGeneratorProxy());
-        CallAudioRouteStateMachine callAudioRouteStateMachine =
-                callAudioRouteStateMachineFactory.create(
-                        context,
-                        this,
-                        bluetoothManager,
-                        wiredHeadsetManager,
-                        statusBarNotifier,
-                        audioServiceFactory,
-                        CallAudioRouteStateMachine.EARPIECE_AUTO_DETECT,
-                        asyncCallAudioTaskExecutor,
-                        communicationDeviceTracker,
-                        featureFlags
-                );
-        callAudioRouteStateMachine.initialize();
+        CallAudioRouteAdapter callAudioRouteAdapter;
+        if (!featureFlags.useRefactoredAudioRouteSwitching()) {
+            callAudioRouteAdapter = callAudioRouteStateMachineFactory.create(
+                    context,
+                    this,
+                    bluetoothManager,
+                    wiredHeadsetManager,
+                    statusBarNotifier,
+                    audioServiceFactory,
+                    CallAudioRouteStateMachine.EARPIECE_AUTO_DETECT,
+                    asyncCallAudioTaskExecutor,
+                    communicationDeviceTracker,
+                    featureFlags
+            );
+        } else {
+            callAudioRouteAdapter = new CallAudioRouteController();
+        }
+        callAudioRouteAdapter.initialize();
 
         CallAudioRoutePeripheralAdapter callAudioRoutePeripheralAdapter =
                 new CallAudioRoutePeripheralAdapter(
-                        callAudioRouteStateMachine,
+                        callAudioRouteAdapter,
                         bluetoothManager,
                         wiredHeadsetManager,
                         mDockManager,
@@ -654,7 +658,7 @@ public class CallsManager extends Call.ListenerBase
                 accessibilityManagerAdapter, featureFlags);
         mCallRecordingTonePlayer = new CallRecordingTonePlayer(mContext, audioManager,
                 mTimeoutsAdapter, mLock);
-        mCallAudioManager = new CallAudioManager(callAudioRouteStateMachine,
+        mCallAudioManager = new CallAudioManager(callAudioRouteAdapter,
                 this, callAudioModeStateMachineFactory.create(systemStateHelper,
                 (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE), featureFlags),
                 playerFactory, mRinger, new RingbackPlayer(playerFactory),
@@ -5512,7 +5516,7 @@ public class CallsManager extends Call.ListenerBase
         mCallAudioManager.getCallAudioModeStateMachine().getHandler().post(() -> {
             mainHandlerLatch.countDown();
         });
-        mCallAudioManager.getCallAudioRouteStateMachine().getHandler().post(() -> {
+        mCallAudioManager.getCallAudioRouteAdapter().getAdapterHandler().post(() -> {
             mainHandlerLatch.countDown();
         });
 
