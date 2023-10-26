@@ -525,7 +525,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                             CallAudioManager.AudioServiceFactory audioServiceFactory,
                             int earpieceControl,
                             Executor asyncTaskExecutor,
-                            CallAudioCommunicationDeviceTracker communicationDeviceTracker) {
+                            CallAudioCommunicationDeviceTracker communicationDeviceTracker,
+                            FeatureFlags featureFlags) {
                         return new CallAudioRouteStateMachine(context,
                                 callsManager,
                                 bluetoothManager,
@@ -536,7 +537,8 @@ public class TelecomSystemTest extends TelecomTestCase {
                                 CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED,
                                 mHandlerThread.getLooper(),
                                 Runnable::run /* async tasks as now sync for testing! */,
-                                communicationDeviceTracker);
+                                communicationDeviceTracker,
+                                featureFlags);
                     }
                 },
                 new CallAudioModeStateMachine.Factory() {

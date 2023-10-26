@@ -31,6 +31,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.CallAudioModeStateMachine.MessageArgs.Builder;
 import com.android.server.telecom.bluetooth.BluetoothStateReceiver;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -62,6 +63,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
     private final Ringer mRinger;
     private final RingbackPlayer mRingbackPlayer;
     private final DtmfLocalTonePlayer mDtmfLocalTonePlayer;
+    private final FeatureFlags mFeatureFlags;
 
     private Call mStreamingCall;
     private Call mForegroundCall;
@@ -76,7 +78,8 @@ public class CallAudioManager extends CallsManagerListenerBase {
             Ringer ringer,
             RingbackPlayer ringbackPlayer,
             BluetoothStateReceiver bluetoothStateReceiver,
-            DtmfLocalTonePlayer dtmfLocalTonePlayer) {
+            DtmfLocalTonePlayer dtmfLocalTonePlayer,
+            FeatureFlags featureFlags) {
         mActiveDialingOrConnectingCalls = new LinkedHashSet<>(1);
         mRingingCalls = new LinkedHashSet<>(1);
         mHoldingCalls = new LinkedHashSet<>(1);
@@ -102,6 +105,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
         mRingbackPlayer = ringbackPlayer;
         mBluetoothStateReceiver = bluetoothStateReceiver;
         mDtmfLocalTonePlayer = dtmfLocalTonePlayer;
+        mFeatureFlags = featureFlags;
 
         mPlayerFactory.setCallAudioManager(this);
         mCallAudioModeStateMachine.setCallAudioManager(this);
@@ -772,20 +776,26 @@ public class CallAudioManager extends CallsManagerListenerBase {
                     possibleConnectingCall = call;
                 }
             }
-            // Prefer a connecting call
-            if (possibleConnectingCall != null) {
-                mForegroundCall = possibleConnectingCall;
+            if (mFeatureFlags.ensureAudioModeUpdatesOnForegroundCallChange()) {
+                // Prefer a connecting call
+                if (possibleConnectingCall != null) {
+                    mForegroundCall = possibleConnectingCall;
+                } else {
+                    // Next, prefer an active or dialing call which is not in the process of being
+                    // disconnected.
+                    mForegroundCall = mActiveDialingOrConnectingCalls
+                            .stream()
+                            .filter(c -> (c.getState() == CallState.ACTIVE
+                                    || c.getState() == CallState.DIALING)
+                                    && !c.isLocallyDisconnecting())
+                            .findFirst()
+                            // If we can't find one, then just fall back to the first one.
+                            .orElse(mActiveDialingOrConnectingCalls.iterator().next());
+                }
             } else {
-                // Next, prefer an active or dialing call which is not in the process of being
-                // disconnected.
-                mForegroundCall = mActiveDialingOrConnectingCalls
-                        .stream()
-                        .filter(c -> (c.getState() == CallState.ACTIVE
-                                || c.getState() == CallState.DIALING)
-                                && !c.isLocallyDisconnecting())
-                        .findFirst()
-                        // If we can't find one, then just fall back to the first one.
-                        .orElse(mActiveDialingOrConnectingCalls.iterator().next());
+                // Legacy (buggy) behavior.
+                mForegroundCall = possibleConnectingCall == null ?
+                        mActiveDialingOrConnectingCalls.iterator().next() : possibleConnectingCall;
             }
         } else if (mRingingCalls.size() > 0) {
             mForegroundCall = mRingingCalls.iterator().next();
@@ -806,7 +816,8 @@ public class CallAudioManager extends CallsManagerListenerBase {
             mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
                     CallAudioRouteStateMachine.UPDATE_SYSTEM_AUDIO_ROUTE);
 
-            if (mForegroundCall != null) {
+            if (mForegroundCall != null
+                    && mFeatureFlags.ensureAudioModeUpdatesOnForegroundCallChange()) {
                 // Ensure the voip audio mode for the new foreground call is taken into account.
                 mCallAudioModeStateMachine.sendMessageWithArgs(
                         CallAudioModeStateMachine.FOREGROUND_VOIP_MODE_CHANGE,

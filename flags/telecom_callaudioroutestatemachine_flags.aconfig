@@ -6,3 +6,17 @@ flag {
   description: "Fix supported routes wrongly include bluetooth issue."
   bug: "292599751"
 }
+
+flag {
+  name: "ensure_audio_mode_updates_on_foreground_call_change"
+  namespace: "telecom"
+  description: "Ensure that the audio mode is updated anytime the foreground call changes."
+  bug: "289861657"
+}
+
+flag {
+  name: "transit_route_before_audio_disconnect_bt"
+  namespace: "telecom"
+  description: "Fix audio route transition issue on call disconnection when bt audio connected."
+  bug: "306113816"
+}

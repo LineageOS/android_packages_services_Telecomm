@@ -303,7 +303,7 @@ public class CallsManagerTest extends TelecomTestCase {
         when(mCallEndpointControllerFactory.create(any(), any(), any())).thenReturn(
                 mCallEndpointController);
         when(mCallAudioRouteStateMachineFactory.create(any(), any(), any(), any(), any(), any(),
-                anyInt(), any(), any())).thenReturn(mCallAudioRouteStateMachine);
+                anyInt(), any(), any(), any())).thenReturn(mCallAudioRouteStateMachine);
         when(mCallAudioModeStateMachineFactory.create(any(), any(), any()))
                 .thenReturn(mCallAudioModeStateMachine);
         when(mClockProxy.currentTimeMillis()).thenReturn(System.currentTimeMillis());
