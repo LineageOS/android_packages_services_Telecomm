@@ -98,6 +98,7 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
     @Mock Call fakeSelfManagedCall;
     @Mock Call fakeCall;
     @Mock CallAudioManager mockCallAudioManager;
+    @Mock BluetoothDevice mockWatchDevice;
 
     private CallAudioManager.AudioServiceFactory mAudioServiceFactory;
     private static final int TEST_TIMEOUT = 500;
@@ -140,6 +141,7 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
 
         doNothing().when(mockConnectionServiceWrapper).onCallAudioStateChanged(any(Call.class),
                 any(CallAudioState.class));
+        when(mFeatureFlags.ignoreAutoRouteToWatchDevice()).thenReturn(false);
     }
 
     @Override
@@ -1104,6 +1106,73 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
         CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_SPEAKER,
                 CallAudioState.ROUTE_SPEAKER | CallAudioState.ROUTE_BLUETOOTH
                         | CallAudioState.ROUTE_EARPIECE);
+        assertEquals(expectedState, stateMachine.getCurrentCallAudioState());
+    }
+
+    @MediumTest
+    @Test
+    public void testIgnoreImplicitBTSwitchWhenDeviceIsWatch() {
+        when(mFeatureFlags.ignoreAutoRouteToWatchDevice()).thenReturn(true);
+        CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
+                mContext,
+                mockCallsManager,
+                mockBluetoothRouteManager,
+                mockWiredHeadsetManager,
+                mockStatusBarNotifier,
+                mAudioServiceFactory,
+                CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED,
+                mThreadHandler.getLooper(),
+                Runnable::run /** do async stuff sync for test purposes */,
+                mCommunicationDeviceTracker,
+                mFeatureFlags);
+        stateMachine.setCallAudioManager(mockCallAudioManager);
+
+        AudioDeviceInfo headset = mock(AudioDeviceInfo.class);
+        when(headset.getType()).thenReturn(AudioDeviceInfo.TYPE_WIRED_HEADSET);
+        when(headset.getAddress()).thenReturn("");
+        List<AudioDeviceInfo> devices = new ArrayList<>();
+        devices.add(headset);
+
+        when(mockAudioManager.getAvailableCommunicationDevices())
+                .thenReturn(devices);
+        when(mockAudioManager.setCommunicationDevice(eq(headset)))
+                .thenReturn(true);
+        when(mockAudioManager.getCommunicationDevice()).thenReturn(headset);
+
+        CallAudioState initState = new CallAudioState(false,
+                CallAudioState.ROUTE_WIRED_HEADSET, CallAudioState.ROUTE_WIRED_HEADSET
+                | CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH);
+        stateMachine.initialize(initState);
+
+        // Switch to active
+        stateMachine.sendMessageWithSessionInfo(CallAudioRouteStateMachine.SWITCH_FOCUS,
+                CallAudioRouteStateMachine.ACTIVE_FOCUS);
+        waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
+
+        // Make sure that we've successfully switched to the active headset.
+        assertTrue(stateMachine.isInActiveState());
+        ArgumentCaptor<AudioDeviceInfo> infoArgumentCaptor = ArgumentCaptor.forClass(
+                AudioDeviceInfo.class);
+        verify(mockAudioManager).setCommunicationDevice(infoArgumentCaptor.capture());
+        assertEquals(AudioDeviceInfo.TYPE_WIRED_HEADSET, infoArgumentCaptor.getValue().getType());
+
+        // Set up watch device as only available BT device.
+        Collection<BluetoothDevice> availableDevices = Collections.singleton(mockWatchDevice);
+
+        when(mockBluetoothRouteManager.isBluetoothAudioConnectedOrPending()).thenReturn(false);
+        when(mockBluetoothRouteManager.isBluetoothAvailable()).thenReturn(true);
+        when(mockBluetoothRouteManager.getConnectedDevices()).thenReturn(availableDevices);
+        when(mockBluetoothRouteManager.isWatch(any(BluetoothDevice.class))).thenReturn(true);
+
+        // Disconnect wired headset to force switch to BT (verify that we ignore the implicit switch
+        // to BT when the watch is the only connected device and that we move into the next
+        // available route.
+        stateMachine.sendMessageWithSessionInfo(
+                CallAudioRouteStateMachine.DISCONNECT_WIRED_HEADSET);
+        waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
+        CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_EARPIECE,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH,
+                null, availableDevices);
         assertEquals(expectedState, stateMachine.getCurrentCallAudioState());
     }
 
