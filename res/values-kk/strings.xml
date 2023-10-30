@@ -69,7 +69,7 @@
     <string name="unblock_button" msgid="8732021675729981781">"Бөгеуден шығару"</string>
     <string name="add_blocked_dialog_body" msgid="8599974422407139255">"Қоңыраулары мен мәтіндік хабарлары бөгелетін нөмір"</string>
     <string name="add_blocked_number_hint" msgid="8769422085658041097">"Телефон нөмірі"</string>
-    <string name="block_button" msgid="485080149164258770">"Бөгеу"</string>
+    <string name="block_button" msgid="485080149164258770">"Блоктау"</string>
     <string name="non_primary_user" msgid="315564589279622098">"Бөгелген нөмірлерді тек құрылғы иесі көре және басқара алады."</string>
     <string name="delete_icon_description" msgid="5335959254954774373">"Бөгеуді алу"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="582982373755950791">"Тыйым уақытша алынды"</string>
