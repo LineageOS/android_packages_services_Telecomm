@@ -2024,6 +2024,7 @@ public class CallAudioRouteStateMachine extends StateMachine {
 
     private boolean isWatchActiveOrOnlyWatchesAvailable() {
         if (!mFeatureFlags.ignoreAutoRouteToWatchDevice()) {
+            Log.i(this, "isWatchActiveOrOnlyWatchesAvailable: Flag is disabled.");
             return false;
         }
 
@@ -2041,9 +2042,12 @@ public class CallAudioRouteStateMachine extends StateMachine {
         }
 
         // Don't ignore switch if watch is already the active device.
-        return containsWatchDevice && !containsNonWatchDevice
-                && !mBluetoothRouteManager.isWatch(
-                        mBluetoothRouteManager.getBluetoothAudioConnectedDevice());
+        boolean isActiveDeviceWatch = mBluetoothRouteManager.isWatch(
+                mBluetoothRouteManager.getBluetoothAudioConnectedDevice());
+        Log.i(this, "isWatchActiveOrOnlyWatchesAvailable: contains watch: %s, contains "
+                + "non-wearable device: %s, is active device a watch: %s.",
+                containsWatchDevice, containsNonWatchDevice, isActiveDeviceWatch);
+        return containsWatchDevice && !containsNonWatchDevice && !isActiveDeviceWatch;
     }
 
     private int calculateBaselineRouteMessage(boolean isExplicitUserRequest,
