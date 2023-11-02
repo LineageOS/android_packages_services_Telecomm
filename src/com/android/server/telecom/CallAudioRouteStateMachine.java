@@ -17,6 +17,7 @@
 package com.android.server.telecom;
 
 
+import android.annotation.FlaggedApi;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -1751,13 +1752,19 @@ public class CallAudioRouteStateMachine extends StateMachine {
                 }
                 return;
             case UPDATE_SYSTEM_AUDIO_ROUTE:
-                // Ensure available routes is updated.
-                updateRouteForForegroundCall();
-                // Ensure current audio state gets updated to take this into account.
-                updateInternalCallAudioState();
-                // Either resend the current audio state as it stands, or update to reflect any
-                // changes put into place based on mAvailableRoutes
-                setSystemAudioState(mCurrentCallAudioState, true);
+                if (mFeatureFlags.availableRoutesNeverUpdatedAfterSetSystemAudioState()) {
+                    // Ensure available routes is updated.
+                    updateRouteForForegroundCall();
+                    // Ensure current audio state gets updated to take this into account.
+                    updateInternalCallAudioState();
+                    // Either resend the current audio state as it stands, or update to reflect any
+                    // changes put into place based on mAvailableRoutes
+                    setSystemAudioState(mCurrentCallAudioState, true);
+                } else {
+                    updateInternalCallAudioState();
+                    updateRouteForForegroundCall();
+                    resendSystemAudioState();
+                }
                 return;
             case RUN_RUNNABLE:
                 java.lang.Runnable r = (java.lang.Runnable) msg.obj;

@@ -45,6 +45,7 @@ import com.android.server.telecom.ConnectionServiceFocusManager;
 import com.android.server.telecom.ContactsAsyncHelper;
 import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.DeviceIdleControllerAdapter;
+import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.HeadsetMediaButton;
 import com.android.server.telecom.HeadsetMediaButtonFactory;
 import com.android.server.telecom.InCallWakeLockControllerFactory;
@@ -116,10 +117,11 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                         Context context,
                                         PhoneAccountRegistrar phoneAccountRegistrar,
                                         DefaultDialerCache defaultDialerCache,
-                                        DeviceIdleControllerAdapter idleControllerAdapter) {
+                                        DeviceIdleControllerAdapter idleControllerAdapter,
+                                        FeatureFlags featureFlags) {
                                     return new MissedCallNotifierImpl(context,
                                             phoneAccountRegistrar, defaultDialerCache,
-                                            idleControllerAdapter);
+                                            idleControllerAdapter, featureFlags);
                                 }
                             },
                             new CallerInfoAsyncQueryFactory() {

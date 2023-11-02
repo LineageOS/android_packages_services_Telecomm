@@ -18,6 +18,7 @@ package com.android.server.telecom.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -224,7 +225,7 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
 
     @SmallTest
     @Test
-    public void testSystemAudioStateIsUpdated() {
+    public void testSystemAudioStateIsNotUpdatedFlagOff() {
         CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
                 mContext,
                 mockCallsManager,
@@ -241,6 +242,60 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
 
         Set<Call> trackedCalls = new HashSet<>(Arrays.asList(fakeCall, fakeSelfManagedCall));
         when(mockCallsManager.getTrackedCalls()).thenReturn(trackedCalls);
+        when(mFeatureFlags.availableRoutesNeverUpdatedAfterSetSystemAudioState()).thenReturn(false);
+
+        // start state --> ROUTE_EARPIECE
+        CallAudioState initState = new CallAudioState(false, CallAudioState.ROUTE_EARPIECE,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER);
+        stateMachine.initialize(initState);
+
+        stateMachine.setCallAudioManager(mockCallAudioManager);
+
+        assertEquals(stateMachine.getCurrentCallAudioState().getRoute(),
+                CallAudioRouteStateMachine.ROUTE_EARPIECE);
+
+        // ROUTE_EARPIECE  --> ROUTE_SPEAKER
+        stateMachine.sendMessageWithSessionInfo(CallAudioRouteStateMachine.SWITCH_SPEAKER,
+                CallAudioRouteStateMachine.SPEAKER_ON);
+
+        stateMachine.sendMessageWithSessionInfo(
+                CallAudioRouteStateMachine.UPDATE_SYSTEM_AUDIO_ROUTE);
+
+        waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
+        waitForHandlerAction(stateMachine.getHandler(), TEST_TIMEOUT);
+
+        CallAudioState expectedCallAudioState = stateMachine.getLastKnownCallAudioState();
+
+        // assert expected end state
+        assertEquals(stateMachine.getCurrentCallAudioState().getRoute(),
+                CallAudioRouteStateMachine.ROUTE_SPEAKER);
+        // should update the audio route on all tracked calls ...
+        verify(mockConnectionServiceWrapper, times(trackedCalls.size()))
+                .onCallAudioStateChanged(any(), any());
+
+        assertNotEquals(expectedCallAudioState, stateMachine.getCurrentCallAudioState());
+    }
+
+    @SmallTest
+    @Test
+    public void testSystemAudioStateIsUpdatedFlagOn() {
+        CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
+                mContext,
+                mockCallsManager,
+                mockBluetoothRouteManager,
+                mockWiredHeadsetManager,
+                mockStatusBarNotifier,
+                mAudioServiceFactory,
+                CallAudioRouteStateMachine.EARPIECE_AUTO_DETECT,
+                mThreadHandler.getLooper(),
+                Runnable::run /** do async stuff sync for test purposes */,
+                mCommunicationDeviceTracker,
+                mFeatureFlags);
+        stateMachine.setCallAudioManager(mockCallAudioManager);
+
+        Set<Call> trackedCalls = new HashSet<>(Arrays.asList(fakeCall, fakeSelfManagedCall));
+        when(mockCallsManager.getTrackedCalls()).thenReturn(trackedCalls);
+        when(mFeatureFlags.availableRoutesNeverUpdatedAfterSetSystemAudioState()).thenReturn(true);
 
         // start state --> ROUTE_EARPIECE
         CallAudioState initState = new CallAudioState(false, CallAudioState.ROUTE_EARPIECE,

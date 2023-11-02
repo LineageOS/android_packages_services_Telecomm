@@ -2449,7 +2449,7 @@ public class CallsManagerTest extends TelecomTestCase {
 
         mCallsManager.onCallFilteringComplete(callSpy, result, false /* timeout */);
         verify(mMissedCallNotifier).showMissedCallNotification(
-                any(MissedCallNotifier.CallInfo.class));
+                any(MissedCallNotifier.CallInfo.class), /* uri= */ eq(null));
     }
 
     @Test
