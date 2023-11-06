@@ -27,3 +27,10 @@ flag {
   description: "Fix audio route transition issue on call disconnection when bt audio connected."
   bug: "306113816"
 }
+
+flag {
+  name: "call_audio_communication_device_refactor"
+  namespace: "telecom"
+  description: "Refactor call audio set/clear communication device and include unsupported routes."
+  bug: "308968392"
+}
