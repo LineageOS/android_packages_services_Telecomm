@@ -306,14 +306,20 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 @Override
                 public void onCallerInfoQueryComplete(Uri handle, CallerInfo callerInfo) {
                     synchronized (mLock) {
-                        Call.this.setCallerInfo(handle, callerInfo);
+                        Call call = Call.this;
+                        if (call != null) {
+                            call.setCallerInfo(handle, callerInfo);
+                        }
                     }
                 }
 
                 @Override
                 public void onContactPhotoQueryComplete(Uri handle, CallerInfo callerInfo) {
                     synchronized (mLock) {
-                        Call.this.setCallerInfo(handle, callerInfo);
+                        Call call = Call.this;
+                        if (call != null) {
+                            call.setCallerInfo(handle, callerInfo);
+                        }
                     }
                 }
             };
