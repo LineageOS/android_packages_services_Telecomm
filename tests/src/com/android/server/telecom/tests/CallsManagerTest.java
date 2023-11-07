@@ -2559,6 +2559,7 @@ public class CallsManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testOutgoingCallStateIsSetToAPreviousStateAndIgnored() {
+        when(mFeatureFlags.fixAudioFlickerForOutgoingCalls()).thenReturn(true);
         Call outgoingCall = addSpyCall(CallState.CONNECTING);
         mCallsManager.onSuccessfulOutgoingCall(outgoingCall, CallState.NEW);
         verify(outgoingCall, never()).setState(eq(CallState.NEW), any());
@@ -2571,6 +2572,7 @@ public class CallsManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testOutgoingCallStateCanAvoidDialingAndGoStraightToActive() {
+        when(mFeatureFlags.fixAudioFlickerForOutgoingCalls()).thenReturn(true);
         Call outgoingCall = addSpyCall(CallState.CONNECTING);
         mCallsManager.onSuccessfulOutgoingCall(outgoingCall, CallState.ACTIVE);
         verify(outgoingCall, never()).setState(eq(CallState.DIALING), any());
