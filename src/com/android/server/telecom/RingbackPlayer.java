@@ -75,7 +75,7 @@ public class RingbackPlayer {
             if (mTonePlayer == null) {
                 Log.i(this, "Playing the ringback tone for %s.", call);
                 Log.addEvent(call, START_RINBACK);
-                mTonePlayer = mPlayerFactory.createPlayer(InCallTonePlayer.TONE_RING_BACK);
+                mTonePlayer = mPlayerFactory.createPlayer(call, InCallTonePlayer.TONE_RING_BACK);
                 mTonePlayer.startTone();
             }
         }
