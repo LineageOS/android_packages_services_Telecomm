@@ -28,7 +28,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.ArgumentMatchers.nullable;
@@ -36,7 +35,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -236,7 +234,7 @@ public class InCallControllerTests extends TelecomTestCase {
                 "com.android.server.telecom.tests", null));
         mInCallController = new InCallController(mMockContext, mLock, mMockCallsManager,
                 mMockSystemStateHelper, mDefaultDialerCache, mTimeoutsAdapter,
-                mEmergencyCallHelper, mCarModeTracker, mClockProxy);
+                mEmergencyCallHelper, mCarModeTracker, mClockProxy, mFeatureFlags);
         // Capture the broadcast receiver registered.
         doAnswer(invocation -> {
             mRegisteredReceiver = invocation.getArgument(0);
