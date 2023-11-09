@@ -22,7 +22,9 @@ import static android.os.Process.myUid;
 import android.Manifest;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.app.ActivityManager;
 import android.app.AppOpsManager;
+import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.AttributionSource;
@@ -47,7 +49,6 @@ import android.os.RemoteException;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.permission.PermissionManager;
 import android.telecom.CallAudioState;
 import android.telecom.CallEndpoint;
 import android.telecom.ConnectionService;
@@ -66,6 +67,7 @@ import com.android.internal.telecom.IInCallService;
 import com.android.internal.util.ArrayUtils;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.SystemStateHelper.SystemStateListener;
+import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.ui.NotificationChannelManager;
 
 import java.util.ArrayList;
@@ -1237,11 +1239,12 @@ public class InCallController extends CallsManagerListenerBase implements
 
     private ArraySet<String> mAllCarrierPrivilegedApps = new ArraySet<>();
     private ArraySet<String> mActiveCarrierPrivilegedApps = new ArraySet<>();
+    private FeatureFlags mFeatureFlags;
 
     public InCallController(Context context, TelecomSystem.SyncRoot lock, CallsManager callsManager,
             SystemStateHelper systemStateHelper, DefaultDialerCache defaultDialerCache,
             Timeouts.Adapter timeoutsAdapter, EmergencyCallHelper emergencyCallHelper,
-            CarModeTracker carModeTracker, ClockProxy clockProxy) {
+            CarModeTracker carModeTracker, ClockProxy clockProxy, FeatureFlags featureFlags) {
         mContext = context;
         mAppOpsManager = context.getSystemService(AppOpsManager.class);
         mSensorPrivacyManager = context.getSystemService(SensorPrivacyManager.class);
@@ -1258,6 +1261,7 @@ public class InCallController extends CallsManagerListenerBase implements
         IntentFilter userAddedFilter = new IntentFilter(Intent.ACTION_USER_ADDED);
         userAddedFilter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
         mContext.registerReceiver(mUserAddedReceiver, userAddedFilter);
+        mFeatureFlags = featureFlags;
     }
 
     private void restrictPhoneCallOps() {
@@ -1690,6 +1694,29 @@ public class InCallController extends CallsManagerListenerBase implements
 
     @VisibleForTesting
     public void bringToForeground(boolean showDialpad, UserHandle callingUser) {
+        KeyguardManager keyguardManager = mContext.getSystemService(KeyguardManager.class);
+        boolean isLockscreenRestricted = keyguardManager != null
+                && keyguardManager.isKeyguardLocked();
+        UserHandle currentUser = mCallsManager.getCurrentUserHandle();
+        // Handle cases when calls are placed from the keyguard UI screen, which operates under
+        // the admin user. This needs to account for emergency calls placed from secondary/guest
+        // users as well as the work profile. Once the screen is locked, the user should be able to
+        // return to the call (from the keyguard UI).
+        if (mFeatureFlags.eccKeyguard() && mCallsManager.isInEmergencyCall()
+                && isLockscreenRestricted && !mInCallServices.containsKey(callingUser)) {
+            // If screen is locked and the current user is the system, query calls for the work
+            // profile user, if available. Otherwise, the user is in the secondary/guest profile,
+            // so we can default to the system user.
+            if (currentUser.isSystem()) {
+                UserManager um = mContext.getSystemService(UserManager.class);
+                UserHandle workProfileUser = findChildManagedProfileUser(currentUser, um);
+                boolean hasWorkCalls = mCallsManager.getCalls().stream()
+                        .filter((c) -> getUserFromCall(c).equals(workProfileUser)).count() > 0;
+                callingUser = hasWorkCalls ? workProfileUser : currentUser;
+            } else {
+                callingUser = currentUser;
+            }
+        }
         if (mInCallServices.containsKey(callingUser)) {
             for (IInCallService inCallService : mInCallServices.get(callingUser).values()) {
                 try {
