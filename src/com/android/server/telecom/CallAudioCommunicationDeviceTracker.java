@@ -63,6 +63,10 @@ public class CallAudioCommunicationDeviceTracker {
         return mAudioDeviceType == audioDeviceType;
     }
 
+    public int getCurrentLocallyRequestedCommunicationDevice() {
+       return mAudioDeviceType;
+    }
+
     @VisibleForTesting
     public void setTestCommunicationDevice(int audioDeviceType) {
         mAudioDeviceType = audioDeviceType;
@@ -177,12 +181,6 @@ public class CallAudioCommunicationDeviceTracker {
             return;
         }
 
-        if (isBtDevice && mBtAudioDevice != null) {
-            // Signal that BT audio was lost for device.
-            mBluetoothRouteManager.onAudioLost(mBtAudioDevice);
-            mBtAudioDevice = null;
-        }
-
         if (mAudioManager == null) {
             Log.i(this, "clearCommunicationDevice: mAudioManager is null");
             return;
@@ -191,6 +189,12 @@ public class CallAudioCommunicationDeviceTracker {
         // Clear device and reset locally saved device type.
         mAudioManager.clearCommunicationDevice();
         mAudioDeviceType = sAUDIO_DEVICE_TYPE_INVALID;
+
+        if (isBtDevice && mBtAudioDevice != null) {
+            // Signal that BT audio was lost for device.
+            mBluetoothRouteManager.onAudioLost(mBtAudioDevice);
+            mBtAudioDevice = null;
+        }
     }
 
     private boolean isUsbHeadsetType(int audioDeviceType, int sourceType) {

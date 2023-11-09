@@ -143,6 +143,7 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
         doNothing().when(mockConnectionServiceWrapper).onCallAudioStateChanged(any(Call.class),
                 any(CallAudioState.class));
         when(mFeatureFlags.ignoreAutoRouteToWatchDevice()).thenReturn(false);
+        when(mFeatureFlags.callAudioCommunicationDeviceRefactor()).thenReturn(false);
     }
 
     @Override
@@ -708,6 +709,7 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testCallDisconnectedWhenAudioRoutedToBluetooth() {
+        when(mFeatureFlags.callAudioCommunicationDeviceRefactor()).thenReturn(true);
         CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
                 mContext,
                 mockCallsManager,
@@ -896,6 +898,7 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testSetAndClearEarpieceCommunicationDevice() {
+        when(mFeatureFlags.callAudioCommunicationDeviceRefactor()).thenReturn(true);
         CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
                 mContext,
                 mockCallsManager,
@@ -953,18 +956,21 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testSetAndClearWiredHeadsetCommunicationDevice() {
+        when(mFeatureFlags.callAudioCommunicationDeviceRefactor()).thenReturn(true);
         verifySetAndClearHeadsetCommunicationDevice(AudioDeviceInfo.TYPE_WIRED_HEADSET);
     }
 
     @SmallTest
     @Test
     public void testSetAndClearUsbHeadsetCommunicationDevice() {
+        when(mFeatureFlags.callAudioCommunicationDeviceRefactor()).thenReturn(true);
         verifySetAndClearHeadsetCommunicationDevice(AudioDeviceInfo.TYPE_USB_HEADSET);
     }
 
     @SmallTest
     @Test
     public void testActiveFocusRouteSwitchFromQuiescentBluetooth() {
+        when(mFeatureFlags.callAudioCommunicationDeviceRefactor()).thenReturn(true);
         CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
                 mContext,
                 mockCallsManager,
@@ -1168,6 +1174,7 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
     @Test
     public void testIgnoreImplicitBTSwitchWhenDeviceIsWatch() {
         when(mFeatureFlags.ignoreAutoRouteToWatchDevice()).thenReturn(true);
+        when(mFeatureFlags.callAudioCommunicationDeviceRefactor()).thenReturn(true);
         CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
                 mContext,
                 mockCallsManager,
