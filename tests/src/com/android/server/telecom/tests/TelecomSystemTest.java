@@ -500,6 +500,7 @@ public class TelecomSystemTest extends TelecomTestCase{
         when(mRoleManagerAdapter.getCallCompanionApps()).thenReturn(Collections.emptyList());
         when(mRoleManagerAdapter.getDefaultCallScreeningApp(any(UserHandle.class)))
                 .thenReturn(null);
+        when(mFeatureFlags.useRefactoredAudioRouteSwitching()).thenReturn(false);
         mTelecomSystem = new TelecomSystem(
                 mComponentContextFixture.getTestDouble(),
                 (context, phoneAccountRegistrar, defaultDialerCache, mDeviceIdleControllerAdapter,
@@ -546,9 +547,12 @@ public class TelecomSystemTest extends TelecomTestCase{
                 new CallAudioModeStateMachine.Factory() {
                     @Override
                     public CallAudioModeStateMachine create(SystemStateHelper systemStateHelper,
-                            AudioManager am, FeatureFlags featureFlags) {
+                            AudioManager am, FeatureFlags featureFlags,
+                            CallAudioCommunicationDeviceTracker callAudioCommunicationDeviceTracker
+                    ) {
                         return new CallAudioModeStateMachine(systemStateHelper, am,
-                                mHandlerThread.getLooper(), featureFlags);
+                                mHandlerThread.getLooper(), featureFlags,
+                                callAudioCommunicationDeviceTracker);
                     }
                 },
                 mClockProxy,

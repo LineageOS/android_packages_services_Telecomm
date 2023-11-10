@@ -8,6 +8,13 @@ flag {
 }
 
 flag {
+  name: "use_refactored_audio_route_switching"
+  namespace: "telecom"
+  description: "Refactored audio routing"
+  bug: "306395598"
+}
+
+flag {
   name: "ensure_audio_mode_updates_on_foreground_call_change"
   namespace: "telecom"
   description: "Ensure that the audio mode is updated anytime the foreground call changes."
@@ -26,4 +33,11 @@ flag {
   namespace: "telecom"
   description: "Fix audio route transition issue on call disconnection when bt audio connected."
   bug: "306113816"
+}
+
+flag {
+  name: "call_audio_communication_device_refactor"
+  namespace: "telecom"
+  description: "Refactor call audio set/clear communication device and include unsupported routes."
+  bug: "308968392"
 }

@@ -25,17 +25,17 @@ import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 public class CallAudioRoutePeripheralAdapter implements WiredHeadsetManager.Listener,
         DockManager.Listener, BluetoothRouteManager.BluetoothStateListener {
 
-    private final CallAudioRouteStateMachine mCallAudioRouteStateMachine;
+    private final CallAudioRouteAdapter mCallAudioAdapter;
     private final BluetoothRouteManager mBluetoothRouteManager;
     private final AsyncRingtonePlayer mRingtonePlayer;
 
     public CallAudioRoutePeripheralAdapter(
-            CallAudioRouteStateMachine callAudioRouteStateMachine,
+            CallAudioRouteAdapter callAudioRouteAdapter,
             BluetoothRouteManager bluetoothManager,
             WiredHeadsetManager wiredHeadsetManager,
             DockManager dockManager,
             AsyncRingtonePlayer ringtonePlayer) {
-        mCallAudioRouteStateMachine = callAudioRouteStateMachine;
+        mCallAudioAdapter = callAudioRouteAdapter;
         mBluetoothRouteManager = bluetoothManager;
         mRingtonePlayer = ringtonePlayer;
 
@@ -60,26 +60,26 @@ public class CallAudioRoutePeripheralAdapter implements WiredHeadsetManager.List
 
     @Override
     public void onBluetoothDeviceListChanged() {
-        mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+        mCallAudioAdapter.sendMessageWithSessionInfo(
                 CallAudioRouteStateMachine.BLUETOOTH_DEVICE_LIST_CHANGED);
     }
 
     @Override
     public void onBluetoothActiveDevicePresent() {
-        mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+        mCallAudioAdapter.sendMessageWithSessionInfo(
                 CallAudioRouteStateMachine.BT_ACTIVE_DEVICE_PRESENT);
     }
 
     @Override
     public void onBluetoothActiveDeviceGone() {
-        mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+        mCallAudioAdapter.sendMessageWithSessionInfo(
                 CallAudioRouteStateMachine.BT_ACTIVE_DEVICE_GONE);
     }
 
     @Override
     public void onBluetoothAudioConnected() {
         mRingtonePlayer.updateBtActiveState(true);
-        mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+        mCallAudioAdapter.sendMessageWithSessionInfo(
                 CallAudioRouteStateMachine.BT_AUDIO_CONNECTED);
     }
 
@@ -87,20 +87,20 @@ public class CallAudioRoutePeripheralAdapter implements WiredHeadsetManager.List
     public void onBluetoothAudioConnecting() {
         mRingtonePlayer.updateBtActiveState(false);
         // Pretend like audio is connected when communicating w/ CARSM.
-        mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+        mCallAudioAdapter.sendMessageWithSessionInfo(
                 CallAudioRouteStateMachine.BT_AUDIO_CONNECTED);
     }
 
     @Override
     public void onBluetoothAudioDisconnected() {
         mRingtonePlayer.updateBtActiveState(false);
-        mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+        mCallAudioAdapter.sendMessageWithSessionInfo(
                 CallAudioRouteStateMachine.BT_AUDIO_DISCONNECTED);
     }
 
     @Override
     public void onUnexpectedBluetoothStateChange() {
-        mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+        mCallAudioAdapter.sendMessageWithSessionInfo(
                 CallAudioRouteStateMachine.UPDATE_SYSTEM_AUDIO_ROUTE);
     }
 
@@ -111,17 +111,17 @@ public class CallAudioRoutePeripheralAdapter implements WiredHeadsetManager.List
     @Override
     public void onWiredHeadsetPluggedInChanged(boolean oldIsPluggedIn, boolean newIsPluggedIn) {
         if (!oldIsPluggedIn && newIsPluggedIn) {
-            mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+            mCallAudioAdapter.sendMessageWithSessionInfo(
                     CallAudioRouteStateMachine.CONNECT_WIRED_HEADSET);
         } else if (oldIsPluggedIn && !newIsPluggedIn){
-            mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+            mCallAudioAdapter.sendMessageWithSessionInfo(
                     CallAudioRouteStateMachine.DISCONNECT_WIRED_HEADSET);
         }
     }
 
     @Override
     public void onDockChanged(boolean isDocked) {
-        mCallAudioRouteStateMachine.sendMessageWithSessionInfo(
+        mCallAudioAdapter.sendMessageWithSessionInfo(
                 isDocked ? CallAudioRouteStateMachine.CONNECT_DOCK
                         : CallAudioRouteStateMachine.DISCONNECT_DOCK
         );

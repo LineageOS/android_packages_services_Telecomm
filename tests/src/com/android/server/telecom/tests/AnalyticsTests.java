@@ -381,7 +381,7 @@ public class AnalyticsTests extends TelecomSystemTest {
 
         waitForHandlerAction(
                 mTelecomSystem.getCallsManager().getCallAudioManager()
-                        .getCallAudioRouteStateMachine().getHandler(),
+                        .getCallAudioRouteAdapter().getAdapterHandler(),
                 TEST_TIMEOUT);
         waitForHandlerAction(
                 mTelecomSystem.getCallsManager().getCallAudioManager()
@@ -391,7 +391,7 @@ public class AnalyticsTests extends TelecomSystemTest {
         mInCallServiceFixtureX.getInCallAdapter().setAudioRoute(CallAudioState.ROUTE_SPEAKER, null);
         waitForHandlerAction(
                 mTelecomSystem.getCallsManager().getCallAudioManager()
-                        .getCallAudioRouteStateMachine().getHandler(),
+                        .getCallAudioRouteAdapter().getAdapterHandler(),
                 TEST_TIMEOUT);
         waitForHandlerAction(
                 mTelecomSystem.getCallsManager().getCallAudioManager()

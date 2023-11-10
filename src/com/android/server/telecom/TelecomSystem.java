@@ -259,12 +259,13 @@ public class TelecomSystem {
                     CallAudioCommunicationDeviceTracker(mContext);
             BluetoothDeviceManager bluetoothDeviceManager = new BluetoothDeviceManager(mContext,
                     mContext.getSystemService(BluetoothManager.class).getAdapter(),
-                    communicationDeviceTracker);
+                    communicationDeviceTracker, featureFlags);
             BluetoothRouteManager bluetoothRouteManager = new BluetoothRouteManager(mContext, mLock,
                     bluetoothDeviceManager, new Timeouts.Adapter(),
                     communicationDeviceTracker, featureFlags);
             BluetoothStateReceiver bluetoothStateReceiver = new BluetoothStateReceiver(
-                    bluetoothDeviceManager, bluetoothRouteManager, communicationDeviceTracker);
+                    bluetoothDeviceManager, bluetoothRouteManager,
+                    communicationDeviceTracker, featureFlags);
             mContext.registerReceiver(bluetoothStateReceiver, BluetoothStateReceiver.INTENT_FILTER);
             communicationDeviceTracker.setBluetoothRouteManager(bluetoothRouteManager);
 
