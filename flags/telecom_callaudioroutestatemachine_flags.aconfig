@@ -41,3 +41,10 @@ flag {
   description: "Refactor call audio set/clear communication device and include unsupported routes."
   bug: "308968392"
 }
+
+flag {
+  name: "communication_device_protected_by_lock"
+  namespace: "telecom"
+  description: "Protect set/clear communication device operation with lock to avoid race condition."
+  bug: "303001133"
+}

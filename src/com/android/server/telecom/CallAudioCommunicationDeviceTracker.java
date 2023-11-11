@@ -24,10 +24,12 @@ import android.telecom.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
+import com.android.server.telecom.flags.Flags;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
 /**
  * Helper class used to keep track of the requested communication device within Telecom for audio
@@ -50,6 +52,7 @@ public class CallAudioCommunicationDeviceTracker {
     private int mAudioDeviceType = sAUDIO_DEVICE_TYPE_INVALID;
     // Keep track of the locally requested BT audio device if set
     private String mBtAudioDevice = null;
+    private final Semaphore mLock =  new Semaphore(1);
 
     public CallAudioCommunicationDeviceTracker(Context context) {
         mAudioManager = context.getSystemService(AudioManager.class);
@@ -94,6 +97,9 @@ public class CallAudioCommunicationDeviceTracker {
      */
     public boolean setCommunicationDevice(int audioDeviceType,
             BluetoothDevice btDevice) {
+        if (Flags.communicationDeviceProtectedByLock()) {
+            mLock.tryAcquire();
+        }
         // There is only one audio device type associated with each type of BT device.
         boolean isBtDevice = sBT_AUDIO_DEVICE_TYPES.contains(audioDeviceType);
         Log.i(this, "setCommunicationDevice: type = %s, isBtDevice = %s, btDevice = %s",
@@ -155,6 +161,9 @@ public class CallAudioCommunicationDeviceTracker {
                 }
             }
         }
+        if (Flags.communicationDeviceProtectedByLock()) {
+            mLock.release();
+        }
         return result;
     }
 
@@ -164,6 +173,9 @@ public class CallAudioCommunicationDeviceTracker {
      * @param audioDeviceTypes The supported audio device types for the device.
      */
     public void clearCommunicationDevice(int audioDeviceType) {
+        if (Flags.communicationDeviceProtectedByLock()) {
+            mLock.tryAcquire();
+        }
         // There is only one audio device type associated with each type of BT device.
         boolean isBtDevice = sBT_AUDIO_DEVICE_TYPES.contains(audioDeviceType);
         Log.i(this, "clearCommunicationDevice: type = %s, isBtDevice = %s",
@@ -194,6 +206,9 @@ public class CallAudioCommunicationDeviceTracker {
             // Signal that BT audio was lost for device.
             mBluetoothRouteManager.onAudioLost(mBtAudioDevice);
             mBtAudioDevice = null;
+        }
+        if (Flags.communicationDeviceProtectedByLock()) {
+            mLock.release();
         }
     }
 
