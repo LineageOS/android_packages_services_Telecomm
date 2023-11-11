@@ -29,10 +29,11 @@ aconfig_declarations {
       "telecom_incallservice_flags.aconfig",
       "telecom_default_phone_account_flags.aconfig",
       "telecom_callaudioroutestatemachine_flags.aconfig",
+      "telecom_calls_manager_flags.aconfig",
       "telecom_anomaly_report_flags.aconfig",
       "telecom_callaudiomodestatemachine_flags.aconfig",
       "telecom_calllog_flags.aconfig",
-      "telecom_resolve_hidden_dependencies.aconfig"
+      "telecom_resolve_hidden_dependencies.aconfig",
     ],
 }
 
