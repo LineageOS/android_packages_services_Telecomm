@@ -48,3 +48,10 @@ flag {
   description: "Protect set/clear communication device operation with lock to avoid race condition."
   bug: "303001133"
 }
+
+flag {
+  name: "update_route_mask_when_bt_connected"
+  namespace: "telecom"
+  description: "Update supported route mask when Bluetooth devices audio connected."
+  bug: "301695370"
+}
