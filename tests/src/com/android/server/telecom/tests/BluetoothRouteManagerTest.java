@@ -185,6 +185,33 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         sm.quitNow();
     }
 
+    @SmallTest
+    @Test
+    public void testConnectBtWithoutAddress() {
+        when(mFeatureFlags.useActualAddressToEnterConnectingState()).thenReturn(true);
+        BluetoothRouteManager sm = setupStateMachine(
+                BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX, DEVICE1);
+        setupConnectedDevices(new BluetoothDevice[]{DEVICE1, DEVICE2}, null, null, null, null,
+                null);
+        when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
+                nullable(ContentResolver.class))).thenReturn(0L);
+        when(mBluetoothHeadset.connectAudio()).thenReturn(BluetoothStatusCodes.ERROR_UNKNOWN);
+        executeRoutingAction(sm, BluetoothRouteManager.CONNECT_BT, null);
+        // Wait 3 times: the first connection attempt is accounted for in executeRoutingAction,
+        // so wait twice for the retry attempt, again to make sure there are only three attempts,
+        // and once more for good luck.
+        waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
+        waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
+        waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
+        waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
+        verifyConnectionAttempt(DEVICE1, 1);
+        assertEquals(BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX
+                        + ":" + DEVICE1.getAddress(),
+                sm.getCurrentState().getName());
+        sm.getHandler().removeMessages(BluetoothRouteManager.CONNECTION_TIMEOUT);
+        sm.quitNow();
+    }
+
     private BluetoothRouteManager setupStateMachine(String initialState,
             BluetoothDevice initialDevice) {
         resetMocks();
