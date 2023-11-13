@@ -159,6 +159,11 @@ public class CallAudioCommunicationDeviceTracker {
                 if (audioDeviceType == AudioDeviceInfo.TYPE_BLE_HEADSET) {
                     mBluetoothRouteManager.onAudioOn(mBtAudioDevice);
                 }
+            } else if (Flags.communicationDeviceProtectedByLock()) {
+                // Clear BT device if it's still stored. Handles race condition for when a non-BT
+                // device is set for communication shortly after a BT (LE) device is set for
+                // communication but the selection hasn't been cleared yet.
+                mBtAudioDevice = null;
             }
         }
         if (Flags.communicationDeviceProtectedByLock()) {
