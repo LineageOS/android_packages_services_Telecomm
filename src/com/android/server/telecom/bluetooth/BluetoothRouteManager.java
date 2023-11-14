@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -134,7 +135,8 @@ public class BluetoothRouteManager extends StateMachine {
         @Override
         public void enter() {
             BluetoothDevice erroneouslyConnectedDevice = getBluetoothAudioConnectedDevice();
-            if (erroneouslyConnectedDevice != null) {
+            if (erroneouslyConnectedDevice != null &&
+                !erroneouslyConnectedDevice.equals(mHearingAidActiveDeviceCache)) {
                 Log.w(LOG_TAG, "Entering AudioOff state but device %s appears to be connected. " +
                         "Switching to audio-on state for that device.", erroneouslyConnectedDevice);
                 // change this to just transition to the new audio on state
@@ -252,6 +254,27 @@ public class BluetoothRouteManager extends StateMachine {
             SomeArgs args = (SomeArgs) msg.obj;
             String address = (String) args.arg2;
             boolean switchingBtDevices = !Objects.equals(mDeviceAddress, address);
+
+            if (switchingBtDevices == true) { // check if it is an hearing aid pair
+                BluetoothAdapter bluetoothAdapter = mDeviceManager.getBluetoothAdapter();
+                if (bluetoothAdapter != null) {
+                    List<BluetoothDevice> activeHearingAids =
+                      bluetoothAdapter.getActiveDevices(BluetoothProfile.HEARING_AID);
+                    for (BluetoothDevice hearingAid : activeHearingAids) {
+                        if (hearingAid != null) {
+                            String hearingAidAddress = hearingAid.getAddress();
+                            if (hearingAidAddress != null) {
+                                if (hearingAidAddress.equals(address) ||
+                                    hearingAidAddress.equals(mDeviceAddress)) {
+                                    switchingBtDevices = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
             try {
                 switch (msg.what) {
                     case NEW_DEVICE_CONNECTED:
@@ -868,12 +891,18 @@ public class BluetoothRouteManager extends StateMachine {
                 : mDeviceManager.isHearingAidSetAsCommunicationDevice();
         if (bluetoothHearingAid != null) {
             if (isHearingAidSetForCommunication) {
-                for (BluetoothDevice device : bluetoothAdapter.getActiveDevices(
-                        BluetoothProfile.HEARING_AID)) {
-                    if (device != null) {
-                        hearingAidActiveDevice = device;
-                        activeDevices++;
-                        break;
+                List<BluetoothDevice> hearingAidsActiveDevices = bluetoothAdapter.getActiveDevices(
+                        BluetoothProfile.HEARING_AID);
+                if (hearingAidsActiveDevices.contains(mHearingAidActiveDeviceCache)) {
+                    hearingAidActiveDevice = mHearingAidActiveDeviceCache;
+                    activeDevices++;
+                } else {
+                    for (BluetoothDevice device : hearingAidsActiveDevices) {
+                        if (device != null) {
+                            hearingAidActiveDevice = device;
+                            activeDevices++;
+                            break;
+                        }
                     }
                 }
             }
