@@ -393,8 +393,13 @@ public class BluetoothRouteManager extends StateMachine {
                         String actualAddress = connectBtAudio(address,
                             true /* switchingBtDevices*/);
                         if (actualAddress != null) {
-                            transitionTo(getConnectingStateForAddress(address,
-                                    "AudioConnected/CONNECT_BT"));
+                            if (mFeatureFlags.useActualAddressToEnterConnectingState()) {
+                                transitionTo(getConnectingStateForAddress(actualAddress,
+                                        "AudioConnected/CONNECT_BT"));
+                            } else {
+                                transitionTo(getConnectingStateForAddress(address,
+                                        "AudioConnected/CONNECT_BT"));
+                            }
                         } else {
                             Log.w(LOG_TAG, "Tried to connect to %s but failed" +
                                     " to connect to any BT device.", (String) args.arg2);
