@@ -525,8 +525,6 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         .validateAccountIconUserBoundary(icon, callingUserHandle));
             }
 
-            if (ConnectionServiceWrapper.this.mIsRemoteConnectionService) return;
-
             if (parcelableConference.getConnectElapsedTimeMillis() != 0
                     && mContext.checkCallingOrSelfPermission(MODIFY_PHONE_STATE)
                             != PackageManager.PERMISSION_GRANTED) {
@@ -941,9 +939,6 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         public void addExistingConnection(String callId, ParcelableConnection connection,
                 Session.Info sessionInfo) {
             Log.startSession(sessionInfo, "CSW.aEC", mPackageAbbreviation);
-
-            if (ConnectionServiceWrapper.this.mIsRemoteConnectionService) return;
-
             UserHandle userHandle = Binder.getCallingUserHandle();
             // Check that the Calling Package matches PhoneAccountHandle's Component Package
             PhoneAccountHandle callingPhoneAccountHandle = connection.getPhoneAccount();
@@ -1358,7 +1353,6 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
     private final CallsManager mCallsManager;
     private final AppOpsManager mAppOpsManager;
     private final Context mContext;
-    public boolean mIsRemoteConnectionService = false;
 
     private ConnectionServiceFocusManager.ConnectionServiceFocusListener mConnSvrFocusListener;
 
@@ -2548,13 +2542,13 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
     private void logIncoming(String msg, Object... params) {
         // Keep these as debug; the incoming logging is traced on a package level through the
         // session logging.
-        Log.d(this, "CS -> TC[" + Log.getPackageAbbreviation(mComponentName) + "]:"
-                + " isRCS = " + this.mIsRemoteConnectionService + ": " + msg, params);
+        Log.d(this, "CS -> TC[" + Log.getPackageAbbreviation(mComponentName) + "]: "
+                + msg, params);
     }
 
     private void logOutgoing(String msg, Object... params) {
-        Log.d(this, "TC -> CS[" + Log.getPackageAbbreviation(mComponentName) + "]:"
-                + " isRCS = " + this.mIsRemoteConnectionService + ": " + msg, params);
+        Log.d(this, "TC -> CS[" + Log.getPackageAbbreviation(mComponentName) + "]: "
+                + msg, params);
     }
 
     private void queryRemoteConnectionServices(final UserHandle userHandle,
@@ -2581,7 +2575,6 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
             ConnectionServiceWrapper service = mConnectionServiceRepository.getService(
                     handle.getComponentName(), handle.getUserHandle());
             if (service != null && service != this) {
-                service.mIsRemoteConnectionService = true;
                 simServices.add(service);
             } else {
                 // This is unexpected, normally PhoneAccounts with CAPABILITY_CALL_PROVIDER are not
