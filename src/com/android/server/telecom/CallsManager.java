@@ -5847,7 +5847,8 @@ public class CallsManager extends Call.ListenerBase
             return;
         }
         ConnectionServiceWrapper service = mConnectionServiceRepository.getService(
-                phoneAccountHandle.getComponentName(), phoneAccountHandle.getUserHandle());
+                phoneAccountHandle.getComponentName(), phoneAccountHandle.getUserHandle(),
+                mFeatureFlags);
         if (service == null) {
             Log.i(this, "Found no connection service.");
             return;
@@ -5872,7 +5873,8 @@ public class CallsManager extends Call.ListenerBase
             return;
         }
         ConnectionServiceWrapper service = mConnectionServiceRepository.getService(
-                phoneAccountHandle.getComponentName(), phoneAccountHandle.getUserHandle());
+                phoneAccountHandle.getComponentName(), phoneAccountHandle.getUserHandle(),
+                mFeatureFlags);
         if (service == null) {
             Log.i(this, "Found no connection service.");
             return;

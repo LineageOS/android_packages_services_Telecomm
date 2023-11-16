@@ -2815,8 +2815,9 @@ public class CallsManagerTest extends TelecomTestCase {
     public void testQueryCurrentLocationCheckOnReceiveResult() throws Exception {
         ConnectionServiceWrapper service = new ConnectionServiceWrapper(
                 new ComponentName(mContext.getPackageName(),
-                        mContext.getPackageName().getClass().getName()),
-                null, mPhoneAccountRegistrar, mCallsManager, mContext, mLock, null);
+                        mContext.getPackageName().getClass().getName()), null,
+                        mPhoneAccountRegistrar, mCallsManager, mContext, mLock, null,
+                        mFeatureFlags);
 
         CompletableFuture<String> resultFuture = new CompletableFuture<>();
         try {
@@ -2841,7 +2842,8 @@ public class CallsManagerTest extends TelecomTestCase {
         mSetRlagsRule.enableFlags(Flags.FLAG_UNBIND_TIMEOUT_CONNECTIONS);
         ConnectionServiceWrapper service = new ConnectionServiceWrapper(
                 SIM_1_ACCOUNT.getAccountHandle().getComponentName(), null,
-                mPhoneAccountRegistrar, mCallsManager, mContext, mLock, null);
+                mPhoneAccountRegistrar, mCallsManager, mContext, mLock, null,
+                mFeatureFlags);
         TestScheduledExecutorService scheduledExecutorService = new TestScheduledExecutorService();
         service.setScheduledExecutorService(scheduledExecutorService);
         Call call = addSpyCall();

@@ -32,6 +32,8 @@ import android.telephony.TelephonyManager;
 // TODO: Needed for move to system service: import com.android.internal.R;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.server.telecom.flags.Flags;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -125,6 +127,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
     private DisconnectCause mLastErrorDisconnectCause;
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
     private final Context mContext;
+    private final FeatureFlags mFlags;
     private CreateConnectionTimeout mTimeout;
     private ConnectionServiceWrapper mService;
     private int mConnectionAttempt;
@@ -132,7 +135,8 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
     @VisibleForTesting
     public CreateConnectionProcessor(
             Call call, ConnectionServiceRepository repository, CreateConnectionResponse response,
-            PhoneAccountRegistrar phoneAccountRegistrar, Context context) {
+            PhoneAccountRegistrar phoneAccountRegistrar, Context context,
+            FeatureFlags featureFlags) {
         Log.v(this, "CreateConnectionProcessor created for Call = %s", call);
         mCall = call;
         mRepository = repository;
@@ -140,6 +144,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
         mPhoneAccountRegistrar = phoneAccountRegistrar;
         mContext = context;
         mConnectionAttempt = 0;
+        mFlags = featureFlags;
     }
 
     boolean isProcessingComplete() {
@@ -239,7 +244,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
             Log.i(this, "Trying attempt %s", attempt);
             PhoneAccountHandle phoneAccount = attempt.connectionManagerPhoneAccount;
             mService = mRepository.getService(phoneAccount.getComponentName(),
-                    phoneAccount.getUserHandle());
+                    phoneAccount.getUserHandle(), mFlags);
             if (mService == null) {
                 Log.i(this, "Found no connection service for attempt %s", attempt);
                 attemptNextPhoneAccount();
@@ -247,7 +252,25 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
                 mConnectionAttempt++;
                 mCall.setConnectionManagerPhoneAccount(attempt.connectionManagerPhoneAccount);
                 mCall.setTargetPhoneAccount(attempt.targetPhoneAccount);
-                mCall.setConnectionService(mService);
+                if (mFlags.updatedRcsCallCountTracking()) {
+                    if (Objects.equals(attempt.connectionManagerPhoneAccount,
+                            attempt.targetPhoneAccount)) {
+                        mCall.setConnectionService(mService);
+                    } else {
+                        PhoneAccountHandle remotePhoneAccount = attempt.targetPhoneAccount;
+                        ConnectionServiceWrapper mRemoteService =
+                                mRepository.getService(remotePhoneAccount.getComponentName(),
+                                remotePhoneAccount.getUserHandle(), mFlags);
+                        if (mRemoteService == null) {
+                            mCall.setConnectionService(mService);
+                        } else {
+                            Log.v(this, "attemptNextPhoneAccount Setting RCS = %s", mRemoteService);
+                            mCall.setConnectionService(mService, mRemoteService);
+                        }
+                    }
+                } else {
+                    mCall.setConnectionService(mService);
+                }
                 setTimeoutIfNeeded(mService, attempt);
                 if (mCall.isIncoming()) {
                     if (mCall.isAdhocConferenceCall()) {

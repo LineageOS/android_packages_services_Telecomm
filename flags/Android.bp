@@ -35,7 +35,8 @@ aconfig_declarations {
       "telecom_calllog_flags.aconfig",
       "telecom_resolve_hidden_dependencies.aconfig",
       "telecom_bluetoothroutemanager_flags.aconfig",
-      "telecom_work_profile_flags.aconfig"
+      "telecom_work_profile_flags.aconfig",
+      "telecom_connection_service_wrapper_flags.aconfig",
     ],
 }
 
