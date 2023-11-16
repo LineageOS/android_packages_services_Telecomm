@@ -721,8 +721,12 @@ public class Ringer {
         boolean letDialerHandleRinging = mInCallController.doesConnectedDialerSupportRinging(
                 call.getAssociatedUser());
         timer.record("letDialerHandleRinging");
+        UserHandle profileUser = call.getTargetPhoneAccount() != null
+                && mFlags.workProfileAssociatedUser()
+                ? call.getTargetPhoneAccount().getUserHandle()
+                : call.getAssociatedUser();
         boolean isWorkProfileInQuietMode =
-                isProfileInQuietMode(call.getAssociatedUser());
+                isProfileInQuietMode(profileUser);
         timer.record("isWorkProfileInQuietMode");
 
         Log.i(this, "startRinging timings: " + timer);

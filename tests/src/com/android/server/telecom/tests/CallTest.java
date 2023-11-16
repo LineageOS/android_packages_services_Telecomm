@@ -38,6 +38,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.UserHandle;
 import android.telecom.CallAttributes;
 import android.telecom.CallerInfo;
 import android.telecom.Connection;
@@ -117,6 +118,7 @@ public class CallTest extends TelecomTestCase {
         doReturn(new ComponentName(mContext, CallTest.class))
                 .when(mMockConnectionService).getComponentName();
         doReturn(mMockToast).when(mMockToastProxy).makeText(any(), anyInt(), anyInt());
+        doReturn(UserHandle.CURRENT).when(mMockCallsManager).getCurrentUserHandle();
     }
 
     @After
@@ -200,7 +202,8 @@ public class CallTest extends TelecomTestCase {
                 false /* shouldAttachToExistingConnection*/,
                 false /* isConference */,
                 mMockClockProxy,
-                mMockToastProxy);
+                mMockToastProxy,
+                mFeatureFlags);
 
         // To start with connection creation isn't complete.
         assertFalse(call.isCreateConnectionComplete());
@@ -338,7 +341,8 @@ public class CallTest extends TelecomTestCase {
                 false /* shouldAttachToExistingConnection*/,
                 true /* isConference */,
                 mMockClockProxy,
-                mMockToastProxy);
+                mMockToastProxy,
+                mFeatureFlags);
 
         assertFalse(call.wasDndCheckComputedForCall());
         assertFalse(call.isCallSuppressedByDoNotDisturb());
@@ -364,7 +368,8 @@ public class CallTest extends TelecomTestCase {
                 false /* shouldAttachToExistingConnection*/,
                 true /* isConference */,
                 mMockClockProxy,
-                mMockToastProxy);
+                mMockToastProxy,
+                mFeatureFlags);
 
         assertNull(call.getConnectionServiceWrapper());
         assertFalse(call.isTransactionalCall());
@@ -394,7 +399,8 @@ public class CallTest extends TelecomTestCase {
                 false /* shouldAttachToExistingConnection*/,
                 true /* isConference */,
                 mMockClockProxy,
-                mMockToastProxy);
+                mMockToastProxy,
+                mFeatureFlags);
 
         // setup
         call.setIsTransactionalCall(true);
@@ -748,6 +754,7 @@ public class CallTest extends TelecomTestCase {
                 false,
                 false,
                 mMockClockProxy,
-                mMockToastProxy);
+                mMockToastProxy,
+                mFeatureFlags);
     }
 }

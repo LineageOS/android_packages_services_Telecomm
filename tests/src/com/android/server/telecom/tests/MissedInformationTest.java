@@ -153,6 +153,8 @@ public class MissedInformationTest extends TelecomSystemTest {
         setUpEmergencyCall();
         when(mEmergencyCall.getAssociatedUser()).
                 thenReturn(mPhoneAccountA0.getAccountHandle().getUserHandle());
+        when(mEmergencyCall.getTargetPhoneAccount())
+                .thenReturn(mPhoneAccountA0.getAccountHandle());
         mCallsManager.addCall(mEmergencyCall);
         assertTrue(mCallsManager.isInEmergencyCall());
 
@@ -418,7 +420,7 @@ public class MissedInformationTest extends TelecomSystemTest {
                 null, mCallsManager.getPhoneNumberUtilsAdapter(), null,
                 null, null, mPhoneAccountA0.getAccountHandle(),
                 Call.CALL_DIRECTION_INCOMING, false, false,
-                mClockProxy, null));
+                mClockProxy, null, mFeatureFlags));
         doReturn(1L).when(mIncomingCall).getStartRingTime();
         doAnswer((x) -> {
             mCountDownLatch.countDown();
