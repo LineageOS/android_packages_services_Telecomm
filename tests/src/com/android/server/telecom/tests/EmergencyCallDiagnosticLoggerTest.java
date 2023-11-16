@@ -35,7 +35,6 @@ import android.content.ComponentName;
 import android.net.Uri;
 import android.os.BugreportManager;
 import android.os.DropBoxManager;
-import android.os.UserHandle;
 import android.telecom.DisconnectCause;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
@@ -129,7 +128,6 @@ public class EmergencyCallDiagnosticLoggerTest extends TelecomTestCase {
         when(mTimeouts.getDaysBackToSearchEmergencyDiagnosticEntries()).
                 thenReturn(DAYS_BACK_TO_SEARCH_EMERGENCY_DIAGNOSTIC_ENTRIES);
         when(mClockProxy.currentTimeMillis()).thenReturn(System.currentTimeMillis());
-        when(mMockCallsManager.getCurrentUserHandle()).thenReturn(UserHandle.CURRENT);
 
         mEmergencyCallDiagnosticLogger = new EmergencyCallDiagnosticLogger(mTm, mBrm,
                 mTimeouts, mDbm, Runnable::run, mClockProxy);
@@ -173,8 +171,7 @@ public class EmergencyCallDiagnosticLoggerTest extends TelecomTestCase {
                 false /* shouldAttachToExistingConnection*/,
                 false /* isConference */,
                 mMockClockProxy,
-                mMockToastProxy,
-                mFeatureFlags);
+                mMockToastProxy);
     }
 
     /**

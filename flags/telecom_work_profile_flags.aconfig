@@ -1,8 +1,0 @@
-package: "com.android.server.telecom.flags"
-
-flag {
-  name: "work_profile_associated_user"
-  namespace: "telecom"
-  description: "Redefines the associated user for calls in the context of work profile support (U+)"
-  bug: "294699269"
-}
