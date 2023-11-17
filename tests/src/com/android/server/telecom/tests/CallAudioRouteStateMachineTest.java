@@ -1240,6 +1240,53 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
 
     @SmallTest
     @Test
+    public void testQuiescentBluetoothRouteResetMute() {
+        when(mFeatureFlags.resetMuteWhenEnteringQuiescentBtRoute()).thenReturn(true);
+        CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
+                mContext,
+                mockCallsManager,
+                mockBluetoothRouteManager,
+                mockWiredHeadsetManager,
+                mockStatusBarNotifier,
+                mAudioServiceFactory,
+                CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED,
+                mThreadHandler.getLooper(),
+                Runnable::run /** do async stuff sync for test purposes */,
+                mCommunicationDeviceTracker,
+                mFeatureFlags);
+        stateMachine.setCallAudioManager(mockCallAudioManager);
+
+        CallAudioState initState = new CallAudioState(false,
+                CallAudioState.ROUTE_BLUETOOTH, CallAudioState.ROUTE_SPEAKER
+                | CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH);
+        stateMachine.initialize(initState);
+
+        // Switch to active and mute
+        stateMachine.sendMessageWithSessionInfo(CallAudioRouteStateMachine.SWITCH_FOCUS,
+                CallAudioRouteStateMachine.ACTIVE_FOCUS);
+        stateMachine.sendMessageWithSessionInfo(CallAudioRouteStateMachine.BT_AUDIO_CONNECTED);
+        waitForHandlerAction(stateMachine.getAdapterHandler(), TEST_TIMEOUT);
+        assertTrue(stateMachine.isInActiveState());
+
+        stateMachine.sendMessageWithSessionInfo(CallAudioRouteStateMachine.MUTE_ON);
+        waitForHandlerAction(stateMachine.getAdapterHandler(), TEST_TIMEOUT);
+        CallAudioState expectedState = new CallAudioState(true,
+                CallAudioState.ROUTE_BLUETOOTH, CallAudioState.ROUTE_SPEAKER
+                | CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH);
+        assertEquals(expectedState, stateMachine.getCurrentCallAudioState());
+
+        stateMachine.sendMessageWithSessionInfo(CallAudioRouteStateMachine.SWITCH_FOCUS,
+                CallAudioRouteStateMachine.NO_FOCUS);
+        waitForHandlerAction(stateMachine.getAdapterHandler(), TEST_TIMEOUT);
+
+        expectedState = new CallAudioState(false,
+                CallAudioState.ROUTE_BLUETOOTH, CallAudioState.ROUTE_SPEAKER
+                | CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH);
+        assertEquals(expectedState, stateMachine.getCurrentCallAudioState());
+    }
+
+    @SmallTest
+    @Test
     public void testSupportRouteMaskUpdateWhenBtAudioConnected() {
         when(mFeatureFlags.updateRouteMaskWhenBtConnected()).thenReturn(true);
         CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(

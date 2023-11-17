@@ -17,7 +17,6 @@
 package com.android.server.telecom;
 
 
-import android.annotation.FlaggedApi;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -1074,6 +1073,9 @@ public class CallAudioRouteStateMachine extends StateMachine implements CallAudi
         public void enter() {
             super.enter();
             mHasUserExplicitlyLeftBluetooth = false;
+            if (mFeatureFlags.resetMuteWhenEnteringQuiescentBtRoute()) {
+                setMuteOn(false);
+            }
             updateInternalCallAudioState();
         }
 
