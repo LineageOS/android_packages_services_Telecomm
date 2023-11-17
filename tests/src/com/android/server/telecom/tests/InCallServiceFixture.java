@@ -16,7 +16,6 @@
 
 package com.android.server.telecom.tests;
 
-import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telecom.IInCallAdapter;
 import com.android.internal.telecom.IInCallService;
 
@@ -40,7 +39,7 @@ import java.util.concurrent.TimeUnit;
  * Controls a test {@link IInCallService} as would be provided by an InCall UI on a system.
  */
 public class InCallServiceFixture implements TestFixture<IInCallService> {
-    public static boolean sIgnoreOverrideAdapterFlag = false;
+
     public String mLatestCallId;
     public IInCallAdapter mInCallAdapter;
     public CallAudioState mCallAudioState;
@@ -54,17 +53,10 @@ public class InCallServiceFixture implements TestFixture<IInCallService> {
     public CountDownLatch mUpdateCallLock = new CountDownLatch(1);
     public CountDownLatch mAddCallLock = new CountDownLatch(1);
 
-    @VisibleForTesting
-    public static void setIgnoreOverrideAdapterFlag(boolean flag) {
-        sIgnoreOverrideAdapterFlag = flag;
-    }
-
     public class FakeInCallService extends IInCallService.Stub {
         @Override
         public void setInCallAdapter(IInCallAdapter inCallAdapter) throws RemoteException {
-            // sIgnoreOverrideAdapterFlag is being used to verify a scenario where the InCallAdapter
-            // gets set twice (secondary user places MO/MT call).
-            if (mInCallAdapter != null && inCallAdapter != null && !sIgnoreOverrideAdapterFlag) {
+            if (mInCallAdapter != null && inCallAdapter != null) {
                 throw new RuntimeException("Adapter is already set");
             }
             if (mInCallAdapter == null && inCallAdapter == null) {

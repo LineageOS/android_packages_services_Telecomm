@@ -13,7 +13,6 @@ import android.content.ComponentName;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.os.UserHandle;
 import android.telecom.Connection;
 import android.telecom.ParcelableCall;
 import android.telecom.PhoneAccountHandle;
@@ -58,7 +57,6 @@ public class ParcelableCallUtilsTest extends TelecomTestCase {
         when(mClockProxy.elapsedRealtime()).thenReturn(SystemClock.elapsedRealtime());
         when(mCallsManager.getCallerInfoLookupHelper()).thenReturn(mCallerInfoLookupHelper);
         when(mCallsManager.getPhoneAccountRegistrar()).thenReturn(mPhoneAccountRegistrar);
-        when(mCallsManager.getCurrentUserHandle()).thenReturn(UserHandle.CURRENT);
         when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(any())).thenReturn(null);
         when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
                 .thenReturn(false);
@@ -77,8 +75,7 @@ public class ParcelableCallUtilsTest extends TelecomTestCase {
                 false /* shouldAttachToExistingConnection */,
                 false /* isConference */,
                 mClockProxy /* ClockProxy */,
-                mToastProxy,
-                mFeatureFlags);
+                mToastProxy);
     }
 
     @Override

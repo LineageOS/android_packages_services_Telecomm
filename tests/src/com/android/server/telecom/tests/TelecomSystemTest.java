@@ -327,20 +327,6 @@ public class TelecomSystemTest extends TelecomTestCase{
                                     PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS)
                     .build();
 
-    final PhoneAccount mPhoneAccountMultiUser =
-            PhoneAccount.builder(
-                            new PhoneAccountHandle(
-                                    mConnectionServiceComponentNameA,
-                                    "id MU", UserHandle.of(12)),
-                            "Phone account service MU")
-                    .addSupportedUriScheme("tel")
-                    .setCapabilities(
-                            PhoneAccount.CAPABILITY_CALL_PROVIDER |
-                                    PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION |
-                                    PhoneAccount.CAPABILITY_VIDEO_CALLING |
-                                    PhoneAccount.CAPABILITY_MULTI_USER)
-                    .build();
-
     ConnectionServiceFixture mConnectionServiceFixtureA;
     ConnectionServiceFixture mConnectionServiceFixtureB;
     Timeouts.Adapter mTimeoutsAdapter;
@@ -615,7 +601,6 @@ public class TelecomSystemTest extends TelecomTestCase{
         mTelecomSystem.getPhoneAccountRegistrar().registerPhoneAccount(mPhoneAccountB0);
         mTelecomSystem.getPhoneAccountRegistrar().registerPhoneAccount(mPhoneAccountE0);
         mTelecomSystem.getPhoneAccountRegistrar().registerPhoneAccount(mPhoneAccountE1);
-        mTelecomSystem.getPhoneAccountRegistrar().registerPhoneAccount(mPhoneAccountMultiUser);
 
         mTelecomSystem.getPhoneAccountRegistrar().setUserSelectedOutgoingPhoneAccount(
                 mPhoneAccountA0.getAccountHandle(), Process.myUserHandle());

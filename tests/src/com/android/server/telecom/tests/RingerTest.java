@@ -147,8 +147,6 @@ public class RingerTest extends TelecomTestCase {
         when(mockCall2.getState()).thenReturn(CallState.RINGING);
         when(mockCall1.getAssociatedUser()).thenReturn(PA_HANDLE.getUserHandle());
         when(mockCall2.getAssociatedUser()).thenReturn(PA_HANDLE.getUserHandle());
-        when(mockCall1.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
-        when(mockCall2.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
         // Set BT active state in tests to ensure that we do not end up blocking tests for 1 sec
         // waiting for BT to connect in unit tests by default.
         asyncRingtonePlayer.updateBtActiveState(true);

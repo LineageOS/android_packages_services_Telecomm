@@ -69,8 +69,6 @@ import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SmallTest;
 
 import com.android.internal.telecom.IInCallAdapter;
-import com.android.server.telecom.InCallController;
-
 import android.telecom.CallerInfo;
 
 import com.google.common.base.Predicate;
@@ -622,48 +620,6 @@ public class BasicCallTests extends TelecomSystemTest {
 
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(incoming.mCallId);
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(outgoing.mCallId);
-    }
-
-    @LargeTest
-    @Test
-    public void testIncomingThenOutgoingCalls_AssociatedUsersNotEqual() throws Exception {
-        when(mFeatureFlags.workProfileAssociatedUser()).thenReturn(true);
-        InCallServiceFixture.setIgnoreOverrideAdapterFlag(true);
-
-        // Receive incoming call via mPhoneAccountMultiUser
-        IdPair incoming = startAndMakeActiveIncomingCall("650-555-2323",
-                mPhoneAccountMultiUser.getAccountHandle(), mConnectionServiceFixtureA);
-        waitForHandlerAction(mConnectionServiceFixtureA.mConnectionServiceDelegate.getHandler(),
-                TEST_TIMEOUT);
-        // Make outgoing call on mPhoneAccountMultiUser (unassociated sim to simulate guest/
-        // secondary user scenario where both MO/MT calls exist).
-        IdPair outgoing = startAndMakeActiveOutgoingCall("650-555-1212",
-                mPhoneAccountMultiUser.getAccountHandle(), mConnectionServiceFixtureA);
-        waitForHandlerAction(mConnectionServiceFixtureA.mConnectionServiceDelegate.getHandler(),
-                TEST_TIMEOUT);
-
-        // Outgoing call should be on hold while incoming call is made active
-        mConnectionServiceFixtureA.mConnectionById.get(incoming.mConnectionId).state =
-                Connection.STATE_HOLDING;
-
-        // Swap calls and verify that outgoing call is now the active call while the incoming call
-        // is the held call.
-        mConnectionServiceFixtureA.sendSetOnHold(outgoing.mConnectionId);
-        waitForHandlerAction(mConnectionServiceFixtureA.mConnectionServiceDelegate.getHandler(),
-                TEST_TIMEOUT);
-        assertEquals(Call.STATE_HOLDING,
-                mInCallServiceFixtureX.getCall(outgoing.mCallId).getState());
-        assertEquals(Call.STATE_ACTIVE,
-                mInCallServiceFixtureX.getCall(incoming.mCallId).getState());
-
-        // Ensure no issues with call disconnect.
-        mInCallServiceFixtureX.mInCallAdapter.disconnectCall(incoming.mCallId);
-        mInCallServiceFixtureX.mInCallAdapter.disconnectCall(outgoing.mCallId);
-        assertEquals(Call.STATE_DISCONNECTING,
-                mInCallServiceFixtureX.getCall(incoming.mCallId).getState());
-        assertEquals(Call.STATE_DISCONNECTING,
-                mInCallServiceFixtureX.getCall(outgoing.mCallId).getState());
-        InCallServiceFixture.setIgnoreOverrideAdapterFlag(false);
     }
 
     @LargeTest

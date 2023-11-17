@@ -27,7 +27,6 @@ import static org.mockito.Mockito.when;
 
 import android.content.ComponentName;
 import android.net.Uri;
-import android.os.UserHandle;
 import android.telecom.DisconnectCause;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
@@ -124,7 +123,6 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
         mCallAnomalyWatchdog = new CallAnomalyWatchdog(mTestScheduledExecutorService, mLock,
                 mTimeouts, mMockClockProxy, mMockEmergencyCallDiagnosticLogger);
         mCallAnomalyWatchdog.setAnomalyReporterAdapter(mAnomalyReporterAdapter);
-        when(mMockCallsManager.getCurrentUserHandle()).thenReturn(UserHandle.CURRENT);
     }
 
     @Override
@@ -864,7 +862,6 @@ public class CallAnomalyWatchdogTest extends TelecomTestCase {
                 false /* shouldAttachToExistingConnection*/,
                 false /* isConference */,
                 mMockClockProxy,
-                mMockToastProxy,
-                mFeatureFlags);
+                mMockToastProxy);
     }
 }

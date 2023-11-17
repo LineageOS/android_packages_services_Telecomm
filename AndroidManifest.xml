@@ -318,18 +318,6 @@
              android:exported="false"
              android:process=":ui"/>
 
-        <service android:name=".components.BluetoothPhoneService"
-             android:singleUser="true"
-             android:process="system"
-             android:exported="true">
-            <intent-filter>
-                <action android:name="android.bluetooth.IBluetoothHeadsetPhone"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.bluetooth.IBluetoothLeCallControlCallback" />
-            </intent-filter>
-        </service>
-
         <service android:name=".components.TelecomService"
              android:singleUser="true"
              android:process="system"

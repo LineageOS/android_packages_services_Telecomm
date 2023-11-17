@@ -415,8 +415,7 @@ public class CallsManagerTest extends TelecomTestCase {
                 false /* shouldAttachToExistingConnection*/,
                 false /* isConference */,
                 mClockProxy,
-                mToastFactory,
-                mFeatureFlags);
+                mToastFactory);
         ongoingCall.setState(CallState.ACTIVE, "just cuz");
         return ongoingCall;
     }
@@ -2589,7 +2588,9 @@ public class CallsManagerTest extends TelecomTestCase {
                 WORK_HANDLE.getUserHandle(), service);
 
         UserManager um = mContext.getSystemService(UserManager.class);
-        when(um.isUserAdmin(anyInt())).thenReturn(false);
+        UserHandle newUser = new UserHandle(11);
+        when(mCallsManager.getCurrentUserHandle()).thenReturn(newUser);
+        when(um.isUserAdmin(eq(newUser.getIdentifier()))).thenReturn(false);
         when(um.isQuietModeEnabled(eq(WORK_HANDLE.getUserHandle()))).thenReturn(false);
         when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(eq(WORK_HANDLE)))
                 .thenReturn(WORK_ACCOUNT);
@@ -2605,17 +2606,14 @@ public class CallsManagerTest extends TelecomTestCase {
     @Test
     public void testRejectIncomingCallOnPAHInactive_ProfilePaused() throws Exception {
         ConnectionServiceWrapper service = mock(ConnectionServiceWrapper.class);
-        doReturn(WORK_HANDLE.getComponentName()).when(service).getComponentName();
-        mCallsManager.addConnectionServiceRepositoryCache(WORK_HANDLE.getComponentName(),
-                WORK_HANDLE.getUserHandle(), service);
+        doReturn(SIM_2_HANDLE.getComponentName()).when(service).getComponentName();
+        mCallsManager.addConnectionServiceRepositoryCache(SIM_2_HANDLE.getComponentName(),
+                SIM_2_HANDLE.getUserHandle(), service);
 
         UserManager um = mContext.getSystemService(UserManager.class);
-        when(um.isUserAdmin(anyInt())).thenReturn(true);
-        when(um.isQuietModeEnabled(eq(WORK_HANDLE.getUserHandle()))).thenReturn(true);
-        when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(eq(WORK_HANDLE)))
-                .thenReturn(WORK_ACCOUNT);
+        when(um.isQuietModeEnabled(eq(SIM_2_HANDLE.getUserHandle()))).thenReturn(true);
         Call newCall = mCallsManager.processIncomingCallIntent(
-                WORK_HANDLE, new Bundle(), false);
+                SIM_2_HANDLE, new Bundle(), false);
 
         verify(service, timeout(TEST_TIMEOUT)).createConnectionFailed(any());
         assertFalse(newCall.isInECBM());
@@ -2652,7 +2650,9 @@ public class CallsManagerTest extends TelecomTestCase {
         when(mEmergencyCallHelper.isLastOutgoingEmergencyCallPAH(eq(WORK_HANDLE)))
                 .thenReturn(true);
         UserManager um = mContext.getSystemService(UserManager.class);
-        when(um.isUserAdmin(anyInt())).thenReturn(false);
+        UserHandle newUser = new UserHandle(11);
+        when(mCallsManager.getCurrentUserHandle()).thenReturn(newUser);
+        when(um.isUserAdmin(eq(newUser.getIdentifier()))).thenReturn(false);
         when(um.isQuietModeEnabled(eq(WORK_HANDLE.getUserHandle()))).thenReturn(false);
         when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(eq(WORK_HANDLE)))
                 .thenReturn(WORK_ACCOUNT);
@@ -3429,8 +3429,7 @@ public class CallsManagerTest extends TelecomTestCase {
                 false /* shouldAttachToExistingConnection*/,
                 false /* isConference */,
                 mClockProxy,
-                mToastFactory,
-                mFeatureFlags);
+                mToastFactory);
         ongoingCall.setState(initialState, "just cuz");
         if (targetPhoneAccount == SELF_MANAGED_HANDLE
                 || targetPhoneAccount == SELF_MANAGED_2_HANDLE) {
