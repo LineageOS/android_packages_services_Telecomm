@@ -840,6 +840,9 @@ public class CallAudioRouteStateMachine extends StateMachine implements CallAudi
             if (mFeatureFlags.callAudioCommunicationDeviceRefactor()) {
                 setBluetoothOn(null);
             }
+            if (mFeatureFlags.updateRouteMaskWhenBtConnected()) {
+                mAvailableRoutes |= ROUTE_BLUETOOTH;
+            }
             CallAudioState newState = new CallAudioState(mIsMuted, ROUTE_BLUETOOTH,
                     mAvailableRoutes, mBluetoothRouteManager.getBluetoothAudioConnectedDevice(),
                     mBluetoothRouteManager.getConnectedDevices());
