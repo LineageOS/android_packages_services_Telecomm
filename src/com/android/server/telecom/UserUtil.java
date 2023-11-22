@@ -24,8 +24,11 @@ import android.net.Uri;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.telecom.Log;
+import android.telecom.PhoneAccount;
+import android.telecom.PhoneAccountHandle;
 
 import com.android.server.telecom.components.ErrorDialogActivity;
+import com.android.server.telecom.flags.FeatureFlags;
 
 public final class UserUtil {
 
@@ -98,5 +101,38 @@ public final class UserUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * Gets the associated user for the given call. Note: this is applicable to all calls except
+     * outgoing calls as the associated user is already based off of the user placing the
+     * call.
+     *
+     * @param phoneAccountRegistrar
+     * @param currentUser Current user profile (this can either be the admin or a secondary/guest
+     *                    user). Note that work profile users fall under the admin user.
+     * @param targetPhoneAccount The phone account to retrieve the {@link UserHandle} from.
+     * @return current user if it isn't the admin or if the work profile is paused for the target
+     * phone account handle user, otherwise return the target phone account handle user. If the
+     * flag is disabled, return the legacy {@link UserHandle}.
+     */
+    public static UserHandle getAssociatedUserForCall(boolean isAssociatedUserFlagEnabled,
+            PhoneAccountRegistrar phoneAccountRegistrar, UserHandle currentUser,
+            PhoneAccountHandle targetPhoneAccount) {
+        if (!isAssociatedUserFlagEnabled) {
+            return targetPhoneAccount.getUserHandle();
+        }
+        // For multi-user phone accounts, associate the call with the profile receiving/placing
+        // the call. For SIM accounts (that are assigned to specific users), the user association
+        // will be placed on the target phone account handle user.
+        PhoneAccount account = phoneAccountRegistrar.getPhoneAccountUnchecked(targetPhoneAccount);
+        if (account != null) {
+            return account.hasCapabilities(PhoneAccount.CAPABILITY_MULTI_USER)
+                    ? currentUser
+                    : targetPhoneAccount.getUserHandle();
+        }
+        // If target phone account handle is null or account cannot be found,
+        // return the current user.
+        return currentUser;
     }
 }

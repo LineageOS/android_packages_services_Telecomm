@@ -82,6 +82,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Binds to {@link IInCallService} and provides the service to {@link CallsManager} through which it
@@ -1406,17 +1407,31 @@ public class InCallController extends CallsManagerListenerBase implements
     @Override
     public void onCallRemoved(Call call) {
         Log.i(this, "onCallRemoved: %s", call);
-        if (mCallsManager.getCalls().isEmpty()) {
+        // Instead of checking if there are no active calls, we should check if there any calls with
+        // the same associated user returned from getUserFromCall. For instance, it's possible to
+        // have calls coexist on the personal profile and work profile, in which case, we would only
+        // remove the ICS connection for the user associated with the call to be disconnected.
+        UserHandle userFromCall = getUserFromCall(call);
+        Stream<Call> callsAssociatedWithUserFromCall = mCallsManager.getCalls().stream()
+                .filter((c) -> getUserFromCall(c).equals(userFromCall));
+        boolean isCallCountZero = mFeatureFlags.workProfileAssociatedUser()
+                ? callsAssociatedWithUserFromCall.count() == 0
+                : mCallsManager.getCalls().isEmpty();
+        if (isCallCountZero) {
             /** Let's add a 2 second delay before we send unbind to the services to hopefully
              *  give them enough time to process all the pending messages.
              */
             mHandler.postDelayed(new Runnable("ICC.oCR", mLock) {
                 @Override
                 public void loggedRun() {
-                    // Check again to make sure there are no active calls.
-                    if (mCallsManager.getCalls().isEmpty()) {
-                        unbindFromServices(getUserFromCall(call));
-
+                    // Check again to make sure there are no active calls for the associated user.
+                    Stream<Call> callsAssociatedWithUserFromCall = mCallsManager.getCalls().stream()
+                            .filter((c) -> getUserFromCall(c).equals(userFromCall));
+                    boolean isCallCountZero = mFeatureFlags.workProfileAssociatedUser()
+                            ? callsAssociatedWithUserFromCall.count() == 0
+                            : mCallsManager.getCalls().isEmpty();
+                    if (isCallCountZero) {
+                        unbindFromServices(userFromCall);
                         mEmergencyCallHelper.maybeRevokeTemporaryLocationPermission();
                     }
                 }
@@ -1832,6 +1847,7 @@ public class InCallController extends CallsManagerListenerBase implements
      * Unbinds an existing bound connection to the in-call app.
      */
     public void unbindFromServices(UserHandle userHandle) {
+        Log.i(this, "Unbinding from services for user %s", userHandle);
         try {
             mContext.unregisterReceiver(mPackageChangedReceiver);
         } catch (IllegalArgumentException e) {
@@ -2320,7 +2336,9 @@ public class InCallController extends CallsManagerListenerBase implements
         }
 
         // Upon successful connection, send the state of the world to the service.
-        List<Call> calls = orderCallsWithChildrenFirst(mCallsManager.getCalls());
+        List<Call> calls = orderCallsWithChildrenFirst(mCallsManager.getCalls().stream().filter(
+                call -> getUserFromCall(call).equals(userHandle))
+                .collect(Collectors.toUnmodifiableList()));
         Log.i(this, "Adding %s calls to InCallService after onConnected: %s, including external " +
                 "calls", calls.size(), info.getComponentName());
         int numCallsSent = 0;
@@ -2463,6 +2481,9 @@ public class InCallController extends CallsManagerListenerBase implements
                 }
             }
             Log.i(this, "Components updated: %s", componentsUpdated);
+        } else {
+            Log.i(this,
+                    "Unable to update call. InCallService not found for user: %s", userFromCall);
         }
     }
 
@@ -2901,8 +2922,11 @@ public class InCallController extends CallsManagerListenerBase implements
         } else {
             UserHandle userFromCall = call.getAssociatedUser();
             UserManager userManager = mContext.getSystemService(UserManager.class);
-            // Emergency call should never be blocked, so if the user associated with call is in
-            // quite mode, use the primary user for the emergency call.
+            // Emergency call should never be blocked, so if the user associated with the target
+            // phone account handle user is in quiet mode, use the current user for the ecall.
+            // Note, that this only applies to incoming calls that are received on assigned
+            // sims (i.e. work sim), where the associated user would be the target phone account
+            // handle user.
             if ((call.isEmergencyCall() || call.isInECBM())
                     && (userManager.isQuietModeEnabled(userFromCall)
                     // We should also account for secondary/guest users where the profile may not
