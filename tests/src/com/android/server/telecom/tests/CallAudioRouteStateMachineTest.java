@@ -1238,6 +1238,37 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
         assertEquals(expectedState, stateMachine.getCurrentCallAudioState());
     }
 
+    @SmallTest
+    @Test
+    public void testSupportRouteMaskUpdateWhenBtAudioConnected() {
+        when(mFeatureFlags.updateRouteMaskWhenBtConnected()).thenReturn(true);
+        CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
+                mContext,
+                mockCallsManager,
+                mockBluetoothRouteManager,
+                mockWiredHeadsetManager,
+                mockStatusBarNotifier,
+                mAudioServiceFactory,
+                CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED,
+                mThreadHandler.getLooper(),
+                Runnable::run /** do async stuff sync for test purposes */,
+                mCommunicationDeviceTracker,
+                mFeatureFlags);
+        stateMachine.setCallAudioManager(mockCallAudioManager);
+
+        CallAudioState initState = new CallAudioState(false,
+                CallAudioState.ROUTE_EARPIECE,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER);
+        stateMachine.initialize(initState);
+
+        stateMachine.sendMessageWithSessionInfo(CallAudioRouteStateMachine.BT_AUDIO_CONNECTED);
+        waitForHandlerAction(stateMachine.getAdapterHandler(), TEST_TIMEOUT);
+        CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_BLUETOOTH,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER
+                        | CallAudioState.ROUTE_BLUETOOTH);
+        assertEquals(expectedState, stateMachine.getCurrentCallAudioState());
+    }
+
     private void initializationTestHelper(CallAudioState expectedState,
             int earpieceControl) {
         when(mockWiredHeadsetManager.isPluggedIn()).thenReturn(
