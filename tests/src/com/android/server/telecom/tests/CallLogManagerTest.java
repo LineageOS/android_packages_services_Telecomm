@@ -967,6 +967,56 @@ public class CallLogManagerTest extends TelecomTestCase {
 
     @SmallTest
     @Test
+    public void testDoNotLogCallExtra() {
+        when(mFeatureFlags.telecomSkipLogBasedOnExtra()).thenReturn(true);
+        Call fakeCall = makeFakeCall(
+                DisconnectCause.LOCAL, // disconnectCauseCode
+                false, // isConference
+                true, // isIncoming
+                1L, // creationTimeMillis
+                1000L, // ageMillis
+                TEL_PHONEHANDLE, // callHandle
+                mDefaultAccountHandle, // phoneAccountHandle
+                NO_VIDEO_STATE, // callVideoState
+                POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
+                UserHandle.of(CURRENT_USER_ID)
+        );
+        Bundle extras = new Bundle();
+        extras.putBoolean(TelecomManager.EXTRA_DO_NOT_LOG_CALL, true);
+        when(fakeCall.getExtras()).thenReturn(extras);
+
+        assertFalse(mCallLogManager.shouldLogDisconnectedCall(fakeCall, CallState.DISCONNECTED,
+                false /* isCanceled */));
+    }
+
+    @SmallTest
+    @Test
+    public void testIgnoresDoNotLogCallExtra_whenFlagDisabled() {
+        when(mFeatureFlags.telecomSkipLogBasedOnExtra()).thenReturn(false);
+        Call fakeCall = makeFakeCall(
+                DisconnectCause.LOCAL, // disconnectCauseCode
+                false, // isConference
+                true, // isIncoming
+                1L, // creationTimeMillis
+                1000L, // ageMillis
+                TEL_PHONEHANDLE, // callHandle
+                mDefaultAccountHandle, // phoneAccountHandle
+                NO_VIDEO_STATE, // callVideoState
+                POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
+                UserHandle.of(CURRENT_USER_ID)
+        );
+        Bundle extras = new Bundle();
+        extras.putBoolean(TelecomManager.EXTRA_DO_NOT_LOG_CALL, true);
+        when(fakeCall.getExtras()).thenReturn(extras);
+
+        assertTrue(mCallLogManager.shouldLogDisconnectedCall(fakeCall, CallState.DISCONNECTED,
+                false /* isCanceled */));
+    }
+
+    @SmallTest
+    @Test
     public void testDoNotLogConferenceWithChildren() {
         Call fakeCall = makeFakeCall(
                 DisconnectCause.LOCAL, // disconnectCauseCode

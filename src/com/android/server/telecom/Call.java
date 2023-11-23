@@ -23,6 +23,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -324,6 +325,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 }
             };
 
+    private final boolean mIsModifyStatePermissionGranted;
     /**
      * One of CALL_DIRECTION_INCOMING, CALL_DIRECTION_OUTGOING, or CALL_DIRECTION_UNKNOWN
      */
@@ -873,6 +875,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         mStartRingTime = 0;
 
         mCallStateChangedAtomWriter.setExistingCallCount(callsManager.getCalls().size());
+        mIsModifyStatePermissionGranted =
+                isModifyPhoneStatePermissionGranted(getDelegatePhoneAccountHandle());
     }
 
     /**
@@ -3098,6 +3102,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                     Connection.EXTRA_REMOTE_PHONE_ACCOUNT_HANDLE));
         }
 
+        if (mExtras.containsKey(TelecomManager.EXTRA_DO_NOT_LOG_CALL)) {
+            if (source != SOURCE_CONNECTION_SERVICE || !mIsModifyStatePermissionGranted) {
+                mExtras.remove(TelecomManager.EXTRA_DO_NOT_LOG_CALL);
+            }
+        }
+
         // If the change originated from an InCallService, notify the connection service.
         if (source == SOURCE_INCALL_SERVICE) {
             Log.addEvent(this, LogUtils.Events.ICS_EXTRAS_CHANGED);
@@ -3110,6 +3120,15 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                         "putExtras failed due to null CS callId=%s", getId());
             }
         }
+    }
+
+    private boolean isModifyPhoneStatePermissionGranted(PhoneAccountHandle phoneAccountHandle) {
+        if (phoneAccountHandle == null) {
+            return false;
+        }
+        String packageName = phoneAccountHandle.getComponentName().getPackageName();
+        return PackageManager.PERMISSION_GRANTED == mContext.getPackageManager().checkPermission(
+                android.Manifest.permission.MODIFY_PHONE_STATE, packageName);
     }
 
     /**
