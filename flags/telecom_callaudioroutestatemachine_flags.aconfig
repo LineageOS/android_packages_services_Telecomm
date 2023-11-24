@@ -50,6 +50,13 @@ flag {
 }
 
 flag {
+  name: "reset_mute_when_entering_quiescent_bt_route"
+  namespace: "telecom"
+  description: "Reset mute state when entering quiescent bluetooth route."
+  bug: "311313250"
+}
+
+flag {
   name: "update_route_mask_when_bt_connected"
   namespace: "telecom"
   description: "Update supported route mask when Bluetooth devices audio connected."
