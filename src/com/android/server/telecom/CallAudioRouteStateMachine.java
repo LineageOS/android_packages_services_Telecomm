@@ -1844,7 +1844,7 @@ public class CallAudioRouteStateMachine extends StateMachine implements CallAudi
                         AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
             }
         } else {
-            processLegacySpeakerCommunicationDevice(on);
+            speakerOn = processLegacySpeakerCommunicationDevice(on);
         }
         mStatusBarNotifier.notifySpeakerphone(hasAnyCalls && speakerOn);
     }
