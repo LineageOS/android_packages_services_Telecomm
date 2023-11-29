@@ -182,9 +182,9 @@ public class RingerTest extends TelecomTestCase {
         when(mFeatureFlags.useDeviceProvidedSerializedRingerVibration()).thenReturn(true);
         mockVibrationResourceValues(
                 """
-                    <vibration>
+                    <vibration-effect>
                         <predefined-effect name="click"/>
-                    </vibration>
+                    </vibration-effect>
                 """,
                 /* useSimpleVibration= */ true);
         when(mockVibratorInfo.areVibrationFeaturesSupported(any())).thenReturn(true);
@@ -201,7 +201,7 @@ public class RingerTest extends TelecomTestCase {
         when(mFeatureFlags.useDeviceProvidedSerializedRingerVibration()).thenReturn(false);
         mockVibrationResourceValues(
                 """
-                    <vibration>
+                    <vibration-effect>
                         <waveform-effect>
                             <waveform-entry durationMs="100" amplitude="0"/>
                             <repeating>
@@ -209,7 +209,7 @@ public class RingerTest extends TelecomTestCase {
                                 <waveform-entry durationMs="700" amplitude="0"/>
                             </repeating>
                         </waveform-effect>
-                    </vibration>
+                    </vibration-effect>
                 """,
                 /* useSimpleVibration= */ false);
         when(mockVibratorInfo.areVibrationFeaturesSupported(any())).thenReturn(true);
@@ -225,7 +225,7 @@ public class RingerTest extends TelecomTestCase {
         when(mFeatureFlags.useDeviceProvidedSerializedRingerVibration()).thenReturn(true);
         mockVibrationResourceValues(
                 """
-                    <vibration>
+                    <vibration-effect>
                         <waveform-effect>
                             <waveform-entry durationMs="100" amplitude="0"/>
                             <repeating>
@@ -233,7 +233,7 @@ public class RingerTest extends TelecomTestCase {
                                 <waveform-entry durationMs="700" amplitude="0"/>
                             </repeating>
                         </waveform-effect>
-                    </vibration>
+                    </vibration-effect>
                 """,
                 /* useSimpleVibration= */ false);
         when(mockVibratorInfo.areVibrationFeaturesSupported(any())).thenReturn(true);
@@ -251,9 +251,9 @@ public class RingerTest extends TelecomTestCase {
         when(mFeatureFlags.useDeviceProvidedSerializedRingerVibration()).thenReturn(true);
         mockVibrationResourceValues(
                 """
-                    <vibration>
+                    <vibration-effect>
                         <predefined-effect name="click"/>
-                    </vibration>
+                    </vibration-effect>
                 """,
                 /* useSimpleVibration= */ false);
         when(mockVibratorInfo.areVibrationFeaturesSupported(any())).thenReturn(true);
@@ -280,9 +280,9 @@ public class RingerTest extends TelecomTestCase {
         when(mFeatureFlags.useDeviceProvidedSerializedRingerVibration()).thenReturn(true);
         mockVibrationResourceValues(
                 """
-                    <vibration>
+                    <vibration-effect>
                         <predefined-effect name="click"/>
-                    </vibration>
+                    </vibration-effect>
                 """,
                 /* useSimpleVibration= */ false);
         when(mockVibratorInfo.areVibrationFeaturesSupported(
