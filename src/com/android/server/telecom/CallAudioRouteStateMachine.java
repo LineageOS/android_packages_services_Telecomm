@@ -947,7 +947,7 @@ public class CallAudioRouteStateMachine extends StateMachine implements CallAudi
                             mBluetoothRouteManager.disconnectAudio();
                         } else {
                             mBluetoothRouteManager.disconnectAudio();
-                            transitionTo(mQuiescentBluetoothRoute);
+                            reinitialize();
                         }
                         mCallAudioManager.notifyAudioOperationsComplete();
                     } else if (msg.arg1 == RINGING_FOCUS
