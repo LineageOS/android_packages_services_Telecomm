@@ -740,9 +740,7 @@ public class BluetoothDeviceManager {
     }
 
     public boolean isInbandRingingEnabled() {
-        // Get the inband ringing enabled status of expected BT device to route call audio instead
-        // of using the address of currently connected device.
-        BluetoothDevice activeDevice = mBluetoothRouteManager.getMostRecentlyReportedActiveDevice();
+        BluetoothDevice activeDevice = mBluetoothRouteManager.getBluetoothAudioConnectedDevice();
         Log.i(this, "isInbandRingingEnabled: activeDevice: " + activeDevice);
         if (mBluetoothRouteManager.isCachedLeAudioDevice(activeDevice)) {
             if (mBluetoothLeAudioService == null) {
