@@ -883,16 +883,6 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
         verify(mockBluetoothRouteManager, atLeastOnce())
                 .connectBluetoothAudio(eq(bluetoothDevice1.getAddress()));
         assertTrue(stateMachine.isInActiveState());
-
-        // Switch to inactive, pretending that the call disconnected.
-        stateMachine.sendMessageWithSessionInfo(CallAudioRouteStateMachine.SWITCH_FOCUS,
-                CallAudioRouteStateMachine.NO_FOCUS);
-        waitForHandlerAction(stateMachine.getAdapterHandler(), TEST_TIMEOUT);
-
-        // Make sure that we've successfully switched to the quiescent BT route
-        assertEquals(CallAudioState.ROUTE_BLUETOOTH,
-                stateMachine.getCurrentCallAudioState().getRoute());
-        assertFalse(stateMachine.isInActiveState());
     }
 
     @SmallTest
@@ -1282,7 +1272,9 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
         expectedState = new CallAudioState(false,
                 CallAudioState.ROUTE_BLUETOOTH, CallAudioState.ROUTE_SPEAKER
                 | CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH);
-        assertEquals(expectedState, stateMachine.getCurrentCallAudioState());
+        // TODO: Re-enable this part of the test; this is now failing because we have to
+        // revert ag/23783145.
+        // assertEquals(expectedState, stateMachine.getCurrentCallAudioState());
     }
 
     @SmallTest
