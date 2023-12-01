@@ -425,7 +425,6 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
         List<AudioDeviceInfo> devices = new ArrayList<>();
         devices.add(mockAudioDeviceInfo);
 
-        when(mockAudioManager.getCommunicationDevice()).thenReturn(mSpeakerInfo);
         when(mockAudioManager.getAvailableCommunicationDevices())
                 .thenReturn(devices);
         when(mockAudioManager.setCommunicationDevice(eq(mockAudioDeviceInfo)))
@@ -461,7 +460,6 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
         List<AudioDeviceInfo> devices = new ArrayList<>();
         devices.add(mockAudioDeviceInfo);
 
-        when(mockAudioManager.getCommunicationDevice()).thenReturn(mSpeakerInfo);
         when(mockAudioManager.getAvailableCommunicationDevices())
                         .thenReturn(devices);
         when(mockAudioManager.setCommunicationDevice(mockAudioDeviceInfo))
@@ -781,10 +779,10 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
             assertFalse(mCommunicationDeviceTracker.isAudioDeviceSetForType(device_type));
         } else {
             if (device_type == AudioDeviceInfo.TYPE_BLE_HEADSET) {
-                mBluetoothDeviceManager.clearLeAudioOrSpeakerCommunicationDevice();
+                mBluetoothDeviceManager.clearLeAudioCommunicationDevice();
                 assertFalse(mBluetoothDeviceManager.isLeAudioCommunicationDevice());
             } else {
-                mBluetoothDeviceManager.clearHearingAidOrSpeakerCommunicationDevice();
+                mBluetoothDeviceManager.clearHearingAidCommunicationDevice();
                 assertFalse(mBluetoothDeviceManager.isHearingAidSetAsCommunicationDevice());
             }
         }

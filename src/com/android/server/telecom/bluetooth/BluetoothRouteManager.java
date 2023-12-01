@@ -640,7 +640,7 @@ public class BluetoothRouteManager extends StateMachine {
                     mCommunicationDeviceTracker.clearCommunicationDevice(
                             AudioDeviceInfo.TYPE_BLE_HEADSET);
                 } else {
-                    mDeviceManager.clearLeAudioOrSpeakerCommunicationDevice();
+                    mDeviceManager.clearLeAudioCommunicationDevice();
                 }
             }
         } else if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_HEARING_AID) {
@@ -650,7 +650,7 @@ public class BluetoothRouteManager extends StateMachine {
                     mCommunicationDeviceTracker.clearCommunicationDevice(
                             AudioDeviceInfo.TYPE_HEARING_AID);
                 } else {
-                    mDeviceManager.clearHearingAidOrSpeakerCommunicationDevice();
+                    mDeviceManager.clearHearingAidCommunicationDevice();
                 }
             }
         } else if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_HEADSET) {
