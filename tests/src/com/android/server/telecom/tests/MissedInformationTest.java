@@ -361,7 +361,7 @@ public class MissedInformationTest extends TelecomSystemTest {
         setUpIncomingCall();
         doReturn(mNotificationManager).when(mSpyContext)
                 .getSystemService(Context.NOTIFICATION_SERVICE);
-        doReturn(false).when(mNotificationManager).matchesCallFilter(any(Uri.class));
+        doReturn(false).when(mNotificationManager).matchesCallFilter(any(Bundle.class));
         doReturn(false).when(mIncomingCall).wasDndCheckComputedForCall();
         mCallsManager.getRinger().setNotificationManager(mNotificationManager);
 
@@ -372,7 +372,7 @@ public class MissedInformationTest extends TelecomSystemTest {
 
         // Wait for ringer attributes build completed
         verify(mNotificationManager, timeout(TEST_TIMEOUT_MILLIS))
-                .matchesCallFilter(any(Uri.class));
+                .matchesCallFilter(any(Bundle.class));
         mCallsManager.getRinger().waitForAttributesCompletion();
 
         mCallsManager.markCallAsDisconnected(mIncomingCall,

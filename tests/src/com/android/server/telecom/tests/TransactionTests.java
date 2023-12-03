@@ -51,6 +51,7 @@ import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.ClockProxy;
 import com.android.server.telecom.ConnectionServiceWrapper;
+import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.PhoneNumberUtilsAdapter;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.ui.ToastFactory;
@@ -272,6 +273,7 @@ public class TransactionTests extends TelecomTestCase {
     @Test
     public void testCallStateChangeTimesOut()
             throws ExecutionException, InterruptedException, TimeoutException {
+        when(mFeatureFlags.transactionalCsVerifier()).thenReturn(true);
         VerifyCallStateChangeTransaction t = new VerifyCallStateChangeTransaction(mCallsManager,
                 mMockCall1, CallState.ON_HOLD, true);
         // WHEN
@@ -300,6 +302,7 @@ public class TransactionTests extends TelecomTestCase {
     @Test
     public void testCallStateIsSuccessfullyChanged()
             throws ExecutionException, InterruptedException, TimeoutException {
+        when(mFeatureFlags.transactionalCsVerifier()).thenReturn(true);
         VerifyCallStateChangeTransaction t = new VerifyCallStateChangeTransaction(mCallsManager,
                 mMockCall1, CallState.ON_HOLD, true);
         // WHEN

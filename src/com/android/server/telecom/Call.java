@@ -849,7 +849,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             ClockProxy clockProxy,
             ToastFactory toastFactory,
             FeatureFlags featureFlags) {
-
         mFlags = featureFlags;
         mId = callId;
         mConnectionId = callId;
@@ -1370,8 +1369,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 Log.addEvent(this, event, stringData);
             }
 
-            for (CallStateListener listener : mCallStateListeners) {
-                listener.onCallStateChanged(newState);
+            if (mFlags.transactionalCsVerifier()) {
+                for (CallStateListener listener : mCallStateListeners) {
+                    listener.onCallStateChanged(newState);
+                }
             }
 
             mCallStateChangedAtomWriter
@@ -2957,7 +2958,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             if (mTransactionalService != null) {
                 mTransactionalService.onSetInactive(this);
             } else if (mConnectionService != null) {
-                awaitCallStateChangeAndMaybeDisconnectCall(CallState.ON_HOLD, isSelfManaged(), "hold");
+                if (mFlags.transactionalCsVerifier()) {
+                    awaitCallStateChangeAndMaybeDisconnectCall(CallState.ON_HOLD, isSelfManaged(),
+                            "hold");
+                }
                 mConnectionService.hold(this);
             } else {
                 Log.e(this, new NullPointerException(),
