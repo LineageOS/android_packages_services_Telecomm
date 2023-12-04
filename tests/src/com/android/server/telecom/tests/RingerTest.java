@@ -133,7 +133,7 @@ public class RingerTest extends TelecomTestCase {
         mContext = spy(mComponentContextFixture.getTestDouble().getApplicationContext());
         when(mFeatureFlags.telecomResolveHiddenDependencies()).thenReturn(true);
         doReturn(URI_VIBRATION_EFFECT).when(spyVibrationEffectProxy).get(any(), any());
-        when(mockPlayerFactory.createPlayer(anyInt())).thenReturn(mockTonePlayer);
+        when(mockPlayerFactory.createPlayer(any(Call.class), anyInt())).thenReturn(mockTonePlayer);
         mockAudioManager = mContext.getSystemService(AudioManager.class);
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_NORMAL);
         when(mockVibrator.getInfo()).thenReturn(mockVibratorInfo);

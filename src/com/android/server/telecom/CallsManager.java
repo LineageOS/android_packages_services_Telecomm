@@ -212,7 +212,7 @@ public class CallsManager extends Call.ListenerBase
         void onHoldToneRequested(Call call);
         void onExternalCallChanged(Call call, boolean isExternalCall);
         void onCallStreamingStateChanged(Call call, boolean isStreaming);
-        void onDisconnectedTonePlaying(boolean isTonePlaying);
+        void onDisconnectedTonePlaying(Call call, boolean isTonePlaying);
         void onConnectionTimeChanged(Call call);
         void onConferenceStateChanged(Call call, boolean isConference);
         void onCdmaConferenceSwap(Call call);
@@ -3612,14 +3612,15 @@ public class CallsManager extends Call.ListenerBase
      * Called when disconnect tone is started or stopped, including any InCallTone
      * after disconnected call.
      *
+     * @param call
      * @param isTonePlaying true if the disconnected tone is started, otherwise the disconnected
-     * tone is stopped.
+     *                      tone is stopped.
      */
     @VisibleForTesting
-    public void onDisconnectedTonePlaying(boolean isTonePlaying) {
+    public void onDisconnectedTonePlaying(Call call, boolean isTonePlaying) {
         Log.v(this, "onDisconnectedTonePlaying, %s", isTonePlaying ? "started" : "stopped");
         for (CallsManagerListener listener : mListeners) {
-            listener.onDisconnectedTonePlaying(isTonePlaying);
+            listener.onDisconnectedTonePlaying(call, isTonePlaying);
         }
     }
 

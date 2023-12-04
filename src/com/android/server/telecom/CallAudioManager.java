@@ -307,7 +307,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
                 VideoProfile.isReceptionEnabled(newVideoState);
 
         if (isUpgradeRequest) {
-            mPlayerFactory.createPlayer(InCallTonePlayer.TONE_VIDEO_UPGRADE).startTone();
+            mPlayerFactory.createPlayer(call, InCallTonePlayer.TONE_VIDEO_UPGRADE).startTone();
         }
     }
 
@@ -316,7 +316,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
             // We only play tones for foreground calls.
             return;
         }
-        mPlayerFactory.createPlayer(InCallTonePlayer.TONE_RTT_REQUEST).startTone();
+        mPlayerFactory.createPlayer(call, InCallTonePlayer.TONE_RTT_REQUEST).startTone();
     }
 
     /**
@@ -329,7 +329,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
      */
     @Override
     public void onHoldToneRequested(Call call) {
-        maybePlayHoldTone();
+        maybePlayHoldTone(call);
     }
 
     @Override
@@ -628,7 +628,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
     }
 
     @VisibleForTesting
-    public void setIsTonePlaying(boolean isTonePlaying) {
+    public void setIsTonePlaying(Call call, boolean isTonePlaying) {
         Log.i(this, "setIsTonePlaying; isTonePlaying=%b", isTonePlaying);
         mIsTonePlaying = isTonePlaying;
         mCallAudioModeStateMachine.sendMessageWithArgs(
@@ -637,7 +637,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
                 makeArgsForModeStateMachine());
 
         if (!isTonePlaying && mIsDisconnectedTonePlaying) {
-            mCallsManager.onDisconnectedTonePlaying(false);
+            mCallsManager.onDisconnectedTonePlaying(call, false);
             mIsDisconnectedTonePlaying = false;
         }
     }
@@ -823,7 +823,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
                         makeArgsForModeStateMachine());
             }
             mDtmfLocalTonePlayer.onForegroundCallChanged(oldForegroundCall, mForegroundCall);
-            maybePlayHoldTone();
+            maybePlayHoldTone(oldForegroundCall);
         }
     }
 
@@ -926,9 +926,9 @@ public class CallAudioManager extends CallsManagerListenerBase {
             Log.d(this, "Found a disconnected call with tone to play %d.", toneToPlay);
 
             if (toneToPlay != InCallTonePlayer.TONE_INVALID) {
-                boolean didToneStart = mPlayerFactory.createPlayer(toneToPlay).startTone();
+                boolean didToneStart = mPlayerFactory.createPlayer(call, toneToPlay).startTone();
                 if (didToneStart) {
-                    mCallsManager.onDisconnectedTonePlaying(true);
+                    mCallsManager.onDisconnectedTonePlaying(call, true);
                     mIsDisconnectedTonePlaying = true;
                 }
             }
@@ -948,10 +948,11 @@ public class CallAudioManager extends CallsManagerListenerBase {
     /**
      * Determines if a hold tone should be played and then starts or stops it accordingly.
      */
-    private void maybePlayHoldTone() {
+    private void maybePlayHoldTone(Call call) {
         if (shouldPlayHoldTone()) {
             if (mHoldTonePlayer == null) {
-                mHoldTonePlayer = mPlayerFactory.createPlayer(InCallTonePlayer.TONE_CALL_WAITING);
+                mHoldTonePlayer = mPlayerFactory.createPlayer(call,
+                        InCallTonePlayer.TONE_CALL_WAITING);
                 mHoldTonePlayer.startTone();
             }
         } else {
