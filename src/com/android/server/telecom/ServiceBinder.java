@@ -29,6 +29,7 @@ import android.util.ArraySet;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.Collections;
 import java.util.Set;
@@ -240,6 +241,8 @@ public abstract class ServiceBinder {
      * Abbreviated form of the package name from {@link #mComponentName}; used for session logging.
      */
     protected final String mPackageAbbreviation;
+    private final FeatureFlags mFlags;
+
 
     /** The set of callbacks waiting for notification of the binding's success or failure. */
     private final Set<BindCallback> mCallbacks = new ArraySet<>();
@@ -282,7 +285,7 @@ public abstract class ServiceBinder {
      * @param userHandle The {@link UserHandle} to use for binding.
      */
     protected ServiceBinder(String serviceAction, ComponentName componentName, Context context,
-            TelecomSystem.SyncRoot lock, UserHandle userHandle) {
+            TelecomSystem.SyncRoot lock, UserHandle userHandle, FeatureFlags featureFlags) {
         Preconditions.checkState(!TextUtils.isEmpty(serviceAction));
         Preconditions.checkNotNull(componentName);
 
@@ -292,6 +295,7 @@ public abstract class ServiceBinder {
         mComponentName = componentName;
         mPackageAbbreviation = Log.getPackageAbbreviation(componentName);
         mUserHandle = userHandle;
+        mFlags = featureFlags;
     }
 
     final UserHandle getUserHandle() {
@@ -305,16 +309,37 @@ public abstract class ServiceBinder {
     }
 
     final void decrementAssociatedCallCount() {
-        decrementAssociatedCallCount(false /*isSuppressingUnbind*/);
+        if (mFlags.updatedRcsCallCountTracking()) {
+            decrementAssociatedCallCountUpdated();
+        } else {
+            decrementAssociatedCallCount(false /*isSuppressingUnbind*/);
+        }
     }
 
     final void decrementAssociatedCallCount(boolean isSuppressingUnbind) {
+        // This is the legacy method - will be removed after the Flags.updatedRcsCallCountTracking
+        // mendel study completes.
         if (mAssociatedCallCount > 0) {
             mAssociatedCallCount--;
             Log.v(this, "Call count decrement %d, %s", mAssociatedCallCount,
                     mComponentName.flattenToShortString());
 
             if (!isSuppressingUnbind && mAssociatedCallCount == 0) {
+                unbind();
+            }
+        } else {
+            Log.wtf(this, "%s: ignoring a request to decrement mAssociatedCallCount below zero",
+                    mComponentName.getClassName());
+        }
+    }
+
+    final void decrementAssociatedCallCountUpdated() {
+        if (mAssociatedCallCount > 0) {
+            mAssociatedCallCount--;
+            Log.i(this, "Call count decrement %d, %s", mAssociatedCallCount,
+                    mComponentName.flattenToShortString());
+
+            if (mAssociatedCallCount == 0) {
                 unbind();
             }
         } else {
