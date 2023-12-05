@@ -61,6 +61,7 @@
     </style>
 
     <style name="BlockedNumbersButton" parent="BlockedNumbersTextPrimary2">
+        <item name="android:textColor">#202124</item>
     </style>
 
     <style name="BlockedNumbersTextHead1"
