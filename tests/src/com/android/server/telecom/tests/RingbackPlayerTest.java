@@ -17,6 +17,7 @@
 package com.android.server.telecom.tests;
 
 import static org.junit.Assert.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -49,7 +50,7 @@ public class RingbackPlayerTest extends TelecomTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        when(mFactory.createPlayer(anyInt())).thenReturn(mTonePlayer);
+        when(mFactory.createPlayer(any(Call.class), anyInt())).thenReturn(mTonePlayer);
         mRingbackPlayer = new RingbackPlayer(mFactory);
     }
 

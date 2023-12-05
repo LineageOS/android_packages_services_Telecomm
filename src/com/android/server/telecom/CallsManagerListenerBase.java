@@ -16,10 +16,10 @@
 
 package com.android.server.telecom;
 
-import android.telecom.AudioState;
 import android.telecom.CallAudioState;
 import android.telecom.CallEndpoint;
 import android.telecom.VideoProfile;
+
 import java.util.Set;
 
 /**
@@ -112,7 +112,7 @@ public abstract class CallsManagerListenerBase implements CallsManager.CallsMana
     }
 
     @Override
-    public void onDisconnectedTonePlaying(boolean isTonePlaying) {
+    public void onDisconnectedTonePlaying(Call call, boolean isTonePlaying) {
     }
 
     @Override

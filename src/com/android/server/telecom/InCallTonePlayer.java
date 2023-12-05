@@ -69,8 +69,8 @@ public class InCallTonePlayer extends Thread {
             mCallAudioManager = callAudioManager;
         }
 
-        public InCallTonePlayer createPlayer(int tone) {
-            return new InCallTonePlayer(tone, mCallAudioManager,
+        public InCallTonePlayer createPlayer(Call call, int tone) {
+            return new InCallTonePlayer(call, tone, mCallAudioManager,
                     mCallAudioRoutePeripheralAdapter, mLock, mToneGeneratorFactory,
                     mMediaPlayerFactory, mAudioManagerAdapter);
         }
@@ -212,6 +212,7 @@ public class InCallTonePlayer extends Thread {
     private Session mSession;
     private final Object mSessionLock = new Object();
 
+    private final Call mCall;
     private final ToneGeneratorFactory mToneGenerator;
     private final MediaPlayerFactory mMediaPlayerFactory;
     private final AudioManagerAdapter mAudioManagerAdapter;
@@ -228,6 +229,7 @@ public class InCallTonePlayer extends Thread {
      * @param toneId ID of the tone to play, see TONE_* constants.
      */
     private InCallTonePlayer(
+            Call call,
             int toneId,
             CallAudioManager callAudioManager,
             CallAudioRoutePeripheralAdapter callAudioRoutePeripheralAdapter,
@@ -235,6 +237,7 @@ public class InCallTonePlayer extends Thread {
             ToneGeneratorFactory toneGeneratorFactory,
             MediaPlayerFactory mediaPlayerFactor,
             AudioManagerAdapter audioManagerAdapter) {
+        mCall = call;
         mState = STATE_OFF;
         mToneId = toneId;
         mCallAudioManager = callAudioManager;
@@ -476,7 +479,7 @@ public class InCallTonePlayer extends Thread {
         }
 
         if (sTonesPlaying.incrementAndGet() == 1) {
-            mCallAudioManager.setIsTonePlaying(true);
+            mCallAudioManager.setIsTonePlaying(mCall, true);
         }
 
         synchronized (mSessionLock) {
@@ -524,7 +527,7 @@ public class InCallTonePlayer extends Thread {
                     Log.i(InCallTonePlayer.this,
                             "cleanUpTonePlayer(): tonesPlaying=%d, tone completed", newToneCount);
                     if (mCallAudioManager != null) {
-                        mCallAudioManager.setIsTonePlaying(false);
+                        mCallAudioManager.setIsTonePlaying(mCall, false);
                     } else {
                         Log.w(InCallTonePlayer.this,
                                 "cleanUpTonePlayer(): mCallAudioManager is null!");

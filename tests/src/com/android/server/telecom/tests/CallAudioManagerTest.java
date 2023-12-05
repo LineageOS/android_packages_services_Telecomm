@@ -91,11 +91,11 @@ public class CallAudioManagerTest extends TelecomTestCase {
         doAnswer((invocation) -> {
             InCallTonePlayer mockInCallTonePlayer = mock(InCallTonePlayer.class);
             doAnswer((invocation2) -> {
-                mCallAudioManager.setIsTonePlaying(true);
+                mCallAudioManager.setIsTonePlaying(invocation.getArgument(0), true);
                 return true;
             }).when(mockInCallTonePlayer).startTone();
             return mockInCallTonePlayer;
-        }).when(mPlayerFactory).createPlayer(anyInt());
+        }).when(mPlayerFactory).createPlayer(any(Call.class), anyInt());
         when(mCallsManager.getLock()).thenReturn(mLock);
         when(mFlags.ensureAudioModeUpdatesOnForegroundCallChange()).thenReturn(true);
         mCallAudioManager = new CallAudioManager(
@@ -210,7 +210,7 @@ public class CallAudioManagerTest extends TelecomTestCase {
         assertMessageArgEquality(correctArgs, captor.getValue());
 
         disconnectCall(call);
-        stopTone();
+        stopTone(call);
 
         mCallAudioManager.onCallRemoved(call);
         verifyProperCleanup();
@@ -247,7 +247,7 @@ public class CallAudioManagerTest extends TelecomTestCase {
         mCallAudioManager.onCallStateChanged(call, CallState.ANSWERED, CallState.ACTIVE);
 
         disconnectCall(call);
-        stopTone();
+        stopTone(call);
 
         mCallAudioManager.onCallRemoved(call);
         verifyProperCleanup();
@@ -305,7 +305,7 @@ public class CallAudioManagerTest extends TelecomTestCase {
                     anyInt(), any(CallAudioModeStateMachine.MessageArgs.class));
         }
         disconnectCall(call);
-        stopTone();
+        stopTone(call);
 
         mCallAudioManager.onCallRemoved(call);
         verifyProperCleanup();
@@ -528,7 +528,7 @@ public class CallAudioManagerTest extends TelecomTestCase {
 
         mCallAudioManager.onCallStateChanged(call, CallState.AUDIO_PROCESSING,
                 CallState.DISCONNECTED);
-        verify(mPlayerFactory, never()).createPlayer(anyInt());
+        verify(mPlayerFactory, never()).createPlayer(any(Call.class), anyInt());
         CallAudioModeStateMachine.MessageArgs expectedArgs2 = new Builder()
                 .setHasActiveOrDialingCalls(false)
                 .setHasRingingCalls(false)
@@ -559,7 +559,7 @@ public class CallAudioManagerTest extends TelecomTestCase {
 
         mCallAudioManager.onCallStateChanged(call, CallState.AUDIO_PROCESSING,
                 CallState.SIMULATED_RINGING);
-        verify(mPlayerFactory, never()).createPlayer(anyInt());
+        verify(mPlayerFactory, never()).createPlayer(any(Call.class), anyInt());
         CallAudioModeStateMachine.MessageArgs expectedArgs = new Builder()
                 .setHasActiveOrDialingCalls(false)
                 .setHasRingingCalls(true)
@@ -588,7 +588,7 @@ public class CallAudioManagerTest extends TelecomTestCase {
 
         mCallAudioManager.onCallStateChanged(call, CallState.AUDIO_PROCESSING,
                 CallState.ACTIVE);
-        verify(mPlayerFactory, never()).createPlayer(anyInt());
+        verify(mPlayerFactory, never()).createPlayer(any(Call.class), anyInt());
         CallAudioModeStateMachine.MessageArgs expectedArgs = new Builder()
                 .setHasActiveOrDialingCalls(true)
                 .setHasRingingCalls(false)
@@ -617,7 +617,7 @@ public class CallAudioManagerTest extends TelecomTestCase {
 
         mCallAudioManager.onCallStateChanged(call, CallState.SIMULATED_RINGING,
                 CallState.ACTIVE);
-        verify(mPlayerFactory, never()).createPlayer(anyInt());
+        verify(mPlayerFactory, never()).createPlayer(any(Call.class), anyInt());
         CallAudioModeStateMachine.MessageArgs expectedArgs = new Builder()
                 .setHasActiveOrDialingCalls(true)
                 .setHasRingingCalls(false)
@@ -676,7 +676,7 @@ public class CallAudioManagerTest extends TelecomTestCase {
 
         mCallAudioManager.onCallStateChanged(call, CallState.SIMULATED_RINGING,
                 CallState.DISCONNECTED);
-        verify(mPlayerFactory, never()).createPlayer(anyInt());
+        verify(mPlayerFactory, never()).createPlayer(any(Call.class), anyInt());
         CallAudioModeStateMachine.MessageArgs expectedArgs2 = new Builder()
                 .setHasActiveOrDialingCalls(false)
                 .setHasRingingCalls(false)
@@ -869,7 +869,7 @@ public class CallAudioManagerTest extends TelecomTestCase {
                 "", "", "", ToneGenerator.TONE_PROP_PROMPT));
 
         mCallAudioManager.onCallStateChanged(call, CallState.ACTIVE, CallState.DISCONNECTED);
-        verify(mPlayerFactory).createPlayer(InCallTonePlayer.TONE_CALL_ENDED);
+        verify(mPlayerFactory).createPlayer(any(Call.class), eq(InCallTonePlayer.TONE_CALL_ENDED));
         correctArgs = new Builder()
                 .setHasActiveOrDialingCalls(false)
                 .setHasRingingCalls(false)
@@ -886,10 +886,10 @@ public class CallAudioManagerTest extends TelecomTestCase {
         assertMessageArgEquality(correctArgs, captor.getValue());
     }
 
-    private void stopTone() {
+    private void stopTone(Call call) {
         ArgumentCaptor<CallAudioModeStateMachine.MessageArgs> captor =
                 ArgumentCaptor.forClass(CallAudioModeStateMachine.MessageArgs.class);
-        mCallAudioManager.setIsTonePlaying(false);
+        mCallAudioManager.setIsTonePlaying(call, false);
         CallAudioModeStateMachine.MessageArgs correctArgs = new Builder()
                         .setHasActiveOrDialingCalls(false)
                         .setHasRingingCalls(false)
