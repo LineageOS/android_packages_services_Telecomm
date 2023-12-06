@@ -23,6 +23,7 @@ import android.util.Pair;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.IndentingPrintWriter;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.HashMap;
 
@@ -61,7 +62,10 @@ public class ConnectionServiceRepository {
     }
 
     @VisibleForTesting
-    public ConnectionServiceWrapper getService(ComponentName componentName, UserHandle userHandle) {
+    public ConnectionServiceWrapper getService(
+            ComponentName componentName,
+            UserHandle userHandle,
+            FeatureFlags featureFlags) {
         Pair<ComponentName, UserHandle> cacheKey = Pair.create(componentName, userHandle);
         ConnectionServiceWrapper service = mServiceCache.get(cacheKey);
         if (service == null) {
@@ -72,7 +76,8 @@ public class ConnectionServiceRepository {
                     mCallsManager,
                     mContext,
                     mLock,
-                    userHandle);
+                    userHandle,
+                    featureFlags);
             service.addListener(mUnbindListener);
             mServiceCache.put(cacheKey, service);
         }

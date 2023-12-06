@@ -64,6 +64,7 @@ import com.android.internal.telecom.IConnectionServiceAdapter;
 import com.android.internal.telecom.IVideoProvider;
 import com.android.internal.telecom.RemoteServiceCallback;
 import com.android.internal.util.Preconditions;
+import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.flags.Flags;
 
 import java.util.ArrayList;
@@ -1353,6 +1354,7 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
     private final CallsManager mCallsManager;
     private final AppOpsManager mAppOpsManager;
     private final Context mContext;
+    private final FeatureFlags mFlags;
 
     private ConnectionServiceFocusManager.ConnectionServiceFocusListener mConnSvrFocusListener;
 
@@ -1374,8 +1376,10 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
             CallsManager callsManager,
             Context context,
             TelecomSystem.SyncRoot lock,
-            UserHandle userHandle) {
-        super(ConnectionService.SERVICE_INTERFACE, componentName, context, lock, userHandle);
+            UserHandle userHandle,
+            FeatureFlags featureFlags) {
+        super(ConnectionService.SERVICE_INTERFACE, componentName, context, lock, userHandle,
+                featureFlags);
         mConnectionServiceRepository = connectionServiceRepository;
         phoneAccountRegistrar.addListener(new PhoneAccountRegistrar.Listener() {
             // TODO -- Upon changes to PhoneAccountRegistrar, need to re-wire connections
@@ -1385,6 +1389,7 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         mCallsManager = callsManager;
         mAppOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
         mContext = context;
+        mFlags = featureFlags;
     }
 
     /** See {@link IConnectionService#addConnectionServiceAdapter}. */
@@ -2573,7 +2578,7 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                 isCallerConnectionManager = true;
             }
             ConnectionServiceWrapper service = mConnectionServiceRepository.getService(
-                    handle.getComponentName(), handle.getUserHandle());
+                    handle.getComponentName(), handle.getUserHandle(), mFlags);
             if (service != null && service != this) {
                 simServices.add(service);
             } else {
