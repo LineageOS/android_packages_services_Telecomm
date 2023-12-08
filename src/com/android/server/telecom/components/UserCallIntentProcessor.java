@@ -105,47 +105,17 @@ public class UserCallIntentProcessor {
             handle = Uri.fromParts(PhoneAccount.SCHEME_SIP, uriString, null);
         }
 
-       if(!isSelfManaged) {
-            // Check DISALLOW_OUTGOING_CALLS restriction. Note: We are skipping this
-            // check in a managed profile user because this check can always be bypassed
-            // by copying and pasting the phone number into the personal dialer.
-            if (!UserUtil.isManagedProfile(mContext, mUserHandle)) {
-                // Only emergency calls are allowed for users with the DISALLOW_OUTGOING_CALLS
-                // restriction.
-                if (!TelephonyUtil.shouldProcessAsEmergency(mContext, handle)) {
-                    final UserManager userManager =
-                            (UserManager) mContext.getSystemService(Context.USER_SERVICE);
-                    if (userManager.hasBaseUserRestriction(UserManager.DISALLOW_OUTGOING_CALLS,
-                            mUserHandle)) {
-                        showErrorDialogForRestrictedOutgoingCall(mContext,
-                                R.string.outgoing_call_not_allowed_user_restriction);
-                        Log.w(this, "Rejecting non-emergency phone call "
-                                + "due to DISALLOW_OUTGOING_CALLS restriction");
-                        return;
-                    } else if (userManager.hasUserRestriction(UserManager.DISALLOW_OUTGOING_CALLS,
-                            mUserHandle)) {
-                        final DevicePolicyManager dpm =
-                                mContext.getSystemService(DevicePolicyManager.class);
-                        if (dpm == null) {
-                            return;
-                        }
-                        final Intent adminSupportIntent = dpm.createAdminSupportIntent(
-                                UserManager.DISALLOW_OUTGOING_CALLS);
-                        if (adminSupportIntent != null) {
-                            mContext.startActivity(adminSupportIntent);
-                        }
-                        return;
-                    }
-                }
-            }
-        }
+       if (UserUtil.hasOutgoingCallsUserRestriction(mContext, mUserHandle,
+               handle, isSelfManaged, UserCallIntentProcessor.class.getCanonicalName())) {
+           return;
+       }
 
         if (!isSelfManaged && !canCallNonEmergency &&
                 !TelephonyUtil.shouldProcessAsEmergency(mContext, handle)) {
-            showErrorDialogForRestrictedOutgoingCall(mContext,
-                    R.string.outgoing_call_not_allowed_no_permission);
-            Log.w(this, "Rejecting non-emergency phone call because "
-                    + android.Manifest.permission.CALL_PHONE + " permission is not granted.");
+            String reason = android.Manifest.permission.CALL_PHONE + " permission is not granted.";
+            UserUtil.showErrorDialogForRestrictedOutgoingCall(mContext,
+                    R.string.outgoing_call_not_allowed_no_permission,
+                    this.getClass().getCanonicalName(), reason);
             return;
         }
 
@@ -186,12 +156,5 @@ public class UserCallIntentProcessor {
             tm.handleCallIntent(intent, callingPackage);
         }
         return true;
-    }
-
-    private static void showErrorDialogForRestrictedOutgoingCall(Context context, int stringId) {
-        final Intent intent = new Intent(context, ErrorDialogActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(ErrorDialogActivity.ERROR_MESSAGE_ID_EXTRA, stringId);
-        context.startActivityAsUser(intent, UserHandle.CURRENT);
     }
 }
