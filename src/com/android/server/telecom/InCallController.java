@@ -1414,7 +1414,7 @@ public class InCallController extends CallsManagerListenerBase implements
         UserHandle userFromCall = getUserFromCall(call);
         Stream<Call> callsAssociatedWithUserFromCall = mCallsManager.getCalls().stream()
                 .filter((c) -> getUserFromCall(c).equals(userFromCall));
-        boolean isCallCountZero = mFeatureFlags.workProfileAssociatedUser()
+        boolean isCallCountZero = mFeatureFlags.associatedUserRefactorForWorkProfile()
                 ? callsAssociatedWithUserFromCall.count() == 0
                 : mCallsManager.getCalls().isEmpty();
         if (isCallCountZero) {
@@ -1427,7 +1427,7 @@ public class InCallController extends CallsManagerListenerBase implements
                     // Check again to make sure there are no active calls for the associated user.
                     Stream<Call> callsAssociatedWithUserFromCall = mCallsManager.getCalls().stream()
                             .filter((c) -> getUserFromCall(c).equals(userFromCall));
-                    boolean isCallCountZero = mFeatureFlags.workProfileAssociatedUser()
+                    boolean isCallCountZero = mFeatureFlags.associatedUserRefactorForWorkProfile()
                             ? callsAssociatedWithUserFromCall.count() == 0
                             : mCallsManager.getCalls().isEmpty();
                     if (isCallCountZero) {
