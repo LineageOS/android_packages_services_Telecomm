@@ -19,9 +19,12 @@ package com.android.server.telecom;
 import static android.provider.CallLog.Calls.BLOCK_REASON_NOT_BLOCKED;
 import static android.telephony.CarrierConfigManager.KEY_SUPPORT_IMS_CONFERENCE_EVENT_PACKAGE_BOOL;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.location.Country;
 import android.location.CountryDetector;
 import android.location.Location;
@@ -30,6 +33,7 @@ import android.os.AsyncTask;
 import android.os.Looper;
 import android.os.UserHandle;
 import android.os.PersistableBundle;
+import android.os.UserManager;
 import android.provider.CallLog;
 import android.provider.CallLog.Calls;
 import android.telecom.Connection;
@@ -42,6 +46,7 @@ import android.telecom.VideoProfile;
 import android.telephony.CarrierConfigManager;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.SubscriptionManager;
+import android.util.Pair;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
@@ -51,6 +56,7 @@ import org.lineageos.lib.phone.SensitivePhoneNumbers;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 /**
@@ -70,16 +76,19 @@ public final class CallLogManager extends CallsManagerListenerBase {
      */
     private static class AddCallArgs {
         public AddCallArgs(Context context, CallLog.AddCallParams params,
-                @Nullable LogCallCompletedListener logCallCompletedListener) {
+                @Nullable LogCallCompletedListener logCallCompletedListener,
+                @NonNull String callId) {
             this.context = context;
             this.params = params;
             this.logCallCompletedListener = logCallCompletedListener;
+            this.callId = callId;
 
         }
         // Since the members are accessed directly, we don't use the
         // mXxxx notation.
         public final Context context;
         public final CallLog.AddCallParams params;
+        public final String callId;
         @Nullable
         public final LogCallCompletedListener logCallCompletedListener;
     }
@@ -90,15 +99,20 @@ public final class CallLogManager extends CallsManagerListenerBase {
     // TODO: come up with a better way to indicate in a android.telecom.DisconnectCause that
     // a conference was merged successfully
     private static final String REASON_IMS_MERGED_SUCCESSFULLY = "IMS_MERGED_SUCCESSFULLY";
+    private static final UUID LOG_CALL_FAILED_ANOMALY_ID =
+            UUID.fromString("1c4c15f3-ab4f-459c-b9ef-43d2988bae82");
+    private static final String LOG_CALL_FAILED_ANOMALY_DESC =
+            "Failed to record a call to the call log.";
 
     private final Context mContext;
     private final CarrierConfigManager mCarrierConfigManager;
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
     private final MissedCallNotifier mMissedCallNotifier;
+    private AnomalyReporterAdapter mAnomalyReporterAdapter;
     private static final String ACTION_CALLS_TABLE_ADD_ENTRY =
-                "com.android.server.telecom.intent.action.CALLS_ADD_ENTRY";
+            "com.android.server.telecom.intent.action.CALLS_ADD_ENTRY";
     private static final String PERMISSION_PROCESS_CALLLOG_INFO =
-                "android.permission.PROCESS_CALLLOG_INFO";
+            "android.permission.PROCESS_CALLLOG_INFO";
     private static final String CALL_TYPE = "callType";
     private static final String CALL_DURATION = "duration";
 
@@ -107,12 +121,13 @@ public final class CallLogManager extends CallsManagerListenerBase {
     private SensitivePhoneNumbers mSensitivePhoneNumbers;
 
     public CallLogManager(Context context, PhoneAccountRegistrar phoneAccountRegistrar,
-            MissedCallNotifier missedCallNotifier) {
+            MissedCallNotifier missedCallNotifier, AnomalyReporterAdapter anomalyReporterAdapter) {
         mContext = context;
         mCarrierConfigManager = (CarrierConfigManager) mContext
                 .getSystemService(Context.CARRIER_CONFIG_SERVICE);
         mPhoneAccountRegistrar = phoneAccountRegistrar;
         mMissedCallNotifier = missedCallNotifier;
+        mAnomalyReporterAdapter = anomalyReporterAdapter;
         mLock = new Object();
         mSensitivePhoneNumbers = SensitivePhoneNumbers.getInstance();
     }
@@ -267,7 +282,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
      *     {@link android.provider.CallLog.Calls#BLOCKED_TYPE}.
      */
     void logCall(Call call, int callLogType,
-        @Nullable LogCallCompletedListener logCallCompletedListener, CallFilteringResult result) {
+            @Nullable LogCallCompletedListener logCallCompletedListener, CallFilteringResult result) {
 
         CallLog.AddCallParams.AddCallParametersBuilder paramBuilder =
                 new CallLog.AddCallParams.AddCallParametersBuilder();
@@ -389,7 +404,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
                 okayToLogCall(accountHandle, logNumber, call.isEmergencyCall());
         if (okayToLog) {
             AddCallArgs args = new AddCallArgs(mContext, paramBuilder.build(),
-                    logCallCompletedListener);
+                    logCallCompletedListener, call.getId());
             Log.addEvent(call, LogUtils.Events.LOG_CALL, "number=" + Log.piiHandle(logNumber)
                     + ",postDial=" + Log.piiHandle(call.getPostDialDigits()) + ",pres="
                     + call.getHandlePresentation());
@@ -525,7 +540,26 @@ public final class CallLogManager extends CallsManagerListenerBase {
                 mListeners[i] = c.logCallCompletedListener;
                 try {
                     // May block.
+                    ContentResolver resolver = c.context.getContentResolver();
+                    Pair<Integer, Integer> startStats = getCallLogStats(resolver);
+                    Log.i(TAG, "LogCall; about to log callId=%s, "
+                                    + "startCount=%d, startMaxId=%d",
+                            c.callId, startStats.first, startStats.second);
+
                     result[i] = Calls.addCall(c.context, c.params);
+                    Pair<Integer, Integer> endStats = getCallLogStats(resolver);
+                    Log.i(TAG, "LogCall; logged callId=%s, uri=%s, "
+                                    + "endCount=%d, endMaxId=%s",
+                            c.callId, result, endStats.first, endStats.second);
+                    if ((endStats.second - startStats.second) <= 0) {
+                        // No call was added or even worse we lost a call in the log.  Trigger an
+                        // anomaly report.  Note: it technically possible that an app modified the
+                        // call log while we were writing to it here; that is pretty unlikely, and
+                        // the goal here is to try and identify potential anomalous conditions with
+                        // logging calls.
+                        mAnomalyReporterAdapter.reportAnomaly(LOG_CALL_FAILED_ANOMALY_ID,
+                                LOG_CALL_FAILED_ANOMALY_DESC);
+                    }
                 } catch (Exception e) {
                     // This is very rare but may happen in legitimate cases.
                     // E.g. If the phone is encrypted and thus write request fails, it may cause
@@ -534,8 +568,10 @@ public final class CallLogManager extends CallsManagerListenerBase {
                     //
                     // We don't want to crash the whole process just because of that, so just log
                     // it instead.
-                    Log.e(TAG, e, "Exception raised during adding CallLog entry.");
+                    Log.e(TAG, e, "LogCall: Exception raised adding callId=%s", c.callId);
                     result[i] = null;
+                    mAnomalyReporterAdapter.reportAnomaly(LOG_CALL_FAILED_ANOMALY_ID,
+                            LOG_CALL_FAILED_ANOMALY_DESC);
                 }
             }
             return result;
@@ -610,5 +646,57 @@ public final class CallLogManager extends CallsManagerListenerBase {
             }
             return mCurrentCountryIso;
         }
+    }
+
+
+    /**
+     * Returns a pair containing the number of rows in the call log, as well as the maximum call log
+     * ID.  There is a limit of 500 entries in the call log for a phone account, so once we hit 500
+     * we can reasonably expect that number to not change before and after logging a call.
+     * We determine the maximum ID in the call log since this is a way we can objectively check if
+     * the provider did record a call log entry or not.  Ideally there should me more call log
+     * entries after logging than before, and certainly not less.
+     * @param resolver content resolver
+     * @return pair with number of rows in the call log and max id.
+     */
+    private Pair<Integer, Integer> getCallLogStats(@NonNull ContentResolver resolver) {
+        try {
+            final UserManager userManager = mContext.getSystemService(UserManager.class);
+            final int currentUserId = userManager.getProcessUserId();
+
+            // Use shadow provider based on current user unlock state.
+            Uri providerUri;
+            if (userManager.isUserUnlocked(currentUserId)) {
+                providerUri = Calls.CONTENT_URI;
+            } else {
+                providerUri = Calls.SHADOW_CONTENT_URI;
+            }
+            int maxCallId = -1;
+            int numFound;
+            Cursor countCursor = resolver.query(providerUri,
+                    new String[]{Calls._ID},
+                    null,
+                    null,
+                    Calls._ID + " DESC");
+            try {
+                numFound = countCursor.getCount();
+                if (numFound > 0) {
+                    countCursor.moveToFirst();
+                    maxCallId = countCursor.getInt(0);
+                }
+            } finally {
+                countCursor.close();
+            }
+            return new Pair<>(numFound, maxCallId);
+        } catch (Exception e) {
+            // Oh jeepers, we crashed getting the call count.
+            Log.e(TAG, e, "getCountOfCallLogRows: failed");
+            return new Pair<>(-1, -1);
+        }
+    }
+
+    @VisibleForTesting
+    public void setAnomalyReporterAdapter(AnomalyReporterAdapter anomalyReporterAdapter){
+        mAnomalyReporterAdapter = anomalyReporterAdapter;
     }
 }
