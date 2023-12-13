@@ -24,13 +24,14 @@ public class VoipCallTransactionResult {
     public static final int RESULT_SUCCEED = 0;
     public static final int RESULT_FAILED = 1;
 
-    private int mResult;
-    private String mMessage;
-    private Call mCall;
+    private final int mResult;
+    private final String mMessage;
+    private final Call mCall;
 
     public VoipCallTransactionResult(int result, String message) {
         mResult = result;
         mMessage = message;
+        mCall = null;
     }
 
     public VoipCallTransactionResult(int result, Call call, String message) {
@@ -70,7 +71,7 @@ public class VoipCallTransactionResult {
                 append("{ VoipCallTransactionResult: [mResult: ").
                 append(mResult).
                 append("], [mCall: ").
-                append(mCall.toString()).
+                append((mCall != null) ? mCall : "null").
                 append("], [mMessage=").
                 append(mMessage).append("]  }").toString();
     }
