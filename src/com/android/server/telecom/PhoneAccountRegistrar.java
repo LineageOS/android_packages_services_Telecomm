@@ -934,15 +934,13 @@ public class PhoneAccountRegistrar {
      * @throws IllegalArgumentException if MAX_PHONE_ACCOUNT_REGISTRATIONS are reached
      */
     private void enforceMaxPhoneAccountLimit(@NonNull PhoneAccount account) {
-        List<PhoneAccount> unverifiedAccounts = getAccountsForPackage_BypassResolveComp(
-                account.getAccountHandle().getComponentName().getPackageName(),
-                account.getAccountHandle().getUserHandle());
-        // verify each phone account is backed by a valid ConnectionService. If the
-        // ConnectionService has been disabled or cannot be resolved, unregister the accounts.
-        List<PhoneAccount> verifiedAccounts =
-                cleanupUnresolvableConnectionServiceAccounts(unverifiedAccounts);
-        // enforce the max phone account limit for the application registering accounts
-        if (verifiedAccounts.size() >= MAX_PHONE_ACCOUNT_REGISTRATIONS) {
+        final PhoneAccountHandle accountHandle = account.getAccountHandle();
+        final UserHandle user = accountHandle.getUserHandle();
+        final ComponentName componentName = accountHandle.getComponentName();
+
+        if (getPhoneAccountHandles(0, null, componentName.getPackageName(),
+                true /* includeDisabled */, user, false /* crossUserAccess */).size()
+                >= MAX_PHONE_ACCOUNT_REGISTRATIONS) {
             EventLog.writeEvent(0x534e4554, "259064622", Binder.getCallingUid(),
                     "enforceMaxPhoneAccountLimit");
             throw new IllegalArgumentException(
@@ -1586,51 +1584,6 @@ public class PhoneAccountRegistrar {
             accounts.add(m);
         }
         return accounts;
-    }
-
-    /**
-     * This getter should be used when you want to bypass the {@link
-     * PhoneAccountRegistrar#resolveComponent(PhoneAccountHandle)} check when fetching accounts
-     */
-    @VisibleForTesting
-    public List<PhoneAccount> getAccountsForPackage_BypassResolveComp(String packageName,
-            UserHandle userHandle) {
-        List<PhoneAccount> accounts = new ArrayList<>(mState.accounts.size());
-        for (PhoneAccount m : mState.accounts) {
-            PhoneAccountHandle handle = m.getAccountHandle();
-
-            if (packageName != null && !packageName.equals(
-                    handle.getComponentName().getPackageName())) {
-                // Not the right package name; skip this one.
-                continue;
-            }
-
-            if (!isVisibleForUser(m, userHandle, false)) {
-                // Account is not visible for the current user; skip this one.
-                continue;
-            }
-            accounts.add(m);
-        }
-        return accounts;
-    }
-
-    @VisibleForTesting
-    public List<PhoneAccount> cleanupUnresolvableConnectionServiceAccounts(
-            List<PhoneAccount> accounts) {
-        ArrayList<PhoneAccount> verifiedAccounts = new ArrayList<>();
-        for (PhoneAccount account : accounts) {
-            PhoneAccountHandle handle = account.getAccountHandle();
-            // if the ConnectionService has been disabled or can longer be found, remove the handle
-            if (resolveComponent(handle).isEmpty()) {
-                Log.i(this,
-                        "Cannot resolve the ConnectionService for handle=[%s]; unregistering"
-                                + " account", handle);
-                unregisterPhoneAccount(handle);
-            } else {
-                verifiedAccounts.add(account);
-            }
-        }
-        return verifiedAccounts;
     }
 
     /**
