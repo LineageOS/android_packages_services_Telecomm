@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "093959c4_17d485cf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 26658
+      },
+      "writtenOn": "2023-12-31T00:35:10Z",
+      "side": 1,
+      "message": "With the new patch set the topic can no longer be picked:\n```\nApplying change number 378065...\n--\u003e Subject:       \"Resolve account image icon profile boundary exploit.\"\n--\u003e Project path:  packages/services/Telecomm\n--\u003e Change number: 378065 (Patch Set 2)\n[\u0027git fetch github\u0027, \u0027refs/changes/65/378065/2\u0027]\nremote: Enumerating objects: 113, done.\nremote: Counting objects: 100% (90/90), done.\nremote: Compressing objects: 100% (32/32), done.\nremote: Total 113 (delta 32), reused 70 (delta 23), pack-reused 23\nReceiving objects: 100% (113/113), 90.62 KiB | 687.00 KiB/s, done.\nResolving deltas: 100% (32/32), completed with 7 local objects.\nFrom https://github.com/LineageOS/android_packages_services_Telecomm\n * branch              refs/changes/65/378065/2 -\u003e FETCH_HEAD\nAuto-merging src/com/android/server/telecom/TelecomServiceImpl.java\nCONFLICT (content): Merge conflict in src/com/android/server/telecom/TelecomServiceImpl.java\nerror: could not apply 58becd3f... Resolve account image icon profile boundary exploit.\nhint: After resolving the conflicts, mark them with\nhint: \"git add/rm \u003cpathspec\u003e\", then run\nhint: \"git cherry-pick --continue\".\nhint: You can instead skip this commit with \"git cherry-pick --skip\".\nhint: To abort and get back to the state before \"git cherry-pick\",\nhint: run \"git cherry-pick --abort\".\nRecorded preimage for \u0027src/com/android/server/telecom/TelecomServiceImpl.java\u0027\nERROR: git command failed\n```",
+      "revId": "58becd3fbb5451e4066855b9a612d19a51abda06",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    }
+  ]
+}
