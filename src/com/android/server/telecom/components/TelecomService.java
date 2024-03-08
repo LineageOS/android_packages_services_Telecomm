@@ -45,6 +45,7 @@ import com.android.server.telecom.ConnectionServiceFocusManager;
 import com.android.server.telecom.ContactsAsyncHelper;
 import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.DeviceIdleControllerAdapter;
+import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.HeadsetMediaButton;
 import com.android.server.telecom.HeadsetMediaButtonFactory;
 import com.android.server.telecom.InCallWakeLockControllerFactory;
@@ -61,6 +62,7 @@ import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.TelecomWakeLock;
 import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.callfiltering.BlockedNumbersAdapter;
+import com.android.server.telecom.flags.FeatureFlagsImpl;
 import com.android.server.telecom.settings.BlockedNumbersUtil;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.MissedCallNotifierImpl;
@@ -115,10 +117,11 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                         Context context,
                                         PhoneAccountRegistrar phoneAccountRegistrar,
                                         DefaultDialerCache defaultDialerCache,
-                                        DeviceIdleControllerAdapter idleControllerAdapter) {
+                                        DeviceIdleControllerAdapter idleControllerAdapter,
+                                        FeatureFlags featureFlags) {
                                     return new MissedCallNotifierImpl(context,
                                             phoneAccountRegistrar, defaultDialerCache,
-                                            idleControllerAdapter);
+                                            idleControllerAdapter, featureFlags);
                                 }
                             },
                             new CallerInfoAsyncQueryFactory() {
@@ -230,7 +233,8 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                     BlockedNumbersUtil.updateEmergencyCallNotification(context,
                                             showNotification);
                                 }
-                            }));
+                            },
+                            new FeatureFlagsImpl()));
         }
     }
 

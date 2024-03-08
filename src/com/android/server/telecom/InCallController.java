@@ -22,7 +22,9 @@ import static android.os.Process.myUid;
 import android.Manifest;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.app.ActivityManager;
 import android.app.AppOpsManager;
+import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.AttributionSource;
@@ -47,7 +49,6 @@ import android.os.RemoteException;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.permission.PermissionManager;
 import android.telecom.CallAudioState;
 import android.telecom.CallEndpoint;
 import android.telecom.ConnectionService;
@@ -66,6 +67,7 @@ import com.android.internal.telecom.IInCallService;
 import com.android.internal.util.ArrayUtils;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.SystemStateHelper.SystemStateListener;
+import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.ui.NotificationChannelManager;
 
 import java.util.ArrayList;
@@ -80,6 +82,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Binds to {@link IInCallService} and provides the service to {@link CallsManager} through which it
@@ -1237,11 +1240,12 @@ public class InCallController extends CallsManagerListenerBase implements
 
     private ArraySet<String> mAllCarrierPrivilegedApps = new ArraySet<>();
     private ArraySet<String> mActiveCarrierPrivilegedApps = new ArraySet<>();
+    private FeatureFlags mFeatureFlags;
 
     public InCallController(Context context, TelecomSystem.SyncRoot lock, CallsManager callsManager,
             SystemStateHelper systemStateHelper, DefaultDialerCache defaultDialerCache,
             Timeouts.Adapter timeoutsAdapter, EmergencyCallHelper emergencyCallHelper,
-            CarModeTracker carModeTracker, ClockProxy clockProxy) {
+            CarModeTracker carModeTracker, ClockProxy clockProxy, FeatureFlags featureFlags) {
         mContext = context;
         mAppOpsManager = context.getSystemService(AppOpsManager.class);
         mSensorPrivacyManager = context.getSystemService(SensorPrivacyManager.class);
@@ -1258,6 +1262,7 @@ public class InCallController extends CallsManagerListenerBase implements
         IntentFilter userAddedFilter = new IntentFilter(Intent.ACTION_USER_ADDED);
         userAddedFilter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
         mContext.registerReceiver(mUserAddedReceiver, userAddedFilter);
+        mFeatureFlags = featureFlags;
     }
 
     private void restrictPhoneCallOps() {
@@ -1402,17 +1407,31 @@ public class InCallController extends CallsManagerListenerBase implements
     @Override
     public void onCallRemoved(Call call) {
         Log.i(this, "onCallRemoved: %s", call);
-        if (mCallsManager.getCalls().isEmpty()) {
+        // Instead of checking if there are no active calls, we should check if there any calls with
+        // the same associated user returned from getUserFromCall. For instance, it's possible to
+        // have calls coexist on the personal profile and work profile, in which case, we would only
+        // remove the ICS connection for the user associated with the call to be disconnected.
+        UserHandle userFromCall = getUserFromCall(call);
+        Stream<Call> callsAssociatedWithUserFromCall = mCallsManager.getCalls().stream()
+                .filter((c) -> getUserFromCall(c).equals(userFromCall));
+        boolean isCallCountZero = mFeatureFlags.associatedUserRefactorForWorkProfile()
+                ? callsAssociatedWithUserFromCall.count() == 0
+                : mCallsManager.getCalls().isEmpty();
+        if (isCallCountZero) {
             /** Let's add a 2 second delay before we send unbind to the services to hopefully
              *  give them enough time to process all the pending messages.
              */
             mHandler.postDelayed(new Runnable("ICC.oCR", mLock) {
                 @Override
                 public void loggedRun() {
-                    // Check again to make sure there are no active calls.
-                    if (mCallsManager.getCalls().isEmpty()) {
-                        unbindFromServices(getUserFromCall(call));
-
+                    // Check again to make sure there are no active calls for the associated user.
+                    Stream<Call> callsAssociatedWithUserFromCall = mCallsManager.getCalls().stream()
+                            .filter((c) -> getUserFromCall(c).equals(userFromCall));
+                    boolean isCallCountZero = mFeatureFlags.associatedUserRefactorForWorkProfile()
+                            ? callsAssociatedWithUserFromCall.count() == 0
+                            : mCallsManager.getCalls().isEmpty();
+                    if (isCallCountZero) {
+                        unbindFromServices(userFromCall);
                         mEmergencyCallHelper.maybeRevokeTemporaryLocationPermission();
                     }
                 }
@@ -1690,6 +1709,29 @@ public class InCallController extends CallsManagerListenerBase implements
 
     @VisibleForTesting
     public void bringToForeground(boolean showDialpad, UserHandle callingUser) {
+        KeyguardManager keyguardManager = mContext.getSystemService(KeyguardManager.class);
+        boolean isLockscreenRestricted = keyguardManager != null
+                && keyguardManager.isKeyguardLocked();
+        UserHandle currentUser = mCallsManager.getCurrentUserHandle();
+        // Handle cases when calls are placed from the keyguard UI screen, which operates under
+        // the admin user. This needs to account for emergency calls placed from secondary/guest
+        // users as well as the work profile. Once the screen is locked, the user should be able to
+        // return to the call (from the keyguard UI).
+        if (mFeatureFlags.eccKeyguard() && mCallsManager.isInEmergencyCall()
+                && isLockscreenRestricted && !mInCallServices.containsKey(callingUser)) {
+            // If screen is locked and the current user is the system, query calls for the work
+            // profile user, if available. Otherwise, the user is in the secondary/guest profile,
+            // so we can default to the system user.
+            if (currentUser.isSystem()) {
+                UserManager um = mContext.getSystemService(UserManager.class);
+                UserHandle workProfileUser = findChildManagedProfileUser(currentUser, um);
+                boolean hasWorkCalls = mCallsManager.getCalls().stream()
+                        .filter((c) -> getUserFromCall(c).equals(workProfileUser)).count() > 0;
+                callingUser = hasWorkCalls ? workProfileUser : currentUser;
+            } else {
+                callingUser = currentUser;
+            }
+        }
         if (mInCallServices.containsKey(callingUser)) {
             for (IInCallService inCallService : mInCallServices.get(callingUser).values()) {
                 try {
@@ -1805,6 +1847,7 @@ public class InCallController extends CallsManagerListenerBase implements
      * Unbinds an existing bound connection to the in-call app.
      */
     public void unbindFromServices(UserHandle userHandle) {
+        Log.i(this, "Unbinding from services for user %s", userHandle);
         try {
             mContext.unregisterReceiver(mPackageChangedReceiver);
         } catch (IllegalArgumentException e) {
@@ -2121,7 +2164,7 @@ public class InCallController extends CallsManagerListenerBase implements
 
                 ComponentName foundComponentName =
                         new ComponentName(serviceInfo.packageName, serviceInfo.name);
-                if (requestedType == IN_CALL_SERVICE_TYPE_NON_UI) {
+                if (currentType == IN_CALL_SERVICE_TYPE_NON_UI) {
                     mKnownNonUiInCallServices.add(foundComponentName);
                 }
 
@@ -2293,7 +2336,9 @@ public class InCallController extends CallsManagerListenerBase implements
         }
 
         // Upon successful connection, send the state of the world to the service.
-        List<Call> calls = orderCallsWithChildrenFirst(mCallsManager.getCalls());
+        List<Call> calls = orderCallsWithChildrenFirst(mCallsManager.getCalls().stream().filter(
+                call -> getUserFromCall(call).equals(userHandle))
+                .collect(Collectors.toUnmodifiableList()));
         Log.i(this, "Adding %s calls to InCallService after onConnected: %s, including external " +
                 "calls", calls.size(), info.getComponentName());
         int numCallsSent = 0;
@@ -2430,10 +2475,15 @@ public class InCallController extends CallsManagerListenerBase implements
                 try {
                     inCallService.updateCall(
                             sanitizeParcelableCallForService(info, parcelableCall));
-                } catch (RemoteException ignored) {
+                } catch (RemoteException exception) {
+                    Log.w(this, "Call status update did not send to: "
+                                + componentName +" successfully with error " + exception);
                 }
             }
             Log.i(this, "Components updated: %s", componentsUpdated);
+        } else {
+            Log.i(this,
+                    "Unable to update call. InCallService not found for user: %s", userFromCall);
         }
     }
 
@@ -2872,8 +2922,11 @@ public class InCallController extends CallsManagerListenerBase implements
         } else {
             UserHandle userFromCall = call.getAssociatedUser();
             UserManager userManager = mContext.getSystemService(UserManager.class);
-            // Emergency call should never be blocked, so if the user associated with call is in
-            // quite mode, use the primary user for the emergency call.
+            // Emergency call should never be blocked, so if the user associated with the target
+            // phone account handle user is in quiet mode, use the current user for the ecall.
+            // Note, that this only applies to incoming calls that are received on assigned
+            // sims (i.e. work sim), where the associated user would be the target phone account
+            // handle user.
             if ((call.isEmergencyCall() || call.isInECBM())
                     && (userManager.isQuietModeEnabled(userFromCall)
                     // We should also account for secondary/guest users where the profile may not
@@ -2884,5 +2937,26 @@ public class InCallController extends CallsManagerListenerBase implements
             }
             return userFromCall;
         }
+    }
+
+    /**
+     * Useful for debugging purposes and called on the command line via
+     * an "adb shell telecom command".
+     *
+     * @return true if a particular non-ui InCallService package is bound in a call.
+     */
+    public boolean isNonUiInCallServiceBound(String packageName) {
+        for (NonUIInCallServiceConnectionCollection ics : mNonUIInCallServiceConnections.values()) {
+            for (InCallServiceBindingConnection connection : ics.getSubConnections()) {
+                InCallServiceInfo serviceInfo = connection.mInCallServiceInfo;
+                Log.i(this, "isNonUiInCallServiceBound: found serviceInfo=[%s]", serviceInfo);
+                if (serviceInfo != null &&
+                        serviceInfo.mComponentName.getPackageName().contains(packageName)) {
+                    Log.i(this, "isNonUiInCallServiceBound: found target package");
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

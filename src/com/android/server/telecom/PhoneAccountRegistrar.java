@@ -61,6 +61,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.internal.util.XmlUtils;
 import com.android.modules.utils.ModifiedUtf8;
+import com.android.server.telecom.flags.Flags;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -389,24 +390,60 @@ public class PhoneAccountRegistrar {
                             account.getGroupId()));
         }
 
-        // Potentially update the default voice subid in SubscriptionManager.
+        // Potentially update the default voice subid in SubscriptionManager so that Telephony and
+        // Telecom are in sync.
         int newSubId = accountHandle == null ? SubscriptionManager.INVALID_SUBSCRIPTION_ID :
                 getSubscriptionIdForPhoneAccount(accountHandle);
-        if (isSimAccount || accountHandle == null) {
-            int currentVoiceSubId = mSubscriptionManager.getDefaultVoiceSubscriptionId();
-            if (newSubId != currentVoiceSubId) {
-                Log.i(this, "setUserSelectedOutgoingPhoneAccount: update voice sub; "
-                        + "account=%s, subId=%d", accountHandle, newSubId);
-                mSubscriptionManager.setDefaultVoiceSubscriptionId(newSubId);
+        if (Flags.onlyUpdateTelephonyOnValidSubIds()) {
+            if (shouldUpdateTelephonyDefaultVoiceSubId(accountHandle, isSimAccount, newSubId)) {
+                updateDefaultVoiceSubId(newSubId, accountHandle);
             } else {
-                Log.i(this, "setUserSelectedOutgoingPhoneAccount: no change to voice sub");
+                Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s is not a sub", accountHandle);
             }
         } else {
-            Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s is not a sub", accountHandle);
+            if (isSimAccount || accountHandle == null) {
+                updateDefaultVoiceSubId(newSubId, accountHandle);
+            } else {
+                Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s is not a sub", accountHandle);
+            }
         }
-
         write();
         fireDefaultOutgoingChanged();
+    }
+
+    private void updateDefaultVoiceSubId(int newSubId, PhoneAccountHandle accountHandle){
+        int currentVoiceSubId = mSubscriptionManager.getDefaultVoiceSubscriptionId();
+        if (newSubId != currentVoiceSubId) {
+            Log.i(this, "setUserSelectedOutgoingPhoneAccount: update voice sub; "
+                    + "account=%s, subId=%d", accountHandle, newSubId);
+            mSubscriptionManager.setDefaultVoiceSubscriptionId(newSubId);
+        } else {
+            Log.i(this, "setUserSelectedOutgoingPhoneAccount: no change to voice sub");
+        }
+    }
+
+    // This helper is important for CTS testing.  [PhoneAccount]s created by Telecom in CTS are
+    // assigned a  subId value of INVALID_SUBSCRIPTION_ID (-1) by Telephony.  However, when
+    // Telephony has a default outgoing calling voice account of -1, that translates to no default
+    // account (user should be prompted to select an acct when making MOs).  In order to avoid
+    // Telephony clearing out the newly changed default [PhoneAccount] in Telecom, Telephony should
+    // not be updated. This situation will never occur in production since [PhoneAccount]s in
+    // production are assigned non-negative subId values.
+    private boolean shouldUpdateTelephonyDefaultVoiceSubId(PhoneAccountHandle phoneAccountHandle,
+            boolean isSimAccount, int newSubId) {
+        // user requests no call preference
+        if (phoneAccountHandle == null) {
+            return true;
+        }
+        // do not update Telephony if the newSubId is invalid
+        if (newSubId == SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+            Log.w(this, "shouldUpdateTelephonyDefaultVoiceSubId: "
+                            + "invalid subId scenario, not updating Telephony. "
+                            + "phoneAccountHandle=[%s], isSimAccount=[%b], newSubId=[%s]",
+                    phoneAccountHandle, isSimAccount, newSubId);
+            return false;
+        }
+        return isSimAccount;
     }
 
     boolean isUserSelectedSmsPhoneAccount(PhoneAccountHandle accountHandle) {
@@ -1662,6 +1699,7 @@ public class PhoneAccountRegistrar {
             } else {
                 pw.println(defaultOutgoing);
             }
+            pw.println("defaultVoiceSubId: " + SubscriptionManager.getDefaultVoiceSubscriptionId());
             pw.println("simCallManager: " + getSimCallManager(mCurrentUserHandle));
             pw.println("phoneAccounts:");
             pw.increaseIndent();

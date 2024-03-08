@@ -53,6 +53,7 @@ import android.telephony.DisconnectCause;
 import android.telephony.TelephonyManager;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.DefaultDialerCache;
@@ -75,6 +76,8 @@ import org.mockito.Mock;
 
 @RunWith(JUnit4.class)
 public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
+    private static final Uri TEST_URI = Uri.parse("tel:16505551212");
+
     private static class ReceiverIntentPair {
         public BroadcastReceiver receiver;
         public Intent intent;
@@ -93,6 +96,7 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
     @Mock private PhoneAccountRegistrar mPhoneAccountRegistrar;
     @Mock private RoleManagerAdapter mRoleManagerAdapter;
     @Mock private DefaultDialerCache mDefaultDialerCache;
+    @Mock private FeatureFlags mFeatureFlags;
 
     @Mock private MmiUtils mMmiUtils;
     private PhoneNumberUtilsAdapter mPhoneNumberUtilsAdapter = new PhoneNumberUtilsAdapterImpl();
@@ -113,6 +117,7 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
             any(PhoneAccountHandle.class))).thenReturn(mPhoneAccount);
         when(mPhoneAccount.isSelfManaged()).thenReturn(true);
         when(mSystemStateHelper.isCarModeOrProjectionActive()).thenReturn(false);
+        when(mFeatureFlags.isNewOutgoingCallBroadcastUnblocking()).thenReturn(false);
     }
 
     @Override
@@ -510,6 +515,84 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
         testUnmodifiedRegularCall();
     }
 
+    /**
+     * Where the flag `isNewOutgoingCallBroadcastUnblocking` is off, verify that we sent an ordered
+     * broadcast and did not try to start the call immediately (legacy behavior).
+     */
+    @SmallTest
+    @Test
+    public void testSendBroadcastBlocking() {
+        when(mFeatureFlags.isNewOutgoingCallBroadcastUnblocking()).thenReturn(false);
+        Intent intent = new Intent(Intent.ACTION_CALL, TEST_URI);
+        NewOutgoingCallIntentBroadcaster nocib = new NewOutgoingCallIntentBroadcaster(
+                mContext, mCallsManager, intent, mPhoneNumberUtilsAdapter,
+                true /* isDefaultPhoneApp */, mDefaultDialerCache, mMmiUtils, mFeatureFlags);
+
+        NewOutgoingCallIntentBroadcaster.CallDisposition disposition = nocib.evaluateCall();
+        nocib.processCall(mCall, disposition);
+
+        // We should not have not short-circuited to place the outgoing call directly.
+        verify(mCall, never()).setNewOutgoingCallIntentBroadcastIsDone();
+        verify(mCallsManager, never()).placeOutgoingCall(any(Call.class), any(Uri.class),
+                any(GatewayInfo.class), anyBoolean(), anyInt());
+
+        // Ensure we did send the broadcast ordered
+        verifyBroadcastSent(TEST_URI.getSchemeSpecificPart(),
+                createNumberExtras(TEST_URI.getSchemeSpecificPart()));
+
+        // Ensure we did not try to directly send the broadcast unordered.
+        verify(mContext, never()).sendBroadcastAsUser(
+                any(Intent.class),
+                eq(UserHandle.CURRENT),
+                eq(android.Manifest.permission.PROCESS_OUTGOING_CALLS));
+    }
+
+    /**
+     * Where the flag `isNewOutgoingCallBroadcastUnblocking` is off, verify that we sent an ordered
+     * broadcast and did not try to start the call immediately.  Also ensure that the broadcast
+     * flags are correct.
+     */
+    @SmallTest
+    @Test
+    public void testSendBroadcastNonBlocking() {
+        when(mFeatureFlags.isNewOutgoingCallBroadcastUnblocking()).thenReturn(true);
+        Intent intent = new Intent(Intent.ACTION_CALL, TEST_URI);
+        NewOutgoingCallIntentBroadcaster nocib = new NewOutgoingCallIntentBroadcaster(
+                mContext, mCallsManager, intent, mPhoneNumberUtilsAdapter,
+                true /* isDefaultPhoneApp */, mDefaultDialerCache, mMmiUtils, mFeatureFlags);
+
+        NewOutgoingCallIntentBroadcaster.CallDisposition disposition = nocib.evaluateCall();
+        nocib.processCall(mCall, disposition);
+
+        // We should have started the outgoing call flow immediately.
+        verify(mCall).setNewOutgoingCallIntentBroadcastIsDone();
+        verify(mCallsManager).placeOutgoingCall(any(Call.class), any(Uri.class),
+                nullable(GatewayInfo.class), anyBoolean(), anyInt());
+
+        // Ensure we didn't send an ordered broadcast.
+        verify(mContext, never()).sendOrderedBroadcastAsUser(
+                any(Intent.class),
+                any(UserHandle.class),
+                anyString(),
+                anyInt(),
+                any(Bundle.class),
+                any(BroadcastReceiver.class),
+                any(Handler.class),
+                eq(Activity.RESULT_OK),
+                anyString(),
+                any(Bundle.class));
+
+        // But that we did send a regular broadcast.
+        ArgumentCaptor<Intent> intentArgumentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mContext).sendBroadcastAsUser(
+                intentArgumentCaptor.capture(),
+                eq(UserHandle.CURRENT),
+                eq(android.Manifest.permission.PROCESS_OUTGOING_CALLS),
+                eq(AppOpsManager.OP_PROCESS_OUTGOING_CALLS));
+        Intent capturedIntent = intentArgumentCaptor.getValue();
+        assertEquals(Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND, capturedIntent.getFlags());
+    }
+
     private ReceiverIntentPair regularCallTestHelper(Intent intent,
             Bundle expectedAdditionalExtras) {
         Uri handle = intent.getData();
@@ -542,7 +625,7 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
             boolean isDefaultPhoneApp) {
         NewOutgoingCallIntentBroadcaster b = new NewOutgoingCallIntentBroadcaster(
                 mContext, mCallsManager, intent, mPhoneNumberUtilsAdapter,
-                isDefaultPhoneApp, mDefaultDialerCache, mMmiUtils);
+                isDefaultPhoneApp, mDefaultDialerCache, mMmiUtils, mFeatureFlags);
         NewOutgoingCallIntentBroadcaster.CallDisposition cd = b.evaluateCall();
         if (cd.disconnectCause == DisconnectCause.NOT_DISCONNECTED) {
             b.processCall(mCall, cd);

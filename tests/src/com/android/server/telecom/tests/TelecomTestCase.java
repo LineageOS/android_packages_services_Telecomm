@@ -22,6 +22,9 @@ import android.telecom.Log;
 
 import androidx.test.InstrumentationRegistry;
 
+import com.android.server.telecom.flags.FeatureFlags;
+
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
@@ -33,6 +36,8 @@ import java.util.function.Predicate;
 public abstract class TelecomTestCase {
     protected static final String TESTING_TAG = "Telecom-TEST";
     protected Context mContext;
+    @Mock
+    FeatureFlags mFeatureFlags;
 
     MockitoHelper mMockitoHelper = new MockitoHelper();
     ComponentContextFixture mComponentContextFixture;
@@ -42,11 +47,12 @@ public abstract class TelecomTestCase {
         Log.setIsExtendedLoggingEnabled(true);
         Log.setUnitTestingEnabled(true);
         mMockitoHelper.setUp(InstrumentationRegistry.getContext(), getClass());
-        mComponentContextFixture = new ComponentContextFixture();
+        MockitoAnnotations.initMocks(this);
+
+        mComponentContextFixture = new ComponentContextFixture(mFeatureFlags);
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
         Log.setSessionContext(mComponentContextFixture.getTestDouble().getApplicationContext());
         Log.getSessionManager().mCleanStaleSessions = null;
-        MockitoAnnotations.initMocks(this);
     }
 
     public void tearDown() throws Exception {

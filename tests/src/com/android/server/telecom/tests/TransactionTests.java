@@ -16,7 +16,11 @@
 
 package com.android.server.telecom.tests;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -39,11 +43,15 @@ import android.telecom.CallAttributes;
 import android.telecom.DisconnectCause;
 import android.telecom.PhoneAccountHandle;
 
+import androidx.test.filters.SmallTest;
+
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.ClockProxy;
+import com.android.server.telecom.ConnectionServiceWrapper;
+import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.PhoneNumberUtilsAdapter;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.ui.ToastFactory;
@@ -53,6 +61,8 @@ import com.android.server.telecom.voip.IncomingCallTransaction;
 import com.android.server.telecom.voip.OutgoingCallTransaction;
 import com.android.server.telecom.voip.MaybeHoldCallForNewCallTransaction;
 import com.android.server.telecom.voip.RequestNewActiveCallTransaction;
+import com.android.server.telecom.voip.VerifyCallStateChangeTransaction;
+import com.android.server.telecom.voip.VoipCallTransactionResult;
 
 import org.junit.After;
 import org.junit.Before;
@@ -61,6 +71,11 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 
 public class TransactionTests extends TelecomTestCase {
@@ -250,6 +265,65 @@ public class TransactionTests extends TelecomTestCase {
                         isA(Boolean.class));
     }
 
+    /**
+     * This test verifies if the ConnectionService call is NOT transitioned to the desired call
+     * state (within timeout period), Telecom will disconnect the call.
+     */
+    @SmallTest
+    @Test
+    public void testCallStateChangeTimesOut()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        when(mFeatureFlags.transactionalCsVerifier()).thenReturn(true);
+        VerifyCallStateChangeTransaction t = new VerifyCallStateChangeTransaction(mCallsManager,
+                mMockCall1, CallState.ON_HOLD, true);
+        // WHEN
+        setupHoldableCall();
+
+        // simulate the transaction being processed and the CompletableFuture timing out
+        t.processTransaction(null);
+        CompletableFuture<Integer> timeoutFuture = t.getCallStateOrTimeoutResult();
+        timeoutFuture.complete(VerifyCallStateChangeTransaction.FAILURE_CODE);
+
+        // THEN
+        verify(mMockCall1, times(1)).addCallStateListener(t.getCallStateListenerImpl());
+        assertEquals(timeoutFuture.get().intValue(), VerifyCallStateChangeTransaction.FAILURE_CODE);
+        assertEquals(VoipCallTransactionResult.RESULT_FAILED,
+                t.getTransactionResult().get(2, TimeUnit.SECONDS).getResult());
+        verify(mMockCall1, atLeastOnce()).removeCallStateListener(any());
+        verify(mCallsManager, times(1)).markCallAsDisconnected(eq(mMockCall1), any());
+        verify(mCallsManager, times(1)).markCallAsRemoved(eq(mMockCall1));
+    }
+
+    /**
+     * This test verifies that when an application transitions a call to the requested state,
+     * Telecom does not disconnect the call and transaction completes successfully.
+     */
+    @SmallTest
+    @Test
+    public void testCallStateIsSuccessfullyChanged()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        when(mFeatureFlags.transactionalCsVerifier()).thenReturn(true);
+        VerifyCallStateChangeTransaction t = new VerifyCallStateChangeTransaction(mCallsManager,
+                mMockCall1, CallState.ON_HOLD, true);
+        // WHEN
+        setupHoldableCall();
+
+        // simulate the transaction being processed and the setOnHold() being called / state change
+        t.processTransaction(null);
+        t.getCallStateListenerImpl().onCallStateChanged(CallState.ON_HOLD);
+        when(mMockCall1.getState()).thenReturn(CallState.ON_HOLD);
+
+        // THEN
+        verify(mMockCall1, times(1)).addCallStateListener(t.getCallStateListenerImpl());
+        assertEquals(t.getCallStateOrTimeoutResult().get().intValue(),
+                VerifyCallStateChangeTransaction.SUCCESS_CODE);
+        assertEquals(VoipCallTransactionResult.RESULT_SUCCEED,
+                t.getTransactionResult().get(2, TimeUnit.SECONDS).getResult());
+        verify(mMockCall1, atLeastOnce()).removeCallStateListener(any());
+        verify(mCallsManager, never()).markCallAsDisconnected(eq(mMockCall1), any());
+        verify(mCallsManager, never()).markCallAsRemoved(eq(mMockCall1));
+    }
+
     private Call createSpyCall(PhoneAccountHandle targetPhoneAccount, int initialState, String id) {
         when(mCallsManager.getCallerInfoLookupHelper()).thenReturn(mCallerInfoLookupHelper);
 
@@ -267,7 +341,8 @@ public class TransactionTests extends TelecomTestCase {
                 false /* shouldAttachToExistingConnection*/,
                 false /* isConference */,
                 mClockProxy,
-                mToastFactory);
+                mToastFactory,
+                mFeatureFlags);
 
         Call callSpy = Mockito.spy(call);
 
@@ -279,5 +354,13 @@ public class TransactionTests extends TelecomTestCase {
         doNothing().when(callSpy).disconnect();
 
         return callSpy;
+    }
+
+    private void setupHoldableCall(){
+        when(mMockCall1.getState()).thenReturn(CallState.ACTIVE);
+        when(mMockCall1.getConnectionServiceWrapper()).thenReturn(
+                mock(ConnectionServiceWrapper.class));
+        doNothing().when(mMockCall1).addCallStateListener(any());
+        doReturn(true).when(mMockCall1).removeCallStateListener(any());
     }
 }

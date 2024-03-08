@@ -158,6 +158,10 @@ public class ParcelableCallUtils {
             properties |= android.telecom.Call.Details.PROPERTY_VOIP_AUDIO_MODE;
         }
 
+        if (call.isTransactionalCall()) {
+            properties |= android.telecom.Call.Details.PROPERTY_IS_TRANSACTIONAL;
+        }
+
         // If this is a single-SIM device, the "default SIM" will always be the only SIM.
         boolean isDefaultSmsAccount = phoneAccountRegistrar != null &&
                 phoneAccountRegistrar.isUserSelectedSmsPhoneAccount(call.getTargetPhoneAccount());

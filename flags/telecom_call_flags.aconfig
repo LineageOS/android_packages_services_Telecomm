@@ -1,0 +1,8 @@
+package: "com.android.server.telecom.flags"
+
+flag {
+  name: "transactional_cs_verifier"
+  namespace: "telecom"
+  description: "verify connection service callbacks via a transaction"
+  bug: "309541257"
+}

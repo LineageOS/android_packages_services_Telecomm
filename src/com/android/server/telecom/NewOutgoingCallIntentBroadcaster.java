@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AppOpsManager;
 import android.app.BroadcastOptions;
@@ -37,6 +38,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.callredirection.CallRedirectionProcessor;
 
 // TODO: Needed for move to system service: import com.android.internal.R;
@@ -77,6 +79,7 @@ public class NewOutgoingCallIntentBroadcaster {
     private final TelecomSystem.SyncRoot mLock;
     private final DefaultDialerCache mDefaultDialerCache;
     private final MmiUtils mMmiUtils;
+    private final FeatureFlags mFeatureFlags;
 
     /*
      * Whether or not the outgoing call intent originated from the default phone application. If
@@ -100,7 +103,8 @@ public class NewOutgoingCallIntentBroadcaster {
     @VisibleForTesting
     public NewOutgoingCallIntentBroadcaster(Context context, CallsManager callsManager,
             Intent intent, PhoneNumberUtilsAdapter phoneNumberUtilsAdapter,
-            boolean isDefaultPhoneApp, DefaultDialerCache defaultDialerCache, MmiUtils mmiUtils) {
+            boolean isDefaultPhoneApp, DefaultDialerCache defaultDialerCache, MmiUtils mmiUtils,
+            FeatureFlags featureFlags) {
         mContext = context;
         mCallsManager = callsManager;
         mIntent = intent;
@@ -109,6 +113,7 @@ public class NewOutgoingCallIntentBroadcaster {
         mLock = mCallsManager.getLock();
         mDefaultDialerCache = defaultDialerCache;
         mMmiUtils = mmiUtils;
+        mFeatureFlags = featureFlags;
     }
 
     /**
@@ -128,7 +133,8 @@ public class NewOutgoingCallIntentBroadcaster {
                     // Once the NEW_OUTGOING_CALL broadcast is finished, the resultData is
                     // used as the actual number to call. (If null, no call will be placed.)
                     String resultNumber = getResultData();
-                    Log.i(this, "Received new-outgoing-call-broadcast for %s with data %s", mCall,
+                    Log.i(NewOutgoingCallIntentBroadcaster.this,
+                            "Received new-outgoing-call-broadcast for %s with data %s", mCall,
                             Log.pii(resultNumber));
 
                     boolean endEarly = false;
@@ -320,6 +326,7 @@ public class NewOutgoingCallIntentBroadcaster {
         String scheme = mPhoneNumberUtilsAdapter.isUriNumber(number)
                 ? PhoneAccount.SCHEME_SIP : PhoneAccount.SCHEME_TEL;
         result.callingAddress = Uri.fromParts(scheme, number, null);
+
         return result;
     }
 
@@ -351,14 +358,57 @@ public class NewOutgoingCallIntentBroadcaster {
 
     public void processCall(Call call, CallDisposition disposition) {
         mCall = call;
+
+        // If the new outgoing call broadast doesn't block, trigger the legacy process call
+        // behavior and exit out here.
+        if (!mFeatureFlags.isNewOutgoingCallBroadcastUnblocking()) {
+            legacyProcessCall(disposition);
+            return;
+        }
+        boolean callRedirectionWithService = false;
+        // Only try to do redirection if it was requested and we're not calling immediately.
+        // We can expect callImmediately to be true for emergency calls and voip calls.
+        if (disposition.requestRedirection && !disposition.callImmediately) {
+            CallRedirectionProcessor callRedirectionProcessor = new CallRedirectionProcessor(
+                    mContext, mCallsManager, mCall, disposition.callingAddress,
+                    mCallsManager.getPhoneAccountRegistrar(),
+                    getGateWayInfoFromIntent(mIntent, mIntent.getData()),
+                    mIntent.getBooleanExtra(TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE,
+                            false),
+                    mIntent.getIntExtra(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
+                            VideoProfile.STATE_AUDIO_ONLY));
+            /**
+             * If there is an available {@link android.telecom.CallRedirectionService}, use the
+             * {@link CallRedirectionProcessor} to perform call redirection instead of using
+             * broadcasting.
+             */
+            callRedirectionWithService = callRedirectionProcessor
+                    .canMakeCallRedirectionWithServiceAsUser(mCall.getAssociatedUser());
+            if (callRedirectionWithService) {
+                callRedirectionProcessor.performCallRedirection(mCall.getAssociatedUser());
+            }
+        }
+
+        // If no redirection was kicked off, place the call now.
+        if (!callRedirectionWithService) {
+            callImmediately(disposition);
+        }
+
+        // Finally, send the non-blocking broadcast if we're supposed to (ie for any non-voip call).
+        if (disposition.sendBroadcast) {
+            UserHandle targetUser = mCall.getAssociatedUser();
+            broadcastIntent(mIntent, disposition.number, false /* receiverRequired */, targetUser);
+        }
+    }
+
+    /**
+     * The legacy non-flagged version of processing a call.  Although there is some code duplication
+     * if makes the new flow cleaner to read.
+     * @param disposition
+     */
+    private void legacyProcessCall(CallDisposition disposition) {
         if (disposition.callImmediately) {
-            boolean speakerphoneOn = mIntent.getBooleanExtra(
-                    TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE, false);
-            int videoState = mIntent.getIntExtra(
-                    TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
-                    VideoProfile.STATE_AUDIO_ONLY);
-            placeOutgoingCallImmediately(mCall, disposition.callingAddress, null,
-                    speakerphoneOn, videoState);
+            callImmediately(disposition);
 
             // Don't return but instead continue and send the ACTION_NEW_OUTGOING_CALL broadcast
             // so that third parties can still inspect (but not intercept) the outgoing call. When
@@ -390,10 +440,23 @@ public class NewOutgoingCallIntentBroadcaster {
 
         if (disposition.sendBroadcast) {
             UserHandle targetUser = mCall.getAssociatedUser();
-            Log.i(this, "Sending NewOutgoingCallBroadcast for %s to %s", mCall, targetUser);
             broadcastIntent(mIntent, disposition.number,
                     !disposition.callImmediately && !callRedirectionWithService, targetUser);
         }
+    }
+
+    /**
+     * Place a call immediately.
+     * @param disposition The disposition; used for retrieving the address of the call.
+     */
+    private void callImmediately(CallDisposition disposition) {
+        boolean speakerphoneOn = mIntent.getBooleanExtra(
+                TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE, false);
+        int videoState = mIntent.getIntExtra(
+                TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
+                VideoProfile.STATE_AUDIO_ONLY);
+        placeOutgoingCallImmediately(mCall, disposition.callingAddress, null,
+                speakerphoneOn, videoState);
     }
 
     /**
@@ -415,28 +478,51 @@ public class NewOutgoingCallIntentBroadcaster {
         if (number != null) {
             broadcastIntent.putExtra(Intent.EXTRA_PHONE_NUMBER, number);
         }
-
-        // Force receivers of this broadcast intent to run at foreground priority because we
-        // want to finish processing the broadcast intent as soon as possible.
-        broadcastIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND
-                | Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND);
         Log.v(this, "Broadcasting intent: %s.", broadcastIntent);
 
         checkAndCopyProviderExtras(originalCallIntent, broadcastIntent);
 
-        final BroadcastOptions options = BroadcastOptions.makeBasic();
-        options.setBackgroundActivityStartsAllowed(true);
-        mContext.sendOrderedBroadcastAsUser(
-                broadcastIntent,
-                targetUser,
-                android.Manifest.permission.PROCESS_OUTGOING_CALLS,
-                AppOpsManager.OP_PROCESS_OUTGOING_CALLS,
-                options.toBundle(),
-                receiverRequired ? new NewOutgoingCallBroadcastIntentReceiver() : null,
-                null,  // scheduler
-                Activity.RESULT_OK,  // initialCode
-                number,  // initialData: initial value for the result data (number to be modified)
-                null);  // initialExtras
+        if (mFeatureFlags.isNewOutgoingCallBroadcastUnblocking()) {
+            // Where the new outgoing call broadcast is unblocking, do not give receiver FG priority
+            // and do not allow background activity starts.
+            broadcastIntent.addFlags(Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND);
+            Log.i(this, "broadcastIntent: Sending non-blocking for %s to %s", mCall.getId(),
+                    targetUser);
+            if (mFeatureFlags.telecomResolveHiddenDependencies()) {
+                mContext.sendBroadcastAsUser(
+                        broadcastIntent,
+                        targetUser,
+                        Manifest.permission.PROCESS_OUTGOING_CALLS);
+            } else {
+                mContext.sendBroadcastAsUser(
+                        broadcastIntent,
+                        targetUser,
+                        android.Manifest.permission.PROCESS_OUTGOING_CALLS,
+                        AppOpsManager.OP_PROCESS_OUTGOING_CALLS);  // initialExtras
+            }
+        } else {
+            Log.i(this, "broadcastIntent: Sending ordered for %s to %s, waitForResult=%b",
+                    mCall.getId(), targetUser, receiverRequired);
+            final BroadcastOptions options = BroadcastOptions.makeBasic();
+            options.setBackgroundActivityStartsAllowed(true);
+            // Force receivers of this broadcast intent to run at foreground priority because we
+            // want to finish processing the broadcast intent as soon as possible.
+            broadcastIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND
+                    | Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND);
+
+            mContext.sendOrderedBroadcastAsUser(
+                    broadcastIntent,
+                    targetUser,
+                    android.Manifest.permission.PROCESS_OUTGOING_CALLS,
+                    AppOpsManager.OP_PROCESS_OUTGOING_CALLS,
+                    options.toBundle(),
+                    receiverRequired ? new NewOutgoingCallBroadcastIntentReceiver() : null,
+                    null,  // scheduler
+                    Activity.RESULT_OK,  // initialCode
+                    number,  // initialData: initial value for the result data (number to be
+                             // modified)
+                    null);  // initialExtras
+        }
     }
 
     /**

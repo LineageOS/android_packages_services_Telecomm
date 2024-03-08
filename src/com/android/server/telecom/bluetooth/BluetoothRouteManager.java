@@ -17,12 +17,14 @@
 package com.android.server.telecom.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothHearingAid;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothLeAudio;
 import android.content.Context;
+import android.media.AudioDeviceInfo;
 import android.os.Message;
 import android.telecom.Log;
 import android.telecom.Logging.Session;
@@ -33,8 +35,10 @@ import com.android.internal.os.SomeArgs;
 import com.android.internal.util.IState;
 import com.android.internal.util.State;
 import com.android.internal.util.StateMachine;
+import com.android.server.telecom.CallAudioCommunicationDeviceTracker;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,6 +47,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -132,7 +137,8 @@ public class BluetoothRouteManager extends StateMachine {
         @Override
         public void enter() {
             BluetoothDevice erroneouslyConnectedDevice = getBluetoothAudioConnectedDevice();
-            if (erroneouslyConnectedDevice != null) {
+            if (erroneouslyConnectedDevice != null &&
+                !erroneouslyConnectedDevice.equals(mHearingAidActiveDeviceCache)) {
                 Log.w(LOG_TAG, "Entering AudioOff state but device %s appears to be connected. " +
                         "Switching to audio-on state for that device.", erroneouslyConnectedDevice);
                 // change this to just transition to the new audio on state
@@ -250,6 +256,27 @@ public class BluetoothRouteManager extends StateMachine {
             SomeArgs args = (SomeArgs) msg.obj;
             String address = (String) args.arg2;
             boolean switchingBtDevices = !Objects.equals(mDeviceAddress, address);
+
+            if (switchingBtDevices == true) { // check if it is an hearing aid pair
+                BluetoothAdapter bluetoothAdapter = mDeviceManager.getBluetoothAdapter();
+                if (bluetoothAdapter != null) {
+                    List<BluetoothDevice> activeHearingAids =
+                      bluetoothAdapter.getActiveDevices(BluetoothProfile.HEARING_AID);
+                    for (BluetoothDevice hearingAid : activeHearingAids) {
+                        if (hearingAid != null) {
+                            String hearingAidAddress = hearingAid.getAddress();
+                            if (hearingAidAddress != null) {
+                                if (hearingAidAddress.equals(address) ||
+                                    hearingAidAddress.equals(mDeviceAddress)) {
+                                    switchingBtDevices = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
             try {
                 switch (msg.what) {
                     case NEW_DEVICE_CONNECTED:
@@ -391,8 +418,13 @@ public class BluetoothRouteManager extends StateMachine {
                         String actualAddress = connectBtAudio(address,
                             true /* switchingBtDevices*/);
                         if (actualAddress != null) {
-                            transitionTo(getConnectingStateForAddress(address,
-                                    "AudioConnected/CONNECT_BT"));
+                            if (mFeatureFlags.useActualAddressToEnterConnectingState()) {
+                                transitionTo(getConnectingStateForAddress(actualAddress,
+                                        "AudioConnected/CONNECT_BT"));
+                            } else {
+                                transitionTo(getConnectingStateForAddress(address,
+                                        "AudioConnected/CONNECT_BT"));
+                            }
                         } else {
                             Log.w(LOG_TAG, "Tried to connect to %s but failed" +
                                     " to connect to any BT device.", (String) args.arg2);
@@ -469,15 +501,21 @@ public class BluetoothRouteManager extends StateMachine {
     private BluetoothDevice mHearingAidActiveDeviceCache = null;
     private BluetoothDevice mLeAudioActiveDeviceCache = null;
     private BluetoothDevice mMostRecentlyReportedActiveDevice = null;
+    private CallAudioCommunicationDeviceTracker mCommunicationDeviceTracker;
+    private FeatureFlags mFeatureFlags;
 
     public BluetoothRouteManager(Context context, TelecomSystem.SyncRoot lock,
-            BluetoothDeviceManager deviceManager, Timeouts.Adapter timeoutsAdapter) {
+            BluetoothDeviceManager deviceManager, Timeouts.Adapter timeoutsAdapter,
+            CallAudioCommunicationDeviceTracker communicationDeviceTracker,
+            FeatureFlags featureFlags) {
         super(BluetoothRouteManager.class.getSimpleName());
         mContext = context;
         mLock = lock;
         mDeviceManager = deviceManager;
         mDeviceManager.setBluetoothRouteManager(this);
         mTimeoutsAdapter = timeoutsAdapter;
+        mCommunicationDeviceTracker = communicationDeviceTracker;
+        mFeatureFlags = featureFlags;
 
         mAudioOffState = new AudioOffState();
         addState(mAudioOffState);
@@ -621,12 +659,22 @@ public class BluetoothRouteManager extends StateMachine {
         if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_LE_AUDIO) {
             mLeAudioActiveDeviceCache = device;
             if (device == null) {
-                mDeviceManager.clearLeAudioCommunicationDevice();
+                if (mFeatureFlags.callAudioCommunicationDeviceRefactor()) {
+                    mCommunicationDeviceTracker.clearCommunicationDevice(
+                            AudioDeviceInfo.TYPE_BLE_HEADSET);
+                } else {
+                    mDeviceManager.clearLeAudioCommunicationDevice();
+                }
             }
         } else if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_HEARING_AID) {
             mHearingAidActiveDeviceCache = device;
             if (device == null) {
-                mDeviceManager.clearHearingAidCommunicationDevice();
+                if (mFeatureFlags.callAudioCommunicationDeviceRefactor()) {
+                    mCommunicationDeviceTracker.clearCommunicationDevice(
+                            AudioDeviceInfo.TYPE_HEARING_AID);
+                } else {
+                    mDeviceManager.clearHearingAidCommunicationDevice();
+                }
             }
         } else if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_HEADSET) {
             mHfpActiveDeviceCache = device;
@@ -645,6 +693,10 @@ public class BluetoothRouteManager extends StateMachine {
         }
     }
 
+    public BluetoothDevice getMostRecentlyReportedActiveDevice() {
+        return mMostRecentlyReportedActiveDevice;
+    }
+
     public boolean hasBtActiveDevice() {
         return mLeAudioActiveDeviceCache != null ||
                 mHearingAidActiveDeviceCache != null ||
@@ -661,6 +713,33 @@ public class BluetoothRouteManager extends StateMachine {
 
     public Collection<BluetoothDevice> getConnectedDevices() {
         return mDeviceManager.getUniqueConnectedDevices();
+    }
+
+    public boolean isWatch(BluetoothDevice device) {
+        if (device == null) {
+            Log.i(this, "isWatch: device is null. Returning false");
+            return false;
+        }
+
+        BluetoothClass deviceClass = device.getBluetoothClass();
+        if (deviceClass != null && deviceClass.getDeviceClass()
+                == BluetoothClass.Device.WEARABLE_WRIST_WATCH) {
+            Log.i(this, "isWatch: bluetooth class component is a WEARABLE_WRIST_WATCH.");
+            return true;
+        }
+
+        // Check metadata
+        byte[] deviceType = device.getMetadata(BluetoothDevice.METADATA_DEVICE_TYPE);
+        if (deviceType == null) {
+            return false;
+        }
+        String deviceTypeStr = new String(deviceType);
+        if (deviceTypeStr.equals(BluetoothDevice.DEVICE_TYPE_WATCH)) {
+            Log.i(this, "isWatch: bluetooth device type is DEVICE_TYPE_WATCH.");
+            return true;
+        }
+
+        return false;
     }
 
     private String connectBtAudio(String address, boolean switchingBtDevices) {
@@ -692,10 +771,19 @@ public class BluetoothRouteManager extends StateMachine {
                 ? address : getActiveDeviceAddress();
         if (actualAddress == null) {
             Log.i(this, "No device specified and BT stack has no active device."
-                    + " Using arbitrary device");
+                    + " Using arbitrary device - except watch");
             if (deviceList.size() > 0) {
-                actualAddress = deviceList.iterator().next().getAddress();
-            } else {
+                for (BluetoothDevice device : deviceList) {
+                    if (mFeatureFlags.ignoreAutoRouteToWatchDevice() && isWatch(device)) {
+                        Log.i(this, "Skipping a watch device: " + device);
+                        continue;
+                    }
+                    actualAddress = device.getAddress();
+                    break;
+                }
+            }
+
+            if (actualAddress == null) {
                 Log.i(this, "No devices available at all. Not connecting.");
                 return null;
             }
@@ -797,21 +885,37 @@ public class BluetoothRouteManager extends StateMachine {
             }
         }
 
+        boolean isHearingAidSetForCommunication =
+                mFeatureFlags.callAudioCommunicationDeviceRefactor()
+                ? mCommunicationDeviceTracker.isAudioDeviceSetForType(
+                        AudioDeviceInfo.TYPE_HEARING_AID)
+                : mDeviceManager.isHearingAidSetAsCommunicationDevice();
         if (bluetoothHearingAid != null) {
-            if (mDeviceManager.isHearingAidSetAsCommunicationDevice()) {
-                for (BluetoothDevice device : bluetoothAdapter.getActiveDevices(
-                        BluetoothProfile.HEARING_AID)) {
-                    if (device != null) {
-                        hearingAidActiveDevice = device;
-                        activeDevices++;
-                        break;
+            if (isHearingAidSetForCommunication) {
+                List<BluetoothDevice> hearingAidsActiveDevices = bluetoothAdapter.getActiveDevices(
+                        BluetoothProfile.HEARING_AID);
+                if (hearingAidsActiveDevices.contains(mHearingAidActiveDeviceCache)) {
+                    hearingAidActiveDevice = mHearingAidActiveDeviceCache;
+                    activeDevices++;
+                } else {
+                    for (BluetoothDevice device : hearingAidsActiveDevices) {
+                        if (device != null) {
+                            hearingAidActiveDevice = device;
+                            activeDevices++;
+                            break;
+                        }
                     }
                 }
             }
         }
 
+        boolean isLeAudioSetForCommunication =
+                mFeatureFlags.callAudioCommunicationDeviceRefactor()
+                        ? mCommunicationDeviceTracker.isAudioDeviceSetForType(
+                        AudioDeviceInfo.TYPE_BLE_HEADSET)
+                        : mDeviceManager.isLeAudioCommunicationDevice();
         if (bluetoothLeAudio != null) {
-            if (mDeviceManager.isLeAudioCommunicationDevice()) {
+            if (isLeAudioSetForCommunication) {
                 for (BluetoothDevice device : bluetoothAdapter.getActiveDevices(
                         BluetoothProfile.LE_AUDIO)) {
                     if (device != null) {

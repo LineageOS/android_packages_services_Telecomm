@@ -38,6 +38,7 @@ import com.android.server.telecom.ConnectionServiceWrapper;
 import com.android.server.telecom.CreateConnectionProcessor;
 import com.android.server.telecom.CreateConnectionResponse;
 import com.android.server.telecom.PhoneAccountRegistrar;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import org.junit.After;
 import org.junit.Before;
@@ -123,7 +124,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
 
         mTestCreateConnectionProcessor = new CreateConnectionProcessor(mMockCall,
                 mMockConnectionServiceRepository, mMockCreateConnectionResponse,
-                mMockAccountRegistrar, mContext);
+                mMockAccountRegistrar, mContext, mFeatureFlags);
 
         mAccountToSub = new HashMap<>();
         phoneAccounts = new ArrayList<>();
@@ -842,7 +843,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         ConnectionServiceWrapper wrapper = mock(ConnectionServiceWrapper.class);
         when(mMockConnectionServiceRepository.getService(
                 eq(makeQuickConnectionServiceComponentName()),
-                any(UserHandle.class))).thenReturn(wrapper);
+                any(UserHandle.class), any(FeatureFlags.class))).thenReturn(wrapper);
         return wrapper;
     }
 

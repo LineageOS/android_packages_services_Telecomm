@@ -39,19 +39,16 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.content.IContentProvider;
-import android.content.pm.PackageManager;
-import android.media.AudioDeviceInfo;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Icon;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.Process;
 import android.os.UserHandle;
-import android.os.UserManager;
 import android.provider.BlockedNumberContract;
 import android.telecom.Call;
 import android.telecom.CallAudioState;
@@ -72,6 +69,8 @@ import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SmallTest;
 
 import com.android.internal.telecom.IInCallAdapter;
+import com.android.server.telecom.InCallController;
+
 import android.telecom.CallerInfo;
 
 import com.google.common.base.Predicate;
@@ -110,6 +109,7 @@ public class BasicCallTests extends TelecomSystemTest {
         doReturn(mContext).when(mContext).createContextAsUser(any(UserHandle.class), anyInt());
         mPackageManager = mContext.getPackageManager();
         when(mPackageManager.getPackageUid(anyString(), eq(0))).thenReturn(Binder.getCallingUid());
+        when(mFeatureFlags.telecomResolveHiddenDependencies()).thenReturn(false);
     }
 
     @Override
@@ -626,6 +626,48 @@ public class BasicCallTests extends TelecomSystemTest {
 
     @LargeTest
     @Test
+    public void testIncomingThenOutgoingCalls_AssociatedUsersNotEqual() throws Exception {
+        when(mFeatureFlags.associatedUserRefactorForWorkProfile()).thenReturn(true);
+        InCallServiceFixture.setIgnoreOverrideAdapterFlag(true);
+
+        // Receive incoming call via mPhoneAccountMultiUser
+        IdPair incoming = startAndMakeActiveIncomingCall("650-555-2323",
+                mPhoneAccountMultiUser.getAccountHandle(), mConnectionServiceFixtureA);
+        waitForHandlerAction(mConnectionServiceFixtureA.mConnectionServiceDelegate.getHandler(),
+                TEST_TIMEOUT);
+        // Make outgoing call on mPhoneAccountMultiUser (unassociated sim to simulate guest/
+        // secondary user scenario where both MO/MT calls exist).
+        IdPair outgoing = startAndMakeActiveOutgoingCall("650-555-1212",
+                mPhoneAccountMultiUser.getAccountHandle(), mConnectionServiceFixtureA);
+        waitForHandlerAction(mConnectionServiceFixtureA.mConnectionServiceDelegate.getHandler(),
+                TEST_TIMEOUT);
+
+        // Outgoing call should be on hold while incoming call is made active
+        mConnectionServiceFixtureA.mConnectionById.get(incoming.mConnectionId).state =
+                Connection.STATE_HOLDING;
+
+        // Swap calls and verify that outgoing call is now the active call while the incoming call
+        // is the held call.
+        mConnectionServiceFixtureA.sendSetOnHold(outgoing.mConnectionId);
+        waitForHandlerAction(mConnectionServiceFixtureA.mConnectionServiceDelegate.getHandler(),
+                TEST_TIMEOUT);
+        assertEquals(Call.STATE_HOLDING,
+                mInCallServiceFixtureX.getCall(outgoing.mCallId).getState());
+        assertEquals(Call.STATE_ACTIVE,
+                mInCallServiceFixtureX.getCall(incoming.mCallId).getState());
+
+        // Ensure no issues with call disconnect.
+        mInCallServiceFixtureX.mInCallAdapter.disconnectCall(incoming.mCallId);
+        mInCallServiceFixtureX.mInCallAdapter.disconnectCall(outgoing.mCallId);
+        assertEquals(Call.STATE_DISCONNECTING,
+                mInCallServiceFixtureX.getCall(incoming.mCallId).getState());
+        assertEquals(Call.STATE_DISCONNECTING,
+                mInCallServiceFixtureX.getCall(outgoing.mCallId).getState());
+        InCallServiceFixture.setIgnoreOverrideAdapterFlag(false);
+    }
+
+    @LargeTest
+    @Test
     public void testAudioManagerOperations() throws Exception {
         AudioManager audioManager = (AudioManager) mComponentContextFixture.getTestDouble()
                 .getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
@@ -648,15 +690,15 @@ public class BasicCallTests extends TelecomSystemTest {
 
         mInCallServiceFixtureX.mInCallAdapter.setAudioRoute(CallAudioState.ROUTE_SPEAKER, null);
         waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
-                .getCallAudioRouteStateMachine().getHandler(), TEST_TIMEOUT);
+                .getCallAudioRouteAdapter().getAdapterHandler(), TEST_TIMEOUT);
         ArgumentCaptor<AudioDeviceInfo> infoArgumentCaptor =
                 ArgumentCaptor.forClass(AudioDeviceInfo.class);
-        verify(audioManager, timeout(TEST_TIMEOUT)).setCommunicationDevice(
-                infoArgumentCaptor.capture());
+        verify(audioManager, timeout(TEST_TIMEOUT).atLeast(1))
+                .setCommunicationDevice(infoArgumentCaptor.capture());
         assertEquals(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, infoArgumentCaptor.getValue().getType());
         mInCallServiceFixtureX.mInCallAdapter.setAudioRoute(CallAudioState.ROUTE_EARPIECE, null);
         waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
-                .getCallAudioRouteStateMachine().getHandler(), TEST_TIMEOUT);
+                .getCallAudioRouteAdapter().getAdapterHandler(), TEST_TIMEOUT);
         // setSpeakerPhoneOn(false) gets called once during the call initiation phase
         verify(audioManager, timeout(TEST_TIMEOUT).atLeast(1))
                 .clearCommunicationDevice();
@@ -667,7 +709,7 @@ public class BasicCallTests extends TelecomSystemTest {
         waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
                 .getCallAudioModeStateMachine().getHandler(), TEST_TIMEOUT);
         waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
-                .getCallAudioRouteStateMachine().getHandler(), TEST_TIMEOUT);
+                .getCallAudioRouteAdapter().getAdapterHandler(), TEST_TIMEOUT);
         verify(audioManager, timeout(TEST_TIMEOUT))
                 .abandonAudioFocusForCall();
         verify(audioManager, timeout(TEST_TIMEOUT).atLeastOnce())
@@ -995,6 +1037,7 @@ public class BasicCallTests extends TelecomSystemTest {
         call.setTargetPhoneAccount(mPhoneAccountA1.getAccountHandle());
         assert(call.isVideoCallingSupportedByPhoneAccount());
         assertEquals(VideoProfile.STATE_BIDIRECTIONAL, call.getVideoState());
+        call.setIsCreateConnectionComplete(true);
     }
 
     /**
@@ -1018,6 +1061,7 @@ public class BasicCallTests extends TelecomSystemTest {
         call.setTargetPhoneAccount(mPhoneAccountA2.getAccountHandle());
         assert(!call.isVideoCallingSupportedByPhoneAccount());
         assertEquals(VideoProfile.STATE_AUDIO_ONLY, call.getVideoState());
+        call.setIsCreateConnectionComplete(true);
     }
 
     /**
@@ -1195,7 +1239,7 @@ public class BasicCallTests extends TelecomSystemTest {
                 .getState());
         mInCallServiceFixtureX.mInCallAdapter.mute(true);
         waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
-                .getCallAudioRouteStateMachine().getHandler(), TEST_TIMEOUT);
+                .getCallAudioRouteAdapter().getAdapterHandler(), TEST_TIMEOUT);
         assertTrue(mTelecomSystem.getCallsManager().getAudioState().isMuted());
 
         // Make an emergency call.
@@ -1204,14 +1248,14 @@ public class BasicCallTests extends TelecomSystemTest {
         assertEquals(Call.STATE_DIALING, mInCallServiceFixtureX.getCall(emergencyCall.mCallId)
                 .getState());
         waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
-                .getCallAudioRouteStateMachine().getHandler(), TEST_TIMEOUT);
+                .getCallAudioRouteAdapter().getAdapterHandler(), TEST_TIMEOUT);
         // Should be unmute automatically.
         assertFalse(mTelecomSystem.getCallsManager().getAudioState().isMuted());
 
         // Toggle mute during an emergency call.
         mTelecomSystem.getCallsManager().getCallAudioManager().toggleMute();
         waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
-                .getCallAudioRouteStateMachine().getHandler(), TEST_TIMEOUT);
+                .getCallAudioRouteAdapter().getAdapterHandler(), TEST_TIMEOUT);
         // Should keep unmute.
         assertFalse(mTelecomSystem.getCallsManager().getAudioState().isMuted());
 
@@ -1339,7 +1383,6 @@ public class BasicCallTests extends TelecomSystemTest {
     public void testValidateStatusHintsImage_addExistingConnection() throws Exception {
         IdPair outgoing = startAndMakeActiveOutgoingCall("650-555-1214",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
-        Connection existingConnection = mConnectionServiceFixtureA.mLatestConnection;
 
         // Modify existing connection with StatusHints image exploit
         Icon icon = Icon.createWithContentUri("content://10@media/external/images/media/");

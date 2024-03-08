@@ -522,7 +522,7 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
                 callId, messageId, message);
         if (mPlayerFactory != null) {
             // Play that tone!
-            mPlayerFactory.createPlayer(InCallTonePlayer.TONE_IN_CALL_QUALITY_NOTIFICATION)
+            mPlayerFactory.createPlayer(call, InCallTonePlayer.TONE_IN_CALL_QUALITY_NOTIFICATION)
                     .startTone();
         }
         call.displayDiagnosticMessage(messageId, message);

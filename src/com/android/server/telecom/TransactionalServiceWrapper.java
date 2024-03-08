@@ -451,7 +451,8 @@ public class TransactionalServiceWrapper implements
 
                         @Override
                         public void onError(CallException exception) {
-                            Log.i(TAG, "onSetInactive: onError: with e=[%e]", exception);
+                            Log.w(TAG, "onSetInactive: onError: e.code=[%d], e.msg=[%s]",
+                                    exception.getCode(), exception.getMessage());
                         }
                     });
         } finally {
@@ -498,8 +499,9 @@ public class TransactionalServiceWrapper implements
 
                         @Override
                         public void onError(CallException exception) {
-                            Log.i(TAG, "onCallStreamingStarted: onError: with e=[%e]",
-                                    exception);
+                            Log.w(TAG, "onCallStreamingStarted: onError: "
+                                            + "e.code=[%d], e.msg=[%s]",
+                                    exception.getCode(), exception.getMessage());
                             stopCallStreaming(call);
                         }
                     }

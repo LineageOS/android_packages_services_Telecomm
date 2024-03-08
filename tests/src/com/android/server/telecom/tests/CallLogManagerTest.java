@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -36,6 +37,7 @@ import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.location.Country;
@@ -73,6 +75,7 @@ import com.android.server.telecom.HandoverState;
 import com.android.server.telecom.MissedCallNotifier;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.TelephonyUtil;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import org.junit.After;
 import org.junit.Before;
@@ -127,13 +130,16 @@ public class CallLogManagerTest extends TelecomTestCase {
     @Mock
     AnomalyReporterAdapter mAnomalyReporterAdapter;
 
+    @Mock
+    FeatureFlags mFeatureFlags;
+
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
         mCallLogManager = new CallLogManager(mContext, mMockPhoneAccountRegistrar,
-                mMissedCallNotifier, mAnomalyReporterAdapter);
+                mMissedCallNotifier, mAnomalyReporterAdapter, mFeatureFlags);
         mDefaultAccountHandle = new PhoneAccountHandle(
                 new ComponentName("com.android.server.telecom.tests", "CallLogManagerTest"),
                 TEST_PHONE_ACCOUNT_ID,
@@ -184,6 +190,9 @@ public class CallLogManagerTest extends TelecomTestCase {
         when(userManager.getUserInfo(eq(CURRENT_USER_ID))).thenReturn(userInfo);
         when(userManager.getUserInfo(eq(OTHER_USER_ID))).thenReturn(otherUserInfo);
         when(userManager.getUserInfo(eq(MANAGED_USER_ID))).thenReturn(managedProfileUserInfo);
+        PackageManager packageManager = mContext.getPackageManager();
+        when(packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH)).thenReturn(false);
+        when(mFeatureFlags.telecomLogExternalWearableCalls()).thenReturn(false);
     }
 
     @Override
@@ -360,6 +369,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 VIA_NUMBER_STRING, // viaNumber
                 null
         );
+        when(mFeatureFlags.addCallUriForMissedCalls()).thenReturn(true);
         mCallLogManager.onCallStateChanged(fakeIncomingCall, CallState.ACTIVE,
                 CallState.DISCONNECTED);
         ContentValues insertedValues = verifyInsertionWithCapture(CURRENT_USER_ID);
@@ -369,7 +379,7 @@ public class CallLogManagerTest extends TelecomTestCase {
 
     @MediumTest
     @Test
-    public void testLogCallDirectionMissed() {
+    public void testLogCallDirectionMissedAddCallUriForMissedCallsFlagOff() {
         when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
                 .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, CURRENT_USER_ID));
         Call fakeMissedCall = makeFakeCall(
@@ -385,6 +395,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 VIA_NUMBER_STRING, // viaNumber
                 null
         );
+        when(mFeatureFlags.addCallUriForMissedCalls()).thenReturn(false);
 
         mCallLogManager.onCallStateChanged(fakeMissedCall, CallState.ACTIVE,
                 CallState.DISCONNECTED);
@@ -393,7 +404,39 @@ public class CallLogManagerTest extends TelecomTestCase {
                 Integer.valueOf(CallLog.Calls.MISSED_TYPE));
         // Timeout needed because showMissedCallNotification is called from onPostExecute.
         verify(mMissedCallNotifier, timeout(TEST_TIMEOUT_MILLIS))
-                .showMissedCallNotification(any(MissedCallNotifier.CallInfo.class));
+                .showMissedCallNotification(any(MissedCallNotifier.CallInfo.class),
+                        /* uri= */ eq(null));
+    }
+
+    @MediumTest
+    @Test
+    public void testLogCallDirectionMissedAddCallUriForMissedCallsFlagOn() {
+        when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
+                .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, CURRENT_USER_ID));
+        Call fakeMissedCall = makeFakeCall(
+                DisconnectCause.MISSED, // disconnectCauseCode
+                false, // isConference
+                true, // isIncoming
+                1L, // creationTimeMillis
+                1000L, // ageMillis
+                TEL_PHONEHANDLE, // callHandle
+                mDefaultAccountHandle, // phoneAccountHandle
+                NO_VIDEO_STATE, // callVideoState
+                POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
+                null
+        );
+        when(mFeatureFlags.addCallUriForMissedCalls()).thenReturn(true);
+
+        mCallLogManager.onCallStateChanged(fakeMissedCall, CallState.ACTIVE,
+                CallState.DISCONNECTED);
+        ContentValues insertedValues = verifyInsertionWithCapture(CURRENT_USER_ID);
+        assertEquals(insertedValues.getAsInteger(CallLog.Calls.TYPE),
+                Integer.valueOf(CallLog.Calls.MISSED_TYPE));
+        // Timeout needed because showMissedCallNotification is called from onPostExecute.
+        verify(mMissedCallNotifier, timeout(TEST_TIMEOUT_MILLIS))
+                .showMissedCallNotification(any(MissedCallNotifier.CallInfo.class),
+                        /* uri= */ any(Uri.class));
     }
 
     @MediumTest
@@ -791,6 +834,34 @@ public class CallLogManagerTest extends TelecomTestCase {
         assertEquals(1, insertedValues.getAsInteger(Calls.IS_READ).intValue());
     }
 
+    @Test
+    public void testLogCallWhenExternalCallOnWatch() {
+        when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
+                .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, CURRENT_USER_ID));
+        PackageManager packageManager = mContext.getPackageManager();
+        when(packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH)).thenReturn(true);
+        when(mFeatureFlags.telecomLogExternalWearableCalls()).thenReturn(true);
+        Call fakeMissedCall = makeFakeCall(
+                DisconnectCause.REJECTED, // disconnectCauseCode
+                false, // isConference
+                true, // isIncoming
+                1L, // creationTimeMillis
+                1000L, // ageMillis
+                TEL_PHONEHANDLE, // callHandle
+                mDefaultAccountHandle, // phoneAccountHandle
+                NO_VIDEO_STATE, // callVideoState
+                POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
+                null
+        );
+        when(fakeMissedCall.isExternalCall()).thenReturn(true);
+
+        mCallLogManager.onCallStateChanged(fakeMissedCall, CallState.ACTIVE,
+                CallState.DISCONNECTED);
+        verifyInsertionWithCapture(CURRENT_USER_ID);
+    }
+
+
     @SmallTest
     @Test
     public void testCountryIso_setCache() {
@@ -891,6 +962,56 @@ public class CallLogManagerTest extends TelecomTestCase {
         when(fakeCall.hadChildren()).thenReturn(false);
 
         assertFalse(mCallLogManager.shouldLogDisconnectedCall(fakeCall, CallState.DISCONNECTED,
+                false /* isCanceled */));
+    }
+
+    @SmallTest
+    @Test
+    public void testDoNotLogCallExtra() {
+        when(mFeatureFlags.telecomSkipLogBasedOnExtra()).thenReturn(true);
+        Call fakeCall = makeFakeCall(
+                DisconnectCause.LOCAL, // disconnectCauseCode
+                false, // isConference
+                true, // isIncoming
+                1L, // creationTimeMillis
+                1000L, // ageMillis
+                TEL_PHONEHANDLE, // callHandle
+                mDefaultAccountHandle, // phoneAccountHandle
+                NO_VIDEO_STATE, // callVideoState
+                POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
+                UserHandle.of(CURRENT_USER_ID)
+        );
+        Bundle extras = new Bundle();
+        extras.putBoolean(TelecomManager.EXTRA_DO_NOT_LOG_CALL, true);
+        when(fakeCall.getExtras()).thenReturn(extras);
+
+        assertFalse(mCallLogManager.shouldLogDisconnectedCall(fakeCall, CallState.DISCONNECTED,
+                false /* isCanceled */));
+    }
+
+    @SmallTest
+    @Test
+    public void testIgnoresDoNotLogCallExtra_whenFlagDisabled() {
+        when(mFeatureFlags.telecomSkipLogBasedOnExtra()).thenReturn(false);
+        Call fakeCall = makeFakeCall(
+                DisconnectCause.LOCAL, // disconnectCauseCode
+                false, // isConference
+                true, // isIncoming
+                1L, // creationTimeMillis
+                1000L, // ageMillis
+                TEL_PHONEHANDLE, // callHandle
+                mDefaultAccountHandle, // phoneAccountHandle
+                NO_VIDEO_STATE, // callVideoState
+                POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
+                UserHandle.of(CURRENT_USER_ID)
+        );
+        Bundle extras = new Bundle();
+        extras.putBoolean(TelecomManager.EXTRA_DO_NOT_LOG_CALL, true);
+        when(fakeCall.getExtras()).thenReturn(extras);
+
+        assertTrue(mCallLogManager.shouldLogDisconnectedCall(fakeCall, CallState.DISCONNECTED,
                 false /* isCanceled */));
     }
 

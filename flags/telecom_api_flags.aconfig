@@ -1,0 +1,29 @@
+package: "com.android.server.telecom.flags"
+
+flag {
+  name: "voip_app_actions_support"
+  namespace: "telecom"
+  description: "When set, Telecom support for additional VOIP application actions is active."
+  bug: "296934278"
+}
+
+flag {
+  name: "call_details_id_changes"
+  namespace: "telecom"
+  description: "When set, call details/extras id updates to Telecom APIs for Android V are active."
+  bug: "301713560"
+}
+
+flag {
+  name: "unbind_timeout_connections"
+  namespace: "telecom"
+  description: "When set, Telecom will auto-unbind if a ConnectionService returns no connections after some time."
+  bug: "293458004"
+}
+
+flag{
+  name: "add_call_uri_for_missed_calls"
+  namespace: "telecom"
+  description: "The key is used for dialer apps to mark missed calls as read when it gets the notification on reboot."
+  bug: "292597423"
+}

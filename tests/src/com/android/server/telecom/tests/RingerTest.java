@@ -16,8 +16,9 @@
 
 package com.android.server.telecom.tests;
 
+import static android.os.VibrationEffect.EFFECT_CLICK;
 import static android.provider.Settings.Global.ZEN_MODE_IMPORTANT_INTERRUPTIONS;
-
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,6 +31,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -51,6 +53,9 @@ import android.os.UserManager;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.os.VibratorInfo;
+import android.platform.test.flag.junit.CheckFlagsRule;
+import android.platform.test.flag.junit.DeviceFlagsValueProvider;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -63,33 +68,47 @@ import com.android.server.telecom.InCallTonePlayer;
 import com.android.server.telecom.Ringer;
 import com.android.server.telecom.RingtoneFactory;
 import com.android.server.telecom.SystemSettingsUtil;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.Spy;
 
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 @RunWith(JUnit4.class)
 public class RingerTest extends TelecomTestCase {
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
+
     private static final Uri FAKE_RINGTONE_URI = Uri.parse("content://media/fake/audio/1729");
     // Returned when the a URI-based VibrationEffect is attempted, to avoid depending on actual
     // device configuration for ringtone URIs. The actual Uri can be verified via the
     // VibrationEffectProxy mock invocation.
     private static final VibrationEffect URI_VIBRATION_EFFECT =
             VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK);
+    private static final VibrationEffect EXPECTED_SIMPLE_VIBRATION_PATTERN =
+            VibrationEffect.createWaveform(
+                    new long[] {0, 1000, 1000}, new int[] {0, 255, 0}, 1);
+    private static final VibrationEffect EXPECTED_PULSE_VIBRATION_PATTERN =
+            VibrationEffect.createWaveform(
+                    Ringer.PULSE_PATTERN, Ringer.PULSE_AMPLITUDE, 5);
 
     @Mock InCallTonePlayer.Factory mockPlayerFactory;
     @Mock SystemSettingsUtil mockSystemSettingsUtil;
     @Mock RingtoneFactory mockRingtoneFactory;
     @Mock Vibrator mockVibrator;
+    @Mock VibratorInfo mockVibratorInfo;
     @Mock InCallController mockInCallController;
     @Mock NotificationManager mockNotificationManager;
     @Mock Ringer.AccessibilityManagerAdapter mockAccessibilityManagerAdapter;
+    @Mock private FeatureFlags mFeatureFlags;
 
     @Spy Ringer.VibrationEffectProxy spyVibrationEffectProxy;
 
@@ -111,21 +130,25 @@ public class RingerTest extends TelecomTestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
+        mContext = spy(mComponentContextFixture.getTestDouble().getApplicationContext());
+        when(mFeatureFlags.telecomResolveHiddenDependencies()).thenReturn(true);
         doReturn(URI_VIBRATION_EFFECT).when(spyVibrationEffectProxy).get(any(), any());
-        when(mockPlayerFactory.createPlayer(anyInt())).thenReturn(mockTonePlayer);
+        when(mockPlayerFactory.createPlayer(any(Call.class), anyInt())).thenReturn(mockTonePlayer);
         mockAudioManager = mContext.getSystemService(AudioManager.class);
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_NORMAL);
+        when(mockVibrator.getInfo()).thenReturn(mockVibratorInfo);
         when(mockSystemSettingsUtil.isHapticPlaybackSupported(any(Context.class)))
                 .thenAnswer((invocation) -> mIsHapticPlaybackSupported);
         mockNotificationManager =mContext.getSystemService(NotificationManager.class);
         when(mockTonePlayer.startTone()).thenReturn(true);
-        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
+        when(mockNotificationManager.matchesCallFilter(any(Uri.class))).thenReturn(true);
         when(mockRingtoneFactory.hasHapticChannels(any(Ringtone.class))).thenReturn(false);
         when(mockCall1.getState()).thenReturn(CallState.RINGING);
         when(mockCall2.getState()).thenReturn(CallState.RINGING);
         when(mockCall1.getAssociatedUser()).thenReturn(PA_HANDLE.getUserHandle());
         when(mockCall2.getAssociatedUser()).thenReturn(PA_HANDLE.getUserHandle());
+        when(mockCall1.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
+        when(mockCall2.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
         // Set BT active state in tests to ensure that we do not end up blocking tests for 1 sec
         // waiting for BT to connect in unit tests by default.
         asyncRingtonePlayer.updateBtActiveState(true);
@@ -140,7 +163,8 @@ public class RingerTest extends TelecomTestCase {
     private void createRingerUnderTest() {
         mRingerUnderTest = new Ringer(mockPlayerFactory, mContext, mockSystemSettingsUtil,
                 asyncRingtonePlayer, mockRingtoneFactory, mockVibrator, spyVibrationEffectProxy,
-                mockInCallController, mockNotificationManager, mockAccessibilityManagerAdapter);
+                mockInCallController, mockNotificationManager, mockAccessibilityManagerAdapter,
+                mFeatureFlags);
         // This future is used to wait for AsyncRingtonePlayer to finish its part.
         mRingerUnderTest.setBlockOnRingingFuture(mRingCompletionFuture);
     }
@@ -149,6 +173,151 @@ public class RingerTest extends TelecomTestCase {
     @After
     public void tearDown() throws Exception {
         super.tearDown();
+    }
+
+    @SmallTest
+    @Test
+    public void testSimpleVibrationPrecedesValidSupportedDefaultRingVibrationOverride()
+            throws Exception {
+        when(mFeatureFlags.useDeviceProvidedSerializedRingerVibration()).thenReturn(true);
+        mockVibrationResourceValues(
+                """
+                    <vibration-effect>
+                        <predefined-effect name="click"/>
+                    </vibration-effect>
+                """,
+                /* useSimpleVibration= */ true);
+        when(mockVibratorInfo.areVibrationFeaturesSupported(any())).thenReturn(true);
+
+        createRingerUnderTest();
+
+        assertEquals(EXPECTED_SIMPLE_VIBRATION_PATTERN, mRingerUnderTest.mDefaultVibrationEffect);
+    }
+
+    @SmallTest
+    @Test
+    public void testDefaultRingVibrationOverrideNotUsedWhenFeatureIsDisabled()
+            throws Exception {
+        when(mFeatureFlags.useDeviceProvidedSerializedRingerVibration()).thenReturn(false);
+        mockVibrationResourceValues(
+                """
+                    <vibration-effect>
+                        <waveform-effect>
+                            <waveform-entry durationMs="100" amplitude="0"/>
+                            <repeating>
+                                <waveform-entry durationMs="500" amplitude="default"/>
+                                <waveform-entry durationMs="700" amplitude="0"/>
+                            </repeating>
+                        </waveform-effect>
+                    </vibration-effect>
+                """,
+                /* useSimpleVibration= */ false);
+        when(mockVibratorInfo.areVibrationFeaturesSupported(any())).thenReturn(true);
+
+        createRingerUnderTest();
+
+        assertEquals(EXPECTED_PULSE_VIBRATION_PATTERN, mRingerUnderTest.mDefaultVibrationEffect);
+    }
+
+    @SmallTest
+    @Test
+    public void testValidSupportedRepeatingDefaultRingVibrationOverride() throws Exception {
+        when(mFeatureFlags.useDeviceProvidedSerializedRingerVibration()).thenReturn(true);
+        mockVibrationResourceValues(
+                """
+                    <vibration-effect>
+                        <waveform-effect>
+                            <waveform-entry durationMs="100" amplitude="0"/>
+                            <repeating>
+                                <waveform-entry durationMs="500" amplitude="default"/>
+                                <waveform-entry durationMs="700" amplitude="0"/>
+                            </repeating>
+                        </waveform-effect>
+                    </vibration-effect>
+                """,
+                /* useSimpleVibration= */ false);
+        when(mockVibratorInfo.areVibrationFeaturesSupported(any())).thenReturn(true);
+
+        createRingerUnderTest();
+
+        assertEquals(
+                VibrationEffect.createWaveform(new long[]{100, 500, 700}, /* repeat= */ 1),
+                mRingerUnderTest.mDefaultVibrationEffect);
+    }
+
+    @SmallTest
+    @Test
+    public void testValidSupportedNonRepeatingDefaultRingVibrationOverride() throws Exception {
+        when(mFeatureFlags.useDeviceProvidedSerializedRingerVibration()).thenReturn(true);
+        mockVibrationResourceValues(
+                """
+                    <vibration-effect>
+                        <predefined-effect name="click"/>
+                    </vibration-effect>
+                """,
+                /* useSimpleVibration= */ false);
+        when(mockVibratorInfo.areVibrationFeaturesSupported(any())).thenReturn(true);
+
+        createRingerUnderTest();
+
+        assertEquals(
+                VibrationEffect
+                        .startComposition()
+                        .repeatEffectIndefinitely(
+                                VibrationEffect
+                                        .startComposition()
+                                        .addEffect(VibrationEffect.createPredefined(EFFECT_CLICK))
+                                        .addOffDuration(Duration.ofSeconds(1))
+                                        .compose()
+                        )
+                        .compose(),
+                mRingerUnderTest.mDefaultVibrationEffect);
+    }
+
+    @SmallTest
+    @Test
+    public void testValidButUnsupportedDefaultRingVibrationOverride() throws Exception {
+        when(mFeatureFlags.useDeviceProvidedSerializedRingerVibration()).thenReturn(true);
+        mockVibrationResourceValues(
+                """
+                    <vibration-effect>
+                        <predefined-effect name="click"/>
+                    </vibration-effect>
+                """,
+                /* useSimpleVibration= */ false);
+        when(mockVibratorInfo.areVibrationFeaturesSupported(
+                eq(VibrationEffect.createPredefined(EFFECT_CLICK)))).thenReturn(false);
+
+        createRingerUnderTest();
+
+        assertEquals(EXPECTED_SIMPLE_VIBRATION_PATTERN, mRingerUnderTest.mDefaultVibrationEffect);
+    }
+
+    @SmallTest
+    @Test
+    public void testInvalidDefaultRingVibrationOverride() throws Exception {
+        when(mFeatureFlags.useDeviceProvidedSerializedRingerVibration()).thenReturn(true);
+        mockVibrationResourceValues(
+                /* defaultVibrationContent= */ "bad serialization",
+                /* useSimpleVibration= */ false);
+        when(mockVibratorInfo.areVibrationFeaturesSupported(any())).thenReturn(true);
+
+        createRingerUnderTest();
+
+        assertEquals(EXPECTED_SIMPLE_VIBRATION_PATTERN, mRingerUnderTest.mDefaultVibrationEffect);
+    }
+
+    @SmallTest
+    @Test
+    public void testEmptyDefaultRingVibrationOverride() throws Exception {
+        when(mFeatureFlags.useDeviceProvidedSerializedRingerVibration()).thenReturn(true);
+        mockVibrationResourceValues(
+                /* defaultVibrationContent= */ "", /* useSimpleVibration= */ false);
+        when(mockVibratorInfo.areVibrationFeaturesSupported(any())).thenReturn(true);
+
+        createRingerUnderTest();
+
+        assertEquals(EXPECTED_SIMPLE_VIBRATION_PATTERN, mRingerUnderTest.mDefaultVibrationEffect);
     }
 
     @SmallTest
@@ -231,7 +400,7 @@ public class RingerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testCallWaitingButNoRingForSpecificContacts() throws Exception {
-        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(false);
+        when(mockNotificationManager.matchesCallFilter(any(Uri.class))).thenReturn(false);
         // Start call waiting to make sure that it does stop when we start ringing
         mRingerUnderTest.startCallWaiting(mockCall1);
         verify(mockTonePlayer).startTone();
@@ -492,7 +661,7 @@ public class RingerTest extends TelecomTestCase {
         when(mContext.getSystemService(NotificationManager.class)).thenReturn(
                 mockNotificationManager);
         // suppress the call
-        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(false);
+        when(mockNotificationManager.matchesCallFilter(any(Uri.class))).thenReturn(false);
 
         // run the method under test
         assertFalse(mRingerUnderTest.shouldRingForContact(mockCall1));
@@ -501,7 +670,7 @@ public class RingerTest extends TelecomTestCase {
         // verify we never set the call object and matchesCallFilter is called
         verify(mockCall1, never()).setCallIsSuppressedByDoNotDisturb(true);
         verify(mockNotificationManager, times(1))
-                .matchesCallFilter(any(Bundle.class));
+                .matchesCallFilter(any(Uri.class));
     }
 
     /**
@@ -514,7 +683,6 @@ public class RingerTest extends TelecomTestCase {
         when(mockCall1.wasDndCheckComputedForCall()).thenReturn(false);
         when(mockCall1.getHandle()).thenReturn(Uri.parse(""));
         // alert the user of the call
-        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
 
         // run the method under test
         assertTrue(mRingerUnderTest.shouldRingForContact(mockCall1));
@@ -523,7 +691,7 @@ public class RingerTest extends TelecomTestCase {
         // verify we never set the call object and matchesCallFilter is called
         verify(mockCall1, never()).setCallIsSuppressedByDoNotDisturb(false);
         verify(mockNotificationManager, times(1))
-                .matchesCallFilter(any(Bundle.class));
+                .matchesCallFilter(any(Uri.class));
     }
 
     /**
@@ -539,7 +707,7 @@ public class RingerTest extends TelecomTestCase {
         // THEN
         assertFalse(mRingerUnderTest.shouldRingForContact(mockCall1));
         verify(mockCall1, never()).setCallIsSuppressedByDoNotDisturb(false);
-        verify(mockNotificationManager, never()).matchesCallFilter(any(Bundle.class));
+        verify(mockNotificationManager, never()).matchesCallFilter(any(Uri.class));
     }
 
     @Test
@@ -549,7 +717,7 @@ public class RingerTest extends TelecomTestCase {
         mRingerUnderTest.startCallWaiting(mockCall1);
         when(mockCall2.wasDndCheckComputedForCall()).thenReturn(false);
         when(mockCall2.getHandle()).thenReturn(Uri.parse(""));
-        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(false);
+        when(mockNotificationManager.matchesCallFilter(any(Uri.class))).thenReturn(false);
 
         assertFalse(mRingerUnderTest.shouldRingForContact(mockCall2));
         assertFalse(startRingingAndWaitForAsync(mockCall2, false));
@@ -564,7 +732,6 @@ public class RingerTest extends TelecomTestCase {
         mRingerUnderTest.startCallWaiting(mockCall1);
         when(mockCall2.wasDndCheckComputedForCall()).thenReturn(false);
         when(mockCall2.getHandle()).thenReturn(Uri.parse(""));
-        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
 
         assertTrue(mRingerUnderTest.shouldRingForContact(mockCall2));
         assertTrue(startRingingAndWaitForAsync(mockCall2, false));
@@ -591,7 +758,6 @@ public class RingerTest extends TelecomTestCase {
         mRingerUnderTest.startCallWaiting(mockCall1);
         when(mockCall2.wasDndCheckComputedForCall()).thenReturn(false);
         when(mockCall2.getHandle()).thenReturn(Uri.parse(""));
-        when(mockNotificationManager.matchesCallFilter(any(Bundle.class))).thenReturn(true);
 
         assertTrue(mRingerUnderTest.shouldRingForContact(mockCall2));
         assertTrue(mRingerUnderTest.startRinging(mockCall2, false));
@@ -669,5 +835,14 @@ public class RingerTest extends TelecomTestCase {
                 .thenReturn(mockRingtone);
         when(mockRingtoneFactory.getHapticOnlyRingtone()).thenReturn(mockRingtone);
         return mockRingtone;
+    }
+
+    private void mockVibrationResourceValues(
+            String defaultVibrationContent, boolean useSimpleVibration) {
+        mComponentContextFixture.putRawResource(
+                com.android.internal.R.raw.default_ringtone_vibration_effect,
+                defaultVibrationContent);
+        mComponentContextFixture.putBooleanResource(
+                R.bool.use_simple_vibration_pattern, useSimpleVibration);
     }
 }
