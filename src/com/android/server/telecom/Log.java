@@ -174,6 +174,7 @@ public class Log {
         public static final String PROPERTY_CHANGE = "PROPERTY_CHANGE";
         public static final String CAPABILITY_CHANGE = "CAPABILITY_CHANGE";
         public static final String CONNECTION_EVENT = "CONNECTION_EVENT";
+        public static final String CREATE_CONNECTION_TIMEOUT = "CREATE_CONNECTION_TIMEOUT";
 
         public static class Timings {
             public static final String ACCEPT_TIMING = "accept";
