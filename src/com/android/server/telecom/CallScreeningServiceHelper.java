@@ -185,6 +185,10 @@ public class CallScreeningServiceHelper {
                             Log.w(TAG, "Cancelling call id process due to timeout");
                         }
                         mFuture.complete(null);
+                        mContext.unbindService(serviceConnection);
+                    } catch (IllegalArgumentException e) {
+                        Log.i(this, "Exception when unbinding service %s : %s", serviceConnection,
+                                e.getMessage());
                     } finally {
                         Log.endSession();
                     }
