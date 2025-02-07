@@ -42,6 +42,7 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static java.lang.Thread.sleep;
 
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -50,6 +51,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.Process;
 import android.os.SystemClock;
@@ -71,6 +73,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Pair;
 import android.widget.Toast;
 
+import com.android.internal.telecom.IConnectionService;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallAudioManager;
@@ -85,6 +88,7 @@ import com.android.server.telecom.ClockProxy;
 import com.android.server.telecom.ConnectionServiceFocusManager;
 import com.android.server.telecom.ConnectionServiceFocusManager.ConnectionServiceFocusManagerFactory;
 import com.android.server.telecom.ConnectionServiceWrapper;
+import com.android.server.telecom.CreateConnectionResponse;
 import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.EmergencyCallHelper;
 import com.android.server.telecom.HeadsetMediaButton;
@@ -216,6 +220,7 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private RoleManagerAdapter mRoleManagerAdapter;
     @Mock private ToastFactory mToastFactory;
     @Mock private Toast mToast;
+    @Mock private IConnectionService mIConnectionService;
 
     private CallsManager mCallsManager;
 
@@ -283,11 +288,17 @@ public class CallsManagerTest extends TelecomTestCase {
                 eq(SIM_2_HANDLE), any())).thenReturn(SIM_2_ACCOUNT);
         when(mToastFactory.makeText(any(), anyInt(), anyInt())).thenReturn(mToast);
         when(mToastFactory.makeText(any(), any(), anyInt())).thenReturn(mToast);
+        when(mIConnectionService.asBinder()).thenReturn(mock(IBinder.class));
+
+        mComponentContextFixture.addConnectionService(
+                SIM_1_ACCOUNT.getAccountHandle().getComponentName(), mIConnectionService);
     }
 
     @Override
     @After
     public void tearDown() throws Exception {
+        mComponentContextFixture.removeConnectionService(
+                SIM_1_ACCOUNT.getAccountHandle().getComponentName(), mIConnectionService);
         super.tearDown();
     }
 
@@ -1649,6 +1660,35 @@ public class CallsManagerTest extends TelecomTestCase {
         assertTrue(argumentCaptor.getValue().contains("Unavailable phoneAccountHandle"));
     }
 
+    @Test
+    public void testConnectionServiceCreateConnectionTimeout() throws Exception {
+        ConnectionServiceWrapper service = new ConnectionServiceWrapper(
+                SIM_1_ACCOUNT.getAccountHandle().getComponentName(), null,
+                mPhoneAccountRegistrar, mCallsManager, mContext, mLock, null);
+        TestScheduledExecutorService scheduledExecutorService = new TestScheduledExecutorService();
+        service.setScheduledExecutorService(scheduledExecutorService);
+        Call call = addSpyCall();
+        service.addCall(call);
+        when(call.isCreateConnectionComplete()).thenReturn(false);
+        CreateConnectionResponse response = mock(CreateConnectionResponse.class);
+
+        service.createConnection(call, response);
+        waitUntilConditionIsTrueOrTimeout(new Condition() {
+            @Override
+            public Object expected() {
+                return true;
+            }
+
+            @Override
+            public Object actual() {
+                return scheduledExecutorService.isRunnableScheduledAtTime(15000L);
+            }
+        }, 5000L, "Expected job failed to schedule");
+        scheduledExecutorService.advanceTime(15000L);
+        verify(response).handleCreateConnectionFailure(
+                eq(new DisconnectCause(DisconnectCause.ERROR)));
+    }
+
     private Call addSpyCall() {
         return addSpyCall(SIM_2_HANDLE, CallState.ACTIVE);
     }
@@ -1740,5 +1780,20 @@ public class CallsManagerTest extends TelecomTestCase {
                 new ArrayList<>(Arrays.asList(SIM_1_HANDLE, SIM_2_HANDLE)));
         when(mPhoneAccountRegistrar.getSimPhoneAccountsOfCurrentUser()).thenReturn(
                 new ArrayList<>(Arrays.asList(SIM_1_HANDLE, SIM_2_HANDLE)));
+    }
+
+    private void waitUntilConditionIsTrueOrTimeout(Condition condition, long timeout,
+            String description) throws InterruptedException {
+        final long start = System.currentTimeMillis();
+        while (!condition.expected().equals(condition.actual())
+                && System.currentTimeMillis() - start < timeout) {
+            sleep(50);
+        }
+        assertEquals(description, condition.expected(), condition.actual());
+    }
+
+    protected interface Condition {
+        Object expected();
+        Object actual();
     }
 }
