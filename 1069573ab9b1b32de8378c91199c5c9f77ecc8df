@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9bc21c4_1019f646",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 27021
+      },
+      "writtenOn": "2025-02-23T19:15:02Z",
+      "side": 1,
+      "message": "doesnt this conflict with https://review.lineageos.org/c/LineageOS/android_packages_services_Telecomm/+/403306",
+      "revId": "1069573ab9b1b32de8378c91199c5c9f77ecc8df",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    }
+  ]
+}
