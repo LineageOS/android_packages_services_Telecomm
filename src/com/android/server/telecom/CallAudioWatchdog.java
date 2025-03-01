@@ -28,6 +28,7 @@ import android.media.AudioRecordingConfiguration;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
 import android.os.Handler;
+import android.os.Process;
 import android.telecom.Log;
 import android.telecom.Logging.EventManager;
 import android.telecom.PhoneAccountHandle;
@@ -287,6 +288,11 @@ public class CallAudioWatchdog extends CallsManagerListenerBase {
                 if (config.getAudioAttributes() != null
                         && config.getAudioAttributes().getUsage()
                         == AudioAttributes.USAGE_VOICE_COMMUNICATION) {
+
+                    // Skip if the client's pid is same as myself
+                    if (config.getClientPid() == Process.myPid()) {
+                        continue;
+                    }
 
                     // If an audio session is idle, we don't count it as playing.  It must be in a
                     // started state.

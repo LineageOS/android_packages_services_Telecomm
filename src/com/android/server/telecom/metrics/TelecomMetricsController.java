@@ -20,6 +20,7 @@ import static com.android.server.telecom.TelecomStatsLog.CALL_AUDIO_ROUTE_STATS;
 import static com.android.server.telecom.TelecomStatsLog.CALL_STATS;
 import static com.android.server.telecom.TelecomStatsLog.TELECOM_API_STATS;
 import static com.android.server.telecom.TelecomStatsLog.TELECOM_ERROR_STATS;
+import static com.android.server.telecom.TelecomStatsLog.TELECOM_EVENT_STATS;
 
 import android.annotation.NonNull;
 import android.app.StatsManager;
@@ -112,6 +113,16 @@ public class TelecomMetricsController implements StatsManager.StatsPullAtomCallb
         ErrorStats stats = (ErrorStats) mStats.get(TELECOM_ERROR_STATS);
         if (stats == null) {
             stats = new ErrorStats(mContext, mHandlerThread.getLooper(), isTestMode());
+            registerAtom(stats.getTag(), stats);
+        }
+        return stats;
+    }
+
+    @NonNull
+    public EventStats getEventStats() {
+        EventStats stats = (EventStats) mStats.get(TELECOM_EVENT_STATS);
+        if (stats == null) {
+            stats = new EventStats(mContext, mHandlerThread.getLooper(), isTestMode());
             registerAtom(stats.getTag(), stats);
         }
         return stats;

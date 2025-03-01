@@ -136,7 +136,6 @@
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Pārslēgties šeit"</string>
     <string name="callFailed_too_many_calls" msgid="4249997210954876420">"Nevar veikt zvanu, jo pašlaik jau notiek divi zvani. Pirms jauna zvana veikšanas pārtrauciet vienu no pašreizējiem zvaniem vai apvienojiet tos konferences zvanā."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Nevar veikt zvanu, jo pašlaik notiek zvans, ko nevar pārtraukt. Pirms jauna zvana veikšanas pārtrauciet pašreizējo zvanu."</string>
-    <!-- no translation found for callFailed_already_ringing (7931232733958098270) -->
-    <skip />
+    <string name="callFailed_already_ringing" msgid="7931232733958098270">"Nevar veikt zvanu, jo ir neatbildēts ienākošais zvans. Pirms jauna zvana veikšanas atbildiet uz ienākošo zvanu vai noraidiet to."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Šis MMI kods nav pieejams zvaniem vairākos kontos."</string>
 </resources>

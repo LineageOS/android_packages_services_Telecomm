@@ -84,6 +84,8 @@ import com.android.server.telecom.callsequencing.voip.VoipCallMonitor;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
 import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.metrics.ApiStats;
+import com.android.server.telecom.metrics.EventStats;
+import com.android.server.telecom.metrics.EventStats.CriticalEvent;
 import com.android.server.telecom.metrics.TelecomMetricsController;
 import com.android.server.telecom.settings.BlockedNumbersActivity;
 import com.android.server.telecom.callsequencing.TransactionManager;
@@ -195,8 +197,10 @@ public class TelecomServiceImpl {
         @Override
         public void addCall(CallAttributes callAttributes, ICallEventCallback callEventCallback,
                 String callId, String callingPackage) {
+            int uid = Binder.getCallingUid();
+            int pid = Binder.getCallingPid();
             ApiStats.ApiEvent event = new ApiStats.ApiEvent(ApiStats.API_ADDCALL,
-                    Binder.getCallingUid(), ApiStats.RESULT_PERMISSION);
+                    uid, ApiStats.RESULT_PERMISSION);
             try {
                 Log.startSession("TSI.aC", Log.getPackageAbbreviation(callingPackage));
                 Log.i(TAG, "addCall: id=[%s], attributes=[%s]", callId, callAttributes);
@@ -213,8 +217,8 @@ public class TelecomServiceImpl {
 
                 // add extras about info used for FGS delegation
                 Bundle extras = new Bundle();
-                extras.putInt(CallAttributes.CALLER_UID_KEY, Binder.getCallingUid());
-                extras.putInt(CallAttributes.CALLER_PID_KEY, Binder.getCallingPid());
+                extras.putInt(CallAttributes.CALLER_UID_KEY, uid);
+                extras.putInt(CallAttributes.CALLER_PID_KEY, pid);
 
 
                 CompletableFuture<CallTransaction> transactionFuture;
@@ -233,6 +237,11 @@ public class TelecomServiceImpl {
                             public void onResult(CallTransactionResult result) {
                                 Log.d(TAG, "addCall: onResult");
                                 Call call = result.getCall();
+                                if (mFeatureFlags.telecomMetricsSupport()) {
+                                    mMetricsController.getEventStats().log(new CriticalEvent(
+                                            EventStats.ID_ADD_CALL, uid,
+                                            EventStats.CAUSE_CALL_TRANSACTION_SUCCESS));
+                                }
 
                                 if (call == null || !call.getId().equals(callId)) {
                                     Log.i(TAG, "addCall: onResult: call is null or id mismatch");
@@ -277,6 +286,12 @@ public class TelecomServiceImpl {
                                     mAnomalyReporter.reportAnomaly(
                                             ADD_CALL_ON_ERROR_UUID,
                                             exception.getMessage());
+                                }
+                                if (mFeatureFlags.telecomMetricsSupport()) {
+                                    mMetricsController.getEventStats().log(new CriticalEvent(
+                                            EventStats.ID_ADD_CALL, uid,
+                                            EventStats.CAUSE_CALL_TRANSACTION_BASE
+                                                    + exception.getCode()));
                                 }
                             }
                         });

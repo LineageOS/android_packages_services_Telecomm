@@ -136,7 +136,6 @@
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"ইয়াত সলনি কৰক"</string>
     <string name="callFailed_too_many_calls" msgid="4249997210954876420">"কল কৰিব নোৱাৰি, কাৰণ ইতিমধ্যে দুটা কল চলি আছে। এটা নতুন কল কৰাৰ আগতে সেই দুটা কলৰ এটাৰ সংযোগ বিচ্ছিন্ন কৰক বা কল দুটা একত্ৰিত কৰি এটা কনফাৰেন্স কললৈ সলনি কৰক।"</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"হ’ল্ডত ৰাখিব নোৱাৰা কল এটা চলি থকাৰ বাবে কল কৰিব নোৱাৰি। এটা নতুন কল কৰাৰ আগেয়ে কলটোৰ সংযোগ বিচ্ছিন্ন কৰক।"</string>
-    <!-- no translation found for callFailed_already_ringing (7931232733958098270) -->
-    <skip />
+    <string name="callFailed_already_ringing" msgid="7931232733958098270">"কল কৰিব নোৱাৰি, কাৰণ এটা অন্তৰ্গামী কল প্ৰগতিত আছে যাৰ উত্তৰ দিয়া হোৱা নাই। এটা নতুন কল কৰাৰ আগেয়ে অন্তৰ্গামী কলটোৰ উত্তৰ দিয়ক বা সেইটো প্ৰত্যাখ্যান কৰক।"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"একাধিক একাউণ্টৰ মাজত কল কৰাৰ বাবে এই MMI ক’ডটো উপলব্ধ নহয়।"</string>
 </resources>

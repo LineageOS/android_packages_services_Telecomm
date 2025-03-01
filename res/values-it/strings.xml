@@ -136,7 +136,6 @@
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Passa qui"</string>
     <string name="callFailed_too_many_calls" msgid="4249997210954876420">"Impossibile effettuare una chiamata perché due chiamate sono già in corso. Unisci le chiamate in una conferenza o scollegane una prima di effettuare una nuova chiamata."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Impossibile effettuare una chiamata perché è presente una chiamata non bloccabile. Termina la chiamata prima di effettuarne una nuova."</string>
-    <!-- no translation found for callFailed_already_ringing (7931232733958098270) -->
-    <skip />
+    <string name="callFailed_already_ringing" msgid="7931232733958098270">"Impossibile effettuare una chiamata perché è presente una chiamata in arrivo senza risposta. Rispondi o rifiuta la chiamata in arrivo prima di effettuare una nuova chiamata."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Questo codice MMI non è disponibile per le chiamate su più account."</string>
 </resources>

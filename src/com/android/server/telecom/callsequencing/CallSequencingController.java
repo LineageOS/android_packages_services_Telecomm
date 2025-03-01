@@ -44,6 +44,7 @@ import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telephony.AnomalyReporter;
 import android.telephony.CarrierConfigManager;
+import android.util.Pair;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.AnomalyReporterAdapter;
@@ -62,8 +63,10 @@ import com.android.server.telecom.metrics.ErrorStats;
 import com.android.server.telecom.metrics.TelecomMetricsController;
 import com.android.server.telecom.stats.CallFailureCause;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -456,11 +459,26 @@ public class CallSequencingController {
      *         made for the emergency call.
      */
     private CompletableFuture<Boolean> makeRoomForOutgoingEmergencyCall(Call emergencyCall) {
-        // Always disconnect any ringing/incoming calls when an emergency call is placed to minimize
-        // distraction. This does not affect live call count.
-        CompletableFuture<Boolean> ringingCallFuture = null;
-        Call ringingCall = null;
-        if (mCallsManager.hasRingingOrSimulatedRingingCall()) {
+        // Disconnect all self-managed + transactional calls. We will never use these accounts for
+        // emergency calling. Disconnect non-holdable calls (in the dual-sim case) as well. For
+        // the single sim case (like Verizon), we should support the existing behavior of
+        // disconnecting the active call; refrain from disconnecting the held call in this case if
+        // it exists.
+        boolean areMultiplePhoneAccountsActive = areMultiplePhoneAccountsActive();
+        Pair<Set<Call>, CompletableFuture<Boolean>> disconnectCallsForEmergencyPair =
+                disconnectCallsForEmergencyCall(emergencyCall, areMultiplePhoneAccountsActive);
+        // The list of calls that were disconnected
+        Set<Call> disconnectedCalls = disconnectCallsForEmergencyPair.first;
+        // The future encompassing the result of the disconnect transaction(s). Because of the
+        // bulk transaction, we will always opt to perform sequencing on this future. Note that this
+        // future will always be completed with true if no disconnects occurred.
+        CompletableFuture<Boolean> transactionFuture = disconnectCallsForEmergencyPair.second;
+
+        Call ringingCall;
+        if (mCallsManager.hasRingingOrSimulatedRingingCall() && !disconnectedCalls
+                .contains(mCallsManager.getRingingOrSimulatedRingingCall())) {
+            // Always disconnect any ringing/incoming calls when an emergency call is placed to
+            // minimize distraction. This does not affect live call count.
             ringingCall = mCallsManager.getRingingOrSimulatedRingingCall();
             ringingCall.getAnalytics().setCallIsAdditional(true);
             ringingCall.getAnalytics().setCallIsInterrupted(true);
@@ -469,39 +487,54 @@ public class CallSequencingController {
                     // If this is an incoming call that is currently in SIMULATED_RINGING only
                     // after a call screen, disconnect to make room and mark as missed, since
                     // the user didn't get a chance to accept/reject.
-                    ringingCallFuture = ringingCall.disconnect("emergency call dialed during "
-                            + "simulated ringing after screen.");
+                    transactionFuture = transactionFuture.thenComposeAsync((result) ->
+                                    ringingCall.disconnect("emergency call dialed during simulated "
+                                            + "ringing after screen."),
+                            new LoggedHandlerExecutor(mHandler, "CSC.mRFOEC",
+                                    mCallsManager.getLock()));
                 } else {
                     // If this is a simulated ringing call after being active and put in
                     // AUDIO_PROCESSING state again, disconnect normally.
-                    ringingCallFuture = ringingCall.reject(false, null, "emergency call dialed "
-                            + "during simulated ringing.");
+                    transactionFuture = transactionFuture.thenComposeAsync((result) ->
+                                    ringingCall.reject(false, null,
+                                            "emergency call dialed during simulated ringing."),
+                            new LoggedHandlerExecutor(mHandler, "CSC.mRFOEC",
+                                    mCallsManager.getLock()));
                 }
             } else { // normal incoming ringing call.
                 // Hang up the ringing call to make room for the emergency call and mark as missed,
                 // since the user did not reject.
                 ringingCall.setOverrideDisconnectCauseCode(
                         new DisconnectCause(DisconnectCause.MISSED));
-                ringingCallFuture = ringingCall.reject(false, null, "emergency call dialed "
-                        + "during ringing.");
+                transactionFuture = transactionFuture.thenComposeAsync((result) ->
+                                ringingCall.reject(false, null,
+                                        "emergency call dialed during ringing."),
+                        new LoggedHandlerExecutor(mHandler, "CSC.mRFOEC",
+                                mCallsManager.getLock()));
             }
+        } else {
+            ringingCall = null;
         }
 
         // There is already room!
         if (!mCallsManager.hasMaximumLiveCalls(emergencyCall)) {
-            return CompletableFuture.completedFuture(true);
+            return transactionFuture;
         }
 
         Call liveCall = mCallsManager.getFirstCallWithLiveState();
         Log.i(this, "makeRoomForOutgoingEmergencyCall: call = " + emergencyCall
                 + " livecall = " + liveCall);
 
-        if (emergencyCall == liveCall) {
-            // Not likely, but a good correctness check.
-            return CompletableFuture.completedFuture(true);
+        // Don't need to proceed further if we already disconnected the live call or if the live
+        // call is the emergency call being placed (not likely).
+        if (emergencyCall == liveCall || disconnectedCalls.contains(liveCall)) {
+            return transactionFuture;
         }
 
-        if (mCallsManager.hasMaximumOutgoingCalls(emergencyCall)) {
+        // If we already disconnected the outgoing call, then don't perform any additional ops on
+        // it.
+        if (mCallsManager.hasMaximumOutgoingCalls(emergencyCall) && !disconnectedCalls
+                .contains(mCallsManager.getFirstCallWithState(OUTGOING_CALL_STATES))) {
             Call outgoingCall = mCallsManager.getFirstCallWithState(OUTGOING_CALL_STATES);
             String disconnectReason = null;
             if (!outgoingCall.isEmergencyCall()) {
@@ -520,27 +553,10 @@ public class CallSequencingController {
                         + " of new outgoing call.";
             }
             if (disconnectReason != null) {
-                boolean isSequencingRequiredRingingAndOutgoing = !arePhoneAccountsSame(
-                        ringingCall, outgoingCall);
-                if (ringingCallFuture != null && isSequencingRequiredRingingAndOutgoing) {
-                    String finalDisconnectReason = disconnectReason;
-                    return ringingCallFuture.thenComposeAsync((result) -> {
-                        if (result) {
-                            Log.i(this, "makeRoomForOutgoingEmergencyCall: Request to disconnect"
-                                    + " ringing call succeeded. Attempting to disconnect "
-                                    + "outgoing call.");
-                            return outgoingCall.disconnect(finalDisconnectReason);
-                        } else {
-                            Log.i(this, "makeRoomForOutgoingEmergencyCall: Request to disconnect"
-                                    + "ringing call failed. Aborting attempt to disconnect "
-                                    + "outgoing call");
-                            return CompletableFuture.completedFuture(false);
-                        }
-                    }, new LoggedHandlerExecutor(mHandler, "CSC.mRFOEC",
-                            mCallsManager.getLock()));
-                } else {
-                    return outgoingCall.disconnect(disconnectReason);
-                }
+                boolean isSequencingRequiredRingingAndOutgoing = ringingCall == null
+                        || !arePhoneAccountsSame(ringingCall, outgoingCall);
+                return disconnectOngoingCallForEmergencyCall(transactionFuture, outgoingCall,
+                        disconnectReason, isSequencingRequiredRingingAndOutgoing);
             }
             //  If the user tries to make two outgoing calls to different emergency call numbers,
             //  we will try to connect the first outgoing call and reject the second.
@@ -548,28 +564,14 @@ public class CallSequencingController {
             return CompletableFuture.completedFuture(false);
         }
 
-        boolean isSequencingRequiredRingingAndLive = ringingCall != null
-                && !arePhoneAccountsSame(ringingCall, liveCall);
+        boolean isSequencingRequiredLive = ringingCall == null
+                || !arePhoneAccountsSame(ringingCall, liveCall);
         if (liveCall.getState() == CallState.AUDIO_PROCESSING) {
             emergencyCall.getAnalytics().setCallIsAdditional(true);
             liveCall.getAnalytics().setCallIsInterrupted(true);
             final String disconnectReason = "disconnecting audio processing call for emergency";
-            if (ringingCallFuture != null && isSequencingRequiredRingingAndLive) {
-                return ringingCallFuture.thenComposeAsync((result) -> {
-                    if (result) {
-                        Log.i(this, "makeRoomForOutgoingEmergencyCall: Request to disconnect "
-                                + "ringing call succeeded. Attempting to disconnect live call.");
-                        return liveCall.disconnect(disconnectReason);
-                    } else {
-                        Log.i(this, "makeRoomForOutgoingEmergencyCall: Request to disconnect "
-                                + "ringing call failed. Aborting attempt to disconnect live call.");
-                        return CompletableFuture.completedFuture(false);
-                    }
-                }, new LoggedHandlerExecutor(mHandler, "CSC.mRFOEC",
-                        mCallsManager.getLock()));
-            } else {
-                return liveCall.disconnect(disconnectReason);
-            }
+            return disconnectOngoingCallForEmergencyCall(transactionFuture, liveCall,
+                    disconnectReason, isSequencingRequiredLive);
         }
 
         // If the live call is stuck in a connecting state, prompt the user to generate a bugreport.
@@ -582,30 +584,37 @@ public class CallSequencingController {
         // we'll disconnect the ongoing call if it cannot be held. If we have a self-managed call
         // that can't be held, then we should disconnect the call in favor of the emergency call.
         // Likewise, if there's only one active managed call which can't be held, then it should
-        // also be disconnected.
+        // also be disconnected. This will only happen for the single sim scenario to support
+        // backwards compatibility. For dual sim, we should try disconnecting the held call and
+        // hold the active call.
+        Call heldCall = null;
         if (mCallsManager.hasMaximumManagedHoldingCalls(emergencyCall)
                 || !mCallsManager.canHold(liveCall)) {
-            emergencyCall.getAnalytics().setCallIsAdditional(true);
-            liveCall.getAnalytics().setCallIsInterrupted(true);
-            // Disconnect the active call instead of the holding call because it is historically
-            // easier to do, rather than disconnect a held call.
             final String disconnectReason = "disconnecting to make room for emergency call "
                     + emergencyCall.getId();
-            if (ringingCallFuture != null && isSequencingRequiredRingingAndLive) {
-                return ringingCallFuture.thenComposeAsync((result) -> {
-                    if (result) {
-                        Log.i(this, "makeRoomForOutgoingEmergencyCall: Request to disconnect "
-                                + "ringing call succeeded. Attempting to disconnect live call.");
-                        return liveCall.disconnect(disconnectReason);
-                    } else {
-                        Log.i(this, "makeRoomForOutgoingEmergencyCall: Request to disconnect "
-                                + "ringing call failed. Aborting attempt to disconnect live call.");
-                        return CompletableFuture.completedFuture(false);
-                    }
-                }, new LoggedHandlerExecutor(mHandler, "CSC.mRFOEC",
-                        mCallsManager.getLock()));
-            } else {
-                return liveCall.disconnect(disconnectReason);
+            emergencyCall.getAnalytics().setCallIsAdditional(true);
+            // Single sim case
+            if (!areMultiplePhoneAccountsActive) {
+                liveCall.getAnalytics().setCallIsInterrupted(true);
+                // Disconnect the active call instead of the holding call because it is historically
+                // easier to do, rather than disconnect a held call.
+                return disconnectOngoingCallForEmergencyCall(transactionFuture, liveCall,
+                        disconnectReason, isSequencingRequiredLive);
+            } else { // Dual sim case
+                // If the live call can't be held, we would've already disconnected it
+                // in disconnectCallsForEmergencyCall. Note at this point, we should always have
+                // a held call then that should be disconnected (over the active call).
+                if (!mCallsManager.canHold(liveCall)) {
+                    return transactionFuture;
+                }
+                heldCall = mCallsManager.getFirstCallWithState(CallState.ON_HOLD);
+                boolean isSequencingRequiredRingingAndHeld = ringingCall == null
+                        || !arePhoneAccountsSame(ringingCall, heldCall);
+                isSequencingRequiredLive = !arePhoneAccountsSame(heldCall, liveCall);
+                heldCall.getAnalytics().setCallIsInterrupted(true);
+                // Disconnect the held call.
+                transactionFuture = disconnectOngoingCallForEmergencyCall(transactionFuture,
+                        heldCall, disconnectReason, isSequencingRequiredRingingAndHeld);
             }
         }
 
@@ -638,24 +647,8 @@ public class CallSequencingController {
                         DisconnectCause.LOCAL, DisconnectCause.REASON_EMERGENCY_CALL_PLACED));
                 final String disconnectReason = "outgoing call does not support emergency calls, "
                         + "disconnecting.";
-                if (ringingCallFuture != null && isSequencingRequiredRingingAndLive) {
-                    return ringingCallFuture.thenComposeAsync((result) -> {
-                        if (result) {
-                            Log.i(this, "makeRoomForOutgoingEmergencyCall: Request to disconnect "
-                                    + "ringing call succeeded. "
-                                    + "Attempting to disconnect live call.");
-                            return liveCall.disconnect(disconnectReason);
-                        } else {
-                            Log.i(this, "makeRoomForOutgoingEmergencyCall: Request to disconnect "
-                                    + "ringing call failed. "
-                                    + "Aborting attempt to disconnect live call.");
-                            return CompletableFuture.completedFuture(false);
-                        }
-                    }, new LoggedHandlerExecutor(mHandler, "CSC.mRFOEC",
-                            mCallsManager.getLock()));
-                } else {
-                    return liveCall.disconnect(disconnectReason);
-                }
+                return disconnectOngoingCallForEmergencyCall(transactionFuture, liveCall,
+                        disconnectReason, isSequencingRequiredLive);
             }
         }
 
@@ -667,8 +660,8 @@ public class CallSequencingController {
                 emergencyCall.getTargetPhoneAccount())) {
             Log.i(this, "makeRoomForOutgoingEmergencyCall: phoneAccounts are from same "
                     + "package. Attempting to hold live call before placing emergency call.");
-            return maybeHoldLiveCallForEmergency(ringingCallFuture,
-                    isSequencingRequiredRingingAndLive, liveCall, emergencyCall,
+            return maybeHoldLiveCallForEmergency(transactionFuture,
+                    isSequencingRequiredLive, liveCall, emergencyCall,
                     shouldHoldForEmergencyCall(liveCallPhoneAccount) /* shouldHoldForEmergency */);
         } else if (emergencyCall.getTargetPhoneAccount() == null) {
             // Without a phone account, we can't say reliably that the call will fail.
@@ -677,20 +670,24 @@ public class CallSequencingController {
             // hold but they still support adding a call by going immediately into conference
             // mode). Return true here and we'll run this code again after user chooses an
             // account.
-            return CompletableFuture.completedFuture(true);
+            return transactionFuture;
         }
 
-        // Hold the live call if possible before attempting the new outgoing emergency call.
-        if (mCallsManager.canHold(liveCall)) {
+        // Hold the live call if possible before attempting the new outgoing emergency call. Also,
+        // ensure that we try holding if we disconnected a held call and the live call supports
+        // holding.
+        if (mCallsManager.canHold(liveCall) || (heldCall != null
+                && mCallsManager.supportsHold(liveCall))) {
             Log.i(this, "makeRoomForOutgoingEmergencyCall: holding live call.");
-            return maybeHoldLiveCallForEmergency(ringingCallFuture,
-                    isSequencingRequiredRingingAndLive, liveCall,
-                    emergencyCall, true /* shouldHoldForEmergency */);
+            return maybeHoldLiveCallForEmergency(transactionFuture, isSequencingRequiredLive,
+                    liveCall, emergencyCall, true /* shouldHoldForEmergency */);
         }
 
-        // The live call cannot be held so we're out of luck here.  There's no room.
-        emergencyCall.setStartFailCause(CallFailureCause.CANNOT_HOLD_CALL);
-        return CompletableFuture.completedFuture(false);
+        // Refrain from failing the call in Telecom if possible. Additional processing will be done
+        // in the Telephony layer to hold/disconnect calls (across subs, if needed) and we will fail
+        // there instead. This should be treated as the preprocessing steps required to set up the
+        // ability to place an emergency call.
+        return transactionFuture;
     }
 
     /**
@@ -828,25 +825,31 @@ public class CallSequencingController {
 
     /* makeRoomForOutgoingEmergencyCall helpers */
 
+    /**
+     * Tries to hold the live call before placing the emergency call. If the hold fails, then we
+     * will instead disconnect the call.
+     *
+     * Note: This only applies when the live call and emergency call are from the same phone
+     * account.
+     */
     private CompletableFuture<Boolean> maybeHoldLiveCallForEmergency(
-            CompletableFuture<Boolean> ringingCallFuture, boolean isSequencingRequired,
+            CompletableFuture<Boolean> transactionFuture, boolean isSequencingRequired,
             Call liveCall, Call emergencyCall, boolean shouldHoldForEmergency) {
         emergencyCall.getAnalytics().setCallIsAdditional(true);
         liveCall.getAnalytics().setCallIsInterrupted(true);
         final String holdReason = "calling " + emergencyCall.getId();
         CompletableFuture<Boolean> holdResultFuture = CompletableFuture.completedFuture(false);
         if (shouldHoldForEmergency) {
-            if (ringingCallFuture != null && isSequencingRequired) {
-                holdResultFuture = ringingCallFuture.thenComposeAsync((result) -> {
+            if (transactionFuture != null && isSequencingRequired) {
+                holdResultFuture = transactionFuture.thenComposeAsync((result) -> {
                     if (result) {
                         Log.i(this, "makeRoomForOutgoingEmergencyCall: Request to disconnect "
-                                + "ringing call succeeded. Attempting to hold live call.");
-                        return liveCall.hold(holdReason);
-                    } else {
+                                + "previous call succeeded. Attempting to hold live call.");
+                    } else { // Log the failure but proceed with hold transaction.
                         Log.i(this, "makeRoomForOutgoingEmergencyCall: Request to disconnect "
-                                + "ringing call failed. Aborting attempt to hold live call.");
-                        return CompletableFuture.completedFuture(false);
+                                + "previous call failed. Still attempting to hold live call.");
                     }
+                    return liveCall.hold(holdReason);
                 }, new LoggedHandlerExecutor(mHandler, "CSC.mRFOEC",
                         mCallsManager.getLock()));
             } else {
@@ -865,6 +868,117 @@ public class CallSequencingController {
                 return CompletableFuture.completedFuture(true);
             }
         }, new LoggedHandlerExecutor(mHandler, "CSC.mRFOEC", mCallsManager.getLock()));
+    }
+
+    /**
+     * Disconnects all VOIP + non-holdable calls as well as those that don't support placing
+     * emergency calls before placing an emergency call.
+     *
+     * Note: If a call can't be held, it will be active to begin with.
+     * @return The list of calls to be disconnected alongside the future keeping track of the
+     *         disconnect transaction.
+     */
+    private Pair<Set<Call>, CompletableFuture<Boolean>> disconnectCallsForEmergencyCall(
+            Call emergencyCall, boolean areMultiplePhoneAccountsActive) {
+        Set<Call> callsDisconnected = new HashSet<>();
+        Call previousCall = null;
+        Call ringingCall = mCallsManager.getRingingOrSimulatedRingingCall();
+        CompletableFuture<Boolean> disconnectFuture = CompletableFuture.completedFuture(true);
+        for (Call call: mCallsManager.getCalls()) {
+            // Conditions for checking if call doesn't need to be disconnected immediately.
+            boolean isManaged = !call.isSelfManaged() && !call.isTransactionalCall();
+            boolean callSupportsHold = call.can(Connection.CAPABILITY_SUPPORT_HOLD);
+            boolean callSupportsHoldingEmergencyCall = shouldHoldForEmergencyCall(
+                    call.getTargetPhoneAccount());
+
+            // Skip the ringing call; we'll handle the disconnect explicitly later.
+            if (call.equals(ringingCall)) {
+                continue;
+            }
+
+            // If the call is managed and supports holding + capability to place emergency calls,
+            // don't disconnect the call.
+            if (isManaged && callSupportsHoldingEmergencyCall) {
+                // If call supports hold, we can skip. Other condition we check here is if calls
+                // are on single sim, in which case we will refrain from disconnecting a potentially
+                // held call (i.e. Verizon ACTIVE + HOLD case) here and let that be determined later
+                // down in makeRoomForOutgoingEmergencyCall.
+                if (callSupportsHold || (!areMultiplePhoneAccountsActive)) {
+                    continue;
+                }
+            }
+
+            Log.i(this, "Disconnecting call (%s). isManaged: %b, call supports hold: %b, call "
+                            + "supports holding emergency call: %b", call.getId(), isManaged,
+                    callSupportsHold, callSupportsHoldingEmergencyCall);
+            emergencyCall.getAnalytics().setCallIsAdditional(true);
+            call.getAnalytics().setCallIsInterrupted(true);
+            call.setOverrideDisconnectCauseCode(new DisconnectCause(
+                    DisconnectCause.LOCAL, DisconnectCause.REASON_EMERGENCY_CALL_PLACED));
+
+            Call finalPreviousCall = previousCall;
+            disconnectFuture = disconnectFuture.thenComposeAsync((result) -> {
+                if (!result) {
+                    // Log the failure if it happens but proceed with the disconnects.
+                    Log.i(this, "Call (%s) failed to be disconnected",
+                            finalPreviousCall);
+                }
+                return call.disconnect("Disconnecting call with phone account that does not "
+                        + "support emergency call");
+            }, new LoggedHandlerExecutor(mHandler, "CSC.dAVC",
+                    mCallsManager.getLock()));
+            previousCall = call;
+            callsDisconnected.add(call);
+        }
+        return new Pair<>(callsDisconnected, disconnectFuture);
+    }
+
+    /**
+     * Waiting on the passed future completion when sequencing is required, this will try to the
+     * disconnect the call passed in.
+     */
+    private CompletableFuture<Boolean> disconnectOngoingCallForEmergencyCall(
+            CompletableFuture<Boolean> transactionFuture, Call callToDisconnect,
+            String disconnectReason, boolean isSequencingRequired) {
+        if (isSequencingRequired) {
+            return transactionFuture.thenComposeAsync((result) -> {
+                if (result) {
+                    Log.i(this, "makeRoomForOutgoingEmergencyCall: Request to disconnect "
+                            + "previous call succeeded. Attempting to disconnect ongoing call"
+                            + " %s.", callToDisconnect);
+                } else {
+                    Log.i(this, "makeRoomForOutgoingEmergencyCall: Request to disconnect "
+                            + "previous call failed. Still attempting to disconnect ongoing call"
+                            + " %s.", callToDisconnect);
+                }
+                return callToDisconnect.disconnect(disconnectReason);
+            }, new LoggedHandlerExecutor(mHandler, "CSC.mRFOEC",
+                    mCallsManager.getLock()));
+        } else {
+            return callToDisconnect.disconnect(disconnectReason);
+        }
+    }
+
+    /**
+     * Determines if DSDA is being used (i.e. calls present on more than one phone account).
+     */
+    private boolean areMultiplePhoneAccountsActive() {
+        List<Call> calls = mCallsManager.getCalls().stream().toList();
+        PhoneAccountHandle handle1 = null;
+        if (!calls.isEmpty()) {
+            // Find the first handle different from the one retrieved from the first call in
+            // the list.
+            for(int i = 0; i < calls.size(); i++) {
+                if (handle1 == null && calls.get(i).getTargetPhoneAccount() != null) {
+                    handle1 = calls.getFirst().getTargetPhoneAccount();
+                }
+                if (handle1 != null && calls.get(i).getTargetPhoneAccount() != null
+                        && !handle1.equals(calls.get(i).getTargetPhoneAccount())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

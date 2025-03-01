@@ -136,7 +136,6 @@
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Buraya dön"</string>
     <string name="callFailed_too_many_calls" msgid="4249997210954876420">"Devam eden iki arama olduğu için arama yapılamıyor. Yeni bir arama yapmadan önce aramalardan birini sonlandırın veya iki aramayı bir konferans aramasında birleştirin."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Bekletilemeyen bir arama devam ettiğinden arama yapılamıyor. Yeni bir arama yapmadan önce mevcut aramayı sonlandırın."</string>
-    <!-- no translation found for callFailed_already_ringing (7931232733958098270) -->
-    <skip />
+    <string name="callFailed_already_ringing" msgid="7931232733958098270">"Gelen arama olduğu için arama yapılamıyor. Yeni bir arama yapmadan önce gelen aramayı cevaplayın veya reddedin."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Bu MMI kodu, birden fazla hesaptan arama yapılırken kullanılamaz."</string>
 </resources>

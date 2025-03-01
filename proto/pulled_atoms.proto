@@ -14,6 +14,8 @@ message PulledAtoms {
   optional int64 telecom_api_stats_pull_timestamp_millis = 6;
   repeated TelecomErrorStats telecom_error_stats = 7;
   optional int64 telecom_error_stats_pull_timestamp_millis = 8;
+  repeated TelecomEventStats telecom_event_stats = 9;
+  optional int64 telecom_event_stats_pull_timestamp_millis = 10;
 }
 
 /**
@@ -48,6 +50,15 @@ message CallStats {
 
     // Average elapsed time between CALL_STATE_ACTIVE to CALL_STATE_DISCONNECTED.
     optional int32 average_duration_ms = 8;
+
+    // The disconnect cause of the call. Eg. ERROR, LOCAL, REMOTE, etc.
+    // From frameworks/proto_logging/stats/enums/telecomm/enums.proto
+    optional int32 disconnect_cause = 9;
+
+    // The type of simultaneous call type. Eg. SINGLE, DUAL_SAME_ACCOUNT,
+    // DUAL_DIFF_ACCOUNT, etc.
+    // From frameworks/proto_logging/stats/enums/telecomm/enums.proto
+    optional int32 simultaneous_type = 10;
 }
 
 /**
@@ -111,4 +122,23 @@ message TelecomErrorStats {
 
     // The number of times this error occurs
     optional int32 count = 3;
+}
+
+/**
+ * Pulled atom to capture stats of Telecom critical events
+ */
+message TelecomEventStats {
+    // The event name
+    // From frameworks/proto_logging/stats/enums/telecomm/enums.proto
+    optional int32 event = 1;
+
+    // UID of the caller. This is always -1/unknown for the private space.
+    optional int32 uid = 2;
+
+    // The cause related to the event
+    // From frameworks/proto_logging/stats/enums/telecomm/enums.proto
+    optional int32 event_cause = 3;
+
+    // The number of times this event occurs
+    optional int32 count = 4;
 }

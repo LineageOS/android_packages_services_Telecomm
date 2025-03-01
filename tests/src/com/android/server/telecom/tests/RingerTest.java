@@ -22,6 +22,7 @@ import static android.provider.Settings.Global.ZEN_MODE_IMPORTANT_INTERRUPTIONS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -46,6 +47,7 @@ import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.media.VolumeShaper;
 import android.media.audio.Flags;
 import android.net.Uri;
@@ -65,6 +67,7 @@ import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.util.Pair;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -85,6 +88,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Spy;
 
@@ -846,8 +850,12 @@ public class RingerTest extends TelecomTestCase {
     @Test
     @EnableFlags(Flags.FLAG_ENABLE_RINGTONE_HAPTICS_CUSTOMIZATION)
     public void testNoVibrateForSilentRingtoneIfRingtoneHasVibration() throws Exception {
+        final Context context = ApplicationProvider.getApplicationContext();
+        Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(context,
+                RingtoneManager.TYPE_RINGTONE);
+        assumeNotNull(defaultRingtoneUri);
         Uri FAKE_RINGTONE_VIBRATION_URI =
-                FAKE_RINGTONE_URI.buildUpon().appendQueryParameter(
+                defaultRingtoneUri.buildUpon().appendQueryParameter(
                         VIBRATION_PARAM, FAKE_VIBRATION_URI.toString()).build();
         Ringtone mockRingtone = mock(Ringtone.class);
         Pair<Uri, Ringtone> ringtoneInfo = new Pair(FAKE_RINGTONE_VIBRATION_URI, mockRingtone);
@@ -856,21 +864,61 @@ public class RingerTest extends TelecomTestCase {
                 .thenReturn(ringtoneInfo);
         mComponentContextFixture.putBooleanResource(
                 com.android.internal.R.bool.config_ringtoneVibrationSettingsSupported, true);
-        createRingerUnderTest(); // Needed after mock the config.
+        try {
+            RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE,
+                    FAKE_RINGTONE_VIBRATION_URI);
+            createRingerUnderTest(); // Needed after mock the config.
 
-        mRingerUnderTest.startCallWaiting(mockCall1);
-        when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_VIBRATE);
-        when(mockAudioManager.getStreamVolume(AudioManager.STREAM_RING)).thenReturn(0);
-        enableVibrationWhenRinging();
-        assertFalse(startRingingAndWaitForAsync(mockCall2, false));
+            mRingerUnderTest.startCallWaiting(mockCall1);
+            when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_VIBRATE);
+            when(mockAudioManager.getStreamVolume(AudioManager.STREAM_RING)).thenReturn(0);
+            enableVibrationWhenRinging();
+            assertFalse(startRingingAndWaitForAsync(mockCall2, false));
 
-        verify(mockRingtoneFactory, atLeastOnce())
-                .getRingtone(any(Call.class), eq(null), eq(false));
-        verifyNoMoreInteractions(mockRingtoneFactory);
-        verify(mockTonePlayer).stopTone();
-        // Skip vibration play in Ringer if a vibration was specified to the ringtone
-        verify(mockVibrator, never()).vibrate(any(VibrationEffect.class),
-                any(VibrationAttributes.class));
+            verify(mockRingtoneFactory, atLeastOnce())
+                    .getRingtone(any(Call.class), eq(null), eq(false));
+            verifyNoMoreInteractions(mockRingtoneFactory);
+            verify(mockTonePlayer).stopTone();
+            // Skip vibration play in Ringer if a vibration was specified to the ringtone
+            verify(mockVibrator, never()).vibrate(any(VibrationEffect.class),
+                    any(VibrationAttributes.class));
+        } finally {
+            // Restore the default ringtone Uri
+            RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE,
+                    defaultRingtoneUri);
+        }
+    }
+
+    @SmallTest
+    @Test
+    @EnableFlags(Flags.FLAG_ENABLE_RINGTONE_HAPTICS_CUSTOMIZATION)
+    public void testNotMuteHapticChannelWithRampingRinger() throws Exception {
+        final Context context = ApplicationProvider.getApplicationContext();
+        Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(context,
+                RingtoneManager.TYPE_RINGTONE);
+        assumeNotNull(defaultRingtoneUri);
+        Uri FAKE_RINGTONE_VIBRATION_URI = defaultRingtoneUri.buildUpon().appendQueryParameter(
+                        VIBRATION_PARAM, FAKE_VIBRATION_URI.toString()).build();
+        mComponentContextFixture.putBooleanResource(
+                com.android.internal.R.bool.config_ringtoneVibrationSettingsSupported, true);
+        ArgumentCaptor<Boolean> muteHapticChannelCaptor = ArgumentCaptor.forClass(Boolean.class);
+        try {
+            RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE,
+                    FAKE_RINGTONE_VIBRATION_URI);
+            createRingerUnderTest(); // Needed after mock the config.
+            mRingerUnderTest.startCallWaiting(mockCall1);
+            ensureRingerIsAudible();
+            enableRampingRinger();
+            enableVibrationWhenRinging();
+            assertTrue(startRingingAndWaitForAsync(mockCall2, false));
+            verify(mockRingtoneFactory, atLeastOnce()).getRingtone(any(Call.class),
+                    nullable(VolumeShaper.Configuration.class), muteHapticChannelCaptor.capture());
+            assertFalse(muteHapticChannelCaptor.getValue());
+        } finally {
+            // Restore the default ringtone Uri
+            RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE,
+                    defaultRingtoneUri);
+        }
     }
 
     /**

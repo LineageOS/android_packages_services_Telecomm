@@ -136,7 +136,6 @@
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Preklopi sem"</string>
     <string name="callFailed_too_many_calls" msgid="4249997210954876420">"Klica ni mogoče opraviti, ker potekata že dva klica. Preden začnete nov klic, prekinite enega od klicev ali ju združite v konferenčni klic."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Klica ni mogoče opraviti, ker že imate klic, ki ga ni mogoče zadržati. Preden opravite nov klic, prekinite omenjeni klic."</string>
-    <!-- no translation found for callFailed_already_ringing (7931232733958098270) -->
-    <skip />
+    <string name="callFailed_already_ringing" msgid="7931232733958098270">"Klica ni mogoče opraviti, ker imate dohodni klic, na katerega še niste odgovorili. Preden začnete nov klic, sprejmite ali zavrnite dohodni klic."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Ta koda MMI ni na voljo za klice v več računih."</string>
 </resources>

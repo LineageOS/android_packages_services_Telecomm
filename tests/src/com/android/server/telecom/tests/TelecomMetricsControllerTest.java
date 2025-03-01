@@ -19,6 +19,7 @@ import static com.android.server.telecom.TelecomStatsLog.CALL_AUDIO_ROUTE_STATS;
 import static com.android.server.telecom.TelecomStatsLog.CALL_STATS;
 import static com.android.server.telecom.TelecomStatsLog.TELECOM_API_STATS;
 import static com.android.server.telecom.TelecomStatsLog.TELECOM_ERROR_STATS;
+import static com.android.server.telecom.TelecomStatsLog.TELECOM_EVENT_STATS;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyObject;
@@ -38,6 +39,7 @@ import com.android.server.telecom.metrics.ApiStats;
 import com.android.server.telecom.metrics.AudioRouteStats;
 import com.android.server.telecom.metrics.CallStats;
 import com.android.server.telecom.metrics.ErrorStats;
+import com.android.server.telecom.metrics.EventStats;
 import com.android.server.telecom.metrics.TelecomMetricsController;
 
 import org.junit.After;
@@ -61,6 +63,8 @@ public class TelecomMetricsControllerTest extends TelecomTestCase {
     CallStats mCallStats;
     @Mock
     ErrorStats mErrorStats;
+    @Mock
+    EventStats mEventStats;
 
     HandlerThread mHandlerThread;
 
@@ -114,6 +118,13 @@ public class TelecomMetricsControllerTest extends TelecomTestCase {
     }
 
     @Test
+    public void testGetEventStatsReturnsSameInstance() {
+        EventStats stats1 = mTelecomMetricsController.getEventStats();
+        EventStats stats2 = mTelecomMetricsController.getEventStats();
+        assertThat(stats1).isSameInstanceAs(stats2);
+    }
+
+    @Test
     public void testOnPullAtomReturnsPullSkipIfAtomNotRegistered() {
         mTelecomMetricsController.getStats().clear();
 
@@ -143,6 +154,7 @@ public class TelecomMetricsControllerTest extends TelecomTestCase {
         verify(statsManager, times(1)).clearPullAtomCallback(eq(CALL_STATS));
         verify(statsManager, times(1)).clearPullAtomCallback(eq(TELECOM_API_STATS));
         verify(statsManager, times(1)).clearPullAtomCallback(eq(TELECOM_ERROR_STATS));
+        verify(statsManager, times(1)).clearPullAtomCallback(eq(TELECOM_EVENT_STATS));
         assertThat(mTelecomMetricsController.getStats()).isEmpty();
     }
 
@@ -195,5 +207,6 @@ public class TelecomMetricsControllerTest extends TelecomTestCase {
         mTelecomMetricsController.getStats().put(CALL_STATS, mCallStats);
         mTelecomMetricsController.getStats().put(TELECOM_API_STATS, mApiStats);
         mTelecomMetricsController.getStats().put(TELECOM_ERROR_STATS, mErrorStats);
+        mTelecomMetricsController.getStats().put(TELECOM_EVENT_STATS, mEventStats);
     }
 }
