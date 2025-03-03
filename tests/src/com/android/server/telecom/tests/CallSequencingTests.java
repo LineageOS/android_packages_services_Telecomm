@@ -516,6 +516,25 @@ public class CallSequencingTests extends TelecomTestCase {
         assertTrue(waitForFutureResult(future, false));
     }
 
+    @SmallTest
+    @Test
+    public void testMakeRoomForOutgoingEmergencyCall_DoesNotSupportHoldingEmergency() {
+        setupMakeRoomForOutgoingEmergencyCallMocks();
+        when(mCallsManager.getCalls()).thenReturn(List.of(mActiveCall, mRingingCall));
+        when(mActiveCall.getTargetPhoneAccount()).thenReturn(mHandle1);
+        // Set the KEY_ALLOW_HOLD_CALL_DURING_EMERGENCY_BOOL carrier config to false for the active
+        // call's phone account.
+        PersistableBundle bundle = new PersistableBundle();
+        bundle.putBoolean(CarrierConfigManager.KEY_ALLOW_HOLD_CALL_DURING_EMERGENCY_BOOL, false);
+        when(mCallsManager.getCarrierConfigForPhoneAccount(eq(mHandle1))).thenReturn(bundle);
+        when(mNewCall.getTargetPhoneAccount()).thenReturn(mHandle2);
+        when(mRingingCall.getTargetPhoneAccount()).thenReturn(mHandle2);
+
+        mController.makeRoomForOutgoingCall(true, mNewCall);
+        // Verify that the active call got disconnected as it doesn't support holding for emergency.
+        verify(mActiveCall, timeout(SEQUENCING_TIMEOUT_MS)).disconnect(anyString());
+    }
+
     @Test
     @SmallTest
     public void testMakeRoomForOutgoingCall() {

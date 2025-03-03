@@ -260,9 +260,7 @@ public class TransactionalCallSequencingAdapter {
     }
 
     private void removeCallFromCallsManager(Call call, DisconnectCause cause) {
-        if (cause.getCode() != DisconnectCause.REJECTED) {
-            mCallsManager.markCallAsDisconnected(call, cause);
-        }
+        mCallsManager.markCallAsDisconnected(call, cause);
         mCallsManager.removeCall(call);
     }
 

@@ -136,7 +136,6 @@
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Chuyển qua thiết bị này"</string>
     <string name="callFailed_too_many_calls" msgid="4249997210954876420">"Không thể gọi điện vì có 2 cuộc gọi đang diễn ra. Hãy ngắt kết nối 1 trong 2 cuộc gọi hoặc gộp thành 1 cuộc gọi kiểu hội nghị truyền hình trước khi thực hiện cuộc gọi mới."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Không thể thực hiện cuộc gọi vì có một cuộc gọi không thể tạm ngưng. Hãy ngắt kết nối với cuộc gọi đó trước khi thực hiện cuộc gọi mới."</string>
-    <!-- no translation found for callFailed_already_ringing (7931232733958098270) -->
-    <skip />
+    <string name="callFailed_already_ringing" msgid="7931232733958098270">"Bạn không thể gọi vì chưa trả lời cuộc gọi đến. Hãy trả lời hoặc từ chối cuộc gọi đến trước khi thực hiện cuộc gọi mới."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Mã MMI này không dùng được cho các cuộc gọi trên nhiều tài khoản."</string>
 </resources>

@@ -136,7 +136,6 @@
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Skift hertil"</string>
     <string name="callFailed_too_many_calls" msgid="4249997210954876420">"Der kan ikke foretages et opkald, fordi der allerede er to igangværende opkald. Afslut et af opkaldene, eller flet dem til et telefonmøde, før du foretager et nyt opkald."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Opkaldet kan ikke foretages, fordi der er et opkald i gang, som ikke kan sættes på hold. Afslut opkaldet, før du foretager et nyt."</string>
-    <!-- no translation found for callFailed_already_ringing (7931232733958098270) -->
-    <skip />
+    <string name="callFailed_already_ringing" msgid="7931232733958098270">"Der kan ikke foretages et opkald, fordi et indgående opkald ringer. Besvar eller afvis det indgående opkald, før du foretager et nyt opkald."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Denne MMI-kode er ikke tilgængelig for opkald på tværs af flere konti."</string>
 </resources>

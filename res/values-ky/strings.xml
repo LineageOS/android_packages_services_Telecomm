@@ -136,7 +136,6 @@
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Бул жерге которулуу"</string>
     <string name="callFailed_too_many_calls" msgid="4249997210954876420">"Чалуу аткарылбайт, анткени эки чалуу аткарылууда. Бир чалууну өчүрүңүз же аларды конференцияга бириктириңиз."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Чалуу мүмкүн эмес, анткени кармалбаган чалуу бар. Жаңы чалуудан мурда учурдагыны бүтүрүңүз."</string>
-    <!-- no translation found for callFailed_already_ringing (7931232733958098270) -->
-    <skip />
+    <string name="callFailed_already_ringing" msgid="7931232733958098270">"Чалуу аткарылбайт, анткени кирүүчү чалууга жооп берилген жок. Жаңы чалуу аткаруудан мурун кирүүчү чалууга жооп бериңиз же четке кагыңыз."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Бул MMI коду бир нече аккаунт аркылуу чалуулар үчүн жеткиликсиз."</string>
 </resources>

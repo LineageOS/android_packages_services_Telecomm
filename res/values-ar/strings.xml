@@ -136,7 +136,6 @@
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"الانتقال إلى هنا"</string>
     <string name="callFailed_too_many_calls" msgid="4249997210954876420">"لا يمكن إجراء مكالمة لأنّ هناك مكالمتين جاريتين حاليًا. يُرجى إنهاء إحدى المكالمتين أو دمجهما في مكالمة جماعية قبل إجراء مكالمة جديدة."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"أنت في مكالمة غير قابلة للتعليق، لذا لا يمكن إجراء مكالمة أخرى. يُرجى إنهاء المكالمة الحالية لإجراء مكالمة جديدة."</string>
-    <!-- no translation found for callFailed_already_ringing (7931232733958098270) -->
-    <skip />
+    <string name="callFailed_already_ringing" msgid="7931232733958098270">"لا يمكن إجراء مكالمة لأن هناك مكالمة واردة لم يتم الرد عليها. يُرجى الرد على المكالمة الواردة أو رفضها قبل إجراء مكالمة جديدة."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"‏لا يتوفّر رمز MMI هذا للمكالمات على مستوى حسابات متعددة."</string>
 </resources>

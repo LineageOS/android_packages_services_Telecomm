@@ -136,7 +136,6 @@
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"انتقال در اینجا انجام شود"</string>
     <string name="callFailed_too_many_calls" msgid="4249997210954876420">"نمی‌توانید تماسی برقرار کنید، زیرا هم‌اکنون دو تماس دیگر درحال انجام است. قبل‌از برقراری تماس جدید، یکی از تماس‌ها را قطع کنید یا آن‌ها را به‌صورت کنفرانسی ادغام کنید."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"نمی‌توانید تماسی برقرار کنید زیرا هم‌اکنون تماسی بدون قابلیت انتظار درحال انجام است. قبل‌از برقراری تماس جدید، تماس را قطع کنید."</string>
-    <!-- no translation found for callFailed_already_ringing (7931232733958098270) -->
-    <skip />
+    <string name="callFailed_already_ringing" msgid="7931232733958098270">"نمی‌توانید تماسی برقرار کنید، چون تماس ورودی بی‌پاسخی درحال انجام است. قبل‌از برقراری تماس جدید، به تماس ورودی پاسخ دهید یا آن را رد کنید."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"‏این کد MMI برای تماس در چندین حساب دردسترس نیست."</string>
 </resources>

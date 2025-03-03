@@ -136,6 +136,6 @@
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Skipta hingað"</string>
     <string name="callFailed_too_many_calls" msgid="4249997210954876420">"Ekki er hægt að hringja símtal vegna þess að þegar eru tvö símtöl í gangi. Aftengdu annað símtalið eða sameinaðu þau í símafund áður en þú hringir nýtt símtal."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Ekki er hægt að hringja símtal vegna símtals sem ekki er hægt að setja í bið. Slíttu símtalinu áður en þú hringir nýtt símtal."</string>
-    <string name="callFailed_already_ringing" msgid="7931232733958098270">"Ekki er hægt að hringja símtal þar sem ósvarað símtal er að berast. Svaraðu eða hafnaðu símtalinu áður en þú hringir nýtt símtal."</string>
+    <string name="callFailed_already_ringing" msgid="7931232733958098270">"Ekki er hægt að hringja símtal, þar sem ósvarað símtal er að berast. Svaraðu eða hafnaðu símtalinu áður en þú hringir nýtt símtal."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Þessi MMI-kóði er ekki í boði ef hringt er í marga reikninga."</string>
 </resources>

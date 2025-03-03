@@ -136,7 +136,6 @@
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Осы жерде ауысу"</string>
     <string name="callFailed_too_many_calls" msgid="4249997210954876420">"Қоңырау шалу мүмкін емес, себебі онсыз да екі қоңырау жүріп жатыр. Жаңа қоңырау бастау үшін олардың біреуін тоқтатыңыз немесе екеуін бір конференцияға біріктіріңіз."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Қоңырау шалу мүмкін емес, себебі жүріп жатқан қоңырау кідіртілмейді. Жаңадан қоңырау шалу үшін жүріп жатқан қоңырауды тоқтатыңыз."</string>
-    <!-- no translation found for callFailed_already_ringing (7931232733958098270) -->
-    <skip />
+    <string name="callFailed_already_ringing" msgid="7931232733958098270">"Қоңырау шалу мүмкін емес, себебі жауап бермеген кіріс қоңырау бар. Жаңа қоңырау шалу үшін кіріс қоңырауға жауап беріңіз немесе оны қабылдамаңыз."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Бұл MMI кодын бірнеше аккаунттағы қоңыраулар үшін пайдалану мүмкін емес."</string>
 </resources>

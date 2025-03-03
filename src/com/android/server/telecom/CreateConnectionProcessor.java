@@ -37,12 +37,13 @@ import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -127,6 +128,21 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
         }
     };
 
+    /**
+     * Call states which should be prioritized when sorting phone accounts. The ordering is
+     * intentional and should NOT be modified. Other call states will not have any priority.
+     */
+    private static final int[] PRIORITY_CALL_STATES = new int []
+            {CallState.ACTIVE, CallState.ON_HOLD, CallState.DIALING, CallState.RINGING};
+    private static final int DEFAULT_CALL_STATE_PRIORITY = PRIORITY_CALL_STATES.length;
+    private static final Map<Integer, Integer> mCallStatePriorityMap = new HashMap<>();
+    static {
+        for (int i = 0; i < PRIORITY_CALL_STATES.length; i++) {
+            mCallStatePriorityMap.put(PRIORITY_CALL_STATES[i], i);
+        }
+    }
+
+
     private ITelephonyManagerAdapter mTelephonyAdapter = new ITelephonyManagerAdapterImpl();
 
     private final Call mCall;
@@ -136,6 +152,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
     private CreateConnectionResponse mCallResponse;
     private DisconnectCause mLastErrorDisconnectCause;
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
+    private final CallsManager mCallsManager;
     private final Context mContext;
     private final FeatureFlags mFlags;
     private final Timeouts.Adapter mTimeoutsAdapter;
@@ -148,6 +165,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
             ConnectionServiceRepository repository,
             CreateConnectionResponse response,
             PhoneAccountRegistrar phoneAccountRegistrar,
+            CallsManager callsManager,
             Context context,
             FeatureFlags featureFlags,
             Timeouts.Adapter timeoutsAdapter) {
@@ -156,6 +174,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
         mRepository = repository;
         mCallResponse = response;
         mPhoneAccountRegistrar = phoneAccountRegistrar;
+        mCallsManager = callsManager;
         mContext = context;
         mConnectionAttempt = 0;
         mFlags = featureFlags;
@@ -693,6 +712,23 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
                 return retval;
             }
 
+            // Sort accounts by ongoing call states
+            Set<Integer> callStatesAccount1 = mCallsManager.getCalls().stream()
+                    .filter(c -> Objects.equals(account1.getAccountHandle(),
+                            c.getTargetPhoneAccount()))
+                    .map(Call::getState).collect(Collectors.toSet());
+            Set<Integer> callStatesAccount2 = mCallsManager.getCalls().stream()
+                    .filter(c -> Objects.equals(account2.getAccountHandle(),
+                            c.getTargetPhoneAccount()))
+                    .map(Call::getState).collect(Collectors.toSet());
+            int account1Priority = computeCallStatePriority(callStatesAccount1);
+            int account2Priority = computeCallStatePriority(callStatesAccount2);
+            Log.d(this, "account1: %s, call state priority: %s", account1, account1Priority);
+            Log.d(this, "account2: %s, call state priority: %s", account2, account2Priority);
+            if (account1Priority != account2Priority) {
+                return account1Priority < account2Priority ? -1 : 1;
+            }
+
             // Prefer the user's choice if all PhoneAccounts are associated with valid logical
             // slots.
             if (userPreferredAccount != null) {
@@ -729,6 +765,25 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
             // then by hashcode
             return Integer.compare(account1.hashCode(), account2.hashCode());
         });
+    }
+
+    /**
+     * Computes the call state priority based on the passed in call states associated with the
+     * calls present on the phone account. The lower the value, the higher the priority (i.e.
+     * ACTIVE (0) < HOLDING (1) < DIALING (2) < RINGING (3) equates to ACTIVE holding the highest
+     * priority).
+     */
+    private int computeCallStatePriority(Set<Integer> callStates) {
+        int priority = DEFAULT_CALL_STATE_PRIORITY;
+        for (int state: callStates) {
+            if (priority == mCallStatePriorityMap.get(CallState.ACTIVE)) {
+                return priority;
+            } else if (mCallStatePriorityMap.containsKey(state)
+                    && priority > mCallStatePriorityMap.get(state)) {
+                priority = mCallStatePriorityMap.get(state);
+            }
+        }
+        return priority;
     }
 
     private static String nullToEmpty(String str) {

@@ -233,6 +233,7 @@ public class LogUtils {
         public static final String START_STREAMING = "START_STREAMING";
         public static final String STOP_STREAMING = "STOP_STREAMING";
         public static final String AUDIO_ATTR = "AUDIO_ATTR";
+        public static final String ANSWER_DROPS_FG = "ANSWER_DROPS_FG";
 
         public static class Timings {
             public static final String ACCEPT_TIMING = "accept";

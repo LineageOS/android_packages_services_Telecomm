@@ -16,8 +16,6 @@
 
 package com.android.server.telecom;
 
-import static com.android.internal.telephony.flags.Flags.carrierEnabledSatelliteFlag;
-
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -117,11 +115,6 @@ public final class CreateConnectionTimeout extends Runnable {
 
     @Override
     public void loggedRun() {
-        if (!carrierEnabledSatelliteFlag()) {
-            timeoutCallIfNeeded();
-            return;
-        }
-
         PhoneAccountHandle connectionManager =
                 mPhoneAccountRegistrar.getSimCallManagerFromCall(mCall);
         if (connectionManager != null) {

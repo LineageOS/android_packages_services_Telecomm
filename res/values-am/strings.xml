@@ -136,7 +136,6 @@
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"እዚህ ቀይር"</string>
     <string name="callFailed_too_many_calls" msgid="4249997210954876420">"ቀድሞውኑ ሁለት ጥሪዎች በሂደት ላይ ስለሆኑ ጥሪ ማድረግ አልተቻለም። አዲስ ጥሪ ከማድረግዎ በፊት ከጥሪዎቹ ላይ የአንዱን ግንኙነት ያቋርጡ ወይም ወደ ጉባዔ ያዋህዷቸው።"</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"ይቆይ ሊደረግ የማይችል ጥሪ በመኖሩ ጥሪ ማድረግ አልተቻለም። አዲስ ጥሪ ከማድረግዎ በፊት የጥሪውን ግንኙነት ያቋርጡ።"</string>
-    <!-- no translation found for callFailed_already_ringing (7931232733958098270) -->
-    <skip />
+    <string name="callFailed_already_ringing" msgid="7931232733958098270">"ያልተመለሰ ገቢ ጥሪ ስላለ ጥሪ ማድረግ አይቻልም። አዲስ ጥሪ ከማድረግዎ በፊት ገቢ ጥሪን ይመልሱ ወይም ይዝጉ።"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ይህ MMI ኮድ በርካታ መለያዎች ላይ ላሉ ጥሪዎች አይገኝም።"</string>
 </resources>

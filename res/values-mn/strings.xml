@@ -136,7 +136,6 @@
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Ийшээ сэлгэх"</string>
     <string name="callFailed_too_many_calls" msgid="4249997210954876420">"Аль хэдийн хоёр дуудлага хийж байгаа тул дуудлага хийх боломжгүй байна. Шинэ дуудлага хийхийн өмнө аль нэг дуудлагыг салгах эсвэл тэдгээрийг хурал болгож нэгтгэнэ үү."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Хүлээлгэх боломжгүй дуудлага байгаа тул дуудлага хийх боломжгүй. Шинэ дуудлага хийхээсээ өмнө тухайн дуудлагыг салгана уу."</string>
-    <!-- no translation found for callFailed_already_ringing (7931232733958098270) -->
-    <skip />
+    <string name="callFailed_already_ringing" msgid="7931232733958098270">"Хариулаагүй ирсэн дуудлага байгаа тул дуудлага хийх боломжгүй. Шинэ дуудлага хийхээсээ өмнө ирсэн дуудлагад хариулах эсвэл тасална уу."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Энэ MMI код нь олон бүртгэл дээрх дуудлагад боломжгүй."</string>
 </resources>
