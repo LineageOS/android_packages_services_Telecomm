@@ -62,6 +62,7 @@ import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.ClockProxy;
 import com.android.server.telecom.ConnectionServiceFocusManager;
+import com.android.server.telecom.MmiUtils;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.callsequencing.CallSequencingController;
@@ -104,6 +105,7 @@ public class CallSequencingTests extends TelecomTestCase {
     @Mock AnomalyReporterAdapter mAnomalyReporter;
     @Mock Timeouts.Adapter mTimeoutsAdapter;
     @Mock TelecomMetricsController mMetricsController;
+    @Mock MmiUtils mMmiUtils;
     @Mock
     ConnectionServiceFocusManager mConnectionServiceFocusManager;
     @Mock Call mActiveCall;
@@ -117,7 +119,7 @@ public class CallSequencingTests extends TelecomTestCase {
         super.setUp();
         when(mFeatureFlags.enableCallSequencing()).thenReturn(true);
         mController = new CallSequencingController(mCallsManager, mContext, mClockProxy,
-                mAnomalyReporter, mTimeoutsAdapter, mMetricsController, mFeatureFlags);
+                mAnomalyReporter, mTimeoutsAdapter, mMetricsController, mMmiUtils, mFeatureFlags);
 
         when(mActiveCall.getState()).thenReturn(CallState.ACTIVE);
         when(mRingingCall.getState()).thenReturn(CallState.RINGING);

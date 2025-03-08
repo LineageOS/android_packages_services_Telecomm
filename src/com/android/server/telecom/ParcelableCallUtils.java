@@ -263,6 +263,7 @@ public class ParcelableCallUtils {
                 .setContactDisplayName(call.getName())
                 .setActiveChildCallId(activeChildCallId)
                 .setContactPhotoUri(contactPhotoUri)
+                .setAssociatedUser(call.getAssociatedUser())
                 .createParcelableCall();
     }
 

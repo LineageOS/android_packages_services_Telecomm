@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Uut kõnet ei saa teha, kuna pooleliolevat kõnet ei saa ootele panna. Enne uue kõne tegemist katkestage pooleliolev kõne."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Kõnet ei saa teha, kuna teil on vastamata sissetulev kõne. Enne uue kõne tegemist vastake sissetulevale kõnele või keelduge sellest."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"See MMI-kood pole saadaval mitmel kontol toimuvate kõnede jaoks."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

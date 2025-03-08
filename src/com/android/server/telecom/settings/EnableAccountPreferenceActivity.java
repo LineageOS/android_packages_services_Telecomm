@@ -43,6 +43,7 @@ public class EnableAccountPreferenceActivity extends Activity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+        SettingsConstants.setupEdgeToEdge(this);
     }
 
     /** ${inheritDoc} */

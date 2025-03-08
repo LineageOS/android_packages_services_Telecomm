@@ -54,6 +54,7 @@ import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.ClockProxy;
 import com.android.server.telecom.LogUtils;
 import com.android.server.telecom.LoggedHandlerExecutor;
+import com.android.server.telecom.MmiUtils;
 import com.android.server.telecom.R;
 import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.callsequencing.voip.OutgoingCallTransaction;
@@ -85,6 +86,7 @@ public class CallSequencingController {
     private final TelecomMetricsController mMetricsController;
     private final Handler mHandler;
     private final Context mContext;
+    private final MmiUtils mMmiUtils;
     private final FeatureFlags mFeatureFlags;
     private static String TAG = CallSequencingController.class.getSimpleName();
     public static final UUID SEQUENCING_CANNOT_HOLD_ACTIVE_CALL_UUID =
@@ -95,7 +97,7 @@ public class CallSequencingController {
     public CallSequencingController(CallsManager callsManager, Context context,
             ClockProxy clockProxy, AnomalyReporterAdapter anomalyReporter,
             Timeouts.Adapter timeoutsAdapter, TelecomMetricsController metricsController,
-            FeatureFlags featureFlags) {
+            MmiUtils mmiUtils, FeatureFlags featureFlags) {
         mCallsManager = callsManager;
         mClockProxy = clockProxy;
         mAnomalyReporter = anomalyReporter;
@@ -104,6 +106,7 @@ public class CallSequencingController {
         HandlerThread handlerThread = new HandlerThread(this.toString());
         handlerThread.start();
         mHandler = new Handler(handlerThread.getLooper());
+        mMmiUtils = mmiUtils;
         mFeatureFlags = featureFlags;
         mContext = context;
     }
@@ -759,9 +762,18 @@ public class CallSequencingController {
             return CompletableFuture.completedFuture(false);
         }
 
+        // If we detect a MMI code, allow it to go through since we are not treating it as an actual
+        // call.
+        if (mMmiUtils.isPotentialMMICode(call.getHandle())) {
+            Log.i(this, "makeRoomForOutgoingCall: Detected mmi code. Allowing to go through.");
+            return CompletableFuture.completedFuture(true);
+        }
+
         // Early check to see if we already have a held call + live call. It's possible if a device
-        // switches to DSDS with two ongoing calls for the phone account to be null in which case
-        // we will return true from this method and report a different failure cause instead.
+        // switches to DSDS with two ongoing calls for the phone account to be null in which case,
+        // based on the logic below, we would've completed the future with true and reported a
+        // different failure cause. Now, we perform this early check to ensure the right max
+        // outgoing call restriction error is displayed instead.
         if (mCallsManager.hasMaximumManagedHoldingCalls(call) && !mCallsManager.canHold(liveCall)) {
             showErrorDialogForMaxOutgoingCall(call);
             return CompletableFuture.completedFuture(false);

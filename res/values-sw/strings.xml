@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Imeshindwa kupiga simu kwa sababu kuna simu isiyoweza kusubirishwa. Kata simu kabla ya kupiga simu mpya."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Haiwezi kupiga simu kwa sababu kuna simu unayopigiwa ambayo hujajibu. Jibu au ukatae simu hiyo unayopigiwa kabla ya kupiga simu mpya."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Msimbo huu wa MMI haupatikani katika simu kwenye akaunti nyingi."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

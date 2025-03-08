@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Хүлээлгэх боломжгүй дуудлага байгаа тул дуудлага хийх боломжгүй. Шинэ дуудлага хийхээсээ өмнө тухайн дуудлагыг салгана уу."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Хариулаагүй ирсэн дуудлага байгаа тул дуудлага хийх боломжгүй. Шинэ дуудлага хийхээсээ өмнө ирсэн дуудлагад хариулах эсвэл тасална уу."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Энэ MMI код нь олон бүртгэл дээрх дуудлагад боломжгүй."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

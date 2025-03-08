@@ -22,7 +22,6 @@ import static com.android.server.telecom.TelecomStatsLog.TELECOM_ERROR_STATS;
 import static com.android.server.telecom.TelecomStatsLog.TELECOM_EVENT_STATS;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -139,8 +138,8 @@ public class TelecomMetricsControllerTest extends TelecomTestCase {
 
         mTelecomMetricsController.registerAtom(TELECOM_API_STATS, stats);
 
-        verify(statsManager, times(1)).setPullAtomCallback(eq(TELECOM_API_STATS), anyObject(),
-                anyObject(), eq(mTelecomMetricsController));
+        verify(statsManager, times(1)).setPullAtomCallback(eq(TELECOM_API_STATS), any(),
+                any(), eq(mTelecomMetricsController));
         assertThat(mTelecomMetricsController.getStats().get(TELECOM_API_STATS))
                 .isSameInstanceAs(stats);
     }

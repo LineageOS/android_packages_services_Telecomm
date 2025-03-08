@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Impossible de passer un appel, car un appel est en cours et ne peut pas être mis en attente. Mettez fin à l\'appel avant de passer un nouvel appel."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Impossible de passer un appel lorsqu\'un appel entrant attend une réponse. Répondez à cet appel ou refusez-le avant de passer un nouvel appel."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Ce code IHM n\'est pas disponible pour les appels sur plusieurs comptes."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

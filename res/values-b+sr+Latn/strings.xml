@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Ne možete da uputite poziv jer je u toku poziv koji ne može da se stavi na čekanje. Prekinite taj poziv pre upućivanja novog poziva."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Ne možete da pozovete jer imate dolazni poziv na koji niste odgovorili. Primite ga ili odbijte pre upućivanja novog poziva."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Ovaj MMI kôd nije dostupan za pozive na više naloga."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"ይቆይ ሊደረግ የማይችል ጥሪ በመኖሩ ጥሪ ማድረግ አልተቻለም። አዲስ ጥሪ ከማድረግዎ በፊት የጥሪውን ግንኙነት ያቋርጡ።"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"ያልተመለሰ ገቢ ጥሪ ስላለ ጥሪ ማድረግ አይቻልም። አዲስ ጥሪ ከማድረግዎ በፊት ገቢ ጥሪን ይመልሱ ወይም ይዝጉ።"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ይህ MMI ኮድ በርካታ መለያዎች ላይ ላሉ ጥሪዎች አይገኝም።"</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

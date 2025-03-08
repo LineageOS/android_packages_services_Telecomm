@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"ບໍ່ສາມາດໂທໄດ້ເນື່ອງຈາກມີການໂທທີ່ບໍ່ສາມາດຖືສາຍຄ້າງໄວ້ໄດ້. ຕັດການເຊື່ອມຕໍ່ສາຍກ່ອນໂທໃໝ່."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"ບໍ່ສາມາດໂທອອກໄດ້ເນື່ອງຈາກມີສາຍໂທເຂົ້າທີ່ຍັງບໍ່ໄດ້ຮັບຢູ່. ກະລຸນາຮັບສາຍ ຫຼື ວາງສາຍທີ່ກຳລັງໂທເຂົ້າມາກ່ອນຈະໂທໃໝ່."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ລະຫັດ MMI ນີ້ແມ່ນໃຊ້ບໍ່ໄດ້ສໍາລັບການໂທດ້ວຍຫຼາຍບັນຊີ."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

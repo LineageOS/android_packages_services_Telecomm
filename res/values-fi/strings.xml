@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Puhelua ei voi soittaa, koska puhelua ei voi asettaa pitoon. Katkaise puhelu ennen uuden puhelun soittamista."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Puhelua ei voi soittaa, koska saapuvaan puheluun ei ole vielä vastattu. Vastaa saapuvaan puheluun tai hylkää se, ennen kuin soitat uuden puhelun."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"MMI-koodi ei ole käytettävissä useilla tileillä käytävissä puheluissa."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

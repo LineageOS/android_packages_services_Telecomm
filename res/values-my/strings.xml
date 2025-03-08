@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"ဆိုင်းငံ့၍မရသော ခေါ်ဆိုမှုရှိနေသဖြင့် ဖုန်းထပ်ခေါ်၍မရပါ။ ခေါ်ဆိုမှုအသစ် မပြုလုပ်မီ ဤခေါ်ဆိုမှုကို ဖုန်းချပါ။"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"မဖြေကြားရသေးသော အဝင်ခေါ်ဆိုမှု ရှိနေသဖြင့် ဖုန်းခေါ်၍ မရနိုင်ပါ။ အသစ်မခေါ်ဆိုမီ ဖုန်းကိုင်ပါ (သို့) ငြင်းပယ်ပါ။"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ဤ MMI ကုဒ်ကို အကောင့်အများအပြား၌ ခေါ်ဆိုမှုများအတွက် မရနိုင်ပါ။"</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

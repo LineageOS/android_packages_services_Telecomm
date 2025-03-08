@@ -284,7 +284,8 @@ public class AudioRoute {
                     }
                     return;
                 }
-            } else if (mAudioRouteType == TYPE_SPEAKER) {
+            } else if (mAudioRouteType == TYPE_SPEAKER && !this.equals(
+                    pendingAudioRoute.getOrigRoute())) {
                 pendingAudioRoute.addMessage(SPEAKER_ON, null);
             }
 

@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Non se pode facer ningunha chamada porque hai unha que non é posible poñer en espera. Desconéctaa para poder facer unha nova."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Non podes chamar porque te están chamando nestes momentos. Para poder facer unha chamada, primeiro tes que responder á outra ou rexeitala."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Este código MMI non está dispoñible para chamadas en varias contas."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

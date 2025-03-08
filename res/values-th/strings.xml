@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"โทรออกไม่ได้เนื่องจากมีการโทรที่ไม่สามารถพักสายได้ โปรดยกเลิกการเชื่อมต่อสายดังกล่าวก่อนโทรออกใหม่"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"โทรออกไม่ได้เนื่องจากมีสายเรียกเข้าที่ยังไม่ได้รับ โปรดรับหรือปฏิเสธสายเรียกเข้าก่อนจึงค่อยโทรออกใหม่"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"รหัส MMI นี้ใช้ไม่ได้กับการโทรผ่านหลายบัญชี"</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

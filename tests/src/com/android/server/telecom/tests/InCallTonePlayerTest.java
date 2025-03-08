@@ -127,7 +127,8 @@ public class InCallTonePlayerTest extends TelecomTestCase {
                 mCallAudioRouteStateMachine, mBluetoothRouteManager, mWiredHeadsetManager,
                 mDockManager, mRingtonePlayer);
         mFactory = new InCallTonePlayer.Factory(mCallAudioRoutePeripheralAdapter, mLock,
-                mToneGeneratorFactory, mMediaPlayerFactory, mAudioManagerAdapter, mFeatureFlags);
+                mToneGeneratorFactory, mMediaPlayerFactory, mAudioManagerAdapter, mFeatureFlags,
+                getLooper());
         mFactory.setCallAudioManager(mCallAudioManager);
         mInCallTonePlayer = mFactory.createPlayer(mCall, InCallTonePlayer.TONE_CALL_ENDED);
     }
@@ -136,7 +137,10 @@ public class InCallTonePlayerTest extends TelecomTestCase {
     @After
     public void tearDown() throws Exception {
         super.tearDown();
-        mInCallTonePlayer.cleanup();
+        if (mInCallTonePlayer != null) {
+            mInCallTonePlayer.cleanup();
+            mInCallTonePlayer = null;
+        }
     }
 
     @SmallTest

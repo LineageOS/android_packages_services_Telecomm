@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Nuk mund të kryhet një telefonatë pasi është në telefonatë që nuk mund të vendoset në pritje. Shkëput telefonatën para se të kryesh një telefonatë të re."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Nuk mund të kryhet një telefonatë sepse është një telefonatë hyrëse që nuk ka marrë përgjigje. Përgjigju ose refuzoje telefonatën hyrëse para se të kryesh një telefonatë të re."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Ky kod MMI nuk ofrohet për telefonatat në disa llogari."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

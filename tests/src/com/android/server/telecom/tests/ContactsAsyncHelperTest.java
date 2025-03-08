@@ -19,7 +19,6 @@ package com.android.server.telecom.tests;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.never;
@@ -116,7 +115,7 @@ public class ContactsAsyncHelperTest extends TelecomTestCase {
         }
         Thread.sleep(TEST_TIMEOUT);
         verify(mListener, never()).onImageLoadComplete(anyInt(),
-                any(Drawable.class), any(Bitmap.class), anyObject());
+                any(Drawable.class), any(Bitmap.class), any());
     }
 
     @SmallTest

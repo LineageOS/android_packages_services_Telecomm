@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Kan ikke ringe fordi det pågår en samtale som ikke kan settes på vent. Avslutt samtalen før du ringer på nytt."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Du kan ikke ringe, fordi du har et innkommende anrop. Svar på eller avvis anropet før du prøver å ringe igjen."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Denne MMI-koden kan ikke brukes til anrop på flere kontoer samtidig."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

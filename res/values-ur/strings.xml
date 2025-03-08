@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"کال نہیں کر سکتے کیونکہ پہلے سے جاری کال کو ہولڈ نہیں کیا جا سکتا۔ نئی کال کرنے سے پہلے موجودہ کال کو غیر منسلک کریں۔"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"ایک جواب نہ ملنے والی اِن کمنگ کال کی وجہ سے کال نہیں کی جا سکتی۔ نئی کال کرنے کے لیے پہلے اِن کمنگ کال کا جواب دیں یا مسترد کریں۔"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"‏یہ MMI کوڈ متعدد اکاؤنٹس پر کالز کے لیے دستیاب نہیں ہے۔"</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"No se puede hacer una llamada porque ya hay otra que no se puede poner en espera. Interrumpe la llamada antes de hacer otra."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"No se puede llamar porque hay una llamada entrante sin responder. Contéstala o recházala antes de hacer otra llamada."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Este código MMI no está disponible para hacer llamadas con varias cuentas."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

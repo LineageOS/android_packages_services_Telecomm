@@ -138,4 +138,5 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Chaqirish imkonsiz, chunki joriy chaqiruv pauza qilinmaydi. Yangisini boshlash uchun chaqiruvni bekor qiling."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Telefon qilish imkonsiz. Telefon qilish uchun avval kiruvchi chaqiruvni qabul qiling yoki rad eting."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Bu MMI kodi bir nechta hisobdagi chaqiruvlarda ishlamaydi."</string>
+    <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Favqulodda chaqiruv paytida MMI kodlarini terish imkonsiz."</string>
 </resources>

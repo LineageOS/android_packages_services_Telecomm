@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Tidak dapat melakukan panggilan karena ada panggilan yang tidak dapat ditahan. Putuskan panggilan sebelum melakukan panggilan baru."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Tidak dapat melakukan panggilan karena ada panggilan masuk yang belum terjawab. Jawab atau tolak panggilan masuk sebelum melakukan panggilan baru."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Kode MMI ini tidak tersedia untuk panggilan di beberapa akun."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

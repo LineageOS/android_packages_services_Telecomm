@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Negalite skambinti, nes yra skambutis, kurio negalima sulaikyti. Prieš pradėdami naują skambutį nutraukite esamą."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Negalite skambinti, nes yra neatsakytas gaunamasis skambutis. Atsiliepkite arba atmeskite gaunamąjį skambutį prieš pradėdami naują."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Šis MMI kodas nepasiekiamas skambučiuose keliose paskyrose."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

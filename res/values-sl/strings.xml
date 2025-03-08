@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Klica ni mogoče opraviti, ker že imate klic, ki ga ni mogoče zadržati. Preden opravite nov klic, prekinite omenjeni klic."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Klica ni mogoče opraviti, ker imate dohodni klic, na katerega še niste odgovorili. Preden začnete nov klic, sprejmite ali zavrnite dohodni klic."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Ta koda MMI ni na voljo za klice v več računih."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

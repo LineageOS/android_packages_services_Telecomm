@@ -3777,6 +3777,19 @@ public class CallsManagerTest extends TelecomTestCase {
         inOrder.verify(call).setState(eq(CallState.RINGING), anyString());
     }
 
+    @SmallTest
+    @Test
+    public void testPendingAccountSelectionNotClearedWithNewCall() {
+        Call ongoingCall = createSpyCall(SIM_1_HANDLE, CallState.ACTIVE);
+        mCallsManager.getPendingAccountSelection().put(ongoingCall.getId(),
+                CompletableFuture.completedFuture(new Pair<>(ongoingCall, SIM_1_HANDLE)));
+        Call pendingCall = createSpyCall(SIM_1_HANDLE, CallState.SELECT_PHONE_ACCOUNT);
+        mCallsManager.getPendingAccountSelection().put(pendingCall.getId(),
+                CompletableFuture.completedFuture(new Pair<>(pendingCall, SIM_1_HANDLE)));
+        mCallsManager.processDisconnectCallAndCleanup(ongoingCall, CallState.DISCONNECTED);
+        assertFalse(mCallsManager.getPendingAccountSelection().containsKey(ongoingCall.getId()));
+        assertTrue(mCallsManager.getPendingAccountSelection().containsKey(pendingCall.getId()));
+    }
 
     private Call addSpyCall() {
         return addSpyCall(SIM_2_HANDLE, CallState.ACTIVE);

@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Canlı zəngi dayandırmaq mümkün olmadığına görə yeni zəng etmək olmur. Yeni zəng etməzdən əvvəl digər zəngi dayandırın."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Cavabsız gələn zəng olduğuna görə zəng etmək mümkün deyil. Yeni zəngə başlamazdan əvvəl gələn zəngə cavab verin və ya rədd edin."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Bu MMI kodu birdən çox hesab üzrə zənglər üçün əlçatan deyil."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

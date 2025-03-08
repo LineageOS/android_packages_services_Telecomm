@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"نمی‌توانید تماسی برقرار کنید زیرا هم‌اکنون تماسی بدون قابلیت انتظار درحال انجام است. قبل‌از برقراری تماس جدید، تماس را قطع کنید."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"نمی‌توانید تماسی برقرار کنید، چون تماس ورودی بی‌پاسخی درحال انجام است. قبل‌از برقراری تماس جدید، به تماس ورودی پاسخ دهید یا آن را رد کنید."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"‏این کد MMI برای تماس در چندین حساب دردسترس نیست."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>
