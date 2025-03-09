@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"ହୋଲ୍ଡ କରିହେଉନଥିବା ଏକ କଲ ଚାଲୁ ଥିବା ଯୋଗୁଁ ଆଉ ଏକ କଲ କରାଯାଇପାରିବ ନାହିଁ। ଏକ ନୂଆ କଲ କରିବା ପୂର୍ବରୁ କଲକୁ ଡିସକନେକ୍ଟ କରନ୍ତୁ।"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"ଗୋଟିଏ ଉତ୍ତର ଦିଆଯାଇନଥିବା ଇନକମିଂ କଲ ଥିବା ଯୋଗୁଁ ଅନ୍ୟ ଏକ କଲ କରିପାରିବେ ନାହିଁ। ଏକ ନୂଆ କଲ କରିବା ପୂର୍ବରୁ ଇନକମିଂ କଲଟିର ଉତ୍ତର ଦିଅନ୍ତୁ କିମ୍ବା ଏହାକୁ ଅଗ୍ରାହ୍ୟ କରନ୍ତୁ।"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ଏକାଧିକ ଆକାଉଣ୍ଟରେ କଲଗୁଡ଼ିକ ପାଇଁ ଏହି MMI କୋଡ ଉପଲବ୍ଧ ନାହିଁ।"</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"হোল্ড করা যাবে না এমন কল রয়েছে তাই আরেকটি কল করা যাচ্ছে না। নতুন কল করার আগে কলটি ডিসকানেক্ট করুন।"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"উত্তর দেওয়া হয়নি এমন একটি ইনকামিং কল রয়েছে, তাই কল করা যাচ্ছে না। নতুন কল করার আগে ইনকামিং কলটির উত্তর দিন বা সেটি বাতিল করুন।"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"একাধিক অ্যাকাউন্ট জুড়ে কলের জন্য এই MMI কোড উপলভ্য নেই।"</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

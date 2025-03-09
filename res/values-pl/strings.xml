@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Nie można nawiązać połączenia, ponieważ trwa połączenie, którego nie można wstrzymać. Aby nawiązać nowe połączenie, zakończ to połączenie."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Nie można nawiązać połączenia, ponieważ masz nieodebrane połączenie przychodzące. Odbierz je lub odrzuć przed nawiązaniem nowego."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Ten kod MMI nie jest dostępny w przypadku połączeń na więcej niż 1 koncie."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

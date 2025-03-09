@@ -18,6 +18,8 @@ package com.android.server.telecom.tests;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.telecom.Log;
 
 import androidx.test.InstrumentationRegistry;
@@ -38,6 +40,7 @@ public abstract class TelecomTestCase {
     protected Context mContext;
     @Mock
     FeatureFlags mFeatureFlags;
+    private HandlerThread mHandlerThread;
 
     MockitoHelper mMockitoHelper = new MockitoHelper();
     ComponentContextFixture mComponentContextFixture;
@@ -57,10 +60,23 @@ public abstract class TelecomTestCase {
     }
 
     public void tearDown() throws Exception {
+        if (mHandlerThread != null) {
+            mHandlerThread.quit();
+            mHandlerThread.join();
+            mHandlerThread = null;
+        }
         mComponentContextFixture.destroy();
         mComponentContextFixture = null;
         mMockitoHelper.tearDown();
         Mockito.framework().clearInlineMocks();
+    }
+
+    protected Looper getLooper() {
+        if (mHandlerThread == null) {
+            mHandlerThread = new HandlerThread("TelecomTestCase");
+            mHandlerThread.start();
+        }
+        return mHandlerThread.getLooper();
     }
 
     protected static void waitForHandlerAction(Handler h, long timeoutMillis) {

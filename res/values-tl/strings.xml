@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Hindi puwedeng tumawag dahil may tawag na hindi puwedeng i-hold. Idiskonekta ang tawag bago gumawa ng bagong pagtawag."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Hindi puwedeng tumawag dahil mayroong hindi nasagot na papasok na tawag. Sagutin o tanggihan ang papasok na tawag bago gumawa ng bagong pagtawag."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Hindi available ang MMI code na ito para sa mga tawag sa magkakaibang account."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

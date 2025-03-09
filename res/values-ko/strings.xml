@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"대기할 수 없는 통화가 있으므로 전화를 걸 수 없습니다. 새로 전화를 걸기 전에 통화를 종료하세요."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"받지 않은 수신 전화가 있으므로 전화를 걸 수 없습니다. 새로 전화를 걸기 전에 수신 전화를 받거나 거절하세요."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"이 MMI 코드는 여러 계정 간에 통화에 사용할 수 없습니다."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

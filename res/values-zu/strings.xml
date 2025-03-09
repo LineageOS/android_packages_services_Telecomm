@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Ayikwazi ukwenza ikholi njengoba kukhona ikholi engabanjwa. Nqamula ikholi ngaphambi kokwenza ikholi entsha."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Ayikwazi ukubeka ikholi njengoba kunekholi engenayo engaphenduliwe. Phendula noma nqaba ikholi engenayo ngaphambi kokubeka ikholi entsha."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Le khodi ye-MMI ayitholakali ngamakholi kuma-akhawunti amaningi."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

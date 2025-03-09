@@ -114,7 +114,7 @@ public class BlockedNumbersActivity extends ListActivity
             // set the talkback voice prompt to "Back" instead of "Navigate Up"
             actionBar.setHomeActionContentDescription(R.string.back);
         }
-        setupEdgeToEdge(this);
+        SettingsConstants.setupEdgeToEdge(this);
 
         if (!BlockedNumberContract.canCurrentUserBlockNumbers(this)) {
             TextView nonPrimaryUserText = (TextView) findViewById(R.id.non_primary_user);
@@ -363,24 +363,5 @@ public class BlockedNumbersActivity extends ListActivity
                     R.string.blocked_numbers_number_blocked_message, number);
         }
         mAddButton.setEnabled(true);
-    }
-
-    /**
-     * Given an activity, configure the activity to adjust for edge to edge restrictions.
-     * @param activity the activity.
-     */
-    public static void setupEdgeToEdge(Activity activity) {
-        ViewCompat.setOnApplyWindowInsetsListener(activity.findViewById(android.R.id.content),
-                (v, windowInsets) -> {
-                    Insets insets = windowInsets.getInsets(
-                            WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
-
-                    // Apply the insets paddings to the view.
-                    v.setPadding(insets.left, insets.top, insets.right, insets.bottom);
-
-                    // Return CONSUMED if you don't want the window insets to keep being
-                    // passed down to descendant views.
-                    return WindowInsetsCompat.CONSUMED;
-                });
     }
 }

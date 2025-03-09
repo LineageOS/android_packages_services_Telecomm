@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Ezin da egin deia, zain utzi ezin den dei bat abian delako. Deskonektatu dei hori beste dei bat egin ahal izateko."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Ezin da egin deia, oraindik erantzun ez diozun dei bat jasotzen ari zarelako. Beste dei bat egin aurretik, erantzun deiari edo bazter ezazu."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"MMI kode hau ezin da erabili kontu baten baino gehiagoren bidez deiak egiteko."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

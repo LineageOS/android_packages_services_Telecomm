@@ -56,17 +56,19 @@ public class InCallTonePlayer extends Thread {
         private final MediaPlayerFactory mMediaPlayerFactory;
         private final AudioManagerAdapter mAudioManagerAdapter;
         private final FeatureFlags mFeatureFlags;
+        private final Looper mLooper;
 
         public Factory(CallAudioRoutePeripheralAdapter callAudioRoutePeripheralAdapter,
                 TelecomSystem.SyncRoot lock, ToneGeneratorFactory toneGeneratorFactory,
                 MediaPlayerFactory mediaPlayerFactory, AudioManagerAdapter audioManagerAdapter,
-                FeatureFlags flags) {
+                FeatureFlags flags, Looper looper) {
             mCallAudioRoutePeripheralAdapter = callAudioRoutePeripheralAdapter;
             mLock = lock;
             mToneGeneratorFactory = toneGeneratorFactory;
             mMediaPlayerFactory = mediaPlayerFactory;
             mAudioManagerAdapter = audioManagerAdapter;
             mFeatureFlags = flags;
+            mLooper = looper;
         }
 
         public void setCallAudioManager(CallAudioManager callAudioManager) {
@@ -76,7 +78,7 @@ public class InCallTonePlayer extends Thread {
         public InCallTonePlayer createPlayer(Call call, int tone) {
             return new InCallTonePlayer(call, tone, mCallAudioManager,
                     mCallAudioRoutePeripheralAdapter, mLock, mToneGeneratorFactory,
-                    mMediaPlayerFactory, mAudioManagerAdapter, mFeatureFlags);
+                    mMediaPlayerFactory, mAudioManagerAdapter, mFeatureFlags, mLooper);
         }
     }
 
@@ -199,7 +201,7 @@ public class InCallTonePlayer extends Thread {
     private final CallAudioManager mCallAudioManager;
     private final CallAudioRoutePeripheralAdapter mCallAudioRoutePeripheralAdapter;
 
-    private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
+    private final Handler mMainThreadHandler;
 
     /** The ID of the tone to play. */
     private final int mToneId;
@@ -242,7 +244,8 @@ public class InCallTonePlayer extends Thread {
             ToneGeneratorFactory toneGeneratorFactory,
             MediaPlayerFactory mediaPlayerFactor,
             AudioManagerAdapter audioManagerAdapter,
-            FeatureFlags flags) {
+            FeatureFlags flags,
+            Looper looper) {
         mCall = call;
         mState = STATE_OFF;
         mToneId = toneId;
@@ -253,6 +256,7 @@ public class InCallTonePlayer extends Thread {
         mMediaPlayerFactory = mediaPlayerFactor;
         mAudioManagerAdapter = audioManagerAdapter;
         mFeatureFlags = flags;
+        mMainThreadHandler = new Handler(looper);
     }
 
     /** {@inheritDoc} */

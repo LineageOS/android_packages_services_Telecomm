@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"أنت في مكالمة غير قابلة للتعليق، لذا لا يمكن إجراء مكالمة أخرى. يُرجى إنهاء المكالمة الحالية لإجراء مكالمة جديدة."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"لا يمكن إجراء مكالمة لأن هناك مكالمة واردة لم يتم الرد عليها. يُرجى الرد على المكالمة الواردة أو رفضها قبل إجراء مكالمة جديدة."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"‏لا يتوفّر رمز MMI هذا للمكالمات على مستوى حسابات متعددة."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

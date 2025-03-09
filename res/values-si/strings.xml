@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"රඳවා ගත නොහැකි ඇමතුමක් ඇති බැවින් ඇමතුමක් ලබා ගත නොහැක. නව ඇමතුමක් ලබා ගැනීමට පෙර ඇමතුම විසන්ධි කරන්න."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"පිළිතුරු නොලැබෙන ඇමතුමක් ඇති බැවින් ඇමතුමක් ලබා ගත නොහැක. නව ඇමතුමක් ලබා ගැනීමට පෙර ලැබෙන ඇමතුමට පිළිතුරු දෙන්න හෝ ප්‍රතික්ෂේප කරන්න."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"මෙම MMI කේතය බහු ගිණුම් හරහා ඇමතුම් සඳහා ලබා ගත නොහැක."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

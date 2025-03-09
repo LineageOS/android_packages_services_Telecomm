@@ -694,7 +694,10 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
                 0, bluetoothDevice2.getAddress());
         waitForHandlerAction(stateMachine.getAdapterHandler(), TEST_TIMEOUT);
 
-        verify(mockBluetoothRouteManager).connectBluetoothAudio(bluetoothDevice2.getAddress());
+        // It's possible that this is called again when we actually move into the active BT route
+        // and we end up verifying this after that has happened.
+        verify(mockBluetoothRouteManager, atLeastOnce()).connectBluetoothAudio(
+                bluetoothDevice2.getAddress());
         waitForHandlerAction(stateMachine.getAdapterHandler(), TEST_TIMEOUT);
         CallAudioState expectedEndState = new CallAudioState(false,
                 CallAudioState.ROUTE_BLUETOOTH,

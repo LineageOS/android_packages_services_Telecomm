@@ -138,4 +138,6 @@
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Nu se poate iniția un apel când există un apel care nu poate fi pus în așteptare. Închide apelul înainte de a iniția un apel nou."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Nu se poate iniția un apel când primești un apel la care nu ai răspuns. Răspunde sau respinge apelul primit înainte de a iniția un apel nou."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Acest cod MMI nu este disponibil pentru apelurile din mai multe conturi."</string>
+    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
+    <skip />
 </resources>

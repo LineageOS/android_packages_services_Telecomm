@@ -429,4 +429,7 @@
     <!-- In-call screen: error message shown when the user attempts to dial an MMI code, but there
          is an ongoing call on a different phone account. -->
     <string name="callFailed_reject_mmi">This MMI code is not available for calls across multiple accounts.</string>
+    <!-- In-call screen: error message shown when the user attempts to dial an MMI code during an
+         ongoing emergency call. -->
+    <string name="emergencyCall_reject_mmi">MMI codes cannot be dialed during an emergency call.</string>
 </resources>
