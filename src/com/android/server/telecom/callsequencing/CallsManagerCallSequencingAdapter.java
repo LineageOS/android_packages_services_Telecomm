@@ -16,9 +16,6 @@
 
 package com.android.server.telecom.callsequencing;
 
-import static com.android.server.telecom.CallsManager.CALL_FILTER_ALL;
-import static com.android.server.telecom.CallsManager.ONGOING_CALL_STATES;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,8 +23,8 @@ import android.os.OutcomeReceiver;
 import android.telecom.CallAttributes;
 import android.telecom.CallException;
 import android.telecom.Connection;
-import android.telecom.DisconnectCause;
 import android.telecom.Log;
+import android.telecom.PhoneAccountHandle;
 
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallAudioManager;
@@ -37,6 +34,9 @@ import com.android.server.telecom.callsequencing.voip.OutgoingCallTransaction;
 import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.R;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -307,6 +307,52 @@ public class CallsManagerCallSequencingAdapter {
      */
     public boolean shouldAllowMmiCode(Call call) {
         return !mIsCallSequencingEnabled || !mSequencingController.hasMmiCodeRestriction(call);
+    }
+
+    /**
+     * Processes the simultaneous call type for the ongoing calls that are being tracked in
+     * {@link CallsManager}. The current call's simultaneous call type will be overridden only if
+     * it's current type priority is lower than the one being set.
+     * @param calls The list of the currently tracked calls.
+     */
+    public void processSimultaneousCallTypes(Collection<Call> calls) {
+        // Metrics should only be tracked when call sequencing flag is enabled.
+        if (!mIsCallSequencingEnabled) {
+            return;
+        }
+        // Device should have simultaneous calling supported.
+        boolean isSimultaneousCallingSupported = mCallsManager.isDsdaCallingPossible();
+        int type;
+        // Go through the available calls' phone accounts to determine how many different ones
+        // are being used.
+        Set<PhoneAccountHandle> handles = new HashSet<>();
+        for (Call call : calls) {
+            if (call.getTargetPhoneAccount() != null) {
+                handles.add(call.getTargetPhoneAccount());
+            }
+            // No need to proceed further given that we already know there is more than 1 phone
+            // account being used.
+            if (handles.size() > 1) {
+                break;
+            }
+        }
+        type = handles.size() > 1
+                ? (isSimultaneousCallingSupported ? Call.CALL_DIRECTION_DUAL_DIFF_ACCOUNT
+                        : Call.CALL_SIMULTANEOUS_DISABLED_DIFF_ACCOUNT)
+                : (isSimultaneousCallingSupported ? Call.CALL_DIRECTION_DUAL_SAME_ACCOUNT
+                        : Call.CALL_SIMULTANEOUS_DISABLED_SAME_ACCOUNT);
+
+        Log.i(this, "processSimultaneousCallTypes: the calculated simultaneous call type for "
+                + "the tracked calls is [%d]", type);
+        calls.forEach(c -> {
+            // If the current call's simultaneous call type priority is lower than the one being
+            // set, then let the override occur. Otherwise, ignore it.
+            if (c.getSimultaneousType() < type) {
+                Log.i(this, "processSimultaneousCallTypes: overriding simultaneous call type for "
+                        + "call (%s). Previous value: %d", c.getId(), c.getSimultaneousType());
+                c.setSimultaneousType(type);
+            }
+        });
     }
 
     public Handler getHandler() {

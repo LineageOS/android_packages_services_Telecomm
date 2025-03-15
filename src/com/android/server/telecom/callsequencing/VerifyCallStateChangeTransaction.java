@@ -36,7 +36,7 @@ import java.util.stream.IntStream;
  */
 public class VerifyCallStateChangeTransaction extends CallTransaction {
     private static final String TAG = VerifyCallStateChangeTransaction.class.getSimpleName();
-    private static final long CALL_STATE_TIMEOUT_MILLISECONDS = 2000L;
+    private static final long CALL_STATE_TIMEOUT_MILLISECONDS = 5000L;
     private final Call mCall;
     private final Set<Integer> mTargetCallStates;
     private final CompletableFuture<CallTransactionResult> mTransactionResult =

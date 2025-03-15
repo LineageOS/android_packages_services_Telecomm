@@ -134,10 +134,14 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"ഓഡിയോ മറ്റൊരു ഉപകരണത്തിലേക്ക് സ്‌ട്രീം ചെയ്യുന്നു"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"മാറ്റി വയ്‌ക്കുക"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"ഇവിടേക്ക് മാറുക"</string>
-    <string name="callFailed_too_many_calls" msgid="4249997210954876420">"രണ്ട് കോളുകൾ നിലവിൽ പുരോഗമിക്കുന്നതിനാൽ, ഇനിയൊരു കോൾ കൂടി ചെയ്യാനാകില്ല. പുതിയൊരു കോൾ ചെയ്യുന്നതിന് മുമ്പ്, കോളുകളിലൊരെണ്ണം വിച്ഛേദിക്കുകയോ അവ കോൺഫറൻസ് കോളായി ലയിപ്പിക്കുകയോ ചെയ്യുക."</string>
+    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
+    <skip />
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"ഹോൾഡ് ചെയ്യാനാകാത്ത കോൾ പുരോഗമിക്കുന്നതിനാൽ ഇനിയൊരു കോൾ കൂടി ചെയ്യാനാകില്ല. പുതിയൊരു കോൾ ചെയ്യുന്നതിന് മുമ്പ് കോൾ വിച്ഛേദിക്കുക."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"മറുപടി ലഭിക്കാത്ത ഒരു ഇൻ‌കമിംഗ് കോൾ ഉള്ളതിനാൽ, പുതിയൊരു കോൾ ചെയ്യാനാവില്ല. പുതിയ കോൾ ചെയ്യുന്നതിന് മുമ്പ് ഇൻകമിംഗ് കോളിന് മറുപടി നൽകുകയോ നിരസിക്കുകയോ ചെയ്യുക."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ഒന്നിലധികം അക്കൗണ്ടുകളിലുടനീളം കോളുകൾക്ക് ഈ MMI കോഡ് ലഭ്യമല്ല."</string>
-    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
-    <skip />
+    <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"എമർജൻസി കോളിനിടെ MMI കോഡുകൾ ഡയൽ ചെയ്യാനാകില്ല."</string>
 </resources>

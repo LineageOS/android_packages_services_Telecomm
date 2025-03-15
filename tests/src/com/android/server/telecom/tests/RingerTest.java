@@ -38,7 +38,6 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import android.app.NotificationManager;
@@ -366,7 +365,7 @@ public class RingerTest extends TelecomTestCase {
         mRingerUnderTest.startCallWaiting(mockCall1);
         assertFalse(startRingingAndWaitForAsync(mockCall2, false));
 
-        verifyZeroInteractions(mockRingtoneFactory);
+        verifyNoMoreInteractions(mockRingtoneFactory);
         verify(mockTonePlayer, never()).stopTone();
         verify(mockVibrator, never())
                 .vibrate(any(VibrationEffect.class), any(VibrationAttributes.class));
@@ -382,7 +381,7 @@ public class RingerTest extends TelecomTestCase {
         ensureRingerIsNotAudible();
         assertFalse(startRingingAndWaitForAsync(mockCall2, false));
 
-        verifyZeroInteractions(mockRingtoneFactory);
+        verifyNoMoreInteractions(mockRingtoneFactory);
         verify(mockTonePlayer, never()).stopTone();
         verify(mockVibrator, never())
                 .vibrate(any(VibrationEffect.class), any(AudioAttributes.class));
@@ -398,7 +397,7 @@ public class RingerTest extends TelecomTestCase {
                 any(UserHandle.class))).thenReturn(true);
         ensureRingerIsAudible();
         assertTrue(startRingingAndWaitForAsync(mockCall2, false));
-        verifyZeroInteractions(mockRingtoneFactory);
+        verifyNoMoreInteractions(mockRingtoneFactory);
         verify(mockTonePlayer, never()).stopTone();
         verify(mockVibrator, never())
                 .vibrate(any(VibrationEffect.class), any(VibrationAttributes.class));
@@ -413,7 +412,7 @@ public class RingerTest extends TelecomTestCase {
         // We do want to acquire audio focus when self-managed
         assertTrue(startRingingAndWaitForAsync(mockCall2, true));
 
-        verifyZeroInteractions(mockRingtoneFactory);
+        verifyNoMoreInteractions(mockRingtoneFactory);
         verify(mockTonePlayer, never()).stopTone();
         verify(mockVibrator, never())
                 .vibrate(any(VibrationEffect.class), any(VibrationAttributes.class));
@@ -429,7 +428,7 @@ public class RingerTest extends TelecomTestCase {
 
         assertFalse(startRingingAndWaitForAsync(mockCall2, false));
 
-        verifyZeroInteractions(mockRingtoneFactory);
+        verifyNoMoreInteractions(mockRingtoneFactory);
         verify(mockTonePlayer).stopTone();
         verify(mockVibrator, never())
                 .vibrate(any(VibrationEffect.class), any(VibrationAttributes.class));
@@ -567,7 +566,7 @@ public class RingerTest extends TelecomTestCase {
         enableVibrationWhenRinging();
         assertFalse(startRingingAndWaitForAsync(mockCall2, false));
         verify(mockTonePlayer).stopTone();
-        verifyZeroInteractions(mockRingtoneFactory);
+        verifyNoMoreInteractions(mockRingtoneFactory);
 
         // Play default vibration when future completes with no audio coupled haptics
         verify(mockVibrator).vibrate(eq(mRingerUnderTest.mDefaultVibrationEffect),
@@ -637,7 +636,7 @@ public class RingerTest extends TelecomTestCase {
         assertTrue(startRingingAndWaitForAsync(mockCall2, true));
         verify(mockTonePlayer).stopTone();
         // Ringer not audible, so never tries to create a ringtone.
-        verifyZeroInteractions(mockRingtoneFactory);
+        verifyNoMoreInteractions(mockRingtoneFactory);
         verify(mockVibrator, never())
                 .vibrate(any(VibrationEffect.class), any(VibrationAttributes.class));
     }
@@ -841,7 +840,7 @@ public class RingerTest extends TelecomTestCase {
         assertFalse(startRingingAndWaitForAsync(mockCall2, true));
 
         verify(mockTonePlayer, never()).stopTone();
-        verifyZeroInteractions(mockRingtoneFactory);
+        verifyNoMoreInteractions(mockRingtoneFactory);
         verify(mockVibrator, never())
                 .vibrate(any(VibrationEffect.class), any(VibrationAttributes.class));
     }

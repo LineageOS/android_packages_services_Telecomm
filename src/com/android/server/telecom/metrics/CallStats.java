@@ -84,7 +84,7 @@ public class CallStats extends TelecomPulledAtom {
                             v.getCallDirection(), v.getExternalCall(), v.getEmergencyCall(),
                             v.getMultipleAudioAvailable(), v.getAccountType(), v.getUid(),
                             v.getCount(), v.getAverageDurationMs(), v.getDisconnectCause(),
-                            v.getSimultaneousType())));
+                            v.getSimultaneousType(), v.getVideoCall())));
             mCallStatsMap.clear();
             onAggregate();
             return StatsManager.PULL_SUCCESS;
@@ -101,7 +101,8 @@ public class CallStats extends TelecomPulledAtom {
                 mCallStatsMap.put(new CallStatsKey(v.getCallDirection(),
                         v.getExternalCall(), v.getEmergencyCall(),
                         v.getMultipleAudioAvailable(), v.getAccountType(),
-                        v.getUid(), v.getDisconnectCause(), v.getSimultaneousType()),
+                        v.getUid(), v.getDisconnectCause(), v.getSimultaneousType(),
+                        v.getVideoCall()),
                         new CallStatsData(
                                 v.getCount(), v.getAverageDurationMs()));
             }
@@ -130,6 +131,7 @@ public class CallStats extends TelecomPulledAtom {
             mPulledAtoms.callStats[index[0]].setUid(k.mUid);
             mPulledAtoms.callStats[index[0]].setDisconnectCause(k.mCause);
             mPulledAtoms.callStats[index[0]].setSimultaneousType(k.mSimultaneousType);
+            mPulledAtoms.callStats[index[0]].setVideoCall(k.mHasVideoCall);
             mPulledAtoms.callStats[index[0]].setCount(v.mCount);
             mPulledAtoms.callStats[index[0]].setAverageDurationMs(v.mAverageDuration);
             index[0]++;
@@ -140,14 +142,16 @@ public class CallStats extends TelecomPulledAtom {
     public void log(int direction, boolean isExternal, boolean isEmergency,
         boolean isMultipleAudioAvailable, int accountType, int uid, int duration) {
         log(direction, isExternal, isEmergency, isMultipleAudioAvailable, accountType, uid,
-                0, 0, duration);
+                0, 0, false, duration);
     }
+
     public void log(int direction, boolean isExternal, boolean isEmergency,
             boolean isMultipleAudioAvailable, int accountType, int uid,
-            int disconnectCause, int simultaneousType, int duration) {
+            int disconnectCause, int simultaneousType, boolean hasVideoCall, int duration) {
         post(() -> {
             CallStatsKey key = new CallStatsKey(direction, isExternal, isEmergency,
-                    isMultipleAudioAvailable, accountType, uid, disconnectCause, simultaneousType);
+                    isMultipleAudioAvailable, accountType, uid, disconnectCause, simultaneousType,
+                    hasVideoCall);
             CallStatsData data = mCallStatsMap.computeIfAbsent(key, k -> new CallStatsData(0, 0));
             data.add(duration);
             onAggregate();
@@ -183,7 +187,7 @@ public class CallStats extends TelecomPulledAtom {
 
             log(direction, call.isExternalCall(), call.isEmergencyCall(), hasMultipleAudioDevices,
                     accountType, uid, call.getDisconnectCause().getCode(),
-                    call.getSimultaneousType(), duration);
+                    call.getSimultaneousType(), call.hasVideoCall(), duration);
         });
     }
 
@@ -250,16 +254,17 @@ public class CallStats extends TelecomPulledAtom {
         final int mUid;
         final int mCause;
         final int mSimultaneousType;
+        final boolean mHasVideoCall;
 
         CallStatsKey(int direction, boolean isExternal, boolean isEmergency,
             boolean isMultipleAudioAvailable, int accountType, int uid) {
             this(direction, isExternal, isEmergency, isMultipleAudioAvailable, accountType, uid,
-                    0, 0);
+                    0, 0, false);
         }
 
         CallStatsKey(int direction, boolean isExternal, boolean isEmergency,
                 boolean isMultipleAudioAvailable, int accountType, int uid,
-                int cause, int simultaneousType) {
+                int cause, int simultaneousType, boolean hasVideoCall) {
             mDirection = direction;
             mIsExternal = isExternal;
             mIsEmergency = isEmergency;
@@ -268,6 +273,7 @@ public class CallStats extends TelecomPulledAtom {
             mUid = uid;
             mCause = cause;
             mSimultaneousType = simultaneousType;
+            mHasVideoCall = hasVideoCall;
         }
 
         @Override
@@ -282,13 +288,14 @@ public class CallStats extends TelecomPulledAtom {
                     && this.mIsEmergency == obj.mIsEmergency
                     && this.mIsMultipleAudioAvailable == obj.mIsMultipleAudioAvailable
                     && this.mAccountType == obj.mAccountType && this.mUid == obj.mUid
-                    && this.mCause == obj.mCause && this.mSimultaneousType == obj.mSimultaneousType;
+                    && this.mCause == obj.mCause && this.mSimultaneousType == obj.mSimultaneousType
+                    && this.mHasVideoCall == obj.mHasVideoCall;
         }
 
         @Override
         public int hashCode() {
             return Objects.hash(mDirection, mIsExternal, mIsEmergency, mIsMultipleAudioAvailable,
-                    mAccountType, mUid, mCause, mSimultaneousType);
+                    mAccountType, mUid, mCause, mSimultaneousType, mHasVideoCall);
         }
 
         @Override
@@ -296,7 +303,8 @@ public class CallStats extends TelecomPulledAtom {
             return "[CallStatsKey: mDirection=" + mDirection + ", mIsExternal=" + mIsExternal
                     + ", mIsEmergency=" + mIsEmergency + ", mIsMultipleAudioAvailable="
                     + mIsMultipleAudioAvailable + ", mAccountType=" + mAccountType + ", mUid="
-                    + mUid + ", mCause=" + mCause + ", mScType=" + mSimultaneousType + "]";
+                    + mUid + ", mCause=" + mCause + ", mScType=" + mSimultaneousType
+                    + ", mHasVideoCall =" + mHasVideoCall + "]";
         }
     }
 

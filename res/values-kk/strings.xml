@@ -134,10 +134,14 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Аудионы басқа құрылғыға трансляциялау"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Қоңырауды аяқтау"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Осы жерде ауысу"</string>
-    <string name="callFailed_too_many_calls" msgid="4249997210954876420">"Қоңырау шалу мүмкін емес, себебі онсыз да екі қоңырау жүріп жатыр. Жаңа қоңырау бастау үшін олардың біреуін тоқтатыңыз немесе екеуін бір конференцияға біріктіріңіз."</string>
+    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
+    <skip />
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Қоңырау шалу мүмкін емес, себебі жүріп жатқан қоңырау кідіртілмейді. Жаңадан қоңырау шалу үшін жүріп жатқан қоңырауды тоқтатыңыз."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Қоңырау шалу мүмкін емес, себебі жауап бермеген кіріс қоңырау бар. Жаңа қоңырау шалу үшін кіріс қоңырауға жауап беріңіз немесе оны қабылдамаңыз."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Бұл MMI кодын бірнеше аккаунттағы қоңыраулар үшін пайдалану мүмкін емес."</string>
-    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
-    <skip />
+    <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Құтқару қызметіне қоңырау шалу кезінде MMI кодтары терілмейді."</string>
 </resources>

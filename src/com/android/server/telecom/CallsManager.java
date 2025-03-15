@@ -511,7 +511,7 @@ public class CallsManager extends Call.ListenerBase
     private final UserManager mUserManager;
     private final CallStreamingNotification mCallStreamingNotification;
     private final BlockedNumbersManager mBlockedNumbersManager;
-    private final CallsManagerCallSequencingAdapter mCallSequencingAdapter;
+    private CallsManagerCallSequencingAdapter mCallSequencingAdapter;
     private final FeatureFlags mFeatureFlags;
     private final com.android.internal.telephony.flags.FeatureFlags mTelephonyFeatureFlags;
 
@@ -4864,6 +4864,9 @@ public class CallsManager extends Call.ListenerBase
         Log.i(this, "addCall(%s)", call);
         call.addListener(this);
         mCalls.add(call);
+        // Reprocess the simultaneous call types for all the tracked calls after having added a new
+        // call.
+        mCallSequencingAdapter.processSimultaneousCallTypes(mCalls);
         mSelfManagedCallsBeingSetup.remove(call);
 
         // Specifies the time telecom finished routing the call. This is used by the dialer for
@@ -7170,6 +7173,11 @@ public class CallsManager extends Call.ListenerBase
     @VisibleForTesting
     public CallsManagerCallSequencingAdapter getCallSequencingAdapter() {
         return mCallSequencingAdapter;
+    }
+
+    @VisibleForTesting
+    public void setCallSequencingAdapter(CallsManagerCallSequencingAdapter adapter) {
+        mCallSequencingAdapter = adapter;
     }
 
     public void waitForAudioToUpdate(boolean expectActive) {

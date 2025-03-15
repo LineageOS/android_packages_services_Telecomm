@@ -25,8 +25,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.os.Looper;
 import android.telecom.Connection;
 import android.telecom.Log;
+import android.telecom.Logging.Session;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.SmsManager;
 import android.telephony.SubscriptionManager;
@@ -36,9 +38,13 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import com.android.server.telecom.flags.FeatureFlags;
+
 import java.text.Bidi;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
  * Helper class to manage the "Respond via Message" feature for incoming calls.
@@ -74,10 +80,15 @@ public class RespondViaSmsManager extends CallsManagerListenerBase {
 
     private final CallsManager mCallsManager;
     private final TelecomSystem.SyncRoot mLock;
+    private final Executor mAsyncExecutor;
+    private final FeatureFlags mFeatureFlags;
 
-    public RespondViaSmsManager(CallsManager callsManager, TelecomSystem.SyncRoot lock) {
+    public RespondViaSmsManager(CallsManager callsManager, TelecomSystem.SyncRoot lock,
+        Executor asyncExecutor, FeatureFlags featureFlags) {
         mCallsManager = callsManager;
         mLock = lock;
+        mAsyncExecutor = asyncExecutor;
+        mFeatureFlags = featureFlags;
     }
 
     /**
@@ -93,49 +104,75 @@ public class RespondViaSmsManager extends CallsManagerListenerBase {
      */
     public void loadCannedTextMessages(final CallsManager.Response<Void, List<String>> response,
             final Context context) {
-        new Thread() {
-            @Override
-            public void run() {
-                Log.d(RespondViaSmsManager.this, "loadCannedResponses() starting");
-
-                // This function guarantees that QuickResponses will be in our
-                // SharedPreferences with the proper values considering there may be
-                // old QuickResponses in Telephony pre L.
-                QuickResponseUtils.maybeMigrateLegacyQuickResponses(context);
-
-                final SharedPreferences prefs = context.getSharedPreferences(
-                        QuickResponseUtils.SHARED_PREFERENCES_NAME,
-                        Context.MODE_PRIVATE | Context.MODE_MULTI_PROCESS);
-                final Resources res = context.getResources();
-
-                final ArrayList<String> textMessages = new ArrayList<>(
-                        QuickResponseUtils.NUM_CANNED_RESPONSES);
-
-                // Where the user has changed a quick response back to the same text as the
-                // original text, clear the shared pref.  This ensures we always load the resource
-                // in the current active language.
-                QuickResponseUtils.maybeResetQuickResponses(context, prefs);
-
-                // Note the default values here must agree with the corresponding
-                // android:defaultValue attributes in respond_via_sms_settings.xml.
-                textMessages.add(0, prefs.getString(QuickResponseUtils.KEY_CANNED_RESPONSE_PREF_1,
-                        res.getString(R.string.respond_via_sms_canned_response_1)));
-                textMessages.add(1, prefs.getString(QuickResponseUtils.KEY_CANNED_RESPONSE_PREF_2,
-                        res.getString(R.string.respond_via_sms_canned_response_2)));
-                textMessages.add(2, prefs.getString(QuickResponseUtils.KEY_CANNED_RESPONSE_PREF_3,
-                        res.getString(R.string.respond_via_sms_canned_response_3)));
-                textMessages.add(3, prefs.getString(QuickResponseUtils.KEY_CANNED_RESPONSE_PREF_4,
-                        res.getString(R.string.respond_via_sms_canned_response_4)));
-
-                Log.d(RespondViaSmsManager.this,
-                        "loadCannedResponses() completed, found responses: %s",
-                        textMessages.toString());
-
-                synchronized (mLock) {
-                    response.onResult(null, textMessages);
+        if (mFeatureFlags.enableRespondViaSmsManagerAsync()) {
+            CompletableFuture<List<String>> cannedTextMessages = new CompletableFuture<>();
+            Session s = Log.createSubsession();
+            mAsyncExecutor.execute(() -> {
+                try {
+                    Log.continueSession(s, "RVSM.lCTM.e");
+                    cannedTextMessages.complete(loadCannedTextMessages(context));
+                } finally {
+                    Log.endSession();
                 }
-            }
-        }.start();
+            });
+            cannedTextMessages.whenCompleteAsync((result, exception) -> {
+                    if (exception != null) {
+                        Log.e(RespondViaSmsManager.class.getSimpleName(), exception,
+                                "loadCannedTextMessages failed");
+                        response.onError(null, -1, exception.toString());
+                    } else {
+                        response.onResult(null, result);
+                    }
+                }, new LoggedHandlerExecutor(context.getMainThreadHandler(), "RVSM.lCTM.c", mLock));
+
+        } else {
+          new Thread() {
+                @Override
+                public void run() {
+                    List<String> textMessages = loadCannedTextMessages(context);
+                    synchronized (mLock) {
+                        response.onResult(null, textMessages);
+                    }
+                }
+            }.start();
+        }
+    }
+
+    private List<String> loadCannedTextMessages(final Context context) {
+        Log.d(RespondViaSmsManager.this, "loadCannedTextMessages() starting");
+        // This function guarantees that QuickResponses will be in our
+        // SharedPreferences with the proper values considering there may be
+        // old QuickResponses in Telephony pre L.
+        QuickResponseUtils.maybeMigrateLegacyQuickResponses(context);
+
+        final SharedPreferences prefs = context.getSharedPreferences(
+                QuickResponseUtils.SHARED_PREFERENCES_NAME,
+                Context.MODE_PRIVATE | Context.MODE_MULTI_PROCESS);
+        final Resources res = context.getResources();
+
+        final ArrayList<String> textMessages = new ArrayList<>(
+                QuickResponseUtils.NUM_CANNED_RESPONSES);
+
+        // Where the user has changed a quick response back to the same text as the
+        // original text, clear the shared pref.  This ensures we always load the resource
+        // in the current active language.
+        QuickResponseUtils.maybeResetQuickResponses(context, prefs);
+
+        // Note the default values here must agree with the corresponding
+        // android:defaultValue attributes in respond_via_sms_settings.xml.
+        textMessages.add(0, prefs.getString(QuickResponseUtils.KEY_CANNED_RESPONSE_PREF_1,
+                res.getString(R.string.respond_via_sms_canned_response_1)));
+        textMessages.add(1, prefs.getString(QuickResponseUtils.KEY_CANNED_RESPONSE_PREF_2,
+                res.getString(R.string.respond_via_sms_canned_response_2)));
+        textMessages.add(2, prefs.getString(QuickResponseUtils.KEY_CANNED_RESPONSE_PREF_3,
+                res.getString(R.string.respond_via_sms_canned_response_3)));
+        textMessages.add(3, prefs.getString(QuickResponseUtils.KEY_CANNED_RESPONSE_PREF_4,
+                res.getString(R.string.respond_via_sms_canned_response_4)));
+
+        Log.d(RespondViaSmsManager.this,
+                "loadCannedResponses() completed, found responses: %s",
+                textMessages.toString());
+        return textMessages;
     }
 
     @Override
@@ -199,7 +236,23 @@ public class RespondViaSmsManager extends CallsManagerListenerBase {
                     subId);
             return;
         }
+        if(mFeatureFlags.enableRespondViaSmsManagerAsync()) {
+            Session s = Log.createSubsession();
+            mAsyncExecutor.execute(() -> {
+                try {
+                    Log.continueSession(s, "RVSM.rCWM.e");
+                    sendTextMessage(context, phoneNumber, textMessage, subId, contactName);
+                } finally {
+                    Log.endSession();
+                }
+            });
+        } else {
+            sendTextMessage(context, phoneNumber, textMessage, subId, contactName);
+        }
+    }
 
+    private void sendTextMessage(Context context, String phoneNumber, String textMessage,
+            int subId, String contactName) {
         SmsManager smsManager = SmsManager.getSmsManagerForSubscriptionId(subId);
         try {
             ArrayList<String> messageParts = smsManager.divideMessage(textMessage);

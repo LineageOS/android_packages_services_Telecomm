@@ -134,10 +134,14 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Streaming de l\'audio sur un autre appareil"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Raccrocher"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Passer ici"</string>
-    <string name="callFailed_too_many_calls" msgid="4249997210954876420">"Impossible de passer un appel, car deux appels sont déjà en cours. Mettez fin à l\'un des appels ou fusionnez-les afin de créer une conférence avant de passer un nouvel appel."</string>
+    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
+    <skip />
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Impossible de passer un appel, car un appel est en cours et ne peut pas être mis en attente. Mettez fin à l\'appel avant de passer un nouvel appel."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Impossible de passer un appel lorsqu\'un appel entrant attend une réponse. Répondez à cet appel ou refusez-le avant de passer un nouvel appel."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Ce code IHM n\'est pas disponible pour les appels sur plusieurs comptes."</string>
-    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
-    <skip />
+    <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Impossible de composer des codes IHM pendant un appel d\'urgence."</string>
 </resources>

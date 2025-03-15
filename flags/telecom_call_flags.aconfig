@@ -66,3 +66,14 @@ flag {
       purpose: PURPOSE_BUGFIX
     }
 }
+
+# OWNER=breadley TARGET=25Q2
+flag {
+  name: "enable_respond_via_sms_manager_async"
+  namespace: "telecom"
+  description: "Move RespondViaSmsManager to async thread"
+  bug: "328013578"
+  metadata {
+      purpose: PURPOSE_BUGFIX
+    }
+}

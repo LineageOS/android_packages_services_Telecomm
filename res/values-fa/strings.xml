@@ -134,10 +134,14 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"درحال جاری‌سازی صدا به دستگاه دیگر"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"قطع تماس"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"انتقال در اینجا انجام شود"</string>
-    <string name="callFailed_too_many_calls" msgid="4249997210954876420">"نمی‌توانید تماسی برقرار کنید، زیرا هم‌اکنون دو تماس دیگر درحال انجام است. قبل‌از برقراری تماس جدید، یکی از تماس‌ها را قطع کنید یا آن‌ها را به‌صورت کنفرانسی ادغام کنید."</string>
+    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
+    <skip />
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"نمی‌توانید تماسی برقرار کنید زیرا هم‌اکنون تماسی بدون قابلیت انتظار درحال انجام است. قبل‌از برقراری تماس جدید، تماس را قطع کنید."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"نمی‌توانید تماسی برقرار کنید، چون تماس ورودی بی‌پاسخی درحال انجام است. قبل‌از برقراری تماس جدید، به تماس ورودی پاسخ دهید یا آن را رد کنید."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"‏این کد MMI برای تماس در چندین حساب دردسترس نیست."</string>
-    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
-    <skip />
+    <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"‏امکان شماره‌گیری کدهای MMI حین تماس اضطراری وجود ندارد"</string>
 </resources>

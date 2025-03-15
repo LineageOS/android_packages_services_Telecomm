@@ -184,3 +184,25 @@ flag {
     purpose: PURPOSE_BUGFIX
   }
 }
+
+# OWNER=pmadapurmath TARGET=25Q3
+flag {
+  name: "update_preferred_audio_device_logic"
+  namespace: "telecom"
+  description: "Change the use of preferred device for strategy to only use it at the start of the call and include relevant syncing with AudioManager#getCommunicationDevice"
+  bug: "377345692"
+  metadata {
+    purpose: PURPOSE_BUGFIX
+  }
+}
+
+# OWNER=pmadapurmath TARGET=25Q3
+flag {
+  name: "call_audio_routing_performance_improvemenent"
+  namespace: "telecom"
+  description: "Change the handler to use the main looper to improve performance with processing messages from the message queue"
+  bug: "383466267"
+  metadata {
+    purpose: PURPOSE_BUGFIX
+  }
+}

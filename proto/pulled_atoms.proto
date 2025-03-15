@@ -59,6 +59,9 @@ message CallStats {
     // DUAL_DIFF_ACCOUNT, etc.
     // From frameworks/proto_logging/stats/enums/telecomm/enums.proto
     optional int32 simultaneous_type = 10;
+
+    // True if it is a video call
+    optional bool video_call = 11;
 }
 
 /**

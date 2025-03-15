@@ -134,10 +134,14 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Streaming audio pe alt dispozitiv"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Încheie apelul"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Treci la alt cont aici"</string>
-    <string name="callFailed_too_many_calls" msgid="4249997210954876420">"Nu se poate iniția un apel când există deja două apeluri în desfășurare. Deconectează unul dintre ele sau îmbină-le într-o conferință înainte de a iniția un apel nou."</string>
+    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
+    <skip />
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Nu se poate iniția un apel când există un apel care nu poate fi pus în așteptare. Închide apelul înainte de a iniția un apel nou."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Nu se poate iniția un apel când primești un apel la care nu ai răspuns. Răspunde sau respinge apelul primit înainte de a iniția un apel nou."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Acest cod MMI nu este disponibil pentru apelurile din mai multe conturi."</string>
-    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
-    <skip />
+    <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Codurile MMI nu pot fi formate în timpul unui apel de urgență."</string>
 </resources>
