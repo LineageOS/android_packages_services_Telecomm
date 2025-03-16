@@ -134,10 +134,14 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"他のデバイスに音声をストリーミングしています"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"通話を終了"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"このデバイスに切り替える"</string>
-    <string name="callFailed_too_many_calls" msgid="4249997210954876420">"進行中の通話がすでに 2 件あるため、新しく通話を発信することはできません。進行中の通話のどちらかを終了するか、2 件の通話を統合してグループ通話にすると、新しく通話を発信できるようになります。"</string>
+    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
+    <skip />
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"保留できない通話があるため、新しく通話を発信できません。通話を終了すると、新しく通話を発信できるようになります。"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"通話を着信中のため、新しく通話を発信することはできません。着信中の通話に応答するか、通話を拒否すると、新しく通話を発信できるようになります。"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"この MMI コードは、複数のアカウントにまたがる通話には使用できません。"</string>
-    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
-    <skip />
+    <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"緊急通報中は MMI コードをダイヤルできません。"</string>
 </resources>

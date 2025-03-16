@@ -462,7 +462,8 @@ public class TelecomSystem {
             });
             mCallsManager.setIncomingCallNotifier(mIncomingCallNotifier);
 
-            mRespondViaSmsManager = new RespondViaSmsManager(mCallsManager, mLock);
+            mRespondViaSmsManager = new RespondViaSmsManager(mCallsManager, mLock,
+                asyncTaskExecutor, featureFlags);
             mCallsManager.setRespondViaSmsManager(mRespondViaSmsManager);
 
             mContext.registerReceiverAsUser(mUserSwitchedReceiver, UserHandle.ALL,

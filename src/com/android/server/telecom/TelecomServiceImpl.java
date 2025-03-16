@@ -1537,14 +1537,20 @@ public class TelecomServiceImpl {
             int callingUid = Binder.getCallingUid();
             int systemUiUid;
             if (mPackageManager != null && mSystemUiPackageName != null) {
+                long whosCalling = Binder.clearCallingIdentity();
                 try {
-                    systemUiUid = mPackageManager.getPackageUid(mSystemUiPackageName, 0);
-                    Log.i(TAG, "isSysUiUid: callingUid = " + callingUid + "; systemUiUid = "
-                            + systemUiUid);
-                    return isSameApp(callingUid, systemUiUid);
-                } catch (PackageManager.NameNotFoundException e) {
-                    Log.w(TAG, "isSysUiUid: caught PackageManager NameNotFoundException = " + e);
-                    return false;
+                    try {
+                        systemUiUid = mPackageManager.getPackageUid(mSystemUiPackageName, 0);
+                        Log.i(TAG, "isSysUiUid: callingUid = " + callingUid + "; systemUiUid = "
+                                + systemUiUid);
+                        return isSameApp(callingUid, systemUiUid);
+                    } catch (PackageManager.NameNotFoundException e) {
+                        Log.w(TAG,
+                                "isSysUiUid: caught PackageManager NameNotFoundException = " + e);
+                        return false;
+                    }
+                } finally {
+                    Binder.restoreCallingIdentity(whosCalling);
                 }
             } else {
                 Log.w(TAG, "isSysUiUid: caught null check and returned false; "
@@ -3317,19 +3323,22 @@ public class TelecomServiceImpl {
         try {
             pm = mContext.createContextAsUser(
                     UserHandle.getUserHandleForUid(callingUid), 0).getPackageManager();
+
+            // This has to happen inside the scope of the `clearCallingIdentity` block
+            // otherwise the caller may fail to call `TelecomManager#endCall`.
+            if (pm != null) {
+                try {
+                    packageUid = pm.getPackageUid(packageName, 0);
+                } catch (PackageManager.NameNotFoundException e) {
+                    // packageUid is -1.
+                }
+            }
         } catch (Exception e) {
             Log.i(this, "callingUidMatchesPackageManagerRecords:"
                     + " createContextAsUser hit exception=[%s]", e.toString());
             return false;
         } finally {
             Binder.restoreCallingIdentity(token);
-        }
-        if (pm != null) {
-            try {
-                packageUid = pm.getPackageUid(packageName, 0);
-            } catch (PackageManager.NameNotFoundException e) {
-                // packageUid is -1.
-            }
         }
 
         if (packageUid != callingUid) {

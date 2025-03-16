@@ -355,12 +355,15 @@ public class CallSequencingController {
                             Log.i(this, "Disconnecting non-holdable calls from account (%s).",
                                     activeCall.getTargetPhoneAccount());
                             return disconnectAllCallsWithPhoneAccount(
-                                    activeCall.getTargetPhoneAccount());
+                                    activeCall.getTargetPhoneAccount(), false /* excludeAccount */);
                         } else {
+                            // Disconnect calls on other phone accounts and allow CS to handle
+                            // holding/disconnecting calls from the same CS.
                             Log.i(this, "holdActiveCallForNewCallWithSequencing: "
-                                    + "allowing ConnectionService to determine how to handle "
-                                    + "this case");
-                            CompletableFuture.completedFuture(true);
+                                    + "disconnecting calls on other phone accounts and allowing "
+                                    + "ConnectionService to determine how to handle this case.");
+                            return disconnectAllCallsWithPhoneAccount(
+                                    activeCall.getTargetPhoneAccount(), true /* excludeAccount */);
                         }
                     }
                 } else {
@@ -758,7 +761,7 @@ public class CallSequencingController {
                         "Disconnecting call in SELECT_PHONE_ACCOUNT in favor of new "
                                 + "outgoing call.");
             }
-            showErrorDialogForMaxOutgoingCall(call);
+            showErrorDialogForMaxOutgoingCallOutgoingPresent(call);
             return CompletableFuture.completedFuture(false);
         }
 
@@ -775,7 +778,9 @@ public class CallSequencingController {
         // different failure cause. Now, we perform this early check to ensure the right max
         // outgoing call restriction error is displayed instead.
         if (mCallsManager.hasMaximumManagedHoldingCalls(call) && !mCallsManager.canHold(liveCall)) {
-            showErrorDialogForMaxOutgoingCall(call);
+            Call heldCall = mCallsManager.getFirstCallWithState(CallState.ON_HOLD);
+            showErrorDialogForMaxOutgoingCallTooManyCalls(call,
+                    arePhoneAccountsSame(heldCall, liveCall));
             return CompletableFuture.completedFuture(false);
         }
 
@@ -1027,10 +1032,10 @@ public class CallSequencingController {
     }
 
     private CompletableFuture<Boolean> disconnectAllCallsWithPhoneAccount(
-            PhoneAccountHandle handle) {
+            PhoneAccountHandle handle, boolean excludeAccount) {
         CompletableFuture<Boolean> disconnectFuture = CompletableFuture.completedFuture(true);
         List<Call> calls = mCallsManager.getCalls().stream()
-                .filter(c -> c.getTargetPhoneAccount().equals(handle)).toList();
+                .filter(c -> excludeAccount != c.getTargetPhoneAccount().equals(handle)).toList();
         for (Call call: calls) {
             // Wait for all disconnects before we accept the new call.
             disconnectFuture = disconnectFuture.thenComposeAsync((result) -> {
@@ -1038,7 +1043,7 @@ public class CallSequencingController {
                     Log.i(this, "disconnectAllCallsWithPhoneAccount: "
                             + "Failed to disconnect %s.", call);
                 }
-                return call.disconnect("Un-holdable call " + call + " disconnected "
+                return call.disconnect("Call " + call + " disconnected "
                         + "in favor of new call.");
             }, new LoggedHandlerExecutor(mHandler, "CSC.dACWPA", mCallsManager.getLock()));
         }
@@ -1098,10 +1103,20 @@ public class CallSequencingController {
         }
     }
 
-    private void showErrorDialogForMaxOutgoingCall(Call call) {
-        int resourceId = R.string.callFailed_too_many_calls;
-        String reason = " there are two calls already in progress. Disconnect one of the calls "
-                + "or merge the calls.";
+    private void showErrorDialogForMaxOutgoingCallOutgoingPresent(Call call) {
+        int resourceId = R.string.callFailed_outgoing_already_present;
+        String reason = " there is already another call connecting. Wait for the "
+                + "call to be answered or disconnect before placing another call.";
+        showErrorDialogForFailedCall(call, CallFailureCause.MAX_OUTGOING_CALLS, resourceId, reason);
+    }
+
+    private void showErrorDialogForMaxOutgoingCallTooManyCalls(
+            Call call, boolean arePhoneAccountsSame) {
+        int resourceId = arePhoneAccountsSame
+                ? R.string.callFailed_too_many_calls_include_merge
+                : R.string.callFailed_too_many_calls_exclude_merge;
+        String reason = " there are two calls already in progress. Disconnect one "
+                + "of the calls or merge the calls (if possible).";
         showErrorDialogForFailedCall(call, CallFailureCause.MAX_OUTGOING_CALLS, resourceId, reason);
     }
 

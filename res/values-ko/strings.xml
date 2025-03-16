@@ -134,10 +134,14 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"다른 기기로 오디오 스트리밍"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"전화 끊기"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"현재 기기로 전환"</string>
-    <string name="callFailed_too_many_calls" msgid="4249997210954876420">"이미 진행 중인 두 건의 통화가 있으므로 전화를 걸 수 없습니다. 새로 전화를 걸기 전에 통화 중 하나를 연결 해제하거나 두 통화를 다자간 통화로 병합하세요."</string>
+    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
+    <skip />
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"대기할 수 없는 통화가 있으므로 전화를 걸 수 없습니다. 새로 전화를 걸기 전에 통화를 종료하세요."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"받지 않은 수신 전화가 있으므로 전화를 걸 수 없습니다. 새로 전화를 걸기 전에 수신 전화를 받거나 거절하세요."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"이 MMI 코드는 여러 계정 간에 통화에 사용할 수 없습니다."</string>
-    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
-    <skip />
+    <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"긴급 전화 중에는 MMI 코드로 전화를 걸 수 없습니다."</string>
 </resources>

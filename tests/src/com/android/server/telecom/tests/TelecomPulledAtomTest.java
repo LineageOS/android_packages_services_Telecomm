@@ -694,6 +694,7 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
         doReturn(true).when(call).isIncoming();
         doReturn(new DisconnectCause(0)).when(call).getDisconnectCause();
         doReturn(0).when(call).getSimultaneousType();
+        doReturn(false).when(call).hasVideoCall();
         doReturn(account).when(call).getPhoneAccountFromHandle();
         doReturn((long) duration).when(call).getAgeMillis();
         doReturn(false).when(account).hasCapabilities(eq(PhoneAccount.CAPABILITY_SELF_MANAGED));
@@ -711,7 +712,7 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
 
         verify(callStats, times(1)).log(eq(CALL_STATS__CALL_DIRECTION__DIR_INCOMING),
                 eq(false), eq(false), eq(false), eq(CALL_STATS__ACCOUNT_TYPE__ACCOUNT_SIM),
-                eq(fakeUid), eq(0), eq(0), eq(duration));
+                eq(fakeUid), eq(0), eq(0), eq(false), eq(duration));
     }
 
     @Test
@@ -734,6 +735,7 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
         doReturn(true).when(call).isIncoming();
         doReturn(new DisconnectCause(0)).when(call).getDisconnectCause();
         doReturn(0).when(call).getSimultaneousType();
+        doReturn(false).when(call).hasVideoCall();
         doReturn(account).when(call).getPhoneAccountFromHandle();
         doReturn((long) duration).when(call).getAgeMillis();
         doReturn(false).when(account).hasCapabilities(eq(PhoneAccount.CAPABILITY_SELF_MANAGED));
@@ -754,7 +756,7 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
 
         verify(callStats, times(1)).log(eq(CALL_STATS__CALL_DIRECTION__DIR_INCOMING),
                 eq(false), eq(false), eq(true), eq(CALL_STATS__ACCOUNT_TYPE__ACCOUNT_SIM),
-                eq(fakeUid), eq(0), eq(0), eq(duration));
+                eq(fakeUid), eq(0), eq(0), eq(false), eq(duration));
     }
 
     @Test

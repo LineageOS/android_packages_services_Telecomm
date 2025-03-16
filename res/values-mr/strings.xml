@@ -134,10 +134,14 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"ऑडिओ हा दुसऱ्या डिव्हाइसवर स्ट्रीम करत आहे"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"बंद करा"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"येथे स्विच करा"</string>
-    <string name="callFailed_too_many_calls" msgid="4249997210954876420">"दोन कॉल आधीच प्रगतीपथावर असल्यामुळे कॉल करू शकत नाही. नवीन कॉल करण्याआधी त्यांपैकी एक कॉल डिस्कनेक्ट करा किंवा त्यांना कॉन्फरन्स कॉलमध्ये मर्ज करा."</string>
+    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
+    <skip />
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"होल्डवर न ठेवता येणारा कॉल असल्यामुळे, कॉल करू शकत नाही. नवीन कॉल करण्यापूर्वी, कॉल डिस्कनेक्ट करा."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"इनकमिंग कॉलला उत्तर दिले जात नसल्यामुळे कॉल करू शकत नाही. नवीन कॉल करण्याआधी येणार्‍या कॉलला उत्तर द्या किंवा त्याला नकार द्या."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"हा MMI कोड एकाहून अधिक खात्यांवरील कॉलसाठी उपलब्ध नाही."</string>
-    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
-    <skip />
+    <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"आणीबाणीच्या कॉल दरम्यान MMI कोड डायल केले जाऊ शकत नाहीत."</string>
 </resources>

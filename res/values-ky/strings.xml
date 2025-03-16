@@ -134,10 +134,14 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Аудио башка түзмөккө берилүүдө"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Чалууну бүтүрүү"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Бул жерге которулуу"</string>
-    <string name="callFailed_too_many_calls" msgid="4249997210954876420">"Чалуу аткарылбайт, анткени эки чалуу аткарылууда. Бир чалууну өчүрүңүз же аларды конференцияга бириктириңиз."</string>
+    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
+    <skip />
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Чалуу мүмкүн эмес, анткени кармалбаган чалуу бар. Жаңы чалуудан мурда учурдагыны бүтүрүңүз."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Чалуу аткарылбайт, анткени кирүүчү чалууга жооп берилген жок. Жаңы чалуу аткаруудан мурун кирүүчү чалууга жооп бериңиз же четке кагыңыз."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Бул MMI коду бир нече аккаунт аркылуу чалуулар үчүн жеткиликсиз."</string>
-    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
-    <skip />
+    <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Шашылыш чалуу учурунда MMI коддорун терүүгө болбойт."</string>
 </resources>

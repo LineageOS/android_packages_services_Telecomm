@@ -419,7 +419,13 @@
     <string name="call_streaming_notification_action_switch_here">Switch here</string>
     <!-- In-call screen: error message shown when the user attempts to place a call, but calling has
          been disabled using a debug property. -->
-    <string name="callFailed_too_many_calls">Cannot place a call as there are already two calls in progress. Disconnect one of the calls or merge them into a conference prior to placing a new call.</string>
+    <string name="callFailed_outgoing_already_present">Cannot place a call as there is already another call connecting. Wait for the call to be answered or disconnect it before placing another call.</string>
+    <!-- In-call screen: error message shown when the user attempts to place a call, but calling has
+         been disabled using a debug property. -->
+    <string name="callFailed_too_many_calls_include_merge">Cannot place a call as there are already two calls in progress. Disconnect one of the calls or merge them into a conference prior to placing a new call.</string>
+    <!-- In-call screen: error message shown when the user attempts to place a call, but calling has
+             been disabled using a debug property. -->
+    <string name="callFailed_too_many_calls_exclude_merge">Cannot place a call as there are already two calls in progress. Disconnect one of the calls prior to placing a new call.</string>
     <!-- In-call screen: error message shown when the user attempts to place a call, but the live
          call cannot be held. -->
     <string name="callFailed_unholdable_call">Cannot place a call as there is an unholdable call. Disconnect the call prior to placing a new call.</string>

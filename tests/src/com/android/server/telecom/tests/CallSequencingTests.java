@@ -496,7 +496,7 @@ public class CallSequencingTests extends TelecomTestCase {
         setupMakeRoomForOutgoingEmergencyCallMocks();
 
         CompletableFuture<Boolean> future = mController.makeRoomForOutgoingCall(true, mNewCall);
-        verify(mRingingCall)
+        verify(mRingingCall, timeout(SEQUENCING_TIMEOUT_MS))
                 .reject(anyBoolean(), eq(null), anyString());
         verify(mActiveCall, timeout(SEQUENCING_TIMEOUT_MS)).hold(anyString());
         assertTrue(waitForFutureResult(future, false));
@@ -512,7 +512,7 @@ public class CallSequencingTests extends TelecomTestCase {
         setupMakeRoomForOutgoingEmergencyCallMocks();
 
         CompletableFuture<Boolean> future = mController.makeRoomForOutgoingCall(true, mNewCall);
-        verify(mRingingCall)
+        verify(mRingingCall, timeout(SEQUENCING_TIMEOUT_MS))
                 .reject(anyBoolean(), eq(null), anyString());
         verify(mActiveCall, timeout(SEQUENCING_TIMEOUT_MS)).hold(anyString());
         assertTrue(waitForFutureResult(future, false));

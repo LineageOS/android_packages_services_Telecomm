@@ -131,10 +131,20 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     private static final char NO_DTMF_TONE = '\0';
 
+    /**
+     * The following simultaneous call types will be set on each call on creation and may be updated
+     * according to priority level. CALL_DIRECTION_DUAL_DIFF_ACCOUNT holds the highest priority.
+     * So if for example, a call is created with CALL_DIRECTION_DUAL_SAME_ACCOUNT, it can be
+     * upgraded to CALL_DIRECTION_DUAL_DIFF_ACCOUNT if another call is added with a different phone
+     * account.
+     */
     public static final int CALL_SIMULTANEOUS_UNKNOWN = 0;
-    public static final int CALL_SIMULTANEOUS_SINGLE = 1;
-    public static final int CALL_DIRECTION_DUAL_SAME_ACCOUNT = 2;
-    public static final int CALL_DIRECTION_DUAL_DIFF_ACCOUNT = 3;
+    // Only used if simultaneous calling is not available
+    public static final int CALL_SIMULTANEOUS_DISABLED_SAME_ACCOUNT = 1;
+    // Only used if simultaneous calling is not available
+    public static final int CALL_SIMULTANEOUS_DISABLED_DIFF_ACCOUNT = 2;
+    public static final int CALL_DIRECTION_DUAL_SAME_ACCOUNT = 3;
+    public static final int CALL_DIRECTION_DUAL_DIFF_ACCOUNT = 4;
 
     /**
      * Listener for CallState changes which can be leveraged by a Transaction.
@@ -509,6 +519,11 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * Simultaneous type of the call.
      */
     private int mSimultaneousType = CALL_SIMULTANEOUS_UNKNOWN;
+
+    /**
+     * Indicate whether the call has the video
+     */
+    boolean mHasVideoCall;
 
     private Bundle mIntentExtras = new Bundle();
 
@@ -4317,6 +4332,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         }
 
         if (VideoProfile.isVideo(videoState)) {
+            mHasVideoCall = true;
             mAnalytics.setCallIsVideo(true);
         }
     }
@@ -5087,5 +5103,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     public int getSimultaneousType() {
         return mSimultaneousType;
+    }
+
+    public boolean hasVideoCall() {
+        return mHasVideoCall;
     }
 }

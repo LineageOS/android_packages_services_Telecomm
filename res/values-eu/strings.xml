@@ -134,10 +134,14 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Audioa beste gailu batera igortzen ari da"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Amaitu deia"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Aldatu hona"</string>
-    <string name="callFailed_too_many_calls" msgid="4249997210954876420">"Ezin da egin deia, dagoeneko 2 dei daudelako abian. Beste dei bat egin aurretik, eten deietako bat edo bateratu deiak konferentzia-dei bakarrean."</string>
+    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
+    <skip />
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Ezin da egin deia, zain utzi ezin den dei bat abian delako. Deskonektatu dei hori beste dei bat egin ahal izateko."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Ezin da egin deia, oraindik erantzun ez diozun dei bat jasotzen ari zarelako. Beste dei bat egin aurretik, erantzun deiari edo bazter ezazu."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"MMI kode hau ezin da erabili kontu baten baino gehiagoren bidez deiak egiteko."</string>
-    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
-    <skip />
+    <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"MMI kodeak ezin dira markatu larrialdi-deietan."</string>
 </resources>

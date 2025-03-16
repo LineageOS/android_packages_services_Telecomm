@@ -134,10 +134,14 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Звукът се предава поточно към друго устройство"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Затваряне"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Превключете тук"</string>
-    <string name="callFailed_too_many_calls" msgid="4249997210954876420">"Не може да се извърши обаждане, тъй като вече се провеждат две обаждания. Прекъснете едно от тях или ги обединете в конферентен разговор, преди да извършите ново обаждане."</string>
+    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
+    <skip />
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Не може да се извърши обаждане, тъй като има обаждане, което не може да бъде поставено на изчакване. Прекъснете обаждането, преди да извършите ново."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Не може да се извърши обаждане, тъй като има неотговорено входящо обаждане. Отговорете му или го отхвърлете, преди да извършите ново обаждане."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Този MMI код не е налице, докато се провежда обаждане в друг профил."</string>
-    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
-    <skip />
+    <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"По време на спешно обаждане не могат да се набират MMI кодове."</string>
 </resources>

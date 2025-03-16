@@ -134,10 +134,14 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Streaming audio ke perangkat lain"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Akhiri"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Beralih ke sini"</string>
-    <string name="callFailed_too_many_calls" msgid="4249997210954876420">"Tidak dapat melakukan panggilan karena ada dua panggilan yang sedang berlangsung. Putuskan salah satu panggilan atau gabungkan keduanya menjadi satu konferensi sebelum melakukan panggilan baru."</string>
+    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
+    <skip />
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Tidak dapat melakukan panggilan karena ada panggilan yang tidak dapat ditahan. Putuskan panggilan sebelum melakukan panggilan baru."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Tidak dapat melakukan panggilan karena ada panggilan masuk yang belum terjawab. Jawab atau tolak panggilan masuk sebelum melakukan panggilan baru."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Kode MMI ini tidak tersedia untuk panggilan di beberapa akun."</string>
-    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
-    <skip />
+    <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Kode MMI tidak dapat di-dial selama panggilan darurat."</string>
 </resources>

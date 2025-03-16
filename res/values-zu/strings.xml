@@ -134,10 +134,14 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Sakaza umsindo kwenye idivayisi"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Beka phansi"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Shintsha lapha"</string>
-    <string name="callFailed_too_many_calls" msgid="4249997210954876420">"Awukwazi ukubeka ikholi njengoba kunamakholi amabili aqhubekayo kakade. Nqamula eyodwa yamakholi noma wahlanganisele enkofeni ngaphambi kokubeka ikholi entsha."</string>
+    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
+    <skip />
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Ayikwazi ukwenza ikholi njengoba kukhona ikholi engabanjwa. Nqamula ikholi ngaphambi kokwenza ikholi entsha."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Ayikwazi ukubeka ikholi njengoba kunekholi engenayo engaphenduliwe. Phendula noma nqaba ikholi engenayo ngaphambi kokubeka ikholi entsha."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Le khodi ye-MMI ayitholakali ngamakholi kuma-akhawunti amaningi."</string>
-    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
-    <skip />
+    <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Amakhodi e-MMI awakwazi ukushayelwa ngesikhathi socingo oluphuthumayo."</string>
 </resources>

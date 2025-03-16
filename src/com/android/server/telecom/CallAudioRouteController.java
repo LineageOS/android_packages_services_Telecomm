@@ -37,6 +37,7 @@ import android.media.IAudioService;
 import android.media.audiopolicy.AudioProductStrategy;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.telecom.CallAudioState;
@@ -119,6 +120,8 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     private int mCallSupportedRouteMask = -1;
     private boolean mIsScoAudioConnected;
     private boolean mAvailableRoutesUpdated;
+    private boolean mUsePreferredDeviceStrategy;
+    private AudioDeviceInfo mCurrentCommunicationDevice;
     private final Object mLock = new Object();
     private final TelecomSystem.SyncRoot mTelecomLock;
     private CountDownLatch mAudioOperationsCompleteLatch;
@@ -130,7 +133,9 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             try {
                 if (AudioManager.ACTION_SPEAKERPHONE_STATE_CHANGED.equals(intent.getAction())) {
                     if (mAudioManager != null) {
-                        AudioDeviceInfo info = mAudioManager.getCommunicationDevice();
+                        AudioDeviceInfo info = mFeatureFlags.updatePreferredAudioDeviceLogic()
+                                ? getCurrentCommunicationDevice()
+                                : mAudioManager.getCommunicationDevice();
                         if ((info != null) &&
                                 (info.getType() == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER)) {
                             if (mCurrentRoute.getType() != AudioRoute.TYPE_SPEAKER) {
@@ -204,9 +209,14 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         mMetricsController = metricsController;
         mFocusType = NO_FOCUS;
         mIsScoAudioConnected = false;
+        mUsePreferredDeviceStrategy = true;
+        setCurrentCommunicationDevice(null);
+
         mTelecomLock = callsManager.getLock();
         HandlerThread handlerThread = new HandlerThread(this.getClass().getSimpleName());
-        handlerThread.start();
+        if (!mFeatureFlags.callAudioRoutingPerformanceImprovemenent()) {
+            handlerThread.start();
+        }
 
         // Register broadcast receivers
         if (!mFeatureFlags.newAudioPathSpeakerBroadcastAndUnfocusedRouting()) {
@@ -232,10 +242,8 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         mCommunicationDeviceListener = new AudioManager.OnCommunicationDeviceChangedListener() {
             @Override
             public void onCommunicationDeviceChanged(AudioDeviceInfo device) {
-                @AudioRoute.AudioRouteType int audioType = device != null
-                        ? DEVICE_INFO_TYPE_TO_AUDIO_ROUTE_TYPE.getOrDefault(
-                                device.getType(), TYPE_INVALID)
-                        : TYPE_INVALID;
+                @AudioRoute.AudioRouteType int audioType = getAudioType(device);
+                setCurrentCommunicationDevice(device);
                 Log.i(this, "onCommunicationDeviceChanged: device (%s), audioType (%d)",
                         device, audioType);
                 if (audioType == TYPE_SPEAKER) {
@@ -248,8 +256,11 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             }
         };
 
+        Looper looper = mFeatureFlags.callAudioRoutingPerformanceImprovemenent()
+                ? Looper.getMainLooper()
+                : handlerThread.getLooper();
         // Create handler
-        mHandler = new Handler(handlerThread.getLooper()) {
+        mHandler = new Handler(looper) {
             @Override
             public void handleMessage(@NonNull Message msg) {
                 synchronized (this) {
@@ -931,6 +942,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                 // Clear pending messages
                 mPendingAudioRoute.clearPendingMessages();
                 clearRingingBluetoothAddress();
+                mUsePreferredDeviceStrategy = true;
             }
             case ACTIVE_FOCUS -> {
                 // Route to active baseline route (we may need to change audio route in the case
@@ -948,6 +960,9 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                                     mCurrentRoute.getBluetoothAddress())
                             ? mCurrentRoute
                             : getBaseRoute(true, null);
+                    // Once we have processed active focus once during the call, we can ignore using
+                    // the preferred device strategy.
+                    mUsePreferredDeviceStrategy = false;
                     routeTo(true, audioRoute);
                     clearRingingBluetoothAddress();
                 }
@@ -1287,6 +1302,22 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         // Get corresponding audio route
         @AudioRoute.AudioRouteType int type = DEVICE_INFO_TYPE_TO_AUDIO_ROUTE_TYPE.get(
                 deviceAttr.getType());
+        AudioDeviceInfo currentCommunicationDevice = null;
+        if (mFeatureFlags.updatePreferredAudioDeviceLogic()) {
+            currentCommunicationDevice = getCurrentCommunicationDevice();
+        }
+        // We will default to TYPE_INVALID if the currentCommunicationDevice is null or the type
+        // cannot be resolved from the given audio device info.
+        int communicationDeviceAudioType = getAudioType(currentCommunicationDevice);
+        // Sync the preferred device strategy with the current communication device if there's a
+        // valid audio device output set as the preferred device strategy. This will address timing
+        // issues between updates made to the preferred device strategy. From the audio fwk
+        // standpoint, updates to the communication device take precedent to changes in the
+        // preferred device strategy so the former should be used as the source of truth.
+        if (type != TYPE_INVALID && communicationDeviceAudioType != TYPE_INVALID
+                && communicationDeviceAudioType != type) {
+            type = communicationDeviceAudioType;
+        }
         if (BT_AUDIO_ROUTE_TYPES.contains(type)) {
             return getBluetoothRoute(type, deviceAttr.getAddress());
         } else {
@@ -1420,6 +1451,11 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     }
 
     public AudioRoute getBaseRoute(boolean includeBluetooth, String btAddressToExclude) {
+        // Catch-all case for all invocations to this method where we shouldn't be using
+        // getPreferredAudioRouteFromStrategy
+        if (mFeatureFlags.updatePreferredAudioDeviceLogic() && !mUsePreferredDeviceStrategy) {
+            return calculateBaselineRoute(false, includeBluetooth, btAddressToExclude);
+        }
         AudioRoute destRoute = getPreferredAudioRouteFromStrategy();
         Log.i(this, "getBaseRoute: preferred audio route is %s", destRoute);
         if (destRoute == null || (destRoute.getBluetoothAddress() != null && (!includeBluetooth
@@ -1693,5 +1729,30 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
 
     public CountDownLatch getAudioActiveCompleteLatch() {
         return mAudioActiveCompleteLatch;
+    }
+
+    private @AudioRoute.AudioRouteType int getAudioType(AudioDeviceInfo device) {
+        return device != null
+                ? DEVICE_INFO_TYPE_TO_AUDIO_ROUTE_TYPE.getOrDefault(
+                device.getType(), TYPE_INVALID)
+                : TYPE_INVALID;
+    }
+
+    @VisibleForTesting
+    public boolean getUsePreferredDeviceStrategy() {
+        return mUsePreferredDeviceStrategy;
+    }
+
+    @VisibleForTesting
+    public void setCurrentCommunicationDevice(AudioDeviceInfo device) {
+        synchronized (mLock) {
+            mCurrentCommunicationDevice = device;
+        }
+    }
+
+    public AudioDeviceInfo getCurrentCommunicationDevice() {
+        synchronized (mLock) {
+            return mCurrentCommunicationDevice;
+        }
     }
 }

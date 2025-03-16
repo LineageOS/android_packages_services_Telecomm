@@ -134,10 +134,14 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"ಇತರ ಸಾಧನಕ್ಕೆ ಆಡಿಯೊವನ್ನು ಸ್ಟ್ರೀಮ್ ಮಾಡಲಾಗುತ್ತಿದೆ"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"ಹ್ಯಾಂಗ್ ಅಪ್"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"ಇಲ್ಲಿಗೆ ಬದಲಾಯಿಸಿ"</string>
-    <string name="callFailed_too_many_calls" msgid="4249997210954876420">"ಈಗಾಗಲೇ ಎರಡು ಕರೆಗಳು ಪ್ರಗತಿಯಲ್ಲಿರುವುದರಿಂದ, ಕರೆ ಮಾಡಲು ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ. ಒಂದು ಕರೆಯನ್ನು ಡಿಸ್‌ಕನೆಕ್ಟ್ ಮಾಡಿ ಅಥವಾ ಹೊಸ ಕರೆಯನ್ನು ಮಾಡುವ ಮೊದಲು ಎರಡು ಕರೆಗಳನ್ನು ಒಂದೇ ಕಾನ್ಫರೆನ್ಸ್‌ನಲ್ಲಿ ವಿಲೀನಗೊಳಿಸಿ."</string>
+    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
+    <skip />
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"ಈಗಾಗಲೇ ಪ್ರಗತಿಯಲ್ಲಿರುವ ಕರೆಯನ್ನು ಹೋಲ್ಡ್ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲದ ಕಾರಣ, ಕರೆ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ. ಹೊಸ ಕರೆಯನ್ನು ಮಾಡುವ ಮೊದಲು ಕರೆಯನ್ನು ಡಿಸ್‌ಕನೆಕ್ಟ್ ಮಾಡಿ."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"ಉತ್ತರಿಸದ ಒಳಬರುವ ಕರೆ ಬರುತ್ತಿರುವುದರಿಂದ ಕರೆ ಮಾಡಲು ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ. ಹೊಸ ಕರೆಯನ್ನು ಮಾಡುವ ಮೊದಲು ಕರೆಗೆ ಉತ್ತರ ನೀಡಿ ಅಥವಾ ತಿರಸ್ಕರಿಸಿ."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ಬಹು ಖಾತೆಗಳಾದ್ಯಂತ ಕರೆಗಳಿಗೆ ಈ MMI ಕೋಡ್ ಲಭ್ಯವಿರುವುದಿಲ್ಲ."</string>
-    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
-    <skip />
+    <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"ತುರ್ತು ಕರೆಯ ಸಮಯದಲ್ಲಿ MMI ಕೋಡ್‌ಗಳನ್ನು ಡಯಲ್ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ."</string>
 </resources>

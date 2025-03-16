@@ -134,10 +134,14 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Audio digər cihaza ötürülür"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Zəngi sonlandırın"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Buraya keçin"</string>
-    <string name="callFailed_too_many_calls" msgid="4249997210954876420">"Davam edən iki zəng olduğuna görə zəng etmək mümkün deyil. Yeni zəng etməzdən əvvəl zənglərin birini dayandırın və ya onları konfransa birləşdirin."</string>
+    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
+    <skip />
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Canlı zəngi dayandırmaq mümkün olmadığına görə yeni zəng etmək olmur. Yeni zəng etməzdən əvvəl digər zəngi dayandırın."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Cavabsız gələn zəng olduğuna görə zəng etmək mümkün deyil. Yeni zəngə başlamazdan əvvəl gələn zəngə cavab verin və ya rədd edin."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Bu MMI kodu birdən çox hesab üzrə zənglər üçün əlçatan deyil."</string>
-    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
-    <skip />
+    <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Təcili zəng zamanı MMI kodlarını yığmaq olmur."</string>
 </resources>

@@ -134,10 +134,14 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Inatiririsha sauti kwenye kifaa kingine"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Kata simu"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Badili hapa"</string>
-    <string name="callFailed_too_many_calls" msgid="4249997210954876420">"Imeshindwa kupiga simu kwa sababu tayari kuna simu mbili zinazoendelea. Kata mojawapo ya simu hizo au uziunganishe ili ziwe simu ya mkutano kabla ya kupiga simu mpya."</string>
+    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
+    <skip />
+    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
+    <skip />
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Imeshindwa kupiga simu kwa sababu kuna simu isiyoweza kusubirishwa. Kata simu kabla ya kupiga simu mpya."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Haiwezi kupiga simu kwa sababu kuna simu unayopigiwa ambayo hujajibu. Jibu au ukatae simu hiyo unayopigiwa kabla ya kupiga simu mpya."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Msimbo huu wa MMI haupatikani katika simu kwenye akaunti nyingi."</string>
-    <!-- no translation found for emergencyCall_reject_mmi (5056319534549705785) -->
-    <skip />
+    <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Huwezi kupiga misimbo ya MMI wakati wa simu ya dharura."</string>
 </resources>
