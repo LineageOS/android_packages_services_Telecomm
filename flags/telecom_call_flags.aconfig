@@ -77,3 +77,11 @@ flag {
       purpose: PURPOSE_BUGFIX
     }
 }
+
+# OWNER=pmadapurmath TARGET=25Q4
+flag {
+  name: "call_sequencing_call_resume_failed"
+  namespace: "telecom"
+  description: "Connection event received when a call resume fails"
+  bug: "390116261"
+}

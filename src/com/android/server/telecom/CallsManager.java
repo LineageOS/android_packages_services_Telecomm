@@ -1477,6 +1477,14 @@ public class CallsManager extends Call.ListenerBase
         markAllAnsweredCallAsRinging(call, "switch");
     }
 
+    @Override
+    public void onCallResumeFailed(Call call) {
+        Call heldCall = getFirstCallWithState(call, true /* skipSelfManaged */, CallState.ON_HOLD);
+        if (heldCall != null) {
+            mCallSequencingAdapter.handleCallResumeFailed(call, heldCall);
+        }
+    }
+
     private void markAllAnsweredCallAsRinging(Call call, String actionName) {
         // Normally, we don't care whether a call hold or switch has failed.
         // However, if a call was held or switched in order to answer an incoming call, that

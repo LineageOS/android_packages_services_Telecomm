@@ -849,13 +849,15 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     private void handleBtActiveDevicePresent(@AudioRoute.AudioRouteType int type,
             String deviceAddress) {
         AudioRoute bluetoothRoute = getBluetoothRoute(type, deviceAddress);
-        if (bluetoothRoute != null) {
+        boolean isBtDeviceCurrentActive = Objects.equals(bluetoothRoute,
+                getArbitraryBluetoothDevice());
+        if (bluetoothRoute != null && isBtDeviceCurrentActive) {
             Log.i(this, "request to route to bluetooth route: %s (active=%b)", bluetoothRoute,
                     mIsActive);
             routeTo(mIsActive, bluetoothRoute);
         } else {
-            Log.i(this, "request to route to unavailable bluetooth route - type (%s), address (%s)",
-                    type, deviceAddress);
+            Log.i(this, "request to route to unavailable bluetooth route or the route isn't the "
+                    + "currently active device - type (%s), address (%s)", type, deviceAddress);
         }
     }
 

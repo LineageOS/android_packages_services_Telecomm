@@ -999,6 +999,7 @@ public class CallTest extends TelecomTestCase {
         @Test
     @SmallTest
     public void testOnConnectionEventNotifiesListener() {
+        when(mFeatureFlags.enableCallSequencing()).thenReturn(true);
         Call.Listener listener = mock(Call.Listener.class);
         Call call = createCall("1");
         call.addListener(listener);
@@ -1016,6 +1017,9 @@ public class CallTest extends TelecomTestCase {
 
         call.onConnectionEvent(Connection.EVENT_CALL_SWITCH_FAILED, null);
         verify(listener).onCallSwitchFailed(call);
+
+        call.onConnectionEvent(Connection.EVENT_CALL_RESUME_FAILED, null);
+        verify(listener).onCallResumeFailed(call);
 
         final int d2dType = 1;
         final int d2dValue = 2;

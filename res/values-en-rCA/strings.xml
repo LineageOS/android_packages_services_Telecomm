@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Streaming audio to other device"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Hang up"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Switch here"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"Cannot place a call as there is already another call connecting. Wait for the call to be answered or disconnect it before placing another call."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Cannot place a call as there are already two calls in progress. Disconnect one of the calls or merge them into a conference prior to placing a new call."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Cannot place a call as there are already two calls in progress. Disconnect one of the calls prior to placing a new call."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Cannot place a call as there is an unholdable call. Disconnect the call prior to placing a new call."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Cannot place a call as there is an unanswered incoming call. Answer or reject the incoming call prior to placing a new call."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"This MMI code is not available for calls across multiple accounts."</string>

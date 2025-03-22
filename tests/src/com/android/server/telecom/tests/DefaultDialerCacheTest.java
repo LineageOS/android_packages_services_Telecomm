@@ -84,7 +84,7 @@ public class DefaultDialerCacheTest extends TelecomTestCase {
 
         verify(mContext, times(2)).registerReceiverAsUser(
                 packageReceiverCaptor.capture(), eq(UserHandle.ALL), any(IntentFilter.class),
-                isNull(String.class), isNull(Handler.class));
+                isNull(), isNull());
         // Receive the first receiver that was captured, the package change receiver.
         mPackageChangeReceiver = packageReceiverCaptor.getAllValues().get(0);
 

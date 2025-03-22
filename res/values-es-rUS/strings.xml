@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Transmitiendo el audio a otro dispositivo"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Colgar"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Cambiar aquí"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"No puedes realizar la llamada porque hay otra en curso. Espera a que se responda la llamada en curso o finalízala antes de realizar otra."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"No puedes realizar la llamada porque hay otras dos en curso. Finaliza una de ellas o combínalas en una conferencia antes de iniciar una nueva."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"No puedes realizar la llamada porque hay otras dos en curso. Finaliza una de ellas antes de realizar una nueva."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"No puedes realizar la llamada porque hay otra que no se puede mantener en espera. Finalízala antes de iniciar una nueva."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"No puedes realizar la llamada porque hay una llamada entrante que aún no contestas. Contéstala o recházala antes de realizar una nueva."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Este código MMI no está disponible para llamadas en varias cuentas."</string>

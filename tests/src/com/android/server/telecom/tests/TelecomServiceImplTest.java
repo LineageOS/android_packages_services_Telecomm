@@ -1990,7 +1990,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testGetVoicemailNumberWithNullAccountHandle() throws Exception {
-        when(mFakePhoneAccountRegistrar.getPhoneAccount(isNull(PhoneAccountHandle.class),
+        when(mFakePhoneAccountRegistrar.getPhoneAccount(isNull(),
                 eq(Binder.getCallingUserHandle())))
                 .thenReturn(makePhoneAccount(TEL_PA_HANDLE_CURRENT).build());
         int subId = 58374;

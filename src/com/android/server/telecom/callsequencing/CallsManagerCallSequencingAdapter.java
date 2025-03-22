@@ -234,6 +234,16 @@ public class CallsManagerCallSequencingAdapter {
     public void maybeMoveHeldCallToForeground(Call removedCall, boolean isLocallyDisconnecting) {
         CompletableFuture<Boolean> unholdForegroundCallFuture = null;
         Call foregroundCall = mCallAudioManager.getPossiblyHeldForegroundCall();
+        // There are some cases (non-holdable calls) where we may want to skip auto-unholding when
+        // we're processing a new outgoing call and waiting for it to go active. Skip the
+        // auto-unholding in this case so that we don't end up with two active calls. If the new
+        // call fails, we will auto-unhold on that removed call. This is only set in
+        // CallSequencingController because the legacy code doesn't wait for disconnects to occur
+        // in order to place an outgoing (emergency) call, so we don't see this issue.
+        if (removedCall.getSkipAutoUnhold()) {
+            return;
+        }
+
         if (isLocallyDisconnecting) {
             boolean isDisconnectingChildCall = removedCall.isDisconnectingChildCall();
             Log.v(this, "maybeMoveHeldCallToForeground: isDisconnectingChildCall = "
@@ -247,7 +257,6 @@ public class CallsManagerCallSequencingAdapter {
             if (!isDisconnectingChildCall && foregroundCall != null
                     && foregroundCall.getState() == CallState.ON_HOLD
                     && CallsManager.areFromSameSource(foregroundCall, removedCall)) {
-
                 unholdForegroundCallFuture = foregroundCall.unhold();
             }
         } else if (foregroundCall != null &&
@@ -353,6 +362,20 @@ public class CallsManagerCallSequencingAdapter {
                 c.setSimultaneousType(type);
             }
         });
+    }
+
+    /**
+     * Upon a call resume failure, we will auto-unhold the foreground call that was held. Note that
+     * this should only apply for calls across phone accounts as the ImsPhoneCallTracker handles
+     * this for a single phone.
+     * @param callResumeFailed The call that failed to resume.
+     * @param callToUnhold The fg call that was held.
+     */
+    public void handleCallResumeFailed(Call callResumeFailed, Call callToUnhold) {
+        if (mIsCallSequencingEnabled && !mSequencingController.arePhoneAccountsSame(
+                callResumeFailed, callToUnhold)) {
+            unholdCall(callToUnhold);
+        }
     }
 
     public Handler getHandler() {

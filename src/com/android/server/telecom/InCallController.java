@@ -44,6 +44,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.PackageTagsList;
+import android.os.Parcel;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -1723,7 +1724,8 @@ public class InCallController extends CallsManagerListenerBase implements
 
                     try {
                         inCallService.updateCall(
-                                sanitizeParcelableCallForService(info, parcelableCall));
+                                copyIfLocal(sanitizeParcelableCallForService(info, parcelableCall),
+                                        inCallService));
                     } catch (RemoteException ignored) {
                     }
                 }
@@ -2854,7 +2856,8 @@ public class InCallController extends CallsManagerListenerBase implements
             ParcelableCall parcelableCall, ComponentName componentName) {
         try {
             inCallService.updateCall(
-                    sanitizeParcelableCallForService(info, parcelableCall));
+                    copyIfLocal(sanitizeParcelableCallForService(info, parcelableCall),
+                            inCallService));
         } catch (RemoteException exception) {
             Log.w(this, "Call status update did not send to: "
                     + componentName + " successfully with error " + exception);
@@ -3434,5 +3437,44 @@ public class InCallController extends CallsManagerListenerBase implements
             }
         }
         return false;
+    }
+
+    /**
+     * Given a {@link ParcelableCall} and a {@link IInCallService}, determines if the ICS binder is
+     * local or remote.  If the binder is remote, we just return the parcelable call instance
+     * already constructed.
+     * If the binder if local, as will be the case for
+     * {@code EnhancedConfirmationCallTrackerService} (or any other ICS in the system server, the
+     * underlying Binder implementation is NOT going to parcel and unparcel the
+     * {@link ParcelableCall} instance automatically.  This means that the parcelable call instance
+     * is passed by reference and that the ICS in the system server could potentially try to access
+     * internals in the {@link ParcelableCall} in an unsafe manner.  As a workaround, we will
+     * manually parcel and unparcel the {@link ParcelableCall} instance so that they get a fresh
+     * copy that they can use safely.
+     *
+     * @param parcelableCall The ParcelableCall instance we want to maybe copy.
+     * @param remote the binder the call is going out over.
+     * @return either the original {@link ParcelableCall} or a deep copy of it if the destination
+     * binder is local.
+     */
+    private ParcelableCall copyIfLocal(ParcelableCall parcelableCall, IInCallService remote) {
+        // We care more about parceling than local (though they should be the same); so, use
+        // queryLocalInterface since that's what Binder uses to decide if it needs to parcel.
+        if (remote.asBinder().queryLocalInterface(IInCallService.Stub.DESCRIPTOR) == null) {
+            // No local interface, so binder itself will parcel and thus we don't need to.
+            return parcelableCall;
+        }
+        // Binder won't be parceling; however, the remotes assume they have their own native
+        // objects (and don't know if caller is local or not), so we need to make a COPY here so
+        // that the remote can clean it up without clearing the original transaction.
+        // Since there's no direct `copy` for Transaction, we have to parcel/unparcel instead.
+        final Parcel p = Parcel.obtain();
+        try {
+            parcelableCall.writeToParcel(p, 0);
+            p.setDataPosition(0);
+            return ParcelableCall.CREATOR.createFromParcel(p);
+        } finally {
+            p.recycle();
+        }
     }
 }
