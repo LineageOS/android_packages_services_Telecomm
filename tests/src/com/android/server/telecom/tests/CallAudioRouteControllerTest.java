@@ -1357,6 +1357,56 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         verify(mCallAudioManager, timeout(TEST_TIMEOUT)).notifyAudioOperationsComplete();
     }
 
+    @Test
+    @SmallTest
+    public void testActiveDevicePresentRoutesOnCurrentActive() {
+        when(mFeatureFlags.resolveActiveBtRoutingAndBtTimingIssue()).thenReturn(true);
+        // Connect first BT device.
+        verifyConnectBluetoothDevice(AudioRoute.TYPE_BLUETOOTH_SCO);
+        // Connect another BT device.
+        String scoDeviceAddress = "00:00:00:00:00:03";
+        BluetoothDevice scoDevice2 =
+                BluetoothRouteManagerTest.makeBluetoothDevice(scoDeviceAddress);
+        BLUETOOTH_DEVICES.add(scoDevice2);
+
+        // Signal second BT device added in controller and verify routing to that device upon
+        // receiving active focus.
+        mController.sendMessageWithSessionInfo(BT_DEVICE_ADDED, AudioRoute.TYPE_BLUETOOTH_SCO,
+                scoDevice2);
+        CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_BLUETOOTH,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER
+                        | CallAudioState.ROUTE_BLUETOOTH, BLUETOOTH_DEVICE_1, BLUETOOTH_DEVICES);
+        mController.sendMessageWithSessionInfo(SWITCH_FOCUS, ACTIVE_FOCUS, 0);
+        verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
+                any(CallAudioState.class), eq(expectedState));
+
+        // Update the currently tracked active device to be BLUETOOTH_DEVICE_1.
+        mController.updateActiveBluetoothDevice(
+                new Pair<>(AudioRoute.TYPE_BLUETOOTH_SCO, BLUETOOTH_DEVICE_1.getAddress()));
+        // Verify that sending BT_ACTIVE_DEVICE_PRESENT when BLUETOOTH_DEVICE_1 isn't the currently
+        // tracked active device, that we ignore routing.
+        mController.sendMessageWithSessionInfo(BT_ACTIVE_DEVICE_PRESENT,
+                AudioRoute.TYPE_BLUETOOTH_SCO, scoDevice2.getAddress());
+        verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
+                any(CallAudioState.class), eq(expectedState));
+
+        // Now update the active device so that it's scoDevice2 and verify that
+        // BT_ACTIVE_DEVICE_PRESENT is properly processed and that we route into the device.
+        mController.updateActiveBluetoothDevice(
+                new Pair<>(AudioRoute.TYPE_BLUETOOTH_SCO, scoDevice2.getAddress()));
+        mController.sendMessageWithSessionInfo(BT_ACTIVE_DEVICE_PRESENT,
+                AudioRoute.TYPE_BLUETOOTH_SCO, scoDevice2.getAddress());
+        mController.sendMessageWithSessionInfo(BT_AUDIO_DISCONNECTED, 0,
+                BLUETOOTH_DEVICE_1);
+        mController.sendMessageWithSessionInfo(BT_AUDIO_CONNECTED,
+                0, scoDevice2);
+        expectedState = new CallAudioState(false, CallAudioState.ROUTE_BLUETOOTH,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER
+                        | CallAudioState.ROUTE_BLUETOOTH, scoDevice2, BLUETOOTH_DEVICES);
+        verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
+                any(CallAudioState.class), eq(expectedState));
+    }
+
     private void verifyConnectBluetoothDevice(int audioType) {
         mController.initialize();
         mController.setActive(true);

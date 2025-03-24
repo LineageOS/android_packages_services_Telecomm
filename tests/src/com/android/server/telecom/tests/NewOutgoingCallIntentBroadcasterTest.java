@@ -385,7 +385,7 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
         assertEquals(false, callDisposition.requestRedirection);
         assertEquals(DisconnectCause.NOT_DISCONNECTED, callDisposition.disconnectCause);
 
-        verify(mCallsManager).placeOutgoingCall(eq(mCall), eq(handle), isNull(GatewayInfo.class),
+        verify(mCallsManager).placeOutgoingCall(eq(mCall), eq(handle), isNull(),
                 eq(isSpeakerphoneOn), eq(videoState));
 
         Bundle expectedExtras = createNumberExtras(handle.getSchemeSpecificPart());
@@ -409,7 +409,7 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
 
         result.receiver.onReceive(mContext, result.intent);
 
-        verify(mCallsManager).placeOutgoingCall(eq(mCall), eq(handle), isNull(GatewayInfo.class),
+        verify(mCallsManager).placeOutgoingCall(eq(mCall), eq(handle), isNull(),
                 eq(true), eq(VideoProfile.STATE_BIDIRECTIONAL));
     }
 
@@ -427,7 +427,7 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
 
         Uri encHandle = Uri.fromParts(handle.getScheme(),
                 handle.getSchemeSpecificPart(), null);
-        verify(mCallsManager).placeOutgoingCall(eq(mCall), eq(encHandle), isNull(GatewayInfo.class),
+        verify(mCallsManager).placeOutgoingCall(eq(mCall), eq(encHandle), isNull(),
                 eq(true), eq(VideoProfile.STATE_BIDIRECTIONAL));
     }
 
@@ -448,7 +448,7 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
         result.receiver.onReceive(mContext, result.intent);
 
         verify(mCallsManager).placeOutgoingCall(eq(mCall), eq(handle),
-                isNotNull(GatewayInfo.class), eq(true), eq(VideoProfile.STATE_BIDIRECTIONAL));
+                isNotNull(), eq(true), eq(VideoProfile.STATE_BIDIRECTIONAL));
     }
 
     @SmallTest
@@ -645,10 +645,10 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
                 eq(AppOpsManager.OP_PROCESS_OUTGOING_CALLS),
                 any(Bundle.class),
                 receiverCaptor.capture(),
-                isNull(Handler.class),
+                isNull(),
                 eq(Activity.RESULT_OK),
                 eq(number),
-                isNull(Bundle.class));
+                isNull());
 
         Intent capturedIntent = intentCaptor.getValue();
         assertEquals(Intent.ACTION_NEW_OUTGOING_CALL, capturedIntent.getAction());

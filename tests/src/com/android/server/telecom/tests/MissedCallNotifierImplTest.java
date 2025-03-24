@@ -578,7 +578,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
 
         CallerInfo ci = new CallerInfo();
         listenerCaptor.getValue().onCallerInfoQueryComplete(escapedHandle, ci);
-        verify(mockCallInfoFactory).makeCallInfo(eq(ci), isNull(PhoneAccountHandle.class),
+        verify(mockCallInfoFactory).makeCallInfo(eq(ci), isNull(),
                 eq(escapedHandle), eq(CALL_TIMESTAMP));
     }
 

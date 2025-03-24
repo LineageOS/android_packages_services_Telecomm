@@ -126,7 +126,7 @@ public class ContactsAsyncHelperTest extends TelecomTestCase {
         cah.startObtainPhotoAsync(TOKEN, mContext, SAMPLE_CONTACT_PHOTO_URI, mListener, COOKIE);
 
         verify(mListener, timeout(TEST_TIMEOUT)).onImageLoadComplete(eq(TOKEN),
-                isNull(Drawable.class), isNull(Bitmap.class), eq(COOKIE));
+                isNull(), isNull(), eq(COOKIE));
     }
 
     @SmallTest

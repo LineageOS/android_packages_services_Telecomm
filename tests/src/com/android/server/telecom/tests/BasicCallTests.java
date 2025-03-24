@@ -860,7 +860,7 @@ public class BasicCallTests extends TelecomSystemTest {
 
         mInCallServiceFixtureX.mInCallAdapter.sendCallEvent(ids.mCallId, TEST_EVENT, 26, null);
         verify(mConnectionServiceFixtureA.getTestDouble(), timeout(TEST_TIMEOUT))
-                .sendCallEvent(eq(ids.mConnectionId), eq(TEST_EVENT), isNull(Bundle.class), any());
+                .sendCallEvent(eq(ids.mConnectionId), eq(TEST_EVENT), isNull(), any());
     }
 
     /**

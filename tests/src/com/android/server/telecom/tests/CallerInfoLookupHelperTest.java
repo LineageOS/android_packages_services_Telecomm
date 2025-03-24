@@ -116,7 +116,7 @@ public class CallerInfoLookupHelperTest extends TelecomTestCase {
                 CallerInfoLookupHelper.OnQueryCompleteListener.class);
         mCallerInfoLookupHelper.startLookup(Uri.EMPTY, listener);
 
-        verify(listener).onCallerInfoQueryComplete(eq(Uri.EMPTY), isNull(CallerInfo.class));
+        verify(listener).onCallerInfoQueryComplete(eq(Uri.EMPTY), isNull());
         verifyProperCleanup();
     }
 
