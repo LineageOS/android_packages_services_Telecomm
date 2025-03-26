@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"កំពុង​ផ្សាយ​សំឡេង​ទៅឧបករណ៍​ផ្សេងទៀត"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"បញ្ចប់​ការហៅ​ទូរសព្ទ"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"ប្ដូរនៅទីនេះ"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"មិនអាច​ធ្វើ​ការហៅ​ទូរសព្ទ​បានទេ ដោយសារ​កំពុងភ្ជាប់​ការហៅ​ទូរសព្ទ​ផ្សេងទៀត​ស្រាប់ហើយ។ សូម​រង់ចាំ​ឱ្យគេ​ទទួល​ទូរសព្ទនោះ ឬ​ផ្ដាច់វាសិន មុនពេល​ធ្វើការហៅ​ទូរសព្ទ​ផ្សេងទៀត។"</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"មិន​អាច​ធ្វើ​ការហៅ​ទូរសព្ទ​បាន​ទេ ដោយសារ​មាន​ការហៅ​ទូរសព្ទ​ពីរ​កំពុង​ដំណើរការ​រួច​ហើយ។ ផ្ដាច់​ការហៅ​ទូរសព្ទ​មួយ ឬ​ដាក់​ការហៅ​ទូរសព្ទ​ទាំងនេះ​ចូល​គ្នា​ជា​ការហៅជាក្រុម មុន​នឹង​ធ្វើ​ការហៅ​ទូរសព្ទ​ថ្មី។"</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"មិនអាច​ធ្វើ​ការហៅ​ទូរសព្ទ​បានទេ ដោយសារ​មាន​ការហៅ​ទូរសព្ទ​ពីរ​កំពុង​ដំណើរការ​ស្រាប់​ហើយ។ សូមផ្ដាច់​ការហៅ​ទូរសព្ទ​មួយសិន មុនពេល​ធ្វើការហៅ​ទូរសព្ទថ្មី។"</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"មិនអាច​ធ្វើការហៅ​ទូរសព្ទ​បានទេ ដោយសារ​មានការហៅ​ទូរសព្ទ​ដែលមិនអាច​ដាក់ឱ្យ​រង់ចាំបាន។ សូមផ្ដាច់​ការហៅ​ទូរសព្ទ​នោះសិន មុនពេល​ធ្វើការហៅ​ទូរសព្ទថ្មី។"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"មិន​អាច​ធ្វើ​ការហៅ​ទូរសព្ទ​បាន​ទេ ដោយសារ​មាន​ការហៅ​ចូល​មួយ​ដែល​មិន​បាន​ឆ្លើយតប។ ឆ្លើយតប ឬ​ច្រានចោល​ការហៅ​ចូល មុន​ពេល​ធ្វើ​ការហៅ​ទូរសព្ទ​ថ្មី។"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"មិនអាចប្រើលេខកូដ MMI នេះសម្រាប់ការហៅទូរសព្ទនៅលើ​គណនី​ច្រើនបានទេ។"</string>

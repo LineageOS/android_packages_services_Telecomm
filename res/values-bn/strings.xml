@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"অন্য ডিভাইসে অডিও স্ট্রিম করা হচ্ছে"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"কল কেটে দিন"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"এখানে পাল্টান"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"অন্য একটি কল কানেক্ট করা হচ্ছে বলে কল করা যাচ্ছে না। আরেকটি কল করার আগে, কলটির উত্তর না দেওয়া পর্যন্ত অপেক্ষা করুন অথবা এটি ডিসকানেক্ট করুন।"</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"দুটি কল চলছে, তাই আরেকটি কল করা যাচ্ছে না। নতুন কল করার আগে যেকোনও একটি কল ডিসকানেক্ট করুন অথবা দুটিকে একসাথে একটি কনফারেন্সে মার্জ করুন।"</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"দুটি কল চলছে, তাই আরেকটি কল করা যাচ্ছে না। নতুন কল করার আগে যেকোনও একটি কল ডিসকানেক্ট করুন।"</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"হোল্ড করা যাবে না এমন কল রয়েছে তাই আরেকটি কল করা যাচ্ছে না। নতুন কল করার আগে কলটি ডিসকানেক্ট করুন।"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"উত্তর দেওয়া হয়নি এমন একটি ইনকামিং কল রয়েছে, তাই কল করা যাচ্ছে না। নতুন কল করার আগে ইনকামিং কলটির উত্তর দিন বা সেটি বাতিল করুন।"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"একাধিক অ্যাকাউন্ট জুড়ে কলের জন্য এই MMI কোড উপলভ্য নেই।"</string>

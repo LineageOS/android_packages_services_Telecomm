@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Emitindo audio noutro dispositivo"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Colgar"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Volver aquí"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"Non se pode facer ningunha chamada porque hai outra que se está conectando. Agarda a que se conteste a chamada ou desconéctaa antes de facer outra."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Non se pode facer ningunha chamada porque xa hai dúas en curso. Para poder facer unha nova, desconecta unha desas dúas ou combínaas nunha conferencia."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Non se pode facer ningunha chamada porque xa hai dúas en curso. Desconecta unha delas antes de facer outra."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Non se pode facer ningunha chamada porque hai unha que non é posible poñer en espera. Desconéctaa para poder facer unha nova."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Non podes chamar porque te están chamando nestes momentos. Para poder facer unha chamada, primeiro tes que responder á outra ou rexeitala."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Este código MMI non está dispoñible para chamadas en varias contas."</string>
