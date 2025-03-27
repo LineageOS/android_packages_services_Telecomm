@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Audiota striimataan toiselle laitteelle"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Lopeta puhelu"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Vaihda puhelimeen"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"Puhelua ei voi soittaa, koska toista puhelua soitetaan. Odota, että puheluun vastataan, tai katkaise puhelu ennen uuden soittamista."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Puhelua ei voi soittaa, koska kaksi puhelua on jo käynnissä. Katkaise toinen puheluista tai yhdistä ne puhelinneuvotteluksi ennen uuden puhelun soittamista."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Puhelua ei voi soittaa, koska kaksi puhelua on jo käynnissä. Katkaise toinen puheluista ennen uuden puhelun soittamista."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Puhelua ei voi soittaa, koska puhelua ei voi asettaa pitoon. Katkaise puhelu ennen uuden puhelun soittamista."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Puhelua ei voi soittaa, koska saapuvaan puheluun ei ole vielä vastattu. Vastaa saapuvaan puheluun tai hylkää se, ennen kuin soitat uuden puhelun."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"MMI-koodi ei ole käytettävissä useilla tileillä käytävissä puheluissa."</string>

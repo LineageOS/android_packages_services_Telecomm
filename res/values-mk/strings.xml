@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Звукот се стримува на друг уред"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Спушти"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Префрли овде"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"Не може да се воспостави повик бидејќи веќе се поврзува друг повик. Почекајте да се одговори на повикот или прекинете го пред да воспоставите друг повик."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Не може да се воспостави повик бидејќи веќе се во тек два повика. Исклучете го едниот од повиците или спојте ги во конференциски повик пред да воспоставите нов повик."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Не може да се воспостави повик бидејќи веќе има два повика во тек. Прекинете еден од повиците пред да воспоставите нов повик."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Не може да се воспостави повик бидејќи има повик што не може да се стави на чекање. Исклучете го повикот пред да воспоставите нов повик."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Не може да се воспостави повик затоа што има неодговорен дојдовен повик. Одговорете или одбијте го дојдовниот повик пред воспоставувањето на новиот повик."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"MMI-кодов не е достапен за повици на повеќе сметки."</string>

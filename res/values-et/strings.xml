@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Heli voogesitamine teise seadmesse"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Lõpeta kõne"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Vaheta siia"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"Kõnet ei saa teha, kuna teist kõnet juba ühendatakse. Oodake, kuni kõnele vastatakse või katkestage kõne enne uue tegemist."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Kõnet ei saa teha, kuna kaks kõnet on juba pooleli. Enne uue kõne tegemist katkestage üks kõnedest või liitke need konverentskõneks."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Kõnet ei saa teha, kuna kaks kõnet on juba pooleli. Enne uue kõne tegemist katkestage üks kõnedest."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Uut kõnet ei saa teha, kuna pooleliolevat kõnet ei saa ootele panna. Enne uue kõne tegemist katkestage pooleliolev kõne."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Kõnet ei saa teha, kuna teil on vastamata sissetulev kõne. Enne uue kõne tegemist vastake sissetulevale kõnele või keelduge sellest."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"See MMI-kood pole saadaval mitmel kontol toimuvate kõnede jaoks."</string>

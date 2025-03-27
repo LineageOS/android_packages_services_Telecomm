@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Fazendo streaming de áudio para outro dispositivo"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Desligar"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Mudar para este dispositivo"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"Não é possível ligar porque há outra chamada sendo feita. Aguarde a chamada ser atendida ou encerre a ligação antes de fazer outra."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Não é possível ligar porque há duas chamadas em andamento. Encerre uma delas ou mescle-as em uma videoconferência antes de fazer outra."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Não é possível ligar porque há duas chamadas em andamento. Encerre uma das ligações antes de fazer outra."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Não é possível ligar porque há uma chamada que não pode ficar em espera. Encerre essa ligação antes de fazer outra."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Não é possível ligar porque há uma ligação recebida que não foi atendida. Atenda ou rejeite essa chamada antes de fazer outra."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Este código MMI não está disponível para chamadas em várias contas."</string>

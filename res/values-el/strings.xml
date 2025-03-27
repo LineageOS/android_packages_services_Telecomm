@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Ροή ήχου σε άλλη συσκευή"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Απόρριψη"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Εναλλαγή εδώ"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"Δεν είναι δυνατή η πραγματοποίηση κλήσης, επειδή γίνεται ήδη η σύνδεση άλλης κλήσης. Περιμένετε να απαντηθεί η κλήση ή τερματίστε τη σύνδεση πριν πραγματοποιήσετε άλλη κλήση."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Δεν είναι δυνατή η πραγματοποίηση κλήσης, επειδή υπάρχουν ήδη δύο κλήσεις σε εξέλιξη. Τερματίστε μία από τις κλήσεις ή συγχωνεύστε τις σε μια διάσκεψη, προτού πραγματοποιήσετε νέα κλήση."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Δεν είναι δυνατή η πραγματοποίηση κλήσης, επειδή υπάρχουν ήδη δύο κλήσεις σε εξέλιξη. Αποσυνδέστε μία από τις κλήσεις πριν πραγματοποιήσετε νέα κλήση."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Δεν είναι δυνατή η πραγματοποίηση κλήσης, επειδή υπάρχει κλήση που δεν μπορεί να τεθεί σε αναμονή. Τερματίστε την κλήση πριν πραγματοποιήσετε νέα κλήση."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Δεν είναι δυνατή η πραγματοποίηση κλήσης, επειδή υπάρχει αναπάντητη εισερχόμενη κλήση. Απαντήστε ή απορρίψτε την εισερχόμενη κλήση, προτού πραγματοποιήσετε μια νέα κλήση."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Αυτός ο κωδικός MMI δεν είναι διαθέσιμος για κλήσεις σε πολλούς λογαριασμούς."</string>

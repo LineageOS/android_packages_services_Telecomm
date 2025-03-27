@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"অন্য এটা ডিভাইচলৈ অডিঅ’ ষ্ট্ৰীম কৰি থকা হৈছে"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"কলটো কাটি দিয়ক"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"ইয়াত সলনি কৰক"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"কল কৰিব নোৱাৰি কাৰণ অন্য এটা কল সংযোগ কৰি থকা হৈছে। অন্য এটা কল কৰাৰ আগতে সেই কলটোৰ উত্তৰ দিয়ালৈ বা সংযোগ বিচ্ছিন্ন হোৱালৈ অপেক্ষা কৰক।"</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"কল কৰিব নোৱাৰি, কাৰণ ইতিমধ্যে দুটা কল চলি আছে। এটা নতুন কল কৰাৰ আগতে সেই দুটা কলৰ এটাৰ সংযোগ বিচ্ছিন্ন কৰক অথবা কল দুটা একত্ৰিত কৰি এটা কনফাৰেন্স কললৈ সলনি কৰক।"</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"কল কৰিব নোৱাৰি কাৰণ ইতিমধ্যে দুটা কল চলি আছে। এটা নতুন কল কৰাৰ আগতে সেই দুটা কলৰ এটাৰ সংযোগ বিচ্ছিন্ন কৰক।"</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"হ’ল্ডত ৰাখিব নোৱাৰা কল এটা চলি থকাৰ বাবে কল কৰিব নোৱাৰি। এটা নতুন কল কৰাৰ আগেয়ে কলটোৰ সংযোগ বিচ্ছিন্ন কৰক।"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"কল কৰিব নোৱাৰি, কাৰণ এটা অন্তৰ্গামী কল প্ৰগতিত আছে যাৰ উত্তৰ দিয়া হোৱা নাই। এটা নতুন কল কৰাৰ আগেয়ে অন্তৰ্গামী কলটোৰ উত্তৰ দিয়ক বা সেইটো প্ৰত্যাখ্যান কৰক।"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"একাধিক একাউণ্টৰ মাজত কল কৰাৰ বাবে এই MMI ক’ডটো উপলব্ধ নহয়।"</string>

@@ -188,6 +188,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     private boolean mIsMute;
     private boolean mIsPending;
     private boolean mIsActive;
+    private boolean mWasOnSpeaker;
     private final TelecomMetricsController mMetricsController;
 
     public CallAudioRouteController(
@@ -210,6 +211,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         mFocusType = NO_FOCUS;
         mIsScoAudioConnected = false;
         mUsePreferredDeviceStrategy = true;
+        mWasOnSpeaker = false;
         setCurrentCommunicationDevice(null);
 
         mTelecomLock = callsManager.getLock();
@@ -311,16 +313,16 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                             break;
                         case SWITCH_EARPIECE:
                         case USER_SWITCH_EARPIECE:
-                            handleSwitchEarpiece();
+                            handleSwitchEarpiece(msg.what == USER_SWITCH_EARPIECE);
                             break;
                         case SWITCH_BLUETOOTH:
                         case USER_SWITCH_BLUETOOTH:
                             address = (String) ((SomeArgs) msg.obj).arg2;
-                            handleSwitchBluetooth(address);
+                            handleSwitchBluetooth(address, msg.what == USER_SWITCH_BLUETOOTH);
                             break;
                         case SWITCH_HEADSET:
                         case USER_SWITCH_HEADSET:
-                            handleSwitchHeadset();
+                            handleSwitchHeadset(msg.what == USER_SWITCH_HEADSET);
                             break;
                         case SWITCH_SPEAKER:
                         case USER_SWITCH_SPEAKER:
@@ -683,10 +685,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             // Preserve speaker routing if it was the last audio routing path when the wired headset
             // disconnects. Ignore this special cased routing when the route isn't active
             // (in other words, when we're not in a call).
-            AudioRoute route = mFeatureFlags.defaultSpeakerOnWiredHeadsetDisconnect()
-                    && mIsActive && mPendingAudioRoute.getOrigRoute() != null
-                    && mPendingAudioRoute.getOrigRoute().getType() == TYPE_SPEAKER
-                    && mSpeakerDockRoute != null
+            AudioRoute route = mWasOnSpeaker && mIsActive && mSpeakerDockRoute != null
                     && mSpeakerDockRoute.getType() == AudioRoute.TYPE_SPEAKER
                     ? mSpeakerDockRoute : getBaseRoute(true, null);
             routeTo(mIsActive, route);
@@ -899,6 +898,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             }
         }
         if ((mIsPending && pendingRouteNeedsUpdate) || (!mIsPending && currentRouteNeedsUpdate)) {
+            maybeDisableWasOnSpeaker(true);
             // Fallback to an available route excluding the previously active device.
             routeTo(mIsActive, getBaseRoute(true, previouslyActiveDeviceAddress));
         }
@@ -933,6 +933,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         mFocusType = focus;
         switch (focus) {
             case NO_FOCUS -> {
+                mWasOnSpeaker = false;
                 // Notify the CallAudioModeStateMachine that audio operations are complete so
                 // that we can relinquish audio focus.
                 mCallAudioManager.notifyAudioOperationsComplete();
@@ -998,16 +999,17 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         }
     }
 
-    public void handleSwitchEarpiece() {
+    public void handleSwitchEarpiece(boolean isUserRequest) {
         AudioRoute earpieceRoute = mTypeRoutes.get(AudioRoute.TYPE_EARPIECE);
         if (earpieceRoute != null && getCallSupportedRoutes().contains(earpieceRoute)) {
+            maybeDisableWasOnSpeaker(isUserRequest);
             routeTo(mIsActive, earpieceRoute);
         } else {
             Log.i(this, "ignore switch earpiece request");
         }
     }
 
-    private void handleSwitchBluetooth(String address) {
+    private void handleSwitchBluetooth(String address, boolean isUserRequest) {
         Log.i(this, "handle switch to bluetooth with address %s", address);
         AudioRoute bluetoothRoute = null;
         BluetoothDevice bluetoothDevice = null;
@@ -1025,6 +1027,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         }
 
         if (bluetoothRoute != null && bluetoothDevice != null) {
+            maybeDisableWasOnSpeaker(isUserRequest);
             if (mFocusType == RINGING_FOCUS) {
                 routeTo(mBluetoothRouteManager
                                 .isInbandRingEnabled(bluetoothRoute.getType(), bluetoothDevice)
@@ -1056,9 +1059,10 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         }
     }
 
-    private void handleSwitchHeadset() {
+    private void handleSwitchHeadset(boolean isUserRequest) {
         AudioRoute headsetRoute = mTypeRoutes.get(AudioRoute.TYPE_WIRED);
         if (headsetRoute != null && getCallSupportedRoutes().contains(headsetRoute)) {
+            maybeDisableWasOnSpeaker(isUserRequest);
             routeTo(mIsActive, headsetRoute);
         } else {
             Log.i(this, "ignore switch headset request");
@@ -1108,6 +1112,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                 return;
             }
         }
+        maybeDisableWasOnSpeaker(isExplicitUserRequest);
         routeTo(mIsActive, calculateBaselineRoute(isExplicitUserRequest, includeBluetooth,
                 btAddressToExclude));
     }
@@ -1162,6 +1167,11 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             mPendingAudioRoute.clearPendingMessages();
             onCurrentRouteChanged();
             if (mIsActive) {
+                // Only set mWasOnSpeaker if the routing was active. We don't want to consider this
+                // selection outside of a call.
+                if (mCurrentRoute.getType() == TYPE_SPEAKER) {
+                    mWasOnSpeaker = true;
+                }
                 // Reinitialize the audio ops complete latch since the routing went active. We
                 // should always expect operations to complete after this point.
                 if (mAudioOperationsCompleteLatch.getCount() == 0) {
@@ -1760,6 +1770,12 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     public AudioDeviceInfo getCurrentCommunicationDevice() {
         synchronized (mLock) {
             return mCurrentCommunicationDevice;
+        }
+    }
+
+    private void maybeDisableWasOnSpeaker(boolean isUserRequest) {
+        if (isUserRequest) {
+            mWasOnSpeaker = false;
         }
     }
 }

@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Diffusion audio en continu vers un autre appareil en cours…"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Raccrocher"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Revenir à cet appareil"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"Impossible de passer un appel parce qu\'un autre appel est déjà en cours de connexion. Attendez que quelqu\'un réponde à l\'appel ou déconnectez-le avant de passer un autre appel."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Impossible de passer un appel parce que deux appels sont déjà en cours. Déconnectez-en un ou fusionnez-les en conférence téléphonique avant de passer un nouvel appel."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Impossible de passer un appel parce que deux appels sont déjà en cours. Déconnectez-en un avant de passer un nouvel appel."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Impossible de passer un appel parce qu\'un appel impossible à mettre en attente est en cours. Débranchez l\'appel avant de passer un nouvel appel."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Impossible de passer un appel parce qu\'un appel entrant attend une réponse. Répondez à cet appel ou refusez-le avant de passer un nouvel appel."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Ce code IHM n\'est pas disponible pour les appels utilisant plusieurs comptes."</string>
