@@ -242,16 +242,21 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         mCommunicationDeviceListener = new AudioManager.OnCommunicationDeviceChangedListener() {
             @Override
             public void onCommunicationDeviceChanged(AudioDeviceInfo device) {
-                @AudioRoute.AudioRouteType int audioType = getAudioType(device);
-                setCurrentCommunicationDevice(device);
-                Log.i(this, "onCommunicationDeviceChanged: device (%s), audioType (%d)",
-                        device, audioType);
-                if (audioType == TYPE_SPEAKER) {
-                    if (mCurrentRoute.getType() != TYPE_SPEAKER) {
-                        sendMessageWithSessionInfo(SPEAKER_ON);
+                try {
+                    Log.startSession("CARC.oCDC");
+                    @AudioRoute.AudioRouteType int audioType = getAudioType(device);
+                    setCurrentCommunicationDevice(device);
+                    Log.i(this, "onCommunicationDeviceChanged: device (%s), audioType (%d)",
+                            device, audioType);
+                    if (audioType == TYPE_SPEAKER) {
+                        if (mCurrentRoute.getType() != TYPE_SPEAKER) {
+                            sendMessageWithSessionInfo(SPEAKER_ON);
+                        }
+                    } else {
+                        sendMessageWithSessionInfo(SPEAKER_OFF);
                     }
-                } else {
-                    sendMessageWithSessionInfo(SPEAKER_OFF);
+                } finally {
+                    Log.endSession();
                 }
             }
         };
