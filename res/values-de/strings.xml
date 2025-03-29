@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Audio auf einem anderen Gerät streamen"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Anruf beenden"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Auf dieses Gerät wechseln"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"Anruf nicht möglich, weil bereits ein anderer Anruf verbunden wird. Warte, bis der Anruf angenommen wird, oder lege auf, bevor du einen neuen Anruf startest."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Anruf nicht möglich, weil bereits zwei Anrufe aktiv sind. Beende einen der Anrufe oder führe beide Anrufe in einer Telefonkonferenz zusammen, bevor du einen neuen Anruf startest."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Anruf nicht möglich, weil bereits zwei Anrufe aktiv sind. Beende einen der Anrufe, bevor du einen neuen startest."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Anruf nicht möglich, da ein Anruf nicht gehalten werden kann. Beende den Anruf, bevor du einen neuen Anruf startest."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Anruf nicht möglich, da ein nicht angenommener eingehender Anruf vorhanden ist. Nimm den eingehenden Anruf an oder lehne ihn ab, bevor du einen neuen Anruf startest."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Dieser MMI-Code ist nicht für Anrufe mit mehreren Konten verfügbar."</string>

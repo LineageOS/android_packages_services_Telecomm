@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"ఆడియోను ఇతర పరికరానికి స్ట్రీమింగ్ చేయండి"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"ముగించండి"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"ఇక్కడకు స్విచ్ అవ్వండి"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"ఇప్పటికే వేరే కాల్ కనెక్ట్ అయి ఉన్నందున కాల్ చేయడం సాధ్యపడదు. కాల్‌కు సమాధానమిచ్చేంత వరకు వేచి ఉండండి లేదా వేరొక కాల్‌ను చేయడానికి ముందు దీన్ని డిస్‌కనెక్ట్ చేయండి."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"ఇప్పటికే రెండు కాల్స్ జరుగుతున్నందున కాల్ చేయడం సాధ్యపడదు. ఆ కాల్స్‌లో ఒకదానిని డిస్‌కనెక్ట్ చేయండి లేదా అవి రెండింటినీ విలీనం చేసి ఒక కాన్ఫరెన్స్ కాల్‌గా మార్చి, తర్వాత కొత్త కాల్ చేయండి."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"ఇప్పటికే రెండు కాల్స్ ప్రోగ్రెస్‌లో ఉన్నందున కాల్ చేయడం సాధ్యం కాదు. కొత్త కాల్ చేయడానికంటే ముందుగా రెండు కాల్స్‌లో ఒకదాన్ని డిస్‌కనెక్ట్ చేయండి."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"హోల్డ్‌లో పెట్టడం సాధ్యం కాని కాల్ జరుగుతున్నందున కాల్ చేయడం సాధ్యం కాదు. కొత్త కాల్ చేయడానికంటే ముందుగా ప్రస్తుత కాల్‌ను డిస్‌కనెక్ట్ చేయండి."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"ఇన్‌కమింగ్ కాల్ వస్తున్నంతసేపు వేరొక కాల్ చేయడం సాధ్యపడదు. కొత్త కాల్ చేయడానికి ముందుగా ఇన్‌కమింగ్ కాల్‌కు సమాధానమివ్వండి లేదా కాల్‌ను నిరాకరించండి."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ఈ MMI కోడ్ పలు ఖాతాలలో కాల్స్ కోసం అందుబాటులో లేదు."</string>

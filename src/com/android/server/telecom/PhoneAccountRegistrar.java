@@ -2198,6 +2198,35 @@ public class PhoneAccountRegistrar {
         private static final String VALUE_TYPE_BOOLEAN = "boolean";
 
         /**
+         * Copy of {@code com.android.internal.util.XmlUtils} method for fiding the next element
+         * in an XmlPullParser.
+         * @param parser The parser
+         * @param outerDepth Outer depth to look at.
+         * @param featureFlags Telecom flags to refer back to the old implementation.
+         * @return {@code true} if a next element is found, {@code false otherwise}.
+         * @throws IOException
+         * @throws XmlPullParserException
+         */
+        public boolean nextElementWithin(XmlPullParser parser, int outerDepth,
+                com.android.server.telecom.flags.FeatureFlags featureFlags)
+                throws IOException, XmlPullParserException {
+            if (!featureFlags.resolveHiddenDependenciesTwo()) {
+                return XmlUtils.nextElementWithin(parser, outerDepth);
+            }
+            for (;;) {
+                int type = parser.next();
+                if (type == XmlPullParser.END_DOCUMENT
+                        || (type == XmlPullParser.END_TAG && parser.getDepth() == outerDepth)) {
+                    return false;
+                }
+                if (type == XmlPullParser.START_TAG
+                        && parser.getDepth() == outerDepth + 1) {
+                    return true;
+                }
+            }
+        }
+
+        /**
          * Write the supplied object to XML
          */
         public abstract void writeToXml(T o, XmlSerializer serializer, Context context,
@@ -2350,7 +2379,7 @@ public class PhoneAccountRegistrar {
             if (length == 0) return handles;
 
             int outerDepth = parser.getDepth();
-            while (XmlUtils.nextElementWithin(parser, outerDepth)) {
+            while (nextElementWithin(parser, outerDepth, telecomFeatureFlags)) {
                 handles.add(sPhoneAccountHandleXml.readFromXml(parser, version, context,
                         telephonyFeatureFlags, telecomFeatureFlags));
             }
@@ -2365,7 +2394,8 @@ public class PhoneAccountRegistrar {
          * @throws IOException Exception related to IO.
          * @throws XmlPullParserException Exception related to parsing.
          */
-        protected List<String> readStringList(XmlPullParser parser)
+        protected List<String> readStringList(XmlPullParser parser,
+                com.android.server.telecom.flags.FeatureFlags telecomFeatureFlags)
                 throws IOException, XmlPullParserException {
 
             int length = Integer.parseInt(parser.getAttributeValue(null, ATTRIBUTE_LENGTH));
@@ -2377,7 +2407,7 @@ public class PhoneAccountRegistrar {
             }
 
             int outerDepth = parser.getDepth();
-            while (XmlUtils.nextElementWithin(parser, outerDepth)) {
+            while (nextElementWithin(parser, outerDepth, telecomFeatureFlags)) {
                 if (parser.getName().equals(TAG_VALUE)) {
                     parser.next();
                     value = parser.getText();
@@ -2396,12 +2426,13 @@ public class PhoneAccountRegistrar {
          * @throws IOException Exception related to IO.
          * @throws XmlPullParserException Exception related to parsing.
          */
-        protected Bundle readBundle(XmlPullParser parser)
+        protected Bundle readBundle(XmlPullParser parser,
+                com.android.server.telecom.flags.FeatureFlags telecomFeatureFlags)
                 throws IOException, XmlPullParserException {
 
             Bundle bundle = null;
             int outerDepth = parser.getDepth();
-            while (XmlUtils.nextElementWithin(parser, outerDepth)) {
+            while (nextElementWithin(parser, outerDepth, telecomFeatureFlags)) {
                 if (parser.getName().equals(TAG_VALUE)) {
                     String valueType = parser.getAttributeValue(null, ATTRIBUTE_VALUE_TYPE);
                     String key = parser.getAttributeValue(null, ATTRIBUTE_KEY);
@@ -2501,7 +2532,7 @@ public class PhoneAccountRegistrar {
                 s.versionNumber = TextUtils.isEmpty(rawVersion) ? 1 : Integer.parseInt(rawVersion);
 
                 int outerDepth = parser.getDepth();
-                while (XmlUtils.nextElementWithin(parser, outerDepth)) {
+                while (nextElementWithin(parser, outerDepth, telecomFeatureFlags)) {
                     if (parser.getName().equals(DEFAULT_OUTGOING)) {
                         if (s.versionNumber < 9) {
                             // Migrate old default phone account handle here by assuming the
@@ -2530,7 +2561,8 @@ public class PhoneAccountRegistrar {
                             }
                         } else {
                             int defaultAccountHandlesDepth = parser.getDepth();
-                            while (XmlUtils.nextElementWithin(parser, defaultAccountHandlesDepth)) {
+                            while (nextElementWithin(parser, defaultAccountHandlesDepth,
+                                    telecomFeatureFlags)) {
                                 DefaultPhoneAccountHandle accountHandle
                                         = sDefaultPhoneAccountHandleXml
                                         .readFromXml(parser, s.versionNumber, context,
@@ -2543,7 +2575,7 @@ public class PhoneAccountRegistrar {
                         }
                     } else if (parser.getName().equals(ACCOUNTS)) {
                         int accountsDepth = parser.getDepth();
-                        while (XmlUtils.nextElementWithin(parser, accountsDepth)) {
+                        while (nextElementWithin(parser, accountsDepth, telecomFeatureFlags)) {
                             PhoneAccount account = sPhoneAccountXml.readFromXml(parser,
                                     s.versionNumber, context, telephonyFeatureFlags,
                                     telecomFeatureFlags);
@@ -2598,7 +2630,7 @@ public class PhoneAccountRegistrar {
                         PhoneAccountHandle accountHandle = null;
                         String userSerialNumberString = null;
                         String groupId = "";
-                        while (XmlUtils.nextElementWithin(parser, outerDepth)) {
+                        while (nextElementWithin(parser, outerDepth, telecomFeatureFlags)) {
                             if (parser.getName().equals(ACCOUNT_HANDLE)) {
                                 parser.nextTag();
                                 accountHandle = sPhoneAccountHandleXml.readFromXml(parser, version,
@@ -2716,7 +2748,7 @@ public class PhoneAccountRegistrar {
                 Bundle extras = null;
                 Set<PhoneAccountHandle> simultaneousCallingRestriction = null;
 
-                while (XmlUtils.nextElementWithin(parser, outerDepth)) {
+                while (nextElementWithin(parser, outerDepth, telecomFeatureFlags)) {
                     if (parser.getName().equals(ACCOUNT_HANDLE)) {
                         parser.nextTag();
                         accountHandle = sPhoneAccountHandleXml.readFromXml(parser, version,
@@ -2753,7 +2785,7 @@ public class PhoneAccountRegistrar {
                         parser.next();
                         shortDescription = parser.getText();
                     } else if (parser.getName().equals(SUPPORTED_URI_SCHEMES)) {
-                        supportedUriSchemes = readStringList(parser);
+                        supportedUriSchemes = readStringList(parser, telecomFeatureFlags);
                     } else if (parser.getName().equals(ICON)) {
                         parser.next();
                         icon = readIcon(parser);
@@ -2761,7 +2793,7 @@ public class PhoneAccountRegistrar {
                         parser.next();
                         enabled = "true".equalsIgnoreCase(parser.getText());
                     } else if (parser.getName().equals(EXTRAS)) {
-                        extras = readBundle(parser);
+                        extras = readBundle(parser, telecomFeatureFlags);
                     } else if (parser.getName().equals(SUPPORTED_AUDIO_ROUTES)) {
                         parser.next();
                         supportedAudioRoutes = Integer.parseInt(parser.getText());
@@ -2921,7 +2953,7 @@ public class PhoneAccountRegistrar {
 
                 UserManager userManager = context.getSystemService(UserManager.class);
 
-                while (XmlUtils.nextElementWithin(parser, outerDepth)) {
+                while (nextElementWithin(parser, outerDepth, telecomFeatureFlags)) {
                     if (parser.getName().equals(COMPONENT_NAME)) {
                         parser.next();
                         componentNameString = parser.getText();

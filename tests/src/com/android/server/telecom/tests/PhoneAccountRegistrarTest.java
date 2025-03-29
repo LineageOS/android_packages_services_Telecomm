@@ -143,6 +143,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         when(mFeatureFlags.onlyUpdateTelephonyOnValidSubIds()).thenReturn(false);
         when(mFeatureFlags.unregisterUnresolvableAccounts()).thenReturn(true);
         when(mTelephonyFeatureFlags.workProfileApiSplit()).thenReturn(false);
+        when(mFeatureFlags.resolveHiddenDependenciesTwo()).thenReturn(true);
     }
 
     @Override

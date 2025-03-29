@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"მიმდინარეობს აუდიოს სტრიმინგი სხვა მოწყობილობაზე"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"გათიშვა"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"გადართვა"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"ზარის განხორციელება შეუძლებელია, რადგან უკვე მიმდინარეობს სხვა ზარის დაკავშირება. დაელოდეთ, რომ ზარს უპასუხონ ან გათიშეთ, სანამ სხვა ზარს განახორციელებთ."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"ზარის განხორციელება შეუძლებელია, რადგან უკვე ორი ზარი მიმდინარეობს. ახალი ზარის განსახორციელებლად გათიშეთ ერთ-ერთი ზარი ან გააერთიანეთ ისინი კონფერენციად."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"ზარის განხორციელება შეუძლებელია, რადგან უკვე ორი ზარი მიმდინარეობს. ახალი ზარის განსახორციელებლად გათიშეთ ერთ-ერთი ზარი."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"ზარის განხორციელება ვერ ხერხდება, რადგან მიმდინარეობს ზარი, რომლის მოცდის რეჟიმში გადაყვანაც შეუძლებელია. ახალი ზარის განსახორციელებლად გათიშეთ აღნიშნული ზარი."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"ზარის განხორციელება შეუძლებელია, რადგან გაქვთ უპასუხო შემომავალი ზარი. უპასუხეთ ან უარყავით შემომავალი ზარი ახალი ზარის განხორციელებამდე."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ეს MMI კოდი ხელმისაწვდომი არ არის სხვადასხვა ანგარიშზე ზარების განხორცილებისას."</string>

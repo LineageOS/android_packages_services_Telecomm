@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"将音频流式传输到其他设备"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"挂断"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"在此处切换"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"目前正在连接其他通话，因此无法拨打电话。请等待通话接听或挂断，然后再拨打其他电话。"</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"由于已有两个正在进行的通话，因此无法拨打电话。请挂断其中一个通话或将两个通话合并到同一个会议中，然后才能拨打新电话。"</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"由于已有两个正在进行的通话，因此无法拨打电话。请先挂断其中一个通话，然后再拨打新电话。"</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"由于有无法暂停的通话，因此不能拨打电话。请先断开通话，然后再拨打新电话。"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"由于有未接来电，因此无法拨打电话。请先接听或拒绝来电，然后才能拨打新电话。"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"此 MMI 码无法用于跨多个账号的通话。"</string>

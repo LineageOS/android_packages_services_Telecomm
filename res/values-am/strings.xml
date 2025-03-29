@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"ኦዲዮን ወደ ሌላ መሣሪያ በመልቀቅ ላይ"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"ዝጋ"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"እዚህ ቀይር"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"ቀድሞውኑ ሌላ ጥሪ እየተገናኘ ስለሆነ ጥሪ ማድረግ አይቻልም። ሌላ ጥሪ ከማድረግዎ በፊት ጥሪ እስኪመለስ ወይም ግንኙነቱ እስኪቋረጥ ድረስ ይጠብቁ።"</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"ቀድሞውኑ ሁለት ጥሪዎች በሂደት ላይ ስለሆኑ ጥሪ ማድረግ አልተቻለም። አዲስ ጥሪ ከማድረግዎ በፊት ከጥሪዎቹ ላይ የአንዱን ግንኙነት ያቋርጡ ወይም ወደ ጉባዔ ያዋህዷቸው።"</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"ቀድሞውኑ ሁለት ጥሪዎች በሂደት ላይ ስለሆኑ ጥሪ ማድረግ አልተቻለም። አዲስ ጥሪ ከማድረግዎ በፊት ከጥሪዎቹ የአንዱን ግንኙነት ያቋርጡ።"</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"ይቆይ ሊደረግ የማይችል ጥሪ በመኖሩ ጥሪ ማድረግ አልተቻለም። አዲስ ጥሪ ከማድረግዎ በፊት የጥሪውን ግንኙነት ያቋርጡ።"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"ያልተመለሰ ገቢ ጥሪ ስላለ ጥሪ ማድረግ አይቻልም። አዲስ ጥሪ ከማድረግዎ በፊት ገቢ ጥሪን ይመልሱ ወይም ይዝጉ።"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ይህ MMI ኮድ በርካታ መለያዎች ላይ ላሉ ጥሪዎች አይገኝም።"</string>

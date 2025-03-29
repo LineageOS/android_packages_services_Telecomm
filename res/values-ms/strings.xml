@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Penstriman audio pada peranti lain"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Tamatkan panggilan"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Tukar di sini"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"Tidak dapat membuat panggilan kerana terdapat panggilan lain yang sedang disambungkan. Tunggu sehingga panggilan dijawab atau putuskan sambungan sebelum membuat panggilan lain."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Tidak dapat membuat panggilan kerana sudah terdapat dua panggilan yang sedang berlangsung. Putuskan satu daripada panggilan itu atau gabungkan panggilan tersebut menjadi persidangan sebelum membuat panggilan baharu."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Tidak dapat membuat panggilan kerana sudah terdapat dua panggilan yang sedang berlangsung. Putuskan satu daripada panggilan sebelum ini untuk membuat panggilan baharu."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Tidak dapat membuat panggilan kerana terdapat panggilan yang sedang menunggu. Putuskan panggilan sebelum membuat panggilan baharu."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Tidak dapat membuat panggilan kerana terdapat panggilan masuk yang tidak dijawab. Jawab atau tolak panggilan masuk itu sebelum membuat panggilan baharu."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Kod MMI ini tidak tersedia untuk panggilan merentas berbilang akaun."</string>

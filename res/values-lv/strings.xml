@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Notiek audio straumēšana uz citu ierīci."</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Beigt zvanu"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Pārslēgties šeit"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"Nevar veikt zvanu, jo pašlaik jau tiek veikts cits zvans. Pirms jauna zvana veikšanas uzgaidiet, līdz tiek atbildēts uz pašreizējo zvanu, vai pārtrauciet pašreizējo zvanu."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Nevar veikt zvanu, jo pašlaik jau notiek divi zvani. Pirms jauna zvana veikšanas pārtrauciet vienu no pašreizējiem zvaniem vai apvienojiet tos konferences zvanā."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Nevar veikt zvanu, jo pašlaik jau notiek divi zvani. Pirms jauna zvana veikšanas pārtrauciet vienu no pašreizējiem zvaniem."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Nevar veikt zvanu, jo pašlaik notiek zvans, ko nevar pārtraukt. Pirms jauna zvana veikšanas pārtrauciet pašreizējo zvanu."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Nevar veikt zvanu, jo ir neatbildēts ienākošais zvans. Pirms jauna zvana veikšanas atbildiet uz ienākošo zvanu vai noraidiet to."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Šis MMI kods nav pieejams zvaniem vairākos kontos."</string>

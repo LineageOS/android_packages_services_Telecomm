@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"வேறு சாதனத்திற்கு ஆடியோவை ஸ்ட்ரீம் செய்கிறது"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"அழைப்பைத் துண்டி"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"இங்கே மாற்று"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"ஏற்கெனவே ஒரு அழைப்பு இணைக்கப்படுவதால் அழைப்பை மேற்கொள்ள முடியவில்லை. அதற்குப் பதிலளிக்கப்படும் வரை காத்திருங்கள் அல்லது அதைத் துண்டித்துவிட்டு அடுத்த அழைப்பை மேற்கொள்ளுங்கள்."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"ஏற்கெனவே இரண்டு அழைப்புகள் செயலில் இருப்பதால் புதிய அழைப்பை மேற்கொள்ள முடியவில்லை. புதிதாக ஒரு அழைப்பை மேற்கொள்வதற்கு முன்னர் செயலில் உள்ள அழைப்புகளில் ஏதேனும் ஒன்றைத் துண்டிக்கவும் அல்லது அவற்றை இணைத்து குழு அழைப்பாக மாற்றவும்."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"ஏற்கெனவே இரண்டு அழைப்புகள் செயலில் இருப்பதால் புதிய அழைப்பை மேற்கொள்ள முடியவில்லை. புதிதாக ஒரு அழைப்பை மேற்கொள்வதற்கு முன்னர் செயலில் உள்ள அழைப்புகளில் ஏதேனும் ஒன்றைத் துண்டிக்கவும்."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"ஹோல்டு செய்ய முடியாத ஓர் அழைப்பு ஏற்கெனவே செயலில் இருப்பதால் அழைப்பை மேற்கொள்ள முடியவில்லை. செயலில் உள்ள அழைப்பைத் துண்டித்து புதிய அழைப்பை மேற்கொள்ளவும்."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"உள்வரும் அழைப்பிற்கு இன்னும் பதிலளிக்காததால் இந்த அழைப்பைச் செய்ய முடியாது. புதிதாக ஓர் அழைப்பைச் செய்யும் முன்னர் உள்வரும் அழைப்பிற்குப் பதிலளிக்கவும் அல்லது நிராகரிக்கவும்."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"பல கணக்குகளில் மேற்கொள்ளப்படும் அழைப்புகளுக்கு இந்த MMI குறியீட்டைப் பயன்படுத்த முடியாது."</string>

@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"වෙනත් උපාංගයකට ශ්‍රව්‍ය ප්‍රවාහ කිරීම"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"විසන්ධි කරන්න"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"මෙතැනට මාරු වෙන්න"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"තවත් ඇමතුමක් සම්බන්ධ වෙමින් පවතින බැවින් ඇමතුමක් ලබා ගත නොහැක. ඇමතුමට පිළිතුරු ලැබෙන තෙක් රැඳී සිටින්න නැතහොත් තවත් ඇමතුමක් ගැනීමට පෙර එය විසන්ධි කරන්න."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"දැනටමත් ඇමතුම් දෙකක් කෙරෙමින් පවතින නිසා ඇමතුමක් ගැනීමට නොහැක. නව ඇමතුමක් ගැනීමට පෙරාතුව ඇමතුම්වලින් එකක් විසන්ධි කරන්න නැතහොත් ඒවා සම්මන්ත්‍රණයකට ඒකාබද්ධ කරන්න."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"දැනටමත් ඇමතුම් දෙකක් ක්‍රියාත්මක වෙමින් පවතින බැවින් ඇමතුමක් ලබා ගත නොහැක. නව ඇමතුමක් ලබා ගැනීමට පෙර එක් ඇමතුමක් විසන්ධි කරන්න."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"රඳවා ගත නොහැකි ඇමතුමක් ඇති බැවින් ඇමතුමක් ලබා ගත නොහැක. නව ඇමතුමක් ලබා ගැනීමට පෙර ඇමතුම විසන්ධි කරන්න."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"පිළිතුරු නොලැබෙන ඇමතුමක් ඇති බැවින් ඇමතුමක් ලබා ගත නොහැක. නව ඇමතුමක් ලබා ගැනීමට පෙර ලැබෙන ඇමතුමට පිළිතුරු දෙන්න හෝ ප්‍රතික්ෂේප කරන්න."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"මෙම MMI කේතය බහු ගිණුම් හරහා ඇමතුම් සඳහා ලබා ගත නොහැක."</string>

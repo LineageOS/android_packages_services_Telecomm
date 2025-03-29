@@ -134,9 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Prenos zvuka na drugom uređaju"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Prekini vezu"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Prebaci ovdje"</string>
-    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"Poziv se ne može uputiti jer se već uspostavlja drugi poziv. Pričekajte odgovor na poziv ili prekidanje veze prije upućivanja novog poziva."</string>
-    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Poziv se ne može uputiti jer već su dva poziva u tijeku. Prije upućivanja novog poziva prekinite jedan od ta dva poziva ili ih spojite u konferencijski poziv."</string>
-    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Poziv se ne može uputiti jer već su dva poziva u tijeku. Prekinite jedan od tih poziva prije upućivanja novog."</string>
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"Nije moguće uputiti poziv jer se već uspostavlja drugi poziv. Pričekajte odgovor na poziv ili prekid veze prije upućivanja drugog poziva."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Nije moguće uputiti poziv jer su već dva poziva u toku. Prekinite jedan od tih poziva ili ih spojite u konferencijski poziv prije upućivanja novog poziva."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Nije moguće uputiti poziv jer su već dva poziva u toku. Prekinite jedan od tih poziva prije upućivanja novog."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Nije moguće uputiti poziv zbog poziva koji se ne može staviti na čekanje. Prekinite taj poziv prije upućivanja novog poziva."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Nije moguće uputiti poziv zbog neodgovorenog dolaznog poziva. Odgovorite ili odbijte dolazni poziv prije upućivanja novog poziva."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"MMI kôd nije dostupan za pozive na više računa."</string>

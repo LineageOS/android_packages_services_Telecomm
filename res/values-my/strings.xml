@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"အသံကို အခြားစက်တွင် တိုက်ရိုက်လွှင့်နေသည်"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"ဖုန်းချရန်"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"ဤနေရာသို့ လွှဲပြောင်းရန်"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"ခေါ်ဆိုမှုနောက်တစ်ခုကို ချိတ်ဆက်နေသဖြင့် ဖုန်းထပ်ခေါ်၍မရပါ။ ခေါ်ဆိုမှုကို ဖြေကြားရန် စောင့်ပါ (သို့) နောက်တစ်ခု မခေါ်မီ ယခင်ခေါ်ဆိုမှုကို ဖုန်းချပါ။"</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"ခေါ်ဆိုမှုနှစ်ခုကို ပြုလုပ်နေသဖြင့် ဖုန်းထပ်ခေါ်၍မရပါ။ ခေါ်ဆိုမှုအသစ် မပြုလုပ်မီ ၎င်းတို့အနက် တစ်ခုကို ဖုန်းချပါ (သို့) အစည်းအဝေးအဖြစ် ပေါင်းစည်းပါ။"</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"ခေါ်ဆိုမှုနှစ်ခုကို ပြုလုပ်နေသဖြင့် ဖုန်းထပ်ခေါ်၍မရပါ။ ခေါ်ဆိုမှုအသစ် မပြုလုပ်မီ ၎င်းတို့အနက် တစ်ခုကို ဖုန်းချပါ။"</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"ဆိုင်းငံ့၍မရသော ခေါ်ဆိုမှုရှိနေသဖြင့် ဖုန်းထပ်ခေါ်၍မရပါ။ ခေါ်ဆိုမှုအသစ် မပြုလုပ်မီ ဤခေါ်ဆိုမှုကို ဖုန်းချပါ။"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"မဖြေကြားရသေးသော အဝင်ခေါ်ဆိုမှု ရှိနေသဖြင့် ဖုန်းခေါ်၍ မရနိုင်ပါ။ အသစ်မခေါ်ဆိုမီ ဖုန်းကိုင်ပါ (သို့) ငြင်းပယ်ပါ။"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ဤ MMI ကုဒ်ကို အကောင့်အများအပြား၌ ခေါ်ဆိုမှုများအတွက် မရနိုင်ပါ။"</string>

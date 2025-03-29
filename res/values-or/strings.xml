@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"ଅନ୍ୟ ଡିଭାଇସରେ ଅଡିଓ ଷ୍ଟ୍ରିମ କରାଯାଉଛି"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"କଲ ସମାପ୍ତ କରନ୍ତୁ"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"ଏଠାରେ ସୁଇଚ କରନ୍ତୁ"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"ପୂର୍ବରୁ ଆଉ ଏକ କଲ୍ କନେକ୍ଟ ହୋଇଥିବା ଯୋଗୁଁ କଲ କରାଯାଇପାରିବ ନାହିଁ। କଲର ଉତ୍ତର ପାଇବା ପର୍ଯ୍ୟନ୍ତ ଅପେକ୍ଷା କରନ୍ତୁ କିମ୍ବା ଅନ୍ୟ ଏକ କଲ କରିବା ପୂର୍ବରୁ ଏହାକୁ ଡିସକନେକ୍ଟ କରନ୍ତୁ।"</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"ପୂର୍ବରୁ ଦୁଇଟି କଲ ଚାଲୁ ଥିବା ଯୋଗୁଁ ଆଉ ଏକ କଲ କରାଯାଇପାରିବ ନାହିଁ। ଏକ ନୂଆ କଲ କରିବା ପୂର୍ବରୁ ଗୋଟିଏ କଲକୁ ଡିସକନେଜ୍ଟ କରନ୍ତୁ କିମ୍ବା ସେଗୁଡ଼ିକୁ ଏକ କନଫରେନ୍ସ କଲରେ ମର୍ଜ କରନ୍ତୁ।"</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"ପୂର୍ବରୁ ଦୁଇଟି କଲ ଚାଲିଛି ତେଣୁ କଲ କରାଯାଇପାରିବ ନାହିଁ। ନୂଆ କଲ କରିବା ପୂର୍ବରୁ ଗୋଟିଏ କଲ ଡିସକନେକ୍ଟ କରନ୍ତୁ।"</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"ହୋଲ୍ଡ କରିହେଉନଥିବା ଏକ କଲ ଚାଲୁ ଥିବା ଯୋଗୁଁ ଆଉ ଏକ କଲ କରାଯାଇପାରିବ ନାହିଁ। ଏକ ନୂଆ କଲ କରିବା ପୂର୍ବରୁ କଲକୁ ଡିସକନେକ୍ଟ କରନ୍ତୁ।"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"ଗୋଟିଏ ଉତ୍ତର ଦିଆଯାଇନଥିବା ଇନକମିଂ କଲ ଥିବା ଯୋଗୁଁ ଅନ୍ୟ ଏକ କଲ କରିପାରିବେ ନାହିଁ। ଏକ ନୂଆ କଲ କରିବା ପୂର୍ବରୁ ଇନକମିଂ କଲଟିର ଉତ୍ତର ଦିଅନ୍ତୁ କିମ୍ବା ଏହାକୁ ଅଗ୍ରାହ୍ୟ କରନ୍ତୁ।"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ଏକାଧିକ ଆକାଉଣ୍ଟରେ କଲଗୁଡ଼ିକ ପାଇଁ ଏହି MMI କୋଡ ଉପଲବ୍ଧ ନାହିଁ।"</string>

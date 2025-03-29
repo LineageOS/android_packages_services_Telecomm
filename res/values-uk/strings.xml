@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Аудіо транслюється на інший пристрій"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Завершити"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Перевести сюди"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"Неможливо зателефонувати, оскільки здійснюється інший виклик. Зачекайте, поки абонент вам відповість, або скасуйте наявний виклик, перш ніж починати інший."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Неможливо зателефонувати, оскільки тривають уже два виклики. Припиніть один із них або об’єднайте їх у конференцію, перш ніж здійснити новий."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Неможливо зателефонувати, оскільки тривають уже два виклики. Припиніть один із них, перш ніж здійснити новий."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Неможливо зателефонувати, оскільки поточний виклик не можна поставити на утримання. Припиніть виклик, перш ніж здійснити новий."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Неможливо зателефонувати. Прийміть або відхиліть вхідний дзвінок, перш ніж здійснювати новий."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Цей код MMI недоступний для дзвінків із використанням кількох облікових записів."</string>

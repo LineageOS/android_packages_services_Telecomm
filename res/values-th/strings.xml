@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"กำลังสตรีมเสียงไปยังอุปกรณ์อื่นๆ"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"วางสาย"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"เปลี่ยนที่นี่"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"โทรออกไม่ได้เนื่องจากมีสายอื่นกำลังเชื่อมต่ออยู่ โปรดรอให้สายได้รับการตอบรับหรือยกเลิกการเชื่อมต่อก่อนโทรออกใหม่"</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"โทรออกไม่ได้เนื่องจากมีการโทร 2 สายที่กำลังดำเนินอยู่ โปรดยกเลิกการเชื่อมต่อสายใดสายหนึ่งหรือรวมเป็นการประชุมสายก่อนโทรออกใหม่"</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"โทรออกไม่ได้เนื่องจากมีการโทร 2 สายที่กำลังดำเนินอยู่ โปรดยกเลิกการเชื่อมต่อ 1 สายก่อนโทรออกใหม่"</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"โทรออกไม่ได้เนื่องจากมีการโทรที่ไม่สามารถพักสายได้ โปรดยกเลิกการเชื่อมต่อสายดังกล่าวก่อนโทรออกใหม่"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"โทรออกไม่ได้เนื่องจากมีสายเรียกเข้าที่ยังไม่ได้รับ โปรดรับหรือปฏิเสธสายเรียกเข้าก่อนจึงค่อยโทรออกใหม่"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"รหัส MMI นี้ใช้ไม่ได้กับการโทรผ่านหลายบัญชี"</string>

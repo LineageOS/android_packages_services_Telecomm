@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"ਆਡੀਓ ਨੂੰ ਕਿਸੇ ਹੋਰ ਡੀਵਾਈਸ \'ਤੇ ਸਟ੍ਰੀਮ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"ਕਾਲ ਸਮਾਪਤ ਕਰੋ"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"ਇੱਥੇ ਸਵਿੱਚ ਕਰੋ"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"ਕਾਲ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ ਕਿਉਂਕਿ ਪਹਿਲਾਂ ਹੀ ਕੋਈ ਹੋਰ ਕਾਲ ਕਨੈਕਟ ਹੋ ਰਹੀ ਹੈ। ਕੋਈ ਹੋਰ ਕਾਲ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਕਾਲ ਦੇ ਜਵਾਬ ਦੀ ਉਡੀਕ ਕਰੋ ਜਾਂ ਉਸਨੂੰ ਡਿਸਕਨੈਕਟ ਕਰੋ।"</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"ਕਾਲ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ ਕਿਉਂਕਿ ਪਹਿਲਾਂ ਤੋਂ ਦੋ ਕਾਲਾਂ ਚੱਲ ਰਹੀਆਂ ਹਨ। ਨਵੀਂ ਕਾਲ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਕਿਸੇ ਇੱਕ ਕਾਲ ਨੂੰ ਡਿਸਕਨੈਕਟ ਕਰੋ ਜਾਂ ਦੋਨਾਂ ਕਾਲਾਂ ਨੂੰ ਮਿਲਾ ਕੇ ਕਾਨਫਰੰਸ ਕਾਲ ਵਿੱਚ ਬਦਲੋ।"</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"ਕਾਲ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ ਕਿਉਂਕਿ ਪਹਿਲਾਂ ਤੋਂ ਦੋ ਕਾਲਾਂ ਚੱਲ ਰਹੀਆਂ ਹਨ। ਨਵੀਂ ਕਾਲ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਕਿਸੇ ਇੱਕ ਕਾਲ ਨੂੰ ਡਿਸਕਨੈਕਟ ਕਰੋ।"</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"ਕਾਲ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ ਕਿਉਂਕਿ ਪਹਿਲਾਂ ਤੋਂ ਇੱਕ ਕਾਲ ਚੱਲ ਰਹੀ ਹੈ, ਜਿਸਨੂੰ ਹੋਲਡ \'ਤੇ ਨਹੀਂ ਰੱਖਿਆ ਜਾ ਸਕਦਾ। ਨਵੀਂ ਕਾਲ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਕਾਲ ਨੂੰ ਡਿਸਕਨੈਕਟ ਕਰੋ।"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"ਕਾਲ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ ਕਿਉਂਕਿ ਇੱਕ ਜਵਾਬ ਨਾ ਦਿੱਤੀ ਗਈ ਇਨਕਮਿੰਗ ਕਾਲ ਪਹਿਲਾਂ ਤੋਂ ਹੀ ਆ ਰਹੀ ਹੈ। ਨਵੀਂ ਕਾਲ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਇਨਕਮਿੰਗ ਕਾਲ ਦਾ ਜਵਾਬ ਦਿਓ ਜਾਂ ਅਸਵੀਕਾਰ ਕਰੋ।"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ਇਹ MMI ਕੋਡ ਇੱਕ ਤੋਂ ਵੱਧ ਖਾਤਿਆਂ ਵਿੱਚ ਕਾਲਾਂ ਲਈ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।"</string>

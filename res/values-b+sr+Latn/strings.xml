@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Zvuk se strimuje na drugi uređaj"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Prekini vezu"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Prebaci ovde"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"Ne možete da pozovete jer se već uspostavlja veza sa drugim pozivom. Sačekajte da neko odgovori na poziv ili ga prekinite pre upućivanja drugog poziva."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Ne možete da pozovete jer su dva poziva već u toku. Prekinite jedan od njih ili ih objedinite u konferenciju pre upućivanja novog poziva."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Ne možete da pozovete jer su dva poziva već u toku. Prekinite jedan od poziva pre upućivanja novog poziva."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Ne možete da uputite poziv jer je u toku poziv koji ne može da se stavi na čekanje. Prekinite taj poziv pre upućivanja novog poziva."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Ne možete da pozovete jer imate dolazni poziv na koji niste odgovorili. Primite ga ili odbijte pre upućivanja novog poziva."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Ovaj MMI kôd nije dostupan za pozive na više naloga."</string>

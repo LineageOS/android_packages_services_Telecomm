@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"ສະຕຣີມສຽງໄປໃສ່ອຸປະກອນອື່ນ"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"ວາງສາຍ"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"ສະຫຼັບບ່ອນນີ້"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"ບໍ່ສາມາດໂທອອກໄດ້ເນື່ອງຈາກມີສາຍອື່ນເຊື່ອມຕໍ່ຢູ່ແລ້ວ. ລໍຖ້າໃຫ້ຄົນຮັບສາຍ ຫຼື ຕັດການເຊື່ອມຕໍ່ກ່ອນໂທອອກອີກຄັ້ງ."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"ບໍ່ສາມາດໂທໄດ້ເນື່ອງຈາກມີສອງສາຍກຳລັງໂທຢູ່. ກະລຸນາຕັດການເຊື່ອມຕໍ່ສາຍໃດໜຶ່ງອອກ ຫຼື ຮວມສາຍເປັນການປະຊຸມທາງໂທລະສັບກ່ອນໂທໃໝ່."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"ບໍ່ສາມາດໂທອອກໄດ້ເນື່ອງຈາກມີສອງສາຍທີ່ພວມດຳເນີນຢູ່. ຕັດການເຊື່ອມຕໍ່ສາຍໃດໜຶ່ງກ່ອນທີ່ຈະໂທໃໝ່."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"ບໍ່ສາມາດໂທໄດ້ເນື່ອງຈາກມີການໂທທີ່ບໍ່ສາມາດຖືສາຍຄ້າງໄວ້ໄດ້. ຕັດການເຊື່ອມຕໍ່ສາຍກ່ອນໂທໃໝ່."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"ບໍ່ສາມາດໂທອອກໄດ້ເນື່ອງຈາກມີສາຍໂທເຂົ້າທີ່ຍັງບໍ່ໄດ້ຮັບຢູ່. ກະລຸນາຮັບສາຍ ຫຼື ວາງສາຍທີ່ກຳລັງໂທເຂົ້າມາກ່ອນຈະໂທໃໝ່."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ລະຫັດ MMI ນີ້ແມ່ນໃຊ້ບໍ່ໄດ້ສໍາລັບການໂທດ້ວຍຫຼາຍບັນຊີ."</string>

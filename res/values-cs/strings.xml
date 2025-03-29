@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Streamování zvuku do druhého zařízení"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Zavěsit"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Přepnout sem"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"Hovor nelze zahájit, protože právě dochází ke spojení jiného hovoru. Než zahájíte nový hovor vyčkejte, dokud druhá strana stávající hovor nepřijme nebo sami zavěste."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Hovor nelze zahájit, protože už probíhají jiné dva hovory. Než zahájíte nový hovor, jeden ze stávajících zavěste nebo je slučte do konference."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Hovor nelze zahájit, protože už probíhají jiné dva hovory. Než zahájíte nový hovor, jeden ze stávajících zavěste."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Nemůžete uskutečnit hovor, protože už probíhá hovor, který nelze podržet. Než zahájíte nový hovor, odpojte ten předchozí."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Nemůžete uskutečnit hovor, protože máte nepřijatý příchozí hovor. Nejdřív ho tedy přijměte nebo odmítněte."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Tento kód MMI není k dispozici pro hovory ve více účtech."</string>

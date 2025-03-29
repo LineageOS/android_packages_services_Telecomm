@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"S\'està reproduint àudio en continu en un altre dispositiu"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Penja"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Canvia aquí"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"No es pot fer la trucada perquè ja se n\'està connectant una altra. Espera que la trucada es respongui o desconnecta-la abans de fer-ne una altra."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"No es pot fer la trucada perquè ja n\'hi ha dues en curs. Desconnecta\'n una o combina-les en una conferència abans de fer-ne més de noves."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"No es pot fer la trucada perquè ja n\'hi ha dues en curs. Desconnecta\'n una abans de fer-ne més de noves."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"No es pot fer la trucada perquè n\'hi ha una que no es pot posar en espera. Desconnecta-la abans de fer-ne més de noves."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"No es pot fer la trucada perquè hi ha una trucada entrant sense resposta. Respon-hi o rebutja-la abans de fer més trucades."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Aquest codi MMI no es pot utilitzar per fer trucades amb diversos comptes."</string>

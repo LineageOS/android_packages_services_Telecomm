@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Streama ljud till en annan enhet"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Lägg på"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Koppla hit"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"Det går inte att ringa eftersom ett annat samtal redan kopplas. Vänta tills samtalet besvaras eller koppla bort det innan du ringer ett nytt samtal."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Det går inte att ringa eftersom det redan finns två pågående samtal. Koppla bort ett eller slå ihop dem till en konferens innan du ringer ett nytt samtal."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Det går inte att ringa eftersom det redan finns två pågående samtal. Koppla bort ett av samtalen innan du ringer ett nytt samtal."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Det går inte att ringa eftersom det finns ett samtal som inte kan sättas i vänteläge. Koppla bort samtalet innan du ringer ett nytt samtal."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Det går inte att ringa eftersom det finns ett obesvarat inkommande samtal. Svara eller avvisa det innan du ringer ett nytt samtal."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Den här MMI-koden är inte tillgänglig för samtal på flera konton."</string>

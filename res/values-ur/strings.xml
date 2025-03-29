@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"دوسرے آلے پر آڈیو کی سلسلہ بندی کی جا رہی ہے"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"منقطع کریں"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"یہاں سوئچ کریں"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"کال نہیں کر سکتا کیونکہ پہلے سے ہی ایک اور کال منسلک ہو رہی ہے۔ کال کا جواب آنے کا انتظار کریں یا دوسری کال کرنے سے پہلے اسے غیر منسلک کریں۔"</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"پہلے سے دو کالز کے پیش رفت میں ہونے کی وجہ سے کال نہیں کی جا سکتی۔ نئی کال کرنے کیلئے پہلے ان میں سے ایک کو غیر منسلک کریں یا انہیں کانفرنس میں ضم کریں۔"</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"کال نہیں کر سکتا کیونکہ پہلے سے ہی دو کالز جاری ہیں۔ نئی کال کرنے سے پہلے کالز میں سے ایک کو غیر منسلک کریں۔"</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"کال نہیں کر سکتے کیونکہ پہلے سے جاری کال کو ہولڈ نہیں کیا جا سکتا۔ نئی کال کرنے سے پہلے موجودہ کال کو غیر منسلک کریں۔"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"ایک جواب نہ ملنے والی اِن کمنگ کال کی وجہ سے کال نہیں کی جا سکتی۔ نئی کال کرنے کے لیے پہلے اِن کمنگ کال کا جواب دیں یا مسترد کریں۔"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"‏یہ MMI کوڈ متعدد اکاؤنٹس پر کالز کے لیے دستیاب نہیں ہے۔"</string>

@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"Streymir hljóði í annað tæki"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"Leggja á"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"Skipta hingað"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"Ekki er hægt að hringja símtal þar sem annað símtal er þegar að tengjast. Bíddu eftir að símtalinu sé svarað eða slíttu því áður en þú hringir annað símtal."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Ekki er hægt að hringja símtal vegna þess að þegar eru tvö símtöl í gangi. Slíttu öðru símtalinu eða sameinaðu þau í símafund áður en þú hringir nýtt símtal."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Ekki er hægt að hringja símtal þar sem það eru þegar tvö símtöl í gangi. Slíttu öðru símtalinu áður en þú hringir nýtt símtal."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Ekki er hægt að hringja símtal vegna símtals sem ekki er hægt að setja í bið. Slíttu símtalinu áður en þú hringir nýtt símtal."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Ekki er hægt að hringja símtal, þar sem ósvarað símtal er að berast. Svaraðu eða hafnaðu símtalinu áður en þú hringir nýtt símtal."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Þessi MMI-kóði er ekki í boði ef hringt er í marga reikninga."</string>

@@ -163,17 +163,6 @@ flag {
   }
 }
 
-# OWNER=pmadapurmath TARGET=25Q2
-flag {
-  name: "default_speaker_on_wired_headset_disconnect"
-  namespace: "telecom"
-  description: "Maybe route back into speaker (if it was the previous route) when a wired headset disconnects"
-  bug: "376364368"
-  metadata {
-    purpose: PURPOSE_BUGFIX
-  }
-}
-
 # OWNER=tgunn TARGET=25Q2
 flag {
   name: "bus_device_is_a_speaker"

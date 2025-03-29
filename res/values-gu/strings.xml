@@ -134,12 +134,9 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"ઑડિયોને અન્ય ડિવાઇસ પર સ્ટ્રીમ કરી રહ્યાં છીએ"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"સમાપ્ત કરો"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"અહીં સ્વિચ કરો"</string>
-    <!-- no translation found for callFailed_outgoing_already_present (411484560432884251) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_include_merge (2234495082825519920) -->
-    <skip />
-    <!-- no translation found for callFailed_too_many_calls_exclude_merge (8616011288480453495) -->
-    <skip />
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"પહેલેથી બીજો કોઈ કૉલ કનેક્ટ થઈ રહ્યો હોવાથી કૉલ કરી શકાતો નથી. કૉલનો જવાબ મળે ત્યાં સુધી રાહ જુઓ અથવા બીજો કૉલ કરતા પહેલાં તેને ડિસ્કનેક્ટ કરો."</string>
+    <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"કૉલ કરી શકાતો નથી, કારણ કે બે કૉલ પહેલેથી ચાલુ છે. કોઈ નવો કૉલ કરતા પહેલાં તેમાંના એક કૉલને ડિસ્કનેક્ટ કરો અથવા તેમને કોઈ કૉન્ફરન્સમાં મર્જ કરો."</string>
+    <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"કૉલ કરી શકાતો નથી, કારણ કે બે કૉલ પહેલેથી ચાલુ છે. કોઈ નવો કૉલ કરતા પહેલાં તેમાંના એક કૉલને ડિસ્કનેક્ટ કરો."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"કૉલ કરી શકાતો નથી, કારણ કે હોલ્ડ ન કરી શકાય તેવો કોઈ કૉલ ચાલુ છે. કોઈ નવો કૉલ કરતા પહેલાં કૉલને ડિસ્કનેક્ટ કરો."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"કૉલ કરી શકાતો નથી કારણ કે ઇનકમિંગ કૉલનો જવાબ આપવામાં આવી રહ્યો નથી. નવો કૉલ કરતા પહેલાં ઇનકમિંગ કૉલનો જવાબ આપો અથવા તેને નકારો."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"આ MMI કોડનો ઉપયોગ એકથી વધુ એકાઉન્ટ પર ચાલી રહેલા કૉલ માટે ઉપલબ્ધ નથી."</string>
