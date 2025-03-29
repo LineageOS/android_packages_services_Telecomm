@@ -2462,7 +2462,16 @@ public class CallsManager extends Call.ListenerBase
             // CallScreeningService in order for it to potentially provide caller ID.
             dialerSelectPhoneAccountFuture.thenAcceptBothAsync(contactLookupFuture,
                     (callPhoneAccountHandlePair, uriCallerInfoPair) -> {
+                        if (callPhoneAccountHandlePair == null) {
+                            return;
+                        }
                         Call theCall = callPhoneAccountHandlePair.first;
+                        // Other branches building on dialerSelectPhoneAccountFuture do this, so
+                        // we should early return here; if there is no call, then don't bother
+                        // continuing.
+                        if (theCall == null) {
+                            return;
+                        }
                         UserHandle userHandleForCallScreening = theCall.
                                 getAssociatedUser();
                         boolean isInContacts = uriCallerInfoPair.second != null

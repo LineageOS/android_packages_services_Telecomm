@@ -118,7 +118,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     private FeatureFlags mFeatureFlags;
     private int mFocusType;
     private int mCallSupportedRouteMask = -1;
-    private boolean mIsScoAudioConnected;
+    private BluetoothDevice mScoAudioConnectedDevice;
     private boolean mAvailableRoutesUpdated;
     private boolean mUsePreferredDeviceStrategy;
     private AudioDeviceInfo mCurrentCommunicationDevice;
@@ -209,7 +209,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         mFeatureFlags = featureFlags;
         mMetricsController = metricsController;
         mFocusType = NO_FOCUS;
-        mIsScoAudioConnected = false;
+        mScoAudioConnectedDevice = null;
         mUsePreferredDeviceStrategy = true;
         mWasOnSpeaker = false;
         setCurrentCommunicationDevice(null);
@@ -575,7 +575,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         return mIsPending;
     }
 
-    private void routeTo(boolean active, AudioRoute destRoute) {
+    private void routeTo(boolean isDestRouteActive, AudioRoute destRoute) {
         if (destRoute == null || (!destRoute.equals(mStreamingRoute)
                 && !getCallSupportedRoutes().contains(destRoute))) {
             Log.i(this, "Ignore routing to unavailable route: %s", destRoute);
@@ -585,42 +585,53 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             }
             return;
         }
+        // If another BT device connects during RINGING_FOCUS, in-band ringing will be disabled by
+        // default. In this case, we should adjust the active routing value so that we don't try
+        // to connect to the BT device as it will fail.
+        isDestRouteActive = maybeAdjustActiveRouting(destRoute, isDestRouteActive);
+        // It's possible that there are multiple HFP devices connected and if we receive SCO audio
+        // connected for the destination route's BT device, then we shouldn't disconnect SCO when
+        // clearing the communication device for the original route if it was also a HFP device.
+        boolean isScoDeviceAlreadyConnected = mScoAudioConnectedDevice != null
+                && Objects.equals(mScoAudioConnectedDevice, mBluetoothRoutes.get(destRoute));
         if (mIsPending) {
-            if (destRoute.equals(mPendingAudioRoute.getDestRoute()) && (mIsActive == active)) {
+            if (destRoute.equals(mPendingAudioRoute.getDestRoute())
+                    && (mIsActive == isDestRouteActive)) {
                 return;
             }
             Log.i(this, "Override current pending route destination from %s(active=%b) to "
                             + "%s(active=%b)",
-                    mPendingAudioRoute.getDestRoute(), mIsActive, destRoute, active);
+                    mPendingAudioRoute.getDestRoute(), mIsActive, destRoute, isDestRouteActive);
             // Ensure we don't keep waiting for SPEAKER_ON if dest route gets overridden.
-            if (!mFeatureFlags.resolveActiveBtRoutingAndBtTimingIssue() && active
+            if (!mFeatureFlags.resolveActiveBtRoutingAndBtTimingIssue() && isDestRouteActive
                     && mPendingAudioRoute.getDestRoute().getType() == TYPE_SPEAKER) {
                 mPendingAudioRoute.clearPendingMessage(new Pair<>(SPEAKER_ON, null));
             }
             // override pending route while keep waiting for still pending messages for the
             // previous pending route
             mPendingAudioRoute.setOrigRoute(mIsActive /* origin */,
-                    mPendingAudioRoute.getDestRoute(), active /* dest */);
+                    mPendingAudioRoute.getDestRoute(), isDestRouteActive /* dest */,
+                    isScoDeviceAlreadyConnected);
         } else {
-            if (mCurrentRoute.equals(destRoute) && (mIsActive == active)) {
+            if (mCurrentRoute.equals(destRoute) && (mIsActive == isDestRouteActive)) {
                 return;
             }
             Log.i(this, "Enter pending route, orig%s(active=%b), dest%s(active=%b)", mCurrentRoute,
-                    mIsActive, destRoute, active);
+                    mIsActive, destRoute, isDestRouteActive);
             // route to pending route
             if (getCallSupportedRoutes().contains(mCurrentRoute)) {
                 mPendingAudioRoute.setOrigRoute(mIsActive /* origin */, mCurrentRoute,
-                        active /* dest */);
+                        isDestRouteActive /* dest */, isScoDeviceAlreadyConnected);
             } else {
                 // Avoid waiting for pending messages for an unavailable route
                 mPendingAudioRoute.setOrigRoute(mIsActive /* origin */, DUMMY_ROUTE,
-                        active /* dest */);
+                        isDestRouteActive /* dest */, isScoDeviceAlreadyConnected);
             }
             mIsPending = true;
         }
-        mPendingAudioRoute.setDestRoute(active, destRoute, mBluetoothRoutes.get(destRoute),
-                mIsScoAudioConnected);
-        mIsActive = active;
+        mPendingAudioRoute.setDestRoute(isDestRouteActive, destRoute,
+                mBluetoothRoutes.get(destRoute), isScoDeviceAlreadyConnected);
+        mIsActive = isDestRouteActive;
         mPendingAudioRoute.evaluatePendingState();
         if (mFeatureFlags.telecomMetricsSupport()) {
             mMetricsController.getAudioRouteStats().onRouteEnter(mPendingAudioRoute);
@@ -1082,10 +1093,10 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             String btAddressToExclude) {
         Log.i(this, "handleSwitchBaselineRoute: includeBluetooth: %b, "
                 + "btAddressToExclude: %s", includeBluetooth, btAddressToExclude);
+        AudioRoute pendingDestRoute = mPendingAudioRoute.getDestRoute();
         boolean areExcludedBtAndDestBtSame = btAddressToExclude != null
-                && mPendingAudioRoute.getDestRoute() != null
-                && Objects.equals(btAddressToExclude, mPendingAudioRoute.getDestRoute()
-                .getBluetoothAddress());
+                && pendingDestRoute != null
+                && Objects.equals(btAddressToExclude, pendingDestRoute.getBluetoothAddress());
         Pair<Integer, String> btDevicePendingMsg =
                 new Pair<>(BT_AUDIO_CONNECTED, btAddressToExclude);
 
@@ -1093,8 +1104,8 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         // we know that the device has reconnected or is in the middle of connecting. Ignore routing
         // out of this BT device.
         boolean isExcludedDeviceConnectingOrConnected = areExcludedBtAndDestBtSame
-                && (mIsScoAudioConnected || mPendingAudioRoute.getPendingMessages()
-                .contains(btDevicePendingMsg));
+                && (Objects.equals(mBluetoothRoutes.get(pendingDestRoute), mScoAudioConnectedDevice)
+                || mPendingAudioRoute.getPendingMessages().contains(btDevicePendingMsg));
         // Check if the pending audio route or current route is already different from the route
         // including the BT device that should be excluded from route selection.
         boolean isCurrentOrDestRouteDifferent = btAddressToExclude != null
@@ -1664,8 +1675,9 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         mIsPending = isPending;
     }
 
-    public void setIsScoAudioConnected(boolean value) {
-        mIsScoAudioConnected = value;
+    @VisibleForTesting
+    public void setScoAudioConnectedDevice(BluetoothDevice device) {
+        mScoAudioConnectedDevice = device;
     }
 
     private void clearRingingBluetoothAddress() {
@@ -1777,5 +1789,32 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         if (isUserRequest) {
             mWasOnSpeaker = false;
         }
+    }
+
+    /*
+     * Adjusts routing to go inactive if we're active in the case that we're processing
+     * RINGING_FOCUS and another BT headset is connected which causes in-band ringing to get
+     * disabled. If we stay in active routing, Telecom will send requests to connect to these BT
+     * devices while the call is ringing and each of these requests will fail at the BT stack side.
+     * By default, in-band ringtone is disabled when more than one BT device is paired. Instead,
+     * ringtone is played using the headset's default ringtone.
+     */
+    private boolean maybeAdjustActiveRouting(AudioRoute destRoute, boolean isDestRouteActive) {
+        BluetoothDevice device = mBluetoothRoutes.get(destRoute);
+        // If routing is active and in-band ringing is disabled while the call is ringing, move to
+        // inactive routing.
+        if (isDestRouteActive && mFocusType == RINGING_FOCUS && device != null
+                && !mBluetoothRouteManager.isInbandRingEnabled(destRoute.getType(), device)) {
+            return false;
+        }
+        else if (!isDestRouteActive && mFocusType == RINGING_FOCUS && (device == null
+                || mBluetoothRouteManager.isInbandRingEnabled(destRoute.getType(), device))) {
+            // If the routing is inactive while the call is ringing and we re-evaluate this to find
+            // that we're routing to a non-BT device or a BT device that does support in-band
+            // ringing, then re-enable active routing (i.e. second HFP headset is disconnected
+            // while call is ringing).
+            return true;
+        }
+        return isDestRouteActive;
     }
 }

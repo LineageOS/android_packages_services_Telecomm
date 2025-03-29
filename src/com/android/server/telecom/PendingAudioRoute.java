@@ -83,10 +83,11 @@ public class PendingAudioRoute {
      * @param origRoute The origin.
      * @param isDestActive Whether the destination will be active.
      */
-    void setOrigRoute(boolean isOriginActive, AudioRoute origRoute, boolean isDestActive) {
+    void setOrigRoute(boolean isOriginActive, AudioRoute origRoute, boolean isDestActive,
+            boolean isScoAlreadyConnected) {
         mActive = isDestActive;
         origRoute.onOrigRouteAsPendingRoute(isOriginActive, this, mAudioManager,
-                mBluetoothRouteManager);
+                mBluetoothRouteManager, isScoAlreadyConnected);
         mOrigRoute = origRoute;
     }
 
@@ -95,9 +96,9 @@ public class PendingAudioRoute {
     }
 
     void setDestRoute(boolean active, AudioRoute destRoute, BluetoothDevice device,
-            boolean isScoAudioConnected) {
+            boolean isScoAlreadyConnected) {
         destRoute.onDestRouteAsPendingRoute(active, this, device,
-                mAudioManager, mBluetoothRouteManager, isScoAudioConnected);
+                mAudioManager, mBluetoothRouteManager, isScoAlreadyConnected);
         mActive = active;
         mDestRoute = destRoute;
     }

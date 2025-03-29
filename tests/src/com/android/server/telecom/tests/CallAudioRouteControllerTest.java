@@ -1116,7 +1116,7 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         mController.sendMessageWithSessionInfo(SWITCH_BASELINE_ROUTE,
                 INCLUDE_BLUETOOTH_IN_BASELINE, BLUETOOTH_DEVICE_1.getAddress());
         // Process BT_AUDIO_CONNECTED from connecting to BT device in active focus request.
-        mController.setIsScoAudioConnected(true);
+        mController.setScoAudioConnectedDevice(BLUETOOTH_DEVICE_1);
         mController.sendMessageWithSessionInfo(BT_AUDIO_CONNECTED, 0, BLUETOOTH_DEVICE_1);
         // Verify SCO not disconnected and route stays on connected BT device.
         verify(mBluetoothDeviceManager, timeout(TEST_TIMEOUT).times(0)).disconnectSco();
@@ -1417,6 +1417,81 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
                         | CallAudioState.ROUTE_BLUETOOTH, scoDevice2, BLUETOOTH_DEVICES);
         verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
                 any(CallAudioState.class), eq(expectedState));
+    }
+
+    @Test
+    @SmallTest
+    public void testRouteToInactiveWhenInbandRingingDisabledDuringRinging() {
+        when(mBluetoothRouteManager.isInbandRingEnabled(eq(AudioRoute.TYPE_BLUETOOTH_SCO),
+                eq(BLUETOOTH_DEVICE_1))).thenReturn(true);
+        verifyConnectBluetoothDevice(AudioRoute.TYPE_BLUETOOTH_SCO);
+        mController.sendMessageWithSessionInfo(SWITCH_FOCUS, RINGING_FOCUS, 0);
+        assertTrue(mController.isActive());
+
+        // Connect another HFP device while call is still ringing
+        BluetoothDevice scoDevice =
+                BluetoothRouteManagerTest.makeBluetoothDevice("00:00:00:00:00:03");
+        BLUETOOTH_DEVICES.add(scoDevice);
+
+        // Add SCO device.
+        mController.sendMessageWithSessionInfo(BT_DEVICE_ADDED, AudioRoute.TYPE_BLUETOOTH_SCO,
+                scoDevice);
+        CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_BLUETOOTH,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH
+                        | CallAudioState.ROUTE_SPEAKER, BLUETOOTH_DEVICE_1, BLUETOOTH_DEVICES);
+        verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
+                any(CallAudioState.class), eq(expectedState));
+
+        when(mBluetoothRouteManager.isInbandRingEnabled(eq(AudioRoute.TYPE_BLUETOOTH_SCO),
+                any(BluetoothDevice.class))).thenReturn(false);
+        // Emulate second device becoming active and first device getting disconnected as in-band
+        // ringing is disabled.
+        mController.sendMessageWithSessionInfo(BT_ACTIVE_DEVICE_PRESENT,
+                AudioRoute.TYPE_BLUETOOTH_SCO, scoDevice.getAddress());
+        mController.sendMessageWithSessionInfo(BT_AUDIO_DISCONNECTED, 0,
+                BLUETOOTH_DEVICE_1);
+        expectedState = new CallAudioState(false, CallAudioState.ROUTE_BLUETOOTH,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH
+                        | CallAudioState.ROUTE_SPEAKER, scoDevice, BLUETOOTH_DEVICES);
+        // Verify routing goes to the new HFP device but that the routing is now inactive.
+        verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
+                any(CallAudioState.class), eq(expectedState));
+        assertFalse(mController.isActive());
+    }
+
+    @Test
+    @SmallTest
+    public void testSkipConnectBluetoothWhenScoAudioAlreadyConnected() {
+        verifyConnectBluetoothDevice(AudioRoute.TYPE_BLUETOOTH_SCO);
+        // Connect another HFP device while call is still ringing
+        BluetoothDevice scoDevice =
+                BluetoothRouteManagerTest.makeBluetoothDevice("00:00:00:00:00:03");
+        BLUETOOTH_DEVICES.add(scoDevice);
+
+        // Add SCO device.
+        mController.sendMessageWithSessionInfo(BT_DEVICE_ADDED, AudioRoute.TYPE_BLUETOOTH_SCO,
+                scoDevice);
+        CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_BLUETOOTH,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH
+                        | CallAudioState.ROUTE_SPEAKER, BLUETOOTH_DEVICE_1, BLUETOOTH_DEVICES);
+        verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
+                any(CallAudioState.class), eq(expectedState));
+
+        // Emulate scenario where BT stack signals SCO audio connected for the second HFP device
+        // before Telecom finishes processing the route change to this device. We should ensure
+        // that we don't accidentally disconnect SCO in this case (thinking that we're disconnecting
+        // the first HFP device).
+        mController.setScoAudioConnectedDevice(scoDevice);
+        mController.sendMessageWithSessionInfo(BT_ACTIVE_DEVICE_PRESENT,
+                AudioRoute.TYPE_BLUETOOTH_SCO, scoDevice.getAddress());
+        expectedState = new CallAudioState(false, CallAudioState.ROUTE_BLUETOOTH,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH
+                        | CallAudioState.ROUTE_SPEAKER, scoDevice, BLUETOOTH_DEVICES);
+        // Verify routing goes to the new HFP device and we never disconnect SCO when clearing the
+        // original pending route.
+        verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
+                any(CallAudioState.class), eq(expectedState));
+        verify(mBluetoothDeviceManager, timeout(TEST_TIMEOUT).times(0)).disconnectSco();
     }
 
     private void verifyConnectBluetoothDevice(int audioType) {
