@@ -70,12 +70,14 @@ public class CallsManagerCallSequencingAdapter {
      * (mIsCallSequencingEnabled) is enabled.
      * @param incomingCall The incoming call that should be answered.
      * @param videoState The video state configuration associated with the call.
+     * @param requestOrigin The origin of the request.
      */
-    public void answerCall(Call incomingCall, int videoState) {
+    public void answerCall(Call incomingCall, int videoState,
+            @CallsManager.RequestOrigin int requestOrigin) {
         if (mIsCallSequencingEnabled && !incomingCall.isTransactionalCall()) {
-            mSequencingController.answerCall(incomingCall, videoState);
+            mSequencingController.answerCall(incomingCall, videoState, requestOrigin);
         } else {
-            mCallsManager.answerCallOld(incomingCall, videoState);
+            mCallsManager.answerCallOld(incomingCall, videoState, requestOrigin);
         }
     }
 

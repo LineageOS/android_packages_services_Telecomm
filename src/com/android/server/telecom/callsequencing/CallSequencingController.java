@@ -169,11 +169,16 @@ public class CallSequencingController {
      * sequencing provided that the calls that are being manipulated are across phone accounts.
      * @param incomingCall The incoming call to be answered.
      * @param videoState The video state configuration for the provided call.
+     * @param requestOrigin The origin of the request to answer the call; this can impact sequencing
+     *                      decisions as requests that Telecom makes can override rules we have set
+     *                      for actions which originate from outside.
      */
-    public void answerCall(Call incomingCall, int videoState) {
+    public void answerCall(Call incomingCall, int videoState,
+            @CallsManager.RequestOrigin int requestOrigin) {
         Log.i(this, "answerCall: Beginning call sequencing transaction for answering "
                 + "incoming call.");
-        holdActiveCallForNewCallWithSequencing(incomingCall).thenComposeAsync((result) -> {
+        holdActiveCallForNewCallWithSequencing(incomingCall, requestOrigin)
+                .thenComposeAsync((result) -> {
                 if (result) {
                     mCallsManager.requestFocusActionAnswerCall(incomingCall, videoState);
                 } else {
@@ -190,7 +195,8 @@ public class CallSequencingController {
      * @param call The self-managed call that's waiting to go active.
      */
     public void handleSetSelfManagedCallActive(Call call) {
-        holdActiveCallForNewCallWithSequencing(call).thenComposeAsync((result) -> {
+        holdActiveCallForNewCallWithSequencing(call, CallsManager.REQUEST_ORIGIN_UNKNOWN)
+                .thenComposeAsync((result) -> {
                 if (result) {
                     Log.i(this, "markCallAsActive: requesting focus for self managed call "
                             + "before setting active.");
@@ -218,7 +224,7 @@ public class CallSequencingController {
      */
     public void transactionHoldPotentialActiveCallForNewCallSequencing(
             Call newCall, OutcomeReceiver<Boolean, CallException> callback) {
-        holdActiveCallForNewCallWithSequencing(newCall)
+        holdActiveCallForNewCallWithSequencing(newCall, CallsManager.REQUEST_ORIGIN_UNKNOWN)
                 .thenComposeAsync((result) -> {
                     if (result) {
                         // Either we were able to hold the active call or the active call was
@@ -245,13 +251,14 @@ public class CallSequencingController {
      * Attempts to hold the active call so that the provided call can go active. This is done via
      * call sequencing and the resulting future is an indication of whether that request
      * has succeeded.
+     *
      * @param call The call that's waiting to go active.
      * @return The {@link CompletableFuture} indicating the result of whether the
-     *         active call was able to be held (if applicable).
+     * active call was able to be held (if applicable).
      */
     @VisibleForTesting
     public CompletableFuture<Boolean> holdActiveCallForNewCallWithSequencing(
-            Call call) {
+            Call call, int requestOrigin) {
         Call activeCall = (Call) mCallsManager.getConnectionServiceFocusManager()
                 .getCurrentFocusCall();
         Log.i(this, "holdActiveCallForNewCallWithSequencing, newCall: %s, "
@@ -292,8 +299,14 @@ public class CallSequencingController {
                     // and the held call is a carrier call, then disconnect the held call. The
                     // idea is that if we have a held carrier call and the incoming call is a
                     // VOIP call, we don't want to force the carrier call to auto-disconnect).
-                    if (isManagedCall(heldCall) && isVoipCall(call)) {
+                    // Note: If the origin of this request was from the Telecom call incoming call
+                    // disambiguation notification, we will allow the request to continue.
+                    if (isManagedCall(heldCall) && isVoipCall(call) && requestOrigin
+                            != CallsManager.REQUEST_ORIGIN_TELECOM_DISAMBIGUATION) {
                         // Otherwise, fail the transaction.
+                        Log.w(this, "holdActiveCallForNewCallWithSequencing: ignoring request to "
+                                + "disconnect carrier call %s for voip call %s.", activeCall,
+                                heldCall);
                         return CompletableFuture.completedFuture(false);
                     } else {
                         isSequencingRequiredHeldAndActive = !arePhoneAccountsSame(

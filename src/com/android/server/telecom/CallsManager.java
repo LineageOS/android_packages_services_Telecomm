@@ -42,6 +42,7 @@ import static android.telecom.TelecomManager.SHORT_CALL_TIME_MS;
 import static android.telecom.TelecomManager.VERY_SHORT_CALL_TIME_MS;
 
 import android.Manifest;
+import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
@@ -155,6 +156,8 @@ import com.android.server.telecom.callsequencing.voip.VoipCallMonitor;
 import com.android.server.telecom.callsequencing.TransactionManager;
 import com.android.server.telecom.callsequencing.voip.VoipCallMonitorLegacy;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -189,6 +192,23 @@ import java.util.stream.Stream;
  */
 public class CallsManager extends Call.ListenerBase
         implements VideoProviderProxy.Listener, CallFilterResultCallback, CurrentUserProxy {
+    /**
+     * The origin of the request is not known.
+     */
+    public static final int REQUEST_ORIGIN_UNKNOWN = -1;
+
+    /**
+     * The request originated from a Telecom-provided disambiguation.
+     */
+    public static final int REQUEST_ORIGIN_TELECOM_DISAMBIGUATION = 1;
+
+    /**
+     * @hide
+     */
+    @IntDef(prefix = { "REQUEST_ORIGIN_" },
+            value = {REQUEST_ORIGIN_UNKNOWN, REQUEST_ORIGIN_TELECOM_DISAMBIGUATION})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface RequestOrigin {}
 
     // TODO: Consider renaming this CallsManagerPlugin.
     @VisibleForTesting
@@ -2429,16 +2449,19 @@ public class CallsManager extends Call.ListenerBase
                                     "needs account selection");
                             // Create our own instance to modify (since extras may be Bundle.EMPTY)
                             Bundle newExtras = new Bundle(extras);
-                            List<PhoneAccountHandle> accountsFromSuggestions = accountSuggestions
+                            ArrayList<PhoneAccountHandle> accountsFromSuggestions =
+                                    accountSuggestions
                                     .stream()
                                     .map(PhoneAccountSuggestion::getPhoneAccountHandle)
-                                    .collect(Collectors.toList());
-                            newExtras.putParcelableList(
+                                    .collect(Collectors.toCollection(ArrayList::new));
+                            newExtras.putParcelableArrayList(
                                     android.telecom.Call.AVAILABLE_PHONE_ACCOUNTS,
                                     accountsFromSuggestions);
-                            newExtras.putParcelableList(
+                            ArrayList<PhoneAccountSuggestion> accountSuggestionArrayList =
+                                    new ArrayList<>(accountSuggestions);
+                            newExtras.putParcelableArrayList(
                                     android.telecom.Call.EXTRA_SUGGESTED_PHONE_ACCOUNTS,
-                                    accountSuggestions);
+                                    accountSuggestionArrayList);
                             // Set a future in place so that we can proceed once the dialer replies.
                             mPendingAccountSelection.put(callToPlace.getId(),
                                     new CompletableFuture<>());
@@ -3277,19 +3300,32 @@ public class CallsManager extends Call.ListenerBase
     }
 
     /**
+     * Similar to {@link #answerCall(Call, int, int)}, instructs Telecom to answer the specified
+     * call.  This prototype assumes that the origin of the request is
+     * {@link #REQUEST_ORIGIN_UNKNOWN} for the time being.  In most cases this is likely a user
+     * request to answer a call, but could be internal to Telecom.
+     * @param call The call to answer.
+     * @param videoState The video state in which to answer the call.
+     */
+    public void answerCall(Call call, int videoState) {
+        answerCall(call, videoState, REQUEST_ORIGIN_UNKNOWN);
+    }
+
+    /**
      * Instructs Telecom to answer the specified call. Intended to be invoked by the in-call
      * app through {@link InCallAdapter} after Telecom notifies it of an incoming call followed by
      * the user opting to answer said call.
      *
      * @param call The call to answer.
      * @param videoState The video state in which to answer the call.
+     * @param requestOrigin The origin of the request being made.
      */
     @VisibleForTesting
-    public void answerCall(Call call, int videoState) {
+    public void answerCall(Call call, int videoState, @RequestOrigin int requestOrigin) {
         if (!mCalls.contains(call)) {
             Log.i(this, "Request to answer a non-existent call %s", call);
         }
-        mCallSequencingAdapter.answerCall(call, videoState);
+        mCallSequencingAdapter.answerCall(call, videoState, requestOrigin);
     }
 
     /**
@@ -3302,7 +3338,7 @@ public class CallsManager extends Call.ListenerBase
      * <p>
      * Note: This is only used when {@link FeatureFlags#enableCallSequencing()} is false.
      */
-    public void answerCallOld(Call call, int videoState) {
+    public void answerCallOld(Call call, int videoState, @RequestOrigin int requestOrigin) {
         if (call.isTransactionalCall()) {
             // InCallAdapter is requesting to answer the given transactioanl call. Must get an ack
             // from the client via a transaction before answering.
