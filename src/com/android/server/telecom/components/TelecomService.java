@@ -190,7 +190,7 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                             new Timeouts.Adapter(),
                             new AsyncRingtonePlayer(),
                             new PhoneNumberUtilsAdapterImpl(),
-                            new IncomingCallNotifier(context),
+                            new IncomingCallNotifier(context, featureFlags),
                             ToneGenerator::new,
                             new CallAudioRouteStateMachine.Factory(),
                             new CallAudioModeStateMachine.Factory(),
@@ -242,7 +242,7 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                 public void updateEmergencyCallNotification(Context context,
                                         boolean showNotification) {
                                     BlockedNumbersUtil.updateEmergencyCallNotification(context,
-                                            showNotification);
+                                            showNotification, featureFlags);
                                 }
                             },
                             featureFlags,

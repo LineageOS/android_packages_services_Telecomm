@@ -17,7 +17,6 @@
 package com.android.server.telecom.settings;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -35,6 +34,7 @@ import android.widget.Toast;
 
 import com.android.server.telecom.R;
 import com.android.server.telecom.SystemSettingsUtil;
+import com.android.server.telecom.UserUtil;
 import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.ui.NotificationChannelManager;
 
@@ -91,9 +91,8 @@ public final class BlockedNumbersUtil {
      * @param context context to start CallBlockDisabledActivity.
      * @param showNotification if {@code true} show notification, {@code false} cancel notification.
      */
-    public static void updateEmergencyCallNotification(Context context, boolean showNotification) {
-        NotificationManager notificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+    public static void updateEmergencyCallNotification(Context context, boolean showNotification,
+            FeatureFlags featureFlags) {
         if (showNotification) {
             Intent intent = new Intent(context, CallBlockDisabledActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(
@@ -115,11 +114,11 @@ public final class BlockedNumbersUtil {
                     .build();
 
             notification.flags |= Notification.FLAG_NO_CLEAR;
-            notificationManager.notifyAsUser(null /* tag */ , EMERGENCY_CALL_NOTIFICATION,
-                    notification, new UserHandle(UserHandle.USER_OWNER));
+            UserUtil.processNotification(context, new UserHandle(UserHandle.USER_SYSTEM), null,
+                    EMERGENCY_CALL_NOTIFICATION, notification, featureFlags);
         } else {
-            notificationManager.cancelAsUser(null /* tag */ , EMERGENCY_CALL_NOTIFICATION,
-                    new UserHandle(UserHandle.USER_OWNER));
+            UserUtil.processNotification(context, new UserHandle(UserHandle.USER_SYSTEM), null,
+                    EMERGENCY_CALL_NOTIFICATION, null /* notification */, featureFlags);
         }
     }
 

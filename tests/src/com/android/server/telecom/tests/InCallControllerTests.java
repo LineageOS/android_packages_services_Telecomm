@@ -232,8 +232,6 @@ public class InCallControllerTests extends TelecomTestCase {
         mEmergencyCallHelper = new EmergencyCallHelper(mMockContext, mDefaultDialerCache,
                 mTimeoutsAdapter, mFeatureFlags);
         when(mMockCallsManager.getRoleManagerAdapter()).thenReturn(mMockRoleManagerAdapter);
-        when(mMockContext.getSystemService(eq(Context.NOTIFICATION_SERVICE)))
-                .thenReturn(mNotificationManager);
         when(mMockContext.getSystemService(eq(PermissionCheckerManager.class)))
                 .thenReturn(mMockPermissionCheckerManager);
         when(mMockPackageManager.getPermissionInfo(anyString(), anyInt())).thenReturn(
@@ -322,11 +320,14 @@ public class InCallControllerTests extends TelecomTestCase {
                 .thenReturn(mMockCreateContextAsUser);
         when(mMockCreateContextAsUser.getSystemService(eq(UserManager.class)))
                 .thenReturn(mMockCurrentUserManager);
+        when(mMockCreateContextAsUser.getSystemService(eq(NotificationManager.class)))
+                .thenReturn(mNotificationManager);
         // Mock user info to allow binding on user stored in the phone account (mUserHandle).
         when(mFeatureFlags.separatelyBindToBtIncallService()).thenReturn(false);
         when(mFeatureFlags.telecomResolveHiddenDependencies()).thenReturn(true);
         when(mMockCurrentUserManager.isManagedProfile()).thenReturn(true);
         when(mFeatureFlags.profileUserSupport()).thenReturn(false);
+        when(mFeatureFlags.resolveHiddenDependenciesTwo()).thenReturn(true);
     }
 
     @Override
@@ -943,9 +944,8 @@ public class InCallControllerTests extends TelecomTestCase {
         // verify(mockInCallService).setInCallAdapter(any(IInCallAdapter.class));
         serviceConnection.onNullBinding(defDialerComponentName);
 
-        verify(mNotificationManager).notifyAsUser(eq(NOTIFICATION_TAG),
-                eq(IN_CALL_SERVICE_NOTIFICATION_ID), any(Notification.class),
-                eq(mUserHandle));
+        verify(mNotificationManager).notify(eq(NOTIFICATION_TAG),
+                eq(IN_CALL_SERVICE_NOTIFICATION_ID), any(Notification.class));
         verify(mCallInfo).addInCallService(eq(defDialerComponentName.flattenToShortString()),
                 anyInt(), anyLong(), eq(true));
 
@@ -1452,10 +1452,9 @@ public class InCallControllerTests extends TelecomTestCase {
         verifyBinding(bindIntentCaptor, 0, NONUI_PKG, NONUI_CLASS);
 
         // Verify notification is not sent by NotificationManager
-        verify(mNotificationManager, times(0)).notifyAsUser(
+        verify(mNotificationManager, times(0)).notify(
                 eq(InCallController.NOTIFICATION_TAG),
-                eq(InCallController.IN_CALL_SERVICE_NOTIFICATION_ID), any(),
-                eq(mUserHandle));
+                eq(InCallController.IN_CALL_SERVICE_NOTIFICATION_ID), any());
     }
 
     @MediumTest

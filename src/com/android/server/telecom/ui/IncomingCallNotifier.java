@@ -17,7 +17,6 @@
 package com.android.server.telecom.ui;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -40,7 +39,9 @@ import com.android.server.telecom.CallsManagerListenerBase;
 import com.android.server.telecom.HandoverState;
 import com.android.server.telecom.R;
 import com.android.server.telecom.TelecomBroadcastIntentProcessor;
+import com.android.server.telecom.UserUtil;
 import com.android.server.telecom.components.TelecomBroadcastReceiver;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -83,17 +84,16 @@ public class IncomingCallNotifier extends CallsManagerListenerBase {
     };
 
     private final Context mContext;
-    private final NotificationManager mNotificationManager;
+    private final FeatureFlags mFeatureFlags;
     private final Set<Call> mCalls = new ArraySet<>();
     private CallsManagerProxy mCallsManagerProxy;
 
     // The current incoming call we are displaying UX for.
     private Call mIncomingCall;
 
-    public IncomingCallNotifier(Context context) {
+    public IncomingCallNotifier(Context context, FeatureFlags featureFlags) {
         mContext = context;
-        mNotificationManager =
-                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        mFeatureFlags = featureFlags;
     }
 
     public void setCallsManagerProxy(CallsManagerProxy callsManagerProxy) {
@@ -179,14 +179,14 @@ public class IncomingCallNotifier extends CallsManagerListenerBase {
 
         Notification.Builder builder = getNotificationBuilder(call,
                 mCallsManagerProxy.getActiveCall());
-        mNotificationManager.notifyAsUser(NOTIFICATION_TAG, NOTIFICATION_INCOMING_CALL,
-                builder.build(), call.getAssociatedUser());
+        UserUtil.processNotification(mContext, call.getAssociatedUser(), NOTIFICATION_TAG,
+                NOTIFICATION_INCOMING_CALL, builder.build(), mFeatureFlags);
     }
 
     private void hideIncomingCallNotification(UserHandle userHandle) {
         Log.i(this, "hideIncomingCallNotification for user = %s", userHandle);
-        mNotificationManager.cancelAsUser(NOTIFICATION_TAG, NOTIFICATION_INCOMING_CALL,
-                userHandle);
+        UserUtil.processNotification(mContext, userHandle, NOTIFICATION_TAG,
+                NOTIFICATION_INCOMING_CALL, null /* notification */, mFeatureFlags);
     }
 
     private String getNotificationName(Call call) {

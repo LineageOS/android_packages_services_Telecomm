@@ -647,6 +647,8 @@ public class RingerTest extends TelecomTestCase {
         mRingerUnderTest.startCallWaiting(mockCall1);
         Ringtone mockRingtone = ensureRingtoneMocked();
         when(mockNotificationManager.getZenMode()).thenReturn(ZEN_MODE_IMPORTANT_INTERRUPTIONS);
+        when(mockNotificationManager.getCurrentInterruptionFilter()).thenReturn(
+                NotificationManager.INTERRUPTION_FILTER_PRIORITY);
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_SILENT);
         when(mockAudioManager.getStreamVolume(AudioManager.STREAM_RING)).thenReturn(100);
         enableVibrationWhenRinging();

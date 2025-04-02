@@ -347,7 +347,7 @@ public class TelecomSystem {
                     );
 
             AudioProcessingNotification audioProcessingNotification =
-                    new AudioProcessingNotification(mContext);
+                    new AudioProcessingNotification(mContext, mFeatureFlags);
 
             ToastFactory toastFactory = new ToastFactory() {
                 @Override
@@ -391,7 +391,8 @@ public class TelecomSystem {
             CallStreamingNotification callStreamingNotification =
                     new CallStreamingNotification(mContext,
                             (packageName, userHandle) -> AppLabelProxy.Util.getAppLabel(mContext,
-                                    userHandle, packageName, mFeatureFlags), asyncTaskExecutor);
+                                    userHandle, packageName, mFeatureFlags), asyncTaskExecutor,
+                            mFeatureFlags);
 
             mCallsManager = new CallsManager(
                     mContext,

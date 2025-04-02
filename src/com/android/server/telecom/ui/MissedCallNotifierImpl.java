@@ -23,7 +23,6 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.BroadcastOptions;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.app.admin.DevicePolicyManager;
@@ -65,6 +64,7 @@ import com.android.server.telecom.CallsManagerListenerBase;
 import com.android.server.telecom.Constants;
 import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.DeviceIdleControllerAdapter;
+import com.android.server.telecom.UserUtil;
 import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.MissedCallNotifier;
 import com.android.server.telecom.PhoneAccountRegistrar;
@@ -134,7 +134,6 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
 
     private final Context mContext;
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
-    private final NotificationManager mNotificationManager;
     private final NotificationBuilderFactory mNotificationBuilderFactory;
     private final DefaultDialerCache mDefaultDialerCache;
     private final DeviceIdleControllerAdapter mDeviceIdleControllerAdapter;
@@ -164,8 +163,6 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
             FeatureFlags featureFlags) {
         mContext = context;
         mPhoneAccountRegistrar = phoneAccountRegistrar;
-        mNotificationManager =
-                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         mDeviceIdleControllerAdapter = deviceIdleControllerAdapter;
         mDefaultDialerCache = defaultDialerCache;
 
@@ -438,8 +435,8 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
         Log.i(this, "Adding missed call notification for %s.", Log.pii(callInfo.getHandle()));
         long token = Binder.clearCallingIdentity();
         try {
-            mNotificationManager.notifyAsUser(
-                    NOTIFICATION_TAG, MISSED_CALL_NOTIFICATION_ID, notification, userHandle);
+            UserUtil.processNotification(mContext, userHandle, NOTIFICATION_TAG,
+                    MISSED_CALL_NOTIFICATION_ID, notification, mFeatureFlags);
         } finally {
             Binder.restoreCallingIdentity(token);
         }
@@ -462,8 +459,8 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
 
         long token = Binder.clearCallingIdentity();
         try {
-            mNotificationManager.cancelAsUser(NOTIFICATION_TAG, MISSED_CALL_NOTIFICATION_ID,
-                    userHandle);
+            UserUtil.processNotification(mContext, userHandle, NOTIFICATION_TAG,
+                    MISSED_CALL_NOTIFICATION_ID, null /* notification */, mFeatureFlags);
         } finally {
             Binder.restoreCallingIdentity(token);
         }

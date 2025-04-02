@@ -672,7 +672,8 @@ public class CallsManager extends Call.ListenerBase
         mPhoneAccountRegistrar = phoneAccountRegistrar;
         mPhoneAccountRegistrar.addListener(mPhoneAccountListener);
         mMissedCallNotifier = missedCallNotifier;
-        mDisconnectedCallNotifier = disconnectedCallNotifierFactory.create(mContext, this);
+        mDisconnectedCallNotifier = disconnectedCallNotifierFactory.create(mContext, this,
+                featureFlags);
         StatusBarNotifier statusBarNotifier = new StatusBarNotifier(context, this);
         mWiredHeadsetManager = wiredHeadsetManager;
         mSystemStateHelper = systemStateHelper;
@@ -778,7 +779,7 @@ public class CallsManager extends Call.ListenerBase
             mCallRecordingTonePlayer = null;
         } else {
             mCallRecordingTonePlayer = new CallRecordingTonePlayer(mContext, audioManager,
-                    mTimeoutsAdapter, mLock);
+                    mTimeoutsAdapter, mLock, featureFlags);
         }
         mCallAudioManager = new CallAudioManager(mCallAudioRouteAdapter,
                 this, callAudioModeStateMachineFactory.create(systemStateHelper,
@@ -2449,19 +2450,34 @@ public class CallsManager extends Call.ListenerBase
                                     "needs account selection");
                             // Create our own instance to modify (since extras may be Bundle.EMPTY)
                             Bundle newExtras = new Bundle(extras);
-                            ArrayList<PhoneAccountHandle> accountsFromSuggestions =
-                                    accountSuggestions
-                                    .stream()
-                                    .map(PhoneAccountSuggestion::getPhoneAccountHandle)
-                                    .collect(Collectors.toCollection(ArrayList::new));
-                            newExtras.putParcelableArrayList(
-                                    android.telecom.Call.AVAILABLE_PHONE_ACCOUNTS,
-                                    accountsFromSuggestions);
-                            ArrayList<PhoneAccountSuggestion> accountSuggestionArrayList =
-                                    new ArrayList<>(accountSuggestions);
-                            newExtras.putParcelableArrayList(
-                                    android.telecom.Call.EXTRA_SUGGESTED_PHONE_ACCOUNTS,
-                                    accountSuggestionArrayList);
+                            if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                                ArrayList<PhoneAccountHandle> accountsFromSuggestions =
+                                        accountSuggestions
+                                                .stream()
+                                                .map(PhoneAccountSuggestion::getPhoneAccountHandle)
+                                                .collect(Collectors.toCollection(ArrayList::new));
+                                newExtras.putParcelableArrayList(
+                                        android.telecom.Call.AVAILABLE_PHONE_ACCOUNTS,
+                                        accountsFromSuggestions);
+                                ArrayList<PhoneAccountSuggestion> accountSuggestionArrayList =
+                                        new ArrayList<>(accountSuggestions);
+                                newExtras.putParcelableArrayList(
+                                        android.telecom.Call.EXTRA_SUGGESTED_PHONE_ACCOUNTS,
+                                        accountSuggestionArrayList);
+                            } else {
+                                // Legacy path:
+                                List<PhoneAccountHandle> accountsFromSuggestions =
+                                        accountSuggestions
+                                        .stream()
+                                        .map(PhoneAccountSuggestion::getPhoneAccountHandle)
+                                        .collect(Collectors.toList());
+                                newExtras.putParcelableList(
+                                        android.telecom.Call.AVAILABLE_PHONE_ACCOUNTS,
+                                        accountsFromSuggestions);
+                                newExtras.putParcelableList(
+                                        android.telecom.Call.EXTRA_SUGGESTED_PHONE_ACCOUNTS,
+                                        accountSuggestions);
+                            }
                             // Set a future in place so that we can proceed once the dialer replies.
                             mPendingAccountSelection.put(callToPlace.getId(),
                                     new CompletableFuture<>());

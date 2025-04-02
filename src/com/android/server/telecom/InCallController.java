@@ -25,7 +25,6 @@ import android.annotation.Nullable;
 import android.app.AppOpsManager;
 import android.app.KeyguardManager;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.AttributionSource;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -302,7 +301,6 @@ public class InCallController extends CallsManagerListenerBase implements
         private boolean mIsConnected = false;
         private boolean mIsBound = false;
         private boolean mIsNullBinding = false;
-        private NotificationManager mNotificationManager;
 
         //this is really used for cases where the userhandle for a call
         //does not match what we want to use for bindAsUser
@@ -3322,8 +3320,6 @@ public class InCallController extends CallsManagerListenerBase implements
         } catch (PackageManager.NameNotFoundException e) {
             appName = packageName;
         }
-        NotificationManager notificationManager = (NotificationManager) mContext
-                .getSystemService(Context.NOTIFICATION_SERVICE);
         Notification.Builder builder = new Notification.Builder(mContext,
                 NotificationChannelManager.CHANNEL_ID_IN_CALL_SERVICE_CRASH);
         builder.setSmallIcon(R.drawable.ic_phone)
@@ -3334,8 +3330,8 @@ public class InCallController extends CallsManagerListenerBase implements
                 .setStyle(new Notification.BigTextStyle()
                         .bigText(mContext.getText(
                                 R.string.notification_incallservice_not_responding_body)));
-        notificationManager.notifyAsUser(NOTIFICATION_TAG, IN_CALL_SERVICE_NOTIFICATION_ID,
-                builder.build(), userHandle);
+        UserUtil.processNotification(mContext, userHandle, NOTIFICATION_TAG,
+                IN_CALL_SERVICE_NOTIFICATION_ID, builder.build(), mFeatureFlags);
     }
 
     private void updateCallTracking(Call call, InCallServiceInfo info, boolean isAdd) {

@@ -29,6 +29,7 @@ import android.provider.MediaStore;
 import android.telecom.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -91,7 +92,11 @@ public class CallRecordingTonePlayer extends CallsManagerListenerBase {
             if (telephonyDevice != null) {
                 mRecordingTonePlayer = MediaPlayer.create(mContext, R.raw.record);
                 mRecordingTonePlayer.setPreferredDevice(telephonyDevice);
-                mRecordingTonePlayer.setVolume(0.1f);
+                if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                    mRecordingTonePlayer.setVolume(0.1f, 0.1f);
+                } else {
+                    mRecordingTonePlayer.setVolume(0.1f);
+                }
                 AudioAttributes audioAttributes = new AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION).build();
                 mRecordingTonePlayer.setAudioAttributes(audioAttributes);
@@ -117,16 +122,18 @@ public class CallRecordingTonePlayer extends CallsManagerListenerBase {
     private final long mRepeatInterval;
     private boolean mIsRecording = false;
     private LoopingTonePlayer mLoopingTonePlayer;
+    private FeatureFlags mFeatureFlags;
     private List<Call> mCalls = new ArrayList<>();
 
     public CallRecordingTonePlayer(Context context, AudioManager audioManager,
             Timeouts.Adapter timeouts,
-            TelecomSystem.SyncRoot lock) {
+            TelecomSystem.SyncRoot lock, FeatureFlags featureFlags) {
         mContext = context;
         mAudioManager = audioManager;
         mLock = lock;
         mRepeatInterval = timeouts.getCallRecordingToneRepeatIntervalMillis(
                 context.getContentResolver());
+        mFeatureFlags = featureFlags;
     }
 
     @Override
