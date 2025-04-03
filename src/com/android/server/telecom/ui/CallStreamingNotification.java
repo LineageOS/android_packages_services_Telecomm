@@ -23,6 +23,7 @@ import android.app.PendingIntent;
 import android.app.Person;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
@@ -150,12 +151,31 @@ public class CallStreamingNotification extends CallsManagerListenerBase implemen
         mAsyncTaskExecutor.execute(() -> {
             Icon contactPhotoIcon = null;
             try {
-                contactPhotoIcon = Icon.createWithResource(mContext.getResources(),
-                        R.drawable.person_circle);
+                if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                    Resources resources = mContext.getResources();
+                    String resPackage = null;
+                    if (resources != null) {
+                        resPackage = resources.getResourcePackageName(R.drawable.person_circle);
+                    }
+                    if (resPackage != null) {
+                        contactPhotoIcon = Icon.createWithResource(
+                                resPackage, R.drawable.person_circle);
+                    } else {
+                        contactPhotoIcon = Icon.createWithResource(mContext,
+                                R.drawable.person_circle);
+                    }
+                } else {
+                    contactPhotoIcon = Icon.createWithResource(mContext.getResources(),
+                            R.drawable.person_circle);
+                }
             } catch (Exception e) {
                 // All loads of things can do wrong when working with bitmaps and images, so to
                 // ensure Telecom doesn't crash, lets try/catch to be sure.
                 Log.e(this, e, "enqueueStreamingNotification: Couldn't build avatar icon");
+            }
+            if (contactPhotoIcon == null) {
+                Log.e(this, new Exception(), "enqueueStreamingNotification: "
+                        + "contactPhotoIcon is null");
             }
             showStreamingNotification(call.getId(),
                     call.getAssociatedUser(), call.getCallerDisplayName(),

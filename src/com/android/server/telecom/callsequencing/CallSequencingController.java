@@ -429,7 +429,7 @@ public class CallSequencingController {
                         Log.w(this, "unholdCall: Unable to hold the active call (%s),"
                                         + " aborting swap to %s", activeCallId, call.getId(),
                                 call.getId());
-                        showErrorDialogForCannotHoldCall(call, false);
+                        showErrorDialogForCannotSwapCall(call);
                     } else {
                         Log.w(this, "unholdCall: %s is an emergency call, aborting swap to %s",
                                 activeCallId, call.getId());
@@ -1175,6 +1175,13 @@ public class CallSequencingController {
     private void showErrorDialogForOutgoingDuringRingingCall(Call call) {
         int resourceId = R.string.callFailed_already_ringing;
         String reason = " can't place outgoing call with an unanswered incoming call.";
+        showErrorDialogForFailedCall(call, null, resourceId, reason);
+    }
+
+    private void showErrorDialogForCannotSwapCall(Call call) {
+        int resourceId = R.string.callSwapFailed_unholdable_call;
+        String reason = " unable to swap the live call. Disconnect the call to switch to "
+                + "the held call.";
         showErrorDialogForFailedCall(call, null, resourceId, reason);
     }
 

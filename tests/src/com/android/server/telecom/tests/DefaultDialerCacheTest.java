@@ -18,6 +18,7 @@ package com.android.server.telecom.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.times;
@@ -67,24 +68,27 @@ public class DefaultDialerCacheTest extends TelecomTestCase {
     private DefaultDialerCache.DefaultDialerManagerAdapter mMockDefaultDialerManager;
     @Mock
     private RoleManagerAdapter mRoleManagerAdapter;
+    @Mock private Context mUserContext;
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
+        when(mFeatureFlags.resolveHiddenDependenciesTwo()).thenReturn(true);
+        when(mContext.createContextAsUser(any(UserHandle.class), anyInt()))
+                .thenReturn(mUserContext);
 
         ArgumentCaptor<BroadcastReceiver> packageReceiverCaptor =
                 ArgumentCaptor.forClass(BroadcastReceiver.class);
 
         mDefaultDialerCache = new DefaultDialerCache(
                 mContext, mMockDefaultDialerManager, mRoleManagerAdapter,
-                new TelecomSystem.SyncRoot() {
-                });
+                new TelecomSystem.SyncRoot() {}, mFeatureFlags);
 
-        verify(mContext, times(2)).registerReceiverAsUser(
-                packageReceiverCaptor.capture(), eq(UserHandle.ALL), any(IntentFilter.class),
-                isNull(), isNull());
+        verify(mUserContext, times(2)).registerReceiver(
+                packageReceiverCaptor.capture(), any(IntentFilter.class),
+                eq(Context.RECEIVER_NOT_EXPORTED));
         // Receive the first receiver that was captured, the package change receiver.
         mPackageChangeReceiver = packageReceiverCaptor.getAllValues().get(0);
 

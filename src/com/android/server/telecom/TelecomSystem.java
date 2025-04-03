@@ -243,7 +243,7 @@ public class TelecomSystem {
                 new DefaultDialerCache.DefaultDialerManagerAdapterImpl();
 
         DefaultDialerCache defaultDialerCache = new DefaultDialerCache(mContext,
-                defaultDialerAdapter, roleManagerAdapter, mLock);
+                defaultDialerAdapter, roleManagerAdapter, mLock, mFeatureFlags);
 
         Log.startSession("TS.init");
         // Wrap this in a try block to ensure session cleanup occurs in the case of error.
@@ -467,12 +467,22 @@ public class TelecomSystem {
                 asyncTaskExecutor, featureFlags);
             mCallsManager.setRespondViaSmsManager(mRespondViaSmsManager);
 
-            mContext.registerReceiverAsUser(mUserSwitchedReceiver, UserHandle.ALL,
-                    USER_SWITCHED_FILTER, null, null);
-            mContext.registerReceiverAsUser(mUserStartingReceiver, UserHandle.ALL,
-                    USER_STARTING_FILTER, null, null);
-            mContext.registerReceiverAsUser(mBootCompletedReceiver, UserHandle.ALL,
-                    BOOT_COMPLETE_FILTER, null, null);
+            Context userContext = mContext.createContextAsUser(UserHandle.ALL, 0);
+            if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                userContext.registerReceiver(mUserSwitchedReceiver, USER_SWITCHED_FILTER,
+                        Context.RECEIVER_NOT_EXPORTED);
+                userContext.registerReceiver(mUserStartingReceiver, USER_STARTING_FILTER,
+                        Context.RECEIVER_NOT_EXPORTED);
+                userContext.registerReceiver(mBootCompletedReceiver, BOOT_COMPLETE_FILTER,
+                        Context.RECEIVER_NOT_EXPORTED);
+            } else {
+                mContext.registerReceiverAsUser(mUserSwitchedReceiver, UserHandle.ALL,
+                        USER_SWITCHED_FILTER, null, null, Context.RECEIVER_NOT_EXPORTED);
+                mContext.registerReceiverAsUser(mUserStartingReceiver, UserHandle.ALL,
+                        USER_STARTING_FILTER, null, null, Context.RECEIVER_NOT_EXPORTED);
+                mContext.registerReceiverAsUser(mBootCompletedReceiver, UserHandle.ALL,
+                        BOOT_COMPLETE_FILTER, null, null, Context.RECEIVER_NOT_EXPORTED);
+            }
 
             // Set current user explicitly since USER_SWITCHED_FILTER intent can be missed at
             // startup

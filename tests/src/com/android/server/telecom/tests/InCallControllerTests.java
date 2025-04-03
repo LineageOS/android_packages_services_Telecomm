@@ -241,12 +241,14 @@ public class InCallControllerTests extends TelecomTestCase {
         mInCallController = new InCallController(mMockContext, mLock, mMockCallsManager,
                 mMockSystemStateHelper, mDefaultDialerCache, mTimeoutsAdapter,
                 mEmergencyCallHelper, mCarModeTracker, mClockProxy, mFeatureFlags);
+        when(mMockContext.createContextAsUser(any(UserHandle.class), eq(0)))
+                .thenReturn(mMockCreateContextAsUser);
         // Capture the broadcast receiver registered.
         doAnswer(invocation -> {
             mRegisteredReceiver = invocation.getArgument(0);
             return null;
-        }).when(mMockContext).registerReceiverAsUser(any(BroadcastReceiver.class),
-                any(), any(IntentFilter.class), any(), any());
+        }).when(mMockCreateContextAsUser).registerReceiver(any(BroadcastReceiver.class),
+                any(IntentFilter.class), any(), any());
 
         ArgumentCaptor<SystemStateHelper.SystemStateListener> systemStateListenerArgumentCaptor
                 = ArgumentCaptor.forClass(SystemStateHelper.SystemStateListener.class);
@@ -316,8 +318,6 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockContext.getSystemService(eq(Context.USER_SERVICE))).thenReturn(mMockUserManager);
         when(mMockContext.getSystemService(eq(UserManager.class)))
                 .thenReturn(mMockUserManager);
-        when(mMockContext.createContextAsUser(any(UserHandle.class), eq(0)))
-                .thenReturn(mMockCreateContextAsUser);
         when(mMockCreateContextAsUser.getSystemService(eq(UserManager.class)))
                 .thenReturn(mMockCurrentUserManager);
         when(mMockCreateContextAsUser.getSystemService(eq(NotificationManager.class)))

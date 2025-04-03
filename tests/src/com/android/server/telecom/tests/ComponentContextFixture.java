@@ -418,6 +418,13 @@ public class ComponentContextFixture implements TestFixture<Context> {
         }
 
         @Override
+        public Intent registerReceiverAsUser(BroadcastReceiver receiver, UserHandle handle,
+                IntentFilter filter, String broadcastPermission, Handler scheduler, int flags) {
+            mBroadcastReceivers.add(receiver);
+            return null;
+        }
+
+        @Override
         public void sendBroadcast(Intent intent) {
             // TODO -- need to ensure this is captured
         }

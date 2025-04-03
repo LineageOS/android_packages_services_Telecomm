@@ -2234,8 +2234,14 @@ public class InCallController extends CallsManagerListenerBase implements
 
         IntentFilter packageChangedFilter = new IntentFilter(Intent.ACTION_PACKAGE_CHANGED);
         packageChangedFilter.addDataScheme("package");
-        mContext.registerReceiverAsUser(mPackageChangedReceiver, UserHandle.ALL,
-                packageChangedFilter, null, null);
+        Context userContext = mContext.createContextAsUser(UserHandle.ALL, 0);
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            userContext.registerReceiver(mPackageChangedReceiver, packageChangedFilter,
+                    null, null);
+        } else {
+            mContext.registerReceiverAsUser(mPackageChangedReceiver, UserHandle.ALL,
+                    packageChangedFilter, null, null);
+        }
     }
 
     private void updateNonUiInCallServices(Call call) {

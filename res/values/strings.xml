@@ -429,6 +429,9 @@
     <!-- In-call screen: error message shown when the user attempts to place a call, but the live
          call cannot be held. -->
     <string name="callFailed_unholdable_call">Cannot place a call as there is an unholdable call. Disconnect the call prior to placing a new call.</string>
+    <!-- In-call screen: error message shown when the user attempts to place a call, but the live
+         call cannot be swapped with the held call. -->
+    <string name="callSwapFailed_unholdable_call">Cannot swap the active call because it does not support holding. Disconnect the call to make the held call active.</string>
     <!-- In-call screen: error message shown when the user has attempted to place a new outgoing
          call while there is already a call in ringing state. -->
     <string name="callFailed_already_ringing">Cannot place a call as there is an unanswered incoming call. Answer or reject the incoming call prior to placing a new call.</string>

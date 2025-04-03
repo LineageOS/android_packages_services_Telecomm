@@ -195,3 +195,14 @@ flag {
     purpose: PURPOSE_BUGFIX
   }
 }
+
+# OWNER=pmadapurmath TARGET=25Q3
+flag {
+  name: "maybe_default_speaker_after_unhold"
+  namespace: "telecom"
+  description: "If the call audio route was on speaker and the call is held/unheld, ensure that we route back to speaker."
+  bug: "406898224"
+  metadata {
+    purpose: PURPOSE_BUGFIX
+  }
+}
