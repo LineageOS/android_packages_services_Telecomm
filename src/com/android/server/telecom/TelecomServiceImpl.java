@@ -55,6 +55,7 @@ import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.permission.PermissionManager;
 import android.provider.BlockedNumberContract;
 import android.provider.BlockedNumbersManager;
 import android.provider.Settings;
@@ -175,6 +176,7 @@ public class TelecomServiceImpl {
     private final PackageManager mPackageManager;
     private final CallsManager mCallsManager;
     private TransactionManager mTransactionManager;
+    private final PermissionManager mPermissionManager;
     private final ITelecomService.Stub mBinderImpl = new ITelecomService.Stub() {
 
         @Override
@@ -1372,14 +1374,29 @@ public class TelecomServiceImpl {
                 Log.startSession("TSI.hMOCP", Log.getPackageAbbreviation(callingPackage));
                 enforceCallingPackage(callingPackage, "hasManageOngoingCallsPermission");
                 event.setResult(ApiStats.RESULT_NORMAL);
-                return PermissionChecker.checkPermissionForDataDeliveryFromDataSource(
-                        mContext, Manifest.permission.MANAGE_ONGOING_CALLS,
-                        Binder.getCallingPid(),
-                        new AttributionSource(mContext.getAttributionSource(),
-                                new AttributionSource(Binder.getCallingUid(),
-                                        callingPackage, /*attributionTag*/ null)),
-                        "Checking whether the caller has MANAGE_ONGOING_CALLS permission")
-                        == PermissionChecker.PERMISSION_GRANTED;
+                AttributionSource attributionSource;
+                if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                    // checkPermissionForPreflight is documented as useful for cases where you are
+                    // seeing if a permission is held, but you're not going to deliver data to the
+                    // app yet; that's what we'd expect here.
+                    int result = mPermissionManager.checkPermissionForPreflight(
+                            Manifest.permission.MANAGE_ONGOING_CALLS,
+                            new AttributionSource.Builder(Binder.getCallingUid())
+                                    .setPackageName(callingPackage).build());
+                    Log.i(this, "hasManageOngoingCallPermission: caller=%s; uid=%d, result=%d",
+                            callingPackage, Binder.getCallingUid(), result);
+                    return result == PermissionManager.PERMISSION_GRANTED;
+                } else {
+                    attributionSource = new AttributionSource(mContext.getAttributionSource(),
+                            new AttributionSource(Binder.getCallingUid(),
+                                    callingPackage, /*attributionTag*/ null));
+                    return PermissionChecker.checkPermissionForDataDeliveryFromDataSource(
+                            mContext, Manifest.permission.MANAGE_ONGOING_CALLS,
+                            Binder.getCallingPid(),
+                            attributionSource,
+                            "Checking whether the caller has MANAGE_ONGOING_CALLS permission")
+                            == PermissionChecker.PERMISSION_GRANTED;
+                }
             } finally {
                 logEvent(event);
                 Log.endSession();
@@ -2248,9 +2265,16 @@ public class TelecomServiceImpl {
                 // call is being made to a non-emergency number, the call will be denied later on
                 // by {@link UserCallIntentProcessor}.
 
-                final boolean hasCallAppOp = mAppOpsManager.noteOp(AppOpsManager.OP_CALL_PHONE,
-                        Binder.getCallingUid(), callingPackage, callingFeatureId, null)
-                        == AppOpsManager.MODE_ALLOWED;
+                final boolean hasCallAppOp;
+                if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                    hasCallAppOp = mAppOpsManager.noteOp(AppOpsManager.OPSTR_CALL_PHONE,
+                            Binder.getCallingUid(), callingPackage, callingFeatureId, null)
+                            == AppOpsManager.MODE_ALLOWED;
+                } else {
+                    hasCallAppOp = mAppOpsManager.noteOp(AppOpsManager.OP_CALL_PHONE,
+                            Binder.getCallingUid(), callingPackage, callingFeatureId, null)
+                            == AppOpsManager.MODE_ALLOWED;
+                }
 
                 final boolean hasCallPermission = mContext.checkCallingOrSelfPermission(CALL_PHONE)
                         == PackageManager.PERMISSION_GRANTED;
@@ -3034,6 +3058,7 @@ public class TelecomServiceImpl {
         mAppOpsManager = mContext.getSystemService(AppOpsManager.class);
 
         mPackageManager = mContext.getPackageManager();
+        mPermissionManager = mContext.getSystemService(PermissionManager.class);
 
         mCallsManager = callsManager;
         mFeatureFlags = featureFlags;
@@ -3105,11 +3130,17 @@ public class TelecomServiceImpl {
             final String permission = Manifest.permission.ANSWER_PHONE_CALLS;
             enforcePermission(permission);
 
-            final int opCode = AppOpsManager.permissionToOpCode(permission);
-            if (opCode != AppOpsManager.OP_NONE
-                    && mAppOpsManager.checkOp(opCode, uid, packageName)
-                    != AppOpsManager.MODE_ALLOWED) {
-                return false;
+            if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                return mAppOpsManager.checkOp(AppOpsManager.OPSTR_ANSWER_PHONE_CALLS, uid,
+                        packageName) == AppOpsManager.MODE_ALLOWED;
+
+            } else {
+                final int opCode = AppOpsManager.permissionToOpCode(permission);
+                if (opCode != AppOpsManager.OP_NONE
+                        && mAppOpsManager.checkOp(opCode, uid, packageName)
+                        != AppOpsManager.MODE_ALLOWED) {
+                    return false;
+                }
             }
         }
         return true;
@@ -3124,9 +3155,16 @@ public class TelecomServiceImpl {
         mContext.enforceCallingOrSelfPermission(Manifest.permission.ACCEPT_HANDOVER,
                 "App requires ACCEPT_HANDOVER permission to accept handovers.");
 
-        final int opCode = AppOpsManager.permissionToOpCode(Manifest.permission.ACCEPT_HANDOVER);
-        return opCode == AppOpsManager.OP_ACCEPT_HANDOVER
-                && (mAppOpsManager.checkOp(opCode, uid, packageName) == AppOpsManager.MODE_ALLOWED);
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            return mAppOpsManager.checkOp(AppOpsManager.OPSTR_ACCEPT_HANDOVER, uid, packageName)
+                    == AppOpsManager.MODE_ALLOWED;
+        } else {
+            final int opCode = AppOpsManager.permissionToOpCode(
+                    Manifest.permission.ACCEPT_HANDOVER);
+            return opCode == AppOpsManager.OP_ACCEPT_HANDOVER
+                    && (mAppOpsManager.checkOp(opCode, uid, packageName)
+                    == AppOpsManager.MODE_ALLOWED);
+        }
     }
 
     @VisibleForTesting
@@ -3524,8 +3562,15 @@ public class TelecomServiceImpl {
             mContext.enforceCallingOrSelfPermission(READ_PHONE_STATE, message);
 
             // Some apps that have the permission can be restricted via app ops.
-            return mAppOpsManager.noteOp(AppOpsManager.OP_READ_PHONE_STATE, Binder.getCallingUid(),
-                    callingPackage, callingFeatureId, message) == AppOpsManager.MODE_ALLOWED;
+            if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                return mAppOpsManager.noteOp(AppOpsManager.OPSTR_READ_PHONE_STATE,
+                        Binder.getCallingUid(),
+                        callingPackage, callingFeatureId, message) == AppOpsManager.MODE_ALLOWED;
+            } else {
+                return mAppOpsManager.noteOp(AppOpsManager.OP_READ_PHONE_STATE,
+                        Binder.getCallingUid(),
+                        callingPackage, callingFeatureId, message) == AppOpsManager.MODE_ALLOWED;
+            }
         }
     }
 
@@ -3643,9 +3688,15 @@ public class TelecomServiceImpl {
         mContext.enforceCallingOrSelfPermission(CALL_PHONE, message);
 
         // Some apps that have the permission can be restricted via app ops.
-        return mAppOpsManager.noteOp(AppOpsManager.OP_CALL_PHONE,
-                Binder.getCallingUid(), callingPackage, callingFeatureId, message)
-                == AppOpsManager.MODE_ALLOWED;
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            return mAppOpsManager.noteOp(AppOpsManager.OPSTR_CALL_PHONE, Binder.getCallingUid(),
+                    callingPackage, callingFeatureId, message)
+                    == AppOpsManager.MODE_ALLOWED;
+        } else {
+            return mAppOpsManager.noteOp(AppOpsManager.OP_CALL_PHONE,
+                    Binder.getCallingUid(), callingPackage, callingFeatureId, message)
+                    == AppOpsManager.MODE_ALLOWED;
+        }
     }
 
     private boolean canGetPhoneAccount(String callingPackage, PhoneAccountHandle accountHandle) {

@@ -72,6 +72,7 @@ import android.os.OutcomeReceiver;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.permission.PermissionManager;
 import android.telecom.CallAttributes;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
@@ -210,6 +211,7 @@ public class TelecomServiceImplTest extends TelecomTestCase {
     @Mock private TelecomMetricsController mMockTelecomMetricsController;
     @Mock private OutgoingCallTransaction mOutgoingCallTransaction;
     @Mock private IncomingCallTransaction mIncomingCallTransaction;
+    @Mock private PermissionManager mPermissionManager;
 
     private final TelecomSystem.SyncRoot mLock = new TelecomSystem.SyncRoot() { };
 

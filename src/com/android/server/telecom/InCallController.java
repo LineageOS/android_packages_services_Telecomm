@@ -47,6 +47,7 @@ import android.os.Parcel;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.permission.PermissionManager;
 import android.telecom.CallAudioState;
 import android.telecom.CallEndpoint;
 import android.telecom.ConnectionService;
@@ -1235,6 +1236,7 @@ public class InCallController extends CallsManagerListenerBase implements
 
     private final Context mContext;
     private final AppOpsManager mAppOpsManager;
+    private final PermissionManager mPermissionManager;
     private final SensorPrivacyManager mSensorPrivacyManager;
     private final TelecomSystem.SyncRoot mLock;
     private final CallsManager mCallsManager;
@@ -1320,6 +1322,7 @@ public class InCallController extends CallsManagerListenerBase implements
             com.android.internal.telephony.flags.FeatureFlags telephonyFeatureFlags) {
         mContext = context;
         mAppOpsManager = context.getSystemService(AppOpsManager.class);
+        mPermissionManager = context.getSystemService(PermissionManager.class);
         mSensorPrivacyManager = context.getSystemService(SensorPrivacyManager.class);
         mLock = lock;
         mCallsManager = callsManager;
@@ -1907,17 +1910,28 @@ public class InCallController extends CallsManagerListenerBase implements
             }
 
             if (shouldStart) {
-                // Note, not checking return value, as this op call is merely for tracing use
-                mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_CAMERA, myUid(),
-                        mContext.getOpPackageName(), false, null, null);
+                if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                    // Note, not checking return value, as this op call is merely for tracing use
+                    mAppOpsManager.startOp(AppOpsManager.OPSTR_PHONE_CALL_CAMERA, myUid(),
+                            mContext.getOpPackageName(), null, null);
+                } else {
+                    // Note, not checking return value, as this op call is merely for tracing use
+                    mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_CAMERA, myUid(),
+                            mContext.getOpPackageName(), false, null, null);
+                }
                 mSensorPrivacyManager.showSensorUseDialog(SensorPrivacyManager.Sensors.CAMERA);
             }
         } else {
             boolean hadCall = !mCallsUsingCamera.isEmpty();
             mCallsUsingCamera.remove(call.getId());
             if (hadCall && mCallsUsingCamera.isEmpty()) {
-                mAppOpsManager.finishOp(AppOpsManager.OP_PHONE_CALL_CAMERA, myUid(),
-                        mContext.getOpPackageName(), null);
+                if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                    mAppOpsManager.finishOp(AppOpsManager.OPSTR_PHONE_CALL_CAMERA, myUid(),
+                            mContext.getOpPackageName(), null);
+                } else {
+                    mAppOpsManager.finishOp(AppOpsManager.OP_PHONE_CALL_CAMERA, myUid(),
+                            mContext.getOpPackageName(), null);
+                }
             }
         }
     }
@@ -3247,12 +3261,22 @@ public class InCallController extends CallsManagerListenerBase implements
             int opPackageUid = getOpPackageUid();
             if (mIsCallUsingMicrophone) {
                 // Note, not checking return value, as this op call is merely for tracing use
-                mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_MICROPHONE, opPackageUid,
-                        mContext.getOpPackageName(), false, null, null);
+                if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                    mAppOpsManager.startOp(AppOpsManager.OPSTR_PHONE_CALL_MICROPHONE, opPackageUid,
+                            mContext.getOpPackageName(), null /* attribution */, null /* msg */);
+                } else {
+                    mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_MICROPHONE, opPackageUid,
+                            mContext.getOpPackageName(), false, null, null);
+                }
                 mSensorPrivacyManager.showSensorUseDialog(SensorPrivacyManager.Sensors.MICROPHONE);
             } else {
-                mAppOpsManager.finishOp(AppOpsManager.OP_PHONE_CALL_MICROPHONE, opPackageUid,
-                        mContext.getOpPackageName(), null);
+                if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                    mAppOpsManager.finishOp(AppOpsManager.OPSTR_PHONE_CALL_MICROPHONE, opPackageUid,
+                            mContext.getOpPackageName(), null /* attribution */);
+                } else {
+                    mAppOpsManager.finishOp(AppOpsManager.OP_PHONE_CALL_MICROPHONE, opPackageUid,
+                            mContext.getOpPackageName(), null);
+                }
             }
         }
     }
@@ -3301,13 +3325,29 @@ public class InCallController extends CallsManagerListenerBase implements
     }
 
     private boolean isAppOpsPermittedManageOngoingCalls(int uid, String callingPackage) {
-        return PermissionChecker.checkPermissionForDataDeliveryFromDataSource(mContext,
-                Manifest.permission.MANAGE_ONGOING_CALLS, PermissionChecker.PID_UNKNOWN,
-                        new AttributionSource(mContext.getAttributionSource(),
-                                new AttributionSource(uid, callingPackage,
-                                        /*attributionTag*/ null)), "Checking whether the app has"
-                                                + " MANAGE_ONGOING_CALLS permission")
-                                                        == PermissionChecker.PERMISSION_GRANTED;
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            // checkPermissionForDataDelivery is intended for use when we are checking the
+            // permission for the purpose of actually sending data to the recipient; this is in
+            // contrast to in TelecomServiceImpl#hasManageOngoingCallsPermission which calls
+            // checkPermissionForPreflight since that is not actually going to result in data
+            // delivery to the app.
+            int result = mPermissionManager.checkPermissionForDataDelivery(
+                    Manifest.permission.MANAGE_ONGOING_CALLS, new AttributionSource.Builder(uid)
+                            .setPackageName(callingPackage)
+                            .build(),
+                    "Reporting ongoing calls to app.");
+            Log.d(this, "isAppOpsPermittedManageOngoingCalls: uid=%d, pkg=%s, res=%d", uid,
+                    callingPackage, result);
+            return result == PermissionManager.PERMISSION_GRANTED;
+        } else {
+            return PermissionChecker.checkPermissionForDataDeliveryFromDataSource(mContext,
+                    Manifest.permission.MANAGE_ONGOING_CALLS, PermissionChecker.PID_UNKNOWN,
+                    new AttributionSource(mContext.getAttributionSource(),
+                            new AttributionSource(uid, callingPackage,
+                                    /*attributionTag*/ null)), "Checking whether the app has"
+                            + " MANAGE_ONGOING_CALLS permission")
+                    == PermissionChecker.PERMISSION_GRANTED;
+        }
     }
 
     private void sendCrashedInCallServiceNotification(String packageName, UserHandle userHandle) {

@@ -78,6 +78,7 @@ import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.permission.PermissionCheckerManager;
+import android.permission.PermissionManager;
 import android.telecom.CallAudioState;
 import android.telecom.CallEndpoint;
 import android.telecom.InCallService;
@@ -160,6 +161,7 @@ public class InCallControllerTests extends TelecomTestCase {
     @Mock Context mMockCreateContextAsUser;
     @Mock UserManager mMockCurrentUserManager;
     @Mock CallEndpointController mMockCallEndpointController;
+    @Mock PermissionManager mPermissionManager;
 
     @Rule
     public TestRule compatChangeRule = new PlatformCompatChangeRule();
@@ -221,6 +223,7 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.getId()).thenReturn("TC@1");
         doReturn(mMockResources).when(mMockContext).getResources();
         doReturn(mMockAppOpsManager).when(mMockContext).getSystemService(AppOpsManager.class);
+        doReturn(mPermissionManager).when(mMockContext).getSystemService(PermissionManager.class);
         doReturn(SYS_PKG).when(mMockResources).getString(
                 com.android.internal.R.string.config_defaultDialer);
         doReturn(SYS_CLASS).when(mMockResources).getString(R.string.incall_default_class);
