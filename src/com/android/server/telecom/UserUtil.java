@@ -16,6 +16,8 @@
 
 package com.android.server.telecom;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.Intent;
@@ -166,5 +168,29 @@ public final class UserUtil {
         // If target phone account handle is null or account cannot be found,
         // return the current user.
         return currentUser;
+    }
+
+    public static void processNotification(Context context, UserHandle userHandle, String tag,
+            int id, Notification notification, FeatureFlags featureFlags) {
+        if (featureFlags.resolveHiddenDependenciesTwo()) {
+            Context userContext = context.createContextAsUser(userHandle, 0);
+            NotificationManager userNotificationMgr = userContext.getSystemService(
+                    NotificationManager.class);
+            if (userNotificationMgr != null) {
+                if (notification != null) {
+                    userNotificationMgr.notify(tag, id, notification);
+                } else {
+                    userNotificationMgr.cancel(tag, id);
+                }
+            }
+        } else {
+            NotificationManager notificationMgr = (NotificationManager) context.getSystemService(
+                    Context.NOTIFICATION_SERVICE);
+            if (notification != null) {
+                notificationMgr.notifyAsUser(tag, id, notification, userHandle);
+            } else {
+                notificationMgr.cancelAsUser(tag, id, userHandle);
+            }
+        }
     }
 }

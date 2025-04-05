@@ -443,22 +443,22 @@ public class AudioRoute {
         }
 
         int result = BluetoothStatusCodes.SUCCESS;
-        if (pendingAudioRoute.getCommunicationDeviceType() == TYPE_BLUETOOTH_SCO
-                && !mIsScoManagedByAudio) {
+        boolean shouldDisconnectSco = !mIsScoManagedByAudio
+                && pendingAudioRoute.getCommunicationDeviceType() == TYPE_BLUETOOTH_SCO;
+        if (shouldDisconnectSco) {
             Log.i(this, "Disconnecting SCO device via BluetoothHeadset.");
             result = bluetoothRouteManager.getDeviceManager().disconnectSco();
-        } else {
-            // Only clear communication device if the destination route will be inactive; route to
-            // route transitions do not require clearing the communication device.
-            boolean onlyClearCommunicationDeviceOnInactive =
-                    pendingAudioRoute.getFeatureFlags().onlyClearCommunicationDeviceOnInactive();
-            if (!onlyClearCommunicationDeviceOnInactive
-                    || (onlyClearCommunicationDeviceOnInactive && !pendingAudioRoute.isActive())) {
-                Log.i(this,
-                        "clearCommunicationDevice: AudioManager#clearCommunicationDevice, type=%s",
-                        DEVICE_TYPE_STRINGS.get(pendingAudioRoute.getCommunicationDeviceType()));
-                audioManager.clearCommunicationDevice();
-            }
+        }
+        // Only clear communication device if the destination route will be inactive; route to
+        // route transitions do not require clearing the communication device.
+        boolean onlyClearCommunicationDeviceOnInactive =
+                pendingAudioRoute.getFeatureFlags().onlyClearCommunicationDeviceOnInactive();
+        if ((!onlyClearCommunicationDeviceOnInactive && !shouldDisconnectSco)
+                || !pendingAudioRoute.isActive()) {
+            Log.i(this,
+                    "clearCommunicationDevice: AudioManager#clearCommunicationDevice, type=%s",
+                    DEVICE_TYPE_STRINGS.get(pendingAudioRoute.getCommunicationDeviceType()));
+            audioManager.clearCommunicationDevice();
         }
 
         if (result == BluetoothStatusCodes.SUCCESS) {

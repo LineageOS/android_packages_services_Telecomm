@@ -184,7 +184,8 @@ public final class TelecomBroadcastIntentProcessor {
                 // Answer the current ringing call.
                 Call incomingCall = mCallsManager.getIncomingCallNotifier().getIncomingCall();
                 if (incomingCall != null) {
-                    mCallsManager.answerCall(incomingCall, incomingCall.getVideoState());
+                    mCallsManager.answerCall(incomingCall, incomingCall.getVideoState(),
+                            CallsManager.REQUEST_ORIGIN_TELECOM_DISAMBIGUATION);
                 }
             } finally {
                 Log.endSession();

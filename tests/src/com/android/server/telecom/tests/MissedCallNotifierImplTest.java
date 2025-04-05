@@ -172,6 +172,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
     @Mock TelecomSystem mTelecomSystem;
     @Mock private DefaultDialerCache mDefaultDialerCache;
     @Mock private DeviceIdleControllerAdapter mDeviceIdleControllerAdapter;
+    @Mock private Context mUserContext;
 
     @Override
     @Before
@@ -182,6 +183,10 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
         mNotificationManager = (NotificationManager) mContext.getSystemService(
                 Context.NOTIFICATION_SERVICE);
+        when(mContext.createContextAsUser(any(UserHandle.class), eq(0)))
+                .thenReturn(mUserContext);
+        when(mUserContext.getSystemService(eq(NotificationManager.class)))
+                .thenReturn(mNotificationManager);
         TelephonyManager fakeTelephonyManager = (TelephonyManager) mContext.getSystemService(
                 Context.TELEPHONY_SERVICE);
         when(fakeTelephonyManager.getNetworkCountryIso()).thenReturn("US");
@@ -197,6 +202,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         mComponentContextFixture.putResource(R.string.userCallActivityLabel,
                 USER_CALL_ACTIVITY_LABEL);
         mComponentContextFixture.setTelecomManager(mTelecomManager);
+        when(mFeatureFlags.resolveHiddenDependenciesTwo()).thenReturn(true);
     }
 
     @Override
@@ -305,10 +311,10 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
 
         ArgumentCaptor<Integer> requestIdCaptor = ArgumentCaptor.forClass(
                 Integer.class);
-        verify(mNotificationManager, times(2)).notifyAsUser(nullable(String.class),
-                requestIdCaptor.capture(), nullable(Notification.class), eq(userHandle));
-        verify(mNotificationManager).cancelAsUser(nullable(String.class),
-                eq(requestIdCaptor.getValue()), eq(userHandle));
+        verify(mNotificationManager, times(2)).notify(nullable(String.class),
+                requestIdCaptor.capture(), nullable(Notification.class));
+        verify(mNotificationManager).cancel(nullable(String.class),
+                eq(requestIdCaptor.getValue()));
 
         // Verify that the second call to showMissedCallNotification behaves like it were the first.
         verify(builder2).setContentText(CALLER_NAME);
@@ -345,8 +351,8 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         // to notifyAsUser are the versions which contain sensitive information.
         ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(
                 Notification.class);
-        verify(mNotificationManager, times(2)).notifyAsUser(nullable(String.class), eq(1),
-                notificationArgumentCaptor.capture(), eq(PRIMARY_USER));
+        verify(mNotificationManager, times(2)).notify(nullable(String.class), eq(1),
+                notificationArgumentCaptor.capture());
         HashSet<String> privateNotifications = new HashSet<>();
         for (Notification n : notificationArgumentCaptor.getAllValues()) {
             privateNotifications.add(n.toString());
@@ -437,8 +443,8 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         } else {
             expectedUserHandle = phoneAccount.getAccountHandle().getUserHandle();
         }
-        verify(mNotificationManager).notifyAsUser(nullable(String.class), eq(1),
-                notificationArgumentCaptor.capture(), eq((expectedUserHandle)));
+        verify(mNotificationManager).notify(nullable(String.class), eq(1),
+                notificationArgumentCaptor.capture());
 
         Notification.Builder builder;
         Notification.Builder publicBuilder;
@@ -645,8 +651,8 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         listenerCaptor.getAllValues().get(1).onCallerInfoQueryComplete(escapedSipHandle, ci);
 
         // Verify that two notifications were generated, both with the same id.
-        verify(mNotificationManager, times(2)).notifyAsUser(nullable(String.class), eq(1),
-                nullable(Notification.class), eq(PRIMARY_USER));
+        verify(mNotificationManager, times(2)).notify(nullable(String.class), eq(1),
+                nullable(Notification.class));
     }
 
     @SmallTest
@@ -688,8 +694,8 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                 options.getTemporaryAppAllowlistDuration() > 0);
 
         // A notification should never be posted by Telecom
-        verify(mNotificationManager, never()).notifyAsUser(nullable(String.class), anyInt(),
-                nullable(Notification.class), eq(PRIMARY_USER));
+        verify(mNotificationManager, never()).notify(nullable(String.class), anyInt(),
+                nullable(Notification.class));
     }
 
     /**

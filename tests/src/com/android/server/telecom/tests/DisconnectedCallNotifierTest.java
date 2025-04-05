@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -48,6 +49,7 @@ public class DisconnectedCallNotifierTest extends TelecomTestCase {
 
     @Mock private CallsManager mCallsManager;
     @Mock private CallerInfoLookupHelper mCallerInfoLookupHelper;
+    @Mock private Context mUserContext;
 
     private NotificationManager mNotificationManager;
 
@@ -60,10 +62,15 @@ public class DisconnectedCallNotifierTest extends TelecomTestCase {
 
         mNotificationManager = (NotificationManager) mContext.getSystemService(
                 Context.NOTIFICATION_SERVICE);
+        when(mContext.createContextAsUser(any(UserHandle.class), eq(0)))
+                .thenReturn(mUserContext);
+        when(mUserContext.getSystemService(eq(NotificationManager.class)))
+                .thenReturn(mNotificationManager);
         TelephonyManager fakeTelephonyManager = (TelephonyManager) mContext.getSystemService(
                 Context.TELEPHONY_SERVICE);
         when(fakeTelephonyManager.getNetworkCountryIso()).thenReturn("US");
         doReturn(mCallerInfoLookupHelper).when(mCallsManager).getCallerInfoLookupHelper();
+        when(mFeatureFlags.resolveHiddenDependenciesTwo()).thenReturn(true);
     }
 
     @After
@@ -78,17 +85,18 @@ public class DisconnectedCallNotifierTest extends TelecomTestCase {
         Call call = createCall(new DisconnectCause(DisconnectCause.LOCAL,
                 DisconnectCause.REASON_EMERGENCY_CALL_PLACED));
 
-        DisconnectedCallNotifier notifier = new DisconnectedCallNotifier(mContext, mCallsManager);
+        DisconnectedCallNotifier notifier = new DisconnectedCallNotifier(mContext, mCallsManager,
+                mFeatureFlags);
         notifier.onCallStateChanged(call, CallState.NEW, CallState.DIALING);
         notifier.onCallStateChanged(call, CallState.DIALING, CallState.DISCONNECTED);
-        verify(mNotificationManager, never()).notifyAsUser(anyString(), anyInt(),
-                any(Notification.class), any(UserHandle.class));
+        verify(mNotificationManager, never()).notify(anyString(), anyInt(),
+                any(Notification.class));
 
         doReturn(Collections.EMPTY_LIST).when(mCallsManager).getCalls();
         notifier.onCallRemoved(call);
         ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
-        verify(mNotificationManager).notifyAsUser(anyString(), anyInt(),
-                captor.capture(), any(UserHandle.class));
+        verify(mNotificationManager).notify(anyString(), anyInt(),
+                captor.capture());
         Notification notification = captor.getValue();
         assertNotNull(notification.contentIntent);
         assertEquals(2, notification.actions.length);
@@ -101,17 +109,18 @@ public class DisconnectedCallNotifierTest extends TelecomTestCase {
                 DisconnectCause.REASON_EMERGENCY_CALL_PLACED));
         when(call.isEmergencyCall()).thenReturn(true);
 
-        DisconnectedCallNotifier notifier = new DisconnectedCallNotifier(mContext, mCallsManager);
+        DisconnectedCallNotifier notifier = new DisconnectedCallNotifier(mContext, mCallsManager,
+                mFeatureFlags);
         notifier.onCallStateChanged(call, CallState.NEW, CallState.DIALING);
         notifier.onCallStateChanged(call, CallState.DIALING, CallState.DISCONNECTED);
-        verify(mNotificationManager, never()).notifyAsUser(anyString(), anyInt(),
-                any(Notification.class), any(UserHandle.class));
+        verify(mNotificationManager, never()).notify(anyString(), anyInt(),
+                any(Notification.class));
 
         doReturn(Collections.EMPTY_LIST).when(mCallsManager).getCalls();
         notifier.onCallRemoved(call);
         ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
-        verify(mNotificationManager).notifyAsUser(anyString(), anyInt(),
-                captor.capture(), any(UserHandle.class));
+        verify(mNotificationManager).notify(anyString(), anyInt(),
+                captor.capture());
         Notification notification = captor.getValue();
         assertNull(notification.contentIntent);
         if (notification.actions != null) {
@@ -124,15 +133,16 @@ public class DisconnectedCallNotifierTest extends TelecomTestCase {
     public void testNotificationNotShownAfterCall() {
         Call call = createCall(new DisconnectCause(DisconnectCause.LOCAL));
 
-        DisconnectedCallNotifier notifier = new DisconnectedCallNotifier(mContext, mCallsManager);
+        DisconnectedCallNotifier notifier = new DisconnectedCallNotifier(mContext, mCallsManager,
+                mFeatureFlags);
         notifier.onCallStateChanged(call, CallState.DIALING, CallState.DISCONNECTED);
-        verify(mNotificationManager, never()).notifyAsUser(anyString(), anyInt(),
-                any(Notification.class), any(UserHandle.class));
+        verify(mNotificationManager, never()).notify(anyString(), anyInt(),
+                any(Notification.class));
 
         doReturn(Collections.EMPTY_LIST).when(mCallsManager).getCalls();
         notifier.onCallRemoved(call);
-        verify(mNotificationManager, never()).notifyAsUser(anyString(), anyInt(),
-                any(Notification.class), any(UserHandle.class));
+        verify(mNotificationManager, never()).notify(anyString(), anyInt(),
+                any(Notification.class));
     }
 
     @Test
@@ -141,9 +151,10 @@ public class DisconnectedCallNotifierTest extends TelecomTestCase {
         Call call = createCall(new DisconnectCause(DisconnectCause.LOCAL,
                 DisconnectCause.REASON_EMERGENCY_CALL_PLACED));
 
-        DisconnectedCallNotifier notifier = new DisconnectedCallNotifier(mContext, mCallsManager);
+        DisconnectedCallNotifier notifier = new DisconnectedCallNotifier(mContext, mCallsManager,
+                mFeatureFlags);
         notifier.onCallStateChanged(call, CallState.DIALING, CallState.DISCONNECTED);
-        verify(mNotificationManager).cancelAsUser(anyString(), anyInt(), any());
+        verify(mNotificationManager).cancel(anyString(), anyInt());
     }
 
     /**
@@ -153,7 +164,8 @@ public class DisconnectedCallNotifierTest extends TelecomTestCase {
     @Test
     @SmallTest
     public void testGetCountryIsoWithNoTelephony() {
-        DisconnectedCallNotifier notifier = new DisconnectedCallNotifier(mContext, mCallsManager);
+        DisconnectedCallNotifier notifier = new DisconnectedCallNotifier(mContext, mCallsManager,
+                mFeatureFlags);
         when(mComponentContextFixture.getTelephonyManager().getNetworkCountryIso())
                 .thenThrow(new UnsupportedOperationException("Bee boop"));
         assertNotNull(notifier.getCurrentCountryIso(mContext));

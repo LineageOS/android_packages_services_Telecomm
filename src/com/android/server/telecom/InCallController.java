@@ -25,7 +25,6 @@ import android.annotation.Nullable;
 import android.app.AppOpsManager;
 import android.app.KeyguardManager;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.AttributionSource;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -48,6 +47,7 @@ import android.os.Parcel;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.permission.PermissionManager;
 import android.telecom.CallAudioState;
 import android.telecom.CallEndpoint;
 import android.telecom.ConnectionService;
@@ -302,7 +302,6 @@ public class InCallController extends CallsManagerListenerBase implements
         private boolean mIsConnected = false;
         private boolean mIsBound = false;
         private boolean mIsNullBinding = false;
-        private NotificationManager mNotificationManager;
 
         //this is really used for cases where the userhandle for a call
         //does not match what we want to use for bindAsUser
@@ -1237,6 +1236,7 @@ public class InCallController extends CallsManagerListenerBase implements
 
     private final Context mContext;
     private final AppOpsManager mAppOpsManager;
+    private final PermissionManager mPermissionManager;
     private final SensorPrivacyManager mSensorPrivacyManager;
     private final TelecomSystem.SyncRoot mLock;
     private final CallsManager mCallsManager;
@@ -1322,6 +1322,7 @@ public class InCallController extends CallsManagerListenerBase implements
             com.android.internal.telephony.flags.FeatureFlags telephonyFeatureFlags) {
         mContext = context;
         mAppOpsManager = context.getSystemService(AppOpsManager.class);
+        mPermissionManager = context.getSystemService(PermissionManager.class);
         mSensorPrivacyManager = context.getSystemService(SensorPrivacyManager.class);
         mLock = lock;
         mCallsManager = callsManager;
@@ -1909,17 +1910,28 @@ public class InCallController extends CallsManagerListenerBase implements
             }
 
             if (shouldStart) {
-                // Note, not checking return value, as this op call is merely for tracing use
-                mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_CAMERA, myUid(),
-                        mContext.getOpPackageName(), false, null, null);
+                if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                    // Note, not checking return value, as this op call is merely for tracing use
+                    mAppOpsManager.startOp(AppOpsManager.OPSTR_PHONE_CALL_CAMERA, myUid(),
+                            mContext.getOpPackageName(), null, null);
+                } else {
+                    // Note, not checking return value, as this op call is merely for tracing use
+                    mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_CAMERA, myUid(),
+                            mContext.getOpPackageName(), false, null, null);
+                }
                 mSensorPrivacyManager.showSensorUseDialog(SensorPrivacyManager.Sensors.CAMERA);
             }
         } else {
             boolean hadCall = !mCallsUsingCamera.isEmpty();
             mCallsUsingCamera.remove(call.getId());
             if (hadCall && mCallsUsingCamera.isEmpty()) {
-                mAppOpsManager.finishOp(AppOpsManager.OP_PHONE_CALL_CAMERA, myUid(),
-                        mContext.getOpPackageName(), null);
+                if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                    mAppOpsManager.finishOp(AppOpsManager.OPSTR_PHONE_CALL_CAMERA, myUid(),
+                            mContext.getOpPackageName(), null);
+                } else {
+                    mAppOpsManager.finishOp(AppOpsManager.OP_PHONE_CALL_CAMERA, myUid(),
+                            mContext.getOpPackageName(), null);
+                }
             }
         }
     }
@@ -2236,8 +2248,14 @@ public class InCallController extends CallsManagerListenerBase implements
 
         IntentFilter packageChangedFilter = new IntentFilter(Intent.ACTION_PACKAGE_CHANGED);
         packageChangedFilter.addDataScheme("package");
-        mContext.registerReceiverAsUser(mPackageChangedReceiver, UserHandle.ALL,
-                packageChangedFilter, null, null);
+        Context userContext = mContext.createContextAsUser(UserHandle.ALL, 0);
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            userContext.registerReceiver(mPackageChangedReceiver, packageChangedFilter,
+                    null, null);
+        } else {
+            mContext.registerReceiverAsUser(mPackageChangedReceiver, UserHandle.ALL,
+                    packageChangedFilter, null, null);
+        }
     }
 
     private void updateNonUiInCallServices(Call call) {
@@ -3243,12 +3261,22 @@ public class InCallController extends CallsManagerListenerBase implements
             int opPackageUid = getOpPackageUid();
             if (mIsCallUsingMicrophone) {
                 // Note, not checking return value, as this op call is merely for tracing use
-                mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_MICROPHONE, opPackageUid,
-                        mContext.getOpPackageName(), false, null, null);
+                if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                    mAppOpsManager.startOp(AppOpsManager.OPSTR_PHONE_CALL_MICROPHONE, opPackageUid,
+                            mContext.getOpPackageName(), null /* attribution */, null /* msg */);
+                } else {
+                    mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_MICROPHONE, opPackageUid,
+                            mContext.getOpPackageName(), false, null, null);
+                }
                 mSensorPrivacyManager.showSensorUseDialog(SensorPrivacyManager.Sensors.MICROPHONE);
             } else {
-                mAppOpsManager.finishOp(AppOpsManager.OP_PHONE_CALL_MICROPHONE, opPackageUid,
-                        mContext.getOpPackageName(), null);
+                if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                    mAppOpsManager.finishOp(AppOpsManager.OPSTR_PHONE_CALL_MICROPHONE, opPackageUid,
+                            mContext.getOpPackageName(), null /* attribution */);
+                } else {
+                    mAppOpsManager.finishOp(AppOpsManager.OP_PHONE_CALL_MICROPHONE, opPackageUid,
+                            mContext.getOpPackageName(), null);
+                }
             }
         }
     }
@@ -3297,13 +3325,29 @@ public class InCallController extends CallsManagerListenerBase implements
     }
 
     private boolean isAppOpsPermittedManageOngoingCalls(int uid, String callingPackage) {
-        return PermissionChecker.checkPermissionForDataDeliveryFromDataSource(mContext,
-                Manifest.permission.MANAGE_ONGOING_CALLS, PermissionChecker.PID_UNKNOWN,
-                        new AttributionSource(mContext.getAttributionSource(),
-                                new AttributionSource(uid, callingPackage,
-                                        /*attributionTag*/ null)), "Checking whether the app has"
-                                                + " MANAGE_ONGOING_CALLS permission")
-                                                        == PermissionChecker.PERMISSION_GRANTED;
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            // checkPermissionForDataDelivery is intended for use when we are checking the
+            // permission for the purpose of actually sending data to the recipient; this is in
+            // contrast to in TelecomServiceImpl#hasManageOngoingCallsPermission which calls
+            // checkPermissionForPreflight since that is not actually going to result in data
+            // delivery to the app.
+            int result = mPermissionManager.checkPermissionForDataDelivery(
+                    Manifest.permission.MANAGE_ONGOING_CALLS, new AttributionSource.Builder(uid)
+                            .setPackageName(callingPackage)
+                            .build(),
+                    "Reporting ongoing calls to app.");
+            Log.d(this, "isAppOpsPermittedManageOngoingCalls: uid=%d, pkg=%s, res=%d", uid,
+                    callingPackage, result);
+            return result == PermissionManager.PERMISSION_GRANTED;
+        } else {
+            return PermissionChecker.checkPermissionForDataDeliveryFromDataSource(mContext,
+                    Manifest.permission.MANAGE_ONGOING_CALLS, PermissionChecker.PID_UNKNOWN,
+                    new AttributionSource(mContext.getAttributionSource(),
+                            new AttributionSource(uid, callingPackage,
+                                    /*attributionTag*/ null)), "Checking whether the app has"
+                            + " MANAGE_ONGOING_CALLS permission")
+                    == PermissionChecker.PERMISSION_GRANTED;
+        }
     }
 
     private void sendCrashedInCallServiceNotification(String packageName, UserHandle userHandle) {
@@ -3322,8 +3366,6 @@ public class InCallController extends CallsManagerListenerBase implements
         } catch (PackageManager.NameNotFoundException e) {
             appName = packageName;
         }
-        NotificationManager notificationManager = (NotificationManager) mContext
-                .getSystemService(Context.NOTIFICATION_SERVICE);
         Notification.Builder builder = new Notification.Builder(mContext,
                 NotificationChannelManager.CHANNEL_ID_IN_CALL_SERVICE_CRASH);
         builder.setSmallIcon(R.drawable.ic_phone)
@@ -3334,8 +3376,8 @@ public class InCallController extends CallsManagerListenerBase implements
                 .setStyle(new Notification.BigTextStyle()
                         .bigText(mContext.getText(
                                 R.string.notification_incallservice_not_responding_body)));
-        notificationManager.notifyAsUser(NOTIFICATION_TAG, IN_CALL_SERVICE_NOTIFICATION_ID,
-                builder.build(), userHandle);
+        UserUtil.processNotification(mContext, userHandle, NOTIFICATION_TAG,
+                IN_CALL_SERVICE_NOTIFICATION_ID, builder.build(), mFeatureFlags);
     }
 
     private void updateCallTracking(Call call, InCallServiceInfo info, boolean isAdd) {

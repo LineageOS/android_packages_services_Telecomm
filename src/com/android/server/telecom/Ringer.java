@@ -735,8 +735,17 @@ public class Ringer {
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         // Use AudioManager#getRingerMode for more accurate result, instead of
         // AudioManager#getRingerModeInternal which only useful for volume controllers
-        boolean zenModeOn = mNotificationManager != null
-                && mNotificationManager.getZenMode() != ZEN_MODE_OFF;
+        boolean zenModeOn;
+        if (mFlags.resolveHiddenDependenciesTwo()) {
+            // See NotificationManager#zenModeToInterruptionFilter; INTERRUPTION_FILTER_ALL is
+            // equivalent to the former ZEN_MODE_OFF.
+            zenModeOn = mNotificationManager != null
+                    && mNotificationManager.getCurrentInterruptionFilter()
+                    != NotificationManager.INTERRUPTION_FILTER_ALL;
+        } else {
+            zenModeOn = mNotificationManager != null
+                    && mNotificationManager.getZenMode() != ZEN_MODE_OFF;
+        }
         maybeGenAnomReportForGetRingerMode(zenModeOn, audioManager);
         return mVibrator.hasVibrator()
                 && mSystemSettingsUtil.isRingVibrationEnabled(context)

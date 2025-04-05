@@ -74,6 +74,7 @@ import android.os.UserManager;
 import android.os.Vibrator;
 import android.os.VibratorManager;
 import android.permission.PermissionCheckerManager;
+import android.permission.PermissionManager;
 import android.provider.BlockedNumbersManager;
 import android.telecom.ConnectionService;
 import android.telecom.Log;
@@ -261,6 +262,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
                     return mBlockedNumbersManager;
                 case Context.STATS_MANAGER_SERVICE:
                     return mStatsManager;
+                case Context.PERMISSION_SERVICE:
+                    return mPermissionManager;
                 default:
                     return null;
             }
@@ -308,6 +311,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
                 return Context.APP_OPS_SERVICE;
             } else if (svcClass == StatsManager.class) {
                 return Context.STATS_MANAGER_SERVICE;
+            } else if (svcClass == PermissionManager.class) {
+                return Context.PERMISSION_SERVICE;
             }
             throw new UnsupportedOperationException(svcClass.getName());
         }
@@ -413,6 +418,13 @@ public class ComponentContextFixture implements TestFixture<Context> {
         @Override
         public Intent registerReceiverAsUser(BroadcastReceiver receiver, UserHandle handle,
                 IntentFilter filter, String broadcastPermission, Handler scheduler) {
+            mBroadcastReceivers.add(receiver);
+            return null;
+        }
+
+        @Override
+        public Intent registerReceiverAsUser(BroadcastReceiver receiver, UserHandle handle,
+                IntentFilter filter, String broadcastPermission, Handler scheduler, int flags) {
             mBroadcastReceivers.add(receiver);
             return null;
         }
@@ -628,6 +640,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
     private final TelephonyManager mTelephonyManager = mock(TelephonyManager.class);
     private final LocationManager mLocationManager = mock(LocationManager.class);
     private final AppOpsManager mAppOpsManager = mock(AppOpsManager.class);
+    private final PermissionManager mPermissionManager = mock(PermissionManager.class);
     private final NotificationManager mNotificationManager = mock(NotificationManager.class);
     private final AccessibilityManager mAccessibilityManager = mock(AccessibilityManager.class);
     private final UserManager mUserManager = mock(UserManager.class);

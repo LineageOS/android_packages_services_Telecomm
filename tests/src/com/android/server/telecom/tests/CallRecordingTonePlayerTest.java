@@ -102,7 +102,7 @@ public class CallRecordingTonePlayerTest extends TelecomTestCase {
                 .thenReturn(500L);
         mCallRecordingTonePlayer = new CallRecordingTonePlayer(
                 mComponentContextFixture.getTestDouble().getApplicationContext(),
-                mAudioManager, mTimeouts, mSyncRoot);
+                mAudioManager, mTimeouts, mSyncRoot, mFeatureFlags);
         when(mAudioManager.getActiveRecordingConfigurations()).thenReturn(null);
     }
 

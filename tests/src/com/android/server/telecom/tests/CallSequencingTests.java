@@ -194,7 +194,7 @@ public class CallSequencingTests extends TelecomTestCase {
     public void testAnswerCall() {
         // This will allow holdActiveCallForNewCallWithSequencing to immediately return true
         setActiveCallFocus(null);
-        mController.answerCall(mNewCall, 0);
+        mController.answerCall(mNewCall, 0, CallsManager.REQUEST_ORIGIN_UNKNOWN);
         verify(mCallsManager, timeout(SEQUENCING_TIMEOUT_MS))
                 .requestFocusActionAnswerCall(eq(mNewCall), eq(0));
     }
@@ -203,8 +203,23 @@ public class CallSequencingTests extends TelecomTestCase {
     @Test
     public void testAnswerCallFail() {
         setupHoldActiveCallForNewCallFailMocks();
-        mController.answerCall(mNewCall, 0);
+        mController.answerCall(mNewCall, 0, CallsManager.REQUEST_ORIGIN_UNKNOWN);
         verify(mCallsManager, timeout(SEQUENCING_TIMEOUT_MS).times(0))
+                .requestFocusActionAnswerCall(eq(mNewCall), eq(0));
+    }
+
+    @SmallTest
+    @Test
+    public void testAnswerCallAcceptedFromTelecom() {
+        setPhoneAccounts(mNewCall, mActiveCall, false);
+        setActiveCallFocus(mActiveCall);
+        when(mCallsManager.canHold(mActiveCall)).thenReturn(true);
+        when(mActiveCall.hold(anyString())).thenReturn(CompletableFuture.completedFuture(true));
+
+        when(mHeldCall.isSelfManaged()).thenReturn(false);
+        when(mNewCall.isSelfManaged()).thenReturn(true);
+        mController.answerCall(mNewCall, 0, CallsManager.REQUEST_ORIGIN_TELECOM_DISAMBIGUATION);
+        verify(mCallsManager, timeout(SEQUENCING_TIMEOUT_MS).times(1))
                 .requestFocusActionAnswerCall(eq(mNewCall), eq(0));
     }
 
@@ -270,7 +285,8 @@ public class CallSequencingTests extends TelecomTestCase {
     public void testHoldCallForNewCall_NoActiveCall() {
         setActiveCallFocus(null);
         CompletableFuture<Boolean> resultFuture = mController
-                .holdActiveCallForNewCallWithSequencing(mNewCall);
+                .holdActiveCallForNewCallWithSequencing(mNewCall,
+                        CallsManager.REQUEST_ORIGIN_UNKNOWN);
         assertTrue(waitForFutureResult(resultFuture, false));
     }
 
@@ -285,13 +301,15 @@ public class CallSequencingTests extends TelecomTestCase {
         // Cross phone account case (sequencing enabled)
         assertFalse(mController.arePhoneAccountsSame(mNewCall, mActiveCall));
         CompletableFuture<Boolean> resultFuture = mController
-                .holdActiveCallForNewCallWithSequencing(mNewCall);
+                .holdActiveCallForNewCallWithSequencing(mNewCall,
+                        CallsManager.REQUEST_ORIGIN_UNKNOWN);
         assertTrue(waitForFutureResult(resultFuture, false));
 
         // Same phone account case
         setPhoneAccounts(mNewCall, mActiveCall, true);
         assertTrue(mController.arePhoneAccountsSame(mNewCall, mActiveCall));
-        resultFuture = mController.holdActiveCallForNewCallWithSequencing(mNewCall);
+        resultFuture = mController.holdActiveCallForNewCallWithSequencing(mNewCall,
+                CallsManager.REQUEST_ORIGIN_UNKNOWN);
         assertTrue(waitForFutureResult(resultFuture, false));
     }
 
@@ -312,7 +330,8 @@ public class CallSequencingTests extends TelecomTestCase {
         // disconnect the active (carrier) call.
         assertFalse(mController.arePhoneAccountsSame(mNewCall, mActiveCall));
         CompletableFuture<Boolean> resultFuture = mController
-                .holdActiveCallForNewCallWithSequencing(mNewCall);
+                .holdActiveCallForNewCallWithSequencing(mNewCall,
+                        CallsManager.REQUEST_ORIGIN_UNKNOWN);
         verify(mHeldCall, timeout(SEQUENCING_TIMEOUT_MS)).disconnect();
         verify(mActiveCall, timeout(SEQUENCING_TIMEOUT_MS)).hold();
         verify(mNewCall).increaseHeldByThisCallCount();
@@ -332,7 +351,8 @@ public class CallSequencingTests extends TelecomTestCase {
         // Cross phone account case (sequencing enabled)
         assertFalse(mController.arePhoneAccountsSame(mNewCall, mActiveCall));
         CompletableFuture<Boolean> resultFuture = mController
-                .holdActiveCallForNewCallWithSequencing(mNewCall);
+                .holdActiveCallForNewCallWithSequencing(mNewCall,
+                        CallsManager.REQUEST_ORIGIN_UNKNOWN);
         verify(mActiveCall, timeout(SEQUENCING_TIMEOUT_MS)).hold();
         verify(mNewCall).increaseHeldByThisCallCount();
         assertTrue(waitForFutureResult(resultFuture, false));
@@ -352,7 +372,8 @@ public class CallSequencingTests extends TelecomTestCase {
 
         assertFalse(mController.arePhoneAccountsSame(mNewCall, mActiveCall));
         CompletableFuture<Boolean> resultFuture = mController
-                .holdActiveCallForNewCallWithSequencing(mNewCall);
+                .holdActiveCallForNewCallWithSequencing(mNewCall,
+                        CallsManager.REQUEST_ORIGIN_UNKNOWN);
         verify(mActiveCall, timeout(SEQUENCING_TIMEOUT_MS)).disconnect(anyString());
         assertTrue(waitForFutureResult(resultFuture, false));
     }
@@ -372,7 +393,8 @@ public class CallSequencingTests extends TelecomTestCase {
         // disconnect the active (carrier) call.
         assertFalse(mController.arePhoneAccountsSame(mNewCall, mActiveCall));
         CompletableFuture<Boolean> resultFuture = mController
-                .holdActiveCallForNewCallWithSequencing(mNewCall);
+                .holdActiveCallForNewCallWithSequencing(mNewCall,
+                        CallsManager.REQUEST_ORIGIN_UNKNOWN);
         assertFalse(waitForFutureResult(resultFuture, true));
     }
 
@@ -387,7 +409,8 @@ public class CallSequencingTests extends TelecomTestCase {
 
         assertTrue(mController.arePhoneAccountsSame(mNewCall, mActiveCall));
         CompletableFuture<Boolean> resultFuture = mController
-                .holdActiveCallForNewCallWithSequencing(mNewCall);
+                .holdActiveCallForNewCallWithSequencing(mNewCall,
+                        CallsManager.REQUEST_ORIGIN_UNKNOWN);
         assertTrue(waitForFutureResult(resultFuture, true));
     }
 
@@ -404,7 +427,8 @@ public class CallSequencingTests extends TelecomTestCase {
 
         assertFalse(mController.arePhoneAccountsSame(mNewCall, mActiveCall));
         CompletableFuture<Boolean> resultFuture = mController
-                .holdActiveCallForNewCallWithSequencing(mNewCall);
+                .holdActiveCallForNewCallWithSequencing(mNewCall,
+                        CallsManager.REQUEST_ORIGIN_UNKNOWN);
         verify(mNewCall, timeout(SEQUENCING_TIMEOUT_MS)).reject(
                 anyBoolean(), anyString(), anyString());
         assertFalse(waitForFutureResult(resultFuture, true));
@@ -423,7 +447,8 @@ public class CallSequencingTests extends TelecomTestCase {
 
         assertFalse(mController.arePhoneAccountsSame(mNewCall, mActiveCall));
         CompletableFuture<Boolean> resultFuture = mController
-                .holdActiveCallForNewCallWithSequencing(mNewCall);
+                .holdActiveCallForNewCallWithSequencing(mNewCall,
+                        CallsManager.REQUEST_ORIGIN_UNKNOWN);
         assertFalse(waitForFutureResult(resultFuture, true));
     }
 

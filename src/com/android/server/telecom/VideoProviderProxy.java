@@ -35,6 +35,7 @@ import android.view.Surface;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telecom.IVideoCallback;
 import com.android.internal.telecom.IVideoProvider;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.Collections;
 import java.util.Set;
@@ -89,6 +90,8 @@ public class VideoProviderProxy extends Connection.VideoProvider {
      */
     private Call mCall;
 
+    private FeatureFlags mFeatureFlags;
+
     /**
      * Interface providing access to the currently logged in user.
      */
@@ -112,7 +115,8 @@ public class VideoProviderProxy extends Connection.VideoProvider {
      * @throws RemoteException Remote exception.
      */
     public VideoProviderProxy(TelecomSystem.SyncRoot lock,
-            IVideoProvider videoProvider, Call call, CurrentUserProxy currentUserProxy)
+            IVideoProvider videoProvider, Call call, CurrentUserProxy currentUserProxy,
+            FeatureFlags featureFlags)
             throws RemoteException {
 
         super(Looper.getMainLooper());
@@ -126,6 +130,7 @@ public class VideoProviderProxy extends Connection.VideoProvider {
         mConectionServiceVideoProvider.addVideoCallback(mVideoCallListenerBinder);
         mCall = call;
         mCurrentUserProxy = currentUserProxy;
+        mFeatureFlags = featureFlags;
     }
 
     public void clearVideoCallback() {
@@ -600,8 +605,13 @@ public class VideoProviderProxy extends Connection.VideoProvider {
 
         try {
             // Some apps that have the permission can be restricted via app ops.
-            return appOpsManager != null && appOpsManager.noteOp(AppOpsManager.OP_CAMERA,
-                    callingUid, callingPackage) == AppOpsManager.MODE_ALLOWED;
+            if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                return appOpsManager != null && appOpsManager.noteOp(AppOpsManager.OPSTR_CAMERA,
+                        callingUid, callingPackage) == AppOpsManager.MODE_ALLOWED;
+            } else {
+                return appOpsManager != null && appOpsManager.noteOp(AppOpsManager.OP_CAMERA,
+                        callingUid, callingPackage) == AppOpsManager.MODE_ALLOWED;
+            }
         } catch (SecurityException se) {
             Log.w(this, "canUseCamera got appOpps Exception " + se.toString());
             return false;

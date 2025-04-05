@@ -78,6 +78,7 @@ import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.permission.PermissionCheckerManager;
+import android.permission.PermissionManager;
 import android.telecom.CallAudioState;
 import android.telecom.CallEndpoint;
 import android.telecom.InCallService;
@@ -160,6 +161,7 @@ public class InCallControllerTests extends TelecomTestCase {
     @Mock Context mMockCreateContextAsUser;
     @Mock UserManager mMockCurrentUserManager;
     @Mock CallEndpointController mMockCallEndpointController;
+    @Mock PermissionManager mPermissionManager;
 
     @Rule
     public TestRule compatChangeRule = new PlatformCompatChangeRule();
@@ -221,6 +223,7 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.getId()).thenReturn("TC@1");
         doReturn(mMockResources).when(mMockContext).getResources();
         doReturn(mMockAppOpsManager).when(mMockContext).getSystemService(AppOpsManager.class);
+        doReturn(mPermissionManager).when(mMockContext).getSystemService(PermissionManager.class);
         doReturn(SYS_PKG).when(mMockResources).getString(
                 com.android.internal.R.string.config_defaultDialer);
         doReturn(SYS_CLASS).when(mMockResources).getString(R.string.incall_default_class);
@@ -232,8 +235,6 @@ public class InCallControllerTests extends TelecomTestCase {
         mEmergencyCallHelper = new EmergencyCallHelper(mMockContext, mDefaultDialerCache,
                 mTimeoutsAdapter, mFeatureFlags);
         when(mMockCallsManager.getRoleManagerAdapter()).thenReturn(mMockRoleManagerAdapter);
-        when(mMockContext.getSystemService(eq(Context.NOTIFICATION_SERVICE)))
-                .thenReturn(mNotificationManager);
         when(mMockContext.getSystemService(eq(PermissionCheckerManager.class)))
                 .thenReturn(mMockPermissionCheckerManager);
         when(mMockPackageManager.getPermissionInfo(anyString(), anyInt())).thenReturn(
@@ -243,12 +244,14 @@ public class InCallControllerTests extends TelecomTestCase {
         mInCallController = new InCallController(mMockContext, mLock, mMockCallsManager,
                 mMockSystemStateHelper, mDefaultDialerCache, mTimeoutsAdapter,
                 mEmergencyCallHelper, mCarModeTracker, mClockProxy, mFeatureFlags);
+        when(mMockContext.createContextAsUser(any(UserHandle.class), eq(0)))
+                .thenReturn(mMockCreateContextAsUser);
         // Capture the broadcast receiver registered.
         doAnswer(invocation -> {
             mRegisteredReceiver = invocation.getArgument(0);
             return null;
-        }).when(mMockContext).registerReceiverAsUser(any(BroadcastReceiver.class),
-                any(), any(IntentFilter.class), any(), any());
+        }).when(mMockCreateContextAsUser).registerReceiver(any(BroadcastReceiver.class),
+                any(IntentFilter.class), any(), any());
 
         ArgumentCaptor<SystemStateHelper.SystemStateListener> systemStateListenerArgumentCaptor
                 = ArgumentCaptor.forClass(SystemStateHelper.SystemStateListener.class);
@@ -318,15 +321,16 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockContext.getSystemService(eq(Context.USER_SERVICE))).thenReturn(mMockUserManager);
         when(mMockContext.getSystemService(eq(UserManager.class)))
                 .thenReturn(mMockUserManager);
-        when(mMockContext.createContextAsUser(any(UserHandle.class), eq(0)))
-                .thenReturn(mMockCreateContextAsUser);
         when(mMockCreateContextAsUser.getSystemService(eq(UserManager.class)))
                 .thenReturn(mMockCurrentUserManager);
+        when(mMockCreateContextAsUser.getSystemService(eq(NotificationManager.class)))
+                .thenReturn(mNotificationManager);
         // Mock user info to allow binding on user stored in the phone account (mUserHandle).
         when(mFeatureFlags.separatelyBindToBtIncallService()).thenReturn(false);
         when(mFeatureFlags.telecomResolveHiddenDependencies()).thenReturn(true);
         when(mMockCurrentUserManager.isManagedProfile()).thenReturn(true);
         when(mFeatureFlags.profileUserSupport()).thenReturn(false);
+        when(mFeatureFlags.resolveHiddenDependenciesTwo()).thenReturn(true);
     }
 
     @Override
@@ -943,9 +947,8 @@ public class InCallControllerTests extends TelecomTestCase {
         // verify(mockInCallService).setInCallAdapter(any(IInCallAdapter.class));
         serviceConnection.onNullBinding(defDialerComponentName);
 
-        verify(mNotificationManager).notifyAsUser(eq(NOTIFICATION_TAG),
-                eq(IN_CALL_SERVICE_NOTIFICATION_ID), any(Notification.class),
-                eq(mUserHandle));
+        verify(mNotificationManager).notify(eq(NOTIFICATION_TAG),
+                eq(IN_CALL_SERVICE_NOTIFICATION_ID), any(Notification.class));
         verify(mCallInfo).addInCallService(eq(defDialerComponentName.flattenToShortString()),
                 anyInt(), anyLong(), eq(true));
 
@@ -1452,10 +1455,9 @@ public class InCallControllerTests extends TelecomTestCase {
         verifyBinding(bindIntentCaptor, 0, NONUI_PKG, NONUI_CLASS);
 
         // Verify notification is not sent by NotificationManager
-        verify(mNotificationManager, times(0)).notifyAsUser(
+        verify(mNotificationManager, times(0)).notify(
                 eq(InCallController.NOTIFICATION_TAG),
-                eq(InCallController.IN_CALL_SERVICE_NOTIFICATION_ID), any(),
-                eq(mUserHandle));
+                eq(InCallController.IN_CALL_SERVICE_NOTIFICATION_ID), any());
     }
 
     @MediumTest

@@ -34,6 +34,7 @@ import android.telecom.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.IndentingPrintWriter;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,6 +49,7 @@ public class DefaultDialerCache {
     private final DefaultDialerManagerAdapter mDefaultDialerManagerAdapter;
     private final ComponentName mSystemDialerComponentName;
     private final RoleManagerAdapter mRoleManagerAdapter;
+    private final FeatureFlags mFeatureFlags;
     private final ConcurrentHashMap<Integer, String> mCurrentDefaultDialerPerUser =
             new ConcurrentHashMap<>();
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -115,10 +117,11 @@ public class DefaultDialerCache {
     public DefaultDialerCache(Context context,
             DefaultDialerManagerAdapter defaultDialerManagerAdapter,
             RoleManagerAdapter roleManagerAdapter,
-            TelecomSystem.SyncRoot lock) {
+            TelecomSystem.SyncRoot lock, FeatureFlags featureFlags) {
         mContext = context;
         mDefaultDialerManagerAdapter = defaultDialerManagerAdapter;
         mRoleManagerAdapter = roleManagerAdapter;
+        mFeatureFlags = featureFlags;
 
         Resources resources = mContext.getResources();
         mSystemDialerComponentName = new ComponentName(resources.getString(
@@ -131,10 +134,22 @@ public class DefaultDialerCache {
         packageIntentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         packageIntentFilter.addDataScheme("package");
         packageIntentFilter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
-        context.registerReceiverAsUser(mReceiver, UserHandle.ALL, packageIntentFilter, null, null);
+        Context userContext = context.createContextAsUser(UserHandle.ALL, 0);
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            userContext.registerReceiver(mReceiver, packageIntentFilter,
+                    Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            context.registerReceiverAsUser(mReceiver, UserHandle.ALL, packageIntentFilter, null,
+                    null);
+        }
 
         IntentFilter bootIntentFilter = new IntentFilter(Intent.ACTION_BOOT_COMPLETED);
-        context.registerReceiverAsUser(mReceiver, UserHandle.ALL, bootIntentFilter, null, null);
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            userContext.registerReceiver(mReceiver, bootIntentFilter,
+                    Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            context.registerReceiverAsUser(mReceiver, UserHandle.ALL, bootIntentFilter, null, null);
+        }
 
         IntentFilter userRemovedFilter = new IntentFilter(Intent.ACTION_USER_REMOVED);
         context.registerReceiver(mUserRemovedReceiver, userRemovedFilter);
