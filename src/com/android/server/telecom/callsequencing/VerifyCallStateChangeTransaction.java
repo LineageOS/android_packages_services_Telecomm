@@ -20,6 +20,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.TelecomSystem;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import android.telecom.CallException;
 import android.telecom.Log;
@@ -39,15 +40,18 @@ import java.util.stream.IntStream;
 public class VerifyCallStateChangeTransaction extends CallTransaction {
     private static final String TAG = VerifyCallStateChangeTransaction.class.getSimpleName();
     private static final long CALL_STATE_TIMEOUT_MILLISECONDS = 5000L;
+    public static final String DISC_FINISH_TRANSACTION_MSG = "call disconnected while"
+            + " trying to verify the following call state";
     private final Call mCall;
     private final Set<Integer> mTargetCallStates;
+    private final FeatureFlags mFeatureFlags;
     private final CompletableFuture<CallTransactionResult> mTransactionResult =
             new CompletableFuture<>();
 
     private final Call.CallStateListener mCallStateListenerImpl = new Call.CallStateListener() {
         @Override
         public void onCallStateChanged(int newCallState) {
-            Log.d(TAG, "newState=[%d], possible expected state(s)=[%s]", newCallState,
+            Log.i(TAG, "newState=[%d], possible expected state(s)=[%s]", newCallState,
                     mTargetCallStates);
             if (mTargetCallStates.contains(newCallState)) {
                 mTransactionResult.complete(new CallTransactionResult(
@@ -55,8 +59,29 @@ public class VerifyCallStateChangeTransaction extends CallTransaction {
             }
             // NOTE:: keep listening to the call state until the timeout is reached. It's possible
             // another call state is reached in between...
+
+            // unless the call state is disconnecting / disconnected.The transaction should be
+            // cleaned up in this case because all other call states do not matter since the
+            // call is being destroyed.
+            if (mFeatureFlags.cleanupVerifyCallState() &&
+                    isDisconnectingOrDisconnected(newCallState)) {
+                if (!mTransactionResult.isDone()) {
+                    mTransactionResult.complete(new CallTransactionResult(
+                            CallException.CODE_ERROR_UNKNOWN, String.format("%s=[%d]",
+                            DISC_FINISH_TRANSACTION_MSG, newCallState)));
+                }
+            }
         }
     };
+
+    /**
+     * Helper method to check if a call state is DISCONNECTED or DISCONNECTING.
+     * @param callState The call state to check.
+     * @return true if the state is DISCONNECTED or DISCONNECTING, false otherwise.
+     */
+    private static boolean isDisconnectingOrDisconnected(int callState) {
+        return callState == CallState.DISCONNECTED || callState == CallState.DISCONNECTING;
+    }
 
     private final Call.ListenerBase mCallListenerImpl = new Call.ListenerBase() {
         @Override
@@ -79,9 +104,10 @@ public class VerifyCallStateChangeTransaction extends CallTransaction {
     };
 
     public VerifyCallStateChangeTransaction(TelecomSystem.SyncRoot lock,  Call call,
-            int... targetCallStates) {
+            FeatureFlags featureFlags, int... targetCallStates) {
         super(lock, CALL_STATE_TIMEOUT_MILLISECONDS);
         mCall = call;
+        mFeatureFlags = featureFlags;
         mTargetCallStates = IntStream.of(targetCallStates).boxed().collect(Collectors.toSet());;
     }
 

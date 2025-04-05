@@ -3275,20 +3275,21 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             boolean shouldDisconnectUponTimeout, String callingMethod, int... targetCallStates) {
         TransactionManager tm = TransactionManager.getInstance();
         CallTransaction callTransaction = new VerifyCallStateChangeTransaction(
-                mCallsManager.getLock(), this, targetCallStates);
+                mCallsManager.getLock(), this, mFlags, targetCallStates);
         return tm.addTransaction(callTransaction,
                 new OutcomeReceiver<>() {
             @Override
             public void onResult(CallTransactionResult result) {
                 Log.i(this, "awaitCallStateChangeAndMaybeDisconnectCall: %s: onResult:"
-                        + " due to CallException=[%s]", callingMethod, result);
+                        + " success", callingMethod);
             }
 
             @Override
             public void onError(CallException e) {
                 Log.i(this, "awaitCallStateChangeAndMaybeDisconnectCall: %s: onError"
                         + " due to CallException=[%s]", callingMethod, e);
-                if (shouldDisconnectUponTimeout) {
+                if (shouldDisconnectUponTimeout && (Call.this.getState() != CallState.DISCONNECTING
+                        || Call.this.getState() != CallState.DISCONNECTED)) {
                     mCallsManager.markCallAsDisconnected(Call.this,
                             new DisconnectCause(DisconnectCause.ERROR,
                                     "did not hold in timeout window"));

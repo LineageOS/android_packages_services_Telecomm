@@ -85,3 +85,14 @@ flag {
   description: "Connection event received when a call resume fails"
   bug: "390116261"
 }
+
+# OWNER=tjstuart TARGET=25Q3
+flag {
+  name: "cleanup_verify_call_state"
+  namespace: "telecom"
+  description: "When a call disconnects, finish the VerifyCallStateChangeTransaction if the target state is not reached"
+  bug: "404957140"
+  metadata {
+      purpose: PURPOSE_BUGFIX
+    }
+}
