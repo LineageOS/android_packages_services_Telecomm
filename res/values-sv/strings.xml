@@ -138,6 +138,8 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Det går inte att ringa eftersom det redan finns två pågående samtal. Koppla bort ett eller slå ihop dem till en konferens innan du ringer ett nytt samtal."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Det går inte att ringa eftersom det redan finns två pågående samtal. Koppla bort ett av samtalen innan du ringer ett nytt samtal."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Det går inte att ringa eftersom det finns ett samtal som inte kan sättas i vänteläge. Koppla bort samtalet innan du ringer ett nytt samtal."</string>
+    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
+    <skip />
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Det går inte att ringa eftersom det finns ett obesvarat inkommande samtal. Svara eller avvisa det innan du ringer ett nytt samtal."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Den här MMI-koden är inte tillgänglig för samtal på flera konton."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Det går inte att ange MMI-koder under ett nödsamtal."</string>

@@ -138,6 +138,8 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Negalite skambinti, nes jau dalyvaujate dviejuose skambučiuose. Prieš pradėdami naują skambutį užbaikite vieną iš skambučių arba sujunkite juos į konferenciją."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Negalite skambinti, nes jau dalyvaujate dviejuose skambučiuose. Prieš pradėdami naują skambutį užbaikite vieną iš skambučių"</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Negalite skambinti, nes yra skambutis, kurio negalima sulaikyti. Prieš pradėdami naują skambutį nutraukite esamą."</string>
+    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
+    <skip />
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Negalite skambinti, nes yra neatsakytas gaunamasis skambutis. Atsiliepkite arba atmeskite gaunamąjį skambutį prieš pradėdami naują."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Šis MMI kodas nepasiekiamas skambučiuose keliose paskyrose."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"MMI kodų negalima rinkti per skambutį pagalbos numeriu."</string>

@@ -183,7 +183,8 @@ public class RingtoneFactory {
             return false;
         }
         return !TextUtils.isEmpty(Settings.System.getStringForUser(userContext.getContentResolver(),
-                Settings.System.RINGTONE, userContext.getUserId()));
+                Settings.System.RINGTONE,
+                UserUtil.getUserIdFromContext(userContext, mFeatureFlags)));
     }
 
     private boolean isWorkContact(Call incomingCall) {

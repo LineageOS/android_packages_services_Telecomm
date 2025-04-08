@@ -137,7 +137,7 @@ public class IncomingCallFilterGraph {
                     }
                 }
             }
-        }.prepare(), mTimeoutsAdapter.getCallScreeningTimeoutMillis(mContext.getContentResolver()));
+        }.prepare(), mTimeoutsAdapter.getCallScreeningTimeoutMillis(mContext, mFeatureFlags));
     }
 
     /**

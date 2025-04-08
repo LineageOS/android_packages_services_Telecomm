@@ -138,6 +138,8 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Hovor nelze zahájit, protože už probíhají jiné dva hovory. Než zahájíte nový hovor, jeden ze stávajících zavěste nebo je slučte do konference."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Hovor nelze zahájit, protože už probíhají jiné dva hovory. Než zahájíte nový hovor, jeden ze stávajících zavěste."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Nemůžete uskutečnit hovor, protože už probíhá hovor, který nelze podržet. Než zahájíte nový hovor, odpojte ten předchozí."</string>
+    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
+    <skip />
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Nemůžete uskutečnit hovor, protože máte nepřijatý příchozí hovor. Nejdřív ho tedy přijměte nebo odmítněte."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Tento kód MMI není k dispozici pro hovory ve více účtech."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Při tísňovém volání nelze vytáčet kódy MMI."</string>

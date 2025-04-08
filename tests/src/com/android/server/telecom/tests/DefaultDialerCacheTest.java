@@ -69,6 +69,7 @@ public class DefaultDialerCacheTest extends TelecomTestCase {
     @Mock
     private RoleManagerAdapter mRoleManagerAdapter;
     @Mock private Context mUserContext;
+    @Mock private UserHandle mDefaultUserHandle;
 
     @Override
     @Before
@@ -109,6 +110,10 @@ public class DefaultDialerCacheTest extends TelecomTestCase {
         when(mRoleManagerAdapter.getDefaultDialerApp(eq(USER0))).thenReturn(DIALER1);
         when(mRoleManagerAdapter.getDefaultDialerApp(eq(USER1))).thenReturn(DIALER2);
         when(mRoleManagerAdapter.getDefaultDialerApp(eq(USER2))).thenReturn(DIALER3);
+
+        // This test implies user 0 is the default user
+        when(mDefaultUserHandle.getIdentifier()).thenReturn(USER0);
+        when(mContext.getUser()).thenReturn(mDefaultUserHandle);
     }
 
     @Override

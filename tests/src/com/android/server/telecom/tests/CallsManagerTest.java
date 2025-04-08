@@ -350,9 +350,10 @@ public class CallsManagerTest extends TelecomTestCase {
         when(mConnSvrFocusManagerFactory.create(any())).thenReturn(mConnectionSvrFocusMgr);
         doNothing().when(mRoleManagerAdapter).setCurrentUserHandle(any());
         when(mDisconnectedCallNotifierFactory.create(any(Context.class),any(CallsManager.class),
-                any(FeatureFlags.class))).thenReturn(mDisconnectedCallNotifier);
-        when(mTimeoutsAdapter.getCallDiagnosticServiceTimeoutMillis(any(ContentResolver.class)))
-                .thenReturn(2000L);
+                any(FeatureFlags.class)))
+                .thenReturn(mDisconnectedCallNotifier);
+        when(mTimeoutsAdapter.getCallDiagnosticServiceTimeoutMillis(any(Context.class),
+                any(FeatureFlags.class))).thenReturn(2000L);
         when(mTimeoutsAdapter.getNonVoipCallTransitoryStateTimeoutMillis())
                 .thenReturn(STATE_TIMEOUT);
         when(mClockProxy.elapsedRealtime()).thenReturn(0L);
@@ -408,15 +409,27 @@ public class CallsManagerTest extends TelecomTestCase {
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SELF_MANAGED_HANDLE), any())).thenReturn(SELF_MANAGED_ACCOUNT);
         when(mPhoneAccountRegistrar.getPhoneAccount(
+                eq(SELF_MANAGED_HANDLE), any(), anyBoolean())).thenReturn(SELF_MANAGED_ACCOUNT);
+        when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SIM_1_HANDLE), any())).thenReturn(SIM_1_ACCOUNT);
+        when(mPhoneAccountRegistrar.getPhoneAccount(
+                eq(SIM_1_HANDLE), any(), anyBoolean())).thenReturn(SIM_1_ACCOUNT);
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SIM_2_HANDLE), any())).thenReturn(SIM_2_ACCOUNT);
         when(mPhoneAccountRegistrar.getPhoneAccount(
+                eq(SIM_2_HANDLE), any(), anyBoolean())).thenReturn(SIM_2_ACCOUNT);
+        when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SIM_3_HANDLE), any())).thenReturn(SIM_3_ACCOUNT);
+        when(mPhoneAccountRegistrar.getPhoneAccount(
+                eq(SIM_3_HANDLE), any(), anyBoolean())).thenReturn(SIM_3_ACCOUNT);
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(CALL_PROVIDER_HANDLE), any())).thenReturn(CALL_PROVIDER_ACCOUNT);
         when(mPhoneAccountRegistrar.getPhoneAccount(
+                eq(CALL_PROVIDER_HANDLE), any(), anyBoolean())).thenReturn(CALL_PROVIDER_ACCOUNT);
+        when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(WORK_HANDLE), any())).thenReturn(WORK_ACCOUNT);
+        when(mPhoneAccountRegistrar.getPhoneAccount(
+                eq(WORK_HANDLE), any(), anyBoolean())).thenReturn(WORK_ACCOUNT);
         when(mFeatureFlags.separatelyBindToBtIncallService()).thenReturn(false);
         when(mFeatureFlags.telecomResolveHiddenDependencies()).thenReturn(true);
         when(mContext.createContextAsUser(any(UserHandle.class), eq(0)))
@@ -2297,7 +2310,8 @@ public class CallsManagerTest extends TelecomTestCase {
     public void testSpeakerDisabledWhenNoVideoCapabilities() throws Exception {
         Call outgoingCall = addSpyCall(CallState.NEW);
         when(mPhoneAccountRegistrar.getPhoneAccount(
-                any(PhoneAccountHandle.class), any(UserHandle.class))).thenReturn(SIM_1_ACCOUNT);
+                any(PhoneAccountHandle.class), any(UserHandle.class), anyBoolean()))
+                .thenReturn(SIM_1_ACCOUNT);
         mCallsManager.placeOutgoingCall(outgoingCall, TEST_ADDRESS, null, true,
                 VideoProfile.STATE_TX_ENABLED);
         assertFalse(outgoingCall.getStartWithSpeakerphoneOn());
@@ -3691,6 +3705,8 @@ public class CallsManagerTest extends TelecomTestCase {
         assertFalse(mCallsManager.isInSelfManagedCall(TEST_PACKAGE_NAME, TEST_USER_HANDLE));
 
         // WHEN
+        when(mPhoneAccountRegistrar.getPhoneAccount(any(), any(), anyBoolean()))
+                .thenReturn(SM_W_DIFFERENT_PACKAGE_AND_USER);
         when(mPhoneAccountRegistrar.getPhoneAccount(any(), any()))
                 .thenReturn(SM_W_DIFFERENT_PACKAGE_AND_USER);
         // Ensure contact info lookup succeeds
@@ -3971,7 +3987,8 @@ public class CallsManagerTest extends TelecomTestCase {
         // Remap the PhoneAccounts to inherit the restriction set
         for (PhoneAccountHandle callCapableHandle : callCapableHandles) {
             PhoneAccount pa = mPhoneAccountRegistrar.getPhoneAccount(
-                    callCapableHandle, callCapableHandle.getUserHandle());
+                    callCapableHandle, callCapableHandle.getUserHandle(),
+                    true /* across profiles */);
             assertNotNull("test setup error: could not find PA for PAH:" + callCapableHandle,
                     pa);
             // For simplicity, for testing only apply restrictions to SIM accounts
@@ -3984,7 +4001,7 @@ public class CallsManagerTest extends TelecomTestCase {
                         .setSimultaneousCallingRestriction(Collections.emptySet()).build();
             }
             when(mPhoneAccountRegistrar.getPhoneAccount(eq(callCapableHandle),
-                    any())).thenReturn(pa);
+                    any(), anyBoolean())).thenReturn(pa);
         }
     }
 

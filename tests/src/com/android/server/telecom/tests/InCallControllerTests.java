@@ -111,6 +111,7 @@ import com.android.server.telecom.RoleManagerAdapter;
 import com.android.server.telecom.SystemStateHelper;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import org.junit.After;
 import org.junit.Before;
@@ -416,8 +417,8 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.isIncoming()).thenReturn(true);
         when(mMockCall.isExternalCall()).thenReturn(false);
         when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
-        when(mTimeoutsAdapter.getEmergencyCallbackWindowMillis(any(ContentResolver.class)))
-                .thenReturn(300_000L);
+        when(mTimeoutsAdapter.getEmergencyCallbackWindowMillis(any(Context.class),
+                any(FeatureFlags.class))).thenReturn(300_000L);
 
         setupMockPackageManager(false /* default */, true /* system */, false /* external calls */);
         mInCallController.bindToServices(mMockCall);
@@ -450,8 +451,8 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
         when(mMockCall.getIntentExtras()).thenReturn(callExtras);
         when(mMockCall.isExternalCall()).thenReturn(false);
-        when(mTimeoutsAdapter.getEmergencyCallbackWindowMillis(any(ContentResolver.class)))
-                .thenReturn(300_000L);
+        when(mTimeoutsAdapter.getEmergencyCallbackWindowMillis(any(Context.class),
+                any(FeatureFlags.class))).thenReturn(300_000L);
 
         Intent queryIntent = new Intent(InCallService.SERVICE_INTERFACE);
         setupMockPackageManager(false /* default */, true /* system */, false /* external calls */);
@@ -551,8 +552,8 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockContext.bindServiceAsUser(any(Intent.class), any(ServiceConnection.class),
                 eq(serviceBindingFlags),
                 eq(mUserHandle))).thenReturn(true);
-        when(mTimeoutsAdapter.getEmergencyCallbackWindowMillis(any(ContentResolver.class)))
-                .thenReturn(300_000L);
+        when(mTimeoutsAdapter.getEmergencyCallbackWindowMillis(any(Context.class),
+                any(FeatureFlags.class))).thenReturn(300_000L);
 
         setupMockPackageManager(true /* default */, true /* system */, false /* external calls */);
         setupMockPackageManagerLocationPermission(SYS_PKG, false /* granted */);
@@ -756,8 +757,8 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockContext.bindServiceAsUser(any(Intent.class), serviceConnectionCaptor.capture(),
                 eq(serviceBindingFlags),
                 eq(mUserHandle))).thenReturn(true);
-        when(mTimeoutsAdapter.getEmergencyCallbackWindowMillis(any(ContentResolver.class)))
-                .thenReturn(300_000L);
+        when(mTimeoutsAdapter.getEmergencyCallbackWindowMillis(any(Context.class),
+                any(FeatureFlags.class))).thenReturn(300_000L);
 
         setupMockPackageManager(true /* default */, true /* system */, false /* external calls */);
         setupMockPackageManagerLocationPermission(SYS_PKG, false /* granted */);
@@ -1034,8 +1035,8 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockContext.bindServiceAsUser(any(Intent.class), serviceConnectionCaptor.capture(),
                 eq(serviceBindingFlags),
                 eq(mUserHandle))).thenReturn(true);
-        when(mTimeoutsAdapter.getEmergencyCallbackWindowMillis(any(ContentResolver.class)))
-                .thenReturn(300_000L);
+        when(mTimeoutsAdapter.getEmergencyCallbackWindowMillis(any(Context.class),
+                any(FeatureFlags.class))).thenReturn(300_000L);
 
         // Setup package manager; there is a dialer and disable non-ui ICS
         when(mMockPackageManager.queryIntentServicesAsUser(
@@ -1149,8 +1150,8 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockContext.bindServiceAsUser(any(Intent.class), serviceConnectionCaptor.capture(),
                 eq(serviceBindingFlags),
                 eq(mUserHandle))).thenReturn(true);
-        when(mTimeoutsAdapter.getEmergencyCallbackWindowMillis(any(ContentResolver.class)))
-                .thenReturn(300_000L);
+        when(mTimeoutsAdapter.getEmergencyCallbackWindowMillis(any(Context.class),
+                any(FeatureFlags.class))).thenReturn(300_000L);
 
         // Setup package manager; there is a dialer and disable non-ui ICS
         when(mMockPackageManager.queryIntentServicesAsUser(
@@ -1270,7 +1271,7 @@ public class InCallControllerTests extends TelecomTestCase {
                 nullable(ServiceConnection.class), anyInt(), nullable(UserHandle.class)))
                 .thenReturn(true);
         when(mTimeoutsAdapter.getCallRemoveUnbindInCallServicesDelay(
-                nullable(ContentResolver.class))).thenReturn(500L);
+                nullable(Context.class), any(FeatureFlags.class))).thenReturn(500L);
 
         when(mMockCallsManager.getCalls()).thenReturn(Collections.singletonList(mMockCall));
         setupMockPackageManager(true /* default */, true /* system */, false /* external calls */);
@@ -1593,7 +1594,7 @@ public class InCallControllerTests extends TelecomTestCase {
                 nullable(ServiceConnection.class), anyInt(), nullable(UserHandle.class)))
                 .thenReturn(true);
         when(mTimeoutsAdapter.getCallRemoveUnbindInCallServicesDelay(
-                nullable(ContentResolver.class))).thenReturn(500L);
+                nullable(Context.class), any(FeatureFlags.class))).thenReturn(500L);
 
         when(mMockCallsManager.getCalls()).thenReturn(Collections.singletonList(mMockCall));
         setupMockPackageManager(true /* default */, true /* nonui */, false /* appop_nonui */ ,

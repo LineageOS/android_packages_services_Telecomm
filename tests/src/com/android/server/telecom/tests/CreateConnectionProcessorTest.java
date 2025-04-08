@@ -60,6 +60,7 @@ import com.android.server.telecom.CreateConnectionResponse;
 import com.android.server.telecom.CreateConnectionTimeout;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.Timeouts;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import org.junit.After;
 import org.junit.Before;
@@ -164,7 +165,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
                 thenReturn(Binder.getCallingUserHandle());
 
         mTestCreateConnectionTimeout = new CreateConnectionTimeout(mContext, mMockAccountRegistrar,
-                makeConnectionServiceWrapper(), mMockCall, mTimeoutsAdapter);
+                makeConnectionServiceWrapper(), mMockCall, mFeatureFlags, mTimeoutsAdapter);
     }
 
     @Override
@@ -879,9 +880,10 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         when(mMockAccountRegistrar.getPhoneAccount(eq(callManagerPA.getAccountHandle()),
                 any())).thenReturn(callManagerPA);
         Duration timeout = Duration.ofMillis(10);
-        when(mTimeoutsAdapter.getEmergencyCallTimeoutMillis(any())).thenReturn(timeout.toMillis());
-        when(mTimeoutsAdapter.getEmergencyCallTimeoutRadioOffMillis(any())).thenReturn(
-                timeout.toMillis());
+        when(mTimeoutsAdapter.getEmergencyCallTimeoutMillis(any(), any(FeatureFlags.class)))
+                .thenReturn(timeout.toMillis());
+        when(mTimeoutsAdapter.getEmergencyCallTimeoutRadioOffMillis(any(), any(FeatureFlags.class)))
+                .thenReturn(timeout.toMillis());
 
 
         mTestCreateConnectionProcessor.process();
@@ -917,9 +919,10 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         when(mMockAccountRegistrar.getPhoneAccount(eq(callManagerPA.getAccountHandle()),
                 any())).thenReturn(callManagerPA);
         Duration timeout = Duration.ofMillis(10);
-        when(mTimeoutsAdapter.getEmergencyCallTimeoutMillis(any())).thenReturn(timeout.toMillis());
-        when(mTimeoutsAdapter.getEmergencyCallTimeoutRadioOffMillis(any())).thenReturn(
-                timeout.toMillis());
+        when(mTimeoutsAdapter.getEmergencyCallTimeoutMillis(any(), any(FeatureFlags.class)))
+                .thenReturn(timeout.toMillis());
+        when(mTimeoutsAdapter.getEmergencyCallTimeoutRadioOffMillis(any(), any(FeatureFlags.class)))
+                .thenReturn(timeout.toMillis());
 
         mTestCreateConnectionProcessor.process();
 

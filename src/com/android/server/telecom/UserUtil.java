@@ -39,6 +39,11 @@ public final class UserUtil {
 
     private static final String LOG_TAG = "UserUtil";
 
+    public static int getUserIdFromContext(Context context, FeatureFlags featureFlags){
+        return featureFlags.resolveHiddenDependenciesTwo() ? context.getUser().getIdentifier() :
+                context.getUserId();
+    }
+
     private static UserInfo getUserInfoFromUserHandle(Context context, UserHandle userHandle) {
         UserManager userManager = context.getSystemService(UserManager.class);
         return userManager.getUserInfo(userHandle.getIdentifier());

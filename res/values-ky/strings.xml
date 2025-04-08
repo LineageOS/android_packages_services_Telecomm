@@ -138,6 +138,8 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Чалуу аткарылбайт, анткени эки чалуу аткарылууда. Бир чалууну өчүрүңүз же аларды конференцияга бириктириңиз."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Эки чалуу аткарылууда, андыктан чалууга болбойт. Жаңы чалуу аткаруудан мурун учурдагы чалуулардын бирин бүтүрүңүз."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Чалуу мүмкүн эмес, анткени кармалбаган чалуу бар. Жаңы чалуудан мурда учурдагыны бүтүрүңүз."</string>
+    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
+    <skip />
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Чалуу аткарылбайт, анткени кирүүчү чалууга жооп берилген жок. Жаңы чалуу аткаруудан мурун кирүүчү чалууга жооп бериңиз же четке кагыңыз."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Бул MMI коду бир нече аккаунт аркылуу чалуулар үчүн жеткиликсиз."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Шашылыш чалуу учурунда MMI коддорун терүүгө болбойт."</string>

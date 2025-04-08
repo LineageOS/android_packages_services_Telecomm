@@ -138,6 +138,8 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Du kan ikke ringe fordi to andre anrop allerede pågår. Koble fra ett av anropene eller slå dem sammen i en konferansesamtale, før du ringer på nytt."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Du kan ikke ringe fordi to andre anrop allerede pågår. Koble fra ett av anropene før du ringer på nytt."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Kan ikke ringe fordi det pågår en samtale som ikke kan settes på vent. Avslutt samtalen før du ringer på nytt."</string>
+    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
+    <skip />
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Du kan ikke ringe, fordi du har et innkommende anrop. Svar på eller avvis anropet før du prøver å ringe igjen."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Denne MMI-koden kan ikke brukes til anrop på flere kontoer samtidig."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Det er ikke mulig å taste MMI-koder under nødanrop."</string>

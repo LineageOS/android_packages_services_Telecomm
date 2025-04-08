@@ -138,6 +138,8 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"โทรออกไม่ได้เนื่องจากมีการโทร 2 สายที่กำลังดำเนินอยู่ โปรดยกเลิกการเชื่อมต่อสายใดสายหนึ่งหรือรวมเป็นการประชุมสายก่อนโทรออกใหม่"</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"โทรออกไม่ได้เนื่องจากมีการโทร 2 สายที่กำลังดำเนินอยู่ โปรดยกเลิกการเชื่อมต่อ 1 สายก่อนโทรออกใหม่"</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"โทรออกไม่ได้เนื่องจากมีการโทรที่ไม่สามารถพักสายได้ โปรดยกเลิกการเชื่อมต่อสายดังกล่าวก่อนโทรออกใหม่"</string>
+    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
+    <skip />
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"โทรออกไม่ได้เนื่องจากมีสายเรียกเข้าที่ยังไม่ได้รับ โปรดรับหรือปฏิเสธสายเรียกเข้าก่อนจึงค่อยโทรออกใหม่"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"รหัส MMI นี้ใช้ไม่ได้กับการโทรผ่านหลายบัญชี"</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"ไม่สามารถโทรออกด้วยโค้ด MMI ระหว่างการโทรฉุกเฉิน"</string>

@@ -138,6 +138,8 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Kan gesprek niet plaatsen omdat er al 2 actieve gesprekken zijn. Verbreek de verbinding in een van de gesprekken of voeg ze samen tot een conferencecall voordat je een nieuw gesprek plaatst."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Kan gesprek niet plaatsen omdat er al 2 actieve gesprekken zijn. Verbreek de verbinding van een van de gesprekken voordat je een nieuw gesprek plaatst."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Kan gesprek niet plaatsen omdat je het live gesprek niet in de wacht kunt zetten. Verbreek de verbinding van het live gesprek voordat je een nieuw gesprek plaatst."</string>
+    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
+    <skip />
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Kan niet bellen omdat er een niet-beantwoord inkomend gesprek is. Beantwoord of weiger het inkomende gesprek voordat je opnieuw belt."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Deze MMI-code is niet beschikbaar voor gesprekken met meerdere accounts."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Je kunt geen MMI-code kiezen tijdens een noodoproep."</string>

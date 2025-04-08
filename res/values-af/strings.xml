@@ -138,6 +138,8 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Kan nie ’n oproep maak nie omdat daar reeds twee oproepe aan die gang is. Beëindig een van die oproepe of voeg dit saam in ’n konferensie voordat ’n nuwe oproep gemaak word."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Kan nie ’n oproep maak nie omdat daar reeds twee oproepe aan die gang is. Beëindig een van die oproepe voordat ’n nuwe oproep gemaak word."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Kan nie ’n oproep maak nie omdat daar ’n oproep is wat nie aangehou kan word nie. Beëindig die oproep voordat ’n nuwe oproep gemaak word."</string>
+    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
+    <skip />
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Kan nie ’n oproep maak nie, aangesien daar ’n onbeantwoorde inkomende oproep is. Beantwoord of weier die inkomende oproep voordat jy ’n nuwe oproep plaas."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Hierdie MMI-kode is nie beskikbaar vir oproepe tussen verskeie rekeninge nie."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"MMI-kodes kan nie tydens ’n noodoproep geskakel word nie."</string>

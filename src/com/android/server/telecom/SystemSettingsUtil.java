@@ -24,6 +24,7 @@ import android.provider.DeviceConfig;
 import android.provider.Settings;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.server.telecom.flags.FeatureFlags;
 
 /**
  * Accesses the Global System settings for more control during testing.
@@ -35,7 +36,7 @@ public class SystemSettingsUtil {
     private static final String RAMPING_RINGER_AUDIO_COUPLED_VIBRATION_ENABLED =
             "ramping_ringer_audio_coupled_vibration_enabled";
 
-    public boolean isRingVibrationEnabled(Context context) {
+    public boolean isRingVibrationEnabled(Context context, FeatureFlags flags) {
         // VIBRATE_WHEN_RINGING setting was deprecated, only RING_VIBRATION_INTENSITY controls the
         // ringtone vibrations on/off state now. Ramping ringer should only be applied when ring
         // vibration intensity is ON, otherwise the ringtone sound should not be delayed as there
@@ -44,18 +45,21 @@ public class SystemSettingsUtil {
                 Settings.System.RING_VIBRATION_INTENSITY,
                 context.getSystemService(Vibrator.class).getDefaultVibrationIntensity(
                         VibrationAttributes.USAGE_RINGTONE),
-                context.getUserId()) != Vibrator.VIBRATION_INTENSITY_OFF;
+                UserUtil.getUserIdFromContext(context, flags))
+                != Vibrator.VIBRATION_INTENSITY_OFF;
     }
 
-    public boolean isEnhancedCallBlockingEnabled(Context context) {
+    public boolean isEnhancedCallBlockingEnabled(Context context, FeatureFlags flags) {
         return Settings.System.getIntForUser(context.getContentResolver(),
-                Settings.System.DEBUG_ENABLE_ENHANCED_CALL_BLOCKING, 0, context.getUserId()) != 0;
+                Settings.System.DEBUG_ENABLE_ENHANCED_CALL_BLOCKING, 0,
+                UserUtil.getUserIdFromContext(context, flags)) != 0;
     }
 
-    public boolean setEnhancedCallBlockingEnabled(Context context, boolean enabled) {
+    public boolean setEnhancedCallBlockingEnabled(Context context, boolean enabled,
+            FeatureFlags flags) {
         return Settings.System.putIntForUser(context.getContentResolver(),
                 Settings.System.DEBUG_ENABLE_ENHANCED_CALL_BLOCKING, enabled ? 1 : 0,
-                context.getUserId());
+                UserUtil.getUserIdFromContext(context, flags));
     }
 
     public boolean isRampingRingerEnabled(Context context) {

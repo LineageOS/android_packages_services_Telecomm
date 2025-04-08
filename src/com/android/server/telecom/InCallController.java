@@ -1544,7 +1544,7 @@ public class InCallController extends CallsManagerListenerBase implements
             }.prepare();
             mHandler.postDelayed(mCallRemovedRunnable,
                     mTimeoutsAdapter.getCallRemoveUnbindInCallServicesDelay(
-                            mContext.getContentResolver()));
+                            mContext, mFeatureFlags));
         }
         call.removeListener(mCallListener);
         mCallIdMapper.removeCall(call);
@@ -1639,7 +1639,7 @@ public class InCallController extends CallsManagerListenerBase implements
                         }
                     }
                 }.prepare(), mTimeoutsAdapter.getCallRemoveUnbindInCallServicesDelay(
-                        mContext.getContentResolver()));
+                        mContext, mFeatureFlags));
             }
             mBTInCallServiceConnections.remove(userHandle);
         }
@@ -2155,7 +2155,7 @@ public class InCallController extends CallsManagerListenerBase implements
 
         mBtBindingFuture.put(userToBind, new CompletableFuture<Boolean>().completeOnTimeout(false,
                 mTimeoutsAdapter.getCallBindBluetoothInCallServicesDelay(
-                        mContext.getContentResolver()), TimeUnit.MILLISECONDS));
+                        mContext, mFeatureFlags), TimeUnit.MILLISECONDS));
         InCallServiceBindingConnection btIcsBindingConnection =
                 new InCallServiceBindingConnection(infos.get(0),
                         serviceUnavailableForUser ? parentUser : userToBind);
@@ -2240,7 +2240,7 @@ public class InCallController extends CallsManagerListenerBase implements
             connectToNonUiInCallServices(call);
             mBindingFuture = new CompletableFuture<Boolean>().completeOnTimeout(false,
                     mTimeoutsAdapter.getCallRemoveUnbindInCallServicesDelay(
-                            mContext.getContentResolver()),
+                            mContext, mFeatureFlags),
                     TimeUnit.MILLISECONDS);
         } else {
             Log.i(this, "bindToServices: current UI doesn't support call; not binding.");

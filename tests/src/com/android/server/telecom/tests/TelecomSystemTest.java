@@ -513,7 +513,7 @@ public class TelecomSystemTest extends TelecomTestCase{
                 };
 
         mTimeoutsAdapter = mock(Timeouts.Adapter.class);
-        when(mTimeoutsAdapter.getCallScreeningTimeoutMillis(any(ContentResolver.class)))
+        when(mTimeoutsAdapter.getCallScreeningTimeoutMillis(any(Context.class), any(FeatureFlags.class)))
                 .thenReturn(TEST_TIMEOUT / 5L);
         mIncomingCallNotifier = mock(IncomingCallNotifier.class);
         mClockProxy = mock(ClockProxy.class);

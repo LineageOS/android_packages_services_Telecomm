@@ -138,6 +138,8 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Невозможно позвонить, поскольку ещё не завершены два текущих вызова. Сбросьте один из вызовов или объедините их в конференцию."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Невозможно позвонить, поскольку ещё не завершены два текущих вызова. Сбросьте один из них."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Невозможно позвонить, поскольку нельзя поставить текущий вызов на удержание. Сбросьте вызов, чтобы начать новый."</string>
+    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
+    <skip />
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Невозможно позвонить, поскольку вы не ответили на входящий вызов. Примите или отклоните текущий звонок."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Этот код MMI недоступен для вызовов с использованием нескольких аккаунтов."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Коды MMI нельзя использовать во время экстренных вызовов."</string>

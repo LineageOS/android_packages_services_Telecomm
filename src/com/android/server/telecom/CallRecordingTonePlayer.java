@@ -128,12 +128,11 @@ public class CallRecordingTonePlayer extends CallsManagerListenerBase {
     public CallRecordingTonePlayer(Context context, AudioManager audioManager,
             Timeouts.Adapter timeouts,
             TelecomSystem.SyncRoot lock, FeatureFlags featureFlags) {
+        mFeatureFlags = featureFlags;
         mContext = context;
         mAudioManager = audioManager;
         mLock = lock;
-        mRepeatInterval = timeouts.getCallRecordingToneRepeatIntervalMillis(
-                context.getContentResolver());
-        mFeatureFlags = featureFlags;
+        mRepeatInterval = timeouts.getCallRecordingToneRepeatIntervalMillis(context, featureFlags);
     }
 
     @Override

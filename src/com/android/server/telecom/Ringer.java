@@ -373,7 +373,7 @@ public class Ringer {
             String vibratorAttrs = String.format("hasVibrator=%b, userRequestsVibrate=%b, "
                             + "ringerMode=%d, isVibratorEnabled=%b",
                     mVibrator.hasVibrator(),
-                    mSystemSettingsUtil.isRingVibrationEnabled(mContext),
+                    mSystemSettingsUtil.isRingVibrationEnabled(mContext, mFlags),
                     mAudioManager.getRingerMode(), isVibratorEnabled);
 
             if (attributes.isRingerAudible()) {
@@ -433,11 +433,6 @@ public class Ringer {
                     && isVibratorEnabled) {
                 Log.i(this, "Muted haptic channels since audio coupled ramping ringer is disabled");
                 hapticChannelsMuted = true;
-                if (useCustomVibration(foregroundCall)) {
-                    Log.i(this,
-                            "Not muted haptic channel for customization when apply ramping ringer");
-                    hapticChannelsMuted = false;
-                }
             } else if (hapticChannelsMuted) {
                 Log.i(this,
                         "Muted haptic channels isVibratorEnabled=%s, hapticPlaybackSupported=%s",
@@ -586,7 +581,8 @@ public class Ringer {
             if (foregroundCall == mVibratingCall && !mIsVibrating) {
                 Log.addEvent(foregroundCall, LogUtils.Events.START_VIBRATOR,
                     "hasVibrator=%b, userRequestsVibrate=%b, ringerMode=%d, isVibrating=%b",
-                    mVibrator.hasVibrator(), mSystemSettingsUtil.isRingVibrationEnabled(mContext),
+                        mVibrator.hasVibrator(),
+                        mSystemSettingsUtil.isRingVibrationEnabled(mContext, mFlags),
                     mAudioManager.getRingerMode(), mIsVibrating);
                 mIsVibrating = true;
                 mVibrator.vibrate(effect, VIBRATION_ATTRIBUTES);
@@ -748,7 +744,7 @@ public class Ringer {
         }
         maybeGenAnomReportForGetRingerMode(zenModeOn, audioManager);
         return mVibrator.hasVibrator()
-                && mSystemSettingsUtil.isRingVibrationEnabled(context)
+                && mSystemSettingsUtil.isRingVibrationEnabled(context, mFlags)
                 && (audioManager.getRingerMode() != AudioManager.RINGER_MODE_SILENT
                 || (zenModeOn && shouldRingForContact));
     }

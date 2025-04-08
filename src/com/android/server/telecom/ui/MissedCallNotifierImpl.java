@@ -259,7 +259,7 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
         }
         BroadcastOptions bopts = BroadcastOptions.makeBasic();
         long duration = Timeouts.getDialerMissedCallPowerSaveExemptionTimeMillis(
-                mContext.getContentResolver());
+                mContext, mFeatureFlags);
         mDeviceIdleControllerAdapter.exemptAppTemporarilyForEvent(dialerPackage, duration,
                 handle.getIdentifier(), MISSED_CALL_POWER_SAVE_REASON);
         bopts.setTemporaryAppWhitelistDuration(duration);

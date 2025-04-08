@@ -49,7 +49,7 @@ public class DtmfLocalTonePlayerTest extends TelecomTestCase {
     public void setUp() throws Exception {
         super.setUp();
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
-        mPlayer = new DtmfLocalTonePlayer(mToneProxy);
+        mPlayer = new DtmfLocalTonePlayer(mToneProxy, mFeatureFlags);
         when(mCall.getContext()).thenReturn(mContext);
     }
 

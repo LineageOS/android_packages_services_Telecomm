@@ -716,7 +716,7 @@ public class CallsManager extends Call.ListenerBase
         }
 
         mDtmfLocalTonePlayer =
-                new DtmfLocalTonePlayer(new DtmfLocalTonePlayer.ToneGeneratorProxy());
+                new DtmfLocalTonePlayer(new DtmfLocalTonePlayer.ToneGeneratorProxy(), featureFlags);
         // TODO: add another flag check when
         // bluetoothDeviceManager.getBluetoothHeadset().isScoManagedByAudio()
         // available and return true
@@ -790,7 +790,7 @@ public class CallsManager extends Call.ListenerBase
 
         mConnectionSvrFocusMgr = connectionServiceFocusManagerFactory.create(mRequester);
         mHeadsetMediaButton = headsetMediaButtonFactory.create(context, this, mLock);
-        mTtyManager = new TtyManager(context, mWiredHeadsetManager);
+        mTtyManager = new TtyManager(context, mWiredHeadsetManager, featureFlags);
         mProximitySensorManager = proximitySensorManagerFactory.create(context, this);
         mPhoneStateBroadcaster = new PhoneStateBroadcaster(this);
         mCallLogManager = new CallLogManager(context, phoneAccountRegistrar, mMissedCallNotifier,
@@ -1297,7 +1297,7 @@ public class CallsManager extends Call.ListenerBase
                 }
             };
             mHandler.postDelayed(mStopTone.prepare(),
-                    Timeouts.getDelayBetweenDtmfTonesMillis(mContext.getContentResolver()));
+                    Timeouts.getDelayBetweenDtmfTonesMillis(mContext, mFeatureFlags));
         } else if (nextChar == 0 || nextChar == TelecomManager.DTMF_CHARACTER_WAIT ||
                 nextChar == TelecomManager.DTMF_CHARACTER_PAUSE) {
             // Stop the tone if a tone is playing, removing any other stopTone callbacks since
@@ -2236,7 +2236,7 @@ public class CallsManager extends Call.ListenerBase
                     }
                     Context userContext = mContext.createContextAsUser(getCurrentUserHandle(), 0);
                     return PhoneAccountSuggestionHelper.bindAndGetSuggestions(userContext,
-                            finalCall.getHandle(), potentialPhoneAccounts);
+                            finalCall.getHandle(), potentialPhoneAccounts, mFeatureFlags);
                 }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.cOCSS", mLock));
 
 
@@ -2790,7 +2790,7 @@ public class CallsManager extends Call.ListenerBase
                     public CharSequence getAppLabel(String packageName, UserHandle userHandle) {
                         return Util.getAppLabel(mContext, userHandle, packageName, mFeatureFlags);
                     }
-                }).process();
+                }, mFeatureFlags).process();
         future.thenApply( v -> {
             Log.i(this, "Outgoing caller ID complete");
             return null;
@@ -3929,7 +3929,7 @@ public class CallsManager extends Call.ListenerBase
         for (PhoneAccountHandle callHandle : activeCallAccounts) {
             allAccounts.removeIf(candidateHandle -> {
                 PhoneAccount callAcct = mPhoneAccountRegistrar.getPhoneAccount(callHandle,
-                        user);
+                        user, true /* acrossProfiles */);
                 if (callAcct == null) {
                     Log.w(this, "constructPossiblePhoneAccountsNew: unexpected"
                             + "null PA for PAH, removing : " + candidateHandle);
@@ -4041,8 +4041,9 @@ public class CallsManager extends Call.ListenerBase
     }
 
     private boolean isRttSettingOn(PhoneAccountHandle handle) {
+        int userId = UserUtil.getUserIdFromContext(mContext, mFeatureFlags);
         boolean isRttModeSettingOn = Settings.Secure.getIntForUser(mContext.getContentResolver(),
-                Settings.Secure.RTT_CALLING_MODE, 0, mContext.getUserId()) != 0;
+                Settings.Secure.RTT_CALLING_MODE, 0, userId) != 0;
         // If the carrier config says that we should ignore the RTT mode setting from the user,
         // assume that it's off (i.e. only make an RTT call if it's requested through the extra).
         boolean shouldIgnoreRttModeSetting = getCarrierConfigForPhoneAccount(handle)
@@ -4372,8 +4373,8 @@ public class CallsManager extends Call.ListenerBase
 
             // Setup the future with a timeout so that the CDS is time boxed.
             CompletableFuture<Boolean> future = call.initializeDiagnosticCompleteFuture(
-                    mTimeoutsAdapter.getCallDiagnosticServiceTimeoutMillis(
-                            mContext.getContentResolver()));
+                    mTimeoutsAdapter.getCallDiagnosticServiceTimeoutMillis(mContext,
+                            mFeatureFlags));
 
             // Post the disconnection updates to the future for completion once the CDS returns
             // with it's overridden disconnect message.

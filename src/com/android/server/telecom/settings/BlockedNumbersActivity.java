@@ -159,7 +159,7 @@ public class BlockedNumbersActivity extends ListActivity
         updateButterBar();
 
         updateEnhancedCallBlockingFragment(
-                BlockedNumbersUtil.isEnhancedCallBlockingEnabledByPlatform(this));
+                BlockedNumbersUtil.isEnhancedCallBlockingEnabledByPlatform(this, mFeatureFlags));
 
         mBlockingStatusReceiver = new BroadcastReceiver() {
             @Override

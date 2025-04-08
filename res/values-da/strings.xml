@@ -138,6 +138,7 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Der kan ikke foretages et opkald, fordi der allerede er to igangværende opkald. Afslut et af opkaldene, eller flet dem til et telefonmøde, før du foretager et nyt opkald."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Der kan ikke foretages et opkald, fordi der allerede er to igangværende opkald. Afslut et af opkaldene, før du foretager et nyt."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Opkaldet kan ikke foretages, fordi der er et opkald i gang, som ikke kan sættes på hold. Afslut opkaldet, før du foretager et nyt."</string>
+    <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Det aktive opkald kan ikke udskiftes, da det ikke understøtter funktionen til at sætte opkald på hold. Afslut det nuværende opkald for at gøre opkaldet, der er på hold, aktivt."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Der kan ikke foretages et opkald, fordi et indgående opkald ringer. Besvar eller afvis det indgående opkald, før du foretager et nyt opkald."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Denne MMI-kode er ikke tilgængelig for opkald på tværs af flere konti."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"MMI-koder kan ikke ringe under et nødopkald."</string>

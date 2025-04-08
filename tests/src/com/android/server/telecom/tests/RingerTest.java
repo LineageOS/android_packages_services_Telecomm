@@ -890,38 +890,6 @@ public class RingerTest extends TelecomTestCase {
         }
     }
 
-    @SmallTest
-    @Test
-    @EnableFlags(Flags.FLAG_ENABLE_RINGTONE_HAPTICS_CUSTOMIZATION)
-    public void testNotMuteHapticChannelWithRampingRinger() throws Exception {
-        final Context context = ApplicationProvider.getApplicationContext();
-        Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(context,
-                RingtoneManager.TYPE_RINGTONE);
-        assumeNotNull(defaultRingtoneUri);
-        Uri FAKE_RINGTONE_VIBRATION_URI = defaultRingtoneUri.buildUpon().appendQueryParameter(
-                        VIBRATION_PARAM, FAKE_VIBRATION_URI.toString()).build();
-        mComponentContextFixture.putBooleanResource(
-                com.android.internal.R.bool.config_ringtoneVibrationSettingsSupported, true);
-        ArgumentCaptor<Boolean> muteHapticChannelCaptor = ArgumentCaptor.forClass(Boolean.class);
-        try {
-            RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE,
-                    FAKE_RINGTONE_VIBRATION_URI);
-            createRingerUnderTest(); // Needed after mock the config.
-            mRingerUnderTest.startCallWaiting(mockCall1);
-            ensureRingerIsAudible();
-            enableRampingRinger();
-            enableVibrationWhenRinging();
-            assertTrue(startRingingAndWaitForAsync(mockCall2, false));
-            verify(mockRingtoneFactory, atLeastOnce()).getRingtone(any(Call.class),
-                    nullable(VolumeShaper.Configuration.class), muteHapticChannelCaptor.capture());
-            assertFalse(muteHapticChannelCaptor.getValue());
-        } finally {
-            // Restore the default ringtone Uri
-            RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE,
-                    defaultRingtoneUri);
-        }
-    }
-
     /**
      * Call startRinging and wait for its effects to have played out, to allow reliable assertions
      * after it. The effects are generally "start playing ringtone" and "start vibration" - not
@@ -946,12 +914,14 @@ public class RingerTest extends TelecomTestCase {
 
     private void enableVibrationWhenRinging() {
         when(mockVibrator.hasVibrator()).thenReturn(true);
-        when(mockSystemSettingsUtil.isRingVibrationEnabled(any(Context.class))).thenReturn(true);
+        when(mockSystemSettingsUtil.isRingVibrationEnabled(any(Context.class),
+                any(FeatureFlags.class))).thenReturn(true);
     }
 
     private void enableVibrationOnlyWhenNotRinging() {
         when(mockVibrator.hasVibrator()).thenReturn(true);
-        when(mockSystemSettingsUtil.isRingVibrationEnabled(any(Context.class))).thenReturn(false);
+        when(mockSystemSettingsUtil.isRingVibrationEnabled(any(Context.class),
+                any(FeatureFlags.class))).thenReturn(false);
     }
 
     private void enableRampingRinger() {

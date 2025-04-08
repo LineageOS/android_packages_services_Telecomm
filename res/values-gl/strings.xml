@@ -138,6 +138,8 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Non se pode facer ningunha chamada porque xa hai dúas en curso. Para poder facer unha nova, desconecta unha desas dúas ou combínaas nunha conferencia."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Non se pode facer ningunha chamada porque xa hai dúas en curso. Desconecta unha delas antes de facer outra."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Non se pode facer ningunha chamada porque hai unha que non é posible poñer en espera. Desconéctaa para poder facer unha nova."</string>
+    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
+    <skip />
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Non podes chamar porque te están chamando nestes momentos. Para poder facer unha chamada, primeiro tes que responder á outra ou rexeitala."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Este código MMI non está dispoñible para chamadas en varias contas."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Non se poden marcar códigos MMI durante as chamadas de emerxencia."</string>

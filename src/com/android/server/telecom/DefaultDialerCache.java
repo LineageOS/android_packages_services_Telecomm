@@ -118,11 +118,11 @@ public class DefaultDialerCache {
             DefaultDialerManagerAdapter defaultDialerManagerAdapter,
             RoleManagerAdapter roleManagerAdapter,
             TelecomSystem.SyncRoot lock, FeatureFlags featureFlags) {
+
         mContext = context;
         mDefaultDialerManagerAdapter = defaultDialerManagerAdapter;
         mRoleManagerAdapter = roleManagerAdapter;
         mFeatureFlags = featureFlags;
-
         Resources resources = mContext.getResources();
         mSystemDialerComponentName = new ComponentName(resources.getString(
                 com.android.internal.R.string.config_defaultDialer),
@@ -188,7 +188,7 @@ public class DefaultDialerCache {
     }
 
     public String getDefaultDialerApplication() {
-        return getDefaultDialerApplication(mContext.getUserId());
+        return getDefaultDialerApplication(UserUtil.getUserIdFromContext(mContext, mFeatureFlags));
     }
 
     public void setSystemDialerComponentName(ComponentName testComponentName) {
