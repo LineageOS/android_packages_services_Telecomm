@@ -592,7 +592,8 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         // It's possible that there are multiple HFP devices connected and if we receive SCO audio
         // connected for the destination route's BT device, then we shouldn't disconnect SCO when
         // clearing the communication device for the original route if it was also a HFP device.
-        boolean isScoDeviceAlreadyConnected = mScoAudioConnectedDevice != null
+        // This does not apply to the route deactivation scenario.
+        boolean isScoDeviceAlreadyConnected = mScoAudioConnectedDevice != null && isDestRouteActive
                 && Objects.equals(mScoAudioConnectedDevice, mBluetoothRoutes.get(destRoute));
         if (mIsPending) {
             if (destRoute.equals(mPendingAudioRoute.getDestRoute())
