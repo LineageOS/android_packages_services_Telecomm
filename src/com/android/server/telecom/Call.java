@@ -2360,12 +2360,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     public void setTransactionalCapabilities(Bundle extras) {
-        if (!mFlags.remapTransactionalCapabilities()) {
-            setConnectionCapabilities(
-                    extras.getInt(CallAttributes.CALL_CAPABILITIES_KEY,
-                            CallAttributes.SUPPORTS_SET_INACTIVE), true);
-            return;
-        }
         int connectionCapabilitesBitmap = 0;
         int transactionalCapabilitiesBitmap = extras.getInt(
                 CallAttributes.CALL_CAPABILITIES_KEY,

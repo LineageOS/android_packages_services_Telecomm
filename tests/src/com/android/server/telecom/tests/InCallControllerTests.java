@@ -314,7 +314,6 @@ public class InCallControllerTests extends TelecomTestCase {
                 .thenReturn(PackageManager.PERMISSION_DENIED);
 
         when(mMockCallsManager.getAudioState()).thenReturn(new CallAudioState(false, 0, 0));
-        when(mFeatureFlags.onCallEndpointChangedIcsOnConnected()).thenReturn(true);
         when(mMockCallsManager.getCallEndpointController()).thenReturn(mMockCallEndpointController);
         when(mMockCallEndpointController.getCurrentCallEndpoint())
                 .thenReturn(new CallEndpoint("Earpiece", 1));

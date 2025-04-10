@@ -25,14 +25,6 @@ flag {
   bug: "306395598"
 }
 
-# OWNER=pmadapurmath TARGET=24Q4
-flag {
-  name: "on_call_endpoint_changed_ics_on_connected"
-  namespace: "telecom"
-  description: "Ensure onCallEndpointChanged is sent to ICS when it connects."
-  bug: "348297436"
-}
-
 # OWNER=tjstuart TARGET=24Q4
 flag {
   name: "do_not_send_call_to_null_ics"
