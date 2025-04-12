@@ -220,14 +220,6 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             handlerThread.start();
         }
 
-        // Register broadcast receivers
-        if (!mFeatureFlags.newAudioPathSpeakerBroadcastAndUnfocusedRouting()) {
-            IntentFilter speakerChangedFilter = new IntentFilter(
-                    AudioManager.ACTION_SPEAKERPHONE_STATE_CHANGED);
-            speakerChangedFilter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
-            context.registerReceiver(mSpeakerPhoneChangeReceiver, speakerChangedFilter);
-        }
-
         IntentFilter micMuteChangedFilter = new IntentFilter(
                 AudioManager.ACTION_MICROPHONE_MUTE_CHANGED);
         micMuteChangedFilter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
@@ -472,11 +464,8 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         mIsActive = false;
         mCallAudioState = new CallAudioState(mIsMute, ROUTE_MAP.get(mCurrentRoute.getType()),
                 supportMask, null, new HashSet<>());
-        if (mFeatureFlags.newAudioPathSpeakerBroadcastAndUnfocusedRouting()) {
-            mAudioManager.addOnCommunicationDeviceChangedListener(
-                    mCommunicationDeviceChangedExecutor,
-                    mCommunicationDeviceListener);
-        }
+        mAudioManager.addOnCommunicationDeviceChangedListener(
+                mCommunicationDeviceChangedExecutor, mCommunicationDeviceListener);
     }
 
     @Override
@@ -1377,9 +1366,6 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             boolean includeBluetooth, String btAddressToExclude) {
         boolean skipEarpiece = false;
         Call foregroundCall = mCallAudioManager.getForegroundCall();
-        if (!mFeatureFlags.fixUserRequestBaselineRouteVideoCall()) {
-            isExplicitUserRequest = false;
-        }
         if (!isExplicitUserRequest) {
             synchronized (mTelecomLock) {
                 skipEarpiece = foregroundCall != null

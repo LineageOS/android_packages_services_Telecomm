@@ -1,14 +1,6 @@
 package: "com.android.server.telecom.flags"
 container: "system"
 
-# OWNER=pmadapurmath TARGET=24Q3
-flag {
-  name: "use_improved_listener_order"
-  namespace: "telecom"
-  description: "Make InCallController the first listener to trigger"
-  bug: "24244713"
-}
-
 # OWNER=tjstuart TARGET=24Q3
 flag {
   name: "fix_audio_flicker_for_outgoing_calls"

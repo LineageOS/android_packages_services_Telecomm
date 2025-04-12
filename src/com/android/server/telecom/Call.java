@@ -1938,7 +1938,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                     mContext.getPackageManager());
             // Set the associated user for the call for MT calls based on the target phone account.
             UserHandle associatedUser = UserUtil.getAssociatedUserForCall(
-                    mFlags.associatedUserRefactorForWorkProfile(),
                     mCallsManager.getPhoneAccountRegistrar(), mCallsManager.getCurrentUserHandle(),
                     accountHandle);
             if (isIncoming() && !associatedUser.equals(mAssociatedUser)) {

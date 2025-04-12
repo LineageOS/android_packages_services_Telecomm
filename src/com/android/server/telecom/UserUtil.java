@@ -155,12 +155,8 @@ public final class UserUtil {
      * phone account handle user, otherwise return the target phone account handle user. If the
      * flag is disabled, return the legacy {@link UserHandle}.
      */
-    public static UserHandle getAssociatedUserForCall(boolean isAssociatedUserFlagEnabled,
-            PhoneAccountRegistrar phoneAccountRegistrar, UserHandle currentUser,
-            PhoneAccountHandle targetPhoneAccount) {
-        if (!isAssociatedUserFlagEnabled) {
-            return targetPhoneAccount.getUserHandle();
-        }
+    public static UserHandle getAssociatedUserForCall(PhoneAccountRegistrar phoneAccountRegistrar,
+            UserHandle currentUser, PhoneAccountHandle targetPhoneAccount) {
         // For multi-user phone accounts, associate the call with the profile receiving/placing
         // the call. For SIM accounts (that are assigned to specific users), the user association
         // will be placed on the target phone account handle user.

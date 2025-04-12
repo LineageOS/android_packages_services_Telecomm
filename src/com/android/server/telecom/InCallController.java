@@ -1516,9 +1516,7 @@ public class InCallController extends CallsManagerListenerBase implements
         UserHandle userFromCall = getUserFromCall(call);
         Stream<Call> callsAssociatedWithUserFromCall = mCallsManager.getCalls().stream()
                 .filter((c) -> getUserFromCall(c).equals(userFromCall));
-        boolean isCallCountZero = mFeatureFlags.associatedUserRefactorForWorkProfile()
-                ? callsAssociatedWithUserFromCall.count() == 0
-                : mCallsManager.getCalls().isEmpty();
+        boolean isCallCountZero = callsAssociatedWithUserFromCall.count() == 0;
         if (isCallCountZero) {
             /** Let's add a 2 second delay before we send unbind to the services to hopefully
              *  give them enough time to process all the pending messages.
@@ -1533,9 +1531,7 @@ public class InCallController extends CallsManagerListenerBase implements
                     // Check again to make sure there are no active calls for the associated user.
                     Stream<Call> callsAssociatedWithUserFromCall = mCallsManager.getCalls().stream()
                             .filter((c) -> getUserFromCall(c).equals(userFromCall));
-                    boolean isCallCountZero = mFeatureFlags.associatedUserRefactorForWorkProfile()
-                            ? callsAssociatedWithUserFromCall.count() == 0
-                            : mCallsManager.getCalls().isEmpty();
+                    boolean isCallCountZero = callsAssociatedWithUserFromCall.count() == 0;
                     if (isCallCountZero) {
                         unbindFromServices(userFromCall);
                         mEmergencyCallHelper.maybeRevokeTemporaryLocationPermission();
@@ -2124,13 +2120,7 @@ public class InCallController extends CallsManagerListenerBase implements
                 ? getUserFromCall(call)
                 : userHandle;
         UserManager um = mContext.getSystemService(UserManager.class);
-        UserHandle parentUser = mFeatureFlags.profileUserSupport()
-                ? um.getProfileParent(userToBind) : null;
-
-        if (!mFeatureFlags.profileUserSupport()
-                && um.isManagedProfile(userToBind.getIdentifier())) {
-            parentUser = um.getProfileParent(userToBind);
-        }
+        UserHandle parentUser = um.getProfileParent(userToBind);
 
         // Track the call if we don't already know about it.
         addCall(call);
@@ -2175,12 +2165,7 @@ public class InCallController extends CallsManagerListenerBase implements
     public void bindToServices(Call call) {
         UserHandle userFromCall = getUserFromCall(call);
         UserManager um = mContext.getSystemService(UserManager.class);
-        UserHandle parentUser = mFeatureFlags.profileUserSupport()
-                ? um.getProfileParent(userFromCall) : null;
-        if (!mFeatureFlags.profileUserSupport()
-                && um.isManagedProfile(userFromCall.getIdentifier())) {
-            parentUser = um.getProfileParent(userFromCall);
-        }
+        UserHandle parentUser = um.getProfileParent(userFromCall);
         Log.i(this, "child:%s  parent:%s", userFromCall, parentUser);
 
         if (!mInCallServiceConnections.containsKey(userFromCall)) {
@@ -2262,13 +2247,7 @@ public class InCallController extends CallsManagerListenerBase implements
         UserHandle userFromCall = getUserFromCall(call);
 
         UserManager um = mContext.getSystemService(UserManager.class);
-        UserHandle parentUser = mFeatureFlags.profileUserSupport()
-                ? um.getProfileParent(userFromCall) : null;
-
-        if (!mFeatureFlags.profileUserSupport()
-                && um.isManagedProfile(userFromCall.getIdentifier())) {
-            parentUser = um.getProfileParent(userFromCall);
-        }
+        UserHandle parentUser = um.getProfileParent(userFromCall);
 
         List<InCallServiceInfo> nonUIInCallComponents =
                 getInCallServiceComponents(userFromCall, IN_CALL_SERVICE_TYPE_NON_UI);
