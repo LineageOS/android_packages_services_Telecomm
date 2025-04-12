@@ -170,19 +170,14 @@ public class BluetoothRouteManager extends StateMachine {
                     case CONNECT_BT:
                         String actualAddress;
                         boolean connected;
-                        if (mFeatureFlags.resolveSwitchingBtDevicesComputation()) {
-                            Pair<String, Boolean> addressInfo = computeAddressToConnectTo(
-                                    (String) args.arg2, false, null);
-                            // See if we need to transition route if the device is already
-                            // connected. If connected, another connection will not occur.
-                            addressInfo = handleDeviceAlreadyConnected(addressInfo);
-                            actualAddress = addressInfo.first;
-                            connected = connectBtAudio(actualAddress, 0,
-                                    false /* switchingBtDevices*/);
-                        } else {
-                            actualAddress = connectBtAudioLegacy((String) args.arg2, false);
-                            connected = actualAddress != null;
-                        }
+                        Pair<String, Boolean> addressInfo = computeAddressToConnectTo(
+                                (String) args.arg2, false, null);
+                        // See if we need to transition route if the device is already
+                        // connected. If connected, another connection will not occur.
+                        addressInfo = handleDeviceAlreadyConnected(addressInfo);
+                        actualAddress = addressInfo.first;
+                        connected = connectBtAudio(actualAddress, 0,
+                                false /* switchingBtDevices*/);
 
                         if (connected) {
                             transitionTo(getConnectingStateForAddress(actualAddress,
@@ -199,20 +194,14 @@ public class BluetoothRouteManager extends StateMachine {
                         Log.i(LOG_TAG, "Retrying BT connection to %s", (String) args.arg2);
                         String retryAddress;
                         boolean retrySuccessful;
-                        if (mFeatureFlags.resolveSwitchingBtDevicesComputation()) {
-                            Pair<String, Boolean> retryAddressInfo = computeAddressToConnectTo(
-                                    (String) args.arg2, false, null);
-                            // See if we need to transition route if the device is already
-                            // connected. If connected, another connection will not occur.
-                            retryAddressInfo = handleDeviceAlreadyConnected(retryAddressInfo);
-                            retryAddress = retryAddressInfo.first;
-                            retrySuccessful = connectBtAudio(retryAddress, args.argi1,
-                                    false /* switchingBtDevices*/);
-                        } else {
-                            retryAddress = connectBtAudioLegacy((String) args.arg2, args.argi1,
-                                    false /* switchingBtDevices*/);
-                            retrySuccessful = retryAddress != null;
-                        }
+                        Pair<String, Boolean> retryAddressInfo = computeAddressToConnectTo(
+                                (String) args.arg2, false, null);
+                        // See if we need to transition route if the device is already
+                        // connected. If connected, another connection will not occur.
+                        retryAddressInfo = handleDeviceAlreadyConnected(retryAddressInfo);
+                        retryAddress = retryAddressInfo.first;
+                        retrySuccessful = connectBtAudio(retryAddress, args.argi1,
+                                false /* switchingBtDevices*/);
 
                         if (retrySuccessful) {
                             transitionTo(getConnectingStateForAddress(retryAddress,
@@ -303,9 +292,7 @@ public class BluetoothRouteManager extends StateMachine {
                         }
                     }
                 }
-                if (mFeatureFlags.resolveSwitchingBtDevicesComputation()) {
-                    switchingBtDevices &= (mDeviceAddress != null);
-                }
+                switchingBtDevices &= (mDeviceAddress != null);
             }
             try {
                 switch (msg.what) {
@@ -321,28 +308,21 @@ public class BluetoothRouteManager extends StateMachine {
                         break;
                     case CONNECT_BT:
                         String actualAddress = null;
-                        if (mFeatureFlags.resolveSwitchingBtDevicesComputation()) {
-                            Pair<String, Boolean> addressInfo = computeAddressToConnectTo(address,
-                                    switchingBtDevices, mDeviceAddress);
-                            // See if we need to transition route if the device is already
-                            // connected. If connected, another connection will not occur.
-                            addressInfo = handleDeviceAlreadyConnected(addressInfo);
-                            actualAddress = addressInfo.first;
-                            switchingBtDevices = addressInfo.second;
-                        }
+                        Pair<String, Boolean> addressInfo = computeAddressToConnectTo(address,
+                                switchingBtDevices, mDeviceAddress);
+                        // See if we need to transition route if the device is already
+                        // connected. If connected, another connection will not occur.
+                        addressInfo = handleDeviceAlreadyConnected(addressInfo);
+                        actualAddress = addressInfo.first;
+                        switchingBtDevices = addressInfo.second;
 
                         if (!switchingBtDevices) {
                             // Ignore repeated connection attempts to the same device
                             break;
                         }
 
-                        if (!mFeatureFlags.resolveSwitchingBtDevicesComputation()) {
-                            actualAddress = connectBtAudioLegacy(address,
-                                    true /* switchingBtDevices*/);
-                        }
-                        boolean connected = mFeatureFlags.resolveSwitchingBtDevicesComputation()
-                                ? connectBtAudio(actualAddress, 0, true /* switchingBtDevices*/)
-                                : actualAddress != null;
+                        boolean connected = connectBtAudio(actualAddress, 0,
+                                true /* switchingBtDevices*/);
                         if (connected) {
                             transitionTo(getConnectingStateForAddress(actualAddress,
                                     "AudioConnecting/CONNECT_BT"));
@@ -356,30 +336,21 @@ public class BluetoothRouteManager extends StateMachine {
                         break;
                     case RETRY_BT_CONNECTION:
                         String retryAddress = null;
-                        if (mFeatureFlags.resolveSwitchingBtDevicesComputation()) {
-                            Pair<String, Boolean> retryAddressInfo = computeAddressToConnectTo(
-                                    address, switchingBtDevices, mDeviceAddress);
-                            // See if we need to transition route if the device is already
-                            // connected. If connected, another connection will not occur.
-                            retryAddressInfo = handleDeviceAlreadyConnected(retryAddressInfo);
-                            retryAddress = retryAddressInfo.first;
-                            switchingBtDevices = retryAddressInfo.second;
-                        }
+                        Pair<String, Boolean> retryAddressInfo = computeAddressToConnectTo(
+                                address, switchingBtDevices, mDeviceAddress);
+                        // See if we need to transition route if the device is already
+                        // connected. If connected, another connection will not occur.
+                        retryAddressInfo = handleDeviceAlreadyConnected(retryAddressInfo);
+                        retryAddress = retryAddressInfo.first;
+                        switchingBtDevices = retryAddressInfo.second;
 
                         if (!switchingBtDevices) {
                             Log.d(LOG_TAG, "Retry message came through while connecting.");
                             break;
                         }
 
-                        if (!mFeatureFlags.resolveSwitchingBtDevicesComputation()) {
-                            retryAddress = connectBtAudioLegacy(address, args.argi1,
-                                    true /* switchingBtDevices*/);
-                        }
-                        boolean retrySuccessful = mFeatureFlags
-                                .resolveSwitchingBtDevicesComputation()
-                                ? connectBtAudio(retryAddress, args.argi1,
-                                        true /* switchingBtDevices*/)
-                                : retryAddress != null;
+                        boolean retrySuccessful = connectBtAudio(retryAddress, args.argi1,
+                                true /* switchingBtDevices*/);
                         if (retrySuccessful) {
                             transitionTo(getConnectingStateForAddress(retryAddress,
                                     "AudioConnecting/RETRY_BT_CONNECTION"));
@@ -459,9 +430,7 @@ public class BluetoothRouteManager extends StateMachine {
             SomeArgs args = (SomeArgs) msg.obj;
             String address = (String) args.arg2;
             boolean switchingBtDevices = !Objects.equals(mDeviceAddress, address);
-            if (mFeatureFlags.resolveSwitchingBtDevicesComputation()) {
-                switchingBtDevices &= (mDeviceAddress != null);
-            }
+            switchingBtDevices &= (mDeviceAddress != null);
 
             try {
                 switch (msg.what) {
@@ -476,15 +445,13 @@ public class BluetoothRouteManager extends StateMachine {
                         break;
                     case CONNECT_BT:
                         String actualAddress = null;
-                        if (mFeatureFlags.resolveSwitchingBtDevicesComputation()) {
-                            Pair<String, Boolean> addressInfo = computeAddressToConnectTo(address,
-                                    switchingBtDevices, mDeviceAddress);
-                            // See if we need to transition route if the device is already
-                            // connected. If connected, another connection will not occur.
-                            addressInfo = handleDeviceAlreadyConnected(addressInfo);
-                            actualAddress = addressInfo.first;
-                            switchingBtDevices = addressInfo.second;
-                        }
+                        Pair<String, Boolean> addressInfo = computeAddressToConnectTo(address,
+                                switchingBtDevices, mDeviceAddress);
+                        // See if we need to transition route if the device is already
+                        // connected. If connected, another connection will not occur.
+                        addressInfo = handleDeviceAlreadyConnected(addressInfo);
+                        actualAddress = addressInfo.first;
+                        switchingBtDevices = addressInfo.second;
 
                         if (!switchingBtDevices) {
                             // Ignore connection to already connected device but still notify
@@ -494,13 +461,8 @@ public class BluetoothRouteManager extends StateMachine {
                             break;
                         }
 
-                        if (!mFeatureFlags.resolveSwitchingBtDevicesComputation()) {
-                            actualAddress = connectBtAudioLegacy(address,
-                                    true /* switchingBtDevices*/);
-                        }
-                        boolean connected = mFeatureFlags.resolveSwitchingBtDevicesComputation()
-                                ? connectBtAudio(actualAddress, 0, true /* switchingBtDevices*/)
-                                : actualAddress != null;
+                        boolean connected = connectBtAudio(actualAddress, 0,
+                                true /* switchingBtDevices*/);
                         if (connected) {
                             if (mFeatureFlags.useActualAddressToEnterConnectingState()) {
                                 transitionTo(getConnectingStateForAddress(actualAddress,
@@ -519,30 +481,21 @@ public class BluetoothRouteManager extends StateMachine {
                         break;
                     case RETRY_BT_CONNECTION:
                         String retryAddress = null;
-                        if (mFeatureFlags.resolveSwitchingBtDevicesComputation()) {
-                            Pair<String, Boolean> retryAddressInfo = computeAddressToConnectTo(
-                                    address, switchingBtDevices, mDeviceAddress);
-                            // See if we need to transition route if the device is already
-                            // connected. If connected, another connection will not occur.
-                            retryAddressInfo = handleDeviceAlreadyConnected(retryAddressInfo);
-                            retryAddress = retryAddressInfo.first;
-                            switchingBtDevices = retryAddressInfo.second;
-                        }
+                        Pair<String, Boolean> retryAddressInfo = computeAddressToConnectTo(
+                                address, switchingBtDevices, mDeviceAddress);
+                        // See if we need to transition route if the device is already
+                        // connected. If connected, another connection will not occur.
+                        retryAddressInfo = handleDeviceAlreadyConnected(retryAddressInfo);
+                        retryAddress = retryAddressInfo.first;
+                        switchingBtDevices = retryAddressInfo.second;
 
                         if (!switchingBtDevices) {
                             Log.d(LOG_TAG, "Retry message came through while connected.");
                             break;
                         }
 
-                        if (!mFeatureFlags.resolveSwitchingBtDevicesComputation()) {
-                            retryAddress = connectBtAudioLegacy(address, args.argi1,
-                                    true /* switchingBtDevices*/);
-                        }
-                        boolean retrySuccessful = mFeatureFlags
-                                .resolveSwitchingBtDevicesComputation()
-                                ? connectBtAudio(retryAddress, args.argi1,
-                                        true /* switchingBtDevices*/)
-                                : retryAddress != null;
+                        boolean retrySuccessful = connectBtAudio(retryAddress, args.argi1,
+                                true /* switchingBtDevices*/);
                         if (retrySuccessful) {
                             transitionTo(getConnectingStateForAddress(retryAddress,
                                     "AudioConnected/RETRY_BT_CONNECTION"));
@@ -761,22 +714,14 @@ public class BluetoothRouteManager extends StateMachine {
         if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_LE_AUDIO) {
             mLeAudioActiveDeviceCache = device;
             if (device == null) {
-                if (mFeatureFlags.callAudioCommunicationDeviceRefactor()) {
-                    mCommunicationDeviceTracker.clearCommunicationDevice(
-                            AudioDeviceInfo.TYPE_BLE_HEADSET);
-                } else {
-                    mDeviceManager.clearLeAudioCommunicationDevice();
-                }
+                mCommunicationDeviceTracker.clearCommunicationDevice(
+                        AudioDeviceInfo.TYPE_BLE_HEADSET);
             }
         } else if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_HEARING_AID) {
             mHearingAidActiveDeviceCache = device;
             if (device == null) {
-                if (mFeatureFlags.callAudioCommunicationDeviceRefactor()) {
-                    mCommunicationDeviceTracker.clearCommunicationDevice(
-                            AudioDeviceInfo.TYPE_HEARING_AID);
-                } else {
-                    mDeviceManager.clearHearingAidCommunicationDevice();
-                }
+                mCommunicationDeviceTracker.clearCommunicationDevice(
+                        AudioDeviceInfo.TYPE_HEARING_AID);
             }
         } else if (deviceType == BluetoothDeviceManager.DEVICE_TYPE_HEADSET) {
             mHfpActiveDeviceCache = device;
@@ -928,8 +873,6 @@ public class BluetoothRouteManager extends StateMachine {
      * @param switchingBtDevices Used when there is existing audio connection to other Bt device.
      * @return {@code true} if the connection to the address was successful, otherwise {@code false}
      *          if the connection fails.
-     *
-     * Note: This should only be used in par with the resolveSwitchingBtDevicesComputation flag.
      */
     private boolean connectBtAudio(String address, int retryCount, boolean switchingBtDevices) {
         if (address == null) {
@@ -958,86 +901,6 @@ public class BluetoothRouteManager extends StateMachine {
         }
 
         return true;
-    }
-
-    private String connectBtAudioLegacy(String address, boolean switchingBtDevices) {
-        return connectBtAudioLegacy(address, 0, switchingBtDevices);
-    }
-
-    /**
-     * Initiates a connection to the BT address specified.
-     * Note: This method is not synchronized on the Telecom lock, so don't try and call back into
-     * Telecom from within it.
-     * @param address The address that should be tried first. May be null.
-     * @param retryCount The number of times this connection attempt has been retried.
-     * @param switchingBtDevices Used when there is existing audio connection to other Bt device.
-     * @return The address of the device that's actually being connected to, or null if no
-     * connection was successful.
-     */
-    private String connectBtAudioLegacy(String address, int retryCount,
-            boolean switchingBtDevices) {
-        Collection<BluetoothDevice> deviceList = mDeviceManager.getConnectedDevices();
-        Optional<BluetoothDevice> matchingDevice = deviceList.stream()
-                .filter(d -> Objects.equals(d.getAddress(), address))
-                .findAny();
-
-        if (switchingBtDevices) {
-            /* When new Bluetooth connects audio, make sure previous one has disconnected audio. */
-            mDeviceManager.disconnectAudio();
-        }
-
-        String actualAddress = matchingDevice.isPresent()
-                ? address : getActiveDeviceAddress();
-        if (actualAddress == null) {
-            Log.i(this, "No device specified and BT stack has no active device."
-                    + " Using arbitrary device - except watch");
-            if (deviceList.size() > 0) {
-                for (BluetoothDevice device : deviceList) {
-                    if (mFeatureFlags.ignoreAutoRouteToWatchDevice() && isWatch(device)) {
-                        Log.i(this, "Skipping a watch device: " + device);
-                        continue;
-                    }
-                    actualAddress = device.getAddress();
-                    break;
-                }
-            }
-
-            if (actualAddress == null) {
-                Log.i(this, "No devices available at all. Not connecting.");
-                return null;
-            }
-        }
-        if (!matchingDevice.isPresent()) {
-            Log.i(this, "No device with address %s available. Using %s instead.",
-                    address, actualAddress);
-        }
-
-        BluetoothDevice alreadyConnectedDevice = getBluetoothAudioConnectedDevice();
-        if (alreadyConnectedDevice != null && alreadyConnectedDevice.getAddress().equals(
-                actualAddress)) {
-            Log.i(this, "trying to connect to already connected device -- skipping connection"
-                    + " and going into the actual connected state.");
-            transitionToActualState();
-            return null;
-        }
-
-        if (!mDeviceManager.connectAudio(actualAddress, switchingBtDevices)) {
-            boolean shouldRetry = retryCount < MAX_CONNECTION_RETRIES;
-            Log.w(LOG_TAG, "Could not connect to %s. Will %s", actualAddress,
-                    shouldRetry ? "retry" : "not retry");
-            if (shouldRetry) {
-                SomeArgs args = SomeArgs.obtain();
-                args.arg1 = Log.createSubsession();
-                args.arg2 = actualAddress;
-                args.argi1 = retryCount + 1;
-                sendMessageDelayed(RETRY_BT_CONNECTION, args,
-                        mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
-                                mContext, mFeatureFlags));
-            }
-            return null;
-        }
-
-        return actualAddress;
     }
 
     private String getActiveDeviceAddress() {
@@ -1104,11 +967,8 @@ public class BluetoothRouteManager extends StateMachine {
             }
         }
 
-        boolean isHearingAidSetForCommunication =
-                mFeatureFlags.callAudioCommunicationDeviceRefactor()
-                ? mCommunicationDeviceTracker.isAudioDeviceSetForType(
-                        AudioDeviceInfo.TYPE_HEARING_AID)
-                : mDeviceManager.isHearingAidSetAsCommunicationDevice();
+        boolean isHearingAidSetForCommunication = mCommunicationDeviceTracker
+                .isAudioDeviceSetForType(AudioDeviceInfo.TYPE_HEARING_AID);
         if (bluetoothHearingAid != null) {
             if (isHearingAidSetForCommunication) {
                 List<BluetoothDevice> hearingAidsActiveDevices = bluetoothAdapter.getActiveDevices(
@@ -1128,11 +988,8 @@ public class BluetoothRouteManager extends StateMachine {
             }
         }
 
-        boolean isLeAudioSetForCommunication =
-                mFeatureFlags.callAudioCommunicationDeviceRefactor()
-                        ? mCommunicationDeviceTracker.isAudioDeviceSetForType(
-                        AudioDeviceInfo.TYPE_BLE_HEADSET)
-                        : mDeviceManager.isLeAudioCommunicationDevice();
+        boolean isLeAudioSetForCommunication = mCommunicationDeviceTracker.isAudioDeviceSetForType(
+                AudioDeviceInfo.TYPE_BLE_HEADSET);
         if (bluetoothLeAudio != null) {
             if (isLeAudioSetForCommunication) {
                 for (BluetoothDevice device : bluetoothAdapter.getActiveDevices(

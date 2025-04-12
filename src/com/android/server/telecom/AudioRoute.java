@@ -462,9 +462,7 @@ public class AudioRoute {
         }
 
         if (result == BluetoothStatusCodes.SUCCESS) {
-            if (pendingAudioRoute.getFeatureFlags().resolveActiveBtRoutingAndBtTimingIssue()) {
-                maybeClearConnectedPendingMessages(pendingAudioRoute);
-            }
+            maybeClearConnectedPendingMessages(pendingAudioRoute);
             pendingAudioRoute.setCommunicationDeviceType(AudioRoute.TYPE_INVALID);
         }
         return result;

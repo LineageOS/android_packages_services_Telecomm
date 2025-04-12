@@ -199,33 +199,26 @@ public class CallsManagerCallSequencingAdapter {
             callback.onResult(true);
             return;
         }
+        // prevent bad actors from disconnecting the activeCall. Instead, clients will need to
+        // notify the user that they need to disconnect the ongoing call before making the
+        // new call ACTIVE.
+        if (isCallControlRequest
+                && !mCallsManager.canHoldOrSwapActiveCall(activeCall, newCall)) {
+            Log.i(this, mTag + "CallControlRequest exit");
+            callback.onError(new CallException("activeCall is NOT holdable or swappable, please"
+                    + " request the user disconnect the call.",
+                    CallException.CODE_CANNOT_HOLD_CURRENT_ACTIVE_CALL));
+            return;
+        }
 
-        if (mFeatureFlags.transactionalHoldDisconnectsUnholdable()) {
-            // prevent bad actors from disconnecting the activeCall. Instead, clients will need to
-            // notify the user that they need to disconnect the ongoing call before making the
-            // new call ACTIVE.
-            if (isCallControlRequest
-                    && !mCallsManager.canHoldOrSwapActiveCall(activeCall, newCall)) {
-                Log.i(this, mTag + "CallControlRequest exit");
-                callback.onError(new CallException("activeCall is NOT holdable or swappable, please"
-                        + " request the user disconnect the call.",
-                        CallException.CODE_CANNOT_HOLD_CURRENT_ACTIVE_CALL));
-                return;
-            }
-
-            if (mIsCallSequencingEnabled) {
-                mSequencingController.transactionHoldPotentialActiveCallForNewCallSequencing(
-                        newCall, callback);
-            } else {
-                // The code path without sequencing but where transactionalHoldDisconnectsUnholdable
-                // flag is enabled.
-                mCallsManager.transactionHoldPotentialActiveCallForNewCallOld(newCall,
-                        activeCall, callback);
-            }
-        } else {
-            // The unflagged path (aka original code with no flags).
-            mCallsManager.transactionHoldPotentialActiveCallForNewCallUnflagged(activeCall,
+        if (mIsCallSequencingEnabled) {
+            mSequencingController.transactionHoldPotentialActiveCallForNewCallSequencing(
                     newCall, callback);
+        } else {
+            // The code path without sequencing but where transactionalHoldDisconnectsUnholdable
+            // flag is enabled.
+            mCallsManager.transactionHoldPotentialActiveCallForNewCallOld(newCall,
+                    activeCall, callback);
         }
     }
 

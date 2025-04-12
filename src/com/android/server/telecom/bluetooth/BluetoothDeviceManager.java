@@ -589,14 +589,8 @@ public class BluetoothDeviceManager {
     }
 
     public void disconnectAudio() {
-        if (mFeatureFlags.callAudioCommunicationDeviceRefactor()) {
-            mCommunicationDeviceTracker.clearBtCommunicationDevice();
-            disconnectSco();
-        } else {
-            disconnectSco();
-            clearLeAudioCommunicationDevice();
-            clearHearingAidCommunicationDevice();
-        }
+        mCommunicationDeviceTracker.clearBtCommunicationDevice();
+        disconnectSco();
     }
 
     public int disconnectSco() {
@@ -857,10 +851,8 @@ public class BluetoothDeviceManager {
                  * Only after receiving ACTION_ACTIVE_DEVICE_CHANGED it is known that device that
                  * will be audio switched to is available to be choose as communication device */
                 if (!switchingBtDevices) {
-                    return mFeatureFlags.callAudioCommunicationDeviceRefactor() ?
-                            mCommunicationDeviceTracker.setCommunicationDevice(
-                                    AudioDeviceInfo.TYPE_BLE_HEADSET, device)
-                            : setLeAudioCommunicationDevice();
+                    return mCommunicationDeviceTracker.setCommunicationDevice(
+                            AudioDeviceInfo.TYPE_BLE_HEADSET, device);
                 }
                 return true;
             }
@@ -873,10 +865,8 @@ public class BluetoothDeviceManager {
                  * Only after receiving ACTION_ACTIVE_DEVICE_CHANGED it is known that device that
                  * will be audio switched to is available to be choose as communication device */
                 if (!switchingBtDevices) {
-                    return mFeatureFlags.callAudioCommunicationDeviceRefactor() ?
-                            mCommunicationDeviceTracker.setCommunicationDevice(
-                                    AudioDeviceInfo.TYPE_HEARING_AID, null)
-                            : setHearingAidCommunicationDevice();
+                    return mCommunicationDeviceTracker.setCommunicationDevice(
+                            AudioDeviceInfo.TYPE_HEARING_AID, null);
                 }
                 return true;
             }

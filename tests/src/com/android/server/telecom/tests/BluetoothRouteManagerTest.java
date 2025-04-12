@@ -258,7 +258,6 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testConnectBtWithoutAddress_SwitchingBtDeviceFlag() {
-        when(mFeatureFlags.resolveSwitchingBtDevicesComputation()).thenReturn(true);
         verifyConnectBtWithoutAddress();
     }
 
@@ -287,13 +286,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
         // We should not expect explicit connection attempt (BluetoothDeviceManager#connectAudio)
         // as the device is already "connected" as per how the state machine was initialized.
-        if (mFeatureFlags.resolveSwitchingBtDevicesComputation()) {
-            verify(mDeviceManager, never()).disconnectAudio();
-        } else {
-            // Legacy behavior
-            verifyConnectionAttempt(DEVICE1, 1);
-            verify(mDeviceManager, times(1)).disconnectAudio();
-        }
+        verify(mDeviceManager, never()).disconnectAudio();
         assertEquals(BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX
                         + ":" + DEVICE1.getAddress(),
                 sm.getCurrentState().getName());

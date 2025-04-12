@@ -149,7 +149,6 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
         verify(mBluetoothLeAudio).registerCallback(any(), leAudioCallbacksTest.capture());
 
         when(mSpeakerInfo.getType()).thenReturn(TYPE_BUILTIN_SPEAKER);
-        when(mFeatureFlags.callAudioCommunicationDeviceRefactor()).thenReturn(false);
         when(mFeatureFlags.useRefactoredAudioRouteSwitching()).thenReturn(false);
     }
 
@@ -567,7 +566,6 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testConnectMultipleLeAudioDevices() {
-        when(mFeatureFlags.callAudioCommunicationDeviceRefactor()).thenReturn(true);
         receiverUnderTest.setIsInCall(true);
         receiverUnderTest.onReceive(mContext,
                 buildConnectionActionIntent(BluetoothHeadset.STATE_CONNECTED, device1,
@@ -615,7 +613,6 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testClearCommunicationDeviceOnActiveDeviceChange() {
-        when(mFeatureFlags.callAudioCommunicationDeviceRefactor()).thenReturn(true);
         receiverUnderTest.setIsInCall(true);
 
         List<AudioDeviceInfo> devices = new ArrayList<>();
@@ -645,7 +642,6 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testConnectDualModeEarbud() {
-        when(mFeatureFlags.callAudioCommunicationDeviceRefactor()).thenReturn(true);
         receiverUnderTest.setIsInCall(true);
 
         // LE Audio earbuds connected
@@ -746,7 +742,6 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testClearHearingAidCommunicationDeviceWithFlag() {
-        when(mFeatureFlags.callAudioCommunicationDeviceRefactor()).thenReturn(true);
         assertClearHearingAidOrLeCommunicationDevice(true, AudioDeviceInfo.TYPE_HEARING_AID);
     }
 
@@ -759,7 +754,6 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testClearLeAudioCommunicationDeviceWithFlag() {
-        when(mFeatureFlags.callAudioCommunicationDeviceRefactor()).thenReturn(true);
         assertClearHearingAidOrLeCommunicationDevice(true, AudioDeviceInfo.TYPE_BLE_HEADSET);
     }
 

@@ -1097,13 +1097,8 @@ public class CallsManager extends Call.ListenerBase
             incomingCall.setUserMissed(USER_MISSED_CALL_FILTERS_TIMEOUT);
         }
 
-        if (incomingCall.getState() != CallState.DISCONNECTED &&
-                incomingCall.getState() != CallState.DISCONNECTING) {
-            if (!mFeatureFlags.separatelyBindToBtIncallService()) {
-                setCallState(incomingCall, CallState.RINGING,
-                        result.shouldAllowCall ? "successful incoming call" : "blocking call");
-            }
-        } else {
+        if (incomingCall.getState() == CallState.DISCONNECTED ||
+                incomingCall.getState() == CallState.DISCONNECTING) {
             Log.i(this, "onCallFilteringCompleted: call already disconnected.");
             return;
         }
@@ -1147,11 +1142,9 @@ public class CallsManager extends Call.ListenerBase
         }
 
         if (result.shouldAllowCall) {
-            if (mFeatureFlags.separatelyBindToBtIncallService()) {
-                mInCallController.bindToBTService(incomingCall, null);
-                incomingCall.setBtIcsFuture(mInCallController.getBtBindingFuture(incomingCall));
-                setCallState(incomingCall, CallState.RINGING, "successful incoming call");
-            }
+            mInCallController.bindToBTService(incomingCall, null);
+            incomingCall.setBtIcsFuture(mInCallController.getBtBindingFuture(incomingCall));
+            setCallState(incomingCall, CallState.RINGING, "successful incoming call");
             incomingCall.setPostCallPackageName(
                     getRoleManagerAdapter().getDefaultCallScreeningApp(
                             incomingCall.getAssociatedUser()
@@ -1193,9 +1186,7 @@ public class CallsManager extends Call.ListenerBase
         } else {
             if (result.shouldReject) {
                 Log.i(this, "onCallFilteringCompleted: blocked call, rejecting.");
-                if (mFeatureFlags.separatelyBindToBtIncallService()) {
-                    setCallState(incomingCall, CallState.RINGING, "blocking call");
-                }
+                setCallState(incomingCall, CallState.RINGING, "blocking call");
                 incomingCall.reject(false, null);
             }
             if (result.shouldAddToCallLog) {
@@ -4231,44 +4222,6 @@ public class CallsManager extends Call.ListenerBase
                 }
             }
         }
-    }
-
-    /**
-     * The transactional unflagged (original) code path to hold or swap the active call in favor of
-     * a new call request. Refer to
-     * {@link CallsManagerCallSequencingAdapter#transactionHoldPotentialActiveCallForNewCall}.
-     */
-    public void transactionHoldPotentialActiveCallForNewCallUnflagged(Call activeCall, Call newCall,
-            OutcomeReceiver<Boolean, CallException> callback) {
-        // before attempting CallsManager#holdActiveCallForNewCall(Call), check if it'll fail
-        // early
-        if (!canHold(activeCall) &&
-                !(supportsHold(activeCall) && areFromSameSource(activeCall, newCall))) {
-            String msg = "call does not support hold";
-            Log.i(this, "transactionHoldPotentialActiveCallForNewCall: " + msg);
-            callback.onError(new CallException(msg,
-                    CallException.CODE_CANNOT_HOLD_CURRENT_ACTIVE_CALL));
-            if (mFeatureFlags.enableCallExceptionAnomReports()) {
-                mAnomalyReporter.reportAnomaly(CANNOT_HOLD_CURRENT_ACTIVE_CALL_ERROR_UUID, msg);
-            }
-            return;
-        }
-
-        // attempt to hold the active call
-        if (!holdActiveCallForNewCall(newCall)) {
-            String msg = "cannot hold active call failed";
-            Log.i(this, "transactionHoldPotentialActiveCallForNewCall: " + msg);
-            callback.onError(new CallException(msg,
-                    CallException.CODE_CANNOT_HOLD_CURRENT_ACTIVE_CALL));
-            if (mFeatureFlags.enableCallExceptionAnomReports()) {
-                mAnomalyReporter.reportAnomaly(CANNOT_HOLD_CURRENT_ACTIVE_CALL_ERROR_UUID, msg);
-            }
-            return;
-        }
-
-        // officially mark the activeCall as held
-        markCallAsOnHold(activeCall);
-        callback.onResult(true);
     }
 
     public boolean canHoldOrSwapActiveCall(Call activeCall, Call newCall) {

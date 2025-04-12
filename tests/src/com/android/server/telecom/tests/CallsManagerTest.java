@@ -430,7 +430,6 @@ public class CallsManagerTest extends TelecomTestCase {
                 eq(WORK_HANDLE), any())).thenReturn(WORK_ACCOUNT);
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(WORK_HANDLE), any(), anyBoolean())).thenReturn(WORK_ACCOUNT);
-        when(mFeatureFlags.separatelyBindToBtIncallService()).thenReturn(false);
         when(mFeatureFlags.telecomResolveHiddenDependencies()).thenReturn(true);
         when(mContext.createContextAsUser(any(UserHandle.class), eq(0)))
                 .thenReturn(mMockCreateContextAsUser);
@@ -3777,7 +3776,6 @@ public class CallsManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testBindToBtServiceSeparately() {
-        when(mFeatureFlags.separatelyBindToBtIncallService()).thenReturn(true);
         Call call = addSpyCall(CallState.NEW);
         CallFilteringResult result = new CallFilteringResult.Builder()
                 .setShouldAllowCall(true)
@@ -4018,7 +4016,6 @@ public class CallsManagerTest extends TelecomTestCase {
             boolean expectOnResult)
             throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
-        when(mFeatureFlags.transactionalHoldDisconnectsUnholdable()).thenReturn(true);
         when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(activeCall);
         mCallsManager.getCallSequencingAdapter().transactionHoldPotentialActiveCallForNewCall(
                 newCall,

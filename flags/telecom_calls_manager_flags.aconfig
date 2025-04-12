@@ -17,17 +17,6 @@ flag {
   bug: "327038818"
 }
 
-# OWNER=tjstuart TARGET=24Q4
-flag {
-  name: "transactional_hold_disconnects_unholdable"
-  namespace: "telecom"
-  description: "Disconnect ongoing unholdable calls for CallControlCallbacks"
-  bug: "340621152"
-  metadata {
-    purpose: PURPOSE_BUGFIX
-  }
-}
-
 # OWNER=tgunn TARGET=25Q2
 flag {
   name: "enable_call_audio_watchdog"
