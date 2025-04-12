@@ -138,6 +138,8 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"No se puede llamar porque ya hay dos llamadas en curso. Interrumpe una de ellas o combínalas en una conferencia antes de hacer otra llamada."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"No se puede llamar porque ya hay dos llamadas en curso. Interrumpe una de las llamadas antes de hacer otra."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"No se puede hacer una llamada porque ya hay otra que no se puede poner en espera. Interrumpe la llamada antes de hacer otra."</string>
+    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
+    <skip />
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"No se puede llamar porque hay una llamada entrante sin responder. Contéstala o recházala antes de hacer otra llamada."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Este código MMI no está disponible para hacer llamadas con varias cuentas."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"No se pueden marcar códigos MMI durante las llamadas de emergencia."</string>

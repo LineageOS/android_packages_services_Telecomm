@@ -138,6 +138,8 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Неможливо зателефонувати, оскільки тривають уже два виклики. Припиніть один із них або об’єднайте їх у конференцію, перш ніж здійснити новий."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Неможливо зателефонувати, оскільки тривають уже два виклики. Припиніть один із них, перш ніж здійснити новий."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Неможливо зателефонувати, оскільки поточний виклик не можна поставити на утримання. Припиніть виклик, перш ніж здійснити новий."</string>
+    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
+    <skip />
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Неможливо зателефонувати. Прийміть або відхиліть вхідний дзвінок, перш ніж здійснювати новий."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Цей код MMI недоступний для дзвінків із використанням кількох облікових записів."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Не можна набирати коди MMI під час екстреного виклику."</string>

@@ -137,7 +137,7 @@ public class NewOutgoingCallIntentBroadcaster {
 
                     boolean endEarly = false;
                     long disconnectTimeout =
-                            Timeouts.getNewOutgoingCallCancelMillis(mContext.getContentResolver());
+                            Timeouts.getNewOutgoingCallCancelMillis(mContext, mFeatureFlags);
                     if (resultNumber == null) {
                         Log.v(this, "Call cancelled (null number), returning...");
                         disconnectTimeout = getDisconnectTimeoutFromApp(
@@ -373,7 +373,7 @@ public class NewOutgoingCallIntentBroadcaster {
                     mIntent.getBooleanExtra(TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE,
                             false),
                     mIntent.getIntExtra(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
-                            VideoProfile.STATE_AUDIO_ONLY));
+                            VideoProfile.STATE_AUDIO_ONLY), mFeatureFlags);
             /**
              * If there is an available {@link android.telecom.CallRedirectionService}, use the
              * {@link CallRedirectionProcessor} to perform call redirection instead of using
@@ -422,7 +422,7 @@ public class NewOutgoingCallIntentBroadcaster {
                     mIntent.getBooleanExtra(TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE,
                             false),
                     mIntent.getIntExtra(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
-                            VideoProfile.STATE_AUDIO_ONLY));
+                            VideoProfile.STATE_AUDIO_ONLY), mFeatureFlags);
             /**
              * If there is an available {@link android.telecom.CallRedirectionService}, use the
              * {@link CallRedirectionProcessor} to perform call redirection instead of using
@@ -663,7 +663,7 @@ public class NewOutgoingCallIntentBroadcaster {
                 disconnectTimeout = 0;
             }
             return Math.min(disconnectTimeout,
-                    Timeouts.getMaxNewOutgoingCallCancelMillis(mContext.getContentResolver()));
+                    Timeouts.getMaxNewOutgoingCallCancelMillis(mContext, mFeatureFlags));
         } else {
             return defaultTimeout;
         }

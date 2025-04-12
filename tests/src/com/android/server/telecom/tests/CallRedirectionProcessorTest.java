@@ -128,9 +128,9 @@ public class CallRedirectionProcessorTest extends TelecomTestCase {
         doReturn(mCallRedirectionService).when(mBinder).queryLocalInterface(anyString());
         when(mCallsManager.getSystemStateHelper()).thenReturn(mSystemStateHelper);
         when(mCallsManager.getTimeoutsAdapter()).thenReturn(mTimeoutsAdapter);
-        when(mTimeoutsAdapter.getUserDefinedCallRedirectionTimeoutMillis(mContentResolver))
+        when(mTimeoutsAdapter.getUserDefinedCallRedirectionTimeoutMillis(mContext, mFeatureFlags))
                 .thenReturn(USER_DEFINED_SHORT_TIMEOUT_MS);
-        when(mTimeoutsAdapter.getCarrierCallRedirectionTimeoutMillis(mContentResolver))
+        when(mTimeoutsAdapter.getCarrierCallRedirectionTimeoutMillis(mContext, mFeatureFlags))
                 .thenReturn(CARRIER_SHORT_TIMEOUT_MS);
         when(mCallsManager.getLock()).thenReturn(mLock);
         when(mCallsManager.getCurrentUserHandle()).thenReturn(mUserHandle);
@@ -180,13 +180,13 @@ public class CallRedirectionProcessorTest extends TelecomTestCase {
 
     private void startProcessWithNoGateWayInfo(Uri handle) {
         mProcessor = new CallRedirectionProcessor(mContext, mCallsManager, mCall, handle,
-                mPhoneAccountRegistrar, null, SPEAKER_PHONE_ON, VIDEO_STATE);
+                mPhoneAccountRegistrar, null, SPEAKER_PHONE_ON, VIDEO_STATE, mFeatureFlags);
         mProcessor.setCallRedirectionServiceHelper(mCallRedirectionProcessorHelper);
     }
 
     private void startProcessWithGateWayInfo() {
         mProcessor = new CallRedirectionProcessor(mContext, mCallsManager, mCall, mHandle,
-                mPhoneAccountRegistrar, mGatewayInfo, SPEAKER_PHONE_ON, VIDEO_STATE);
+                mPhoneAccountRegistrar, mGatewayInfo, SPEAKER_PHONE_ON, VIDEO_STATE, mFeatureFlags);
         mProcessor.setCallRedirectionServiceHelper(mCallRedirectionProcessorHelper);
     }
 

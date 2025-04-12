@@ -787,12 +787,9 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     private void onCallEnteringRinging() {
         if (mRingingCalls.size() == 1) {
-            Log.i(this, "onCallEnteringRinging: mFeatureFlags.separatelyBindToBtIncallService() ? %s",
-                    mFeatureFlags.separatelyBindToBtIncallService());
             Log.i(this, "onCallEnteringRinging: mRingingCalls.getFirst().getBtIcsFuture() = %s",
                     mRingingCalls.getFirst().getBtIcsFuture());
-            if (mFeatureFlags.separatelyBindToBtIncallService()
-                    && mRingingCalls.getFirst().getBtIcsFuture() != null) {
+            if (mRingingCalls.getFirst().getBtIcsFuture() != null) {
                 mCallRingingFuture  = mRingingCalls.getFirst().getBtIcsFuture()
                         .thenComposeAsync((completed) -> {
                             mCallAudioModeStateMachine.sendMessageWithArgs(

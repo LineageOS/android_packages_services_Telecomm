@@ -19,6 +19,7 @@ package com.android.server.telecom.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -40,6 +41,7 @@ import com.android.server.telecom.callfiltering.CallFilterResultCallback;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
 import com.android.server.telecom.callfiltering.DndCallFilter;
 import com.android.server.telecom.callfiltering.IncomingCallFilterGraph;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -113,7 +115,8 @@ public class IncomingCallFilterGraphTest extends TelecomTestCase {
     public void setUp() throws Exception {
         super.setUp();
         when(mContext.getContentResolver()).thenReturn(null);
-        when(mTimeoutsAdapter.getCallScreeningTimeoutMillis(nullable(ContentResolver.class)))
+        when(mTimeoutsAdapter.getCallScreeningTimeoutMillis(nullable(Context.class), any(
+                FeatureFlags.class)))
                 .thenReturn(FILTER_TIMEOUT);
 
     }

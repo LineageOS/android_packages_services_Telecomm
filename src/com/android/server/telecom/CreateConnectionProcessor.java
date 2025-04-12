@@ -351,7 +351,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
         clearTimeout();
 
         CreateConnectionTimeout timeout = new CreateConnectionTimeout(
-                mContext, mPhoneAccountRegistrar, service, mCall, mTimeoutsAdapter);
+                mContext, mPhoneAccountRegistrar, service, mCall, mFlags, mTimeoutsAdapter);
         if (timeout.isTimeoutNeededForCall(getConnectionServices(mAttemptRecords),
                 attempt.connectionManagerPhoneAccount)) {
             mTimeout = timeout;

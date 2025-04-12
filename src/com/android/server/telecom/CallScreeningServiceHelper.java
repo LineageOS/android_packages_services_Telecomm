@@ -33,6 +33,7 @@ import android.text.TextUtils;
 
 import com.android.internal.telecom.ICallScreeningAdapter;
 import com.android.internal.telecom.ICallScreeningService;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -74,10 +75,12 @@ public class CallScreeningServiceHelper {
     private final Session mLoggingSession;
     private CompletableFuture mFuture;
     private String mPackageName;
+    private final FeatureFlags mFeatureFlags;
 
     public CallScreeningServiceHelper(Context context, TelecomSystem.SyncRoot telecomLock,
             String packageName, ParcelableCallUtils.Converter converter,
-            UserHandle userHandle, Call call, AppLabelProxy appLabelProxy) {
+            UserHandle userHandle, Call call, AppLabelProxy appLabelProxy,
+            FeatureFlags featureFlags) {
         mContext = context;
         mTelecomLock = telecomLock;
         mParcelableCallUtilsConverter = converter;
@@ -86,6 +89,7 @@ public class CallScreeningServiceHelper {
         mPackageName = packageName;
         mAppLabelProxy = appLabelProxy;
         mLoggingSession = Log.createSubsession();
+        mFeatureFlags = featureFlags;
     }
 
     /**
@@ -184,7 +188,7 @@ public class CallScreeningServiceHelper {
                         Log.endSession();
                     }
                 },
-                Timeouts.getCallScreeningTimeoutMillis(mContext.getContentResolver()));
+                Timeouts.getCallScreeningTimeoutMillis(mContext, mFeatureFlags));
         return mFuture;
     }
 

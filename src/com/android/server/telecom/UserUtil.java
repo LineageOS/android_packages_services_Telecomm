@@ -39,6 +39,11 @@ public final class UserUtil {
 
     private static final String LOG_TAG = "UserUtil";
 
+    public static int getUserIdFromContext(Context context, FeatureFlags featureFlags){
+        return featureFlags.resolveHiddenDependenciesTwo() ? context.getUser().getIdentifier() :
+                context.getUserId();
+    }
+
     private static UserInfo getUserInfoFromUserHandle(Context context, UserHandle userHandle) {
         UserManager userManager = context.getSystemService(UserManager.class);
         return userManager.getUserInfo(userHandle.getIdentifier());
@@ -150,12 +155,8 @@ public final class UserUtil {
      * phone account handle user, otherwise return the target phone account handle user. If the
      * flag is disabled, return the legacy {@link UserHandle}.
      */
-    public static UserHandle getAssociatedUserForCall(boolean isAssociatedUserFlagEnabled,
-            PhoneAccountRegistrar phoneAccountRegistrar, UserHandle currentUser,
-            PhoneAccountHandle targetPhoneAccount) {
-        if (!isAssociatedUserFlagEnabled) {
-            return targetPhoneAccount.getUserHandle();
-        }
+    public static UserHandle getAssociatedUserForCall(PhoneAccountRegistrar phoneAccountRegistrar,
+            UserHandle currentUser, PhoneAccountHandle targetPhoneAccount) {
         // For multi-user phone accounts, associate the call with the profile receiving/placing
         // the call. For SIM accounts (that are assigned to specific users), the user association
         // will be placed on the target phone account handle user.

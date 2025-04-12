@@ -41,6 +41,7 @@ import com.android.server.telecom.LogUtils;
 import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
+import com.android.server.telecom.flags.FeatureFlags;
 
 /**
  * A single instance of call redirection processor that handles the call redirection with
@@ -317,6 +318,8 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
      */
     private boolean mIsCarrierRedirectionPending = false;
 
+    private final  FeatureFlags mFeatureFlags;
+
     public CallRedirectionProcessor(
             Context context,
             CallsManager callsManager,
@@ -325,7 +328,8 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
             PhoneAccountRegistrar phoneAccountRegistrar,
             GatewayInfo gatewayInfo,
             boolean speakerphoneOn,
-            int videoState) {
+            int videoState,
+            FeatureFlags featureFlags) {
         mContext = context;
         mCallsManager = callsManager;
         mCall = call;
@@ -336,6 +340,7 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
         mVideoState = videoState;
         mTimeoutsAdapter = callsManager.getTimeoutsAdapter();
         mTelecomLock = callsManager.getLock();
+        mFeatureFlags = featureFlags;
         /**
          * The current rule to decide whether the implemented {@link CallRedirectionService} should
          * allow interactive responses with users is only based on whether it is in car mode.
@@ -428,8 +433,8 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
     private void processTimeoutForCallRedirection(String serviceType) {
         long timeout = serviceType.equals(SERVICE_TYPE_USER_DEFINED) ?
             mTimeoutsAdapter.getUserDefinedCallRedirectionTimeoutMillis(
-                mContext.getContentResolver()) : mTimeoutsAdapter
-            .getCarrierCallRedirectionTimeoutMillis(mContext.getContentResolver());
+                mContext, mFeatureFlags) : mTimeoutsAdapter
+            .getCarrierCallRedirectionTimeoutMillis(mContext, mFeatureFlags);
 
         mHandler.postDelayed(new Runnable("CRP.pTFCR", null) {
             @Override

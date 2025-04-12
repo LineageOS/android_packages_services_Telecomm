@@ -513,7 +513,7 @@ public class TelecomSystemTest extends TelecomTestCase{
                 };
 
         mTimeoutsAdapter = mock(Timeouts.Adapter.class);
-        when(mTimeoutsAdapter.getCallScreeningTimeoutMillis(any(ContentResolver.class)))
+        when(mTimeoutsAdapter.getCallScreeningTimeoutMillis(any(Context.class), any(FeatureFlags.class)))
                 .thenReturn(TEST_TIMEOUT / 5L);
         mIncomingCallNotifier = mock(IncomingCallNotifier.class);
         mClockProxy = mock(ClockProxy.class);
@@ -523,7 +523,6 @@ public class TelecomSystemTest extends TelecomTestCase{
         when(mRoleManagerAdapter.getDefaultCallScreeningApp(any(UserHandle.class)))
                 .thenReturn(null);
         when(mRoleManagerAdapter.getBTInCallService()).thenReturn(new String[] {"bt_pkg"});
-        when(mFeatureFlags.callAudioCommunicationDeviceRefactor()).thenReturn(true);
         when(mFeatureFlags.useRefactoredAudioRouteSwitching()).thenReturn(false);
         mTelecomSystem = new TelecomSystem(
                 mComponentContextFixture.getTestDouble(),

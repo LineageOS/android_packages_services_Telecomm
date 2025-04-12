@@ -129,7 +129,7 @@ public final class BlockedNumbersUtil {
      * @return If {@code true} means enhanced call blocking enabled by platform,
      *            {@code false} otherwise.
      */
-    public static boolean isEnhancedCallBlockingEnabledByPlatform(Context context) {
+    public static boolean isEnhancedCallBlockingEnabledByPlatform(Context context, FeatureFlags f) {
         CarrierConfigManager configManager = (CarrierConfigManager) context.getSystemService(
                 Context.CARRIER_CONFIG_SERVICE);
         PersistableBundle carrierConfig = null;
@@ -141,7 +141,7 @@ public final class BlockedNumbersUtil {
         }
         return carrierConfig.getBoolean(
                 CarrierConfigManager.KEY_SUPPORT_ENHANCED_CALL_BLOCKING_BOOL)
-                || new SystemSettingsUtil().isEnhancedCallBlockingEnabled(context);
+                || new SystemSettingsUtil().isEnhancedCallBlockingEnabled(context, f);
     }
 
     /**

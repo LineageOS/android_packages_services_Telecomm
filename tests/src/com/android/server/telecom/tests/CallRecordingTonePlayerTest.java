@@ -53,6 +53,7 @@ import com.android.server.telecom.CallRecordingTonePlayer;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
+import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.flags.Flags;
 
 import org.junit.After;
@@ -98,8 +99,8 @@ public class CallRecordingTonePlayerTest extends TelecomTestCase {
     public void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
-        when(mTimeouts.getCallRecordingToneRepeatIntervalMillis(nullable(ContentResolver.class)))
-                .thenReturn(500L);
+        when(mTimeouts.getCallRecordingToneRepeatIntervalMillis(nullable(Context.class),
+                any(FeatureFlags.class))).thenReturn(500L);
         mCallRecordingTonePlayer = new CallRecordingTonePlayer(
                 mComponentContextFixture.getTestDouble().getApplicationContext(),
                 mAudioManager, mTimeouts, mSyncRoot, mFeatureFlags);

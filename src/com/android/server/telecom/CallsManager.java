@@ -716,7 +716,7 @@ public class CallsManager extends Call.ListenerBase
         }
 
         mDtmfLocalTonePlayer =
-                new DtmfLocalTonePlayer(new DtmfLocalTonePlayer.ToneGeneratorProxy());
+                new DtmfLocalTonePlayer(new DtmfLocalTonePlayer.ToneGeneratorProxy(), featureFlags);
         // TODO: add another flag check when
         // bluetoothDeviceManager.getBluetoothHeadset().isScoManagedByAudio()
         // available and return true
@@ -750,11 +750,17 @@ public class CallsManager extends Call.ListenerBase
                         mDockManager,
                         asyncRingtonePlayer);
         AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-        InCallTonePlayer.MediaPlayerFactory mediaPlayerFactory =
-                (resourceId, attributes) ->
-                        new InCallTonePlayer.MediaPlayerAdapterImpl(
-                                MediaPlayer.create(mContext, resourceId, attributes,
-                                        audioManager.generateAudioSessionId()));
+        InCallTonePlayer.MediaPlayerFactory mediaPlayerFactory = (resourceId, attributes) -> {
+          MediaPlayer mediaPlayer;
+          try {
+            mediaPlayer = MediaPlayer.create(
+                mContext, resourceId, attributes, audioManager.generateAudioSessionId());
+          } catch (IllegalStateException e) {
+            Log.e(TAG, e, "Failed to create mediaplayer");
+            mediaPlayer = null;
+          }
+          return new InCallTonePlayer.MediaPlayerAdapterImpl(mediaPlayer);
+        };
         InCallTonePlayer.Factory playerFactory = new InCallTonePlayer.Factory(
                 callAudioRoutePeripheralAdapter, lock, toneGeneratorFactory, mediaPlayerFactory,
                 () -> audioManager.getStreamVolume(AudioManager.STREAM_RING) > 0, featureFlags,
@@ -790,7 +796,7 @@ public class CallsManager extends Call.ListenerBase
 
         mConnectionSvrFocusMgr = connectionServiceFocusManagerFactory.create(mRequester);
         mHeadsetMediaButton = headsetMediaButtonFactory.create(context, this, mLock);
-        mTtyManager = new TtyManager(context, mWiredHeadsetManager);
+        mTtyManager = new TtyManager(context, mWiredHeadsetManager, featureFlags);
         mProximitySensorManager = proximitySensorManagerFactory.create(context, this);
         mPhoneStateBroadcaster = new PhoneStateBroadcaster(this);
         mCallLogManager = new CallLogManager(context, phoneAccountRegistrar, mMissedCallNotifier,
@@ -827,15 +833,10 @@ public class CallsManager extends Call.ListenerBase
                         mAnomalyReporter, mTimeoutsAdapter, mMetricsController, mMmiUtils,
                         mFeatureFlags), mCallAudioManager, mFeatureFlags);
 
-        if (mFeatureFlags.useImprovedListenerOrder()) {
-            mListeners.add(mInCallController);
-        }
+        mListeners.add(mInCallController);
         mListeners.add(mInCallWakeLockController);
         mListeners.add(statusBarNotifier);
         mListeners.add(mCallLogManager);
-        if (!mFeatureFlags.useImprovedListenerOrder()) {
-            mListeners.add(mInCallController);
-        }
         mListeners.add(mCallEndpointController);
         mListeners.add(mCallDiagnosticServiceController);
         mListeners.add(mCallAudioManager);
@@ -1096,13 +1097,8 @@ public class CallsManager extends Call.ListenerBase
             incomingCall.setUserMissed(USER_MISSED_CALL_FILTERS_TIMEOUT);
         }
 
-        if (incomingCall.getState() != CallState.DISCONNECTED &&
-                incomingCall.getState() != CallState.DISCONNECTING) {
-            if (!mFeatureFlags.separatelyBindToBtIncallService()) {
-                setCallState(incomingCall, CallState.RINGING,
-                        result.shouldAllowCall ? "successful incoming call" : "blocking call");
-            }
-        } else {
+        if (incomingCall.getState() == CallState.DISCONNECTED ||
+                incomingCall.getState() == CallState.DISCONNECTING) {
             Log.i(this, "onCallFilteringCompleted: call already disconnected.");
             return;
         }
@@ -1146,11 +1142,9 @@ public class CallsManager extends Call.ListenerBase
         }
 
         if (result.shouldAllowCall) {
-            if (mFeatureFlags.separatelyBindToBtIncallService()) {
-                mInCallController.bindToBTService(incomingCall, null);
-                incomingCall.setBtIcsFuture(mInCallController.getBtBindingFuture(incomingCall));
-                setCallState(incomingCall, CallState.RINGING, "successful incoming call");
-            }
+            mInCallController.bindToBTService(incomingCall, null);
+            incomingCall.setBtIcsFuture(mInCallController.getBtBindingFuture(incomingCall));
+            setCallState(incomingCall, CallState.RINGING, "successful incoming call");
             incomingCall.setPostCallPackageName(
                     getRoleManagerAdapter().getDefaultCallScreeningApp(
                             incomingCall.getAssociatedUser()
@@ -1192,9 +1186,7 @@ public class CallsManager extends Call.ListenerBase
         } else {
             if (result.shouldReject) {
                 Log.i(this, "onCallFilteringCompleted: blocked call, rejecting.");
-                if (mFeatureFlags.separatelyBindToBtIncallService()) {
-                    setCallState(incomingCall, CallState.RINGING, "blocking call");
-                }
+                setCallState(incomingCall, CallState.RINGING, "blocking call");
                 incomingCall.reject(false, null);
             }
             if (result.shouldAddToCallLog) {
@@ -1297,7 +1289,7 @@ public class CallsManager extends Call.ListenerBase
                 }
             };
             mHandler.postDelayed(mStopTone.prepare(),
-                    Timeouts.getDelayBetweenDtmfTonesMillis(mContext.getContentResolver()));
+                    Timeouts.getDelayBetweenDtmfTonesMillis(mContext, mFeatureFlags));
         } else if (nextChar == 0 || nextChar == TelecomManager.DTMF_CHARACTER_WAIT ||
                 nextChar == TelecomManager.DTMF_CHARACTER_PAUSE) {
             // Stop the tone if a tone is playing, removing any other stopTone callbacks since
@@ -1683,7 +1675,6 @@ public class CallsManager extends Call.ListenerBase
             }
             // Incoming address was set via EXTRA_INCOMING_CALL_ADDRESS above.
             UserHandle associatedUser = UserUtil.getAssociatedUserForCall(
-                    mFeatureFlags.associatedUserRefactorForWorkProfile(),
                     getPhoneAccountRegistrar(), getCurrentUserHandle(), phoneAccountHandle);
             call.setAssociatedUser(associatedUser);
         }
@@ -1926,7 +1917,6 @@ public class CallsManager extends Call.ListenerBase
 
         // For unknown calls, base the associated user off of the target phone account handle.
         UserHandle associatedUser = UserUtil.getAssociatedUserForCall(
-                mFeatureFlags.associatedUserRefactorForWorkProfile(),
                 getPhoneAccountRegistrar(), getCurrentUserHandle(), phoneAccountHandle);
         call.setAssociatedUser(associatedUser);
         setIntentExtrasAndStartTime(call, extras);
@@ -2236,7 +2226,7 @@ public class CallsManager extends Call.ListenerBase
                     }
                     Context userContext = mContext.createContextAsUser(getCurrentUserHandle(), 0);
                     return PhoneAccountSuggestionHelper.bindAndGetSuggestions(userContext,
-                            finalCall.getHandle(), potentialPhoneAccounts);
+                            finalCall.getHandle(), potentialPhoneAccounts, mFeatureFlags);
                 }, new LoggedHandlerExecutor(outgoingCallHandler, "CM.cOCSS", mLock));
 
 
@@ -2790,7 +2780,7 @@ public class CallsManager extends Call.ListenerBase
                     public CharSequence getAppLabel(String packageName, UserHandle userHandle) {
                         return Util.getAppLabel(mContext, userHandle, packageName, mFeatureFlags);
                     }
-                }).process();
+                }, mFeatureFlags).process();
         future.thenApply( v -> {
             Log.i(this, "Outgoing caller ID complete");
             return null;
@@ -3929,7 +3919,7 @@ public class CallsManager extends Call.ListenerBase
         for (PhoneAccountHandle callHandle : activeCallAccounts) {
             allAccounts.removeIf(candidateHandle -> {
                 PhoneAccount callAcct = mPhoneAccountRegistrar.getPhoneAccount(callHandle,
-                        user);
+                        user, true /* acrossProfiles */);
                 if (callAcct == null) {
                     Log.w(this, "constructPossiblePhoneAccountsNew: unexpected"
                             + "null PA for PAH, removing : " + candidateHandle);
@@ -4041,8 +4031,9 @@ public class CallsManager extends Call.ListenerBase
     }
 
     private boolean isRttSettingOn(PhoneAccountHandle handle) {
+        int userId = UserUtil.getUserIdFromContext(mContext, mFeatureFlags);
         boolean isRttModeSettingOn = Settings.Secure.getIntForUser(mContext.getContentResolver(),
-                Settings.Secure.RTT_CALLING_MODE, 0, mContext.getUserId()) != 0;
+                Settings.Secure.RTT_CALLING_MODE, 0, userId) != 0;
         // If the carrier config says that we should ignore the RTT mode setting from the user,
         // assume that it's off (i.e. only make an RTT call if it's requested through the extra).
         boolean shouldIgnoreRttModeSetting = getCarrierConfigForPhoneAccount(handle)
@@ -4233,44 +4224,6 @@ public class CallsManager extends Call.ListenerBase
         }
     }
 
-    /**
-     * The transactional unflagged (original) code path to hold or swap the active call in favor of
-     * a new call request. Refer to
-     * {@link CallsManagerCallSequencingAdapter#transactionHoldPotentialActiveCallForNewCall}.
-     */
-    public void transactionHoldPotentialActiveCallForNewCallUnflagged(Call activeCall, Call newCall,
-            OutcomeReceiver<Boolean, CallException> callback) {
-        // before attempting CallsManager#holdActiveCallForNewCall(Call), check if it'll fail
-        // early
-        if (!canHold(activeCall) &&
-                !(supportsHold(activeCall) && areFromSameSource(activeCall, newCall))) {
-            String msg = "call does not support hold";
-            Log.i(this, "transactionHoldPotentialActiveCallForNewCall: " + msg);
-            callback.onError(new CallException(msg,
-                    CallException.CODE_CANNOT_HOLD_CURRENT_ACTIVE_CALL));
-            if (mFeatureFlags.enableCallExceptionAnomReports()) {
-                mAnomalyReporter.reportAnomaly(CANNOT_HOLD_CURRENT_ACTIVE_CALL_ERROR_UUID, msg);
-            }
-            return;
-        }
-
-        // attempt to hold the active call
-        if (!holdActiveCallForNewCall(newCall)) {
-            String msg = "cannot hold active call failed";
-            Log.i(this, "transactionHoldPotentialActiveCallForNewCall: " + msg);
-            callback.onError(new CallException(msg,
-                    CallException.CODE_CANNOT_HOLD_CURRENT_ACTIVE_CALL));
-            if (mFeatureFlags.enableCallExceptionAnomReports()) {
-                mAnomalyReporter.reportAnomaly(CANNOT_HOLD_CURRENT_ACTIVE_CALL_ERROR_UUID, msg);
-            }
-            return;
-        }
-
-        // officially mark the activeCall as held
-        markCallAsOnHold(activeCall);
-        callback.onResult(true);
-    }
-
     public boolean canHoldOrSwapActiveCall(Call activeCall, Call newCall) {
         return canHold(activeCall) || sameSourceHoldCase(activeCall, newCall);
     }
@@ -4372,8 +4325,8 @@ public class CallsManager extends Call.ListenerBase
 
             // Setup the future with a timeout so that the CDS is time boxed.
             CompletableFuture<Boolean> future = call.initializeDiagnosticCompleteFuture(
-                    mTimeoutsAdapter.getCallDiagnosticServiceTimeoutMillis(
-                            mContext.getContentResolver()));
+                    mTimeoutsAdapter.getCallDiagnosticServiceTimeoutMillis(mContext,
+                            mFeatureFlags));
 
             // Post the disconnection updates to the future for completion once the CDS returns
             // with it's overridden disconnect message.
@@ -4838,8 +4791,7 @@ public class CallsManager extends Call.ListenerBase
         call.setStatusHints(parcelableConference.getStatusHints());
         call.putConnectionServiceExtras(parcelableConference.getExtras());
         // For conference calls, set the associated user from the target phone account user handle.
-        UserHandle associatedUser = UserUtil.getAssociatedUserForCall(
-                mFeatureFlags.associatedUserRefactorForWorkProfile(), getPhoneAccountRegistrar(),
+        UserHandle associatedUser = UserUtil.getAssociatedUserForCall(getPhoneAccountRegistrar(),
                 getCurrentUserHandle(), phoneAccount);
         call.setAssociatedUser(associatedUser);
         // In case this Conference was added via a ConnectionManager, keep track of the original
@@ -5905,8 +5857,7 @@ public class CallsManager extends Call.ListenerBase
                 connection.getCallerDisplayNamePresentation());
         // For existing connections, use the phone account user handle to determine the user
         // association with the call.
-        UserHandle associatedUser = UserUtil.getAssociatedUserForCall(
-                mFeatureFlags.associatedUserRefactorForWorkProfile(), getPhoneAccountRegistrar(),
+        UserHandle associatedUser = UserUtil.getAssociatedUserForCall(getPhoneAccountRegistrar(),
                 getCurrentUserHandle(), connection.getPhoneAccount());
         call.setAssociatedUser(associatedUser);
         call.addListener(this);

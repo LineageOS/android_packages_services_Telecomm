@@ -259,14 +259,6 @@ public class CallAudioModeStateMachine extends StateMachine {
             Log.i(LOG_TAG, "Audio focus entering UNFOCUSED state");
             mLocalLog.log("Enter UNFOCUSED");
             if (mIsInitialized) {
-                // Clear any communication device that was requested previously.
-                // Todo: Remove once clearCommunicationDeviceAfterAudioOpsComplete is
-                // completely rolled out.
-                if (mFeatureFlags.callAudioCommunicationDeviceRefactor()
-                        && !mFeatureFlags.clearCommunicationDeviceAfterAudioOpsComplete()) {
-                    mCommunicationDeviceTracker.clearCommunicationDevice(mCommunicationDeviceTracker
-                            .getCurrentLocallyRequestedCommunicationDevice());
-                }
                 if (mFeatureFlags.setAudioModeBeforeAbandonFocus()) {
                     Log.i(this, "enter: AudioManager#setMode(MODE_NORMAL)");
                     mAudioManager.setMode(AudioManager.MODE_NORMAL);
@@ -333,16 +325,14 @@ public class CallAudioModeStateMachine extends StateMachine {
                             + "AudioManager#abandonAudioFocusRequest(); now unfocused");
                     mAudioManager.abandonAudioFocusForCall();
                     // Clear requested communication device after the call ends.
-                    if (mFeatureFlags.clearCommunicationDeviceAfterAudioOpsComplete()) {
-                        // Oh flags!  If we're using the refactored audio route switching, we should
-                        // not be using the communication device tracker; that is exclusively for
-                        // the old code path.
-                        if (!mFeatureFlags.dontUseCommunicationDeviceTracker()
-                                || !mFeatureFlags.useRefactoredAudioRouteSwitching()) {
-                            mCommunicationDeviceTracker.clearCommunicationDevice(
-                                    mCommunicationDeviceTracker
-                                            .getCurrentLocallyRequestedCommunicationDevice());
-                        }
+                    // Oh flags!  If we're using the refactored audio route switching, we should
+                    // not be using the communication device tracker; that is exclusively for
+                    // the old code path.
+                    if (!mFeatureFlags.dontUseCommunicationDeviceTracker()
+                            || !mFeatureFlags.useRefactoredAudioRouteSwitching()) {
+                        mCommunicationDeviceTracker.clearCommunicationDevice(
+                                mCommunicationDeviceTracker
+                                        .getCurrentLocallyRequestedCommunicationDevice());
                     }
                     return HANDLED;
                 default:

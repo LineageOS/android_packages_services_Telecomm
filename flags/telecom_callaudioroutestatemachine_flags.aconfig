@@ -17,14 +17,6 @@ flag {
   bug: "306395598"
 }
 
-# OWNER=pmadapurmath TARGET=25Q1
-flag {
-  name: "resolve_active_bt_routing_and_bt_timing_issue"
-  namespace: "telecom"
-  description: "Resolve the active BT device routing and flaky timing issues noted in BT routing."
-  bug: "372029371"
-}
-
 # OWNER=tgunn TARGET=24Q3
 flag {
   name: "ensure_audio_mode_updates_on_foreground_call_change"
@@ -51,14 +43,6 @@ flag {
 
 # OWNER=pmadapurmath TARGET=24Q3
 flag {
-  name: "call_audio_communication_device_refactor"
-  namespace: "telecom"
-  description: "Refactor call audio set/clear communication device and include unsupported routes."
-  bug: "308968392"
-}
-
-# OWNER=pmadapurmath TARGET=24Q3
-flag {
   name: "communication_device_protected_by_lock"
   namespace: "telecom"
   description: "Protect set/clear communication device operation with lock to avoid race condition."
@@ -81,61 +65,12 @@ flag {
   bug: "301695370"
 }
 
-# OWNER=pmadapurmath TARGET=24Q3
-flag {
-  name: "clear_communication_device_after_audio_ops_complete"
-  namespace: "telecom"
-  description: "Clear the requested communication device after the audio operations are completed."
-  bug: "315865533"
-}
-
 # OWNER=tgunn TARGET=24Q3
 flag {
   name: "dont_use_communication_device_tracker"
   namespace: "telecom"
   description: "Do not use the communication device tracker with useRefactoredAudioRouteSwitching."
   bug: "346472575"
-  metadata {
-    purpose: PURPOSE_BUGFIX
-  }
-}
-
-# OWNER=pmadapurmath TARGET=24Q3
-flag {
-  name: "resolve_switching_bt_devices_computation"
-  namespace: "telecom"
-  description: "Update switching bt devices based on arbitrary device chosen if no device is specified."
-  bug: "333751408"
-}
-
-# OWNER=pmadapurmath TARGET=24Q3
-flag {
-  name: "early_update_internal_call_audio_state"
-  namespace: "telecom"
-  description: "Update internal call audio state before sending updated state to ICS"
-  bug: "335538831"
-  metadata {
-    purpose: PURPOSE_BUGFIX
-  }
-}
-
-# OWNER=pmadapurmath TARGET=25Q1
-flag {
-  name: "new_audio_path_speaker_broadcast_and_unfocused_routing"
-  namespace: "telecom"
-  description: "Replace the speaker broadcasts with the communication device changed listener and resolve baseline routing issues when a call ends."
-  bug: "353419513"
-  metadata {
-    purpose: PURPOSE_BUGFIX
-  }
-}
-
-# OWNER=pmadapurmath TARGET=25Q2
-flag {
-  name: "fix_user_request_baseline_route_video_call"
-  namespace: "telecom"
-  description: "Ensure that audio is routed out of speaker in a video call when we receive USER_SWITCH_BASELINE_ROUTE."
-  bug: "374037591"
   metadata {
     purpose: PURPOSE_BUGFIX
   }

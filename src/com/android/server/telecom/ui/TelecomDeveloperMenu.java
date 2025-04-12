@@ -22,6 +22,7 @@ import android.widget.Switch;
 
 import com.android.server.telecom.R;
 import com.android.server.telecom.SystemSettingsUtil;
+import com.android.server.telecom.flags.FeatureFlagsImpl;
 
 /**
  * Telecom Developer Settings Menu.
@@ -30,6 +31,7 @@ public class TelecomDeveloperMenu extends Activity {
 
     private Switch mEnhancedCallingSwitch;
     private SystemSettingsUtil mSystemSettingsUtil;
+    private FeatureFlagsImpl mFeatureFlags = new FeatureFlagsImpl();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,10 +48,11 @@ public class TelecomDeveloperMenu extends Activity {
 
     private void handleEnhancedCallingToggle() {
         mSystemSettingsUtil.setEnhancedCallBlockingEnabled(this,
-                mEnhancedCallingSwitch.isChecked());
+                mEnhancedCallingSwitch.isChecked(), mFeatureFlags);
     }
 
     private void loadPreferences() {
-        mEnhancedCallingSwitch.setChecked(mSystemSettingsUtil.isEnhancedCallBlockingEnabled(this));
+        mEnhancedCallingSwitch.setChecked(mSystemSettingsUtil.isEnhancedCallBlockingEnabled(this,
+                mFeatureFlags));
     }
 }

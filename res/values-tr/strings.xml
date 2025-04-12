@@ -138,6 +138,8 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Devam eden iki arama olduğu için arama yapılamıyor. Yeni bir arama yapmadan önce aramalardan birini sonlandırın veya iki aramayı bir konferans aramasında birleştirin."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Devam eden iki arama olduğu için arama yapılamıyor. Yeni bir arama yapmadan önce aramalardan birini sonlandırın."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Bekletilemeyen bir arama devam ettiğinden arama yapılamıyor. Yeni bir arama yapmadan önce mevcut aramayı sonlandırın."</string>
+    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
+    <skip />
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Gelen arama olduğu için arama yapılamıyor. Yeni bir arama yapmadan önce gelen aramayı cevaplayın veya reddedin."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Bu MMI kodu, birden fazla hesaptan arama yapılırken kullanılamaz."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Acil durum aramalarında MMI kodları kullanılamaz."</string>

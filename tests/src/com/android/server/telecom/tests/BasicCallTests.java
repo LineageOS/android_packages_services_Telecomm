@@ -627,7 +627,6 @@ public class BasicCallTests extends TelecomSystemTest {
     @LargeTest
     @Test
     public void testIncomingThenOutgoingCalls_AssociatedUsersNotEqual() throws Exception {
-        when(mFeatureFlags.associatedUserRefactorForWorkProfile()).thenReturn(true);
         InCallServiceFixture.setIgnoreOverrideAdapterFlag(true);
 
         // Receive incoming call via mPhoneAccountMultiUser

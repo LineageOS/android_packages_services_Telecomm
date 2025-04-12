@@ -1938,7 +1938,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                     mContext.getPackageManager());
             // Set the associated user for the call for MT calls based on the target phone account.
             UserHandle associatedUser = UserUtil.getAssociatedUserForCall(
-                    mFlags.associatedUserRefactorForWorkProfile(),
                     mCallsManager.getPhoneAccountRegistrar(), mCallsManager.getCurrentUserHandle(),
                     accountHandle);
             if (isIncoming() && !associatedUser.equals(mAssociatedUser)) {
@@ -2360,12 +2359,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     public void setTransactionalCapabilities(Bundle extras) {
-        if (!mFlags.remapTransactionalCapabilities()) {
-            setConnectionCapabilities(
-                    extras.getInt(CallAttributes.CALL_CAPABILITIES_KEY,
-                            CallAttributes.SUPPORTS_SET_INACTIVE), true);
-            return;
-        }
         int connectionCapabilitesBitmap = 0;
         int transactionalCapabilitiesBitmap = extras.getInt(
                 CallAttributes.CALL_CAPABILITIES_KEY,

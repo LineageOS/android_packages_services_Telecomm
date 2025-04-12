@@ -138,6 +138,8 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Nevar veikt zvanu, jo pašlaik jau notiek divi zvani. Pirms jauna zvana veikšanas pārtrauciet vienu no pašreizējiem zvaniem vai apvienojiet tos konferences zvanā."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Nevar veikt zvanu, jo pašlaik jau notiek divi zvani. Pirms jauna zvana veikšanas pārtrauciet vienu no pašreizējiem zvaniem."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Nevar veikt zvanu, jo pašlaik notiek zvans, ko nevar pārtraukt. Pirms jauna zvana veikšanas pārtrauciet pašreizējo zvanu."</string>
+    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
+    <skip />
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Nevar veikt zvanu, jo ir neatbildēts ienākošais zvans. Pirms jauna zvana veikšanas atbildiet uz ienākošo zvanu vai noraidiet to."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Šis MMI kods nav pieejams zvaniem vairākos kontos."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"MMI kodus nevar ievadīt ārkārtas izsaukuma laikā."</string>

@@ -214,9 +214,6 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         when(mCall.getSupportedAudioRoutes()).thenReturn(CallAudioState.ROUTE_ALL);
         when(mFeatureFlags.ignoreAutoRouteToWatchDevice()).thenReturn(false);
         when(mFeatureFlags.useRefactoredAudioRouteSwitching()).thenReturn(true);
-        when(mFeatureFlags.resolveActiveBtRoutingAndBtTimingIssue()).thenReturn(false);
-        when(mFeatureFlags.newAudioPathSpeakerBroadcastAndUnfocusedRouting()).thenReturn(false);
-        when(mFeatureFlags.fixUserRequestBaselineRouteVideoCall()).thenReturn(false);
         when(mFeatureFlags.callAudioRoutingPerformanceImprovemenent()).thenReturn(true);
         BLUETOOTH_DEVICES.add(BLUETOOTH_DEVICE_1);
     }
@@ -740,7 +737,7 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         ArgumentCaptor<BroadcastReceiver> brCaptor = ArgumentCaptor.forClass(
                 BroadcastReceiver.class);
         ArgumentCaptor<IntentFilter> filterCaptor = ArgumentCaptor.forClass(IntentFilter.class);
-        verify(mContext, times(3)).registerReceiver(brCaptor.capture(), filterCaptor.capture());
+        verify(mContext, times(2)).registerReceiver(brCaptor.capture(), filterCaptor.capture());
         boolean foundValid = false;
         for (int ix = 0; ix < brCaptor.getAllValues().size(); ix++) {
             BroadcastReceiver receiver = brCaptor.getAllValues().get(ix);
@@ -1099,7 +1096,6 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testMimicVoiceDialWithBt() {
-        when(mFeatureFlags.resolveActiveBtRoutingAndBtTimingIssue()).thenReturn(true);
         mController.initialize();
         mController.setActive(true);
 
@@ -1130,7 +1126,6 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testTransactionalCallBtConnectingAndSwitchCallEndpoint() {
-        when(mFeatureFlags.resolveActiveBtRoutingAndBtTimingIssue()).thenReturn(true);
         mController.initialize();
         mController.setActive(true);
 
@@ -1164,7 +1159,6 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     @Test
     @SmallTest
     public void testBluetoothRouteToActiveDevice() {
-        when(mFeatureFlags.resolveActiveBtRoutingAndBtTimingIssue()).thenReturn(true);
         // Connect first BT device.
         verifyConnectBluetoothDevice(AudioRoute.TYPE_BLUETOOTH_SCO);
         // Connect another BT device.
@@ -1218,7 +1212,6 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     @Test
     @SmallTest
     public void verifyRouteReinitializedAfterCallEnd() {
-        when(mFeatureFlags.resolveActiveBtRoutingAndBtTimingIssue()).thenReturn(true);
         mController.initialize();
         mController.setActive(true);
 
@@ -1244,7 +1237,6 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     @Test
     @SmallTest
     public void testUserSwitchBaselineRouteVideoCall() {
-        when(mFeatureFlags.fixUserRequestBaselineRouteVideoCall()).thenReturn(true);
         mController.initialize();
         mController.setActive(true);
         // Set capabilities for video call.
@@ -1283,7 +1275,6 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     @Test
     @SmallTest
     public void testRouteToWatchWhenCallAnsweredOnWatch_MultipleBtDevices() {
-        when(mFeatureFlags.resolveActiveBtRoutingAndBtTimingIssue()).thenReturn(true);
         // Connect first BT device.
         verifyConnectBluetoothDevice(AudioRoute.TYPE_BLUETOOTH_SCO);
         // Connect another BT device.
@@ -1372,7 +1363,6 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     @Test
     @SmallTest
     public void testActiveDevicePresentRoutesOnCurrentActive() {
-        when(mFeatureFlags.resolveActiveBtRoutingAndBtTimingIssue()).thenReturn(true);
         // Connect first BT device.
         verifyConnectBluetoothDevice(AudioRoute.TYPE_BLUETOOTH_SCO);
         // Connect another BT device.

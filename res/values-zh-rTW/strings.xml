@@ -138,6 +138,8 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"目前有兩個進行中的通話，因此無法撥號。請掛斷其中一個通話，或將通話合併成會議，再撥打電話。"</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"目前有兩個進行中的通話，因此無法撥號。請先掛斷其中一個通話，再撥打電話。"</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"目前有無法保留的通話，因此無法撥號。請先掛斷通話，再撥打電話。"</string>
+    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
+    <skip />
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"有人打電話給你，因此你目前無法撥打電話。你必須先接聽或拒接來電，才能撥打電話。"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"這個 MMI 代碼無法用於透過多個帳戶進行通話。"</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"進行緊急電話時無法撥打 MMI 碼。"</string>

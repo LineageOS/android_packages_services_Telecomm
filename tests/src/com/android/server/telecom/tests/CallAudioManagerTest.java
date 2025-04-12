@@ -948,7 +948,6 @@ public class CallAudioManagerTest extends TelecomTestCase {
     }
 
     private void handleWaitForBtIcsBinding(Call call) {
-        when(mFlags.separatelyBindToBtIncallService()).thenReturn(true);
         CompletableFuture<Boolean> btBindingFuture = CompletableFuture.completedFuture(true);
         when(call.getBtIcsFuture()).thenReturn(btBindingFuture);
     }

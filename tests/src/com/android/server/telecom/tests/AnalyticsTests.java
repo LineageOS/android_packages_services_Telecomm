@@ -57,6 +57,7 @@ import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.Analytics;
 import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.LogUtils;
+import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.nano.TelecomLogClass;
 
 import org.junit.After;
@@ -188,8 +189,8 @@ public class AnalyticsTests extends TelecomSystemTest {
     @MediumTest
     @Test
     public void testAnalyticsTwoCalls() throws Exception {
-        when(mTimeoutsAdapter.getCallScreeningTimeoutMillis(any(ContentResolver.class)))
-                .thenReturn((long) TEST_TIMEOUT);
+        when(mTimeoutsAdapter.getCallScreeningTimeoutMillis(any(Context.class),
+                any(FeatureFlags.class))).thenReturn((long) TEST_TIMEOUT);
         IdPair testCall1 = startAndMakeActiveIncomingCall(
                 "650-555-1212",
                 mPhoneAccountA0.getAccountHandle(),
