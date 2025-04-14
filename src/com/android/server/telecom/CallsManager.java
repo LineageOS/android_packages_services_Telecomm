@@ -742,13 +742,6 @@ public class CallsManager extends Call.ListenerBase
         bluetoothStateReceiver.setCallAudioRouteAdapter(mCallAudioRouteAdapter);
         bluetoothDeviceManager.setCallAudioRouteAdapter(mCallAudioRouteAdapter);
 
-        CallAudioRoutePeripheralAdapter callAudioRoutePeripheralAdapter =
-                new CallAudioRoutePeripheralAdapter(
-                        mCallAudioRouteAdapter,
-                        bluetoothManager,
-                        wiredHeadsetManager,
-                        mDockManager,
-                        asyncRingtonePlayer);
         AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         InCallTonePlayer.MediaPlayerFactory mediaPlayerFactory = (resourceId, attributes) -> {
           MediaPlayer mediaPlayer;
@@ -761,10 +754,8 @@ public class CallsManager extends Call.ListenerBase
           }
           return new InCallTonePlayer.MediaPlayerAdapterImpl(mediaPlayer);
         };
-        InCallTonePlayer.Factory playerFactory = new InCallTonePlayer.Factory(
-                callAudioRoutePeripheralAdapter, lock, toneGeneratorFactory, mediaPlayerFactory,
-                () -> audioManager.getStreamVolume(AudioManager.STREAM_RING) > 0, featureFlags,
-                Looper.getMainLooper());
+        InCallTonePlayer.Factory playerFactory = new InCallTonePlayer.Factory(lock,
+                toneGeneratorFactory, mediaPlayerFactory, Looper.getMainLooper());
 
         SystemSettingsUtil systemSettingsUtil = new SystemSettingsUtil();
         RingtoneFactory ringtoneFactory = new RingtoneFactory(this, context, featureFlags);

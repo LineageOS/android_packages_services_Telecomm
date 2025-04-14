@@ -34,18 +34,12 @@ import android.media.ToneGenerator;
 
 import androidx.test.filters.SmallTest;
 
-import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallAudioManager;
-import com.android.server.telecom.CallAudioRoutePeripheralAdapter;
-import com.android.server.telecom.CallAudioRouteStateMachine;
-import com.android.server.telecom.DockManager;
 import com.android.server.telecom.InCallTonePlayer;
 import com.android.server.telecom.TelecomSystem;
-import com.android.server.telecom.WiredHeadsetManager;
 import com.android.server.telecom.bluetooth.BluetoothDeviceManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
-import com.android.server.telecom.flags.FeatureFlags;
 
 import org.junit.After;
 import org.junit.Before;
@@ -59,17 +53,12 @@ public class InCallTonePlayerTest extends TelecomTestCase {
 
     private static final long TEST_TIMEOUT = 5000L;
     private InCallTonePlayer.Factory mFactory;
-    private CallAudioRoutePeripheralAdapter mCallAudioRoutePeripheralAdapter;
 
     @Mock private BluetoothRouteManager mBluetoothRouteManager;
-    @Mock private CallAudioRouteStateMachine mCallAudioRouteStateMachine;
     @Mock private BluetoothDeviceManager mBluetoothDeviceManager;
     @Mock private TelecomSystem.SyncRoot mLock;
     @Mock private ToneGenerator mToneGenerator;
     @Mock private InCallTonePlayer.ToneGeneratorFactory mToneGeneratorFactory;
-    @Mock private WiredHeadsetManager mWiredHeadsetManager;
-    @Mock private DockManager mDockManager;
-    @Mock private AsyncRingtonePlayer mRingtonePlayer;
     @Mock private BluetoothDevice mDevice;
 
     private InCallTonePlayer.MediaPlayerAdapter mMediaPlayerAdapter =
@@ -106,9 +95,6 @@ public class InCallTonePlayerTest extends TelecomTestCase {
     private InCallTonePlayer.MediaPlayerFactory mMediaPlayerFactory;
 
     @Mock
-    private InCallTonePlayer.AudioManagerAdapter mAudioManagerAdapter;
-
-    @Mock
     private CallAudioManager mCallAudioManager;
     @Mock
     private Call mCall;
@@ -123,11 +109,7 @@ public class InCallTonePlayerTest extends TelecomTestCase {
         when(mMediaPlayerFactory.get(anyInt(), any())).thenReturn(mMediaPlayerAdapter);
         doNothing().when(mCallAudioManager).setIsTonePlaying(any(Call.class), anyBoolean());
 
-        mCallAudioRoutePeripheralAdapter = new CallAudioRoutePeripheralAdapter(
-                mCallAudioRouteStateMachine, mBluetoothRouteManager, mWiredHeadsetManager,
-                mDockManager, mRingtonePlayer);
-        mFactory = new InCallTonePlayer.Factory(mCallAudioRoutePeripheralAdapter, mLock,
-                mToneGeneratorFactory, mMediaPlayerFactory, mAudioManagerAdapter, mFeatureFlags,
+        mFactory = new InCallTonePlayer.Factory(mLock, mToneGeneratorFactory, mMediaPlayerFactory,
                 getLooper());
         mFactory.setCallAudioManager(mCallAudioManager);
         mInCallTonePlayer = mFactory.createPlayer(mCall, InCallTonePlayer.TONE_CALL_ENDED);
@@ -145,23 +127,7 @@ public class InCallTonePlayerTest extends TelecomTestCase {
 
     @SmallTest
     @Test
-    public void testEndCallTonePlaysWhenRingIsSilent() {
-        when(mAudioManagerAdapter.isVolumeOverZero()).thenReturn(false);
-        assertTrue(mInCallTonePlayer.startTone());
-        // Verify we did play a tone.
-        verify(mMediaPlayerFactory, timeout(TEST_TIMEOUT)).get(anyInt(), any());
-        verify(mCallAudioManager).setIsTonePlaying(any(Call.class), eq(true));
-
-        mInCallTonePlayer.stopTone();
-        // Timeouts due to threads!
-        verify(mCallAudioManager, timeout(TEST_TIMEOUT)).setIsTonePlaying(any(Call.class),
-                eq(false));
-    }
-
-    @SmallTest
-    @Test
     public void testInterruptMediaTone() {
-        when(mAudioManagerAdapter.isVolumeOverZero()).thenReturn(true);
         assertTrue(mInCallTonePlayer.startTone());
         // Verify we did play a tone.
         verify(mMediaPlayerFactory, timeout(TEST_TIMEOUT)).get(anyInt(), any());
@@ -180,7 +146,6 @@ public class InCallTonePlayerTest extends TelecomTestCase {
     @Test
     public void testInterruptToneGenerator() {
         mInCallTonePlayer = mFactory.createPlayer(mCall, InCallTonePlayer.TONE_RING_BACK);
-        when(mAudioManagerAdapter.isVolumeOverZero()).thenReturn(true);
         assertTrue(mInCallTonePlayer.startTone());
         verify(mToneGenerator, timeout(TEST_TIMEOUT)).startTone(anyInt());
         verify(mCallAudioManager).setIsTonePlaying(any(Call.class), eq(true));
@@ -189,9 +154,6 @@ public class InCallTonePlayerTest extends TelecomTestCase {
         // Timeouts due to threads!
         verify(mCallAudioManager, timeout(TEST_TIMEOUT)).setIsTonePlaying(any(Call.class),
                 eq(false));
-        // Ideally it would be nice to verify this, however release is a native method so appears to
-        // cause flakiness when testing on Cuttlefish.
-        // verify(mToneGenerator, timeout(TEST_TIMEOUT)).release();
 
         // Correctness check: ensure we can't start the tone again.
         assertFalse(mInCallTonePlayer.startTone());
@@ -200,7 +162,6 @@ public class InCallTonePlayerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testEndCallToneWhenNotSilenced() {
-        when(mAudioManagerAdapter.isVolumeOverZero()).thenReturn(true);
         assertTrue(mInCallTonePlayer.startTone());
 
         // Verify we did play a tone.
@@ -209,54 +170,9 @@ public class InCallTonePlayerTest extends TelecomTestCase {
                 eq(true));
     }
 
-    /**
-     * Only applicable when {@link FeatureFlags#useStreamVoiceCallTones()} is false and we use
-     * STREAM_BLUETOOTH_SCO for tones.
-     */
-    @SmallTest
-    @Test
-    public void testRingbackToneAudioStreamHeadset() {
-        when(mFeatureFlags.useStreamVoiceCallTones()).thenReturn(false);
-        when(mAudioManagerAdapter.isVolumeOverZero()).thenReturn(true);
-        setConnectedBluetoothDevice(false /*isLe*/, false /*isHearingAid*/);
-
-        mInCallTonePlayer = mFactory.createPlayer(mCall, InCallTonePlayer.TONE_RING_BACK);
-        assertTrue(mInCallTonePlayer.startTone());
-
-        verify(mToneGeneratorFactory, timeout(TEST_TIMEOUT))
-                .get(eq(AudioManager.STREAM_BLUETOOTH_SCO), anyInt());
-        verify(mCallAudioManager).setIsTonePlaying(any(Call.class), eq(true));
-    }
-
-    /**
-     * Only applicable when {@link FeatureFlags#useStreamVoiceCallTones()} is false and we use
-     * STREAM_BLUETOOTH_SCO for tones.
-     */
-    @SmallTest
-    @Test
-    public void testCallWaitingToneAudioStreamHeadset() {
-        when(mFeatureFlags.useStreamVoiceCallTones()).thenReturn(false);
-        when(mAudioManagerAdapter.isVolumeOverZero()).thenReturn(true);
-        setConnectedBluetoothDevice(false /*isLe*/, false /*isHearingAid*/);
-
-        mInCallTonePlayer = mFactory.createPlayer(mCall, InCallTonePlayer.TONE_CALL_WAITING);
-        assertTrue(mInCallTonePlayer.startTone());
-
-        verify(mToneGeneratorFactory, timeout(TEST_TIMEOUT))
-                .get(eq(AudioManager.STREAM_BLUETOOTH_SCO), anyInt());
-        verify(mCallAudioManager).setIsTonePlaying(any(Call.class), eq(true));
-    }
-
-
-    /**
-     * Only applicable when {@link FeatureFlags#useStreamVoiceCallTones()} is true and we use
-     * STREAM_VOICE_CALL for ALL tones.
-     */
     @SmallTest
     @Test
     public void testRingbackToneAudioStreamSco() {
-        when(mFeatureFlags.useStreamVoiceCallTones()).thenReturn(true);
-        when(mAudioManagerAdapter.isVolumeOverZero()).thenReturn(true);
         setConnectedBluetoothDevice(false /*isLe*/, false /*isHearingAid*/);
 
         mInCallTonePlayer = mFactory.createPlayer(mCall, InCallTonePlayer.TONE_RING_BACK);
@@ -267,15 +183,9 @@ public class InCallTonePlayerTest extends TelecomTestCase {
         verify(mCallAudioManager).setIsTonePlaying(any(Call.class), eq(true));
     }
 
-    /**
-     * Only applicable when {@link FeatureFlags#useStreamVoiceCallTones()} is true and we use
-     * STREAM_VOICE_CALL for ALL tones.
-     */
     @SmallTest
     @Test
     public void testRingbackToneAudioStreamLe() {
-        when(mFeatureFlags.useStreamVoiceCallTones()).thenReturn(true);
-        when(mAudioManagerAdapter.isVolumeOverZero()).thenReturn(true);
         setConnectedBluetoothDevice(true /*isLe*/, false /*isHearingAid*/);
 
         mInCallTonePlayer = mFactory.createPlayer(mCall, InCallTonePlayer.TONE_RING_BACK);
@@ -289,7 +199,6 @@ public class InCallTonePlayerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testRingbackToneAudioStreamHearingAid() {
-        when(mAudioManagerAdapter.isVolumeOverZero()).thenReturn(true);
         setConnectedBluetoothDevice(false /*isLe*/, true /*isHearingAid*/);
 
         mInCallTonePlayer = mFactory.createPlayer(mCall, InCallTonePlayer.TONE_RING_BACK);
@@ -303,7 +212,6 @@ public class InCallTonePlayerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testCallWaitingToneAudioStreamHearingAid() {
-        when(mAudioManagerAdapter.isVolumeOverZero()).thenReturn(true);
         setConnectedBluetoothDevice(false /*isLe*/, true /*isHearingAid*/);
 
         mInCallTonePlayer = mFactory.createPlayer(mCall, InCallTonePlayer.TONE_CALL_WAITING);

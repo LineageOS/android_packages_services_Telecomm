@@ -30,7 +30,6 @@ import android.telecom.Logging.Runnable;
 import android.telecom.Logging.Session;
 
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -50,24 +49,16 @@ public class InCallTonePlayer extends Thread {
      */
     public static class Factory {
         private CallAudioManager mCallAudioManager;
-        private final CallAudioRoutePeripheralAdapter mCallAudioRoutePeripheralAdapter;
         private final TelecomSystem.SyncRoot mLock;
         private final ToneGeneratorFactory mToneGeneratorFactory;
         private final MediaPlayerFactory mMediaPlayerFactory;
-        private final AudioManagerAdapter mAudioManagerAdapter;
-        private final FeatureFlags mFeatureFlags;
         private final Looper mLooper;
 
-        public Factory(CallAudioRoutePeripheralAdapter callAudioRoutePeripheralAdapter,
-                TelecomSystem.SyncRoot lock, ToneGeneratorFactory toneGeneratorFactory,
-                MediaPlayerFactory mediaPlayerFactory, AudioManagerAdapter audioManagerAdapter,
-                FeatureFlags flags, Looper looper) {
-            mCallAudioRoutePeripheralAdapter = callAudioRoutePeripheralAdapter;
+        public Factory(TelecomSystem.SyncRoot lock, ToneGeneratorFactory toneGeneratorFactory,
+                MediaPlayerFactory mediaPlayerFactory, Looper looper) {
             mLock = lock;
             mToneGeneratorFactory = toneGeneratorFactory;
             mMediaPlayerFactory = mediaPlayerFactory;
-            mAudioManagerAdapter = audioManagerAdapter;
-            mFeatureFlags = flags;
             mLooper = looper;
         }
 
@@ -76,9 +67,8 @@ public class InCallTonePlayer extends Thread {
         }
 
         public InCallTonePlayer createPlayer(Call call, int tone) {
-            return new InCallTonePlayer(call, tone, mCallAudioManager,
-                    mCallAudioRoutePeripheralAdapter, mLock, mToneGeneratorFactory,
-                    mMediaPlayerFactory, mAudioManagerAdapter, mFeatureFlags, mLooper);
+            return new InCallTonePlayer(call, tone, mCallAudioManager, mLock, mToneGeneratorFactory,
+                    mMediaPlayerFactory, mLooper);
         }
     }
 
@@ -95,7 +85,7 @@ public class InCallTonePlayer extends Thread {
     }
 
     public static class MediaPlayerAdapterImpl implements MediaPlayerAdapter {
-        private MediaPlayer mMediaPlayer;
+        private final MediaPlayer mMediaPlayer;
 
         /**
          * Create new media player adapter backed by a real mediaplayer.
@@ -149,10 +139,6 @@ public class InCallTonePlayer extends Thread {
         MediaPlayerAdapter get (int resourceId, AudioAttributes attributes);
     }
 
-    public interface AudioManagerAdapter {
-        boolean isVolumeOverZero();
-    }
-
     // The possible tones that we can play.
     public static final int TONE_INVALID = 0;
     public static final int TONE_BUSY = 1;
@@ -174,7 +160,6 @@ public class InCallTonePlayer extends Thread {
 
     private static final int TONE_RESOURCE_ID_UNDEFINED = -1;
 
-    private static final int RELATIVE_VOLUME_EMERGENCY = 100;
     private static final int RELATIVE_VOLUME_HIPRI = 80;
     private static final int RELATIVE_VOLUME_LOPRI = 30;
     private static final int RELATIVE_VOLUME_UNDEFINED = -1;
@@ -196,10 +181,9 @@ public class InCallTonePlayer extends Thread {
      * when we need focus and when it can be release. This should only be manipulated from the main
      * thread.
      */
-    private static AtomicInteger sTonesPlaying = new AtomicInteger(0);
+    private static final AtomicInteger sTonesPlaying = new AtomicInteger(0);
 
     private final CallAudioManager mCallAudioManager;
-    private final CallAudioRoutePeripheralAdapter mCallAudioRoutePeripheralAdapter;
 
     private final Handler mMainThreadHandler;
 
@@ -221,8 +205,6 @@ public class InCallTonePlayer extends Thread {
     private final Call mCall;
     private final ToneGeneratorFactory mToneGenerator;
     private final MediaPlayerFactory mMediaPlayerFactory;
-    private final AudioManagerAdapter mAudioManagerAdapter;
-    private final FeatureFlags mFeatureFlags;
 
     /**
      * Latch used for awaiting on playback, which may be interrupted if the tone is stopped from
@@ -239,23 +221,17 @@ public class InCallTonePlayer extends Thread {
             Call call,
             int toneId,
             CallAudioManager callAudioManager,
-            CallAudioRoutePeripheralAdapter callAudioRoutePeripheralAdapter,
             TelecomSystem.SyncRoot lock,
             ToneGeneratorFactory toneGeneratorFactory,
             MediaPlayerFactory mediaPlayerFactor,
-            AudioManagerAdapter audioManagerAdapter,
-            FeatureFlags flags,
             Looper looper) {
         mCall = call;
         mState = STATE_OFF;
         mToneId = toneId;
         mCallAudioManager = callAudioManager;
-        mCallAudioRoutePeripheralAdapter = callAudioRoutePeripheralAdapter;
         mLock = lock;
         mToneGenerator = toneGeneratorFactory;
         mMediaPlayerFactory = mediaPlayerFactor;
-        mAudioManagerAdapter = audioManagerAdapter;
-        mFeatureFlags = flags;
         mMainThreadHandler = new Handler(looper);
     }
 
@@ -375,7 +351,7 @@ public class InCallTonePlayer extends Thread {
                     throw new IllegalStateException("Bad toneId: " + mToneId);
             }
 
-            int stream = getStreamType(toneType);
+            int stream = AudioManager.STREAM_VOICE_CALL;
             if (toneType != ToneGenerator.TONE_UNKNOWN) {
                 playToneGeneratorTone(stream, toneVolume, toneType, toneLengthMillis);
             } else if (mediaResourceId != TONE_RESOURCE_ID_UNDEFINED) {
@@ -385,31 +361,6 @@ public class InCallTonePlayer extends Thread {
             cleanUpTonePlayer();
             Log.endSession();
         }
-    }
-
-    /**
-     * @param toneType The ToneGenerator tone type
-     * @return The ToneGenerator stream type
-     */
-    private int getStreamType(int toneType) {
-        if (mFeatureFlags.useStreamVoiceCallTones()) {
-            return AudioManager.STREAM_VOICE_CALL;
-        }
-
-        int stream = AudioManager.STREAM_VOICE_CALL;
-        if (mCallAudioRoutePeripheralAdapter.isBluetoothAudioOn()) {
-            stream = AudioManager.STREAM_BLUETOOTH_SCO;
-        }
-        if (toneType != ToneGenerator.TONE_UNKNOWN) {
-            if (stream == AudioManager.STREAM_BLUETOOTH_SCO) {
-                // Override audio stream for BT le device and hearing aid device
-                if (mCallAudioRoutePeripheralAdapter.isLeAudioDeviceOn()
-                        || mCallAudioRoutePeripheralAdapter.isHearingAidDeviceOn()) {
-                    stream = AudioManager.STREAM_VOICE_CALL;
-                }
-            }
-        }
-        return stream;
     }
 
     /**
