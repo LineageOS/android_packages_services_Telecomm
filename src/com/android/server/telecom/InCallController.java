@@ -1929,8 +1929,8 @@ public class InCallController extends CallsManagerListenerBase implements
         // the admin user. This needs to account for emergency calls placed from secondary/guest
         // users as well as the work profile. Once the screen is locked, the user should be able to
         // return to the call (from the keyguard UI).
-        if (mFeatureFlags.eccKeyguard() && mCallsManager.isInEmergencyCall()
-                && isLockscreenRestricted && !serviceMap.containsKey(callingUser)) {
+        if (mCallsManager.isInEmergencyCall() && isLockscreenRestricted
+                && !serviceMap.containsKey(callingUser)) {
             // If screen is locked and the current user is the system, query calls for the work
             // profile user, if available. Otherwise, the user is in the secondary/guest profile,
             // so we can default to the system user.

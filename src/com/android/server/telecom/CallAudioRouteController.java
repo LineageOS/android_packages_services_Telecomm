@@ -1390,9 +1390,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         } else {
             // Most recent active route will always be the last in the array (ensure that we don't
             // auto route to a wearable device unless it's already active).
-            String autoRoutingToWatchExcerpt = mFeatureFlags.ignoreAutoRouteToWatchDevice()
-                    ? " (except watch)"
-                    : "";
+            String autoRoutingToWatchExcerpt = " (except inactive watch)";
             Log.i(this, "getPreferredAudioRouteFromDefault: Audio routing defaulting to "
                     + "most recently active BT route" + autoRoutingToWatchExcerpt + ".");
             return activeWatchOrNonWatchDeviceRoute;
@@ -1535,12 +1533,6 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
      * device.
      */
     private AudioRoute getActiveWatchOrNonWatchDeviceRoute(String btAddressToExclude) {
-        if (!mFeatureFlags.ignoreAutoRouteToWatchDevice()) {
-            Log.i(this, "getActiveWatchOrNonWatchDeviceRoute: ignore_auto_route_to_watch_device "
-                    + "flag is disabled. Routing to most recently reported active device.");
-            return getMostRecentlyActiveBtRoute(btAddressToExclude);
-        }
-
         List<AudioRoute> bluetoothRoutes = getAvailableBluetoothDevicesForRouting();
         // Traverse the routes from the most recently active recorded devices first.
         AudioRoute nonWatchDeviceRoute = null;
@@ -1562,8 +1554,8 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                     && (device.equals(mCallAudioState.getActiveBluetoothDevice())
                     || isActiveDevice)) {
                 Log.i(this, "getActiveWatchOrNonWatchDeviceRoute: Routing to active watch - %s",
-                        bluetoothRoutes.get(0));
-                return bluetoothRoutes.get(0);
+                        bluetoothRoutes.get(bluetoothRoutes.size() - 1));
+                return bluetoothRoutes.get(bluetoothRoutes.size() - 1);
             }
             // Record the first occurrence of a non-watch device route if found.
             if (!mBluetoothRouteManager.isWatch(device)) {
@@ -1587,25 +1579,6 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             bluetoothRoutes.add(activeDeviceRoute);
         }
         return bluetoothRoutes;
-    }
-
-    /**
-     * Returns the most actively reported bluetooth route excluding the passed in route.
-     */
-    private AudioRoute getMostRecentlyActiveBtRoute(String btAddressToExclude) {
-        List<AudioRoute> bluetoothRoutes = mBluetoothRoutes.keySet().stream().toList();
-        for (int i = bluetoothRoutes.size() - 1; i >= 0; i--) {
-            AudioRoute route = bluetoothRoutes.get(i);
-            // Skip LE route if it's not the lead device.
-            if (isLeAudioNonLeadDeviceOrServiceUnavailable(
-                    route.getType(), mBluetoothRoutes.get(route))) {
-                continue;
-            }
-            if (!route.getBluetoothAddress().equals(btAddressToExclude)) {
-                return route;
-            }
-        }
-        return null;
     }
 
     private boolean isLeAudioNonLeadDeviceOrServiceUnavailable(@AudioRoute.AudioRouteType int type,

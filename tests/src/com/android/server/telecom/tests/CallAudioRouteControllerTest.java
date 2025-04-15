@@ -212,7 +212,6 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         when(mCallAudioManager.getForegroundCall()).thenReturn(mCall);
         when(mCall.getVideoState()).thenReturn(VideoProfile.STATE_AUDIO_ONLY);
         when(mCall.getSupportedAudioRoutes()).thenReturn(CallAudioState.ROUTE_ALL);
-        when(mFeatureFlags.ignoreAutoRouteToWatchDevice()).thenReturn(false);
         when(mFeatureFlags.useRefactoredAudioRouteSwitching()).thenReturn(true);
         when(mFeatureFlags.callAudioRoutingPerformanceImprovemenent()).thenReturn(true);
         BLUETOOTH_DEVICES.add(BLUETOOTH_DEVICE_1);
@@ -830,7 +829,6 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testIgnoreAutoRouteToWatch() {
-        when(mFeatureFlags.ignoreAutoRouteToWatchDevice()).thenReturn(true);
         when(mBluetoothRouteManager.isWatch(any(BluetoothDevice.class))).thenReturn(true);
 
         mController.initialize();
@@ -1005,7 +1003,6 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testRouteFromBtSwitchInRingingSelected() {
-        when(mFeatureFlags.ignoreAutoRouteToWatchDevice()).thenReturn(true);
         when(mBluetoothRouteManager.isWatch(any(BluetoothDevice.class))).thenReturn(true);
         when(mBluetoothRouteManager.isInbandRingEnabled(eq(AudioRoute.TYPE_BLUETOOTH_SCO),
                 eq(BLUETOOTH_DEVICE_1))).thenReturn(false);
