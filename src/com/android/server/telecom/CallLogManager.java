@@ -209,7 +209,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
             return false;
         }
 
-        if (mFeatureFlags.telecomSkipLogBasedOnExtra() && call.getExtras() != null
+        if (call.getExtras() != null
                 && call.getExtras().containsKey(TelecomManager.EXTRA_DO_NOT_LOG_CALL)) {
             return false;
         }

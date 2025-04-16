@@ -138,8 +138,7 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"No puedes realizar la llamada porque hay otras dos en curso. Finaliza una de ellas o combínalas en una conferencia antes de iniciar una nueva."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"No puedes realizar la llamada porque hay otras dos en curso. Finaliza una de ellas antes de realizar una nueva."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"No puedes realizar la llamada porque hay otra que no se puede mantener en espera. Finalízala antes de iniciar una nueva."</string>
-    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
-    <skip />
+    <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"No se puede intercambiar la llamada activa porque no admite la función de retener. Desconecta la llamada para activar la llamada en espera."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"No puedes realizar la llamada porque hay una llamada entrante que aún no contestas. Contéstala o recházala antes de realizar una nueva."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Este código MMI no está disponible para llamadas en varias cuentas."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"No se pueden marcar códigos MMI durante las llamadas de emergencia."</string>

@@ -59,17 +59,6 @@ flag {
 
 # OWNER=tgunn TARGET=25Q2
 flag {
-  name: "only_clear_communication_device_on_inactive"
-  namespace: "telecom"
-  description: "Only clear the communication device when transitioning to an inactive route."
-  bug: "376781369"
-  metadata {
-    purpose: PURPOSE_BUGFIX
-  }
-}
-
-# OWNER=tgunn TARGET=25Q2
-flag {
   name: "check_device_type_on_route_change"
   namespace: "telecom"
   description: "When comparing devices on route change, also consider device type."

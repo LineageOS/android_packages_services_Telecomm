@@ -138,8 +138,7 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Hovor sa nedá uskutočniť, pretože už prebiehajú dva hovory. Odpojte jeden hovor alebo ich zlúčte do konferencie a až potom uskutočnite nový hovor."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Hovor sa nedá uskutočniť, pretože už prebiehajú dva hovory. Pred uskutočnením nového hovoru ukončite jeden z prebiehajúcich hovorov."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Hovor sa nedá uskutočniť, pretože prebieha hovor, ktorý sa nedá podržať. Pred uskutočnením nového hovoru najprv ukončite ten prebiehajúci."</string>
-    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
-    <skip />
+    <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Aktívny hovor sa nedá prepnúť, pretože nepodporuje podržanie. Ak chcete aktivovať podržaný hovor, ukončite prebiehajúci hovor."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Hovor sa nedá uskutočniť, pretože máte neprijatý prichádzajúci hovor. Prijmite alebo odmietnite prichádzajúci hovor a až potom uskutočnite nový hovor."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Tento kód MMI nie je k dispozícii pre hovory v rámci viacerých účtov."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Kódy MMI nemožno vytočiť počas tiesňového volania."</string>

@@ -75,6 +75,14 @@ flag {
   bug: "390116261"
 }
 
+# OWNER=pmadapurmath TARGET=25Q4
+flag {
+  name: "revert_disconnecting_during_merge"
+  namespace: "telecom"
+  description: "When a user tries hanging up a call during a call merge, the hangup will be ignore but the call will be stuck in disconnecting. We prevent the call state from being placed into disconnecting."
+  bug: "409455144"
+}
+
 # OWNER=tjstuart TARGET=25Q3
 flag {
   name: "cleanup_verify_call_state"

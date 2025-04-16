@@ -138,8 +138,7 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"پہلے سے دو کالز کے پیش رفت میں ہونے کی وجہ سے کال نہیں کی جا سکتی۔ نئی کال کرنے کیلئے پہلے ان میں سے ایک کو غیر منسلک کریں یا انہیں کانفرنس میں ضم کریں۔"</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"کال نہیں کر سکتا کیونکہ پہلے سے ہی دو کالز جاری ہیں۔ نئی کال کرنے سے پہلے کالز میں سے ایک کو غیر منسلک کریں۔"</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"کال نہیں کر سکتے کیونکہ پہلے سے جاری کال کو ہولڈ نہیں کیا جا سکتا۔ نئی کال کرنے سے پہلے موجودہ کال کو غیر منسلک کریں۔"</string>
-    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
-    <skip />
+    <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"فعال کال کا تبادلہ نہیں کیا جا سکتا کیونکہ اسے ہولڈ نہیں کیا جا سکتا۔ ہولڈ کردہ کال کو فعال کرنے کے لیے کال کو غیر منسلک کریں۔"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"ایک جواب نہ ملنے والی اِن کمنگ کال کی وجہ سے کال نہیں کی جا سکتی۔ نئی کال کرنے کے لیے پہلے اِن کمنگ کال کا جواب دیں یا مسترد کریں۔"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"‏یہ MMI کوڈ متعدد اکاؤنٹس پر کالز کے لیے دستیاب نہیں ہے۔"</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"‏‫MMI کوڈز ایمرجنسی کال کے دوران ڈائل نہیں کیے جا سکتے۔"</string>

@@ -138,8 +138,7 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Impossible de passer un appel, car deux appels sont déjà en cours. Mettez fin à l\'un des appels ou fusionnez-les afin de créer une conférence avant de passer un nouvel appel."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Impossible de passer un appel, car deux appels sont déjà en cours. Mettez fin à l\'un des appels avant de passer un nouvel appel."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Impossible de passer un appel, car un appel est en cours et ne peut pas être mis en attente. Mettez fin à l\'appel avant de passer un nouvel appel."</string>
-    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
-    <skip />
+    <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Impossible de permuter l\'appel actif, car il n\'est pas compatible avec la mise en attente. Mettez fin à l\'appel pour rendre l\'appel mis en attente actif."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Impossible de passer un appel lorsqu\'un appel entrant attend une réponse. Répondez à cet appel ou refusez-le avant de passer un nouvel appel."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Ce code IHM n\'est pas disponible pour les appels sur plusieurs comptes."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Impossible de composer des codes IHM pendant un appel d\'urgence."</string>

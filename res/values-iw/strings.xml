@@ -138,8 +138,7 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"אי אפשר להתקשר כי כבר יש שתי שיחות פעילות. כדי להתחיל שיחה חדשה, צריך לנתק את אחת מהשיחות או למזג אותן וליצור שיחת ועידה."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"אי אפשר להתקשר כי כבר יש שתי שיחות פעילות. כדי להתחיל שיחה חדשה, צריך לנתק את אחת מהשיחות."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"אי אפשר להתקשר כי כבר יש שיחה פעילה ואי אפשר להעביר אותה להמתנה. צריך לנתק את השיחה ורק אז לנסות להתקשר למספר אחר."</string>
-    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
-    <skip />
+    <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"אי אפשר להחליף בין השיחות כי השיחה החדשה לא תומכת במצב המתנה. כדי לחזור לשיחה הקודמת שבהמתנה, צריך לנתק את השיחה החדשה שהתחלת."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"אי אפשר להתקשר כי יש שיחה נכנסת אחרת. צריך לענות לשיחה או לדחות אותה ורק אז לנסות להתקשר למספר אחר."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"‏אי אפשר להשתמש בקוד ה-MMI הזה לשיחות במספר חשבונות."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"‏אי אפשר להתקשר לקודי MMI בזמן שיחת חירום."</string>

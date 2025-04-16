@@ -138,8 +138,7 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Não pode fazer uma chamada porque já existem 2 chamadas em curso. Desligue uma das chamadas ou una-as numa conferência antes de iniciar uma nova."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Não pode fazer uma chamada porque já existem 2 chamadas em curso. Desligue uma das chamadas antes de iniciar uma nova."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Não pode fazer uma chamada porque tem uma chamada que não pode ser colocada em espera. Termine essa chamada antes de fazer uma nova chamada."</string>
-    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
-    <skip />
+    <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Não é possível trocar a chamada ativa porque não é compatível com a colocação em espera. Termine a chamada para tornar a chamada em espera ativa."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Não pode fazer uma chamada porque há uma chamada recebida não atendida. Atenda ou rejeite a chamada recebida antes de fazer uma nova chamada."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Este código MMI não está disponível para chamadas em várias contas."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Não é possível marcar códigos MMI durante uma chamada de emergência."</string>

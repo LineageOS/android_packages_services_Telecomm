@@ -138,8 +138,7 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Hindi puwedeng tumawag dahil mayroon nang dalawang tawag na kasalukuyang nagaganap. Idiskonekta ang isa sa mga tawag o i-merge ang mga ito sa isang conference bago gumawa ng bagong pagtawag."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Hindi puwedeng tumawag dahil mayroon nang dalawang tawag na kasalukuyang nagaganap Idiskonekta ang isa sa mga tawag bago gumawa ng bagong pagtawag."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Hindi puwedeng tumawag dahil may tawag na hindi puwedeng i-hold. Idiskonekta ang tawag bago gumawa ng bagong pagtawag."</string>
-    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
-    <skip />
+    <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Hindi masa-swap ang aktibong tawag dahil hindi nito sinusuportahan ang pag-hold. Idiskonekta ang tawag para gawing aktibo ang naka-hold na tawag."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Hindi puwedeng tumawag dahil mayroong hindi nasagot na papasok na tawag. Sagutin o tanggihan ang papasok na tawag bago gumawa ng bagong pagtawag."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Hindi available ang MMI code na ito para sa mga tawag sa magkakaibang account."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Hindi puwedeng mag-dial ng mga MMI code habang may emergency na tawag."</string>

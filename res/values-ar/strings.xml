@@ -138,8 +138,7 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"لا يمكن إجراء مكالمة لأنّ هناك مكالمتين جاريتين حاليًا. يمكنك إنهاء إحدى المكالمتين أو دمجهما في مكالمة جماعية قبل إجراء مكالمة جديدة."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"لا يمكن إجراء مكالمة لأنّ هناك مكالمتين جاريتين حاليًا. يُرجى إنهاء إحدى المكالمتين قبل إجراء مكالمة جديدة."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"أنت في مكالمة غير قابلة للتعليق، لذا لا يمكن إجراء مكالمة أخرى. يُرجى إنهاء المكالمة الحالية لإجراء مكالمة جديدة."</string>
-    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
-    <skip />
+    <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"لا يمكن تبديل المكالمة النشطة لأنها لا تتيح التعليق. يمكنك إنهاء المكالمة الحالية لتصبح المكالمة المعلَّقة نشطة."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"لا يمكن إجراء مكالمة لأن هناك مكالمة واردة لم يتم الرد عليها. يُرجى الرد على المكالمة الواردة أو رفضها قبل إجراء مكالمة جديدة."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"‏لا يتوفّر رمز MMI هذا للمكالمات على مستوى حسابات متعددة."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"‏لا يمكن الاتصال برموز MMI أثناء إجراء مكالمة طوارئ."</string>

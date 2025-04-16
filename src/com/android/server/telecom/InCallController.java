@@ -50,6 +50,7 @@ import android.os.UserManager;
 import android.permission.PermissionManager;
 import android.telecom.CallAudioState;
 import android.telecom.CallEndpoint;
+import android.telecom.Connection;
 import android.telecom.ConnectionService;
 import android.telecom.InCallService;
 import android.telecom.Log;
@@ -1985,6 +1986,11 @@ public class InCallController extends CallsManagerListenerBase implements
         UserHandle userFromCall = getUserFromCall(call);
         Map<UserHandle, Map<InCallController.InCallServiceInfo, IInCallService>> serviceMap =
                 getCombinedInCallServiceMap();
+        // In the case that we receive a disconnect failed event, ensure that the call state is
+        // reverted if it's in disconnecting and ensure we send the update to the ICS as well.
+        if (Connection.EVENT_DISCONNECT_FAILED.equals(event)) {
+            handleCallDisconnectFailed(call);
+        }
         if (serviceMap.containsKey(userFromCall)) {
             for (IInCallService inCallService : serviceMap.get(userFromCall).values()) {
                 try {
@@ -1997,6 +2003,23 @@ public class InCallController extends CallsManagerListenerBase implements
                 }
             }
         }
+    }
+
+    /**
+     * When we receive a disconnect failure connection event, the old call state will be in
+     * disconnecting given that the locally disconnecting state is set. Notify the ICS with the new
+     * call state to ensure they get the new update if they had been notified that the call was
+     * disconnecting.
+     * @param call The call that received the disconnect failure event.
+     */
+    private void handleCallDisconnectFailed(Call call) {
+        Log.i(this, "handleCallDisconnectFailed: call: %s", call);
+        call.setLocallyDisconnecting(false);
+        updateCall(call);
+        // Show an error dialog to the user mentioning why the disconnect failed.
+        UserUtil.showErrorDialogForRestrictedOutgoingCall(mContext,
+                R.string.call_hangup_fail_during_merge, NOTIFICATION_TAG,
+                "Call cannot be disconnected during a call merge.");
     }
 
     private void notifyRttInitiationFailure(Call call, int reason) {

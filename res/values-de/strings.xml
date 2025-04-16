@@ -138,8 +138,7 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Anruf nicht möglich, weil bereits zwei Anrufe aktiv sind. Beende einen der Anrufe oder führe beide Anrufe in einer Telefonkonferenz zusammen, bevor du einen neuen Anruf startest."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Anruf nicht möglich, weil bereits zwei Anrufe aktiv sind. Beende einen der Anrufe, bevor du einen neuen startest."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Anruf nicht möglich, da ein Anruf nicht gehalten werden kann. Beende den Anruf, bevor du einen neuen Anruf startest."</string>
-    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
-    <skip />
+    <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Der aktive Anruf kann nicht geändert werden, da das Halten des Anrufs nicht unterstützt wird. Du musst den Anruf trennen, damit der gehaltene Anruf zum aktiven Anruf wird."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Anruf nicht möglich, da ein nicht angenommener eingehender Anruf vorhanden ist. Nimm den eingehenden Anruf an oder lehne ihn ab, bevor du einen neuen Anruf startest."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Dieser MMI-Code ist nicht für Anrufe mit mehreren Konten verfügbar."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"MMI-Codes können während eines Notrufs nicht gewählt werden."</string>

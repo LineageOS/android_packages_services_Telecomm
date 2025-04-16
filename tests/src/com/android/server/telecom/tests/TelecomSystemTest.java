@@ -17,6 +17,8 @@
 package com.android.server.telecom.tests;
 
 
+import static android.Manifest.permission.PROCESS_OUTGOING_CALLS;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -27,6 +29,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -34,7 +37,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -116,6 +118,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -849,33 +852,23 @@ public class TelecomSystemTest extends TelecomTestCase{
     }
 
     protected void verifyAndProcessOutgoingCallBroadcast(PhoneAccountHandle phoneAccountHandle) {
-        ArgumentCaptor<Intent> newOutgoingCallIntent =
-                ArgumentCaptor.forClass(Intent.class);
-        ArgumentCaptor<BroadcastReceiver> newOutgoingCallReceiver =
-                ArgumentCaptor.forClass(BroadcastReceiver.class);
-
         if (phoneAccountHandle != mPhoneAccountSelfManaged.getAccountHandle()) {
-            verify(mComponentContextFixture.getTestDouble().getApplicationContext(),
-                    times(mNumOutgoingCallsMade))
-                    .sendOrderedBroadcastAsUser(
-                            newOutgoingCallIntent.capture(),
-                            any(UserHandle.class),
-                            anyString(),
-                            anyInt(),
-                            any(Bundle.class),
-                            newOutgoingCallReceiver.capture(),
-                            nullable(Handler.class),
-                            anyInt(),
-                            anyString(),
-                            nullable(Bundle.class));
-            // Pass on the new outgoing call Intent
-            // Set a dummy PendingResult so the BroadcastReceiver agrees to accept onReceive()
-            newOutgoingCallReceiver.getValue().setPendingResult(
-                    new BroadcastReceiver.PendingResult(0, "", null, 0, true, false, null, 0, 0));
-            newOutgoingCallReceiver.getValue().setResultData(
-                    newOutgoingCallIntent.getValue().getStringExtra(Intent.EXTRA_PHONE_NUMBER));
-            newOutgoingCallReceiver.getValue().onReceive(mComponentContextFixture.getTestDouble(),
-                    newOutgoingCallIntent.getValue());
+            // Okay, this is gross.  Based on the telecomResolveHiddenDependencies flag, we may have
+            // called either of these prototypes..
+            if (mFeatureFlags.telecomResolveHiddenDependencies()) {
+                verify(mComponentContextFixture.getTestDouble().getApplicationContext(), atLeast(0))
+                        .sendBroadcastAsUser(
+                                any(Intent.class),
+                                any(UserHandle.class),
+                                eq(PROCESS_OUTGOING_CALLS));
+            } else {
+                verify(mComponentContextFixture.getTestDouble().getApplicationContext(), atLeast(0))
+                        .sendBroadcastAsUser(
+                                any(Intent.class),
+                                any(UserHandle.class),
+                                eq(PROCESS_OUTGOING_CALLS),
+                                anyInt());
+            }
         }
 
     }

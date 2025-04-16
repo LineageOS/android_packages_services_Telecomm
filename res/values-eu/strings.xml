@@ -138,8 +138,7 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Ezin da egin deia, dagoeneko 2 dei daudelako abian. Beste dei bat egin aurretik, eten deietako bat edo bateratu deiak konferentzia-dei bakarrean."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Ezin da egin deia, dagoeneko 2 dei daudelako abian. Beste dei bat egin aurretik, eten deietako bat."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Ezin da egin deia, zain utzi ezin den dei bat abian delako. Deskonektatu dei hori beste dei bat egin ahal izateko."</string>
-    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
-    <skip />
+    <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Ezin da aldatu dei aktiboa, zain uzteko aukera onartzen ez duelako. Zain dagoen deia aktibatzeko, deskonektatu deia."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Ezin da egin deia, oraindik erantzun ez diozun dei bat jasotzen ari zarelako. Beste dei bat egin aurretik, erantzun deiari edo bazter ezazu."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"MMI kode hau ezin da erabili kontu baten baino gehiagoren bidez deiak egiteko."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"MMI kodeak ezin dira markatu larrialdi-deietan."</string>

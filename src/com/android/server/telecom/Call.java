@@ -4388,7 +4388,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      *
      * @param isLocallyDisconnecting {@code true} if this call is locally disconnecting.
      */
-    private void setLocallyDisconnecting(boolean isLocallyDisconnecting) {
+    public void setLocallyDisconnecting(boolean isLocallyDisconnecting) {
         mIsLocallyDisconnecting = isLocallyDisconnecting;
     }
 

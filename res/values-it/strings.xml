@@ -138,8 +138,7 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Impossibile effettuare una chiamata perché due chiamate sono già in corso. Unisci le chiamate in una conferenza o scollegane una prima di effettuare una nuova chiamata."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Impossibile effettuare una chiamata perché due chiamate sono già in corso. Termina una delle chiamate prima di effettuarne una nuova."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Impossibile effettuare una chiamata perché è presente una chiamata non bloccabile. Termina la chiamata prima di effettuarne una nuova."</string>
-    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
-    <skip />
+    <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Impossibile passare dalla chiamata attiva a un\'altra perché non supporta la messa in attesa. Disconnetti la chiamata per attivare quella in attesa."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Impossibile effettuare una chiamata perché è presente una chiamata in arrivo senza risposta. Rispondi o rifiuta la chiamata in arrivo prima di effettuare una nuova chiamata."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Questo codice MMI non è disponibile per le chiamate su più account."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Impossibile comporre codici MMI durante una chiamata di emergenza."</string>
