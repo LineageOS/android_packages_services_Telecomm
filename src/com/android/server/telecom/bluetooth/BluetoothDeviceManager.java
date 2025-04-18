@@ -269,21 +269,16 @@ public class BluetoothDeviceManager {
                     BT_DEVICE_REMOVED, route.getType(), device);
         }
 
-        if (mFeatureFlags.skipBaselineSwitchWhenRouteNotBluetooth()) {
-            CallAudioState currentAudioState = controller.getCurrentCallAudioState();
-            int currentRoute = currentAudioState.getRoute();
-            if (currentRoute == CallAudioState.ROUTE_BLUETOOTH) {
-                Log.d(this, "handleAudioRefactoringServiceDisconnected: call audio "
-                        + "is currently routed to BT so switching back to baseline");
-                mCallAudioRouteAdapter.sendMessageWithSessionInfo(
-                        SWITCH_BASELINE_ROUTE, INCLUDE_BLUETOOTH_IN_BASELINE, (String) null);
-            } else {
-                Log.d(this, "handleAudioRefactoringServiceDisconnected: call audio "
-                        + "is not currently routed to BT so skipping switch to baseline");
-            }
-        } else {
+        CallAudioState currentAudioState = controller.getCurrentCallAudioState();
+        int currentRoute = currentAudioState.getRoute();
+        if (currentRoute == CallAudioState.ROUTE_BLUETOOTH) {
+            Log.d(this, "handleAudioRefactoringServiceDisconnected: call audio "
+                    + "is currently routed to BT so switching back to baseline");
             mCallAudioRouteAdapter.sendMessageWithSessionInfo(
                     SWITCH_BASELINE_ROUTE, INCLUDE_BLUETOOTH_IN_BASELINE, (String) null);
+        } else {
+            Log.d(this, "handleAudioRefactoringServiceDisconnected: call audio "
+                    + "is not currently routed to BT so skipping switch to baseline");
         }
     }
 

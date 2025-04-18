@@ -235,9 +235,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
                     == Connection.CAPABILITY_DISCONNECT_FROM_CONFERENCE;
         }
         // An external and non-watch call
-        if (call.isExternalCall() && (!mContext.getPackageManager().hasSystemFeature(
-                PackageManager.FEATURE_WATCH)
-                || !mFeatureFlags.telecomLogExternalWearableCalls())) {
+        if (call.isExternalCall() && !mContext.getPackageManager().hasSystemFeature(
+                PackageManager.FEATURE_WATCH)) {
             return false;
         }
 

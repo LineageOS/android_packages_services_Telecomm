@@ -18,13 +18,3 @@ flag {
     purpose: PURPOSE_BUGFIX
   }
 }
-# OWNER=grantmenke TARGET=25Q2
-flag {
-  name: "skip_baseline_switch_when_route_not_bluetooth"
-  namespace: "telecom"
-  description: "Only switch back to baseline if the call audio is currently routed to bluetooth"
-  bug: "333417369"
-  metadata {
-    purpose: PURPOSE_BUGFIX
-  }
-}

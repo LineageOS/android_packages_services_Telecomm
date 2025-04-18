@@ -375,7 +375,7 @@ public class InCallTonePlayer extends Thread {
                     throw new IllegalStateException("Bad toneId: " + mToneId);
             }
 
-            int stream = getStreamType(toneType);
+            int stream = AudioManager.STREAM_VOICE_CALL;
             if (toneType != ToneGenerator.TONE_UNKNOWN) {
                 playToneGeneratorTone(stream, toneVolume, toneType, toneLengthMillis);
             } else if (mediaResourceId != TONE_RESOURCE_ID_UNDEFINED) {
@@ -385,31 +385,6 @@ public class InCallTonePlayer extends Thread {
             cleanUpTonePlayer();
             Log.endSession();
         }
-    }
-
-    /**
-     * @param toneType The ToneGenerator tone type
-     * @return The ToneGenerator stream type
-     */
-    private int getStreamType(int toneType) {
-        if (mFeatureFlags.useStreamVoiceCallTones()) {
-            return AudioManager.STREAM_VOICE_CALL;
-        }
-
-        int stream = AudioManager.STREAM_VOICE_CALL;
-        if (mCallAudioRoutePeripheralAdapter.isBluetoothAudioOn()) {
-            stream = AudioManager.STREAM_BLUETOOTH_SCO;
-        }
-        if (toneType != ToneGenerator.TONE_UNKNOWN) {
-            if (stream == AudioManager.STREAM_BLUETOOTH_SCO) {
-                // Override audio stream for BT le device and hearing aid device
-                if (mCallAudioRoutePeripheralAdapter.isLeAudioDeviceOn()
-                        || mCallAudioRoutePeripheralAdapter.isHearingAidDeviceOn()) {
-                    stream = AudioManager.STREAM_VOICE_CALL;
-                }
-            }
-        }
-        return stream;
     }
 
     /**

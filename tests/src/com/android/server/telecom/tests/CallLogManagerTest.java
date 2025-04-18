@@ -221,7 +221,6 @@ public class CallLogManagerTest extends TelecomTestCase {
 
         PackageManager packageManager = mContext.getPackageManager();
         when(packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH)).thenReturn(false);
-        when(mFeatureFlags.telecomLogExternalWearableCalls()).thenReturn(false);
         when(mFeatureFlags.telecomResolveHiddenDependencies()).thenReturn(true);
     }
 
@@ -961,7 +960,6 @@ public class CallLogManagerTest extends TelecomTestCase {
                 .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, 0 /* capabilities */));
         PackageManager packageManager = mContext.getPackageManager();
         when(packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH)).thenReturn(true);
-        when(mFeatureFlags.telecomLogExternalWearableCalls()).thenReturn(true);
         Call fakeMissedCall = makeFakeCall(
                 DisconnectCause.REJECTED, // disconnectCauseCode
                 false, // isConference
