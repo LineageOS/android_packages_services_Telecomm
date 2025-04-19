@@ -1482,8 +1482,10 @@ public class InCallController extends CallsManagerListenerBase implements
                         true /* includeVideoProvider */,
                         mCallsManager.getPhoneAccountRegistrar(),
                         info.isExternalCallsSupported(), includeRttCall,
-                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI ||
-                                info.getType() == IN_CALL_SERVICE_TYPE_NON_UI);
+                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI
+                                || info.getType() == IN_CALL_SERVICE_TYPE_NON_UI
+                                || info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH,
+                        info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH);
                 try {
                     inCallService.addCall(
                             sanitizeParcelableCallForService(info, parcelableCall));
@@ -1669,7 +1671,9 @@ public class InCallController extends CallsManagerListenerBase implements
                         true /* includeVideoProvider */, mCallsManager.getPhoneAccountRegistrar(),
                         info.isExternalCallsSupported(), includeRttCall,
                         info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI
-                                || info.getType() == IN_CALL_SERVICE_TYPE_NON_UI);
+                                || info.getType() == IN_CALL_SERVICE_TYPE_NON_UI
+                                || info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH,
+                        info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH);
                 try {
                     inCallService.addCall(sanitizeParcelableCallForService(info, parcelableCall));
                     updateCallTracking(call, info, true /* isAdd */);
@@ -1704,6 +1708,8 @@ public class InCallController extends CallsManagerListenerBase implements
                             false /* includeRttCall */,
                             info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI
                                     || info.getType() == IN_CALL_SERVICE_TYPE_NON_UI
+                                    || info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH,
+                            info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH
                     );
 
                     try {
@@ -2699,8 +2705,10 @@ public class InCallController extends CallsManagerListenerBase implements
                     mCallsManager.getPhoneAccountRegistrar(),
                     info.isExternalCallsSupported(),
                     includeRttCall,
-                    info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI ||
-                            info.getType() == IN_CALL_SERVICE_TYPE_NON_UI);
+                    info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI
+                            || info.getType() == IN_CALL_SERVICE_TYPE_NON_UI
+                            || info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH,
+                    info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH);
             if (mFeatureFlags.doNotSendCallToNullIcs()) {
                 if (inCallService != null) {
                     inCallService.addCall(sanitizeParcelableCallForService(info, parcelableCall));
@@ -2802,8 +2810,10 @@ public class InCallController extends CallsManagerListenerBase implements
                         info.isExternalCallsSupported(),
                         rttInfoChanged && info.equals(
                                 mInCallServiceConnections.get(userFromCall).getInfo()),
-                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI ||
-                        info.getType() == IN_CALL_SERVICE_TYPE_NON_UI);
+                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI
+                                || info.getType() == IN_CALL_SERVICE_TYPE_NON_UI
+                                || info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH,
+                        info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH);
                 IInCallService inCallService = entry.getValue();
                 boolean isDisconnectingBtIcs = info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH
                         && call.getState() == CallState.DISCONNECTED;

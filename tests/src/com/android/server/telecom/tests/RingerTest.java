@@ -154,10 +154,10 @@ public class RingerTest extends TelecomTestCase {
         super.setUp();
         mContext = spy(mComponentContextFixture.getTestDouble().getApplicationContext());
         when(mFeatureFlags.telecomResolveHiddenDependencies()).thenReturn(true);
-        when(mFeatureFlags.ensureInCarRinging()).thenReturn(false);
         doReturn(URI_VIBRATION_EFFECT).when(spyVibrationEffectProxy).get(any(), any());
         when(mockPlayerFactory.createPlayer(any(Call.class), anyInt())).thenReturn(mockTonePlayer);
-        mockAudioManager = mContext.getSystemService(AudioManager.class);
+        mockAudioManager = mock(AudioManager.class);
+        when(mContext.getSystemService(AudioManager.class)).thenReturn(mockAudioManager);
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_NORMAL);
         when(mockVibrator.getInfo()).thenReturn(mockVibratorInfo);
         when(mockSystemSettingsUtil.isHapticPlaybackSupported(any(Context.class)))
@@ -457,7 +457,6 @@ public class RingerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testAudibleRingWhenNotificationSoundShouldPlay() throws Exception {
-        when(mFeatureFlags.ensureInCarRinging()).thenReturn(true);
         Ringtone mockRingtone = ensureRingtoneMocked();
 
         mRingerUnderTest.startCallWaiting(mockCall1);
@@ -468,9 +467,11 @@ public class RingerTest extends TelecomTestCase {
         when(mockAudioManager.shouldNotificationSoundPlay(aa)).thenReturn(true);
         enableVibrationWhenRinging();
 
-        // This will set AudioManager#getStreamVolume to 0. This test ensures that whether a
-        // ringtone is audible is controlled by AudioManager#shouldNotificationSoundPlay instead:
-        ensureRingerIsNotAudible();
+        // This will set AudioManager#getStreamVolume to 0. This test ensures that
+        // whether a ringtone is audible is controlled by AudioManager#shouldNotificationSoundPlay
+        // instead:
+        when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_NORMAL);
+        when(mockAudioManager.getStreamVolume(AudioManager.STREAM_RING)).thenReturn(0);
 
         // Ensure an audible ringtone is played:
         assertTrue(startRingingAndWaitForAsync(mockCall2, false));
@@ -487,7 +488,6 @@ public class RingerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testNoAudibleRingWhenNotificationSoundShouldNotPlay() throws Exception {
-        when(mFeatureFlags.ensureInCarRinging()).thenReturn(true);
         Ringtone mockRingtone = ensureRingtoneMocked();
 
         mRingerUnderTest.startCallWaiting(mockCall1);
@@ -498,9 +498,11 @@ public class RingerTest extends TelecomTestCase {
         when(mockAudioManager.shouldNotificationSoundPlay(aa)).thenReturn(false);
         enableVibrationWhenRinging();
 
-        // This will set AudioManager#getStreamVolume to 100. This test ensures that whether a
-        // ringtone is audible is controlled by AudioManager#shouldNotificationSoundPlay instead:
-        ensureRingerIsAudible();
+        // This will set AudioManager#getStreamVolume to 100. This test ensures that
+        // whether a ringtone is audible is controlled by AudioManager#shouldNotificationSoundPlay
+        // instead:
+        when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_NORMAL);
+        when(mockAudioManager.getStreamVolume(AudioManager.STREAM_RING)).thenReturn(100);
 
         // Ensure no audible ringtone is played:
         assertFalse(startRingingAndWaitForAsync(mockCall2, false));
@@ -520,6 +522,8 @@ public class RingerTest extends TelecomTestCase {
         mRingerUnderTest.startCallWaiting(mockCall1);
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_NORMAL);
         enableVibrationWhenRinging();
+        // Need audio to be considered playable
+        ensureRingerIsAudible();
         // The ringtone isn't known to be null until the async portion after the call completes,
         // so startRinging still returns true here as there should nominally be a ringtone.
         // Notably, vibration still happens in this scenario.
@@ -545,7 +549,8 @@ public class RingerTest extends TelecomTestCase {
         when(mockRingtoneFactory.getRingtone(any(Call.class), eq(null), anyBoolean()))
             .thenReturn(new Pair(FAKE_RINGTONE_URI, mockRingtone));
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_VIBRATE);
-        when(mockAudioManager.getStreamVolume(AudioManager.STREAM_RING)).thenReturn(0);
+        when(mockAudioManager.shouldNotificationSoundPlay(any(AudioAttributes.class)))
+                .thenReturn(false);
         enableVibrationWhenRinging();
         assertFalse(startRingingAndWaitForAsync(mockCall2, false));
         verify(mockTonePlayer).stopTone();
@@ -562,7 +567,8 @@ public class RingerTest extends TelecomTestCase {
         createRingerUnderTest();  // Needed after changing haptic playback support.
         mRingerUnderTest.startCallWaiting(mockCall1);
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_VIBRATE);
-        when(mockAudioManager.getStreamVolume(AudioManager.STREAM_RING)).thenReturn(0);
+        when(mockAudioManager.shouldNotificationSoundPlay(any(AudioAttributes.class)))
+                .thenReturn(false);
         enableVibrationWhenRinging();
         assertFalse(startRingingAndWaitForAsync(mockCall2, false));
         verify(mockTonePlayer).stopTone();
@@ -581,6 +587,8 @@ public class RingerTest extends TelecomTestCase {
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_NORMAL);
         when(mockRingtone.getUri()).thenReturn(FAKE_RINGTONE_URI);
         enableVibrationWhenRinging();
+        // Need audio to be considered playable
+        ensureRingerIsAudible();
         assertTrue(startRingingAndWaitForAsync(mockCall2, false));
         verify(mockTonePlayer).stopTone();
         verify(mockRingtoneFactory, atLeastOnce())
@@ -631,7 +639,8 @@ public class RingerTest extends TelecomTestCase {
     public void testSilentRingWithHfpStillAcquiresFocus() throws Exception {
         mRingerUnderTest.startCallWaiting(mockCall1);
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_NORMAL);
-        when(mockAudioManager.getStreamVolume(AudioManager.STREAM_RING)).thenReturn(0);
+        when(mockAudioManager.shouldNotificationSoundPlay(any(AudioAttributes.class)))
+                .thenReturn(false);
         enableVibrationOnlyWhenNotRinging();
         assertTrue(startRingingAndWaitForAsync(mockCall2, true));
         verify(mockTonePlayer).stopTone();
@@ -650,7 +659,8 @@ public class RingerTest extends TelecomTestCase {
         when(mockNotificationManager.getCurrentInterruptionFilter()).thenReturn(
                 NotificationManager.INTERRUPTION_FILTER_PRIORITY);
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_SILENT);
-        when(mockAudioManager.getStreamVolume(AudioManager.STREAM_RING)).thenReturn(100);
+        when(mockAudioManager.shouldNotificationSoundPlay(any(AudioAttributes.class)))
+                .thenReturn(true);
         enableVibrationWhenRinging();
         assertTrue(startRingingAndWaitForAsync(mockCall2, true));
         verify(mockRingtoneFactory, atLeastOnce())
@@ -796,6 +806,9 @@ public class RingerTest extends TelecomTestCase {
         when(mockCall2.wasDndCheckComputedForCall()).thenReturn(false);
         when(mockCall2.getHandle()).thenReturn(Uri.parse(""));
 
+        // Ringer needs to be audible to start flash/ring
+        ensureRingerIsAudible();
+
         assertTrue(mRingerUnderTest.shouldRingForContact(mockCall2));
         assertTrue(startRingingAndWaitForAsync(mockCall2, false));
         verify(mockAccessibilityManagerAdapter, atLeastOnce())
@@ -821,6 +834,9 @@ public class RingerTest extends TelecomTestCase {
         mRingerUnderTest.startCallWaiting(mockCall1);
         when(mockCall2.wasDndCheckComputedForCall()).thenReturn(false);
         when(mockCall2.getHandle()).thenReturn(Uri.parse(""));
+
+        // Ringer needs to be audible to start flash/ring
+        ensureRingerIsAudible();
 
         assertTrue(mRingerUnderTest.shouldRingForContact(mockCall2));
         assertTrue(mRingerUnderTest.startRinging(mockCall2, false));
@@ -872,7 +888,8 @@ public class RingerTest extends TelecomTestCase {
 
             mRingerUnderTest.startCallWaiting(mockCall1);
             when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_VIBRATE);
-            when(mockAudioManager.getStreamVolume(AudioManager.STREAM_RING)).thenReturn(0);
+            when(mockAudioManager.shouldNotificationSoundPlay(any(AudioAttributes.class)))
+                    .thenReturn(false);
             enableVibrationWhenRinging();
             assertFalse(startRingingAndWaitForAsync(mockCall2, false));
 
@@ -904,12 +921,14 @@ public class RingerTest extends TelecomTestCase {
 
     private void ensureRingerIsAudible() {
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_NORMAL);
-        when(mockAudioManager.getStreamVolume(AudioManager.STREAM_RING)).thenReturn(100);
+        when(mockAudioManager.shouldNotificationSoundPlay(any(AudioAttributes.class)))
+                .thenReturn(true);
     }
 
     private void ensureRingerIsNotAudible() {
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_NORMAL);
-        when(mockAudioManager.getStreamVolume(AudioManager.STREAM_RING)).thenReturn(0);
+        when(mockAudioManager.shouldNotificationSoundPlay(any(AudioAttributes.class)))
+                .thenReturn(false);
     }
 
     private void enableVibrationWhenRinging() {

@@ -97,6 +97,42 @@ public class ParcelableCallUtils {
      *      {@code false} otherwise.  When parceling for the system incallservice, the entire call extras
      *      is included.  When parceling for anything other than the system incallservice, some extra key
      *      values will be stripped for privacy sake.
+     * @param isBluetoothInCallService {@code true} if this call is being parcelled for the BT ICS.
+     *      {@code false} otherwise. When we receive an ANSWERING call state, we will translate it
+     *      to {@link android.telecom.Call#STATE_ACTIVE}. If it's not the BT ICS, we will continue
+     *      to translate it to {@link android.telecom.Call#STATE_RINGING} to preserve backwards
+     *      compatibility.
+     */
+    public static ParcelableCall toParcelableCall(
+            Call call,
+            boolean includeVideoProvider,
+            PhoneAccountRegistrar phoneAccountRegistrar,
+            boolean supportsExternalCalls,
+            boolean includeRttCall,
+            boolean isForSystemInCallService,
+            boolean isBluetoothInCallService) {
+        return toParcelableCall(call, includeVideoProvider, phoneAccountRegistrar,
+                supportsExternalCalls, CALL_STATE_OVERRIDE_NONE /* overrideState */,
+                includeRttCall, isForSystemInCallService, isBluetoothInCallService);
+    }
+
+    /**
+     * Parcels all information for a {@link Call} into a new {@link ParcelableCall} instance.
+     *
+     * @param call The {@link Call} to parcel.
+     * @param includeVideoProvider {@code true} if the video provider should be parcelled with the
+     *      {@link Call}, {@code false} otherwise.  Since the {@link ParcelableCall#getVideoCall()}
+     *      method creates a {@link VideoCallImpl} instance on access it is important for the
+     *      recipient of the {@link ParcelableCall} to know if the video provider changed.
+     * @param phoneAccountRegistrar The {@link PhoneAccountRegistrar}.
+     * @param supportsExternalCalls Indicates whether the call should be parcelled for an
+     *      {@link InCallService} which supports external calls or not.
+     * @param includeRttCall {@code true} if the RTT call should be included, {@code false}
+     *      otherwise.
+     * @param isForSystemInCallService {@code true} if this call is being parcelled for the system incallservice,
+     *      {@code false} otherwise.  When parceling for the system incallservice, the entire call extras
+     *      is included.  When parceling for anything other than the system incallservice, some extra key
+     *      values will be stripped for privacy sake.
      */
     public static ParcelableCall toParcelableCall(
             Call call,
@@ -107,7 +143,7 @@ public class ParcelableCallUtils {
             boolean isForSystemInCallService) {
         return toParcelableCall(call, includeVideoProvider, phoneAccountRegistrar,
                 supportsExternalCalls, CALL_STATE_OVERRIDE_NONE /* overrideState */,
-                includeRttCall, isForSystemInCallService);
+                includeRttCall, isForSystemInCallService, false /* isBluetoothInCallService */);
     }
 
     /**
@@ -127,6 +163,12 @@ public class ParcelableCallUtils {
      *      {@code false} otherwise.  When parceling for the system incallservice, the entire call extras
      *      is included.  When parceling for anything other than the system incallservice, some extra key
      *      values will be stripped for privacy sake.
+     * @param isBluetoothInCallService {@code true} if this call is being parcelled for the BT ICS.
+     *      {@code false} otherwise. When we receive an ANSWERING call state, we will translate it
+     *      to {@link android.telecom.Call#STATE_ACTIVE}. If it's not the BT ICS, we will continue
+     *      to translate it to {@link android.telecom.Call#STATE_RINGING} to preserve backwards
+     *      compatibility.
+     *
      * @return The {@link ParcelableCall} containing all call information from the {@link Call}.
      */
     public static ParcelableCall toParcelableCall(
@@ -136,10 +178,11 @@ public class ParcelableCallUtils {
             boolean supportsExternalCalls,
             int overrideState,
             boolean includeRttCall,
-            boolean isForSystemInCallService) {
+            boolean isForSystemInCallService,
+            boolean isBluetoothInCallService) {
         int state;
         if (overrideState == CALL_STATE_OVERRIDE_NONE) {
-            state = getParcelableState(call, supportsExternalCalls);
+            state = getParcelableState(call, supportsExternalCalls, isBluetoothInCallService);
         } else {
             state = overrideState;
         }
@@ -310,7 +353,8 @@ public class ParcelableCallUtils {
 
         return new ParcelableCall.ParcelableCallBuilder()
                 .setId(call.getId())
-                .setState(getParcelableState(call, false /* supportsExternalCalls */))
+                .setState(getParcelableState(call, false /* supportsExternalCalls */,
+                        false /* isBluetoothInCallService */))
                 .setDisconnectCause(new DisconnectCause(DisconnectCause.UNKNOWN))
                 .setCannedSmsResponses(null)
                 .setCapabilities(0)
@@ -390,7 +434,8 @@ public class ParcelableCallUtils {
         return extras;
     }
 
-    private static int getParcelableState(Call call, boolean supportsExternalCalls) {
+    private static int getParcelableState(Call call, boolean supportsExternalCalls,
+            boolean isBluetoothInCallService) {
         int state = CallState.NEW;
         switch (call.getParcelableCallState()) {
             case CallState.ABORTED:
@@ -429,8 +474,6 @@ public class ParcelableCallUtils {
                 state = android.telecom.Call.STATE_HOLDING;
                 break;
             case CallState.RINGING:
-            case CallState.ANSWERED:
-                // TODO: does in-call UI need to see ANSWERED?
                 state = android.telecom.Call.STATE_RINGING;
                 break;
             case CallState.SELECT_PHONE_ACCOUNT:
@@ -441,6 +484,11 @@ public class ParcelableCallUtils {
                 break;
             case CallState.SIMULATED_RINGING:
                 state = android.telecom.Call.STATE_SIMULATED_RINGING;
+                break;
+            case CallState.ANSWERED:
+                state = isBluetoothInCallService
+                        ? android.telecom.Call.STATE_ACTIVE
+                        : android.telecom.Call.STATE_RINGING;
                 break;
         }
 

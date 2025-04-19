@@ -787,14 +787,11 @@ public class Ringer {
 
         boolean isVolumeOverZero;
 
-        if (mFlags.ensureInCarRinging()) {
-            AudioAttributes aa = new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build();
-            isVolumeOverZero = mAudioManager.shouldNotificationSoundPlay(aa);
-        } else {
-            isVolumeOverZero = mAudioManager.getStreamVolume(AudioManager.STREAM_RING) > 0;
-        }
+        AudioAttributes aa = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build();
+        isVolumeOverZero = mAudioManager.shouldNotificationSoundPlay(aa);
+
         timer.record("isVolumeOverZero");
         boolean shouldRingForContact = shouldRingForContact(call);
         timer.record("shouldRingForContact");

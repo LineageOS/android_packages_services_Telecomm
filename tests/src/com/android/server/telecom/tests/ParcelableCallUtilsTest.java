@@ -22,6 +22,7 @@ import android.telephony.ims.ImsCallProfile;
 import androidx.test.filters.SmallTest;
 
 import com.android.server.telecom.Call;
+import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.ClockProxy;
@@ -172,6 +173,33 @@ public class ParcelableCallUtilsTest extends TelecomTestCase {
         checkVerStatParcelingForDialer(Connection.VERIFICATION_STATUS_PASSED, true);
         checkVerStatParcelingForDialer(Connection.VERIFICATION_STATUS_FAILED, false);
         checkVerStatParcelingForDialer(Connection.VERIFICATION_STATUS_FAILED, true);
+    }
+
+    @SmallTest
+    @Test
+    public void testTreatCallStateAnsweredAsActive() {
+        int prevCallState = mCall.getState();
+        mCall.setState(CallState.ANSWERED, null);
+        // Verify that if we're parceling the call for the BT ICS that we translate the call state
+        // to ACTIVE.
+        ParcelableCall call = ParcelableCallUtils.toParcelableCall(mCall,
+                false /* includeVideoProvider */, null /* phoneAccountRegistrar */,
+                false /* supportsExternalCalls */, -1 /* overrideState */,
+                false /* includeRttCall */, false /* isForSystemInCallService */,
+                true /* isBluetoothInCallService */);
+        // Verify that setting call state to ANSWERED is processed as ACTIVE from telecom fwk
+        assertEquals(call.getState(), android.telecom.Call.STATE_ACTIVE);
+        // Now verify that if we're not parceling the call for the BT ICS that we continue to
+        // translate the call state to RINGING.
+        ParcelableCall call2 = ParcelableCallUtils.toParcelableCall(mCall,
+                false /* includeVideoProvider */, null /* phoneAccountRegistrar */,
+                false /* supportsExternalCalls */, -1 /* overrideState */,
+                false /* includeRttCall */, false /* isForSystemInCallService */,
+                false /* isBluetoothInCallService */);
+        // Verify that setting call state to ANSWERED is processed as RINGING from telecom fwk
+        assertEquals(call2.getState(), android.telecom.Call.STATE_RINGING);
+        // Restore call state after test verification
+        mCall.setState(prevCallState, null);
     }
 
     private void checkVerStatParcelingForCallScreening(int connectionVerificationStatus,
