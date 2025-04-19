@@ -78,7 +78,6 @@ import android.os.Process;
 import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.os.SystemProperties;
-import android.os.SystemVibrator;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.BlockedNumberContract;
@@ -664,7 +663,8 @@ public class CallsManager extends Call.ListenerBase
             FeatureFlags featureFlags,
             com.android.internal.telephony.flags.FeatureFlags telephonyFlags,
             IncomingCallFilterGraphProvider incomingCallFilterGraphProvider,
-            TelecomMetricsController metricsController) {
+            TelecomMetricsController metricsController,
+            Ringer.VibratorAdapter vibratorAdapter) {
 
         mContext = context;
         mLock = lock;
@@ -768,7 +768,7 @@ public class CallsManager extends Call.ListenerBase
 
         SystemSettingsUtil systemSettingsUtil = new SystemSettingsUtil();
         RingtoneFactory ringtoneFactory = new RingtoneFactory(this, context, featureFlags);
-        SystemVibrator systemVibrator = new SystemVibrator(context);
+
         mInCallController = inCallControllerFactory.create(context, mLock, this,
                 systemStateHelper, defaultDialerCache, mTimeoutsAdapter,
                 emergencyCallHelper);
@@ -776,7 +776,7 @@ public class CallsManager extends Call.ListenerBase
         mCallDiagnosticServiceController = callDiagnosticServiceController;
         mCallDiagnosticServiceController.setInCallTonePlayerFactory(playerFactory);
         mRinger = new Ringer(playerFactory, context, systemSettingsUtil, asyncRingtonePlayer,
-                ringtoneFactory, systemVibrator,
+                ringtoneFactory, vibratorAdapter,
                 new Ringer.VibrationEffectProxy(), mInCallController,
                 mContext.getSystemService(NotificationManager.class),
                 accessibilityManagerAdapter, featureFlags, mAnomalyReporter);

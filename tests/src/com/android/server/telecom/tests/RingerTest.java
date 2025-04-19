@@ -80,6 +80,7 @@ import com.android.server.telecom.Ringer;
 import com.android.server.telecom.RingtoneFactory;
 import com.android.server.telecom.SystemSettingsUtil;
 import com.android.server.telecom.flags.FeatureFlags;
+import com.android.server.telecom.flags.FeatureFlagsImpl;
 
 import org.junit.After;
 import org.junit.Before;
@@ -123,7 +124,8 @@ public class RingerTest extends TelecomTestCase {
     @Mock InCallTonePlayer.Factory mockPlayerFactory;
     @Mock SystemSettingsUtil mockSystemSettingsUtil;
     @Mock RingtoneFactory mockRingtoneFactory;
-    @Mock Vibrator mockVibrator;
+    @Mock Ringer.VibratorAdapter mockVibrator;
+    @Mock Vibrator mockDefaultVibrator;
     @Mock VibratorInfo mockVibratorInfo;
     @Mock InCallController mockInCallController;
     @Mock NotificationManager mockNotificationManager;
@@ -154,12 +156,20 @@ public class RingerTest extends TelecomTestCase {
         super.setUp();
         mContext = spy(mComponentContextFixture.getTestDouble().getApplicationContext());
         when(mFeatureFlags.telecomResolveHiddenDependencies()).thenReturn(true);
+        // Use the ACTUAL device setting for this flag at run time -- we ideally shouldn't be
+        // mocking flag values like we are as it means they're pretty much always false.  In this
+        // case the success/failure of the test should be tied to whether the flag is on or off
+        // for this device configuration.
+        FeatureFlags featureFlags = new FeatureFlagsImpl();
+        when(mFeatureFlags.resolveHiddenDependenciesTwo()).thenReturn(
+                featureFlags.resolveHiddenDependenciesTwo());
         doReturn(URI_VIBRATION_EFFECT).when(spyVibrationEffectProxy).get(any(), any());
         when(mockPlayerFactory.createPlayer(any(Call.class), anyInt())).thenReturn(mockTonePlayer);
         mockAudioManager = mock(AudioManager.class);
         when(mContext.getSystemService(AudioManager.class)).thenReturn(mockAudioManager);
         when(mockAudioManager.getRingerMode()).thenReturn(AudioManager.RINGER_MODE_NORMAL);
-        when(mockVibrator.getInfo()).thenReturn(mockVibratorInfo);
+        when(mockVibrator.getVibrator()).thenReturn(mockDefaultVibrator);
+        when(mockDefaultVibrator.getInfo()).thenReturn(mockVibratorInfo);
         when(mockSystemSettingsUtil.isHapticPlaybackSupported(any(Context.class)))
                 .thenAnswer((invocation) -> mIsHapticPlaybackSupported);
         mockNotificationManager =mContext.getSystemService(NotificationManager.class);
@@ -384,7 +394,7 @@ public class RingerTest extends TelecomTestCase {
         verifyNoMoreInteractions(mockRingtoneFactory);
         verify(mockTonePlayer, never()).stopTone();
         verify(mockVibrator, never())
-                .vibrate(any(VibrationEffect.class), any(AudioAttributes.class));
+                .vibrate(any(VibrationEffect.class), any(VibrationAttributes.class));
     }
 
     @SmallTest

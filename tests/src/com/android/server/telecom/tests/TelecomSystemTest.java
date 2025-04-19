@@ -227,6 +227,7 @@ public class TelecomSystemTest extends TelecomTestCase{
     FeatureFlags mFeatureFlags;
     @Mock
     com.android.internal.telephony.flags.FeatureFlags mTelephonyFlags;
+    @Mock Ringer.VibratorAdapter mVibratorAdapter;
 
     private static final String SYSTEM_UI_PACKAGE = "com.android.systemui";
     final ComponentName mInCallServiceComponentNameX =
@@ -596,7 +597,8 @@ public class TelecomSystemTest extends TelecomTestCase{
                 mBlockedNumbersAdapter,
                 mFeatureFlags,
                 mTelephonyFlags,
-                mHandlerThread.getLooper());
+                mHandlerThread.getLooper(),
+                mVibratorAdapter);
 
         mComponentContextFixture.setTelecomManager(new TelecomManager(
                 mComponentContextFixture.getTestDouble(),

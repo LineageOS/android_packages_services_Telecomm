@@ -233,7 +233,8 @@ public class TelecomSystem {
             BlockedNumbersAdapter blockedNumbersAdapter,
             FeatureFlags featureFlags,
             com.android.internal.telephony.flags.FeatureFlags telephonyFlags,
-            Looper looper) {
+            Looper looper,
+            Ringer.VibratorAdapter vibratorAdapter) {
         mContext = context.getApplicationContext();
         mFeatureFlags = featureFlags;
         LogUtils.initLogging(mContext);
@@ -438,7 +439,8 @@ public class TelecomSystem {
                     featureFlags,
                     telephonyFlags,
                     IncomingCallFilterGraph::new,
-                    metricsController);
+                    metricsController,
+                    vibratorAdapter);
 
             mIncomingCallNotifier = incomingCallNotifier;
             incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {

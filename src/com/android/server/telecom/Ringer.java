@@ -76,6 +76,18 @@ import java.util.function.Supplier;
 public class Ringer {
     private static final String TAG = "TelecomRinger";
 
+    /**
+     * Abstraction of vibration.  We used to leverage SystemVibrator which implements the abstract
+     * Vibrator class.  However, the Vibrator class has a bunch of abstract @hide methods we can
+     * not implement, so we just abstract out a base interface here with only what we need.
+     */
+    public interface VibratorAdapter {
+        boolean hasVibrator();
+        void vibrate(VibrationEffect vibe, VibrationAttributes attributes);
+        void cancel();
+        Vibrator getVibrator();
+    }
+
     public interface AccessibilityManagerAdapter {
         boolean startFlashNotificationSequence(@NonNull Context context,
                 @AccessibilityManager.FlashNotificationReason int reason);
@@ -192,7 +204,7 @@ public class Ringer {
     private final InCallTonePlayer.Factory mPlayerFactory;
     private final AsyncRingtonePlayer mRingtonePlayer;
     private final Context mContext;
-    private final Vibrator mVibrator;
+    private final VibratorAdapter mVibrator;
     private final InCallController mInCallController;
     private final VibrationEffectProxy mVibrationEffectProxy;
     private final boolean mIsHapticPlaybackSupportedByDevice;
@@ -241,7 +253,7 @@ public class Ringer {
             SystemSettingsUtil systemSettingsUtil,
             AsyncRingtonePlayer asyncRingtonePlayer,
             RingtoneFactory ringtoneFactory,
-            Vibrator vibrator,
+            VibratorAdapter vibrator,
             VibrationEffectProxy vibrationEffectProxy,
             InCallController inCallController,
             NotificationManager notificationManager,
@@ -266,7 +278,7 @@ public class Ringer {
 
         mDefaultVibrationEffect =
                 loadDefaultRingVibrationEffect(
-                        mContext, mVibrator, mVibrationEffectProxy, featureFlags);
+                        mContext, mVibrator.getVibrator(), mVibrationEffectProxy, featureFlags);
 
         mIsHapticPlaybackSupportedByDevice =
                 mSystemSettingsUtil.isHapticPlaybackSupported(mContext);
