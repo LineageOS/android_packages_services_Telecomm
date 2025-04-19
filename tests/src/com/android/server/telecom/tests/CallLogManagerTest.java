@@ -221,7 +221,6 @@ public class CallLogManagerTest extends TelecomTestCase {
 
         PackageManager packageManager = mContext.getPackageManager();
         when(packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH)).thenReturn(false);
-        when(mFeatureFlags.telecomLogExternalWearableCalls()).thenReturn(false);
         when(mFeatureFlags.telecomResolveHiddenDependencies()).thenReturn(true);
     }
 
@@ -961,7 +960,6 @@ public class CallLogManagerTest extends TelecomTestCase {
                 .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, 0 /* capabilities */));
         PackageManager packageManager = mContext.getPackageManager();
         when(packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH)).thenReturn(true);
-        when(mFeatureFlags.telecomLogExternalWearableCalls()).thenReturn(true);
         Call fakeMissedCall = makeFakeCall(
                 DisconnectCause.REJECTED, // disconnectCauseCode
                 false, // isConference
@@ -1087,7 +1085,6 @@ public class CallLogManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testDoNotLogCallExtra() {
-        when(mFeatureFlags.telecomSkipLogBasedOnExtra()).thenReturn(true);
         Call fakeCall = makeFakeCall(
                 DisconnectCause.LOCAL, // disconnectCauseCode
                 false, // isConference
@@ -1106,31 +1103,6 @@ public class CallLogManagerTest extends TelecomTestCase {
         when(fakeCall.getExtras()).thenReturn(extras);
 
         assertFalse(mCallLogManager.shouldLogDisconnectedCall(fakeCall, CallState.DISCONNECTED,
-                false /* isCanceled */));
-    }
-
-    @SmallTest
-    @Test
-    public void testIgnoresDoNotLogCallExtra_whenFlagDisabled() {
-        when(mFeatureFlags.telecomSkipLogBasedOnExtra()).thenReturn(false);
-        Call fakeCall = makeFakeCall(
-                DisconnectCause.LOCAL, // disconnectCauseCode
-                false, // isConference
-                true, // isIncoming
-                1L, // creationTimeMillis
-                1000L, // ageMillis
-                TEL_PHONEHANDLE, // callHandle
-                mDefaultAccountHandle, // phoneAccountHandle
-                NO_VIDEO_STATE, // callVideoState
-                POST_DIAL_STRING, // postDialDigits
-                VIA_NUMBER_STRING, // viaNumber
-                UserHandle.of(CURRENT_USER_ID)
-        );
-        Bundle extras = new Bundle();
-        extras.putBoolean(TelecomManager.EXTRA_DO_NOT_LOG_CALL, true);
-        when(fakeCall.getExtras()).thenReturn(extras);
-
-        assertTrue(mCallLogManager.shouldLogDisconnectedCall(fakeCall, CallState.DISCONNECTED,
                 false /* isCanceled */));
     }
 

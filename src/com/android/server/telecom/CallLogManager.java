@@ -209,7 +209,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
             return false;
         }
 
-        if (mFeatureFlags.telecomSkipLogBasedOnExtra() && call.getExtras() != null
+        if (call.getExtras() != null
                 && call.getExtras().containsKey(TelecomManager.EXTRA_DO_NOT_LOG_CALL)) {
             return false;
         }
@@ -235,9 +235,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
                     == Connection.CAPABILITY_DISCONNECT_FROM_CONFERENCE;
         }
         // An external and non-watch call
-        if (call.isExternalCall() && (!mContext.getPackageManager().hasSystemFeature(
-                PackageManager.FEATURE_WATCH)
-                || !mFeatureFlags.telecomLogExternalWearableCalls())) {
+        if (call.isExternalCall() && !mContext.getPackageManager().hasSystemFeature(
+                PackageManager.FEATURE_WATCH)) {
             return false;
         }
 

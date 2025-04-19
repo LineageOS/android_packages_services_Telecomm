@@ -9,15 +9,6 @@ flag {
   bug: "282113261"
 }
 
-# OWNER=grantmenke TARGET=24Q4
-flag {
-  name: "ensure_in_car_ringing"
-  namespace: "telecom"
-  description: "Gates whether to ensure that when a user is in their car, they are able to hear ringing for an incoming call."
-  bug: "348708398"
-}
-
-
 # OWNER=tjstuart TARGET=25Q1
 flag {
   name: "get_ringer_mode_anom_report"

@@ -138,8 +138,7 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Ne možete da pozovete jer su dva poziva već u toku. Prekinite jedan od njih ili ih objedinite u konferenciju pre upućivanja novog poziva."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Ne možete da pozovete jer su dva poziva već u toku. Prekinite jedan od poziva pre upućivanja novog poziva."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Ne možete da uputite poziv jer je u toku poziv koji ne može da se stavi na čekanje. Prekinite taj poziv pre upućivanja novog poziva."</string>
-    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
-    <skip />
+    <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Ne možete da zamenite aktivni poziv jer ne podržava stavljanje na čekanje. Prekinite poziv u toku da biste aktivirali poziv na čekanju."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Ne možete da pozovete jer imate dolazni poziv na koji niste odgovorili. Primite ga ili odbijte pre upućivanja novog poziva."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Ovaj MMI kôd nije dostupan za pozive na više naloga."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Biranje MMI kodova noje moguće tokom hitnog poziva."</string>

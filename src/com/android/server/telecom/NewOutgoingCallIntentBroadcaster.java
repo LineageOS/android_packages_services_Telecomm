@@ -116,88 +116,6 @@ public class NewOutgoingCallIntentBroadcaster {
     }
 
     /**
-     * Processes the result of the outgoing call broadcast intent, and performs callbacks to
-     * the OutgoingCallIntentBroadcasterListener as necessary.
-     */
-    public class NewOutgoingCallBroadcastIntentReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            try {
-                Log.startSession("NOCBIR.oR");
-                synchronized (mLock) {
-                    Log.v(this, "onReceive: %s", intent);
-
-                    // Once the NEW_OUTGOING_CALL broadcast is finished, the resultData is
-                    // used as the actual number to call. (If null, no call will be placed.)
-                    String resultNumber = getResultData();
-                    Log.i(NewOutgoingCallIntentBroadcaster.this,
-                            "Received new-outgoing-call-broadcast for %s with data %s", mCall,
-                            Log.pii(resultNumber));
-
-                    boolean endEarly = false;
-                    long disconnectTimeout =
-                            Timeouts.getNewOutgoingCallCancelMillis(mContext, mFeatureFlags);
-                    if (resultNumber == null) {
-                        Log.v(this, "Call cancelled (null number), returning...");
-                        disconnectTimeout = getDisconnectTimeoutFromApp(
-                                getResultExtras(false), disconnectTimeout);
-                        endEarly = true;
-                    } else if (isEmergencyNumber(resultNumber)) {
-                        Log.w(this, "Cannot modify outgoing call to emergency number %s.",
-                                resultNumber);
-                        disconnectTimeout = 0;
-                        endEarly = true;
-                    }
-
-                    if (endEarly) {
-                        if (mCall != null) {
-                            mCall.disconnect(disconnectTimeout);
-                        }
-                        return;
-                    }
-
-                    // If this call is already disconnected then we have nothing more to do.
-                    if (mCall.isDisconnected()) {
-                        Log.w(this, "Call has already been disconnected," +
-                                        " ignore the broadcast Call %s", mCall);
-                        return;
-                    }
-
-                    // TODO: Remove the assumption that phone numbers are either SIP or TEL.
-                    // This does not impact self-managed ConnectionServices as they do not use the
-                    // NewOutgoingCallIntentBroadcaster.
-                    Uri resultHandleUri = Uri.fromParts(
-                            mPhoneNumberUtilsAdapter.isUriNumber(resultNumber) ?
-                                    PhoneAccount.SCHEME_SIP : PhoneAccount.SCHEME_TEL,
-                            resultNumber, null);
-
-                    Uri originalUri = mIntent.getData();
-
-                    if (originalUri.getSchemeSpecificPart().equals(resultNumber)) {
-                        Log.v(this, "Call number unmodified after" +
-                                " new outgoing call intent broadcast.");
-                    } else {
-                        Log.v(this, "Retrieved modified handle after outgoing call intent" +
-                                " broadcast: Original: %s, Modified: %s",
-                                Log.pii(originalUri),
-                                Log.pii(resultHandleUri));
-                    }
-
-                    GatewayInfo gatewayInfo = getGateWayInfoFromIntent(intent, resultHandleUri);
-                    placeOutgoingCallImmediately(mCall, resultHandleUri, gatewayInfo,
-                            mIntent.getBooleanExtra(
-                                    TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE, false),
-                            mIntent.getIntExtra(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
-                                    VideoProfile.STATE_AUDIO_ONLY));
-                }
-            } finally {
-                Log.endSession();
-            }
-        }
-    }
-
-    /**
      * Processes the supplied intent and starts the outgoing call broadcast process relevant to the
      * intent.
      *
@@ -355,13 +273,6 @@ public class NewOutgoingCallIntentBroadcaster {
 
     public void processCall(Call call, CallDisposition disposition) {
         mCall = call;
-
-        // If the new outgoing call broadast doesn't block, trigger the legacy process call
-        // behavior and exit out here.
-        if (!mFeatureFlags.isNewOutgoingCallBroadcastUnblocking()) {
-            legacyProcessCall(disposition);
-            return;
-        }
         boolean callRedirectionWithService = false;
         // Only try to do redirection if it was requested and we're not calling immediately.
         // We can expect callImmediately to be true for emergency calls and voip calls.
@@ -395,50 +306,6 @@ public class NewOutgoingCallIntentBroadcaster {
         if (disposition.sendBroadcast) {
             UserHandle targetUser = mCall.getAssociatedUser();
             broadcastIntent(mIntent, disposition.number, false /* receiverRequired */, targetUser);
-        }
-    }
-
-    /**
-     * The legacy non-flagged version of processing a call.  Although there is some code duplication
-     * if makes the new flow cleaner to read.
-     * @param disposition
-     */
-    private void legacyProcessCall(CallDisposition disposition) {
-        if (disposition.callImmediately) {
-            callImmediately(disposition);
-
-            // Don't return but instead continue and send the ACTION_NEW_OUTGOING_CALL broadcast
-            // so that third parties can still inspect (but not intercept) the outgoing call. When
-            // the broadcast finally reaches the OutgoingCallBroadcastReceiver, we'll know not to
-            // initiate the call again because of the presence of the EXTRA_ALREADY_CALLED extra.
-        }
-
-        boolean callRedirectionWithService = false;
-        if (disposition.requestRedirection) {
-            CallRedirectionProcessor callRedirectionProcessor = new CallRedirectionProcessor(
-                    mContext, mCallsManager, mCall, disposition.callingAddress,
-                    mCallsManager.getPhoneAccountRegistrar(),
-                    getGateWayInfoFromIntent(mIntent, mIntent.getData()),
-                    mIntent.getBooleanExtra(TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE,
-                            false),
-                    mIntent.getIntExtra(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE,
-                            VideoProfile.STATE_AUDIO_ONLY), mFeatureFlags);
-            /**
-             * If there is an available {@link android.telecom.CallRedirectionService}, use the
-             * {@link CallRedirectionProcessor} to perform call redirection instead of using
-             * broadcasting.
-             */
-            callRedirectionWithService = callRedirectionProcessor
-                    .canMakeCallRedirectionWithServiceAsUser(mCall.getAssociatedUser());
-            if (callRedirectionWithService) {
-                callRedirectionProcessor.performCallRedirection(mCall.getAssociatedUser());
-            }
-        }
-
-        if (disposition.sendBroadcast) {
-            UserHandle targetUser = mCall.getAssociatedUser();
-            broadcastIntent(mIntent, disposition.number,
-                    !disposition.callImmediately && !callRedirectionWithService, targetUser);
         }
     }
 
@@ -479,46 +346,22 @@ public class NewOutgoingCallIntentBroadcaster {
 
         checkAndCopyProviderExtras(originalCallIntent, broadcastIntent);
 
-        if (mFeatureFlags.isNewOutgoingCallBroadcastUnblocking()) {
-            // Where the new outgoing call broadcast is unblocking, do not give receiver FG priority
-            // and do not allow background activity starts.
-            broadcastIntent.addFlags(Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND);
-            Log.i(this, "broadcastIntent: Sending non-blocking for %s to %s", mCall.getId(),
-                    targetUser);
-            if (mFeatureFlags.telecomResolveHiddenDependencies()) {
-                mContext.sendBroadcastAsUser(
-                        broadcastIntent,
-                        targetUser,
-                        Manifest.permission.PROCESS_OUTGOING_CALLS);
-            } else {
-                mContext.sendBroadcastAsUser(
-                        broadcastIntent,
-                        targetUser,
-                        android.Manifest.permission.PROCESS_OUTGOING_CALLS,
-                        AppOpsManager.OP_PROCESS_OUTGOING_CALLS);  // initialExtras
-            }
+        // The new outgoing call broadcast is unblocking, do not give receiver FG priority
+        // and do not allow background activity starts.
+        broadcastIntent.addFlags(Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND);
+        Log.i(this, "broadcastIntent: Sending non-blocking for %s to %s", mCall.getId(),
+                targetUser);
+        if (mFeatureFlags.telecomResolveHiddenDependencies()) {
+            mContext.sendBroadcastAsUser(
+                    broadcastIntent,
+                    targetUser,
+                    Manifest.permission.PROCESS_OUTGOING_CALLS);
         } else {
-            Log.i(this, "broadcastIntent: Sending ordered for %s to %s, waitForResult=%b",
-                    mCall.getId(), targetUser, receiverRequired);
-            final BroadcastOptions options = BroadcastOptions.makeBasic();
-            options.setBackgroundActivityStartsAllowed(true);
-            // Force receivers of this broadcast intent to run at foreground priority because we
-            // want to finish processing the broadcast intent as soon as possible.
-            broadcastIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND
-                    | Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND);
-
-            mContext.sendOrderedBroadcastAsUser(
+            mContext.sendBroadcastAsUser(
                     broadcastIntent,
                     targetUser,
                     android.Manifest.permission.PROCESS_OUTGOING_CALLS,
-                    AppOpsManager.OP_PROCESS_OUTGOING_CALLS,
-                    options.toBundle(),
-                    receiverRequired ? new NewOutgoingCallBroadcastIntentReceiver() : null,
-                    null,  // scheduler
-                    Activity.RESULT_OK,  // initialCode
-                    number,  // initialData: initial value for the result data (number to be
-                             // modified)
-                    null);  // initialExtras
+                    AppOpsManager.OP_PROCESS_OUTGOING_CALLS);  // initialExtras
         }
     }
 

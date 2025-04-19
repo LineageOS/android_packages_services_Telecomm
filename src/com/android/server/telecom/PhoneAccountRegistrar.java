@@ -418,20 +418,11 @@ public class PhoneAccountRegistrar {
         // Telecom are in sync.
         int newSubId = accountHandle == null ? SubscriptionManager.INVALID_SUBSCRIPTION_ID :
                 getSubscriptionIdForPhoneAccount(accountHandle);
-        if (Flags.onlyUpdateTelephonyOnValidSubIds()) {
-            if (shouldUpdateTelephonyDefaultVoiceSubId(accountHandle, isSimAccount, newSubId)) {
-                updateDefaultVoiceSubId(newSubId, accountHandle);
-            } else {
-                Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s is not a sub", accountHandle);
-            }
+        if (shouldUpdateTelephonyDefaultVoiceSubId(accountHandle, isSimAccount, newSubId)) {
+            updateDefaultVoiceSubId(newSubId, accountHandle);
         } else {
-            if (isSimAccount || accountHandle == null) {
-                updateDefaultVoiceSubId(newSubId, accountHandle);
-            } else {
-                Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s is not a sub", accountHandle);
-            }
+            Log.i(this, "setUserSelectedOutgoingPhoneAccount: %s is not a sub", accountHandle);
         }
-
         write();
         fireDefaultOutgoingChanged();
     }

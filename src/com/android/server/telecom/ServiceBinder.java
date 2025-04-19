@@ -243,7 +243,6 @@ public abstract class ServiceBinder {
     protected final String mPackageAbbreviation;
     protected final FeatureFlags mFlags;
 
-
     /** The set of callbacks waiting for notification of the binding's success or failure. */
     private final Set<BindCallback> mCallbacks = new ArraySet<>();
 
@@ -309,31 +308,6 @@ public abstract class ServiceBinder {
     }
 
     final void decrementAssociatedCallCount() {
-        if (mFlags.updatedRcsCallCountTracking()) {
-            decrementAssociatedCallCountUpdated();
-        } else {
-            decrementAssociatedCallCount(false /*isSuppressingUnbind*/);
-        }
-    }
-
-    final void decrementAssociatedCallCount(boolean isSuppressingUnbind) {
-        // This is the legacy method - will be removed after the Flags.updatedRcsCallCountTracking
-        // mendel study completes.
-        if (mAssociatedCallCount > 0) {
-            mAssociatedCallCount--;
-            Log.v(this, "Call count decrement %d, %s", mAssociatedCallCount,
-                    mComponentName.flattenToShortString());
-
-            if (!isSuppressingUnbind && mAssociatedCallCount == 0) {
-                unbind();
-            }
-        } else {
-            Log.wtf(this, "%s: ignoring a request to decrement mAssociatedCallCount below zero",
-                    mComponentName.getClassName());
-        }
-    }
-
-    final void decrementAssociatedCallCountUpdated() {
         if (mAssociatedCallCount > 0) {
             mAssociatedCallCount--;
             Log.i(this, "Call count decrement %d, %s", mAssociatedCallCount,

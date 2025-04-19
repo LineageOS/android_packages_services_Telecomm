@@ -138,8 +138,7 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"दुई वटा कल चलिरहेका हुनाले नयाँ कल गर्न सकिँदैन। नयाँ कल गर्नुअघि दुईमध्ये एउटा कल डिस्कनेक्ट गर्नुहोस् वा तिनलाई मर्ज गरी कन्फ्रेन्स कल बनाउनुहोस्।"</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"दुई वटा कल चलिरहेका हुनाले नयाँ कल गर्न सकिँदैन। नयाँ कल गर्नुअघि दुईमध्ये एउटा कल डिस्कनेक्ट गर्नुहोस्।"</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"होल्ड गर्न नमिल्ने कल चलिरहेको हुनाले नयाँ कल गर्न सकिँदैन। नयाँ कल गर्नुअघि यो कल डिस्कनेक्ट गर्नुहोस्।"</string>
-    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
-    <skip />
+    <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"यो कलमा होल्ड गर्ने सुविधा उपलब्ध नभएकाले यो कल बदल्न मिल्दैन। होल्डमा राखिएको कल सक्रिय बनाउन यो कल काट्नुहोस्।"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"अहिले आइरहेको कल नउठाइएको हुनाले नयाँ कल गर्न सकिँदैन। नयाँ कल गर्नुअघि उक्त कल उठाउनुहोस् वा काट्नुहोस्।"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"अर्को खातामार्फत कल चलिरहेका बेला यो MMI कोड प्रयोग गर्न मिल्दैन।"</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"आपत्कालीन कल चलिरहेका बेला MMI कोड डायल गर्न मिल्दैन।"</string>

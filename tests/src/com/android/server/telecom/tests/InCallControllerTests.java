@@ -76,12 +76,14 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Process;
+import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.permission.PermissionCheckerManager;
 import android.permission.PermissionManager;
 import android.telecom.CallAudioState;
 import android.telecom.CallEndpoint;
+import android.telecom.Connection;
 import android.telecom.InCallService;
 import android.telecom.ParcelableCall;
 import android.telecom.PhoneAccountHandle;
@@ -99,6 +101,7 @@ import com.android.server.telecom.Analytics;
 import com.android.server.telecom.AnomalyReporterAdapter;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallEndpointController;
+import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.CarModeTracker;
 import com.android.server.telecom.ClockProxy;
@@ -2018,6 +2021,50 @@ public class InCallControllerTests extends TelecomTestCase {
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(mMockContext).bindServiceAsUser(captor.capture(), any(ServiceConnection.class),
                 anyInt(), any(UserHandle.class));
+    }
+
+    @Test
+    public void testHandleCallDisconnect() throws RemoteException {
+        setupMocks(false /* isExternalCall */);
+        setupMockPackageManager(true /* default */, true /* system */, false /* external calls */);
+        mInCallController.bindToServices(mMockCall);
+
+        // Bind InCallServices
+        ArgumentCaptor<Intent> bindIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        ArgumentCaptor<ServiceConnection> serviceConnectionCaptor =
+                ArgumentCaptor.forClass(ServiceConnection.class);
+        verify(mMockContext, times(1)).bindServiceAsUser(
+                bindIntentCaptor.capture(),
+                serviceConnectionCaptor.capture(),
+                eq(serviceBindingFlags),
+                eq(mUserHandle));
+        assertEquals(1, bindIntentCaptor.getAllValues().size());
+        verifyBinding(bindIntentCaptor, 0, DEF_PKG, DEF_CLASS);
+
+        // Start the connection.
+        ServiceConnection serviceConnection = serviceConnectionCaptor.getValue();
+        ComponentName defDialerComponentName = new ComponentName(DEF_PKG, DEF_CLASS);
+        IBinder mockBinder = mock(IBinder.class);
+        IInCallService mockInCallService = mock(IInCallService.class);
+        when(mockInCallService.asBinder()).thenReturn(mockBinder);
+        when(mockBinder.queryLocalInterface(anyString())).thenReturn(mockInCallService);
+        serviceConnection.onServiceConnected(defDialerComponentName, mockBinder);
+
+        mInCallController.onCallAdded(mMockCall);
+        ArgumentCaptor<ParcelableCall> parcelableCallCaptor =
+                ArgumentCaptor.forClass(ParcelableCall.class);
+        verify(mockInCallService).addCall(parcelableCallCaptor.capture());
+        // Retrieve call listener
+        ArgumentCaptor<Call.ListenerBase> callListenerCaptor = ArgumentCaptor.forClass(
+                Call.ListenerBase.class);
+        verify(mMockCall).addListener(callListenerCaptor.capture());
+        Call.ListenerBase callListener = callListenerCaptor.getValue();
+
+        // Emulate connection event being received and ensure that ICS receive the corresponding
+        // update.
+        callListener.onConnectionEvent(mMockCall, Connection.EVENT_DISCONNECT_FAILED, null);
+        verify(mMockCall).setLocallyDisconnecting(eq(false));
+        verify(mockInCallService).updateCall(any(ParcelableCall.class));
     }
 
     private void setupMocks(boolean isExternalCall) {

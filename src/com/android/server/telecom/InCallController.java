@@ -50,6 +50,7 @@ import android.os.UserManager;
 import android.permission.PermissionManager;
 import android.telecom.CallAudioState;
 import android.telecom.CallEndpoint;
+import android.telecom.Connection;
 import android.telecom.ConnectionService;
 import android.telecom.InCallService;
 import android.telecom.Log;
@@ -1481,8 +1482,10 @@ public class InCallController extends CallsManagerListenerBase implements
                         true /* includeVideoProvider */,
                         mCallsManager.getPhoneAccountRegistrar(),
                         info.isExternalCallsSupported(), includeRttCall,
-                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI ||
-                                info.getType() == IN_CALL_SERVICE_TYPE_NON_UI);
+                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI
+                                || info.getType() == IN_CALL_SERVICE_TYPE_NON_UI
+                                || info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH,
+                        info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH);
                 try {
                     inCallService.addCall(
                             sanitizeParcelableCallForService(info, parcelableCall));
@@ -1668,7 +1671,9 @@ public class InCallController extends CallsManagerListenerBase implements
                         true /* includeVideoProvider */, mCallsManager.getPhoneAccountRegistrar(),
                         info.isExternalCallsSupported(), includeRttCall,
                         info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI
-                                || info.getType() == IN_CALL_SERVICE_TYPE_NON_UI);
+                                || info.getType() == IN_CALL_SERVICE_TYPE_NON_UI
+                                || info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH,
+                        info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH);
                 try {
                     inCallService.addCall(sanitizeParcelableCallForService(info, parcelableCall));
                     updateCallTracking(call, info, true /* isAdd */);
@@ -1703,6 +1708,8 @@ public class InCallController extends CallsManagerListenerBase implements
                             false /* includeRttCall */,
                             info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI
                                     || info.getType() == IN_CALL_SERVICE_TYPE_NON_UI
+                                    || info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH,
+                            info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH
                     );
 
                     try {
@@ -1929,8 +1936,8 @@ public class InCallController extends CallsManagerListenerBase implements
         // the admin user. This needs to account for emergency calls placed from secondary/guest
         // users as well as the work profile. Once the screen is locked, the user should be able to
         // return to the call (from the keyguard UI).
-        if (mFeatureFlags.eccKeyguard() && mCallsManager.isInEmergencyCall()
-                && isLockscreenRestricted && !serviceMap.containsKey(callingUser)) {
+        if (mCallsManager.isInEmergencyCall() && isLockscreenRestricted
+                && !serviceMap.containsKey(callingUser)) {
             // If screen is locked and the current user is the system, query calls for the work
             // profile user, if available. Otherwise, the user is in the secondary/guest profile,
             // so we can default to the system user.
@@ -1985,6 +1992,11 @@ public class InCallController extends CallsManagerListenerBase implements
         UserHandle userFromCall = getUserFromCall(call);
         Map<UserHandle, Map<InCallController.InCallServiceInfo, IInCallService>> serviceMap =
                 getCombinedInCallServiceMap();
+        // In the case that we receive a disconnect failed event, ensure that the call state is
+        // reverted if it's in disconnecting and ensure we send the update to the ICS as well.
+        if (Connection.EVENT_DISCONNECT_FAILED.equals(event)) {
+            handleCallDisconnectFailed(call);
+        }
         if (serviceMap.containsKey(userFromCall)) {
             for (IInCallService inCallService : serviceMap.get(userFromCall).values()) {
                 try {
@@ -1997,6 +2009,23 @@ public class InCallController extends CallsManagerListenerBase implements
                 }
             }
         }
+    }
+
+    /**
+     * When we receive a disconnect failure connection event, the old call state will be in
+     * disconnecting given that the locally disconnecting state is set. Notify the ICS with the new
+     * call state to ensure they get the new update if they had been notified that the call was
+     * disconnecting.
+     * @param call The call that received the disconnect failure event.
+     */
+    private void handleCallDisconnectFailed(Call call) {
+        Log.i(this, "handleCallDisconnectFailed: call: %s", call);
+        call.setLocallyDisconnecting(false);
+        updateCall(call);
+        // Show an error dialog to the user mentioning why the disconnect failed.
+        UserUtil.showErrorDialogForRestrictedOutgoingCall(mContext,
+                R.string.call_hangup_fail_during_merge, NOTIFICATION_TAG,
+                "Call cannot be disconnected during a call merge.");
     }
 
     private void notifyRttInitiationFailure(Call call, int reason) {
@@ -2676,8 +2705,10 @@ public class InCallController extends CallsManagerListenerBase implements
                     mCallsManager.getPhoneAccountRegistrar(),
                     info.isExternalCallsSupported(),
                     includeRttCall,
-                    info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI ||
-                            info.getType() == IN_CALL_SERVICE_TYPE_NON_UI);
+                    info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI
+                            || info.getType() == IN_CALL_SERVICE_TYPE_NON_UI
+                            || info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH,
+                    info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH);
             if (mFeatureFlags.doNotSendCallToNullIcs()) {
                 if (inCallService != null) {
                     inCallService.addCall(sanitizeParcelableCallForService(info, parcelableCall));
@@ -2779,8 +2810,10 @@ public class InCallController extends CallsManagerListenerBase implements
                         info.isExternalCallsSupported(),
                         rttInfoChanged && info.equals(
                                 mInCallServiceConnections.get(userFromCall).getInfo()),
-                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI ||
-                        info.getType() == IN_CALL_SERVICE_TYPE_NON_UI);
+                        info.getType() == IN_CALL_SERVICE_TYPE_SYSTEM_UI
+                                || info.getType() == IN_CALL_SERVICE_TYPE_NON_UI
+                                || info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH,
+                        info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH);
                 IInCallService inCallService = entry.getValue();
                 boolean isDisconnectingBtIcs = info.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH
                         && call.getState() == CallState.DISCONNECTED;

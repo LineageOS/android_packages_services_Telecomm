@@ -142,7 +142,6 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
 
         doNothing().when(mockConnectionServiceWrapper).onCallAudioStateChanged(any(Call.class),
                 any(CallAudioState.class));
-        when(mFeatureFlags.ignoreAutoRouteToWatchDevice()).thenReturn(false);
     }
 
     @Override
@@ -1163,7 +1162,6 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
     @MediumTest
     @Test
     public void testIgnoreImplicitBTSwitchWhenDeviceIsWatch() {
-        when(mFeatureFlags.ignoreAutoRouteToWatchDevice()).thenReturn(true);
         CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
                 mContext,
                 mockCallsManager,

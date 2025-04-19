@@ -451,10 +451,7 @@ public class AudioRoute {
         }
         // Only clear communication device if the destination route will be inactive; route to
         // route transitions do not require clearing the communication device.
-        boolean onlyClearCommunicationDeviceOnInactive =
-                pendingAudioRoute.getFeatureFlags().onlyClearCommunicationDeviceOnInactive();
-        if ((!onlyClearCommunicationDeviceOnInactive && !shouldDisconnectSco)
-                || !pendingAudioRoute.isActive()) {
+        if (!pendingAudioRoute.isActive()) {
             Log.i(this,
                     "clearCommunicationDevice: AudioManager#clearCommunicationDevice, type=%s",
                     DEVICE_TYPE_STRINGS.get(pendingAudioRoute.getCommunicationDeviceType()));

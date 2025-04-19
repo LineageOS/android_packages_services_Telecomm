@@ -225,7 +225,11 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         // Include a Connection Manager
         PhoneAccountHandle callManagerPAHandle = getNewConnectionManagerHandleForCall(mMockCall,
                 "cm_acct");
+        // Get the mock service for the Connection Manager
         ConnectionServiceWrapper service = makeConnMgrConnectionServiceWrapper();
+        // Get the mock service for the Target Phone Account
+        ConnectionServiceWrapper targetService = makeConnectionServiceWrapper();
+
         // Make sure the target phone account has the correct permissions
         PhoneAccount mFakeTargetPhoneAccount = makeQuickAccount("cm_acct",
                 PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION, null);
@@ -236,7 +240,8 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
 
         verify(mMockCall).setConnectionManagerPhoneAccount(eq(callManagerPAHandle));
         verify(mMockCall).setTargetPhoneAccount(eq(pAHandle));
-        verify(mMockCall).setConnectionService(eq(service));
+        // Verify the TWO-argument setConnectionService was called
+        verify(mMockCall).setConnectionService(eq(service), eq(targetService));
         verify(service).createConnection(eq(mMockCall),
                 any(CreateConnectionResponse.class));
         // Notify successful connection to call
@@ -248,8 +253,6 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testConnectionManagerConnectionServiceSuccess() throws Exception {
-        when(mFeatureFlags.updatedRcsCallCountTracking()).thenReturn(true);
-
         // Configure the target phone account as the remote connection service:
         PhoneAccountHandle pAHandle = getNewTargetPhoneAccountHandle("tel_acct");
         setTargetPhoneAccount(mMockCall, pAHandle);
@@ -752,7 +755,7 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         verify(mMockCall).setConnectionManagerPhoneAccount(
                 eq(emerCallManagerPA.getAccountHandle()));
         verify(mMockCall).setTargetPhoneAccount(eq(regularAccount.getAccountHandle()));
-        verify(mMockCall).setConnectionService(eq(service));
+        verify(mMockCall).setConnectionService(eq(service), eq(service));
         verify(service).createConnection(eq(mMockCall), any(CreateConnectionResponse.class));
     }
 

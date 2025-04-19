@@ -310,7 +310,6 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testHandleAudioRefactoringServiceDisconnectedWhileBluetooth() {
-        when(mFeatureFlags.skipBaselineSwitchWhenRouteNotBluetooth()).thenReturn(true);
         Map<AudioRoute, BluetoothDevice> btRoutes = new HashMap<>();
         when(mCallAudioRouteController.getBluetoothRoutes()).thenReturn(btRoutes);
         when(mCallAudioRouteController.getCurrentCallAudioState()).thenReturn(mCallAudioState);
@@ -326,7 +325,6 @@ public class BluetoothDeviceManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testHandleAudioRefactoringServiceDisconnectedWhileSpeaker() {
-        when(mFeatureFlags.skipBaselineSwitchWhenRouteNotBluetooth()).thenReturn(true);
         Map<AudioRoute, BluetoothDevice> btRoutes = new HashMap<>();
         when(mCallAudioRouteController.getBluetoothRoutes()).thenReturn(btRoutes);
         when(mCallAudioRouteController.getCurrentCallAudioState()).thenReturn(mCallAudioState);

@@ -9,14 +9,6 @@ flag {
   bug: "282113261"
 }
 
-# OWNER=pmadapurmath TARGET=24Q2
-flag {
-  name: "ecc_keyguard"
-  namespace: "telecom"
-  description: "Ensure that users are able to return to call from keyguard UI for ECC"
-  bug: "306582821"
-}
-
 # OWNER=tjstuart TARGET=24Q4
 flag {
   name: "do_not_send_call_to_null_ics"

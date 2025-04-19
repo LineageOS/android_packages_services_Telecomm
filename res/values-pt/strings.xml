@@ -138,8 +138,7 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Não é possível ligar porque há duas chamadas em andamento. Encerre uma delas ou mescle-as em uma videoconferência antes de fazer outra."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Não é possível ligar porque há duas chamadas em andamento. Encerre uma das ligações antes de fazer outra."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Não é possível ligar porque há uma chamada que não pode ficar em espera. Encerre essa ligação antes de fazer outra."</string>
-    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
-    <skip />
+    <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Não é possível trocar a ligação ativa porque ela não pode ser colocada em espera. Desligue a chamada atual para ativar a que está em espera."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Não é possível ligar porque há uma ligação recebida que não foi atendida. Atenda ou rejeite essa chamada antes de fazer outra."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Este código MMI não está disponível para chamadas em várias contas."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Não é possível discar códigos MMI durante uma chamada de emergência."</string>

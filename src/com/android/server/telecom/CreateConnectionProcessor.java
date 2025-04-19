@@ -286,24 +286,20 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
                 mConnectionAttempt++;
                 mCall.setConnectionManagerPhoneAccount(attempt.connectionManagerPhoneAccount);
                 mCall.setTargetPhoneAccount(attempt.targetPhoneAccount);
-                if (mFlags.updatedRcsCallCountTracking()) {
-                    if (Objects.equals(attempt.connectionManagerPhoneAccount,
-                            attempt.targetPhoneAccount)) {
+                if (Objects.equals(attempt.connectionManagerPhoneAccount,
+                        attempt.targetPhoneAccount)) {
+                    mCall.setConnectionService(mService);
+                } else {
+                    PhoneAccountHandle remotePhoneAccount = attempt.targetPhoneAccount;
+                    ConnectionServiceWrapper mRemoteService =
+                            mRepository.getService(remotePhoneAccount.getComponentName(),
+                            remotePhoneAccount.getUserHandle());
+                    if (mRemoteService == null) {
                         mCall.setConnectionService(mService);
                     } else {
-                        PhoneAccountHandle remotePhoneAccount = attempt.targetPhoneAccount;
-                        ConnectionServiceWrapper mRemoteService =
-                                mRepository.getService(remotePhoneAccount.getComponentName(),
-                                remotePhoneAccount.getUserHandle());
-                        if (mRemoteService == null) {
-                            mCall.setConnectionService(mService);
-                        } else {
-                            Log.v(this, "attemptNextPhoneAccount Setting RCS = %s", mRemoteService);
-                            mCall.setConnectionService(mService, mRemoteService);
-                        }
+                        Log.v(this, "attemptNextPhoneAccount Setting RCS = %s", mRemoteService);
+                        mCall.setConnectionService(mService, mRemoteService);
                     }
-                } else {
-                    mCall.setConnectionService(mService);
                 }
                 setTimeoutIfNeeded(mService, attempt);
                 if (mCall.isIncoming()) {

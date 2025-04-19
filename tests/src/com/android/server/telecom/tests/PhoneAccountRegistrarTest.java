@@ -140,7 +140,6 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         mRegistrar = new PhoneAccountRegistrar(
                 mComponentContextFixture.getTestDouble().getApplicationContext(), mLock, FILE_NAME,
                 mDefaultDialerCache, mAppLabelProxy, mTelephonyFeatureFlags, mFeatureFlags);
-        when(mFeatureFlags.onlyUpdateTelephonyOnValidSubIds()).thenReturn(false);
         when(mFeatureFlags.unregisterUnresolvableAccounts()).thenReturn(true);
         when(mTelephonyFeatureFlags.workProfileApiSplit()).thenReturn(false);
         when(mFeatureFlags.resolveHiddenDependenciesTwo()).thenReturn(true);

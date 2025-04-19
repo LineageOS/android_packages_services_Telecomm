@@ -25,14 +25,6 @@ flag {
   bug: "289861657"
 }
 
-# OWNER=pmadapurmath TARGET=24Q1
-flag {
-  name: "ignore_auto_route_to_watch_device"
-  namespace: "telecom"
-  description: "Ignore auto routing to wearable devices."
-  bug: "294378768"
-}
-
 # OWNER=pmadapurmath TARGET=24Q3
 flag {
   name: "transit_route_before_audio_disconnect_bt"
@@ -63,28 +55,6 @@ flag {
   namespace: "telecom"
   description: "Update supported route mask when Bluetooth devices audio connected."
   bug: "301695370"
-}
-
-# OWNER=tgunn TARGET=24Q3
-flag {
-  name: "dont_use_communication_device_tracker"
-  namespace: "telecom"
-  description: "Do not use the communication device tracker with useRefactoredAudioRouteSwitching."
-  bug: "346472575"
-  metadata {
-    purpose: PURPOSE_BUGFIX
-  }
-}
-
-# OWNER=tgunn TARGET=25Q2
-flag {
-  name: "only_clear_communication_device_on_inactive"
-  namespace: "telecom"
-  description: "Only clear the communication device when transitioning to an inactive route."
-  bug: "376781369"
-  metadata {
-    purpose: PURPOSE_BUGFIX
-  }
 }
 
 # OWNER=tgunn TARGET=25Q2

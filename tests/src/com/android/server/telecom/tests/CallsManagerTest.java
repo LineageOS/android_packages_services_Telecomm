@@ -324,6 +324,7 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private UserManager mMockCurrentUserManager;
     @Mock private IConnectionService mIConnectionService;
     @Mock private TelecomMetricsController mMockTelecomMetricsController;
+    @Mock private Ringer.VibratorAdapter mMockVibratorAdapter;
     private CallsManager mCallsManager;
 
     @Override
@@ -357,6 +358,7 @@ public class CallsManagerTest extends TelecomTestCase {
         when(mTimeoutsAdapter.getNonVoipCallTransitoryStateTimeoutMillis())
                 .thenReturn(STATE_TIMEOUT);
         when(mClockProxy.elapsedRealtime()).thenReturn(0L);
+        when(mMockVibratorAdapter.hasVibrator()).thenReturn(true);
         mCallsManager = new CallsManager(
                 mComponentContextFixture.getTestDouble().getApplicationContext(),
                 mLock,
@@ -404,7 +406,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 mTelephonyFlags,
                 (call, listener, context, timeoutsAdapter,
                         mFeatureFlags, lock) -> mIncomingCallFilterGraph,
-                mMockTelecomMetricsController);
+                mMockTelecomMetricsController,
+                mMockVibratorAdapter);
 
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SELF_MANAGED_HANDLE), any())).thenReturn(SELF_MANAGED_ACCOUNT);

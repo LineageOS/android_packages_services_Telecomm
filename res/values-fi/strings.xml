@@ -138,8 +138,7 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Puhelua ei voi soittaa, koska kaksi puhelua on jo käynnissä. Katkaise toinen puheluista tai yhdistä ne puhelinneuvotteluksi ennen uuden puhelun soittamista."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Puhelua ei voi soittaa, koska kaksi puhelua on jo käynnissä. Katkaise toinen puheluista ennen uuden puhelun soittamista."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Puhelua ei voi soittaa, koska puhelua ei voi asettaa pitoon. Katkaise puhelu ennen uuden puhelun soittamista."</string>
-    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
-    <skip />
+    <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Aktiivista puhelua ei voi vaihtaa, koska se ei tue pitoa. Lopeta puhelu, jos haluat vastata pidossa olevaan puheluun."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Puhelua ei voi soittaa, koska saapuvaan puheluun ei ole vielä vastattu. Vastaa saapuvaan puheluun tai hylkää se, ennen kuin soitat uuden puhelun."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"MMI-koodi ei ole käytettävissä useilla tileillä käytävissä puheluissa."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"MMI-koodeja ei voi käyttää hätäpuhelun aikana."</string>

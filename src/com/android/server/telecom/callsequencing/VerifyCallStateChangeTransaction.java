@@ -22,7 +22,9 @@ import com.android.server.telecom.CallState;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.flags.FeatureFlags;
 
+import android.os.Bundle;
 import android.telecom.CallException;
+import android.telecom.Connection;
 import android.telecom.Log;
 
 import java.util.Set;
@@ -99,6 +101,17 @@ public class VerifyCallStateChangeTransaction extends CallTransaction {
                 // current call could not be unheld).
                 mTransactionResult.complete(new CallTransactionResult(
                         CallException.CODE_CALL_CANNOT_BE_SET_TO_ACTIVE, "error unholding call"));
+            }
+        }
+
+        @Override
+        public void onConnectionEvent(Call call, String event, Bundle extras) {
+            // If one of the target states is disconnected and we receive a disconnect failed event
+            // from Telephony, we can safely fail the transaction.
+            if (call.equals(mCall) && Connection.EVENT_DISCONNECT_FAILED.equals(event)
+                    && mTargetCallStates.contains(CallState.DISCONNECTED)) {
+                mTransactionResult.complete(new CallTransactionResult(
+                        CallException.CODE_ERROR_UNKNOWN, "error disconnecting call"));
             }
         }
     };

@@ -45,17 +45,6 @@ flag {
     }
 }
 
-# OWNER=breadley TARGET=24Q4
-flag {
-  name: "use_stream_voice_call_tones"
-  namespace: "telecom"
-  description: "Use STREAM_VOICE_CALL only for ToneGenerator"
-  bug: "363262590"
-  metadata {
-      purpose: PURPOSE_BUGFIX
-    }
-}
-
 # OWNER=breadley TARGET=25Q2
 flag {
   name: "enable_respond_via_sms_manager_async"
@@ -73,6 +62,14 @@ flag {
   namespace: "telecom"
   description: "Connection event received when a call resume fails"
   bug: "390116261"
+}
+
+# OWNER=pmadapurmath TARGET=25Q4
+flag {
+  name: "revert_disconnecting_during_merge"
+  namespace: "telecom"
+  description: "When a user tries hanging up a call during a call merge, the hangup will be ignore but the call will be stuck in disconnecting. We prevent the call state from being placed into disconnecting."
+  bug: "409455144"
 }
 
 # OWNER=tjstuart TARGET=25Q3

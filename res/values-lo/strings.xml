@@ -138,8 +138,7 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"ບໍ່ສາມາດໂທໄດ້ເນື່ອງຈາກມີສອງສາຍກຳລັງໂທຢູ່. ກະລຸນາຕັດການເຊື່ອມຕໍ່ສາຍໃດໜຶ່ງອອກ ຫຼື ຮວມສາຍເປັນການປະຊຸມທາງໂທລະສັບກ່ອນໂທໃໝ່."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"ບໍ່ສາມາດໂທອອກໄດ້ເນື່ອງຈາກມີສອງສາຍທີ່ພວມດຳເນີນຢູ່. ຕັດການເຊື່ອມຕໍ່ສາຍໃດໜຶ່ງກ່ອນທີ່ຈະໂທໃໝ່."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"ບໍ່ສາມາດໂທໄດ້ເນື່ອງຈາກມີການໂທທີ່ບໍ່ສາມາດຖືສາຍຄ້າງໄວ້ໄດ້. ຕັດການເຊື່ອມຕໍ່ສາຍກ່ອນໂທໃໝ່."</string>
-    <!-- no translation found for callSwapFailed_unholdable_call (4779540296319850415) -->
-    <skip />
+    <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"ບໍ່ສາມາດສະຫຼັບສາຍໂທທີ່ດຳເນີນຢູ່ເນື່ອງຈາກມັນບໍ່ຮອງຮັບການຖືສາຍ. ວາງສາຍເພື່ອລົມສາຍໂທທີ່ຖືໄວ້."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"ບໍ່ສາມາດໂທອອກໄດ້ເນື່ອງຈາກມີສາຍໂທເຂົ້າທີ່ຍັງບໍ່ໄດ້ຮັບຢູ່. ກະລຸນາຮັບສາຍ ຫຼື ວາງສາຍທີ່ກຳລັງໂທເຂົ້າມາກ່ອນຈະໂທໃໝ່."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ລະຫັດ MMI ນີ້ແມ່ນໃຊ້ບໍ່ໄດ້ສໍາລັບການໂທດ້ວຍຫຼາຍບັນຊີ."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"ບໍ່ສາມາດກົດລະຫັດ MMI ໄດ້ໃນລະຫວ່າງການໂທ​ສຸກ​ເສີນໄດ້."</string>

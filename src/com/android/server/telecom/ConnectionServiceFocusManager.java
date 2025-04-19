@@ -30,7 +30,6 @@ import android.util.LogPrinter;
 import android.util.Printer;
 
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.server.telecom.flags.Flags;
 import com.android.internal.util.IndentingPrintWriter;
 
 import java.util.ArrayList;
@@ -341,23 +340,18 @@ public class ConnectionServiceFocusManager {
             if (syncCallFocus != null) {
                 return syncCallFocus.orElse(null);
             } else {
-                if (Flags.genAnomReportOnFocusTimeout()) {
-                    Log.w(TAG, "Timed out waiting for synchronous current focus. Returning possibly"
-                                    + " inaccurate result. returning currentFocusCall=[%s]",
-                            mCurrentFocusCall);
+                Log.w(TAG, "Timed out waiting for synchronous current focus. Returning possibly"
+                                + " inaccurate result. returning currentFocusCall=[%s]",
+                        mCurrentFocusCall);
 
-                    // dump the state of the handler to better understand the timeout
-                    mEventHandler.dump(
-                            new LogPrinter(android.util.Log.INFO, TAG), "CsFocusMgr_timeout");
+                // dump the state of the handler to better understand the timeout
+                mEventHandler.dump(
+                        new LogPrinter(android.util.Log.INFO, TAG), "CsFocusMgr_timeout");
 
-                    // report the timeout
-                    mAnomalyReporter.reportAnomaly(
-                            WATCHDOG_GET_CALL_FOCUS_TIMEOUT_UUID,
-                            WATCHDOG_GET_CALL_FOCUS_TIMEOUT_MSG);
-                } else {
-                    Log.w(TAG, "Timed out waiting for synchronous current focus. Returning possibly"
-                            + " inaccurate result");
-                }
+                // report the timeout
+                mAnomalyReporter.reportAnomaly(
+                        WATCHDOG_GET_CALL_FOCUS_TIMEOUT_UUID,
+                        WATCHDOG_GET_CALL_FOCUS_TIMEOUT_MSG);
                 return mCurrentFocusCall;
             }
         } catch (InterruptedException e) {
