@@ -2221,7 +2221,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         return Contacts.getLookupUri(mCallerInfo.contactIdOrZero, mCallerInfo.lookupKey);
     }
 
-    Uri getRingtone() {
+    @VisibleForTesting
+    public Uri getRingtone() {
         return mCallerInfo == null ? null : mCallerInfo.contactRingtoneUri;
     }
 
