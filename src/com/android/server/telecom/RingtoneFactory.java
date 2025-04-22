@@ -52,6 +52,23 @@ public class RingtoneFactory {
         mCallsManager = callsManager;
     }
 
+    private boolean currentUserOwnsRingtone(Uri ringtoneUri, Call incomingCall) {
+        if (ringtoneUri.getUserInfo() == null) {
+            // The current user set this custom ringtone:
+            return true;
+        }
+
+        UserHandle associatedUser = incomingCall.getInitiatingUser();
+        if (associatedUser == null) {
+            Log.d(this, "currentUserOwnsRingtone: The incoming call does not"
+                    + " have an associated user.");
+            return false;
+        }
+
+        String currentUserId = String.valueOf(associatedUser.getIdentifier());
+        return currentUserId.equals(ringtoneUri.getUserInfo());
+    }
+
     public Ringtone getRingtone(Call incomingCall) {
         // Use the default ringtone of the work profile if the contact is a work profile contact.
         Context userContext = isWorkContact(incomingCall) ?
@@ -61,8 +78,14 @@ public class RingtoneFactory {
         Ringtone ringtone = null;
 
         if(ringtoneUri != null && userContext != null) {
-            // Ringtone URI is explicitly specified. First, try to create a Ringtone with that.
-            ringtone = RingtoneManager.getRingtone(userContext, ringtoneUri);
+            if (currentUserOwnsRingtone(ringtoneUri, incomingCall)) {
+                // Ringtone URI is explicitly specified. First, try to create a Ringtone with that.
+                ringtone = RingtoneManager.getRingtone(userContext,
+                               ringtoneUri);
+            } else {
+                Log.w(this, "getRingtone: Failed to verify that the custom ringtone URI"
+                        + " is owned by the current user. Falling back to the default ringtone.");
+            }
         }
         if(ringtone == null) {
             // Contact didn't specify ringtone or custom Ringtone creation failed. Get default
