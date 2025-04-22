@@ -141,5 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Aktiivset kõnet ei saa ümber lülitada, kuna see ei toeta ootel hoidmist. Katkestage kõne, et muuta ootel olev kõne aktiivseks."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Kõnet ei saa teha, kuna teil on vastamata sissetulev kõne. Enne uue kõne tegemist vastake sissetulevale kõnele või keelduge sellest."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"See MMI-kood pole saadaval mitmel kontol toimuvate kõnede jaoks."</string>
+    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
+    <skip />
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"MMI-koode ei saa hädaabikõne ajal valida."</string>
 </resources>

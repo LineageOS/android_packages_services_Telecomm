@@ -141,5 +141,6 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Cannot swap the active call because it does not support holding. Disconnect the call to make the held call active."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Cannot place a call as there is an unanswered incoming call. Answer or reject the incoming call prior to placing a new call."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"This MMI code is not available for calls across multiple accounts."</string>
+    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Call cannot be disconnected during a merge."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"MMI codes cannot be dialed during an emergency call."</string>
 </resources>

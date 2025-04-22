@@ -141,5 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Det går inte att byta det aktiva samtalet eftersom det inte har stöd för parkering. Koppla från samtalet om du vill göra det parkerade samtalet aktivt."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Det går inte att ringa eftersom det finns ett obesvarat inkommande samtal. Svara eller avvisa det innan du ringer ett nytt samtal."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Den här MMI-koden är inte tillgänglig för samtal på flera konton."</string>
+    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
+    <skip />
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Det går inte att ange MMI-koder under ett nödsamtal."</string>
 </resources>

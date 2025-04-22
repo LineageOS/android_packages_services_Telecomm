@@ -141,5 +141,6 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Tidak dapat menukar panggilan aktif kerana panggilan tidak menyokong penahanan. Putuskan sambungan panggilan untuk menjadikan panggilan yang ditahan aktif."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Tidak dapat membuat panggilan kerana terdapat panggilan masuk yang tidak dijawab. Jawab atau tolak panggilan masuk itu sebelum membuat panggilan baharu."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Kod MMI ini tidak tersedia untuk panggilan merentas berbilang akaun."</string>
+    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Panggilan tidak dapat diputuskan semasa penggabungan."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Kod MMI tidak boleh didail semasa panggilan kecemasan."</string>
 </resources>

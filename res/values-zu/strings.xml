@@ -141,5 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Ayikwazi ukushintshanisa ikholi eqhubekayo ngoba ayisekeli ukubamba. Nqamula ikholi ukuze wenze ikholi ebanjiwe iqhubeke."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Ayikwazi ukubeka ikholi njengoba kunekholi engenayo engaphenduliwe. Phendula noma nqaba ikholi engenayo ngaphambi kokubeka ikholi entsha."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Le khodi ye-MMI ayitholakali ngamakholi kuma-akhawunti amaningi."</string>
+    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
+    <skip />
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Amakhodi e-MMI awakwazi ukushayelwa ngesikhathi socingo oluphuthumayo."</string>
 </resources>

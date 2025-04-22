@@ -141,5 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"ਕਿਰਿਆਸ਼ੀਲ ਕਾਲ ਨੂੰ ਬਦਲਿਆ ਨਹੀਂ ਜਾ ਸਕਦਾ ਕਿਉਂਕਿ ਇਹ ਰੋਕ ਕੇ ਰੱਖਣ ਦਾ ਸਮਰਥਨ ਨਹੀਂ ਕਰਦੀ। ਰੋਕ ਕੇ ਰੱਖੀ ਕਾਲ ਨੂੰ ਕਿਰਿਆਸ਼ੀਲ ਕਰਨ ਲਈ ਕਾਲ ਨੂੰ ਡਿਸਕਨੈਕਟ ਕਰੋ।"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"ਕਾਲ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ ਕਿਉਂਕਿ ਇੱਕ ਜਵਾਬ ਨਾ ਦਿੱਤੀ ਗਈ ਇਨਕਮਿੰਗ ਕਾਲ ਪਹਿਲਾਂ ਤੋਂ ਹੀ ਆ ਰਹੀ ਹੈ। ਨਵੀਂ ਕਾਲ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਇਨਕਮਿੰਗ ਕਾਲ ਦਾ ਜਵਾਬ ਦਿਓ ਜਾਂ ਅਸਵੀਕਾਰ ਕਰੋ।"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ਇਹ MMI ਕੋਡ ਇੱਕ ਤੋਂ ਵੱਧ ਖਾਤਿਆਂ ਵਿੱਚ ਕਾਲਾਂ ਲਈ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।"</string>
+    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
+    <skip />
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"ਐਮਰਜੈਂਸੀ ਕਾਲ ਦੌਰਾਨ MMI ਕੋਡ ਡਾਇਲ ਨਹੀਂ ਕੀਤੇ ਜਾ ਸਕਦੇ।"</string>
 </resources>

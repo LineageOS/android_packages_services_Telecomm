@@ -408,7 +408,7 @@ public class CallsManagerTest extends TelecomTestCase {
                         mFeatureFlags, lock) -> mIncomingCallFilterGraph,
                 mMockTelecomMetricsController,
                 mMockVibratorAdapter);
-
+        mCallsManager.setCallAudioWatchDog(null);
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SELF_MANAGED_HANDLE), any())).thenReturn(SELF_MANAGED_ACCOUNT);
         when(mPhoneAccountRegistrar.getPhoneAccount(

@@ -141,5 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"ບໍ່ສາມາດສະຫຼັບສາຍໂທທີ່ດຳເນີນຢູ່ເນື່ອງຈາກມັນບໍ່ຮອງຮັບການຖືສາຍ. ວາງສາຍເພື່ອລົມສາຍໂທທີ່ຖືໄວ້."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"ບໍ່ສາມາດໂທອອກໄດ້ເນື່ອງຈາກມີສາຍໂທເຂົ້າທີ່ຍັງບໍ່ໄດ້ຮັບຢູ່. ກະລຸນາຮັບສາຍ ຫຼື ວາງສາຍທີ່ກຳລັງໂທເຂົ້າມາກ່ອນຈະໂທໃໝ່."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ລະຫັດ MMI ນີ້ແມ່ນໃຊ້ບໍ່ໄດ້ສໍາລັບການໂທດ້ວຍຫຼາຍບັນຊີ."</string>
+    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
+    <skip />
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"ບໍ່ສາມາດກົດລະຫັດ MMI ໄດ້ໃນລະຫວ່າງການໂທ​ສຸກ​ເສີນໄດ້."</string>
 </resources>

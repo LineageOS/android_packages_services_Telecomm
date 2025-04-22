@@ -141,5 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Nie można przełączyć aktywnego połączenia, ponieważ nie obsługuje ono funkcji zawieszenia. Rozłącz połączenie, aby aktywować to, które zostało zawieszone."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Nie można nawiązać połączenia, ponieważ masz nieodebrane połączenie przychodzące. Odbierz je lub odrzuć przed nawiązaniem nowego."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Ten kod MMI nie jest dostępny w przypadku połączeń na więcej niż 1 koncie."</string>
+    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
+    <skip />
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Nie można wybierać kodów MMI podczas połączenia alarmowego."</string>
 </resources>

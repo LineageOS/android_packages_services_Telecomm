@@ -141,5 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"સક્રિય કૉલ સ્વૉપ કરી શકતા નથી કારણ કે તે હોલ્ડ પર રાખવાને સપોર્ટ કરતો નથી. હોલ્ડ પર રાખેલા કૉલને સક્રિય કરવા માટે કૉલ ડિસ્કનેક્ટ કરો."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"કૉલ કરી શકાતો નથી કારણ કે ઇનકમિંગ કૉલનો જવાબ આપવામાં આવી રહ્યો નથી. નવો કૉલ કરતા પહેલાં ઇનકમિંગ કૉલનો જવાબ આપો અથવા તેને નકારો."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"આ MMI કોડનો ઉપયોગ એકથી વધુ એકાઉન્ટ પર ચાલી રહેલા કૉલ માટે ઉપલબ્ધ નથી."</string>
+    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
+    <skip />
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"ઇમર્જન્સી કૉલ દરમિયાન MMI કોડ ડાયલ કરી શકાતા નથી."</string>
 </resources>

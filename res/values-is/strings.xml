@@ -141,5 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Ekki er hægt að skipta út virka símtalinu því ekki er hægt að setja það í bið. Ljúktu símtalinu til að gera símtalið í bið virkt."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Ekki er hægt að hringja símtal, þar sem ósvarað símtal er að berast. Svaraðu eða hafnaðu símtalinu áður en þú hringir nýtt símtal."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Þessi MMI-kóði er ekki í boði ef hringt er í marga reikninga."</string>
+    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
+    <skip />
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Ekki er hægt að hringja MMI-kóða í neyðarsímtali."</string>
 </resources>

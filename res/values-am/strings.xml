@@ -141,5 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"ገቢር ጥሪውን ማገላበጥ አይቻልም ምክንያቱም ይቆይን አይደግፍም። ይቆይ ላይ ያለውን ጥሪ ገቢር ማድረግ የጥሪን ግንኙነት ያቋርጡ።"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"ያልተመለሰ ገቢ ጥሪ ስላለ ጥሪ ማድረግ አይቻልም። አዲስ ጥሪ ከማድረግዎ በፊት ገቢ ጥሪን ይመልሱ ወይም ይዝጉ።"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ይህ MMI ኮድ በርካታ መለያዎች ላይ ላሉ ጥሪዎች አይገኝም።"</string>
+    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
+    <skip />
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"MMI ኮዶች በአደጋ ጥሪ ወቅት መደወል አይችሉም።"</string>
 </resources>

@@ -141,5 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"สลับการโทรที่ใช้งานอยู่ไม่ได้เนื่องจากไม่รองรับการพักสาย โปรดยกเลิกการเชื่อมต่อสายนี้เพื่อให้สายที่รออยู่ทำงาน"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"โทรออกไม่ได้เนื่องจากมีสายเรียกเข้าที่ยังไม่ได้รับ โปรดรับหรือปฏิเสธสายเรียกเข้าก่อนจึงค่อยโทรออกใหม่"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"รหัส MMI นี้ใช้ไม่ได้กับการโทรผ่านหลายบัญชี"</string>
+    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
+    <skip />
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"ไม่สามารถโทรออกด้วยโค้ด MMI ระหว่างการโทรฉุกเฉิน"</string>
 </resources>
