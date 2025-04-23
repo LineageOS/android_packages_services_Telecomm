@@ -1354,8 +1354,9 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         Call foregroundCall = mCallAudioManager.getForegroundCall();
         if (!isExplicitUserRequest) {
             synchronized (mTelecomLock) {
-                skipEarpiece = foregroundCall != null
+                skipEarpiece = foregroundCall != null && foregroundCall.isActive()
                         && VideoProfile.isVideo(foregroundCall.getVideoState());
+                Log.i(this, "skipEarpiece for video call?" + skipEarpiece);
             }
         }
         // Route to earpiece, wired, or speaker route if there are not bluetooth routes or if there
