@@ -21,7 +21,6 @@ package {
 aconfig_declarations {
     name: "telecom_flags",
     package: "com.android.server.telecom.flags",
-    exportable: true,
     container: "system",
     srcs: [
         "telecom_broadcast_flags.aconfig",

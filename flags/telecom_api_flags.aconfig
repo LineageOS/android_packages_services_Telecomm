@@ -83,18 +83,6 @@ flag {
   bug: "353579043"
 }
 
-# OWNER=ntmyren TARGET=24Q4
-flag {
-  name: "call_details_get_associated_user_api"
-  is_exported: true
-  namespace: "telecom"
-  description: "Adds a UserHandle to the Call Details"
-  bug: "408470449"
-  metadata {
-      purpose: PURPOSE_BUGFIX
-  }
-}
-
 # OWNER=grantmenke TARGET=25Q4
 flag {
   name: "reuse_original_conn_remote_conf_api"
