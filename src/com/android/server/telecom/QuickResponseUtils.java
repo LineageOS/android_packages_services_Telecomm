@@ -22,8 +22,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.telecom.Log;
 
-// TODO: Needed for move to system service: import com.android.internal.R;
-
 /**
  * Utils class that exposes some helper routines to used to manage the QuickResponses
  */

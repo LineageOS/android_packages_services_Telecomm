@@ -761,6 +761,14 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     private void handleBtAudioActive(BluetoothDevice bluetoothDevice) {
         if (mIsPending && bluetoothDevice != null) {
             Log.i(this, "handleBtAudioActive: is pending path");
+            // Ensure we aren't keeping track of pending speaker off and SCO audio disconnected
+            // messages  for this device if BT stack indicates that SCO audio is connected.
+            mPendingAudioRoute.clearPendingMessage(
+                    new Pair<>(BT_AUDIO_DISCONNECTED, bluetoothDevice.getAddress()));
+            mPendingAudioRoute.clearPendingMessage(new Pair<>(SPEAKER_OFF, null));
+            // Maybe turn off speaker from notification bar. This will be a no-op if the enabled
+            // status is already off.
+            mStatusBarNotifier.notifySpeakerphone(false);
             if (Objects.equals(mPendingAudioRoute.getDestRoute().getBluetoothAddress(),
                     bluetoothDevice.getAddress())) {
                 mPendingAudioRoute.onMessageReceived(new Pair<>(BT_AUDIO_CONNECTED,
@@ -780,6 +788,10 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     private void handleBtAudioInactive(BluetoothDevice bluetoothDevice) {
         if (mIsPending && bluetoothDevice != null) {
             Log.i(this, "handleBtAudioInactive: is pending path");
+            // Ensure we aren't keeping track of pending s SCO audio connected messages for this
+            // device if the BT stack has indicated that SCO audio has disconnected.
+            mPendingAudioRoute.clearPendingMessage(
+                    new Pair<>(BT_AUDIO_CONNECTED, bluetoothDevice.getAddress()));
             if (Objects.equals(mPendingAudioRoute.getOrigRoute().getBluetoothAddress(),
                     bluetoothDevice.getAddress())) {
                 mPendingAudioRoute.onMessageReceived(new Pair<>(BT_AUDIO_DISCONNECTED,
@@ -1107,6 +1119,15 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     private void handleSpeakerOn() {
         if (isPending()) {
             Log.i(this, "handleSpeakerOn: sending SPEAKER_ON to pending audio route");
+            // Clear any pending speaker off message as the speaker has been explicitly turned on as
+            // indicated by the audio fwk.
+            mPendingAudioRoute.clearPendingMessage(new Pair<>(SPEAKER_OFF, null));
+            // Clear any pending BT_AUDIO_DISCONNECTED messages for connected BT devices if speaker
+            // has explicitly been turned on.
+            for (BluetoothDevice device: mBluetoothRoutes.values()) {
+                mPendingAudioRoute.clearPendingMessage(new Pair<>(BT_AUDIO_DISCONNECTED,
+                        device.getAddress()));
+            }
             mPendingAudioRoute.onMessageReceived(new Pair<>(SPEAKER_ON, null), null);
             // Update status bar notification if we are in a call.
             mStatusBarNotifier.notifySpeakerphone(mCallsManager.hasAnyCalls());
@@ -1127,6 +1148,9 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     private void handleSpeakerOff() {
         if (isPending()) {
             Log.i(this, "handleSpeakerOff - sending SPEAKER_OFF to pending audio route");
+            // Clear any pending speaker on message as the speaker has been explicitly turned off as
+            // indicated by the audio fwk.
+            mPendingAudioRoute.clearPendingMessage(new Pair<>(SPEAKER_ON, null));
             mPendingAudioRoute.onMessageReceived(new Pair<>(SPEAKER_OFF, null), null);
             // Update status bar notification
             mStatusBarNotifier.notifySpeakerphone(false);

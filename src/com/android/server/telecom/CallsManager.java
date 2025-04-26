@@ -1037,18 +1037,18 @@ public class CallsManager extends Call.ListenerBase
         CallScreeningServiceFilter carrierCallScreeningServiceFilter =
                 new CallScreeningServiceFilter(incomingCall, carrierPackageName,
                         CallScreeningServiceFilter.PACKAGE_TYPE_CARRIER, mContext, this,
-                        appLabelProxy, converter);
+                        appLabelProxy, converter, mFeatureFlags);
         CallScreeningServiceFilter callScreeningServiceFilter;
         if ((userChosenPackageName != null)
                 && (!userChosenPackageName.equals(defaultDialerPackageName))) {
             callScreeningServiceFilter = new CallScreeningServiceFilter(incomingCall,
                     userChosenPackageName, CallScreeningServiceFilter.PACKAGE_TYPE_USER_CHOSEN,
-                    mContext, this, appLabelProxy, converter);
+                    mContext, this, appLabelProxy, converter, mFeatureFlags);
         } else {
             callScreeningServiceFilter = new CallScreeningServiceFilter(incomingCall,
                     defaultDialerPackageName,
                     CallScreeningServiceFilter.PACKAGE_TYPE_DEFAULT_DIALER,
-                    mContext, this, appLabelProxy, converter);
+                    mContext, this, appLabelProxy, converter, mFeatureFlags);
         }
         graph.addFilter(voicemailFilter);
         graph.addFilter(dndCallFilter);
@@ -3237,8 +3237,20 @@ public class CallsManager extends Call.ListenerBase
             }).start();
         }
 
-        final boolean requireCallCapableAccountByHandle = mContext.getResources().getBoolean(
-                com.android.internal.R.bool.config_requireCallCapableAccountForHandle);
+        final boolean requireCallCapableAccountByHandle;
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            // This was previously only configured "true" for wear and cuttlefish builds.
+            // For cases where no target phone account handle were given this determines whether
+            // the phone account registrar query to get call capable phone accounts looks for a
+            // specific URI scheme or not.  On non-wear and cuttlefish builds we ued to just check
+            // all call capable phone accounts without accounting for scheme; that logic was
+            // flawed since dialing a tel: uri number REQUIRES a call capable tel: phone account.
+            // We are in effect removing this option.
+            requireCallCapableAccountByHandle = true;
+        } else {
+            requireCallCapableAccountByHandle = mContext.getResources().getBoolean(
+                    com.android.internal.R.bool.config_requireCallCapableAccountForHandle);
+        }
         final boolean isOutgoingCallPermitted = isOutgoingCallPermitted(call,
                 call.getTargetPhoneAccount());
         final String callHandleScheme =

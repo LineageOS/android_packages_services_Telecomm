@@ -74,9 +74,9 @@ public class ParcelableCallUtils {
         }
 
         public ParcelableCall toParcelableCallForScreening(Call call,
-                boolean areRestrictedExtrasIncluded) {
+                boolean areRestrictedExtrasIncluded, boolean includePhoneAccountHandle) {
             return ParcelableCallUtils.toParcelableCallForScreening(call,
-                    areRestrictedExtrasIncluded);
+                    areRestrictedExtrasIncluded, includePhoneAccountHandle);
         }
     }
 
@@ -315,11 +315,12 @@ public class ParcelableCallUtils {
      * {@link android.telecom.CallScreeningService}.  We ONLY expose the following:
      * <ul>
      *     <li>Call Id (not exposed to public, but needed to associated calls)</li>
-     *     <li>Call directoin</li>
+     *     <li>Call direction</li>
      *     <li>Creation time</li>
      *     <li>Connection time</li>
      *     <li>Handle (phone number)</li>
      *     <li>Handle (phone number) presentation</li>
+     *     <li>{@code PhoneAccountHandle}</li>
      *     <li>Caller number verification status (verstat)</li>
      * </ul>
      * All other fields are nulled or set to 0 values.
@@ -330,10 +331,12 @@ public class ParcelableCallUtils {
      * @param areRestrictedExtrasIncluded {@code true} if the set of restricted extras defined in
      *                                    {@link #RESTRICTED_CALL_SCREENING_EXTRA_KEYS} are to
      *                                    be included in the parceled call, {@code false} otherwise.
+     * @param includePhoneAccountHandle {@code true} if {@code PhoneAccountHandle} to be included
+     *                                    in the parceled call, {@code false} otherwise.
      * @return Minimal {@link ParcelableCall} to send to the call screening service.
      */
     public static ParcelableCall toParcelableCallForScreening(Call call,
-            boolean areRestrictedExtrasIncluded) {
+            boolean areRestrictedExtrasIncluded, boolean includePhoneAccountHandle) {
         Uri handle = call.getHandlePresentation() == TelecomManager.PRESENTATION_ALLOWED ?
                 call.getHandle() : null;
         int callDirection;
@@ -366,7 +369,8 @@ public class ParcelableCallUtils {
                 .setCallerDisplayName(null)
                 .setCallerDisplayNamePresentation(0)
                 .setGatewayInfo(null)
-                .setAccountHandle(null)
+                .setAccountHandle(includePhoneAccountHandle ?
+                        call.getDelegatePhoneAccountHandle() : null)
                 .setIsVideoCallProviderChanged(false)
                 .setVideoCallProvider(null)
                 .setIsRttCallChanged(false)

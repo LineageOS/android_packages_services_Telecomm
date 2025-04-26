@@ -444,4 +444,14 @@
     <!-- In-call screen: error message shown when the user attempts to dial an MMI code during an
          ongoing emergency call. -->
     <string name="emergencyCall_reject_mmi">MMI codes cannot be dialed during an emergency call.</string>
+    <!-- Text to display when attempting to send an SMS in response to an incoming call but there
+         no SMS apps on the device.  Realistically should never happen.
+         This is a copy of the frameworks noApplications resource with the message ID specified. -->
+    <!-- [BACKUP_MESSAGE_ID: 1186909265235544019] -->
+    <string name="noApplications">No apps can perform this action.</string>
+
+    <!-- Label for the Android system components when they are shown to the user.
+         Used when referring to "android" from the incoming call notification. -->
+    <!-- [BACKUP_MESSAGE_ID: 5974767339591067210] -->
+    <string name="android_system_label">Android System</string>
 </resources>

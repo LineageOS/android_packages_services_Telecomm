@@ -32,6 +32,7 @@ import android.telecom.TelecomManager;
 
 import com.android.internal.telecom.ICallScreeningAdapter;
 import com.android.internal.telecom.ICallScreeningService;
+import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.AppLabelProxy;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallScreeningServiceHelper;
@@ -57,6 +58,7 @@ public class CallScreeningServiceFilter extends CallFilter {
     private final CallsManager mCallsManager;
     private CharSequence mAppName;
     private final ParcelableCallUtils.Converter mParcelableCallUtilsConverter;
+    private final FeatureFlags mFeatureFlags;
 
     private class CallScreeningAdapter extends ICallScreeningAdapter.Stub {
         private CompletableFuture<CallFilteringResult> mResultFuture;
@@ -223,7 +225,8 @@ public class CallScreeningServiceFilter extends CallFilter {
             try {
                 callScreeningService.screenCall(new CallScreeningAdapter(mResultFuture),
                         mParcelableCallUtilsConverter.
-                                toParcelableCallForScreening(mCall, isSystemDialer()));
+                                toParcelableCallForScreening(mCall, isSystemDialer(),
+                                        hasReadPrivilegedPhoneStatePermission()));
             } catch (RemoteException e) {
                 Log.e(this, e, "Failed to set the call screening adapter");
                 mResultFuture.complete(mPriorStageResult);
@@ -261,7 +264,8 @@ public class CallScreeningServiceFilter extends CallFilter {
             Context context,
             CallsManager callsManager,
             AppLabelProxy appLabelProxy,
-            ParcelableCallUtils.Converter parcelableCallUtilsConverter) {
+            ParcelableCallUtils.Converter parcelableCallUtilsConverter,
+            FeatureFlags featureFlags) {
         super();
         mCall = call;
         mPackageName = packageName;
@@ -272,6 +276,7 @@ public class CallScreeningServiceFilter extends CallFilter {
         mAppName = appLabelProxy.getAppLabel(mPackageName,
                 mCall.getAssociatedUser());
         mParcelableCallUtilsConverter = parcelableCallUtilsConverter;
+        mFeatureFlags = featureFlags;
     }
 
     @Override
@@ -313,6 +318,15 @@ public class CallScreeningServiceFilter extends CallFilter {
                     mPackageName);
         }
         return permission == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private boolean hasReadPrivilegedPhoneStatePermission() {
+        if (!mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            return false;
+        }
+        return mPackageManager != null
+                && mPackageManager.checkPermission(Manifest.permission.READ_PRIVILEGED_PHONE_STATE,
+                        mPackageName) == PackageManager.PERMISSION_GRANTED;
     }
 
     private void bindCallScreeningService(

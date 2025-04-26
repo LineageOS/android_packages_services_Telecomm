@@ -63,7 +63,6 @@ import android.util.ArraySet;
 import android.util.Pair;
 
 import com.android.internal.annotations.VisibleForTesting;
-// TODO: Needed for move to system service: import com.android.internal.R;
 import com.android.internal.telecom.IInCallService;
 import com.android.internal.util.ArrayUtils;
 import com.android.internal.util.IndentingPrintWriter;

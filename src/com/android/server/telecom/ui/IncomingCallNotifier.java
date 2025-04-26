@@ -208,8 +208,14 @@ public class IncomingCallNotifier extends CallsManagerListenerBase {
         // Change the notification app name to "Android System" to sufficiently distinguish this
         // from the phone app's name.
         Bundle extras = new Bundle();
-        extras.putString(Notification.EXTRA_SUBSTITUTE_APP_NAME, mContext.getString(
-                com.android.internal.R.string.android_system_label));
+
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            extras.putString(Notification.EXTRA_SUBSTITUTE_APP_NAME, mContext.getString(
+                    com.android.server.telecom.R.string.android_system_label));
+        } else {
+            extras.putString(Notification.EXTRA_SUBSTITUTE_APP_NAME, mContext.getString(
+                    com.android.internal.R.string.android_system_label));
+        }
 
         Intent answerIntent = new Intent(
                 TelecomBroadcastIntentProcessor.ACTION_ANSWER_FROM_NOTIFICATION, null, mContext,
