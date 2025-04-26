@@ -283,7 +283,6 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testAudioRouteForPreferredDeviceStrategy() {
-        when(mFeatureFlags.updatePreferredAudioDeviceLogic()).thenReturn(true);
         mController.initialize();
         mController.sendMessageWithSessionInfo(SWITCH_FOCUS, RINGING_FOCUS, 0);
         waitForRouteActiveStateAndVerify(true);
@@ -302,7 +301,6 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testAudioRouteCommunicationDeviceSyncWithPreferredDeviceStrategy() {
-        when(mFeatureFlags.updatePreferredAudioDeviceLogic()).thenReturn(true);
         mController.initialize();
         // Set up tests so that the current communication device is different from the preferred
         // device for strategy.

@@ -133,9 +133,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             try {
                 if (AudioManager.ACTION_SPEAKERPHONE_STATE_CHANGED.equals(intent.getAction())) {
                     if (mAudioManager != null) {
-                        AudioDeviceInfo info = mFeatureFlags.updatePreferredAudioDeviceLogic()
-                                ? getCurrentCommunicationDevice()
-                                : mAudioManager.getCommunicationDevice();
+                        AudioDeviceInfo info = getCurrentCommunicationDevice();
                         if ((info != null) &&
                                 (info.getType() == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER)) {
                             if (mCurrentRoute.getType() != AudioRoute.TYPE_SPEAKER) {
@@ -1330,10 +1328,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         // Get corresponding audio route
         @AudioRoute.AudioRouteType int type = DEVICE_INFO_TYPE_TO_AUDIO_ROUTE_TYPE.get(
                 deviceAttr.getType());
-        AudioDeviceInfo currentCommunicationDevice = null;
-        if (mFeatureFlags.updatePreferredAudioDeviceLogic()) {
-            currentCommunicationDevice = getCurrentCommunicationDevice();
-        }
+        AudioDeviceInfo currentCommunicationDevice = getCurrentCommunicationDevice();
         // We will default to TYPE_INVALID if the currentCommunicationDevice is null or the type
         // cannot be resolved from the given audio device info.
         int communicationDeviceAudioType = getAudioType(currentCommunicationDevice);
@@ -1480,7 +1475,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     public AudioRoute getBaseRoute(boolean includeBluetooth, String btAddressToExclude) {
         // Catch-all case for all invocations to this method where we shouldn't be using
         // getPreferredAudioRouteFromStrategy
-        if (mFeatureFlags.updatePreferredAudioDeviceLogic() && !mUsePreferredDeviceStrategy) {
+        if (!mUsePreferredDeviceStrategy) {
             return calculateBaselineRoute(false, includeBluetooth, btAddressToExclude);
         }
         AudioRoute destRoute = getPreferredAudioRouteFromStrategy();
