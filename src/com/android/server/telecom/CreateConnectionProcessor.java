@@ -29,8 +29,6 @@ import android.telecom.PhoneAccountHandle;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 
-// TODO: Needed for move to system service: import com.android.internal.R;
-
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.flags.Flags;
 import com.android.server.telecom.flags.FeatureFlags;

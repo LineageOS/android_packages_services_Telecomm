@@ -141,5 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Non se pode intercambiar a chamada activa porque non admite a función de pór en espera. Desconecta a chamada para activar a chamada en espera."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Non podes chamar porque te están chamando nestes momentos. Para poder facer unha chamada, primeiro tes que responder á outra ou rexeitala."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Este código MMI non está dispoñible para chamadas en varias contas."</string>
+    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
+    <skip />
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Non se poden marcar códigos MMI durante as chamadas de emerxencia."</string>
 </resources>

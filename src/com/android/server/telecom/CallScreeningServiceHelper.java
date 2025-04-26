@@ -117,10 +117,12 @@ public class CallScreeningServiceHelper {
                 Log.continueSession(mLoggingSession, "CSSH.oSC");
                 try {
                     try {
-                        // Note: for outgoing calls, never include the restricted extras.
+                        // Note: for outgoing calls, never include the restricted extras
+                        // and PhoneAccountHandle
                         screeningService.screenCall(new CallScreeningAdapter(this),
                                 mParcelableCallUtilsConverter.toParcelableCallForScreening(mCall,
-                                        false /* areRestrictedExtrasIncluded */));
+                                        false /* areRestrictedExtrasIncluded */,
+                                        false /* includePhoneAccountHandle */));
                     } catch (RemoteException e) {
                         Log.w(CallScreeningServiceHelper.this,
                                 "Cancelling call id due to remote exception");

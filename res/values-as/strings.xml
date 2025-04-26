@@ -141,5 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"সক্ৰিয় কলটো সলনাসলনি কৰিব নোৱাৰি কাৰণ এইটোৱে হ’ল্ডত ৰখাৰ সুবিধাটো সমৰ্থন নকৰে। হ’ল্ডত ৰখা কলটো সক্ৰিয় কৰিবলৈ, কলটোৰ সংযোগ বিচ্ছিন্ন কৰক।"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"কল কৰিব নোৱাৰি, কাৰণ এটা অন্তৰ্গামী কল প্ৰগতিত আছে যাৰ উত্তৰ দিয়া হোৱা নাই। এটা নতুন কল কৰাৰ আগেয়ে অন্তৰ্গামী কলটোৰ উত্তৰ দিয়ক বা সেইটো প্ৰত্যাখ্যান কৰক।"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"একাধিক একাউণ্টৰ মাজত কল কৰাৰ বাবে এই MMI ক’ডটো উপলব্ধ নহয়।"</string>
+    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
+    <skip />
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"জৰুৰীকালীন কলৰ সময়ত MMI ক’ড ডায়েল কৰিব নোৱাৰি।"</string>
 </resources>

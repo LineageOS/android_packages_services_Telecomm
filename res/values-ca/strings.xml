@@ -141,5 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"No es pot intercanviar la trucada activa perquè no admet la posada en espera. Desconnecta la trucada per activar la que està en espera."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"No es pot fer la trucada perquè hi ha una trucada entrant sense resposta. Respon-hi o rebutja-la abans de fer més trucades."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Aquest codi MMI no es pot utilitzar per fer trucades amb diversos comptes."</string>
+    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
+    <skip />
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"No es poden marcar codis MMI durant una trucada d\'emergència."</string>
 </resources>

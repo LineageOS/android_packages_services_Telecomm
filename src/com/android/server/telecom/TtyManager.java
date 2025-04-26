@@ -29,8 +29,6 @@ import android.telecom.TelecomManager;
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.flags.FeatureFlags;
 
-// TODO: Needed for move to system service: import com.android.internal.R;
-
 final class TtyManager implements WiredHeadsetManager.Listener {
     private final TtyBroadcastReceiver mReceiver = new TtyBroadcastReceiver();
     private final Context mContext;

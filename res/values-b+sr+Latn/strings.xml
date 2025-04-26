@@ -141,5 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Ne možete da zamenite aktivni poziv jer ne podržava stavljanje na čekanje. Prekinite poziv u toku da biste aktivirali poziv na čekanju."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Ne možete da pozovete jer imate dolazni poziv na koji niste odgovorili. Primite ga ili odbijte pre upućivanja novog poziva."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Ovaj MMI kôd nije dostupan za pozive na više naloga."</string>
+    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
+    <skip />
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Biranje MMI kodova noje moguće tokom hitnog poziva."</string>
 </resources>

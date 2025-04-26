@@ -74,12 +74,18 @@ public class RingtoneFactory {
         Ringtone ringtone = null;
 
         if (ringtoneUri != null && userContext != null) {
-            // Ringtone URI is explicitly specified. First, try to create a Ringtone with that.
-            try {
-                ringtone = RingtoneManager.getRingtone(
-                        userContext, ringtoneUri, volumeShaperConfig, audioAttrs);
-            } catch (Exception e) {
-                Log.e(this, e, "getRingtone: exception while getting ringtone.");
+            if (currentUserOwnsRingtone(ringtoneUri, incomingCall)) {
+                // Ringtone URI is explicitly specified and owned by the current user - try to
+                // create a Ringtone with that.
+                try {
+                    ringtone = RingtoneManager.getRingtone(
+                            userContext, ringtoneUri, volumeShaperConfig, audioAttrs);
+                } catch (Exception e) {
+                    Log.e(this, e, "getRingtone: exception while getting ringtone.");
+                }
+            } else {
+                Log.w(this, "getRingtone: Failed to verify that the custom ringtone URI"
+                        + " is owned by the current user. Falling back to the default ringtone.");
             }
         }
         if (ringtone == null) {
@@ -117,6 +123,23 @@ public class RingtoneFactory {
             }
         }
         return new Pair(ringtoneUri, ringtone);
+    }
+
+    private boolean currentUserOwnsRingtone(Uri ringtoneUri, Call incomingCall) {
+        if (ringtoneUri.getUserInfo() == null) {
+            // The current user set this custom ringtone:
+            return true;
+        }
+
+        UserHandle associatedUser = incomingCall.getAssociatedUser();
+        if (associatedUser == null) {
+            Log.d(this, "currentUserOwnsRingtone: The incoming call does not"
+                    + " have an associated user.");
+            return false;
+        }
+
+        String currentUserId = String.valueOf(associatedUser.getIdentifier());
+        return currentUserId.equals(ringtoneUri.getUserInfo());
     }
 
     private AudioAttributes getDefaultRingtoneAudioAttributes(boolean hapticChannelsMuted) {

@@ -40,8 +40,6 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.callredirection.CallRedirectionProcessor;
 
-// TODO: Needed for move to system service: import com.android.internal.R;
-
 /**
  * OutgoingCallIntentBroadcaster receives CALL and CALL_PRIVILEGED Intents, and broadcasts the
  * ACTION_NEW_OUTGOING_CALL intent. ACTION_NEW_OUTGOING_CALL is an ordered broadcast intent which

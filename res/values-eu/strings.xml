@@ -141,5 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Ezin da aldatu dei aktiboa, zain uzteko aukera onartzen ez duelako. Zain dagoen deia aktibatzeko, deskonektatu deia."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Ezin da egin deia, oraindik erantzun ez diozun dei bat jasotzen ari zarelako. Beste dei bat egin aurretik, erantzun deiari edo bazter ezazu."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"MMI kode hau ezin da erabili kontu baten baino gehiagoren bidez deiak egiteko."</string>
+    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
+    <skip />
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"MMI kodeak ezin dira markatu larrialdi-deietan."</string>
 </resources>

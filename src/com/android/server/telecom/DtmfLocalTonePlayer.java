@@ -30,8 +30,6 @@ import android.telecom.Logging.Session;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.flags.FeatureFlags;
 
-// TODO: Needed for move to system service: import com.android.internal.R;
-
 /**
  * Plays DTMF tones locally for the caller to hear. In order to reduce (1) the amount of times we
  * check the "play local tones" setting and (2) the length of time we keep the tone generator, this

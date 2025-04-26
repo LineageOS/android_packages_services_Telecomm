@@ -283,7 +283,6 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testAudioRouteForPreferredDeviceStrategy() {
-        when(mFeatureFlags.updatePreferredAudioDeviceLogic()).thenReturn(true);
         mController.initialize();
         mController.sendMessageWithSessionInfo(SWITCH_FOCUS, RINGING_FOCUS, 0);
         waitForRouteActiveStateAndVerify(true);
@@ -302,7 +301,6 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testAudioRouteCommunicationDeviceSyncWithPreferredDeviceStrategy() {
-        when(mFeatureFlags.updatePreferredAudioDeviceLogic()).thenReturn(true);
         mController.initialize();
         // Set up tests so that the current communication device is different from the preferred
         // device for strategy.
@@ -416,6 +414,7 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     @Test
     public void testVideoCallRouteToSpeaker() {
         when(mCall.getVideoState()).thenReturn(VideoProfile.STATE_BIDIRECTIONAL);
+        when(mCall.isActive()).thenReturn(true);
         mController.initialize();
         mController.sendMessageWithSessionInfo(SWITCH_FOCUS, ACTIVE_FOCUS, 0);
         // Verify that pending audio destination route is set to speaker. This will trigger pending
@@ -1456,6 +1455,84 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
                 any(CallAudioState.class), eq(expectedState));
         verify(mBluetoothDeviceManager, timeout(TEST_TIMEOUT).times(0)).disconnectSco();
+    }
+
+    @Test
+    @SmallTest
+    public void testClearPendingMessages() {
+        mController.initialize();
+
+        mController.sendMessageWithSessionInfo(SWITCH_FOCUS, ACTIVE_FOCUS, 0);
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+        assertTrue(mController.isActive());
+        CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_EARPIECE,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER, null,
+                new HashSet<>());
+        verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
+                any(CallAudioState.class), eq(expectedState));
+
+        // Mock testing for pending audio route. This will initialize the pending audio route with
+        // initialized orig + dest routes.
+        BluetoothDevice scoDevice =
+                BluetoothRouteManagerTest.makeBluetoothDevice("00:00:00:00:00:03");
+        mController.sendMessageWithSessionInfo(BT_DEVICE_ADDED, AudioRoute.TYPE_BLUETOOTH_SCO,
+                BLUETOOTH_DEVICE_1);
+        mController.sendMessageWithSessionInfo(BT_DEVICE_ADDED, AudioRoute.TYPE_BLUETOOTH_SCO,
+                scoDevice);
+        BLUETOOTH_DEVICES.add(scoDevice);
+        expectedState = new CallAudioState(false, CallAudioState.ROUTE_EARPIECE,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH
+                        | CallAudioState.ROUTE_SPEAKER, null, BLUETOOTH_DEVICES);
+        verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
+                any(CallAudioState.class), eq(expectedState));
+
+        // Add pending BT_AUDIO_DISCONNECTED msg and verify it's removed when we get
+        // BT_AUDIO_CONNECTED.
+        mController.getPendingAudioRoute().addMessage(BT_AUDIO_DISCONNECTED, BT_ADDRESS_1);
+        mController.getPendingAudioRoute().addMessage(SPEAKER_OFF, null);
+        mController.sendMessageWithSessionInfo(BT_AUDIO_CONNECTED, 0, BLUETOOTH_DEVICE_1);
+        mController.overrideIsPending(true);
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+        assertFalse(mController.getPendingAudioRoute().getPendingMessages().contains(
+                new Pair<>(BT_AUDIO_DISCONNECTED, BT_ADDRESS_1)));
+        // Verify the speaker off message was cleared as well and the status bar notifier was
+        // invoked.
+        assertFalse(mController.getPendingAudioRoute().getPendingMessages().contains(
+                new Pair<>(SPEAKER_OFF, null)));
+        verify(mockStatusBarNotifier, timeout(TEST_TIMEOUT)).notifySpeakerphone(anyBoolean());
+
+        // Add pending BT_AUDIO_CONNECTED msg and verify it's removed when we get
+        // BT_AUDIO_DISCONNECTED.
+        mController.getPendingAudioRoute().addMessage(BT_AUDIO_CONNECTED, BT_ADDRESS_1);
+        mController.sendMessageWithSessionInfo(BT_AUDIO_DISCONNECTED, 0, BLUETOOTH_DEVICE_1);
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+        assertFalse(mController.getPendingAudioRoute().getPendingMessages().contains(
+                new Pair<>(BT_AUDIO_CONNECTED, BT_ADDRESS_1)));
+
+        // Verify the same for SPEAKER_ON that SPEAKER_OFF and BT_AUDIO_DISCONNECTED messages are
+        // cleared
+        mController.getPendingAudioRoute().addMessage(BT_AUDIO_DISCONNECTED, BT_ADDRESS_1);
+        mController.getPendingAudioRoute().addMessage(BT_AUDIO_DISCONNECTED,
+                scoDevice.getAddress());
+        mController.getPendingAudioRoute().addMessage(SPEAKER_OFF, null);
+        mController.sendMessageWithSessionInfo(SPEAKER_ON);
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+        assertFalse(mController.getPendingAudioRoute().getPendingMessages().contains(
+                new Pair<>(BT_AUDIO_DISCONNECTED, BT_ADDRESS_1)));
+        assertFalse(mController.getPendingAudioRoute().getPendingMessages().contains(
+                new Pair<>(BT_AUDIO_DISCONNECTED, scoDevice.getAddress())));
+        // Verify the speaker off message was cleared as well and the status bar notifier was
+        // invoked.
+        assertFalse(mController.getPendingAudioRoute().getPendingMessages().contains(
+                new Pair<>(SPEAKER_OFF, null)));
+
+        // Verify that for SPEAKER_OFF, we clear the SPEAKER_ON pending message
+        mController.getPendingAudioRoute().addMessage(SPEAKER_ON, null);
+        mController.sendMessageWithSessionInfo(SPEAKER_OFF);
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+        assertFalse(mController.getPendingAudioRoute().getPendingMessages().contains(
+                new Pair<>(SPEAKER_ON, null)));
+        BLUETOOTH_DEVICES.remove(scoDevice);
     }
 
     private void verifyConnectBluetoothDevice(int audioType) {

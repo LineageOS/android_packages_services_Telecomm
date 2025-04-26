@@ -141,5 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"यो कलमा होल्ड गर्ने सुविधा उपलब्ध नभएकाले यो कल बदल्न मिल्दैन। होल्डमा राखिएको कल सक्रिय बनाउन यो कल काट्नुहोस्।"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"अहिले आइरहेको कल नउठाइएको हुनाले नयाँ कल गर्न सकिँदैन। नयाँ कल गर्नुअघि उक्त कल उठाउनुहोस् वा काट्नुहोस्।"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"अर्को खातामार्फत कल चलिरहेका बेला यो MMI कोड प्रयोग गर्न मिल्दैन।"</string>
+    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
+    <skip />
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"आपत्कालीन कल चलिरहेका बेला MMI कोड डायल गर्न मिल्दैन।"</string>
 </resources>

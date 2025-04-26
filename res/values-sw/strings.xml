@@ -141,5 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Huwezi kubadilisha simu inayoendelea kwa sababu haiwezi kusubirishwa. Kata simu ili uendele na simu iliyosubirishwa."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Haiwezi kupiga simu kwa sababu kuna simu unayopigiwa ambayo hujajibu. Jibu au ukatae simu hiyo unayopigiwa kabla ya kupiga simu mpya."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Msimbo huu wa MMI haupatikani katika simu kwenye akaunti nyingi."</string>
+    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
+    <skip />
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Huwezi kupiga misimbo ya MMI wakati wa simu ya dharura."</string>
 </resources>

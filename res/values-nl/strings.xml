@@ -141,5 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Kan niet overschakelen vanuit het actieve gesprek, omdat het gesprek niet in de wacht kan worden gezet. Verbreek de verbinding om het gesprek dat in de wacht staat actief te maken."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Kan niet bellen omdat er een niet-beantwoord inkomend gesprek is. Beantwoord of weiger het inkomende gesprek voordat je opnieuw belt."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Deze MMI-code is niet beschikbaar voor gesprekken met meerdere accounts."</string>
+    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
+    <skip />
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Je kunt geen MMI-code kiezen tijdens een noodoproep."</string>
 </resources>

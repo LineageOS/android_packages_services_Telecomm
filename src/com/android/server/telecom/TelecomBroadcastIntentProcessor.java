@@ -293,7 +293,9 @@ public final class TelecomBroadcastIntentProcessor {
         if (activities.size() > 0) {
             mContext.startActivityAsUser(callIntent, userHandle);
         } else {
-            Toast.makeText(mContext, com.android.internal.R.string.noApplications,
+            // Should never happen but toast just in case (skipped the flag since we will never hit
+            // this case anyways).
+            Toast.makeText(mContext, com.android.server.telecom.R.string.noApplications,
                     Toast.LENGTH_SHORT).show();
         }
     }

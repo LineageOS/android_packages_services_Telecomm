@@ -92,4 +92,8 @@
         <!-- Used for internal targets -->
         <item>com.google.android.bluetooth</item>
     </string-array>
+
+    <!-- String array containing numbers that shouldn't be logged. Country-specific.
+         Copied from frameworks/base/core/res/res/values/config.xml -->
+    <string-array name="unloggable_phone_numbers" />
 </resources>

@@ -16,14 +16,3 @@ flag {
   description: "Enables simultaneous call sequencing for SIM PhoneAccounts"
   bug: "327038818"
 }
-
-# OWNER=tgunn TARGET=25Q2
-flag {
-  name: "enable_call_audio_watchdog"
-  namespace: "telecom"
-  description: "Enables tracking of audio resources for voip calls to aid in diagnostics."
-  bug: "384570270"
-  metadata {
-    purpose: PURPOSE_BUGFIX
-  }
-}

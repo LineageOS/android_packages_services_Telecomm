@@ -56,7 +56,6 @@ import android.util.Base64;
 import android.util.EventLog;
 import android.util.Xml;
 
-// TODO: Needed for move to system service: import com.android.internal.R;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telephony.flags.FeatureFlags;
 import com.android.internal.util.IndentingPrintWriter;
