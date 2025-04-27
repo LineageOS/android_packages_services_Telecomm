@@ -141,7 +141,6 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Nu se poate schimba apelul activ deoarece nu acceptă punerea în așteptare. Închide apelul pentru a activa apelul în așteptare."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Nu se poate iniția un apel când primești un apel la care nu ai răspuns. Răspunde sau respinge apelul primit înainte de a iniția un apel nou."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Acest cod MMI nu este disponibil pentru apelurile din mai multe conturi."</string>
-    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
-    <skip />
+    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Apelul nu poate fi deconectat în timpul îmbinării."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Codurile MMI nu pot fi formate în timpul unui apel de urgență."</string>
 </resources>

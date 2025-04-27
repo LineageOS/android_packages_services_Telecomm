@@ -141,7 +141,6 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"ଏହି ସକ୍ରିୟ କଲ ହୋଲ୍ଡକୁ ସପୋର୍ଟ କରୁନଥିବା ଯୋଗୁଁ ଏହାକୁ ସ୍ଵାପ କରାଯାଇପାରିବ ନାହିଁ। ହୋଲ୍ଡରେ ଥିବା କଲକୁ ସକ୍ରିୟ କରିବା ପାଇଁ କଲକୁ ଡିସକନେକ୍ଟ କରନ୍ତୁ।"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"ଗୋଟିଏ ଉତ୍ତର ଦିଆଯାଇନଥିବା ଇନକମିଂ କଲ ଥିବା ଯୋଗୁଁ ଅନ୍ୟ ଏକ କଲ କରିପାରିବେ ନାହିଁ। ଏକ ନୂଆ କଲ କରିବା ପୂର୍ବରୁ ଇନକମିଂ କଲଟିର ଉତ୍ତର ଦିଅନ୍ତୁ କିମ୍ବା ଏହାକୁ ଅଗ୍ରାହ୍ୟ କରନ୍ତୁ।"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ଏକାଧିକ ଆକାଉଣ୍ଟରେ କଲଗୁଡ଼ିକ ପାଇଁ ଏହି MMI କୋଡ ଉପଲବ୍ଧ ନାହିଁ।"</string>
-    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
-    <skip />
+    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"ଏକ ମର୍ଜ ସମୟରେ କଲ ଡିସକନେକ୍ଟ ହୋଇପାରିବ ନାହିଁ।"</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"ଏକ ଜରୁରୀକାଳୀନ କଲ ସମୟରେ MMI କୋଡଗୁଡ଼ିକ ଡାଏଲ କରାଯାଇପାରିବ ନାହିଁ।"</string>
 </resources>

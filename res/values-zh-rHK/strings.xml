@@ -141,7 +141,6 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"無法切換通話，因為目前的通話無法保留。請掛斷目前的通話，即可繼續接聽保留中的通話。"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"你尚未接聽目前的來電，因此無法撥打電話。請先接聽或拒絕來電，然後再撥打電話。"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"在透過多個帳戶進行通話時，無法使用 MMI 碼。"</string>
-    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
-    <skip />
+    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"合併期間無法中斷通話。"</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"進行緊急電話時無法撥打 MMI 碼"</string>
 </resources>

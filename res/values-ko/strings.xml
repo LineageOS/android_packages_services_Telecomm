@@ -141,7 +141,6 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"대기 중인 통화는 지원되지 않으므로 활성 통화를 전환할 수 없습니다. 대기 중인 통화를 활성화하려면 진행 중인 통화를 끊으세요."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"받지 않은 수신 전화가 있으므로 전화를 걸 수 없습니다. 새로 전화를 걸기 전에 수신 전화를 받거나 거절하세요."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"이 MMI 코드는 여러 계정 간에 통화에 사용할 수 없습니다."</string>
-    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
-    <skip />
+    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"통화 병합 중에는 통화를 끊을 수 없습니다."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"긴급 전화 중에는 MMI 코드로 전화를 걸 수 없습니다."</string>
 </resources>

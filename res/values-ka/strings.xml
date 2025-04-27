@@ -141,7 +141,6 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"აქტიური ზარის შენაცვლება შეუძლებელია, რადგან მას არ აქვს მოცდის მხარდაჭერა. გათიშეთ მიმდინარე ზარი შეყოვნებული ზარის გასააქტიურებლად."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"ზარის განხორციელება შეუძლებელია, რადგან გაქვთ უპასუხო შემომავალი ზარი. უპასუხეთ ან უარყავით შემომავალი ზარი ახალი ზარის განხორციელებამდე."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ეს MMI კოდი ხელმისაწვდომი არ არის სხვადასხვა ანგარიშზე ზარების განხორცილებისას."</string>
-    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
-    <skip />
+    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"ზარის გათიშვა შეუძლებელია გაერთიანების დროს."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"MMI კოდების აკრეფა შეუძლებელია გადაუდებელი ზარის განხორციელებისას."</string>
 </resources>

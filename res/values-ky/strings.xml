@@ -141,7 +141,6 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Кармап турууну колдоого албагандыктан жигердүү чалууну которуштурууга болбойт. Кармалып турган чалууну жигердүү кылуу үчүн учурдагы чалууну ажыратыңыз."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Чалуу аткарылбайт, анткени кирүүчү чалууга жооп берилген жок. Жаңы чалуу аткаруудан мурун кирүүчү чалууга жооп бериңиз же четке кагыңыз."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Бул MMI коду бир нече аккаунт аркылуу чалуулар үчүн жеткиликсиз."</string>
-    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
-    <skip />
+    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Бириктирип жатканда чалууну ажыратуу мүмкүн эмес."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Шашылыш чалуу учурунда MMI коддорун терүүгө болбойт."</string>
 </resources>

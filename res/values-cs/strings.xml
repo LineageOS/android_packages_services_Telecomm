@@ -141,7 +141,6 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Aktivní hovor nejde přepnout, protože nepodporuje přidržení. Pokud chcete přejít do přidrženého hovoru, ten stávající zavěste."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Nemůžete uskutečnit hovor, protože máte nepřijatý příchozí hovor. Nejdřív ho tedy přijměte nebo odmítněte."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Tento kód MMI není k dispozici pro hovory ve více účtech."</string>
-    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
-    <skip />
+    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Během slučování se hovor nedá odpojit."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Při tísňovém volání nelze vytáčet kódy MMI."</string>
 </resources>

@@ -141,7 +141,6 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Aktiv zəng gözlədilməni dəstəkləmədiyi üçün onu dəyişdirmək olmur. Gözlədilən zəngi aktivləşdirmək üçün zəngi dayandırın."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Cavabsız gələn zəng olduğuna görə zəng etmək mümkün deyil. Yeni zəngə başlamazdan əvvəl gələn zəngə cavab verin və ya rədd edin."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Bu MMI kodu birdən çox hesab üzrə zənglər üçün əlçatan deyil."</string>
-    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
-    <skip />
+    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Birləşdirmə zamanı zəng dayandırıla bilməz."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Təcili zəng zamanı MMI kodlarını yığmaq olmur."</string>
 </resources>

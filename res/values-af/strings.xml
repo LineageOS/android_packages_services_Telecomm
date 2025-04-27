@@ -141,7 +141,6 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Kan nie die aktiewe oproep ruil nie, want dit steun nie aanhou nie. Beëindig die oproep om die oproep wat aanhou aktief te maak."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Kan nie ’n oproep maak nie, aangesien daar ’n onbeantwoorde inkomende oproep is. Beantwoord of weier die inkomende oproep voordat jy ’n nuwe oproep plaas."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Hierdie MMI-kode is nie beskikbaar vir oproepe tussen verskeie rekeninge nie."</string>
-    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
-    <skip />
+    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Oproep kan nie tydens ’n samevoeging beëindig word nie."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"MMI-kodes kan nie tydens ’n noodoproep geskakel word nie."</string>
 </resources>

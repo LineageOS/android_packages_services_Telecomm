@@ -141,7 +141,6 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Չհաջողվեց ակտիվացնել մյուս զանգը, քանի որ ընթացիկ զանգը չի աջակցում սպասման ռեժիմը։ Ավարտեք ընթացիկ զանգը, որպեսզի ակտիվացնեք սպասման մեջ գտնվող զանգը։"</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Հնարավոր չէ զանգել, քանի որ անպատասխան մուտքային զանգ կա։ Նախքան նոր զանգ կատարելը պատասխանեք մուտքային զանգին կամ մերժեք այն։"</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Այս MMI կոդը հասանելի չէ մի քանի հաշիվների օգտագործմամբ զանգերի համար։"</string>
-    <!-- no translation found for call_hangup_fail_during_merge (4216015878956379200) -->
-    <skip />
+    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Միավորման ժամանակ զանգը հնարավոր չէ անջատել։"</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Շտապ կանչի ընթացքում MMI կոդերի հավաքումը հնարավոր չէ։"</string>
 </resources>
