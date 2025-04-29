@@ -143,4 +143,8 @@
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"हा MMI कोड एकाहून अधिक खात्यांवरील कॉलसाठी उपलब्ध नाही."</string>
     <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"मर्ज करणे सुरू असताना कॉल डिस्कनेक्ट करता येत नाही."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"आणीबाणीच्या कॉल दरम्यान MMI कोड डायल केले जाऊ शकत नाहीत."</string>
+    <!-- no translation found for noApplications (1703149220378476198) -->
+    <skip />
+    <!-- no translation found for android_system_label (2730611410547215779) -->
+    <skip />
 </resources>

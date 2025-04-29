@@ -143,4 +143,6 @@
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"This MMI code is not available for calls across multiple accounts."</string>
     <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Call cannot be disconnected during a merge."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"MMI codes cannot be dialed during an emergency call."</string>
+    <string name="noApplications" msgid="1703149220378476198">"No apps can perform this action."</string>
+    <string name="android_system_label" msgid="2730611410547215779">"Android System"</string>
 </resources>

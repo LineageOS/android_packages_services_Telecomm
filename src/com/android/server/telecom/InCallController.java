@@ -83,6 +83,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -3292,8 +3293,15 @@ public class InCallController extends CallsManagerListenerBase implements
      */
     private boolean isTrackingManagedAliveCall() {
         return mCallIdMapper.getCalls().stream().anyMatch(c -> !c.isExternalCall()
-            && !c.isSelfManaged() && c.isAlive() && ArrayUtils.contains(LIVE_CALL_STATES,
-                c.getState()));
+                && !c.isSelfManaged() && c.isAlive() && isCallInLiveCallState(c));
+    }
+
+    private boolean isCallInLiveCallState(Call call) {
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            return IntStream.of(LIVE_CALL_STATES).anyMatch(element -> element == call.getState());
+        } else {
+            return ArrayUtils.contains(LIVE_CALL_STATES, call.getState());
+        }
     }
 
     private boolean isCarrierPrivilegedUsingMicDuringVoipCall() {

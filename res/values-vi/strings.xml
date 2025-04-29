@@ -143,4 +143,8 @@
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Mã MMI này không dùng được cho các cuộc gọi trên nhiều tài khoản."</string>
     <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Không thể ngắt kết nối cuộc gọi trong khi hợp nhất."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Không thể quay số mã MMI trong khi thực hiện cuộc gọi khẩn cấp."</string>
+    <!-- no translation found for noApplications (1703149220378476198) -->
+    <skip />
+    <!-- no translation found for android_system_label (2730611410547215779) -->
+    <skip />
 </resources>

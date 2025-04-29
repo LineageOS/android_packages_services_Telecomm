@@ -143,4 +143,6 @@
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ລະຫັດ MMI ນີ້ແມ່ນໃຊ້ບໍ່ໄດ້ສໍາລັບການໂທດ້ວຍຫຼາຍບັນຊີ."</string>
     <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"ບໍ່ສາມາດຕັດການເຊື່ອມຕໍ່ການໂທໃນລະຫວ່າງການຮວມໄດ້."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"ບໍ່ສາມາດກົດລະຫັດ MMI ໄດ້ໃນລະຫວ່າງການໂທ​ສຸກ​ເສີນໄດ້."</string>
+    <string name="noApplications" msgid="1703149220378476198">"ບໍ່ມີແອັບໃດສາມາດເຮັດວຽກນີ້ໄດ້."</string>
+    <string name="android_system_label" msgid="2730611410547215779">"ລະບົບ Android"</string>
 </resources>

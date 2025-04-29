@@ -143,4 +143,6 @@
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Kod MMI ini tidak tersedia untuk panggilan merentas berbilang akaun."</string>
     <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Panggilan tidak dapat diputuskan semasa penggabungan."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Kod MMI tidak boleh didail semasa panggilan kecemasan."</string>
+    <string name="noApplications" msgid="1703149220378476198">"Tiada apl yang boleh menjalankan tindakan ini."</string>
+    <string name="android_system_label" msgid="2730611410547215779">"Sistem Android"</string>
 </resources>

@@ -143,4 +143,6 @@
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"此 MMI 码无法用于跨多个账号的通话。"</string>
     <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"合并期间无法断开通话。"</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"在紧急呼叫期间，无法拨打 MMI 码。"</string>
+    <string name="noApplications" msgid="1703149220378476198">"没有应用可执行此操作。"</string>
+    <string name="android_system_label" msgid="2730611410547215779">"Android 系统"</string>
 </resources>

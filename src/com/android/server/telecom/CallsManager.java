@@ -920,10 +920,6 @@ public class CallsManager extends Call.ListenerBase
         call.setPostCallPackageName(getRoleManagerAdapter().getDefaultCallScreeningApp(
                 call.getAssociatedUser()));
 
-        if (!mFeatureFlags.fixAudioFlickerForOutgoingCalls()) {
-            setCallState(call, callState, "successful outgoing call");
-        }
-
         if (!mCalls.contains(call)) {
             // Call was not added previously in startOutgoingCall due to it being a potential MMI
             // code, so add it now.
@@ -935,16 +931,11 @@ public class CallsManager extends Call.ListenerBase
             listener.onConnectionServiceChanged(call, null, call.getConnectionService());
         }
 
-        if (mFeatureFlags.fixAudioFlickerForOutgoingCalls()) {
-            // Allow the ConnectionService to start the call in the active state. This case is
-            // helpful for conference calls or meetings that can skip the dialing stage.
-            if (callState == CallState.ACTIVE) {
-                setCallState(call, callState, "skipping the dialing state and setting active");
-            } else {
-                markCallAsDialing(call);
-            }
-        }
-        else{
+        // Allow the ConnectionService to start the call in the active state. This case is
+        // helpful for conference calls or meetings that can skip the dialing stage.
+        if (callState == CallState.ACTIVE) {
+            setCallState(call, callState, "skipping the dialing state and setting active");
+        } else {
             markCallAsDialing(call);
         }
     }

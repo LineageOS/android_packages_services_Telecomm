@@ -143,4 +143,6 @@
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Ez az MMI-kód nem áll rendelkezésre hívásokhoz több fiók használata esetén."</string>
     <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"A hívás nem szakítható meg egyesítés közben."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Segélyhívás közben nem lehet MMI-kódot tárcsázni."</string>
+    <string name="noApplications" msgid="1703149220378476198">"Egy alkalmazás sem tudja végrehajtani ezt a műveletet."</string>
+    <string name="android_system_label" msgid="2730611410547215779">"Android rendszer"</string>
 </resources>
