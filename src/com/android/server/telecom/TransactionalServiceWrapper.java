@@ -33,20 +33,19 @@ import android.telecom.CallStreamingService;
 import android.telecom.DisconnectCause;
 import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
-import android.text.TextUtils;
 
 import androidx.annotation.VisibleForTesting;
 
 import com.android.internal.telecom.ICallControl;
 import com.android.internal.telecom.ICallEventCallback;
+import com.android.server.telecom.callsequencing.CallTransaction;
+import com.android.server.telecom.callsequencing.CallTransactionResult;
+import com.android.server.telecom.callsequencing.TransactionManager;
 import com.android.server.telecom.callsequencing.TransactionalCallSequencingAdapter;
 import com.android.server.telecom.callsequencing.voip.CallEventCallbackAckTransaction;
 import com.android.server.telecom.callsequencing.voip.EndpointChangeTransaction;
-import com.android.server.telecom.callsequencing.voip.SetMuteStateTransaction;
 import com.android.server.telecom.callsequencing.voip.RequestVideoStateTransaction;
-import com.android.server.telecom.callsequencing.TransactionManager;
-import com.android.server.telecom.callsequencing.CallTransaction;
-import com.android.server.telecom.callsequencing.CallTransactionResult;
+import com.android.server.telecom.callsequencing.voip.SetMuteStateTransaction;
 import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.Locale;
@@ -310,8 +309,8 @@ public class TransactionalServiceWrapper implements
             } else {
                 Bundle exceptionBundle = new Bundle();
                 exceptionBundle.putParcelable(TRANSACTION_EXCEPTION_KEY,
-                        new CallException(TextUtils.formatSimple(
-                        "Telecom cannot process [%s] because the call with id=[%s] is no longer "
+                        new CallException(String.format("Telecom cannot process [%s] because the"
+                                + " call with id=[%s] is no longer "
                                 + "being tracked. This is most likely a result of the call "
                                 + "already being disconnected and removed. Try re-adding the call"
                                 + " via TelecomManager#addCall", action, callId),

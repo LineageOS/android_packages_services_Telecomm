@@ -8,14 +8,3 @@ flag {
   description: "Gates whether to use a serialized, device-specific ring vibration."
   bug: "282113261"
 }
-
-# OWNER=tjstuart TARGET=25Q1
-flag {
-  name: "get_ringer_mode_anom_report"
-  namespace: "telecom"
-  description: "getRingerMode & getRingerModeInternal should return the same val when dnd is off"
-  bug: "307389562"
-    metadata {
-      purpose: PURPOSE_BUGFIX
-    }
-}

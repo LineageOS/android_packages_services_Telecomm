@@ -27,8 +27,6 @@ import android.telecom.Log;
 import android.telecom.Logging.Session;
 import android.telecom.Logging.SessionManager;
 
-import com.android.server.telecom.flags.Flags;
-
 import androidx.test.filters.SmallTest;
 
 import org.junit.After;
@@ -418,11 +416,9 @@ public class SessionManagerTest extends TelecomTestCase {
      * If Telecom gets into a situation where there are MANY sub-sessions created in a deep tree,
      * ensure that cleanup still happens properly.
      */
-    @SmallTest
+    @SmallTest 
     @Test
     public void testManySubsessionCleanupStress() {
-        // This test will mostly likely fail with recursion due to stack overflow
-        if (!Flags.endSessionImprovements()) return;
         Log.setIsExtendedLoggingEnabled(false);
         mTestSessionManager.mCurrentThreadId = () -> TEST_PARENT_THREAD_ID;
         mTestSessionManager.startSession(TEST_PARENT_NAME, null);

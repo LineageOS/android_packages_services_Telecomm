@@ -1,14 +1,6 @@
 package: "com.android.server.telecom.flags"
 container: "system"
 
-# OWNER=tjstuart TARGET=24Q3
-flag {
-  name: "fix_audio_flicker_for_outgoing_calls"
-  namespace: "telecom"
-  description: "This fix ensures the MO calls won't switch from Active to Quite b/c setDialing was not called"
-  bug: "309540769"
-}
-
 # OWNER=breadley TARGET=24Q3
 flag {
   name: "enable_call_sequencing"
