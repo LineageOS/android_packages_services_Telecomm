@@ -776,9 +776,6 @@ public class Ringer {
      * report if they diverge.
      */
     private void maybeGenAnomReportForGetRingerMode(boolean isZenModeOn, AudioManager am) {
-        if (!mFlags.getRingerModeAnomReport()) {
-            return;
-        }
         if (!isZenModeOn) {
             int ringerMode = am.getRingerMode();
             int ringerModeInternal = am.getRingerModeInternal();
