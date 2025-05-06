@@ -143,8 +143,6 @@
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Deze MMI-code is niet beschikbaar voor gesprekken met meerdere accounts."</string>
     <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Gesprek kan niet worden verbroken tijdens samenvoegen."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Je kunt geen MMI-code kiezen tijdens een noodoproep."</string>
-    <!-- no translation found for noApplications (1703149220378476198) -->
-    <skip />
-    <!-- no translation found for android_system_label (2730611410547215779) -->
-    <skip />
+    <string name="noApplications" msgid="1703149220378476198">"Geen enkele app kan deze actie uitvoeren."</string>
+    <string name="android_system_label" msgid="2730611410547215779">"Android-systeem"</string>
 </resources>

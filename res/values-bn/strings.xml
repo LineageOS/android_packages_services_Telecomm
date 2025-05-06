@@ -143,8 +143,6 @@
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"একাধিক অ্যাকাউন্ট জুড়ে কলের জন্য এই MMI কোড উপলভ্য নেই।"</string>
     <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"মার্জ করার সময় কল ডিসকানেক্ট করা যাবে না।"</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"জরুরি কলের সময় MMI কোড ডায়াল করা যাবে না।"</string>
-    <!-- no translation found for noApplications (1703149220378476198) -->
-    <skip />
-    <!-- no translation found for android_system_label (2730611410547215779) -->
-    <skip />
+    <string name="noApplications" msgid="1703149220378476198">"এই অ্যাকশনটি করার জন্য উপযুক্ত কোনও অ্যাপ ডিভাইসে নেই।"</string>
+    <string name="android_system_label" msgid="2730611410547215779">"Android System"</string>
 </resources>

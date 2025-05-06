@@ -143,8 +143,6 @@
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"មិនអាចប្រើលេខកូដ MMI នេះសម្រាប់ការហៅទូរសព្ទនៅលើ​គណនី​ច្រើនបានទេ។"</string>
     <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"មិនអាច​ផ្ដាច់​ការហៅទូរសព្ទ ក្នុង​អំឡុងពេល​ដាក់​ចូលគ្នា​បានទេ។"</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"មិនអាច​ចុចលេខ​កូដ MMI ក្នុង​អំឡុងពេល​ហៅ​ទៅលេខ​សង្គ្រោះ​បន្ទាន់​បានទេ។"</string>
-    <!-- no translation found for noApplications (1703149220378476198) -->
-    <skip />
-    <!-- no translation found for android_system_label (2730611410547215779) -->
-    <skip />
+    <string name="noApplications" msgid="1703149220378476198">"មិន​មាន​កម្មវិធី​ដែលអាចធ្វើ​សកម្មភាពនេះ​បាន​ទេ។"</string>
+    <string name="android_system_label" msgid="2730611410547215779">"ប្រព័ន្ធ Android"</string>
 </resources>

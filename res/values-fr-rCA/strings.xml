@@ -143,8 +143,6 @@
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Ce code IHM n\'est pas disponible pour les appels utilisant plusieurs comptes."</string>
     <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Impossible de déconnecter l\'appel pendant une fusion."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Impossible de composer un code IHM pendant un appel d\'urgence."</string>
-    <!-- no translation found for noApplications (1703149220378476198) -->
-    <skip />
-    <!-- no translation found for android_system_label (2730611410547215779) -->
-    <skip />
+    <string name="noApplications" msgid="1703149220378476198">"Aucune appli ne peut effectuer cette action."</string>
+    <string name="android_system_label" msgid="2730611410547215779">"Système Android"</string>
 </resources>

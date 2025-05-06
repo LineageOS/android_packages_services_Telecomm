@@ -143,8 +143,6 @@
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"किसी दूसरे खाते पर चल रहे कॉल के दौरान, इस एमएमआई कोड का इस्तेमाल नहीं किया जा सकता."</string>
     <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"किसी कॉल को मर्ज करने के दौरान उसे डिसकनेक्ट नहीं किया जा सकता."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"आपातकालीन कॉल के दौरान, MMI कोड डायल नहीं किए जा सकते."</string>
-    <!-- no translation found for noApplications (1703149220378476198) -->
-    <skip />
-    <!-- no translation found for android_system_label (2730611410547215779) -->
-    <skip />
+    <string name="noApplications" msgid="1703149220378476198">"कोई भी ऐप्लिकेशन यह कार्रवाई नहीं कर सकता."</string>
+    <string name="android_system_label" msgid="2730611410547215779">"Android सिस्टम"</string>
 </resources>

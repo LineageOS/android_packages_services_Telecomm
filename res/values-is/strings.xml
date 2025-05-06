@@ -143,8 +143,6 @@
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Þessi MMI-kóði er ekki í boði ef hringt er í marga reikninga."</string>
     <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Ekki er hægt að slíta símtali á meðan á sameiningu stendur."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Ekki er hægt að hringja MMI-kóða í neyðarsímtali."</string>
-    <!-- no translation found for noApplications (1703149220378476198) -->
-    <skip />
-    <!-- no translation found for android_system_label (2730611410547215779) -->
-    <skip />
+    <string name="noApplications" msgid="1703149220378476198">"Engin forrit geta framkvæmt þessa aðgerð."</string>
+    <string name="android_system_label" msgid="2730611410547215779">"Android-kerfið"</string>
 </resources>

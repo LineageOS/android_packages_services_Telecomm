@@ -143,8 +143,6 @@
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"ఈ MMI కోడ్ పలు ఖాతాలలో కాల్స్ కోసం అందుబాటులో లేదు."</string>
     <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"విలీనం చేస్తున్నప్పుడు కాల్‌ను డిస్‌కనెక్ట్ చేయడం సాధ్యం కాదు."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"ఎమర్జెన్సీ కాల్ సమయంలో MMI కోడ్‌లను డయల్ చేయడం సాధ్యం కాదు."</string>
-    <!-- no translation found for noApplications (1703149220378476198) -->
-    <skip />
-    <!-- no translation found for android_system_label (2730611410547215779) -->
-    <skip />
+    <string name="noApplications" msgid="1703149220378476198">"ఈ చర్యను అమలు చేయగల యాప్‌లు ఏవీ లేవు."</string>
+    <string name="android_system_label" msgid="2730611410547215779">"Android సిస్టమ్"</string>
 </resources>
