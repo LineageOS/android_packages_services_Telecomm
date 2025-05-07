@@ -21,6 +21,7 @@ import static com.android.server.telecom.TelecomStatsLog.CALL_STATS;
 import static com.android.server.telecom.TelecomStatsLog.TELECOM_API_STATS;
 import static com.android.server.telecom.TelecomStatsLog.TELECOM_ERROR_STATS;
 import static com.android.server.telecom.TelecomStatsLog.TELECOM_EVENT_STATS;
+import static com.android.server.telecom.TelecomStatsLog.CALL_SEQUENCING_STATS;
 
 import android.annotation.NonNull;
 import android.app.StatsManager;
@@ -123,6 +124,16 @@ public class TelecomMetricsController implements StatsManager.StatsPullAtomCallb
         EventStats stats = (EventStats) mStats.get(TELECOM_EVENT_STATS);
         if (stats == null) {
             stats = new EventStats(mContext, mHandlerThread.getLooper(), isTestMode());
+            registerAtom(stats.getTag(), stats);
+        }
+        return stats;
+    }
+
+    @NonNull
+    public CallSequencingStats getCallSequencingStats() {
+        CallSequencingStats stats = (CallSequencingStats) mStats.get(CALL_SEQUENCING_STATS);
+        if (stats == null) {
+            stats = new CallSequencingStats(mContext, mHandlerThread.getLooper(), isTestMode());
             registerAtom(stats.getTag(), stats);
         }
         return stats;

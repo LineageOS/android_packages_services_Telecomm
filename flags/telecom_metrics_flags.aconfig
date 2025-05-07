@@ -8,3 +8,14 @@ flag {
   description: "Support telecom metrics"
   bug: "362394177"
 }
+
+# OWNER=pmadapurmath TARGET=25Q3
+flag {
+  name: "call_sequencing_metrics"
+  namespace: "telecom"
+  description: "Support telecom call sequencing metrics"
+  bug: "384949208"
+  metadata {
+    purpose: PURPOSE_BUGFIX
+  }
+}

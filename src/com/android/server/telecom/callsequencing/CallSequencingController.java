@@ -1058,8 +1058,7 @@ public class CallSequencingController {
                 CarrierConfigManager.KEY_ALLOW_HOLD_CALL_DURING_EMERGENCY_BOOL, true);
     }
 
-    @VisibleForTesting
-    public boolean arePhoneAccountsSame(Call call1, Call call2) {
+    public static boolean arePhoneAccountsSame(Call call1, Call call2) {
         if (call1 == null || call2 == null) {
             return false;
         }

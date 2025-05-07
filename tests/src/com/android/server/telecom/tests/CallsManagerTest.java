@@ -16,6 +16,7 @@
 
 package com.android.server.telecom.tests;
 
+import static android.provider.CallLog.Calls.MISSED_REASON_NOT_MISSED;
 import static android.provider.CallLog.Calls.USER_MISSED_NOT_RUNNING;
 
 import static junit.framework.Assert.assertNotNull;
@@ -51,7 +52,6 @@ import static java.lang.Thread.sleep;
 
 import android.Manifest;
 import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -83,7 +83,6 @@ import android.telephony.PhoneCapability;
 import android.telephony.TelephonyManager;
 import android.util.ArraySet;
 import android.util.Pair;
-import android.widget.Toast;
 
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
@@ -146,8 +145,6 @@ import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import com.android.server.telecom.ui.ToastFactory;
 import com.android.server.telecom.callsequencing.TransactionManager;
 
-import com.google.common.base.Objects;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -170,7 +167,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @RunWith(JUnit4.class)
 public class CallsManagerTest extends TelecomTestCase {
@@ -262,6 +258,8 @@ public class CallsManagerTest extends TelecomTestCase {
     private static final Uri TEST_ADDRESS = Uri.parse("tel:555-1212");
     private static final Uri TEST_ADDRESS2 = Uri.parse("tel:555-1213");
     private static final Uri TEST_ADDRESS3 = Uri.parse("tel:555-1214");
+
+    private static final String TEST_NUMBER = "1234567890";
     private static final Map<Uri, PhoneAccountHandle> CONTACT_PREFERRED_ACCOUNT = Map.of(
             TEST_ADDRESS2, SIM_1_HANDLE,
             TEST_ADDRESS3, SIM_2_HANDLE);
@@ -773,6 +771,7 @@ public class CallsManagerTest extends TelecomTestCase {
             Uri handle = invocation.getArgument(0);
             CallerInfoLookupHelper.OnQueryCompleteListener listener = invocation.getArgument(1);
             CallerInfo info = new CallerInfo();
+            info.setPhoneNumber(TEST_NUMBER);
             if (CONTACT_PREFERRED_ACCOUNT.get(handle) != null) {
                 PhoneAccountHandle pah = CONTACT_PREFERRED_ACCOUNT.get(handle);
                 info.preferredPhoneAccountComponent = pah.getComponentName();
@@ -3801,7 +3800,8 @@ public class CallsManagerTest extends TelecomTestCase {
         CallSequencingController sequencingController = mock(CallSequencingController.class);
         CallAudioManager callAudioManager = mock(CallAudioManager.class);
         CallsManagerCallSequencingAdapter adapter = new CallsManagerCallSequencingAdapter(
-                mCallsManager, mContext, sequencingController, callAudioManager, mFeatureFlags);
+                mCallsManager, mContext, sequencingController, callAudioManager,
+                mMockTelecomMetricsController, mFeatureFlags);
         mCallsManager.setCallSequencingAdapter(adapter);
         // Explicitly disable simultaneous calling
         TelephonyManager mockTelephonyManager = mComponentContextFixture.getTelephonyManager();
@@ -3852,6 +3852,39 @@ public class CallsManagerTest extends TelecomTestCase {
         mCallsManager.processDisconnectCallAndCleanup(ongoingCall, CallState.DISCONNECTED);
         assertFalse(mCallsManager.getPendingAccountSelection().containsKey(ongoingCall.getId()));
         assertTrue(mCallsManager.getPendingAccountSelection().containsKey(pendingCall.getId()));
+    }
+
+    @SmallTest
+    @Test
+    public void testIgnoreMaxRingingCallOnSameNumber() {
+        when(mFeatureFlags.enableCallSequencing()).thenReturn(true);
+        when(mFeatureFlags.allowCallOnSameConnectionMgr()).thenReturn(true);
+        setupCallerInfoLookupHelper();
+        ConnectionServiceWrapper service = mock(ConnectionServiceWrapper.class);
+        doReturn(SIM_1_HANDLE.getComponentName()).when(service).getComponentName();
+        mCallsManager.addConnectionServiceRepositoryCache(SIM_1_HANDLE.getComponentName(),
+                SIM_1_HANDLE.getUserHandle(), service);
+        when(mPhoneAccountRegistrar.phoneAccountRequiresBindPermission(
+                any(PhoneAccountHandle.class))).thenReturn(true);
+
+        // WHEN
+        Call existingIncomingCall = createCall(SIM_2_HANDLE, CallState.RINGING);
+        mCallsManager.addCall(existingIncomingCall);
+        PhoneAccountHandle connectionMgr = mock(PhoneAccountHandle.class);
+        existingIncomingCall.setConnectionManagerPhoneAccount(connectionMgr);
+        when(mPhoneAccountRegistrar.getSimCallManagerFromCall(any(Call.class)))
+                .thenReturn(connectionMgr);
+        when(mMockCurrentUserManager.isAdminUser()).thenReturn(true);
+
+        // THEN, add a new incoming call with the same number as the 1st call
+        Bundle extras = new Bundle();
+        extras.putParcelable(TelecomManager.EXTRA_INCOMING_CALL_ADDRESS, TEST_ADDRESS);
+        Call newCall = mCallsManager.processIncomingCallIntent(SIM_2_HANDLE, extras, false);
+        // Verify we don't mark the call as auto missed and that the connection doesn't fail
+        // locally.
+        assertEquals(existingIncomingCall, mCallsManager.getRingingOrSimulatedRingingCall());
+        assertEquals(newCall.getMissedReason(), MISSED_REASON_NOT_MISSED);
+        verify(service, never()).createConnectionFailed(any());
     }
 
     private Call addSpyCall() {
