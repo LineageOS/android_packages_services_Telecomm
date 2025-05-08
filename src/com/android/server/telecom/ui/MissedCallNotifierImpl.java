@@ -28,6 +28,7 @@ import android.app.TaskStackBuilder;
 import android.app.admin.DevicePolicyManager;
 import android.content.AsyncQueryHandler;
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -108,7 +109,8 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
         }
     }
 
-    private static final String[] CALL_LOG_PROJECTION = new String[] {
+    @VisibleForTesting
+    public static final String[] CALL_LOG_PROJECTION = new String[] {
         Calls._ID,
         Calls.NUMBER,
         Calls.NUMBER_PRESENTATION,
@@ -117,7 +119,8 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
         Calls.TYPE,
     };
 
-    private static final String CALL_LOG_WHERE_CLAUSE = "type=" + Calls.MISSED_TYPE +
+    @VisibleForTesting
+    public static final String CALL_LOG_WHERE_CLAUSE = "type=" + Calls.MISSED_TYPE +
             " AND new=1" +
             " AND is_read=0";
 
@@ -197,14 +200,35 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
                 where.append(Calls.TYPE);
                 where.append(" = ?");
                 try {
-                    Uri callsUri = ContentProvider
-                            .maybeAddUserId(Calls.CONTENT_URI, userHandle.getIdentifier());
-                    mContext.getContentResolver().update(callsUri, values,
-                            where.toString(), new String[]{ Integer.toString(Calls.
-                            MISSED_TYPE) });
+                    ContentResolver resolver;
+                    Uri uriToUpdate;
+
+                    if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                        Context userContext = mContext.createContextAsUser(userHandle, 0);
+                        resolver = userContext.getContentResolver();
+                        uriToUpdate = Calls.CONTENT_URI;
+                    } else {
+                        resolver = mContext.getContentResolver();
+                        uriToUpdate = ContentProvider
+                                .maybeAddUserId(Calls.CONTENT_URI, userHandle.getIdentifier());
+                    }
+
+                    if (resolver != null && uriToUpdate != null) {
+                        resolver.update(uriToUpdate, values, where.toString(),
+                                new String[]{ Integer.toString(Calls.MISSED_TYPE) });
+                    } else {
+                        Log.w(this, "markMissedCallsAsRead: ContentResolver or UriToUpdate "
+                                + "is null. Cannot update call log. Resolver: " + resolver +
+                                " Uri: " + uriToUpdate);
+                    }
                 } catch (IllegalArgumentException e) {
-                    Log.w(this, "ContactsProvider update command failed", e);
+                    Log.e(this, e, "ContactsProvider update command failed for user "
+                            + userHandle);
+                } catch (Exception e) {
+                    Log.e(this, e, "Exception in markMissedCallsAsRead for user "
+                            + userHandle);
                 }
+
             }
         }.prepare());
     }
@@ -631,8 +655,15 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
             return;
         }
 
+        Context contextToUse;
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            contextToUse = mContext.createContextAsUser(userHandle, 0 /* flags */);
+        } else {
+            contextToUse = mContext;
+        }
+
         // instantiate query handler
-        AsyncQueryHandler queryHandler = new AsyncQueryHandler(mContext.getContentResolver()) {
+        AsyncQueryHandler queryHandler = new AsyncQueryHandler(contextToUse.getContentResolver()) {
             @Override
             protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
                 Log.d(MissedCallNotifierImpl.this, "onQueryComplete()...");
@@ -713,8 +744,13 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
         };
 
         // setup query spec, look for all Missed calls that are new.
-        Uri callsUri =
-                ContentProvider.maybeAddUserId(Calls.CONTENT_URI, userHandle.getIdentifier());
+        Uri callsUri;
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            callsUri = Calls.CONTENT_URI;
+        } else {
+            callsUri = ContentProvider
+                    .maybeAddUserId(Calls.CONTENT_URI, userHandle.getIdentifier());
+        }
         // start the query
         queryHandler.startQuery(0, null, callsUri, CALL_LOG_PROJECTION,
                 CALL_LOG_WHERE_CLAUSE, null, Calls.DEFAULT_SORT_ORDER);

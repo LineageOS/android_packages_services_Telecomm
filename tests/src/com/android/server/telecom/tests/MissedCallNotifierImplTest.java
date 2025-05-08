@@ -46,6 +46,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.IContentProvider;
 import android.content.Intent;
@@ -173,6 +174,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
     @Mock private DefaultDialerCache mDefaultDialerCache;
     @Mock private DeviceIdleControllerAdapter mDeviceIdleControllerAdapter;
     @Mock private Context mUserContext;
+    @Mock private ContentResolver mUserContentResolver;
 
     @Override
     @Before
@@ -187,6 +189,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                 .thenReturn(mUserContext);
         when(mUserContext.getSystemService(eq(NotificationManager.class)))
                 .thenReturn(mNotificationManager);
+        when(mUserContext.getContentResolver()).thenReturn(mUserContentResolver);
         TelephonyManager fakeTelephonyManager = (TelephonyManager) mContext.getSystemService(
                 Context.TELEPHONY_SERVICE);
         when(fakeTelephonyManager.getNetworkCountryIso()).thenReturn("US");
@@ -528,19 +531,20 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         CallerInfoLookupHelper mockCallerInfoLookupHelper = mock(CallerInfoLookupHelper.class);
         MissedCallNotifier.CallInfoFactory mockCallInfoFactory =
                 mock(MissedCallNotifier.CallInfoFactory.class);
-
-        Uri queryUri = ContentProvider.maybeAddUserId(CallLog.Calls.CONTENT_URI,
-                PRIMARY_USER.getIdentifier());
-        IContentProvider cp = getContentProviderForUser(PRIMARY_USER.getIdentifier());
+        Uri expectedQueryUri = CallLog.Calls.CONTENT_URI;
 
         Cursor mockMissedCallsCursor = new MockMissedCallCursorBuilder()
                 .addEntry(TEL_CALL_HANDLE.getSchemeSpecificPart(),
                         CallLog.Calls.PRESENTATION_ALLOWED, CALL_TIMESTAMP)
                 .build();
 
-        when(cp.query(any(), eq(queryUri), nullable(String[].class),
-                nullable(Bundle.class), nullable(ICancellationSignal.class)))
-                .thenReturn(mockMissedCallsCursor);
+        when(mUserContentResolver.query(
+                eq(expectedQueryUri),
+                eq(MissedCallNotifierImpl.CALL_LOG_PROJECTION),
+                eq(MissedCallNotifierImpl.CALL_LOG_WHERE_CLAUSE),
+                isNull(), // selectionArgs is null in MissedCallNotifierImpl
+                eq(CallLog.Calls.DEFAULT_SORT_ORDER)
+        )).thenReturn(mockMissedCallsCursor);
 
         PhoneAccount phoneAccount = makePhoneAccount(PRIMARY_USER, NO_CAPABILITY);
         MissedCallNotifier.CallInfo fakeCallInfo = makeFakeCallInfo(TEL_CALL_HANDLE,
@@ -553,9 +557,10 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         MissedCallNotifierImpl.NotificationBuilderFactory fakeBuilderFactory =
                 makeNotificationBuilderFactory(builder1);
 
-        MissedCallNotifier missedCallNotifier = new MissedCallNotifierImpl(mContext,
+        MissedCallNotifierImpl missedCallNotifier = new MissedCallNotifierImpl(mContext,
                 mPhoneAccountRegistrar, mDefaultDialerCache, fakeBuilderFactory,
                 mDeviceIdleControllerAdapter, mFeatureFlags);
+        missedCallNotifier.setCurrentUserHandle(PRIMARY_USER);
 
         // AsyncQueryHandler used in reloadFromDatabase interacts poorly with the below
         // timeout-verify, so run this in a new handler to mitigate that.
@@ -604,13 +609,14 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                         CallLog.Calls.PRESENTATION_ALLOWED, CALL_TIMESTAMP)
                 .build();
 
-        Uri queryUri = ContentProvider.maybeAddUserId(CallLog.Calls.CONTENT_URI,
-                PRIMARY_USER.getIdentifier());
-        IContentProvider cp = getContentProviderForUser(PRIMARY_USER.getIdentifier());
-
-        when(cp.query(any(), eq(queryUri), nullable(String[].class),
-                nullable(Bundle.class), nullable(ICancellationSignal.class)))
-                .thenReturn(mockMissedCallsCursor);
+        Uri expectedQueryUri = CallLog.Calls.CONTENT_URI;
+        when(mUserContentResolver.query(
+                eq(expectedQueryUri),
+                eq(MissedCallNotifierImpl.CALL_LOG_PROJECTION),
+                eq(MissedCallNotifierImpl.CALL_LOG_WHERE_CLAUSE),
+                isNull(),
+                eq(CallLog.Calls.DEFAULT_SORT_ORDER)
+        )).thenReturn(mockMissedCallsCursor);
 
         PhoneAccount phoneAccount = makePhoneAccount(PRIMARY_USER, NO_CAPABILITY);
         MissedCallNotifier.CallInfo fakeCallInfo = makeFakeCallInfo(TEL_CALL_HANDLE,
@@ -623,9 +629,10 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         MissedCallNotifierImpl.NotificationBuilderFactory fakeBuilderFactory =
                 makeNotificationBuilderFactory(builder1);
 
-        MissedCallNotifier missedCallNotifier = new MissedCallNotifierImpl(mContext,
+        MissedCallNotifierImpl missedCallNotifier = new MissedCallNotifierImpl(mContext,
                 mPhoneAccountRegistrar, mDefaultDialerCache, fakeBuilderFactory,
                 mDeviceIdleControllerAdapter, mFeatureFlags);
+        missedCallNotifier.setCurrentUserHandle(PRIMARY_USER);
 
         // AsyncQueryHandler used in reloadFromDatabase interacts poorly with the below
         // timeout-verify, so run this in a new handler to mitigate that.
