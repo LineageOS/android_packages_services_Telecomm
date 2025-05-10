@@ -143,8 +143,6 @@
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"MMI-кодов не е достапен за повици на повеќе сметки."</string>
     <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Повикот не може да се прекине додека се врши спојување."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"MMI-кодовите не може да се бираат за време на итен повик."</string>
-    <!-- no translation found for noApplications (1703149220378476198) -->
-    <skip />
-    <!-- no translation found for android_system_label (2730611410547215779) -->
-    <skip />
+    <string name="noApplications" msgid="1703149220378476198">"Нема апликации што може да го извршат дејствово."</string>
+    <string name="android_system_label" msgid="2730611410547215779">"Систем Android"</string>
 </resources>

@@ -16,6 +16,7 @@
 package com.android.server.telecom.tests;
 
 import static com.android.server.telecom.TelecomStatsLog.CALL_AUDIO_ROUTE_STATS;
+import static com.android.server.telecom.TelecomStatsLog.CALL_SEQUENCING_STATS;
 import static com.android.server.telecom.TelecomStatsLog.CALL_STATS;
 import static com.android.server.telecom.TelecomStatsLog.TELECOM_API_STATS;
 import static com.android.server.telecom.TelecomStatsLog.TELECOM_ERROR_STATS;
@@ -36,6 +37,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android.server.telecom.metrics.ApiStats;
 import com.android.server.telecom.metrics.AudioRouteStats;
+import com.android.server.telecom.metrics.CallSequencingStats;
 import com.android.server.telecom.metrics.CallStats;
 import com.android.server.telecom.metrics.ErrorStats;
 import com.android.server.telecom.metrics.EventStats;
@@ -64,6 +66,7 @@ public class TelecomMetricsControllerTest extends TelecomTestCase {
     ErrorStats mErrorStats;
     @Mock
     EventStats mEventStats;
+    @Mock CallSequencingStats mCallSequencingStats;
 
     HandlerThread mHandlerThread;
 
@@ -124,6 +127,13 @@ public class TelecomMetricsControllerTest extends TelecomTestCase {
     }
 
     @Test
+    public void testGetCallSequencingStatsReturnsSameInstance() {
+        CallSequencingStats stats1 = mTelecomMetricsController.getCallSequencingStats();
+        CallSequencingStats stats2 = mTelecomMetricsController.getCallSequencingStats();
+        assertThat(stats1).isSameInstanceAs(stats2);
+    }
+
+    @Test
     public void testOnPullAtomReturnsPullSkipIfAtomNotRegistered() {
         mTelecomMetricsController.getStats().clear();
 
@@ -154,6 +164,7 @@ public class TelecomMetricsControllerTest extends TelecomTestCase {
         verify(statsManager, times(1)).clearPullAtomCallback(eq(TELECOM_API_STATS));
         verify(statsManager, times(1)).clearPullAtomCallback(eq(TELECOM_ERROR_STATS));
         verify(statsManager, times(1)).clearPullAtomCallback(eq(TELECOM_EVENT_STATS));
+        verify(statsManager, times(1)).clearPullAtomCallback(eq(CALL_SEQUENCING_STATS));
         assertThat(mTelecomMetricsController.getStats()).isEmpty();
     }
 
@@ -177,23 +188,29 @@ public class TelecomMetricsControllerTest extends TelecomTestCase {
         AudioRouteStats audioStats1 = mTelecomMetricsController.getAudioRouteStats();
         CallStats callStats1 = mTelecomMetricsController.getCallStats();
         ErrorStats errorStats1 = mTelecomMetricsController.getErrorStats();
+        CallSequencingStats callSequencingStats1 =
+                mTelecomMetricsController.getCallSequencingStats();
         mTelecomMetricsController.setTestMode(true);
 
         verify(statsManager, times(1)).clearPullAtomCallback(eq(CALL_AUDIO_ROUTE_STATS));
         verify(statsManager, times(1)).clearPullAtomCallback(eq(CALL_STATS));
         verify(statsManager, times(1)).clearPullAtomCallback(eq(TELECOM_API_STATS));
         verify(statsManager, times(1)).clearPullAtomCallback(eq(TELECOM_ERROR_STATS));
+        verify(statsManager, times(1)).clearPullAtomCallback(eq(CALL_SEQUENCING_STATS));
         assertThat(mTelecomMetricsController.getStats()).isEmpty();
 
         ApiStats apiStats2 = mTelecomMetricsController.getApiStats();
         AudioRouteStats audioStats2 = mTelecomMetricsController.getAudioRouteStats();
         CallStats callStats2 = mTelecomMetricsController.getCallStats();
         ErrorStats errorStats2 = mTelecomMetricsController.getErrorStats();
+        CallSequencingStats callSequencingStats2 =
+                mTelecomMetricsController.getCallSequencingStats();
 
         assertThat(apiStats1).isNotSameInstanceAs(apiStats2);
         assertThat(audioStats1).isNotSameInstanceAs(audioStats2);
         assertThat(callStats1).isNotSameInstanceAs(callStats2);
         assertThat(errorStats1).isNotSameInstanceAs(errorStats2);
+        assertThat(callSequencingStats1).isNotSameInstanceAs(callSequencingStats2);
 
         mTelecomMetricsController.setTestMode(false);
 
@@ -207,5 +224,6 @@ public class TelecomMetricsControllerTest extends TelecomTestCase {
         mTelecomMetricsController.getStats().put(TELECOM_API_STATS, mApiStats);
         mTelecomMetricsController.getStats().put(TELECOM_ERROR_STATS, mErrorStats);
         mTelecomMetricsController.getStats().put(TELECOM_EVENT_STATS, mEventStats);
+        mTelecomMetricsController.getStats().put(CALL_SEQUENCING_STATS, mCallSequencingStats);
     }
 }

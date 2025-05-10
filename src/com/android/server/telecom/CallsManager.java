@@ -827,7 +827,7 @@ public class CallsManager extends Call.ListenerBase
         mCallSequencingAdapter = new CallsManagerCallSequencingAdapter(this, mContext,
                 new CallSequencingController(this, mContext, mClockProxy,
                         mAnomalyReporter, mTimeoutsAdapter, mMetricsController, mMmiUtils,
-                        mFeatureFlags), mCallAudioManager, mFeatureFlags);
+                        mFeatureFlags), mCallAudioManager, mMetricsController, mFeatureFlags);
 
         mListeners.add(mInCallController);
         mListeners.add(mInCallWakeLockController);
@@ -1179,7 +1179,7 @@ public class CallsManager extends Call.ListenerBase
                 if (result.shouldShowNotification) {
                     Log.w(this, "onCallScreeningCompleted: blocked call, showing notification.");
                 }
-                mCallLogManager.logCall(incomingCall, Calls.BLOCKED_TYPE,
+                mCallLogManager.logCallIfNotSelfManaged(incomingCall, Calls.BLOCKED_TYPE,
                         result.shouldShowNotification, result);
             }
             if (result.shouldShowNotification) {
@@ -1784,6 +1784,24 @@ public class CallsManager extends Call.ListenerBase
                     : mUserManager.isQuietModeEnabled(call.getAssociatedUser());
         }
 
+        boolean ignoreIncomingCallFailureOnSameNumber = false;
+        if (hasMaximumManagedRingingCalls(call)) {
+            Call ringingCall = getRingingOrSimulatedRingingCall();
+            PhoneAccountHandle connectionMgr = mPhoneAccountRegistrar.getSimCallManagerFromCall(
+                    call);
+            // Check if the new incoming call is using the same connection mgr with the already
+            // tracked ringing call. This can happen in a scenario where two incoming calls are
+            // received on Fi: one from Tycho (over WiFi) and from Telephony via the mobile network.
+            // In this case, we should allow the new call to go through instead of failing it and
+            // logging it. We are refraining from doing a phone number check as it's possible that
+            // Fi is using shadow numbers.
+            if (mFeatureFlags.allowCallOnSameConnectionMgr() && ringingCall != null
+                    && connectionMgr != null && Objects.equals(connectionMgr,
+                    ringingCall.getConnectionManagerPhoneAccount())) {
+                ignoreIncomingCallFailureOnSameNumber = true;
+            }
+        }
+
         // We should always allow emergency calls and also allow non-emergency calls when ECBM
         // is active for the phone account.
         if (isCallHiddenFromProfile && !call.isEmergencyCall() && !call.isInECBM()) {
@@ -1805,7 +1823,7 @@ public class CallsManager extends Call.ListenerBase
                 if (hasMaximumManagedRingingCalls(call)) {
                     call.setMissedReason(AUTO_MISSED_MAXIMUM_RINGING);
                     call.setStartFailCause(CallFailureCause.MAX_RINGING_CALLS);
-                    mCallLogManager.logCall(call, Calls.MISSED_TYPE,
+                    mCallLogManager.logCallIfNotSelfManaged(call, Calls.MISSED_TYPE,
                             true /*showNotificationForMissedCall*/, null /*CallFilteringResult*/);
                 }
                 call.setStartFailCause(startFailCause);
@@ -1818,14 +1836,15 @@ public class CallsManager extends Call.ListenerBase
             call.setMissedReason(AUTO_MISSED_EMERGENCY_CALL);
             call.getAnalytics().setMissedReason(call.getMissedReason());
             call.setStartFailCause(CallFailureCause.IN_EMERGENCY_CALL);
-            mCallLogManager.logCall(call, Calls.MISSED_TYPE,
+            mCallLogManager.logCallIfNotSelfManaged(call, Calls.MISSED_TYPE,
                     true /*showNotificationForMissedCall*/, null /*CallFilteringResult*/);
             if (isConference) {
                 notifyCreateConferenceFailed(phoneAccountHandle, call);
             } else {
                 notifyCreateConnectionFailed(phoneAccountHandle, call);
             }
-        } else if (mFeatureFlags.enableCallSequencing() && (hasMaximumManagedRingingCalls(call)
+        } else if (mFeatureFlags.enableCallSequencing()
+                && ((hasMaximumManagedRingingCalls(call) && !ignoreIncomingCallFailureOnSameNumber)
                 || hasMaximumManagedDialingCalls(call))) {
             // Fail incoming call if there's already a ringing or dialing call present.
             boolean maxRinging = hasMaximumManagedRingingCalls(call);
@@ -1836,7 +1855,7 @@ public class CallsManager extends Call.ListenerBase
                 call.setMissedReason(AUTO_MISSED_MAXIMUM_DIALING);
             }
             call.getAnalytics().setMissedReason(call.getMissedReason());
-            mCallLogManager.logCall(call, Calls.MISSED_TYPE,
+            mCallLogManager.logCallIfNotSelfManaged(call, Calls.MISSED_TYPE,
                     true /*showNotificationForMissedCall*/, null /*CallFilteringResult*/);
             if (isConference) {
                 notifyCreateConferenceFailed(phoneAccountHandle, call);
@@ -4341,7 +4360,7 @@ public class CallsManager extends Call.ListenerBase
 
         if (oldState == CallState.NEW && disconnectCause.getCode() == DisconnectCause.MISSED) {
             Log.i(this, "markCallAsDisconnected: logging missed call ");
-            mCallLogManager.logCall(call, Calls.MISSED_TYPE, true, null);
+            mCallLogManager.logCallIfNotSelfManaged(call, Calls.MISSED_TYPE, true, null);
         }
     }
 
@@ -4860,7 +4879,7 @@ public class CallsManager extends Call.ListenerBase
         // Since the call was not added to the list of calls, we have to call the missed
         // call notifier and the call logger manually.
         // Do we need missed call notification for direct to Voicemail calls?
-        mCallLogManager.logCall(incomingCall, Calls.MISSED_TYPE,
+        mCallLogManager.logCallIfNotSelfManaged(incomingCall, Calls.MISSED_TYPE,
                 true /*showNotificationForMissedCall*/, result);
     }
 
@@ -4877,6 +4896,7 @@ public class CallsManager extends Call.ListenerBase
         }
         Log.i(this, "addCall(%s)", call);
         call.addListener(this);
+        mCallSequencingAdapter.setCallSequencingMetrics(call);
         mCalls.add(call);
         // Reprocess the simultaneous call types for all the tracked calls after having added a new
         // call.

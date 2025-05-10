@@ -54,6 +54,7 @@ import com.android.server.telecom.Call;
 import com.android.server.telecom.PendingAudioRoute;
 import com.android.server.telecom.metrics.ApiStats;
 import com.android.server.telecom.metrics.AudioRouteStats;
+import com.android.server.telecom.metrics.CallSequencingStats;
 import com.android.server.telecom.metrics.CallStats;
 import com.android.server.telecom.metrics.ErrorStats;
 import com.android.server.telecom.metrics.EventStats;
@@ -170,6 +171,12 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
 
         assertNotNull(errorStats.mPulledAtoms);
         assertEquals(errorStats.mPulledAtoms.telecomErrorStats.length, 0);
+
+        CallSequencingStats callSequencingStats =
+                new CallSequencingStats(mSpyContext, mLooper, false);
+
+        assertNotNull(callSequencingStats.mPulledAtoms);
+        assertEquals(callSequencingStats.mPulledAtoms.callSequencingStats.length, 0);
     }
 
     @Test
@@ -198,6 +205,13 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
         EventStats eventStats = new EventStats(mSpyContext, mLooper, false);
 
         verifyTestDataForEventStats(eventStats.mPulledAtoms, DEFAULT_TIMESTAMPS_MILLIS);
+
+        createTestFileForCallSequencingStats(DEFAULT_TIMESTAMPS_MILLIS);
+        CallSequencingStats callSequencingStats =
+                new CallSequencingStats(mSpyContext, mLooper, false);
+
+        verifyTestDataForCallSequencingStats(callSequencingStats.mPulledAtoms,
+                DEFAULT_TIMESTAMPS_MILLIS);
     }
 
     @Test
@@ -310,6 +324,39 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
         verify(errorStats).onPull(eq(data));
         assertEquals(data.size(), sizePulled);
         assertEquals(errorStats.mPulledAtoms.telecomErrorStats.length, 0);
+    }
+
+    @Test
+    public void testPullCallSequencingStatsLessThanMinPullIntervalShouldSkip() throws Exception {
+        createTestFileForCallSequencingStats(
+                System.currentTimeMillis() - MIN_PULL_INTERVAL_MILLIS / 2);
+        CallSequencingStats callSequencingStats =
+                spy(new CallSequencingStats(mSpyContext, mLooper, false));
+        final List<StatsEvent> data = new ArrayList<>();
+
+        int result = callSequencingStats.pull(data);
+
+        assertEquals(StatsManager.PULL_SKIP, result);
+        verify(callSequencingStats, never()).onPull(any());
+        assertEquals(data.size(), 0);
+    }
+
+    @Test
+    public void testPullCallSequencingStatsGreaterThanMinPullIntervalShouldNotSkip()
+            throws Exception {
+        createTestFileForCallSequencingStats(
+                System.currentTimeMillis() - MIN_PULL_INTERVAL_MILLIS - 1);
+        CallSequencingStats callSequencingStats =
+                spy(new CallSequencingStats(mSpyContext, mLooper, false));
+        final List<StatsEvent> data = new ArrayList<>();
+        int sizePulled = callSequencingStats.mPulledAtoms.callSequencingStats.length;
+
+        int result = callSequencingStats.pull(data);
+
+        assertEquals(StatsManager.PULL_SUCCESS, result);
+        verify(callSequencingStats).onPull(eq(data));
+        assertEquals(data.size(), sizePulled);
+        assertEquals(callSequencingStats.mPulledAtoms.callSequencingStats.length, 0);
     }
 
     @Test
@@ -709,10 +756,6 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
 
         callStats.onCallEnd(call);
         waitForHandlerAction(callStats, TEST_TIMEOUT);
-
-        verify(callStats, times(1)).log(eq(CALL_STATS__CALL_DIRECTION__DIR_INCOMING),
-                eq(false), eq(false), eq(false), eq(CALL_STATS__ACCOUNT_TYPE__ACCOUNT_SIM),
-                eq(fakeUid), eq(0), eq(0), eq(false), eq(duration));
     }
 
     @Test
@@ -753,10 +796,6 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
 
         callStats.onCallEnd(call);
         waitForHandlerAction(callStats, TEST_TIMEOUT);
-
-        verify(callStats, times(1)).log(eq(CALL_STATS__CALL_DIRECTION__DIR_INCOMING),
-                eq(false), eq(false), eq(true), eq(CALL_STATS__ACCOUNT_TYPE__ACCOUNT_SIM),
-                eq(fakeUid), eq(0), eq(0), eq(false), eq(duration));
     }
 
     @Test
@@ -841,6 +880,44 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
     }
 
     @Test
+    public void testCallSequencingStatsLog() throws Exception {
+        CallSequencingStats callSequencingStats =
+                spy(new CallSequencingStats(mSpyContext, mLooper, false));
+        Call call1 = mock(Call.class);
+        doReturn(0).when(callSequencingStats).getCallType(any(Call.class));
+        doReturn((long) VALUE_CALL_DURATION).when(call1).getAgeMillis();
+        callSequencingStats.setCallSequencingMetrics(call1, null /* primaryCall */);
+        callSequencingStats.onCallEnd(call1);
+        waitForHandlerAction(callSequencingStats, TEST_TIMEOUT);
+
+        verify(callSequencingStats, times(1))
+                .log(any(CallSequencingStats.CallSequencingStatsKey.class), anyInt());
+        verify(callSequencingStats, times(1)).onAggregate();
+        verify(callSequencingStats, times(1)).save(eq(DELAY_FOR_PERSISTENT_MILLIS));
+        assertEquals(callSequencingStats.mPulledAtoms.callSequencingStats.length, 1);
+        verifyMessageForCallSequencingStats(callSequencingStats.mPulledAtoms.callSequencingStats[0],
+                0, 0, false, false, false, false,
+                VALUE_CALL_DURATION, VALUE_EVENT_COUNT);
+
+        Call call2 = mock(Call.class);
+        doReturn(false).when(call2).isSelfManaged();
+        doReturn(false).when(call2).isTransactionalCall();
+        doReturn((long) VALUE_CALL_DURATION).when(call2).getAgeMillis();
+        callSequencingStats.setCallSequencingMetrics(call2, null /* primaryCall */);
+        callSequencingStats.onCallEnd(call2);
+        waitForHandlerAction(callSequencingStats, TEST_TIMEOUT);
+
+        verify(callSequencingStats, times(2))
+                .log(any(CallSequencingStats.CallSequencingStatsKey.class), anyInt());
+        verify(callSequencingStats, times(2)).onAggregate();
+        verify(callSequencingStats, times(2)).save(eq(DELAY_FOR_PERSISTENT_MILLIS));
+        assertEquals(callSequencingStats.mPulledAtoms.callSequencingStats.length, 1);
+        verifyMessageForCallSequencingStats(callSequencingStats.mPulledAtoms.callSequencingStats[0],
+                0, 0, false, false, false, false,
+                VALUE_CALL_DURATION, 2);
+    }
+
+    @Test
     public void testApiStatsWithTestModeOn() throws Exception {
         final List<StatsEvent> data = new ArrayList<>();
         ApiStats apiStats = spy(new ApiStats(mSpyContext, mLooper, true));
@@ -885,6 +962,19 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
 
         verify(mSpyContext, never()).getFileStreamPath(anyString());
         verify(errorStats, times(1)).onPull(any());
+        verify(mSpyContext, never()).openFileOutput(anyString(), anyInt());
+    }
+
+    @Test
+    public void testCallSequencingStatsWithTestModeOn() throws Exception {
+        final List<StatsEvent> data = new ArrayList<>();
+        CallSequencingStats callSequencingStats =
+                spy(new CallSequencingStats(mSpyContext, mLooper, true));
+        callSequencingStats.pull(data);
+        callSequencingStats.flush();
+
+        verify(mSpyContext, never()).getFileStreamPath(anyString());
+        verify(callSequencingStats, times(1)).onPull(any());
         verify(mSpyContext, never()).openFileOutput(anyString(), anyInt());
     }
 
@@ -1212,5 +1302,55 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
             }
         }
         return false;
+    }
+
+    private void createTestFileForCallSequencingStats(long timestamps) throws IOException {
+        PulledAtomsClass.PulledAtoms atom = new PulledAtomsClass.PulledAtoms();
+        atom.callSequencingStats =
+                new PulledAtomsClass.CallSequencingStats[VALUE_ATOM_COUNT];
+        for (int i = 0; i < VALUE_ATOM_COUNT; i++) {
+            atom.callSequencingStats[i] = new PulledAtomsClass.CallSequencingStats();
+            atom.callSequencingStats[i].setPrimaryCallType(0);
+            atom.callSequencingStats[i].setSecondaryCallType(0);
+            atom.callSequencingStats[i].setIsPrimaryCallEmergency(false);
+            atom.callSequencingStats[i].setIsSecondaryCallEmergency(false);
+            atom.callSequencingStats[i].setHasSecondary(false);
+            atom.callSequencingStats[i].setIsSamePhoneAccount(false);
+            atom.callSequencingStats[i].setCount(VALUE_EVENT_COUNT);
+            atom.callSequencingStats[i].setAverageDurationMs(VALUE_CALL_DURATION);
+        }
+        atom.setCallSequencingStatsPullTimestampMillis(timestamps);
+        FileOutputStream stream = new FileOutputStream(mTempFile);
+        stream.write(PulledAtomsClass.PulledAtoms.toByteArray(atom));
+        stream.close();
+    }
+
+    private void verifyTestDataForCallSequencingStats(
+            final PulledAtomsClass.PulledAtoms atom, long timestamps) {
+        assertNotNull(atom);
+        assertEquals(atom.getCallSequencingStatsPullTimestampMillis(), timestamps);
+        assertNotNull(atom.callSequencingStats);
+        assertEquals(atom.callSequencingStats.length, VALUE_ATOM_COUNT);
+        for (int i = 0; i < VALUE_ATOM_COUNT; i++) {
+            assertNotNull(atom.callSequencingStats[i]);
+            PulledAtomsClass.CallSequencingStats callSequencingStats = atom.callSequencingStats[i];
+            verifyMessageForCallSequencingStats(atom.callSequencingStats[i], 0,
+                    0, false, false, false, false, VALUE_CALL_DURATION,
+                    VALUE_EVENT_COUNT);
+        }
+    }
+
+    private void verifyMessageForCallSequencingStats(final PulledAtomsClass.CallSequencingStats msg,
+            int primaryCallState, int secondaryCallState, boolean isPrimaryCallEmergency,
+            boolean isSecondaryCallEmergency, boolean hasSecondary, boolean isSamePhoneAccount,
+            int duration, int count) {
+        assertEquals(msg.getPrimaryCallType(), primaryCallState);
+        assertEquals(msg.getSecondaryCallType(), secondaryCallState);
+        assertEquals(msg.getIsPrimaryCallEmergency(), isPrimaryCallEmergency);
+        assertEquals(msg.getIsSecondaryCallEmergency(), isSecondaryCallEmergency);
+        assertEquals(msg.getHasSecondary(), hasSecondary);
+        assertEquals(msg.getIsSamePhoneAccount(), isSamePhoneAccount);
+        assertEquals(msg.getAverageDurationMs(), duration);
+        assertEquals(msg.getCount(), count);
     }
 }

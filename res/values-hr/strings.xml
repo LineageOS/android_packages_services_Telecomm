@@ -143,8 +143,6 @@
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Taj MMI kôd nije dostupan za pozive na više računa."</string>
     <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Poziv se ne može prekinuti tijekom spajanja."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"MMI kodovi ne mogu se birati tijekom hitnog poziva."</string>
-    <!-- no translation found for noApplications (1703149220378476198) -->
-    <skip />
-    <!-- no translation found for android_system_label (2730611410547215779) -->
-    <skip />
+    <string name="noApplications" msgid="1703149220378476198">"Tu radnju ne može izvesti nijedna aplikacija."</string>
+    <string name="android_system_label" msgid="2730611410547215779">"Sustav Android"</string>
 </resources>

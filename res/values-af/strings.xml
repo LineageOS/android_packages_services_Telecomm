@@ -143,8 +143,6 @@
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Hierdie MMI-kode is nie beskikbaar vir oproepe tussen verskeie rekeninge nie."</string>
     <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Oproep kan nie tydens ’n samevoeging beëindig word nie."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"MMI-kodes kan nie tydens ’n noodoproep geskakel word nie."</string>
-    <!-- no translation found for noApplications (1703149220378476198) -->
-    <skip />
-    <!-- no translation found for android_system_label (2730611410547215779) -->
-    <skip />
+    <string name="noApplications" msgid="1703149220378476198">"Geen apps kan hierdie handeling uitvoer nie."</string>
+    <string name="android_system_label" msgid="2730611410547215779">"Android-stelsel"</string>
 </resources>

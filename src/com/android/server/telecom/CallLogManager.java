@@ -173,6 +173,24 @@ public final class CallLogManager extends CallsManagerListenerBase {
     }
 
     /**
+     * Log call only if Call is NOT a self-managed call OR call is a self-managed call which has
+     * indicated it should be logged in its PhoneAccount
+     */
+    void logCallIfNotSelfManaged (Call call, int type, boolean showNotificationForMissedCall,
+            CallFilteringResult result) {
+        boolean shouldCallSelfManagedLogged = call.isLoggedSelfManaged() &&
+                (call.getHandoverState() == HandoverState.HANDOVER_NONE
+                || call.getHandoverState() == HandoverState.HANDOVER_COMPLETE);
+        if (!mFeatureFlags.preventSelfManagedCallLogging() || !call.isSelfManaged() ||
+                shouldCallSelfManagedLogged) {
+            logCall(call, type, showNotificationForMissedCall, result);
+        } else {
+            Log.d(TAG, "logCallIfNotSelfManaged: skipping call logging due to self managed "
+                    + "for call = " + call);
+        }
+    }
+
+    /**
      * Log newly disconnected calls only if all of below conditions are met:
      * Call was NOT in the "choose account" phase when disconnected
      * Call is NOT a conference call which had children (unless it was remotely hosted).
@@ -187,8 +205,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
      */
     @VisibleForTesting
     public boolean shouldLogDisconnectedCall(Call call, int oldState, boolean isCallCanceled) {
-        boolean shouldCallSelfManagedLogged = call.isLoggedSelfManaged()
-                && (call.getHandoverState() == HandoverState.HANDOVER_NONE
+        boolean shouldCallSelfManagedLogged = call.isLoggedSelfManaged() &&
+                (call.getHandoverState() == HandoverState.HANDOVER_NONE
                 || call.getHandoverState() == HandoverState.HANDOVER_COMPLETE);
 
         // "Choose account" phase when disconnected

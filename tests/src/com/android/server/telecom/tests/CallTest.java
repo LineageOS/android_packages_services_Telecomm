@@ -102,6 +102,8 @@ public class CallTest extends TelecomTestCase {
                     | PhoneAccount.CAPABILITY_CALL_PROVIDER)
             .setIsEnabled(true)
             .build();
+    private static final PhoneAccountHandle SIM_2_HANDLE = new PhoneAccountHandle(
+            COMPONENT_NAME_2, "Sim2");
     private static final long TIMEOUT_MILLIS = 1000;
 
     @Mock private CallsManager mMockCallsManager;

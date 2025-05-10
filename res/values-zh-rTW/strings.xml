@@ -143,8 +143,6 @@
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"這個 MMI 代碼無法用於透過多個帳戶進行通話。"</string>
     <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"無法在通話合併期間掛斷電話。"</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"進行緊急電話時無法撥打 MMI 碼。"</string>
-    <!-- no translation found for noApplications (1703149220378476198) -->
-    <skip />
-    <!-- no translation found for android_system_label (2730611410547215779) -->
-    <skip />
+    <string name="noApplications" msgid="1703149220378476198">"沒有應用程式可執行這項動作。"</string>
+    <string name="android_system_label" msgid="2730611410547215779">"Android 系統"</string>
 </resources>

@@ -8,3 +8,25 @@ flag {
   description: "Enables simultaneous call sequencing for SIM PhoneAccounts"
   bug: "327038818"
 }
+
+# OWNER=grantmenke TARGET=25Q3
+flag {
+  name: "prevent_self_managed_call_logging"
+  namespace: "telecom"
+  description: "Prevent self managed calls from logging to the call log"
+  bug: "405942024"
+  metadata {
+    purpose: PURPOSE_BUGFIX
+  }
+}
+
+# OWNER=pmadapurmath TARGET=25Q3
+flag {
+  name: "allow_call_on_same_connection_mgr"
+  namespace: "telecom"
+  description: "If two incoming calls are received at the same time from the same connection service, allow the CS to handle the second call."
+  bug: "414261900"
+  metadata {
+    purpose: PURPOSE_BUGFIX
+  }
+}
