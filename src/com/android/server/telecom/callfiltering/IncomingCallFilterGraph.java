@@ -151,9 +151,6 @@ public class IncomingCallFilterGraph {
     private CallFilteringResult onTimeoutCombineFinishedFilters(
             List<CallFilter> filtersList,
             CallFilteringResult currentResult) {
-        if (!mFeatureFlags.checkCompletedFiltersOnTimeout()) {
-            return currentResult;
-        }
         for (CallFilter filter : filtersList) {
             if (filter.result != null) {
                 currentResult = currentResult.combine(filter.result);

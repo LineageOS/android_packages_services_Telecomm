@@ -232,7 +232,6 @@ public class IncomingCallFilterGraphTest extends TelecomTestCase {
 
         // WHEN:  DND is on and the caller cannot interrupt and the graph is processed
         when(mockRinger.shouldRingForContact(mCall)).thenReturn(false);
-        when(mFeatureFlags.checkCompletedFiltersOnTimeout()).thenReturn(true);
         dndCallFilter.startFilterLookup(IncomingCallFilterGraph.DEFAULT_RESULT);
         graph.performFiltering();
 
