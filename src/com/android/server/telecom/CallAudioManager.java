@@ -585,25 +585,14 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     @VisibleForTesting
     public void setCallAudioRouteFocusState(int focusState) {
-        if (mFeatureFlags.useRefactoredAudioRouteSwitching()) {
-            mCallAudioRouteAdapter.sendMessageWithSessionInfo(
-                    CallAudioRouteStateMachine.SWITCH_FOCUS, focusState, 0);
-        } else {
-            mCallAudioRouteAdapter.sendMessageWithSessionInfo(
-                    CallAudioRouteStateMachine.SWITCH_FOCUS, focusState);
-        }
+        mCallAudioRouteAdapter.sendMessageWithSessionInfo(
+                CallAudioRouteStateMachine.SWITCH_FOCUS, focusState, 0);
     }
 
     public void setCallAudioRouteFocusStateForEndTone() {
-        if (mFeatureFlags.useRefactoredAudioRouteSwitching()) {
-            mCallAudioRouteAdapter.sendMessageWithSessionInfo(
-                    CallAudioRouteStateMachine.SWITCH_FOCUS,
-                    CallAudioRouteStateMachine.ACTIVE_FOCUS, 1);
-        } else {
-            mCallAudioRouteAdapter.sendMessageWithSessionInfo(
-                    CallAudioRouteStateMachine.SWITCH_FOCUS,
-                    CallAudioRouteStateMachine.ACTIVE_FOCUS);
-        }
+        mCallAudioRouteAdapter.sendMessageWithSessionInfo(
+                CallAudioRouteStateMachine.SWITCH_FOCUS,
+                CallAudioRouteStateMachine.ACTIVE_FOCUS, 1);
     }
 
     public void notifyAudioOperationsComplete() {

@@ -72,6 +72,24 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class CallAudioRouteController implements CallAudioRouteAdapter {
+    public static class Factory {
+        public CallAudioRouteController create(
+                Context context, CallsManager callsManager,
+                CallAudioManager.AudioServiceFactory audioServiceFactory,
+                AudioRoute.Factory audioRouteFactory, WiredHeadsetManager wiredHeadsetManager,
+                BluetoothRouteManager bluetoothRouteManager, StatusBarNotifier notifier,
+                FeatureFlags featureFlags, TelecomMetricsController metricsController) {
+            return new CallAudioRouteController(context,
+                    callsManager,
+                    audioServiceFactory,
+                    audioRouteFactory,
+                    wiredHeadsetManager,
+                    bluetoothRouteManager,
+                    notifier,
+                    featureFlags,
+                    metricsController);
+        }
+    }
     private static final AudioRoute DUMMY_ROUTE = new AudioRoute(TYPE_INVALID, null, null);
     private static final Map<Integer, Integer> ROUTE_MAP;
     static {

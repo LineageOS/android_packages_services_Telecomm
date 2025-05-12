@@ -324,12 +324,6 @@ public class CallAudioModeStateMachine extends StateMachine {
                     Log.i(this, "AudioOperationsComplete: "
                             + "AudioManager#abandonAudioFocusRequest(); now unfocused");
                     mAudioManager.abandonAudioFocusForCall();
-                    // Clear requested communication device after the call ends.
-                    if (!mFeatureFlags.useRefactoredAudioRouteSwitching()) {
-                        mCommunicationDeviceTracker.clearCommunicationDevice(
-                                mCommunicationDeviceTracker
-                                        .getCurrentLocallyRequestedCommunicationDevice());
-                    }
                     return HANDLED;
                 default:
                     // The forced focus switch commands are handled by BaseState.

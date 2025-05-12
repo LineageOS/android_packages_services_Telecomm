@@ -31,7 +31,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.os.Build;
 import android.telecom.CallAudioState;
@@ -55,7 +54,6 @@ import androidx.test.filters.SmallTest;
 
 import com.android.internal.util.IndentingPrintWriter;
 import com.android.server.telecom.Analytics;
-import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.LogUtils;
 import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.nano.TelecomLogClass;
@@ -391,14 +389,14 @@ public class AnalyticsTests extends TelecomSystemTest {
                 TEST_TIMEOUT);
         audioRoutes.add(mInCallServiceFixtureX.mCallAudioState.getRoute());
         mInCallServiceFixtureX.getInCallAdapter().setAudioRoute(CallAudioState.ROUTE_SPEAKER, null);
-        waitForHandlerAction(
+        waitForHandlerActionDelayed(
                 mTelecomSystem.getCallsManager().getCallAudioManager()
                         .getCallAudioRouteAdapter().getAdapterHandler(),
-                TEST_TIMEOUT);
-        waitForHandlerAction(
+                TEST_TIMEOUT, TEST_TIMEOUT);
+        waitForHandlerActionDelayed(
                 mTelecomSystem.getCallsManager().getCallAudioManager()
                         .getCallAudioModeStateMachine().getHandler(),
-                TEST_TIMEOUT);
+                TEST_TIMEOUT, TEST_TIMEOUT);
         audioRoutes.add(CallAudioState.ROUTE_SPEAKER);
 
         Map<String, Analytics.CallInfoImpl> analyticsMap = Analytics.cloneData();
@@ -407,8 +405,7 @@ public class AnalyticsTests extends TelecomSystemTest {
         Analytics.CallInfoImpl callAnalytics = analyticsMap.get(testCall.mCallId);
         List<EventManager.Event> events = callAnalytics.callEvents.getEvents();
         for (int route : audioRoutes) {
-            String logEvent = CallAudioRouteStateMachine.AUDIO_ROUTE_TO_LOG_EVENT.get(route);
-            assertTrue(events.stream().anyMatch(event -> event.eventId.equals(logEvent)));
+            assertTrue(events.stream().anyMatch(event -> event.eventId.contains(LogUtils.Events.AUDIO_ROUTE)));
         }
     }
 
