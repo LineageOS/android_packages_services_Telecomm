@@ -1071,7 +1071,16 @@ public class CallsManager extends Call.ListenerBase
         }
 
         // Store the shouldSuppress value in the call object which will be passed to InCallServices
-        incomingCall.setCallIsSuppressedByDoNotDisturb(result.shouldSuppressCallDueToDndStatus);
+        if (mFeatureFlags.voipDndFocus()) {
+            // The DND call filter may not have run (e.g. for VoIP calls); in this case we should
+            // not set the DND suppression on the call to ensure Ringer.java will recalculate this
+            // and not try to use an invalid cached value.
+            if (result.isDndSuppressionDetermined()) {
+                incomingCall.setCallIsSuppressedByDoNotDisturb(result.shouldSuppressDueToDnd());
+            }
+        } else {
+            incomingCall.setCallIsSuppressedByDoNotDisturb(result.shouldSuppressCallDueToDndStatus);
+        }
 
         // Inform our connection service that call filtering is done (if it was performed at all).
         if (incomingCall.isUsingCallFiltering()) {

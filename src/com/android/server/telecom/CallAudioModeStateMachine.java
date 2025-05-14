@@ -418,6 +418,8 @@ public class CallAudioModeStateMachine extends StateMachine {
                 return;
             }
 
+            // Note: startRinging will take DND into account; if a call is suppressed by DND,
+            // the method will return false and we will not get audio focus.
             if (mCallAudioManager.startRinging()) {
                 Log.i(this, "tryStartRinging: AudioManager#requestAudioFocus(RING)");
                 mAudioManager.requestAudioFocusForCall(

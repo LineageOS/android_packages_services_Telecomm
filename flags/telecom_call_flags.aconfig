@@ -82,3 +82,14 @@ flag {
       purpose: PURPOSE_BUGFIX
     }
 }
+
+# OWNER=tgunn TARGET=25Q3
+flag {
+  name: "voip_dnd_focus"
+  namespace: "telecom"
+  description: "Ensure when call filtering is skipped that we do not use the DND filter results since they were not calculated"
+  bug: "415288638"
+  metadata {
+      purpose: PURPOSE_BUGFIX
+    }
+}

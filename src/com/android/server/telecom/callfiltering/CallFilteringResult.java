@@ -16,20 +16,50 @@
 
 package com.android.server.telecom.callfiltering;
 
+import android.annotation.IntDef;
+import android.net.Uri;
 import android.provider.CallLog;
 import android.provider.CallLog.Calls;
 import android.telecom.CallScreeningService;
 import android.text.TextUtils;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
 
 public class CallFilteringResult {
+    /**
+     * Indicates that the call filtering operation did NOT determine whether or not DND would result
+     * in suppressing the call.
+     */
+    public static final int DND_NOT_DETERMINED = 0;
+
+    /**
+     * DND has determined that this call should be suppressed. In other words,
+     * {@link android.app.NotificationManager#matchesCallFilter(Uri)} returned {@code false} and the
+     * call should not ring.
+     */
+    public static final int DND_SUPPRESSED = 1;
+
+    /**
+     * DND has determined that this call should be allowed. This means that either DND Is off, or
+     * DND is on and the call matches the criteria the user defined to allow it to bypass DND (e.g.
+     * repeated caller or someone in the user's contacts).
+     */
+    public static final int DND_NOT_SUPPRESSED = 2;
+
+    @IntDef(prefix = { "DND_" },
+            value = {DND_NOT_SUPPRESSED, DND_SUPPRESSED, DND_NOT_DETERMINED})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface DndSuppressionStatus {}
+
     public static class Builder {
         private boolean mShouldAllowCall;
         private boolean mShouldReject;
         private boolean mShouldAddToCallLog;
         private boolean mShouldShowNotification;
         private boolean mDndSuppressed = false;
+        private int mDndSuppressionStatus = DND_NOT_DETERMINED;
         private boolean mShouldSilence = false;
         private boolean mShouldScreenViaAudio = false;
         private boolean mContactExists = false;
@@ -61,6 +91,16 @@ public class CallFilteringResult {
 
         public Builder setDndSuppressed(boolean shouldPerformCheck) {
             mDndSuppressed = shouldPerformCheck;
+            return this;
+        }
+
+        /**
+         * Sets whether the call should bypass DND or not.
+         * @param status the DND suppression status.
+         * @return the builder to allow chaining.
+         */
+        public Builder setDndSuppressionStatus(@DndSuppressionStatus int status) {
+            mDndSuppressionStatus = status;
             return this;
         }
 
@@ -108,6 +148,7 @@ public class CallFilteringResult {
                     .setShouldAddToCallLog(result.shouldAddToCallLog)
                     .setShouldShowNotification(result.shouldShowNotification)
                     .setDndSuppressed(result.shouldSuppressCallDueToDndStatus)
+                    .setDndSuppressionStatus(result.dndSuppressionStatus)
                     .setShouldSilence(result.shouldSilence)
                     .setCallBlockReason(result.mCallBlockReason)
                     .setShouldScreenViaAudio(result.shouldScreenViaAudio)
@@ -121,7 +162,7 @@ public class CallFilteringResult {
         public CallFilteringResult build() {
             return new CallFilteringResult(mShouldAllowCall, mShouldReject, mShouldSilence,
                     mShouldAddToCallLog, mShouldShowNotification,
-                    mDndSuppressed, mCallBlockReason, mCallScreeningAppName,
+                    mDndSuppressed, mDndSuppressionStatus, mCallBlockReason, mCallScreeningAppName,
                     mCallScreeningComponentName, mCallScreeningResponse,
                     mIsResponseFromSystemDialer, mShouldScreenViaAudio, mContactExists);
         }
@@ -134,6 +175,7 @@ public class CallFilteringResult {
     public boolean shouldScreenViaAudio = false;
     public boolean shouldShowNotification;
     public boolean shouldSuppressCallDueToDndStatus = false;
+    @DndSuppressionStatus public int dndSuppressionStatus = DND_NOT_DETERMINED;
     public int mCallBlockReason;
     public CharSequence mCallScreeningAppName;
     public String mCallScreeningComponentName;
@@ -143,8 +185,8 @@ public class CallFilteringResult {
 
     private CallFilteringResult(boolean shouldAllowCall, boolean shouldReject, boolean
             shouldSilence, boolean shouldAddToCallLog, boolean shouldShowNotification, boolean
-            shouldSuppress, int callBlockReason, CharSequence callScreeningAppName,
-            String callScreeningComponentName,
+            shouldSuppress, @DndSuppressionStatus int dndSuppressionStatus, int callBlockReason,
+            CharSequence callScreeningAppName, String callScreeningComponentName,
             CallScreeningService.ParcelableCallResponse callScreeningResponse,
             boolean isResponseFromSystemDialer,
             boolean shouldScreenViaAudio, boolean contactExists) {
@@ -154,6 +196,7 @@ public class CallFilteringResult {
         this.shouldAddToCallLog = shouldAddToCallLog;
         this.shouldShowNotification = shouldShowNotification;
         this.shouldSuppressCallDueToDndStatus = shouldSuppress;
+        this.dndSuppressionStatus = dndSuppressionStatus;
         this.shouldScreenViaAudio = shouldScreenViaAudio;
         this.mCallBlockReason = callBlockReason;
         this.mCallScreeningAppName = callScreeningAppName;
@@ -215,9 +258,49 @@ public class CallFilteringResult {
                 .setShouldScreenViaAudio(shouldScreenViaAudio || other.shouldScreenViaAudio)
                 .setDndSuppressed(shouldSuppressCallDueToDndStatus
                         || other.shouldSuppressCallDueToDndStatus)
+                .setDndSuppressionStatus(getCombinedDndSuppressionStatus(dndSuppressionStatus,
+                        other.dndSuppressionStatus))
                 .setContactExists(contactExists || other.contactExists);
         combineScreeningResponses(b, this, other);
         return b.build();
+    }
+
+    /**
+     * Determines if a DND status has been determined.
+     * @return {@code true} if the filtering result has a DND suppression status, {@code false}
+     * otherwise.
+     */
+    public boolean isDndSuppressionDetermined() {
+        return dndSuppressionStatus != DND_NOT_DETERMINED;
+    }
+
+    /**
+     * Determines if the call should be suppressed due to DND.
+     * @return {@code true} if the call should be suppressed due to DND, {@code false} otherwise.
+     */
+    public boolean shouldSuppressDueToDnd() {
+        return dndSuppressionStatus == DND_SUPPRESSED;
+    }
+
+    /** Combine two DND suppression statuses. */
+    public static int getCombinedDndSuppressionStatus(@DndSuppressionStatus int suppressionStatus,
+            @DndSuppressionStatus int otherSuppressionStatus) {
+        int combinedDndSuppressionStatus;
+        // Suppression status combination rules in priority order:
+        // 1. If one of the filters says DND suppressed the call (even if the other didn't), we
+        // mark as suppressed.
+        // 2. If one of the filters says DND did NOT suppress the call (even if the other didn't
+        // make a determination), we mark as not-suppressed.
+        // 3. Fall back to DND_NOT_DETERMINED.
+        if (suppressionStatus == DND_SUPPRESSED || otherSuppressionStatus == DND_SUPPRESSED) {
+            combinedDndSuppressionStatus = DND_SUPPRESSED;
+        } else if (suppressionStatus == DND_NOT_SUPPRESSED
+                || otherSuppressionStatus == DND_NOT_SUPPRESSED) {
+            combinedDndSuppressionStatus = DND_NOT_SUPPRESSED;
+        } else {
+            combinedDndSuppressionStatus = DND_NOT_DETERMINED;
+        }
+        return combinedDndSuppressionStatus;
     }
 
     private boolean isBlockedByProvider(int blockReason) {
@@ -243,6 +326,8 @@ public class CallFilteringResult {
                 .setShouldShowNotification(shouldShowNotification && other.shouldShowNotification)
                 .setDndSuppressed(shouldSuppressCallDueToDndStatus
                         || other.shouldSuppressCallDueToDndStatus)
+                .setDndSuppressionStatus(getCombinedDndSuppressionStatus(dndSuppressionStatus,
+                        other.dndSuppressionStatus))
                 .setShouldScreenViaAudio(shouldScreenViaAudio || other.shouldScreenViaAudio)
                 .setCallBlockReason(callBlockReason)
                 .setCallScreeningAppName(callScreeningAppName)
@@ -336,6 +421,14 @@ public class CallFilteringResult {
 
         if (shouldSuppressCallDueToDndStatus) {
             sb.append(", DND suppressed");
+        }
+
+        if (dndSuppressionStatus == DND_NOT_DETERMINED) {
+            sb.append(", DND not determined");
+        } else if (dndSuppressionStatus == DND_SUPPRESSED) {
+            sb.append(", DND suppressed");
+        } else {
+            sb.append(", DND not suppressed");
         }
 
         if (contactExists) {

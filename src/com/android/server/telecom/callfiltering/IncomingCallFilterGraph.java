@@ -16,6 +16,8 @@
 
 package com.android.server.telecom.callfiltering;
 
+import static com.android.server.telecom.callfiltering.CallFilteringResult.DND_NOT_DETERMINED;
+
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -43,6 +45,7 @@ public class IncomingCallFilterGraph {
                     .setShouldAddToCallLog(true)
                     .setShouldShowNotification(true)
                     .setDndSuppressed(false)
+                    .setDndSuppressionStatus(DND_NOT_DETERMINED)
                     .build();
 
     private final CallFilterResultCallback mListener;

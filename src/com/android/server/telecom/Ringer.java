@@ -341,6 +341,8 @@ public class Ringer {
                 return false;
             }
 
+            Log.i(this, "startRinging: attributes=%s", attributes);
+
             if (attributes.isEndEarly()) {
                 boolean acquireAudioFocus = attributes.shouldAcquireAudioFocus();
                 if (attributes.letDialerHandleRinging()) {
@@ -838,23 +840,37 @@ public class Ringer {
         if (endEarly) {
             Log.i(
                     this,
-                    "Ending early -- letDialerHandleRinging=%s, isSelfManaged=%s, "
+                    "getRingerAttributtes: ending -- letDialerHandleRinging=%s, isSelfManaged=%s, "
                             + "hasExternalRinger=%s, silentRingingRequested=%s, "
-                            + "isWorkProfileInQuietMode=%s",
+                            + "isWorkProfileInQuietMode=%s, shouldRingForContact=%s, "
+                            + "isVolumeOverZero=%s",
                     letDialerHandleRinging,
                     isSelfManaged,
                     hasExternalRinger,
                     isSilentRingingRequested,
-                    isWorkProfileInQuietMode);
+                    isWorkProfileInQuietMode, shouldRingForContact, isVolumeOverZero);
         }
 
         // Acquire audio focus under any of the following conditions:
         // 1. Should ring for contact and there's an HFP device attached
         // 2. Volume is over zero, we should ring for the contact, and there's a audible ringtone
         //    present. (This check is deferred until ringer knows the ringtone)
-        // 3. The call is self-managed.
-        boolean shouldAcquireAudioFocus = !isWorkProfileInQuietMode &&
-                ((isHfpDeviceAttached && shouldRingForContact) || isSelfManaged);
+        boolean shouldAcquireAudioFocus;
+        if (mFlags.voipDndFocus()) {
+            shouldAcquireAudioFocus = !isWorkProfileInQuietMode &&
+                    // The previous logic for determining if audio focus should be acquired
+                    // assumed we should ALWAYS acquire audio focus for a voip call.  For non-voip
+                    // calls, the value of shouldAcquireAudioFocus we calculate here is combined
+                    // with other factors later such as whether the ringer volume is zero or if
+                    // there is a ringtone present.
+                    // For voip we should ideally only acquire ringing focus if DND didn't block the
+                    // contact and the ringer volume is over zero.
+                    ((!isSelfManaged && isHfpDeviceAttached && shouldRingForContact)
+                            || isSelfManaged && shouldRingForContact && isVolumeOverZero);
+        } else {
+            shouldAcquireAudioFocus = !isWorkProfileInQuietMode &&
+                    ((isHfpDeviceAttached && shouldRingForContact) || isSelfManaged);
+        }
 
         // Set missed reason according to attributes
         if (!isVolumeOverZero) {
