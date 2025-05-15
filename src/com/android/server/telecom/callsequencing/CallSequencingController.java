@@ -863,12 +863,19 @@ public class CallSequencingController {
      */
     public void disconnectCall(Call call, int previousState) {
         CompletableFuture<Boolean> disconnectFuture = call.disconnect();
+        int newState = call.getState();
+        mCallsManager.notifyCallStateChangeForDisconnect(call, previousState);
         disconnectFuture.thenComposeAsync((result) -> {
             if (result) {
                 Log.i(this, "disconnectCall: Disconnect call transaction succeeded. "
                         + "Processing associated cleanup.");
                 mCallsManager.processDisconnectCallAndCleanup(call, previousState);
             } else {
+                // Revert the disconnecting state that was set as a result of invoking
+                // Call#disconnect and make sure the reverted state is notified to the registered
+                // listeners.
+                call.setLocallyDisconnecting(false);
+                mCallsManager.notifyCallStateChangeForDisconnect(call, newState);
                 Log.i(this, "disconnectCall: Disconnect call transaction failed. "
                         + "Aborting associated cleanup.");
             }

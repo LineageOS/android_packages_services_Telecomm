@@ -620,6 +620,7 @@ public class CallSequencingTests extends TelecomTestCase {
         when(mActiveCall.disconnect()).thenReturn(CompletableFuture.completedFuture(true));
         int previousState = CallState.ACTIVE;
         mController.disconnectCall(mActiveCall, previousState);
+        verify(mCallsManager).notifyCallStateChangeForDisconnect(any(Call.class), anyInt());
         verify(mCallsManager, timeout(SEQUENCING_TIMEOUT_MS))
                 .processDisconnectCallAndCleanup(eq(mActiveCall), eq(previousState));
     }
@@ -630,8 +631,12 @@ public class CallSequencingTests extends TelecomTestCase {
         when(mActiveCall.disconnect()).thenReturn(CompletableFuture.completedFuture(false));
         int previousState = CallState.ACTIVE;
         mController.disconnectCall(mActiveCall, previousState);
+        verify(mCallsManager).notifyCallStateChangeForDisconnect(any(Call.class), anyInt());
         verify(mCallsManager, timeout(SEQUENCING_TIMEOUT_MS).times(0))
                 .processDisconnectCallAndCleanup(eq(mActiveCall), eq(previousState));
+        verify(mCallsManager, timeout(SEQUENCING_TIMEOUT_MS).times(2))
+                .notifyCallStateChangeForDisconnect(any(Call.class), anyInt());
+        verify(mActiveCall, timeout(SEQUENCING_TIMEOUT_MS)).setLocallyDisconnecting(eq(false));
     }
 
     @Test
