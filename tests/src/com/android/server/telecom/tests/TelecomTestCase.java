@@ -16,6 +16,8 @@
 
 package com.android.server.telecom.tests;
 
+import static org.mockito.Mockito.when;
+
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -25,6 +27,7 @@ import android.telecom.Log;
 import androidx.test.InstrumentationRegistry;
 
 import com.android.server.telecom.flags.FeatureFlags;
+import com.android.server.telecom.flags.FeatureFlagsImpl;
 
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -52,6 +55,7 @@ public abstract class TelecomTestCase {
         mMockitoHelper.setUp(InstrumentationRegistry.getContext(), getClass());
         MockitoAnnotations.initMocks(this);
 
+        when(mFeatureFlags.voipDndFocus()).thenReturn(new FeatureFlagsImpl().voipDndFocus());
         mComponentContextFixture = new ComponentContextFixture(mFeatureFlags);
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
         Log.setSessionManager(mComponentContextFixture.getTestDouble().getApplicationContext(),

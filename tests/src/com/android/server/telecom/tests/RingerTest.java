@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNotNull;
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -59,6 +60,7 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.os.VibratorInfo;
 import android.platform.test.annotations.EnableFlags;
+import android.platform.test.annotations.RequiresFlagsEnabled;
 import android.platform.test.flag.junit.CheckFlagsRule;
 import android.platform.test.flag.junit.DeviceFlagsValueProvider;
 import android.platform.test.flag.junit.SetFlagsRule;
@@ -791,6 +793,52 @@ public class RingerTest extends TelecomTestCase {
         assertFalse(mRingerUnderTest.shouldRingForContact(mockCall1));
         verify(mockCall1, never()).setCallIsSuppressedByDoNotDisturb(false);
         verify(mockNotificationManager, never()).matchesCallFilter(any(Uri.class));
+    }
+
+    /**
+     * Ensure that when the call filter did not run we will re-computer it in Ringer.
+     */
+    @Test
+    @RequiresFlagsEnabled(com.android.server.telecom.flags.Flags.FLAG_VOIP_DND_FOCUS)
+    public void testShouldRingForContact_matchesCallfilterIsNotComputed() {
+        // We assume the caller cannot bypass DND.
+        when(mockNotificationManager.matchesCallFilter(any(Uri.class))).thenReturn(false);
+
+        // WHEN
+        // This should mean we are recomputing "matchesCallFilter".
+        when(mockCall1.wasDndCheckComputedForCall()).thenReturn(false);
+
+        // THEN
+        assertFalse(mRingerUnderTest.shouldRingForContact(mockCall1));
+        // Because DND Filter was not computed, we should not check the call.
+        verify(mockCall1, never()).isCallSuppressedByDoNotDisturb();
+        // This should not have been set on the call since it was never computed.
+        verify(mockCall1, never()).setCallIsSuppressedByDoNotDisturb(anyBoolean());
+        // Expect this to be recomputed now, where it did not in the prior case.
+        verify(mockNotificationManager).matchesCallFilter(any(Uri.class));
+    }
+
+    /**
+     * Ensure that when the call filter did not run we will re-computer it in Ringer.
+     */
+    @Test
+    @RequiresFlagsEnabled(com.android.server.telecom.flags.Flags.FLAG_VOIP_DND_FOCUS)
+    public void testShouldRingForContact_matchesCallfilterIsNotComputedTwo() {
+        // We assume the caller can bypass DND.
+        when(mockNotificationManager.matchesCallFilter(any(Uri.class))).thenReturn(true);
+
+        // WHEN
+        // This should mean we are recomputing "matchesCallFilter".
+        when(mockCall1.wasDndCheckComputedForCall()).thenReturn(false);
+
+        // THEN
+        assertTrue(mRingerUnderTest.shouldRingForContact(mockCall1));
+        // Because DND Filter was not computed, we should not check the call.
+        verify(mockCall1, never()).isCallSuppressedByDoNotDisturb();
+        // This should not have been called since it was not determined during filtering.
+        verify(mockCall1, never()).setCallIsSuppressedByDoNotDisturb(anyBoolean());
+        // Expect this to be recomputed now, where it did not in the prior case.
+        verify(mockNotificationManager).matchesCallFilter(any(Uri.class));
     }
 
     @Test

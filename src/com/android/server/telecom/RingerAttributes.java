@@ -75,6 +75,21 @@ public class RingerAttributes {
     }
 
     private boolean mEndEarly;
+
+    @Override
+    public String toString() {
+        return "RingerAttributes{" +
+                "mEndEarly=" + mEndEarly +
+                ", mLetDialerHandleRinging=" + mLetDialerHandleRinging +
+                ", mAcquireAudioFocus=" + mAcquireAudioFocus +
+                ", mRingerAudible=" + mRingerAudible +
+                ", mInaudibleReason='" + mInaudibleReason + '\'' +
+                ", mShouldRingForContact=" + mShouldRingForContact +
+                ", mSilentRingingRequested=" + mSilentRingingRequested +
+                ", mWorkProfileQuietMode=" + mWorkProfileQuietMode +
+                '}';
+    }
+
     private boolean mLetDialerHandleRinging;
     private boolean mAcquireAudioFocus;
     private boolean mRingerAudible;

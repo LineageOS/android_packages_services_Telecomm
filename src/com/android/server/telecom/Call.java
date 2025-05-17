@@ -2118,14 +2118,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     private void processCachedCallbacks(CallSourceService service) {
-        if(mFlags.cacheCallAudioCallbacks()) {
-            synchronized (mCachedServiceCallbacks) {
-                for (List<CachedCallback> callbacks : mCachedServiceCallbacks.values()) {
-                    callbacks.forEach( callback -> callback.executeCallback(service, this));
-                }
-                // clear list for memory cleanup purposes. The Service should never be reset
-                mCachedServiceCallbacks.clear();
+        synchronized (mCachedServiceCallbacks) {
+            for (List<CachedCallback> callbacks : mCachedServiceCallbacks.values()) {
+                callbacks.forEach(callback -> callback.executeCallback(service, this));
             }
+            // clear list for memory cleanup purposes. The Service should never be reset
+            mCachedServiceCallbacks.clear();
         }
     }
 

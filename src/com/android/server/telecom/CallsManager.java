@@ -153,7 +153,6 @@ import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.ToastFactory;
 import com.android.server.telecom.callsequencing.voip.VoipCallMonitor;
 import com.android.server.telecom.callsequencing.TransactionManager;
-import com.android.server.telecom.callsequencing.voip.VoipCallMonitorLegacy;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -519,7 +518,6 @@ public class CallsManager extends Call.ListenerBase
     private final EmergencyCallHelper mEmergencyCallHelper;
     private final RoleManagerAdapter mRoleManagerAdapter;
     private final VoipCallMonitor mVoipCallMonitor;
-    private final VoipCallMonitorLegacy mVoipCallMonitorLegacy;
     private final CallEndpointController mCallEndpointController;
     private final CallAnomalyWatchdog mCallAnomalyWatchdog;
 
@@ -536,7 +534,7 @@ public class CallsManager extends Call.ListenerBase
 
     private final IncomingCallFilterGraphProvider mIncomingCallFilterGraphProvider;
     private CallAudioWatchdog mCallAudioWatchDog;
-    private final CallAudioRouteAdapter mCallAudioRouteAdapter;
+    private CallAudioRouteAdapter mCallAudioRouteAdapter;
 
     private final ConnectionServiceFocusManager.CallsManagerRequester mRequester =
             new ConnectionServiceFocusManager.CallsManagerRequester() {
@@ -643,7 +641,7 @@ public class CallsManager extends Call.ListenerBase
             ClockProxy clockProxy,
             AudioProcessingNotification audioProcessingNotification,
             BluetoothStateReceiver bluetoothStateReceiver,
-            CallAudioRouteStateMachine.Factory callAudioRouteStateMachineFactory,
+            CallAudioRouteController.Factory audioRouteControllerFactory,
             CallAudioModeStateMachine.Factory callAudioModeStateMachineFactory,
             InCallControllerFactory inCallControllerFactory,
             CallDiagnosticServiceController callDiagnosticServiceController,
@@ -713,27 +711,9 @@ public class CallsManager extends Call.ListenerBase
 
         mDtmfLocalTonePlayer =
                 new DtmfLocalTonePlayer(new DtmfLocalTonePlayer.ToneGeneratorProxy(), featureFlags);
-        // TODO: add another flag check when
-        // bluetoothDeviceManager.getBluetoothHeadset().isScoManagedByAudio()
-        // available and return true
-        if (!featureFlags.useRefactoredAudioRouteSwitching()) {
-            mCallAudioRouteAdapter = callAudioRouteStateMachineFactory.create(
-                    context,
-                    this,
-                    bluetoothManager,
-                    wiredHeadsetManager,
-                    statusBarNotifier,
-                    audioServiceFactory,
-                    CallAudioRouteStateMachine.EARPIECE_AUTO_DETECT,
-                    asyncCallAudioTaskExecutor,
-                    communicationDeviceTracker,
-                    featureFlags
-            );
-        } else {
-            mCallAudioRouteAdapter = new CallAudioRouteController(context, this,
-                    audioServiceFactory, new AudioRoute.Factory(), wiredHeadsetManager,
-                    mBluetoothRouteManager, statusBarNotifier, featureFlags, metricsController);
-        }
+        mCallAudioRouteAdapter = audioRouteControllerFactory.create(context, this,
+                audioServiceFactory, new AudioRoute.Factory(), wiredHeadsetManager,
+                mBluetoothRouteManager, statusBarNotifier, featureFlags, metricsController);
         mCallAudioRouteAdapter.initialize();
         bluetoothStateReceiver.setCallAudioRouteAdapter(mCallAudioRouteAdapter);
         bluetoothDeviceManager.setCallAudioRouteAdapter(mCallAudioRouteAdapter);
@@ -809,16 +789,10 @@ public class CallsManager extends Call.ListenerBase
         mCallStreamingController = new CallStreamingController(mContext, mLock);
         mCallStreamingNotification = callStreamingNotification;
         mFeatureFlags = featureFlags;
-        if (mFeatureFlags.voipCallMonitorRefactor()) {
-            mVoipCallMonitor = new VoipCallMonitor(
-                    mContext,
-                    new Handler(Looper.getMainLooper()),
-                    mLock);
-            mVoipCallMonitorLegacy = null;
-        } else {
-            mVoipCallMonitor = null;
-            mVoipCallMonitorLegacy = new VoipCallMonitorLegacy(mContext, mLock);
-        }
+        mVoipCallMonitor = new VoipCallMonitor(
+                mContext,
+                new Handler(Looper.getMainLooper()),
+                mLock);
         mTelephonyFeatureFlags = telephonyFlags;
         mMetricsController = metricsController;
         mBlockedNumbersManager = mFeatureFlags.telecomMainlineBlockedNumbersManager()
@@ -853,13 +827,8 @@ public class CallsManager extends Call.ListenerBase
         mListeners.add(mCallStreamingNotification);
         mListeners.add(mCallAudioWatchDog);
 
-        if (mFeatureFlags.voipCallMonitorRefactor()) {
-            mVoipCallMonitor.registerNotificationListener();
-            mListeners.add(mVoipCallMonitor);
-        } else {
-            mVoipCallMonitorLegacy.startMonitor();
-            mListeners.add(mVoipCallMonitorLegacy);
-        }
+        mVoipCallMonitor.registerNotificationListener();
+        mListeners.add(mVoipCallMonitor);
 
         // There is no USER_SWITCHED broadcast for user 0, handle it here explicitly.
         final UserManager userManager = mContext.getSystemService(UserManager.class);
@@ -1089,7 +1058,16 @@ public class CallsManager extends Call.ListenerBase
         }
 
         // Store the shouldSuppress value in the call object which will be passed to InCallServices
-        incomingCall.setCallIsSuppressedByDoNotDisturb(result.shouldSuppressCallDueToDndStatus);
+        if (mFeatureFlags.voipDndFocus()) {
+            // The DND call filter may not have run (e.g. for VoIP calls); in this case we should
+            // not set the DND suppression on the call to ensure Ringer.java will recalculate this
+            // and not try to use an invalid cached value.
+            if (result.isDndSuppressionDetermined()) {
+                incomingCall.setCallIsSuppressedByDoNotDisturb(result.shouldSuppressDueToDnd());
+            }
+        } else {
+            incomingCall.setCallIsSuppressedByDoNotDisturb(result.shouldSuppressCallDueToDndStatus);
+        }
 
         // Inform our connection service that call filtering is done (if it was performed at all).
         if (incomingCall.isUsingCallFiltering()) {
@@ -3677,6 +3655,19 @@ public class CallsManager extends Call.ListenerBase
         }
         mPendingAccountSelection.remove(callId);
     }
+
+    /**
+     * Derived from the disconnectCallOld logic to ensure that the registered listeners are notified
+     * of the disconnecting state once the call is disconnected. This is used for call sequencing.
+     * @param call The call to notify the state change for.
+     * @param previousState The previous call state before the disconnect.
+     */
+    public void notifyCallStateChangeForDisconnect(Call call, int previousState) {
+        for (CallsManagerListener listener : mListeners) {
+            listener.onCallStateChanged(call, previousState, call.getState());
+        }
+    }
+
     /**
      * Disconnects calls for any other {@link PhoneAccountHandle} but the one specified.
      * Note: As a protective measure, will NEVER disconnect an emergency call.  Although that
@@ -5796,10 +5787,18 @@ public class CallsManager extends Call.ListenerBase
                 return;
             }
             if (am.getStreamVolume(AudioManager.STREAM_VOICE_CALL) == 0) {
-                Log.i(this,
-                        "ensureCallAudible: voice call stream has volume 0. Adjusting to default.");
-                am.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
-                        AudioSystem.getDefaultStreamVolume(AudioManager.STREAM_VOICE_CALL), 0);
+                if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                    Log.i(this, "ensureCallAudible: voice call stream has volume 0. "
+                            + "Adjusting to average.");
+                    int averageStreamVolume = (am.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL)
+                            + am.getStreamMinVolume(AudioManager.STREAM_VOICE_CALL)) / 2;
+                    am.setStreamVolume(AudioManager.STREAM_VOICE_CALL, averageStreamVolume, 0);
+                } else {
+                    Log.i(this, "ensureCallAudible: voice call stream has volume 0. "
+                            + "Adjusting to default.");
+                    am.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
+                            AudioSystem.getDefaultStreamVolume(AudioManager.STREAM_VOICE_CALL), 0);
+                }
             }
         });
     }
@@ -7224,20 +7223,18 @@ public class CallsManager extends Call.ListenerBase
 
     public void waitForAudioToUpdate(boolean expectActive) {
         Log.i(this, "waitForAudioToUpdate");
-        if (mFeatureFlags.useRefactoredAudioRouteSwitching()) {
-            try {
-                CallAudioRouteController audioRouteController =
-                        (CallAudioRouteController) mCallAudioRouteAdapter;
-                if (expectActive) {
-                    audioRouteController.getAudioActiveCompleteLatch().await(
-                            WAIT_FOR_AUDIO_UPDATE_TIMEOUT, TimeUnit.MILLISECONDS);
-                } else {
-                    audioRouteController.getAudioOperationsCompleteLatch().await(
-                            WAIT_FOR_AUDIO_UPDATE_TIMEOUT, TimeUnit.MILLISECONDS);
-                }
-            } catch (InterruptedException e) {
-                Log.w(this, e.toString());
+        try {
+            CallAudioRouteController audioRouteController =
+                    (CallAudioRouteController) mCallAudioRouteAdapter;
+            if (expectActive) {
+                audioRouteController.getAudioActiveCompleteLatch().await(
+                        WAIT_FOR_AUDIO_UPDATE_TIMEOUT, TimeUnit.MILLISECONDS);
+            } else {
+                audioRouteController.getAudioOperationsCompleteLatch().await(
+                        WAIT_FOR_AUDIO_UPDATE_TIMEOUT, TimeUnit.MILLISECONDS);
             }
+        } catch (InterruptedException e) {
+            Log.w(this, e.toString());
         }
     }
 

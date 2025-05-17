@@ -324,12 +324,6 @@ public class CallAudioModeStateMachine extends StateMachine {
                     Log.i(this, "AudioOperationsComplete: "
                             + "AudioManager#abandonAudioFocusRequest(); now unfocused");
                     mAudioManager.abandonAudioFocusForCall();
-                    // Clear requested communication device after the call ends.
-                    if (!mFeatureFlags.useRefactoredAudioRouteSwitching()) {
-                        mCommunicationDeviceTracker.clearCommunicationDevice(
-                                mCommunicationDeviceTracker
-                                        .getCurrentLocallyRequestedCommunicationDevice());
-                    }
                     return HANDLED;
                 default:
                     // The forced focus switch commands are handled by BaseState.
@@ -424,6 +418,8 @@ public class CallAudioModeStateMachine extends StateMachine {
                 return;
             }
 
+            // Note: startRinging will take DND into account; if a call is suppressed by DND,
+            // the method will return false and we will not get audio focus.
             if (mCallAudioManager.startRinging()) {
                 Log.i(this, "tryStartRinging: AudioManager#requestAudioFocus(RING)");
                 mAudioManager.requestAudioFocusForCall(

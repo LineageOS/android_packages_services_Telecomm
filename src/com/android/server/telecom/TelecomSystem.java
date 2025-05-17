@@ -394,6 +394,8 @@ public class TelecomSystem {
                             (packageName, userHandle) -> AppLabelProxy.Util.getAppLabel(mContext,
                                     userHandle, packageName, mFeatureFlags), asyncTaskExecutor,
                             mFeatureFlags);
+            CallAudioRouteController.Factory audioRouteControllerFactory =
+                    new CallAudioRouteController.Factory();
 
             mCallsManager = new CallsManager(
                     mContext,
@@ -419,7 +421,7 @@ public class TelecomSystem {
                     clockProxy,
                     audioProcessingNotification,
                     bluetoothStateReceiver,
-                    callAudioRouteStateMachineFactory,
+                    audioRouteControllerFactory,
                     callAudioModeStateMachineFactory,
                     inCallControllerFactory,
                     callDiagnosticServiceController,

@@ -156,9 +156,16 @@ public class DefaultDialerCache {
 
         Uri defaultDialerSetting =
                 Settings.Secure.getUriFor(Settings.Secure.DIALER_DEFAULT_APPLICATION);
-        context.getContentResolver()
-                .registerContentObserver(defaultDialerSetting, false, mDefaultDialerObserver,
-                        UserHandle.USER_ALL);
+
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()){
+            context.getContentResolver()
+                    .registerContentObserverAsUser(defaultDialerSetting, false,
+                            mDefaultDialerObserver, UserHandle.ALL);
+        } else {
+            context.getContentResolver()
+                    .registerContentObserver(defaultDialerSetting, false,
+                            mDefaultDialerObserver, UserHandle.USER_ALL);
+        }
     }
 
     public String[] getBTInCallServicePackages() {

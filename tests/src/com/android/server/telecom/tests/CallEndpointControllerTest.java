@@ -108,6 +108,7 @@ public class CallEndpointControllerTest extends TelecomTestCase {
                 mFeatureFlags);
         doReturn(new HashSet<>(Arrays.asList(mCall))).when(mCallsManager).getTrackedCalls();
         doReturn(mConnectionService).when(mCall).getConnectionService();
+        doReturn(mConnectionService).when(mCall).getService();
         doReturn(mCallAudioManager).when(mCallsManager).getCallAudioManager();
         when(mMockContext.getText(R.string.callendpoint_name_earpiece)).thenReturn("Earpiece");
         when(mMockContext.getText(R.string.callendpoint_name_bluetooth)).thenReturn("Bluetooth");

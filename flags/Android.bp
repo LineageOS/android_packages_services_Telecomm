@@ -44,6 +44,5 @@ aconfig_declarations {
         "telecom_non_critical_security_flags.aconfig",
         "telecom_headless_system_user_mode.aconfig",
         "telecom_metrics_flags.aconfig",
-        "telecom_voip_flags.aconfig",
     ],
 }

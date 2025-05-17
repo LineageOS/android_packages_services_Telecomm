@@ -95,6 +95,7 @@ import com.android.server.telecom.CallAnomalyWatchdog;
 import com.android.server.telecom.CallAudioCommunicationDeviceTracker;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioModeStateMachine;
+import com.android.server.telecom.CallAudioRouteController;
 import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.CallDiagnosticServiceController;
 import com.android.server.telecom.CallEndpointController;
@@ -297,8 +298,8 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private CallEndpointControllerFactory mCallEndpointControllerFactory;
     @Mock private CallEndpointController mCallEndpointController;
     @Mock private ConnectionServiceFocusManager mConnectionSvrFocusMgr;
-    @Mock private CallAudioRouteStateMachine mCallAudioRouteStateMachine;
-    @Mock private CallAudioRouteStateMachine.Factory mCallAudioRouteStateMachineFactory;
+    @Mock private CallAudioRouteController mCallAudioRouteController;
+    @Mock private CallAudioRouteController.Factory mCallAudioRouteControllerFactory;
     @Mock private CallAudioModeStateMachine mCallAudioModeStateMachine;
     @Mock private CallAudioModeStateMachine.Factory mCallAudioModeStateMachineFactory;
     @Mock private CallDiagnosticServiceController mCallDiagnosticServiceController;
@@ -340,8 +341,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 any())).thenReturn(mInCallController);
         when(mCallEndpointControllerFactory.create(any(), any(), any())).thenReturn(
                 mCallEndpointController);
-        when(mCallAudioRouteStateMachineFactory.create(any(), any(), any(), any(), any(), any(),
-                anyInt(), any(), any(), any())).thenReturn(mCallAudioRouteStateMachine);
+        when(mCallAudioRouteControllerFactory.create(any(), any(), any(), any(), any(), any(),
+                any(), any(), any())).thenReturn(mCallAudioRouteController);
         when(mCallAudioModeStateMachineFactory.create(any(), any(), any(), any()))
                 .thenReturn(mCallAudioModeStateMachine);
         when(mClockProxy.currentTimeMillis()).thenReturn(System.currentTimeMillis());
@@ -381,7 +382,7 @@ public class CallsManagerTest extends TelecomTestCase {
                 mClockProxy,
                 mAudioProcessingNotification,
                 mBluetoothStateReceiver,
-                mCallAudioRouteStateMachineFactory,
+                mCallAudioRouteControllerFactory,
                 mCallAudioModeStateMachineFactory,
                 mInCallControllerFactory,
                 mCallDiagnosticServiceController,
@@ -1597,7 +1598,7 @@ public class CallsManagerTest extends TelecomTestCase {
         mCallsManager.onMediaButton(HeadsetMediaButton.LONG_PRESS);
 
         // THEN the microphone toggle mute
-        verify(mCallAudioRouteStateMachine)
+        verify(mCallAudioRouteController)
                 .sendMessageWithSessionInfo(CallAudioRouteStateMachine.TOGGLE_MUTE);
     }
 
@@ -3426,6 +3427,7 @@ public class CallsManagerTest extends TelecomTestCase {
         verify(mComponentContextFixture.getAudioManager(), times(1)).setStreamVolume(
                 eq(AudioManager.STREAM_VOICE_CALL), anyInt(), anyInt());
     }
+
     @MediumTest
     @Test
     public void testSetCallDialingAndIncreaseVolume() {
@@ -3439,6 +3441,26 @@ public class CallsManagerTest extends TelecomTestCase {
         // We set the volume to zero above, so expect 2
         verify(mComponentContextFixture.getAudioManager(), times(2)).setStreamVolume(
                 eq(AudioManager.STREAM_VOICE_CALL), anyInt(), anyInt());
+    }
+
+    @MediumTest
+    @Test
+    public void testSetCallDialingAndCalculateAverageVolume() {
+        // This test specificaslly tests the new behavior guarded by this flag:
+        when(mFeatureFlags.resolveHiddenDependenciesTwo()).thenReturn(true);
+
+        // Start with a zero volume stream.
+        mComponentContextFixture.getAudioManager().setStreamVolume(AudioManager.STREAM_VOICE_CALL,
+                0, 0 /* flags */);
+
+        Call call = mock(Call.class);
+        mCallsManager.markCallAsDialing(call);
+
+        // Ensure we calculate the new volume using the average of AudioManager min and max volume:
+        verify(mComponentContextFixture.getAudioManager(), times(1))
+                .getStreamMaxVolume(eq(AudioManager.STREAM_VOICE_CALL));
+        verify(mComponentContextFixture.getAudioManager(), times(1))
+                .getStreamMinVolume(eq(AudioManager.STREAM_VOICE_CALL));
     }
 
     @MediumTest

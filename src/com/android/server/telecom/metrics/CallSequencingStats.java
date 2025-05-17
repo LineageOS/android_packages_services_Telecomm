@@ -136,12 +136,10 @@ public class CallSequencingStats extends TelecomPulledAtom {
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     public void log(CallSequencingStatsKey key, int duration) {
-        post(() -> {
-            CallSequencingStatsData data = mCallSequencingStatsMap
-                    .computeIfAbsent(key, k -> new CallSequencingStatsData(0, 0));
-            data.add(duration);
-            onAggregate();
-        });
+        CallSequencingStatsData data = mCallSequencingStatsMap
+                .computeIfAbsent(key, k -> new CallSequencingStatsData(0, 0));
+        data.add(duration);
+        onAggregate();
     }
 
     public void onCallEnd(Call call) {

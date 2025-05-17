@@ -124,9 +124,7 @@ public class BluetoothDeviceManager {
                         synchronized (mLock) {
                             String logString;
                             if (profile == BluetoothProfile.HEADSET) {
-                                if (mFeatureFlags.useRefactoredAudioRouteSwitching()) {
-                                    mBluetoothHeadsetFuture.complete((BluetoothHeadset) proxy);
-                                }
+                                mBluetoothHeadsetFuture.complete((BluetoothHeadset) proxy);
                                 mBluetoothHeadset = (BluetoothHeadset) proxy;
                                 logString = "Got BluetoothHeadset: " + mBluetoothHeadset;
                             } else if (profile == BluetoothProfile.HEARING_AID) {
@@ -194,9 +192,7 @@ public class BluetoothDeviceManager {
                             LinkedHashMap<String, BluetoothDevice> lostServiceDevices;
                             String logString;
                             if (profile == BluetoothProfile.HEADSET) {
-                                if (mFeatureFlags.useRefactoredAudioRouteSwitching()) {
-                                    mBluetoothHeadsetFuture.complete(null);
-                                }
+                                mBluetoothHeadsetFuture = new CompletableFuture<>();
                                 mBluetoothHeadset = null;
                                 lostServiceDevices = mHfpDevicesByAddress;
                                 mBluetoothRouteManager.onActiveDeviceChanged(null,
@@ -222,17 +218,7 @@ public class BluetoothDeviceManager {
                             }
                             Log.i(BluetoothDeviceManager.this, logString);
                             mLocalLog.log(logString);
-
-                            if (mFeatureFlags.useRefactoredAudioRouteSwitching()) {
-                                handleAudioRefactoringServiceDisconnected(profile);
-                            } else {
-                                List<BluetoothDevice> devicesToRemove = new LinkedList<>(
-                                        lostServiceDevices.values());
-                                lostServiceDevices.clear();
-                                for (BluetoothDevice device : devicesToRemove) {
-                                    mBluetoothRouteManager.onDeviceLost(device.getAddress());
-                                }
-                            }
+                            handleAudioRefactoringServiceDisconnected(profile);
                         }
                     } finally {
                         Log.endSession();
@@ -336,9 +322,7 @@ public class BluetoothDeviceManager {
             bluetoothAdapter.getProfileProxy(context, mBluetoothProfileServiceListener,
                     BluetoothProfile.LE_AUDIO);
         }
-        if (mFeatureFlags.useRefactoredAudioRouteSwitching()) {
-            mBluetoothHeadsetFuture = new CompletableFuture<>();
-        }
+        mBluetoothHeadsetFuture = new CompletableFuture<>();
         mAudioManager = context.getSystemService(AudioManager.class);
         mExecutor = context.getMainExecutor();
         mCommunicationDeviceTracker = communicationDeviceTracker;
@@ -444,19 +428,15 @@ public class BluetoothDeviceManager {
     }
 
     public BluetoothHeadset getBluetoothHeadset() {
-        if (mFeatureFlags.useRefactoredAudioRouteSwitching()) {
-            try {
-                mBluetoothHeadset = mBluetoothHeadsetFuture.get(500L,
-                        TimeUnit.MILLISECONDS);
-                return mBluetoothHeadset;
-            } catch (TimeoutException | InterruptedException | ExecutionException e) {
-                // ignore
-                Log.w(this, "getBluetoothHeadset: Acquire BluetoothHeadset service failed due to: "
-                        + e);
-                return null;
-            }
-        } else {
+        try {
+            mBluetoothHeadset = mBluetoothHeadsetFuture.get(500L,
+                    TimeUnit.MILLISECONDS);
             return mBluetoothHeadset;
+        } catch (TimeoutException | InterruptedException | ExecutionException e) {
+            // ignore
+            Log.w(this, "getBluetoothHeadset: Acquire BluetoothHeadset service failed due to: "
+                    + e);
+            return null;
         }
     }
 
@@ -473,7 +453,11 @@ public class BluetoothDeviceManager {
     }
 
     public void setHeadsetServiceForTesting(BluetoothHeadset bluetoothHeadset) {
-        mBluetoothHeadset = bluetoothHeadset;
+        if (bluetoothHeadset == null) {
+            mBluetoothHeadsetFuture = CompletableFuture.completedFuture(null);
+        } else {
+            mBluetoothHeadsetFuture.complete(bluetoothHeadset);
+        }
     }
 
     public void setHearingAidServiceForTesting(BluetoothHearingAid bluetoothHearingAid) {
@@ -482,7 +466,9 @@ public class BluetoothDeviceManager {
 
     public void setLeAudioServiceForTesting(BluetoothLeAudio bluetoothLeAudio) {
         mBluetoothLeAudioService = bluetoothLeAudio;
-        mBluetoothLeAudioService.registerCallback(mExecutor, mLeAudioCallbacks);
+        if (mBluetoothLeAudioService != null) {
+            mBluetoothLeAudioService.registerCallback(mExecutor, mLeAudioCallbacks);
+        }
     }
 
     public static String getDeviceTypeString(int deviceType) {
@@ -540,8 +526,7 @@ public class BluetoothDeviceManager {
                 Log.i(this, "onDeviceConnected: Adding device with address: %s and devicetype=%s",
                         device, getDeviceTypeString(deviceType));
                 targetDeviceMap.put(device.getAddress(), device);
-                if (!mFeatureFlags.keepBluetoothDevicesCacheUpdated()
-                        || !mFeatureFlags.useRefactoredAudioRouteSwitching()) {
+                if (!mFeatureFlags.keepBluetoothDevicesCacheUpdated()) {
                     mBluetoothRouteManager.onDeviceAdded(device.getAddress());
                 }
             }
@@ -575,8 +560,7 @@ public class BluetoothDeviceManager {
                 Log.i(this, "onDeviceDisconnected: Removing device with address: %s, devicetype=%s",
                         device, getDeviceTypeString(deviceType));
                 targetDeviceMap.remove(device.getAddress());
-                if (!mFeatureFlags.keepBluetoothDevicesCacheUpdated()
-                        || !mFeatureFlags.useRefactoredAudioRouteSwitching()) {
+                if (!mFeatureFlags.keepBluetoothDevicesCacheUpdated()) {
                     mBluetoothRouteManager.onDeviceLost(device.getAddress());
                 }
             }

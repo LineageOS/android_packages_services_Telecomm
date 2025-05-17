@@ -17,6 +17,7 @@
 package com.android.server.telecom.components;
 
 import com.android.server.telecom.PhoneAccountRegistrar;
+import com.android.server.telecom.flags.Flags;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -79,6 +80,9 @@ public class AppUninstallBroadcastReceiver extends BroadcastReceiver {
      * @param packageName The name of the removed package.
      */
     private void handlePackageRemoved(Context context, String packageName) {
+        if (Flags.resolveHiddenDependenciesTwo()) {
+            return;
+        }
         final TelecomManager telecomManager = context.getSystemService(TelecomManager.class);
         if (telecomManager != null) {
             telecomManager.clearAccountsForPackage(packageName);
