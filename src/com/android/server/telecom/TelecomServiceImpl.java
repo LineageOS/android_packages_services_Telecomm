@@ -36,10 +36,12 @@ import android.app.AppOpsManager;
 import android.app.UiModeManager;
 import android.app.compat.CompatChanges;
 import android.content.AttributionSource;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.PermissionChecker;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -55,6 +57,8 @@ import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.permission.PermissionManager;
 import android.provider.BlockedNumberContract;
 import android.provider.BlockedNumbersManager;
@@ -92,6 +96,7 @@ import com.android.server.telecom.settings.BlockedNumbersActivity;
 import com.android.server.telecom.callsequencing.TransactionManager;
 import com.android.server.telecom.callsequencing.CallTransaction;
 import com.android.server.telecom.callsequencing.CallTransactionResult;
+import com.android.server.telecom.PackageRemovedReceiver;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -175,6 +180,7 @@ public class TelecomServiceImpl {
     private final CallsManager mCallsManager;
     private TransactionManager mTransactionManager;
     private final PermissionManager mPermissionManager;
+    private PackageRemovedReceiver mPackageRemovedReceiver;
     private final ITelecomService.Stub mBinderImpl = new ITelecomService.Stub() {
 
         @Override
@@ -3070,6 +3076,8 @@ public class TelecomServiceImpl {
         mMetricsController = metricsController;
         mSystemUiPackageName = sysUiPackageName;
 
+        setupPackageRemovedReceiver(phoneAccountRegistrar);
+
         mDefaultDialerCache.observeDefaultDialerApplication(mContext.getMainExecutor(), userId -> {
             String defaultDialer = mDefaultDialerCache.getDefaultDialerApplication(userId);
             if (defaultDialer == null) {
@@ -3090,6 +3098,60 @@ public class TelecomServiceImpl {
         mBlockedNumbersManager = mFeatureFlags.telecomMainlineBlockedNumbersManager()
                 ? mContext.getSystemService(BlockedNumbersManager.class)
                 : null;
+    }
+
+    /**
+     * Helper function to initialize and register a BroadcastReceiver for package removal events.
+     * This setup runs on a background thread if the specified feature flag is enabled.
+     * Assumes this method is called only once or is protected against multiple thread creations.
+     */
+    private void setupPackageRemovedReceiver(PhoneAccountRegistrar phoneAccountRegistrar) {
+        if (!mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            Log.i(TAG, "resolveHiddenDependenciesTwo' is disabled");
+            return;
+        }
+
+        if (mPackageRemovedReceiver != null) {
+            Log.w(TAG, "PackageRemovedReceiver appears to be already initialized. Skipping setup.");
+            return;
+        }
+
+        // IMPORTANT: This thread, once started, will run for the lifetime of the process
+        // unless the process is killed, as we won't have a reference to 'quit()' it later.
+        HandlerThread localHandlerThread = new HandlerThread("TelRemoveAcctsBckgrndThread");
+        localHandlerThread.start(); // The thread starts and will keep running.
+
+        // Get a Handler associated with the local background thread's Looper.
+        Handler backgroundHandler = new Handler(localHandlerThread.getLooper());
+
+        // IntentFilter for package removal events.
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
+        filter.addDataScheme("package");
+
+        mPackageRemovedReceiver = new PackageRemovedReceiver(
+                phoneAccountRegistrar,
+                backgroundHandler,
+                new UserHandleWrapper());
+
+        try {
+            Log.v(TAG, "Registering PackageRemovedReceiver (local thread) for all users" +
+                    " with RECEIVER_NOT_EXPORTED flag.");
+            mContext.registerReceiverAsUser(
+                    mPackageRemovedReceiver,
+                    UserHandle.ALL,
+                    filter,
+                    null,
+                    backgroundHandler, // Handler uses the local thread's Looper
+                    Context.RECEIVER_NOT_EXPORTED);
+            Log.v(TAG, "PackageRemovedReceiver (local thread) registered successfully.");
+        } catch (Exception e) {
+            if (localHandlerThread.isAlive()) {
+                localHandlerThread.quitSafely(); // Attempt to clean up the just-started thread
+                Log.w(TAG, "Attempted to quit localHandlerThread due to registration failure.");
+            }
+            mPackageRemovedReceiver = null;
+        }
     }
 
     @VisibleForTesting

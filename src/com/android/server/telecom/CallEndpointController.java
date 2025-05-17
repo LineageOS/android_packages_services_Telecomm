@@ -201,16 +201,7 @@ public class CallEndpointController extends CallsManagerListenerBase {
 
         List<Call> calls = new ArrayList<>(mCallsManager.getTrackedCalls());
         for (Call call : calls) {
-            if (mFeatureFlags.cacheCallAudioCallbacks()) {
-                onCallEndpointChangedOrCache(call);
-            } else {
-                if (call != null && call.getConnectionService() != null) {
-                    call.getConnectionService().onCallEndpointChanged(call, mActiveCallEndpoint);
-                } else if (call != null && call.getTransactionServiceWrapper() != null) {
-                    call.getTransactionServiceWrapper()
-                            .onCallEndpointChanged(call, mActiveCallEndpoint);
-                }
-            }
+            onCallEndpointChangedOrCache(call);
         }
     }
 
@@ -231,17 +222,7 @@ public class CallEndpointController extends CallsManagerListenerBase {
 
         List<Call> calls = new ArrayList<>(mCallsManager.getTrackedCalls());
         for (Call call : calls) {
-            if (mFeatureFlags.cacheCallAudioCallbacks()) {
-                onAvailableEndpointsChangedOrCache(call);
-            } else {
-                if (call != null && call.getConnectionService() != null) {
-                    call.getConnectionService().onAvailableCallEndpointsChanged(call,
-                            mAvailableCallEndpoints);
-                } else if (call != null && call.getTransactionServiceWrapper() != null) {
-                    call.getTransactionServiceWrapper().onAvailableCallEndpointsChanged(call,
-                            mAvailableCallEndpoints);
-                }
-            }
+            onAvailableEndpointsChangedOrCache(call);
         }
     }
 
@@ -262,15 +243,7 @@ public class CallEndpointController extends CallsManagerListenerBase {
 
         List<Call> calls = new ArrayList<>(mCallsManager.getTrackedCalls());
         for (Call call : calls) {
-            if (mFeatureFlags.cacheCallAudioCallbacks()) {
-                onMuteStateChangedOrCache(call, isMuted);
-            } else {
-                if (call != null && call.getConnectionService() != null) {
-                    call.getConnectionService().onMuteStateChanged(call, isMuted);
-                } else if (call != null && call.getTransactionServiceWrapper() != null) {
-                    call.getTransactionServiceWrapper().onMuteStateChanged(call, isMuted);
-                }
-            }
+            onMuteStateChangedOrCache(call, isMuted);
         }
     }
 

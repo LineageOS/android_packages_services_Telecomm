@@ -881,7 +881,6 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
     }
 
     @Test
-    @Ignore("b/417789369")
     public void testCallSequencingStatsLog() throws Exception {
         CallSequencingStats callSequencingStats =
                 spy(new CallSequencingStats(mSpyContext, mLooper, false));
