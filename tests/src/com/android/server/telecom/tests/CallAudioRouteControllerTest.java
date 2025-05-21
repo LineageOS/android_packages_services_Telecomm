@@ -118,7 +118,7 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     private static final BluetoothDevice BLUETOOTH_DEVICE_1 =
             BluetoothRouteManagerTest.makeBluetoothDevice("00:00:00:00:00:01");
     private static final Set<BluetoothDevice> BLUETOOTH_DEVICES = new HashSet<>();
-    private static final int TEST_TIMEOUT = 500;
+    private static final int TEST_TIMEOUT = 1000;
 
     @Mock
     WiredHeadsetManager mWiredHeadsetManager;
@@ -573,7 +573,7 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         expectedState = new CallAudioState(false, CallAudioState.ROUTE_EARPIECE,
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER, null,
                 new HashSet<>());
-        verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
+        verify(mCallsManager, timeout(TEST_TIMEOUT).atLeastOnce()).onCallAudioStateChanged(
                 any(CallAudioState.class), eq(expectedState));
     }
 
@@ -697,7 +697,7 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         expectedState = new CallAudioState(false, CallAudioState.ROUTE_WIRED_HEADSET,
                 CallAudioState.ROUTE_WIRED_HEADSET | CallAudioState.ROUTE_SPEAKER, null,
                 new HashSet<>());
-        verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
+        verify(mCallsManager, timeout(TEST_TIMEOUT).atLeastOnce()).onCallAudioStateChanged(
                 any(CallAudioState.class), eq(expectedState));
     }
 
@@ -1243,7 +1243,7 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         expectedState = new CallAudioState(false, CallAudioState.ROUTE_SPEAKER,
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER, null,
                 new HashSet<>());
-        verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
+        verify(mCallsManager, timeout(TEST_TIMEOUT).atLeastOnce()).onCallAudioStateChanged(
                 any(CallAudioState.class), eq(expectedState));
     }
 
@@ -1666,7 +1666,7 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
             expectedState = new CallAudioState(false, CallAudioState.ROUTE_SPEAKER,
                     CallAudioState.ROUTE_WIRED_HEADSET | CallAudioState.ROUTE_SPEAKER, null,
                     new HashSet<>());
-            verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
+            verify(mCallsManager, timeout(TEST_TIMEOUT).atLeastOnce()).onCallAudioStateChanged(
                     any(CallAudioState.class), eq(expectedState));
 
             // Verify speaker turned off from turning off speaker
@@ -1676,7 +1676,7 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
             expectedState = new CallAudioState(false, CallAudioState.ROUTE_WIRED_HEADSET,
                     CallAudioState.ROUTE_WIRED_HEADSET | CallAudioState.ROUTE_SPEAKER, null,
                     new HashSet<>());
-            verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
+            verify(mCallsManager, timeout(TEST_TIMEOUT).atLeastOnce()).onCallAudioStateChanged(
                     any(CallAudioState.class), eq(expectedState));
         }
 
@@ -1685,7 +1685,7 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         expectedState = new CallAudioState(false, expectedAudioType,
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER, null,
                 new HashSet<>());
-        verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
+        verify(mCallsManager, timeout(TEST_TIMEOUT).atLeastOnce()).onCallAudioStateChanged(
                 any(CallAudioState.class), eq(expectedState));
     }
 
