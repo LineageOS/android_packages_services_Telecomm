@@ -141,7 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Det aktive opkald kan ikke udskiftes, da det ikke understøtter funktionen til at sætte opkald på hold. Afslut det nuværende opkald for at gøre opkaldet, der er på hold, aktivt."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Der kan ikke foretages et opkald, fordi et indgående opkald ringer. Besvar eller afvis det indgående opkald, før du foretager et nyt opkald."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Denne MMI-kode er ikke tilgængelig for opkald på tværs af flere konti."</string>
-    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Opkaldet kan ikke afbrydes under en sammenlægning."</string>
+    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Opkaldet kan ikke afbrydes under en fletning."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"MMI-koder kan ikke ringe under et nødopkald."</string>
     <string name="noApplications" msgid="1703149220378476198">"Der er ingen apps, der kan foretage denne handling."</string>
     <string name="android_system_label" msgid="2730611410547215779">"Android-system"</string>

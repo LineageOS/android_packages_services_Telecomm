@@ -260,14 +260,6 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
                         device.getAddress())) {
                     Log.i(this, "handleActiveDeviceChanged: Failed to set "
                             + "communication device for %s.", device);
-                } else {
-                    // Track the currently set communication device.
-                    mCallAudioRouteAdapter.getPendingAudioRoute()
-                            .setCommunicationDeviceType(audioRouteType);
-                    if (audioRouteType == AudioRoute.TYPE_BLUETOOTH_SCO) {
-                        mCallAudioRouteAdapter.getPendingAudioRoute()
-                                .addMessage(BT_AUDIO_CONNECTED, device.getAddress());
-                    }
                 }
             }
         }

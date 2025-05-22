@@ -3879,13 +3879,23 @@ public class CallsManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testIgnoreMaxRingingCallOnSameNumber() {
+        verifyMaxRingingCallNoError(SIM_1_HANDLE, TEST_ADDRESS);
+    }
+
+    @SmallTest
+    @Test
+    public void testIgnoreMaxRingingCallOnSamePhoneAccount() {
+        verifyMaxRingingCallNoError(SIM_2_HANDLE, TEST_ADDRESS2);
+    }
+
+    private void verifyMaxRingingCallNoError(PhoneAccountHandle handle, Uri address) {
         when(mFeatureFlags.enableCallSequencing()).thenReturn(true);
         when(mFeatureFlags.allowCallOnSameConnectionMgr()).thenReturn(true);
         setupCallerInfoLookupHelper();
         ConnectionServiceWrapper service = mock(ConnectionServiceWrapper.class);
-        doReturn(SIM_1_HANDLE.getComponentName()).when(service).getComponentName();
-        mCallsManager.addConnectionServiceRepositoryCache(SIM_1_HANDLE.getComponentName(),
-                SIM_1_HANDLE.getUserHandle(), service);
+        doReturn(handle.getComponentName()).when(service).getComponentName();
+        mCallsManager.addConnectionServiceRepositoryCache(handle.getComponentName(),
+                handle.getUserHandle(), service);
         when(mPhoneAccountRegistrar.phoneAccountRequiresBindPermission(
                 any(PhoneAccountHandle.class))).thenReturn(true);
 
@@ -3900,8 +3910,8 @@ public class CallsManagerTest extends TelecomTestCase {
 
         // THEN, add a new incoming call with the same number as the 1st call
         Bundle extras = new Bundle();
-        extras.putParcelable(TelecomManager.EXTRA_INCOMING_CALL_ADDRESS, TEST_ADDRESS);
-        Call newCall = mCallsManager.processIncomingCallIntent(SIM_2_HANDLE, extras, false);
+        extras.putParcelable(TelecomManager.EXTRA_INCOMING_CALL_ADDRESS, address);
+        Call newCall = mCallsManager.processIncomingCallIntent(handle, extras, false);
         // Verify we don't mark the call as auto missed and that the connection doesn't fail
         // locally.
         assertEquals(existingIncomingCall, mCallsManager.getRingingOrSimulatedRingingCall());
