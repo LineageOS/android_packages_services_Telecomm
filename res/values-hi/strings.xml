@@ -141,7 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"चालू कॉल को स्वैप नहीं किया जा सकता, क्योंकि इसमें होल्ड करने की सुविधा नहीं है. होल्ड पर रखी गई कॉल को चालू करने के लिए, चल रहे कॉल को डिसकनेक्ट करें."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"कॉल नहीं किया जा सकता, क्योंकि एक इनकमिंग कॉल का जवाब नहीं दिया जा रहा है. नया कॉल करने से पहले इनकमिंग कॉल का जवाब दें या उसे अस्वीकार करें."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"किसी दूसरे खाते पर चल रहे कॉल के दौरान, इस एमएमआई कोड का इस्तेमाल नहीं किया जा सकता."</string>
-    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"किसी कॉल को मर्ज करने के दौरान उसे डिसकनेक्ट नहीं किया जा सकता."</string>
+    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"मर्ज करने की प्रोसेस के दौरान, कॉल को डिसकनेक्ट नहीं किया जा सकता."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"आपातकालीन कॉल के दौरान, MMI कोड डायल नहीं किए जा सकते."</string>
     <string name="noApplications" msgid="1703149220378476198">"कोई भी ऐप्लिकेशन यह कार्रवाई नहीं कर सकता."</string>
     <string name="android_system_label" msgid="2730611410547215779">"Android सिस्टम"</string>

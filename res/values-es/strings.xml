@@ -141,7 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"No se puede intercambiar la llamada activa porque no se puede poner en espera. Desconecta la llamada activa para activar la llamada en espera."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"No se puede llamar porque hay una llamada entrante sin responder. Contéstala o recházala antes de hacer otra llamada."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Este código MMI no está disponible para hacer llamadas con varias cuentas."</string>
-    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"La llamada no se puede desconectar durante una combinación."</string>
+    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"El teléfono no puede colgarse mientras se combinan las llamadas."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"No se pueden marcar códigos MMI durante las llamadas de emergencia."</string>
     <string name="noApplications" msgid="1703149220378476198">"Ninguna aplicación puede realizar esta acción."</string>
     <string name="android_system_label" msgid="2730611410547215779">"Sistema Android"</string>

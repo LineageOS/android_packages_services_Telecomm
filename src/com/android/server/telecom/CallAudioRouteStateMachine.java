@@ -1642,6 +1642,11 @@ public class CallAudioRouteStateMachine extends StateMachine implements CallAudi
         // ignore, only used in CallAudioRouteController
     }
 
+    @Override
+    public void sendMessageWithSessionInfoAtFront(int message, int arg, int data) {
+        // ignore, only used in CallAudioRouteController
+    }
+
     public void sendMessageWithSessionInfo(int message, int arg, BluetoothDevice bluetoothDevice) {
         // ignore, only used in CallAudioRouteController
     }

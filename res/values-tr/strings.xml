@@ -141,7 +141,7 @@
     <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Bekletme özelliği desteklenmediğinden etkin arama değiştirilemiyor. Beklemedeki aramayı etkinleştirmek için mevcut aramayı sonlandırın."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Gelen arama olduğu için arama yapılamıyor. Yeni bir arama yapmadan önce gelen aramayı cevaplayın veya reddedin."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Bu MMI kodu, birden fazla hesaptan arama yapılırken kullanılamaz."</string>
-    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Birleştirme sırasında aramanın bağlantısı kesilemez."</string>
+    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Birleştirilmiş aramadayken görüşme sonlandırılamaz."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Acil durum aramalarında MMI kodları kullanılamaz."</string>
     <string name="noApplications" msgid="1703149220378476198">"Bu eylemi hiçbir uygulama gerçekleştiremez."</string>
     <string name="android_system_label" msgid="2730611410547215779">"Android Sistemi"</string>

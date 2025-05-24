@@ -22,7 +22,10 @@ import static android.provider.Settings.Global.ZEN_MODE_IMPORTANT_INTERRUPTIONS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assume.assumeNotNull;
+import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -96,6 +99,10 @@ import org.mockito.Spy;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 @RunWith(JUnit4.class)
@@ -206,6 +213,9 @@ public class RingerTest extends TelecomTestCase {
     @Override
     @After
     public void tearDown() throws Exception {
+        if (mRingerUnderTest != null) {
+            mRingerUnderTest.shutdownExecutor();
+        }
         super.tearDown();
     }
 
@@ -963,6 +973,63 @@ public class RingerTest extends TelecomTestCase {
             RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE,
                     defaultRingtoneUri);
         }
+    }
+
+    /**
+     * Verifies that the Ringer's internal ExecutorService is correctly shut down via
+     * {@link Ringer#shutdownExecutor()} and can be re-initialized on a subsequent call to
+     * {@link Ringer#getExecutor()}.
+     */
+    @SmallTest
+    @Test
+    public void testExecutorServiceLifecycle_ShutdownAndRecreation() throws Exception {
+        // Get the initial executor and verify it's active
+        ExecutorService executor1 = mRingerUnderTest.getExecutor();
+        assertNotNull(executor1);
+        assertFalse("ExecutorService should not be shutdown initially", executor1.isShutdown());
+
+        // Ensure it can execute a task
+        CountDownLatch task1Latch = new CountDownLatch(1);
+        executor1.execute(task1Latch::countDown);
+        assertTrue("Task 1 should execute on initial executor",
+                task1Latch.await(1, TimeUnit.SECONDS));
+
+        // Shutdown the executor
+        mRingerUnderTest.shutdownExecutor();
+
+        // Verify the original executor instance is shutdown
+        assertTrue("ExecutorService (exec1) should be shutdown after call to shutdownExecutor()",
+                executor1.isShutdown());
+        // Depending on the exact implementation of shutdownExecutor,
+        // isTerminated might also be true or become true quickly.
+        // shutdownExecutor calls awaitTermination, so it should be terminated.
+        assertTrue("ExecutorService (exec1) should be terminated",
+                executor1.awaitTermination(500, TimeUnit.MILLISECONDS));
+
+
+        // Attempting to execute on the old, shutdown executor should fail
+        try {
+            executor1.execute(() -> {
+                // This should not run
+            });
+            fail("Executing a task on a shutdown executor (exec1) should throw" +
+                    " RejectedExecutionException");
+        } catch (RejectedExecutionException e) {
+            // Expected behavior
+        }
+
+        // Get the executor again; it should be a new, active instance
+        ExecutorService executor2 = mRingerUnderTest.getExecutor();
+        assertNotNull(executor2);
+        assertNotSame("Should get a new ExecutorService instance after shutdown and re-request",
+                executor1, executor2);
+        assertFalse("New ExecutorService (exec2) should not be shutdown", executor2.isShutdown());
+
+        // Ensure the new executor can execute tasks
+        CountDownLatch task2Latch = new CountDownLatch(1);
+        executor2.execute(task2Latch::countDown);
+        assertTrue("Task 2 should execute on new executor (exec2)",
+                task2Latch.await(1, TimeUnit.SECONDS));
     }
 
     /**

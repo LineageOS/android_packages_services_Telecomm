@@ -547,6 +547,14 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     }
 
     @Override
+    public void sendMessageWithSessionInfoAtFront(int message, int arg, int data) {
+        SomeArgs args = SomeArgs.obtain();
+        args.arg1 = Log.createSubsession();
+        args.arg2 = data;
+        mHandler.sendMessageAtFrontOfQueue(Message.obtain(mHandler, message, arg, 0, args));
+    }
+
+    @Override
     public void sendMessageWithSessionInfo(int message, int arg, BluetoothDevice bluetoothDevice) {
         SomeArgs args = SomeArgs.obtain();
         args.arg1 = Log.createSubsession();
