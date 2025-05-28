@@ -30,3 +30,14 @@ flag {
     purpose: PURPOSE_BUGFIX
   }
 }
+
+# OWNER=breadley TARGET=25Q3
+flag {
+  name: "select_phone_account_before_making_room"
+  namespace: "telecom"
+  description: "Select the PhoneAccount before making room for the call"
+  bug: "417370866"
+  metadata {
+    purpose: PURPOSE_BUGFIX
+  }
+}

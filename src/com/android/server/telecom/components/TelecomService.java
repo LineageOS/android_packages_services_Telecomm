@@ -249,7 +249,7 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                             },
                             ConnectionServiceFocusManager::new,
                             new Timeouts.Adapter(),
-                            new AsyncRingtonePlayer(),
+                            new AsyncRingtonePlayer(featureFlags),
                             new PhoneNumberUtilsAdapterImpl(),
                             new IncomingCallNotifier(context, featureFlags),
                             ToneGenerator::new,

@@ -99,6 +99,7 @@ import org.mockito.Spy;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
@@ -141,7 +142,6 @@ public class RingerTest extends TelecomTestCase {
     @Mock Ringer.AccessibilityManagerAdapter mockAccessibilityManagerAdapter;
     @Mock private FeatureFlags mFeatureFlags;
     @Mock private AnomalyReporterAdapter mAnomalyReporterAdapter;
-
     @Spy Ringer.VibrationEffectProxy spyVibrationEffectProxy;
 
     @Mock InCallTonePlayer mockTonePlayer;
@@ -154,7 +154,7 @@ public class RingerTest extends TelecomTestCase {
 
     TestLooperManager mLooperManager;
     boolean mIsHapticPlaybackSupported = true;  // Note: initializeRinger() after changes.
-    AsyncRingtonePlayer asyncRingtonePlayer = new AsyncRingtonePlayer();
+    AsyncRingtonePlayer asyncRingtonePlayer;
     Ringer mRingerUnderTest;
     AudioManager mockAudioManager;
     CompletableFuture<Void> mRingCompletionFuture = new CompletableFuture<>();
@@ -172,6 +172,7 @@ public class RingerTest extends TelecomTestCase {
         FeatureFlags featureFlags = new FeatureFlagsImpl();
         when(mFeatureFlags.resolveHiddenDependenciesTwo()).thenReturn(
                 featureFlags.resolveHiddenDependenciesTwo());
+         asyncRingtonePlayer = new AsyncRingtonePlayer(mFeatureFlags);
         doReturn(URI_VIBRATION_EFFECT).when(spyVibrationEffectProxy).get(any(), any());
         when(mockPlayerFactory.createPlayer(any(Call.class), anyInt())).thenReturn(mockTonePlayer);
         mockAudioManager = mock(AudioManager.class);
@@ -695,6 +696,14 @@ public class RingerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testDelayRingerForBtHfpDevices() throws Exception {
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            delayRingerForBtHfpDevicesExecutor();
+        } else {
+            delayRingerForBtHfpDevicesHandler();
+        }
+    }
+
+    private void delayRingerForBtHfpDevicesHandler() throws Exception {
         acquireLooper();
 
         asyncRingtonePlayer.updateBtActiveState(false);
@@ -722,9 +731,84 @@ public class RingerTest extends TelecomTestCase {
         assertFalse(mRingerUnderTest.isRinging());
     }
 
+    private void delayRingerForBtHfpDevicesExecutor() throws Exception {
+        asyncRingtonePlayer.updateBtActiveState(false);
+        Ringtone mockRingtone = ensureRingtoneMocked();
+
+        ensureRingerIsAudible();
+        assertTrue(mRingerUnderTest.startRinging(mockCall1, true /* isHfpDeviceConnected */));
+        assertTrue(mRingerUnderTest.isRinging());
+
+        // For Executor, the PlayRunnable is submitted and runs up to the latch await on its own.
+        // At this point, ringtone play should be delayed
+        verify(mockRingtone, never()).play(); // Verify play() has NOT been called yet
+
+        // Now, simulate BT HFP audio becoming active
+        asyncRingtonePlayer.updateBtActiveState(true);
+        // For Executor, the latch is released, and PlayRunnable proceeds on its own.
+
+        // Wait for the asynchronous play operation to complete its BiConsumer callback
+        try {
+            mRingCompletionFuture.get(1, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            throw new AssertionError("mRingCompletionFuture did not complete after BT" +
+                    " active state update in Executor path.", e);
+        }
+
+        // Verifications after play should have started
+        verify(mockRingtoneFactory, atLeastOnce())
+                .getRingtone(any(Call.class), nullable(VolumeShaper.Configuration.class),
+                        anyBoolean());
+        verifyNoMoreInteractions(mockRingtoneFactory);
+        verify(mockRingtone).play();
+
+        // Now stop ringing
+        mRingerUnderTest.stopRinging();
+
+        // For Executor, the StopRunnable is posted.
+        // Wait for the stop() call on the mockRingtone with a timeout.
+        verify(mockRingtone, timeout(500).times(1)).stop();
+
+        assertFalse(mRingerUnderTest.isRinging()); // Ringer state should be updated
+    }
+
     @SmallTest
     @Test
     public void testUnblockRingerForStopCommand() throws Exception {
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            unblockRingerForStopCommandExecutor();
+        } else {
+            unblockRingerForStopCommandHandler();
+        }
+    }
+
+    private void unblockRingerForStopCommandExecutor() {
+        asyncRingtonePlayer.updateBtActiveState(false); // Make play wait on latch
+        Ringtone mockRingtone = ensureRingtoneMocked();
+
+        ensureRingerIsAudible();
+        assertTrue(mRingerUnderTest.startRinging(mockCall1, true /* isHfpDeviceConnected */));
+
+        mRingerUnderTest.stopRinging();
+        try {
+            // Wait for the play pathway in AsyncRingtonePlayer to acknowledge the stop
+            // by invoking its consumer, which in turn completes this future.
+            mRingCompletionFuture.get(1, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            throw new AssertionError("mRingCompletionFuture did not complete after" +
+                    " stopRinging. Indicates play operation was not properly unblocked and" +
+                    " terminated", e);
+        }
+
+        // Verifications:
+        // 1. The ringtone should never have started playing because it was stopped while waiting.
+        verify(mockRingtone, never()).play();
+
+        // 2. The Ringer itself should no longer be in a ringing state.
+        assertFalse(mRingerUnderTest.isRinging());
+    }
+
+    private void unblockRingerForStopCommandHandler() {
         acquireLooper();
 
         asyncRingtonePlayer.updateBtActiveState(false);

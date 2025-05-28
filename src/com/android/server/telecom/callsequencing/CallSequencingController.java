@@ -539,7 +539,7 @@ public class CallSequencingController {
             return transactionFuture;
         }
 
-        Call liveCall = mCallsManager.getFirstCallWithLiveState();
+        Call liveCall = mCallsManager.getFirstCallWithLiveState(emergencyCall);
         Log.i(this, "makeRoomForOutgoingEmergencyCall: call = " + emergencyCall
                 + " livecall = " + liveCall);
 
@@ -745,7 +745,7 @@ public class CallSequencingController {
 
         // NOTE: If the amount of live calls changes beyond 1, this logic will probably
         // have to change.
-        Call liveCall = mCallsManager.getFirstCallWithLiveState();
+        Call liveCall = mCallsManager.getFirstCallWithLiveState(call);
         Log.i(this, "makeRoomForOutgoingCall call = " + call + " livecall = " +
                 liveCall);
 

@@ -680,7 +680,7 @@ public class CallSequencingTests extends TelecomTestCase {
         when(mCallsManager.hasRingingOrSimulatedRingingCall()).thenReturn(true);
         when(mCallsManager.getRingingOrSimulatedRingingCall()).thenReturn(mRingingCall);
         when(mCallsManager.hasMaximumLiveCalls(mNewCall)).thenReturn(true);
-        when(mCallsManager.getFirstCallWithLiveState()).thenReturn(mActiveCall);
+        when(mCallsManager.getFirstCallWithLiveState(mNewCall)).thenReturn(mActiveCall);
         when(mCallsManager.hasMaximumOutgoingCalls(mNewCall)).thenReturn(false);
         when(mCallsManager.hasMaximumManagedHoldingCalls(mNewCall)).thenReturn(false);
         when(mCallsManager.canHold(mActiveCall)).thenReturn(true);
@@ -718,7 +718,7 @@ public class CallSequencingTests extends TelecomTestCase {
 
     private void setupMakeRoomForOutgoingCallMocks() {
         when(mCallsManager.hasMaximumLiveCalls(mNewCall)).thenReturn(true);
-        when(mCallsManager.getFirstCallWithLiveState()).thenReturn(mActiveCall);
+        when(mCallsManager.getFirstCallWithLiveState(mNewCall)).thenReturn(mActiveCall);
         setPhoneAccounts(mActiveCall, mNewCall, false);
         when(mActiveCall.isConference()).thenReturn(false);
         when(mCallsManager.hasMaximumOutgoingCalls(mNewCall)).thenReturn(false);

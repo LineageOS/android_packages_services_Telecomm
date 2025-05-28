@@ -32,9 +32,12 @@ import android.util.Pair;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.os.SomeArgs;
 import com.android.internal.util.Preconditions;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -55,14 +58,22 @@ public class AsyncRingtonePlayer {
     /** Handler running on the ringtone thread. */
     private Handler mHandler;
 
+    /**
+     * The ExecutorService used for handling asynchronous ringtone operations.
+     * Employing ExecutorService aligns with modern Java concurrency best practices
+     * and is the recommended approach for managing asynchronous tasks, offering better
+     * resource control and flexibility over direct thread management.
+     */
+    private ExecutorService mExecutor;
+
     /** The current ringtone. Only used by the ringtone thread. */
     private Ringtone mRingtone;
 
     /**
      * Set to true if we are setting up to play or are currently playing. False if we are stopping
-     * or have stopped playing.
+     * or have stopped playing. Made volatile for thread safety.
      */
-    private boolean mIsPlaying = false;
+    private volatile boolean mIsPlaying = false;
 
     /**
      * Set to true if BT HFP is active and audio is connected.
@@ -75,8 +86,10 @@ public class AsyncRingtonePlayer {
      */
     private final ArrayList<CountDownLatch> mPendingRingingLatches = new ArrayList<>();
 
-    public AsyncRingtonePlayer() {
-        // Empty
+    private final FeatureFlags mFeatureFlags;
+
+    public AsyncRingtonePlayer(FeatureFlags featureFlags) {
+        mFeatureFlags = featureFlags;
     }
 
     /**
@@ -85,7 +98,8 @@ public class AsyncRingtonePlayer {
      * the volume of the ringtone as it plays.
      *
      * @param ringtoneInfoSupplier The {@link Ringtone} factory.
-     * @param ringtoneConsumer The {@link Ringtone} post-creation callback (to start the vibration).
+     * @param ringtoneConsumer     The {@link Ringtone} post-creation callback (to start the
+     *                             vibration).
      * @param isHfpDeviceConnected True if there is a HFP BT device connected, false otherwise.
      */
     public void play(@NonNull Supplier<Pair<Uri, Ringtone>> ringtoneInfoSupplier,
@@ -98,14 +112,23 @@ public class AsyncRingtonePlayer {
         args.arg2 = ringtoneConsumer;
         args.arg3 = Log.createSubsession();
         args.arg4 = prepareRingingReadyLatch(isHfpDeviceConnected);
-        postMessage(EVENT_PLAY, true /* shouldCreateHandler */, args);
+
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            postTask(() -> handlePlayExecutor(args));
+        } else {
+            postMessage(EVENT_PLAY, true /* shouldCreateHandler */, args);
+        }
     }
 
     /** Stops playing the ringtone. */
     public void stop() {
         Log.d(this, "Posting stop.");
         mIsPlaying = false;
-        postMessage(EVENT_STOP, false /* shouldCreateHandler */, null);
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            postTask(this::handleStopExecutor);
+        } else {
+            postMessage(EVENT_STOP, false /* shouldCreateHandler */, null);
+        }
         // Clear any pending ringing latches so that we do not have to wait for its timeout to pass
         // before calling stop.
         clearPendingRingingLatches();
@@ -113,6 +136,7 @@ public class AsyncRingtonePlayer {
 
     /**
      * Called when the BT HFP profile active state changes.
+     *
      * @param isBtActive A BT device is connected and audio is active.
      */
     public void updateBtActiveState(boolean isBtActive) {
@@ -126,6 +150,7 @@ public class AsyncRingtonePlayer {
     /**
      * Prepares a new ringing ready latch and tracks it in a list. Once the ready latch has been
      * used, {@link #removePendingRingingReadyLatch(CountDownLatch)} must be called on this latch.
+     *
      * @param isHfpDeviceConnected true if there is a HFP device connected.
      * @return the newly prepared CountDownLatch
      */
@@ -146,6 +171,7 @@ public class AsyncRingtonePlayer {
 
     /**
      * Remove a ringing ready latch that has been used and is no longer pending.
+     *
      * @param l The latch to remove.
      */
     private void removePendingRingingReadyLatch(CountDownLatch l) {
@@ -168,11 +194,11 @@ public class AsyncRingtonePlayer {
      * Posts a message to the ringtone-thread handler. Creates the handler if specified by the
      * parameter shouldCreateHandler.
      *
-     * @param messageCode The message to post.
+     * @param messageCode         The message to post.
      * @param shouldCreateHandler True when a handler should be created to handle this message.
      */
     private void postMessage(int messageCode, boolean shouldCreateHandler, SomeArgs args) {
-        synchronized(this) {
+        synchronized (this) {
             if (mHandler == null && shouldCreateHandler) {
                 mHandler = getNewHandler();
             }
@@ -204,7 +230,7 @@ public class AsyncRingtonePlayer {
         return new Handler(thread.getLooper(), null /*callback*/, true /*async*/) {
             @Override
             public void handleMessage(Message msg) {
-                switch(msg.what) {
+                switch (msg.what) {
                     case EVENT_PLAY:
                         handlePlay((SomeArgs) msg.obj);
                         break;
@@ -298,7 +324,7 @@ public class AsyncRingtonePlayer {
 
         setRingtone(null);
 
-        synchronized(this) {
+        synchronized (this) {
             if (mHandler.hasMessages(EVENT_PLAY)) {
                 Log.v(this, "Keeping alive ringtone thread for subsequent play request.");
             } else {
@@ -318,7 +344,7 @@ public class AsyncRingtonePlayer {
     }
 
     private void setRingtone(@Nullable Ringtone ringtone) {
-        Log.i(this, "setRingtone: ringtone null="  + (ringtone == null));
+        Log.i(this, "setRingtone: ringtone null=" + (ringtone == null));
         // Make sure that any previously created instance of Ringtone is stopped so the MediaPlayer
         // can be released, before replacing mRingtone with a new instance. This is always created
         // as a looping Ringtone, so if not stopped it will keep playing on the background.
@@ -327,5 +353,140 @@ public class AsyncRingtonePlayer {
             mRingtone.stop();
         }
         mRingtone = ringtone;
+    }
+
+    /**
+     * Submits a task to the executor. Creates the executor if it doesn't exist or is terminated.
+     * (New method for Executor logic)
+     */
+    private void postTask(Runnable task) {
+        synchronized (this) {
+            if (mExecutor == null || mExecutor.isShutdown() || mExecutor.isTerminated()) {
+                Log.v(this, "Creating new single thread executor.");
+                mExecutor = Executors.newSingleThreadExecutor();
+            }
+            mExecutor.execute(task);
+        }
+    }
+
+    /**
+     * Starts the actual playback of the ringtone using Executor logic.
+     * Executes on the executor thread.
+     */
+    @SuppressWarnings("unchecked")
+    private void handlePlayExecutor(SomeArgs args) {
+        Supplier<Pair<Uri, Ringtone>> ringtoneInfoSupplier =
+                (Supplier<Pair<Uri, Ringtone>>) args.arg1;
+        BiConsumer<Pair<Uri, Ringtone>, Boolean> ringtoneConsumer =
+                (BiConsumer<Pair<Uri, Ringtone>, Boolean>) args.arg2;
+        Session session = (Session) args.arg3;
+        CountDownLatch ringingReadyLatch = (CountDownLatch) args.arg4;
+
+        Log.continueSession(session, "ARP.hPE");
+        try {
+            // Check if stop() was called (mIsPlaying becomes false)
+            if (!mIsPlaying) {
+                Log.i(this,
+                        "handlePlay: skipping play early (path 1) as mIsPlaying "
+                                + "is false.");
+                removePendingRingingReadyLatch(ringingReadyLatch);
+                ringtoneConsumer.accept(null, /* stopped= */ true);
+                return;
+            }
+
+            Ringtone localRingtoneInstance = null;
+            Uri localRingtoneUri = null;
+            boolean stoppedMidProcessing = false;
+
+            try {
+                try {
+                    Log.i(this, "handlePlay: delay ring for ready signal...");
+                    if (ringingReadyLatch != null) {
+                        boolean reachedZero = ringingReadyLatch.await(PLAY_DELAY_TIMEOUT_MS,
+                                TimeUnit.MILLISECONDS);
+                        Log.i(this, "handlePlay: ringing ready, timeout="
+                                + !reachedZero);
+                    }
+                } catch (InterruptedException e) {
+                    Log.w(this, "handlePlay: latch exception: " + e);
+                }
+
+                if (ringtoneInfoSupplier != null) {
+                    Pair<Uri, Ringtone> info = ringtoneInfoSupplier.get();
+                    if (info != null) {
+                        localRingtoneUri = info.first;
+                        localRingtoneInstance = info.second;
+                    }
+                }
+
+                if (!mIsPlaying) {
+                    Log.i(this,
+                            "handlePlay: skipping play (path 2) after ringtone "
+                                    + "supply as mIsPlaying is false.");
+                    stoppedMidProcessing = true;
+                    if (localRingtoneInstance != null) {
+                        localRingtoneInstance.stop();
+                    }
+                    return;
+                }
+                // setRingtone even if null - it also stops any current ringtone to be consistent
+                // with the overall state.
+                setRingtone(localRingtoneInstance);
+                if (mRingtone == null) {
+                    // The ringtoneConsumer can still vibrate at this stage.
+                    Log.w(this, "No ringtone was found bail out from playing.");
+                    return;
+                }
+
+                String uriString = localRingtoneUri != null ? localRingtoneUri.toSafeString() : "";
+                Log.i(this, "handlePlay: Play ringtone. Uri: " + uriString);
+                mRingtone.setLooping(true);
+                if (mRingtone.isPlaying()) {
+                    Log.d(this, "Ringtone already playing (mRingtone).");
+                    return;
+                }
+                mRingtone.play();
+                Log.i(this, "Play ringtone, looping (mRingtone).");
+
+            } finally {
+                removePendingRingingReadyLatch(ringingReadyLatch);
+                ringtoneConsumer.accept(new Pair<>(localRingtoneUri, localRingtoneInstance),
+                        stoppedMidProcessing);
+            }
+        } finally {
+            Log.cancelSubsession(session);
+            if (args != null) {
+                args.recycle();
+            }
+        }
+    }
+
+    /**
+     * Stops the playback of the ringtone using Executor logic.
+     * Executes on the executor thread.
+     */
+    private void handleStopExecutor() {
+        ThreadUtil.checkNotOnMainThread();
+        Log.i(this, "[ExecutorLogic] Stop ringtone task executing.");
+        setRingtone(null);
+
+        synchronized (this) {
+            // If mIsPlaying is true here, it means a play() was called after the stop()
+            // that initiated this StopRunnable, but before this StopRunnable executed.
+            // In this case, we shouldn't shut down the executor.
+            if (!mIsPlaying) { // If still in a "globally" stopped state
+                if (mExecutor != null && !mExecutor.isShutdown()) {
+                    Log.v(this, "[ExecutorLogic] Executor shutting down.");
+                    mExecutor.shutdown(); // Allows submitted tasks to complete
+                    // Set to null so it can be recreated by postTask if needed again.
+                    mExecutor = null;
+                    Log.v(this, "[ExecutorLogic] Executor cleared after shutdown.");
+                }
+            } else {
+                Log.v(this,
+                        "[ExecutorLogic] Executor kept alive because mIsPlaying is" +
+                                " true (new play likely enqueued).");
+            }
+        }
     }
 }
