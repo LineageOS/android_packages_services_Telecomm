@@ -1,0 +1,11 @@
+package: "com.android.server.telecom.flags"
+container: "system"
+
+# OWNER=huiwang TARGET=25Q4
+flag {
+  name: "integrated_call_logs"
+  namespace: "telecom"
+  description: "Support integrated call logs"
+  bug: "420711866"
+}
+

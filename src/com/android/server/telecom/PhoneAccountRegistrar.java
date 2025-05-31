@@ -801,7 +801,12 @@ public class PhoneAccountRegistrar {
 
     private List<ResolveInfo> resolveComponent(ComponentName componentName,
             UserHandle userHandle) {
-        PackageManager pm = mContext.getPackageManager();
+        PackageManager pm;
+        if (mTelecomFeatureFlags.resolveHiddenDependenciesTwo()) {
+            pm = UserUtil.getPackageManagerFromUserHandler(mContext, userHandle);
+        } else {
+            pm = mContext.getPackageManager();
+        }
         Intent intent = new Intent(ConnectionService.SERVICE_INTERFACE);
         intent.setComponent(componentName);
         try {

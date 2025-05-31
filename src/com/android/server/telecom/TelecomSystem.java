@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.BugreportManager;
@@ -320,8 +321,14 @@ public class TelecomSystem {
                                 @Override
                                 public List<ResolveInfo> queryIntentServicesAsUser(
                                         @NonNull Intent intent, int flags, int userId) {
-                                    return mContext.getPackageManager().queryIntentServicesAsUser(
-                                            intent, flags, userId);
+                                    PackageManager pm;
+                                    if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                                        pm = UserUtil.getPackageManagerFromUserHandler(mContext,
+                                                UserHandle.of(userId));
+                                    } else {
+                                        pm = mContext.getPackageManager();
+                                    }
+                                    return pm.queryIntentServicesAsUser(intent, flags, userId);
                                 }
 
                                 @Override
@@ -499,7 +506,7 @@ public class TelecomSystem {
             mCallIntentProcessor = new CallIntentProcessor(mContext, mCallsManager,
                     defaultDialerCache, featureFlags);
             mTelecomBroadcastIntentProcessor = new TelecomBroadcastIntentProcessor(
-                    mContext, mCallsManager);
+                    mContext, mCallsManager, mFeatureFlags);
 
             // Register the receiver for the dialer secret codes, used to enable extended logging.
             mDialerCodeReceiver = new DialerCodeReceiver(mCallsManager);
