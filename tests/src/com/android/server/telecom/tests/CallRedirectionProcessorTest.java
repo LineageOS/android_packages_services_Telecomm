@@ -401,7 +401,7 @@ public class CallRedirectionProcessorTest extends TelecomTestCase {
         startProcessWithNoGateWayInfo();
 
         CallRedirectionProcessorHelper helper = new CallRedirectionProcessorHelper(mContext,
-                mCallsManager, mPhoneAccountRegistrar);
+                mCallsManager, mPhoneAccountRegistrar, mFeatureFlags);
         when(mComponentContextFixture.getTelephonyManager().getNetworkCountryIso())
                 .thenThrow(new UnsupportedOperationException("Bee boop"));
         assertEquals(Uri.fromParts("tel", "6505551212", null),
