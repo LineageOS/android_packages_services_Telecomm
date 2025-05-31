@@ -705,6 +705,20 @@ public class CallSequencingController {
             }
         }
 
+        // If we are trying to make an emergency call with the same package name as the live call,
+        // then allow it so that the connection service can make its own decision
+        // about how to handle the new call relative to the current one.
+        // By default, for telephony, it will try to hold the existing call before placing the new
+        // emergency call except for if the carrier does not support holding calls for emergency.
+        // In this case, telephony will disconnect the call.
+        if (mFeatureFlags.bypassHoldForEccDial() && PhoneAccountHandle.areFromSamePackage(
+                liveCallPhoneAccount, emergencyCall.getTargetPhoneAccount())) {
+            Log.i(this, "makeRoomForOutgoingEmergencyCall: phoneAccount matches.");
+            emergencyCall.getAnalytics().setCallIsAdditional(true);
+            liveCall.getAnalytics().setCallIsInterrupted(true);
+            return transactionFuture;
+        }
+
         // At this point, if we still have an active call, then it supports holding for emergency
         // and is a managed call. It may not support holding but we will still try to hold anyway
         // (i.e. swap for Verizon). Note that there will only be one call at this stage which is

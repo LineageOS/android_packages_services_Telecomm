@@ -1460,9 +1460,9 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             // Ensure that we default to speaker route if we're in a video call, but disregard it if
             // a wired headset is plugged in. Also consider the case when we're holding/unholding a
             // call. If the route was on speaker mode, ensure that we preserve the route selection.
-            boolean shouldDefaultSpeaker = mFeatureFlags.maybeDefaultSpeakerAfterUnhold()
-                    && mWasOnSpeaker;
-            if ((skipEarpiece || shouldDefaultSpeaker) && defaultRoute != null
+            // Todo: Clean this up once logic to maintain current audio routing during
+            //  active/ringing focus switch is addressed.
+            if ((skipEarpiece || mWasOnSpeaker) && defaultRoute != null
                     && defaultRoute.getType() == AudioRoute.TYPE_EARPIECE) {
                 Log.i(this, "getPreferredAudioRouteFromDefault: Audio routing defaulting to "
                         + "speaker route for (video) call.");

@@ -76,6 +76,17 @@ flag {
     }
 }
 
+# OWNER=pmadapurmath TARGET=25Q4
+flag {
+  name: "bypass_hold_for_ecc_dial"
+  namespace: "telecom"
+  description: "When making room for an outgoing emergency call, don't send a hold request when the live call and emergency call phone accounts are the same. We will let this be handled in Telephony instead."
+  bug: "419729271"
+  metadata {
+      purpose: PURPOSE_BUGFIX
+    }
+}
+
 # OWNER=tgunn TARGET=25Q3
 flag {
   name: "voip_dnd_focus"

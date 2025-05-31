@@ -514,6 +514,7 @@ public class CallSequencingTests extends TelecomTestCase {
     @SmallTest
     @Test
     public void testMakeRoomForOutgoingEmergencyCall_SamePkg() {
+        when(mFeatureFlags.bypassHoldForEccDial()).thenReturn(true);
         // Ensure that the live call and emergency call are from the same pkg.
         when(mActiveCall.getTargetPhoneAccount()).thenReturn(mHandle1);
         when(mNewCall.getTargetPhoneAccount()).thenReturn(mHandle1);
@@ -523,7 +524,9 @@ public class CallSequencingTests extends TelecomTestCase {
         CompletableFuture<Boolean> future = mController.makeRoomForOutgoingCall(true, mNewCall);
         verify(mRingingCall, timeout(SEQUENCING_TIMEOUT_MS))
                 .reject(anyBoolean(), eq(null), anyString());
-        verify(mActiveCall, timeout(SEQUENCING_TIMEOUT_MS)).hold(anyString());
+        // Verify we don't send the hold request when the normal call and ECC are from the same
+        // phone accounts (this task is left up to Telephony to handle).
+        verify(mActiveCall, timeout(SEQUENCING_TIMEOUT_MS).times(0)).hold(anyString());
         assertTrue(waitForFutureResult(future, false));
     }
 
