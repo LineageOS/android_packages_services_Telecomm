@@ -51,7 +51,6 @@ import android.content.Context;
 import android.content.IContentProvider;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -184,12 +183,10 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         MockitoAnnotations.initMocks(this);
 
         mContext = mComponentContextFixture.getTestDouble().getApplicationContext();
-        PackageManager packageManager = mContext.getPackageManager();
         mNotificationManager = (NotificationManager) mContext.getSystemService(
                 Context.NOTIFICATION_SERVICE);
         when(mContext.createContextAsUser(any(UserHandle.class), eq(0)))
                 .thenReturn(mUserContext);
-        when(mUserContext.getPackageManager()).thenReturn(packageManager);
         when(mUserContext.getSystemService(eq(NotificationManager.class)))
                 .thenReturn(mNotificationManager);
         when(mUserContext.getContentResolver()).thenReturn(mUserContentResolver);
@@ -291,6 +288,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                 TelecomManager.ACTION_SHOW_MISSED_CALLS_NOTIFICATION, COMPONENT_NAME);
         when(mDefaultDialerCache.getDefaultDialerApplication(anyInt())).thenReturn(
                 DEFAULT_DIALER_PACKAGE);
+
         Notification.Builder builder1 = makeNotificationBuilder("builder1");
         Notification.Builder builder2 = makeNotificationBuilder("builder2");
         MissedCallNotifierImpl.NotificationBuilderFactory fakeBuilderFactory =

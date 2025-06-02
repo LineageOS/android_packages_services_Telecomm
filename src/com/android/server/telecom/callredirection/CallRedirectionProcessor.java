@@ -347,7 +347,7 @@ public class CallRedirectionProcessor implements CallRedirectionCallback {
          */
         mAllowInteractiveResponse = !callsManager.getSystemStateHelper().isCarModeOrProjectionActive();
         mCallRedirectionProcessorHelper = new CallRedirectionProcessorHelper(
-                context, callsManager, phoneAccountRegistrar, mFeatureFlags);
+                context, callsManager, phoneAccountRegistrar);
         mProcessedDestinationUri = mCallRedirectionProcessorHelper.formatNumberForRedirection(
                 mDestinationUri);
         mPostDialDigits = mCallRedirectionProcessorHelper.getPostDialDigits(mDestinationUri);

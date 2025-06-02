@@ -21,7 +21,6 @@ import android.app.NotificationManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.net.Uri;
 import android.os.UserHandle;
@@ -60,12 +59,6 @@ public final class UserUtil {
             Log.e(LOG_TAG, e, "Error while creating context as user = " + userHandle);
         }
         return userManager;
-    }
-
-    public static PackageManager getPackageManagerFromUserHandler(Context classLevelContext,
-                                                                   UserHandle userHandle) {
-        Context userContext = classLevelContext.createContextAsUser(userHandle, 0);
-        return userContext.getPackageManager();
     }
 
     public static boolean isManagedProfile(Context context, UserHandle userHandle,

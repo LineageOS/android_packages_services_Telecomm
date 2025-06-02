@@ -34,9 +34,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.CallsManager;
-import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.PhoneAccountRegistrar;
-import com.android.server.telecom.UserUtil;
 
 import java.util.List;
 
@@ -45,17 +43,14 @@ public class CallRedirectionProcessorHelper {
     private final Context mContext;
     private final CallsManager mCallsManager;
     private final PhoneAccountRegistrar mPhoneAccountRegistrar;
-    private final FeatureFlags mFeatureFlags;
 
     public CallRedirectionProcessorHelper(
             Context context,
             CallsManager callsManager,
-            PhoneAccountRegistrar phoneAccountRegistrar,
-            FeatureFlags flags) {
+            PhoneAccountRegistrar phoneAccountRegistrar) {
         mContext = context;
         mCallsManager = callsManager;
         mPhoneAccountRegistrar = phoneAccountRegistrar;
-        mFeatureFlags = flags;
     }
 
     @VisibleForTesting
@@ -103,15 +98,8 @@ public class CallRedirectionProcessorHelper {
     }
 
     protected ComponentName getComponentName(Intent intent, String serviceType) {
-        List<ResolveInfo> entries;
-        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
-            entries = UserUtil.getPackageManagerFromUserHandler(mContext,
-                    mCallsManager.getCurrentUserHandle()).queryIntentServicesAsUser(
-                    intent, 0, mCallsManager.getCurrentUserHandle().getIdentifier());
-        } else {
-            entries = mContext.getPackageManager().queryIntentServicesAsUser(
-                    intent, 0, mCallsManager.getCurrentUserHandle().getIdentifier());
-        }
+        List<ResolveInfo> entries = mContext.getPackageManager().queryIntentServicesAsUser(
+                intent, 0, mCallsManager.getCurrentUserHandle().getIdentifier());
         if (entries.isEmpty()) {
             Log.i(this, "There are no " + serviceType + " call redirection services installed" +
                     " on this device.");

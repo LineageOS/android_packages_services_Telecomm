@@ -32,7 +32,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
@@ -76,7 +75,6 @@ import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.components.TelecomBroadcastReceiver;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -268,14 +266,8 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
             return false;
         }
 
-        List<ResolveInfo> receivers;
-        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
-            receivers = UserUtil.getPackageManagerFromUserHandler(mContext, userHandle)
-                    .queryBroadcastReceiversAsUser(intent, 0, userHandle.getIdentifier());
-        } else {
-            receivers = mContext.getPackageManager()
-                    .queryBroadcastReceiversAsUser(intent, 0, userHandle.getIdentifier());
-        }
+        List<ResolveInfo> receivers = mContext.getPackageManager()
+                .queryBroadcastReceiversAsUser(intent, 0, userHandle.getIdentifier());
         return receivers.size() > 0;
     }
 

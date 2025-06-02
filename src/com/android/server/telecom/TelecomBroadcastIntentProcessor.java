@@ -26,11 +26,9 @@ import android.os.UserHandle;
 import android.telecom.Log;
 import android.widget.Toast;
 
-import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.ui.ConfirmCallDialogActivity;
 import com.android.server.telecom.ui.DisconnectedCallNotifier;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public final class TelecomBroadcastIntentProcessor {
@@ -115,15 +113,10 @@ public final class TelecomBroadcastIntentProcessor {
 
     private final Context mContext;
     private final CallsManager mCallsManager;
-    private final FeatureFlags mFeatureFlags;
 
-    public TelecomBroadcastIntentProcessor(
-            Context context,
-            CallsManager callsManager,
-            FeatureFlags flags) {
+    public TelecomBroadcastIntentProcessor(Context context, CallsManager callsManager) {
         mContext = context;
         mCallsManager = callsManager;
-        mFeatureFlags = flags;
     }
 
     public void processIntent(Intent intent) {
@@ -294,16 +287,9 @@ public final class TelecomBroadcastIntentProcessor {
     private void sendSmsIntent(Intent intent, UserHandle userHandle) {
         Intent callIntent = new Intent(Intent.ACTION_SENDTO, intent.getData());
         callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        List<ResolveInfo> activities;
-        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
-            activities = UserUtil.getPackageManagerFromUserHandler(mContext,
-                    userHandle).queryIntentActivitiesAsUser(callIntent,
-                    PackageManager.MATCH_DEFAULT_ONLY, userHandle.getIdentifier());
-        } else {
-            PackageManager packageManager = mContext.getPackageManager();
-            activities = packageManager.queryIntentActivitiesAsUser(
-                    callIntent, PackageManager.MATCH_DEFAULT_ONLY, userHandle.getIdentifier());
-        }
+        PackageManager packageManager = mContext.getPackageManager();
+        List<ResolveInfo> activities = packageManager.queryIntentActivitiesAsUser(
+                callIntent, PackageManager.MATCH_DEFAULT_ONLY, userHandle.getIdentifier());
         if (activities.size() > 0) {
             mContext.startActivityAsUser(callIntent, userHandle);
         } else {

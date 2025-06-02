@@ -334,7 +334,7 @@ public class CallScreeningServiceFilter extends CallFilter {
         CallScreeningServiceConnection connection = new CallScreeningServiceConnection(
                 resultFuture);
         if (!CallScreeningServiceHelper.bindCallScreeningService(mContext,
-                mCall.getAssociatedUser(), mPackageName, connection, mFeatureFlags)) {
+                mCall.getAssociatedUser(), mPackageName, connection)) {
             Log.i(this, "Call screening service binding failed.");
             resultFuture.complete(mPriorStageResult);
         } else {

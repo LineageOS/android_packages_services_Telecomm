@@ -1380,12 +1380,7 @@ public class InCallController extends CallsManagerListenerBase implements
 
                 int uid;
                 try {
-                    if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
-                        uid = UserUtil.getPackageManagerFromUserHandler(mContext,
-                                user).getPackageUidAsUser(pkg, user.getIdentifier());
-                    } else {
-                        uid = pkgManager.getPackageUidAsUser(pkg, user.getIdentifier());
-                    }
+                    uid = pkgManager.getPackageUidAsUser(pkg, user.getIdentifier());
                 } catch (PackageManager.NameNotFoundException e) {
                     continue;
                 }
@@ -2446,19 +2441,11 @@ public class InCallController extends CallsManagerListenerBase implements
         PackageManager userPackageManager = userContext != null ?
                 userContext.getPackageManager() : packageManager;
 
-        List<ResolveInfo> entries;
-        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
-            entries = userPackageManager.queryIntentServicesAsUser(
-                    serviceIntent,
-                    PackageManager.GET_META_DATA | PackageManager.MATCH_DISABLED_COMPONENTS,
-                    userHandle.getIdentifier());
-        } else {
-            entries = packageManager.queryIntentServicesAsUser(
-                    serviceIntent,
-                    PackageManager.GET_META_DATA | PackageManager.MATCH_DISABLED_COMPONENTS,
-                    userHandle.getIdentifier());
-        }
-        for (ResolveInfo entry : entries) {
+
+        for (ResolveInfo entry : packageManager.queryIntentServicesAsUser(
+                serviceIntent,
+                PackageManager.GET_META_DATA | PackageManager.MATCH_DISABLED_COMPONENTS,
+                userHandle.getIdentifier())) {
             ServiceInfo serviceInfo = entry.serviceInfo;
 
             if (serviceInfo != null) {
@@ -3025,18 +3012,10 @@ public class InCallController extends CallsManagerListenerBase implements
         }
 
         Intent intent = new Intent(InCallService.SERVICE_INTERFACE)
-                .setPackage(ringingPackage);
-        List<ResolveInfo> entries;
-        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
-            entries = UserUtil.getPackageManagerFromUserHandler(mContext,
-                    userHandle).queryIntentServicesAsUser(
-                    intent, PackageManager.GET_META_DATA,
-                    userHandle.getIdentifier());
-        } else {
-            entries = mContext.getPackageManager().queryIntentServicesAsUser(
-                    intent, PackageManager.GET_META_DATA,
-                    userHandle.getIdentifier());
-        }
+            .setPackage(ringingPackage);
+        List<ResolveInfo> entries = mContext.getPackageManager().queryIntentServicesAsUser(
+                intent, PackageManager.GET_META_DATA,
+                userHandle.getIdentifier());
         if (entries.isEmpty()) {
             Log.w(this, "doesConnectedDialerSupportRinging: couldn't find dialer's package info"
                     + " <sad trombone>");
