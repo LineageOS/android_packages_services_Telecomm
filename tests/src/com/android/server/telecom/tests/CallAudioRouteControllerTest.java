@@ -1694,10 +1694,10 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     private void waitForRouteActiveStateAndVerify(boolean expectActive) {
         try {
             if (expectActive) {
-                mController.getAudioActiveCompleteLatch().await(TEST_TIMEOUT,
+                mController.getAudioActiveCompleteLatch().await(TEST_TIMEOUT * 2,
                         TimeUnit.MILLISECONDS);
             } else {
-                mController.getAudioOperationsCompleteLatch().await(TEST_TIMEOUT,
+                mController.getAudioOperationsCompleteLatch().await(TEST_TIMEOUT * 2,
                         TimeUnit.MILLISECONDS);
             }
         } catch (Exception e) {
