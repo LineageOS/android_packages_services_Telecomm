@@ -612,6 +612,8 @@ public class CallsManager extends Call.ListenerBase
         }
     };
 
+    private final CallConnectedIndicatorSettings mCallConnectedIndicatorSettings;
+
     /**
      * Initializes the required Telecom components.
      */
@@ -751,11 +753,13 @@ public class CallsManager extends Call.ListenerBase
         mCallEndpointController = callEndpointControllerFactory.create(context, mLock, this);
         mCallDiagnosticServiceController = callDiagnosticServiceController;
         mCallDiagnosticServiceController.setInCallTonePlayerFactory(playerFactory);
+        mCallConnectedIndicatorSettings = new CallConnectedIndicatorSettings(context, featureFlags);
         mRinger = new Ringer(playerFactory, context, systemSettingsUtil, asyncRingtonePlayer,
                 ringtoneFactory, vibratorAdapter,
                 new Ringer.VibrationEffectProxy(), mInCallController,
                 mContext.getSystemService(NotificationManager.class),
-                accessibilityManagerAdapter, featureFlags, mAnomalyReporter);
+                accessibilityManagerAdapter, featureFlags, mAnomalyReporter,
+                mCallConnectedIndicatorSettings, asyncTaskExecutor);
         if (featureFlags.telecomResolveHiddenDependencies()) {
             // This is now deprecated
             mCallRecordingTonePlayer = null;
@@ -5391,6 +5395,11 @@ public class CallsManager extends Call.ListenerBase
                 stopDtmfTone(call);
             }
 
+            // Maybe start vibrating for MO call.
+            if (newState == CallState.ACTIVE && !call.isIncoming() && !call.isUnknown()) {
+                mRinger.startVibratingForOutgoingCallActive();
+            }
+
             // Unfortunately, in the telephony world the radio is king. So if the call notifies
             // us that the call is in a particular state, we allow it even if it doesn't make
             // sense (e.g., STATE_ACTIVE -> STATE_RINGING).
@@ -7652,5 +7661,13 @@ public class CallsManager extends Call.ListenerBase
     public Map<String, CompletableFuture<Pair<Call, PhoneAccountHandle>>>
     getPendingAccountSelection() {
         return mPendingAccountSelection;
+    }
+
+    public int getCallConnectedIndicatorPreference() {
+        return mCallConnectedIndicatorSettings.getCallConnectedIndicatorPreference();
+    }
+
+    public void setCallConnectedIndicatorPreference(int preference) {
+        mCallConnectedIndicatorSettings.setCallConnectedIndicatorPreference(preference);
     }
 }

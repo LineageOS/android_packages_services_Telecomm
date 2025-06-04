@@ -2881,12 +2881,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         if (mState == CallState.NEW || mState == CallState.SELECT_PHONE_ACCOUNT ||
                 mState == CallState.CONNECTING) {
             Log.i(this, "disconnect: Aborting call %s", getId());
+            abort(disconnectionTimeout);
             if (mFlags.enableCallSequencing()) {
                 disconnectFutureHandler = awaitCallStateChangeAndMaybeDisconnectCall(
                         false /* shouldDisconnectUponTimeout */, "disconnect",
                         CallState.DISCONNECTED, CallState.ABORTED);
             }
-            abort(disconnectionTimeout);
         } else if (mState != CallState.ABORTED && mState != CallState.DISCONNECTED) {
             if (mState == CallState.AUDIO_PROCESSING && !hasGoneActiveBefore()) {
                 setOverrideDisconnectCauseCode(new DisconnectCause(DisconnectCause.REJECTED));
@@ -2924,7 +2924,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         if (mCreateConnectionProcessor != null &&
                 !mCreateConnectionProcessor.isProcessingComplete()) {
             mCreateConnectionProcessor.abort();
-        } else if (mState == CallState.NEW || mState == CallState.SELECT_PHONE_ACCOUNT
+        } else if (mFlags.echoAbortTransactionalOutgoing() && mIsTransactionalCall) {
+            CompletableFuture<Boolean> wasCompleted = mTransactionalService.onDisconnect(this,
+                    new DisconnectCause(DisconnectCause.CANCELED));
+            Log.d(this, "abort: wasTransactionCompleted=[%b", wasCompleted);
+        }
+        else if (mState == CallState.NEW || mState == CallState.SELECT_PHONE_ACCOUNT
                 || mState == CallState.CONNECTING) {
             if (disconnectionTimeout > 0) {
                 // If the cancelation was from NEW_OUTGOING_CALL with a timeout of > 0

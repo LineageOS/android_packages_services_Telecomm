@@ -117,8 +117,7 @@ public final class UserUtil {
                 // Only emergency calls are allowed for users with the DISALLOW_OUTGOING_CALLS
                 // restriction.
                 if (!TelephonyUtil.shouldProcessAsEmergency(context, handle)) {
-                    if (userManager.hasBaseUserRestriction(UserManager.DISALLOW_OUTGOING_CALLS,
-                            userHandle)) {
+                    if (hasDisallowOutgoingCalls(context, userManager, userHandle, featureFlags)) {
                         String reason = "of DISALLOW_OUTGOING_CALLS restriction";
                         showErrorDialogForRestrictedOutgoingCall(context,
                                 R.string.outgoing_call_not_allowed_user_restriction, tag, reason);
@@ -140,6 +139,42 @@ public final class UserUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * Checks if the {@link UserManager#DISALLOW_OUTGOING_CALLS} restriction is active for the given
+     * user, correctly handling managed profiles by checking the restriction on the parent user.
+     *
+     * <p>This function determines the "base" user, which is the parent user for a profile or the
+     * user itself otherwise. It then checks if the restriction is applied to that base user.
+     *
+     * @return {@code true} if outgoing calls are disallowed for the user, {@code false} otherwise.
+     * Returns {@code false} if an error occurs during the check (e.g., missing permissions).
+     */
+    private static boolean hasDisallowOutgoingCalls(
+            Context context,
+            UserManager userManager,
+            UserHandle user,
+            FeatureFlags featureFlags){
+        if(featureFlags.resolveHiddenDependenciesTwo()){
+            UserHandle parent = userManager.getProfileParent(user);
+            UserHandle baseUser = (parent != null) ? parent : user;
+            try {
+                Context baseUserContext = context.createContextAsUser(baseUser, 0);
+                UserManager baseUserManager = baseUserContext.getSystemService(UserManager.class);
+                if (baseUserManager != null) {
+                    return baseUserManager.hasUserRestriction(UserManager.DISALLOW_OUTGOING_CALLS);
+                }
+                return false;
+            } catch (Exception e) {
+                Log.e("UserUtil", e, "hasDisallowOutgoingCalls: caught exception");
+                return false;
+            }
+        }
+        else{
+            return userManager.hasBaseUserRestriction(UserManager.DISALLOW_OUTGOING_CALLS,
+                    user);
+        }
     }
 
     /**

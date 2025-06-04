@@ -97,3 +97,15 @@ flag {
       purpose: PURPOSE_BUGFIX
     }
 }
+
+# OWNER=tjstuart TARGET=25Q4
+flag {
+  name: "echo_abort_transactional_outgoing"
+  namespace: "telecom"
+  description: "Fixes bug where clients are not informed of aborted outgoing calls"
+  bug: "354122175"
+  metadata {
+      purpose: PURPOSE_BUGFIX
+    }
+}
+

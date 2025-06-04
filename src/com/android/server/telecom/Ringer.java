@@ -63,6 +63,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -146,6 +147,7 @@ public class Ringer {
 
     private static final int RAMPING_RINGER_VIBRATION_DURATION = 5000;
     private static final int RAMPING_RINGER_DURATION = 10000;
+    private static final int OUTGOING_CALL_VIBRATING_DURATION = 100;
 
     static {
         // construct complete pulse pattern
@@ -173,6 +175,16 @@ public class Ringer {
             0, // No delay before starting
             255, // Vibrate full amplitude
             0, // No amplitude while waiting
+    };
+
+    private static final long[] CALL_CONNECTED_VIBRATION_PATTERN = {
+            0, // No delay before starting
+            1000, // How long to vibrate
+    };
+
+    private static final int[] CALL_CONNECTED_VIBRATION_AMPLITUDE = {
+            0, // No delay before starting
+            255, // Vibrate full amplitude
     };
 
     /**
@@ -238,7 +250,7 @@ public class Ringer {
     /**
      * Used to track the status of {@link #mVibrator} in the case of simultaneous incoming calls.
      */
-    private boolean mIsVibrating = false;
+    private volatile boolean mIsVibrating = false;
 
     private Handler mHandler = null;
 
@@ -247,6 +259,11 @@ public class Ringer {
      * lock
      */
     private final Object mLock;
+    /**
+     * Used to track the status of call connected inidicator preference.
+     */
+    private final CallConnectedIndicatorSettings mCallConnectedIndicatorSettings;
+    private final Executor mAsyncTaskExecutor;
 
     /**
      * Manages a dedicated single background thread for executing Ringer-specific tasks
@@ -278,7 +295,9 @@ public class Ringer {
             NotificationManager notificationManager,
             AccessibilityManagerAdapter accessibilityManagerAdapter,
             FeatureFlags featureFlags,
-            AnomalyReporterAdapter anomalyReporter) {
+            AnomalyReporterAdapter anomalyReporter,
+            CallConnectedIndicatorSettings callConnectedIndicator,
+            Executor asyncTaskExecutor) {
 
         mLock = new Object();
         mSystemSettingsUtil = systemSettingsUtil;
@@ -306,6 +325,8 @@ public class Ringer {
         mFlags = featureFlags;
         mRingtoneVibrationSupported = mContext.getResources().getBoolean(
                 com.android.internal.R.bool.config_ringtoneVibrationSettingsSupported);
+        mCallConnectedIndicatorSettings = callConnectedIndicator;
+        mAsyncTaskExecutor = asyncTaskExecutor;
     }
 
     public void shutdownExecutor() {
@@ -1052,5 +1073,32 @@ public class Ringer {
             VibrationEffectProxy vibrationEffectProxy) {
         return vibrationEffectProxy.createWaveform(SIMPLE_VIBRATION_PATTERN,
                 SIMPLE_VIBRATION_AMPLITUDE, REPEAT_SIMPLE_VIBRATION_AT);
+    }
+
+
+    public void startVibratingForOutgoingCallActive() {
+        if (!mFlags.callConnectedIndicatorPreference()) {
+            Log.i(TAG, "Call connected indicator of vibration is disabled.");
+            return;
+        }
+        if (!mIsVibrating && mCallConnectedIndicatorSettings.isCallConnectedVibrationEnabled()) {
+            mIsVibrating = true;
+            mAsyncTaskExecutor.execute(() -> {
+                final VibrationEffect vibrationEffect =
+                        mVibrationEffectProxy.createWaveform(CALL_CONNECTED_VIBRATION_PATTERN,
+                        CALL_CONNECTED_VIBRATION_AMPLITUDE, -1);
+                final VibrationAttributes vibrationAttributes = new VibrationAttributes.Builder()
+                        .setUsage(VibrationAttributes.USAGE_NOTIFICATION)
+                        .build();
+                mVibrator.vibrate(vibrationEffect, vibrationAttributes);
+                try {
+                    Thread.sleep(OUTGOING_CALL_VIBRATING_DURATION);
+                } catch (InterruptedException e) {
+                    // Womp
+                }
+                mVibrator.cancel();
+                mIsVibrating = false;
+            });
+        }
     }
 }
