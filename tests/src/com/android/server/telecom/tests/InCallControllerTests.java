@@ -251,6 +251,7 @@ public class InCallControllerTests extends TelecomTestCase {
                 mEmergencyCallHelper, mCarModeTracker, mClockProxy, mFeatureFlags);
         when(mMockContext.createContextAsUser(any(UserHandle.class), eq(0)))
                 .thenReturn(mMockCreateContextAsUser);
+        when(mMockCreateContextAsUser.getPackageManager()).thenReturn(mMockPackageManager);
         // Capture the broadcast receiver registered.
         doAnswer(invocation -> {
             mRegisteredReceiver = invocation.getArgument(0);
@@ -329,6 +330,7 @@ public class InCallControllerTests extends TelecomTestCase {
                 .thenReturn(mMockCurrentUserManager);
         when(mMockCreateContextAsUser.getSystemService(eq(NotificationManager.class)))
                 .thenReturn(mNotificationManager);
+        when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
         // Mock user info to allow binding on user stored in the phone account (mUserHandle).
         when(mFeatureFlags.telecomResolveHiddenDependencies()).thenReturn(true);
         when(mMockCurrentUserManager.isManagedProfile()).thenReturn(true);

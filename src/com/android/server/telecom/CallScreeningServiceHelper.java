@@ -166,7 +166,8 @@ public class CallScreeningServiceHelper {
             }
         };
 
-        if (!bindCallScreeningService(mContext, mUserHandle, mPackageName, serviceConnection)) {
+        if (!bindCallScreeningService(mContext, mUserHandle, mPackageName, serviceConnection,
+                mFeatureFlags)) {
             Log.i(this, "bindAndGetCallIdentification - bind failed");
             mFuture.complete(null);
         }
@@ -203,7 +204,7 @@ public class CallScreeningServiceHelper {
      * @return {@code true} if binding succeeds, {@code false} otherwise.
      */
     public static boolean bindCallScreeningService(Context context, UserHandle userHandle,
-            String packageName, ServiceConnection serviceConnection) {
+            String packageName, ServiceConnection serviceConnection, FeatureFlags flags) {
         if (TextUtils.isEmpty(packageName)) {
             Log.i(TAG, "PackageName is empty. Not performing call screening.");
             return false;
@@ -211,8 +212,16 @@ public class CallScreeningServiceHelper {
 
         Intent intent = new Intent(CallScreeningService.SERVICE_INTERFACE)
                 .setPackage(packageName);
-        List<ResolveInfo> entries = context.getPackageManager().queryIntentServicesAsUser(
-                intent, 0, userHandle.getIdentifier());
+
+        List<ResolveInfo> entries;
+        if (flags.resolveHiddenDependenciesTwo()) {
+            entries = UserUtil.getPackageManagerFromUserHandler(context,
+                    userHandle).queryIntentServicesAsUser(intent, 0, userHandle.getIdentifier());
+        } else {
+            entries = context.getPackageManager().queryIntentServicesAsUser(
+                    intent, 0, userHandle.getIdentifier());
+        }
+
         if (entries.isEmpty()) {
             Log.i(TAG, packageName + " has no call screening service defined.");
             return false;
