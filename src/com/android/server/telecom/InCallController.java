@@ -332,8 +332,10 @@ public class InCallController extends CallsManagerListenerBase implements
 
                     // Notify this new added call
                     if (mInCallServiceInfo.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH) {
-                        sendCallToService(call, mInCallServiceInfo, mBTInCallServices
-                                .get(userFromCall).second);
+                        if (mBTInCallServices.containsKey(userFromCall)) {
+                            sendCallToService(call, mInCallServiceInfo, mBTInCallServices
+                                    .get(userFromCall).second);
+                        }
                     } else {
                         sendCallToService(call, mInCallServiceInfo,
                                 mInCallServices.get(userFromCall).get(mInCallServiceInfo));

@@ -46,6 +46,7 @@ import android.content.IContentProvider;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -512,6 +513,12 @@ public class ComponentContextFixture implements TestFixture<Context> {
         public void startActivityAsUser(Intent intent, UserHandle userHandle) {
             // For capturing
         }
+
+        @Override
+        public SharedPreferences getSharedPreferences(String name, int mode) {
+            return mSharedPreferences;
+        }
+
     }
 
     public class FakeAudioManager extends AudioManager {
@@ -663,6 +670,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
     private final SensorPrivacyManager mSensorPrivacyManager = mock(SensorPrivacyManager.class);
     private final List<BroadcastReceiver> mBroadcastReceivers = new ArrayList<>();
     private final StatsManager mStatsManager = mock(StatsManager.class);
+    private final SharedPreferences mSharedPreferences = mock(SharedPreferences.class);
 
     private TelecomManager mTelecomManager = mock(TelecomManager.class);
     private BlockedNumbersManager mBlockedNumbersManager = mock(BlockedNumbersManager.class);

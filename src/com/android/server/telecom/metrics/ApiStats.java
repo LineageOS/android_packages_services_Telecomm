@@ -157,6 +157,10 @@ public class ApiStats extends TelecomPulledAtom {
             .TELECOM_API_STATS__API_NAME__API_START_CONFERENCE;
     public static final int API_UNREGISTERPHONEACCOUNT = TelecomStatsLog
             .TELECOM_API_STATS__API_NAME__API_UNREGISTER_PHONE_ACCOUNT;
+    public static final int API_GETCALLCONNECTEDINDICATORPREF =
+            TelecomStatsLog.TELECOM_API_STATS__API_NAME__API_GET_CALL_CONNECTED_INDICATOR_PREF;
+    public static final int API_SETCALLCONNECTEDINDICATORPREF =
+            TelecomStatsLog.TELECOM_API_STATS__API_NAME__API_SET_CALL_CONNECTED_INDICATOR_PREF;
     public static final int RESULT_UNKNOWN = TelecomStatsLog
             .TELECOM_API_STATS__API_RESULT__RESULT_UNKNOWN;
     public static final int RESULT_NORMAL = TelecomStatsLog
@@ -302,6 +306,8 @@ public class ApiStats extends TelecomPulledAtom {
             API_SILENCERINGER,
             API_STARTCONFERENCE,
             API_UNREGISTERPHONEACCOUNT,
+            API_GETCALLCONNECTEDINDICATORPREF,
+            API_SETCALLCONNECTEDINDICATORPREF,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface ApiId {

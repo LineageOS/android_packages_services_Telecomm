@@ -21,7 +21,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Handler;
 import android.os.IBinder;
@@ -32,7 +31,6 @@ import android.telecom.Log;
 import android.telecom.Logging.Session;
 import android.text.TextUtils;
 
-import com.android.internal.hidden_from_bootclasspath.com.android.server.telecom.flags.Flags;
 import com.android.internal.telecom.ICallScreeningAdapter;
 import com.android.internal.telecom.ICallScreeningService;
 import com.android.server.telecom.flags.FeatureFlags;

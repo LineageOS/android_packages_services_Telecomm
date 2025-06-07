@@ -78,6 +78,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import com.android.server.telecom.AnomalyReporterAdapter;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.Call;
+import com.android.server.telecom.CallConnectedIndicatorSettings;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.InCallController;
 import com.android.server.telecom.InCallTonePlayer;
@@ -142,6 +143,8 @@ public class RingerTest extends TelecomTestCase {
     @Mock Ringer.AccessibilityManagerAdapter mockAccessibilityManagerAdapter;
     @Mock private FeatureFlags mFeatureFlags;
     @Mock private AnomalyReporterAdapter mAnomalyReporterAdapter;
+    @Mock private CallConnectedIndicatorSettings mCallConnectedIndicatorSettings;
+
     @Spy Ringer.VibrationEffectProxy spyVibrationEffectProxy;
 
     @Mock InCallTonePlayer mockTonePlayer;
@@ -191,6 +194,7 @@ public class RingerTest extends TelecomTestCase {
         when(mockCall2.getAssociatedUser()).thenReturn(PA_HANDLE.getUserHandle());
         when(mockCall1.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
         when(mockCall2.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
+        when(mCallConnectedIndicatorSettings.isCallConnectedVibrationEnabled()).thenReturn(false);
         // Set BT active state in tests to ensure that we do not end up blocking tests for 1 sec
         // waiting for BT to connect in unit tests by default.
         asyncRingtonePlayer.updateBtActiveState(true);
@@ -206,7 +210,8 @@ public class RingerTest extends TelecomTestCase {
         mRingerUnderTest = new Ringer(mockPlayerFactory, mContext, mockSystemSettingsUtil,
                 asyncRingtonePlayer, mockRingtoneFactory, mockVibrator, spyVibrationEffectProxy,
                 mockInCallController, mockNotificationManager, mockAccessibilityManagerAdapter,
-                mFeatureFlags, mAnomalyReporterAdapter);
+                mFeatureFlags, mAnomalyReporterAdapter, mCallConnectedIndicatorSettings,
+                Runnable::run);
         // This future is used to wait for AsyncRingtonePlayer to finish its part.
         mRingerUnderTest.setBlockOnRingingFuture(mRingCompletionFuture);
     }
@@ -1057,6 +1062,17 @@ public class RingerTest extends TelecomTestCase {
             RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE,
                     defaultRingtoneUri);
         }
+    }
+
+    @SmallTest
+    @Test
+    public void testStartVibratingForOutgoingCallActive() throws Exception {
+        when(mFeatureFlags.callConnectedIndicatorPreference()).thenReturn(true);
+        when(mCallConnectedIndicatorSettings.isCallConnectedVibrationEnabled()).thenReturn(true);
+        createRingerUnderTest();
+
+        mRingerUnderTest.startVibratingForOutgoingCallActive();
+        verify(mockVibrator).vibrate(any(VibrationEffect.class), any(VibrationAttributes.class));
     }
 
     /**

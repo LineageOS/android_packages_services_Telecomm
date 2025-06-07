@@ -103,6 +103,7 @@ import com.android.server.telecom.CallEndpointControllerFactory;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
+import com.android.server.telecom.TransactionalServiceWrapper;
 import com.android.server.telecom.callsequencing.CallSequencingController;
 import com.android.server.telecom.callsequencing.CallsManagerCallSequencingAdapter;
 import com.android.server.telecom.ClockProxy;
@@ -2001,6 +2002,29 @@ public class CallsManagerTest extends TelecomTestCase {
         assertTrue(mCallsManager.makeRoomForOutgoingEmergencyCall(newEmergencyCall));
         verify(ringingCall).reject(anyBoolean(), any(), any());
     }
+
+    @SmallTest
+    @Test
+    public void testAbortIsPropagatedToClient() {
+        // GIVEN
+        DisconnectCause abortCause = new DisconnectCause(DisconnectCause.CANCELED);
+        TransactionalServiceWrapper tsw = mock(TransactionalServiceWrapper.class);
+        Call connectingCall = addSpyCall(VOIP_1_HANDLE, CallState.CONNECTING);
+        connectingCall.setTransactionServiceWrapper(tsw);
+        connectingCall.setIsTransactionalCall(true);
+
+        // WHEN
+        when(mFeatureFlags.echoAbortTransactionalOutgoing()).thenReturn(true);
+        doReturn(true).when(connectingCall).can(Connection.CAPABILITY_HOLD);
+        connectingCall.disconnect(0, abortCause.getReason());
+
+        // THEN
+        assertTrue(connectingCall.isLocallyDisconnecting());
+        TransactionalServiceWrapper service = connectingCall.getTransactionServiceWrapper();
+        assertNotNull(service);
+        verify(service).onDisconnect(eq(connectingCall), eq(abortCause));
+    }
+
 
     /**
      * Verifies that an anomaly report is triggered when a stuck/zombie call is found and force

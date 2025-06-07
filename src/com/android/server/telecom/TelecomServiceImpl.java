@@ -3038,6 +3038,53 @@ public class TelecomServiceImpl {
                 Log.endSession();
             }
         }
+
+        @Override
+        public int getCallConnectedIndicatorPreference(String callingPackage) {
+            ApiStats.ApiEvent event = new ApiStats.ApiEvent(
+                    ApiStats.API_GETCALLCONNECTEDINDICATORPREF, Binder.getCallingUid(),
+                    ApiStats.RESULT_PERMISSION);
+            try {
+                Log.startSession("TSI.gCCIPB", Log.getPackageAbbreviation(callingPackage));
+                enforcePermission(READ_PRIVILEGED_PHONE_STATE);
+                synchronized (mLock) {
+                    long token = Binder.clearCallingIdentity();
+                    event.setResult(ApiStats.RESULT_NORMAL);
+                    try {
+                        return mCallsManager.getCallConnectedIndicatorPreference();
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                logEvent(event);
+                Log.endSession();
+            }
+        }
+
+        @Override
+        public void setCallConnectedIndicatorPreference(String callingPackage, int preference) {
+            ApiStats.ApiEvent event = new ApiStats.ApiEvent(
+                    ApiStats.API_SETCALLCONNECTEDINDICATORPREF, Binder.getCallingUid(),
+                    ApiStats.RESULT_PERMISSION);
+            try {
+                Log.startSession("TSI.sCCIPB", Log.getPackageAbbreviation(callingPackage));
+                mContext.enforceCallingOrSelfPermission(MODIFY_PHONE_STATE,
+                        "MODIFY_PHONE_STATE required.");
+                synchronized (mLock) {
+                    long token = Binder.clearCallingIdentity();
+                    event.setResult(ApiStats.RESULT_NORMAL);
+                    try {
+                        mCallsManager.setCallConnectedIndicatorPreference(preference);
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                }
+            } finally {
+                logEvent(event);
+                Log.endSession();
+            }
+        }
     };
     public TelecomServiceImpl(
             Context context,

@@ -94,3 +94,15 @@ flag {
       purpose: PURPOSE_FEATURE
   }
 }
+
+# OWNER=tgunn TARGET=26Q2
+flag {
+  name: "call_connected_indicator_preference"
+  is_exported: true
+  namespace: "telecom"
+  description: "Add call connected indicator support for playing a tone or starting a vibration"
+  bug: "146090790"
+  metadata {
+      purpose: PURPOSE_FEATURE
+  }
+}
