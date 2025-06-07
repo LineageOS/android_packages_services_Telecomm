@@ -332,8 +332,10 @@ public class InCallController extends CallsManagerListenerBase implements
 
                     // Notify this new added call
                     if (mInCallServiceInfo.getType() == IN_CALL_SERVICE_TYPE_BLUETOOTH) {
-                        sendCallToService(call, mInCallServiceInfo, mBTInCallServices
-                                .get(userFromCall).second);
+                        if (mBTInCallServices.containsKey(userFromCall)) {
+                            sendCallToService(call, mInCallServiceInfo, mBTInCallServices
+                                    .get(userFromCall).second);
+                        }
                     } else {
                         sendCallToService(call, mInCallServiceInfo,
                                 mInCallServices.get(userFromCall).get(mInCallServiceInfo));
@@ -2133,12 +2135,13 @@ public class InCallController extends CallsManagerListenerBase implements
      * @param call The newly added call that triggered the binding to the in-call services.
      */
     public void bindToBTService(Call call, UserHandle userHandle) {
+        Log.i(this, "bindToBtService");
         UserHandle userToBind = userHandle == null
                 ? getUserFromCall(call)
                 : userHandle;
         UserManager um = mContext.getSystemService(UserManager.class);
         UserHandle parentUser = um.getProfileParent(userToBind);
-        Log.i(this, "bindToBtService, child:%s  parent:%s", userToBind, parentUser);
+
         // Track the call if we don't already know about it.
         addCall(call);
         List<InCallServiceInfo> infos = getInCallServiceComponents(userToBind,
@@ -2160,18 +2163,14 @@ public class InCallController extends CallsManagerListenerBase implements
             }
         }
 
-        if (!mBTInCallServiceConnections.containsKey(userToBind)) {
-            mBtBindingFuture.put(userToBind, new CompletableFuture<Boolean>().completeOnTimeout(
-                    false, mTimeoutsAdapter.getCallBindBluetoothInCallServicesDelay(
-                            mContext, mFeatureFlags), TimeUnit.MILLISECONDS));
-            InCallServiceBindingConnection btIcsBindingConnection =
-                    new InCallServiceBindingConnection(infos.get(0),
-                            serviceUnavailableForUser ? parentUser : userToBind);
-            mBTInCallServiceConnections.put(userToBind, btIcsBindingConnection);
-        }
-        final InCallServiceBindingConnection btInCallServiceConnection =
-                mBTInCallServiceConnections.get(userToBind);
-        btInCallServiceConnection.connect(call);
+        mBtBindingFuture.put(userToBind, new CompletableFuture<Boolean>().completeOnTimeout(false,
+                mTimeoutsAdapter.getCallBindBluetoothInCallServicesDelay(
+                        mContext, mFeatureFlags), TimeUnit.MILLISECONDS));
+        InCallServiceBindingConnection btIcsBindingConnection =
+                new InCallServiceBindingConnection(infos.get(0),
+                        serviceUnavailableForUser ? parentUser : userToBind);
+        mBTInCallServiceConnections.put(userToBind, btIcsBindingConnection);
+        btIcsBindingConnection.connect(call);
     }
 
     /**

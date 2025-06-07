@@ -6521,7 +6521,7 @@ public class CallsManager extends Call.ListenerBase
      * Blocks execution until all Telecom handlers have completed their current work.
      */
     public void waitOnHandlers() {
-        CountDownLatch mainHandlerLatch = new CountDownLatch(3);
+        CountDownLatch mainHandlerLatch = new CountDownLatch(4);
         mHandler.post(() -> {
             mainHandlerLatch.countDown();
         });
@@ -6531,7 +6531,7 @@ public class CallsManager extends Call.ListenerBase
         mCallAudioManager.getCallAudioRouteAdapter().getAdapterHandler().post(() -> {
             mainHandlerLatch.countDown();
         });
-
+        mCallAudioRouteAdapter.getAdapterHandler().post(()-> mainHandlerLatch.countDown());
         try {
             mainHandlerLatch.await(HANDLER_WAIT_TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
