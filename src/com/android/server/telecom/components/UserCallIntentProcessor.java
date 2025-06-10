@@ -16,12 +16,17 @@
 
 package com.android.server.telecom.components;
 
+import static android.provider.CallLog.Calls.UUID;
+
 import android.app.admin.DevicePolicyManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.CallLog;
 import android.telecom.Log;
 import android.telecom.PhoneAccount;
 import android.telecom.TelecomManager;
@@ -126,6 +131,13 @@ public class UserCallIntentProcessor {
                 VideoProfile.STATE_AUDIO_ONLY);
         Log.d(this, "processOutgoingCallIntent videoState = " + videoState);
 
+        // See if this is an action callback from the default dialer to initiate a VOIP call from
+        // the call log. If so, don't continue processing this call in Telecom. The corresponding
+        // VOIP app will initiate the call themselves via {@link TelecomManager#addCall}.
+        if (isProcessingCallbackAction(handle, callingPackageName)) {
+            return;
+        }
+
         // Save the user handle of current user before forwarding the intent to primary user.
         intent.putExtra(CallIntentProcessor.KEY_INITIATING_USER, mUserHandle);
 
@@ -158,5 +170,43 @@ public class UserCallIntentProcessor {
             tm.handleCallIntent(intent, callingPackage);
         }
         return true;
+    }
+
+    /**
+     * Query the call log (using the provided handle) to check if it links to a valid call log
+     * entry. If so, we will initiate a callback intent to notify the calling package about the
+     * call. The application will be provided the associated UUID of the call which it will use to
+     * initiate the callback.
+
+     * @param handle The URI to use when querying the call log provider.
+     * @param callingPackageName The calling package name of the default dialer initiating the
+     *                           callback.
+     * @return {@code true} if the call log entry was able to be located and the intent sent to the
+     *         calling package.
+     */
+    private boolean isProcessingCallbackAction(Uri handle, String callingPackageName) {
+        if (mFeatureFlags.integratedCallLogs()) {
+            ContentResolver resolver = mContext.getContentResolver();
+            Cursor c = null;
+            try {
+                Log.i(this, "Attempting to query call log entry with handle{%s} from %s.",
+                        handle, callingPackageName);
+                c = resolver.query(handle, new String[]{UUID}, null, null, null);
+                if (c != null) {
+                    String uuid = c.getString(0);
+                    Log.i(this, "Found call log entry with uuid %s.", uuid);
+                    Intent actionCallbackIntent = new Intent().setPackage(callingPackageName)
+                            .setAction(TelecomManager.ACTION_CALL_BACK);
+                    actionCallbackIntent.putExtra(TelecomManager.EXTRA_UUID, uuid);
+                    mContext.startActivity(actionCallbackIntent);
+                    return true;
+                }
+            } finally {
+                if (c != null) {
+                    c.close();
+                }
+            }
+        }
+        return false;
     }
 }

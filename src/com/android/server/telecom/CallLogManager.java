@@ -178,9 +178,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
      */
     void logCallIfNotSelfManaged (Call call, int type, boolean showNotificationForMissedCall,
             CallFilteringResult result) {
-        boolean shouldCallSelfManagedLogged = call.isLoggedSelfManaged() &&
-                (call.getHandoverState() == HandoverState.HANDOVER_NONE
-                || call.getHandoverState() == HandoverState.HANDOVER_COMPLETE);
+        boolean shouldCallSelfManagedLogged = shouldLogVoipCall(call);
         if (!mFeatureFlags.preventSelfManagedCallLogging() || !call.isSelfManaged() ||
                 shouldCallSelfManagedLogged) {
             logCall(call, type, showNotificationForMissedCall, result);
@@ -205,9 +203,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
      */
     @VisibleForTesting
     public boolean shouldLogDisconnectedCall(Call call, int oldState, boolean isCallCanceled) {
-        boolean shouldCallSelfManagedLogged = call.isLoggedSelfManaged() &&
-                (call.getHandoverState() == HandoverState.HANDOVER_NONE
-                || call.getHandoverState() == HandoverState.HANDOVER_COMPLETE);
+        boolean shouldCallSelfManagedLogged = shouldLogVoipCall(call);
 
         // "Choose account" phase when disconnected
         if (oldState == CallState.SELECT_PHONE_ACCOUNT) {
@@ -453,6 +449,10 @@ public final class CallLogManager extends CallsManagerListenerBase {
                     paramBuilder.setAssertedDisplayName(assertedDisplayName);
                 }
             }
+        }
+        if (mFeatureFlags.integratedCallLogs() && call.isTransactionalCall()) {
+            // Todo: Uncomment after provider changes are in
+            // paramBuilder.setUuid(call.getId());
         }
         sendAddCallBroadcast(callLogType, call.getAgeMillis());
 
@@ -704,5 +704,12 @@ public final class CallLogManager extends CallsManagerListenerBase {
     @VisibleForTesting
     public void setAnomalyReporterAdapter(AnomalyReporterAdapter anomalyReporterAdapter){
         mAnomalyReporterAdapter = anomalyReporterAdapter;
+    }
+
+    @VisibleForTesting
+    public boolean shouldLogVoipCall(Call call) {
+        return (call.isManaged() || (call.isLoggedSelfManaged() || call.isLoggedTransactional()))
+                && (call.getHandoverState() == HandoverState.HANDOVER_NONE
+                || call.getHandoverState() == HandoverState.HANDOVER_COMPLETE);
     }
 }

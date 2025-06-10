@@ -2683,6 +2683,9 @@ public class CallsManagerTest extends TelecomTestCase {
      */
     @Test
     public void testIncomingCallCreatedAndAddedDoNotNotifyListener() {
+        PhoneAccount mockPhoneAccount = mock(PhoneAccount.class);
+        when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
+                .thenReturn(mockPhoneAccount);
         //The call is created and a listener is added:
         Call incomingCall = createCall(SIM_2_HANDLE, null, CallState.NEW);
         CallsManager.CallsManagerListener listener = mock(CallsManager.CallsManagerListener.class);
@@ -3974,6 +3977,7 @@ public class CallsManagerTest extends TelecomTestCase {
         doReturn(null).when(callSpy).hold();
         doReturn(null).when(callSpy).answer(ArgumentMatchers.anyInt());
         doNothing().when(callSpy).setStartWithSpeakerphoneOn(ArgumentMatchers.anyBoolean());
+        doReturn(false).when(callSpy).processShouldLogVoipCall();
 
         mCallsManager.addCall(callSpy);
         return callSpy;
@@ -3989,6 +3993,7 @@ public class CallsManagerTest extends TelecomTestCase {
         doReturn(null).when(callSpy).disconnect();
         doReturn(null).when(callSpy).answer(ArgumentMatchers.anyInt());
         doNothing().when(callSpy).setStartWithSpeakerphoneOn(ArgumentMatchers.anyBoolean());
+        doReturn(false).when(callSpy).processShouldLogVoipCall();
 
         return callSpy;
     }
@@ -4020,6 +4025,7 @@ public class CallsManagerTest extends TelecomTestCase {
                 || targetPhoneAccount == SELF_MANAGED_2_HANDLE) {
             ongoingCall.setIsSelfManaged(true);
         }
+
         return ongoingCall;
     }
 

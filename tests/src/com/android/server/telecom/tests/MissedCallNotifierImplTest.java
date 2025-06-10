@@ -198,6 +198,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         when(fakeTelephonyManager.getNetworkCountryIso()).thenReturn("US");
         doReturn(new ApplicationInfo()).when(mContext).getApplicationInfo();
         doReturn("com.android.server.telecom.tests").when(mContext).getPackageName();
+        doReturn("com.android.server.telecom.tests").when(mUserContext).getPackageName();
 
         mComponentContextFixture.putResource(R.string.notification_missedCallTitle,
                 MISSED_CALL_TITLE);

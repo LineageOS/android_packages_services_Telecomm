@@ -66,6 +66,7 @@ public class DisconnectedCallNotifierTest extends TelecomTestCase {
                 .thenReturn(mUserContext);
         when(mUserContext.getSystemService(eq(NotificationManager.class)))
                 .thenReturn(mNotificationManager);
+        when(mUserContext.getPackageName()).thenReturn("com.android.server.telecom.tests");
         TelephonyManager fakeTelephonyManager = (TelephonyManager) mContext.getSystemService(
                 Context.TELEPHONY_SERVICE);
         when(fakeTelephonyManager.getNetworkCountryIso()).thenReturn("US");

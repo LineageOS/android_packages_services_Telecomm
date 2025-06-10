@@ -35,6 +35,7 @@ import static org.mockito.Mockito.when;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
@@ -86,6 +87,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 @RunWith(AndroidJUnit4.class)
@@ -1125,6 +1127,65 @@ public class CallTest extends TelecomTestCase {
 
 
         assertFalse(call.isRespondViaSmsCapable());
+    }
+
+    @Test
+    public void testLogTransactionalCall() {
+        when(mFeatureFlags.integratedCallLogs()).thenReturn(true);
+        Call call = new Call(
+                "1", /* callId */
+                mContext,
+                mMockCallsManager,
+                mLock,
+                null /* ConnectionServiceRepository */,
+                mMockPhoneNumberUtilsAdapter,
+                TEST_ADDRESS,
+                null /* GatewayInfo */,
+                null /* connectionManagerPhoneAccountHandle */,
+                SIM_1_HANDLE,
+                Call.CALL_DIRECTION_UNDEFINED,
+                false /* shouldAttachToExistingConnection*/,
+                true /* isConference */,
+                mMockClockProxy,
+                mMockToastProxy,
+                mFeatureFlags);
+
+        call.setIsTransactionalCall(true);
+        PackageManager pm = mock(PackageManager.class);
+        ResolveInfo resolveInfo = mock(ResolveInfo.class);
+        when(mContext.getPackageManager()).thenReturn(pm);
+        when(pm.queryIntentActivities(any(Intent.class), eq(PackageManager.MATCH_ALL)))
+                .thenReturn(List.of(resolveInfo));
+        // Verify that we will log the transactional call when the integrated call logs flags is
+        // enabled.
+        assertTrue(call.isLoggedTransactional());
+    }
+
+    @Test
+    public void testDoNotLogSelfManagedCall() {
+        when(mFeatureFlags.integratedCallLogs()).thenReturn(true);
+        Call call = new Call(
+                "1", /* callId */
+                mContext,
+                mMockCallsManager,
+                mLock,
+                null /* ConnectionServiceRepository */,
+                mMockPhoneNumberUtilsAdapter,
+                TEST_ADDRESS,
+                null /* GatewayInfo */,
+                null /* connectionManagerPhoneAccountHandle */,
+                SIM_1_HANDLE,
+                Call.CALL_DIRECTION_UNDEFINED,
+                false /* shouldAttachToExistingConnection*/,
+                true /* isConference */,
+                mMockClockProxy,
+                mMockToastProxy,
+                mFeatureFlags);
+
+        call.setIsSelfManaged(true);
+        // Verify that we will not log the self-managed call when the integrated call logs flags is
+        // enabled.
+        assertFalse(call.isLoggedSelfManaged());
     }
 
     private Call createCall(String id) {

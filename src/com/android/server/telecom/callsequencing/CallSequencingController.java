@@ -1159,6 +1159,11 @@ public class CallSequencingController {
         if (activeCall == null || (isVoipCall(incomingCall) && isManagedCall(activeCall))) {
             return;
         }
+        // Let Telephony handle calls on the same phone account.
+        if (mFeatureFlags.addDropsFgExtraDiffAccounts()
+                && arePhoneAccountsSame(activeCall, incomingCall)) {
+            return;
+        }
         // Check if the active call doesn't support hold. If it doesn't we should indicate to the
         // user via the EXTRA_ANSWERING_DROPS_FG_CALL extra that the call would be dropped by
         // answering the incoming call.
