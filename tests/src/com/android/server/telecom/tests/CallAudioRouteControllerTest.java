@@ -417,7 +417,7 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     @Test
     public void testVideoCallRouteToSpeaker() {
         when(mCall.getVideoState()).thenReturn(VideoProfile.STATE_BIDIRECTIONAL);
-        when(mCall.isActive()).thenReturn(true);
+        when(mCall.isActiveFocus()).thenReturn(true);
         mController.initialize();
         mController.sendMessageWithSessionInfo(SWITCH_FOCUS, ACTIVE_FOCUS, 0);
         // Verify that pending audio destination route is set to speaker. This will trigger pending

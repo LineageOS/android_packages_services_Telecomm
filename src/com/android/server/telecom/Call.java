@@ -3372,6 +3372,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         return mState == CallState.ACTIVE;
     }
 
+    public boolean isActiveFocus() {
+        return isActive() || mState == CallState.DIALING || mState == CallState.PULLING;
+    }
+
     @VisibleForTesting
     public Bundle getExtras() {
         return mExtras;
