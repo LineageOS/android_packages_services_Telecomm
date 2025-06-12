@@ -85,6 +85,8 @@ public class LogUtils {
         public static final String CSW_SET_PULLING = "CSW.sP";
         public static final String CSW_SET_DISCONNECTED = "CSW.sDc";
         public static final String CSW_SET_ON_HOLD = "CSW.sOH";
+        public static final String CSW_SET_AUDIO_PROCESSING = "CSW.sAP";
+        public static final String CSW_SET_SIMULATED_RINGING = "CSW.sSR";
         public static final String CSW_REMOVE_CALL = "CSW.rC";
         public static final String CSW_SET_IS_CONFERENCED = "CSW.sIC";
         public static final String CSW_ADD_CONFERENCE_CALL = "CSW.aCC";

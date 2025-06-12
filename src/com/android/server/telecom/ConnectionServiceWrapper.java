@@ -393,6 +393,55 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         }
 
         @Override
+        public void setAudioProcessing(String callId, Session.Info sessionInfo, int useCase) {
+            Log.startSession(sessionInfo, LogUtils.Sessions.CSW_SET_AUDIO_PROCESSING,
+                mPackageAbbreviation);
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    logIncoming("setAudioProcessing %s", callId);
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null && call.isExternalCall()) {
+                        mCallsManager.markCallAsAudioProcessing(call, useCase);
+                    } else {
+                        throw new IllegalStateException("Call is not external.");
+                        // Log.w(this, "setAudioProcessing, unknown call id: %s", msg.obj);
+                    }
+                }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
+            } finally {
+                Binder.restoreCallingIdentity(token);
+                Log.endSession();
+            }
+        }
+
+        @Override
+        public void setSimulatedRinging(String callId, Session.Info sessionInfo) {
+            Log.startSession(sessionInfo, LogUtils.Sessions.CSW_SET_SIMULATED_RINGING,
+                mPackageAbbreviation);
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    logIncoming("setSimulatedRinging %s", callId);
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null && call.isExternalCall()) {
+                        mCallsManager.markCallAsSimulatedRinging(call);
+                    } else {
+                        // Log.w(this, "setSimulatedRinging, unknown call id: %s", msg.obj);
+                    }
+                }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
+            } finally {
+                Binder.restoreCallingIdentity(token);
+                Log.endSession();
+            }
+        }
+
+        @Override
         public void setRingbackRequested(String callId, boolean ringback,
                 Session.Info sessionInfo) {
             Log.startSession(sessionInfo, "CSW.SRR", mPackageAbbreviation);

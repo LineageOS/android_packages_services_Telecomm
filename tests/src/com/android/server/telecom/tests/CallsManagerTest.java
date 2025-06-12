@@ -18,6 +18,10 @@ package com.android.server.telecom.tests;
 
 import static android.provider.CallLog.Calls.MISSED_REASON_NOT_MISSED;
 import static android.provider.CallLog.Calls.USER_MISSED_NOT_RUNNING;
+import static android.telecom.Call.AUDIO_PROCESSING_USE_CASE_UNKNOWN;
+import static android.telecom.Call.AUDIO_PROCESSING_USE_CASE_VOICEMAIL;
+import static android.telecom.Call.AUDIO_PROCESSING_USE_CASE_CALL_SCREENING;
+import static android.telecom.Call.AUDIO_PROCESSING_USE_CASE_ASK_TO_HOLD;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.fail;
@@ -3924,7 +3928,7 @@ public class CallsManagerTest extends TelecomTestCase {
         mCallsManager.addConnectionServiceRepositoryCache(handle.getComponentName(),
                 handle.getUserHandle(), service);
         when(mPhoneAccountRegistrar.phoneAccountRequiresBindPermission(
-                any(PhoneAccountHandle.class))).thenReturn(true);
+            any(PhoneAccountHandle.class))).thenReturn(true);
 
         // WHEN
         Call existingIncomingCall = createCall(SIM_2_HANDLE, CallState.RINGING);
@@ -3932,7 +3936,7 @@ public class CallsManagerTest extends TelecomTestCase {
         PhoneAccountHandle connectionMgr = mock(PhoneAccountHandle.class);
         existingIncomingCall.setConnectionManagerPhoneAccount(connectionMgr);
         when(mPhoneAccountRegistrar.getSimCallManagerFromCall(any(Call.class)))
-                .thenReturn(connectionMgr);
+            .thenReturn(connectionMgr);
         when(mMockCurrentUserManager.isAdminUser()).thenReturn(true);
 
         // THEN, add a new incoming call with the same number as the 1st call
@@ -3944,6 +3948,35 @@ public class CallsManagerTest extends TelecomTestCase {
         assertEquals(existingIncomingCall, mCallsManager.getRingingOrSimulatedRingingCall());
         assertEquals(newCall.getMissedReason(), MISSED_REASON_NOT_MISSED);
         verify(service, never()).createConnectionFailed(any());
+    }
+
+    @SmallTest
+    @Test
+    public void testActiveCallAskToHold() {
+        Call ongoingCall = addSpyCall(SIM_1_HANDLE, CallState.ACTIVE);
+        mCallsManager.markCallAsAudioProcessing(ongoingCall, AUDIO_PROCESSING_USE_CASE_ASK_TO_HOLD);
+        assertEquals(CallState.AUDIO_PROCESSING, ongoingCall.getState());
+        mCallsManager.markCallAsActive(ongoingCall);
+        assertEquals(CallState.ACTIVE, ongoingCall.getState());
+    }
+
+    @SmallTest
+    @Test
+    public void testRingingCallSpamDetected() {
+        Call call = addSpyCall(SIM_1_HANDLE, CallState.RINGING);
+        mCallsManager.markCallAsAudioProcessing(call, AUDIO_PROCESSING_USE_CASE_CALL_SCREENING);
+        mCallsManager.markCallAsSimulatedRinging(call);
+        assertEquals(CallState.SIMULATED_RINGING, call.getState());
+    }
+
+    @SmallTest
+    @Test
+    public void testIncomingCallToAudioProcessingVoicemail() {
+        Call incomingCall = addSpyCall(SIM_1_HANDLE, CallState.RINGING);
+        mCallsManager.markCallAsAudioProcessing(incomingCall, AUDIO_PROCESSING_USE_CASE_VOICEMAIL);
+        mCallsManager.markCallAsDisconnected(incomingCall,
+            new DisconnectCause(DisconnectCause.OTHER));
+        assertEquals(CallState.DISCONNECTED, incomingCall.getState());
     }
 
     private Call addSpyCall() {

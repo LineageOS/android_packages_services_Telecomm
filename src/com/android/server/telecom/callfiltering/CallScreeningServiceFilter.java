@@ -24,7 +24,6 @@ import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.UserHandle;
 import android.provider.CallLog;
 import android.telecom.CallScreeningService;
 import android.telecom.Log;
@@ -36,7 +35,6 @@ import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.AppLabelProxy;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallScreeningServiceHelper;
-import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.LogUtils;
 import com.android.server.telecom.ParcelableCallUtils;
 
@@ -51,14 +49,15 @@ public class CallScreeningServiceFilter extends CallFilter {
 
     private final Call mCall;
     private final String mPackageName;
-    private final int mPackagetype;
-    private PackageManager mPackageManager;
-    private Context mContext;
-    private CallScreeningServiceConnection mConnection;
-    private final CallsManager mCallsManager;
-    private CharSequence mAppName;
+    private final int mPackageType;
+    private final PackageManager mPackageManager;
+    private final Context mContext;
+    private final CharSequence mAppName;
     private final ParcelableCallUtils.Converter mParcelableCallUtilsConverter;
     private final FeatureFlags mFeatureFlags;
+    private final Object mLock = new Object();
+    // Lock on mLock to ensure consistency across threads.
+    private CallScreeningServiceConnection mConnection;
 
     private class CallScreeningAdapter extends ICallScreeningAdapter.Stub {
         private CompletableFuture<CallFilteringResult> mResultFuture;
@@ -124,7 +123,7 @@ public class CallScreeningServiceFilter extends CallFilter {
                             .setShouldReject(response.shouldRejectCall())
                             .setShouldSilence(false)
                             .setShouldAddToCallLog(!response.shouldSkipCallLog()
-                                    || packageTypeShouldAdd(mPackagetype))
+                                    || packageTypeShouldAdd(mPackageType))
                             .setShouldShowNotification(!response.shouldSkipNotification())
                             .setCallBlockReason(CallLog.Calls.BLOCK_REASON_CALL_SCREENING_SERVICE)
                             .setCallScreeningAppName(mAppName)
@@ -177,7 +176,7 @@ public class CallScreeningServiceFilter extends CallFilter {
 
         public void screenCallFurther(String callId, ComponentName componentName,
                 CallScreeningService.ParcelableCallResponse response) {
-            if (mPackagetype != PACKAGE_TYPE_DEFAULT_DIALER) {
+            if (mPackageType != PACKAGE_TYPE_DEFAULT_DIALER) {
                 throw new SecurityException("Only the default/system dialer may request screen via"
                     + "background call audio");
             }
@@ -262,17 +261,15 @@ public class CallScreeningServiceFilter extends CallFilter {
             String packageName,
             int packageType,
             Context context,
-            CallsManager callsManager,
             AppLabelProxy appLabelProxy,
             ParcelableCallUtils.Converter parcelableCallUtilsConverter,
             FeatureFlags featureFlags) {
         super();
         mCall = call;
         mPackageName = packageName;
-        mPackagetype = packageType;
+        mPackageType = packageType;
         mContext = context;
         mPackageManager = mContext.getPackageManager();
-        mCallsManager = callsManager;
         mAppName = appLabelProxy.getAppLabel(mPackageName,
                 mCall.getAssociatedUser());
         mParcelableCallUtilsConverter = parcelableCallUtilsConverter;
@@ -300,7 +297,13 @@ public class CallScreeningServiceFilter extends CallFilter {
 
         CompletableFuture<CallFilteringResult> resultFuture = new CompletableFuture<>();
 
-        bindCallScreeningService(resultFuture);
+        if (mFeatureFlags.synchronizeConnState()) {
+            synchronized (mLock) {
+                bindCallScreeningService(resultFuture);
+            }
+        } else {
+            bindCallScreeningService(resultFuture);
+        }
         return resultFuture;
     }
 
@@ -311,7 +314,7 @@ public class CallScreeningServiceFilter extends CallFilter {
 
     private boolean hasReadContactsPermission() {
         int permission = PackageManager.PERMISSION_DENIED;
-        if (mPackagetype == PACKAGE_TYPE_CARRIER || mPackagetype == PACKAGE_TYPE_DEFAULT_DIALER) {
+        if (mPackageType == PACKAGE_TYPE_CARRIER || mPackageType == PACKAGE_TYPE_DEFAULT_DIALER) {
             permission = PackageManager.PERMISSION_GRANTED;
         } else if (mPackageManager != null) {
             permission = mPackageManager.checkPermission(Manifest.permission.READ_CONTACTS,
@@ -343,19 +346,29 @@ public class CallScreeningServiceFilter extends CallFilter {
     }
 
     public void unbindCallScreeningService() {
-        if (mConnection != null) {
+        if (mFeatureFlags.synchronizeConnState()) {
+            synchronized (mLock) {
+                try {
+                    if (mConnection != null) mContext.unbindService(mConnection);
+                } catch (IllegalArgumentException e) {
+                    Log.i(this, "Exception when unbind service %s : %s", mConnection,
+                        e.getMessage());
+                }
+                mConnection = null;
+            }
+        } else {
             try {
-                mContext.unbindService(mConnection);
+                if (mConnection != null) mContext.unbindService(mConnection);
             } catch (IllegalArgumentException e) {
                 Log.i(this, "Exception when unbind service %s : %s", mConnection,
                         e.getMessage());
             }
+            mConnection = null;
         }
-        mConnection = null;
     }
 
     private boolean isSystemDialer() {
-        if (mPackagetype != PACKAGE_TYPE_DEFAULT_DIALER) {
+        if (mPackageType != PACKAGE_TYPE_DEFAULT_DIALER) {
             return false;
         } else {
             return mPackageName.equals(

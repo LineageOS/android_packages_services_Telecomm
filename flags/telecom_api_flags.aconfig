@@ -106,3 +106,15 @@ flag {
       purpose: PURPOSE_FEATURE
   }
 }
+
+# OWNER=stevestatia TARGET=25Q4
+flag {
+  name: "enable_audio_processing_use_case"
+  is_exported: true
+  namespace: "telecom"
+  description: "Introduce audio processing use case to improve call state synchronization."
+  bug: "411205001"
+  metadata {
+      purpose: PURPOSE_FEATURE
+  }
+}

@@ -416,7 +416,7 @@ class InCallAdapter extends IInCallAdapter.Stub {
     }
 
     @Override
-    public void enterBackgroundAudioProcessing(String callId) {
+    public void enterBackgroundAudioProcessing(String callId, int useCase) {
         try {
             Log.startSession(LogUtils.Sessions.ICA_ENTER_AUDIO_PROCESSING,
                     mOwnerPackageAbbreviation);
@@ -426,7 +426,8 @@ class InCallAdapter extends IInCallAdapter.Stub {
                 synchronized (mLock) {
                     Call call = mCallIdMapper.getCall(callId);
                     if (call != null) {
-                        mCallsManager.enterBackgroundAudioProcessing(call, mOwnerPackageName);
+                        mCallsManager.enterBackgroundAudioProcessing(call, mOwnerPackageName,
+                            useCase);
                     } else {
                         Log.w(this, "enterBackgroundAudioProcessing, unknown call id: %s", callId);
                     }

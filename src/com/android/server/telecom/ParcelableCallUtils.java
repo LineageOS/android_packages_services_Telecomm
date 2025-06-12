@@ -307,6 +307,7 @@ public class ParcelableCallUtils {
                 .setActiveChildCallId(activeChildCallId)
                 .setContactPhotoUri(contactPhotoUri)
                 .setAssociatedUser(call.getAssociatedUser())
+                .setAudioProcessingUseCase(call.getAudioProcessingUseCase())
                 .createParcelableCall();
     }
 

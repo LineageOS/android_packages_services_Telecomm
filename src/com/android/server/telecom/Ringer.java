@@ -609,10 +609,9 @@ public class Ringer {
     private boolean hasExplicitVibration(@NonNull Call foregroundCall) {
         final Uri ringtoneUri = foregroundCall.getRingtone();
         if (ringtoneUri != null) {
-            // TODO(b/399265235) : Avoid this hidden API access for mainline
-            return Utils.hasVibration(ringtoneUri);
+            return Utils.hasVibrationParameter(ringtoneUri);
         }
-        return Utils.hasVibration(RingtoneManager.getActualDefaultRingtoneUri(
+        return Utils.hasVibrationParameter(RingtoneManager.getActualDefaultRingtoneUri(
                 mContext, RingtoneManager.TYPE_RINGTONE));
     }
 
@@ -648,7 +647,7 @@ public class Ringer {
         }
 
         if (Flags.enableRingtoneHapticsCustomization() && mRingtoneVibrationSupported
-                && Utils.hasVibration(ringtoneUri)) {
+                && Utils.hasVibrationParameter(ringtoneUri)) {
             Log.addEvent(
                     foregroundCall, LogUtils.Events.SKIP_VIBRATION, "using custom haptics");
             return;

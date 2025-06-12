@@ -426,6 +426,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     /** The state of the call. */
     private int mState;
 
+    /** The use case for audio processing when the call is in STATE_AUDIO_PROCESSING */
+    private int mAudioProcessingUseCase = android.telecom.Call.AUDIO_PROCESSING_USE_CASE_UNKNOWN;
+
     /**
      * Determines whether the {@link ConnectionService} has responded to the initial request to
      * create the connection.
@@ -995,6 +998,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         mState = (isConference && callDirection != CALL_DIRECTION_INCOMING &&
                 callDirection != CALL_DIRECTION_OUTGOING) ?
                 CallState.ACTIVE : CallState.NEW;
+        mAudioProcessingUseCase = android.telecom.Call.AUDIO_PROCESSING_USE_CASE_UNKNOWN;
         mContext = context;
         mCallsManager = callsManager;
         mLock = lock;
@@ -1306,6 +1310,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         return mState;
     }
 
+    public int getAudioProcessingUseCase() {
+        return mAudioProcessingUseCase;
+    }
+
     /**
      * Similar to {@link #getState()}, except will return {@link CallState#DISCONNECTING} if the
      * call is locally disconnecting.  This is the call state which is reported to the
@@ -1531,6 +1539,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                     .write(newState);
         }
         return true;
+    }
+
+    public void setAudioProcessingUseCase(int useCase) {
+        mAudioProcessingUseCase = useCase;
     }
 
     void setRingbackRequested(boolean ringbackRequested) {
