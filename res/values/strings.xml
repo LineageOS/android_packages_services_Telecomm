@@ -115,8 +115,8 @@
     <string name="respond_via_sms_edittext_dialog_title">Quick response</string>
 
     <!-- "Respond via SMS": Confirmation message shown after sending
-        a text response. [CHAR LIMIT=40] -->
-    <string name="respond_via_sms_confirmation_format">Message sent to <xliff:g id="phone_number">%s</xliff:g>.</string>
+    a text response. [CHAR LIMIT=40] -->
+    <string name="respond_via_sms_confirmation_format">Sending message to <xliff:g id="phone_number">%s</xliff:g>.</string>
 
     <!-- "Respond via SMS": Error toast shown after failing to send
         a text response. [CHAR LIMIT=40] -->

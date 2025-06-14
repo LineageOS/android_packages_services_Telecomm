@@ -15,29 +15,19 @@
   ~ limitations under the License
   -->
 
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="start"
-        android:padding="@dimen/blocked_numbers_dialog_padding">
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/add_blocked_dialog_body"
-            android:paddingBottom="@dimen/blocked_numbers_large_padding"
-            android:gravity="start"
-            android:clickable="false"
-            android:longClickable="false"
-            style="@style/BlockedNumbersTextPrimary2" />
-    <EditText
-            android:id="@+id/add_blocked_number"
+        android:layout_height="match_parent">
+    <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="@dimen/blocked_numbers_large_padding"
-            android:textDirection="locale"
-            android:textAlignment="viewStart"
-            android:hint="@string/add_blocked_number_hint"
-            android:inputType="phone" />
-</LinearLayout>
+            android:layout_height="match_parent"
+            android:padding="@dimen/blocked_numbers_dialog_padding">
+        <EditText
+                android:id="@+id/add_blocked_number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/blocked_numbers_large_padding"
+                android:hint="@string/add_blocked_number_hint"
+                android:inputType="phone" />
+    </FrameLayout>
+</ScrollView>
