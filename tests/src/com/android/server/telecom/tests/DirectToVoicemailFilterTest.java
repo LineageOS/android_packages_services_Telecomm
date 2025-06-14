@@ -25,7 +25,6 @@ import static org.mockito.Mockito.when;
 
 import android.net.Uri;
 import android.provider.CallLog;
-import android.telecom.CallerInfo;
 
 import androidx.test.filters.SmallTest;
 
@@ -33,6 +32,7 @@ import com.android.server.telecom.Call;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
 import com.android.server.telecom.callfiltering.DirectToVoicemailFilter;
+import com.android.server.telecom.util.CallerInfo;
 
 import org.junit.Before;
 import org.junit.Test;

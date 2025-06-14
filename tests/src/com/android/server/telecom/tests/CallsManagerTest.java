@@ -74,7 +74,6 @@ import android.os.UserManager;
 import android.provider.BlockedNumbersManager;
 import android.telecom.CallException;
 import android.telecom.CallScreeningService;
-import android.telecom.CallerInfo;
 import android.telecom.Connection;
 import android.telecom.DisconnectCause;
 import android.telecom.GatewayInfo;
@@ -150,6 +149,7 @@ import com.android.server.telecom.ui.CallStreamingNotification;
 import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import com.android.server.telecom.ui.ToastFactory;
 import com.android.server.telecom.callsequencing.TransactionManager;
+import com.android.server.telecom.util.CallerInfo;
 
 import org.junit.After;
 import org.junit.Before;

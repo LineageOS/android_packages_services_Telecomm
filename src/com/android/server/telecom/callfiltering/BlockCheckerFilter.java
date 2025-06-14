@@ -24,7 +24,6 @@ import android.os.HandlerThread;
 import android.os.UserManager;
 import android.provider.BlockedNumberContract;
 import android.provider.CallLog;
-import android.telecom.CallerInfo;
 import android.telecom.Log;
 import android.telecom.TelecomManager;
 
@@ -34,6 +33,7 @@ import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.LogUtils;
 import com.android.server.telecom.LoggedHandlerExecutor;
 import com.android.server.telecom.settings.BlockedNumbersUtil;
+import com.android.server.telecom.util.CallerInfo;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;

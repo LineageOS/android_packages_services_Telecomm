@@ -16,9 +16,9 @@
 
 package com.android.server.telecom;
 
-import static android.provider.CallLog.AddCallParams.AddCallParametersBuilder.MAX_NUMBER_OF_CHARACTERS;
 import static android.provider.CallLog.Calls.BLOCK_REASON_NOT_BLOCKED;
 import static android.telephony.CarrierConfigManager.KEY_SUPPORT_IMS_CONFERENCE_EVENT_PACKAGE_BOOL;
+import static com.android.server.telecom.util.CallLogUtils.AddCallParams.AddCallParametersBuilder.MAX_NUMBER_OF_CHARACTERS;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -57,6 +57,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
 import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.flags.Flags;
+import com.android.server.telecom.util.CallLogUtils;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -80,7 +81,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
      * Parameter object to hold the arguments to add a call in the call log DB.
      */
     private static class AddCallArgs {
-        public AddCallArgs(Context context, CallLog.AddCallParams params,
+        public AddCallArgs(Context context, CallLogUtils.AddCallParams params,
                 @Nullable LogCallCompletedListener logCallCompletedListener,
                 @NonNull Call call) {
             this.context = context;
@@ -92,7 +93,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
         // Since the members are accessed directly, we don't use the
         // mXxxx notation.
         public final Context context;
-        public final CallLog.AddCallParams params;
+        public final CallLogUtils.AddCallParams params;
         public final Call call;
         @Nullable
         public final LogCallCompletedListener logCallCompletedListener;
@@ -318,8 +319,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
     void logCall(Call call, int callLogType,
             @Nullable LogCallCompletedListener logCallCompletedListener, CallFilteringResult result) {
 
-        CallLog.AddCallParams.AddCallParametersBuilder paramBuilder =
-                new CallLog.AddCallParams.AddCallParametersBuilder();
+        CallLogUtils.AddCallParams.AddCallParametersBuilder paramBuilder =
+                new CallLogUtils.AddCallParams.AddCallParametersBuilder();
         if (call.getConnectTimeMillis() != 0
                 && call.getConnectTimeMillis() < call.getCreationTimeMillis()) {
             // If connected time is available, use connected time. The connected time might be
@@ -597,7 +598,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
                 AddCallArgs c = callList[i];
                 mListeners[i] = c.logCallCompletedListener;
                 try {
-                    result[i] = Calls.addCall(c.context, c.params);
+                    result[i] = CallLogUtils.addCall(c.context, c.params);
                     Log.i(TAG, "LogCall; logged callId=%s, uri=%s",
                             c.call.getId(), result[i]);
                     if (result[i] == null) {

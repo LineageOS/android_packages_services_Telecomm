@@ -21,12 +21,12 @@ import static org.junit.Assert.assertNull;
 
 import android.content.ComponentName;
 import android.net.Uri;
-import android.telecom.CallerInfo;
 import android.telecom.PhoneAccountHandle;
 
 import androidx.test.filters.SmallTest;
 
 import com.android.server.telecom.MissedCallNotifier;
+import com.android.server.telecom.util.CallerInfo;
 
 import org.junit.After;
 import org.junit.Before;

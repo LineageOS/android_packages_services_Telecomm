@@ -46,7 +46,6 @@ import android.os.Bundle;
 import android.os.UserHandle;
 import android.provider.CallLog;
 import android.provider.CallLog.Calls;
-import android.telecom.CallerInfo;
 import android.telecom.Log;
 import android.telecom.Logging.Runnable;
 import android.telecom.PhoneAccount;
@@ -75,6 +74,7 @@ import com.android.server.telecom.TelecomBroadcastIntentProcessor;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.components.TelecomBroadcastReceiver;
+import com.android.server.telecom.util.CallerInfo;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -50,7 +50,6 @@ import android.telecom.CallAudioState;
 import android.telecom.CallDiagnosticService;
 import android.telecom.CallDiagnostics;
 import android.telecom.CallException;
-import android.telecom.CallerInfo;
 import android.telecom.Conference;
 import android.telecom.Connection;
 import android.telecom.ConnectionService;
@@ -84,6 +83,7 @@ import com.android.server.telecom.callsequencing.CallTransaction;
 import com.android.server.telecom.callsequencing.TransactionManager;
 import com.android.server.telecom.callsequencing.VerifyCallStateChangeTransaction;
 import com.android.server.telecom.callsequencing.CallTransactionResult;
+import com.android.server.telecom.util.CallerInfo;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;

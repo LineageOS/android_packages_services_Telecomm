@@ -34,8 +34,8 @@ import android.text.TextUtils;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.flags.FeatureFlags;
+import com.android.server.telecom.util.CallerInfo;
 
-import android.telecom.CallerInfo;
 import android.util.Pair;
 
 import java.util.List;

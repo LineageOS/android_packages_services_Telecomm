@@ -62,6 +62,14 @@ android_app {
     },
 }
 
+// Build telecom util static lib
+java_library_static {
+    name: "telecom-util-lib",
+    srcs: [
+        "src/com/android/server/telecom/util/*.java",
+    ],
+}
+
 android_test {
     name: "TelecomUnitTests",
     static_libs: [

@@ -54,7 +54,6 @@ import android.os.UserHandle;
 import android.provider.BlockedNumberContract;
 import android.telecom.Call;
 import android.telecom.CallAudioState;
-import android.telecom.CallerInfo;
 import android.telecom.Connection;
 import android.telecom.ConnectionRequest;
 import android.telecom.DisconnectCause;
@@ -72,6 +71,7 @@ import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
 
 import com.android.internal.telecom.IInCallAdapter;
+import com.android.server.telecom.util.CallerInfo;
 
 import com.google.common.base.Predicate;
 

@@ -38,7 +38,6 @@ import android.provider.BlockedNumberContract;
 import android.provider.BlockedNumbersManager;
 import android.telecom.Log;
 
-import android.telecom.CallerInfoAsyncQuery;
 import android.view.accessibility.AccessibilityManager;
 
 import com.android.internal.telecom.IInternalServiceRetriever;
@@ -76,6 +75,7 @@ import com.android.server.telecom.settings.BlockedNumbersUtil;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 import com.android.server.telecom.ui.MissedCallNotifierImpl;
 import com.android.server.telecom.ui.NotificationChannelManager;
+import com.android.server.telecom.util.CallerInfoAsyncQuery;
 
 import java.util.concurrent.Executors;
 
