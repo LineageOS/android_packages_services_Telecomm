@@ -272,6 +272,10 @@ public class TelecomServiceImpl {
                                 if (mFeatureFlags.transactionalVideoState()) {
                                     call.setTransactionalCallSupportsVideoCalling(callAttributes);
                                 }
+                                if (mFeatureFlags.integratedCallLogs()) {
+                                    call.setIsTransactionalLogExcluded(
+                                            callAttributes.isLogExcluded());
+                                }
                                 ICallControl clientCallControl = serviceWrapper.getICallControl();
 
                                 if (clientCallControl == null) {

@@ -651,6 +651,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private boolean mIsTransactionalCall = false;
     private CallingPackageIdentity mCallingPackageIdentity = new CallingPackageIdentity();
     private boolean mSkipAutoUnhold = false;
+    private boolean mIsTransactionalLogExcluded = false;
 
     /**
      * CallingPackageIdentity is responsible for storing properties about the calling package that
@@ -2018,7 +2019,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         intent.setPackage(handle.getComponentName().getPackageName());
         boolean pkgSupportsIntent = !mContext.getPackageManager().queryIntentActivities(intent,
                 PackageManager.MATCH_ALL).isEmpty();
-        return isTransactionalCall() && pkgSupportsIntent;
+
+        return isTransactionalCall() && pkgSupportsIntent && !isTransactionalLogExcluded();
     }
 
     /**
@@ -5175,5 +5177,13 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     public boolean getSkipAutoUnhold() {
         return mSkipAutoUnhold;
+    }
+
+    public void setIsTransactionalLogExcluded(boolean result) {
+        mIsTransactionalLogExcluded = result;
+    }
+
+    public boolean isTransactionalLogExcluded() {
+        return mIsTransactionalLogExcluded;
     }
 }

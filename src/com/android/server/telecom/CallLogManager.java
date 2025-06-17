@@ -168,7 +168,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
             }
             // Always show the notification for managed calls. For self-managed calls, it is up to
             // the app to show the notification, so suppress the notification when logging the call.
-            boolean showNotification = !call.isSelfManaged();
+            boolean showNotification = call.isManaged();
             logCall(call, type, showNotification, null /*result*/);
         }
     }
@@ -180,7 +180,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
     void logCallIfNotSelfManaged (Call call, int type, boolean showNotificationForMissedCall,
             CallFilteringResult result) {
         boolean shouldCallSelfManagedLogged = shouldLogVoipCall(call);
-        if (!mFeatureFlags.preventSelfManagedCallLogging() || !call.isSelfManaged() ||
+        if (!mFeatureFlags.preventSelfManagedCallLogging() || call.isManaged() ||
                 shouldCallSelfManagedLogged) {
             logCall(call, type, showNotificationForMissedCall, result);
         } else {
@@ -279,7 +279,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
 
         // Call is NOT a self-managed call OR call is a self-managed call which has indicated it
         // should be logged in its PhoneAccount
-        return !call.isSelfManaged() || shouldCallSelfManagedLogged;
+        return call.isManaged() || shouldCallSelfManagedLogged;
     }
 
     void logCall(Call call, int type, boolean showNotificationForMissedCall, CallFilteringResult
@@ -430,7 +430,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
         paramBuilder.setPostDialDigits(call.getPostDialDigits());
         paramBuilder.setPresentation(call.getHandlePresentation());
         paramBuilder.setCallType(callLogType);
-        paramBuilder.setIsRead(call.isSelfManaged());
+        paramBuilder.setIsRead(!call.isManaged());
         paramBuilder.setMissedReason(call.getMissedReason());
         if (mFeatureFlags.businessCallComposer() && call.getExtras() != null) {
             Bundle extras = call.getExtras();
@@ -451,10 +451,12 @@ public final class CallLogManager extends CallsManagerListenerBase {
                 }
             }
         }
+
+        // At this point, we have already checked to see if we should log a transactional call.
         if (mFeatureFlags.integratedCallLogs() && call.isTransactionalCall()) {
-            // Todo: Uncomment after provider changes are in
-            // paramBuilder.setUuid(call.getId());
+            paramBuilder.setUuid(call.getId());
         }
+
         sendAddCallBroadcast(callLogType, call.getAgeMillis());
 
         boolean okayToLog =
@@ -709,7 +711,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
 
     @VisibleForTesting
     public boolean shouldLogVoipCall(Call call) {
-        return (call.isManaged() || (call.isLoggedSelfManaged() || call.isLoggedTransactional()))
+        boolean shouldLogVoipCall = call.isLoggedSelfManaged() || call.isLoggedTransactional();
+        return (call.isManaged() || (shouldLogVoipCall))
                 && (call.getHandoverState() == HandoverState.HANDOVER_NONE
                 || call.getHandoverState() == HandoverState.HANDOVER_COMPLETE);
     }

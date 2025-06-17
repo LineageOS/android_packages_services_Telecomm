@@ -951,7 +951,7 @@ public class CallLogManagerTest extends TelecomTestCase {
                 VIA_NUMBER_STRING, // viaNumber
                 UserHandle.of(CURRENT_USER_ID)
         );
-        when(fakeMissedCall.isSelfManaged()).thenReturn(true);
+        when(fakeMissedCall.isManaged()).thenReturn(false);
         when(fakeMissedCall.isLoggedSelfManaged()).thenReturn(true);
         when(fakeMissedCall.getHandoverState()).thenReturn(HandoverState.HANDOVER_NONE);
         mCallLogManager.onCallStateChanged(fakeMissedCall, CallState.ACTIVE,
@@ -1291,6 +1291,9 @@ public class CallLogManagerTest extends TelecomTestCase {
         when(fakeCall.hadChildren()).thenReturn(true);
         when(fakeCall.hasProperty(eq(Connection.PROPERTY_REMOTELY_HOSTED))).thenReturn(false);
         when(fakeCall.getAnalytics()).thenReturn(mCallInfo);
+        when(fakeCall.isManaged()).thenReturn(true);
+        when(fakeCall.isSelfManaged()).thenReturn(false);
+        when(fakeCall.isTransactionalCall()).thenReturn(false);
         return fakeCall;
     }
 

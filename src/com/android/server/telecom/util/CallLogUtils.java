@@ -47,6 +47,7 @@ import static android.provider.CallLog.Calls.PRESENTATION_UNKNOWN;
 import static android.provider.CallLog.Calls.PRIORITY;
 import static android.provider.CallLog.Calls.SUBJECT;
 import static android.provider.CallLog.Calls.TYPE;
+import static android.provider.CallLog.Calls.UUID;
 import static android.provider.CallLog.Calls.VIA_NUMBER;
 
 import android.annotation.NonNull;
@@ -329,6 +330,9 @@ public class CallLogUtils {
         if (Flags.businessCallComposer()) {
             values.put(IS_BUSINESS_CALL, Integer.valueOf(params.mIsBusinessCall ? 1 : 0));
             values.put(ASSERTED_DISPLAY_NAME, params.mAssertedDisplayName);
+        }
+        if (Flags.integratedCallLogs()) {
+            values.put(UUID, params.mUuid);
         }
         if ((params.mCallerInfo != null) && (params.mCallerInfo.getContactId() > 0)) {
             // Update usage information for the number associated with the contact ID.
@@ -740,6 +744,7 @@ public class CallLogUtils {
         private double mLongitude = Double.NaN;
         private boolean mIsBusinessCall;
         private String mAssertedDisplayName;
+        private String mUuid;
 
         private AddCallParams(CallerInfo callerInfo, String number, String postDialDigits,
             String viaNumber, int presentation, int callType, int features,
@@ -814,6 +819,24 @@ public class CallLogUtils {
             mAssertedDisplayName = assertedDisplayName;
         }
 
+        private AddCallParams(CallerInfo callerInfo, String number, String postDialDigits,
+                String viaNumber, int presentation, int callType, int features,
+                PhoneAccountHandle accountHandle, long start, int duration, long dataUsage,
+                boolean addForAllUsers, UserHandle userToBeInsertedTo, boolean isRead,
+                int callBlockReason,
+                CharSequence callScreeningAppName, String callScreeningComponentName,
+                long missedReason,
+                int priority, String subject, double latitude, double longitude, Uri pictureUri,
+                int isPhoneAccountMigrationPending, boolean isBusinessCall,
+                String assertedDisplayName, String uuid) {
+            this(callerInfo, number, postDialDigits, viaNumber, presentation, callType, features,
+                    accountHandle, start, duration, dataUsage, addForAllUsers, userToBeInsertedTo,
+                    isRead, callBlockReason, callScreeningAppName, callScreeningComponentName,
+                    missedReason, priority, subject, latitude, longitude, pictureUri,
+                    isPhoneAccountMigrationPending, isBusinessCall, assertedDisplayName);
+            mUuid = uuid;
+        }
+
         /**
          * Builder for the add-call parameters.
          */
@@ -846,6 +869,7 @@ public class CallLogUtils {
             private int mIsPhoneAccountMigrationPending;
             private boolean mIsBusinessCall;
             private String mAssertedDisplayName;
+            private String mUuid;
 
             /**
              * @param callerInfo the CallerInfo object to get the target contact from.
@@ -1089,17 +1113,48 @@ public class CallLogUtils {
             }
 
             /**
+             * @param uuid the uuid associated with the call.
+             * @throws IllegalArgumentException if the assertedDisplayName is over 256
+             *     characters
+             */
+            public @NonNull AddCallParametersBuilder setUuid(
+                    String uuid) {
+                if (uuid != null
+                        && uuid.length() > MAX_NUMBER_OF_CHARACTERS) {
+                    throw new IllegalArgumentException("assertedDisplayName exceeds the character"
+                            + " limit of " + MAX_NUMBER_OF_CHARACTERS + ".");
+                }
+                // Validate the uuid. An illegal argument exception will be thrown if the format
+                // doesn't conform.
+                java.util.UUID.fromString(uuid);
+                mUuid = uuid;
+                return this;
+            }
+
+            /**
              * Builds the object
              */
             public @NonNull AddCallParams build() {
                 if (Flags.businessCallComposer()) {
-                    return new AddCallParams(mCallerInfo, mNumber, mPostDialDigits, mViaNumber,
-                        mPresentation, mCallType, mFeatures, mAccountHandle, mStart, mDuration,
-                        mDataUsage, mAddForAllUsers, mUserToBeInsertedTo, mIsRead,
-                        mCallBlockReason,
-                        mCallScreeningAppName, mCallScreeningComponentName, mMissedReason,
-                        mPriority, mSubject, mLatitude, mLongitude, mPictureUri,
-                        mIsPhoneAccountMigrationPending, mIsBusinessCall, mAssertedDisplayName);
+                    if (Flags.integratedCallLogs()) {
+                        return new AddCallParams(mCallerInfo, mNumber, mPostDialDigits, mViaNumber,
+                                mPresentation, mCallType, mFeatures, mAccountHandle, mStart,
+                                mDuration, mDataUsage, mAddForAllUsers, mUserToBeInsertedTo,
+                                mIsRead, mCallBlockReason,
+                                mCallScreeningAppName, mCallScreeningComponentName, mMissedReason,
+                                mPriority, mSubject, mLatitude, mLongitude, mPictureUri,
+                                mIsPhoneAccountMigrationPending, mIsBusinessCall,
+                                mAssertedDisplayName, mUuid);
+                    } else {
+                        return new AddCallParams(mCallerInfo, mNumber, mPostDialDigits, mViaNumber,
+                                mPresentation, mCallType, mFeatures, mAccountHandle, mStart,
+                                mDuration, mDataUsage, mAddForAllUsers, mUserToBeInsertedTo,
+                                mIsRead, mCallBlockReason,
+                                mCallScreeningAppName, mCallScreeningComponentName, mMissedReason,
+                                mPriority, mSubject, mLatitude, mLongitude, mPictureUri,
+                                mIsPhoneAccountMigrationPending, mIsBusinessCall,
+                                mAssertedDisplayName);
+                    }
                 } else {
                     return new AddCallParams(mCallerInfo, mNumber, mPostDialDigits, mViaNumber,
                         mPresentation, mCallType, mFeatures, mAccountHandle, mStart, mDuration,

@@ -43,7 +43,7 @@
     <string name="respond_via_sms_setting_title_2" msgid="4914853536609553457">"ক্ষীপ্ৰ উত্তৰসমূহ সম্পাদনা কৰক"</string>
     <string name="respond_via_sms_setting_summary" msgid="8054571501085436868"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="6579353156073272157">"তাৎক্ষণিক উত্তৰ"</string>
-    <string name="respond_via_sms_confirmation_format" msgid="2932395476561267842">"<xliff:g id="PHONE_NUMBER">%s</xliff:g>লৈ বাৰ্তা পঠিওৱা হ’ল।"</string>
+    <string name="respond_via_sms_confirmation_format" msgid="2619774063232350285">"<xliff:g id="PHONE_NUMBER">%s</xliff:g>লৈ বার্তা পঠিয়াই থকা হৈছে।"</string>
     <string name="respond_via_sms_failure_format" msgid="5198680980054596391">"<xliff:g id="PHONE_NUMBER">%s</xliff:g>লৈ বাৰ্তা পঠিয়াব পৰা নগ’ল।"</string>
     <string name="enable_account_preference_title" msgid="6949224486748457976">"কলিং একাউণ্ট"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="3424338207838851646">"কেৱল জৰুৰীকালীন কল কৰাৰ হে অনুমতি আছে।"</string>
