@@ -1215,10 +1215,13 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             // Update status bar notification
             mStatusBarNotifier.notifySpeakerphone(false);
         } else if (mCurrentRoute.getType() == AudioRoute.TYPE_SPEAKER) {
-            routeTo(mIsActive, getBaseRoute(true, null));
+            AudioRoute newRoute = getBaseRoute(true, null);
+            routeTo(mIsActive, newRoute);
             // Since the route switching triggered by this message, we need to manually send it
-            // again so that we won't stuck in the pending route
-            if (mIsActive) {
+            // again so that we won't stuck in the pending route. Do not send the additional
+            // SPEAKER_OFF msg if we find that audio wasn't routed out of speaker. This would have
+            // the potential to cause an infinite loop if routing doesn't change.
+            if (mIsActive && newRoute.getType() != TYPE_SPEAKER) {
                 sendMessageWithSessionInfo(SPEAKER_OFF);
             }
             onAvailableRoutesChanged();
