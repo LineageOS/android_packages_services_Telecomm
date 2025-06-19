@@ -54,7 +54,7 @@ public class TransactionalServiceRepository {
             Log.d(TAG, "creating a new TSW; handle=[%s]", phoneAccountHandle);
             service = new TransactionalServiceWrapper(callEventCallback,
                     callsManager, phoneAccountHandle, call, this,
-                    TransactionManager.getInstance(), mFlags.enableCallSequencing(),
+                    TransactionManager.getInstance(),
                     mFlags, mAnomalyReporter);
         } else {
             Log.d(TAG, "add a new call to an existing TSW; handle=[%s]", phoneAccountHandle);

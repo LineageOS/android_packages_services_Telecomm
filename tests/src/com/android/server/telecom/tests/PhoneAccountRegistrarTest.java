@@ -97,6 +97,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -133,7 +134,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
                 mComponentContextFixture.getTestDouble().getApplicationContext().getFilesDir(),
                 FILE_NAME)
                 .delete();
-        when(mDefaultDialerCache.getDefaultDialerApplication(anyInt()))
+        when(mDefaultDialerCache.getDefaultDialerApplication(any()))
                 .thenReturn("com.android.dialer");
         when(mAppLabelProxy.getAppLabel(anyString(), any()))
                 .thenReturn(TEST_LABEL);

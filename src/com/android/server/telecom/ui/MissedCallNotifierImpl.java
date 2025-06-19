@@ -236,8 +236,9 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
     }
 
     private String getDefaultDialerPackage(UserHandle userHandle) {
-        String dialerPackage = mDefaultDialerCache.getDefaultDialerApplication(
-                userHandle.getIdentifier());
+        String dialerPackage = mFeatureFlags.resolveHiddenDependenciesTwo() ?
+                mDefaultDialerCache.getDefaultDialerApplication(userHandle) :
+                mDefaultDialerCache.getDefaultDialerApplicationLegacy(userHandle.getIdentifier());
         if (TextUtils.isEmpty(dialerPackage)) {
             return null;
         }

@@ -19,6 +19,9 @@ package com.android.server.telecom.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.isA;
@@ -29,6 +32,7 @@ import android.os.IBinder;
 import android.os.OutcomeReceiver;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.telecom.CallException;
 import android.telecom.DisconnectCause;
 import android.telecom.PhoneAccountHandle;
 
@@ -40,6 +44,8 @@ import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.TransactionalServiceRepository;
 import com.android.server.telecom.TransactionalServiceWrapper;
+import com.android.server.telecom.callsequencing.CallSequencingController;
+import com.android.server.telecom.callsequencing.CallsManagerCallSequencingAdapter;
 import com.android.server.telecom.callsequencing.voip.EndCallTransaction;
 import com.android.server.telecom.callsequencing.voip.HoldCallTransaction;
 import com.android.server.telecom.callsequencing.voip.SerialTransaction;
@@ -53,6 +59,8 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import java.util.concurrent.CompletableFuture;
 
 @RunWith(JUnit4.class)
 public class TransactionalServiceWrapperTest extends TelecomTestCase {
@@ -68,6 +76,7 @@ public class TransactionalServiceWrapperTest extends TelecomTestCase {
     @Mock private Call mMockCall1;
     @Mock private Call mMockCall2;
     @Mock private CallsManager mCallsManager;
+    @Mock private CallsManagerCallSequencingAdapter mCallsManagerCallSequencingAdapter;
     @Mock private TransactionManager mTransactionManager;
     @Mock private ICallEventCallback mCallEventCallback;
     @Mock private TransactionalServiceRepository mRepository;
@@ -84,9 +93,11 @@ public class TransactionalServiceWrapperTest extends TelecomTestCase {
         Mockito.when(mMockCall2.getId()).thenReturn(CALL_ID_2);
         Mockito.when(mCallsManager.getLock()).thenReturn(mLock);
         Mockito.when(mCallEventCallback.asBinder()).thenReturn(mIBinder);
+        Mockito.when(mCallsManager.getCallSequencingAdapter())
+                .thenReturn(mCallsManagerCallSequencingAdapter);
         mTransactionalServiceWrapper = new TransactionalServiceWrapper(mCallEventCallback,
                 mCallsManager, SERVICE_HANDLE, mMockCall1, mRepository, mTransactionManager,
-                false /*call sequencing*/, mFeatureFlags, mAnomalyReporterAdapter);
+                mFeatureFlags, mAnomalyReporterAdapter);
     }
 
     @Override
@@ -100,7 +111,7 @@ public class TransactionalServiceWrapperTest extends TelecomTestCase {
         TransactionalServiceWrapper service =
                 new TransactionalServiceWrapper(mCallEventCallback,
                         mCallsManager, SERVICE_HANDLE, mMockCall1, mRepository, mTransactionManager,
-                        false /*call sequencing*/, mFeatureFlags, mAnomalyReporterAdapter);
+                        mFeatureFlags, mAnomalyReporterAdapter);
 
         assertEquals(SERVICE_HANDLE, service.getPhoneAccountHandle());
         assertEquals(1, service.getNumberOfTrackedCalls());
@@ -111,7 +122,7 @@ public class TransactionalServiceWrapperTest extends TelecomTestCase {
         TransactionalServiceWrapper service =
                 new TransactionalServiceWrapper(mCallEventCallback,
                         mCallsManager, SERVICE_HANDLE, mMockCall1, mRepository, mTransactionManager,
-                        false /*call sequencing*/, mFeatureFlags, mAnomalyReporterAdapter);
+                        mFeatureFlags, mAnomalyReporterAdapter);
 
         assertEquals(1, service.getNumberOfTrackedCalls());
         service.trackCall(mMockCall2);
@@ -129,6 +140,14 @@ public class TransactionalServiceWrapperTest extends TelecomTestCase {
     public void testCallControlSetActive() throws RemoteException {
         // GIVEN
         mTransactionalServiceWrapper.trackCall(mMockCall1);
+        Mockito.doAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            OutcomeReceiver<Boolean, CallException> callback =
+                    (OutcomeReceiver<Boolean, CallException>) args[2];
+            callback.onResult(true);
+            return callback;
+        }).when(mCallsManagerCallSequencingAdapter).transactionHoldPotentialActiveCallForNewCall(
+                any(Call.class), anyBoolean(), any(OutcomeReceiver.class));
 
         // WHEN
         ICallControl callControl = mTransactionalServiceWrapper.getICallControl();

@@ -117,7 +117,6 @@ public class CallSequencingTests extends TelecomTestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        when(mFeatureFlags.enableCallSequencing()).thenReturn(true);
         mController = new CallSequencingController(mCallsManager, mContext, mClockProxy,
                 mAnomalyReporter, mTimeoutsAdapter, mMetricsController, mMmiUtils, mFeatureFlags);
 

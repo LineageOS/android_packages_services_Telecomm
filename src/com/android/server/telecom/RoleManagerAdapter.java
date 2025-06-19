@@ -90,6 +90,13 @@ public interface RoleManagerAdapter {
     String getDefaultDialerApp(int user);
 
     /**
+     * Returns the package name of the app which fills the {@link android.app.role.RoleManager}
+     * {@link android.app.role.RoleManager#ROLE_DIALER} role.
+     * @return the package name of the app filling the role, {@code null} otherwise.
+     */
+    String getDefaultDialerAppFromUserHandle(UserHandle user);
+
+    /**
      * Observe changes to the package name of the app which fills the
      * {@link android.app.role.RoleManager} {@link android.app.role.RoleManager#ROLE_DIALER} role.
      */

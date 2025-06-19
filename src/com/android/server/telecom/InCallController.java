@@ -2321,8 +2321,9 @@ public class InCallController extends CallsManagerListenerBase implements
     }
 
     private @Nullable InCallServiceInfo getDefaultDialerComponent(UserHandle userHandle) {
-        String defaultPhoneAppName = mDefaultDialerCache.getDefaultDialerApplication(
-                userHandle.getIdentifier());
+        String defaultPhoneAppName = mFeatureFlags.resolveHiddenDependenciesTwo() ?
+                mDefaultDialerCache.getDefaultDialerApplication(userHandle) :
+                mDefaultDialerCache.getDefaultDialerApplicationLegacy(userHandle.getIdentifier());
         String systemPhoneAppName = mDefaultDialerCache.getSystemDialerApplication();
 
         Log.d(this, "getDefaultDialerComponent: defaultPhoneAppName=[%s]", defaultPhoneAppName);
@@ -2585,9 +2586,10 @@ public class InCallController extends CallsManagerListenerBase implements
         }
 
         // Check to see that it is the default dialer package
-        boolean isDefaultDialerPackage = Objects.equals(serviceInfo.packageName,
-                mDefaultDialerCache.getDefaultDialerApplication(
-                    userHandle.getIdentifier()));
+        String defaultDialer = mFeatureFlags.resolveHiddenDependenciesTwo() ?
+                mDefaultDialerCache.getDefaultDialerApplication(userHandle) :
+                mDefaultDialerCache.getDefaultDialerApplicationLegacy(userHandle.getIdentifier());
+        boolean isDefaultDialerPackage = Objects.equals(serviceInfo.packageName, defaultDialer);
         if (isDefaultDialerPackage && isUIService) {
             return IN_CALL_SERVICE_TYPE_DEFAULT_DIALER_UI;
         }

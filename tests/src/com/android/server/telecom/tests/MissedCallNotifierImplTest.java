@@ -93,6 +93,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 @RunWith(JUnit4.class)
 public class MissedCallNotifierImplTest extends TelecomTestCase {
@@ -290,8 +291,8 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
     private MissedCallNotifier setupMissedCallNotificationThroughDefaultDialer() {
         mComponentContextFixture.addIntentReceiver(
                 TelecomManager.ACTION_SHOW_MISSED_CALLS_NOTIFICATION, COMPONENT_NAME);
-        when(mDefaultDialerCache.getDefaultDialerApplication(anyInt())).thenReturn(
-                DEFAULT_DIALER_PACKAGE);
+        when(mDefaultDialerCache.getDefaultDialerApplication(any()))
+                .thenReturn(DEFAULT_DIALER_PACKAGE);
         Notification.Builder builder1 = makeNotificationBuilder("builder1");
         Notification.Builder builder2 = makeNotificationBuilder("builder2");
         MissedCallNotifierImpl.NotificationBuilderFactory fakeBuilderFactory =
@@ -778,7 +779,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
 
     private void enableDialerHandlesMissedCall() {
         doReturn(COMPONENT_NAME.getPackageName()).when(mDefaultDialerCache).
-                getDefaultDialerApplication(anyInt());
+                getDefaultDialerApplication(any());
         mComponentContextFixture.addIntentReceiver(
                 TelecomManager.ACTION_SHOW_MISSED_CALLS_NOTIFICATION, COMPONENT_NAME);
     }

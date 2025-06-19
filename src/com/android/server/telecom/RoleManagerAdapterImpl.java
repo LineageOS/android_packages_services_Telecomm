@@ -96,6 +96,14 @@ public class RoleManagerAdapterImpl implements RoleManagerAdapter {
         if (mOverrideDefaultDialerApp != null) {
             return mOverrideDefaultDialerApp;
         }
+        return getRoleManagerDefaultDialerApp(new UserHandle(user));
+    }
+
+    @Override
+    public String getDefaultDialerAppFromUserHandle(UserHandle user) {
+        if (mOverrideDefaultDialerApp != null) {
+            return mOverrideDefaultDialerApp;
+        }
         return getRoleManagerDefaultDialerApp(user);
     }
 
@@ -143,9 +151,9 @@ public class RoleManagerAdapterImpl implements RoleManagerAdapter {
         return roleHolders.get(0);
     }
 
-    private String getRoleManagerDefaultDialerApp(int user) {
+    private String getRoleManagerDefaultDialerApp(UserHandle userHandle) {
         List<String> roleHolders = mRoleManager.getRoleHoldersAsUser(ROLE_DIALER,
-                new UserHandle(user));
+                userHandle);
         if (roleHolders == null || roleHolders.isEmpty()) {
             return null;
         }

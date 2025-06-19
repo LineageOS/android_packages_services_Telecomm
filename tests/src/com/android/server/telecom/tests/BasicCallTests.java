@@ -125,9 +125,9 @@ public class BasicCallTests extends TelecomSystemTest {
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
 
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(ids.mCallId);
-        assertEquals(Call.STATE_DISCONNECTING,
+        assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureX.getCall(ids.mCallId).getState());
-        assertEquals(Call.STATE_DISCONNECTING,
+        assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureY.getCall(ids.mCallId).getState());
 
         when(mClockProxy.currentTimeMillis()).thenReturn(TEST_DISCONNECT_TIME);
@@ -292,9 +292,9 @@ public class BasicCallTests extends TelecomSystemTest {
         IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(ids.mCallId);
-        assertEquals(Call.STATE_DISCONNECTING,
+        assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureX.getCall(ids.mCallId).getState());
-        assertEquals(Call.STATE_DISCONNECTING,
+        assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureY.getCall(ids.mCallId).getState());
 
         when(mClockProxy.currentTimeMillis()).thenReturn(TEST_DISCONNECT_TIME);
@@ -658,9 +658,9 @@ public class BasicCallTests extends TelecomSystemTest {
         // Ensure no issues with call disconnect.
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(incoming.mCallId);
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(outgoing.mCallId);
-        assertEquals(Call.STATE_DISCONNECTING,
+        assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureX.getCall(incoming.mCallId).getState());
-        assertEquals(Call.STATE_DISCONNECTING,
+        assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureX.getCall(outgoing.mCallId).getState());
         InCallServiceFixture.setIgnoreOverrideAdapterFlag(false);
     }

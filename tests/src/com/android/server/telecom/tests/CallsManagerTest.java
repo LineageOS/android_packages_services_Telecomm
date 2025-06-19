@@ -39,6 +39,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -1022,12 +1023,11 @@ public class CallsManagerTest extends TelecomTestCase {
         // WHEN unhold the held call
         mCallsManager.unholdCall(heldCall);
 
-        // THEN the ongoing call is disconnected, and the focus request for incoming call is sent
-        verify(ongoingCall).disconnect(any());
-        verifyFocusRequestAndExecuteCallback(heldCall);
+        // THEN the ongoing call is not disconnected and we do not perform the swap.
+        verify(ongoingCall, never()).disconnect(any());
 
         // and held call is unhold now
-        verify(heldCall).unhold(any());
+        verify(heldCall, never()).unhold(any());
     }
 
     /**
@@ -1188,19 +1188,19 @@ public class CallsManagerTest extends TelecomTestCase {
         // GIVEN a CallsManager with ongoing call, and this call can not be held
         Call ongoingCall = addSpyCall(SIM_1_HANDLE, CallState.ACTIVE);
         doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
-        doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
 
-        // WHEN answer an incoming call
+        // WHEN answer an incoming voip call
         Call incomingCall = addSpyCall(VOIP_1_HANDLE, CallState.RINGING);
+        when(incomingCall.isSelfManaged()).thenReturn(true);
         mCallsManager.answerCall(incomingCall, VideoProfile.STATE_AUDIO_ONLY);
 
-        // THEN the ongoing call is disconnected and the focus request for incoming call is sent
-        verify(ongoingCall).disconnect();
-        verifyFocusRequestAndExecuteCallback(incomingCall);
+        // THEN the ongoing call isn't disconnected
+        verify(ongoingCall, times(0)).disconnect();
 
-        // and the incoming call is answered.
-        verify(incomingCall).answer(VideoProfile.STATE_AUDIO_ONLY);
+        // and the incoming call is not answered.
+        verify(incomingCall, times(0)).answer(VideoProfile.STATE_AUDIO_ONLY);
     }
 
     @SmallTest
@@ -1209,7 +1209,7 @@ public class CallsManagerTest extends TelecomTestCase {
         // GIVEN a CallsManager with ongoing call, and this call can not be held
         Call ongoingCall = addSpyCall(SIM_1_HANDLE, CallState.ACTIVE);
         doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
-        doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
+        doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         doReturn(true).when(ongoingCall).isEmergencyCall();
         when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
 
@@ -1248,20 +1248,22 @@ public class CallsManagerTest extends TelecomTestCase {
         doReturn(true).when(incomingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         mCallsManager.answerCall(incomingCall, VideoProfile.STATE_AUDIO_ONLY);
 
+        Call heldCallToDisconnect = mCallsManager.getFirstCallWithState(CallState.ON_HOLD);
+        Call otherHeldCall = heldCallToDisconnect.equals(heldCall) ? heldCall2 : heldCall;
         // THEN the previous held call is disconnected
-        verify(heldCall).disconnect();
+        verify(heldCallToDisconnect, timeout(TEST_TIMEOUT)).disconnect();
 
         // and the ongoing call is held
-        verify(ongoingCall).hold();
+        verify(ongoingCall, timeout(TEST_TIMEOUT)).hold();
 
         // and the heldCall2 is not disconnected
-        verify(heldCall2, never()).disconnect();
+        verify(otherHeldCall, never()).disconnect();
 
         // and the focus request is sent
         verifyFocusRequestAndExecuteCallback(incomingCall);
 
         // and the incoming call is answered
-        verify(incomingCall).answer(VideoProfile.STATE_AUDIO_ONLY);
+        verify(incomingCall, timeout(TEST_TIMEOUT)).answer(VideoProfile.STATE_AUDIO_ONLY);
     }
 
     @SmallTest
@@ -1272,20 +1274,22 @@ public class CallsManagerTest extends TelecomTestCase {
         doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         doReturn(CallState.ACTIVE).when(ongoingCall).getState();
         when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(ongoingCall);
+        doReturn(CompletableFuture.completedFuture(true)).when(ongoingCall).hold();
 
         // And a held call on SIM2, which belongs to the same ConnectionService
         Call heldCall = addSpyCall(SIM_2_HANDLE, CallState.ON_HOLD);
         doReturn(CallState.ON_HOLD).when(heldCall).getState();
+        doReturn(CompletableFuture.completedFuture(true)).when(heldCall).disconnect();
 
         // on answering an incoming call on SIM1, which belongs to the same ConnectionService
         Call incomingCall = addSpyCall(SIM_1_HANDLE, CallState.RINGING);
         mCallsManager.answerCall(incomingCall, VideoProfile.STATE_AUDIO_ONLY);
 
         // THEN the previous held call is disconnected
-        verify(heldCall).disconnect();
+        verify(heldCall, timeout(TEST_TIMEOUT)).disconnect();
 
         // and the ongoing call is held
-        verify(ongoingCall).hold();
+        verify(ongoingCall, timeout(TEST_TIMEOUT)).hold();
 
         // and the focus request is sent
         verifyFocusRequestAndExecuteCallback(incomingCall);
@@ -1365,20 +1369,20 @@ public class CallsManagerTest extends TelecomTestCase {
         doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
         doReturn(false).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         doReturn(ongoingCall).when(mConnectionSvrFocusMgr).getCurrentFocusCall();
+        doReturn(false).when(ongoingCall).isEmergencyCall();
 
         // and a new self-managed call which has different ConnectionService
-        Call newCall = addSpyCall(VOIP_1_HANDLE, CallState.ACTIVE);
+        Call newCall = addSpyCall(VOIP_1_HANDLE, CallState.NEW);
         doReturn(true).when(newCall).isSelfManaged();
 
         // WHEN active the new call
         mCallsManager.markCallAsActive(newCall);
 
-        // THEN the ongoing call is disconnected, and the focus request for the new call is sent
-        verify(ongoingCall).disconnect();
-        verifyFocusRequestAndExecuteCallback(newCall);
+        // THEN the ongoing call isn't disconnected
+        assertEquals(CallState.ACTIVE, ongoingCall.getState());
 
-        // and the new call is active
-        assertEquals(CallState.ACTIVE, newCall.getState());
+        // and the new call is not active
+        assertEquals(CallState.NEW, newCall.getState());
     }
 
     @SmallTest
@@ -1439,6 +1443,11 @@ public class CallsManagerTest extends TelecomTestCase {
         doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_SUPPORT_HOLD);
         doReturn(true).when(ongoingCall).isSelfManaged();
         doReturn(ongoingCall).when(mConnectionSvrFocusMgr).getCurrentFocusCall();
+        // Emulate not being able to hold self-managed call and awaiting disconnect instead
+        doAnswer(invocation -> {
+            ongoingCall.setState(CallState.DISCONNECTED, "test");
+            return CompletableFuture.completedFuture(true);
+        }).when(ongoingCall).hold();
 
         // and a new incoming managed call
         Call newCall = addSpyCall();
@@ -1449,12 +1458,14 @@ public class CallsManagerTest extends TelecomTestCase {
         mCallsManager.answerCall(newCall, VideoProfile.STATE_AUDIO_ONLY);
 
         // THEN the ongoing call is disconnected
-        verify(ongoingCall).disconnect();
+        verify(ongoingCall, timeout(TEST_TIMEOUT)).hold();
+        assertEquals(CallState.DISCONNECTED, ongoingCall.getState());
 
         // AND focus is requested for the new call
         ArgumentCaptor<CallsManager.RequestCallback> requestCaptor =
                 ArgumentCaptor.forClass(CallsManager.RequestCallback.class);
-        verify(mConnectionSvrFocusMgr).requestFocus(eq(newCall), requestCaptor.capture());
+        verify(mConnectionSvrFocusMgr, timeout(TEST_TIMEOUT))
+                .requestFocus(eq(newCall), requestCaptor.capture());
         // since we're mocking the focus manager, we'll just pretend it did its thing.
         requestCaptor.getValue().onRequestFocusDone(newCall);
 
@@ -1559,7 +1570,8 @@ public class CallsManagerTest extends TelecomTestCase {
         // THEN the incoming call is answered
         ArgumentCaptor<CallsManager.RequestCallback> captor = ArgumentCaptor.forClass(
                 CallsManager.RequestCallback.class);
-        verify(mConnectionSvrFocusMgr).requestFocus(eq(incomingCall), captor.capture());
+        verify(mConnectionSvrFocusMgr, timeout(TEST_TIMEOUT))
+                .requestFocus(eq(incomingCall), captor.capture());
         captor.getValue().onRequestFocusDone(incomingCall);
         verify(incomingCall).answer(VideoProfile.STATE_AUDIO_ONLY);
     }
@@ -1931,6 +1943,8 @@ public class CallsManagerTest extends TelecomTestCase {
     @Test
     public void testMakeRoomForEmergencyCallAudioProcessingInProgress() {
         Call ongoingCall = addSpyCall(SIM_2_HANDLE, CallState.AUDIO_PROCESSING);
+        when(ongoingCall.disconnect(anyLong(), anyString()))
+                .thenReturn(CompletableFuture.completedFuture(true));
 
         Call newEmergencyCall = createCall(SIM_1_HANDLE, CallState.NEW);
         when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
@@ -1938,14 +1952,18 @@ public class CallsManagerTest extends TelecomTestCase {
         newEmergencyCall.setHandle(Uri.fromParts("tel", "5551213", null),
                 TelecomManager.PRESENTATION_ALLOWED);
 
-        assertTrue(mCallsManager.makeRoomForOutgoingEmergencyCall(newEmergencyCall));
-        verify(ongoingCall).disconnect(anyLong(), anyString());
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(true, newEmergencyCall);
+        verify(ongoingCall, timeout(TEST_TIMEOUT)).disconnect(anyLong(), anyString());
+        assertTrue(waitForFutureResult(result, false));
     }
 
     @SmallTest
     @Test
     public void testMakeRoomForEmergencyCallDuringIncomingCall() {
         Call ongoingCall = addSpyCall(SIM_2_HANDLE, CallState.RINGING);
+        when(ongoingCall.reject(anyBoolean(), anyString(), anyString())).thenReturn(
+                CompletableFuture.completedFuture(true));
 
         Call newEmergencyCall = createCall(SIM_1_HANDLE, CallState.NEW);
         when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
@@ -1953,14 +1971,18 @@ public class CallsManagerTest extends TelecomTestCase {
         newEmergencyCall.setHandle(Uri.fromParts("tel", "5551213", null),
                 TelecomManager.PRESENTATION_ALLOWED);
 
-        assertTrue(mCallsManager.makeRoomForOutgoingEmergencyCall(newEmergencyCall));
-        verify(ongoingCall).reject(anyBoolean(), any(), any());
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(true, newEmergencyCall);
+        verify(ongoingCall, timeout(TEST_TIMEOUT)).reject(anyBoolean(), any(), any());
+        assertTrue(waitForFutureResult(result, true));
     }
 
     @SmallTest
     @Test
     public void testMakeRoomForEmergencyCallSimulatedRingingInProgress() {
         Call ongoingCall = addSpyCall(SIM_2_HANDLE, CallState.SIMULATED_RINGING);
+        when(ongoingCall.disconnect(anyString())).thenReturn(
+                CompletableFuture.completedFuture(true));
 
         Call newEmergencyCall = createCall(SIM_1_HANDLE, CallState.NEW);
         when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
@@ -1968,8 +1990,10 @@ public class CallsManagerTest extends TelecomTestCase {
         newEmergencyCall.setHandle(Uri.fromParts("tel", "5551213", null),
                 TelecomManager.PRESENTATION_ALLOWED);
 
-        assertTrue(mCallsManager.makeRoomForOutgoingEmergencyCall(newEmergencyCall));
-        verify(ongoingCall).disconnect(anyString());
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(true, newEmergencyCall);
+        verify(ongoingCall, timeout(TEST_TIMEOUT)).disconnect(anyString());
+        assertTrue(waitForFutureResult(result, false));
     }
 
     @SmallTest
@@ -1977,6 +2001,8 @@ public class CallsManagerTest extends TelecomTestCase {
     public void testMakeRoomForEmergencyCallSimulatedRingingInProgressHasBeenActive() {
         Call ongoingCall = addSpyCall(SIM_2_HANDLE, CallState.ACTIVE);
         ongoingCall.setState(CallState.SIMULATED_RINGING, "");
+        when(ongoingCall.reject(anyBoolean(), anyString(), anyString())).thenReturn(
+                CompletableFuture.completedFuture(true));
 
         Call newEmergencyCall = createCall(SIM_1_HANDLE, CallState.NEW);
         when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
@@ -1984,8 +2010,10 @@ public class CallsManagerTest extends TelecomTestCase {
         newEmergencyCall.setHandle(Uri.fromParts("tel", "5551213", null),
                 TelecomManager.PRESENTATION_ALLOWED);
 
-        assertTrue(mCallsManager.makeRoomForOutgoingEmergencyCall(newEmergencyCall));
-        verify(ongoingCall).reject(anyBoolean(), any(), any());
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(true, newEmergencyCall);
+        verify(ongoingCall, timeout(TEST_TIMEOUT)).reject(anyBoolean(), any(), any());
+        assertTrue(waitForFutureResult(result, false));
     }
 
     @SmallTest
@@ -1994,8 +2022,11 @@ public class CallsManagerTest extends TelecomTestCase {
         when(mPhoneAccountRegistrar.getPhoneAccountUnchecked(SIM_1_HANDLE))
                 .thenReturn(SIM_1_ACCOUNT);
         Call ongoingCall = addSpyCall(SIM_1_HANDLE, CallState.ACTIVE);
+        when(ongoingCall.hold(anyString())).thenReturn(CompletableFuture.completedFuture(true));
         doReturn(true).when(ongoingCall).can(Connection.CAPABILITY_HOLD);
         Call ringingCall = addSpyCall(SIM_1_HANDLE, CallState.RINGING);
+        when(ringingCall.reject(anyBoolean(), anyString(), anyString())).thenReturn(
+                CompletableFuture.completedFuture(true));
 
         Call newEmergencyCall = createCall(SIM_1_HANDLE, CallState.NEW);
         when(mComponentContextFixture.getTelephonyManager().isEmergencyNumber(any()))
@@ -2003,8 +2034,11 @@ public class CallsManagerTest extends TelecomTestCase {
         newEmergencyCall.setHandle(Uri.fromParts("tel", "5551213", null),
                 TelecomManager.PRESENTATION_ALLOWED);
 
-        assertTrue(mCallsManager.makeRoomForOutgoingEmergencyCall(newEmergencyCall));
-        verify(ringingCall).reject(anyBoolean(), any(), any());
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(true, newEmergencyCall);
+        assertTrue(waitForFutureResult(result, false));
+        verify(ringingCall, timeout(TEST_TIMEOUT)).reject(anyBoolean(), any(), any());
+        verify(ongoingCall, timeout(TEST_TIMEOUT)).hold(anyString());
     }
 
     @SmallTest
@@ -2037,7 +2071,8 @@ public class CallsManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testAnomalyReportedWhenMakeRoomForOutgoingCallConnecting() {
-        mCallsManager.setAnomalyReporterAdapter(mAnomalyReporterAdapter);
+        mCallsManager.getCallSequencingAdapter().getSequencingController()
+                .setAnomalyReporter(mAnomalyReporterAdapter);
         Call ongoingCall = addSpyCall(SIM_2_HANDLE, CallState.CONNECTING);
 
         Call newCall = createCall(SIM_1_HANDLE, CallState.NEW);
@@ -2047,11 +2082,13 @@ public class CallsManagerTest extends TelecomTestCase {
 
         // Make sure enough time has passed that we'd drop the connecting call.
         when(mClockProxy.elapsedRealtime()).thenReturn(STATE_TIMEOUT + 10L);
-        assertTrue(mCallsManager.makeRoomForOutgoingCall(newCall));
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(false, newCall);
+        assertTrue(waitForFutureResult(result, false));
         verify(mAnomalyReporterAdapter).reportAnomaly(
                 CallsManager.LIVE_CALL_STUCK_CONNECTING_ERROR_UUID,
                 CallsManager.LIVE_CALL_STUCK_CONNECTING_ERROR_MSG);
-        verify(ongoingCall).disconnect(anyLong(), anyString());
+        verify(ongoingCall).disconnect(anyString());
     }
 
     /**
@@ -2070,7 +2107,9 @@ public class CallsManagerTest extends TelecomTestCase {
 
         // Make sure it has been a short time so we don't try to disconnect the call
         when(mClockProxy.elapsedRealtime()).thenReturn(STATE_TIMEOUT / 2);
-        assertFalse(mCallsManager.makeRoomForOutgoingCall(newCall));
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(false, newCall);
+        assertFalse(waitForFutureResult(result, true));
         verify(ongoingCall, never()).disconnect(anyLong(), anyString());
     }
 
@@ -2083,7 +2122,9 @@ public class CallsManagerTest extends TelecomTestCase {
         Call newEmergencyCall = createSpyCall(SIM_1_HANDLE, CallState.NEW);
         when(newEmergencyCall.isEmergencyCall()).thenReturn(true);
 
-        assertTrue(mCallsManager.makeRoomForOutgoingEmergencyCall(newEmergencyCall));
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(true, newEmergencyCall);
+        assertTrue(waitForFutureResult(result, false));
         verify(outgoingCall).disconnect(anyString());
     }
 
@@ -2096,7 +2137,9 @@ public class CallsManagerTest extends TelecomTestCase {
         Call newEmergencyCall = createSpyCall(SIM_1_HANDLE, CallState.NEW);
         when(newEmergencyCall.isEmergencyCall()).thenReturn(true);
 
-        assertFalse(mCallsManager.makeRoomForOutgoingEmergencyCall(newEmergencyCall));
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(true, newEmergencyCall);
+        assertFalse(waitForFutureResult(result, true));
         verify(outgoingCall, never()).disconnect(anyString());
     }
 
@@ -2112,8 +2155,10 @@ public class CallsManagerTest extends TelecomTestCase {
         Call newEmergencyCall = createSpyCall(SIM_1_HANDLE, CallState.NEW);
         when(newEmergencyCall.isEmergencyCall()).thenReturn(true);
 
-        assertTrue(mCallsManager.makeRoomForOutgoingEmergencyCall(newEmergencyCall));
-        verify(unholdableCall).disconnect(anyString());
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(true, newEmergencyCall);
+        assertTrue(waitForFutureResult(result, false));
+        verify(unholdableCall, timeout(TEST_TIMEOUT)).disconnect(anyString());
     }
 
     @SmallTest
@@ -2125,8 +2170,10 @@ public class CallsManagerTest extends TelecomTestCase {
         Call newEmergencyCall = createSpyCall(SIM_1_HANDLE, CallState.NEW);
         when(newEmergencyCall.isEmergencyCall()).thenReturn(true);
 
-        assertTrue(mCallsManager.makeRoomForOutgoingEmergencyCall(newEmergencyCall));
-        verify(holdableCall).hold(anyString());
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(true, newEmergencyCall);
+        assertTrue(waitForFutureResult(result, false));
+        verify(holdableCall, timeout(TEST_TIMEOUT)).hold(anyString());
     }
 
     @SmallTest
@@ -2134,11 +2181,17 @@ public class CallsManagerTest extends TelecomTestCase {
     public void testMakeRoomForEmergencyCallHasUnholdableCall() {
         Call unholdableCall = addSpyCall(null, CallState.ACTIVE);
         when(unholdableCall.can(Connection.CAPABILITY_HOLD)).thenReturn(false);
+        when(unholdableCall.hold(anyString())).thenReturn(CompletableFuture.completedFuture(false));
 
         Call newEmergencyCall = createSpyCall(SIM_1_HANDLE, CallState.NEW);
         when(newEmergencyCall.isEmergencyCall()).thenReturn(true);
 
-        assertFalse(mCallsManager.makeRoomForOutgoingEmergencyCall(newEmergencyCall));
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(true, newEmergencyCall);
+        verify(unholdableCall, timeout(TEST_TIMEOUT)).hold(anyString());
+        // We will still let this go through but let Telephony handle the disconnect of the
+        // unholdable call on the other sub.
+        assertTrue(waitForFutureResult(result, false));
     }
 
     @SmallTest
@@ -2148,17 +2201,23 @@ public class CallsManagerTest extends TelecomTestCase {
         Call newCall = createCall(SIM_1_HANDLE, CallState.NEW);
 
         when(mClockProxy.elapsedRealtime()).thenReturn(STATE_TIMEOUT + 10L);
-        assertTrue(mCallsManager.makeRoomForOutgoingCall(newCall));
-        verify(ongoingCall).disconnect(anyLong(), anyString());
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(false, newCall);
+        assertTrue(waitForFutureResult(result, false));
+        verify(ongoingCall, timeout(TEST_TIMEOUT)).disconnect(anyString());
     }
 
     @SmallTest
     @Test
     public void testMakeRoomForOutgoingCallForSameCall() {
-        addSpyCall(SIM_2_HANDLE, CallState.CONNECTING);
+        Call connectingCall = addSpyCall(SIM_2_HANDLE, CallState.CONNECTING);
+        when(connectingCall.hold(anyString())).thenReturn(
+                CompletableFuture.completedFuture(true));
         Call ongoingCall2 = addSpyCall();
         when(mClockProxy.elapsedRealtime()).thenReturn(STATE_TIMEOUT + 10L);
-        assertTrue(mCallsManager.makeRoomForOutgoingCall(ongoingCall2));
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(false, ongoingCall2);
+        assertTrue(waitForFutureResult(result, false));
     }
 
     /**
@@ -2171,11 +2230,14 @@ public class CallsManagerTest extends TelecomTestCase {
         Call activeCall = addSpyCall(SELF_MANAGED_HANDLE, null /* connMgr */,
                 CallState.ACTIVE, Connection.CAPABILITY_HOLD | Connection.CAPABILITY_SUPPORT_HOLD,
                 0 /* properties */);
+        when(activeCall.hold(anyString())).thenReturn(CompletableFuture.completedFuture(true));
         Call newDialingCall = createCall(SELF_MANAGED_HANDLE, CallState.DIALING);
         newDialingCall.setConnectionProperties(Connection.CAPABILITY_HOLD
                         | Connection.CAPABILITY_SUPPORT_HOLD);
-        assertTrue(mCallsManager.makeRoomForOutgoingCall(newDialingCall));
-        verify(activeCall).hold(anyString());
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(false, newDialingCall);
+        assertTrue(waitForFutureResult(result, false));
+        verify(activeCall, atLeastOnce()).hold(anyString());
     }
 
     /**
@@ -2191,7 +2253,9 @@ public class CallsManagerTest extends TelecomTestCase {
         Call newDialingCall = createCall(SELF_MANAGED_2_HANDLE, CallState.DIALING);
         newDialingCall.setConnectionProperties(Connection.CAPABILITY_HOLD
                 | Connection.CAPABILITY_SUPPORT_HOLD);
-        assertTrue(mCallsManager.makeRoomForOutgoingCall(newDialingCall));
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(false, newDialingCall);
+        assertTrue(waitForFutureResult(result, false));
         verify(activeCall).hold(anyString());
     }
 
@@ -2208,7 +2272,9 @@ public class CallsManagerTest extends TelecomTestCase {
         Call newDialingCall = createCall(SIM_1_HANDLE, CallState.DIALING);
         newDialingCall.setConnectionProperties(Connection.CAPABILITY_HOLD
                 | Connection.CAPABILITY_SUPPORT_HOLD);
-        assertTrue(mCallsManager.makeRoomForOutgoingCall(newDialingCall));
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(false, newDialingCall);
+        assertTrue(waitForFutureResult(result, false));
         verify(activeCall, never()).hold(anyString());
     }
 
@@ -2218,7 +2284,9 @@ public class CallsManagerTest extends TelecomTestCase {
         Call outgoingCall = addSpyCall(SIM_1_HANDLE, CallState.SELECT_PHONE_ACCOUNT);
         Call newCall = createSpyCall(SIM_1_HANDLE, CallState.NEW);
 
-        assertTrue(mCallsManager.makeRoomForOutgoingCall(newCall));
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(false, newCall);
+        assertTrue(waitForFutureResult(result, false));
         verify(outgoingCall).disconnect(anyString());
     }
 
@@ -2228,7 +2296,12 @@ public class CallsManagerTest extends TelecomTestCase {
         addSpyCall(SIM_1_HANDLE, CallState.DIALING);
         Call newCall = createSpyCall(SIM_1_HANDLE, CallState.NEW);
 
-        assertFalse(mCallsManager.makeRoomForOutgoingCall(newCall));
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(false, newCall);
+        assertFalse(waitForFutureResult(result, true));
+        mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(false, newCall);
+        assertFalse(waitForFutureResult(result, true));
     }
 
     @MediumTest
@@ -2239,7 +2312,9 @@ public class CallsManagerTest extends TelecomTestCase {
 
         Call newCall = createSpyCall(CONNECTION_MGR_1_HANDLE, CallState.NEW);
 
-        assertTrue(mCallsManager.makeRoomForOutgoingCall(newCall));
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(false, newCall);
+        assertTrue(waitForFutureResult(result, false));
         verify(holdableCall).hold(anyString());
     }
 
@@ -2251,7 +2326,9 @@ public class CallsManagerTest extends TelecomTestCase {
 
         Call newCall = createSpyCall(CONNECTION_MGR_1_HANDLE, CallState.NEW);
 
-        assertFalse(mCallsManager.makeRoomForOutgoingCall(newCall));
+        CompletableFuture<Boolean> result = mCallsManager.getCallSequencingAdapter()
+                .makeRoomForOutgoingCall(false, newCall);
+        assertFalse(waitForFutureResult(result, true));
     }
 
     /**
@@ -3214,8 +3291,9 @@ public class CallsManagerTest extends TelecomTestCase {
     /**
      * Verify that
      * {@link CallsManagerCallSequencingAdapter#transactionHoldPotentialActiveCallForNewCall(Call,
-     * boolean, OutcomeReceiver)}s OutcomeReceiver returns onResult when there is an active
-     * unholdable call, and it's a CallControlCallbackRequest.
+     * boolean, OutcomeReceiver)}s OutcomeReceiver returns onError when there is an active
+     * unholdable call, and it's a CallControlCallbackRequest. We will not allow VOIP calls to
+     * disconnect carrier calls.
      */
     @MediumTest
     @Test
@@ -3223,19 +3301,13 @@ public class CallsManagerTest extends TelecomTestCase {
         Call newCall = addSpyCall(VOIP_1_HANDLE, CallState.CONNECTING);
         Call activeUnholdableCall = addSpyCall(SIM_1_HANDLE, null,
                 CallState.ACTIVE, 0, 0);
-
-        doAnswer(invocation -> {
-            doReturn(true).when(activeUnholdableCall).isLocallyDisconnecting();
-            return null;
-        }).when(activeUnholdableCall).disconnect();
+        when(newCall.isTransactionalCall()).thenReturn(true);
 
         assertHoldActiveCallForNewCall(
                 newCall,
                 activeUnholdableCall /* activeCall */,
                 false /* isCallControlRequest */,
-                true  /* expectOnResult */);
-
-        verify(activeUnholdableCall, atLeast(1)).disconnect();
+                false  /* expectOnResult */);
     }
 
     @SmallTest
@@ -3848,7 +3920,6 @@ public class CallsManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testSimultaneousCallType() {
-        when(mFeatureFlags.enableCallSequencing()).thenReturn(true);
         // Setup CallsManagerCallSequencingAdapter
         CallSequencingController sequencingController = mock(CallSequencingController.class);
         CallAudioManager callAudioManager = mock(CallAudioManager.class);
@@ -3920,7 +3991,6 @@ public class CallsManagerTest extends TelecomTestCase {
     }
 
     private void verifyMaxRingingCallNoError(PhoneAccountHandle handle, Uri address) {
-        when(mFeatureFlags.enableCallSequencing()).thenReturn(true);
         when(mFeatureFlags.allowCallOnSameConnectionMgr()).thenReturn(true);
         setupCallerInfoLookupHelper();
         ConnectionServiceWrapper service = mock(ConnectionServiceWrapper.class);
@@ -4006,9 +4076,15 @@ public class CallsManagerTest extends TelecomTestCase {
         Call callSpy = Mockito.spy(ongoingCall);
 
         // Mocks some methods to not call the real method.
-        doReturn(null).when(callSpy).unhold();
-        doReturn(null).when(callSpy).hold();
-        doReturn(null).when(callSpy).answer(ArgumentMatchers.anyInt());
+        doReturn(CompletableFuture.completedFuture(true)).when(callSpy).unhold();
+        doReturn(CompletableFuture.completedFuture(true)).when(callSpy).hold();
+        doReturn(CompletableFuture.completedFuture(true)).when(callSpy).hold(anyString());
+        doReturn(CompletableFuture.completedFuture(true)).when(callSpy).disconnect();
+        doReturn(CompletableFuture.completedFuture(true)).when(callSpy).disconnect(anyString());
+        doReturn(CompletableFuture.completedFuture(true)).when(callSpy)
+                .reject(anyBoolean(), nullable(String.class), anyString());
+        doReturn(CompletableFuture.completedFuture(true)).when(callSpy)
+                .answer(ArgumentMatchers.anyInt());
         doNothing().when(callSpy).setStartWithSpeakerphoneOn(ArgumentMatchers.anyBoolean());
         doReturn(false).when(callSpy).processShouldLogVoipCall();
 
@@ -4065,7 +4141,7 @@ public class CallsManagerTest extends TelecomTestCase {
     private void verifyFocusRequestAndExecuteCallback(Call call) {
         ArgumentCaptor<CallsManager.RequestCallback> captor =
                 ArgumentCaptor.forClass(CallsManager.RequestCallback.class);
-        verify(mConnectionSvrFocusMgr).requestFocus(eq(call), captor.capture());
+        verify(mConnectionSvrFocusMgr, timeout(TEST_TIMEOUT)).requestFocus(eq(call), captor.capture());
         CallsManager.RequestCallback callback = captor.getValue();
         callback.onRequestFocusDone(call);
     }
@@ -4146,6 +4222,10 @@ public class CallsManagerTest extends TelecomTestCase {
             throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(activeCall);
+        if (activeCall != null) {
+            when(activeCall.hold(anyString())).thenReturn(
+                    CompletableFuture.completedFuture(true));
+        }
         mCallsManager.getCallSequencingAdapter().transactionHoldPotentialActiveCallForNewCall(
                 newCall,
                 isCallControlRequest,
@@ -4161,6 +4241,16 @@ public class CallsManagerTest extends TelecomTestCase {
             sleep(50);
         }
         assertEquals(description, condition.expected(), condition.actual());
+    }
+
+    private boolean waitForFutureResult(CompletableFuture<Boolean> future, boolean defaultValue) {
+        boolean result = defaultValue;
+        try {
+            result = future.get(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            // Pass through
+        }
+        return result;
     }
 
     protected interface Condition {

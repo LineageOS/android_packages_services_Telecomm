@@ -525,8 +525,9 @@ public class PhoneAccountRegistrar {
     public PhoneAccountHandle getSimCallManager(int subId, UserHandle userHandle) {
 
         // Get the default dialer in case it has a connection manager associated with it.
-        String dialerPackage = mDefaultDialerCache
-                .getDefaultDialerApplication(userHandle.getIdentifier());
+        String dialerPackage = mTelecomFeatureFlags.resolveHiddenDependenciesTwo() ?
+                mDefaultDialerCache.getDefaultDialerApplication(userHandle) :
+                mDefaultDialerCache.getDefaultDialerApplicationLegacy(userHandle.getIdentifier());
 
         // Check carrier config.
         ComponentName systemSimCallManagerComponent = getSystemSimCallManagerComponent(subId);

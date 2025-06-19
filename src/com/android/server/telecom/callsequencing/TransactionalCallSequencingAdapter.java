@@ -34,19 +34,16 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Helper adapter class used to centralized code that will be affected by toggling the
- * {@link Flags#enableCallSequencing()} flag.
+ * Helper adapter class used to centralized code for call sequencing purposes.
  */
 public class TransactionalCallSequencingAdapter {
     private final TransactionManager mTransactionManager;
     private final CallsManager mCallsManager;
-    private final boolean mIsCallSequencingEnabled;
 
     public TransactionalCallSequencingAdapter(TransactionManager transactionManager,
-            CallsManager callsManager, boolean isCallSequencingEnabled) {
+            CallsManager callsManager) {
         mTransactionManager = transactionManager;
         mCallsManager = callsManager;
-        mIsCallSequencingEnabled = isCallSequencingEnabled;
     }
 
     /**
@@ -54,13 +51,8 @@ public class TransactionalCallSequencingAdapter {
      */
     public void setActive(Call call,
             OutcomeReceiver<CallTransactionResult, CallException> receiver) {
-        if (mIsCallSequencingEnabled) {
             createSetActiveTransactionSequencing(call, true /* callControlRequest */, null,
                     receiver, receiver);
-        } else {
-            mTransactionManager.addTransaction(createSetActiveTransactions(call,
-                    true /* callControlRequest */), receiver);
-        }
     }
 
     /**
@@ -73,13 +65,8 @@ public class TransactionalCallSequencingAdapter {
                 getSetAnswerReceiver(call, null /* foregroundCallBeforeSwap */,
                         false /* wasForegroundActive */, newVideoState, receiver,
                         isCallControlRequest);
-        if (mIsCallSequencingEnabled) {
-            createSetActiveTransactionSequencing(call, isCallControlRequest, null,
-                    receiver, receiverForTransaction /* receiverForTransaction */);
-        } else {
-            mTransactionManager.addTransaction(createSetActiveTransactions(call,
-                    isCallControlRequest), receiverForTransaction);
-        }
+        createSetActiveTransactionSequencing(call, isCallControlRequest, null,
+                receiver, receiverForTransaction /* receiverForTransaction */);
     }
 
     /**
@@ -112,18 +99,8 @@ public class TransactionalCallSequencingAdapter {
         OutcomeReceiver<CallTransactionResult, CallException> receiverForTransaction =
                 getOnSetActiveReceiver(call, foregroundCallBeforeSwap, wasActive, receiver);
 
-        if (mIsCallSequencingEnabled) {
-            return createSetActiveTransactionSequencing(call, false /* callControlRequest */,
-                    clientCbT, receiver, receiverForTransaction);
-        } else {
-            SerialTransaction serialTransactions = createSetActiveTransactions(call,
-                    false /* callControlRequest */);
-            serialTransactions.appendTransaction(clientCbT);
-            // do CallsManager workload before asking client and
-            //   reset CallsManager state if client does NOT ack
-            return mTransactionManager.addTransaction(
-                    serialTransactions, receiverForTransaction);
-        }
+        return createSetActiveTransactionSequencing(call, false /* callControlRequest */,
+                clientCbT, receiver, receiverForTransaction);
     }
 
     /**
@@ -141,17 +118,8 @@ public class TransactionalCallSequencingAdapter {
                 getSetAnswerReceiver(call, foregroundCallBeforeSwap, wasActive,
                         videoState, receiver, isCallControlRequest);
 
-        if (mIsCallSequencingEnabled) {
-            return createSetActiveTransactionSequencing(call, false /* callControlRequest */,
-                    clientCbT, receiver, receiverForTransaction);
-        } else {
-            SerialTransaction serialTransactions = createSetActiveTransactions(call,
-                    isCallControlRequest);
-            serialTransactions.appendTransaction(clientCbT);
-            // do CallsManager workload before asking client and
-            //   reset CallsManager state if client does NOT ack
-            return mTransactionManager.addTransaction(serialTransactions, receiverForTransaction);
-        }
+        return createSetActiveTransactionSequencing(call, false /* callControlRequest */,
+                clientCbT, receiver, receiverForTransaction);
     }
 
     /**

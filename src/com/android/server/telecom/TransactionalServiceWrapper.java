@@ -114,8 +114,7 @@ public class TransactionalServiceWrapper implements
     public TransactionalServiceWrapper(ICallEventCallback callEventCallback,
             CallsManager callsManager, PhoneAccountHandle phoneAccountHandle, Call call,
             TransactionalServiceRepository repo, TransactionManager transactionManager,
-            boolean isCallSequencingEnabled, FeatureFlags featureFlags,
-            AnomalyReporterAdapter anomalyReporterAdapter) {
+            FeatureFlags featureFlags, AnomalyReporterAdapter anomalyReporterAdapter) {
         // passed args
         mICallEventCallback = callEventCallback;
         mCallsManager = callsManager;
@@ -128,7 +127,7 @@ public class TransactionalServiceWrapper implements
         mStreamingController = mCallsManager.getCallStreamingController();
         mLock = mCallsManager.getLock();
         mCallSequencingAdapter = new TransactionalCallSequencingAdapter(mTransactionManager,
-                mCallsManager, isCallSequencingEnabled);
+                mCallsManager);
         setDeathRecipient(callEventCallback);
         mFeatureFlags = featureFlags;
         mAnomalyReporter = anomalyReporterAdapter;

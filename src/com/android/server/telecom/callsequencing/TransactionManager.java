@@ -61,10 +61,7 @@ public class TransactionManager {
     private TransactionManager() {
         mTransactions = new ArrayDeque<>();
         mCurrentTransaction = null;
-        if (Flags.enableCallSequencing()) {
-            mCompletedTransactions = new ArrayDeque<>();
-        } else
-            mCompletedTransactions = null;
+        mCompletedTransactions = new ArrayDeque<>();
     }
 
     public static TransactionManager getInstance() {
@@ -184,8 +181,6 @@ public class TransactionManager {
     }
 
     private void addTransactionToHistory(CallTransaction t) {
-        if (!Flags.enableCallSequencing()) return;
-
         mCompletedTransactions.add(t);
         if (mCompletedTransactions.size() > TRANSACTION_HISTORY_SIZE) {
             mCompletedTransactions.poll();
@@ -196,10 +191,6 @@ public class TransactionManager {
      * Called when the dumpsys is created for telecom to capture the current state.
      */
     public void dump(IndentingPrintWriter pw) {
-        if (!Flags.enableCallSequencing()) {
-            pw.println("<<Flag not enabled>>");
-            return;
-        }
         synchronized (sLock) {
             pw.println("Pending Transactions:");
             pw.increaseIndent();

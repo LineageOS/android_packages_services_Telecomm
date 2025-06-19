@@ -987,7 +987,6 @@ public class CallTest extends TelecomTestCase {
         @Test
     @SmallTest
     public void testOnConnectionEventNotifiesListener() {
-        when(mFeatureFlags.enableCallSequencing()).thenReturn(true);
         Call.Listener listener = mock(Call.Listener.class);
         Call call = createCall("1");
         call.addListener(listener);

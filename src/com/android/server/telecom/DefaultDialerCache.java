@@ -172,7 +172,26 @@ public class DefaultDialerCache {
         return mRoleManagerAdapter.getBTInCallService();
     }
 
-    public String getDefaultDialerApplication(int userId) {
+    public String getDefaultDialerApplication(UserHandle user) {
+        if (user.getIdentifier() < 0) {
+            Log.w(LOG_TAG, "Attempting to get default dialer for a meta-user %d",
+                    user.getIdentifier());
+            return null;
+        }
+
+        // TODO: Re-enable this when we are able to use the cache once more.  RoleManager does not
+        // provide a means for being informed when the role holder changes at the current time.
+        //
+        //synchronized (mLock) {
+        //    String defaultDialer = mCurrentDefaultDialerPerUser.get(userId);
+        //    if (!TextUtils.isEmpty(defaultDialer)) {
+        //        return defaultDialer;
+        //    }
+        //}
+        return refreshCacheForUserHandle(user);
+    }
+
+    public String getDefaultDialerApplicationLegacy(int userId) {
         if (userId == UserHandle.USER_CURRENT) {
             userId = ActivityManager.getCurrentUser();
         }
@@ -191,11 +210,17 @@ public class DefaultDialerCache {
         //        return defaultDialer;
         //    }
         //}
-        return refreshCacheForUser(userId);
+        return refreshCacheForUserId(userId);
     }
 
     public String getDefaultDialerApplication() {
-        return getDefaultDialerApplication(UserUtil.getUserIdFromContext(mContext, mFeatureFlags));
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            return getDefaultDialerApplication(
+                    new UserHandle(UserUtil.getUserIdFromContext(mContext, mFeatureFlags)));
+        } else {
+            return getDefaultDialerApplicationLegacy(UserUtil.getUserIdFromContext(mContext,
+                    mFeatureFlags));
+        }
     }
 
     public void setSystemDialerComponentName(ComponentName testComponentName) {
@@ -225,13 +250,27 @@ public class DefaultDialerCache {
     }
 
     public boolean isDefaultOrSystemDialer(String packageName, int userId) {
-        String defaultDialer = getDefaultDialerApplication(userId);
+        String defaultDialer = mFeatureFlags.resolveHiddenDependenciesTwo() ?
+                getDefaultDialerApplication(UserHandle.of(userId)) :
+                getDefaultDialerApplicationLegacy(userId);
+
         return Objects.equals(packageName, defaultDialer)
                 || Objects.equals(packageName, getSystemDialerApplication());
     }
 
-    public boolean setDefaultDialer(String packageName, int userId) {
+    public boolean setDefaultDialer(String packageName, UserHandle user) {
         boolean isChanged = mDefaultDialerManagerAdapter.setDefaultDialerApplication(
+                mContext, packageName, user);
+        if (isChanged) {
+            // Update the cache synchronously so that there is no delay in cache update.
+            mCurrentDefaultDialerPerUser.put(user.getIdentifier(),
+                    packageName == null ? "" : packageName);
+        }
+        return isChanged;
+    }
+
+    public boolean setDefaultDialerLegacy(String packageName, int userId) {
+        boolean isChanged = mDefaultDialerManagerAdapter.setDefaultDialerApplicationLegacy(
                 mContext, packageName, userId);
         if (isChanged) {
             // Update the cache synchronously so that there is no delay in cache update.
@@ -240,10 +279,18 @@ public class DefaultDialerCache {
         return isChanged;
     }
 
-    private String refreshCacheForUser(int userId) {
+    private String refreshCacheForUserId(int userId) {
         String currentDefaultDialer =
                 mRoleManagerAdapter.getDefaultDialerApp(userId);
         mCurrentDefaultDialerPerUser.put(userId, currentDefaultDialer == null ? "" :
+                currentDefaultDialer);
+        return currentDefaultDialer;
+    }
+
+    private String refreshCacheForUserHandle(UserHandle user) {
+        String currentDefaultDialer =
+                mRoleManagerAdapter.getDefaultDialerAppFromUserHandle(user);
+        mCurrentDefaultDialerPerUser.put(user.getIdentifier(), currentDefaultDialer == null ? "" :
                 currentDefaultDialer);
         return currentDefaultDialer;
     }
@@ -257,7 +304,7 @@ public class DefaultDialerCache {
     private void refreshCachesForUsersWithPackage(String packageName) {
         mCurrentDefaultDialerPerUser.forEach((userId, currentName) -> {
             if (packageName == null || Objects.equals(packageName, currentName)) {
-                String newDefaultDialer = refreshCacheForUser(userId);
+                String newDefaultDialer = refreshCacheForUserId(userId);
                 Log.v(LOG_TAG, "Refreshing default dialer for user %d: now %s",
                         userId, newDefaultDialer);
             }
@@ -290,9 +337,14 @@ public class DefaultDialerCache {
     public interface DefaultDialerManagerAdapter {
         String getDefaultDialerApplication(Context context);
 
-        String getDefaultDialerApplication(Context context, int userId);
+        String getDefaultDialerApplication(Context context, UserHandle user);
 
-        boolean setDefaultDialerApplication(Context context, String packageName, int userId);
+        String getDefaultDialerApplicationLegacy(Context context, int userId);
+
+        boolean setDefaultDialerApplication(Context context, String packageName, UserHandle user);
+
+        boolean setDefaultDialerApplicationLegacy(Context context, String packageName, int userId);
+
     }
 
     static class DefaultDialerManagerAdapterImpl implements DefaultDialerManagerAdapter {
@@ -302,14 +354,26 @@ public class DefaultDialerCache {
         }
 
         @Override
-        public String getDefaultDialerApplication(Context context, int userId) {
-            return DefaultDialerManager.getDefaultDialerApplication(context, userId);
+        public String getDefaultDialerApplication(Context context, UserHandle user) {
+            return DefaultDialerManager.getDefaultDialerApplication(context, user);
+        }
+
+        @Override
+        public String getDefaultDialerApplicationLegacy(Context context, int userId) {
+            return DefaultDialerManager.getDefaultDialerApplicationLegacy(context, userId);
         }
 
         @Override
         public boolean setDefaultDialerApplication(Context context, String packageName,
+                UserHandle user) {
+            return DefaultDialerManager.setDefaultDialerApplication(context, packageName, user);
+        }
+
+        @Override
+        public boolean setDefaultDialerApplicationLegacy(Context context, String packageName,
                 int userId) {
-            return DefaultDialerManager.setDefaultDialerApplication(context, packageName, userId);
+            return DefaultDialerManager.setDefaultDialerApplicationLegacy(
+                    context, packageName, userId);
         }
     }
 }

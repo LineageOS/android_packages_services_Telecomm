@@ -148,7 +148,7 @@ public class CallTransaction {
         mHandler = new Handler(mHandlerThread.getLooper());
         mLock = lock;
         mTransactionTimeoutMs = timeoutMs;
-        mStats = Flags.enableCallSequencing() ? new Stats() : null;
+        mStats = new Stats();
     }
 
     public CallTransaction(List<CallTransaction> subTransactions,

@@ -877,14 +877,18 @@ public class TelecomServiceImpl {
                 try {
                     Log.startSession("TSI.gSCM", Log.getPackageAbbreviation(callingPackage));
                     final int callingUid = Binder.getCallingUid();
-                    final int user = UserHandle.getUserId(callingUid);
+                    final int callingUserId = mFeatureFlags.resolveHiddenDependenciesTwo() ?
+                            Binder.getCallingUserHandle().getIdentifier() :
+                            UserHandle.getUserId(callingUid);
+                    final UserHandle user = mFeatureFlags.resolveHiddenDependenciesTwo() ?
+                            Binder.getCallingUserHandle() : UserHandle.of(callingUserId);
                     long token = Binder.clearCallingIdentity();
                     try {
-                        if (user != ActivityManager.getCurrentUser()) {
+                        if (callingUserId != ActivityManager.getCurrentUser()) {
                             enforceCrossUserPermission(callingUid);
                         }
                         event.setResult(ApiStats.RESULT_NORMAL);
-                        return mPhoneAccountRegistrar.getSimCallManager(subId, UserHandle.of(user));
+                        return mPhoneAccountRegistrar.getSimCallManager(subId, user);
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
@@ -1270,10 +1274,12 @@ public class TelecomServiceImpl {
             try {
                 Log.startSession("TSI.gDDP", Log.getPackageAbbreviation(callingPackage));
                 int callerUserId = UserHandle.getCallingUserId();
+                UserHandle callerUser = Binder.getCallingUserHandle();
                 final long token = Binder.clearCallingIdentity();
                 try {
-                    return mDefaultDialerCache.getDefaultDialerApplication(
-                            callerUserId);
+                    return mFeatureFlags.resolveHiddenDependenciesTwo() ?
+                            mDefaultDialerCache.getDefaultDialerApplication(callerUser) :
+                            mDefaultDialerCache.getDefaultDialerApplicationLegacy(callerUserId);
                 } finally {
                     Binder.restoreCallingIdentity(token);
                 }
@@ -1303,7 +1309,10 @@ public class TelecomServiceImpl {
                 final long token = Binder.clearCallingIdentity();
                 event.setResult(ApiStats.RESULT_NORMAL);
                 try {
-                    return mDefaultDialerCache.getDefaultDialerApplication(userId);
+                    return mFeatureFlags.resolveHiddenDependenciesTwo() ?
+                            mDefaultDialerCache
+                                    .getDefaultDialerApplication(new UserHandle(userId)) :
+                            mDefaultDialerCache.getDefaultDialerApplicationLegacy(userId);
                 } finally {
                     Binder.restoreCallingIdentity(token);
                 }
@@ -2354,11 +2363,14 @@ public class TelecomServiceImpl {
                 enforcePermission(WRITE_SECURE_SETTINGS);
                 synchronized (mLock) {
                     int callerUserId = UserHandle.getCallingUserId();
+                    UserHandle callerUser = Binder.getCallingUserHandle();
                     long token = Binder.clearCallingIdentity();
                     event.setResult(ApiStats.RESULT_NORMAL);
                     try {
-                        return mDefaultDialerCache.setDefaultDialer(packageName,
-                                callerUserId);
+                        return mFeatureFlags.resolveHiddenDependenciesTwo() ?
+                                mDefaultDialerCache.setDefaultDialer(packageName, callerUser) :
+                                mDefaultDialerCache
+                                        .setDefaultDialerLegacy(packageName, callerUserId);
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
@@ -3130,7 +3142,9 @@ public class TelecomServiceImpl {
         setupPackageRemovedReceiver(phoneAccountRegistrar);
 
         mDefaultDialerCache.observeDefaultDialerApplication(mContext.getMainExecutor(), userId -> {
-            String defaultDialer = mDefaultDialerCache.getDefaultDialerApplication(userId);
+            String defaultDialer = mFeatureFlags.resolveHiddenDependenciesTwo() ?
+                    mDefaultDialerCache.getDefaultDialerApplication(new UserHandle(userId)) :
+                    mDefaultDialerCache.getDefaultDialerApplicationLegacy(userId);
             if (defaultDialer == null) {
                 // We are replacing the dialer, just wait for the upcoming callback.
                 return;
@@ -3935,7 +3949,8 @@ public class TelecomServiceImpl {
         // incompatible types.
         if (icon != null && (icon.getType() == Icon.TYPE_URI
                 || icon.getType() == Icon.TYPE_URI_ADAPTIVE_BITMAP)) {
-            int callingUserId = UserHandle.getCallingUserId();
+            int callingUserId = mFeatureFlags.resolveHiddenDependenciesTwo() ?
+                    Binder.getCallingUserHandle().getIdentifier() : UserHandle.getCallingUserId();
             int requestingUserId = StatusHints.getUserIdFromAuthority(
                     icon.getUri().getAuthority(), callingUserId);
             if(callingUserId != requestingUserId) {

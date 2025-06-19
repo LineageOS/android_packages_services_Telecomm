@@ -1,14 +1,6 @@
 package: "com.android.server.telecom.flags"
 container: "system"
 
-# OWNER=breadley TARGET=24Q3
-flag {
-  name: "enable_call_sequencing"
-  namespace: "telecom"
-  description: "Enables simultaneous call sequencing for SIM PhoneAccounts"
-  bug: "327038818"
-}
-
 # OWNER=grantmenke TARGET=25Q3
 flag {
   name: "prevent_self_managed_call_logging"

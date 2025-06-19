@@ -492,7 +492,7 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
         when(mMockCall.getIntentExtras()).thenReturn(callExtras);
         when(mMockCall.isExternalCall()).thenReturn(false);
-        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID))
+        when(mDefaultDialerCache.getDefaultDialerApplication(new UserHandle(CURRENT_USER_ID)))
                 .thenReturn(DEF_PKG);
         when(mMockContext.bindServiceAsUser(any(Intent.class), any(ServiceConnection.class),
                 anyInt(), eq(mUserHandle))).thenReturn(true);
@@ -550,7 +550,7 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
         when(mMockCall.getIntentExtras()).thenReturn(callExtras);
         when(mMockCall.isExternalCall()).thenReturn(false);
-        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID))
+        when(mDefaultDialerCache.getDefaultDialerApplication(new UserHandle(CURRENT_USER_ID)))
                 .thenReturn(DEF_PKG);
         when(mMockContext.bindServiceAsUser(any(Intent.class), any(ServiceConnection.class),
                 eq(serviceBindingFlags),
@@ -753,7 +753,7 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
         when(mMockCall.getIntentExtras()).thenReturn(callExtras);
         when(mMockCall.isExternalCall()).thenReturn(false);
-        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID))
+        when(mDefaultDialerCache.getDefaultDialerApplication(new UserHandle(CURRENT_USER_ID)))
                 .thenReturn(DEF_PKG);
         ArgumentCaptor<ServiceConnection> serviceConnectionCaptor =
                 ArgumentCaptor.forClass(ServiceConnection.class);
@@ -841,7 +841,7 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.getIntentExtras()).thenReturn(callExtras);
         when(mMockCall.isExternalCall()).thenReturn(false);
         when(mMockCall.getConferenceableCalls()).thenReturn(Collections.emptyList());
-        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID))
+        when(mDefaultDialerCache.getDefaultDialerApplication(new UserHandle(CURRENT_USER_ID)))
                 .thenReturn(DEF_PKG);
         when(mMockContext.bindServiceAsUser(
                 any(Intent.class), any(ServiceConnection.class), anyInt(), any(UserHandle.class)))
@@ -926,7 +926,8 @@ public class InCallControllerTests extends TelecomTestCase {
                 any(Intent.class), any(ServiceConnection.class), anyInt(), any(UserHandle.class)))
                 .thenReturn(true);
         when(mMockContext.getApplicationInfo()).thenReturn(applicationInfo);
-        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID)).thenReturn(DEF_PKG);
+        when(mDefaultDialerCache.getDefaultDialerApplication(
+                new UserHandle(CURRENT_USER_ID))).thenReturn(DEF_PKG);
 
         setupMockPackageManager(true /* default */, true /* system */, false /* external calls */);
         mInCallController.bindToServices(mMockCall);
@@ -1031,7 +1032,7 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.getIntentExtras()).thenReturn(callExtras);
         when(mMockCall.isExternalCall()).thenReturn(false);
         when(mMockCall.getAssociatedUser()).thenReturn(mUserHandle);
-        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID))
+        when(mDefaultDialerCache.getDefaultDialerApplication(new UserHandle(CURRENT_USER_ID)))
                 .thenReturn(DEF_PKG);
         ArgumentCaptor<ServiceConnection> serviceConnectionCaptor =
                 ArgumentCaptor.forClass(ServiceConnection.class);
@@ -1146,7 +1147,7 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.visibleToInCallService()).thenReturn(true);
 
         // Dialer doesn't handle these calls, but non-UI ICS does.
-        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID))
+        when(mDefaultDialerCache.getDefaultDialerApplication(new UserHandle(CURRENT_USER_ID)))
                 .thenReturn(DEF_PKG);
         ArgumentCaptor<ServiceConnection> serviceConnectionCaptor =
                 ArgumentCaptor.forClass(ServiceConnection.class);
@@ -1269,7 +1270,8 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.isIncoming()).thenReturn(true);
         when(mMockCall.isExternalCall()).thenReturn(false);
         when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
-        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID)).thenReturn(DEF_PKG);
+        when(mDefaultDialerCache.getDefaultDialerApplication(new UserHandle(CURRENT_USER_ID)))
+                .thenReturn(DEF_PKG);
         when(mMockContext.bindServiceAsUser(nullable(Intent.class),
                 nullable(ServiceConnection.class), anyInt(), nullable(UserHandle.class)))
                 .thenReturn(true);
@@ -1439,7 +1441,8 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockContext.getApplicationInfo()).thenReturn(applicationInfo);
         // Package doesn't have metadata of TelecomManager.METADATA_IN_CALL_SERVICE_UI should
         // not be the default dialer. This is to mock the default dialer is null in this case.
-        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID)).thenReturn(null);
+        when(mDefaultDialerCache.getDefaultDialerApplication(new UserHandle(CURRENT_USER_ID)))
+                .thenReturn(null);
 
         // we should bind to only the non ui app.
         mInCallController.bindToServices(mMockCall);
@@ -1592,7 +1595,8 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.getAssociatedUser()).thenReturn(mUserHandle);
         when(mMockCall.isExternalCall()).thenReturn(false);
         when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
-        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID)).thenReturn(DEF_PKG);
+        when(mDefaultDialerCache.getDefaultDialerApplication(new UserHandle(CURRENT_USER_ID)))
+                .thenReturn(DEF_PKG);
         when(mMockContext.bindServiceAsUser(nullable(Intent.class),
                 nullable(ServiceConnection.class), anyInt(), nullable(UserHandle.class)))
                 .thenReturn(true);
@@ -1937,7 +1941,8 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCallsManager.isInEmergencyCall()).thenReturn(false);
         when(mMockChildUserCall.isIncoming()).thenReturn(false);
         when(mMockChildUserCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
-        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID)).thenReturn(DEF_PKG);
+        when(mDefaultDialerCache.getDefaultDialerApplication(new UserHandle(CURRENT_USER_ID)))
+                .thenReturn(DEF_PKG);
         when(mMockContext.bindServiceAsUser(any(Intent.class), any(ServiceConnection.class),
                 anyInt(), any())).thenReturn(true);
         when(mMockChildUserCall.isExternalCall()).thenReturn(false);
@@ -2080,7 +2085,8 @@ public class InCallControllerTests extends TelecomTestCase {
         when(mMockCall.isIncoming()).thenReturn(false);
         when(mMockCall.getAssociatedUser()).thenReturn(mUserHandle);
         when(mMockCall.getTargetPhoneAccount()).thenReturn(PA_HANDLE);
-        when(mDefaultDialerCache.getDefaultDialerApplication(CURRENT_USER_ID)).thenReturn(DEF_PKG);
+        when(mDefaultDialerCache.getDefaultDialerApplication(new UserHandle(CURRENT_USER_ID)))
+                .thenReturn(DEF_PKG);
         when(mMockContext.bindServiceAsUser(any(Intent.class), any(ServiceConnection.class),
                 anyInt(), any(UserHandle.class))).thenReturn(true);
         when(mMockCall.isExternalCall()).thenReturn(isExternalCall);

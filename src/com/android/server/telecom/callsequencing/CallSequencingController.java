@@ -73,15 +73,14 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Controls the sequencing between calls when moving between the user ACTIVE (RINGING/ACTIVE) and
- * user INACTIVE (INCOMING/HOLD/DISCONNECTED) states. This controller is gated by the
- * {@link FeatureFlags#enableCallSequencing()} flag. Call state changes are verified on a
+ * user INACTIVE (INCOMING/HOLD/DISCONNECTED) states. Call state changes are verified on a
  * transactional basis where each operation is verified step by step for cross-phone account calls
  * or just for the focus call in the case of processing calls on the same phone account.
  */
 public class CallSequencingController {
     private final CallsManager mCallsManager;
     private final ClockProxy mClockProxy;
-    private final AnomalyReporterAdapter mAnomalyReporter;
+    private AnomalyReporterAdapter mAnomalyReporter;
     private final Timeouts.Adapter mTimeoutsAdapter;
     private final TelecomMetricsController mMetricsController;
     private final Handler mHandler;
@@ -843,6 +842,8 @@ public class CallSequencingController {
         if (arePhoneAccountsSame(call, liveCall) && isManagedCall(call)) {
             Log.i(this, "makeRoomForOutgoingCall: allowing managed CS to handle "
                     + "calls from the same self-managed account");
+            call.getAnalytics().setCallIsAdditional(true);
+            liveCall.getAnalytics().setCallIsInterrupted(true);
             return CompletableFuture.completedFuture(true);
         } else if (call.getTargetPhoneAccount() == null) {
             Log.i(this, "makeRoomForOutgoingCall: no PA specified, allowing");
@@ -1244,5 +1245,10 @@ public class CallSequencingController {
             return false;
         }
         return !call.isSelfManaged() && !call.isTransactionalCall() && !call.isExternalCall();
+    }
+
+    @VisibleForTesting
+    public void setAnomalyReporter(AnomalyReporterAdapter adapter) {
+        mAnomalyReporter = adapter;
     }
 }

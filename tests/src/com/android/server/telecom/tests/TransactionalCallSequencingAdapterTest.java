@@ -75,8 +75,7 @@ public class TransactionalCallSequencingAdapterTest extends TelecomTestCase {
         MockitoAnnotations.initMocks(this);
         when(mMockCall1.getId()).thenReturn(CALL_ID_1);
         when(mMockContext.getResources()).thenReturn(Mockito.mock(Resources.class));
-        mAdapter = new TransactionalCallSequencingAdapter(
-                mTransactionManager, mCallsManager, true);
+        mAdapter = new TransactionalCallSequencingAdapter(mTransactionManager, mCallsManager);
     }
 
     @Override
