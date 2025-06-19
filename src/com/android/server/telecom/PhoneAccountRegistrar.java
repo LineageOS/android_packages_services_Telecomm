@@ -30,6 +30,8 @@ import android.content.pm.ServiceInfo;
 import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Binder;
@@ -160,7 +162,7 @@ public class PhoneAccountRegistrar {
     public static final String ICON_ERROR_MSG =
             "Icon cannot be written to memory. Try compressing or downsizing";
     @VisibleForTesting
-    public static final int EXPECTED_STATE_VERSION = 9;
+    public static final int EXPECTED_STATE_VERSION = 10;
     public static final int MAX_PHONE_ACCOUNT_REGISTRATIONS = 10;
     public static final int MAX_PHONE_ACCOUNT_EXTRAS_KEY_PAIR_LIMIT = 100;
     public static final int MAX_PHONE_ACCOUNT_FIELD_CHAR_LIMIT = 256;
@@ -1118,7 +1120,8 @@ public class PhoneAccountRegistrar {
         String text = "";
         // convert the icon into a Base64 String
         try {
-            text = XmlSerialization.writeIconToBase64String(account.getIcon());
+            text = XmlSerialization.writeIconToBase64String(account.getIcon(),
+                    mTelecomFeatureFlags, mContext);
         } catch (IOException e) {
             EventLog.writeEvent(0x534e4554, "259064622", Binder.getCallingUid(),
                     "enforceIconSizeLimit");
@@ -2063,7 +2066,7 @@ public class PhoneAccountRegistrar {
             sortPhoneAccounts();
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             XmlSerializer serializer = Xml.resolveSerializer(os);
-            writeToXml(mState, serializer, mContext, mTelephonyFeatureFlags);
+            writeToXml(mState, serializer, mContext, mTelephonyFeatureFlags, mTelecomFeatureFlags);
             serializer.flush();
             new AsyncXmlWriter().execute(os);
         } catch (IOException e) {
@@ -2120,8 +2123,10 @@ public class PhoneAccountRegistrar {
     }
 
     private static void writeToXml(State state, XmlSerializer serializer, Context context,
-            FeatureFlags telephonyFeatureFlags) throws IOException {
-        sStateXml.writeToXml(state, serializer, context, telephonyFeatureFlags);
+            FeatureFlags telephonyFeatureFlags,
+            com.android.server.telecom.flags.FeatureFlags telecomFeatureFlags) throws IOException {
+        sStateXml.writeToXml(state, serializer, context, telephonyFeatureFlags,
+                telecomFeatureFlags);
     }
 
     private static State readFromXml(XmlPullParser parser, Context context,
@@ -2191,6 +2196,10 @@ public class PhoneAccountRegistrar {
         private static final String VALUE_TYPE_STRING = "string";
         private static final String VALUE_TYPE_INTEGER = "integer";
         private static final String VALUE_TYPE_BOOLEAN = "boolean";
+        public static final Integer DEFAULT_ICON_WIDTH = 128;
+        public static final Integer DEFAULT_ICON_HEIGHT= 128;
+
+        public static final Bitmap.Config DEFAULT_BIT_CONFIG = Bitmap.Config.ARGB_8888;
 
         /**
          * Copy of {@code com.android.internal.util.XmlUtils} method for fiding the next element
@@ -2225,7 +2234,9 @@ public class PhoneAccountRegistrar {
          * Write the supplied object to XML
          */
         public abstract void writeToXml(T o, XmlSerializer serializer, Context context,
-                FeatureFlags telephonyFeatureFlags) throws IOException;
+                FeatureFlags telephonyFeatureFlags,
+                com.android.server.telecom.flags.FeatureFlags telecomFeatureFlags)
+                throws IOException;
 
         /**
          * Read from the supplied XML into a new object, returning null in case of an
@@ -2256,14 +2267,15 @@ public class PhoneAccountRegistrar {
          * @throws IOException if serialization fails.
          */
         protected void writePhoneAccountHandleSet(String tagName, Set<PhoneAccountHandle> handles,
-                XmlSerializer serializer, Context context, FeatureFlags telephonyFeatureFlags)
+                XmlSerializer serializer, Context context, FeatureFlags telephonyFeatureFlags,
+                com.android.server.telecom.flags.FeatureFlags telecomFeatureFlags)
                 throws IOException {
             serializer.startTag(null, tagName);
             if (handles != null) {
                 serializer.attribute(null, ATTRIBUTE_LENGTH, Objects.toString(handles.size()));
                 for (PhoneAccountHandle handle : handles) {
                     sPhoneAccountHandleXml.writeToXml(handle, serializer, context,
-                            telephonyFeatureFlags);
+                            telephonyFeatureFlags, telecomFeatureFlags);
                 }
             } else {
                 serializer.attribute(null, ATTRIBUTE_LENGTH, "0");
@@ -2334,21 +2346,109 @@ public class PhoneAccountRegistrar {
             serializer.endTag(null, tagName);
         }
 
-        protected void writeIconIfNonNull(String tagName, Icon value, XmlSerializer serializer)
+        protected void writeIconIfNonNull(
+                String tagName,
+                Icon value,
+                XmlSerializer serializer,
+                com.android.server.telecom.flags.FeatureFlags telecomFeatureFlags,
+                Context context)
                 throws IOException {
             if (value != null) {
-                String text = writeIconToBase64String(value);
+                String text = writeIconToBase64String(value, telecomFeatureFlags, context);
                 serializer.startTag(null, tagName);
                 serializer.text(text);
                 serializer.endTag(null, tagName);
             }
         }
 
-        public static String writeIconToBase64String(Icon icon) throws IOException {
+        public static String writeIconToBase64String(Icon icon,
+                com.android.server.telecom.flags.FeatureFlags telecomFeatureFlags, Context context)
+                throws IOException {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            icon.writeToStream(stream);
+            if (telecomFeatureFlags.resolveHiddenDependenciesTwo()) {
+                stream = iconToStream(context, icon);
+                if (stream == null) {
+                    return "";
+                }
+            } else {
+                icon.writeToStream(stream);
+            }
             byte[] iconByteArray = stream.toByteArray();
             return Base64.encodeToString(iconByteArray, 0, iconByteArray.length, 0);
+        }
+
+        /**
+         * Writes the visual representation of an Icon to a ByteArrayOutputStream.
+         * <p>
+         * This method works for all Icon types that can be loaded as a Drawable
+         * (e.g., resource, bitmap, URI). It achieves serialization by:
+         * 1. Loading the Icon as a Drawable.
+         * 2. Creating an empty Bitmap with the Drawable's dimensions.
+         * 3. Drawing the Drawable onto the Bitmap's Canvas.
+         * 4. Compressing the Bitmap into a byte stream.
+         * <p>
+         * This is a reliable alternative to the hidden Icon.writeToStream() method.
+         *
+         * @param context The context needed to load the drawable from the Icon.
+         * @param icon The Icon object to serialize.
+         * @return A ByteArrayOutputStream containing the compressed (PNG) data of the icon,
+         * or null if the icon cannot be processed.
+         */
+        public static ByteArrayOutputStream iconToStream(Context context, Icon icon) {
+            if (icon == null) {
+                Log.w(TAG_VALUE, "Icon cannot be null.");
+                return null;
+            }
+
+            // Step 1: Load the icon as a Drawable. This is the key step that
+            // abstracts away the underlying type of the Icon (resource, uri, etc.).
+            Drawable drawable = icon.loadDrawable(context);
+            if (drawable == null) {
+                Log.w(TAG_VALUE, "Failed to load drawable from icon.");
+                return null;
+            }
+
+            try {
+                // Step 2: Create a Bitmap to draw on.
+                // We use the drawable's intrinsic dimensions to create a bitmap of the
+                //   correct size.
+                int width = drawable.getIntrinsicWidth();
+                int height = drawable.getIntrinsicHeight();
+
+                // Handle cases where the drawable has no intrinsic dimensions
+                if (width <= 0 || height <= 0) {
+                    // fallback to a default size
+                    width = DEFAULT_ICON_WIDTH;
+                    height = DEFAULT_ICON_HEIGHT;
+                }
+
+                Bitmap bitmap = Bitmap.createBitmap(width, height, DEFAULT_BIT_CONFIG);
+
+                // Step 3: Create a Canvas to render the drawable onto the bitmap.
+                Canvas canvas = new Canvas(bitmap);
+
+                // Step 4: Set the bounds for the drawable to draw into.
+                // This tells the drawable to fill the entire bitmap.
+                drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+
+                // Step 5: Draw the drawable onto the canvas (and thus, the bitmap).
+                drawable.draw(canvas);
+
+                // Step 6: Compress the bitmap into a byte stream.
+                // We use PNG format as it's lossless and supports transparency,
+                // which is crucial for icons.
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+
+                // Clean up the bitmap from memory
+                bitmap.recycle();
+
+                return outputStream;
+
+            } catch (Exception e) {
+                Log.w(TAG_VALUE, "Error while converting icon to stream", e);
+                return null;
+            }
         }
 
         protected void writeLong(String tagName, long value, XmlSerializer serializer)
@@ -2469,11 +2569,25 @@ public class PhoneAccountRegistrar {
         }
 
         @Nullable
-        protected Icon readIcon(XmlPullParser parser) throws IOException {
+        protected Icon readIcon(XmlPullParser parser,
+                com.android.server.telecom.flags.FeatureFlags telecomFeatureFlags)
+                throws IOException {
             try {
                 byte[] iconByteArray = Base64.decode(parser.getText(), 0);
                 ByteArrayInputStream stream = new ByteArrayInputStream(iconByteArray);
-                return Icon.createFromStream(stream);
+                Icon icon;
+                if (telecomFeatureFlags.resolveHiddenDependenciesTwo()) {
+                    Bitmap bitmap = BitmapFactory.decodeStream(stream);
+                    if (bitmap == null) {
+                        Log.w(this, "BitmapFactory.decodeStream returned null."
+                                + " The stream data may be malformed.");
+                        return null;
+                    }
+                    icon = Icon.createWithBitmap(bitmap);
+                } else {
+                    icon = Icon.createFromStream(stream);
+                }
+                return icon;
             } catch (IllegalArgumentException e) {
                 Log.e(this, e, "Bitmap must not be null.");
                 return null;
@@ -2491,7 +2605,9 @@ public class PhoneAccountRegistrar {
 
         @Override
         public void writeToXml(State o, XmlSerializer serializer, Context context,
-                FeatureFlags telephonyFeatureFlags) throws IOException {
+                FeatureFlags telephonyFeatureFlags,
+                com.android.server.telecom.flags.FeatureFlags telecomFeatureFlags)
+                throws IOException {
             if (o != null) {
                 serializer.startTag(null, CLASS_STATE);
                 serializer.attribute(null, VERSION, Objects.toString(EXPECTED_STATE_VERSION));
@@ -2501,13 +2617,14 @@ public class PhoneAccountRegistrar {
                         .defaultOutgoingAccountHandles.values()) {
                     sDefaultPhoneAccountHandleXml
                             .writeToXml(defaultPhoneAccountHandle, serializer, context,
-                                    telephonyFeatureFlags);
+                                    telephonyFeatureFlags, telecomFeatureFlags);
                 }
                 serializer.endTag(null, DEFAULT_OUTGOING);
 
                 serializer.startTag(null, ACCOUNTS);
                 for (PhoneAccount m : o.accounts) {
-                    sPhoneAccountXml.writeToXml(m, serializer, context, telephonyFeatureFlags);
+                    sPhoneAccountXml.writeToXml(m, serializer, context, telephonyFeatureFlags,
+                            telecomFeatureFlags);
                 }
                 serializer.endTag(null, ACCOUNTS);
 
@@ -2598,7 +2715,9 @@ public class PhoneAccountRegistrar {
 
                 @Override
                 public void writeToXml(DefaultPhoneAccountHandle o, XmlSerializer serializer,
-                        Context context, FeatureFlags telephonyFeatureFlags) throws IOException {
+                        Context context, FeatureFlags telephonyFeatureFlags,
+                        com.android.server.telecom.flags.FeatureFlags telecomFeatureFlags)
+                        throws IOException {
                     if (o != null) {
                         final UserManager userManager = context.getSystemService(UserManager.class);
                         final long serialNumber = userManager.getSerialNumberForUser(o.userHandle);
@@ -2608,7 +2727,7 @@ public class PhoneAccountRegistrar {
                             writeNonNullString(GROUP_ID, o.groupId, serializer);
                             serializer.startTag(null, ACCOUNT_HANDLE);
                             sPhoneAccountHandleXml.writeToXml(o.phoneAccountHandle, serializer,
-                                    context, telephonyFeatureFlags);
+                                    context, telephonyFeatureFlags, telecomFeatureFlags);
                             serializer.endTag(null, ACCOUNT_HANDLE);
                             serializer.endTag(null, CLASS_DEFAULT_OUTGOING_PHONE_ACCOUNT_HANDLE);
                         }
@@ -2685,21 +2804,23 @@ public class PhoneAccountRegistrar {
 
         @Override
         public void writeToXml(PhoneAccount o, XmlSerializer serializer, Context context,
-                FeatureFlags telephonyFeatureFlags) throws IOException {
+                FeatureFlags telephonyFeatureFlags,
+                com.android.server.telecom.flags.FeatureFlags telecomFeatureFlags)
+                throws IOException {
             if (o != null) {
                 serializer.startTag(null, CLASS_PHONE_ACCOUNT);
 
                 if (o.getAccountHandle() != null) {
                     serializer.startTag(null, ACCOUNT_HANDLE);
                     sPhoneAccountHandleXml.writeToXml(o.getAccountHandle(), serializer, context,
-                            telephonyFeatureFlags);
+                            telephonyFeatureFlags, telecomFeatureFlags);
                     serializer.endTag(null, ACCOUNT_HANDLE);
                 }
 
                 writeTextIfNonNull(ADDRESS, o.getAddress(), serializer);
                 writeTextIfNonNull(SUBSCRIPTION_ADDRESS, o.getSubscriptionAddress(), serializer);
                 writeTextIfNonNull(CAPABILITIES, Integer.toString(o.getCapabilities()), serializer);
-                writeIconIfNonNull(ICON, o.getIcon(), serializer);
+                writeIconIfNonNull(ICON, o.getIcon(), serializer, telecomFeatureFlags, context);
                 writeTextIfNonNull(HIGHLIGHT_COLOR,
                         Integer.toString(o.getHighlightColor()), serializer);
                 writeTextIfNonNull(LABEL, o.getLabel(), serializer);
@@ -2713,7 +2834,7 @@ public class PhoneAccountRegistrar {
                         && telephonyFeatureFlags.simultaneousCallingIndications()) {
                     writePhoneAccountHandleSet(SIMULTANEOUS_CALLING_RESTRICTION,
                             o.getSimultaneousCallingRestriction(), serializer, context,
-                            telephonyFeatureFlags);
+                            telephonyFeatureFlags, telecomFeatureFlags);
                 }
 
                 serializer.endTag(null, CLASS_PHONE_ACCOUNT);
@@ -2783,7 +2904,7 @@ public class PhoneAccountRegistrar {
                         supportedUriSchemes = readStringList(parser, telecomFeatureFlags);
                     } else if (parser.getName().equals(ICON)) {
                         parser.next();
-                        icon = readIcon(parser);
+                        icon = readIcon(parser, telecomFeatureFlags);
                     } else if (parser.getName().equals(ENABLED)) {
                         parser.next();
                         enabled = "true".equalsIgnoreCase(parser.getText());
@@ -2916,7 +3037,9 @@ public class PhoneAccountRegistrar {
 
         @Override
         public void writeToXml(PhoneAccountHandle o, XmlSerializer serializer, Context context,
-                FeatureFlags telephonyFeatureFlags) throws IOException {
+                FeatureFlags telephonyFeatureFlags,
+                com.android.server.telecom.flags.FeatureFlags telecomFeatureFlags)
+                throws IOException {
             if (o != null) {
                 serializer.startTag(null, CLASS_PHONE_ACCOUNT_HANDLE);
 

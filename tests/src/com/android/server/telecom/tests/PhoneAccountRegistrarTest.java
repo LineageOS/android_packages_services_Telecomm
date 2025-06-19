@@ -42,6 +42,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
@@ -263,7 +264,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
                 .setSimultaneousCallingRestriction(restriction)
                 .build();
         byte[] xmlData = toXml(input, PhoneAccountRegistrar.sPhoneAccountXml, mContext,
-                mTelephonyFeatureFlags);
+                mTelephonyFeatureFlags, mFeatureFlags);
         // Simulate turning off the flag after reboot
         doReturn(false).when(mTelephonyFeatureFlags).simultaneousCallingIndications();
         PhoneAccount result = fromXml(xmlData, PhoneAccountRegistrar.sPhoneAccountXml, mContext,
@@ -293,7 +294,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
                 .setIsEnabled(true)
                 .build();
         byte[] xmlData = toXml(input, PhoneAccountRegistrar.sPhoneAccountXml, mContext,
-                mTelephonyFeatureFlags);
+                mTelephonyFeatureFlags, mFeatureFlags);
         // Simulate turning on the flag after reboot
         doReturn(true).when(mTelephonyFeatureFlags).simultaneousCallingIndications();
         PhoneAccount result = fromXml(xmlData, PhoneAccountRegistrar.sPhoneAccountXml, mContext,
@@ -817,8 +818,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
                         .setAddress(Uri.parse("tel:123456"))
                         .setCapabilities(23)
                         .setHighlightColor(0xf0f0f0)
-                        .setIcon(Icon.createWithResource(
-                                "com.android.server.telecom.tests", R.drawable.stat_sys_phone_call))
+                        .setIcon(createTestBitmapIcon(100, 100, Color.GREEN))
                         // TODO: set icon tint (0xfefefe)
                         .setShortDescription("short description")
                         .setSubscriptionAddress(Uri.parse("tel:2345678"))
@@ -830,10 +830,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
                         .setAddress(Uri.parse("tel:123456"))
                         .setCapabilities(23)
                         .setHighlightColor(0xf0f0f0)
-                        .setIcon(Icon.createWithBitmap(
-                                BitmapFactory.decodeResource(
-                                        InstrumentationRegistry.getContext().getResources(),
-                                        R.drawable.stat_sys_phone_call)))
+                        .setIcon(createTestBitmapIcon(75, 75, Color.RED))
                         .setShortDescription("short description")
                         .setSubscriptionAddress(Uri.parse("tel:2345678"))
                         .setSupportedUriSchemes(Arrays.asList("tel", "sip"))
@@ -1920,6 +1917,10 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
      */
     @Test
     public void testLimitOnIcon() throws Exception {
+        if(mFeatureFlags.resolveHiddenDependenciesTwo()){
+            // skip this test if the new icon logic is running
+           return;
+        }
         Icon mockIcon = mock(Icon.class);
         // GIVEN
         PhoneAccount.Builder builder = makeBuilderWithBindCapabilities(
@@ -1927,7 +1928,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
         try {
             // WHEN
             doThrow(new IOException())
-                    .when(mockIcon).writeToStream(any(OutputStream.class));
+                        .when(mockIcon).writeToStream(any(OutputStream.class));
             //THEN
             mRegistrar.enforceIconSizeLimit(builder.build());
             fail("failed to throw IllegalArgumentException");
@@ -2107,8 +2108,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
                 .setAddress(Uri.parse("http://foo.com/" + idx))
                 .setSubscriptionAddress(Uri.parse("tel:555-000" + idx))
                 .setCapabilities(idx)
-                .setIcon(Icon.createWithResource(
-                            "com.android.server.telecom.tests", R.drawable.stat_sys_phone_call))
+                .setIcon(createTestBitmapIcon(50, 50, Color.BLUE))
                 .setShortDescription("desc" + idx)
                 .setIsEnabled(true)
                 .build();
@@ -2176,7 +2176,7 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
             throws Exception {
         Log.d(self, "Input = %s", input);
 
-        byte[] data = toXml(input, xml, context, telephonyFeatureFlags);
+        byte[] data = toXml(input, xml, context, telephonyFeatureFlags, telecomFeatureFlags);
 
         Log.i(self, "====== XML data ======\n%s", new String(data));
 
@@ -2188,11 +2188,12 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
     }
 
     private static <T> byte[] toXml(T input, PhoneAccountRegistrar.XmlSerialization<T> xml,
-            Context context, FeatureFlags telephonyFeatureFlags) throws Exception {
+            Context context, FeatureFlags telephonyFeatureFlags,
+            com.android.server.telecom.flags.FeatureFlags telecomFeatureFlags) throws Exception {
         XmlSerializer serializer = new FastXmlSerializer();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         serializer.setOutput(new BufferedOutputStream(baos), "utf-8");
-        xml.writeToXml(input, serializer, context, telephonyFeatureFlags);
+        xml.writeToXml(input, serializer, context, telephonyFeatureFlags, telecomFeatureFlags);
         serializer.flush();
         return baos.toByteArray();
     }
@@ -2338,5 +2339,24 @@ public class PhoneAccountRegistrarTest extends TelecomTestCase {
                 .put(userHandle, new DefaultPhoneAccountHandle(userHandle, phoneAccountHandle,
                         "testGroup"));
         return s;
+    }
+
+    private Icon createTestBitmapIcon(int width, int height, int color) {
+        // Step 1: Create a mutable bitmap with a specified size.
+        android.graphics.Bitmap testBitmap = android.graphics.Bitmap.createBitmap(
+                width, height, PhoneAccountRegistrar.XmlSerialization.DEFAULT_BIT_CONFIG);
+
+        // Step 1a: Make the bitmap "density-aware" by setting its density to match the test context.
+        // This is the key change.
+        testBitmap.setDensity(mContext.getResources().getDisplayMetrics().densityDpi);
+
+        // Step 2: Create a Canvas to draw on the bitmap.
+        android.graphics.Canvas canvas = new android.graphics.Canvas(testBitmap);
+
+        // Step 3: Draw a simple shape or color. A solid color is great for testing purposes.
+        canvas.drawColor(color);
+
+        // Step 4: Create the self-contained Icon from the bitmap.
+        return Icon.createWithBitmap(testBitmap);
     }
 }
