@@ -43,8 +43,7 @@
     <string name="respond_via_sms_setting_title_2" msgid="4914853536609553457">"క్విక్ రెస్పాన్స్‌లను ఎడిట్ చేయండి"</string>
     <string name="respond_via_sms_setting_summary" msgid="8054571501085436868"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="6579353156073272157">"శీఘ్ర ప్రతిస్పందన"</string>
-    <!-- no translation found for respond_via_sms_confirmation_format (2619774063232350285) -->
-    <skip />
+    <string name="respond_via_sms_confirmation_format" msgid="2619774063232350285">"<xliff:g id="PHONE_NUMBER">%s</xliff:g>‌కు మెసేజ్ పంపబడుతోంది."</string>
     <string name="respond_via_sms_failure_format" msgid="5198680980054596391">"<xliff:g id="PHONE_NUMBER">%s</xliff:g>కు మెసేజ్‌ను పంపడం విఫలమైంది."</string>
     <string name="enable_account_preference_title" msgid="6949224486748457976">"కాలింగ్ ఖాతాలు"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="3424338207838851646">"కేవలం అత్యవసర కాల్స్‌ మాత్రమే అనుమతించబడతాయి."</string>

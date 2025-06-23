@@ -718,7 +718,8 @@ public class CallsManager extends Call.ListenerBase
                 new DtmfLocalTonePlayer(new DtmfLocalTonePlayer.ToneGeneratorProxy(), featureFlags);
         mCallAudioRouteAdapter = audioRouteControllerFactory.create(context, this,
                 audioServiceFactory, new AudioRoute.Factory(), wiredHeadsetManager,
-                mBluetoothRouteManager, statusBarNotifier, featureFlags, metricsController);
+                mBluetoothRouteManager, statusBarNotifier, featureFlags, metricsController,
+                mAnomalyReporter);
         mCallAudioRouteAdapter.initialize();
         bluetoothStateReceiver.setCallAudioRouteAdapter(mCallAudioRouteAdapter);
         bluetoothDeviceManager.setCallAudioRouteAdapter(mCallAudioRouteAdapter);

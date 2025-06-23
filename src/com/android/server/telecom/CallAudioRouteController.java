@@ -67,6 +67,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -78,7 +79,8 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                 CallAudioManager.AudioServiceFactory audioServiceFactory,
                 AudioRoute.Factory audioRouteFactory, WiredHeadsetManager wiredHeadsetManager,
                 BluetoothRouteManager bluetoothRouteManager, StatusBarNotifier notifier,
-                FeatureFlags featureFlags, TelecomMetricsController metricsController) {
+                FeatureFlags featureFlags, TelecomMetricsController metricsController,
+                AnomalyReporterAdapter anomalyReporterAdapter) {
             return new CallAudioRouteController(context,
                     callsManager,
                     audioServiceFactory,
@@ -87,10 +89,16 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                     bluetoothRouteManager,
                     notifier,
                     featureFlags,
-                    metricsController);
+                    metricsController,
+                    anomalyReporterAdapter);
         }
     }
     private static final AudioRoute DUMMY_ROUTE = new AudioRoute(TYPE_INVALID, null, null);
+    private static final UUID AUDIO_ROUTING_EXTERNAL_CHANGE_UUID =
+            UUID.fromString("d9b38771-ff36-417b-8723-2363a870c702");
+    private static final String AUDIO_ROUTING_EXTERNAL_CHANGE_MSG =
+            "Call audio routing was changed externally by another app via the AudioManager APIs."
+                    + "This should only be handled by Telecom.";
     private static final Map<Integer, Integer> ROUTE_MAP;
     static {
         ROUTE_MAP = new ArrayMap<>();
@@ -145,6 +153,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     private final TelecomSystem.SyncRoot mTelecomLock;
     private CountDownLatch mAudioOperationsCompleteLatch;
     private CountDownLatch mAudioActiveCompleteLatch;
+    private AnomalyReporterAdapter mAnomalyReporterAdapter;
 
     /** Receiver for added/removed device outputs that are reported by the audio fwk */
     public class AudioRoutesCallback extends AudioDeviceCallback {
@@ -270,7 +279,8 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             CallAudioManager.AudioServiceFactory audioServiceFactory,
             AudioRoute.Factory audioRouteFactory, WiredHeadsetManager wiredHeadsetManager,
             BluetoothRouteManager bluetoothRouteManager, StatusBarNotifier statusBarNotifier,
-            FeatureFlags featureFlags, TelecomMetricsController metricsController) {
+            FeatureFlags featureFlags, TelecomMetricsController metricsController,
+            AnomalyReporterAdapter anomalyReporterAdapter) {
         mContext = context;
         mCallsManager = callsManager;
         mAudioManager = context.getSystemService(AudioManager.class);
@@ -282,6 +292,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         mStatusBarNotifier = statusBarNotifier;
         mFeatureFlags = featureFlags;
         mMetricsController = metricsController;
+        mAnomalyReporterAdapter = anomalyReporterAdapter;
         mFocusType = NO_FOCUS;
         mScoAudioConnectedDevice = null;
         mUsePreferredDeviceStrategy = true;
@@ -1195,6 +1206,12 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             if (mSpeakerDockRoute != null && getCallSupportedRoutes().contains(mSpeakerDockRoute)
                     && mSpeakerDockRoute.getType() == AudioRoute.TYPE_SPEAKER
                     && mCurrentRoute.getType() != AudioRoute.TYPE_SPEAKER) {
+                // This path should not be hit. This means that some other application manipulated
+                // the audio routing to turn speaker on. Telecom will always attempt to route to
+                // speaker via USER_SWITCH_SPEAKER and change the routing, which would create a
+                // pending route change. Generate an anomaly report if this happens.
+                mAnomalyReporterAdapter.reportAnomaly(AUDIO_ROUTING_EXTERNAL_CHANGE_UUID,
+                        AUDIO_ROUTING_EXTERNAL_CHANGE_MSG);
                 routeTo(mIsActive, mSpeakerDockRoute);
                 // Since the route switching triggered by this message, we need to manually send it
                 // again so that we won't stuck in the pending route
@@ -1215,6 +1232,12 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             // Update status bar notification
             mStatusBarNotifier.notifySpeakerphone(false);
         } else if (mCurrentRoute.getType() == AudioRoute.TYPE_SPEAKER) {
+            // This path should not be hit. This means that some other application manipulated the
+            // audio routing to turn speaker off. Telecom will always attempt to route out of
+            // speaker via user switches (I.e. USER_SWITCH_EARPIECE) and change the routing, which
+            // would create a pending route change. Generate an anomaly report if this happens.
+            mAnomalyReporterAdapter.reportAnomaly(AUDIO_ROUTING_EXTERNAL_CHANGE_UUID,
+                    AUDIO_ROUTING_EXTERNAL_CHANGE_MSG);
             AudioRoute newRoute = getBaseRoute(true, null);
             routeTo(mIsActive, newRoute);
             // Since the route switching triggered by this message, we need to manually send it

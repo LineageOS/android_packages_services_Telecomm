@@ -43,8 +43,7 @@
     <string name="respond_via_sms_setting_title_2" msgid="4914853536609553457">"দ্রুত প্রতিক্রিয়াগুলির সম্পাদনা করুন"</string>
     <string name="respond_via_sms_setting_summary" msgid="8054571501085436868"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="6579353156073272157">"দ্রুত প্রতিক্রিয়া"</string>
-    <!-- no translation found for respond_via_sms_confirmation_format (2619774063232350285) -->
-    <skip />
+    <string name="respond_via_sms_confirmation_format" msgid="2619774063232350285">"<xliff:g id="PHONE_NUMBER">%s</xliff:g> নম্বরে মেসেজ পাঠানো হচ্ছে।"</string>
     <string name="respond_via_sms_failure_format" msgid="5198680980054596391">"<xliff:g id="PHONE_NUMBER">%s</xliff:g>-এ মেসেজ পাঠানো যায়নি।"</string>
     <string name="enable_account_preference_title" msgid="6949224486748457976">"কলিং অ্যাকাউন্টগুলি"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="3424338207838851646">"শুধুমাত্র জরুরি কলগুলিকে অনুমোদিত।"</string>
