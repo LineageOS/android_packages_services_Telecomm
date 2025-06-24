@@ -497,6 +497,7 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         assertTrue(mController.isActive());
 
         mController.sendMessageWithSessionInfo(SWITCH_FOCUS, NO_FOCUS, 0);
+        mController.sendMessageWithSessionInfo(BT_AUDIO_DISCONNECTED, 0, BLUETOOTH_DEVICE_1);
         // Ensure we tell the CallAudioManager that audio operations are done so that we can ensure
         // audio focus is relinquished.
         verify(mCallAudioManager, timeout(TEST_TIMEOUT)).notifyAudioOperationsComplete();
