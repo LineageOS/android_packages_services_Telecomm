@@ -210,31 +210,6 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         }
     }
 
-    private final BroadcastReceiver mSpeakerPhoneChangeReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.startSession("CARC.mSPCR");
-            try {
-                if (AudioManager.ACTION_SPEAKERPHONE_STATE_CHANGED.equals(intent.getAction())) {
-                    if (mAudioManager != null) {
-                        AudioDeviceInfo info = getCurrentCommunicationDevice();
-                        if ((info != null) &&
-                                (info.getType() == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER)) {
-                            if (mCurrentRoute.getType() != AudioRoute.TYPE_SPEAKER) {
-                                sendMessageWithSessionInfo(SPEAKER_ON);
-                            }
-                        } else {
-                            sendMessageWithSessionInfo(SPEAKER_OFF);
-                        }
-                    }
-                } else {
-                    Log.w(this, "Received non-speakerphone-change intent");
-                }
-            } finally {
-                Log.endSession();
-            }
-        }
-    };
     private final BroadcastReceiver mMuteChangeReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
