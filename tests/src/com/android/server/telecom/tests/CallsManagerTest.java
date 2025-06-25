@@ -1725,7 +1725,7 @@ public class CallsManagerTest extends TelecomTestCase {
         Call ongoingCall = addSpyCall();
         ongoingCall.setConnectionProperties(Connection.PROPERTY_NETWORK_IDENTIFIED_EMERGENCY_CALL);
 
-        assertFalse(ongoingCall.isEmergencyCall());
+        assertTrue(ongoingCall.isEmergencyCall());
         assertTrue(ongoingCall.isNetworkIdentifiedEmergencyCall());
         assertTrue(mCallsManager.isInEmergencyCall());
     }
@@ -3855,6 +3855,16 @@ public class CallsManagerTest extends TelecomTestCase {
         assertEquals(1, mCallsManager.getSelfManagedCallsBeingSetup().size());
         assertTrue(mCallsManager.isInSelfManagedCall(TEST_PACKAGE_NAME, TEST_USER_HANDLE));
         assertEquals(0, mCallsManager.getCalls().size());
+    }
+
+
+    @SmallTest
+    @Test
+    public void testCanAddCallForNetworkIdentifiedEmergencyCall() {
+        Call nieCall = addSpyCall(CallState.NEW);
+        nieCall.setConnectionProperties(Connection.PROPERTY_NETWORK_IDENTIFIED_EMERGENCY_CALL);
+        // NIE calls should be treated as emergency calls when we check canAddCall.
+        assertFalse(mCallsManager.canAddCall());
     }
 
     /**

@@ -1279,6 +1279,15 @@ public class CallsManager extends Call.ListenerBase
 
     @Override
     public void onConnectionPropertiesChanged(Call call, boolean didRttChange) {
+        // If a call is redialed as an emergency call,
+        // the Add Call button needs to be disabled.
+        // This check is for performance reasons, so
+        // updateCanAddCall is not called on every single
+        // connection property change.
+        if (call.isNetworkIdentifiedEmergencyCall())
+        {
+            updateCanAddCall();
+        }
         if (didRttChange) {
             updateHasActiveRttCall();
         }

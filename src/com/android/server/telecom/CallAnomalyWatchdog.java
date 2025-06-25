@@ -301,11 +301,8 @@ public class CallAnomalyWatchdog extends CallsManagerListenerBase implements Cal
      */
     private void maybeTrackCall(Call call) {
         final WatchdogCallState currentState = mWatchdogCallStateMap.get(call);
-        boolean isCreateConnectionComplete = call.isCreateConnectionComplete();
-        if (mFeatureFlags.disconnectSelfManagedStuckStartupCalls()) {
-            isCreateConnectionComplete =
-                    isCreateConnectionComplete || call.isTransactionalCall();
-        }
+        boolean isCreateConnectionComplete = call.isCreateConnectionComplete()
+                || call.isTransactionalCall();
         final WatchdogCallState newState = new WatchdogCallState(call.getState(),
                 isCreateConnectionComplete, mClockProxy.elapsedRealtime());
         if (Objects.equals(currentState, newState)) {
@@ -382,11 +379,9 @@ public class CallAnomalyWatchdog extends CallsManagerListenerBase implements Cal
                 }
                 // Ensure that at timeout we are still in the original state when we posted the
                 // timeout.
-                boolean isCreateConnectionComplete = call.isCreateConnectionComplete();
-                if (mFeatureFlags.disconnectSelfManagedStuckStartupCalls()) {
-                    isCreateConnectionComplete =
-                            isCreateConnectionComplete || call.isTransactionalCall();
-                }
+                boolean isCreateConnectionComplete = call.isCreateConnectionComplete() ||
+                        call.isTransactionalCall();
+
                 final WatchdogCallState expiredState = new WatchdogCallState(call.getState(),
                         isCreateConnectionComplete, mClockProxy.elapsedRealtime());
                 if (expiredState.equals(newState)
@@ -428,7 +423,7 @@ public class CallAnomalyWatchdog extends CallsManagerListenerBase implements Cal
 
     private boolean isInSelfManagedStuckStartingState(Call call) {
         Context context = call.getContext();
-        if (!mFeatureFlags.disconnectSelfManagedStuckStartupCalls() || context == null) {
+        if (context == null) {
             return false;
         }
         int currentStuckState = call.getState();

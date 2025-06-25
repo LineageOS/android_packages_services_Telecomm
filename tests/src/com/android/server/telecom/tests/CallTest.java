@@ -1195,6 +1195,17 @@ public class CallTest extends TelecomTestCase {
         return createCall(id, callDirection, TEST_ADDRESS);
     }
 
+    @Test
+    @SmallTest
+    public void testNetworkIdentifiedEmergencyCallUpdateProperty() {
+        Call call = createCall("1", Call.CALL_DIRECTION_INCOMING);
+        call.setConnectionProperties(
+                Connection.PROPERTY_NETWORK_IDENTIFIED_EMERGENCY_CALL);
+        // Setting the NIE connection property should make the call
+        // an emergency call.
+        assertTrue(call.isEmergencyCall());
+    }
+
     private Call createCall(String id, int callDirection, Uri address) {
         return new Call(
                 id,
