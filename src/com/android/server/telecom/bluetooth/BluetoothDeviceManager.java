@@ -46,6 +46,7 @@ import com.android.server.telecom.AudioRoute;
 import com.android.server.telecom.CallAudioCommunicationDeviceTracker;
 import com.android.server.telecom.CallAudioRouteAdapter;
 import com.android.server.telecom.CallAudioRouteController;
+import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.ArrayList;
@@ -147,6 +148,13 @@ public class BluetoothDeviceManager {
                                 logString = "Connected to non-requested bluetooth service." +
                                         " Not changing bluetooth headset.";
                             }
+                            // Try to bind back to BT services in the case that we don't receive
+                            // indication via the pkg changed receiver in InCallController. We
+                            // should only do so if there are ongoing calls.
+                            if (mCallsManager != null && mCallsManager.hasAnyCalls()) {
+                                mCallsManager.getInCallController().bindToBTService(null, null);
+                            }
+
                             Log.i(BluetoothDeviceManager.this, logString);
                             mLocalLog.log(logString);
                         }
@@ -307,6 +315,7 @@ public class BluetoothDeviceManager {
     private Executor mExecutor;
     private CallAudioCommunicationDeviceTracker mCommunicationDeviceTracker;
     private CallAudioRouteAdapter mCallAudioRouteAdapter;
+    private CallsManager mCallsManager;
     private FeatureFlags mFeatureFlags;
 
     public BluetoothDeviceManager(Context context, BluetoothAdapter bluetoothAdapter,
@@ -1044,5 +1053,9 @@ public class BluetoothDeviceManager {
             default:
                 return Integer.toString(code);
         }
+    }
+
+    public void setCallsManager(CallsManager callsManager) {
+        mCallsManager = callsManager;
     }
 }

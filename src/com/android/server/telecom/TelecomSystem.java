@@ -450,6 +450,7 @@ public class TelecomSystem {
                     IncomingCallFilterGraph::new,
                     metricsController,
                     vibratorAdapter);
+            bluetoothDeviceManager.setCallsManager(mCallsManager);
 
             mIncomingCallNotifier = incomingCallNotifier;
             incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {

@@ -16,23 +16,20 @@
 
 package com.android.server.telecom.components;
 
+import static android.provider.CallLog.Calls.CONTENT_URI;
 import static android.provider.CallLog.Calls.UUID;
 
-import android.app.admin.DevicePolicyManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.UserHandle;
-import android.os.UserManager;
-import android.provider.CallLog;
 import android.telecom.Log;
 import android.telecom.PhoneAccount;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.telephony.PhoneNumberUtils;
-import android.telephony.TelephonyManager;
 
 import com.android.server.telecom.CallIntentProcessor;
 import com.android.server.telecom.R;
@@ -186,6 +183,15 @@ public class UserCallIntentProcessor {
      */
     private boolean isProcessingCallbackAction(Uri handle, String callingPackageName) {
         if (mFeatureFlags.integratedCallLogs()) {
+            String authority = handle != null ? handle.getAuthority() : null;
+            // Check to see if the provided handle's authority corresponds to the call log content
+            // URI authority.
+            if (handle == null || !CONTENT_URI.getAuthority().equals(authority)) {
+                Log.i(this, "Passed in handle's authority doesn't match up with call log "
+                        + "content uri authority: %s.", authority);
+                return false;
+            }
+
             ContentResolver resolver = mContext.getContentResolver();
             Cursor c = null;
             try {
@@ -201,6 +207,9 @@ public class UserCallIntentProcessor {
                     mContext.startActivity(actionCallbackIntent);
                     return true;
                 }
+            } catch (Exception e) {
+                // Handle any exception due to incorrect URI formatting
+                Log.e(this, e, "Unable to query the provided content URI:");
             } finally {
                 if (c != null) {
                     c.close();

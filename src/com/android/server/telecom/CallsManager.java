@@ -2567,7 +2567,8 @@ public class CallsManager extends Call.ListenerBase
                     setIntentExtrasAndStartTime(callToUse, extras);
                     setCallSourceToAnalytics(callToUse, originalIntent);
 
-                    if (mMmiUtils.isPotentialMMICode(handle) && !isSelfManaged) {
+                    if ((mMmiUtils.isPotentialMMICode(handle) || (mMmiUtils
+                            .isPotentialInCallMMICode(handle))) && !isSelfManaged) {
                         // Do not add the call if it is a potential MMI code.
                         callToUse.addListener(this);
                     } else if (!mCalls.contains(callToUse)) {
