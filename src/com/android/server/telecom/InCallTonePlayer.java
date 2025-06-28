@@ -171,6 +171,7 @@ public class InCallTonePlayer extends Thread {
     public static final int TONE_VIDEO_UPGRADE = 14;
     public static final int TONE_RTT_REQUEST = 15;
     public static final int TONE_IN_CALL_QUALITY_NOTIFICATION = 16;
+    public static final int TONE_OUTGOING_CALL_ACCEPTED = 17;
 
     private static final int TONE_RESOURCE_ID_UNDEFINED = -1;
 
@@ -370,6 +371,13 @@ public class InCallTonePlayer extends Thread {
 
                     // Use a tone resource file for a more rich, full-bodied tone experience.
                     mediaResourceId = R.raw.InCallQualityNotification;
+                    break;
+                case TONE_OUTGOING_CALL_ACCEPTED:
+                    // Similar to the call waiting tone, but does not repeat.
+                    toneType = ToneGenerator.TONE_PROP_BEEP;
+                    toneVolume = RELATIVE_VOLUME_HIPRI;
+                    toneLengthMillis = 150;
+                    mediaResourceId = TONE_RESOURCE_ID_UNDEFINED;
                     break;
                 default:
                     throw new IllegalStateException("Bad toneId: " + mToneId);

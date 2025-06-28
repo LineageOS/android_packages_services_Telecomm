@@ -59,6 +59,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     private final CallAudioRouteAdapter mCallAudioRouteAdapter;
     private final CallAudioModeStateMachine mCallAudioModeStateMachine;
+    private final CallConnectedIndicatorSettings mCallConnectedIndicatorSettings;
     private final BluetoothStateReceiver mBluetoothStateReceiver;
     private final CallsManager mCallsManager;
     private final InCallTonePlayer.Factory mPlayerFactory;
@@ -85,7 +86,8 @@ public class CallAudioManager extends CallsManagerListenerBase {
             RingbackPlayer ringbackPlayer,
             BluetoothStateReceiver bluetoothStateReceiver,
             DtmfLocalTonePlayer dtmfLocalTonePlayer,
-            FeatureFlags featureFlags) {
+            FeatureFlags featureFlags,
+            CallConnectedIndicatorSettings callConnectedIndicator) {
         mActiveDialingOrConnectingCalls = new LinkedHashSet<>(1);
         mRingingCalls = new LinkedHashSet<>(1);
         mHoldingCalls = new LinkedHashSet<>(1);
@@ -119,6 +121,7 @@ public class CallAudioManager extends CallsManagerListenerBase {
         mPlayerFactory.setCallAudioManager(this);
         mCallAudioModeStateMachine.setCallAudioManager(this);
         mCallAudioRouteAdapter.setCallAudioManager(this);
+        mCallConnectedIndicatorSettings = callConnectedIndicator;
     }
 
     @Override
@@ -150,6 +153,10 @@ public class CallAudioManager extends CallsManagerListenerBase {
                 // complete the future to ensure we unbind from BT promptly.
                 completeDisconnectToneFuture(call);
             }
+        }
+
+        if (newState == CallState.ACTIVE && oldState == CallState.DIALING) {
+            playToneAfterCallConnected(call);
         }
 
         onCallLeavingState(call, oldState);
@@ -936,6 +943,17 @@ public class CallAudioManager extends CallsManagerListenerBase {
     private void removeCallFromAllBins(Call call) {
         for (int i = 0; i < mCallStateToCalls.size(); i++) {
             mCallStateToCalls.valueAt(i).remove(call);
+        }
+    }
+
+    private void playToneAfterCallConnected(Call call) {
+        if (!mFeatureFlags.callConnectedIndicatorPreference()) {
+            Log.i(LOG_TAG, "Call connected indicator of playing tone is disabled.");
+            return;
+        }
+        if (mCallConnectedIndicatorSettings != null &&
+                mCallConnectedIndicatorSettings.isCallConnectedToneEnabled()) {
+            mPlayerFactory.createPlayer(call, InCallTonePlayer.TONE_OUTGOING_CALL_ACCEPTED).startTone();
         }
     }
 
