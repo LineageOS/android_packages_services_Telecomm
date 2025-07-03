@@ -1549,7 +1549,12 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             return calculateBaselineRoute(false, includeBluetooth, btAddressToExclude);
         }
         AudioRoute destRoute = getPreferredAudioRouteFromStrategy();
-        Log.i(this, "getBaseRoute: preferred audio route is %s", destRoute);
+        if (destRoute == null) {
+            Log.i(this, "getBaseRoute: preferred audio route is not reported by "
+                    + "AudioManager; telecom to determine");
+        } else {
+            Log.i(this, "getBaseRoute: preferred audio route is %s", destRoute);
+        }
         if (destRoute == null || (destRoute.getBluetoothAddress() != null && (!includeBluetooth
                 || destRoute.getBluetoothAddress().equals(btAddressToExclude)))) {
             destRoute = getPreferredAudioRouteFromDefault(false, includeBluetooth, btAddressToExclude);
