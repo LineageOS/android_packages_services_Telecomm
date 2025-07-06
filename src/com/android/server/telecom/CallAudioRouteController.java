@@ -141,7 +141,9 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     private AudioRoute.Factory mAudioRouteFactory;
     private StatusBarNotifier mStatusBarNotifier;
     private AudioManager.OnCommunicationDeviceChangedListener mCommunicationDeviceListener;
-    private ExecutorService mCommunicationDeviceChangedExecutor;
+    private ExecutorService mAudioManagerListenerExecutor;
+    private AudioManager.OnPreferredDevicesForStrategyChangedListener mPreferredDeviceListener;
+    private AudioRoute mPreferredDeviceRoute;
     private FeatureFlags mFeatureFlags;
     private int mFocusType;
     private int mCallSupportedRouteMask = -1;
@@ -273,12 +275,11 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         mUsePreferredDeviceStrategy = true;
         mWasOnSpeaker = false;
         setCurrentCommunicationDevice(null);
+        mPreferredDeviceRoute = DUMMY_ROUTE;
 
         mTelecomLock = callsManager.getLock();
         HandlerThread handlerThread = new HandlerThread(this.getClass().getSimpleName());
-        if (!mFeatureFlags.callAudioRoutingPerformanceImprovemenent()) {
-            handlerThread.start();
-        }
+        handlerThread.start();
 
         IntentFilter micMuteChangedFilter = new IntentFilter(
                 AudioManager.ACTION_MICROPHONE_MUTE_CHANGED);
@@ -292,7 +293,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         // Register AudioManager#onCommunicationDeviceChangedListener listener to receive updates
         // to communication device (via AudioManager#setCommunicationDevice). This is a replacement
         // to using broadcasts in the hopes of improving performance.
-        mCommunicationDeviceChangedExecutor = Executors.newSingleThreadExecutor();
+        mAudioManagerListenerExecutor = Executors.newSingleThreadExecutor();
         mCommunicationDeviceListener = new AudioManager.OnCommunicationDeviceChangedListener() {
             @Override
             public void onCommunicationDeviceChanged(AudioDeviceInfo device) {
@@ -315,11 +316,30 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             }
         };
 
-        Looper looper = mFeatureFlags.callAudioRoutingPerformanceImprovemenent()
-                ? Looper.getMainLooper()
-                : handlerThread.getLooper();
+        // Register the  AudioManager. OnPreferredDevicesForStrategyChangedListener listener to
+        // receive updates for the communication device. This is a replacement to directly querying
+        // the preferred device via AudioManager#getPreferredDeviceForStrategy, which was known
+        // to hold up the invoking thread.
+        mPreferredDeviceListener = (strategy, devices) -> {
+            try {
+                Log.startSession("CARC.oPDFSCL");
+                final AudioAttributes attr = new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                        .build();
+                if (!devices.isEmpty() && strategy.supportsAudioAttributes(attr)) {
+                    AudioRoute audioRoute = getPreferredDeviceAudioRoute(devices.getFirst());
+                    Log.i(this, "OnPreferredDevicesForStrategyChangedListener: preferred device "
+                            + "was updated to %s", audioRoute);
+                    // Get the first device listed
+                    setPreferredDeviceRoute(audioRoute);
+                }
+            } finally {
+                Log.endSession();
+            }
+        };
+
         // Create handler
-        mHandler = new Handler(looper) {
+        mHandler = new Handler(handlerThread.getLooper()) {
             @Override
             public void handleMessage(@NonNull Message msg) {
                 synchronized (this) {
@@ -501,9 +521,11 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         mCallAudioState = new CallAudioState(mIsMute, ROUTE_MAP.get(mCurrentRoute.getType()),
                 supportMask, null, new HashSet<>());
         mAudioManager.addOnCommunicationDeviceChangedListener(
-                mCommunicationDeviceChangedExecutor, mCommunicationDeviceListener);
+                mAudioManagerListenerExecutor, mCommunicationDeviceListener);
+        mAudioManager.addOnPreferredDevicesForStrategyChangedListener(mAudioManagerListenerExecutor,
+                mPreferredDeviceListener);
         mAudioRoutesCallback = new AudioRoutesCallback();
-        mAudioManager.registerAudioDeviceCallback(mAudioRoutesCallback, null);
+        mAudioManager.registerAudioDeviceCallback(mAudioRoutesCallback, mHandler);
     }
 
     @Override
@@ -1380,12 +1402,10 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         }
     }
 
-    private AudioRoute getPreferredAudioRouteFromStrategy() {
-        // Get preferred device
-        AudioDeviceAttributes deviceAttr = getPreferredDeviceForStrategy();
+    private AudioRoute getPreferredDeviceAudioRoute(AudioDeviceAttributes deviceAttr) {
         Log.i(this, "getPreferredAudioRouteFromStrategy: preferred device is %s", deviceAttr);
         if (deviceAttr == null) {
-            return null;
+            return DUMMY_ROUTE;
         }
 
         // Get corresponding audio route
@@ -1409,25 +1429,6 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         } else {
             return mTypeRoutes.get(type);
         }
-    }
-
-    private AudioDeviceAttributes getPreferredDeviceForStrategy() {
-        // Get audio produce strategy
-        AudioProductStrategy strategy = null;
-        final AudioAttributes attr = new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-                .build();
-        List<AudioProductStrategy> strategies = AudioManager.getAudioProductStrategies();
-        for (AudioProductStrategy s : strategies) {
-            if (s.supportsAudioAttributes(attr)) {
-                strategy = s;
-            }
-        }
-        if (strategy == null) {
-            return null;
-        }
-
-        return mAudioManager.getPreferredDeviceForStrategy(strategy);
     }
 
     private AudioRoute getPreferredAudioRouteFromDefault(boolean isExplicitUserRequest,
@@ -1548,14 +1549,16 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         if (!mUsePreferredDeviceStrategy) {
             return calculateBaselineRoute(false, includeBluetooth, btAddressToExclude);
         }
-        AudioRoute destRoute = getPreferredAudioRouteFromStrategy();
-        if (destRoute == null) {
+        // Get the preferred device value cached from the listener
+        AudioRoute destRoute = getPreferredDeviceRoute();
+        boolean isPreferredDeviceSet = destRoute != null && !destRoute.equals(DUMMY_ROUTE);
+        if (!isPreferredDeviceSet) {
             Log.i(this, "getBaseRoute: preferred audio route is not reported by "
                     + "AudioManager; telecom to determine");
         } else {
             Log.i(this, "getBaseRoute: preferred audio route is %s", destRoute);
         }
-        if (destRoute == null || (destRoute.getBluetoothAddress() != null && (!includeBluetooth
+        if (!isPreferredDeviceSet || (destRoute.getBluetoothAddress() != null && (!includeBluetooth
                 || destRoute.getBluetoothAddress().equals(btAddressToExclude)))) {
             destRoute = getPreferredAudioRouteFromDefault(false, includeBluetooth, btAddressToExclude);
         }
@@ -1824,6 +1827,18 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     public AudioDeviceInfo getCurrentCommunicationDevice() {
         synchronized (mLock) {
             return mCurrentCommunicationDevice;
+        }
+    }
+
+    public void setPreferredDeviceRoute(AudioRoute route) {
+        synchronized (mLock) {
+            mPreferredDeviceRoute = route;
+        }
+    }
+
+    public AudioRoute getPreferredDeviceRoute() {
+        synchronized (mLock) {
+            return mPreferredDeviceRoute;
         }
     }
 

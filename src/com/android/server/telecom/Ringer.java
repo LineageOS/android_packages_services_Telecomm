@@ -436,12 +436,26 @@ public class Ringer {
                 }
             }
 
+            Context userContext = null;
+            if (mFlags.ringerVibrationUserAware()) {
+                try {
+                    userContext = mContext.createContextAsUser(UserHandle.CURRENT, 0 /* flags */);
+                } catch (Exception e) {
+                    Log.i(this, "createContextAsUser fail exception=[%s]", e.toString());
+                } finally {
+                    if (userContext == null) {
+                        userContext = mContext;
+                    }
+                }
+            } else {
+                userContext = mContext;
+            }
             // Determine if the settings and DND mode indicate that the vibrator can be used right
             // now.
             final boolean isVibratorEnabled =
-                    isVibratorEnabled(mContext, attributes.shouldRingForContact());
+                    isVibratorEnabled(userContext, attributes.shouldRingForContact());
             boolean shouldApplyRampingRinger =
-                    isVibratorEnabled && mSystemSettingsUtil.isRampingRingerEnabled(mContext);
+                    isVibratorEnabled && mSystemSettingsUtil.isRampingRingerEnabled(userContext);
 
             boolean isHapticOnly = false;
             boolean useCustomVibrationEffect = false;
@@ -451,7 +465,7 @@ public class Ringer {
             String vibratorAttrs = String.format("hasVibrator=%b, userRequestsVibrate=%b, "
                             + "ringerMode=%d, isVibratorEnabled=%b",
                     mVibrator.hasVibrator(),
-                    mSystemSettingsUtil.isRingVibrationEnabled(mContext, mFlags),
+                    mSystemSettingsUtil.isRingVibrationEnabled(userContext, mFlags),
                     mAudioManager.getRingerMode(), isVibratorEnabled);
 
             if (attributes.isRingerAudible()) {
@@ -862,7 +876,7 @@ public class Ringer {
         mAudioManager = mContext.getSystemService(AudioManager.class);
         RingerAttributes.Builder builder = new RingerAttributes.Builder();
 
-        LogUtils.EventTimer timer = new EventTimer();
+        EventTimer timer = new EventTimer();
 
         boolean isVolumeOverZero;
 
@@ -976,7 +990,7 @@ public class Ringer {
         return mHandler;
     }
 
-    private java.util.concurrent.Executor getLoggedExecutor(String functionName) {
+    private Executor getLoggedExecutor(String functionName) {
         if (mFlags.resolveHiddenDependenciesTwo()) {
             return new LoggedExecutor(getExecutor(), functionName, null);
         } else {
