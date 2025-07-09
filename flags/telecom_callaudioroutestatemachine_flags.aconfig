@@ -78,3 +78,14 @@ flag {
     purpose: PURPOSE_BUGFIX
   }
 }
+
+# OWNER=tjstuart TARGET=25Q4
+flag {
+  name: "avoid_disc_on_bt_to_bt_switch"
+  namespace: "telecom"
+  description: "Fix BT SCO disconnect during triangle bluetooth device switch"
+  bug: "424301141"
+  metadata {
+    purpose: PURPOSE_BUGFIX
+  }
+}

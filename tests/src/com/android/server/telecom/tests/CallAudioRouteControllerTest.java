@@ -218,6 +218,7 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         when(mCallAudioManager.getForegroundCall()).thenReturn(mCall);
         when(mCall.getVideoState()).thenReturn(VideoProfile.STATE_AUDIO_ONLY);
         when(mCall.getSupportedAudioRoutes()).thenReturn(CallAudioState.ROUTE_ALL);
+        when(mFeatureFlags.avoidDiscOnBtToBtSwitch()).thenReturn(true);
         BLUETOOTH_DEVICES.add(BLUETOOTH_DEVICE_1);
     }
 
@@ -1626,6 +1627,65 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
                 any(CallAudioState.class), eq(expectedState));
         // Verify an anomaly report was generated to ensure the code path was triggered
         verify(mAnomalyReporterAdapter, timeout(TEST_TIMEOUT)).reportAnomaly(any(), any());
+    }
+
+    @Test
+    @SmallTest
+    public void testSwitchBetweenBtScoDevices_DoesNotDisconnectAudio() {
+        Log.i("tomsLog", "test start");
+        // 1. Setup: 2 BT devices
+        // -- bt device 1 setup
+        final String btAddress1 = "00:00:00:00:00:01";
+        final BluetoothDevice bluetoothDevice1 =
+                BluetoothRouteManagerTest.makeBluetoothDevice(btAddress1);
+        final AudioDeviceInfo bluetoothDeviceInfo1 = mock(AudioDeviceInfo.class);
+        when(bluetoothDeviceInfo1.getType()).thenReturn(AudioDeviceInfo.TYPE_BLUETOOTH_SCO);
+        when(bluetoothDeviceInfo1.getAddress()).thenReturn(btAddress1);
+        // -- bt device 2 setup
+        final String btAddress2 = "00:00:00:00:00:02";
+        final BluetoothDevice bluetoothDevice2 =
+                BluetoothRouteManagerTest.makeBluetoothDevice(btAddress2);
+        final AudioDeviceInfo bluetoothDeviceInfo2 = mock(AudioDeviceInfo.class);
+        when(bluetoothDeviceInfo2.getType()).thenReturn(AudioDeviceInfo.TYPE_BLUETOOTH_SCO);
+        when(bluetoothDeviceInfo2.getAddress()).thenReturn(btAddress2);
+
+        // We need to use the real AudioRoute constructor to test the fix logic within it.
+        mController.setAudioRouteFactory(new AudioRoute.Factory());
+
+        // Mock AudioManager to return both devices
+        when(mAudioManager.getAvailableCommunicationDevices()).thenReturn(
+                List.of(bluetoothDeviceInfo1, bluetoothDeviceInfo2));
+
+        // 2. Initial State: Initialize the controller, set it to an active call state,
+        // and make it aware of both BT devices.
+        mController.initialize();
+        mController.setActive(true); // Simulate an active call for routing logic to engage.
+
+        // Add both bluetooth devices using the correct SCO type.
+        mController.sendMessageWithSessionInfo(BT_DEVICE_ADDED, AudioRoute.TYPE_BLUETOOTH_SCO,
+                bluetoothDevice1);
+        mController.sendMessageWithSessionInfo(BT_DEVICE_ADDED, AudioRoute.TYPE_BLUETOOTH_SCO,
+                bluetoothDevice2);
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+
+        // Switch to the first BT device to establish a baseline state.
+        mController.sendMessageWithSessionInfo(USER_SWITCH_BLUETOOTH, 0, btAddress1);
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+
+        // 3. Action: Trigger a user-initiated switch to the second BT device.
+        mController.sendMessageWithSessionInfo(USER_SWITCH_BLUETOOTH, 0, btAddress2);
+        mController.setLastScoDisconnectedDevice(bluetoothDevice1);
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+
+        // 4. Verification:
+        // Verify that the generic disconnectSco() is NEVER called during the switch.
+        // This confirms the fix in AudioRoute.java is working as intended.
+        verify(mBluetoothDeviceManager, never()).disconnectSco();
+
+        // Verify that we connect audio to the NEW device
+        verify(mBluetoothDeviceManager, timeout(TEST_TIMEOUT))
+                .connectAudio(eq(bluetoothDevice2), eq(AudioRoute.TYPE_BLUETOOTH_SCO),
+                        anyBoolean());
     }
 
     private void verifyConnectBluetoothDevice(int audioType) {

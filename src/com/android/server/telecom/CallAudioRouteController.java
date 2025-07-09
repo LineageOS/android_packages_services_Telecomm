@@ -148,6 +148,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     private int mFocusType;
     private int mCallSupportedRouteMask = -1;
     private BluetoothDevice mScoAudioConnectedDevice;
+    private BluetoothDevice mLastScoDisconnectedDevice;
     private boolean mAvailableRoutesUpdated;
     private boolean mUsePreferredDeviceStrategy;
     private AudioDeviceInfo mCurrentCommunicationDevice;
@@ -646,49 +647,77 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         // default. In this case, we should adjust the active routing value so that we don't try
         // to connect to the BT device as it will fail.
         isDestRouteActive = maybeAdjustActiveRouting(destRoute, isDestRouteActive);
-        // It's possible that there are multiple HFP devices connected and if we receive SCO audio
-        // connected for the destination route's BT device, then we shouldn't disconnect SCO when
-        // clearing the communication device for the original route if it was also a HFP device.
-        // This does not apply to the route deactivation scenario.
+        // Determine if the destination BT device's SCO is already connected.
         boolean isScoDeviceAlreadyConnected = mScoAudioConnectedDevice != null && isDestRouteActive
                 && Objects.equals(mScoAudioConnectedDevice, mBluetoothRoutes.get(destRoute));
+        // Determine the origin route for this audio switch.
+        AudioRoute originRoute = mIsPending ? mPendingAudioRoute.getDestRoute() : mCurrentRoute;
+        // Check if the origin BT device has already been disconnected by the stack,
+        // which can happen due to race conditions during BT device switching.
+        boolean isOriginAlreadyDisconnected = mLastScoDisconnectedDevice != null
+                && Objects.equals(mLastScoDisconnectedDevice, mBluetoothRoutes.get(originRoute));
+        // The last-disconnected state is transient and only relevant for this specific
+        // routing operation. Clear it immediately after use to prevent stale state issues.
+        if (mLastScoDisconnectedDevice != null) {
+            mLastScoDisconnectedDevice = null;
+        }
+        // Decide whether to skip sending a SCO disconnect command.
+        boolean shouldAvoidBtDisconnect = shouldAvoidBluetoothDisconnect(
+                isScoDeviceAlreadyConnected, isOriginAlreadyDisconnected);
+
         if (mIsPending) {
             if (destRoute.equals(mPendingAudioRoute.getDestRoute())
                     && (mIsActive == isDestRouteActive)) {
                 return;
             }
-            Log.i(this, "Override current pending route destination from %s(active=%b) to "
-                            + "%s(active=%b)",
-                    mPendingAudioRoute.getDestRoute(), mIsActive, destRoute, isDestRouteActive);
-            // override pending route while keep waiting for still pending messages for the
-            // previous pending route
+            Log.i(this, "Override current pending route from %s(active=%b) to "
+                            + "%s(active=%b). isOriginAlreadyDisconnected=[%b]",
+                    mPendingAudioRoute.getDestRoute(), mIsActive, destRoute, isDestRouteActive,
+                    isOriginAlreadyDisconnected);
+
+            // Override the pending route destination.
             mPendingAudioRoute.setOrigRoute(mIsActive /* origin */,
                     mPendingAudioRoute.getDestRoute(), isDestRouteActive /* dest */,
-                    isScoDeviceAlreadyConnected);
+                    shouldAvoidBtDisconnect);
         } else {
             if (mCurrentRoute.equals(destRoute) && (mIsActive == isDestRouteActive)) {
                 return;
             }
-            Log.i(this, "Enter pending route, orig%s(active=%b), dest%s(active=%b)", mCurrentRoute,
-                    mIsActive, destRoute, isDestRouteActive);
-            // route to pending route
+            Log.i(this, "Enter pending route, orig=%s(active=%b), dest=%s(active=%b)",
+                    mCurrentRoute, mIsActive, destRoute, isDestRouteActive);
+
+            // Set the original route for the pending state.
             if (getCallSupportedRoutes().contains(mCurrentRoute)) {
                 mPendingAudioRoute.setOrigRoute(mIsActive /* origin */, mCurrentRoute,
-                        isDestRouteActive /* dest */, isScoDeviceAlreadyConnected);
+                        isDestRouteActive /* dest */, shouldAvoidBtDisconnect);
             } else {
-                // Avoid waiting for pending messages for an unavailable route
+                // Avoid waiting for messages for an unavailable route.
                 mPendingAudioRoute.setOrigRoute(mIsActive /* origin */, DUMMY_ROUTE,
-                        isDestRouteActive /* dest */, isScoDeviceAlreadyConnected);
+                        isDestRouteActive /* dest */, shouldAvoidBtDisconnect);
             }
             mIsPending = true;
         }
         mPendingAudioRoute.setDestRoute(isDestRouteActive, destRoute,
-                mBluetoothRoutes.get(destRoute), isScoDeviceAlreadyConnected);
+                mBluetoothRoutes.get(destRoute), shouldAvoidBluetoothDisconnect(
+                        isScoDeviceAlreadyConnected, shouldAvoidBtDisconnect));
         mIsActive = isDestRouteActive;
         mPendingAudioRoute.evaluatePendingState();
         if (mFeatureFlags.telecomMetricsSupport()) {
             mMetricsController.getAudioRouteStats().onRouteEnter(mPendingAudioRoute);
         }
+    }
+
+    private boolean shouldAvoidBluetoothDisconnect(boolean isScoDeviceAlreadyConnected,
+                                                   boolean isOriginAlreadyDisconnected) {
+        Log.i(this, "Evaluating BT disconnect: isScoConnected=%b, isOriginDisconnected=%b",
+                isScoDeviceAlreadyConnected, isOriginAlreadyDisconnected);
+
+        if (mFeatureFlags.avoidDiscOnBtToBtSwitch()) {
+            // Avoids sending a disconnect command if the new device is already connected
+            // or if the old device has already reported its disconnection.
+            return isScoDeviceAlreadyConnected || isOriginAlreadyDisconnected;
+        }
+        return isScoDeviceAlreadyConnected;
     }
 
     private void handleWiredHeadsetConnected() {
@@ -1723,6 +1752,11 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     @VisibleForTesting
     public void setScoAudioConnectedDevice(BluetoothDevice device) {
         mScoAudioConnectedDevice = device;
+    }
+
+    @VisibleForTesting
+    public void setLastScoDisconnectedDevice(BluetoothDevice device) {
+        mLastScoDisconnectedDevice = device;
     }
 
     private void clearRingingBluetoothAddress() {

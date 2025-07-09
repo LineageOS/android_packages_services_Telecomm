@@ -147,6 +147,7 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
                 }
                 break;
             case BluetoothHeadset.STATE_AUDIO_DISCONNECTED:
+                audioRouteController.setLastScoDisconnectedDevice(device);
                 audioRouteController.setScoAudioConnectedDevice(null);
                 if (audioRouteController.isPending()) {
                     mCallAudioRouteAdapter.sendMessageWithSessionInfo(BT_AUDIO_DISCONNECTED, 0,
