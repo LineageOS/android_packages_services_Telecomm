@@ -127,3 +127,15 @@ flag {
   description: "Indicate that the call is a video color ring back tone call."
   bug: "408116489"
 }
+
+# OWNER=tgunn TARGET=26Q2
+flag {
+  name: "remotely_hosted_property"
+  is_exported: true
+  namespace: "telecom"
+  description: "Add PROPERTY_REMOTELY_HOSTED to call to mirror what is in Connection."
+  bug: "430293079"
+  metadata {
+      purpose: PURPOSE_FEATURE
+  }
+}

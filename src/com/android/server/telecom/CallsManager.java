@@ -2797,6 +2797,12 @@ public class CallsManager extends Call.ListenerBase
                     // Make sure we set the PhoneAccount before making room
                     callToPlace.setTargetPhoneAccount(callHandle);
 
+                    // Directly place call for incall MMI codes and reused calls
+                    if (isReusedCall || (mMmiUtils.isPotentialInCallMMICode(handle) &&
+                            !isSelfManaged)) {
+                        return CompletableFuture.completedFuture(new Pair<>(callHandle, true));
+                    }
+
                     return mCallSequencingAdapter.makeRoomForOutgoingCall(
                                     callToPlace.isEmergencyCall(), callToPlace)
                             .exceptionally(throwable -> {
