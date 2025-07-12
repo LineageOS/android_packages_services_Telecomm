@@ -4001,7 +4001,6 @@ public class CallsManagerTest extends TelecomTestCase {
     }
 
     private void verifyMaxRingingCallNoError(PhoneAccountHandle handle, Uri address) {
-        when(mFeatureFlags.allowCallOnSameConnectionMgr()).thenReturn(true);
         setupCallerInfoLookupHelper();
         ConnectionServiceWrapper service = mock(ConnectionServiceWrapper.class);
         doReturn(handle.getComponentName()).when(service).getComponentName();

@@ -68,9 +68,16 @@ public class UserCallActivity extends Activity implements TelecomSystem.Componen
                     ? getTelecomSystem().getFeatureFlags()
                     : new FeatureFlagsImpl();
             final UserManager userManager = getSystemService(UserManager.class);
-            final UserHandle userHandle = new UserHandle(
-                    featureFlags.telecomResolveHiddenDependencies()
-                            ? UserHandle.myUserId() : userManager.getProcessUserId());
+            final UserHandle userHandle;
+
+            if (featureFlags.resolveHiddenDependenciesTwo()) {
+                userHandle = UserHandle.getUserHandleForUid(getLaunchedFromUid());
+            } else {
+                userHandle = new UserHandle(
+                        featureFlags.telecomResolveHiddenDependencies()
+                                ? UserHandle.myUserId() : userManager.getProcessUserId());
+            }
+
             // Once control flow has passed to this activity, it is no longer guaranteed that we can
             // accurately determine whether the calling package has the CALL_PHONE runtime permission.
             // At this point in time we trust that the ActivityManager has already performed this
@@ -78,8 +85,11 @@ public class UserCallActivity extends Activity implements TelecomSystem.Componen
             // Create a new instance of intent to avoid modifying the
             // ActivityThread.ActivityClientRecord#intent directly.
             // Modifying directly may be a potential risk when relaunching this activity.
+            // Note: getCallingPackage() is not appropriate as it only works for activities launched
+            // with startActivityForResult.  getLaunchedFromPackage() lets priv apps known who
+            // launched in all cases.
             new UserCallIntentProcessor(this, userHandle, featureFlags)
-                    .processIntent(new Intent(intent), getCallingPackage(), false,
+                    .processIntent(new Intent(intent), getLaunchedFromPackage(), false,
                             true /* hasCallAppOp*/, false /* isLocalInvocation */);
         } finally {
             Log.endSession();

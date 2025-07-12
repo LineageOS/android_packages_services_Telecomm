@@ -78,6 +78,7 @@ import android.media.IAudioService;
 import android.media.audiopolicy.AudioProductStrategy;
 import android.os.Looper;
 import android.os.UserHandle;
+import android.sysprop.BluetoothProperties;
 import android.telecom.CallAudioState;
 import android.telecom.Log;
 import android.telecom.VideoProfile;
@@ -159,6 +160,7 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     private AudioRoute mEarpieceRoute;
     private AudioRoute mSpeakerRoute;
     private boolean mOverrideSpeakerToBus;
+    private boolean mIsScoManagedByAudio;
     AudioRoute.Factory mAudioRouteFactory = new AudioRoute.Factory() {
         @Override
         public AudioRoute create(@AudioRoute.AudioRouteType int type, String bluetoothAddress,
@@ -220,6 +222,8 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         when(mCall.getSupportedAudioRoutes()).thenReturn(CallAudioState.ROUTE_ALL);
         when(mFeatureFlags.avoidDiscOnBtToBtSwitch()).thenReturn(true);
         BLUETOOTH_DEVICES.add(BLUETOOTH_DEVICE_1);
+        mIsScoManagedByAudio = android.media.audio.Flags.scoManagedByAudio()
+                && BluetoothProperties.isScoManagedByAudioEnabled().orElse(false);
     }
 
     @After
@@ -492,21 +496,26 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         assertFalse(mController.isActive());
 
         mController.sendMessageWithSessionInfo(SWITCH_FOCUS, RINGING_FOCUS, 0);
-        verify(mBluetoothDeviceManager, timeout(TEST_TIMEOUT))
-                .connectAudio(BLUETOOTH_DEVICE_1, AudioRoute.TYPE_BLUETOOTH_SCO, false);
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+        verify(mBluetoothDeviceManager, timeout(TEST_TIMEOUT)).connectAudio(BLUETOOTH_DEVICE_1,
+                AudioRoute.TYPE_BLUETOOTH_SCO, mIsScoManagedByAudio);
         waitForRouteActiveStateAndVerify(true);
 
         mController.sendMessageWithSessionInfo(SWITCH_FOCUS, ACTIVE_FOCUS, 0);
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
         assertTrue(mController.isActive());
 
         mController.sendMessageWithSessionInfo(SWITCH_FOCUS, NO_FOCUS, 0);
         mController.sendMessageWithSessionInfo(BT_AUDIO_DISCONNECTED, 0, BLUETOOTH_DEVICE_1);
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
         // Ensure we tell the CallAudioManager that audio operations are done so that we can ensure
         // audio focus is relinquished.
         verify(mCallAudioManager, timeout(TEST_TIMEOUT)).notifyAudioOperationsComplete();
 
         // Ensure the BT device is disconnected.
-        verify(mBluetoothDeviceManager, timeout(TEST_TIMEOUT).atLeastOnce()).disconnectSco();
+        if (!mIsScoManagedByAudio) {
+            verify(mBluetoothDeviceManager, timeout(TEST_TIMEOUT).atLeastOnce()).disconnectSco();
+        }
         waitForRouteActiveStateAndVerify(false);
     }
 
@@ -956,7 +965,7 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         mController.sendMessageWithSessionInfo(BT_ACTIVE_DEVICE_PRESENT,
                 AudioRoute.TYPE_BLUETOOTH_SCO, scoDevice.getAddress());
         verify(mBluetoothDeviceManager, timeout(TEST_TIMEOUT))
-                .connectAudio(scoDevice, AudioRoute.TYPE_BLUETOOTH_SCO, false);
+                .connectAudio(scoDevice, AudioRoute.TYPE_BLUETOOTH_SCO, mIsScoManagedByAudio);
         expectedState = new CallAudioState(false, CallAudioState.ROUTE_BLUETOOTH,
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH
                         | CallAudioState.ROUTE_SPEAKER, BLUETOOTH_DEVICE_1, BLUETOOTH_DEVICES);
@@ -1128,7 +1137,9 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
                 BLUETOOTH_DEVICE_1);
 
         // Verify SCO disconnected
-        verify(mBluetoothDeviceManager, timeout(TEST_TIMEOUT)).disconnectSco();
+        if (!mIsScoManagedByAudio) {
+            verify(mBluetoothDeviceManager, timeout(TEST_TIMEOUT)).disconnectSco();
+        }
         // Verify audio properly routes into speaker.
         expectedState = new CallAudioState(false, CallAudioState.ROUTE_SPEAKER,
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_BLUETOOTH
@@ -1688,6 +1699,18 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
                         anyBoolean());
     }
 
+    @Test
+    @SmallTest
+    public void testClearCommunicationDeviceAtEndOfCallOnScoDisconnected() {
+        verifyConnectBluetoothDevice(AudioRoute.TYPE_BLUETOOTH_SCO);
+        // Emulate behavior of BT stack signaling SCO audio disconnected
+        mController.getPendingAudioRoute().setCommunicationDeviceType(AudioRoute.TYPE_INVALID);
+        mController.sendMessageWithSessionInfo(SWITCH_FOCUS, NO_FOCUS, 0);
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+        // Verify that we still clear the communication device at the end of the call.
+        verify(mAudioManager).clearCommunicationDevice();
+    }
+
     private void verifyConnectBluetoothDevice(int audioType) {
         mController.initialize();
         mController.setActive(true);
@@ -1700,14 +1723,20 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
                 any(CallAudioState.class), eq(expectedState));
 
         mController.sendMessageWithSessionInfo(BT_ACTIVE_DEVICE_PRESENT, audioType, BT_ADDRESS_1);
-        if (audioType == AudioRoute.TYPE_BLUETOOTH_SCO) {
+
+        if (audioType == AudioRoute.TYPE_BLUETOOTH_SCO && !mIsScoManagedByAudio) {
             verify(mBluetoothDeviceManager, timeout(TEST_TIMEOUT))
-                    .connectAudio(BLUETOOTH_DEVICE_1, AudioRoute.TYPE_BLUETOOTH_SCO, false);
+                    .connectAudio(BLUETOOTH_DEVICE_1, AudioRoute.TYPE_BLUETOOTH_SCO,
+                            mIsScoManagedByAudio);
             mController.sendMessageWithSessionInfo(BT_AUDIO_CONNECTED,
                     0, BLUETOOTH_DEVICE_1);
         } else {
             verify(mAudioManager, timeout(TEST_TIMEOUT))
                     .setCommunicationDevice(nullable(AudioDeviceInfo.class));
+            if (audioType == AudioRoute.TYPE_BLUETOOTH_SCO) {
+                mController.sendMessageWithSessionInfo(BT_AUDIO_CONNECTED,
+                        0, BLUETOOTH_DEVICE_1);
+            }
         }
 
         expectedState = new CallAudioState(false, CallAudioState.ROUTE_BLUETOOTH,
@@ -1735,7 +1764,7 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_EARPIECE,
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER, null,
                 new HashSet<>());
-        if (audioType == AudioRoute.TYPE_BLUETOOTH_SCO) {
+        if (audioType == AudioRoute.TYPE_BLUETOOTH_SCO && !mIsScoManagedByAudio) {
             verify(mBluetoothDeviceManager, timeout(TEST_TIMEOUT)).disconnectSco();
         } else {
             verify(mAudioManager, timeout(TEST_TIMEOUT).times(2))

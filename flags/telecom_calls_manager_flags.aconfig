@@ -12,17 +12,6 @@ flag {
   }
 }
 
-# OWNER=pmadapurmath TARGET=25Q3
-flag {
-  name: "allow_call_on_same_connection_mgr"
-  namespace: "telecom"
-  description: "If two incoming calls are received at the same time from the same connection service, allow the CS to handle the second call."
-  bug: "414261900"
-  metadata {
-    purpose: PURPOSE_BUGFIX
-  }
-}
-
 # OWNER=breadley TARGET=25Q3
 flag {
   name: "select_phone_account_before_making_room"

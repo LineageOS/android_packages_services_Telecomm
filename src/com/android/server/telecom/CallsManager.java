@@ -1794,8 +1794,7 @@ public class CallsManager extends Call.ListenerBase
             // In this case, we should allow the new call to go through instead of failing it and
             // logging it. We are refraining from doing a phone number check as it's possible that
             // Fi is using shadow numbers.
-            if (mFeatureFlags.allowCallOnSameConnectionMgr() && ringingCall != null
-                    && connectionMgr != null && Objects.equals(connectionMgr,
+            if (ringingCall != null && connectionMgr != null && Objects.equals(connectionMgr,
                     ringingCall.getConnectionManagerPhoneAccount())) {
                 ignoreIncomingCallFailureOnSameNumber = true;
             }

@@ -1124,10 +1124,15 @@ public class CallLogUtils {
                     throw new IllegalArgumentException("assertedDisplayName exceeds the character"
                             + " limit of " + MAX_NUMBER_OF_CHARACTERS + ".");
                 }
+
                 // Validate the uuid. An illegal argument exception will be thrown if the format
                 // doesn't conform.
-                java.util.UUID.fromString(uuid);
-                mUuid = uuid;
+                try {
+                    java.util.UUID.fromString(uuid);
+                    mUuid = uuid;
+                } catch (IllegalArgumentException e) {
+                    Log.e(LOG_TAG, e + "Invalid uuid passed in.");
+                }
                 return this;
             }
 
