@@ -70,6 +70,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Controls the sequencing between calls when moving between the user ACTIVE (RINGING/ACTIVE) and
@@ -652,13 +655,30 @@ public class CallSequencingController {
                 liveCall.setSkipAutoUnhold(true);
                 // Disconnect the active call instead of the holding call because it is historically
                 // easier to do, rather than disconnecting a held call and holding the active call.
-                disconnectOngoingCallForEmergencyCall(transactionFuture, liveCall,
-                        disconnectReason);
-                // Don't wait on the live call disconnect future result above since we're handling
-                // the same phone account case. It's possible that disconnect may time out in the
-                // case that two calls are being merged while the disconnect for the live call is
-                // sent.
-                return transactionFuture;
+                // We'll wait up to 1s for the disconnect to complete before placing the emergency
+                // call regardless of the result.
+                if (mFeatureFlags.eccWaitForLiveCallDisconnect()) {
+                    CompletableFuture<Boolean> finalTransactionFuture = transactionFuture;
+                    return disconnectOngoingCallForEmergencyCall(transactionFuture, liveCall,
+                            disconnectReason).orTimeout(1000, TimeUnit.MILLISECONDS)
+                            .exceptionally(ex -> {
+                                if (ex instanceof TimeoutException) {
+                                    Log.i(this, "makeRoomForOutgoingEmergencyCall: Disconnect for "
+                                            + "%s didn't complete after 1s. Attempting to place "
+                                            + "emergency call anyway.", liveCall);
+                                    return true;
+                                } else {
+                                    Log.e(this, ex, "makeRoomForOutgoingEmergencyCall: Disconnect "
+                                            + "for %s failed with exception %s.", liveCall);
+                                    // Propagate the exception to the chain.
+                                    throw new RuntimeException(ex);
+                                }
+                            }).thenCompose(result -> finalTransactionFuture);
+                } else {
+                    disconnectOngoingCallForEmergencyCall(transactionFuture, liveCall,
+                            disconnectReason);
+                    return transactionFuture;
+                }
             } else if (heldCall != null) { // Dual sim case
                 // Note at this point, we should always have a held call then that should
                 // be disconnected (over the active call) but still enforce with a null check and
