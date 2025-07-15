@@ -1582,8 +1582,10 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
                 .getAudioRoutesCallback();
         AudioDeviceInfo earpieceDeviceInfo = mock(AudioDeviceInfo.class);
         when(earpieceDeviceInfo.getType()).thenReturn(AudioDeviceInfo.TYPE_BUILTIN_EARPIECE);
+        when(earpieceDeviceInfo.isSink()).thenReturn(true);
         AudioDeviceInfo speakerDeviceInfo = mock(AudioDeviceInfo.class);
         when(speakerDeviceInfo.getType()).thenReturn(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+        when(speakerDeviceInfo.isSink()).thenReturn(true);
 
         // Reset the audio route factory so that the route creation can be successful now.
         mController.setAudioRouteFactory(mAudioRouteFactory);

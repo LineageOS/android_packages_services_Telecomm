@@ -41,6 +41,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
+import android.sysprop.BluetoothProperties;
 import android.telecom.CallAudioState;
 import android.telecom.Log;
 import android.telecom.Logging.Session;
@@ -157,6 +158,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     private CountDownLatch mAudioOperationsCompleteLatch;
     private CountDownLatch mAudioActiveCompleteLatch;
     private AnomalyReporterAdapter mAnomalyReporterAdapter;
+    private boolean mIsScoManagedByAudio;
 
     /** Receiver for added/removed device outputs that are reported by the audio fwk */
     public class AudioRoutesCallback extends AudioDeviceCallback {
@@ -186,11 +188,18 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                 int audioRouteType = getAudioType(deviceInfo);
                 Log.i(this, "updateAudioRoutes: audioDeviceInfo: %s, audioRouteType: %d",
                         deviceInfo, audioRouteType);
+                if (!deviceInfo.isSink()) {
+                    Log.i(this, "Ignore non sink device.");
+                    continue;
+                }
                 // We should really only worry about handling earpiece and speaker. Bluetooth and
                 // wired headset routes are already dynamically updated. This logic can be updated
                 // once we support call audio route centralization.
-                if (audioRouteType == TYPE_INVALID || audioRouteType == AudioRoute.TYPE_WIRED
-                        || BT_AUDIO_ROUTE_TYPES.contains(audioRouteType)) {
+                // SCO needs to check here as well when the SCO refactor feature is enabled.
+                if ((!mIsScoManagedByAudio || audioRouteType != AudioRoute.TYPE_BLUETOOTH_SCO)
+                        && (audioRouteType == TYPE_INVALID
+                                || audioRouteType == AudioRoute.TYPE_WIRED
+                                || BT_AUDIO_ROUTE_TYPES.contains(audioRouteType))) {
                     Log.i(this, "updateAudioRoutes: skipping route.");
                     continue;
                 }
@@ -202,12 +211,23 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                         case AudioRoute.TYPE_EARPIECE:
                             createEarpieceRoute();
                             break;
+                        case AudioRoute.TYPE_BLUETOOTH_SCO:
+                            if (mIsScoManagedByAudio) {
+                                mCallAudioManager.getBluetoothStateReceiver()
+                                        .handleActiveDeviceChanged(
+                                                 audioRouteType, deviceInfo.getAddress());
+                            }
+                            break;
                         default:
                             break;
                     }
                 } else {
                     AudioRoute route = mTypeRoutes.remove(audioRouteType);
                     updateAvailableRoutes(route, false);
+                    if (audioRouteType == AudioRoute.TYPE_BLUETOOTH_SCO && mIsScoManagedByAudio) {
+                        mCallAudioManager.getBluetoothStateReceiver().handleActiveDeviceChanged(
+                                audioRouteType, null);
+                    }
                 }
             }
         }
@@ -316,6 +336,8 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                 }
             }
         };
+        mIsScoManagedByAudio = android.media.audio.Flags.scoManagedByAudio()
+                && BluetoothProperties.isScoManagedByAudioEnabled().orElse(false);
 
         // Register the  AudioManager. OnPreferredDevicesForStrategyChangedListener listener to
         // receive updates for the communication device. This is a replacement to directly querying

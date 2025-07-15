@@ -679,6 +679,10 @@ public class CallAudioManager extends CallsManagerListenerBase {
         }
     }
 
+    public BluetoothStateReceiver getBluetoothStateReceiver() {
+        return mBluetoothStateReceiver;
+    }
+
     private void onCallLeavingState(Call call, int state) {
         switch (state) {
             case CallState.ACTIVE:
