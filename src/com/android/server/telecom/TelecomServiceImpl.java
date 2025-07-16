@@ -2562,10 +2562,15 @@ public class TelecomServiceImpl {
                     com.android.internal.R.string.config_emergency_dialer_package);
             Intent intent = new Intent(Intent.ACTION_DIAL_EMERGENCY)
                     .setPackage(packageName);
-            ResolveInfo resolveInfo = mPackageManager.resolveActivity(intent, 0 /* flags*/);
-            if (resolveInfo == null) {
-                // No matching activity from config, fallback to default platform implementation
-                intent.setPackage(null);
+            long token = Binder.clearCallingIdentity();
+            try {
+                ResolveInfo resolveInfo = mPackageManager.resolveActivity(intent, 0 /* flags*/);
+                if (resolveInfo == null) {
+                    // No matching activity from config, fallback to default platform implementation
+                    intent.setPackage(null);
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
             }
             if (!TextUtils.isEmpty(number) && TextUtils.isDigitsOnly(number)) {
                 intent.setData(Uri.parse("tel:" + number));

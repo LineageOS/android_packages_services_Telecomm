@@ -44,6 +44,8 @@ import static com.android.server.telecom.CallAudioRouteAdapter.USER_SWITCH_EARPI
 import static com.android.server.telecom.CallAudioRouteAdapter.USER_SWITCH_HEADSET;
 import static com.android.server.telecom.CallAudioRouteAdapter.USER_SWITCH_SPEAKER;
 import static com.android.server.telecom.CallAudioRouteController.INCLUDE_BLUETOOTH_IN_BASELINE;
+import static com.android.server.telecom.tests.TelecomSystemTest.assertTrueWithTimeout;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -100,6 +102,8 @@ import com.android.server.telecom.WiredHeadsetManager;
 import com.android.server.telecom.bluetooth.BluetoothDeviceManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
 import com.android.server.telecom.metrics.TelecomMetricsController;
+
+import com.google.common.base.Predicate;
 
 import org.junit.After;
 import org.junit.Before;
@@ -1512,12 +1516,17 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         mController.sendMessageWithSessionInfo(BT_AUDIO_CONNECTED, 0, BLUETOOTH_DEVICE_1);
         mController.overrideIsPending(true);
         waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
-        assertFalse(mController.getPendingAudioRoute().getPendingMessages().contains(
-                new Pair<>(BT_AUDIO_DISCONNECTED, BT_ADDRESS_1)));
         // Verify the speaker off message was cleared as well and the status bar notifier was
         // invoked.
-        assertFalse(mController.getPendingAudioRoute().getPendingMessages().contains(
-                new Pair<>(SPEAKER_OFF, null)));
+        assertTrueWithTimeout(new Predicate<Void>() {
+            @Override
+            public boolean apply(Void v) {
+                Set<Pair<Integer, String>> pendingMessages = mController.getPendingAudioRoute()
+                        .getPendingMessages();
+                return !pendingMessages.contains(new Pair<>(BT_AUDIO_DISCONNECTED, BT_ADDRESS_1))
+                        && !pendingMessages.contains(new Pair<>(SPEAKER_OFF, null));
+            }
+        });
         verify(mockStatusBarNotifier, timeout(TEST_TIMEOUT)).notifySpeakerphone(anyBoolean());
 
         // Add pending BT_AUDIO_CONNECTED msg and verify it's removed when we get
@@ -1536,21 +1545,32 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         mController.getPendingAudioRoute().addMessage(SPEAKER_OFF, null);
         mController.sendMessageWithSessionInfo(SPEAKER_ON);
         waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
-        assertFalse(mController.getPendingAudioRoute().getPendingMessages().contains(
-                new Pair<>(BT_AUDIO_DISCONNECTED, BT_ADDRESS_1)));
-        assertFalse(mController.getPendingAudioRoute().getPendingMessages().contains(
-                new Pair<>(BT_AUDIO_DISCONNECTED, scoDevice.getAddress())));
         // Verify the speaker off message was cleared as well and the status bar notifier was
         // invoked.
-        assertFalse(mController.getPendingAudioRoute().getPendingMessages().contains(
-                new Pair<>(SPEAKER_OFF, null)));
+        assertTrueWithTimeout(new Predicate<Void>() {
+            @Override
+            public boolean apply(Void v) {
+                Set<Pair<Integer, String>> pendingMessages = mController.getPendingAudioRoute()
+                        .getPendingMessages();
+                return !pendingMessages.contains(new Pair<>(BT_AUDIO_DISCONNECTED, BT_ADDRESS_1))
+                        && !pendingMessages.contains(new Pair<>(BT_AUDIO_DISCONNECTED,
+                        scoDevice.getAddress())) && !pendingMessages.contains(
+                                new Pair<>(SPEAKER_OFF, null));
+            }
+        });
 
         // Verify that for SPEAKER_OFF, we clear the SPEAKER_ON pending message
         mController.getPendingAudioRoute().addMessage(SPEAKER_ON, null);
         mController.sendMessageWithSessionInfo(SPEAKER_OFF);
         waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
-        assertFalse(mController.getPendingAudioRoute().getPendingMessages().contains(
-                new Pair<>(SPEAKER_ON, null)));
+        assertTrueWithTimeout(new Predicate<Void>() {
+            @Override
+            public boolean apply(Void v) {
+                Set<Pair<Integer, String>> pendingMessages = mController.getPendingAudioRoute()
+                        .getPendingMessages();
+                return !pendingMessages.contains(new Pair<>(SPEAKER_ON, null));
+            }
+        });
         BLUETOOTH_DEVICES.remove(scoDevice);
     }
 
@@ -1793,6 +1813,7 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         // Then simulate wired headset being connected after speaker was initially the audio route
         mController.sendMessageWithSessionInfo(CONNECT_WIRED_HEADSET);
         mController.sendMessageWithSessionInfo(SPEAKER_OFF);
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
         expectedState = new CallAudioState(false, CallAudioState.ROUTE_WIRED_HEADSET,
                 CallAudioState.ROUTE_WIRED_HEADSET | CallAudioState.ROUTE_SPEAKER, null,
                 new HashSet<>());
@@ -1806,6 +1827,7 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
             // Verify speaker turned on from USER_SWITCH_SPEAKER
             mController.sendMessageWithSessionInfo(USER_SWITCH_SPEAKER);
             mController.sendMessageWithSessionInfo(SPEAKER_ON);
+            waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
             expectedState = new CallAudioState(false, CallAudioState.ROUTE_SPEAKER,
                     CallAudioState.ROUTE_WIRED_HEADSET | CallAudioState.ROUTE_SPEAKER, null,
                     new HashSet<>());
@@ -1816,6 +1838,7 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
             mController.sendMessageWithSessionInfo(USER_SWITCH_BASELINE_ROUTE,
                     INCLUDE_BLUETOOTH_IN_BASELINE);
             mController.sendMessageWithSessionInfo(SPEAKER_OFF);
+            waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
             expectedState = new CallAudioState(false, CallAudioState.ROUTE_WIRED_HEADSET,
                     CallAudioState.ROUTE_WIRED_HEADSET | CallAudioState.ROUTE_SPEAKER, null,
                     new HashSet<>());
@@ -1825,6 +1848,7 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
 
         // Verify that we route back into speaker once the wired headset disconnects
         mController.sendMessageWithSessionInfo(DISCONNECT_WIRED_HEADSET);
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
         expectedState = new CallAudioState(false, expectedAudioType,
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER, null,
                 new HashSet<>());

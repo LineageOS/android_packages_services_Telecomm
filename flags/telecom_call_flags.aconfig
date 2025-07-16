@@ -141,3 +141,14 @@ flag {
       purpose: PURPOSE_BUGFIX
     }
 }
+
+# OWNER=tjstuart TARGET=25Q4
+flag {
+  name: "fix_session_tree_logging"
+  namespace: "telecom"
+  description: "Enables a corrected implementation for printing the session tree, fixing a crash and improper log indentation."
+  bug: "427861789"
+  metadata {
+      purpose: PURPOSE_BUGFIX
+    }
+}

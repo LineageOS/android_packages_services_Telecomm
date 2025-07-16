@@ -139,3 +139,13 @@ flag {
       purpose: PURPOSE_FEATURE
   }
 }
+
+# OWNER=tjstuart TARGET=26Q2
+flag {
+  name: "promote_extra_do_not_log_call_to_system_api"
+  is_exported: true
+  namespace: "telecom"
+  description: "Promoting the hidden extra DO_NOT_LOG call to a system API"
+  bug: "427477225"
+
+}
