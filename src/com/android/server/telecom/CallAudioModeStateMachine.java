@@ -259,17 +259,10 @@ public class CallAudioModeStateMachine extends StateMachine {
             Log.i(LOG_TAG, "Audio focus entering UNFOCUSED state");
             mLocalLog.log("Enter UNFOCUSED");
             if (mIsInitialized) {
-                if (mFeatureFlags.setAudioModeBeforeAbandonFocus()) {
-                    Log.i(this, "enter: AudioManager#setMode(MODE_NORMAL)");
-                    mAudioManager.setMode(AudioManager.MODE_NORMAL);
-                    mCallAudioManager.setCallAudioRouteFocusState(
-                            CallAudioRouteStateMachine.NO_FOCUS);
-                } else {
-                    mCallAudioManager.setCallAudioRouteFocusState(
-                            CallAudioRouteStateMachine.NO_FOCUS);
-                    Log.i(this, "enter: AudioManager#setMode(MODE_NORMAL)");
-                    mAudioManager.setMode(AudioManager.MODE_NORMAL);
-                }
+                Log.i(this, "enter: AudioManager#setMode(MODE_NORMAL)");
+                mAudioManager.setMode(AudioManager.MODE_NORMAL);
+                mCallAudioManager.setCallAudioRouteFocusState(
+                        CallAudioRouteStateMachine.NO_FOCUS);
                 mLocalLog.log("Mode MODE_NORMAL");
                 mMostRecentMode = AudioManager.MODE_NORMAL;
                 // Don't release focus here -- wait until we get a signal that any other audio

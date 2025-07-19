@@ -1,4 +1,13 @@
 package: "com.android.server.telecom.flags"
 container: "system"
 
-# This file intentionally left blank to avoid compilation errors due to removed flag.
+# OWNER=tgunn TARGET=25Q4
+flag {
+  name: "dont_notify_missed_calls_when_no_dialer"
+  namespace: "telecom"
+  description: "In some cases, we get a user switched or boot complete indication on a work profile; if no dialer app is installed don't notify missed calls there."
+  bug: "431576795"
+  metadata {
+    purpose: PURPOSE_BUGFIX
+  }
+}

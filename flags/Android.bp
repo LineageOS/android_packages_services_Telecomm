@@ -33,7 +33,6 @@ aconfig_declarations {
         "telecom_call_flags.aconfig",
         "telecom_calls_manager_flags.aconfig",
         "telecom_anomaly_report_flags.aconfig",
-        "telecom_callaudiomodestatemachine_flags.aconfig",
         "telecom_resolve_hidden_dependencies.aconfig",
         "telecom_bluetoothroutemanager_flags.aconfig",
         "telecom_work_profile_flags.aconfig",

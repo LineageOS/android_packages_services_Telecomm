@@ -579,20 +579,16 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testConnectAndDisconnectDock() {
-        mController.initialize();
-        mController.sendMessageWithSessionInfo(CONNECT_DOCK);
-        CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_SPEAKER,
-                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER, null,
-                new HashSet<>());
-        verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
-                any(CallAudioState.class), eq(expectedState));
+        verifyConnectDisconnectDock(true /* connectDock */);
+    }
 
-        mController.sendMessageWithSessionInfo(DISCONNECT_DOCK);
-        expectedState = new CallAudioState(false, CallAudioState.ROUTE_EARPIECE,
-                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER, null,
-                new HashSet<>());
-        verify(mCallsManager, timeout(TEST_TIMEOUT).atLeastOnce()).onCallAudioStateChanged(
-                any(CallAudioState.class), eq(expectedState));
+    @SmallTest
+    @Test
+    public void testDisconnectDockWhenTranslatedToSpeakerType() {
+        when(mFeatureFlags.preserveCallAudioRouting()).thenReturn(true);
+        // Route to speaker instead and then try disconnecting dock to emulate speaker representing
+        // dock type
+        verifyConnectDisconnectDock(false /* connectDock */);
     }
 
     @SmallTest
@@ -1733,6 +1729,32 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         verify(mAudioManager).clearCommunicationDevice();
     }
 
+    @SmallTest
+    @Test
+    public void preserveAudioRoutingOnRingingFocusSwitch() {
+        verifyRouteUnchangedAfterFocusSwitch(RINGING_FOCUS);
+    }
+
+    @SmallTest
+    @Test
+    public void preserveAudioRoutingOnActiveFocusSwitch() {
+        verifyRouteUnchangedAfterFocusSwitch(ACTIVE_FOCUS);
+    }
+
+    private void verifyRouteUnchangedAfterFocusSwitch(int focusType) {
+        when(mFeatureFlags.preserveCallAudioRouting()).thenReturn(true);
+        mController.initialize();
+        // Switch to speaker before switching to ringing focus
+        mController.sendMessageWithSessionInfo(USER_SWITCH_SPEAKER);
+        // Verify that route isn't changed
+        mController.sendMessageWithSessionInfo(SWITCH_FOCUS, focusType, 0);
+        CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_SPEAKER,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER, null,
+                new HashSet<>());
+        verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
+                any(CallAudioState.class), eq(expectedState));
+    }
+
     private void verifyConnectBluetoothDevice(int audioType) {
         mController.initialize();
         mController.setActive(true);
@@ -1879,5 +1901,31 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         when(mAudioManager.getPreferredDeviceForStrategy(any(AudioProductStrategy.class)))
                 .thenReturn(deviceAttr);
         when(deviceAttr.getType()).thenReturn(AudioDeviceInfo.TYPE_BUILTIN_EARPIECE);
+    }
+
+    private void verifyConnectDisconnectDock(boolean connectDock) {
+        mController.initialize();
+        mController.setActive(true);
+        if (connectDock) {
+            mController.sendMessageWithSessionInfo(CONNECT_DOCK);
+        } else {
+            mController.sendMessageWithSessionInfo(USER_SWITCH_SPEAKER);
+            mController.sendMessageWithSessionInfo(SPEAKER_ON);
+        }
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+        CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_SPEAKER,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER, null,
+                new HashSet<>());
+        verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
+                any(CallAudioState.class), eq(expectedState));
+
+        mController.sendMessageWithSessionInfo(DISCONNECT_DOCK);
+        mController.sendMessageWithSessionInfo(SPEAKER_OFF);
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+        expectedState = new CallAudioState(false, CallAudioState.ROUTE_EARPIECE,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER, null,
+                new HashSet<>());
+        verify(mCallsManager, timeout(TEST_TIMEOUT).atLeastOnce()).onCallAudioStateChanged(
+                any(CallAudioState.class), eq(expectedState));
     }
 }

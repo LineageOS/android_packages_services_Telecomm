@@ -1238,6 +1238,7 @@ public class InCallController extends CallsManagerListenerBase implements
     private final Collection<Call> mBtIcsCallTracker = new ArraySet<>();
 
     private final Context mContext;
+    private Context mAllUsersContext;
     private final AppOpsManager mAppOpsManager;
     private final PermissionManager mPermissionManager;
     private final SensorPrivacyManager mSensorPrivacyManager;
@@ -2277,9 +2278,11 @@ public class InCallController extends CallsManagerListenerBase implements
 
         IntentFilter packageChangedFilter = new IntentFilter(Intent.ACTION_PACKAGE_CHANGED);
         packageChangedFilter.addDataScheme("package");
-        Context userContext = mContext.createContextAsUser(UserHandle.ALL, 0);
+        // Important: Context must be retained or the receivers won't fire when the context is
+        // garbage collected.
+        mAllUsersContext = mContext.createContextAsUser(UserHandle.ALL, 0);
         if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
-            userContext.registerReceiver(mPackageChangedReceiver, packageChangedFilter,
+            mAllUsersContext.registerReceiver(mPackageChangedReceiver, packageChangedFilter,
                     null, null);
         } else {
             mContext.registerReceiverAsUser(mPackageChangedReceiver, UserHandle.ALL,

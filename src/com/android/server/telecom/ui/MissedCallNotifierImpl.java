@@ -322,8 +322,8 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
             }
         }
 
-        Log.i(this, "sendNotificationThroughDefaultDialer; count=%d, dialerPackage=%s",
-                missedCallCount, intent.getPackage());
+        Log.i(this, "sendNotificationThroughDefaultDialer; count=%d, dialerPackage=%s, "
+                        + "userHandle=%s", missedCallCount, intent.getPackage(), userHandle);
         Bundle options = exemptFromPowerSavingTemporarily(dialerPackage, userHandle);
         mContext.sendBroadcastAsUser(intent, userHandle, READ_PHONE_STATE, options);
     }
@@ -358,15 +358,17 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
             mMissedCallCounts.put(userHandle, missedCallCounts);
         }
 
-        Log.i(this, "showMissedCallNotification: userHandle=%d, missedCallCount=%d",
-                userHandle.getIdentifier(), missedCallCounts);
+
 
         String dialerPackage = getDefaultDialerPackage(userHandle);
+
         if (shouldManageNotificationThroughDefaultDialer(dialerPackage, userHandle)) {
             sendNotificationThroughDefaultDialer(dialerPackage, callInfo, userHandle,
                     missedCallCounts, uri);
             return;
         }
+        Log.i(this, "showMissedCallNotification: posting for userHandle=%d, "
+                        + "missedCallCount=%d", userHandle.getIdentifier(), missedCallCounts);
 
         final String titleText;
         final String expandedText;  // The text in the notification's line 1 and 2.
@@ -669,7 +671,7 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
     @Override
     public void reloadFromDatabase(final CallerInfoLookupHelper callerInfoLookupHelper,
             CallInfoFactory callInfoFactory, final UserHandle userHandle) {
-        Log.d(this, "reloadFromDatabase: user=%d", userHandle.getIdentifier());
+        Log.i(this, "reloadFromDatabase: user=%d", userHandle.getIdentifier());
         if (TelecomSystem.getInstance() == null || !TelecomSystem.getInstance().isBootComplete()) {
             if (!mUsersToLoadAfterBootComplete.contains(userHandle)) {
                 Log.i(this, "reloadFromDatabase: Boot not yet complete -- call log db may not be "
@@ -677,6 +679,15 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
                         userHandle.getIdentifier());
                 mUsersToLoadAfterBootComplete.add(userHandle);
             }
+            return;
+        }
+
+        String dialerPackage = getDefaultDialerPackage(userHandle);
+        if (dialerPackage == null && mFeatureFlags.dontNotifyMissedCallsWhenNoDialer()) {
+            // There is no default dialer, so it would be impossible for the user to go to the
+            // call log to see the missed calls.
+            Log.i(this, "reloadFromDatabase: no dialer; not notifying missed calls for "
+                    + "userHandle=%s", userHandle);
             return;
         }
 

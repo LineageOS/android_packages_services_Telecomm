@@ -35,10 +35,8 @@ import android.media.AudioDeviceCallback;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.IAudioService;
-import android.media.audiopolicy.AudioProductStrategy;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.sysprop.BluetoothProperties;
@@ -844,10 +842,14 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         }
         onAvailableRoutesChanged();
 
-        // Route to expected state
-        if (mCurrentRoute.equals(dockRoute)) {
+        // Route to baseline
+        if (isDockRoute(dockRoute)) {
             routeTo(mIsActive, getBaseRoute(true, null));
         }
+    }
+
+    private boolean isDockRoute(AudioRoute dockRoute) {
+        return mCurrentRoute.equals(dockRoute) || mCurrentRoute.equals(mSpeakerDockRoute);
     }
 
     private void handleStreamingEnabled() {
@@ -1073,31 +1075,42 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                 mUsePreferredDeviceStrategy = true;
             }
             case ACTIVE_FOCUS -> {
-                // Route to active baseline route (we may need to change audio route in the case
-                // when a video call is put on hold). Ignore route changes if we're handling playing
-                // the end tone. Otherwise, it's possible that we'll override the route a client has
-                // previously requested.
-                if (handleEndTone == 0) {
-                    // Cache BT device switch in the case that inband ringing is disabled and audio
-                    // was routed to a watch. When active focus is received, this selection will be
-                    // honored provided that the current route is associated.
-                    Log.i(this, "handleSwitchFocus (ACTIVE_FOCUS): mBluetoothAddressForRinging = "
-                            + "%s, mCurrentRoute = %s", mBluetoothAddressForRinging, mCurrentRoute);
-                    AudioRoute audioRoute = mBluetoothAddressForRinging != null
-                            && mBluetoothAddressForRinging.equals(
-                                    mCurrentRoute.getBluetoothAddress())
-                            ? mCurrentRoute
-                            : getBaseRoute(true, null);
-                    // Once we have processed active focus once during the call, we can ignore using
-                    // the preferred device strategy.
+                if (mFeatureFlags.preserveCallAudioRouting()) {
+                    // Route to the current route if routing was already active. This should
+                    // preserve the audio routing state when a call is held/unheld. Otherwise, we
+                    // should calculate the base routing.
+                    routeTo(true, getCurrentOrPendingRoute());
+                } else {
+                    // Route to active baseline route (we may need to change audio route in the case
+                    // when a video call is put on hold). Ignore route changes if we're handling
+                    // playing the end tone. Otherwise, it's possible that we'll override the route
+                    // a client has previously requested.
+                    if (handleEndTone == 0) {
+                        // Cache BT device switch in the case that inband ringing is disabled and
+                        // audio was routed to a watch. When active focus is received, this
+                        // selection will be honored provided that the current route is associated.
+                        Log.i(this,
+                                "handleSwitchFocus (ACTIVE_FOCUS): mBluetoothAddressForRinging = "
+                                        + "%s, mCurrentRoute = %s", mBluetoothAddressForRinging,
+                                mCurrentRoute);
+                        AudioRoute audioRoute = mBluetoothAddressForRinging != null
+                                && mBluetoothAddressForRinging.equals(
+                                mCurrentRoute.getBluetoothAddress())
+                                ? mCurrentRoute
+                                : getBaseRoute(true, null);
+                        routeTo(true, audioRoute);
+                        clearRingingBluetoothAddress();
+                    }
+                    // Once we have processed active focus once during the call, we can ignore
+                    // using the preferred device strategy.
                     mUsePreferredDeviceStrategy = false;
-                    routeTo(true, audioRoute);
-                    clearRingingBluetoothAddress();
                 }
             }
             case RINGING_FOCUS -> {
                 if (!mIsActive) {
-                    AudioRoute route = getBaseRoute(true, null);
+                    // Use the current route for handling ringing focus when the flag is enabled.
+                    AudioRoute route = mFeatureFlags.preserveCallAudioRouting()
+                            ? getCurrentOrPendingRoute() : getBaseRoute(true, null);
                     BluetoothDevice device = mBluetoothRoutes.get(route);
                     // Check if in-band ringtone is enabled for the device; if it isn't, move to
                     // inactive route.
@@ -1511,12 +1524,13 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             AudioRoute defaultRoute = mEarpieceWiredRoute != null && callSupportsEarpieceWiredRoute
                     ? mEarpieceWiredRoute
                     : mSpeakerDockRoute;
-            // Ensure that we default to speaker route if we're in a video call, but disregard it if
-            // a wired headset is plugged in. Also consider the case when we're holding/unholding a
-            // call. If the route was on speaker mode, ensure that we preserve the route selection.
-            // Todo: Clean this up once logic to maintain current audio routing during
-            //  active/ringing focus switch is addressed.
-            if ((skipEarpiece || mWasOnSpeaker) && defaultRoute != null
+            // Clean up the preserve speaker logic with the flag to preserve call audio routing. We
+            // would be maintaining the same route when holding/unholding a call now when receiving
+            // active focus. This should only be used for handling routing when a wired headset is
+            // disconnected.
+            boolean supportWasOnSpeakerLogic = mFeatureFlags.preserveCallAudioRouting() ?
+                    false : mWasOnSpeaker;
+            if ((skipEarpiece || supportWasOnSpeakerLogic) && defaultRoute != null
                     && defaultRoute.getType() == AudioRoute.TYPE_EARPIECE) {
                 Log.i(this, "getPreferredAudioRouteFromDefault: Audio routing defaulting to "
                         + "speaker route for (video) call.");
@@ -1581,8 +1595,19 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         }
     }
 
+    /* Only used for testing purposes */
+    @VisibleForTesting
     public AudioRoute getCurrentRoute() {
         return mCurrentRoute;
+    }
+
+    /**
+     * This should be used to determine what the most up to date route is. This is either the
+     * current route or the pending destination route if there's a pending audio route
+     * change.
+     */
+    public AudioRoute getCurrentOrPendingRoute() {
+        return mIsPending ? mPendingAudioRoute.getDestRoute() : mCurrentRoute;
     }
 
     public AudioRoute getBluetoothRoute(@AudioRoute.AudioRouteType int audioRouteType,

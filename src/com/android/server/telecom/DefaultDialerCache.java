@@ -46,6 +46,7 @@ public class DefaultDialerCache {
     @VisibleForTesting
     public final Handler mHandler = new Handler(Looper.getMainLooper());
     private final Context mContext;
+    private final Context mAllUsersContext;
     private final DefaultDialerManagerAdapter mDefaultDialerManagerAdapter;
     private final ComponentName mSystemDialerComponentName;
     private final RoleManagerAdapter mRoleManagerAdapter;
@@ -134,9 +135,10 @@ public class DefaultDialerCache {
         packageIntentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         packageIntentFilter.addDataScheme("package");
         packageIntentFilter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
-        Context userContext = context.createContextAsUser(UserHandle.ALL, 0);
+        // Important: retain the all users context or the receivers will not fire.
+        mAllUsersContext = context.createContextAsUser(UserHandle.ALL, 0);
         if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
-            userContext.registerReceiver(mReceiver, packageIntentFilter,
+            mAllUsersContext.registerReceiver(mReceiver, packageIntentFilter,
                     Context.RECEIVER_NOT_EXPORTED);
         } else {
             context.registerReceiverAsUser(mReceiver, UserHandle.ALL, packageIntentFilter, null,
@@ -145,7 +147,7 @@ public class DefaultDialerCache {
 
         IntentFilter bootIntentFilter = new IntentFilter(Intent.ACTION_BOOT_COMPLETED);
         if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
-            userContext.registerReceiver(mReceiver, bootIntentFilter,
+            mAllUsersContext.registerReceiver(mReceiver, bootIntentFilter,
                     Context.RECEIVER_NOT_EXPORTED);
         } else {
             context.registerReceiverAsUser(mReceiver, UserHandle.ALL, bootIntentFilter, null, null);
