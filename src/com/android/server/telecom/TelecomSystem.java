@@ -337,14 +337,14 @@ public class TelecomSystem {
                                 @Override
                                 public List<ResolveInfo> queryIntentServicesAsUser(
                                         @NonNull Intent intent, int flags, int userId) {
-                                    PackageManager pm;
                                     if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
-                                        pm = UserUtil.getPackageManagerFromUserHandler(mContext,
-                                                UserHandle.of(userId));
+                                        return UserUtil.getPackageManagerFromUserHandler(mContext,
+                                                UserHandle.of(userId)).queryIntentServices(intent,
+                                                flags);
                                     } else {
-                                        pm = mContext.getPackageManager();
+                                        return mContext.getPackageManager()
+                                                .queryIntentServicesAsUser(intent, flags, userId);
                                     }
-                                    return pm.queryIntentServicesAsUser(intent, flags, userId);
                                 }
 
                                 @Override

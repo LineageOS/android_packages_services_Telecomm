@@ -62,9 +62,9 @@ public final class UserUtil {
         return userManager;
     }
 
-    public static PackageManager getPackageManagerFromUserHandler(Context classLevelContext,
+    public static PackageManager getPackageManagerFromUserHandler(Context nonUserContext,
                                                                    UserHandle userHandle) {
-        Context userContext = classLevelContext.createContextAsUser(userHandle, 0);
+        Context userContext = nonUserContext.createContextAsUser(userHandle, 0);
         return userContext.getPackageManager();
     }
 

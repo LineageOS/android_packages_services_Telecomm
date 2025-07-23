@@ -3097,12 +3097,22 @@ public class CallsManager extends Call.ListenerBase
         showErrorIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         showErrorIntent.putExtra(
                 TelecomManager.EXTRA_MANAGED_PROFILE_USER_ID, managedProfileUserId);
-        if (mContext.getPackageManager()
-                .queryIntentActivitiesAsUser(
-                        showErrorIntent,
-                        ResolveInfoFlags.of(0),
-                        initiatingUser)
-                .isEmpty()) {
+
+        List<ResolveInfo> info;
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            info = UserUtil.getPackageManagerFromUserHandler(mContext, initiatingUser)
+                    .queryIntentActivities(
+                            showErrorIntent,
+                            ResolveInfoFlags.of(0));
+        } else {
+            info = mContext.getPackageManager()
+                    .queryIntentActivitiesAsUser(
+                            showErrorIntent,
+                            ResolveInfoFlags.of(0),
+                            initiatingUser);
+        }
+
+        if (info.isEmpty()) {
             return false;
         }
         try {
@@ -7109,9 +7119,18 @@ public class CallsManager extends Call.ListenerBase
      * @return {@code true} if call is visible to the calling user
      */
     boolean isCallVisibleForUser(Call call, UserHandle userHandle) {
-        return call.getAssociatedUser().equals(userHandle)
-                || call.getPhoneAccountFromHandle()
-                .hasCapabilities(PhoneAccount.CAPABILITY_MULTI_USER);
+        if (call.getAssociatedUser().equals(userHandle)) {
+            return true;
+        }
+
+        PhoneAccount phoneAccount = call.getPhoneAccountFromHandle();
+        // May get null targetPhoneAccount such as at select phone account stage
+        if (phoneAccount == null) {
+            Log.i(this, "isCallVisibleForUser false, null phoneAccount");
+            return false;
+        } else {
+            return phoneAccount.hasCapabilities(PhoneAccount.CAPABILITY_MULTI_USER);
+        }
     }
 
     /**

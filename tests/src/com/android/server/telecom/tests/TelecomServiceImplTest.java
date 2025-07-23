@@ -2073,6 +2073,20 @@ public class TelecomServiceImplTest extends TelecomTestCase {
 
     @SmallTest
     @Test
+    public void testGetLine1NumberWithWrongSubId() throws Exception {
+        setupGetLine1NumberTest();
+        when(mFakePhoneAccountRegistrar.isSubscriptionIdActive(anyInt()))
+                .thenReturn(false);
+        String line1Number = null;
+        setTargetSdkVersion(Build.VERSION_CODES.Q);
+        grantPermissionAndAppOp(READ_PHONE_STATE, AppOpsManager.OPSTR_READ_PHONE_STATE);
+
+        assertEquals(line1Number,
+                mTSIBinder.getLine1Number(TEL_PA_HANDLE_CURRENT, DEFAULT_DIALER_PACKAGE, null));
+    }
+
+    @SmallTest
+    @Test
     public void testGetLine1NumberWithReadPhoneStateTargetR() throws Exception {
         setupGetLine1NumberTest();
         grantPermissionAndAppOp(READ_PHONE_STATE, AppOpsManager.OPSTR_READ_PHONE_STATE);
@@ -2167,6 +2181,8 @@ public class TelecomServiceImplTest extends TelecomTestCase {
                 anyString());
         doReturn(false).when(mDefaultDialerCache).isDefaultOrSystemDialer(
                 eq(DEFAULT_DIALER_PACKAGE), anyInt());
+        when(mFakePhoneAccountRegistrar.isSubscriptionIdActive(anyInt()))
+                .thenReturn(true);
         return line1Number;
     }
 

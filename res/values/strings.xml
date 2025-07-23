@@ -28,6 +28,10 @@
 
     <!-- Name for an "unknown" caller. -->
     <string name="unknown">Unknown</string>
+    <!-- Incoming call screen string when the number is hidden -->
+    <string name="private_num">Private number</string>
+    <!-- Incoming call screen string when called from a pay phone -->
+    <string name="payphone">Payphone</string>
 
     <!-- Notification strings -->
     <!-- Missed call notification label, used when there's exactly one missed call -->

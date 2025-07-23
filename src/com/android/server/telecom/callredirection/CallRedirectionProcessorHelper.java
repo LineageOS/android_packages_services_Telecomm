@@ -106,8 +106,7 @@ public class CallRedirectionProcessorHelper {
         List<ResolveInfo> entries;
         if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
             entries = UserUtil.getPackageManagerFromUserHandler(mContext,
-                    mCallsManager.getCurrentUserHandle()).queryIntentServicesAsUser(
-                    intent, 0, mCallsManager.getCurrentUserHandle().getIdentifier());
+                    mCallsManager.getCurrentUserHandle()).queryIntentServices(intent, 0);
         } else {
             entries = mContext.getPackageManager().queryIntentServicesAsUser(
                     intent, 0, mCallsManager.getCurrentUserHandle().getIdentifier());

@@ -20,6 +20,7 @@ import android.annotation.Nullable;
 import android.net.Uri;
 import android.os.UserHandle;
 import android.telecom.PhoneAccountHandle;
+import android.telecom.TelecomManager;
 
 import com.android.server.telecom.util.CallerInfo;
 
@@ -38,6 +39,7 @@ public interface MissedCallNotifier extends CallsManager.CallsManagerListener {
         private CallerInfo mCallerInfo;
         private PhoneAccountHandle mPhoneAccountHandle;
         private Uri mHandle;
+        private int mHandlePresentation = TelecomManager.PRESENTATION_UNKNOWN;
         private long mCreationTimeMillis;
 
         public CallInfo(CallerInfo callerInfo, PhoneAccountHandle phoneAccountHandle, Uri handle,
@@ -52,6 +54,7 @@ public interface MissedCallNotifier extends CallsManager.CallsManagerListener {
             mCallerInfo = call.getCallerInfo();
             mPhoneAccountHandle = call.getTargetPhoneAccount();
             mHandle = call.getHandle();
+            mHandlePresentation = call.getHandlePresentation();
             mCreationTimeMillis = call.getCreationTimeMillis();
         }
 
@@ -81,6 +84,10 @@ public interface MissedCallNotifier extends CallsManager.CallsManagerListener {
 
         public String getName() {
             return mCallerInfo == null ? null : mCallerInfo.getName();
+        }
+
+        public int getHandlePresentation() {
+            return mHandlePresentation;
         }
     }
 

@@ -1387,7 +1387,7 @@ public class InCallController extends CallsManagerListenerBase implements
                 try {
                     if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
                         uid = UserUtil.getPackageManagerFromUserHandler(mContext,
-                                user).getPackageUidAsUser(pkg, user.getIdentifier());
+                                user).getPackageUid(pkg, 0/*flags*/);
                     } else {
                         uid = pkgManager.getPackageUidAsUser(pkg, user.getIdentifier());
                     }
@@ -2478,10 +2478,9 @@ public class InCallController extends CallsManagerListenerBase implements
 
         List<ResolveInfo> entries;
         if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
-            entries = userPackageManager.queryIntentServicesAsUser(
+            entries = userPackageManager.queryIntentServices(
                     serviceIntent,
-                    PackageManager.GET_META_DATA | PackageManager.MATCH_DISABLED_COMPONENTS,
-                    userHandle.getIdentifier());
+                    PackageManager.GET_META_DATA | PackageManager.MATCH_DISABLED_COMPONENTS);
         } else {
             entries = packageManager.queryIntentServicesAsUser(
                     serviceIntent,
@@ -3066,9 +3065,8 @@ public class InCallController extends CallsManagerListenerBase implements
         List<ResolveInfo> entries;
         if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
             entries = UserUtil.getPackageManagerFromUserHandler(mContext,
-                    userHandle).queryIntentServicesAsUser(
-                    intent, PackageManager.GET_META_DATA,
-                    userHandle.getIdentifier());
+                    userHandle).queryIntentServices(
+                    intent, PackageManager.GET_META_DATA);
         } else {
             entries = mContext.getPackageManager().queryIntentServicesAsUser(
                     intent, PackageManager.GET_META_DATA,
@@ -3335,9 +3333,16 @@ public class InCallController extends CallsManagerListenerBase implements
         UserHandle user = mCallsManager.getCurrentUserHandle();
 
         try {
-            PackageManager pkgManager = mContext.getPackageManager();
-            return pkgManager.getPackageUidAsUser(mContext.getOpPackageName(),
-                    user.getIdentifier());
+            int uid;
+            if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                uid = UserUtil.getPackageManagerFromUserHandler(mContext,
+                        user).getPackageUid(mContext.getOpPackageName(), 0/*flags*/);
+            } else {
+                PackageManager pkgManager = mContext.getPackageManager();
+                uid = pkgManager.getPackageUidAsUser(mContext.getOpPackageName(),
+                        user.getIdentifier());
+            }
+            return uid;
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(this, e, "getPackageForAssociatedUser: could not find package %s"
                     + " for user %s", mContext.getOpPackageName(), user);

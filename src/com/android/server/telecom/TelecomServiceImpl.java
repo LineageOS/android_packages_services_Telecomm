@@ -1193,6 +1193,8 @@ public class TelecomServiceImpl {
                         subId = mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(
                                 accountHandle);
                     }
+                    if (!mPhoneAccountRegistrar.isSubscriptionIdActive(subId))
+                        return null;
                     event.setResult(ApiStats.RESULT_NORMAL);
                     return getTelephonyManager(subId).getLine1Number();
                 } catch (UnsupportedOperationException ignored) {
