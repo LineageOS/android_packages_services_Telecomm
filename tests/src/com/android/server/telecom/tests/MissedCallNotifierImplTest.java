@@ -689,8 +689,8 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
         ArgumentCaptor<Bundle> bundleCaptor =
                 ArgumentCaptor.forClass(Bundle.class);
-        verify(mDeviceIdleControllerAdapter).exemptAppTemporarilyForEvent(
-                eq(COMPONENT_NAME.getPackageName()), anyLong(), anyInt(), any());
+        verify(mComponentContextFixture.getPowerExemptionManager()).addToTemporaryAllowList(
+                eq(COMPONENT_NAME.getPackageName()), anyInt(), anyString(), anyLong());
         verify(mContext).sendBroadcastAsUser(
                 intentCaptor.capture(),
                 any(),

@@ -43,6 +43,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.PowerExemptionManager;
 import android.os.UserHandle;
 import android.provider.CallLog;
 import android.provider.CallLog.Calls;
@@ -293,8 +294,25 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
         BroadcastOptions bopts = BroadcastOptions.makeBasic();
         long duration = Timeouts.getDialerMissedCallPowerSaveExemptionTimeMillis(
                 mContext, mFeatureFlags);
-        mDeviceIdleControllerAdapter.exemptAppTemporarilyForEvent(dialerPackage, duration,
-                handle.getIdentifier(), MISSED_CALL_POWER_SAVE_REASON);
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            PowerExemptionManager powerExemptionManager = mContext.getSystemService(
+                    PowerExemptionManager.class);
+            if (powerExemptionManager != null) {
+                try {
+                    powerExemptionManager.addToTemporaryAllowList(dialerPackage,
+                            PowerExemptionManager.REASON_OTHER, MISSED_CALL_POWER_SAVE_REASON,
+                            duration);
+                } catch (RuntimeException e) {
+                    Log.w(this, "exemptFromPowerSavingTemporarily e=" + e.getMessage());
+                }
+            } else {
+                Log.w(this, "exemptFromPowerSavingTemporarily: could not get "
+                        + "PowerExemptionManager");
+            }
+        } else {
+            mDeviceIdleControllerAdapter.exemptAppTemporarilyForEvent(dialerPackage, duration,
+                    handle.getIdentifier(), MISSED_CALL_POWER_SAVE_REASON);
+        }
         bopts.setTemporaryAppWhitelistDuration(duration);
         return bopts.toBundle();
     }

@@ -69,6 +69,7 @@ import android.os.HandlerThread;
 import android.os.IInterface;
 import android.os.Looper;
 import android.os.PersistableBundle;
+import android.os.PowerExemptionManager;
 import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -126,6 +127,10 @@ import static org.mockito.Mockito.when;
 public class ComponentContextFixture implements TestFixture<Context> {
     private HandlerThread mHandlerThread;
     private Map<UserHandle, Context> mContextsByUser = new HashMap<>();
+
+    public PowerExemptionManager getPowerExemptionManager() {
+        return mPowerExemptionManager;
+    }
 
     public class FakeApplicationContext extends MockContext {
         @Override
@@ -265,6 +270,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
                     return mStatsManager;
                 case Context.PERMISSION_SERVICE:
                     return mPermissionManager;
+                case Context.POWER_EXEMPTION_SERVICE:
+                    return mPowerExemptionManager;
                 default:
                     return null;
             }
@@ -314,6 +321,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
                 return Context.STATS_MANAGER_SERVICE;
             } else if (svcClass == PermissionManager.class) {
                 return Context.PERMISSION_SERVICE;
+            } else if (svcClass == PowerExemptionManager.class) {
+                return Context.POWER_EXEMPTION_SERVICE;
             }
             throw new UnsupportedOperationException(svcClass.getName());
         }
@@ -674,6 +683,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
 
     private TelecomManager mTelecomManager = mock(TelecomManager.class);
     private BlockedNumbersManager mBlockedNumbersManager = mock(BlockedNumbersManager.class);
+    private PowerExemptionManager mPowerExemptionManager = mock(PowerExemptionManager.class);
+
 
     public ComponentContextFixture(FeatureFlags featureFlags) {
         MockitoAnnotations.initMocks(this);
