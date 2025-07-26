@@ -41,25 +41,20 @@ public class SystemSettingsUtil {
         // ringtone vibrations on/off state now. Ramping ringer should only be applied when ring
         // vibration intensity is ON, otherwise the ringtone sound should not be delayed as there
         // will be no ring vibration.
-        return Settings.System.getIntForUser(context.getContentResolver(),
-                Settings.System.RING_VIBRATION_INTENSITY,
-                context.getSystemService(Vibrator.class).getDefaultVibrationIntensity(
-                        VibrationAttributes.USAGE_RINGTONE),
-                UserUtil.getUserIdFromContext(context, flags))
-                != Vibrator.VIBRATION_INTENSITY_OFF;
-    }
-
-    public boolean isEnhancedCallBlockingEnabled(Context context, FeatureFlags flags) {
-        return Settings.System.getIntForUser(context.getContentResolver(),
-                Settings.System.DEBUG_ENABLE_ENHANCED_CALL_BLOCKING, 0,
-                UserUtil.getUserIdFromContext(context, flags)) != 0;
-    }
-
-    public boolean setEnhancedCallBlockingEnabled(Context context, boolean enabled,
-            FeatureFlags flags) {
-        return Settings.System.putIntForUser(context.getContentResolver(),
-                Settings.System.DEBUG_ENABLE_ENHANCED_CALL_BLOCKING, enabled ? 1 : 0,
-                UserUtil.getUserIdFromContext(context, flags));
+        if (flags.resolveHiddenDependenciesTwo()) {
+            return Settings.System.getInt(context.getContentResolver(),
+                    Settings.System.RING_VIBRATION_INTENSITY,
+                    context.getSystemService(Vibrator.class).getDefaultVibrationIntensity(
+                            VibrationAttributes.USAGE_RINGTONE))
+                    != Vibrator.VIBRATION_INTENSITY_OFF;
+        } else {
+            return Settings.System.getIntForUser(context.getContentResolver(),
+                    Settings.System.RING_VIBRATION_INTENSITY,
+                    context.getSystemService(Vibrator.class).getDefaultVibrationIntensity(
+                            VibrationAttributes.USAGE_RINGTONE),
+                    UserUtil.getUserIdFromContext(context, flags))
+                    != Vibrator.VIBRATION_INTENSITY_OFF;
+        }
     }
 
     public boolean isRampingRingerEnabled(Context context) {

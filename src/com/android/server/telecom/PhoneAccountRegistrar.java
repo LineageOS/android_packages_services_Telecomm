@@ -2967,11 +2967,7 @@ public class PhoneAccountRegistrar {
                     // Handle the SIP connection service.
                     // Check the system settings to see if it also should handle "tel" calls.
                     if (accountHandle.getComponentName().equals(sipComponentName)) {
-                        boolean useSipForPstn = useSipForPstnCalls(context, telecomFeatureFlags);
                         supportedUriSchemes.add(PhoneAccount.SCHEME_SIP);
-                        if (useSipForPstn) {
-                            supportedUriSchemes.add(PhoneAccount.SCHEME_TEL);
-                        }
                     } else {
                         supportedUriSchemes.add(PhoneAccount.SCHEME_TEL);
                         supportedUriSchemes.add(PhoneAccount.SCHEME_VOICEMAIL);
@@ -3041,22 +3037,6 @@ public class PhoneAccountRegistrar {
                 return builder.build();
             }
             return null;
-        }
-
-        /**
-         * Determines if the SIP call settings specify to use SIP for all calls, including PSTN
-         * calls.
-         *
-         * @param context The context.
-         * @return {@code True} if SIP should be used for all calls.
-         */
-        private boolean useSipForPstnCalls(Context context,
-                com.android.server.telecom.flags.FeatureFlags telecomFeatureFlags) {
-            String option = Settings.System.getStringForUser(context.getContentResolver(),
-                    Settings.System.SIP_CALL_OPTIONS, UserUtil.getUserIdFromContext(context,
-                            telecomFeatureFlags));
-            option = (option != null) ? option : Settings.System.SIP_ADDRESS_ONLY;
-            return option.equals(Settings.System.SIP_ALWAYS);
         }
     };
 
