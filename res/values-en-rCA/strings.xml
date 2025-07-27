@@ -19,6 +19,8 @@
     <string name="telecommAppLabel" product="default" msgid="1825598513414129827">"Phone Calls"</string>
     <string name="userCallActivityLabel" product="default" msgid="3605391260292846248">"Phone"</string>
     <string name="unknown" msgid="6993977514360123431">"Unknown"</string>
+    <string name="private_num" msgid="7971471360030811411">"Private number"</string>
+    <string name="payphone" msgid="7652075262156192657">"Payphone"</string>
     <string name="notification_missedCallTitle" msgid="5060387047205532974">"Missed call"</string>
     <string name="notification_missedWorkCallTitle" msgid="6965463282259034953">"Missed work call"</string>
     <string name="notification_missedCallsTitle" msgid="3910479625507893809">"Missed calls"</string>

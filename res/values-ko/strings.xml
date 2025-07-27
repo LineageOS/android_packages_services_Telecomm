@@ -19,6 +19,10 @@
     <string name="telecommAppLabel" product="default" msgid="1825598513414129827">"전화 통화"</string>
     <string name="userCallActivityLabel" product="default" msgid="3605391260292846248">"전화"</string>
     <string name="unknown" msgid="6993977514360123431">"알 수 없음"</string>
+    <!-- no translation found for private_num (7971471360030811411) -->
+    <skip />
+    <!-- no translation found for payphone (7652075262156192657) -->
+    <skip />
     <string name="notification_missedCallTitle" msgid="5060387047205532974">"부재중 전화"</string>
     <string name="notification_missedWorkCallTitle" msgid="6965463282259034953">"부재중 업무 통화"</string>
     <string name="notification_missedCallsTitle" msgid="3910479625507893809">"부재중 통화"</string>
