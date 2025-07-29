@@ -300,8 +300,8 @@ public class AudioRoute {
                         !pendingAudioRoute.getFeatureFlags().checkDeviceTypeOnRouteChange() ||
                                 (pendingAudioRoute.getFeatureFlags().checkDeviceTypeOnRouteChange()
                                         && mAudioRouteType
-                                        == DEVICE_INFO_TYPE_TO_AUDIO_ROUTE_TYPE.get(
-                                        deviceInfo.getType()));
+                                        == DEVICE_INFO_TYPE_TO_AUDIO_ROUTE_TYPE.getOrDefault(
+                                        deviceInfo.getType(), TYPE_INVALID));
                 if (BT_AUDIO_ROUTE_TYPES.contains(mAudioRouteType) && mBluetoothAddress
                         .equals(deviceInfo.getAddress())
                         && isSameDeviceType) {

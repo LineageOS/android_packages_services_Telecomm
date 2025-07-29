@@ -1130,8 +1130,8 @@ public class CallLogUtils {
                 try {
                     java.util.UUID.fromString(uuid);
                     mUuid = uuid;
-                } catch (IllegalArgumentException e) {
-                    Log.e(LOG_TAG, e + "Invalid uuid passed in.");
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e + "Invalid uuid passed in: " + uuid);
                 }
                 return this;
             }
