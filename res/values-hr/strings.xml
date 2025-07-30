@@ -19,10 +19,8 @@
     <string name="telecommAppLabel" product="default" msgid="1825598513414129827">"Telefonski pozivi"</string>
     <string name="userCallActivityLabel" product="default" msgid="3605391260292846248">"Telefon"</string>
     <string name="unknown" msgid="6993977514360123431">"Nepoznato"</string>
-    <!-- no translation found for private_num (7971471360030811411) -->
-    <skip />
-    <!-- no translation found for payphone (7652075262156192657) -->
-    <skip />
+    <string name="private_num" msgid="7971471360030811411">"Privatni broj"</string>
+    <string name="payphone" msgid="7652075262156192657">"Javna telefonska govornica"</string>
     <string name="notification_missedCallTitle" msgid="5060387047205532974">"Propušteni poziv"</string>
     <string name="notification_missedWorkCallTitle" msgid="6965463282259034953">"Propušten poslovni poziv"</string>
     <string name="notification_missedCallsTitle" msgid="3910479625507893809">"Propušteni pozivi"</string>

@@ -36,6 +36,7 @@ import static com.android.server.telecom.CallAudioRouteAdapter.SPEAKER_ON;
 import static com.android.server.telecom.CallAudioRouteAdapter.STREAMING_FORCE_DISABLED;
 import static com.android.server.telecom.CallAudioRouteAdapter.STREAMING_FORCE_ENABLED;
 import static com.android.server.telecom.CallAudioRouteAdapter.SWITCH_BASELINE_ROUTE;
+import static com.android.server.telecom.CallAudioRouteAdapter.SWITCH_BLUETOOTH;
 import static com.android.server.telecom.CallAudioRouteAdapter.SWITCH_FOCUS;
 import static com.android.server.telecom.CallAudioRouteAdapter.TOGGLE_MUTE;
 import static com.android.server.telecom.CallAudioRouteAdapter.USER_SWITCH_BASELINE_ROUTE;
@@ -1727,6 +1728,65 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
         // Verify that we still clear the communication device at the end of the call.
         verify(mAudioManager).clearCommunicationDevice();
+    }
+
+    @Test
+    @SmallTest
+    public void testSkipClearAndSetCommunicationDevice() {
+        when(mFeatureFlags.skipPendingMsgIfCommunicationDeviceSet()).thenReturn(true);
+        // Setup call as video call to allow baseline routing to speaker
+        when(mCall.isActiveFocus()).thenReturn(true);
+        when(mCall.isVideoCrbtForVoLteCall()).thenReturn(false);
+        when(mCall.getVideoState()).thenReturn(VideoProfile.STATE_TX_ENABLED);
+        // Start routing on BT
+        verifyConnectBluetoothDevice(AudioRoute.TYPE_BLUETOOTH_SCO);
+        // Verify that we never cleared or set the communication device
+        if (mIsScoManagedByAudio) {
+            verify(mAudioManager).setCommunicationDevice(any(AudioDeviceInfo.class));
+        }
+
+        // Set speaker as the communication device
+        AudioDeviceInfo mockSpeakerDeviceInfo = mock(AudioDeviceInfo.class);
+        when(mockSpeakerDeviceInfo.getType()).thenReturn(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+        mController.setCurrentCommunicationDevice(mockSpeakerDeviceInfo);
+        // Simulate SCO disconnect from BluetoothStateReceiver
+        mController.getPendingAudioRoute().setCommunicationDeviceType(AudioRoute.TYPE_INVALID);
+        mController.sendMessageWithSessionInfo(SWITCH_BASELINE_ROUTE,
+                INCLUDE_BLUETOOTH_IN_BASELINE, BT_ADDRESS_1);
+
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+        CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_SPEAKER,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER
+                        | CallAudioState.ROUTE_BLUETOOTH, null, BLUETOOTH_DEVICES);
+        verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
+                any(CallAudioState.class), eq(expectedState));
+        // Verify that there isn't any pending SPEAKER_ON msg
+        assertTrue(mController.getPendingAudioRoute().getPendingMessages().isEmpty());
+        // Verify that we never set the communication device; if SCO management is enabled, then
+        // we will have set the communication device for SCO in the previous test steps
+        verify(mAudioManager, times(mIsScoManagedByAudio ? 1 : 0)).setCommunicationDevice(
+                any(AudioDeviceInfo.class));
+
+        // Emulate audio fwk signaling SCO device is the communication device
+        AudioDeviceInfo mockBtDeviceInfo = mock(AudioDeviceInfo.class);
+        when(mockBtDeviceInfo.getType()).thenReturn(AudioDeviceInfo.TYPE_BLUETOOTH_SCO);
+        when(mockBtDeviceInfo.getAddress()).thenReturn(BT_ADDRESS_1);
+        mController.setCurrentCommunicationDevice(mockBtDeviceInfo);
+        mController.setCurrentCommunicationDevice(mockBtDeviceInfo);
+        mController.sendMessageWithSessionInfo(SWITCH_BLUETOOTH, 0, BT_ADDRESS_1);
+        // Verify same steps as we did with speaker above
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+        expectedState = new CallAudioState(false, CallAudioState.ROUTE_BLUETOOTH,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER
+                        | CallAudioState.ROUTE_BLUETOOTH, BLUETOOTH_DEVICE_1, BLUETOOTH_DEVICES);
+        verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
+                any(CallAudioState.class), eq(expectedState));
+        // Verify that there isn't any pending BT_AUDIO_CONNECTED msg
+        assertTrue(mController.getPendingAudioRoute().getPendingMessages().isEmpty());
+        // Verify that we never set the communication device; if SCO management is enabled, then
+        // we will have set the communication device for SCO in the previous test steps
+        verify(mAudioManager, times(mIsScoManagedByAudio ? 1 : 0)).setCommunicationDevice(
+                any(AudioDeviceInfo.class));
     }
 
     @SmallTest

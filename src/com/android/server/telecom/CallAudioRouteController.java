@@ -18,6 +18,7 @@ package com.android.server.telecom;
 
 import static com.android.server.telecom.AudioRoute.BT_AUDIO_ROUTE_TYPES;
 import static com.android.server.telecom.AudioRoute.DEVICE_INFO_TYPE_TO_AUDIO_ROUTE_TYPE;
+import static com.android.server.telecom.AudioRoute.TYPE_BLUETOOTH_SCO;
 import static com.android.server.telecom.AudioRoute.TYPE_INVALID;
 import static com.android.server.telecom.AudioRoute.TYPE_SPEAKER;
 
@@ -322,12 +323,29 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                     setCurrentCommunicationDevice(device);
                     Log.i(this, "onCommunicationDeviceChanged: device (%s), audioType (%d)",
                             device, audioType);
+                    // Todo: Update to account for all device types once we support audio route
+                    //  centralization.
                     if (audioType == TYPE_SPEAKER) {
                         if (mCurrentRoute.getType() != TYPE_SPEAKER) {
                             sendMessageWithSessionInfo(SPEAKER_ON);
                         }
+                    } else if (mFeatureFlags.skipPendingMsgIfCommunicationDeviceSet()
+                            && audioType == TYPE_BLUETOOTH_SCO
+                            && mCurrentRoute.getType() != TYPE_BLUETOOTH_SCO) {
+                        // Handle switch to BT if communication device was updated. It's possible
+                        // that there are other communication device updates (i.e. to speaker) while
+                        // switching between HFP devices and Telecom may update the audio route to
+                        // speaker as a result.
+                        sendMessageWithSessionInfo(SWITCH_BLUETOOTH, 0, device.getAddress());
                     } else {
-                        sendMessageWithSessionInfo(SPEAKER_OFF);
+                        // Only send SPEAKER_OFF if the current route is on speaker
+                        if (mFeatureFlags.skipPendingMsgIfCommunicationDeviceSet()) {
+                            if (mCurrentRoute.getType() == TYPE_SPEAKER) {
+                                sendMessageWithSessionInfo(SPEAKER_OFF);
+                            }
+                        } else {
+                            sendMessageWithSessionInfo(SPEAKER_OFF);
+                        }
                     }
                 } finally {
                     Log.endSession();
@@ -670,6 +688,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         // Determine if the destination BT device's SCO is already connected.
         boolean isScoDeviceAlreadyConnected = mScoAudioConnectedDevice != null && isDestRouteActive
                 && Objects.equals(mScoAudioConnectedDevice, mBluetoothRoutes.get(destRoute));
+
         // Determine the origin route for this audio switch.
         AudioRoute originRoute = mIsPending ? mPendingAudioRoute.getDestRoute() : mCurrentRoute;
         // Check if the origin BT device has already been disconnected by the stack,
@@ -685,6 +704,13 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         boolean shouldAvoidBtDisconnect = shouldAvoidBluetoothDisconnect(
                 isScoDeviceAlreadyConnected, isOriginAlreadyDisconnected);
 
+        // If the destination route is already the currently reported communication device from the
+        // audio fwk, then we should only reflect the route change in the UI and not try to set/
+        // clear the communication device. For routing centralization, we will improve this to only
+        // update the UI when the requested route change matches up.
+        boolean isDestRouteCommunicationDevice = mFeatureFlags
+                .skipPendingMsgIfCommunicationDeviceSet() && isCurrentCommunicationDevice(
+                        getCurrentCommunicationDevice(), destRoute);
         if (mIsPending) {
             if (destRoute.equals(mPendingAudioRoute.getDestRoute())
                     && (mIsActive == isDestRouteActive)) {
@@ -698,7 +724,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             // Override the pending route destination.
             mPendingAudioRoute.setOrigRoute(mIsActive /* origin */,
                     mPendingAudioRoute.getDestRoute(), isDestRouteActive /* dest */,
-                    shouldAvoidBtDisconnect);
+                    shouldAvoidBtDisconnect, isDestRouteCommunicationDevice);
         } else {
             if (mCurrentRoute.equals(destRoute) && (mIsActive == isDestRouteActive)) {
                 return;
@@ -709,17 +735,20 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             // Set the original route for the pending state.
             if (getCallSupportedRoutes().contains(mCurrentRoute)) {
                 mPendingAudioRoute.setOrigRoute(mIsActive /* origin */, mCurrentRoute,
-                        isDestRouteActive /* dest */, shouldAvoidBtDisconnect);
+                        isDestRouteActive /* dest */, shouldAvoidBtDisconnect,
+                        isDestRouteCommunicationDevice);
             } else {
                 // Avoid waiting for messages for an unavailable route.
                 mPendingAudioRoute.setOrigRoute(mIsActive /* origin */, DUMMY_ROUTE,
-                        isDestRouteActive /* dest */, shouldAvoidBtDisconnect);
+                        isDestRouteActive /* dest */, shouldAvoidBtDisconnect,
+                        isDestRouteCommunicationDevice);
             }
             mIsPending = true;
         }
         mPendingAudioRoute.setDestRoute(isDestRouteActive, destRoute,
                 mBluetoothRoutes.get(destRoute), shouldAvoidBluetoothDisconnect(
-                        isScoDeviceAlreadyConnected, shouldAvoidBtDisconnect));
+                        isScoDeviceAlreadyConnected, shouldAvoidBtDisconnect),
+                isDestRouteCommunicationDevice);
         mIsActive = isDestRouteActive;
         mPendingAudioRoute.evaluatePendingState();
         if (mFeatureFlags.telecomMetricsSupport()) {
@@ -738,6 +767,21 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             return isScoDeviceAlreadyConnected || isOriginAlreadyDisconnected;
         }
         return isScoDeviceAlreadyConnected;
+    }
+
+    private boolean isCurrentCommunicationDevice(AudioDeviceInfo currentCommunicationDevice,
+            AudioRoute destRoute) {
+        if (currentCommunicationDevice == null) {
+            return false;
+        }
+        if (destRoute.getBluetoothAddress() != null) {
+            return Objects.equals(currentCommunicationDevice.getAddress(),
+                    destRoute.getBluetoothAddress());
+        } else {
+            int audioRouteType = DEVICE_INFO_TYPE_TO_AUDIO_ROUTE_TYPE.getOrDefault(
+                    currentCommunicationDevice.getType(), TYPE_INVALID);
+            return destRoute.getType() == audioRouteType;
+        }
     }
 
     private void handleWiredHeadsetConnected() {

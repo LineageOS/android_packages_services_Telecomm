@@ -58,6 +58,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.PackageManager.ResolveInfoFlags;
@@ -179,6 +180,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -204,10 +206,17 @@ public class CallsManager extends Call.ListenerBase
     public static final int REQUEST_ORIGIN_TELECOM_DISAMBIGUATION = 1;
 
     /**
+     * The request originated from the {@link LocalVoicemailController} to answer a call for local
+     * voicemail processing.
+     */
+    public static final int REQUEST_ORIGIN_TELECOM_LOCAL_VOICEMAIL = 2;
+
+    /**
      * @hide
      */
     @IntDef(prefix = { "REQUEST_ORIGIN_" },
-            value = {REQUEST_ORIGIN_UNKNOWN, REQUEST_ORIGIN_TELECOM_DISAMBIGUATION})
+            value = {REQUEST_ORIGIN_UNKNOWN, REQUEST_ORIGIN_TELECOM_DISAMBIGUATION,
+                    REQUEST_ORIGIN_TELECOM_LOCAL_VOICEMAIL})
     @Retention(RetentionPolicy.SOURCE)
     public @interface RequestOrigin {}
 
@@ -616,6 +625,8 @@ public class CallsManager extends Call.ListenerBase
     };
 
     private final CallConnectedIndicatorSettings mCallConnectedIndicatorSettings;
+    private final AudioModeTracker mAudioModeTracker;
+    private final LocalVoicemailController mLocalVoicemailController;
 
     /**
      * Initializes the required Telecom components.
@@ -667,7 +678,8 @@ public class CallsManager extends Call.ListenerBase
             com.android.internal.telephony.flags.FeatureFlags telephonyFlags,
             IncomingCallFilterGraphProvider incomingCallFilterGraphProvider,
             TelecomMetricsController metricsController,
-            Ringer.VibratorAdapter vibratorAdapter) {
+            Ringer.VibratorAdapter vibratorAdapter,
+            ScheduledExecutorService scheduledExecutorService) {
 
         mContext = context;
         mLock = lock;
@@ -838,6 +850,39 @@ public class CallsManager extends Call.ListenerBase
 
         mVoipCallMonitor.registerNotificationListener();
         mListeners.add(mVoipCallMonitor);
+
+        // Note this needs to be after mCallAudioManager so that the audio mode changes as needed
+        // before we try to bind.
+        if (mFeatureFlags.localVoicemail()) {
+            mAudioModeTracker = new AudioModeTracker(audioManager, asyncCallAudioTaskExecutor,
+                    mLock);
+            mLocalVoicemailController = new LocalVoicemailController(
+                    new LocalVoicemailController.CallsManagerAdapter() {
+                        @Override
+                        public void startLocalVoicemail(Call call) {
+                            CallsManager.this.startLocalVoicemail(call);
+                        }
+
+                        @Override
+                        public UserHandle getCurrentUserHandle() {
+                            return CallsManager.this.getCurrentUserHandle();
+                        }
+
+                        @Override
+                        public void disconnectCall(Call call) {
+                            CallsManager.this.disconnectCall(call);
+                        }
+                    },
+                    mContext,
+                    scheduledExecutorService,
+                    mLock);
+            //TODO(b/394367444) consider skipping if local voicemail not enabled on device.
+            mAudioModeTracker.addListener(mLocalVoicemailController);
+            mListeners.add(mLocalVoicemailController);
+        } else {
+            mAudioModeTracker = null;
+            mLocalVoicemailController = null;
+        }
 
         // There is no USER_SWITCHED broadcast for user 0, handle it here explicitly.
         final UserManager userManager = mContext.getSystemService(UserManager.class);
@@ -3784,6 +3829,35 @@ public class CallsManager extends Call.ListenerBase
     }
 
     /**
+     * Answers a ringing call and starts local voicemail processing.
+     *
+     * @param call
+     */
+    public void startLocalVoicemail(Call call) {
+        if (!mCalls.contains(call)) {
+            Log.w(this, "startLocalVoicemail: Trying to start local voicemail on untracked call");
+            return;
+        }
+
+        Call liveCall = getFirstCallWithLiveState(call);
+        if (liveCall != null && liveCall != call) {
+            Log.w(this, "startLocalVoicemail: Ignoring voicemail request as another call is in a"
+                    + " live state.");
+            return;
+        }
+
+        if (call.getState() == CallState.RINGING) {
+            // If the call is ringing, we need to issue a request to answer the call; this is going
+            // to be handled in
+            Log.addEvent(call, LogUtils.Events.START_LOCAL_VOICEMAIL);
+            answerCall(call, VideoProfile.STATE_AUDIO_ONLY, REQUEST_ORIGIN_TELECOM_LOCAL_VOICEMAIL);
+        } else if (call.getState() == CallState.ACTIVE) {
+            // TODO(b/394367444): Handle transition from audio processing to local voicemail so that
+            // we can go from audio call screening to voicemail.
+        }
+    }
+
+    /**
      * Instructs Telecom to bring a call into the AUDIO_PROCESSING state.
      *
      * Used by the background audio call screener (also the default dialer) to signal that
@@ -4123,9 +4197,10 @@ public class CallsManager extends Call.ListenerBase
                 new RequestCallback(new ActionSetCallState(call, CallState.ACTIVE, tag)));
     }
 
-    public void requestFocusActionAnswerCall(Call call, int videoState) {
+    public void requestFocusActionAnswerCall(Call call, int videoState,
+            @RequestOrigin int requestOrigin) {
         mConnectionSvrFocusMgr.requestFocus(call, new CallsManager.RequestCallback(
-                new ActionAnswerCall(call, videoState)));
+                new ActionAnswerCall(call, videoState, requestOrigin)));
     }
 
     @Override
@@ -4605,11 +4680,13 @@ public class CallsManager extends Call.ListenerBase
                 // Clear mPendingAudioProcessingCall so that future attempts to mark the call as
                 // active (e.g. coming off of hold) don't put the call into audio processing instead
                 mPendingAudioProcessingCall = null;
-                return;
+            } else if (call.getState() == CallState.ANSWERED_FOR_LOCAL_VOICEMAIL) {
+                setCallState(call, CallState.LOCAL_VOICEMAIL, "active");
+            } else {
+                setCallState(call, CallState.ACTIVE, "active set explicitly");
+                maybeMoveToSpeakerPhone(call);
+                ensureCallAudible();
             }
-            setCallState(call, CallState.ACTIVE, "active set explicitly");
-            maybeMoveToSpeakerPhone(call);
-            ensureCallAudible();
         }
     }
 
@@ -6338,6 +6415,20 @@ public class CallsManager extends Call.ListenerBase
             pw.decreaseIndent();
         }
 
+        if (mAudioModeTracker != null) {
+            pw.println("mAudioModeTracker:");
+            pw.increaseIndent();
+            mAudioModeTracker.dump(pw);
+            pw.decreaseIndent();
+        }
+
+        if (mLocalVoicemailController != null) {
+            pw.println("mLocalVoicemailController:");
+            pw.increaseIndent();
+            mLocalVoicemailController.dump(pw);
+            pw.decreaseIndent();
+        }
+
         if (mCallAnomalyWatchdog != null) {
             pw.println("mCallAnomalyWatchdog:");
             pw.increaseIndent();
@@ -6908,10 +6999,18 @@ public class CallsManager extends Call.ListenerBase
     private final class ActionAnswerCall implements PendingAction {
         private final Call mCall;
         private final int mVideoState;
+        private final @RequestOrigin int mRequestOrigin;
 
         ActionAnswerCall(Call call, int videoState) {
             mCall = call;
             mVideoState = videoState;
+            mRequestOrigin = REQUEST_ORIGIN_UNKNOWN;
+        }
+
+        ActionAnswerCall(Call call, int videoState, @RequestOrigin int requestOrigin) {
+            mCall = call;
+            mVideoState = videoState;
+            mRequestOrigin = requestOrigin;
         }
 
         @Override
@@ -6927,7 +7026,15 @@ public class CallsManager extends Call.ListenerBase
                 // {@link #markCallAsActive}.
                 if (mCall.getState() == CallState.RINGING) {
                     answerCallFuture = mCall.answer(mVideoState);
-                    setCallState(mCall, CallState.ANSWERED, "answered");
+                    // If the origin of this answer request was a local voicemail initiation, we
+                    // will put the call into a special ANSWERED_FOR_LOCAL_VOICEMAIL state so that
+                    // we know to expect to go to local voicemail once the call goes active.
+                    if (mRequestOrigin == REQUEST_ORIGIN_TELECOM_LOCAL_VOICEMAIL) {
+                        setCallState(mCall, CallState.ANSWERED_FOR_LOCAL_VOICEMAIL,
+                                "startLocalVoicemail");
+                    } else {
+                        setCallState(mCall, CallState.ANSWERED, "answered");
+                    }
                 } else if (mCall.getState() == CallState.SIMULATED_RINGING) {
                     // If the call's in simulated ringing, we don't have to wait for the CS --
                     // we can just declare it active.

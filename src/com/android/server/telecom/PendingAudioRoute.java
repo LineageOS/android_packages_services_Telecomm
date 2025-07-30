@@ -21,6 +21,7 @@ import static com.android.server.telecom.CallAudioRouteAdapter.SWITCH_BASELINE_R
 import static com.android.server.telecom.CallAudioRouteController.INCLUDE_BLUETOOTH_IN_BASELINE;
 
 import android.bluetooth.BluetoothDevice;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.telecom.Log;
 import android.util.ArraySet;
@@ -84,10 +85,14 @@ public class PendingAudioRoute {
      * @param isDestActive Whether the destination will be active.
      */
     void setOrigRoute(boolean isOriginActive, AudioRoute origRoute, boolean isDestActive,
-            boolean isScoAlreadyConnected) {
+            boolean isScoAlreadyConnected, boolean isDestRouteCommunicationDevice) {
         mActive = isDestActive;
-        origRoute.onOrigRouteAsPendingRoute(isOriginActive, this, mAudioManager,
-                mBluetoothRouteManager, isScoAlreadyConnected);
+        // Skip clearing the communication device or disconnecting SCO when the current
+        // communication device is already associated with the destination route.
+        if (!isDestRouteCommunicationDevice) {
+            origRoute.onOrigRouteAsPendingRoute(isOriginActive, this, mAudioManager,
+                    mBluetoothRouteManager, isScoAlreadyConnected);
+        }
         mOrigRoute = origRoute;
     }
 
@@ -96,9 +101,15 @@ public class PendingAudioRoute {
     }
 
     void setDestRoute(boolean active, AudioRoute destRoute, BluetoothDevice device,
-            boolean isScoAlreadyConnected) {
-        destRoute.onDestRouteAsPendingRoute(active, this, device,
-                mAudioManager, mBluetoothRouteManager, isScoAlreadyConnected);
+            boolean isScoAlreadyConnected, boolean isDestRouteCommunicationDevice) {
+        // Skip setting the communication device when the audio fwk reported communication device
+        // matches up with the destination route.
+        if (!isDestRouteCommunicationDevice) {
+            destRoute.onDestRouteAsPendingRoute(active, this, device,
+                    mAudioManager, mBluetoothRouteManager, isScoAlreadyConnected);
+        } else {
+            setCommunicationDeviceType(destRoute.getType());
+        }
         mActive = active;
         mDestRoute = destRoute;
     }

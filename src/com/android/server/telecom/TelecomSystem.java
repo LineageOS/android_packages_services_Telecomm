@@ -64,6 +64,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Top-level Application class for Telecom.
@@ -408,8 +409,10 @@ public class TelecomSystem {
             TelecomMetricsController metricsController = featureFlags.telecomMetricsSupport()
                     ? TelecomMetricsController.make(mContext) : null;
 
+            ScheduledExecutorService scheduledExecutorService =
+                    Executors.newSingleThreadScheduledExecutor();
             CallAnomalyWatchdog callAnomalyWatchdog = new CallAnomalyWatchdog(
-                    Executors.newSingleThreadScheduledExecutor(),
+                    scheduledExecutorService,
                     mLock, mFeatureFlags, timeoutsAdapter, clockProxy,
                     emergencyCallDiagnosticLogger, metricsController);
 
@@ -468,9 +471,9 @@ public class TelecomSystem {
                     telephonyFlags,
                     IncomingCallFilterGraph::new,
                     metricsController,
-                    vibratorAdapter);
+                    vibratorAdapter,
+                    scheduledExecutorService);
             bluetoothDeviceManager.setCallsManager(mCallsManager);
-
             mIncomingCallNotifier = incomingCallNotifier;
             incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {
                 @Override

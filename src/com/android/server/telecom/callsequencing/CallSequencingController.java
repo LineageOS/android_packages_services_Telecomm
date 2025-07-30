@@ -182,7 +182,8 @@ public class CallSequencingController {
         holdActiveCallForNewCallWithSequencing(incomingCall, requestOrigin)
                 .thenComposeAsync((result) -> {
                 if (result) {
-                    mCallsManager.requestFocusActionAnswerCall(incomingCall, videoState);
+                    mCallsManager.requestFocusActionAnswerCall(incomingCall, videoState,
+                            requestOrigin);
                 } else {
                     Log.i(this, "answerCall: Hold active call transaction failed. Aborting "
                             + "request to answer the incoming call.");

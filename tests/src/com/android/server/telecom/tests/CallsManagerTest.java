@@ -331,6 +331,7 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private TelecomMetricsController mMockTelecomMetricsController;
     @Mock private Ringer.VibratorAdapter mMockVibratorAdapter;
     private CallsManager mCallsManager;
+    private TestScheduledExecutorService mTestScheduledExecutorService;
 
     @Override
     @Before
@@ -412,7 +413,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 (call, listener, context, timeoutsAdapter,
                         mFeatureFlags, lock) -> mIncomingCallFilterGraph,
                 mMockTelecomMetricsController,
-                mMockVibratorAdapter);
+                mMockVibratorAdapter,
+                mTestScheduledExecutorService);
         mCallsManager.setCallAudioWatchDog(null);
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SELF_MANAGED_HANDLE), any())).thenReturn(SELF_MANAGED_ACCOUNT);

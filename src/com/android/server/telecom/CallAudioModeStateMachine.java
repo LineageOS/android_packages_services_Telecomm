@@ -16,7 +16,6 @@
 
 package com.android.server.telecom;
 
-import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.os.Looper;
 import android.os.Message;
@@ -158,11 +157,14 @@ public class CallAudioModeStateMachine extends StateMachine {
     public static final int NO_MORE_RINGING_CALLS = 1002;
     public static final int NO_MORE_HOLDING_CALLS = 1003;
     public static final int NO_MORE_AUDIO_PROCESSING_CALLS = 1004;
+    public static final int NO_MORE_LOCAL_VOICEMAIL_CALLS = 1005;
 
     public static final int NEW_ACTIVE_OR_DIALING_CALL = 2001;
     public static final int NEW_RINGING_CALL = 2002;
     public static final int NEW_HOLDING_CALL = 2003;
     public static final int NEW_AUDIO_PROCESSING_CALL = 2004;
+    public static final int NEW_LOCAL_VOICEMAIL_CALL = 2005;
+
 
     public static final int TONE_STARTED_PLAYING = 3001;
     public static final int TONE_STOPPED_PLAYING = 3002;
@@ -202,7 +204,8 @@ public class CallAudioModeStateMachine extends StateMachine {
         put(AUDIO_OPERATIONS_COMPLETE, "AUDIO_OPERATIONS_COMPLETE");
         put(START_CALL_STREAMING, "START_CALL_STREAMING");
         put(STOP_CALL_STREAMING, "STOP_CALL_STREAMING");
-
+        put(NEW_LOCAL_VOICEMAIL_CALL, "START_LOCAL_VOICEMAIL");
+        put(NO_MORE_LOCAL_VOICEMAIL_CALLS, "STOP_LOCAL_VOICEMAIL");
         put(RUN_RUNNABLE, "RUN_RUNNABLE");
     }};
 
@@ -308,6 +311,9 @@ public class CallAudioModeStateMachine extends StateMachine {
                 case START_CALL_STREAMING:
                     transitionTo(mStreamingFocusState);
                     return HANDLED;
+                case NEW_LOCAL_VOICEMAIL_CALL:
+                    transitionTo(mLocalVoicemailFocusState);
+                    return HANDLED;
                 case TONE_STARTED_PLAYING:
                     // This shouldn't happen either, but perform the action anyway.
                     Log.w(LOG_TAG, "Tone started playing unexpectedly. Args are: \n"
@@ -385,6 +391,9 @@ public class CallAudioModeStateMachine extends StateMachine {
                     return HANDLED;
                 case START_CALL_STREAMING:
                     transitionTo(mStreamingFocusState);
+                    return HANDLED;
+                case NEW_LOCAL_VOICEMAIL_CALL:
+                    transitionTo(mLocalVoicemailFocusState);
                     return HANDLED;
                 case AUDIO_OPERATIONS_COMPLETE:
                     Log.i(LOG_TAG, "AudioManager#abandonAudioFocusRequest: now "
@@ -666,6 +675,88 @@ public class CallAudioModeStateMachine extends StateMachine {
                 case START_CALL_STREAMING:
                     transitionTo(mStreamingFocusState);
                     return HANDLED;
+                case NEW_LOCAL_VOICEMAIL_CALL:
+                    transitionTo(mLocalVoicemailFocusState);
+                    return HANDLED;
+                default:
+                    // The forced focus switch commands are handled by BaseState.
+                    return NOT_HANDLED;
+            }
+        }
+    }
+
+    /**
+     * This state is used when there is a call which is undergoing local voicemail processing via
+     * a {@link LocalVoicemailService}.
+     */
+    private class LocalVoicemailFocusState extends BaseState {
+        @Override
+        public void enter() {
+            Log.i(LOG_TAG, "Audio focus entering local voicemail state");
+            mLocalLog.log("Enter local voicemail");
+            mLocalLog.log("Mode MODE_CALL_REDIRECT");
+            Log.i(this, "enter: AudioManager#setMode(MODE_CALL_REDIRECT");
+            mAudioManager.setMode(AudioManager.MODE_CALL_REDIRECT);
+            mCallAudioManager.setCallAudioRouteFocusState(CallAudioRouteStateMachine.ACTIVE_FOCUS);
+        }
+
+        private void preExit() {
+            // N/A at the moment
+        }
+
+        @Override
+        public boolean processMessage(Message msg) {
+            if (super.processMessage(msg) == HANDLED) {
+                return HANDLED;
+            }
+            MessageArgs args = (MessageArgs) msg.obj;
+            switch (msg.what) {
+                case NO_MORE_ACTIVE_OR_DIALING_CALLS:
+                    // Switch to either ringing, holding, or inactive
+                    transitionTo(calculateProperStateFromArgs(args));
+                    return HANDLED;
+                case NO_MORE_RINGING_CALLS:
+                    // Do nothing.
+                    return HANDLED;
+                case NO_MORE_HOLDING_CALLS:
+                    // Do nothing.
+                    return HANDLED;
+                case NO_MORE_AUDIO_PROCESSING_CALLS:
+                    // Do nothing.
+                    return HANDLED;
+                case NEW_ACTIVE_OR_DIALING_CALL:
+                    // Only possible for emergency call
+                    BaseState destState = calculateProperStateFromArgs(args);
+                    if (destState != this) {
+                        preExit();
+                        transitionTo(destState);
+                    }
+                    return HANDLED;
+                case NEW_RINGING_CALL:
+                    // Only possible for emergency call
+                    preExit();
+                    transitionTo(mRingingFocusState);
+                    return HANDLED;
+                case NEW_HOLDING_CALL:
+                    // Do nothing.
+                    return HANDLED;
+                case NEW_AUDIO_PROCESSING_CALL:
+                    // Do nothing.
+                    return HANDLED;
+                case START_CALL_STREAMING:
+                    // You can't go from local voicemail to streaming.
+                    return HANDLED;
+                case NEW_LOCAL_VOICEMAIL_CALL:
+                    return HANDLED;
+                case TONE_STARTED_PLAYING:
+                    // Do nothing.
+                    return HANDLED;
+                case STOP_CALL_STREAMING:
+                    // Not possible.
+                    return HANDLED;
+                case NO_MORE_LOCAL_VOICEMAIL_CALLS:
+                    transitionTo(calculateProperStateFromArgs(args));
+                    return HANDLED;
                 default:
                     // The forced focus switch commands are handled by BaseState.
                     return NOT_HANDLED;
@@ -733,6 +824,9 @@ public class CallAudioModeStateMachine extends StateMachine {
                     return HANDLED;
                 case START_CALL_STREAMING:
                     // Can happen as a duplicate message
+                    return HANDLED;
+                case NEW_LOCAL_VOICEMAIL_CALL:
+                    // Do nothing; this can't happen.
                     return HANDLED;
                 case TONE_STARTED_PLAYING:
                     // Do nothing.
@@ -825,6 +919,7 @@ public class CallAudioModeStateMachine extends StateMachine {
     private final BaseState mVoipCallFocusState = new VoipCallFocusState();
     private final BaseState mAudioProcessingFocusState = new AudioProcessingFocusState();
     private final BaseState mStreamingFocusState = new StreamingFocusState();
+    private final BaseState mLocalVoicemailFocusState = new LocalVoicemailFocusState();
     private final BaseState mOtherFocusState = new OtherFocusState();
 
     private final AudioManager mAudioManager;
@@ -872,6 +967,7 @@ public class CallAudioModeStateMachine extends StateMachine {
         addState(mVoipCallFocusState);
         addState(mAudioProcessingFocusState);
         addState(mStreamingFocusState);
+        addState(mLocalVoicemailFocusState);
         addState(mOtherFocusState);
         setInitialState(mUnfocusedState);
         start();

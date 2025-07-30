@@ -1513,6 +1513,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                 case CallState.SIMULATED_RINGING:
                     event = LogUtils.Events.SET_SIMULATED_RINGING;
                     break;
+                case CallState.LOCAL_VOICEMAIL:
+                    event = LogUtils.Events.SET_LOCAL_VOICEMAIL;
+                    break;
             }
             if (event != null) {
                 // The string data should be just the tag.

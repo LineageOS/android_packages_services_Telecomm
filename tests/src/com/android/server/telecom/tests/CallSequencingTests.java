@@ -195,7 +195,8 @@ public class CallSequencingTests extends TelecomTestCase {
         setActiveCallFocus(null);
         mController.answerCall(mNewCall, 0, CallsManager.REQUEST_ORIGIN_UNKNOWN);
         verify(mCallsManager, timeout(SEQUENCING_TIMEOUT_MS))
-                .requestFocusActionAnswerCall(eq(mNewCall), eq(0));
+                .requestFocusActionAnswerCall(eq(mNewCall), eq(0),
+                        eq(CallsManager.REQUEST_ORIGIN_UNKNOWN));
     }
 
     @SmallTest
@@ -204,7 +205,8 @@ public class CallSequencingTests extends TelecomTestCase {
         setupHoldActiveCallForNewCallFailMocks();
         mController.answerCall(mNewCall, 0, CallsManager.REQUEST_ORIGIN_UNKNOWN);
         verify(mCallsManager, timeout(SEQUENCING_TIMEOUT_MS).times(0))
-                .requestFocusActionAnswerCall(eq(mNewCall), eq(0));
+                .requestFocusActionAnswerCall(eq(mNewCall), eq(0),
+                        eq(CallsManager.REQUEST_ORIGIN_UNKNOWN));
     }
 
     @SmallTest
@@ -219,7 +221,8 @@ public class CallSequencingTests extends TelecomTestCase {
         when(mNewCall.isSelfManaged()).thenReturn(true);
         mController.answerCall(mNewCall, 0, CallsManager.REQUEST_ORIGIN_TELECOM_DISAMBIGUATION);
         verify(mCallsManager, timeout(SEQUENCING_TIMEOUT_MS).times(1))
-                .requestFocusActionAnswerCall(eq(mNewCall), eq(0));
+                .requestFocusActionAnswerCall(eq(mNewCall), eq(0),
+                        eq(CallsManager.REQUEST_ORIGIN_TELECOM_DISAMBIGUATION));
     }
 
     @SmallTest

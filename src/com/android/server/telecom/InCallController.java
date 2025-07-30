@@ -1755,6 +1755,11 @@ public class InCallController extends CallsManagerListenerBase implements
         Log.i(this, "onCallStateChanged: Call state changed for TC@%s: %s -> %s", call.getId(),
                 CallState.toString(oldState), CallState.toString(newState));
         maybeTrackMicrophoneUse(isMuted());
+
+        // TODO(b/394367444): If a call moves to local voicemail state, we can remove it from the
+        // InCallServices listening to it.  Handle there here; for now in development it'll show up
+        // as an active call in the dialer, which is not the final desired state.
+        // This will take the same general shape as the logic above in onExternalCallChanged.
         updateCall(call);
     }
 

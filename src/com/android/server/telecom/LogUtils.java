@@ -113,6 +113,7 @@ public class LogUtils {
         public static final String SET_DISCONNECTING = "SET_DISCONNECTING";
         public static final String SET_SELECT_PHONE_ACCOUNT = "SET_SELECT_PHONE_ACCOUNT";
         public static final String SET_AUDIO_PROCESSING = "SET_AUDIO_PROCESSING";
+        public static final String SET_LOCAL_VOICEMAIL = "SET_LOCAL_VOICEMAIL";
         public static final String SET_SIMULATED_RINGING = "SET_SIMULATED_RINGING";
         public static final String REQUEST_RTT = "REQUEST_RTT";
         public static final String RESPOND_TO_RTT_REQUEST = "RESPOND_TO_RTT_REQUEST";
@@ -237,6 +238,7 @@ public class LogUtils {
         public static final String STOP_STREAMING = "STOP_STREAMING";
         public static final String AUDIO_ATTR = "AUDIO_ATTR";
         public static final String ANSWER_DROPS_FG = "ANSWER_DROPS_FG";
+        public static final String START_LOCAL_VOICEMAIL = "START_LOCAL_VOICEMAIL";
 
         public static class Timings {
             public static final String ACCEPT_TIMING = "accept";

@@ -495,6 +495,16 @@ public class ParcelableCallUtils {
                         ? android.telecom.Call.STATE_ACTIVE
                         : android.telecom.Call.STATE_RINGING;
                 break;
+            case CallState.ANSWERED_FOR_LOCAL_VOICEMAIL:
+                // TODO(b/394367444): this needs to be handled properly in the future since we won't
+                // be communicating this to an ICS.
+                state = android.telecom.Call.STATE_ACTIVE;
+                break;
+            case CallState.LOCAL_VOICEMAIL:
+                // TODO(b/394367444): this needs to be handled properly in the future since we won't
+                // be communicating this to an ICS.
+                state = android.telecom.Call.STATE_ACTIVE;
+                break;
         }
 
         return state;

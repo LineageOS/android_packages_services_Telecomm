@@ -147,6 +147,15 @@ flag {
   namespace: "telecom"
   description: "Add PROPERTY_REMOTELY_HOSTED to call to mirror what is in Connection."
   bug: "430293079"
+}
+
+# OWNER=tgunn TARGET=26Q2
+flag {
+  name: "local_voicemail"
+  is_exported: true
+  namespace: "telecom"
+  description: "Support for local voicemail."
+  bug: "394367444"
   metadata {
       purpose: PURPOSE_FEATURE
   }
@@ -161,3 +170,4 @@ flag {
   bug: "427477225"
 
 }
+
