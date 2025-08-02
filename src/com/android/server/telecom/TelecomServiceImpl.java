@@ -49,6 +49,7 @@ import android.content.pm.ParceledListSlice;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+import android.os.BadParcelableException;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -97,6 +98,7 @@ import com.android.server.telecom.callsequencing.TransactionManager;
 import com.android.server.telecom.callsequencing.CallTransaction;
 import com.android.server.telecom.callsequencing.CallTransactionResult;
 import com.android.server.telecom.PackageRemovedReceiver;
+import com.android.server.telecom.util.TelecomBundleUtils;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -1973,7 +1975,11 @@ public class TelecomServiceImpl {
                                     phoneAccountHandle);
                             intent.putExtra(CallIntentProcessor.KEY_IS_INCOMING_CALL, true);
                             if (extras != null) {
-                                extras.setDefusable(true);
+                                if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                                    extras = TelecomBundleUtils.defuse(extras);
+                                } else {
+                                    extras.setDefusable(true);
+                                }
                                 intent.putExtra(TelecomManager.EXTRA_INCOMING_CALL_EXTRAS, extras);
                             }
                             mCallIntentProcessorAdapter.processIncomingCallIntent(
@@ -2161,7 +2167,11 @@ public class TelecomServiceImpl {
                         try {
                             Intent intent = new Intent(TelecomManager.ACTION_NEW_UNKNOWN_CALL);
                             if (extras != null) {
-                                extras.setDefusable(true);
+                                if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                                    extras = TelecomBundleUtils.defuse(extras);
+                                } else {
+                                    extras.setDefusable(true);
+                                }
                                 intent.putExtras(extras);
                             }
                             intent.putExtra(CallIntentProcessor.KEY_IS_UNKNOWN_CALL, true);
@@ -2311,7 +2321,11 @@ public class TelecomServiceImpl {
                         final Intent intent = new Intent(hasCallPrivilegedPermission ?
                                 Intent.ACTION_CALL_PRIVILEGED : Intent.ACTION_CALL, handle);
                         if (extras != null) {
-                            extras.setDefusable(true);
+                            if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                                extras = TelecomBundleUtils.defuse(extras);
+                            } else {
+                                extras.setDefusable(true);
+                            }
                             intent.putExtras(extras);
                         }
                         mUserCallIntentProcessorFactory.create(mContext, userHandle)

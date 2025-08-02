@@ -711,7 +711,13 @@ public class MissedCallNotifierImpl extends CallsManagerListenerBase implements 
 
         Context contextToUse;
         if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
-            contextToUse = mContext.createContextAsUser(userHandle, 0 /* flags */);
+            try {
+                contextToUse = mContext.createContextAsUser(userHandle, 0 /* flags */);
+            } catch (IllegalStateException e) {
+                Log.e(this, e, "reloadFromDatabase: Failed to create context for user "
+                    + userHandle);
+                return;
+            }
         } else {
             contextToUse = mContext;
         }

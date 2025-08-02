@@ -28,6 +28,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationRequest;
 import android.net.Uri;
+import android.os.BadParcelableException;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.CancellationSignal;
@@ -66,6 +67,7 @@ import com.android.internal.telecom.IVideoProvider;
 import com.android.internal.telecom.RemoteServiceCallback;
 import com.android.internal.util.Preconditions;
 import com.android.server.telecom.flags.FeatureFlags;
+import com.android.server.telecom.util.TelecomBundleUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1042,7 +1044,11 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
-                    Bundle.setDefusable(extras, true);
+                    if (mFlags.resolveHiddenDependenciesTwo()) {
+                        extras = TelecomBundleUtils.defuse(extras);
+                    } else {
+                        Bundle.setDefusable(extras, true);
+                    }
                     Call call = mCallIdMapper.getCall(callId);
                     if (call != null) {
                         call.putConnectionServiceExtras(extras);
@@ -1326,7 +1332,11 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
-                    Bundle.setDefusable(extras, true);
+                    if (mFlags.resolveHiddenDependenciesTwo()) {
+                        extras = TelecomBundleUtils.defuse(extras);
+                    } else {
+                        Bundle.setDefusable(extras, true);
+                    }
                     Call call = mCallIdMapper.getCall(callId);
                     if (call != null) {
                         call.onConnectionEvent(event, extras);

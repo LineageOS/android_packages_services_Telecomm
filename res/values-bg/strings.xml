@@ -19,10 +19,8 @@
     <string name="telecommAppLabel" product="default" msgid="1825598513414129827">"Телефонни обаждания"</string>
     <string name="userCallActivityLabel" product="default" msgid="3605391260292846248">"Телефон"</string>
     <string name="unknown" msgid="6993977514360123431">"Неизвестен номер"</string>
-    <!-- no translation found for private_num (7971471360030811411) -->
-    <skip />
-    <!-- no translation found for payphone (7652075262156192657) -->
-    <skip />
+    <string name="private_num" msgid="7971471360030811411">"Частен номер"</string>
+    <string name="payphone" msgid="7652075262156192657">"Обществен телефон"</string>
     <string name="notification_missedCallTitle" msgid="5060387047205532974">"Пропуснато обаждане"</string>
     <string name="notification_missedWorkCallTitle" msgid="6965463282259034953">"Пропуснато служебно обаждане"</string>
     <string name="notification_missedCallsTitle" msgid="3910479625507893809">"Пропуснати обаждания"</string>

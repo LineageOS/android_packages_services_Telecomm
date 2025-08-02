@@ -27,6 +27,7 @@ import static com.android.server.telecom.callsequencing.voip.VideoStateTranslati
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.telecom.CallAttributes;
 import android.telecom.TelecomManager;
@@ -39,6 +40,7 @@ import com.android.server.telecom.LoggedHandlerExecutor;
 import com.android.server.telecom.callsequencing.CallTransaction;
 import com.android.server.telecom.callsequencing.CallTransactionResult;
 import com.android.server.telecom.flags.FeatureFlags;
+import com.android.server.telecom.util.TelecomBundleUtils;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -119,7 +121,11 @@ public class OutgoingCallTransaction extends CallTransaction {
     @VisibleForTesting
     public static Bundle generateExtras(String callId, Bundle extras,
             CallAttributes callAttributes, FeatureFlags featureFlags) {
-        extras.setDefusable(true);
+        if (featureFlags.resolveHiddenDependenciesTwo()) {
+            extras = TelecomBundleUtils.defuse(extras);
+        } else {
+            extras.setDefusable(true);
+        }
         extras.putString(TelecomManager.TRANSACTION_CALL_ID_KEY, callId);
         extras.putInt(CALL_CAPABILITIES_KEY, callAttributes.getCallCapabilities());
         if (featureFlags.transactionalVideoState()) {
