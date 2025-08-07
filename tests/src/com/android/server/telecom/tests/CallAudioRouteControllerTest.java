@@ -1792,23 +1792,41 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void preserveAudioRoutingOnRingingFocusSwitch() {
-        verifyRouteUnchangedAfterFocusSwitch(RINGING_FOCUS);
+        verifyRouteUnchangedAfterFocusSwitch(RINGING_FOCUS, false /* setPreferredDevice */);
     }
 
     @SmallTest
     @Test
     public void preserveAudioRoutingOnActiveFocusSwitch() {
-        verifyRouteUnchangedAfterFocusSwitch(ACTIVE_FOCUS);
+        verifyRouteUnchangedAfterFocusSwitch(ACTIVE_FOCUS, false /* setPreferredDevice */);
     }
 
-    private void verifyRouteUnchangedAfterFocusSwitch(int focusType) {
+    @SmallTest
+    @Test
+    public void preservePreferredDeviceRoutingOnRingingFocusSwitch() {
+        verifyRouteUnchangedAfterFocusSwitch(RINGING_FOCUS, true /* setPreferredDevice */);
+    }
+
+    @SmallTest
+    @Test
+    public void preservePreferredDeviceRoutingOnActiveFocusSwitch() {
+        verifyRouteUnchangedAfterFocusSwitch(ACTIVE_FOCUS, true /* setPreferredDevice */);
+    }
+
+    private void verifyRouteUnchangedAfterFocusSwitch(int focusType, boolean setPreferredDevice) {
         when(mFeatureFlags.preserveCallAudioRouting()).thenReturn(true);
         mController.initialize();
         // Switch to speaker before switching to ringing focus
         mController.sendMessageWithSessionInfo(USER_SWITCH_SPEAKER);
+        int routeToVerify = CallAudioState.ROUTE_SPEAKER;
+        if (setPreferredDevice) {
+            // Set the preferred device to earpiece.
+            mController.setPreferredDeviceRoute(mEarpieceRoute);
+            routeToVerify = CallAudioState.ROUTE_EARPIECE;
+        }
         // Verify that route isn't changed
         mController.sendMessageWithSessionInfo(SWITCH_FOCUS, focusType, 0);
-        CallAudioState expectedState = new CallAudioState(false, CallAudioState.ROUTE_SPEAKER,
+        CallAudioState expectedState = new CallAudioState(false, routeToVerify,
                 CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER, null,
                 new HashSet<>());
         verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(

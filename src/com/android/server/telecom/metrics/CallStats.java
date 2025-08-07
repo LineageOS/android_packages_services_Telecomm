@@ -87,10 +87,8 @@ public class CallStats extends TelecomPulledAtom {
                             v.getSimultaneousType(), v.getVideoCall())));
             mCallStatsMap.clear();
             onAggregate();
-            return StatsManager.PULL_SUCCESS;
-        } else {
-            return StatsManager.PULL_SKIP;
         }
+        return StatsManager.PULL_SUCCESS;
     }
 
     @Override

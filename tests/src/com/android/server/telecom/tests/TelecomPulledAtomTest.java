@@ -223,7 +223,7 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
 
         int result = apiStats.pull(data);
 
-        assertEquals(StatsManager.PULL_SKIP, result);
+        assertEquals(StatsManager.PULL_SUCCESS, result);
         verify(apiStats, never()).onPull(any());
         assertEquals(data.size(), 0);
     }
@@ -251,7 +251,7 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
 
         int result = audioRouteStats.pull(data);
 
-        assertEquals(StatsManager.PULL_SKIP, result);
+        assertEquals(StatsManager.PULL_SUCCESS, result);
         verify(audioRouteStats, never()).onPull(any());
         assertEquals(data.size(), 0);
     }
@@ -279,7 +279,7 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
 
         int result = callStats.pull(data);
 
-        assertEquals(StatsManager.PULL_SKIP, result);
+        assertEquals(StatsManager.PULL_SUCCESS, result);
         verify(callStats, never()).onPull(any());
         assertEquals(data.size(), 0);
     }
@@ -307,7 +307,7 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
 
         int result = errorStats.pull(data);
 
-        assertEquals(StatsManager.PULL_SKIP, result);
+        assertEquals(StatsManager.PULL_SUCCESS, result);
         verify(errorStats, never()).onPull(any());
         assertEquals(data.size(), 0);
     }
@@ -337,7 +337,7 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
 
         int result = callSequencingStats.pull(data);
 
-        assertEquals(StatsManager.PULL_SKIP, result);
+        assertEquals(StatsManager.PULL_SUCCESS, result);
         verify(callSequencingStats, never()).onPull(any());
         assertEquals(data.size(), 0);
     }
@@ -987,7 +987,7 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
 
         int result = eventStats.pull(data);
 
-        assertEquals(StatsManager.PULL_SKIP, result);
+        assertEquals(StatsManager.PULL_SUCCESS, result);
         verify(eventStats, never()).onPull(any());
         assertEquals(data.size(), 0);
     }

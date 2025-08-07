@@ -142,10 +142,8 @@ public class ErrorStats extends TelecomPulledAtom {
                             v.getSubmodule(), v.getError(), v.getCount())));
             mErrorStatsMap.clear();
             onAggregate();
-            return StatsManager.PULL_SUCCESS;
-        } else {
-            return StatsManager.PULL_SKIP;
         }
+        return StatsManager.PULL_SUCCESS;
     }
 
     @Override

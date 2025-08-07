@@ -1123,7 +1123,20 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                     // Route to the current route if routing was already active. This should
                     // preserve the audio routing state when a call is held/unheld. Otherwise, we
                     // should calculate the base routing.
-                    routeTo(true, getCurrentOrPendingRoute());
+                    boolean useRingingBluetoothDevice = mBluetoothAddressForRinging != null
+                            && mBluetoothAddressForRinging.equals(
+                            mCurrentRoute.getBluetoothAddress());
+                    AudioRoute route = useRingingBluetoothDevice
+                            ? mCurrentRoute
+                            : getBaseRoute(true, null);
+                    // Use the current route for handling ringing focus when the flag is enabled
+                    // unless the preferred device route is set as indicated by the audio fwk. We
+                    // don't want to override this selection if the user had set a default audio
+                    // route for calls.
+                    if (!isPreferredDeviceSet() ) {
+                        route = getCurrentOrPendingRoute();
+                    }
+                    routeTo(true, route);
                 } else {
                     // Route to active baseline route (we may need to change audio route in the case
                     // when a video call is put on hold). Ignore route changes if we're handling
@@ -1143,18 +1156,23 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                                 ? mCurrentRoute
                                 : getBaseRoute(true, null);
                         routeTo(true, audioRoute);
-                        clearRingingBluetoothAddress();
                     }
-                    // Once we have processed active focus once during the call, we can ignore
-                    // using the preferred device strategy.
-                    mUsePreferredDeviceStrategy = false;
                 }
+                // Once we have processed active focus once during the call, we can ignore
+                // using the preferred device strategy.
+                mUsePreferredDeviceStrategy = false;
+                clearRingingBluetoothAddress();
             }
             case RINGING_FOCUS -> {
                 if (!mIsActive) {
-                    // Use the current route for handling ringing focus when the flag is enabled.
-                    AudioRoute route = mFeatureFlags.preserveCallAudioRouting()
-                            ? getCurrentOrPendingRoute() : getBaseRoute(true, null);
+                    AudioRoute route = getBaseRoute(true, null);
+                    // Use the current route for handling ringing focus when the flag is enabled
+                    // unless the preferred device route is set as indicated by the audio fwk. We
+                    // don't want to override this selection if the user had set a default audio
+                    // route for calls.
+                    if (mFeatureFlags.preserveCallAudioRouting() && !isPreferredDeviceSet()) {
+                        route = getCurrentOrPendingRoute();
+                    }
                     BluetoothDevice device = mBluetoothRoutes.get(route);
                     // Check if in-band ringtone is enabled for the device; if it isn't, move to
                     // inactive route.
@@ -1672,7 +1690,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         }
         // Get the preferred device value cached from the listener
         AudioRoute destRoute = getPreferredDeviceRoute();
-        boolean isPreferredDeviceSet = destRoute != null && !destRoute.equals(DUMMY_ROUTE);
+        boolean isPreferredDeviceSet = isPreferredDeviceSet();
         if (!isPreferredDeviceSet) {
             Log.i(this, "getBaseRoute: preferred audio route is not reported by "
                     + "AudioManager; telecom to determine");
@@ -1965,6 +1983,21 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     public AudioRoute getPreferredDeviceRoute() {
         synchronized (mLock) {
             return mPreferredDeviceRoute;
+        }
+    }
+
+    /**
+     * Determines if there's a non-empty {@link AudioDeviceInfo} set by the audio fwk to signal that
+     * the user has set a preferred audio route for placing/taking calls.
+     *
+     * Note: This is set via {@link AudioManager.OnPreferredDevicesForStrategyChangedListener} but
+     * this API needs to be improved as we have seen instances where this is updated without any
+     * user intervention as well.
+     */
+    private boolean isPreferredDeviceSet() {
+        synchronized (mLock) {
+            AudioRoute preferredDevice = getPreferredDeviceRoute();
+            return preferredDevice != null && !preferredDevice.equals(DUMMY_ROUTE);
         }
     }
 

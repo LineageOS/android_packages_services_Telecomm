@@ -101,10 +101,8 @@ public class AudioRouteStats extends TelecomPulledAtom {
                             v.getSuccess(), v.getRevert(), v.getCount(), v.getAverageLatencyMs())));
             mAudioRouteStatsMap.clear();
             onAggregate();
-            return StatsManager.PULL_SUCCESS;
-        } else {
-            return StatsManager.PULL_SKIP;
         }
+        return StatsManager.PULL_SUCCESS;
     }
 
     @Override

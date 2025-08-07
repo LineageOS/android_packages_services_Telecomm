@@ -138,7 +138,7 @@ public class TelecomMetricsControllerTest extends TelecomTestCase {
         mTelecomMetricsController.getStats().clear();
 
         int result = mTelecomMetricsController.onPullAtom(TELECOM_API_STATS, null);
-        assertThat(result).isEqualTo(StatsManager.PULL_SKIP);
+        assertThat(result).isEqualTo(StatsManager.PULL_SUCCESS);
     }
 
     @Test

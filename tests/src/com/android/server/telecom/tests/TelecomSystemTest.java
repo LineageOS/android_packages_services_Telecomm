@@ -75,6 +75,7 @@ import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.CallAudioCommunicationDeviceTracker;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioModeStateMachine;
+import com.android.server.telecom.CallAudioRouteAdapter;
 import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
@@ -428,7 +429,23 @@ public class TelecomSystemTest extends TelecomTestCase{
             if (vcm != null) {
                 vcm.unregisterNotificationListener();
             }
+            if (mTelecomSystem.getCallsManager().getCallAudioManager() != null
+                    && mTelecomSystem.getCallsManager().getCallAudioManager()
+                    .getCallAudioRouteAdapter() != null) {
+                try {
+                    CallAudioRouteAdapter audioRouteAdapter =
+                            mTelecomSystem.getCallsManager().getCallAudioManager()
+                                    .getCallAudioRouteAdapter();
+                    Handler handler = audioRouteAdapter.getAdapterHandler();
+                    waitForHandlerAction(handler, TEST_TIMEOUT);
+                    handler.getLooper().quit();
+                    handler.getLooper().getThread().join();
+                } catch (InterruptedException e) {
+                    // ignore
+                }
+            }
         }
+
         waitForHandlerAction(new Handler(Looper.getMainLooper()), TEST_TIMEOUT);
         waitForHandlerAction(mHandlerThread.getThreadHandler(), TEST_TIMEOUT);
         // Bring down the threads that are active.

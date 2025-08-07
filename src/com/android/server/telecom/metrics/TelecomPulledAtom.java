@@ -63,7 +63,7 @@ public abstract class TelecomPulledAtom extends Handler {
         if (!mIsTestMode) {
             long cur = System.currentTimeMillis();
             if (cur - mLastPulledTimestamps < MIN_PULL_INTERVAL_MILLIS) {
-                return StatsManager.PULL_SKIP;
+                return StatsManager.PULL_SUCCESS;
             }
             mLastPulledTimestamps = cur;
         }

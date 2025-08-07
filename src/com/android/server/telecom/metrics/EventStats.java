@@ -99,10 +99,8 @@ public class EventStats extends TelecomPulledAtom {
                             v.getEvent(), v.getUid(), v.getEventCause(), v.getCount())));
             mEventStatsMap.clear();
             onAggregate();
-            return StatsManager.PULL_SUCCESS;
-        } else {
-            return StatsManager.PULL_SKIP;
         }
+        return StatsManager.PULL_SUCCESS;
     }
 
     @Override
