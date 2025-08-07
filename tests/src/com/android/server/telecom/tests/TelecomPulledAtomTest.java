@@ -1033,6 +1033,11 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
                 EventStats.ID_INIT,
                 EventStats.ID_DEFAULT_DIALER_CHANGED,
                 EventStats.ID_ADD_CALL,
+                EventStats.ID_LOG_VOIP_CALL_INCOMING_VOICE,
+                EventStats.ID_LOG_VOIP_CALL_INCOMING_VIDEO,
+                EventStats.ID_LOG_VOIP_CALL_OUTGOING_VOICE,
+                EventStats.ID_LOG_VOIP_CALL_OUTGOING_VIDEO,
+                EventStats.ID_CALL_BACK,
         };
         int[] causes = {
                 EventStats.CAUSE_UNKNOWN,
@@ -1045,6 +1050,9 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
                 EventStats.CAUSE_CALL_TRANSACTION_CANNOT_HOLD_CURRENT_ACTIVE_CALL,
                 EventStats.CAUSE_CALL_TRANSACTION_CALL_NOT_PERMITTED_AT_PRESENT_TIME,
                 EventStats.CAUSE_CALL_TRANSACTION_OPERATION_TIMED_OUT,
+                EventStats.CAUSE_CALL_LOG_OPT_OUT,
+                EventStats.CAUSE_CALL_LOG_OPT_IN,
+                EventStats.CAUSE_CALL_LOG_OPT_IN_EXCLUDED,
         };
         Random rand = new Random();
         Map<EventStats.CriticalEvent, Integer> eventMap = new HashMap<>();

@@ -714,8 +714,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
         mAnomalyReporterAdapter = anomalyReporterAdapter;
     }
 
-    @VisibleForTesting
-    public boolean shouldLogVoipCall(Call call) {
+    public static boolean shouldLogVoipCall(Call call) {
         boolean shouldLogVoipCall = call.isLoggedSelfManaged() || call.isLoggedTransactional();
         return (call.isManaged() || (shouldLogVoipCall))
                 && (call.getHandoverState() == HandoverState.HANDOVER_NONE

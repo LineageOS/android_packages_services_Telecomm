@@ -306,9 +306,16 @@ public class CallsManager extends Call.ListenerBase
     /**
      * Call filter specifier used with
      * {@link #getNumCallsWithState(int, Call, PhoneAccountHandle, int...)} to indicate both managed
-     * and self-managed calls should be included.
+     * and self-managed calls should be included.  External calls are still excluded.
      */
     public static final int CALL_FILTER_ALL = 3;
+
+    /**
+     * Call filter specifier used with
+     * {@link #getNumCallsWithState(int, Call, PhoneAccountHandle, int...)} to indicate only
+     * external calls should be included.
+     */
+    public static final int CALL_FILTER_EXTERNAL = 4;
 
     private static final String PERMISSION_PROCESS_PHONE_ACCOUNT_REGISTRATION =
             "android.permission.PROCESS_PHONE_ACCOUNT_REGISTRATION";
@@ -5652,7 +5659,11 @@ public class CallsManager extends Call.ListenerBase
 
         Stream<Call> callsStream = mCalls.stream()
                 .filter(call -> desiredStates.contains(call.getState()) &&
-                        call.getParentCall() == null && !call.isExternalCall());
+                        call.getParentCall() == null)
+                // Unless specifically filtering for external calls, exclude external calls
+                // by default for all other call filters.
+                .filter(call -> callFilter == CALL_FILTER_EXTERNAL ?
+                            call.isExternalCall() : !call.isExternalCall());
 
         if (callFilter == CALL_FILTER_MANAGED) {
             callsStream = callsStream.filter(call -> !call.isSelfManaged());
@@ -5676,7 +5687,8 @@ public class CallsManager extends Call.ListenerBase
      *
      * @param callFilter indicates whether to include just managed calls
      *                   ({@link #CALL_FILTER_MANAGED}), self-managed calls
-     *                   ({@link #CALL_FILTER_SELF_MANAGED}), or all calls
+     *                   ({@link #CALL_FILTER_SELF_MANAGED}), just external calls
+     *                   ({@link #CALL_FILTER_EXTERNAL}), or all calls
      *                   ({@link #CALL_FILTER_ALL}).
      * @param excludeCall Where {@code non-null}, this call is excluded from the count.
      * @param callingUser Where {@code non-null}, call visibility is scoped to this
@@ -5696,7 +5708,11 @@ public class CallsManager extends Call.ListenerBase
 
         Stream<Call> callsStream = mCalls.stream()
                 .filter(call -> desiredStates.contains(call.getState()) &&
-                        call.getParentCall() == null && !call.isExternalCall());
+                        call.getParentCall() == null)
+                // Unless specifically filtering for external calls, exclude external calls
+                // by default for all other call filters.
+                .filter(call -> callFilter == CALL_FILTER_EXTERNAL ?
+                            call.isExternalCall() : !call.isExternalCall());
 
         if (callFilter == CALL_FILTER_MANAGED) {
             callsStream = callsStream.filter(call -> !call.isSelfManaged());
@@ -5847,6 +5863,20 @@ public class CallsManager extends Call.ListenerBase
     public boolean hasOngoingManagedCalls(UserHandle callingUser, boolean hasCrossUserAccess) {
         return getNumCallsWithState(
                 CALL_FILTER_MANAGED, null /* excludeCall */,
+                callingUser, hasCrossUserAccess,
+                null /* phoneAccountHandle */,
+                ONGOING_CALL_STATES) > 0;
+    }
+
+    /**
+     * Determines if there are any ongoing external calls.
+     * @param callingUser The user to scope the calls to.
+     * @param hasCrossUserAccess indicates if user has the INTERACT_ACROSS_USERS permission.
+     * @return {@code true} if there are ongoing external calls, {@code false} otherwise.
+     */
+    public boolean hasOngoingExternalCalls(UserHandle callingUser, boolean hasCrossUserAccess) {
+        return getNumCallsWithState(
+                CALL_FILTER_EXTERNAL, null /* excludeCall */,
                 callingUser, hasCrossUserAccess,
                 null /* phoneAccountHandle */,
                 ONGOING_CALL_STATES) > 0;

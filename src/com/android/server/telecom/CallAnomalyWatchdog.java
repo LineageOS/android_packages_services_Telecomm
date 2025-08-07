@@ -220,6 +220,9 @@ public class CallAnomalyWatchdog extends CallsManagerListenerBase implements Cal
         if (mFeatureFlags.callSequencingMetrics()) {
             mMetricsController.getCallSequencingStats().onCallEnd(call);
         }
+        if (mFeatureFlags.integratedCallLogs() && call.isTransactionalCall()) {
+            mMetricsController.getEventStats().onCallEnd(call);
+        }
     }
 
     /**

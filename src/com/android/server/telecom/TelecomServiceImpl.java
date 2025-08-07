@@ -1384,6 +1384,27 @@ public class TelecomServiceImpl {
         }
 
         /**
+         * @see android.telecom.TelecomManager#isInCall
+         */
+        @Override
+        public boolean isInExternalCall(String callingPackage, String callingFeatureId) {
+            // TODO(b/435261628): Add API stats collection for this interface
+            try {
+                Log.startSession("TSI.iIC", Log.getPackageAbbreviation(callingPackage));
+                if (!canReadPhoneState(callingPackage, callingFeatureId, "isInExternalCall")) {
+                    throw new SecurityException("Only the default dialer or caller with " +
+                            "READ_PHONE_STATE permission can use this method.");
+                }
+                synchronized (mLock) {
+                    return mCallsManager.hasOngoingExternalCalls(Binder.getCallingUserHandle(),
+                            hasInAppCrossUserPermission());
+                }
+            } finally {
+                Log.endSession();
+            }
+        }
+
+        /**
          * @see android.telecom.TelecomManager#hasManageOngoingCallsPermission
          */
         @Override

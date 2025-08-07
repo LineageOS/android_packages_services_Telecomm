@@ -46,6 +46,15 @@ flag {
   bug: "317132586"
 }
 
+# OWNER=con TARGET=26Q2
+flag {
+  name: "is_in_external_call"
+  is_exported: true
+  namespace: "telecom"
+  description: "Clients can check if an external call is in progress."
+  bug: "433774385"
+}
+
 # OWNER=tjstuart TARGET=24Q3
 flag {
   name: "transactional_video_state"
