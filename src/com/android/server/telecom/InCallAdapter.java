@@ -421,7 +421,13 @@ class InCallAdapter extends IInCallAdapter.Stub {
         try {
             Log.startSession(LogUtils.Sessions.ICA_ENTER_AUDIO_PROCESSING,
                     mOwnerPackageAbbreviation);
-            // TODO: enforce the extra permission.
+            mCallsManager.getContext().enforceCallingOrSelfPermission(
+                android.Manifest.permission.CAPTURE_AUDIO_OUTPUT,
+                "enterBackgroundAudioProcessing");
+            mCallsManager.getContext().enforceCallingOrSelfPermission(
+                android.Manifest.permission.MODIFY_AUDIO_ROUTING,
+                "enterBackgroundAudioProcessing");
+
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
