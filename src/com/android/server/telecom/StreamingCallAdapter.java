@@ -50,23 +50,47 @@ public class StreamingCallAdapter extends IStreamingCallAdapter.Stub {
             Log.startSession(LogUtils.Sessions.CSA_SET_STATE, mOwnerPackageAbbreviation);
             long token = Binder.clearCallingIdentity();
             try {
-                Log.i(this, "setStreamingState(%d)", state);
+                Log.i(TAG, "setStreamingState(%s)", stateToString(state));
                 switch (state) {
                     case StreamingCall.STATE_STREAMING:
                         mTransactionalServiceWrapper.onSetActive(mCall);
+                        break;
                     case StreamingCall.STATE_HOLDING:
                         mTransactionalServiceWrapper.onSetInactive(mCall);
+                        break;
                     case StreamingCall.STATE_DISCONNECTED:
                         mTransactionalServiceWrapper.onDisconnect(mCall,
                                 new DisconnectCause(DisconnectCause.LOCAL));
+                        break;
                     default:
-                        // ignore
+                        Log.w(TAG, "setStreamingState received an unhandled state: %d", state);
+                        break;
                 }
             } finally {
                 Binder.restoreCallingIdentity(token);
             }
         } finally {
             Log.endSession();
+        }
+    }
+
+    /**
+     * Helper method to convert StreamingCall state integers into a human-readable string.
+     * This makes logs easier to understand.
+     *
+     * @param state The state integer, e.g., {@link StreamingCall#STATE_STREAMING}.
+     * @return A string representation of the state for logging purposes.
+     */
+    private static String stateToString(int state) {
+        switch (state) {
+            case StreamingCall.STATE_STREAMING:
+                return "STATE_STREAMING";
+            case StreamingCall.STATE_HOLDING:
+                return "STATE_HOLDING";
+            case StreamingCall.STATE_DISCONNECTED:
+                return "STATE_DISCONNECTED";
+            default:
+                return "STATE_UNKNOWN(" + state + ")";
         }
     }
 }

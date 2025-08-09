@@ -123,6 +123,9 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
         args.arg2 = device.getAddress();
         CallAudioRouteController audioRouteController =
                 (CallAudioRouteController) mCallAudioRouteAdapter;
+        if (mFeatureFlags.ignoreBtBroadcast()) {
+            return;
+        }
         switch (bluetoothHeadsetAudioState) {
             case BluetoothHeadset.STATE_AUDIO_CONNECTED:
                 audioRouteController.setScoAudioConnectedDevice(device);

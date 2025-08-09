@@ -111,3 +111,14 @@ flag {
     purpose: PURPOSE_BUGFIX
   }
 }
+
+# OWNER=pmadapurmath TARGET=25Q4
+flag {
+  name: "ignore_bt_broadcast"
+  namespace: "telecom"
+  description: "Disregards the BT broadcasts if the communication device isn't synced"
+  bug: "430200812"
+  metadata {
+    purpose: PURPOSE_BUGFIX
+  }
+}

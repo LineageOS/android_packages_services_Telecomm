@@ -99,4 +99,7 @@
 
     <!-- When true, logcat collection will be enabled for all emergency calls. -->
     <bool name="enable_logcat_collection_for_all_emergency_calls">false</bool>
+
+    <!-- When true, the device is a headless dialer. -->
+    <bool name="headless_dialer">false</bool>
 </resources>
