@@ -88,8 +88,9 @@ public class PendingAudioRoute {
             boolean isScoAlreadyConnected, boolean isDestRouteCommunicationDevice) {
         mActive = isDestActive;
         // Skip clearing the communication device or disconnecting SCO when the current
-        // communication device is already associated with the destination route.
-        if (!isDestRouteCommunicationDevice) {
+        // communication device is already associated with the destination route. Ensure we still
+        // clear the communication device at the end of the call.
+        if (!isDestRouteCommunicationDevice || (isOriginActive != isDestActive && !isDestActive)) {
             origRoute.onOrigRouteAsPendingRoute(isOriginActive, this, mAudioManager,
                     mBluetoothRouteManager, isScoAlreadyConnected);
         }
