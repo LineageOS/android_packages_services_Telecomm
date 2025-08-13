@@ -215,6 +215,7 @@ public class UserCallIntentProcessor {
                         Log.i(this, "Found call log entry with uuid %s for %s.", uuid, pkgName);
                         Intent actionCallbackIntent = new Intent().setPackage(pkgName)
                                 .setAction(TelecomManager.ACTION_CALL_BACK);
+                        actionCallbackIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         actionCallbackIntent.putExtra(TelecomManager.EXTRA_UUID, uuid);
                         mContext.startActivity(actionCallbackIntent);
                         return true;

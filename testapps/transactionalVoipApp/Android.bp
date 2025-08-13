@@ -22,6 +22,9 @@ package {
 android_test {
     name: "transactionalVoipApp",
     static_libs: [
+        "androidx.appcompat_appcompat",
+        "androidx.recyclerview_recyclerview",
+        "androidx.core_core-ktx",
         "androidx.legacy_legacy-support-v4",
         "guava",
     ],

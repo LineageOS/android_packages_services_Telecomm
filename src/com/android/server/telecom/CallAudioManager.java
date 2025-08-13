@@ -820,22 +820,35 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     private void onCallEnteringRinging() {
         if (mRingingCalls.size() == 1) {
+            Call ringingCall = mRingingCalls.getFirst();
             Log.i(this, "onCallEnteringRinging: mRingingCalls.getFirst().getBtIcsFuture() = %s",
-                    mRingingCalls.getFirst().getBtIcsFuture());
-            if (mRingingCalls.getFirst().getBtIcsFuture() != null) {
-                mCallRingingFuture  = mRingingCalls.getFirst().getBtIcsFuture()
-                        .thenComposeAsync((completed) -> {
+                    ringingCall.getBtIcsFuture());
+            if (ringingCall.getBtIcsFuture() != null) {
+                mCallRingingFuture = mFeatureFlags.sendNewRingingCallSync()
+                        ? ringingCall.getBtIcsFuture().thenCompose((completed) -> {
+                            // Do a performative check to see if the call is still ringing before
+                            // sending the msg forward to the CallAudioModeStateMachine.
+                            if (ringingCall.getState() == CallState.RINGING
+                                    || ringingCall.getState() == CallState.SIMULATED_RINGING) {
+                                mCallAudioModeStateMachine.sendMessageWithArgs(
+                                        CallAudioModeStateMachine.NEW_RINGING_CALL,
+                                        makeArgsForModeStateMachine());
+                            }
+                            return CompletableFuture.completedFuture(completed);})
+                        : ringingCall.getBtIcsFuture().thenComposeAsync((completed) -> {
                             mCallAudioModeStateMachine.sendMessageWithArgs(
                                     CallAudioModeStateMachine.NEW_RINGING_CALL,
                                     makeArgsForModeStateMachine());
                             return CompletableFuture.completedFuture(completed);
-                        }, new LoggedHandlerExecutor(mHandler, "CAM.oCER", mCallsManager.getLock()))
-                        .exceptionally((throwable) -> {
-                            Log.e(this, throwable, "Error while executing BT ICS future");
-                            // Fallback on performing computation on a separate thread.
-                            handleBtBindingWaitFallback();
-                            return null;
-                        });
+                            }, new LoggedHandlerExecutor(mHandler, "CAM.oCER",
+                                mCallsManager.getLock()));
+
+                mCallRingingFuture = mCallRingingFuture.exceptionally((throwable) -> {
+                    Log.e(this, throwable, "Error while executing BT ICS future");
+                    // Fallback on performing computation on a separate thread.
+                    handleBtBindingWaitFallback();
+                    return null;
+                });
             } else {
                 mCallAudioModeStateMachine.sendMessageWithArgs(
                         CallAudioModeStateMachine.NEW_RINGING_CALL,

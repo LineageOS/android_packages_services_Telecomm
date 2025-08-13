@@ -43,6 +43,8 @@ import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.Looper;
 import android.platform.test.annotations.RequiresFlagsDisabled;
+import android.platform.test.flag.junit.CheckFlagsRule;
+import android.platform.test.flag.junit.DeviceFlagsValueProvider;
 import android.telecom.PhoneAccountHandle;
 
 import androidx.test.filters.MediumTest;
@@ -58,6 +60,7 @@ import com.android.server.telecom.flags.Flags;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -76,6 +79,9 @@ import java.util.List;
 @RunWith(JUnit4.class)
 @RequiresFlagsDisabled(Flags.FLAG_TELECOM_RESOLVE_HIDDEN_DEPENDENCIES)
 public class CallRecordingTonePlayerTest extends TelecomTestCase {
+
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
 
     private static final String PHONE_ACCOUNT_PACKAGE = "com.android.telecom.test";
     private static final String PHONE_ACCOUNT_CLASS = "MyFancyConnectionService";

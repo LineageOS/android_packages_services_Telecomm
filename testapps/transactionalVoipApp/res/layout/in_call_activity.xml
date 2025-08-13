@@ -28,6 +28,13 @@
         android:text="@string/get_call_id"
     />
 
+    <TextView
+        android:id="@+id/phoneNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/phone_number"
+        />
+
     <Button
         android:id="@+id/updateCallStyleNotification"
         android:layout_width="wrap_content"

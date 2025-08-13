@@ -2034,6 +2034,14 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         boolean pkgSupportsIntent = !mContext.getPackageManager().queryIntentActivities(intent,
                 PackageManager.MATCH_ALL).isEmpty();
 
+        boolean shouldLogTransactionalCall = isTransactionalCall() && pkgSupportsIntent
+                && !isTransactionalLogExcluded();
+        if (!shouldLogTransactionalCall) {
+            Log.i(this, "isLoggedTransactional: isTransactionalCall: %b, pkg(%s) supports "
+                            + "intent: %b, is log excluded: %b", isTransactionalCall(),
+                    handle.getComponentName().getPackageName(), pkgSupportsIntent,
+                    isTransactionalLogExcluded());
+        }
         return isTransactionalCall() && pkgSupportsIntent && !isTransactionalLogExcluded();
     }
 

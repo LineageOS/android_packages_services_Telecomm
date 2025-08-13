@@ -122,3 +122,15 @@ flag {
     purpose: PURPOSE_BUGFIX
   }
 }
+
+# OWNER=pmadapurmath TARGET=25Q4
+flag {
+  name: "send_new_ringing_call_sync"
+  namespace: "telecom"
+  description: "Sends the new ringing call msg to the CallAudioModeStateMachine synchronously"
+  bug: "437784857"
+  metadata {
+    purpose: PURPOSE_BUGFIX
+  }
+}
+

@@ -29,7 +29,9 @@ import android.media.AudioRecord;
 import android.media.AudioRecordingConfiguration;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.OutcomeReceiver;
+import android.telecom.CallAttributes;
 import android.telecom.CallException;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
@@ -42,13 +44,16 @@ public class Utils {
     public static final String CALLER_NAME = "Sundar Pichai";
     public static final String sEXTRAS_KEY = "ExtrasKey";
     public static final String sCALL_DIRECTION_KEY = "CallDirectionKey";
+    public static final String sCall_UUID_EXTRA_KEY = "CallUuidExtraKey";
+    public static final String sCall_ATTRIBUTE_KEY = "CallAttributeKey";
     public static final String CHANNEL_ID = "TelecomVoipAppChannelId";
+    public static final String PKG_NAME = "com.android.server.telecom.transactionalVoipApp";
     public static final int CALL_NOTIFICATION_ID = 123456;
     private static final int SAMPLING_RATE_HZ = 44100;
+    private static int TEST_NUMBER = 1234567;
 
     public static final PhoneAccountHandle PHONE_ACCOUNT_HANDLE = new PhoneAccountHandle(
-            new ComponentName("com.android.server.telecom.transactionalVoipApp",
-                    "com.android.server.telecom.transactionalVoipApp.VoipAppMainActivity"), "123");
+            new ComponentName(PKG_NAME, PKG_NAME + ".VoipAppMainActivity"), "123");
 
     public static final PhoneAccount PHONE_ACCOUNT =
             PhoneAccount.builder(PHONE_ACCOUNT_HANDLE, "test label")
@@ -172,5 +177,17 @@ public class Utils {
                 Log.i(TAG, tag + " : onError");
             }
         };
+    }
+
+    public static CallAttributes getCallAttributes(int direction) {
+       return new CallAttributes.Builder(
+               PHONE_ACCOUNT_HANDLE,
+               direction,
+               "Alan Turing",
+               createTestNumber()).build();
+    }
+
+    private static Uri createTestNumber() {
+        return Uri.parse("tel:+1650" + (++TEST_NUMBER));
     }
 }

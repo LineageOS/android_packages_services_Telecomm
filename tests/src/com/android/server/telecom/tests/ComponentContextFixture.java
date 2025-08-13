@@ -914,6 +914,10 @@ public class ComponentContextFixture implements TestFixture<Context> {
         return mCarrierConfigManager;
     }
 
+    public Vibrator getVibrator() {
+        return mVibrator;
+    }
+
     public NotificationManager getNotificationManager() {
         return mNotificationManager;
     }

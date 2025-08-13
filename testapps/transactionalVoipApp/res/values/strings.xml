@@ -24,9 +24,19 @@
     <string name="start_foreground_service">Start FGS (simulate MT + app in background)</string>
     <string name="start_outgoing">Start Outgoing Call</string>
     <string name="start_incoming">Start Incoming Call</string>
+    <string name="register_callback_intent">Register Callback Intent</string>
+    <string name="open_dialer">Open Dialer</string>
+    <string name="uuid_not_found">UUID for callback does not exist</string>
+    <string name="call_attributes_empty_error">Call attributes should not be empty. Initializing defaults anyway.</string>
+
+    <!-- TestDialer Activity -->
+    <string name="back_to_voip_main">Back to VOIP main activity</string>
+    <string name="call_log">Call Log</string>
+    <string name="voip_callback">Test callback</string>
 
     <!-- InCall Activity -->
     <string name="get_call_id">call id not set</string>
+    <string name="phone_number">phone number not set</string>
     <!--  control the call state -->
     <string name="set_call_active">setActive</string>
     <string name="answer">answer</string>

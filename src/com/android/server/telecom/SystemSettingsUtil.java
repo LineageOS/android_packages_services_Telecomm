@@ -16,6 +16,7 @@
 
 package com.android.server.telecom;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.media.AudioManager;
 import android.os.VibrationAttributes;
@@ -31,10 +32,58 @@ import com.android.server.telecom.flags.FeatureFlags;
  */
 @VisibleForTesting
 public class SystemSettingsUtil {
+    /**
+     * Abstracts away the static {@link Settings.System} calls so they can be mocked in tests.
+     */
+    @VisibleForTesting
+    public interface SystemSettingsReader {
+        int getInt(ContentResolver cr, String name, int def);
+        int getIntForUser(ContentResolver cr, String name, int def, int userHandle);
+    }
+
+    private static class DefaultSystemSettingsReader implements SystemSettingsReader {
+        @Override
+        public int getInt(ContentResolver cr, String name, int def) {
+            return Settings.System.getInt(cr, name, def);
+        }
+
+        @Override
+        public int getIntForUser(ContentResolver cr, String name, int def, int userHandle) {
+            return Settings.System.getIntForUser(cr, name, def, userHandle);
+        }
+    }
+
+    private final SystemSettingsReader mSystemSettingsReader;
+
+    public SystemSettingsUtil() {
+        this(new DefaultSystemSettingsReader());
+    }
+
+    @VisibleForTesting
+    public SystemSettingsUtil(SystemSettingsReader systemSettingsReader) {
+        mSystemSettingsReader = systemSettingsReader;
+    }
 
     /** Flag for whether or not to support audio coupled haptics in ramping ringer. */
     private static final String RAMPING_RINGER_AUDIO_COUPLED_VIBRATION_ENABLED =
             "ramping_ringer_audio_coupled_vibration_enabled";
+
+
+    /**
+     * Determines if the primary "vibration" toggle is on in the system settings (see Settings -->
+     * Sound and Vibration --> Vibration and Haptics --> Use Vibration and Haptics).
+     * @param context the context to use for checking the settings.
+     * @return {@code true} if the primary haptic toggle is on, {@code false} otherwise.
+     */
+    private boolean isVibrationEnabled(Context context, FeatureFlags flags) {
+        if (!flags.vibrationAccountsForMainSetting()) {
+            return true;
+        }
+        // Note, there is no constant for the on/off.  0 is used elsewhere in the platform when this
+        // key is referenced.
+        return mSystemSettingsReader.getInt(context.getContentResolver(),
+                Settings.System.VIBRATE_ON, 1) != 0;
+    }
 
     public boolean isRingVibrationEnabled(Context context, FeatureFlags flags) {
         // VIBRATE_WHEN_RINGING setting was deprecated, only RING_VIBRATION_INTENSITY controls the
@@ -42,18 +91,21 @@ public class SystemSettingsUtil {
         // vibration intensity is ON, otherwise the ringtone sound should not be delayed as there
         // will be no ring vibration.
         if (flags.resolveHiddenDependenciesTwo()) {
-            return Settings.System.getInt(context.getContentResolver(),
+            // Note: ring_vibration_intensity is documented to have values 0, 1, 2, 3, where 0 is
+            // no intensity.  Elsewhere in the platform 0 is used directly assuming this is just a
+            // typical integer intensity in range [0,3].
+            return mSystemSettingsReader.getInt(context.getContentResolver(),
                     Settings.System.RING_VIBRATION_INTENSITY,
                     context.getSystemService(Vibrator.class).getDefaultVibrationIntensity(
                             VibrationAttributes.USAGE_RINGTONE))
-                    != Vibrator.VIBRATION_INTENSITY_OFF;
+                    != 0 && isVibrationEnabled(context, flags);
         } else {
-            return Settings.System.getIntForUser(context.getContentResolver(),
+            return mSystemSettingsReader.getIntForUser(context.getContentResolver(),
                     Settings.System.RING_VIBRATION_INTENSITY,
                     context.getSystemService(Vibrator.class).getDefaultVibrationIntensity(
                             VibrationAttributes.USAGE_RINGTONE),
                     UserUtil.getUserIdFromContext(context, flags))
-                    != Vibrator.VIBRATION_INTENSITY_OFF;
+                    != Vibrator.VIBRATION_INTENSITY_OFF && isVibrationEnabled(context, flags);
         }
     }
 

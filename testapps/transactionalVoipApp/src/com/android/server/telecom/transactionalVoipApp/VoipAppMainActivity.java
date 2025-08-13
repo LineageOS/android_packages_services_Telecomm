@@ -22,27 +22,66 @@ import static android.telecom.CallAttributes.DIRECTION_OUTGOING;
 import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.media.AudioManager;
-import android.media.AudioRecord;
-import android.media.MediaPlayer;
-import android.net.Uri;
+import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.OutcomeReceiver;
 import android.telecom.CallAttributes;
-import android.telecom.CallControl;
-import android.telecom.CallException;
-import android.telecom.DisconnectCause;
 import android.telecom.TelecomManager;
 import android.util.Log;
 import android.view.View;
-import android.widget.ToggleButton;
+import android.widget.Toast;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class VoipAppMainActivity extends Activity {
     private static final String TAG = "VoipAppMainActivity";
     private static final String ACT_STATE_TAG = "VoipActivityState";
     private static TelecomManager mTelecomManager;
     NotificationManager mNotificationManager;
+    // Define callback intent filter
+    private static final IntentFilter CALL_BACK_ACTION = new IntentFilter(
+            TelecomManager.ACTION_CALL_BACK);
+    // Map call UUIDs to the associated call attributes needed for the callback
+    private static final Map<String, CallAttributes> mUuidToAttributes = new HashMap<>();
+    // Callback receiver to handle callback intents from Telecom
+    private final BroadcastReceiver mCallbackReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            android.telecom.Log.startSession("VAMA.mCR");
+            try {
+                if (TelecomManager.ACTION_CALL_BACK.equals(intent.getAction())) {
+                    String uuid = intent.getStringExtra(TelecomManager.EXTRA_UUID);
+                    Log.i(TAG, "Received action callback intent. Attempting to place a call "
+                            + "with uuid - " + uuid);
+                    // Direction should always be outgoing for callback induced calls.
+                    startInCallActivity(DIRECTION_OUTGOING, uuid);
+                }
+            } finally {
+                android.telecom.Log.endSession();
+            }
+        }
+    };
+
+    // Save the call information from the intent passed from InCallActivity
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            // Get the attributes and uuid from InCallActivity once the call is disconnected and
+            // save the mapping for supporting callback
+            String uuid = data.getStringExtra(Utils.sCall_UUID_EXTRA_KEY);
+            CallAttributes callAttributes = data.getParcelableExtra(Utils.sCall_ATTRIBUTE_KEY,
+                    CallAttributes.class);
+            Log.i(TAG, "Received uuid " + uuid + " and CallAttributes - " + callAttributes
+                    + " from InCallActivity");
+            if (uuid != null && callAttributes != null) {
+                mUuidToAttributes.put(uuid, callAttributes);
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +123,7 @@ public class VoipAppMainActivity extends Activity {
         findViewById(R.id.startOutgoingCall).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startInCallActivity(DIRECTION_OUTGOING);
+                startInCallActivity(DIRECTION_OUTGOING, null);
             }
         });
 
@@ -92,18 +131,77 @@ public class VoipAppMainActivity extends Activity {
         findViewById(R.id.startIncomingCall).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startInCallActivity(DIRECTION_INCOMING);
+                startInCallActivity(DIRECTION_INCOMING, null);
             }
         });
 
+        findViewById(R.id.registerCallbackIntent).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getApplicationContext().registerReceiver(mCallbackReceiver, CALL_BACK_ACTION);
+            }
+        });
+
+        findViewById(R.id.openDialer).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startDialerActivity();
+            }
+        });
+
+        // Handle the callback intent if present
+        maybeHandleCallbackIntent(getIntent());
     }
 
-    private void startInCallActivity(int direction) {
+    private void startInCallActivity(int direction, String uuid) {
         Bundle extras = new Bundle();
         extras.putInt(Utils.sCALL_DIRECTION_KEY, direction);
+        // Store the call attributes in the intent itself. From an app level, we will map individual
+        // UUIDS to the attributes and verify that the initiated callbacks are valid or not before
+        // we start the in-call activity.
+        CallAttributes callAttributes;
+        // If the UUID isn't null, then we're initiating a callback. Search for the associated
+        // call attributes for the callback. Otherwise, show an error dialogue.
+        if (uuid != null) {
+            if (!mUuidToAttributes.containsKey(uuid)) {
+                Toast.makeText(this, getString(R.string.uuid_not_found),
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+            extras.putString(Utils.sCall_UUID_EXTRA_KEY, uuid);
+            callAttributes = mUuidToAttributes.get(uuid);
+        } else {
+            callAttributes = Utils.getCallAttributes(direction);
+        }
+        extras.putParcelable(Utils.sCall_ATTRIBUTE_KEY, callAttributes);
         Intent intent = new Intent(getApplicationContext(), InCallActivity.class);
         intent.putExtra(Utils.sEXTRAS_KEY, extras);
+        // Calling startActivityForResult allows InCallActivity to send data back to main activity
+        // containing the call attributes and uuid for the call.
+        startActivityForResult(intent, 1 /* requestCode */);
+    }
+
+    private void startDialerActivity() {
+        Intent intent = new Intent(getApplicationContext(), TestDialerActivity.class);
         startActivity(intent);
+    }
+
+    /**
+     * Checks the intent for the callback action and tries to make a call with the provided uuid
+     * if present.
+     */
+    private void maybeHandleCallbackIntent(Intent intent) {
+        if (intent == null) {
+            return;
+        }
+
+        final String action = intent.getAction();
+        if (TelecomManager.ACTION_CALL_BACK.equals(action)) {
+            String uuid = intent.getStringExtra(TelecomManager.EXTRA_UUID);
+            if (uuid != null && !uuid.isEmpty()) {
+                startInCallActivity(DIRECTION_OUTGOING, uuid);
+            }
+        }
     }
 
     @Override
