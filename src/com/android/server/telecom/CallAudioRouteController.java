@@ -2186,7 +2186,9 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             // messages.
             if (currentAudioType == TYPE_SPEAKER) {
                 sendMessageWithSessionInfo(SPEAKER_OFF);
-            } else if (currentAudioType == TYPE_BLUETOOTH_SCO) {
+            } else if (previousCommunicationDevice != null && currentAudioType == TYPE_BLUETOOTH_SCO
+                           && Objects.equals(mCurrentRoute.getBluetoothAddress(),
+                               previousCommunicationDevice.getAddress())) {
                 handleBtConnectionStateChanged(previousCommunicationDevice.getAddress(),
                         false /* isScoConnected */);
             }

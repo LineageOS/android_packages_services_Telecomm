@@ -2265,13 +2265,19 @@ public class InCallController extends CallsManagerListenerBase implements
                 mInCallServiceConnections.get(userFromCall);
         inCallServiceConnection.chooseInitialInCallService(shouldUseCarModeUI());
 
-        // Actually try binding to the UI InCallService.
-        if (inCallServiceConnection.connect(call) ==
-                InCallServiceConnection.CONNECTION_SUCCEEDED || (call != null
-                && call.isSelfManaged())) {
+        final boolean isHeadlessDevice = mContext.getResources().getBoolean(R.bool.headless_dialer);
+        final boolean isSelfManagedCall = call != null && call.isSelfManaged();
+        final boolean uiServiceConnected =
+                !isHeadlessDevice
+                        && inCallServiceConnection.connect(call)
+                                == InCallServiceConnection.CONNECTION_SUCCEEDED;
+        final boolean allowNonUiBinding =
+                uiServiceConnected || isSelfManagedCall || isHeadlessDevice;
+
+        if (allowNonUiBinding) {
             // Only connect to the non-ui InCallServices if we actually connected to the main UI
-            // one, or if the call is self-managed (in which case we'd still want to keep Wear, BT,
-            // etc. informed.
+            // one, or if the call is self-managed or headless(in which case we'd still want to keep
+            // Wear, BT, etc. informed.
             connectToNonUiInCallServices(call);
             mBindingFuture = new CompletableFuture<Boolean>().completeOnTimeout(false,
                     mTimeoutsAdapter.getCallRemoveUnbindInCallServicesDelay(

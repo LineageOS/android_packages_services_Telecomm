@@ -2046,6 +2046,51 @@ public class InCallControllerTests extends TelecomTestCase {
         verify(mockInCallService).updateCall(any(ParcelableCall.class));
     }
 
+   /**
+     * Ensures that the {@link InCallController} will bind to a non-ui service even if no ui service
+     * is bound if the call is a headless dialer call.
+     */
+    @MediumTest
+    @Test
+    public void testBindToService_NonUiHeadlessDialer() throws Exception {
+        // Set the headless dialer resource to true to allow nonUi binding.
+        when(mMockResources.getBoolean(R.bool.headless_dialer)).thenReturn(true);
+
+        setupMocks(false /* isExternalCall */, false /* isSelfManagedCall */);
+        setupMockPackageManager(false /* default */, true/* nonui */, false /* appop_nonui */,
+                true /* system */, false /* external calls */, false /* self mgd in default */,
+                false /* self mgd in car*/, false /* self managed in nonui */);
+
+        ApplicationInfo applicationInfo = new ApplicationInfo();
+        applicationInfo.targetSdkVersion = Build.VERSION_CODES.TIRAMISU;
+        when(mMockContext.getApplicationInfo()).thenReturn(applicationInfo);
+        // Package doesn't have metadata of TelecomManager.METADATA_IN_CALL_SERVICE_UI should
+        // not be the default dialer. This is to mock the default dialer is null in this case.
+        when(mDefaultDialerCache.getDefaultDialerApplication(new UserHandle(CURRENT_USER_ID)))
+                .thenReturn(null);
+
+        // We should bind to only the non ui app.
+        mInCallController.bindToServices(mMockCall);
+
+        // Verify binding
+        ArgumentCaptor<Intent> bindIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mMockContext)
+                .bindServiceAsUser(
+                        bindIntentCaptor.capture(),
+                        any(ServiceConnection.class),
+                        anyInt(),
+                        any(UserHandle.class));
+        assertEquals(1, bindIntentCaptor.getAllValues().size());
+
+        // Should have bound to the third party non ui app.
+        verifyBinding(bindIntentCaptor, 0, NONUI_PKG, NONUI_CLASS);
+
+        // Verify notification is not sent by NotificationManager
+        verify(mNotificationManager, times(0)).notify(
+                eq(InCallController.NOTIFICATION_TAG),
+                eq(InCallController.IN_CALL_SERVICE_NOTIFICATION_ID), any());
+    }
+
     public void setupQueryIntentServices(
             boolean defExternalCalls, boolean defSelfManaged,
             boolean nonUiSelfManaged, boolean isEnabled) {

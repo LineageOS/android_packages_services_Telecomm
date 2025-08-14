@@ -5433,7 +5433,10 @@ public class CallsManager extends Call.ListenerBase
                         (newState == CallState.DISCONNECTED)) {
                     maybeSendPostCallScreenIntent(call);
                 }
-                int disconnectCode = call.getDisconnectCause().getCode();
+                int disconnectCode = DisconnectCause.UNKNOWN;
+                if (call.getDisconnectCause() != null) {
+                    disconnectCode = call.getDisconnectCause().getCode();
+                }
                 if ((newState == CallState.ABORTED || newState == CallState.DISCONNECTED)
                         && ((disconnectCode != DisconnectCause.MISSED)
                         && (disconnectCode != DisconnectCause.CANCELED))) {
