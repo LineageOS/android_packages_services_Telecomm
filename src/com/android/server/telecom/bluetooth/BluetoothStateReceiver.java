@@ -124,6 +124,8 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
         CallAudioRouteController audioRouteController =
                 (CallAudioRouteController) mCallAudioRouteAdapter;
         if (mFeatureFlags.ignoreBtBroadcast()) {
+            Log.w(LOG_TAG, "Ignoring BT broadcast (listening to audio fwk communication "
+                + "device updates)");
             return;
         }
         switch (bluetoothHeadsetAudioState) {
