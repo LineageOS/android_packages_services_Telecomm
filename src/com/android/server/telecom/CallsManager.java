@@ -321,6 +321,9 @@ public class CallsManager extends Call.ListenerBase
     private static final String PERMISSION_PROCESS_PHONE_ACCOUNT_REGISTRATION =
             "android.permission.PROCESS_PHONE_ACCOUNT_REGISTRATION";
 
+    private static final String FORWARD_INTENT_TO_MANAGED_PROFILE =
+            "com.android.internal.app.ForwardIntentToManagedProfile";
+
     private static final int HANDLER_WAIT_TIMEOUT = 10000;
     private static final int MAXIMUM_LIVE_CALLS = 1;
     private static final int MAXIMUM_HOLD_CALLS = 1;
@@ -3131,7 +3134,7 @@ public class CallsManager extends Call.ListenerBase
         ComponentName componentName = new ComponentName(componentInfo.packageName,
                 componentInfo.name);
         if (!componentName.getShortClassName()
-                .equals(IntentForwarderActivity.FORWARD_INTENT_TO_MANAGED_PROFILE)) {
+                .equals(FORWARD_INTENT_TO_MANAGED_PROFILE)) {
             Log.w(
                     this,
                     "Work profile telephony: Intent would not resolve to forwarder activity."
