@@ -23,23 +23,15 @@
     <string name="start_foreground_service" msgid="8968755699895128574">"FGSஸைத் தொடங்கு (MT + ஆப்ஸைப் பின்னணியில் சிமுலேட் செய்)"</string>
     <string name="start_outgoing" msgid="1441644037370361864">"வெளிச்செல்லும் அழைப்பைத் தொடங்கு"</string>
     <string name="start_incoming" msgid="6444983300186361271">"உள்வரும் அழைப்பைத் தொடங்கு"</string>
-    <!-- no translation found for register_callback_intent (2966286786843279948) -->
-    <skip />
-    <!-- no translation found for open_dialer (2180225018029937011) -->
-    <skip />
-    <!-- no translation found for uuid_not_found (4758805286268179147) -->
-    <skip />
-    <!-- no translation found for call_attributes_empty_error (6921783379546938037) -->
-    <skip />
-    <!-- no translation found for back_to_voip_main (2500173767939494261) -->
-    <skip />
-    <!-- no translation found for call_log (2664639384522572724) -->
-    <skip />
-    <!-- no translation found for voip_callback (9213402996514282039) -->
-    <skip />
+    <string name="register_callback_intent" msgid="2966286786843279948">"திரும்ப அழைத்தல் இன்டென்ட்டைப் பதிவுசெய்"</string>
+    <string name="open_dialer" msgid="2180225018029937011">"டயலரைத் திற"</string>
+    <string name="uuid_not_found" msgid="4758805286268179147">"திரும்ப அழைத்தலுக்கான UUID இல்லை"</string>
+    <string name="call_attributes_empty_error" msgid="6921783379546938037">"அழைப்புப் பண்புக்கூறுகள் காலியாக இருக்கக்கூடாது. இருப்பினும், இயல்புகளைத் துவங்குகிறது."</string>
+    <string name="back_to_voip_main" msgid="2500173767939494261">"VoIP முதன்மைச் செயல்பாட்டிற்குச் செல்"</string>
+    <string name="call_log" msgid="2664639384522572724">"அழைப்புப் பதிவு"</string>
+    <string name="voip_callback" msgid="9213402996514282039">"திரும்ப அழைத்தலைப் பரிசோதைனை செய்"</string>
     <string name="get_call_id" msgid="5513943242738347108">"அழைப்பு ஐடி அமைக்கப்படவில்லை"</string>
-    <!-- no translation found for phone_number (1572984477394011525) -->
-    <skip />
+    <string name="phone_number" msgid="1572984477394011525">"மொபைல் எண் அமைக்கப்படவில்லை"</string>
     <string name="set_call_active" msgid="3365404393507589899">"செயலில் அமை"</string>
     <string name="answer" msgid="5423590397665409939">"பதில்"</string>
     <string name="set_call_inactive" msgid="7106775211368705195">"செயலற்ற நிலையில் அமை"</string>

@@ -80,7 +80,7 @@ import java.util.Random;
 
 @RunWith(AndroidJUnit4.class)
 public class TelecomPulledAtomTest extends TelecomTestCase {
-    private static final long MIN_PULL_INTERVAL_MILLIS = 23L * 60 * 60 * 1000;
+    private static final long MIN_PULL_INTERVAL_MILLIS = 5L * 60 * 60 * 1000;
     private static final long DEFAULT_TIMESTAMPS_MILLIS = 3000;
     private static final int DELAY_FOR_PERSISTENT_MILLIS = 30000;
     private static final int DELAY_TOLERANCE = 50;

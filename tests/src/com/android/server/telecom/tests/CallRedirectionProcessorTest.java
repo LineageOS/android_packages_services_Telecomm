@@ -60,6 +60,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -389,6 +390,42 @@ public class CallRedirectionProcessorTest extends TelecomTestCase {
         // Verify service was unbound
         verify(mContext, times(1)).
                 unbindService(any(ServiceConnection.class));
+    }
+
+    /**
+     * Verifies that an {@link IllegalArgumentException} thrown when unbinding a service on timeout
+     * is caught and does not crash the process. This can happen if the service is already unbound.
+     */
+    @Test
+    public void testTimeoutUnbindThrowsIllegalArgumentException() throws Exception {
+        startProcessWithNoGateWayInfo();
+        // To make sure tests are not flaky, clean all the previous handler messages
+        waitForHandlerAction(mProcessor.getHandler(), HANDLER_TIMEOUT_DELAY);
+        enableUserDefinedCallRedirectionService();
+        disableCarrierCallRedirectionService();
+
+        // Mock unbindService to throw an exception.
+        doThrow(new IllegalArgumentException("Service not registered")).when(mContext)
+                .unbindService(any(ServiceConnection.class));
+
+        // Start the redirection process.
+        mProcessor.performCallRedirection(UserHandle.CURRENT);
+
+        // Verify that a bind attempt was made.
+        verify(mContext, times(1)).bindServiceAsUser(any(Intent.class),
+                any(ServiceConnection.class), anyInt(), eq(UserHandle.CURRENT));
+
+        // Wait for the timeout to occur.
+        waitForHandlerActionDelayed(mProcessor.getHandler(), HANDLER_TIMEOUT_DELAY,
+                USER_DEFINED_SHORT_TIMEOUT_MS + CODE_EXECUTION_DELAY);
+
+        // Verify that unbindService was called, even though it threw an exception.
+        verify(mContext, times(1)).unbindService(any(ServiceConnection.class));
+
+        // Verify that the redirection process still completes and notifies CallsManager.
+        verify(mCallsManager, times(1)).onCallRedirectionComplete(eq(mCall), any(),
+                eq(mPhoneAccountHandle), eq(null), eq(SPEAKER_PHONE_ON), eq(VIDEO_STATE),
+                eq(true), eq(CallRedirectionProcessor.UI_TYPE_USER_DEFINED_TIMEOUT));
     }
 
     /**

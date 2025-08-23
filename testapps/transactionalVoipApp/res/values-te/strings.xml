@@ -23,23 +23,15 @@
     <string name="start_foreground_service" msgid="8968755699895128574">"FGS (అనుకరణ MT + బ్యాక్‌గ్రౌండ్‌లో యాప్)ను ప్రారంభించండి"</string>
     <string name="start_outgoing" msgid="1441644037370361864">"అవుట్‌గోయింగ్ కాల్‌ను ప్రారంభించండి"</string>
     <string name="start_incoming" msgid="6444983300186361271">"ఇన్‌కమింగ్ కాల్‌ను ప్రారంభించండి"</string>
-    <!-- no translation found for register_callback_intent (2966286786843279948) -->
-    <skip />
-    <!-- no translation found for open_dialer (2180225018029937011) -->
-    <skip />
-    <!-- no translation found for uuid_not_found (4758805286268179147) -->
-    <skip />
-    <!-- no translation found for call_attributes_empty_error (6921783379546938037) -->
-    <skip />
-    <!-- no translation found for back_to_voip_main (2500173767939494261) -->
-    <skip />
-    <!-- no translation found for call_log (2664639384522572724) -->
-    <skip />
-    <!-- no translation found for voip_callback (9213402996514282039) -->
-    <skip />
+    <string name="register_callback_intent" msgid="2966286786843279948">"కాల్‌బ్యాక్ ఇంటెంట్‌ను రిజిస్టర్ చేయండి"</string>
+    <string name="open_dialer" msgid="2180225018029937011">"డయలర్‌ను తెరవండి"</string>
+    <string name="uuid_not_found" msgid="4758805286268179147">"కాల్‌బ్యాక్ UUID ఉనికిలో లేదు"</string>
+    <string name="call_attributes_empty_error" msgid="6921783379546938037">"కాల్ అట్రిబ్యూట్‌లు ఖాళీగా ఉండకూడదు. ఏదేమైనా ఆటోమేటిక్ సెట్టింగ్‌లను ప్రారంభిస్తోంది."</string>
+    <string name="back_to_voip_main" msgid="2500173767939494261">"VOIP ప్రధాన యాక్టివిటీకి తిరిగి వెళ్లండి"</string>
+    <string name="call_log" msgid="2664639384522572724">"కాల్ లాగ్"</string>
+    <string name="voip_callback" msgid="9213402996514282039">"టెస్ట్ కాల్‌బ్యాక్"</string>
     <string name="get_call_id" msgid="5513943242738347108">"కాల్ id సెట్ చేయబడలేదు"</string>
-    <!-- no translation found for phone_number (1572984477394011525) -->
-    <skip />
+    <string name="phone_number" msgid="1572984477394011525">"ఫోన్ నంబర్ సెట్ అవ్వలేదు"</string>
     <string name="set_call_active" msgid="3365404393507589899">"setActive"</string>
     <string name="answer" msgid="5423590397665409939">"సమాధానం"</string>
     <string name="set_call_inactive" msgid="7106775211368705195">"setInactive"</string>

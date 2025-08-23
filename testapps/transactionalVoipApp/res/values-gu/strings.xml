@@ -23,23 +23,15 @@
     <string name="start_foreground_service" msgid="8968755699895128574">"FGS (MT સિમ્યુલેટ કરવું + બૅકગ્રાઉન્ડમાં ઍપ) શરૂ કરો"</string>
     <string name="start_outgoing" msgid="1441644037370361864">"આઉટગોઇંગ કૉલ શરૂ કરો"</string>
     <string name="start_incoming" msgid="6444983300186361271">"ઇનકમિંગ કૉલ શરૂ કરો"</string>
-    <!-- no translation found for register_callback_intent (2966286786843279948) -->
-    <skip />
-    <!-- no translation found for open_dialer (2180225018029937011) -->
-    <skip />
-    <!-- no translation found for uuid_not_found (4758805286268179147) -->
-    <skip />
-    <!-- no translation found for call_attributes_empty_error (6921783379546938037) -->
-    <skip />
-    <!-- no translation found for back_to_voip_main (2500173767939494261) -->
-    <skip />
-    <!-- no translation found for call_log (2664639384522572724) -->
-    <skip />
-    <!-- no translation found for voip_callback (9213402996514282039) -->
-    <skip />
+    <string name="register_callback_intent" msgid="2966286786843279948">"કૉલબૅક ઇન્ટેન્ટ રજિસ્ટર કરો"</string>
+    <string name="open_dialer" msgid="2180225018029937011">"ડાયલર ખોલો"</string>
+    <string name="uuid_not_found" msgid="4758805286268179147">"કૉલબૅક માટે UUID અસ્તિત્વમાં નથી"</string>
+    <string name="call_attributes_empty_error" msgid="6921783379546938037">"કૉલ વિશેષતાઓ ખાલી ન હોવી જોઈએ. તેમ છતાં ડિફૉલ્ટ શરૂ કરી રહ્યાં છીએ."</string>
+    <string name="back_to_voip_main" msgid="2500173767939494261">"VOIP મુખ્ય ઍક્ટિવિટી પર પાછા"</string>
+    <string name="call_log" msgid="2664639384522572724">"કૉલ લૉગ"</string>
+    <string name="voip_callback" msgid="9213402996514282039">"કૉલબૅકનું પરીક્ષણ કરો"</string>
     <string name="get_call_id" msgid="5513943242738347108">"કૉલર ID સેટ કરેલું નથી"</string>
-    <!-- no translation found for phone_number (1572984477394011525) -->
-    <skip />
+    <string name="phone_number" msgid="1572984477394011525">"ફોન નંબર સેટ કર્યો નથી"</string>
     <string name="set_call_active" msgid="3365404393507589899">"સક્રિય તરીકે સેટ કરો"</string>
     <string name="answer" msgid="5423590397665409939">"જવાબ"</string>
     <string name="set_call_inactive" msgid="7106775211368705195">"નિષ્ક્રિય તરીકે સેટ કરો"</string>

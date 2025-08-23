@@ -731,7 +731,7 @@ public class CallSequencingController {
         // By default, for telephony, it will try to hold the existing call before placing the new
         // emergency call except for if the carrier does not support holding calls for emergency.
         // In this case, telephony will disconnect the call.
-        if (mFeatureFlags.bypassHoldForEccDial() && PhoneAccountHandle.areFromSamePackage(
+        if (PhoneAccountHandle.areFromSamePackage(
                 liveCallPhoneAccount, emergencyCall.getTargetPhoneAccount())) {
             Log.i(this, "makeRoomForOutgoingEmergencyCall: phoneAccount matches.");
             emergencyCall.getAnalytics().setCallIsAdditional(true);

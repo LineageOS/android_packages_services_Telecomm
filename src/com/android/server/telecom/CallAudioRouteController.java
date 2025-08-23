@@ -690,6 +690,14 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         // Decide whether to skip sending a SCO disconnect command.
         boolean shouldAvoidBtDisconnect = shouldAvoidBluetoothDisconnect(
                 isScoDeviceAlreadyConnected, isOriginAlreadyDisconnected);
+        // Override shouldAvoidBtDisconnect if we're moving to inactive routing. We will never run
+        // fully through the destination routing logic but in the original routing logic, we should
+        // ensure that we always call AudioManager#clearCommunicationDevice at the end of the call.
+        // It's possible that isOriginAlreadyDisconnected is true by the time we process the
+        // UNFOCUSED switch, in which case, we would end up not clearing the communication device.
+        if (mIsActive && !isDestRouteActive) {
+            shouldAvoidBtDisconnect = false;
+        }
 
         // If the destination route is already the currently reported communication device from the
         // audio fwk, then we should only reflect the route change in the UI and not try to set/
@@ -733,8 +741,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             mIsPending = true;
         }
         mPendingAudioRoute.setDestRoute(isDestRouteActive, destRoute,
-                mBluetoothRoutes.get(destRoute), shouldAvoidBluetoothDisconnect(
-                        isScoDeviceAlreadyConnected, shouldAvoidBtDisconnect),
+                mBluetoothRoutes.get(destRoute), shouldAvoidBtDisconnect,
                 isDestRouteCommunicationDevice);
         mIsActive = isDestRouteActive;
         mPendingAudioRoute.evaluatePendingState();

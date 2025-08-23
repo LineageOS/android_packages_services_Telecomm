@@ -516,7 +516,6 @@ public class CallSequencingTests extends TelecomTestCase {
     @SmallTest
     @Test
     public void testMakeRoomForOutgoingEmergencyCall_SamePkg() {
-        when(mFeatureFlags.bypassHoldForEccDial()).thenReturn(true);
         // Ensure that the live call and emergency call are from the same pkg.
         when(mActiveCall.getTargetPhoneAccount()).thenReturn(mHandle1);
         when(mNewCall.getTargetPhoneAccount()).thenReturn(mHandle1);

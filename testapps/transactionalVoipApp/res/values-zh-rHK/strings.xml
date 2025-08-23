@@ -23,15 +23,15 @@
     <string name="start_foreground_service" msgid="8968755699895128574">"開始 FGS (模擬 MT + 背景應用程式)"</string>
     <string name="start_outgoing" msgid="1441644037370361864">"開始撥出電話"</string>
     <string name="start_incoming" msgid="6444983300186361271">"開始來電"</string>
-    <string name="register_callback_intent" msgid="2966286786843279948">"註冊回撥意圖"</string>
-    <string name="open_dialer" msgid="2180225018029937011">"開啟撥號程式"</string>
-    <string name="uuid_not_found" msgid="4758805286268179147">"回撥的 UUID 不存在"</string>
-    <string name="call_attributes_empty_error" msgid="6921783379546938037">"通話屬性不得留空。仍要初始化預設值。"</string>
+    <string name="register_callback_intent" msgid="2966286786843279948">"表明回電意圖"</string>
+    <string name="open_dialer" msgid="2180225018029937011">"開啟撥號器"</string>
+    <string name="uuid_not_found" msgid="4758805286268179147">"沒有回電 UUID"</string>
+    <string name="call_attributes_empty_error" msgid="6921783379546938037">"通話屬性不可留空。正在初始化為預設值。"</string>
     <string name="back_to_voip_main" msgid="2500173767939494261">"返回 VoIP 主要活動"</string>
     <string name="call_log" msgid="2664639384522572724">"通話記錄"</string>
-    <string name="voip_callback" msgid="9213402996514282039">"測試回撥"</string>
+    <string name="voip_callback" msgid="9213402996514282039">"回電測試"</string>
     <string name="get_call_id" msgid="5513943242738347108">"未設定來電顯示"</string>
-    <string name="phone_number" msgid="1572984477394011525">"未設定電話號碼"</string>
+    <string name="phone_number" msgid="1572984477394011525">"尚未設定電話號碼"</string>
     <string name="set_call_active" msgid="3365404393507589899">"設為使用中"</string>
     <string name="answer" msgid="5423590397665409939">"接聽"</string>
     <string name="set_call_inactive" msgid="7106775211368705195">"設為停用"</string>

@@ -2040,7 +2040,8 @@ public class CallsManagerTest extends TelecomTestCase {
                 .makeRoomForOutgoingCall(true, newEmergencyCall);
         assertTrue(waitForFutureResult(result, false));
         verify(ringingCall, timeout(TEST_TIMEOUT)).reject(anyBoolean(), any(), any());
-        verify(ongoingCall, timeout(TEST_TIMEOUT)).hold(anyString());
+        // For the same phone account, Telephony will handle the hold logic for the ongoing
+        // call, not Telecom.
     }
 
     @SmallTest
