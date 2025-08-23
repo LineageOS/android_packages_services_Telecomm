@@ -16,3 +16,14 @@ flag {
   description: "Only send calls to the InCallService if the binding is not null"
   bug: "345473659"
 }
+
+# OWNER=sungcheol TARGET=25Q4
+flag {
+  name: "enable_incall_service_class_check"
+  namespace: "telecom"
+  description: "Flag for supporting IncallService API"
+  bug: "414464423"
+  metadata {
+      purpose: PURPOSE_BUGFIX
+  }
+}

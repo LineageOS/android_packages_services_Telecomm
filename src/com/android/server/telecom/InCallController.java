@@ -34,6 +34,7 @@ import android.content.IntentFilter;
 import android.content.PermissionChecker;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.hardware.SensorPrivacyManager;
@@ -2399,11 +2400,16 @@ public class InCallController extends CallsManagerListenerBase implements
         if (list != null && !list.isEmpty()) {
             return list.get(0);
         } else {
-            // Last Resort: Try to bind to the ComponentName given directly.
-            Log.e(this, new Exception(), "Package Manager could not find ComponentName: "
-                    + componentName + ". Trying to bind anyway.");
-            return new InCallServiceInfo(componentName, false, false, type, false);
+            return handleInCallServiceNotFound(componentName, type);
         }
+    }
+
+    @VisibleForTesting
+    public InCallServiceInfo handleInCallServiceNotFound(ComponentName componentName, int type) {
+        // Last Resort: Try to bind to the ComponentName given directly.
+        Log.e(this, new Exception(), "Package Manager could not find ComponentName: "
+                + componentName + ". Trying to bind anyway.");
+        return new InCallServiceInfo(componentName, false, false, type, false);
     }
 
     private InCallServiceInfo getInCallServiceComponent(UserHandle userHandle,
@@ -2466,6 +2472,31 @@ public class InCallController extends CallsManagerListenerBase implements
                 || hasInteractAcrossProfilesAppOp);
     }
 
+    /**
+     * Verifies that the class for a given ServiceInfo exists within its package.
+     * This prevents a system crash if a service is declared in the manifest but its
+     * class was not included in the compiled code.
+     * @param serviceInfo The ServiceInfo of the service to check.
+     * @param userHandle The user under which to check for the service.
+     * @return {@code true} if the class exists, {@code false} otherwise.
+     */
+    private boolean serviceClassExists(ServiceInfo serviceInfo, UserHandle userHandle) {
+        try {
+            Context packageContext = mContext.createPackageContextAsUser(
+                    serviceInfo.packageName,
+                    Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY, userHandle);
+            ClassLoader classLoader = packageContext.getClassLoader();
+            Class.forName(serviceInfo.name, false, classLoader);
+            return true;
+        } catch (NameNotFoundException | ClassNotFoundException e) {
+            Log.w(this, "Skipping InCallService: class not found for " + serviceInfo.name);
+            return false;
+        } catch (Exception e) {
+            Log.e(this, e, "Error checking for existence of " + serviceInfo.name);
+            return false;
+        }
+    }
+
     private List<InCallServiceInfo> getInCallServiceComponents(UserHandle userHandle,
             String packageName, ComponentName componentName,
             int requestedType, boolean ignoreDisabled) {
@@ -2502,6 +2533,11 @@ public class InCallController extends CallsManagerListenerBase implements
             ServiceInfo serviceInfo = entry.serviceInfo;
 
             if (serviceInfo != null) {
+                if (mFeatureFlags.enableIncallServiceClassCheck()) {
+                    if (!serviceClassExists(serviceInfo, userHandle)) {
+                        continue;
+                    }
+                }
                 boolean isExternalCallsSupported = serviceInfo.metaData != null &&
                         serviceInfo.metaData.getBoolean(
                                 TelecomManager.METADATA_INCLUDE_EXTERNAL_CALLS, false);

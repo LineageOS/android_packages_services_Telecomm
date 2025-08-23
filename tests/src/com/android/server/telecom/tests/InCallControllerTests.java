@@ -2091,6 +2091,80 @@ public class InCallControllerTests extends TelecomTestCase {
                 eq(InCallController.IN_CALL_SERVICE_NOTIFICATION_ID), any());
     }
 
+    @Test
+    public void testBindToServices_classCheckFlagOn_classFound() throws Exception {
+        when(mFeatureFlags.enableIncallServiceClassCheck()).thenReturn(true);
+
+        String inCallControllerClassName = InCallController.class.getName();
+        doAnswer(invocation -> {
+            Intent intent = invocation.getArgument(0);
+            String pkg = intent.getPackage();
+
+            ComponentName component = intent.getComponent();
+
+            if (DEF_PKG.equals(pkg)) {
+                return Collections.emptyList();
+            }
+
+            if (component != null && component.getPackageName().equals(SYS_PKG)) {
+                return Collections.singletonList(getOptionalResolveinfo(inCallControllerClassName));
+            }
+            return Collections.emptyList();
+
+        }).when(mMockPackageManager).queryIntentServices(any(), anyInt());
+
+        when(mMockContext.createPackageContextAsUser(eq(SYS_PKG), anyInt(), any(UserHandle.class)))
+                .thenReturn(mMockCreateContextAsUser);
+        when(mMockCreateContextAsUser.getClassLoader())
+                .thenReturn(this.getClass().getClassLoader());
+
+        when(mDefaultDialerCache.getDefaultDialerApplication(mUserHandle)).thenReturn(DEF_PKG);
+        when(mDefaultDialerCache.getSystemDialerComponent()).thenReturn(
+                new ComponentName(SYS_PKG, inCallControllerClassName));
+        setupMocks(false /* isExternalCall */);
+
+        mInCallController.bindToServices(mMockCall);
+
+        // Verify that bindServiceAsUser is called since the class was found successfully.
+        ArgumentCaptor<Intent> bindIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mMockContext).bindServiceAsUser(
+                bindIntentCaptor.capture(),
+                any(ServiceConnection.class),
+                eq(serviceBindingFlags),
+                eq(mUserHandle));
+
+        Intent capturedIntent = bindIntentCaptor.getValue();
+        assertEquals(SYS_PKG, capturedIntent.getComponent().getPackageName());
+        assertEquals(inCallControllerClassName, capturedIntent.getComponent().getClassName());
+    }
+
+    @Test
+    public void testBindToServices_classCheckFlagOn_classNotFound() throws Exception {
+        InCallController spiedInCallController = spy(mInCallController);
+        when(mFeatureFlags.enableIncallServiceClassCheck()).thenReturn(true);
+
+        final String nonExistentClassName =
+                "com.android.server.telecom.tests.NonExistentService";
+
+        when(mMockPackageManager.queryIntentServices(any(), anyInt())).thenReturn(
+                Collections.singletonList(getOptionalResolveinfo(nonExistentClassName)));
+
+        when(mMockContext.createPackageContextAsUser(eq(SYS_PKG), anyInt(),
+                any(UserHandle.class)))
+                .thenReturn(mMockCreateContextAsUser);
+        when(mMockCreateContextAsUser.getClassLoader())
+                .thenReturn(this.getClass().getClassLoader());
+
+        when(mDefaultDialerCache.getDefaultDialerApplication(mUserHandle)).thenReturn(DEF_PKG);
+        when(mDefaultDialerCache.getSystemDialerComponent()).thenReturn(
+                new ComponentName(SYS_PKG, nonExistentClassName));
+        setupMocks(false /* isExternalCall */);
+        spiedInCallController.bindToServices(mMockCall);
+        verify(spiedInCallController).handleInCallServiceNotFound(
+                eq(new ComponentName(SYS_PKG, nonExistentClassName)),
+                anyInt());
+    }
+
     public void setupQueryIntentServices(
             boolean defExternalCalls, boolean defSelfManaged,
             boolean nonUiSelfManaged, boolean isEnabled) {
@@ -2275,6 +2349,18 @@ public class InCallControllerTests extends TelecomTestCase {
             serviceInfo.name = BT_CLS;
             serviceInfo.applicationInfo = new ApplicationInfo();
             serviceInfo.applicationInfo.uid = BT_UID;
+            serviceInfo.enabled = true;
+            serviceInfo.permission = Manifest.permission.BIND_INCALL_SERVICE;
+        }};
+    }
+
+    private ResolveInfo getOptionalResolveinfo(String className) {
+        return new ResolveInfo() {{
+            serviceInfo = new ServiceInfo();
+            serviceInfo.packageName = SYS_PKG;
+            serviceInfo.name = className;
+            serviceInfo.applicationInfo = new ApplicationInfo();
+            serviceInfo.applicationInfo.uid = SYS_UID;
             serviceInfo.enabled = true;
             serviceInfo.permission = Manifest.permission.BIND_INCALL_SERVICE;
         }};
