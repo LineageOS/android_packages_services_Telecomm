@@ -765,7 +765,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
 
     private boolean isCurrentCommunicationDevice(AudioDeviceInfo currentCommunicationDevice,
             AudioRoute destRoute) {
-        if (currentCommunicationDevice == null) {
+        if (currentCommunicationDevice == null || destRoute == null) {
             return false;
         }
         if (destRoute.getBluetoothAddress() != null) {

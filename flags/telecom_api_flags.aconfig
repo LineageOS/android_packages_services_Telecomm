@@ -156,6 +156,9 @@ flag {
   namespace: "telecom"
   description: "Add PROPERTY_REMOTELY_HOSTED to call to mirror what is in Connection."
   bug: "430293079"
+  metadata {
+    purpose: PURPOSE_FEATURE
+  }
 }
 
 # OWNER=tgunn TARGET=26Q2
