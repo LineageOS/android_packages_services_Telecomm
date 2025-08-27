@@ -141,6 +141,17 @@ public class CallIdMapper {
         return mCalls.getValues();
     }
 
+    boolean containsCall(Call call) {
+        if (call == null) {
+            return false;
+        }
+        return containsCallId(call.getId());
+    }
+
+    boolean containsCallId(String callId) {
+        return mCalls.mPrimaryMap.containsKey(callId);
+    }
+
     void clear() {
         mCalls.clear();
     }

@@ -1095,21 +1095,33 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     private void handleMuteChanged(boolean mute) {
         mIsMute = mute;
         if (mIsMute != mAudioManager.isMicrophoneMute() && mIsActive) {
-            IAudioService audioService = mAudioServiceFactory.getAudioService();
-            Log.i(this, "changing microphone mute state to: %b [serviceIsNull=%b]", mute,
-                    audioService == null);
-            if (audioService != null) {
-                try {
-                    audioService.setMicrophoneMute(mute, mContext.getOpPackageName(),
-                            mCallsManager.getCurrentUserHandle().getIdentifier(),
-                            mContext.getAttributionTag());
-                } catch (RemoteException e) {
-                    if (mFeatureFlags.telecomMetricsSupport()) {
-                        mMetricsController.getErrorStats().log(ErrorStats.SUB_CALL_AUDIO,
-                                ErrorStats.ERROR_EXTERNAL_EXCEPTION);
+            if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                Context userContext = mContext.createContextAsUser(
+                        mCallsManager.getCurrentUserHandle(), 0);
+                AudioManager userAudioManager =
+                        (AudioManager) userContext.getSystemService(Context.AUDIO_SERVICE);
+                Log.i(this, "changing microphone mute state to: %b "
+                        + "[userAudioManagerIsNull=%b]", mute, userAudioManager == null);
+                if (userAudioManager != null) {
+                    userAudioManager.setMicrophoneMute(mute);
+                }
+            } else {
+                IAudioService audioService = mAudioServiceFactory.getAudioService();
+                Log.i(this, "changing microphone mute state to: %b [serviceIsNull=%b]", mute,
+                        audioService == null);
+                if (audioService != null) {
+                    try {
+                        audioService.setMicrophoneMute(mute, mContext.getOpPackageName(),
+                                mCallsManager.getCurrentUserHandle().getIdentifier(),
+                                mContext.getAttributionTag());
+                    } catch (RemoteException e) {
+                        if (mFeatureFlags.telecomMetricsSupport()) {
+                            mMetricsController.getErrorStats().log(ErrorStats.SUB_CALL_AUDIO,
+                                    ErrorStats.ERROR_EXTERNAL_EXCEPTION);
+                        }
+                        Log.e(this, e, "Remote exception while toggling mute.");
+                        return;
                     }
-                    Log.e(this, e, "Remote exception while toggling mute.");
-                    return;
                 }
             }
         }

@@ -1228,7 +1228,6 @@ public class CallAudioRouteStateMachineTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testQuiescentBluetoothRouteResetMute() throws Exception {
-        when(mFeatureFlags.resetMuteWhenEnteringQuiescentBtRoute()).thenReturn(true);
         when(mFeatureFlags.transitRouteBeforeAudioDisconnectBt()).thenReturn(true);
         CallAudioRouteStateMachine stateMachine = new CallAudioRouteStateMachine(
                 mContext,

@@ -834,9 +834,7 @@ public class CallAudioRouteStateMachine extends StateMachine implements CallAudi
                             // current state is active.
                             // We don't need to do this in the unflagged path since reinitialize
                             // will turn off mute.
-                            if (mFeatureFlags.resetMuteWhenEnteringQuiescentBtRoute()) {
-                                setMuteOn(false);
-                            }
+                            setMuteOn(false);
                             transitionTo(mQuiescentBluetoothRoute);
                             mBluetoothRouteManager.disconnectAudio();
                         } else {

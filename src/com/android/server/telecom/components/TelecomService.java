@@ -243,8 +243,12 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                             new CallAudioManager.AudioServiceFactory() {
                                 @Override
                                 public IAudioService getAudioService() {
-                                    return IAudioService.Stub.asInterface(
-                                            ServiceManager.getService(Context.AUDIO_SERVICE));
+                                    if (featureFlags.resolveHiddenDependenciesTwo()) {
+                                        return null;
+                                    } else {
+                                        return IAudioService.Stub.asInterface(
+                                                ServiceManager.getService(Context.AUDIO_SERVICE));
+                                    }
                                 }
                             },
                             ConnectionServiceFocusManager::new,

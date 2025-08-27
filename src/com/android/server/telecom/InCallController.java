@@ -1304,7 +1304,7 @@ public class InCallController extends CallsManagerListenerBase implements
     /**
      * A list of call IDs which are currently using the camera.
      */
-    private ArrayList<String> mCallsUsingCamera = new ArrayList<>();
+    private ArraySet<String> mCallsUsingCamera = new ArraySet<>();
 
     private ArraySet<String> mAllCarrierPrivilegedApps = new ArraySet<>();
     private ArraySet<String> mActiveCarrierPrivilegedApps = new ArraySet<>();
@@ -1922,12 +1922,15 @@ public class InCallController extends CallsManagerListenerBase implements
             return;
         }
 
+        if (cameraId != null && !mCallIdMapper.containsCall(call)) {
+            //camera was set, but the call has already been removed. Do nothing
+            return;
+        }
+
         Log.i(this, "onSetCamera callId=%s, cameraId=%s", call.getId(), cameraId);
         if (cameraId != null) {
             boolean shouldStart = mCallsUsingCamera.isEmpty();
-            if (!mCallsUsingCamera.contains(call.getId())) {
-                mCallsUsingCamera.add(call.getId());
-            }
+            mCallsUsingCamera.add(call.getId());
 
             if (shouldStart) {
                 if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
