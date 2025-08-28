@@ -141,3 +141,14 @@ flag {
       purpose: PURPOSE_BUGFIX
     }
 }
+
+# OWNER=tjstuart TARGET=26Q1
+flag {
+  name: "maybe_reroute_audio_on_video_state_change"
+  namespace: "telecom"
+  description: "Fixes a race condition where video calls incorrectly use the earpiece by re-evaluating the audio route when the call's video state is updated."
+  bug: "439441943"
+  metadata {
+      purpose: PURPOSE_BUGFIX
+    }
+}

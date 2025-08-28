@@ -4377,6 +4377,16 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             }
         }
 
+        if (mFlags.maybeRerouteAudioOnVideoStateChange()) {
+            boolean becameVideo = VideoProfile.isVideo(mVideoState)
+                    && !VideoProfile.isVideo(previousVideoState);
+            // If it became a video call while it was already active/connecting,
+            // it's possible the initial audio route was earpiece. We need to re-evaluate.
+            if (becameVideo && isActiveFocus()) {
+                mCallsManager.rerouteAudioForVideoUpgrade(this);
+            }
+        }
+
         if (mFlags.transactionalVideoState() && mIsTransactionalCall) {
             int transactionalVS = VideoProfileStateToTransactionalVideoState(mVideoState);
             if (mTransactionalService != null) {

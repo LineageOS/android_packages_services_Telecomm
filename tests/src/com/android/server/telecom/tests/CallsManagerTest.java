@@ -73,6 +73,7 @@ import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.BlockedNumbersManager;
+import android.telecom.CallAudioState;
 import android.telecom.CallException;
 import android.telecom.CallScreeningService;
 import android.telecom.Connection;
@@ -4001,6 +4002,26 @@ public class CallsManagerTest extends TelecomTestCase {
     @Test
     public void testIgnoreMaxRingingCallOnSamePhoneAccount() {
         verifyMaxRingingCallNoError(SIM_2_HANDLE, TEST_ADDRESS2);
+    }
+
+    @SmallTest
+    @Test
+    public void testRerouteAudioForVideoUpgrade_fromEarpiece_triggersUpdate() throws Exception {
+        // GIVEN a foreground call and the audio route is currently EARPIECE.
+        Call call =  createSpyCall(SIM_1_HANDLE, CallState.ACTIVE);
+        mCallsManager.addCall(call);
+
+        CallAudioState earpieceState = new CallAudioState(false,
+                CallAudioState.ROUTE_EARPIECE,
+                CallAudioState.ROUTE_ALL);
+        when(mCallAudioRouteController.getCurrentCallAudioState()).thenReturn(earpieceState);
+
+        // WHEN the reroute logic is triggered for the call.
+        mCallsManager.rerouteAudioForVideoUpgrade(call);
+
+        // THEN verify that CallsManager sends a message to re-evaluate the audio route.
+        verify(mCallAudioRouteController, atLeastOnce()).sendMessageWithSessionInfo(
+                eq(CallAudioRouteController.USER_SWITCH_SPEAKER));
     }
 
     private void verifyMaxRingingCallNoError(PhoneAccountHandle handle, Uri address) {

@@ -1941,8 +1941,8 @@ public class InCallController extends CallsManagerListenerBase implements
                     // Note, not checking return value, as this op call is merely for tracing use
                     mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_CAMERA, myUid(),
                             mContext.getOpPackageName(), false, null, null);
+                    mSensorPrivacyManager.showSensorUseDialog(SensorPrivacyManager.Sensors.CAMERA);
                 }
-                mSensorPrivacyManager.showSensorUseDialog(SensorPrivacyManager.Sensors.CAMERA);
             }
         } else {
             boolean hadCall = !mCallsUsingCamera.isEmpty();
@@ -3362,8 +3362,9 @@ public class InCallController extends CallsManagerListenerBase implements
                 } else {
                     mAppOpsManager.startOp(AppOpsManager.OP_PHONE_CALL_MICROPHONE, opPackageUid,
                             mContext.getOpPackageName(), false, null, null);
+                    mSensorPrivacyManager
+                            .showSensorUseDialog(SensorPrivacyManager.Sensors.MICROPHONE);
                 }
-                mSensorPrivacyManager.showSensorUseDialog(SensorPrivacyManager.Sensors.MICROPHONE);
             } else {
                 if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
                     mAppOpsManager.finishOp(AppOpsManager.OPSTR_PHONE_CALL_MICROPHONE, opPackageUid,

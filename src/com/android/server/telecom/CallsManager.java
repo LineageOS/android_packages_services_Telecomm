@@ -4518,6 +4518,26 @@ public class CallsManager extends Call.ListenerBase
         mCallEndpointController.requestCallEndpointChange(endpoint, callback);
     }
 
+    /**
+     * Called when a call's video state has changed to see if an audio route
+     * update is warranted (e.g., switching from earpiece to speaker).
+     *
+     * @param call The call that was upgraded.
+     */
+    public void rerouteAudioForVideoUpgrade(Call call) {
+        // Only act if the foreground call is the one that was upgraded.
+        if (call != getForegroundCall()) {
+            return;
+        }
+        CallAudioState audioState = mCallAudioRouteAdapter.getCurrentCallAudioState();
+        // If the call was upgraded to video but is still on the earpiece,
+        // force the audio route to SPEAKER
+        if (audioState.getRoute() == CallAudioState.ROUTE_EARPIECE) {
+            Log.i(this, "Rerouting audio for video upgrade for call: %s", call.getId());
+            setAudioRoute(CallAudioState.ROUTE_SPEAKER, null);
+        }
+    }
+
     /** Called by the in-call UI to turn the proximity sensor on. */
     void turnOnProximitySensor() {
         mProximitySensorManager.turnOn();

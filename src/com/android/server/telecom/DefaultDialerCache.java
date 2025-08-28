@@ -226,6 +226,7 @@ public class DefaultDialerCache {
     }
 
     public void setSystemDialerComponentName(ComponentName testComponentName) {
+        Log.i(this, "setSystemDialerComponentName: %s", testComponentName);
         mOverrideSystemDialerComponentName = testComponentName;
     }
 
@@ -314,6 +315,10 @@ public class DefaultDialerCache {
     }
 
     public void dumpCache(IndentingPrintWriter pw) {
+        pw.println("System Dialer: " + mSystemDialerComponentName);
+        if (mOverrideSystemDialerComponentName != null) {
+            pw.println("System Dialer (override): " + mOverrideSystemDialerComponentName);
+        }
         mCurrentDefaultDialerPerUser.forEach((k, v) -> pw.printf("User %d: %s\n", k, v));
     }
 

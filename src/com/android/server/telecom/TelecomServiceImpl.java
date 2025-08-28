@@ -1345,6 +1345,7 @@ public class TelecomServiceImpl {
         public void setSystemDialer(ComponentName testComponentName) {
             try {
                 Log.startSession("TSI.sSD");
+                Log.i(this, "setSystemDialer: %s", testComponentName);
                 enforceModifyPermission();
                 enforceShellOnly(Binder.getCallingUid(), "setSystemDialer");
                 synchronized (mLock) {

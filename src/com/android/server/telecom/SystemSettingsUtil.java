@@ -86,20 +86,22 @@ public class SystemSettingsUtil {
     }
 
     public boolean isRingVibrationEnabled(Context context, FeatureFlags flags) {
-        // VIBRATE_WHEN_RINGING setting was deprecated, only RING_VIBRATION_INTENSITY controls the
-        // ringtone vibrations on/off state now. Ramping ringer should only be applied when ring
-        // vibration intensity is ON, otherwise the ringtone sound should not be delayed as there
-        // will be no ring vibration.
+        // Ramping ringer should only be applied when ring vibration is ON, otherwise the
+        // ringtone sound should not be delayed as there will be no ring vibration.
         if (flags.resolveHiddenDependenciesTwo()) {
-            // Note: ring_vibration_intensity is documented to have values 0, 1, 2, 3, where 0 is
-            // no intensity.  Elsewhere in the platform 0 is used directly assuming this is just a
-            // typical integer intensity in range [0,3].
+            // Note: VIBRATE_WHEN_RINGING is deprecated but is currently the only system API that
+            // the Haptics Framework team provides. For mainlining Telecom, using
+            // VIBRATE_WHEN_RINGING is our only option currently until the request for a new system
+            // API (b/441480678) has been met.
             return mSystemSettingsReader.getInt(context.getContentResolver(),
-                    Settings.System.RING_VIBRATION_INTENSITY,
+                    Settings.System.VIBRATE_WHEN_RINGING,
                     context.getSystemService(Vibrator.class).getDefaultVibrationIntensity(
                             VibrationAttributes.USAGE_RINGTONE))
                     != 0 && isVibrationEnabled(context, flags);
         } else {
+            // Note: ring_vibration_intensity is documented to have values 0, 1, 2, 3, where 0 is
+            // no intensity.  Elsewhere in the platform 0 is used directly assuming this is just a
+            // typical integer intensity in range [0,3].
             return mSystemSettingsReader.getIntForUser(context.getContentResolver(),
                     Settings.System.RING_VIBRATION_INTENSITY,
                     context.getSystemService(Vibrator.class).getDefaultVibrationIntensity(
