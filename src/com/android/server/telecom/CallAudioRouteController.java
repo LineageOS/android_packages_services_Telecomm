@@ -80,7 +80,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                 AudioRoute.Factory audioRouteFactory, WiredHeadsetManager wiredHeadsetManager,
                 BluetoothRouteManager bluetoothRouteManager, StatusBarNotifier notifier,
                 FeatureFlags featureFlags, TelecomMetricsController metricsController,
-                AnomalyReporterAdapter anomalyReporterAdapter) {
+                AsyncRingtonePlayer ringtonePlayer, AnomalyReporterAdapter anomalyReporterAdapter) {
             return new CallAudioRouteController(context,
                     callsManager,
                     audioServiceFactory,
@@ -90,6 +90,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                     notifier,
                     featureFlags,
                     metricsController,
+                    ringtonePlayer,
                     anomalyReporterAdapter);
         }
     }
@@ -115,6 +116,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     }
 
     /** Valid values for the first argument for SWITCH_BASELINE_ROUTE */
+    public static final int NO_INCLUDE_BLUETOOTH_IN_BASELINE = 0;
     public static final int INCLUDE_BLUETOOTH_IN_BASELINE = 1;
 
     private final CallsManager mCallsManager;
@@ -125,6 +127,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
     private final CallAudioManager.AudioServiceFactory mAudioServiceFactory;
     private final Handler mHandler;
     private final WiredHeadsetManager mWiredHeadsetManager;
+    private final AsyncRingtonePlayer mRingtonePlayer;
     private Set<AudioRoute> mAvailableRoutes;
     private Set<AudioRoute> mCallSupportedRoutes;
     private AudioRoute mCurrentRoute;
@@ -277,7 +280,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             AudioRoute.Factory audioRouteFactory, WiredHeadsetManager wiredHeadsetManager,
             BluetoothRouteManager bluetoothRouteManager, StatusBarNotifier statusBarNotifier,
             FeatureFlags featureFlags, TelecomMetricsController metricsController,
-            AnomalyReporterAdapter anomalyReporterAdapter) {
+            AsyncRingtonePlayer ringtonePlayer, AnomalyReporterAdapter anomalyReporterAdapter) {
         mContext = context;
         mCallsManager = callsManager;
         mAudioManager = context.getSystemService(AudioManager.class);
@@ -289,6 +292,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         mStatusBarNotifier = statusBarNotifier;
         mFeatureFlags = featureFlags;
         mMetricsController = metricsController;
+        mRingtonePlayer = ringtonePlayer;
         mAnomalyReporterAdapter = anomalyReporterAdapter;
         mFocusType = NO_FOCUS;
         mScoAudioConnectedDevice = null;
@@ -2210,6 +2214,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                                previousCommunicationDevice.getAddress())) {
                 handleBtConnectionStateChanged(previousCommunicationDevice.getAddress(),
                         false /* isScoConnected */);
+                mRingtonePlayer.updateBtActiveState(false);
             }
 
             // DESTINATION ROUTING HANDLING:
@@ -2228,6 +2233,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                 // Signal BT_AUDIO_CONNECTED if needed
                 handleBtConnectionStateChanged(newCommunicationDevice.getAddress(),
                         true /* isScoConnected */);
+                mRingtonePlayer.updateBtActiveState(true);
             }
         }
     }

@@ -1928,9 +1928,16 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
 
                 GatewayInfo gatewayInfo = call.getGatewayInfo();
                 Bundle extras = call.getIntentExtras();
+                if (extras != null) {
+                    // always call extras.clone() to avoid causing crash if the extra is empty
+                    // immutable
+                    extras = (Bundle) extras.clone();
+                } else {
+                    extras = new Bundle();
+                }
+
                 if (gatewayInfo != null && gatewayInfo.getGatewayProviderPackageName() != null &&
                         gatewayInfo.getOriginalAddress() != null) {
-                    extras = (Bundle) extras.clone();
                     extras.putString(
                             TelecomManager.GATEWAY_PROVIDER_PACKAGE,
                             gatewayInfo.getGatewayProviderPackageName());
@@ -1941,10 +1948,6 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
 
                 if (call.isIncoming() && mCallsManager.getEmergencyCallHelper()
                         .getLastEmergencyCallTimeMillis() > 0) {
-                  // Add the last emergency call time to the connection request for incoming calls
-                  if (extras == call.getIntentExtras()) {
-                    extras = (Bundle) extras.clone();
-                  }
                   extras.putLong(android.telecom.Call.EXTRA_LAST_EMERGENCY_CALLBACK_TIME_MILLIS,
                       mCallsManager.getEmergencyCallHelper().getLastEmergencyCallTimeMillis());
                 }

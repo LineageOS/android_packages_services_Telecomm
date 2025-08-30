@@ -503,7 +503,8 @@ public class CallLogUtils {
                 UserManager.DISALLOW_OUTGOING_CALLS, userHandle)) {
             return false;
         }
-        return isProfile(context, userHandle);
+        // Logs should not be shared for profiles
+        return !isProfile(context, userHandle);
     }
 
     private static boolean isProfile(Context context, UserHandle userHandle) {

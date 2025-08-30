@@ -45,7 +45,7 @@ import com.android.internal.telecom.ITelecomLoader;
 import com.android.internal.telecom.ITelecomService;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.CallAudioModeStateMachine;
-import com.android.server.telecom.CallAudioRouteStateMachine;
+import com.android.server.telecom.CallAudioRouteController;
 import com.android.server.telecom.CallerInfoAsyncQueryFactory;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.ClockProxy;
@@ -257,7 +257,7 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                             new PhoneNumberUtilsAdapterImpl(),
                             new IncomingCallNotifier(context, featureFlags),
                             ToneGenerator::new,
-                            new CallAudioRouteStateMachine.Factory(),
+                            new CallAudioRouteController.Factory(),
                             new CallAudioModeStateMachine.Factory(),
                             new ClockProxy() {
                                 @Override

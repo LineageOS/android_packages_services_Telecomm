@@ -260,6 +260,17 @@ public class PhoneAccountRegistrar {
     }
 
     /**
+     * Determines if the passed in {@link PhoneAccountHandle} has
+     * {@link PhoneAccount#CAPABILITY_SIM_SUBSCRIPTION}.
+     * @param accountHandle the account handle
+     * @return if the account has capability sim subscription.
+     */
+    public boolean isCapabilitySimPhoneAccount(@NonNull PhoneAccountHandle accountHandle) {
+        PhoneAccount account = getPhoneAccountUnchecked(accountHandle);
+        return account != null && account.hasCapabilities(PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION);
+    }
+
+    /**
      * Checks if the subscription ID is active.
      * An active subscription ID is a valid and usable subscription ID.
      *

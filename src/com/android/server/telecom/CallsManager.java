@@ -682,7 +682,6 @@ public class CallsManager extends Call.ListenerBase
             BlockedNumbersAdapter blockedNumbersAdapter,
             TransactionManager transactionManager,
             EmergencyCallDiagnosticLogger emergencyCallDiagnosticLogger,
-            CallAudioCommunicationDeviceTracker communicationDeviceTracker,
             CallStreamingNotification callStreamingNotification,
             BluetoothDeviceManager bluetoothDeviceManager,
             FeatureFlags featureFlags,
@@ -742,7 +741,7 @@ public class CallsManager extends Call.ListenerBase
         mCallAudioRouteAdapter = audioRouteControllerFactory.create(context, this,
                 audioServiceFactory, new AudioRoute.Factory(), wiredHeadsetManager,
                 mBluetoothRouteManager, statusBarNotifier, featureFlags, metricsController,
-                mAnomalyReporter);
+                asyncRingtonePlayer, mAnomalyReporter);
         mCallAudioRouteAdapter.initialize();
         bluetoothStateReceiver.setCallAudioRouteAdapter(mCallAudioRouteAdapter);
         bluetoothDeviceManager.setCallAudioRouteAdapter(mCallAudioRouteAdapter);
@@ -750,10 +749,8 @@ public class CallsManager extends Call.ListenerBase
         CallAudioRoutePeripheralAdapter callAudioRoutePeripheralAdapter =
                 new CallAudioRoutePeripheralAdapter(
                         mCallAudioRouteAdapter,
-                        bluetoothManager,
                         wiredHeadsetManager,
-                        mDockManager,
-                        asyncRingtonePlayer);
+                        mDockManager);
         AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         InCallTonePlayer.MediaPlayerFactory mediaPlayerFactory = (resourceId, attributes) -> {
           MediaPlayer mediaPlayer;
@@ -766,8 +763,8 @@ public class CallsManager extends Call.ListenerBase
           }
           return new InCallTonePlayer.MediaPlayerAdapterImpl(mediaPlayer);
         };
-        InCallTonePlayer.Factory playerFactory = new InCallTonePlayer.Factory(
-                callAudioRoutePeripheralAdapter, lock, toneGeneratorFactory, mediaPlayerFactory,
+        InCallTonePlayer.Factory playerFactory = new InCallTonePlayer.Factory(lock,
+                toneGeneratorFactory, mediaPlayerFactory,
                 () -> audioManager.getStreamVolume(AudioManager.STREAM_RING) > 0, featureFlags,
                 Looper.getMainLooper());
 
@@ -797,8 +794,7 @@ public class CallsManager extends Call.ListenerBase
         mCallAudioManager = new CallAudioManager(mCallAudioRouteAdapter,
                 this, callAudioModeStateMachineFactory.create(systemStateHelper,
                 (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE),
-                featureFlags, communicationDeviceTracker),
-                playerFactory, mRinger, new RingbackPlayer(playerFactory),
+                featureFlags), playerFactory, mRinger, new RingbackPlayer(playerFactory),
                 bluetoothStateReceiver, mDtmfLocalTonePlayer, featureFlags,
                 mCallConnectedIndicatorSettings);
 
@@ -4570,6 +4566,11 @@ public class CallsManager extends Call.ListenerBase
     }
 
     public PersistableBundle getCarrierConfigForPhoneAccount(PhoneAccountHandle handle) {
+        // If the phone account isn't for a sim subscription, then carrier config does not apply
+        // so return an empty bundle.
+        if (!mPhoneAccountRegistrar.isCapabilitySimPhoneAccount(handle)) {
+            return new PersistableBundle();
+        }
         int subscriptionId = mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(handle);
         CarrierConfigManager carrierConfigManager =
                 mContext.getSystemService(CarrierConfigManager.class);

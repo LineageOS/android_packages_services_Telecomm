@@ -71,12 +71,13 @@ import android.telephony.TelephonyManager;
 import android.telephony.TelephonyRegistryManager;
 
 import com.android.internal.telecom.IInCallAdapter;
+import com.android.server.telecom.AnomalyReporterAdapter;
 import com.android.server.telecom.AsyncRingtonePlayer;
-import com.android.server.telecom.CallAudioCommunicationDeviceTracker;
+import com.android.server.telecom.AudioRoute;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioRouteAdapter;
-import com.android.server.telecom.CallAudioRouteStateMachine;
+import com.android.server.telecom.CallAudioRouteController;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.CallsManagerListenerBase;
@@ -105,6 +106,7 @@ import com.android.server.telecom.callfiltering.BlockedNumbersAdapter;
 import com.android.server.telecom.callsequencing.voip.VoipCallMonitor;
 import com.android.server.telecom.components.UserCallIntentProcessor;
 import com.android.server.telecom.flags.FeatureFlags;
+import com.android.server.telecom.metrics.TelecomMetricsController;
 import com.android.server.telecom.ui.IncomingCallNotifier;
 
 import com.google.common.base.Predicate;
@@ -222,8 +224,6 @@ public class TelecomSystemTest extends TelecomTestCase{
     @Mock Ringer.AccessibilityManagerAdapter mAccessibilityManagerAdapter;
     @Mock
     BlockedNumbersAdapter mBlockedNumbersAdapter;
-    @Mock
-    CallAudioCommunicationDeviceTracker mCommunicationDeviceTracker;
     @Mock
     FeatureFlags mFeatureFlags;
     @Mock
@@ -560,42 +560,37 @@ public class TelecomSystemTest extends TelecomTestCase{
                 new PhoneNumberUtilsAdapterImpl(),
                 mIncomingCallNotifier,
                 (streamType, volume) -> mToneGenerator,
-                new CallAudioRouteStateMachine.Factory() {
-                    @Override
-                    public CallAudioRouteStateMachine create(
+                new CallAudioRouteController.Factory() {
+                    public CallAudioRouteController create(
                             Context context,
                             CallsManager callsManager,
                             BluetoothRouteManager bluetoothManager,
                             WiredHeadsetManager wiredHeadsetManager,
                             StatusBarNotifier statusBarNotifier,
                             CallAudioManager.AudioServiceFactory audioServiceFactory,
-                            int earpieceControl,
-                            Executor asyncTaskExecutor,
-                            CallAudioCommunicationDeviceTracker communicationDeviceTracker,
-                            FeatureFlags featureFlags) {
-                        return new CallAudioRouteStateMachine(context,
+                            FeatureFlags featureFlags,
+                            TelecomMetricsController metricsController,
+                            AsyncRingtonePlayer ringtonePlayer,
+                            AnomalyReporterAdapter anomalyReporter) {
+                        return new CallAudioRouteController(context,
                                 callsManager,
-                                bluetoothManager,
-                                wiredHeadsetManager,
-                                statusBarNotifier,
                                 audioServiceFactory,
-                                // Force enable an earpiece for the end-to-end tests
-                                CallAudioRouteStateMachine.EARPIECE_FORCE_ENABLED,
-                                mHandlerThread.getLooper(),
-                                Runnable::run /* async tasks as now sync for testing! */,
-                                communicationDeviceTracker,
-                                featureFlags);
+                                new AudioRoute.Factory(),
+                                wiredHeadsetManager,
+                                bluetoothManager,
+                                statusBarNotifier,
+                                featureFlags,
+                                metricsController,
+                                ringtonePlayer,
+                                anomalyReporter);
                     }
                 },
                 new CallAudioModeStateMachine.Factory() {
                     @Override
                     public CallAudioModeStateMachine create(SystemStateHelper systemStateHelper,
-                            AudioManager am, FeatureFlags featureFlags,
-                            CallAudioCommunicationDeviceTracker callAudioCommunicationDeviceTracker
-                    ) {
+                            AudioManager am, FeatureFlags featureFlags) {
                         return new CallAudioModeStateMachine(systemStateHelper, am,
-                                mHandlerThread.getLooper(), featureFlags,
-                                callAudioCommunicationDeviceTracker);
+                                mHandlerThread.getLooper(), featureFlags);
                     }
                 },
                 mClockProxy,

@@ -24,6 +24,7 @@ import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.UserHandle;
@@ -39,6 +40,8 @@ import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.TelephonyUtil;
 import com.android.server.telecom.UserUtil;
 import com.android.server.telecom.flags.FeatureFlags;
+import com.android.server.telecom.metrics.EventStats;
+import com.android.server.telecom.metrics.EventStats.CriticalEvent;
 
 /**
  * Handles system CALL actions and forwards them to {@link CallIntentProcessor}.
@@ -134,6 +137,17 @@ public class UserCallIntentProcessor {
         // the call log. If so, don't continue processing this call in Telecom. The corresponding
         // VOIP app will initiate the call themselves via {@link TelecomManager#addCall}.
         if (isProcessingCallbackAction(handle)) {
+            try {
+                int uid = mContext.getPackageManager().getPackageUid(
+                        callingPackageName, PackageManager.PackageInfoFlags.of(0));
+                TelecomSystem.getInstance().getMetricsController().getEventStats().log(
+                        new CriticalEvent(
+                                EventStats.ID_CALL_BACK, uid,
+                                EventStats.CAUSE_GENERIC_SUCCESS));
+            } catch (PackageManager.NameNotFoundException e) {
+                Log.w(this, "unable to find the uid for " + callingPackageName);
+            }
+
             return;
         }
 

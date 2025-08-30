@@ -32,11 +32,10 @@ import android.os.HandlerThread;
 
 import androidx.test.filters.SmallTest;
 
-import com.android.server.telecom.CallAudioCommunicationDeviceTracker;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioModeStateMachine.MessageArgs.Builder;
-import com.android.server.telecom.CallAudioRouteStateMachine;
+import com.android.server.telecom.CallAudioRouteController;
 import com.android.server.telecom.SystemStateHelper;
 
 import org.junit.After;
@@ -53,8 +52,7 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
     @Mock private SystemStateHelper mSystemStateHelper;
     @Mock private AudioManager mAudioManager;
     @Mock private CallAudioManager mCallAudioManager;
-    @Mock private CallAudioRouteStateMachine mCallAudioRouteStateMachine;
-    @Mock private CallAudioCommunicationDeviceTracker mCommunicationDeviceTracker;
+    @Mock private CallAudioRouteController mCallAudioRouteController;
 
     private HandlerThread mTestThread;
 
@@ -65,7 +63,7 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
         mTestThread.start();
         super.setUp();
         when(mCallAudioManager.getCallAudioRouteAdapter())
-                .thenReturn(mCallAudioRouteStateMachine);
+                .thenReturn(mCallAudioRouteController);
         when(mFeatureFlags.telecomResolveHiddenDependencies()).thenReturn(false);
     }
 
@@ -81,7 +79,7 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
     @Test
     public void testNoFocusWhenRingerSilenced() throws Throwable {
         CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mSystemStateHelper,
-                mAudioManager, mTestThread.getLooper(), mFeatureFlags, mCommunicationDeviceTracker);
+                mAudioManager, mTestThread.getLooper(), mFeatureFlags);
         sm.setCallAudioManager(mCallAudioManager);
         sm.sendMessage(CallAudioModeStateMachine.ABANDON_FOCUS_FOR_TESTING);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
@@ -113,7 +111,7 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
     @Test
     public void testSwitchToStreamingMode() {
         CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mSystemStateHelper,
-                mAudioManager, mTestThread.getLooper(), mFeatureFlags, mCommunicationDeviceTracker);
+                mAudioManager, mTestThread.getLooper(), mFeatureFlags);
         sm.setCallAudioManager(mCallAudioManager);
         sm.sendMessage(CallAudioModeStateMachine.ABANDON_FOCUS_FOR_TESTING);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
@@ -143,7 +141,7 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
     @Test
     public void testExitStreamingMode() {
         CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mSystemStateHelper,
-                mAudioManager, mTestThread.getLooper(), mFeatureFlags, mCommunicationDeviceTracker);
+                mAudioManager, mTestThread.getLooper(), mFeatureFlags);
         sm.setCallAudioManager(mCallAudioManager);
         sm.sendMessage(CallAudioModeStateMachine.ENTER_STREAMING_FOCUS_FOR_TESTING);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
@@ -171,7 +169,7 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
     @Test
     public void testNoRingWhenDeviceIsAtEar() {
         CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mSystemStateHelper,
-                mAudioManager, mTestThread.getLooper(), mFeatureFlags, mCommunicationDeviceTracker);
+                mAudioManager, mTestThread.getLooper(), mFeatureFlags);
         sm.setCallAudioManager(mCallAudioManager);
         sm.sendMessage(CallAudioModeStateMachine.ABANDON_FOCUS_FOR_TESTING);
         sm.sendMessage(CallAudioModeStateMachine.NEW_HOLDING_CALL, new Builder()
@@ -207,7 +205,7 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
     @Test
     public void testRegainFocusWhenHfpIsConnectedSilenced() throws Throwable {
         CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mSystemStateHelper,
-                mAudioManager, mTestThread.getLooper(), mFeatureFlags, mCommunicationDeviceTracker);
+                mAudioManager, mTestThread.getLooper(), mFeatureFlags);
         sm.setCallAudioManager(mCallAudioManager);
         sm.sendMessage(CallAudioModeStateMachine.ABANDON_FOCUS_FOR_TESTING);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
@@ -244,14 +242,14 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
                 AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
         verify(mAudioManager).setMode(AudioManager.MODE_RINGTONE);
         verify(mCallAudioManager).setCallAudioRouteFocusState(
-                CallAudioRouteStateMachine.RINGING_FOCUS);
+                CallAudioRouteController.RINGING_FOCUS);
     }
 
     @SmallTest
     @Test
     public void testDoNotRingTwiceWhenHfpConnected() {
         CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mSystemStateHelper,
-                mAudioManager, mTestThread.getLooper(), mFeatureFlags, mCommunicationDeviceTracker);
+                mAudioManager, mTestThread.getLooper(), mFeatureFlags);
         sm.setCallAudioManager(mCallAudioManager);
         sm.sendMessage(CallAudioModeStateMachine.ABANDON_FOCUS_FOR_TESTING);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
@@ -275,7 +273,7 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
                 AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
         verify(mAudioManager).setMode(AudioManager.MODE_RINGTONE);
         verify(mCallAudioManager).setCallAudioRouteFocusState(
-                CallAudioRouteStateMachine.RINGING_FOCUS);
+                CallAudioRouteController.RINGING_FOCUS);
 
         when(mCallAudioManager.isRingtonePlaying()).thenReturn(true);
         sm.sendMessage(CallAudioModeStateMachine.RINGER_MODE_CHANGE);
@@ -289,7 +287,7 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
     @Test
     public void testStartRingingAfterHfpConnectedIfNotAlreadyPlaying() {
         CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mSystemStateHelper,
-                mAudioManager, mTestThread.getLooper(), mFeatureFlags, mCommunicationDeviceTracker);
+                mAudioManager, mTestThread.getLooper(), mFeatureFlags);
         sm.setCallAudioManager(mCallAudioManager);
         sm.sendMessage(CallAudioModeStateMachine.ABANDON_FOCUS_FOR_TESTING);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
@@ -313,7 +311,7 @@ public class CallAudioModeStateMachineTest extends TelecomTestCase {
                 AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
         verify(mAudioManager).setMode(AudioManager.MODE_RINGTONE);
         verify(mCallAudioManager).setCallAudioRouteFocusState(
-                CallAudioRouteStateMachine.RINGING_FOCUS);
+                CallAudioRouteController.RINGING_FOCUS);
 
         when(mCallAudioManager.isRingtonePlaying()).thenReturn(false);
         sm.sendMessage(CallAudioModeStateMachine.RINGER_MODE_CHANGE);

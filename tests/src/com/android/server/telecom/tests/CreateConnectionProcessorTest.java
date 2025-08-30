@@ -38,6 +38,7 @@ import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.UserHandle;
 import android.platform.test.flag.junit.SetFlagsRule;
 import android.telecom.DisconnectCause;
@@ -192,6 +193,85 @@ public class CreateConnectionProcessorTest extends TelecomTestCase {
         verify(mMockCall).setConnectionService(eq(service));
         verify(service).createConnection(eq(mMockCall), any(CreateConnectionResponse.class));
         // Notify successful connection to call
+        CallIdMapper mockCallIdMapper = mock(CallIdMapper.class);
+        mTestCreateConnectionProcessor.handleCreateConnectionSuccess(mockCallIdMapper, null);
+        verify(mMockCreateConnectionResponse).handleCreateConnectionSuccess(mockCallIdMapper, null);
+    }
+
+    /**
+     * Verifies that the CreateConnectionProcessor can successfully process a call
+     * when the intent extras in the call are null. This is important to prevent
+     * NullPointerExceptions downstream.
+     */
+    @SmallTest
+    @Test
+    public void testProcessWithNullIntentExtras() throws Exception {
+        PhoneAccountHandle pAHandle = getNewTargetPhoneAccountHandle("tel_acct");
+        setTargetPhoneAccount(mMockCall, pAHandle);
+        when(mMockCall.isEmergencyCall()).thenReturn(false);
+        // Setup the call with null intent extras.
+        when(mMockCall.getIntentExtras()).thenReturn(null);
+        when(mMockAccountRegistrar.getSimCallManagerFromCall(any(Call.class))).thenReturn(null);
+        ConnectionServiceWrapper service = makeConnectionServiceWrapper();
+
+        mTestCreateConnectionProcessor.process();
+
+        // Verify that createConnection is still called on the service wrapper.
+        verify(service).createConnection(eq(mMockCall), any(CreateConnectionResponse.class));
+        // Verify that the processor reports success.
+        CallIdMapper mockCallIdMapper = mock(CallIdMapper.class);
+        mTestCreateConnectionProcessor.handleCreateConnectionSuccess(mockCallIdMapper, null);
+        verify(mMockCreateConnectionResponse).handleCreateConnectionSuccess(mockCallIdMapper, null);
+    }
+
+    /**
+     * Verifies that the CreateConnectionProcessor can successfully process a call
+     * with an empty, immutable Bundle for extras. This tests the edge case of an
+     * empty but non-null Bundle.
+     */
+    @SmallTest
+    @Test
+    public void testProcessWithEmptyImmutableIntentExtras() throws Exception {
+        PhoneAccountHandle pAHandle = getNewTargetPhoneAccountHandle("tel_acct");
+        setTargetPhoneAccount(mMockCall, pAHandle);
+        when(mMockCall.isEmergencyCall()).thenReturn(false);
+        // Setup the call with an empty immutable bundle.
+        when(mMockCall.getIntentExtras()).thenReturn(Bundle.EMPTY);
+        when(mMockAccountRegistrar.getSimCallManagerFromCall(any(Call.class))).thenReturn(null);
+        ConnectionServiceWrapper service = makeConnectionServiceWrapper();
+
+        mTestCreateConnectionProcessor.process();
+
+        // Verify that createConnection is called.
+        verify(service).createConnection(eq(mMockCall), any(CreateConnectionResponse.class));
+        // Verify that the processor reports success.
+        CallIdMapper mockCallIdMapper = mock(CallIdMapper.class);
+        mTestCreateConnectionProcessor.handleCreateConnectionSuccess(mockCallIdMapper, null);
+        verify(mMockCreateConnectionResponse).handleCreateConnectionSuccess(mockCallIdMapper, null);
+    }
+
+    /**
+     * Verifies that the CreateConnectionProcessor can successfully process a call
+     * with a populated Bundle for extras. This is the common case.
+     */
+    @SmallTest
+    @Test
+    public void testProcessWithPopulatedIntentExtras() throws Exception {
+        PhoneAccountHandle pAHandle = getNewTargetPhoneAccountHandle("tel_acct");
+        setTargetPhoneAccount(mMockCall, pAHandle);
+        when(mMockCall.isEmergencyCall()).thenReturn(false);
+        // Setup the call with a populated bundle.
+        Bundle extras = new Bundle();
+        extras.putString("test_key", "test_value");
+        when(mMockCall.getIntentExtras()).thenReturn(extras);
+        when(mMockAccountRegistrar.getSimCallManagerFromCall(any(Call.class))).thenReturn(null);
+        ConnectionServiceWrapper service = makeConnectionServiceWrapper();
+
+        mTestCreateConnectionProcessor.process();
+
+        // Verify that createConnection is called.
+        verify(service).createConnection(eq(mMockCall), any(CreateConnectionResponse.class));
+        // Verify that the processor reports success.
         CallIdMapper mockCallIdMapper = mock(CallIdMapper.class);
         mTestCreateConnectionProcessor.handleCreateConnectionSuccess(mockCallIdMapper, null);
         verify(mMockCreateConnectionResponse).handleCreateConnectionSuccess(mockCallIdMapper, null);

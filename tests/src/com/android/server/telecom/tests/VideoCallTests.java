@@ -39,7 +39,6 @@ import com.android.server.telecom.AudioRoute;
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioRouteAdapter;
 import com.android.server.telecom.CallAudioRouteController;
-import com.android.server.telecom.CallAudioRouteStateMachine;
 
 import org.junit.After;
 import org.junit.Before;
@@ -286,7 +285,7 @@ public class VideoCallTests extends TelecomSystemTest {
             cara.sendMessageWithSessionInfo(SPEAKER_ON);
             waitForHandlerActionDelayed(cara.getAdapterHandler(), TEST_TIMEOUT, TEST_TIMEOUT);
         }
-        cara.sendMessage(CallAudioRouteStateMachine.RUN_RUNNABLE, (Runnable) () -> {
+        cara.sendMessage(CallAudioRouteController.RUN_RUNNABLE, (Runnable) () -> {
             ArgumentCaptor<CallAudioState> callAudioStateArgumentCaptor = ArgumentCaptor.forClass(
                     CallAudioState.class);
             try {

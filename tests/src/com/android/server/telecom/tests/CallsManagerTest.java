@@ -67,6 +67,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.OutcomeReceiver;
+import android.os.PersistableBundle;
 import android.os.Process;
 import android.os.ResultReceiver;
 import android.os.SystemClock;
@@ -97,11 +98,9 @@ import com.android.server.telecom.AnomalyReporterAdapter;
 import com.android.server.telecom.AsyncRingtonePlayer;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallAnomalyWatchdog;
-import com.android.server.telecom.CallAudioCommunicationDeviceTracker;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioRouteController;
-import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.CallDiagnosticServiceController;
 import com.android.server.telecom.CallEndpointController;
 import com.android.server.telecom.CallEndpointControllerFactory;
@@ -320,7 +319,6 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private Ringer.AccessibilityManagerAdapter mAccessibilityManagerAdapter;
     @Mock private BlockedNumbersAdapter mBlockedNumbersAdapter;
     @Mock private PhoneCapability mPhoneCapability;
-    @Mock private CallAudioCommunicationDeviceTracker mCommunicationDeviceTracker;
     @Mock private CallStreamingNotification mCallStreamingNotification;
     @Mock private BluetoothDeviceManager mBluetoothDeviceManager;
     @Mock private FeatureFlags mFeatureFlags;
@@ -350,8 +348,8 @@ public class CallsManagerTest extends TelecomTestCase {
         when(mCallEndpointControllerFactory.create(any(), any(), any())).thenReturn(
                 mCallEndpointController);
         when(mCallAudioRouteControllerFactory.create(any(), any(), any(), any(), any(), any(),
-                any(), any(), any(), any())).thenReturn(mCallAudioRouteController);
-        when(mCallAudioModeStateMachineFactory.create(any(), any(), any(), any()))
+                any(), any(), any(), any(), any())).thenReturn(mCallAudioRouteController);
+        when(mCallAudioModeStateMachineFactory.create(any(), any(), any()))
                 .thenReturn(mCallAudioModeStateMachine);
         when(mClockProxy.currentTimeMillis()).thenReturn(System.currentTimeMillis());
         when(mClockProxy.elapsedRealtime()).thenReturn(SystemClock.elapsedRealtime());
@@ -406,7 +404,6 @@ public class CallsManagerTest extends TelecomTestCase {
                 mBlockedNumbersAdapter,
                 TransactionManager.getTestInstance(),
                 mEmergencyCallDiagnosticLogger,
-                mCommunicationDeviceTracker,
                 mCallStreamingNotification,
                 mBluetoothDeviceManager,
                 mFeatureFlags,
@@ -1619,7 +1616,7 @@ public class CallsManagerTest extends TelecomTestCase {
 
         // THEN the microphone toggle mute
         verify(mCallAudioRouteController)
-                .sendMessageWithSessionInfo(CallAudioRouteStateMachine.TOGGLE_MUTE);
+                .sendMessageWithSessionInfo(CallAudioRouteController.TOGGLE_MUTE);
     }
 
     @SmallTest
@@ -4080,6 +4077,75 @@ public class CallsManagerTest extends TelecomTestCase {
         mCallsManager.markCallAsDisconnected(incomingCall,
             new DisconnectCause(DisconnectCause.OTHER));
         assertEquals(CallState.DISCONNECTED, incomingCall.getState());
+    }
+
+    @SmallTest
+    @Test
+    public void testGetCarrierConfigForPhoneAccount_nonSimAccount() {
+        // GIVEN a non-SIM phone account
+        when(mPhoneAccountRegistrar.isCapabilitySimPhoneAccount(SIM_1_HANDLE)).thenReturn(false);
+
+        // WHEN getCarrierConfigForPhoneAccount is called
+        PersistableBundle result = mCallsManager.getCarrierConfigForPhoneAccount(SIM_1_HANDLE);
+
+        // THEN the result should be an empty PersistableBundle
+        assertTrue(result.isEmpty());
+        // and we should not have tried to get the subscription ID or the CarrierConfigManager
+        verify(mPhoneAccountRegistrar, never()).getSubscriptionIdForPhoneAccount(any());
+        verify(mComponentContextFixture.getCarrierConfigManager(), never()).getConfigForSubId(
+                anyInt());
+    }
+
+    @SmallTest
+    @Test
+    public void testGetCarrierConfigForPhoneAccount_nullCarrierConfigManager() {
+        // GIVEN a SIM phone account
+        when(mPhoneAccountRegistrar.isCapabilitySimPhoneAccount(SIM_1_HANDLE)).thenReturn(true);
+        when(mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(SIM_1_HANDLE)).thenReturn(1);
+        // and the CarrierConfigManager service is not available
+        when(mContext.getSystemService(CarrierConfigManager.class)).thenReturn(null);
+
+        // WHEN getCarrierConfigForPhoneAccount is called
+        PersistableBundle result = mCallsManager.getCarrierConfigForPhoneAccount(SIM_1_HANDLE);
+
+        // THEN the result should be an empty PersistableBundle
+        assertTrue(result.isEmpty());
+    }
+
+    @SmallTest
+    @Test
+    public void testGetCarrierConfigForPhoneAccount_nullConfig() {
+        // GIVEN a SIM phone account
+        when(mPhoneAccountRegistrar.isCapabilitySimPhoneAccount(SIM_1_HANDLE)).thenReturn(true);
+        when(mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(SIM_1_HANDLE)).thenReturn(1);
+        // and the CarrierConfigManager returns null for the config
+        when(mComponentContextFixture.getCarrierConfigManager().getConfigForSubId(1)).thenReturn(
+                null);
+
+        // WHEN getCarrierConfigForPhoneAccount is called
+        PersistableBundle result = mCallsManager.getCarrierConfigForPhoneAccount(SIM_1_HANDLE);
+
+        // THEN the result should be an empty PersistableBundle
+        assertTrue(result.isEmpty());
+    }
+
+    @SmallTest
+    @Test
+    public void testGetCarrierConfigForPhoneAccount_success() {
+        // GIVEN a SIM phone account
+        when(mPhoneAccountRegistrar.isCapabilitySimPhoneAccount(SIM_1_HANDLE)).thenReturn(true);
+        when(mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(SIM_1_HANDLE)).thenReturn(1);
+        // and the CarrierConfigManager returns a valid config
+        PersistableBundle expectedBundle = new PersistableBundle();
+        expectedBundle.putBoolean("test_key", true);
+        when(mComponentContextFixture.getCarrierConfigManager().getConfigForSubId(1))
+                .thenReturn(expectedBundle);
+
+        // WHEN getCarrierConfigForPhoneAccount is called
+        PersistableBundle result = mCallsManager.getCarrierConfigForPhoneAccount(SIM_1_HANDLE);
+
+        // THEN the result should be the expected bundle
+        assertEquals(expectedBundle, result);
     }
 
     private Call addSpyCall() {

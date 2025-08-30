@@ -50,7 +50,6 @@ public class InCallTonePlayer extends Thread {
      */
     public static class Factory {
         private CallAudioManager mCallAudioManager;
-        private final CallAudioRoutePeripheralAdapter mCallAudioRoutePeripheralAdapter;
         private final TelecomSystem.SyncRoot mLock;
         private final ToneGeneratorFactory mToneGeneratorFactory;
         private final MediaPlayerFactory mMediaPlayerFactory;
@@ -58,11 +57,9 @@ public class InCallTonePlayer extends Thread {
         private final FeatureFlags mFeatureFlags;
         private final Looper mLooper;
 
-        public Factory(CallAudioRoutePeripheralAdapter callAudioRoutePeripheralAdapter,
-                TelecomSystem.SyncRoot lock, ToneGeneratorFactory toneGeneratorFactory,
+        public Factory(TelecomSystem.SyncRoot lock, ToneGeneratorFactory toneGeneratorFactory,
                 MediaPlayerFactory mediaPlayerFactory, AudioManagerAdapter audioManagerAdapter,
                 FeatureFlags flags, Looper looper) {
-            mCallAudioRoutePeripheralAdapter = callAudioRoutePeripheralAdapter;
             mLock = lock;
             mToneGeneratorFactory = toneGeneratorFactory;
             mMediaPlayerFactory = mediaPlayerFactory;
@@ -76,8 +73,7 @@ public class InCallTonePlayer extends Thread {
         }
 
         public InCallTonePlayer createPlayer(Call call, int tone) {
-            return new InCallTonePlayer(call, tone, mCallAudioManager,
-                    mCallAudioRoutePeripheralAdapter, mLock, mToneGeneratorFactory,
+            return new InCallTonePlayer(call, tone, mCallAudioManager, mLock, mToneGeneratorFactory,
                     mMediaPlayerFactory, mAudioManagerAdapter, mFeatureFlags, mLooper);
         }
     }
@@ -200,7 +196,6 @@ public class InCallTonePlayer extends Thread {
     private static AtomicInteger sTonesPlaying = new AtomicInteger(0);
 
     private final CallAudioManager mCallAudioManager;
-    private final CallAudioRoutePeripheralAdapter mCallAudioRoutePeripheralAdapter;
 
     private final Handler mMainThreadHandler;
 
@@ -240,7 +235,6 @@ public class InCallTonePlayer extends Thread {
             Call call,
             int toneId,
             CallAudioManager callAudioManager,
-            CallAudioRoutePeripheralAdapter callAudioRoutePeripheralAdapter,
             TelecomSystem.SyncRoot lock,
             ToneGeneratorFactory toneGeneratorFactory,
             MediaPlayerFactory mediaPlayerFactor,
@@ -251,7 +245,6 @@ public class InCallTonePlayer extends Thread {
         mState = STATE_OFF;
         mToneId = toneId;
         mCallAudioManager = callAudioManager;
-        mCallAudioRoutePeripheralAdapter = callAudioRoutePeripheralAdapter;
         mLock = lock;
         mToneGenerator = toneGeneratorFactory;
         mMediaPlayerFactory = mediaPlayerFactor;

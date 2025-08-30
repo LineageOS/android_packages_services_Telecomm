@@ -22,13 +22,9 @@ import static com.android.server.telecom.CallAudioRouteAdapter.BT_AUDIO_CONNECTE
 import static com.android.server.telecom.CallAudioRouteAdapter.BT_AUDIO_DISCONNECTED;
 import static com.android.server.telecom.CallAudioRouteAdapter.BT_DEVICE_ADDED;
 import static com.android.server.telecom.CallAudioRouteAdapter.BT_DEVICE_REMOVED;
-import static com.android.server.telecom.CallAudioRouteAdapter.PENDING_ROUTE_FAILED;
 import static com.android.server.telecom.CallAudioRouteAdapter.SWITCH_BASELINE_ROUTE;
 import static com.android.server.telecom.CallAudioRouteController.INCLUDE_BLUETOOTH_IN_BASELINE;
-import static com.android.server.telecom.bluetooth.BluetoothRouteManager.BT_AUDIO_IS_ON;
-import static com.android.server.telecom.bluetooth.BluetoothRouteManager.BT_AUDIO_LOST;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothHearingAid;
@@ -38,8 +34,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.AudioDeviceInfo;
-import android.os.Bundle;
 import android.sysprop.BluetoothProperties;
 import android.telecom.Log;
 import android.telecom.Logging.Session;
@@ -47,7 +41,6 @@ import android.util.Pair;
 
 import com.android.internal.os.SomeArgs;
 import com.android.server.telecom.AudioRoute;
-import com.android.server.telecom.CallAudioCommunicationDeviceTracker;
 import com.android.server.telecom.CallAudioRouteAdapter;
 import com.android.server.telecom.CallAudioRouteController;
 import com.android.server.telecom.flags.FeatureFlags;
@@ -72,9 +65,7 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
     // If not in a call, BSR won't listen to the Bluetooth stack's HFP on/off messages, since
     // other apps could be turning it on and off. We don't want to interfere.
     private boolean mIsInCall = false;
-    private final BluetoothRouteManager mBluetoothRouteManager;
     private final BluetoothDeviceManager mBluetoothDeviceManager;
-    private CallAudioCommunicationDeviceTracker mCommunicationDeviceTracker;
     private FeatureFlags mFeatureFlags;
     private boolean mIsScoManagedByAudio;
     private CallAudioRouteAdapter mCallAudioRouteAdapter;
@@ -281,12 +272,8 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
     }
 
     public BluetoothStateReceiver(BluetoothDeviceManager deviceManager,
-            BluetoothRouteManager routeManager,
-            CallAudioCommunicationDeviceTracker communicationDeviceTracker,
             FeatureFlags featureFlags) {
         mBluetoothDeviceManager = deviceManager;
-        mBluetoothRouteManager = routeManager;
-        mCommunicationDeviceTracker = communicationDeviceTracker;
         mFeatureFlags = featureFlags;
         // Indication that SCO is managed by audio (i.e. supports setCommunicationDevice).
         mIsScoManagedByAudio = android.media.audio.Flags.scoManagedByAudio()

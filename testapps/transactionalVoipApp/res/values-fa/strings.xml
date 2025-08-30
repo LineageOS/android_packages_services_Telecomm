@@ -23,15 +23,15 @@
     <string name="start_foreground_service" msgid="8968755699895128574">"‏شروع FGS (شبیه‌سازی ترجمه ماشینی + برنامه در پس‌زمینه)"</string>
     <string name="start_outgoing" msgid="1441644037370361864">"شروع تماس خروجی"</string>
     <string name="start_incoming" msgid="6444983300186361271">"شروع تماس ورودی"</string>
-    <string name="register_callback_intent" msgid="2966286786843279948">"ثبت هدف پاسخ تماس"</string>
-    <string name="open_dialer" msgid="2180225018029937011">"باز کردن شماره‌گیر"</string>
+    <string name="register_callback_intent" msgid="2966286786843279948">"ثبت کردن هدف پاسخ تماس"</string>
+    <string name="open_dialer" msgid="2180225018029937011">"باز کردن «شماره‌گیر»"</string>
     <string name="uuid_not_found" msgid="4758805286268179147">"‏شناسه منحصربه‌فرد جهانی (UUID) برای پاسخ تماس وجود ندارد"</string>
-    <string name="call_attributes_empty_error" msgid="6921783379546938037">"مشخصه‌های تماس نباید خالی باشد. درهرصورت درحال شروع پیش‌فرض‌ها."</string>
+    <string name="call_attributes_empty_error" msgid="6921783379546938037">"مشخصه‌های تماس نباید خالی باشند. درهرصورت درحال راه انداختن پیش‌فرض‌ها."</string>
     <string name="back_to_voip_main" msgid="2500173767939494261">"‏برگشتن به فعالیت اصلی VoIP"</string>
     <string name="call_log" msgid="2664639384522572724">"گزارش تماس"</string>
-    <string name="voip_callback" msgid="9213402996514282039">"آزمایش پاسخ تماس"</string>
+    <string name="voip_callback" msgid="9213402996514282039">"آزمایش کردن پاسخ تماس"</string>
     <string name="get_call_id" msgid="5513943242738347108">"شناسه تماس تنظیم نشده است"</string>
-    <string name="phone_number" msgid="1572984477394011525">"شماره تلفن تنظیم نشده است"</string>
+    <string name="phone_number" msgid="1572984477394011525">"شماره تلفن تنظیم نشده"</string>
     <string name="set_call_active" msgid="3365404393507589899">"تنظیم به‌عنوان فعال"</string>
     <string name="answer" msgid="5423590397665409939">"پاسخ"</string>
     <string name="set_call_inactive" msgid="7106775211368705195">"تنظیم به‌عنوان غیرفعال"</string>

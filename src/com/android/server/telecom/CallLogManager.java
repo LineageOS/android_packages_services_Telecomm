@@ -52,6 +52,7 @@ import android.telephony.CarrierConfigManager;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.SubscriptionManager;
 import android.util.Pair;
+import android.text.TextUtils;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
@@ -570,6 +571,17 @@ public final class CallLogManager extends CallsManagerListenerBase {
         }
 
         String handleString = handle.getSchemeSpecificPart();
+        String scheme = handle.getScheme();
+
+        if (TextUtils.isEmpty(handleString) && (PhoneAccount.SCHEME_VOICEMAIL.equals(scheme))) {
+            // This is a voicemail.Get voicemail number for this voicemail call.
+            final PhoneAccountHandle accountHandle = call.getTargetPhoneAccount();
+            TelecomManager tm = TelecomManager.from(mContext);
+            if (tm != null) {
+                handleString = tm.getVoiceMailNumber(accountHandle);
+            }
+        }
+
         if (!PhoneNumberUtils.isUriNumber(handleString)) {
             handleString = PhoneNumberUtils.stripSeparators(handleString);
         }

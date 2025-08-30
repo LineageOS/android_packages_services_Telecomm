@@ -26,12 +26,12 @@
     <string name="register_callback_intent" msgid="2966286786843279948">"Erregistratu dei bidezko erantzunaren intent-a"</string>
     <string name="open_dialer" msgid="2180225018029937011">"Ireki Markagailua"</string>
     <string name="uuid_not_found" msgid="4758805286268179147">"Dei bidezko erantzunaren UUIDa ez da existitzen"</string>
-    <string name="call_attributes_empty_error" msgid="6921783379546938037">"Dei-atributuek ezin dira hutsik egon. Atributu lehenetsiak hasieratzen, halere."</string>
+    <string name="call_attributes_empty_error" msgid="6921783379546938037">"Dei-atributuek ezin dute hutsik egon. Atributu lehenetsiak hasieratzen, halere."</string>
     <string name="back_to_voip_main" msgid="2500173767939494261">"Itzuli VoIP bidezko jarduera nagusietara"</string>
     <string name="call_log" msgid="2664639384522572724">"Deien erregistroa"</string>
     <string name="voip_callback" msgid="9213402996514282039">"Probako dei bidezko erantzuna"</string>
     <string name="get_call_id" msgid="5513943242738347108">"ez da ezarri deiaren identifikatzailea"</string>
-    <string name="phone_number" msgid="1572984477394011525">"telefono zenbakia ez da ezarri"</string>
+    <string name="phone_number" msgid="1572984477394011525">"telefono-zenbakia ez da ezarri"</string>
     <string name="set_call_active" msgid="3365404393507589899">"setActive"</string>
     <string name="answer" msgid="5423590397665409939">"erantzun"</string>
     <string name="set_call_inactive" msgid="7106775211368705195">"setInactive"</string>

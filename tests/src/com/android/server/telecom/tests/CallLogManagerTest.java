@@ -205,8 +205,9 @@ public class CallLogManagerTest extends TelecomTestCase {
         when(userManager.isUserUnlocked(any(UserHandle.class))).thenReturn(true);
         when(userManager.hasUserRestrictionForUser(any(String.class), any(UserHandle.class)))
                 .thenReturn(false);
-        when(userManager.getAliveUsers())
-                .thenReturn(Arrays.asList(userInfo, otherUserInfo, managedProfileUserInfo));
+        when(userManager.getUserHandles(true)).thenReturn(Arrays.asList(
+                UserHandle.of(CURRENT_USER_ID), UserHandle.of(OTHER_USER_ID),
+                UserHandle.of(MANAGED_USER_ID)));
         configureContextForUser(CURRENT_USER_ID, userInfo);
         when(userManager.getUserInfo(eq(CURRENT_USER_ID))).thenReturn(userInfo);
 
@@ -237,6 +238,8 @@ public class CallLogManagerTest extends TelecomTestCase {
         Context mockContext = mock(Context.class);
         mComponentContextFixture.addContextForUser(UserHandle.of(userId), mockContext);
         UserManager mockUserManager = mock(UserManager.class);
+        when(mockContext.createContextAsUser(any(UserHandle.class), eq(0))).thenReturn(mockContext);
+        when(mockContext.getSystemService(UserManager.class)).thenReturn(mockUserManager);
         when(mockUserManager.getUserInfo(eq(userId))).thenReturn(info);
         when(mockUserManager.isProfile()).thenReturn(info.isProfile());
         when(mockContext.getSystemService(eq(UserManager.class))).thenReturn(mockUserManager);
@@ -596,6 +599,52 @@ public class CallLogManagerTest extends TelecomTestCase {
         String expectedNumber = PhoneNumberUtils.formatNumber(VIA_NUMBER_STRING,
                 mCallLogManager.getCountryIso());
         assertEquals(insertedValues.getAsString(Calls.VIA_NUMBER), expectedNumber);
+    }
+
+    /**
+     * Verifies that the correct voicemail number is logged for a voicemail call
+     * even when the handle is empty. In this scenario, the voicemail number should
+     * be retrieved from {@link TelecomManager} and saved in the call log. This
+     * prevents calls from being logged with a {@code null} or "Unknown" number.
+     */
+    @MediumTest
+    @Test
+    public void testLogVoicemailNumberWhenHandleIsEmpty() {
+        // 1. Arrange
+        String voicemailNumber = "12345";
+        // Mock TelecomManager to return a specific voicemail number
+        TelecomManager mockTelecomManager =
+                (TelecomManager) mContext.getSystemService(Context.TELECOM_SERVICE);
+        when(mockTelecomManager.getVoiceMailNumber(mDefaultAccountHandle)).thenReturn(
+                voicemailNumber);
+
+        when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
+                .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, 0 /* capabilities */));
+
+        // Create a fake call with a "voicemail" scheme and an empty handle
+        Uri voicemailUri = Uri.fromParts(PhoneAccount.SCHEME_VOICEMAIL, "", null);
+        Call fakeVoicemailCall = makeFakeCall(
+                DisconnectCause.OTHER, // disconnectCauseCode
+                false, // isConference
+                true, // isIncoming
+                1L, // creationTimeMillis
+                1000L, // ageMillis
+                voicemailUri, // callHandle
+                mDefaultAccountHandle, // phoneAccountHandle
+                NO_VIDEO_STATE, // callVideoState
+                POST_DIAL_STRING, // postDialDigits
+                VIA_NUMBER_STRING, // viaNumber
+                UserHandle.of(CURRENT_USER_ID)
+        );
+
+        // 2. Act
+        mCallLogManager.onCallStateChanged(fakeVoicemailCall, CallState.ACTIVE,
+                CallState.DISCONNECTED);
+
+        // 3. Assert
+        // Verify that the call log entry contains the correct voicemail number
+        ContentValues insertedValues = verifyInsertionWithCapture(CURRENT_USER_ID);
+        assertEquals(voicemailNumber, insertedValues.getAsString(CallLog.Calls.NUMBER));
     }
 
     @MediumTest
