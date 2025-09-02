@@ -1844,6 +1844,35 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
 
     @Test
     @SmallTest
+    public void testClearCommunicationDeviceAtEndOfCall_WhenScoAlreadyDisconnected() {
+        // This test verifies that when a call on a BT device ends, and the BT device
+        // had already disconnected on its own, we still clear the communication device.
+        // This is the scenario the fix in routeTo addresses, where shouldAvoidBtDisconnect
+        // is overridden to false when moving to an inactive route.
+
+        // 1. Setup: Start with an active call on a BT device.
+        verifyConnectBluetoothDevice(AudioRoute.TYPE_BLUETOOTH_SCO);
+        // Ensure the route is active.
+        mController.setActive(true);
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+        assertTrue(mController.isActive());
+
+        // 2. Simulate BT device disconnecting on its own before the call ends.
+        // This is the key condition for the test.
+        mController.setLastScoDisconnectedDevice(BLUETOOTH_DEVICE_1);
+
+        // 3. Simulate the end of the call.
+        mController.sendMessageWithSessionInfo(SWITCH_FOCUS, NO_FOCUS, 0);
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+
+        // 4. Verification: Ensure clearCommunicationDevice() is called.
+        // Without the fix, shouldAvoidBtDisconnect would be true, and this would be skipped.
+        verify(mAudioManager, timeout(TEST_TIMEOUT)).clearCommunicationDevice();
+        assertFalse(mController.isActive());
+    }
+
+    @Test
+    @SmallTest
     public void testSkipClearAndSetCommunicationDevice() {
         when(mFeatureFlags.skipPendingMsgIfCommunicationDeviceSet()).thenReturn(true);
         // Setup call as video call to allow baseline routing to speaker

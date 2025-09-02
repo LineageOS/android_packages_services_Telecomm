@@ -189,8 +189,8 @@ public class CallIntentProcessorTest extends TelecomTestCase {
     }
 
     private void setPrivateSpaceFlagsEnabled() {
-        mSetFlagsRule.enableFlags(android.multiuser.Flags.FLAG_ENABLE_PRIVATE_SPACE_FEATURES,
-                android.multiuser.Flags.FLAG_ENABLE_PRIVATE_SPACE_INTENT_REDIRECTION);
+        mSetFlagsRule.enableFlags(
+            android.multiuser.Flags.FLAG_ENABLE_PRIVATE_SPACE_INTENT_REDIRECTION);
     }
 
     private void markInitiatingUserAsPrivateProfile() {
