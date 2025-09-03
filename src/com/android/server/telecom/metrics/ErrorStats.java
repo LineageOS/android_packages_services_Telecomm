@@ -23,6 +23,7 @@ import android.annotation.NonNull;
 import android.app.StatsManager;
 import android.content.Context;
 import android.os.Looper;
+import android.telecom.CallException;
 import android.telecom.Log;
 import android.util.StatsEvent;
 
@@ -114,6 +115,19 @@ public class ErrorStats extends TelecomPulledAtom {
             .TELECOM_ERROR_STATS__ERROR__ERROR_STUCK_CONNECTING_EMERGENCY;
     public static final int ERROR_STUCK_CONNECTING = TelecomStatsLog
             .TELECOM_ERROR_STATS__ERROR__ERROR_STUCK_CONNECTING;
+    // Errors from android.telecom.CallException
+    public static final int ERROR_TRANSACTION_UNKNOWN = TelecomStatsLog
+            .TELECOM_ERROR_STATS__ERROR__ERROR_TRANSACTION_UNKNOWN;
+    public static final int ERROR_CANNOT_HOLD_CALL = TelecomStatsLog
+            .TELECOM_ERROR_STATS__ERROR__ERROR_CANNOT_HOLD_CALL;
+    public static final int ERROR_CALL_NOT_TRACKED = TelecomStatsLog
+            .TELECOM_ERROR_STATS__ERROR__ERROR_CALL_NOT_TRACKED;
+    public static final int ERROR_CANNOT_SET_ACTIVE = TelecomStatsLog
+            .TELECOM_ERROR_STATS__ERROR__ERROR_CANNOT_SET_ACTIVE;
+    public static final int ERROR_CALL_NOT_PERMITTED = TelecomStatsLog
+            .TELECOM_ERROR_STATS__ERROR__ERROR_CALL_NOT_PERMITTED;
+    public static final int ERROR_OPERATION_TIMED_OUT = TelecomStatsLog
+            .TELECOM_ERROR_STATS__ERROR__ERROR_OPERATION_TIMED_OUT;
     private static final String TAG = ErrorStats.class.getSimpleName();
     private static final String FILE_NAME = "error_stats";
     private Map<ErrorEvent, Integer> mErrorStatsMap;
@@ -233,6 +247,13 @@ public class ErrorStats extends TelecomPulledAtom {
             ERROR_REMOVING_CALL,
             ERROR_STUCK_CONNECTING_EMERGENCY,
             ERROR_STUCK_CONNECTING,
+            /* CallException errors*/
+            ERROR_TRANSACTION_UNKNOWN,
+            ERROR_CANNOT_HOLD_CALL,
+            ERROR_CALL_NOT_TRACKED,
+            ERROR_CANNOT_SET_ACTIVE,
+            ERROR_CALL_NOT_PERMITTED,
+            ERROR_OPERATION_TIMED_OUT,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface ErrorId {
@@ -267,6 +288,31 @@ public class ErrorStats extends TelecomPulledAtom {
         @Override
         public String toString() {
             return "[ErrorEvent: mModuleId=" + mModuleId + ", mErrorId=" + mErrorId + "]";
+        }
+    }
+
+    /**
+     * Maps a {@link CallException.CallErrorCode} to its corresponding {@link ErrorId}.
+     *
+     * @param exceptionCode The error code from a {@link CallException}.
+     * @return The matching {@link ErrorId} for logging in stats.
+     */
+    public static @ErrorStats.ErrorId int mapCallExceptionToErrorId(
+            @CallException.CallErrorCode int exceptionCode) {
+        switch (exceptionCode) {
+            case CallException.CODE_CANNOT_HOLD_CURRENT_ACTIVE_CALL:
+                return ErrorStats.ERROR_CANNOT_HOLD_CALL;
+            case CallException.CODE_CALL_IS_NOT_BEING_TRACKED:
+                return ErrorStats.ERROR_CALL_NOT_TRACKED;
+            case CallException.CODE_CALL_CANNOT_BE_SET_TO_ACTIVE:
+                return ErrorStats.ERROR_CANNOT_SET_ACTIVE;
+            case CallException.CODE_CALL_NOT_PERMITTED_AT_PRESENT_TIME:
+                return ErrorStats.ERROR_CALL_NOT_PERMITTED;
+            case CallException.CODE_OPERATION_TIMED_OUT:
+                return ErrorStats.ERROR_OPERATION_TIMED_OUT;
+            case CallException.CODE_ERROR_UNKNOWN:
+            default:
+                return ErrorStats.ERROR_TRANSACTION_UNKNOWN;
         }
     }
 }

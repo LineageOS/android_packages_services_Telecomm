@@ -90,6 +90,7 @@ import com.android.server.telecom.callsequencing.voip.VoipCallMonitor;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
 import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.metrics.ApiStats;
+import com.android.server.telecom.metrics.ErrorStats;
 import com.android.server.telecom.metrics.EventStats;
 import com.android.server.telecom.metrics.EventStats.CriticalEvent;
 import com.android.server.telecom.metrics.TelecomMetricsController;
@@ -253,6 +254,8 @@ public class TelecomServiceImpl {
 
                                 if (call == null || !call.getId().equals(callId)) {
                                     Log.i(TAG, "addCall: onResult: call is null or id mismatch");
+                                    mMetricsController.getErrorStats().log(ErrorStats.SUB_VOIP_CALL,
+                                            ErrorStats.ERROR_TRANSACTION_UNKNOWN);
                                     onAddCallControl(callId, callEventCallback, null,
                                             new CallException(ADD_CALL_ERR_MSG,
                                                     CODE_ERROR_UNKNOWN));
@@ -324,6 +327,8 @@ public class TelecomServiceImpl {
                     callEventCallback.onAddCallControl(callId, TELECOM_TRANSACTION_SUCCESS,
                             callControl, null);
                 } else {
+                    mMetricsController.getErrorStats().log(ErrorStats.SUB_VOIP_CALL,
+                            ErrorStats.ERROR_TRANSACTION_UNKNOWN);
                     callEventCallback.onAddCallControl(callId,
                             CallException.CODE_ERROR_UNKNOWN,
                             null, callException);

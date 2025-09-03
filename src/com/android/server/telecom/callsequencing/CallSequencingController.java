@@ -1182,8 +1182,7 @@ public class CallSequencingController {
             return;
         }
         // Let Telephony handle calls on the same phone account.
-        if (mFeatureFlags.addDropsFgExtraDiffAccounts()
-                && arePhoneAccountsSame(activeCall, incomingCall)) {
+        if (arePhoneAccountsSame(activeCall, incomingCall)) {
             return;
         }
         // Check if the active call doesn't support hold. If it doesn't we should indicate to the

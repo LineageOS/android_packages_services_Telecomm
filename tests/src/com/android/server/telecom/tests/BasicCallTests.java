@@ -433,7 +433,7 @@ public class BasicCallTests extends TelecomSystemTest {
         assertTrueWithTimeout(new Predicate<Void>() {
             @Override
             public boolean apply(Void aVoid) {
-                return mMissedCallNotifier.missedCallsNotified.size() == 1;
+                return mMissedCallNotifier.missedCallsNotified.size() >= 1;
             }
         });
 

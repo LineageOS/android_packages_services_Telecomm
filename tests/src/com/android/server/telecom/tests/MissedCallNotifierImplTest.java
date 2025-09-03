@@ -709,6 +709,43 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
                 nullable(Notification.class));
     }
 
+    @SmallTest
+    @Test
+    public void testReloadFromDatabase_createContextFails() {
+        // GIVEN
+        TelecomSystem.setInstance(mTelecomSystem);
+        when(mTelecomSystem.isBootComplete()).thenReturn(true);
+        when(mFeatureFlags.resolveHiddenDependenciesTwo()).thenReturn(true);
+
+        // Configure mContext.createContextAsUser to throw an exception
+        when(mContext.createContextAsUser(eq(PRIMARY_USER), anyInt()))
+                .thenThrow(new IllegalStateException("Test Exception"));
+
+        CallerInfoLookupHelper mockCallerInfoLookupHelper = mock(CallerInfoLookupHelper.class);
+        MissedCallNotifier.CallInfoFactory mockCallInfoFactory =
+                mock(MissedCallNotifier.CallInfoFactory.class);
+
+        MissedCallNotifierImpl missedCallNotifier = new MissedCallNotifierImpl(mContext,
+                mPhoneAccountRegistrar, mDefaultDialerCache,
+                mock(MissedCallNotifierImpl.NotificationBuilderFactory.class),
+                mDeviceIdleControllerAdapter, mFeatureFlags);
+        missedCallNotifier.setCurrentUserHandle(PRIMARY_USER);
+
+        // WHEN
+        missedCallNotifier.reloadFromDatabase(
+                mockCallerInfoLookupHelper, mockCallInfoFactory, PRIMARY_USER);
+
+        // THEN
+        // Verify that the method returned early and did not proceed to query the database
+        verify(mUserContentResolver, never()).query(
+                any(Uri.class),
+                any(String[].class),
+                anyString(),
+                any(String[].class),
+                anyString()
+        );
+    }
+
     /**
      * Ensure when Telephony is not present on a device and getNetworkCountryIso throws an
      * unsupported operation exception that we will still fallback to the device locale.

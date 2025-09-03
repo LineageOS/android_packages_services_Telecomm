@@ -98,17 +98,6 @@ flag {
     }
 }
 
-# OWNER=pmadapurmath TARGET=25Q4
-flag {
-  name: "add_drops_fg_extra_diff_accounts"
-  namespace: "telecom"
-  description: "Ensures that we only add the EXTRA_ANSWERING_DROPS_FG_CALL extra for calls on different phone accounts"
-  bug: "421042195"
-  metadata {
-      purpose: PURPOSE_BUGFIX
-    }
-}
-
 # OWNER=grantmenke TARGET=26Q2
 flag {
   name: "multi_party_anchor_conf"

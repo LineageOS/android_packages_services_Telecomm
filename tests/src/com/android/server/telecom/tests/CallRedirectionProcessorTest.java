@@ -393,11 +393,12 @@ public class CallRedirectionProcessorTest extends TelecomTestCase {
     }
 
     /**
-     * Verifies that an {@link IllegalArgumentException} thrown when unbinding a service on timeout
-     * is caught and does not crash the process. This can happen if the service is already unbound.
+     * Verifies that an {@link IllegalArgumentException} thrown when unbinding a user-defined
+     * service on timeout is caught and does not crash the process. This can happen if the service
+     * is already unbound.
      */
     @Test
-    public void testTimeoutUnbindThrowsIllegalArgumentException() throws Exception {
+    public void testUserDefinedTimeoutUnbindThrowsIllegalArgumentException() throws Exception {
         startProcessWithNoGateWayInfo();
         // To make sure tests are not flaky, clean all the previous handler messages
         waitForHandlerAction(mProcessor.getHandler(), HANDLER_TIMEOUT_DELAY);
@@ -426,6 +427,42 @@ public class CallRedirectionProcessorTest extends TelecomTestCase {
         verify(mCallsManager, times(1)).onCallRedirectionComplete(eq(mCall), any(),
                 eq(mPhoneAccountHandle), eq(null), eq(SPEAKER_PHONE_ON), eq(VIDEO_STATE),
                 eq(true), eq(CallRedirectionProcessor.UI_TYPE_USER_DEFINED_TIMEOUT));
+    }
+
+    /**
+     * Verifies that an {@link IllegalArgumentException} thrown when unbinding a carrier service on
+     * timeout is caught and does not crash the process.
+     */
+    @Test
+    public void testCarrierTimeoutUnbindThrowsIllegalArgumentException() throws Exception {
+        startProcessWithNoGateWayInfo();
+        // To make sure tests are not flaky, clean all the previous handler messages
+        waitForHandlerAction(mProcessor.getHandler(), HANDLER_TIMEOUT_DELAY);
+        disableUserDefinedCallRedirectionService();
+        enableCarrierCallRedirectionService();
+
+        // Mock unbindService to throw an exception.
+        doThrow(new IllegalArgumentException("Service not registered")).when(mContext)
+                .unbindService(any(ServiceConnection.class));
+
+        // Start the redirection process.
+        mProcessor.performCallRedirection(UserHandle.CURRENT);
+
+        // Verify that a bind attempt was made.
+        verify(mContext, times(1)).bindServiceAsUser(any(Intent.class),
+                any(ServiceConnection.class), anyInt(), eq(UserHandle.CURRENT));
+
+        // Wait for the timeout to occur.
+        waitForHandlerActionDelayed(mProcessor.getHandler(), HANDLER_TIMEOUT_DELAY,
+                CARRIER_SHORT_TIMEOUT_MS + CODE_EXECUTION_DELAY);
+
+        // Verify that unbindService was called, even though it threw an exception.
+        verify(mContext, times(1)).unbindService(any(ServiceConnection.class));
+
+        // Verify that the redirection process still completes and notifies CallsManager.
+        verify(mCallsManager, times(1)).onCallRedirectionComplete(eq(mCall), any(),
+                eq(mPhoneAccountHandle), eq(null), eq(SPEAKER_PHONE_ON), eq(VIDEO_STATE),
+                eq(false), eq(CallRedirectionProcessor.UI_TYPE_NO_ACTION));
     }
 
     /**
