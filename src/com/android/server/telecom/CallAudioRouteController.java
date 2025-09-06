@@ -2193,7 +2193,8 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
      *                                    the new communication device update was received from the
      *                                    audio fwk.
      */
-    private void handleCommunicationDeviceChanged(int newAudioType,
+    @VisibleForTesting
+    public void handleCommunicationDeviceChanged(int newAudioType,
             AudioDeviceInfo newCommunicationDevice,
             AudioDeviceInfo previousCommunicationDevice) {
         int currentAudioType = mCurrentRoute.getType();
@@ -2297,10 +2298,16 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                 // where a remote device disconnects SCO. Telecom should ensure that audio
                 // is properly routed in the UI. Instead of calculating the baseline, we can just
                 // route to whatever the audio fwk says the new communication device has changed to.
+                // Ignore the rerouting if we're not in a call and the BT device hasn't been
+                // unpaired from the device, we can just stay in inactive routing. We may get a
+                // communication device update signaling that it moved away from SCO if, for
+                // instance, the BT stack is using the set/clear communication device APIs.
                 int audioType = getAudioType(getCurrentCommunicationDevice());
                 getPendingAudioRoute().setCommunicationDeviceType(audioType);
-                routeTo(mIsActive, getAudioRouteForAudioDeviceInfo(
-                        getCurrentCommunicationDevice()));
+                if (mIsActive) {
+                    routeTo(true, getAudioRouteForAudioDeviceInfo(
+                            getCurrentCommunicationDevice()));
+                }
             }
         }
     }
