@@ -429,6 +429,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     /** The use case for audio processing when the call is in STATE_AUDIO_PROCESSING */
     private int mAudioProcessingUseCase = android.telecom.Call.AUDIO_PROCESSING_USE_CASE_UNKNOWN;
 
+    /** flag to signal when the audio processing is properly exited */
+    private boolean mIsProperlyExitingAudioProcessing = false;
+
     /**
      * Determines whether the {@link ConnectionService} has responded to the initial request to
      * create the connection.
@@ -1425,6 +1428,10 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * else it is failed, and the call is still in its original state.
      */
     public boolean setState(int newState, String tag) {
+        if (isIllegalAudioProcessingTransition(newState)) {
+            handleIllegalAudioProcessingTransition(newState);
+            return false; // Reject the state transition
+        }
         if (mState != newState) {
             Log.v(this, "setState %s -> %s", CallState.toString(mState),
                     CallState.toString(newState));
@@ -1547,6 +1554,63 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     public void setAudioProcessingUseCase(int useCase) {
         mAudioProcessingUseCase = useCase;
+    }
+
+    /**
+     * Determines if an attempted state transition out of AUDIO_PROCESSING is illegal.
+     * <p>
+     * An illegal transition occurs if the call is in the audio processing state but the exit
+     * was not initiated by the sanctioned {@code exitBackgroundAudioProcessing} API.
+     * The only universally permitted transition is to {@code DISCONNECTED}.
+     *
+     * @param newState The state the call is attempting to transition to.
+     * @return {@code true} if the transition is illegal, {@code false} otherwise.
+     */
+    private boolean isIllegalAudioProcessingTransition(int newState) {
+        if (!mFlags.preventIllegalAudioProcessingExit()) {
+            return false;
+        }
+        // This is the core guard condition. A transition is considered an "unauthorized attempt"
+        // if the call is currently in the AUDIO_PROCESSING state, but the exit was NOT initiated
+        // via the sanctioned CallsManager#exitBackgroundAudioProcessing API (which is tracked
+        // by the transient mIsExitingAudioProcessing flag).
+        boolean isAttemptingUnauthorizedExit = (mState == CallState.AUDIO_PROCESSING)
+                && !mIsProperlyExitingAudioProcessing;
+        // The ASK_TO_HOLD use case is explicitly exempt from this strict check. Its worst-case
+        // failure is a transition to an active call instead of a held call, which is a
+        // recoverable inconvenience for the user, not a critical failure like a silent call.
+        // All other use cases (like CALL_SCREENING) must be strictly protected.
+        boolean useCaseRequiresStrictExitCheck = getAudioProcessingUseCase()
+                != android.telecom.Call.AUDIO_PROCESSING_USE_CASE_ASK_TO_HOLD;
+        // An unauthorized exit is illegal if it's not simply disconnecting.
+        boolean isIllegalDestinationState = newState != CallState.DISCONNECTED;
+        // disconnect call if all conditions met
+        return isAttemptingUnauthorizedExit && useCaseRequiresStrictExitCheck
+                && isIllegalDestinationState;
+    }
+
+    /**
+     * Handles an illegal state transition by logging the event and disconnecting the call
+     * with an error cause.
+     *
+     * @param illegalState The state that was improperly requested.
+     */
+    private void handleIllegalAudioProcessingTransition(int illegalState) {
+        Log.w(this, "Illegal state transition from AUDIO_PROCESSING to %s for"
+                        + " use case %d. Disconnecting.",
+                CallState.toString(illegalState), getAudioProcessingUseCase());
+        setLocallyDisconnecting(true);
+        setOverrideDisconnectCauseCode(new DisconnectCause(DisconnectCause.ERROR,
+                "Illegal audio processing state transition"));
+        disconnect("Illegal state transition from audio processing");
+    }
+
+    /**
+     * Sets a transient flag indicating a legitimate exit from audio processing is underway.
+     * This should only be set by CallsManager.
+     */
+    public void setIsProperlyExitingAudioProcessing(boolean isExiting) {
+        mIsProperlyExitingAudioProcessing = isExiting;
     }
 
     void setRingbackRequested(boolean ringbackRequested) {

@@ -72,7 +72,6 @@ import android.media.AudioSystem;
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
 import android.net.Uri;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -3985,11 +3984,15 @@ public class CallsManager extends Call.ListenerBase
             disconnectCall(call);
             return;
         }
-
-        if (shouldRing) {
-            setCallState(call, CallState.SIMULATED_RINGING, "exitBackgroundAudioProcessing");
-        } else {
-            setCallState(call, CallState.ACTIVE, "exitBackgroundAudioProcessing");
+        try {
+            call.setIsProperlyExitingAudioProcessing(true);
+            if (shouldRing) {
+                setCallState(call, CallState.SIMULATED_RINGING, "exitBackgroundAudioProcessing");
+            } else {
+                setCallState(call, CallState.ACTIVE, "exitBackgroundAudioProcessing");
+            }
+        } finally {
+            call.setIsProperlyExitingAudioProcessing(false);
         }
     }
 
@@ -4671,7 +4674,12 @@ public class CallsManager extends Call.ListenerBase
 
     @VisibleForTesting
     public void markCallAsSimulatedRinging(Call call) {
-        setCallState(call, CallState.SIMULATED_RINGING, "simulated ringing set explicitly");
+        try {
+            call.setIsProperlyExitingAudioProcessing(true);
+            setCallState(call, CallState.SIMULATED_RINGING, "simulated ringing set explicitly");
+        } finally {
+            call.setIsProperlyExitingAudioProcessing(false);
+        }
     }
 
     /**

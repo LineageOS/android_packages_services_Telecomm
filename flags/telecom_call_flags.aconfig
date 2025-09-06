@@ -131,6 +131,14 @@ flag {
     }
 }
 
+# OWNER=tjstuart TARGET=25Q4
+flag {
+  name: "prevent_illegal_audio_processing_exit"
+  namespace: "telecom"
+  description: "Gates Audio Processing transitions to ensure when an illegal transition is requested, the call is disconnected"
+  bug: "428238530"
+}
+
 # OWNER=tjstuart TARGET=26Q1
 flag {
   name: "maybe_reroute_audio_on_video_state_change"
