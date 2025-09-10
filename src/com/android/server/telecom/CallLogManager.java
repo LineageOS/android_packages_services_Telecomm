@@ -454,12 +454,26 @@ public final class CallLogManager extends CallsManagerListenerBase {
         }
 
         CallerInfo callerInfo = call.getCallerInfo();
+        boolean isCallerDisplayPresent = call.getCallerDisplayName() != null
+                && !call.getCallerDisplayName().isEmpty();
         // At this point, we have already checked to see if we should log a transactional call.
         if (mFeatureFlags.integratedCallLogs() && call.isTransactionalCall()) {
             paramBuilder.setUuid(call.getId());
-            if (call.getCallerDisplayName() != null && !call.getCallerDisplayName().isEmpty()) {
+            if (isCallerDisplayPresent) {
                 callerInfo.setName(call.getCallerDisplayName());
             }
+        }
+        // A little different from the above logic to set the caller info name to the caller display
+        // name as that field is used for populating the CACHED_NAME column in the call log, which
+        // may be overwritten if a contact exists.
+        if (mFeatureFlags.supportDisplayNameCallLog()) {
+            String preferredName = isCallerDisplayPresent
+                    ? call.getCallerDisplayName()
+                    : (callerInfo != null ? callerInfo.cnapName : "");
+            paramBuilder.setPreferredDisplayName(preferredName);
+            String name = callerInfo != null ? callerInfo.getName() : "";
+            Log.w(TAG, "Call display name details - [display name: %s, preferred display name: %s]",
+                    Log.pii(name), Log.pii(preferredName));
         }
         paramBuilder.setCallerInfo(callerInfo);
 

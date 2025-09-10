@@ -149,3 +149,12 @@ flag {
       purpose: PURPOSE_BUGFIX
     }
 }
+
+# OWNER=pmadapurmath TARGET=26Q2
+flag {
+  name: "support_display_name_call_log"
+  is_exported: true
+  namespace: "telecom"
+  description: "Adds support to handle storing the cnap name to be displayed in the call log"
+  bug: "429015736"
+}
