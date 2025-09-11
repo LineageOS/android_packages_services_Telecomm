@@ -1518,11 +1518,11 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             mCallAudioState = new CallAudioState(mIsMute, mCallAudioState.getRoute(),
                     mCallSupportedRouteMask, mCallAudioState.getActiveBluetoothDevice(),
                     mCallAudioState.getSupportedBluetoothDevices());
-            // Update audio route if foreground call doesn't support the current route.
-            if ((mCallSupportedRouteMask & mCallAudioState.getRoute()) == 0) {
-                routeTo(mIsActive, getBaseRoute(true, null));
-            }
         }
+        // Update audio route when the foreground call changes. This ensures, for example, that if
+        // we have an ongoing video call + new PSTN call that the PSTN call doesn't get placed on
+        // the speaker.
+        routeTo(mIsActive, getBaseRoute(true, null));
     }
 
     /**

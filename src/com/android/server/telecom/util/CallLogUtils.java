@@ -572,8 +572,9 @@ public class CallLogUtils {
                 if (android.provider.Flags.allowConfigMaximumCallLogEntriesPerSim()
                     && TELEPHONY_COMPONENT_NAME
                     .flattenToString().equals(phoneAccountComponentName)) {
-                    maxCallLogSize = context.getResources().getInteger(
-                        com.android.internal.R.integer.config_maximumCallLogEntriesPerSim);
+                    final int resId = context.getResources().getIdentifier(
+                            "config_maximumCallLogEntriesPerSim", "integer", "android");
+                    maxCallLogSize = context.getResources().getInteger(resId);
                 }
                 // Only purge entries for the same phone account.
                 numDeleted = resolver.delete(uri, "_id IN "

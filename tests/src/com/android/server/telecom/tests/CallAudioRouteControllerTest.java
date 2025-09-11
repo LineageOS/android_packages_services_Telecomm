@@ -119,6 +119,7 @@ import org.mockito.Mock;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(JUnit4.class)
@@ -1952,6 +1953,50 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
     @Test
     public void preservePreferredDeviceRoutingOnActiveFocusSwitch() {
         verifyRouteUnchangedAfterFocusSwitch(ACTIVE_FOCUS, true /* setPreferredDevice */);
+    }
+
+    @Test
+    @SmallTest
+    public void testRouteToEarpieceOnNewCallDuringVideoCall() {
+        when(mFeatureFlags.preserveCallAudioRouting()).thenReturn(true);
+        // Setup: Initialize controller and simulate an active video call.
+        when(mCall.getVideoState()).thenReturn(VideoProfile.STATE_BIDIRECTIONAL);
+        when(mCall.isActiveFocus()).thenReturn(true);
+        mController.initialize();
+        mController.sendMessageWithSessionInfo(
+                CallAudioRouteController.UPDATE_SYSTEM_AUDIO_ROUTE);
+        mController.sendMessageWithSessionInfo(SWITCH_FOCUS, ACTIVE_FOCUS, 0);
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+        mController.sendMessageWithSessionInfo(SPEAKER_ON);
+
+        // Verify initial state: Audio is routed to speaker for the video call.
+        CallAudioState speakerState = new CallAudioState(false, CallAudioState.ROUTE_SPEAKER,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER, null,
+                new HashSet<>());
+        verify(mCallsManager, timeout(TEST_TIMEOUT)).onCallAudioStateChanged(
+                any(CallAudioState.class), eq(speakerState));
+
+        // Simulate new call: A new audio-only call becomes the foreground call.
+        Call newAudioCall = mock(Call.class);
+        when(newAudioCall.getVideoState()).thenReturn(VideoProfile.STATE_AUDIO_ONLY);
+        when(newAudioCall.getSupportedAudioRoutes()).thenReturn(CallAudioState.ROUTE_ALL);
+        when(mCallAudioManager.getForegroundCall()).thenReturn(newAudioCall);
+
+        // Trigger route recalculation for the new foreground call.
+        mController.sendMessageWithSessionInfo(
+                CallAudioRouteController.UPDATE_SYSTEM_AUDIO_ROUTE);
+        mController.sendMessageWithSessionInfo(SWITCH_FOCUS, ACTIVE_FOCUS, 0);
+        mController.sendMessageWithSessionInfo(SPEAKER_OFF);
+        // Ensure that the route was pending by verifying that we never created an anomaly report.
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+        verify(mAnomalyReporterAdapter, never()).reportAnomaly(any(UUID.class), anyString());
+
+        // Verify final state: Audio is re-routed to earpiece for the new audio call.
+        CallAudioState earpieceState = new CallAudioState(false, CallAudioState.ROUTE_EARPIECE,
+                CallAudioState.ROUTE_EARPIECE | CallAudioState.ROUTE_SPEAKER, null,
+                new HashSet<>());
+        verify(mCallsManager, timeout(TEST_TIMEOUT).atLeastOnce()).onCallAudioStateChanged(
+                any(CallAudioState.class), eq(earpieceState));
     }
 
     @SmallTest
