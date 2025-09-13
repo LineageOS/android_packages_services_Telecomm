@@ -102,10 +102,14 @@ public class PendingAudioRoute {
     }
 
     void setDestRoute(boolean active, AudioRoute destRoute, BluetoothDevice device,
-            boolean isScoAlreadyConnected, boolean isDestRouteCommunicationDevice) {
+            boolean isScoAlreadyConnected, boolean isDestRouteCommunicationDevice,
+            boolean isMovingToActiveRouting) {
         // Skip setting the communication device when the audio fwk reported communication device
-        // matches up with the destination route.
-        if (!isDestRouteCommunicationDevice) {
+        // matches up with the destination route unless it's the start of the call. When Telecom
+        // becomes the mode owner, we must always set the communication device due to the previous
+        // focus owner clearing the request (clearCommunicationDevice). We'll just not add the
+        // pending message if the update isn't reflected in the communicate device update callback.
+        if (!isDestRouteCommunicationDevice || isMovingToActiveRouting) {
             destRoute.onDestRouteAsPendingRoute(active, this, device,
                     mAudioManager, mBluetoothRouteManager, isScoAlreadyConnected);
         } else {

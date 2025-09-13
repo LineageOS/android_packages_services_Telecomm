@@ -2056,6 +2056,81 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
                 any(CallAudioState.class), eq(expectedState));
     }
 
+    @Test
+    @SmallTest
+    public void testSetCommunicationDeviceOnActiveFocus_SpeakerWhenDeviceAlreadySet() {
+        // This test verifies that when moving to active routing (i.e. at the start of a call),
+        // AudioManager#setCommunicationDevice is always called, even if the audio framework
+        // already reports that device as the current one. This is necessary because the previous
+        // audio focus owner may have cleared the communication device.
+        // It also verifies that no SPEAKER_ON message is pended in this scenario,
+        // since the route is already correct.
+        when(mFeatureFlags.skipPendingMsgIfCommunicationDeviceSet()).thenReturn(true);
+        // Make the call a video call so it defaults to speaker.
+        when(mCall.getVideoState()).thenReturn(VideoProfile.STATE_BIDIRECTIONAL);
+        when(mCall.isActiveFocus()).thenReturn(true);
+        AudioDeviceInfo mockSpeakerDeviceInfo = mock(AudioDeviceInfo.class);
+        when(mockSpeakerDeviceInfo.getType()).thenReturn(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+
+        mController.initialize();
+        // Set the speaker as the current communication device before the call starts.
+        mController.setCurrentCommunicationDevice(mockSpeakerDeviceInfo);
+        mController.setActive(false);
+
+        // Start the call by switching to active focus.
+        mController.sendMessageWithSessionInfo(SWITCH_FOCUS, ACTIVE_FOCUS, 0);
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+        // Verify setCommunicationDevice is still called because we are moving to active routing.
+        verify(mAudioManager, timeout(TEST_TIMEOUT))
+                .setCommunicationDevice(any(AudioDeviceInfo.class));
+        // Verify that no SPEAKER_ON message is pending.
+        PendingAudioRoute pendingRoute = mController.getPendingAudioRoute();
+        assertTrue(pendingRoute.getPendingMessages().isEmpty());
+        assertEquals(AudioRoute.TYPE_SPEAKER, mController.getCurrentRoute().getType());
+    }
+
+    @Test
+    @SmallTest
+    public void testSetCommunicationDeviceOnActiveFocus_BtWhenDeviceAlreadySet() {
+        // This test verifies that when moving to active routing (i.e. at the start of a call),
+        // AudioManager#setCommunicationDevice is always called for a BT device, even if the audio
+        // framework already reports that device as the current one.
+        // It also verifies that no BT_AUDIO_CONNECTED message is pended in this case.
+        when(mFeatureFlags.skipPendingMsgIfCommunicationDeviceSet()).thenReturn(true);
+        // This test requires making sure that SCO is managed by audio to verify set communication
+        // device.
+        if (!mIsScoManagedByAudio) {
+            Log.i("CallAudioRouteControllerTest", "Skipping test: SCO not managed by Audio.");
+            return;
+        }
+
+        AudioDeviceInfo mockBtDeviceInfo = mock(AudioDeviceInfo.class);
+        when(mockBtDeviceInfo.getType()).thenReturn(AudioDeviceInfo.TYPE_BLUETOOTH_SCO);
+        when(mockBtDeviceInfo.getAddress()).thenReturn(BT_ADDRESS_1);
+        mController.initialize();
+        // Set the BT device as the current communication device before the call starts.
+        mController.setCurrentCommunicationDevice(mockBtDeviceInfo);
+        mController.setActive(false);
+
+        // Add the BT device.
+        mController.sendMessageWithSessionInfo(BT_DEVICE_ADDED, AudioRoute.TYPE_BLUETOOTH_SCO,
+                BLUETOOTH_DEVICE_1);
+        mController.updateActiveBluetoothDevice(
+                new Pair<>(AudioRoute.TYPE_BLUETOOTH_SCO, BT_ADDRESS_1));
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+
+        // Start the call by switching to active focus.
+        mController.sendMessageWithSessionInfo(SWITCH_FOCUS, ACTIVE_FOCUS, 0);
+        waitForHandlerAction(mController.getAdapterHandler(), TEST_TIMEOUT);
+        // Verify setCommunicationDevice is still called because we are moving to active routing.
+        verify(mAudioManager, timeout(TEST_TIMEOUT))
+                .setCommunicationDevice(any(AudioDeviceInfo.class));
+        // Verify that no BT_AUDIO_CONNECTED message is pending.
+        PendingAudioRoute pendingRoute = mController.getPendingAudioRoute();
+        assertTrue(pendingRoute.getPendingMessages().isEmpty());
+        assertEquals(AudioRoute.TYPE_BLUETOOTH_SCO, mController.getCurrentRoute().getType());
+    }
+
     private void verifyRouteUnchangedAfterFocusSwitch(int focusType, boolean setPreferredDevice) {
         when(mFeatureFlags.preserveCallAudioRouting()).thenReturn(true);
         mController.initialize();

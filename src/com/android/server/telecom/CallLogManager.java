@@ -318,9 +318,15 @@ public final class CallLogManager extends CallsManagerListenerBase {
      * @param result is generated when call type is
      *     {@link android.provider.CallLog.Calls#BLOCKED_TYPE}.
      */
-    void logCall(Call call, int callLogType,
+    @VisibleForTesting
+    public void logCall(Call call, int callLogType,
             @Nullable LogCallCompletedListener logCallCompletedListener, CallFilteringResult result) {
-
+        // If the call has already been logged, do not log it again. This is an atomic check-and-set
+        // to prevent race conditions from multiple disconnect events.
+        if (mFeatureFlags.avoidLoggingMoreThanOnce() && call.getAndSetHasBeenLogged()) {
+            Log.i(TAG, "LogCall: skipping already-logged call: %s", call.getId());
+            return;
+        }
         CallLogUtils.AddCallParams.AddCallParametersBuilder paramBuilder =
                 new CallLogUtils.AddCallParams.AddCallParametersBuilder();
         if (call.getConnectTimeMillis() != 0

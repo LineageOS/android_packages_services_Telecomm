@@ -102,6 +102,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -889,6 +890,21 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      * out.
      */
     private CompletableFuture<Boolean> mBtIcsFuture;
+
+    /**
+     * Tracks whether this call has been logged to the call log to prevent duplicate entries.
+     */
+    private final AtomicBoolean mHasBeenLogged = new AtomicBoolean(false);
+
+    /**
+     * Atomically checks if the call has been logged and sets the logged status to true.
+     *
+     * @return {@code true} if the call had ALREADY been logged, {@code false} if it had not been
+     * logged and was just now marked as such.
+     */
+    public boolean getAndSetHasBeenLogged() {
+        return mHasBeenLogged.getAndSet(true);
+    }
 
     /**
      * Map of CachedCallbacks that are pending to be executed when the *ServiceWrapper connects

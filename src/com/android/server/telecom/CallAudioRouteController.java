@@ -708,8 +708,8 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         // clear the communication device. For routing centralization, we will improve this to only
         // update the UI when the requested route change matches up.
         boolean isDestRouteCommunicationDevice = mFeatureFlags
-                .skipPendingMsgIfCommunicationDeviceSet() && isCurrentCommunicationDevice(
-                        getCurrentCommunicationDevice(), destRoute);
+                .skipPendingMsgIfCommunicationDeviceSet()
+                && isCurrentCommunicationDevice(destRoute);
         if (mIsPending) {
             if (destRoute.equals(mPendingAudioRoute.getDestRoute())
                     && (mIsActive == isDestRouteActive)) {
@@ -744,13 +744,31 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
             }
             mIsPending = true;
         }
+        boolean isMovingToActiveRouting = mIsActive != isDestRouteActive && isDestRouteActive;
         mPendingAudioRoute.setDestRoute(isDestRouteActive, destRoute,
                 mBluetoothRoutes.get(destRoute), shouldAvoidBtDisconnect,
-                isDestRouteCommunicationDevice);
+                isDestRouteCommunicationDevice, isMovingToActiveRouting);
         mIsActive = isDestRouteActive;
+        maybeClearPendingMessage();
         mPendingAudioRoute.evaluatePendingState();
         if (mFeatureFlags.telecomMetricsSupport()) {
             mMetricsController.getAudioRouteStats().onRouteEnter(mPendingAudioRoute);
+        }
+    }
+
+    /**
+     * Ensure we clear the pending message if the pending destination route is pointing to the
+     * current communication device (provided by the onCommunicationDeviceChanged listener).
+     */
+    private void maybeClearPendingMessage() {
+        AudioRoute pendingDestRoute = mPendingAudioRoute.getDestRoute();
+        if (pendingDestRoute != null && isCurrentCommunicationDevice(pendingDestRoute)) {
+            if (pendingDestRoute.getType() == TYPE_BLUETOOTH_SCO) {
+                mPendingAudioRoute.clearPendingMessage(new Pair<>(BT_AUDIO_CONNECTED,
+                        pendingDestRoute.getBluetoothAddress()));
+            } else if (pendingDestRoute.getType() == TYPE_SPEAKER) {
+                mPendingAudioRoute.clearPendingMessage(new Pair<>(SPEAKER_ON, null));
+            }
         }
     }
 
@@ -767,8 +785,8 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
         return isScoDeviceAlreadyConnected;
     }
 
-    private boolean isCurrentCommunicationDevice(AudioDeviceInfo currentCommunicationDevice,
-            AudioRoute destRoute) {
+    private boolean isCurrentCommunicationDevice(AudioRoute destRoute) {
+        AudioDeviceInfo currentCommunicationDevice = getCurrentCommunicationDevice();
         if (currentCommunicationDevice == null || destRoute == null) {
             return false;
         }
@@ -931,7 +949,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                 // continue processing the message. We will wait until the audio fwk reports that
                 // the communication device has been updated accordingly instead of relying on
                 // what the BT broadcasts are telling us.
-                if (!isCurrentCommunicationDevice(getCurrentCommunicationDevice(), btRoute)) {
+                if (!isCurrentCommunicationDevice(btRoute)) {
                     Log.i(this, "handleBtAudioActive: %s is not the current"
                             + "communication device yet. Ignoring message.");
                     return;
@@ -971,7 +989,7 @@ public class CallAudioRouteController implements CallAudioRouteAdapter {
                 // then don't continue processing the disconnect message. We will wait until the
                 // audio fwk reports that the communication device has changed first instead of
                 // relying on what the BT broadcasts are telling us.
-                if (isCurrentCommunicationDevice(getCurrentCommunicationDevice(), btRoute)) {
+                if (isCurrentCommunicationDevice(btRoute)) {
                     Log.i(this, "handleBtAudioInactive: %s is still the current"
                             + "communication device. Ignoring message.");
                     return;

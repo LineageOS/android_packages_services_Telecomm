@@ -1269,6 +1269,42 @@ public class CallLogManagerTest extends TelecomTestCase {
                 false /* isCanceled */));
     }
 
+    @MediumTest
+    @Test
+    public void testLogCall_multipleDisconnects_logsOnlyOnce() {
+        when(mFeatureFlags.avoidLoggingMoreThanOnce()).thenReturn(true);
+        when(mMockPhoneAccountRegistrar.getPhoneAccountUnchecked(any(PhoneAccountHandle.class)))
+                .thenReturn(makeFakePhoneAccount(mDefaultAccountHandle, 0 /* capabilities */));
+
+        Call fakeCall = makeFakeCall(
+                DisconnectCause.OTHER,
+                false, // isConference
+                false, // isIncoming
+                1L,    // creationTimeMillis
+                1000L, // ageMillis
+                TEL_PHONEHANDLE,
+                mDefaultAccountHandle,
+                NO_VIDEO_STATE,
+                POST_DIAL_STRING,
+                VIA_NUMBER_STRING,
+                UserHandle.of(CURRENT_USER_ID)
+        );
+
+        // The first time it's called, it should return false (indicating not yet logged).
+        // Any subsequent call should return true (indicating it has been logged).
+        when(fakeCall.getAndSetHasBeenLogged()).thenReturn(false).thenReturn(true);
+
+        // Simulate two separate log attempts for the same call object.
+        // This mimics what happens when multiple disconnect signals are processed.
+        mCallLogManager.logCall(fakeCall, Calls.INCOMING_TYPE, null, null);
+        mCallLogManager.logCall(fakeCall, Calls.INCOMING_TYPE, null, null);
+
+        // Verify that the call was inserted into the call log exactly once.
+        // The verifyInsertionWithCapture helper contains a verify(..., times(1)) check,
+        // which will fail if more than one insertion occurs.
+        verifyInsertionWithCapture(CURRENT_USER_ID);
+    }
+
     private ArgumentCaptor<CountryListener> verifyCountryIso(CountryDetector mockDetector,
             String resultIso) {
         ArgumentCaptor<CountryListener> captor = ArgumentCaptor.forClass(CountryListener.class);

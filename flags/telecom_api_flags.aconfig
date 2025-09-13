@@ -71,7 +71,6 @@ flag {
   namespace: "telecom"
   description: "Enables enriched calling features (e.g. Business name will show for a call)"
   bug: "311688497"
-  is_exported: true
 }
 
 # OWNER=tgunn TARGET=25Q3

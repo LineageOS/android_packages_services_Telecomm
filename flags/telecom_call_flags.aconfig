@@ -169,3 +169,14 @@ flag {
   description: "Adds support to handle storing the cnap name to be displayed in the call log"
   bug: "429015736"
 }
+
+# OWNER=tjstuart TARGET=26Q1
+flag {
+  name: "avoid_logging_more_than_once"
+  namespace: "telecom"
+  description: "Fixes a bug where a call is logged multiple times due to multiple disconnects"
+  bug: "381210657"
+  metadata {
+      purpose: PURPOSE_BUGFIX
+    }
+}
