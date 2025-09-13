@@ -183,3 +183,15 @@ flag {
 
 }
 
+# OWNER=arunrajms TARGET=26Q2
+flag {
+  name: "send_original_number_on_place_call"
+  is_exported: true
+  namespace: "telecom"
+  description: "Adds an API to send the original number when placing a call."
+  bug: "431102980"
+  metadata {
+      purpose: PURPOSE_FEATURE
+  }
+}
+

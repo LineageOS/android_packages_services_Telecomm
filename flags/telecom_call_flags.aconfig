@@ -150,6 +150,17 @@ flag {
     }
 }
 
+# OWNER=pmadapurmath TARGET=26Q1
+flag {
+  name: "auto_unhold_on_call_fail"
+  namespace: "telecom"
+  description: "Attempts to unhold a call across phone accounts if the new call fails to be set up."
+  bug: "441531098"
+  metadata {
+      purpose: PURPOSE_BUGFIX
+    }
+}
+
 # OWNER=pmadapurmath TARGET=26Q2
 flag {
   name: "support_display_name_call_log"

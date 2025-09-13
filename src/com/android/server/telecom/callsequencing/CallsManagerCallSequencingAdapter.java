@@ -23,6 +23,7 @@ import android.os.OutcomeReceiver;
 import android.telecom.CallAttributes;
 import android.telecom.CallException;
 import android.telecom.Connection;
+import android.telecom.DisconnectCause;
 import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
 
@@ -47,7 +48,9 @@ import java.util.concurrent.CompletableFuture;
  * or CallSequencingController.
  */
 public class CallsManagerCallSequencingAdapter {
-
+    // Call states representing that the call hasn't been set up yet.
+    private static final Set<Integer> SETUP_CALL_STATES =
+            Set.of(CallState.NEW, CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT);
     private final CallsManager mCallsManager;
     private final Context mContext;
     private CallSequencingController mSequencingController;
@@ -211,30 +214,39 @@ public class CallsManagerCallSequencingAdapter {
             return;
         }
 
+        boolean isDisconnectingChildCall = removedCall.isDisconnectingChildCall();
+        Log.v(this, "maybeMoveHeldCallToForeground: isDisconnectingChildCall = "
+                + isDisconnectingChildCall + "call -> %s", removedCall);
+        boolean isForegroundCallHeld = foregroundCall != null
+                && foregroundCall.getState() == CallState.ON_HOLD;
+        boolean didCallDisconnectDuringSetup = SETUP_CALL_STATES.contains(
+                removedCall.getLastCallStateBeforeDisconnect());
         if (isLocallyDisconnecting) {
-            boolean isDisconnectingChildCall = removedCall.isDisconnectingChildCall();
-            Log.v(this, "maybeMoveHeldCallToForeground: isDisconnectingChildCall = "
-                    + isDisconnectingChildCall + "call -> %s", removedCall);
             // Auto-unhold the foreground call due to a locally disconnected call, except if the
             // call which was disconnected is a member of a conference (don't want to auto
             // un-hold the conference if we remove a member of the conference).
             // Also, ensure that the call we're removing is from the same ConnectionService as
             // the one we're removing.  We don't want to auto-unhold between ConnectionService
             // implementations, especially if one is managed and the other is a VoIP CS.
-            if (!isDisconnectingChildCall && foregroundCall != null
-                    && foregroundCall.getState() == CallState.ON_HOLD
+            if (!isDisconnectingChildCall && isForegroundCallHeld
                     && CallsManager.areFromSameSource(foregroundCall, removedCall)) {
                 unholdForegroundCallFuture = foregroundCall.unhold();
             }
-        } else if (foregroundCall != null &&
-                !foregroundCall.can(Connection.CAPABILITY_SUPPORT_HOLD) &&
-                foregroundCall.getState() == CallState.ON_HOLD) {
-
+        } else if (isForegroundCallHeld &&
+                !foregroundCall.can(Connection.CAPABILITY_SUPPORT_HOLD)) {
             // The new foreground call is on hold, however the carrier does not display the hold
             // button in the UI.  Therefore, we need to auto unhold the held call since the user
             // has no means of unholding it themselves.
             Log.i(this, "maybeMoveHeldCallToForeground: Auto-unholding held foreground call (call "
                     + "doesn't support hold)");
+            unholdForegroundCallFuture = foregroundCall.unhold();
+        } else if (mFeatureFlags.autoUnholdOnCallFail() && didCallDisconnectDuringSetup
+                && !isDisconnectingChildCall && isForegroundCallHeld
+                && (removedCall.getDisconnectCause().getCode() == DisconnectCause.ERROR
+                || removedCall.getDisconnectCause().getCode() == DisconnectCause.CANCELED)) {
+            // Auto-disconnect the held call if the call was disconnected with an error or canceled.
+            Log.i(this, "maybeMoveHeldCallToForeground: Auto-unholding held foreground call (due "
+                    + "to call setup failure)");
             unholdForegroundCallFuture = foregroundCall.unhold();
         }
         maybeLogFutureResultTransaction(unholdForegroundCallFuture,

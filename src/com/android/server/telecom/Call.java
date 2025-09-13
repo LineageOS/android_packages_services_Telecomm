@@ -655,6 +655,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     private CallingPackageIdentity mCallingPackageIdentity = new CallingPackageIdentity();
     private boolean mSkipAutoUnhold = false;
     private boolean mIsTransactionalLogExcluded = false;
+    private int mLastCallStateBeforeDisconnect = CallState.DISCONNECTED;
 
     /**
      * CallingPackageIdentity is responsible for storing properties about the calling package that
@@ -1435,6 +1436,13 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         if (mState != newState) {
             Log.v(this, "setState %s -> %s", CallState.toString(mState),
                     CallState.toString(newState));
+
+            // Save the previous call state to figure out if the call failed during setup or while
+            // the call was still ongoing. Used to determine if we should auto-unhold the bg call
+            // when this call has been disconnected due to an error.
+            if (newState == CallState.DISCONNECTED || newState == CallState.ABORTED) {
+                mLastCallStateBeforeDisconnect = mState;
+            }
 
             if (newState == CallState.DISCONNECTED && shouldContinueProcessingAfterDisconnect()) {
                 Log.w(this, "continuing processing disconnected call with another service");
@@ -5267,5 +5275,9 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
     public boolean isTransactionalLogExcluded() {
         return mIsTransactionalLogExcluded;
+    }
+
+    public int getLastCallStateBeforeDisconnect() {
+        return mLastCallStateBeforeDisconnect;
     }
 }

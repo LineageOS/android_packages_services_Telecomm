@@ -347,7 +347,7 @@ public class CallRedirectionProcessorTest extends TelecomTestCase {
                 ICallRedirectionAdapter.class);
         ArgumentCaptor<Uri> uriArgumentCaptor = ArgumentCaptor.forClass(Uri.class);
         verify(mockCallRedirectionService, times(1)).placeCall(redirectionAdapterCaptor.capture(),
-                uriArgumentCaptor.capture(), any(), anyBoolean());
+                uriArgumentCaptor.capture(), any(), any(), anyBoolean());
 
         // Verify the service did not get passed post-dial digits.
         assertEquals(ORIGINAL_NUMBER_NO_POST_DIAL, uriArgumentCaptor.getValue());
