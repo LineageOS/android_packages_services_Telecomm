@@ -1660,17 +1660,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         return mSilentRingingRequested;
     }
 
-    public boolean isVideoCrbtForVoLteCall() {
-        if (getExtras() == null) {
-            return false;
-        }
-        // filter out the extra if the PhoneAccount doesn't have
-        // PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION, limit the ability to use this functionality
-        // to just telephony phone accounts permission.
-        return mIsSimCall &&
-            getExtras().getBoolean(android.telecom.Call.EXTRA_IS_USING_VIDEO_RINGBACK);
-    }
-
     public void setCallIsSuppressedByDoNotDisturb(boolean isCallSuppressed) {
         Bundle bundle = new Bundle();
         bundle.putBoolean(android.telecom.Call.EXTRA_IS_SUPPRESSED_BY_DO_NOT_DISTURB,

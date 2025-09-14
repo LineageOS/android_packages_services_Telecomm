@@ -1878,7 +1878,6 @@ public class CallAudioRouteControllerTest extends TelecomTestCase {
         when(mFeatureFlags.skipPendingMsgIfCommunicationDeviceSet()).thenReturn(true);
         // Setup call as video call to allow baseline routing to speaker
         when(mCall.isActiveFocus()).thenReturn(true);
-        when(mCall.isVideoCrbtForVoLteCall()).thenReturn(false);
         when(mCall.getVideoState()).thenReturn(VideoProfile.STATE_TX_ENABLED);
         // Start routing on BT
         verifyConnectBluetoothDevice(AudioRoute.TYPE_BLUETOOTH_SCO);
