@@ -39,7 +39,7 @@
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"የስልክ ድምፅ ማጉያ ነቅቷል።"</string>
     <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"አሁን ማውራት አልችልም። ሰላም ነው?"</string>
     <string name="respond_via_sms_canned_response_2" msgid="2052951316129952406">"ወዲያው መልሼ እደውላለሁ።"</string>
-    <string name="respond_via_sms_canned_response_3" msgid="6656147963478092035">"ኋላ እደውላለሁ።"</string>
+    <string name="respond_via_sms_canned_response_3" msgid="6656147963478092035">"ኋላ እደውልሎታለሁ።"</string>
     <string name="respond_via_sms_canned_response_4" msgid="9141132488345561047">"አሁን ማውራት አልችልም። ትንሽ ቆይተው ይደውሉ?"</string>
     <string name="respond_via_sms_setting_title" msgid="4762275482898830160">"ፈጣን ምላሾች"</string>
     <string name="respond_via_sms_setting_title_2" msgid="4914853536609553457">"ፈጣን ምላሾች አርትዕ"</string>
@@ -85,7 +85,7 @@
     <string name="notification_incoming_call" msgid="1233481138362230894">"<xliff:g id="CALL_VIA">%1$s</xliff:g> ጥሪ ከ<xliff:g id="CALL_FROM">%2$s</xliff:g>"</string>
     <string name="notification_incoming_video_call" msgid="5795968314037063900">"<xliff:g id="CALL_VIA">%1$s</xliff:g> የቪዲዮ ጥሪ ከ<xliff:g id="CALL_FROM">%2$s</xliff:g>"</string>
     <string name="answering_ends_other_call" msgid="8653544281903986641">"መመለስ የ<xliff:g id="CALL_VIA">%1$s</xliff:g> ጥሪዎን ይጨርሳል"</string>
-    <string name="answering_ends_other_calls" msgid="3702302838456922535">"መመለስ የ<xliff:g id="CALL_VIA">%1$s</xliff:g> ጥሪዎችዎን ይጨርሳል"</string>
+    <string name="answering_ends_other_calls" msgid="3702302838456922535">"መመለስ የ<xliff:g id="CALL_VIA">%1$s</xliff:g> ጥሪዎችዎን ያበቃል"</string>
     <string name="answering_ends_other_video_call" msgid="8572022039304239958">"መመለስ የ<xliff:g id="CALL_VIA">%1$s</xliff:g> የቪዲዮ ጥሪዎን ይጨርሳል"</string>
     <string name="answering_ends_other_managed_call" msgid="4031778317409881805">"መመለስ በመካሄድ ላይ ያለ ጥሪዎን ይጨርሳል"</string>
     <string name="answering_ends_other_managed_calls" msgid="3974069768615307659">"መመለስ እየተካሄዱ ያሉ ጥሪዎችዎን ይጨርሳል"</string>
@@ -110,7 +110,7 @@
     <string name="alert_redirect_outgoing_call_timeout" msgid="5568101425637373060">"ጥሪ በ <xliff:g id="OTHER_APP">%1$s</xliff:g> መደረግ አይችልም። ሌላ የጥሪ አቅጣጫ ማስቀየሪያ መተግበሪያ ለመጠቀም ወይም አልሚውን እገዛ ለመጠየቅ ይሞክሩ።"</string>
     <string name="phone_settings_call_blocking_txt" msgid="7311523114822507178">"ጥሪን ማገድ"</string>
     <string name="phone_settings_number_not_in_contact_txt" msgid="2602249106007265757">"ቁጥሮች በእውቂያዎች ውስጥ የሉም"</string>
-    <string name="phone_settings_number_not_in_contact_summary_txt" msgid="963327038085718969">"በእውቂያዎችዎ ውስጥ ያልተዘረዘሩ ቁጥሮችን አግድ"</string>
+    <string name="phone_settings_number_not_in_contact_summary_txt" msgid="963327038085718969">"በእውቂያዎችዎ ውስጥ ያልተዘረዘሩ ቁጥሮችን ያግዱ"</string>
     <string name="phone_settings_private_num_txt" msgid="6339272760338475619">"የግል"</string>
     <string name="phone_settings_private_num_summary_txt" msgid="6755758240544021037">"ቁጥራቸውን የማይገልጹ ደዋዮችን አግድ"</string>
     <string name="phone_settings_payphone_txt" msgid="5003987966052543965">"የክፍያ ስልክ"</string>

@@ -37,7 +37,7 @@
     <string name="notification_incallservice_not_responding_body" msgid="9209308270131968623">"تمت مكالمتك باستخدام تطبيق \"الهاتف\" الذي أتى مع جهازك."</string>
     <string name="accessibility_call_muted" msgid="2968461092554300779">"تم كتم صوت المكالمة."</string>
     <string name="accessibility_speakerphone_enabled" msgid="555386652061614267">"تم تفعيل مكبر صوت الهاتف."</string>
-    <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"لا يمكنني التحدث الآن. ما الأمر؟"</string>
+    <string name="respond_via_sms_canned_response_1" msgid="6332561460870382561">"لا يمكنني التحدث الآن، ما الأمر؟"</string>
     <string name="respond_via_sms_canned_response_2" msgid="2052951316129952406">"سأعاود الاتصال بك."</string>
     <string name="respond_via_sms_canned_response_3" msgid="6656147963478092035">"سأتصل بك لاحقًا."</string>
     <string name="respond_via_sms_canned_response_4" msgid="9141132488345561047">"لا يمكنني التحدث الآن. اتصل لاحقًا."</string>
@@ -55,19 +55,19 @@
     <string name="no_vm_number" msgid="2179959110602180844">"رقم البريد الصوتي مفقود"</string>
     <string name="no_vm_number_msg" msgid="1339245731058529388">"‏لم يتم تخزين رقم بريد صوتي على شريحة SIM."</string>
     <string name="add_vm_number_str" msgid="5179510133063168998">"إضافة رقم"</string>
-    <string name="change_default_dialer_dialog_title" msgid="5861469279421508060">"هل تريد تعيين <xliff:g id="NEW_APP">%s</xliff:g> كتطبيق الهاتف التلقائي؟"</string>
+    <string name="change_default_dialer_dialog_title" msgid="5861469279421508060">"تعيين <xliff:g id="NEW_APP">%s</xliff:g> كتطبيق \"الهاتف\" التلقائي؟"</string>
     <string name="change_default_dialer_dialog_affirmative" msgid="8604665314757739550">"التحديد كتطبيق تلقائي"</string>
     <string name="change_default_dialer_dialog_negative" msgid="8648669840052697821">"إلغاء"</string>
-    <string name="change_default_dialer_warning_message" msgid="8461963987376916114">"سيتمكن <xliff:g id="NEW_APP">%s</xliff:g> من إجراء المكالمات والتحكم في كل جوانبها. يمكن فقط تعيين التطبيقات التي تثق بها كتطبيق الهاتف التلقائي."</string>
-    <string name="change_default_call_screening_dialog_title" msgid="5365787219927262408">"هل تريد جعل <xliff:g id="NEW_APP">%s</xliff:g> تطبيق رَصْد المكالمات التلقائي في جهازك؟"</string>
+    <string name="change_default_dialer_warning_message" msgid="8461963987376916114">"سيتمكن \"<xliff:g id="NEW_APP">%s</xliff:g>\" من إجراء المكالمات والتحكم في كل جوانبها. يجب تحديد التطبيقات الموثوق بها فقط كتطبيقات الهاتف التلقائية."</string>
+    <string name="change_default_call_screening_dialog_title" msgid="5365787219927262408">"جعل \"<xliff:g id="NEW_APP">%s</xliff:g>\" تطبيق فحص المكالمات التلقائي على جهازك؟"</string>
     <string name="change_default_call_screening_warning_message_for_disable_old_app" msgid="2039830033533243164">"لن يتمكَّن <xliff:g id="OLD_APP">%s</xliff:g> من رَصْد المُكالمات بعد ذلك."</string>
-    <string name="change_default_call_screening_warning_message" msgid="9020537562292754269">"سيتمكَّن <xliff:g id="NEW_APP">%s</xliff:g> من الاطّلاع على معلومات عن المتصّلين الذين ليسوا ضمن جهات اتصالك وحظر المُكالمات الواردة منهم. يمكن فقط تحديد التطبيقات التي تثق بها كتطبيقات تلقائية لرَصْد المُكالمات."</string>
+    <string name="change_default_call_screening_warning_message" msgid="9020537562292754269">"سيتمكَّن \"<xliff:g id="NEW_APP">%s</xliff:g>\" من الاطّلاع على معلومات عن المتصّلين الذين ليسوا ضمن جهات اتصالك وحظر المُكالمات الواردة منهم. يجب فقط تحديد التطبيقات الموثوق بها كتطبيقات تلقائية لفحص المُكالمات."</string>
     <string name="change_default_call_screening_dialog_affirmative" msgid="7162433828280058647">"التحديد كتطبيق تلقائي"</string>
     <string name="change_default_call_screening_dialog_negative" msgid="1839266125623106342">"إلغاء"</string>
     <string name="blocked_numbers" msgid="8322134197039865180">"الأرقام المحظورة"</string>
-    <string name="blocked_numbers_msg" msgid="2797422132329662697">"لن تتلقّى أي مكالمات أو مراسلات نصية من الأرقام المحظورة."</string>
+    <string name="blocked_numbers_msg" msgid="2797422132329662697">"لن تصلك أي مكالمات أو مراسلات نصية من الأرقام المحظورة."</string>
     <string name="block_number" msgid="3784343046852802722">"إضافة رقم"</string>
-    <string name="unblock_dialog_body" msgid="2723393535797217261">"هل تريد إلغاء حظر <xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>؟"</string>
+    <string name="unblock_dialog_body" msgid="2723393535797217261">"‏إلغاء حظر ‎<xliff:g id="NUMBER_TO_BLOCK">%1$s</xliff:g>؟"</string>
     <string name="unblock_button" msgid="8732021675729981781">"إزالة الحظر"</string>
     <string name="add_blocked_dialog_body" msgid="8599974422407139255">"حظر المكالمات والرسائل النصية من"</string>
     <string name="add_blocked_number_hint" msgid="8769422085658041097">"رقم الهاتف"</string>
@@ -75,7 +75,7 @@
     <string name="non_primary_user" msgid="315564589279622098">"يمكن لمالك الجهاز فقط الاطّلاع على الأرقام المحظورة وإدارتها."</string>
     <string name="delete_icon_description" msgid="5335959254954774373">"إلغاء الحظر"</string>
     <string name="blocked_numbers_butter_bar_title" msgid="582982373755950791">"تم إيقاف الحظر مؤقتًا"</string>
-    <string name="blocked_numbers_butter_bar_body" msgid="1261213114919301485">"بعد الاتصال الهاتفي أو إرسال رسالة نصية إلى رقم طوارئ، يتم إيقاف الحظر لضمان تمكن خدمات الطوارئ من الاتصال بك."</string>
+    <string name="blocked_numbers_butter_bar_body" msgid="1261213114919301485">"بعد الاتصال برقم طوارئ أو إرسال رسالة نصية إليه، يتم إيقاف الحظر لكي تتمكّن خدمات الطوارئ من الاتصال بك."</string>
     <string name="blocked_numbers_butter_bar_button" msgid="2704456308072489793">"إعادة تفعيل الآن"</string>
     <string name="blocked_numbers_number_blocked_message" msgid="4314736791180919167">"تم حظر <xliff:g id="BLOCKED_NUMBER">%1$s</xliff:g>"</string>
     <string name="blocked_numbers_number_unblocked_message" msgid="2933071624674945601">"تمت إزالة حظر <xliff:g id="UNBLOCKED_NUMBER">%1$s</xliff:g>"</string>
@@ -117,7 +117,7 @@
     <string name="phone_settings_payphone_summary_txt" msgid="3936631076065563665">"حظر المكالمات من الهواتف المدفوعة"</string>
     <string name="phone_settings_unknown_txt" msgid="3577926178354772728">"غير معروف"</string>
     <string name="phone_settings_unknown_summary_txt" msgid="5446657192535779645">"حظر المكالمات من المتّصلين مجهولي الهوية"</string>
-    <string name="phone_settings_unavailable_txt" msgid="825918186053980858">"غير معروف"</string>
+    <string name="phone_settings_unavailable_txt" msgid="825918186053980858">"غير متوفّر"</string>
     <string name="phone_settings_unavailable_summary_txt" msgid="8221686031038282633">"حظر المكالمات عندما يكون الرقم غير معروف"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_title_txt" msgid="2895809176537908791">"حظر المكالمات"</string>
     <string name="phone_strings_call_blocking_turned_off_notification_text_txt" msgid="1713632946174016619">"تم إيقاف حظر المكالمات"</string>
@@ -136,7 +136,7 @@
     <string name="call_streaming_notification_body" msgid="502216105683378263">"بث الصوت على جهاز آخر"</string>
     <string name="call_streaming_notification_action_hang_up" msgid="7017663335289063827">"قطع الاتصال"</string>
     <string name="call_streaming_notification_action_switch_here" msgid="3524180754186221228">"الانتقال إلى هنا"</string>
-    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"لا يمكن إجراء مكالمة لأنّ هناك مكالمة أخرى تجري حاليًا. يُرجى الانتظار حتى يتم الرد على المكالمة أو إنهائها قبل إجراء مكالمة أخرى."</string>
+    <string name="callFailed_outgoing_already_present" msgid="411484560432884251">"لا يمكن إجراء مكالمة لأنّ هناك مكالمة أخرى جارية حاليًا. يُرجى الانتظار حتى يردّ عليك الشخص الآخر أو إغلاق الخط قبل إجراء مكالمة أخرى."</string>
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"لا يمكن إجراء مكالمة لأنّ هناك مكالمتين جاريتين حاليًا. يمكنك إنهاء إحدى المكالمتين أو دمجهما في مكالمة جماعية قبل إجراء مكالمة جديدة."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"لا يمكن إجراء مكالمة لأنّ هناك مكالمتين جاريتين حاليًا. يُرجى إنهاء إحدى المكالمتين قبل إجراء مكالمة جديدة."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"أنت في مكالمة غير قابلة للتعليق، لذا لا يمكن إجراء مكالمة أخرى. يُرجى إنهاء المكالمة الحالية لإجراء مكالمة جديدة."</string>
