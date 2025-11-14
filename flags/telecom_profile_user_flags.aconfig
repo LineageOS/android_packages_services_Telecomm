@@ -1,13 +1,2 @@
 package: "com.android.server.telecom.flags"
 container: "system"
-
-# OWNER=huiwang TARGET=24Q3
-flag {
-  name: "profile_user_support"
-  namespace: "telecom"
-  description: "Fix issues related to the profile user like private profile"
-  bug: "326270861"
-  metadata {
-    purpose: PURPOSE_BUGFIX
-  }
-}

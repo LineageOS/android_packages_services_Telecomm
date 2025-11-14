@@ -331,6 +331,7 @@ public class CallDiagnosticServiceController extends CallsManagerListenerBase {
             CallAudioState newCallAudioState) {
         if (mCallDiagnosticService != null) {
             try {
+                Log.i(this, "onCallAudioStateChanged: newAudioState=%s", newCallAudioState);
                 mCallDiagnosticService.updateCallAudioState(newCallAudioState);
             } catch (RemoteException e) {
                 Log.w(this, "onCallAudioStateChanged: failed %s", e);

@@ -34,7 +34,6 @@ aconfig_declarations {
         "telecom_calls_manager_flags.aconfig",
         "telecom_anomaly_report_flags.aconfig",
         "telecom_callaudiomodestatemachine_flags.aconfig",
-        "telecom_calllog_flags.aconfig",
         "telecom_resolve_hidden_dependencies.aconfig",
         "telecom_bluetoothroutemanager_flags.aconfig",
         "telecom_work_profile_flags.aconfig",
@@ -44,8 +43,7 @@ aconfig_declarations {
         "telecom_bluetoothdevicemanager_flags.aconfig",
         "telecom_non_critical_security_flags.aconfig",
         "telecom_headless_system_user_mode.aconfig",
-        "telecom_session_flags.aconfig",
         "telecom_metrics_flags.aconfig",
-        "telecom_voip_flags.aconfig",
+        "telecom_integrated_call_log.aconfig",
     ],
 }

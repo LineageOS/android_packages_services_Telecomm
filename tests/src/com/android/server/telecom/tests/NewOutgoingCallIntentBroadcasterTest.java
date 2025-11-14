@@ -78,16 +78,6 @@ import org.mockito.Mock;
 public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
     private static final Uri TEST_URI = Uri.parse("tel:16505551212");
 
-    private static class ReceiverIntentPair {
-        public BroadcastReceiver receiver;
-        public Intent intent;
-
-        public ReceiverIntentPair(BroadcastReceiver receiver, Intent intent) {
-            this.receiver = receiver;
-            this.intent = intent;
-        }
-    }
-
     @Mock private CallsManager mCallsManager;
     @Mock private Call mCall;
     @Mock private SystemStateHelper mSystemStateHelper;
@@ -117,7 +107,6 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
             any(PhoneAccountHandle.class))).thenReturn(mPhoneAccount);
         when(mPhoneAccount.isSelfManaged()).thenReturn(true);
         when(mSystemStateHelper.isCarModeOrProjectionActive()).thenReturn(false);
-        when(mFeatureFlags.isNewOutgoingCallBroadcastUnblocking()).thenReturn(false);
     }
 
     @Override
@@ -190,21 +179,6 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
 
         assertEquals(expectedCode, result);
         verifyNoBroadcastSent();
-        verifyNoCallPlaced();
-    }
-
-    @SmallTest
-    @Test
-    public void testAlreadyDisconnectedCall() {
-        Uri handle = Uri.parse("tel:6505551234");
-        doReturn(true).when(mCall).isDisconnected();
-        Intent callIntent = buildIntent(handle, Intent.ACTION_CALL, null);
-        ReceiverIntentPair result = regularCallTestHelper(callIntent, null);
-
-        result.receiver.setResultData(
-                result.intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER));
-
-        result.receiver.onReceive(mContext, result.intent);
         verifyNoCallPlaced();
     }
 
@@ -392,170 +366,15 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
         if (expectedAdditionalExtras != null) {
             expectedExtras.putAll(expectedAdditionalExtras);
         }
-        BroadcastReceiver receiver = verifyBroadcastSent(handle.getSchemeSpecificPart(),
-                expectedExtras).receiver;
-        assertNull(receiver);
-    }
-
-    @SmallTest
-    @Test
-    public void testUnmodifiedRegularCall() {
-        Uri handle = Uri.parse("tel:6505551234");
-        Intent callIntent = buildIntent(handle, Intent.ACTION_CALL, null);
-        ReceiverIntentPair result = regularCallTestHelper(callIntent, null);
-
-        result.receiver.setResultData(
-                result.intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER));
-
-        result.receiver.onReceive(mContext, result.intent);
-
-        verify(mCallsManager).placeOutgoingCall(eq(mCall), eq(handle), isNull(),
-                eq(true), eq(VideoProfile.STATE_BIDIRECTIONAL));
-    }
-
-    @SmallTest
-    @Test
-    public void testUnmodifiedSipCall() {
-        Uri handle = Uri.parse("sip:test@test.com");
-        Intent callIntent = buildIntent(handle, Intent.ACTION_CALL, null);
-        ReceiverIntentPair result = regularCallTestHelper(callIntent, null);
-
-        result.receiver.setResultData(
-                result.intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER));
-
-        result.receiver.onReceive(mContext, result.intent);
-
-        Uri encHandle = Uri.fromParts(handle.getScheme(),
-                handle.getSchemeSpecificPart(), null);
-        verify(mCallsManager).placeOutgoingCall(eq(mCall), eq(encHandle), isNull(),
-                eq(true), eq(VideoProfile.STATE_BIDIRECTIONAL));
-    }
-
-    @SmallTest
-    @Test
-    public void testCallWithGatewayInfo() {
-        Uri handle = Uri.parse("tel:6505551234");
-        Intent callIntent = buildIntent(handle, Intent.ACTION_CALL, null);
-
-        callIntent.putExtra(NewOutgoingCallIntentBroadcaster
-                        .EXTRA_GATEWAY_PROVIDER_PACKAGE, "sample1");
-        callIntent.putExtra(NewOutgoingCallIntentBroadcaster.EXTRA_GATEWAY_URI, "sample2");
-        ReceiverIntentPair result = regularCallTestHelper(callIntent, callIntent.getExtras());
-
-        result.receiver.setResultData(
-                result.intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER));
-
-        result.receiver.onReceive(mContext, result.intent);
-
-        verify(mCallsManager).placeOutgoingCall(eq(mCall), eq(handle),
-                isNotNull(), eq(true), eq(VideoProfile.STATE_BIDIRECTIONAL));
-    }
-
-    @SmallTest
-    @Test
-    public void testCallNumberModifiedToNull() {
-        Uri handle = Uri.parse("tel:6505551234");
-        Intent callIntent = buildIntent(handle, Intent.ACTION_CALL, null);
-        ReceiverIntentPair result = regularCallTestHelper(callIntent, null);
-
-        result.receiver.setResultData(null);
-
-        result.receiver.onReceive(mContext, result.intent);
-        verifyNoCallPlaced();
-        ArgumentCaptor<Long> timeoutCaptor = ArgumentCaptor.forClass(Long.class);
-        verify(mCall).disconnect(timeoutCaptor.capture());
-        assertTrue(timeoutCaptor.getValue() > 0);
-    }
-
-    @SmallTest
-    @Test
-    public void testCallNumberModifiedToNullWithLongCustomTimeout() {
-        Uri handle = Uri.parse("tel:6505551234");
-        Intent callIntent = buildIntent(handle, Intent.ACTION_CALL, null);
-        ReceiverIntentPair result = regularCallTestHelper(callIntent, null);
-
-        long customTimeout = 100000000;
-        Bundle bundle = new Bundle();
-        bundle.putLong(TelecomManager.EXTRA_NEW_OUTGOING_CALL_CANCEL_TIMEOUT, customTimeout);
-        result.receiver.setResultData(null);
-        result.receiver.setResultExtras(bundle);
-
-        result.receiver.onReceive(mContext, result.intent);
-        verifyNoCallPlaced();
-        ArgumentCaptor<Long> timeoutCaptor = ArgumentCaptor.forClass(Long.class);
-        verify(mCall).disconnect(timeoutCaptor.capture());
-        assertTrue(timeoutCaptor.getValue() < customTimeout);
-    }
-
-    @SmallTest
-    @Test
-    public void testCallModifiedToEmergency() {
-        Uri handle = Uri.parse("tel:6505551234");
-        Intent callIntent = buildIntent(handle, Intent.ACTION_CALL, null);
-        ReceiverIntentPair result = regularCallTestHelper(callIntent, null);
-
-        String newEmergencyNumber = "1234567890";
-        result.receiver.setResultData(newEmergencyNumber);
-
-        doReturn(true).when(mComponentContextFixture.getTelephonyManager())
-                .isEmergencyNumber(eq(newEmergencyNumber));
-        result.receiver.onReceive(mContext, result.intent);
-        verify(mCall).disconnect(eq(0L));
+        verifyBroadcastSent(handle.getSchemeSpecificPart(), expectedExtras);
     }
 
     /**
-     * Ensure if {@link TelephonyManager#isPotentialEmergencyNumber(String)} throws an exception of
-     * any sort that we don't crash Telecom.
-     */
-    @SmallTest
-    @Test
-    public void testThrowOnIsPotentialEmergencyNumber() {
-        doThrow(new IllegalStateException()).when(mComponentContextFixture.getTelephonyManager())
-                .isPotentialEmergencyNumber(anyString());
-        testUnmodifiedRegularCall();
-    }
-
-    /**
-     * Where the flag `isNewOutgoingCallBroadcastUnblocking` is off, verify that we sent an ordered
-     * broadcast and did not try to start the call immediately (legacy behavior).
-     */
-    @SmallTest
-    @Test
-    public void testSendBroadcastBlocking() {
-        when(mFeatureFlags.isNewOutgoingCallBroadcastUnblocking()).thenReturn(false);
-        Intent intent = new Intent(Intent.ACTION_CALL, TEST_URI);
-        NewOutgoingCallIntentBroadcaster nocib = new NewOutgoingCallIntentBroadcaster(
-                mContext, mCallsManager, intent, mPhoneNumberUtilsAdapter,
-                true /* isDefaultPhoneApp */, mDefaultDialerCache, mMmiUtils, mFeatureFlags);
-
-        NewOutgoingCallIntentBroadcaster.CallDisposition disposition = nocib.evaluateCall();
-        nocib.processCall(mCall, disposition);
-
-        // We should not have not short-circuited to place the outgoing call directly.
-        verify(mCall, never()).setNewOutgoingCallIntentBroadcastIsDone();
-        verify(mCallsManager, never()).placeOutgoingCall(any(Call.class), any(Uri.class),
-                any(GatewayInfo.class), anyBoolean(), anyInt());
-
-        // Ensure we did send the broadcast ordered
-        verifyBroadcastSent(TEST_URI.getSchemeSpecificPart(),
-                createNumberExtras(TEST_URI.getSchemeSpecificPart()));
-
-        // Ensure we did not try to directly send the broadcast unordered.
-        verify(mContext, never()).sendBroadcastAsUser(
-                any(Intent.class),
-                eq(UserHandle.CURRENT),
-                eq(android.Manifest.permission.PROCESS_OUTGOING_CALLS));
-    }
-
-    /**
-     * Where the flag `isNewOutgoingCallBroadcastUnblocking` is off, verify that we sent an ordered
-     * broadcast and did not try to start the call immediately.  Also ensure that the broadcast
-     * flags are correct.
+     * Verify that the new outgoing call broadcast is not ordered.
      */
     @SmallTest
     @Test
     public void testSendBroadcastNonBlocking() {
-        when(mFeatureFlags.isNewOutgoingCallBroadcastUnblocking()).thenReturn(true);
         Intent intent = new Intent(Intent.ACTION_CALL, TEST_URI);
         NewOutgoingCallIntentBroadcaster nocib = new NewOutgoingCallIntentBroadcaster(
                 mContext, mCallsManager, intent, mPhoneNumberUtilsAdapter,
@@ -593,7 +412,7 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
         assertEquals(Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND, capturedIntent.getFlags());
     }
 
-    private ReceiverIntentPair regularCallTestHelper(Intent intent,
+    private void regularCallTestHelper(Intent intent,
             Bundle expectedAdditionalExtras) {
         Uri handle = intent.getData();
         int videoState = VideoProfile.STATE_BIDIRECTIONAL;
@@ -610,7 +429,7 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
         if (expectedAdditionalExtras != null) {
             expectedExtras.putAll(expectedAdditionalExtras);
         }
-        return verifyBroadcastSent(handle.getSchemeSpecificPart(), expectedExtras);
+        verifyBroadcastSent(handle.getSchemeSpecificPart(), expectedExtras);
     }
 
     private Intent buildIntent(Uri handle, String action, Bundle extras) {
@@ -633,36 +452,27 @@ public class NewOutgoingCallIntentBroadcasterTest extends TelecomTestCase {
         return cd;
     }
 
-    private ReceiverIntentPair verifyBroadcastSent(String number, Bundle expectedExtras) {
+    private void verifyBroadcastSent(String number, Bundle expectedExtras) {
         ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
-        ArgumentCaptor<BroadcastReceiver> receiverCaptor =
-                ArgumentCaptor.forClass(BroadcastReceiver.class);
 
-        verify(mContext).sendOrderedBroadcastAsUser(
-                intentCaptor.capture(),
-                eq(UserHandle.CURRENT),
-                eq(Manifest.permission.PROCESS_OUTGOING_CALLS),
-                eq(AppOpsManager.OP_PROCESS_OUTGOING_CALLS),
-                any(Bundle.class),
-                receiverCaptor.capture(),
-                isNull(),
-                eq(Activity.RESULT_OK),
-                eq(number),
-                isNull());
+        if (mFeatureFlags.telecomResolveHiddenDependencies()) {
+            verify(mContext).sendBroadcastAsUser(
+                    intentCaptor.capture(),
+                    eq(UserHandle.CURRENT),
+                    eq(Manifest.permission.PROCESS_OUTGOING_CALLS));
+        } else {
+            verify(mContext).sendBroadcastAsUser(
+                    intentCaptor.capture(),
+                    eq(UserHandle.CURRENT),
+                    eq(Manifest.permission.PROCESS_OUTGOING_CALLS),
+                    anyInt());
+        }
 
         Intent capturedIntent = intentCaptor.getValue();
         assertEquals(Intent.ACTION_NEW_OUTGOING_CALL, capturedIntent.getAction());
-        assertEquals(Intent.FLAG_RECEIVER_FOREGROUND | Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND,
+        assertEquals(Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND,
                 capturedIntent.getFlags());
         assertTrue(areBundlesEqual(expectedExtras, capturedIntent.getExtras()));
-
-        BroadcastReceiver receiver = receiverCaptor.getValue();
-        if (receiver != null) {
-            receiver.setPendingResult(
-                    new BroadcastReceiver.PendingResult(0, "", null, 0, true, false, null, 0, 0));
-        }
-
-        return new ReceiverIntentPair(receiver, capturedIntent);
     }
 
     private Bundle createNumberExtras(String number) {

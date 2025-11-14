@@ -16,6 +16,10 @@ message PulledAtoms {
   optional int64 telecom_error_stats_pull_timestamp_millis = 8;
   repeated TelecomEventStats telecom_event_stats = 9;
   optional int64 telecom_event_stats_pull_timestamp_millis = 10;
+  repeated CallSequencingStats call_sequencing_stats = 11;
+  optional int64 call_sequencing_stats_pull_timestamp_millis = 12;
+  repeated CallSequencingOperationStats call_sequencing_operation_stats = 13;
+  optional int64 call_sequencing_operations_stats_pull_timestamp_millis = 14;
 }
 
 /**
@@ -144,4 +148,93 @@ message TelecomEventStats {
 
     // The number of times this event occurs
     optional int32 count = 4;
+}
+
+/**
+ * Pulled atom to capture general stats of Telecom call sequencing information
+ */
+message CallSequencingStats {
+  // The value should be converted to android.telecom.CallTypeEnum
+  // From frameworks/proto_logging/stats/enums/telecomm/enums.proto
+  optional int32 primary_call_type = 1;
+
+  // The value should be converted to android.telecom.CallTypeEnum
+  // From frameworks/proto_logging/stats/enums/telecomm/enums.proto
+  optional int32 secondary_call_type = 2;
+
+  // True if the primary call is an emergency call
+  optional bool is_primary_call_emergency = 3;
+
+  // True if the secondary call is an emergency call
+  optional bool is_secondary_call_emergency = 4;
+
+  // True if this event is tracking a secondary call
+  optional bool has_secondary = 5;
+
+  // True if primary and secondary call phone accounts are the same
+  optional bool is_same_phone_account = 6;
+
+  // Average elapsed time between CALL_STATE_ACTIVE to CALL_STATE_DISCONNECTED.
+  optional int32 average_duration_ms = 7;
+
+  // The number of times this stat occurs
+  optional int32 count = 8;
+}
+
+/**
+ * Pulled atom to capture stats of Telecom call sequencing operations
+ */
+message CallSequencingOperationStats {
+  // The value should be converted to android.telecom.CallOperationTypeEnum
+  // From frameworks/proto_logging/stats/enums/telecomm/enums.proto
+  optional int32 call_operation = 1;
+
+  // The value should be converted to android.telecom.CallStateEnum
+  // From frameworks/proto_logging/stats/enums/telecomm/enums.proto
+  optional int32 focus_call_state = 2;
+
+  // The value should be converted to android.telecom.CallStateEnum
+  // From frameworks/proto_logging/stats/enums/telecomm/enums.proto
+  optional int32 source_call_state = 3;
+
+  // The value should be converted to android.telecom.CallTypeEnum
+  // From frameworks/proto_logging/stats/enums/telecomm/enums.proto
+  optional int32 focus_call_type = 4;
+
+  // The value should be converted to android.telecom.CallTypeEnum
+  // From frameworks/proto_logging/stats/enums/telecomm/enums.proto
+  optional int32 source_call_type = 5;
+
+  // Carrier name of focus call. This should always be -1/unknown for
+  // the private space calls
+  optional int32 focus_call_carrier_id = 6;
+
+  // Carrier name of the source call. This should always be -1/unknown for
+  // the private space calls or if source call isn’t defined
+  optional int32 source_call_carrier_id = 7;
+
+  // UID of the package to init the call. This should always be -1/unknown for
+  // the private space calls
+  optional int32 focus_call_id = 8;
+
+  // UID of the package to init the call. This should always be -1/unknown for
+  // the private space calls or if source call isn’t defined
+  optional int32 source_call_uid = 9;
+
+  // True if the focus call is an emergency call
+  optional bool is_focus_call_emergency = 10;
+
+  // True if the source call is an emergency call
+  optional bool is_source_call_emergency = 11;
+
+  // The value should be converted to android.telecom.CallOperationResultEnum
+  // From frameworks/proto_logging/stats/enums/telecomm/enums.proto
+  optional int32 operation_result = 12;
+
+  // True if source call (provided that this is present) and focus call
+  // are from same phone accounts
+  optional bool is_same_phone_account = 13;
+
+  // Duration (ms) taken for operation to complete
+  optional int32 operation_duration_ms = 14;
 }

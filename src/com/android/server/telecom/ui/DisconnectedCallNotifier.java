@@ -18,7 +18,6 @@ package com.android.server.telecom.ui;
 
 import android.annotation.NonNull;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
@@ -49,7 +48,9 @@ import com.android.server.telecom.CallsManagerListenerBase;
 import com.android.server.telecom.Constants;
 import com.android.server.telecom.R;
 import com.android.server.telecom.TelecomBroadcastIntentProcessor;
+import com.android.server.telecom.UserUtil;
 import com.android.server.telecom.components.TelecomBroadcastReceiver;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.Locale;
 
@@ -61,14 +62,16 @@ import java.util.Locale;
 public class DisconnectedCallNotifier extends CallsManagerListenerBase {
 
     public interface Factory {
-        DisconnectedCallNotifier create(Context context, CallsManager manager);
+        DisconnectedCallNotifier create(Context context, CallsManager manager,
+                FeatureFlags featureFlags);
     }
 
     public static class Default implements Factory {
 
         @Override
-        public DisconnectedCallNotifier create(Context context, CallsManager manager) {
-            return new DisconnectedCallNotifier(context, manager);
+        public DisconnectedCallNotifier create(Context context, CallsManager manager,
+                FeatureFlags featureFlags) {
+            return new DisconnectedCallNotifier(context, manager, featureFlags);
         }
     }
 
@@ -112,15 +115,15 @@ public class DisconnectedCallNotifier extends CallsManagerListenerBase {
 
     private final Context mContext;
     private final CallsManager mCallsManager;
-    private final NotificationManager mNotificationManager;
+    private final FeatureFlags mFeatureFlags;
     // The pending info to display to the user after they have ended the emergency call.
     private CallInfo mPendingCallNotification;
 
-    public DisconnectedCallNotifier(Context context, CallsManager callsManager) {
+    public DisconnectedCallNotifier(Context context, CallsManager callsManager,
+            FeatureFlags featureFlags) {
         mContext = context;
-        mNotificationManager =
-                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         mCallsManager = callsManager;
+        mFeatureFlags = featureFlags;
     }
 
     @Override
@@ -241,8 +244,8 @@ public class DisconnectedCallNotifier extends CallsManagerListenerBase {
         try {
             // TODO: Only support one notification right now, so if multiple are hung up, we only
             // show the last one. Support multiple in the future.
-            mNotificationManager.notifyAsUser(NOTIFICATION_TAG, DISCONNECTED_CALL_NOTIFICATION_ID,
-                    notification, call.userHandle);
+            UserUtil.processNotification(mContext, call.userHandle, NOTIFICATION_TAG,
+                    DISCONNECTED_CALL_NOTIFICATION_ID, notification, mFeatureFlags);
         } finally {
             Binder.restoreCallingIdentity(token);
         }
@@ -383,8 +386,8 @@ public class DisconnectedCallNotifier extends CallsManagerListenerBase {
     public void clearNotification(UserHandle userHandle) {
         long token = Binder.clearCallingIdentity();
         try {
-            mNotificationManager.cancelAsUser(NOTIFICATION_TAG, DISCONNECTED_CALL_NOTIFICATION_ID,
-                    userHandle);
+            UserUtil.processNotification(mContext, userHandle, NOTIFICATION_TAG,
+                    DISCONNECTED_CALL_NOTIFICATION_ID, null /* notification */, mFeatureFlags);
         } finally {
             Binder.restoreCallingIdentity(token);
         }

@@ -4,6 +4,8 @@ import static com.android.server.telecom.TelecomSystem.SyncRoot;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -22,6 +24,7 @@ import android.telephony.ims.ImsCallProfile;
 import androidx.test.filters.SmallTest;
 
 import com.android.server.telecom.Call;
+import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.ClockProxy;
@@ -129,13 +132,16 @@ public class ParcelableCallUtilsTest extends TelecomTestCase {
     public void testParcelForSystemCallScreening() {
         mCall.putConnectionServiceExtras(getSomeExtras());
         ParcelableCall call = ParcelableCallUtils.toParcelableCallForScreening(mCall,
-                true /* isPartOfSystemDialer */);
+                true /* isPartOfSystemDialer */,
+                true /* hasReadPrivilegedPhoneStatePermission */);
 
         Bundle parceledExtras = call.getExtras();
         assertTrue(parceledExtras.containsKey(Connection.EXTRA_SIP_INVITE));
         assertTrue(parceledExtras.containsKey(ImsCallProfile.EXTRA_IS_BUSINESS_CALL));
         assertFalse(parceledExtras.containsKey("SomeExtra"));
         assertFalse(parceledExtras.containsKey(Connection.EXTRA_CALL_SUBJECT));
+
+        assertNotNull(call.getAccountHandle());
     }
 
     @SmallTest
@@ -143,24 +149,33 @@ public class ParcelableCallUtilsTest extends TelecomTestCase {
     public void testParcelForSystemNonSystemCallScreening() {
         mCall.putConnectionServiceExtras(getSomeExtras());
         ParcelableCall call = ParcelableCallUtils.toParcelableCallForScreening(mCall,
-                false /* isPartOfSystemDialer */);
+                false /* isPartOfSystemDialer */,
+                false /* hasReadPrivilegedPhoneStatePermission */);
 
         Bundle parceledExtras = call.getExtras();
         assertFalse(parceledExtras.containsKey(Connection.EXTRA_SIP_INVITE));
         assertFalse(parceledExtras.containsKey(ImsCallProfile.EXTRA_IS_BUSINESS_CALL));
         assertFalse(parceledExtras.containsKey("SomeExtra"));
         assertFalse(parceledExtras.containsKey(Connection.EXTRA_CALL_SUBJECT));
+
+        assertNull(call.getAccountHandle());
     }
 
     @SmallTest
     @Test
     public void testVerificationStatusParcelingForScreening() {
-        checkVerStatParcelingForCallScreening(Connection.VERIFICATION_STATUS_NOT_VERIFIED, false);
-        checkVerStatParcelingForCallScreening(Connection.VERIFICATION_STATUS_NOT_VERIFIED, true);
-        checkVerStatParcelingForCallScreening(Connection.VERIFICATION_STATUS_PASSED, false);
-        checkVerStatParcelingForCallScreening(Connection.VERIFICATION_STATUS_PASSED, true);
-        checkVerStatParcelingForCallScreening(Connection.VERIFICATION_STATUS_FAILED, false);
-        checkVerStatParcelingForCallScreening(Connection.VERIFICATION_STATUS_FAILED, true);
+        checkVerStatParcelingForCallScreening(Connection.VERIFICATION_STATUS_NOT_VERIFIED, false,
+                false);
+        checkVerStatParcelingForCallScreening(Connection.VERIFICATION_STATUS_NOT_VERIFIED, true,
+                false);
+        checkVerStatParcelingForCallScreening(Connection.VERIFICATION_STATUS_PASSED, false,
+                false);
+        checkVerStatParcelingForCallScreening(Connection.VERIFICATION_STATUS_PASSED, true,
+                false);
+        checkVerStatParcelingForCallScreening(Connection.VERIFICATION_STATUS_FAILED, false,
+                false);
+        checkVerStatParcelingForCallScreening(Connection.VERIFICATION_STATUS_FAILED, true,
+                false);
     }
 
     @SmallTest
@@ -174,11 +189,39 @@ public class ParcelableCallUtilsTest extends TelecomTestCase {
         checkVerStatParcelingForDialer(Connection.VERIFICATION_STATUS_FAILED, true);
     }
 
+    @SmallTest
+    @Test
+    public void testTreatCallStateAnsweredAsActive() {
+        int prevCallState = mCall.getState();
+        mCall.setState(CallState.ANSWERED, null);
+        // Verify that if we're parceling the call for the BT ICS that we translate the call state
+        // to ACTIVE.
+        ParcelableCall call = ParcelableCallUtils.toParcelableCall(mCall,
+                false /* includeVideoProvider */, null /* phoneAccountRegistrar */,
+                false /* supportsExternalCalls */, -1 /* overrideState */,
+                false /* includeRttCall */, false /* isForSystemInCallService */,
+                true /* isBluetoothInCallService */);
+        // Verify that setting call state to ANSWERED is processed as ACTIVE from telecom fwk
+        assertEquals(call.getState(), android.telecom.Call.STATE_ACTIVE);
+        // Now verify that if we're not parceling the call for the BT ICS that we continue to
+        // translate the call state to RINGING.
+        ParcelableCall call2 = ParcelableCallUtils.toParcelableCall(mCall,
+                false /* includeVideoProvider */, null /* phoneAccountRegistrar */,
+                false /* supportsExternalCalls */, -1 /* overrideState */,
+                false /* includeRttCall */, false /* isForSystemInCallService */,
+                false /* isBluetoothInCallService */);
+        // Verify that setting call state to ANSWERED is processed as RINGING from telecom fwk
+        assertEquals(call2.getState(), android.telecom.Call.STATE_RINGING);
+        // Restore call state after test verification
+        mCall.setState(prevCallState, null);
+    }
+
     private void checkVerStatParcelingForCallScreening(int connectionVerificationStatus,
-            boolean isForSystemDialer) {
+            boolean isForSystemDialer, boolean hasReadPrivilegedPhoneStatePermission) {
         mCall.setCallerNumberVerificationStatus(connectionVerificationStatus);
         ParcelableCall call = ParcelableCallUtils.toParcelableCallForScreening(mCall,
-                isForSystemDialer /* isPartOfSystemDialer */);
+                isForSystemDialer /* isPartOfSystemDialer */,
+                hasReadPrivilegedPhoneStatePermission);
         assertEquals(connectionVerificationStatus, call.getCallerNumberVerificationStatus());
     }
 

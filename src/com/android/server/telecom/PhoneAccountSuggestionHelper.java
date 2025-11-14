@@ -38,6 +38,7 @@ import android.text.TextUtils;
 
 import com.android.internal.telecom.IPhoneAccountSuggestionCallback;
 import com.android.internal.telecom.IPhoneAccountSuggestionService;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -54,7 +55,7 @@ public class PhoneAccountSuggestionHelper {
      */
     public static CompletableFuture<List<PhoneAccountSuggestion>>
     bindAndGetSuggestions(Context context, Uri handle,
-            List<PhoneAccountHandle> availablePhoneAccounts) {
+            List<PhoneAccountHandle> availablePhoneAccounts, FeatureFlags featureFlags) {
         Context userContext;
         if (sOverrideUserHandle != null) {
             userContext = context.createContextAsUser(sOverrideUserHandle, 0);
@@ -154,7 +155,7 @@ public class PhoneAccountSuggestionHelper {
                         Log.endSession();
                     }
                 },
-                Timeouts.getPhoneAccountSuggestionServiceTimeout(userContext.getContentResolver()));
+                Timeouts.getPhoneAccountSuggestionServiceTimeout(userContext, featureFlags));
         return future;
     }
 

@@ -1938,7 +1938,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
                     mContext.getPackageManager());
             // Set the associated user for the call for MT calls based on the target phone account.
             UserHandle associatedUser = UserUtil.getAssociatedUserForCall(
-                    mFlags.associatedUserRefactorForWorkProfile(),
                     mCallsManager.getPhoneAccountRegistrar(), mCallsManager.getCurrentUserHandle(),
                     accountHandle);
             if (isIncoming() && !associatedUser.equals(mAssociatedUser)) {
@@ -2119,14 +2118,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     private void processCachedCallbacks(CallSourceService service) {
-        if(mFlags.cacheCallAudioCallbacks()) {
-            synchronized (mCachedServiceCallbacks) {
-                for (List<CachedCallback> callbacks : mCachedServiceCallbacks.values()) {
-                    callbacks.forEach( callback -> callback.executeCallback(service, this));
-                }
-                // clear list for memory cleanup purposes. The Service should never be reset
-                mCachedServiceCallbacks.clear();
+        synchronized (mCachedServiceCallbacks) {
+            for (List<CachedCallback> callbacks : mCachedServiceCallbacks.values()) {
+                callbacks.forEach(callback -> callback.executeCallback(service, this));
             }
+            // clear list for memory cleanup purposes. The Service should never be reset
+            mCachedServiceCallbacks.clear();
         }
     }
 
@@ -2360,12 +2357,6 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
     }
 
     public void setTransactionalCapabilities(Bundle extras) {
-        if (!mFlags.remapTransactionalCapabilities()) {
-            setConnectionCapabilities(
-                    extras.getInt(CallAttributes.CALL_CAPABILITIES_KEY,
-                            CallAttributes.SUPPORTS_SET_INACTIVE), true);
-            return;
-        }
         int connectionCapabilitesBitmap = 0;
         int transactionalCapabilitiesBitmap = extras.getInt(
                 CallAttributes.CALL_CAPABILITIES_KEY,
@@ -2580,7 +2571,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
 
         service.incrementAssociatedCallCount();
 
-        if (mFlags.updatedRcsCallCountTracking() && remoteService != null) {
+        if (remoteService != null) {
             remoteService.incrementAssociatedCallCount();
             mRemoteConnectionService = remoteService;
         }
@@ -2612,17 +2603,11 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         if (mConnectionService != null) {
             ConnectionServiceWrapper serviceTemp = mConnectionService;
 
-            if (mFlags.updatedRcsCallCountTracking()) {
-                // Continue to track the former CS for this call so that it doesn't unbind early:
-                mRemoteConnectionService = serviceTemp;
-            }
+            // Continue to track the former CS for this call so that it doesn't unbind early:
+            mRemoteConnectionService = serviceTemp;
 
             mConnectionService = null;
             serviceTemp.removeCall(this);
-
-            if (!mFlags.updatedRcsCallCountTracking()) {
-                serviceTemp.decrementAssociatedCallCount(true /*isSuppressingUnbind*/);
-            }
         }
 
         service.incrementAssociatedCallCount();
@@ -2649,7 +2634,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             // to do.
             decrementAssociatedCallCount(serviceTemp);
 
-            if (mFlags.updatedRcsCallCountTracking() && remoteServiceTemp != null) {
+            if (remoteServiceTemp != null) {
                 decrementAssociatedCallCount(remoteServiceTemp);
             }
         }
@@ -2896,12 +2881,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         if (mState == CallState.NEW || mState == CallState.SELECT_PHONE_ACCOUNT ||
                 mState == CallState.CONNECTING) {
             Log.i(this, "disconnect: Aborting call %s", getId());
+            abort(disconnectionTimeout);
             if (mFlags.enableCallSequencing()) {
                 disconnectFutureHandler = awaitCallStateChangeAndMaybeDisconnectCall(
                         false /* shouldDisconnectUponTimeout */, "disconnect",
                         CallState.DISCONNECTED, CallState.ABORTED);
             }
-            abort(disconnectionTimeout);
         } else if (mState != CallState.ABORTED && mState != CallState.DISCONNECTED) {
             if (mState == CallState.AUDIO_PROCESSING && !hasGoneActiveBefore()) {
                 setOverrideDisconnectCauseCode(new DisconnectCause(DisconnectCause.REJECTED));
@@ -2939,7 +2924,12 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         if (mCreateConnectionProcessor != null &&
                 !mCreateConnectionProcessor.isProcessingComplete()) {
             mCreateConnectionProcessor.abort();
-        } else if (mState == CallState.NEW || mState == CallState.SELECT_PHONE_ACCOUNT
+        } else if (mFlags.echoAbortTransactionalOutgoing() && mIsTransactionalCall) {
+            CompletableFuture<Boolean> wasCompleted = mTransactionalService.onDisconnect(this,
+                    new DisconnectCause(DisconnectCause.CANCELED));
+            Log.d(this, "abort: wasTransactionCompleted=[%b", wasCompleted);
+        }
+        else if (mState == CallState.NEW || mState == CallState.SELECT_PHONE_ACCOUNT
                 || mState == CallState.CONNECTING) {
             if (disconnectionTimeout > 0) {
                 // If the cancelation was from NEW_OUTGOING_CALL with a timeout of > 0
@@ -3275,20 +3265,21 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
             boolean shouldDisconnectUponTimeout, String callingMethod, int... targetCallStates) {
         TransactionManager tm = TransactionManager.getInstance();
         CallTransaction callTransaction = new VerifyCallStateChangeTransaction(
-                mCallsManager.getLock(), this, targetCallStates);
+                mCallsManager.getLock(), this, mFlags, targetCallStates);
         return tm.addTransaction(callTransaction,
                 new OutcomeReceiver<>() {
             @Override
             public void onResult(CallTransactionResult result) {
                 Log.i(this, "awaitCallStateChangeAndMaybeDisconnectCall: %s: onResult:"
-                        + " due to CallException=[%s]", callingMethod, result);
+                        + " success", callingMethod);
             }
 
             @Override
             public void onError(CallException e) {
                 Log.i(this, "awaitCallStateChangeAndMaybeDisconnectCall: %s: onError"
                         + " due to CallException=[%s]", callingMethod, e);
-                if (shouldDisconnectUponTimeout) {
+                if (shouldDisconnectUponTimeout && (Call.this.getState() != CallState.DISCONNECTING
+                        || Call.this.getState() != CallState.DISCONNECTED)) {
                     mCallsManager.markCallAsDisconnected(Call.this,
                             new DisconnectCause(DisconnectCause.ERROR,
                                     "did not hold in timeout window"));
@@ -3532,7 +3523,8 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         return Contacts.getLookupUri(mCallerInfo.getContactId(), mCallerInfo.lookupKey);
     }
 
-    Uri getRingtone() {
+    @VisibleForTesting
+    public Uri getRingtone() {
         return mCallerInfo == null ? null : mCallerInfo.contactRingtoneUri;
     }
 
@@ -4234,7 +4226,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
         if (videoProvider != null ) {
             try {
                 mVideoProviderProxy = new VideoProviderProxy(mLock, videoProvider, this,
-                        mCallsManager);
+                        mCallsManager, mFlags);
             } catch (RemoteException ignored) {
                 // Ignore RemoteException.
             }
@@ -4394,7 +4386,7 @@ public class Call implements CreateConnectionResponse, EventManager.Loggable,
      *
      * @param isLocallyDisconnecting {@code true} if this call is locally disconnecting.
      */
-    private void setLocallyDisconnecting(boolean isLocallyDisconnecting) {
+    public void setLocallyDisconnecting(boolean isLocallyDisconnecting) {
         mIsLocallyDisconnecting = isLocallyDisconnecting;
     }
 

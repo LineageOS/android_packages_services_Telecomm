@@ -17,6 +17,7 @@
 package com.android.server.telecom.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -35,6 +36,7 @@ import android.bluetooth.BluetoothLeAudio;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothStatusCodes;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.media.AudioDeviceInfo;
 import android.os.Parcel;
 import android.telecom.Log;
@@ -47,6 +49,7 @@ import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.bluetooth.BluetoothDeviceManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import org.junit.After;
 import org.junit.Before;
@@ -159,7 +162,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
                 BluetoothRouteManager.AUDIO_OFF_STATE_NAME, null);
         setupConnectedDevices(new BluetoothDevice[]{DEVICE1}, null, null, null, null, null);
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
-                nullable(ContentResolver.class))).thenReturn(0L);
+                nullable(Context.class), any(FeatureFlags.class))).thenReturn(0L);
         when(mBluetoothHeadset.connectAudio()).thenReturn(BluetoothStatusCodes.ERROR_UNKNOWN);
         executeRoutingAction(sm, BluetoothRouteManager.CONNECT_BT, DEVICE1.getAddress());
         // Wait 3 times: for the first connection attempt, the retry attempt,
@@ -221,7 +224,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         setupConnectedDevices(new BluetoothDevice[]{DEVICE1, DEVICE2}, null, null, null, null,
                               null);
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
-                nullable(ContentResolver.class))).thenReturn(0L);
+                nullable(Context.class), any(FeatureFlags.class))).thenReturn(0L);
         when(mBluetoothHeadset.connectAudio()).thenReturn(BluetoothStatusCodes.ERROR_UNKNOWN);
         executeRoutingAction(sm, BluetoothRouteManager.CONNECT_BT, DEVICE2.getAddress());
         // Wait 3 times: the first connection attempt is accounted for in executeRoutingAction,
@@ -255,7 +258,6 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testConnectBtWithoutAddress_SwitchingBtDeviceFlag() {
-        when(mFeatureFlags.resolveSwitchingBtDevicesComputation()).thenReturn(true);
         verifyConnectBtWithoutAddress();
     }
 
@@ -272,7 +274,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         setupConnectedDevices(new BluetoothDevice[]{DEVICE1, DEVICE2}, null, null, null, null,
                 null);
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
-                nullable(ContentResolver.class))).thenReturn(0L);
+                nullable(Context.class), any(FeatureFlags.class))).thenReturn(0L);
         when(mBluetoothHeadset.connectAudio()).thenReturn(BluetoothStatusCodes.ERROR_UNKNOWN);
         executeRoutingAction(sm, BluetoothRouteManager.CONNECT_BT, null);
         // Wait 3 times: the first connection attempt is accounted for in executeRoutingAction,
@@ -284,13 +286,7 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);
         // We should not expect explicit connection attempt (BluetoothDeviceManager#connectAudio)
         // as the device is already "connected" as per how the state machine was initialized.
-        if (mFeatureFlags.resolveSwitchingBtDevicesComputation()) {
-            verify(mDeviceManager, never()).disconnectAudio();
-        } else {
-            // Legacy behavior
-            verifyConnectionAttempt(DEVICE1, 1);
-            verify(mDeviceManager, times(1)).disconnectAudio();
-        }
+        verify(mDeviceManager, never()).disconnectAudio();
         assertEquals(BluetoothRouteManager.AUDIO_CONNECTED_STATE_NAME_PREFIX
                         + ":" + DEVICE1.getAddress(),
                 sm.getCurrentState().getName());
@@ -370,9 +366,9 @@ public class BluetoothRouteManagerTest extends TelecomTestCase {
         when(mBluetoothAdapter.setActiveDevice(nullable(BluetoothDevice.class),
                 eq(BluetoothAdapter.ACTIVE_DEVICE_ALL))).thenReturn(true);
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
-                nullable(ContentResolver.class))).thenReturn(100000L);
+                nullable(Context.class), any(FeatureFlags.class))).thenReturn(100000L);
         when(mTimeoutsAdapter.getBluetoothPendingTimeoutMillis(
-                nullable(ContentResolver.class))).thenReturn(100000L);
+                nullable(Context.class), any(FeatureFlags.class))).thenReturn(100000L);
     }
 
     private void verifyConnectionAttempt(BluetoothDevice device, int numTimes) {

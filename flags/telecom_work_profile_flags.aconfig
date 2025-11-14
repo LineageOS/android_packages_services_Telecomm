@@ -1,10 +1,4 @@
 package: "com.android.server.telecom.flags"
 container: "system"
 
-# OWNER=pmadapurmath TARGET=24Q3
-flag {
-  name: "associated_user_refactor_for_work_profile"
-  namespace: "telecom"
-  description: "Redefines the associated user for calls in the context of work profile support (U+)"
-  bug: "315035693"
-}
+# This file intentionally left blank to avoid compilation errors due to removed flag.

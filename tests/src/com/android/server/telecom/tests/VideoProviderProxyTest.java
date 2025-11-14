@@ -25,6 +25,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.os.IBinder;
+import android.platform.test.flag.junit.CheckFlagsRule;
+import android.platform.test.flag.junit.DeviceFlagsValueProvider;
 import android.telecom.VideoProfile;
 
 import androidx.test.filters.SmallTest;
@@ -35,14 +37,18 @@ import com.android.server.telecom.Call;
 import com.android.server.telecom.CurrentUserProxy;
 import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.VideoProviderProxy;
+import com.android.server.telecom.flags.FeatureFlagsImpl;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+@RunWith(JUnit4.class)
 public class VideoProviderProxyTest extends TelecomTestCase {
 
     private TelecomSystem.SyncRoot mLock;
@@ -60,14 +66,13 @@ public class VideoProviderProxyTest extends TelecomTestCase {
         super.setUp();
         MockitoAnnotations.initMocks(this);
         mLock = new TelecomSystem.SyncRoot() { };
-
         when(mVideoProvider.asBinder()).thenReturn(mIBinder);
         doNothing().when(mIBinder).linkToDeath(any(), anyInt());
         when(mCall.getAnalytics()).thenReturn(mCallInfo);
         doNothing().when(mCallInfo).addVideoEvent(anyInt(), anyInt());
         doNothing().when(mCall).maybeEnableSpeakerForVideoUpgrade(anyInt());
         mVideoProviderProxy = new VideoProviderProxy(mLock, mVideoProvider, mCall,
-                mCurrentUserProxy);
+                mCurrentUserProxy, new FeatureFlagsImpl());
         mVideoProviderProxy.addListener(mListener);
     }
 

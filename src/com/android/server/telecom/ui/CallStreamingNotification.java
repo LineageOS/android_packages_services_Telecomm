@@ -19,11 +19,11 @@ package com.android.server.telecom.ui;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Person;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
@@ -46,7 +46,9 @@ import com.android.server.telecom.Call;
 import com.android.server.telecom.CallsManagerListenerBase;
 import com.android.server.telecom.R;
 import com.android.server.telecom.TelecomBroadcastIntentProcessor;
+import com.android.server.telecom.UserUtil;
 import com.android.server.telecom.components.TelecomBroadcastReceiver;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.concurrent.Executor;
 
@@ -65,11 +67,11 @@ public class CallStreamingNotification extends CallsManagerListenerBase implemen
             CallStreamingNotification.class.getSimpleName();
 
     private final Context mContext;
-    private final NotificationManager mNotificationManager;
     // Used to get the app name for the notification.
     private final AppLabelProxy mAppLabelProxy;
     // An executor that can be used to fire off async tasks that do not block Telecom in any manner.
     private final Executor mAsyncTaskExecutor;
+    private final FeatureFlags mFeatureFlags;
     // The call which is streaming.
     private Call mStreamingCall;
     // Lock for notification post/remove -- these happen outside the Telecom sync lock.
@@ -83,11 +85,11 @@ public class CallStreamingNotification extends CallsManagerListenerBase implemen
 
     public CallStreamingNotification(@NonNull Context context,
             @NonNull AppLabelProxy appLabelProxy,
-            @NonNull Executor asyncTaskExecutor) {
+            @NonNull Executor asyncTaskExecutor, FeatureFlags featureFlags) {
         mContext = context;
-        mNotificationManager = context.getSystemService(NotificationManager.class);
         mAppLabelProxy = appLabelProxy;
         mAsyncTaskExecutor = asyncTaskExecutor;
+        mFeatureFlags = featureFlags;
     }
 
     @Override
@@ -149,12 +151,31 @@ public class CallStreamingNotification extends CallsManagerListenerBase implemen
         mAsyncTaskExecutor.execute(() -> {
             Icon contactPhotoIcon = null;
             try {
-                contactPhotoIcon = Icon.createWithResource(mContext.getResources(),
-                        R.drawable.person_circle);
+                if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                    Resources resources = mContext.getResources();
+                    String resPackage = null;
+                    if (resources != null) {
+                        resPackage = resources.getResourcePackageName(R.drawable.person_circle);
+                    }
+                    if (resPackage != null) {
+                        contactPhotoIcon = Icon.createWithResource(
+                                resPackage, R.drawable.person_circle);
+                    } else {
+                        contactPhotoIcon = Icon.createWithResource(mContext,
+                                R.drawable.person_circle);
+                    }
+                } else {
+                    contactPhotoIcon = Icon.createWithResource(mContext.getResources(),
+                            R.drawable.person_circle);
+                }
             } catch (Exception e) {
                 // All loads of things can do wrong when working with bitmaps and images, so to
                 // ensure Telecom doesn't crash, lets try/catch to be sure.
                 Log.e(this, e, "enqueueStreamingNotification: Couldn't build avatar icon");
+            }
+            if (contactPhotoIcon == null) {
+                Log.e(this, new Exception(), "enqueueStreamingNotification: "
+                        + "contactPhotoIcon is null");
             }
             showStreamingNotification(call.getId(),
                     call.getAssociatedUser(), call.getCallerDisplayName(),
@@ -269,8 +290,8 @@ public class CallStreamingNotification extends CallsManagerListenerBase implemen
             mIsNotificationShowing = true;
             mNotificationUserHandle = userHandle;
             try {
-                mNotificationManager.notifyAsUser(NOTIFICATION_TAG, STREAMING_NOTIFICATION_ID,
-                        notification, userHandle);
+                UserUtil.processNotification(mContext, userHandle, NOTIFICATION_TAG,
+                        STREAMING_NOTIFICATION_ID, notification, mFeatureFlags);
             } catch (Exception e) {
                 // We don't want to crash Telecom if something changes with the requirements for the
                 // notification.
@@ -287,8 +308,8 @@ public class CallStreamingNotification extends CallsManagerListenerBase implemen
         synchronized(mNotificationLock) {
             if (mIsNotificationShowing) {
                 mIsNotificationShowing = false;
-                mNotificationManager.cancelAsUser(NOTIFICATION_TAG,
-                        STREAMING_NOTIFICATION_ID, mNotificationUserHandle);
+                UserUtil.processNotification(mContext, mNotificationUserHandle, NOTIFICATION_TAG,
+                        STREAMING_NOTIFICATION_ID, null /* notification */, mFeatureFlags);
             }
         }
     }

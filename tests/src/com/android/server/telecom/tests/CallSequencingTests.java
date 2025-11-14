@@ -299,7 +299,7 @@ public class CallSequencingTests extends TelecomTestCase {
         when(mActiveCall.hold(anyString())).thenReturn(CompletableFuture.completedFuture(true));
 
         // Cross phone account case (sequencing enabled)
-        assertFalse(mController.arePhoneAccountsSame(mNewCall, mActiveCall));
+        assertFalse(CallSequencingController.arePhoneAccountsSame(mNewCall, mActiveCall));
         CompletableFuture<Boolean> resultFuture = mController
                 .holdActiveCallForNewCallWithSequencing(mNewCall,
                         CallsManager.REQUEST_ORIGIN_UNKNOWN);
@@ -307,7 +307,7 @@ public class CallSequencingTests extends TelecomTestCase {
 
         // Same phone account case
         setPhoneAccounts(mNewCall, mActiveCall, true);
-        assertTrue(mController.arePhoneAccountsSame(mNewCall, mActiveCall));
+        assertTrue(CallSequencingController.arePhoneAccountsSame(mNewCall, mActiveCall));
         resultFuture = mController.holdActiveCallForNewCallWithSequencing(mNewCall,
                 CallsManager.REQUEST_ORIGIN_UNKNOWN);
         assertTrue(waitForFutureResult(resultFuture, false));
@@ -328,7 +328,7 @@ public class CallSequencingTests extends TelecomTestCase {
 
         // Verify that we abort transaction when there's a new (VOIP) call and we're trying to
         // disconnect the active (carrier) call.
-        assertFalse(mController.arePhoneAccountsSame(mNewCall, mActiveCall));
+        assertFalse(CallSequencingController.arePhoneAccountsSame(mNewCall, mActiveCall));
         CompletableFuture<Boolean> resultFuture = mController
                 .holdActiveCallForNewCallWithSequencing(mNewCall,
                         CallsManager.REQUEST_ORIGIN_UNKNOWN);
@@ -349,7 +349,7 @@ public class CallSequencingTests extends TelecomTestCase {
         when(mActiveCall.hold()).thenReturn(CompletableFuture.completedFuture(true));
 
         // Cross phone account case (sequencing enabled)
-        assertFalse(mController.arePhoneAccountsSame(mNewCall, mActiveCall));
+        assertFalse(CallSequencingController.arePhoneAccountsSame(mNewCall, mActiveCall));
         CompletableFuture<Boolean> resultFuture = mController
                 .holdActiveCallForNewCallWithSequencing(mNewCall,
                         CallsManager.REQUEST_ORIGIN_UNKNOWN);
@@ -370,7 +370,7 @@ public class CallSequencingTests extends TelecomTestCase {
                 CompletableFuture.completedFuture(true));
         when(mActiveCall.isEmergencyCall()).thenReturn(false);
 
-        assertFalse(mController.arePhoneAccountsSame(mNewCall, mActiveCall));
+        assertFalse(CallSequencingController.arePhoneAccountsSame(mNewCall, mActiveCall));
         CompletableFuture<Boolean> resultFuture = mController
                 .holdActiveCallForNewCallWithSequencing(mNewCall,
                         CallsManager.REQUEST_ORIGIN_UNKNOWN);
@@ -391,7 +391,7 @@ public class CallSequencingTests extends TelecomTestCase {
 
         // Verify that we abort transaction when there's a new (VOIP) call and we're trying to
         // disconnect the active (carrier) call.
-        assertFalse(mController.arePhoneAccountsSame(mNewCall, mActiveCall));
+        assertFalse(CallSequencingController.arePhoneAccountsSame(mNewCall, mActiveCall));
         CompletableFuture<Boolean> resultFuture = mController
                 .holdActiveCallForNewCallWithSequencing(mNewCall,
                         CallsManager.REQUEST_ORIGIN_UNKNOWN);
@@ -407,7 +407,7 @@ public class CallSequencingTests extends TelecomTestCase {
         when(mCallsManager.supportsHold(mActiveCall)).thenReturn(false);
         when(mActiveCall.isEmergencyCall()).thenReturn(false);
 
-        assertTrue(mController.arePhoneAccountsSame(mNewCall, mActiveCall));
+        assertTrue(CallSequencingController.arePhoneAccountsSame(mNewCall, mActiveCall));
         CompletableFuture<Boolean> resultFuture = mController
                 .holdActiveCallForNewCallWithSequencing(mNewCall,
                         CallsManager.REQUEST_ORIGIN_UNKNOWN);
@@ -425,7 +425,7 @@ public class CallSequencingTests extends TelecomTestCase {
                 .thenReturn(CompletableFuture.completedFuture(true));
         when(mActiveCall.isEmergencyCall()).thenReturn(true);
 
-        assertFalse(mController.arePhoneAccountsSame(mNewCall, mActiveCall));
+        assertFalse(CallSequencingController.arePhoneAccountsSame(mNewCall, mActiveCall));
         CompletableFuture<Boolean> resultFuture = mController
                 .holdActiveCallForNewCallWithSequencing(mNewCall,
                         CallsManager.REQUEST_ORIGIN_UNKNOWN);
@@ -445,7 +445,7 @@ public class CallSequencingTests extends TelecomTestCase {
         when(mActiveCall.isSelfManaged()).thenReturn(false);
         when(mNewCall.isSelfManaged()).thenReturn(true);
 
-        assertFalse(mController.arePhoneAccountsSame(mNewCall, mActiveCall));
+        assertFalse(CallSequencingController.arePhoneAccountsSame(mNewCall, mActiveCall));
         CompletableFuture<Boolean> resultFuture = mController
                 .holdActiveCallForNewCallWithSequencing(mNewCall,
                         CallsManager.REQUEST_ORIGIN_UNKNOWN);
@@ -470,7 +470,7 @@ public class CallSequencingTests extends TelecomTestCase {
         setActiveCallFocus(mActiveCall);
 
         mController.unholdCall(mHeldCall);
-        assertFalse(mController.arePhoneAccountsSame(mActiveCall, mHeldCall));
+        assertFalse(CallSequencingController.arePhoneAccountsSame(mActiveCall, mHeldCall));
         verify(mActiveCall).hold(anyString());
         verify(mCallsManager, timeout(SEQUENCING_TIMEOUT_MS))
                 .requestActionUnholdCall(eq(mHeldCall), eq(ACTIVE_CALL_ID));
@@ -487,7 +487,7 @@ public class CallSequencingTests extends TelecomTestCase {
 
         // Emergency call case
         mController.unholdCall(mHeldCall);
-        assertFalse(mController.arePhoneAccountsSame(mActiveCall, mHeldCall));
+        assertFalse(CallSequencingController.arePhoneAccountsSame(mActiveCall, mHeldCall));
         verify(mCallsManager, timeout(SEQUENCING_TIMEOUT_MS).times(0))
                 .requestActionUnholdCall(eq(mHeldCall), anyString());
     }
@@ -504,7 +504,7 @@ public class CallSequencingTests extends TelecomTestCase {
         setActiveCallFocus(mActiveCall);
 
         mController.unholdCall(mHeldCall);
-        assertFalse(mController.arePhoneAccountsSame(mActiveCall, mHeldCall));
+        assertFalse(CallSequencingController.arePhoneAccountsSame(mActiveCall, mHeldCall));
         verify(mActiveCall).hold(anyString());
         // Verify unhold is never reached.
         verify(mCallsManager, never())
@@ -514,6 +514,7 @@ public class CallSequencingTests extends TelecomTestCase {
     @SmallTest
     @Test
     public void testMakeRoomForOutgoingEmergencyCall_SamePkg() {
+        when(mFeatureFlags.bypassHoldForEccDial()).thenReturn(true);
         // Ensure that the live call and emergency call are from the same pkg.
         when(mActiveCall.getTargetPhoneAccount()).thenReturn(mHandle1);
         when(mNewCall.getTargetPhoneAccount()).thenReturn(mHandle1);
@@ -523,7 +524,9 @@ public class CallSequencingTests extends TelecomTestCase {
         CompletableFuture<Boolean> future = mController.makeRoomForOutgoingCall(true, mNewCall);
         verify(mRingingCall, timeout(SEQUENCING_TIMEOUT_MS))
                 .reject(anyBoolean(), eq(null), anyString());
-        verify(mActiveCall, timeout(SEQUENCING_TIMEOUT_MS)).hold(anyString());
+        // Verify we don't send the hold request when the normal call and ECC are from the same
+        // phone accounts (this task is left up to Telephony to handle).
+        verify(mActiveCall, timeout(SEQUENCING_TIMEOUT_MS).times(0)).hold(anyString());
         assertTrue(waitForFutureResult(future, false));
     }
 
@@ -620,6 +623,7 @@ public class CallSequencingTests extends TelecomTestCase {
         when(mActiveCall.disconnect()).thenReturn(CompletableFuture.completedFuture(true));
         int previousState = CallState.ACTIVE;
         mController.disconnectCall(mActiveCall, previousState);
+        verify(mCallsManager).notifyCallStateChangeForDisconnect(any(Call.class), anyInt());
         verify(mCallsManager, timeout(SEQUENCING_TIMEOUT_MS))
                 .processDisconnectCallAndCleanup(eq(mActiveCall), eq(previousState));
     }
@@ -630,8 +634,12 @@ public class CallSequencingTests extends TelecomTestCase {
         when(mActiveCall.disconnect()).thenReturn(CompletableFuture.completedFuture(false));
         int previousState = CallState.ACTIVE;
         mController.disconnectCall(mActiveCall, previousState);
+        verify(mCallsManager).notifyCallStateChangeForDisconnect(any(Call.class), anyInt());
         verify(mCallsManager, timeout(SEQUENCING_TIMEOUT_MS).times(0))
                 .processDisconnectCallAndCleanup(eq(mActiveCall), eq(previousState));
+        verify(mCallsManager, timeout(SEQUENCING_TIMEOUT_MS).times(2))
+                .notifyCallStateChangeForDisconnect(any(Call.class), anyInt());
+        verify(mActiveCall, timeout(SEQUENCING_TIMEOUT_MS)).setLocallyDisconnecting(eq(false));
     }
 
     @Test
@@ -675,7 +683,7 @@ public class CallSequencingTests extends TelecomTestCase {
         when(mCallsManager.hasRingingOrSimulatedRingingCall()).thenReturn(true);
         when(mCallsManager.getRingingOrSimulatedRingingCall()).thenReturn(mRingingCall);
         when(mCallsManager.hasMaximumLiveCalls(mNewCall)).thenReturn(true);
-        when(mCallsManager.getFirstCallWithLiveState()).thenReturn(mActiveCall);
+        when(mCallsManager.getFirstCallWithLiveState(mNewCall)).thenReturn(mActiveCall);
         when(mCallsManager.hasMaximumOutgoingCalls(mNewCall)).thenReturn(false);
         when(mCallsManager.hasMaximumManagedHoldingCalls(mNewCall)).thenReturn(false);
         when(mCallsManager.canHold(mActiveCall)).thenReturn(true);
@@ -713,7 +721,7 @@ public class CallSequencingTests extends TelecomTestCase {
 
     private void setupMakeRoomForOutgoingCallMocks() {
         when(mCallsManager.hasMaximumLiveCalls(mNewCall)).thenReturn(true);
-        when(mCallsManager.getFirstCallWithLiveState()).thenReturn(mActiveCall);
+        when(mCallsManager.getFirstCallWithLiveState(mNewCall)).thenReturn(mActiveCall);
         setPhoneAccounts(mActiveCall, mNewCall, false);
         when(mActiveCall.isConference()).thenReturn(false);
         when(mCallsManager.hasMaximumOutgoingCalls(mNewCall)).thenReturn(false);

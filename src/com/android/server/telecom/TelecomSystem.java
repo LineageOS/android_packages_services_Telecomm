@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.BugreportManager;
@@ -233,7 +234,8 @@ public class TelecomSystem {
             BlockedNumbersAdapter blockedNumbersAdapter,
             FeatureFlags featureFlags,
             com.android.internal.telephony.flags.FeatureFlags telephonyFlags,
-            Looper looper) {
+            Looper looper,
+            Ringer.VibratorAdapter vibratorAdapter) {
         mContext = context.getApplicationContext();
         mFeatureFlags = featureFlags;
         LogUtils.initLogging(mContext);
@@ -243,7 +245,7 @@ public class TelecomSystem {
                 new DefaultDialerCache.DefaultDialerManagerAdapterImpl();
 
         DefaultDialerCache defaultDialerCache = new DefaultDialerCache(mContext,
-                defaultDialerAdapter, roleManagerAdapter, mLock);
+                defaultDialerAdapter, roleManagerAdapter, mLock, mFeatureFlags);
 
         Log.startSession("TS.init");
         // Wrap this in a try block to ensure session cleanup occurs in the case of error.
@@ -319,8 +321,14 @@ public class TelecomSystem {
                                 @Override
                                 public List<ResolveInfo> queryIntentServicesAsUser(
                                         @NonNull Intent intent, int flags, int userId) {
-                                    return mContext.getPackageManager().queryIntentServicesAsUser(
-                                            intent, flags, userId);
+                                    PackageManager pm;
+                                    if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                                        pm = UserUtil.getPackageManagerFromUserHandler(mContext,
+                                                UserHandle.of(userId));
+                                    } else {
+                                        pm = mContext.getPackageManager();
+                                    }
+                                    return pm.queryIntentServicesAsUser(intent, flags, userId);
                                 }
 
                                 @Override
@@ -347,7 +355,7 @@ public class TelecomSystem {
                     );
 
             AudioProcessingNotification audioProcessingNotification =
-                    new AudioProcessingNotification(mContext);
+                    new AudioProcessingNotification(mContext, mFeatureFlags);
 
             ToastFactory toastFactory = new ToastFactory() {
                 @Override
@@ -391,7 +399,10 @@ public class TelecomSystem {
             CallStreamingNotification callStreamingNotification =
                     new CallStreamingNotification(mContext,
                             (packageName, userHandle) -> AppLabelProxy.Util.getAppLabel(mContext,
-                                    userHandle, packageName, mFeatureFlags), asyncTaskExecutor);
+                                    userHandle, packageName, mFeatureFlags), asyncTaskExecutor,
+                            mFeatureFlags);
+            CallAudioRouteController.Factory audioRouteControllerFactory =
+                    new CallAudioRouteController.Factory();
 
             mCallsManager = new CallsManager(
                     mContext,
@@ -417,7 +428,7 @@ public class TelecomSystem {
                     clockProxy,
                     audioProcessingNotification,
                     bluetoothStateReceiver,
-                    callAudioRouteStateMachineFactory,
+                    audioRouteControllerFactory,
                     callAudioModeStateMachineFactory,
                     inCallControllerFactory,
                     callDiagnosticServiceController,
@@ -437,7 +448,8 @@ public class TelecomSystem {
                     featureFlags,
                     telephonyFlags,
                     IncomingCallFilterGraph::new,
-                    metricsController);
+                    metricsController,
+                    vibratorAdapter);
 
             mIncomingCallNotifier = incomingCallNotifier;
             incomingCallNotifier.setCallsManagerProxy(new IncomingCallNotifier.CallsManagerProxy() {
@@ -466,12 +478,22 @@ public class TelecomSystem {
                 asyncTaskExecutor, featureFlags);
             mCallsManager.setRespondViaSmsManager(mRespondViaSmsManager);
 
-            mContext.registerReceiverAsUser(mUserSwitchedReceiver, UserHandle.ALL,
-                    USER_SWITCHED_FILTER, null, null);
-            mContext.registerReceiverAsUser(mUserStartingReceiver, UserHandle.ALL,
-                    USER_STARTING_FILTER, null, null);
-            mContext.registerReceiverAsUser(mBootCompletedReceiver, UserHandle.ALL,
-                    BOOT_COMPLETE_FILTER, null, null);
+            Context userContext = mContext.createContextAsUser(UserHandle.ALL, 0);
+            if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                userContext.registerReceiver(mUserSwitchedReceiver, USER_SWITCHED_FILTER,
+                        Context.RECEIVER_NOT_EXPORTED);
+                userContext.registerReceiver(mUserStartingReceiver, USER_STARTING_FILTER,
+                        Context.RECEIVER_NOT_EXPORTED);
+                userContext.registerReceiver(mBootCompletedReceiver, BOOT_COMPLETE_FILTER,
+                        Context.RECEIVER_NOT_EXPORTED);
+            } else {
+                mContext.registerReceiverAsUser(mUserSwitchedReceiver, UserHandle.ALL,
+                        USER_SWITCHED_FILTER, null, null, Context.RECEIVER_NOT_EXPORTED);
+                mContext.registerReceiverAsUser(mUserStartingReceiver, UserHandle.ALL,
+                        USER_STARTING_FILTER, null, null, Context.RECEIVER_NOT_EXPORTED);
+                mContext.registerReceiverAsUser(mBootCompletedReceiver, UserHandle.ALL,
+                        BOOT_COMPLETE_FILTER, null, null, Context.RECEIVER_NOT_EXPORTED);
+            }
 
             // Set current user explicitly since USER_SWITCHED_FILTER intent can be missed at
             // startup
@@ -484,7 +506,7 @@ public class TelecomSystem {
             mCallIntentProcessor = new CallIntentProcessor(mContext, mCallsManager,
                     defaultDialerCache, featureFlags);
             mTelecomBroadcastIntentProcessor = new TelecomBroadcastIntentProcessor(
-                    mContext, mCallsManager);
+                    mContext, mCallsManager, mFeatureFlags);
 
             // Register the receiver for the dialer secret codes, used to enable extended logging.
             mDialerCodeReceiver = new DialerCodeReceiver(mCallsManager);

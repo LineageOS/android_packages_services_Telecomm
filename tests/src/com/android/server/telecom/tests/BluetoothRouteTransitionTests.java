@@ -39,6 +39,7 @@ import android.bluetooth.BluetoothLeAudio;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothStatusCodes;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.telecom.Log;
 
 import androidx.test.filters.SmallTest;
@@ -49,6 +50,7 @@ import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.Timeouts;
 import com.android.server.telecom.bluetooth.BluetoothDeviceManager;
 import com.android.server.telecom.bluetooth.BluetoothRouteManager;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import org.junit.After;
 import org.junit.Before;
@@ -415,9 +417,9 @@ public class BluetoothRouteTransitionTests extends TelecomTestCase {
         when(mDeviceManager.connectAudio(nullable(String.class), any(boolean.class)))
             .thenReturn(true);
         when(mTimeoutsAdapter.getRetryBluetoothConnectAudioBackoffMillis(
-                nullable(ContentResolver.class))).thenReturn(100000L);
+                nullable(Context.class), any(FeatureFlags.class))).thenReturn(100000L);
         when(mTimeoutsAdapter.getBluetoothPendingTimeoutMillis(
-                nullable(ContentResolver.class))).thenReturn(100000L);
+                nullable(Context.class), any(FeatureFlags.class))).thenReturn(100000L);
         BluetoothRouteManager sm = new BluetoothRouteManager(mContext,
                 new TelecomSystem.SyncRoot() { }, mDeviceManager,
                 mTimeoutsAdapter, mCommunicationDeviceTracker, mFeatureFlags,

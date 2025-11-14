@@ -26,6 +26,7 @@ import android.telecom.PhoneAccountHandle;
 import android.telephony.TelephonyManager;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -43,15 +44,18 @@ public final class CreateConnectionTimeout extends Runnable {
     private boolean mIsRegistered;
     private boolean mIsCallTimedOut;
     private final Timeouts.Adapter mTimeoutsAdapter;
+    private final FeatureFlags mFlags;
 
     @VisibleForTesting
     public CreateConnectionTimeout(Context context, PhoneAccountRegistrar phoneAccountRegistrar,
-            ConnectionServiceWrapper service, Call call, Timeouts.Adapter timeoutsAdapter) {
+            ConnectionServiceWrapper service, Call call, FeatureFlags featureFlags,
+            Timeouts.Adapter timeoutsAdapter) {
         super("CCT", null /*lock*/);
         mContext = context;
         mPhoneAccountRegistrar = phoneAccountRegistrar;
         mConnectionService = service;
         mCall = call;
+        mFlags = featureFlags;
         mTimeoutsAdapter = timeoutsAdapter;
     }
 
@@ -158,15 +162,13 @@ public final class CreateConnectionTimeout extends Runnable {
             TelephonyManager telephonyManager =
                     (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
             if (telephonyManager.isRadioOn()) {
-                return mTimeoutsAdapter.getEmergencyCallTimeoutMillis(
-                        mContext.getContentResolver());
+                return mTimeoutsAdapter.getEmergencyCallTimeoutMillis(mContext, mFlags);
             } else {
-                return mTimeoutsAdapter.getEmergencyCallTimeoutRadioOffMillis(
-                        mContext.getContentResolver());
+                return mTimeoutsAdapter.getEmergencyCallTimeoutRadioOffMillis(mContext, mFlags);
             }
         } catch (UnsupportedOperationException uoe) {
             Log.e(this, uoe, "getTimeoutLengthMillis - telephony is not supported");
-            return mTimeoutsAdapter.getEmergencyCallTimeoutMillis(mContext.getContentResolver());
+            return mTimeoutsAdapter.getEmergencyCallTimeoutMillis(mContext, mFlags);
         }
     }
 }

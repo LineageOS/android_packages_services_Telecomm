@@ -319,7 +319,7 @@ public class MissedInformationTest extends TelecomSystemTest {
         mCallsManager.onCallFilteringComplete(mIncomingCall, result, false);
 
         // Wait for ringer attributes build completed
-        verify(mAudioManager, timeout(TEST_TIMEOUT_MILLIS)).getStreamVolume(anyInt());
+        verify(mAudioManager, timeout(TEST_TIMEOUT_MILLIS)).shouldNotificationSoundPlay(any());
         mCallsManager.getRinger().waitForAttributesCompletion();
 
         mCallsManager.markCallAsDisconnected(mIncomingCall,
@@ -343,7 +343,7 @@ public class MissedInformationTest extends TelecomSystemTest {
         mCallsManager.onCallFilteringComplete(mIncomingCall, result, false);
 
         // Wait for ringer attributes build completed
-        verify(mAudioManager, timeout(TEST_TIMEOUT_MILLIS)).getStreamVolume(anyInt());
+        verify(mAudioManager, timeout(TEST_TIMEOUT_MILLIS)).shouldNotificationSoundPlay(any());
         mCallsManager.getRinger().waitForAttributesCompletion();
 
         mCallsManager.markCallAsDisconnected(mIncomingCall,

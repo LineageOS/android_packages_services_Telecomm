@@ -21,7 +21,10 @@ import static com.android.server.telecom.callsequencing.voip.VideoStateTranslati
 import static com.android.server.telecom.callsequencing.voip.VideoStateTranslation
         .VideoProfileStateToTransactionalVideoState;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -47,6 +50,7 @@ import android.os.Bundle;
 import android.os.OutcomeReceiver;
 import android.os.UserHandle;
 import android.telecom.CallAttributes;
+import android.telecom.CallException;
 import android.telecom.DisconnectCause;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
@@ -382,7 +386,7 @@ public class TransactionTests extends TelecomTestCase {
     public void testCallStateChangeTimesOut() {
         when(mFeatureFlags.transactionalCsVerifier()).thenReturn(true);
         VerifyCallStateChangeTransaction t = new VerifyCallStateChangeTransaction(
-                mLock, mMockCall1, CallState.ON_HOLD);
+                mLock, mMockCall1, mFeatureFlags, CallState.ON_HOLD);
         TransactionManager.TransactionCompleteListener listener =
                 mock(TransactionManager.TransactionCompleteListener.class);
         t.setCompleteListener(listener);
@@ -409,7 +413,7 @@ public class TransactionTests extends TelecomTestCase {
             throws ExecutionException, InterruptedException, TimeoutException {
         when(mFeatureFlags.transactionalCsVerifier()).thenReturn(true);
         VerifyCallStateChangeTransaction t = new VerifyCallStateChangeTransaction(
-                mLock, mMockCall1, CallState.ON_HOLD);
+                mLock, mMockCall1, mFeatureFlags, CallState.ON_HOLD);
         // WHEN
         setupHoldableCall();
 
@@ -425,6 +429,49 @@ public class TransactionTests extends TelecomTestCase {
         assertEquals(CallTransactionResult.RESULT_SUCCEED,
                 t.getTransactionResult().get(2, TimeUnit.SECONDS).getResult());
         verify(mMockCall1, atLeastOnce()).removeCallStateListener(any());
+    }
+
+    /**
+     * Assert that if a Call is disconnected while waiting for another target call state,
+     * the VerifyCallStateChangeTransaction is failed and cleaned up.
+     */
+    @SmallTest
+    @Test
+    public void testTransactionFailsWhenCallDisconnectsBeforeTargetStateReached()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        when(mFeatureFlags.cleanupVerifyCallState()).thenReturn(true);
+        final int targetState = CallState.ON_HOLD;
+        final int initialState = CallState.ACTIVE;
+
+        // Set the initial state of the mock call (before transaction processing)
+        // This ensures the transaction doesn't complete immediately in processTransaction
+        when(mMockCall1.getState()).thenReturn(initialState);
+
+        // Create the transaction under test
+        VerifyCallStateChangeTransaction transaction = new VerifyCallStateChangeTransaction(
+                mLock, mMockCall1, mFeatureFlags, targetState);
+
+        // ACT
+        // Start the transaction (adds listeners)
+        transaction.processTransaction(null);
+
+        // Simulate the call state changing directly to DISCONNECTING *instead* of the target
+        // state. We directly invoke the listener to unit test its reaction.
+        transaction.getCallStateListenerImpl().onCallStateChanged(CallState.DISCONNECTING);
+
+        // ASSERT
+        // Get the result (should complete quickly as the listener was invoked directly)
+        // Use timeout as a safeguard.
+        CallTransactionResult result = transaction.getTransactionResult().get(1,
+                TimeUnit.SECONDS); // Reduced timeout slightly
+
+        // Verify the transaction completed with the specific error code and message
+        assertThat("Transaction result code should be UNKNOWN error due to disconnect",
+                result.getResult(),
+                is(CallException.CODE_ERROR_UNKNOWN));
+        assertThat("Transaction message should contain the specific disconnect reason",
+                result.getMessage(),
+                containsString(VerifyCallStateChangeTransaction.DISC_FINISH_TRANSACTION_MSG));
     }
 
     private Call createSpyCall(PhoneAccountHandle targetPhoneAccount, int initialState, String id) {

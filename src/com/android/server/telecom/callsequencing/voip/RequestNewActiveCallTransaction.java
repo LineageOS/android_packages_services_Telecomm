@@ -71,14 +71,6 @@ public class RequestNewActiveCallTransaction extends CallTransaction {
             return future;
         }
 
-        if (!Flags.transactionalHoldDisconnectsUnholdable() &&
-                mCallsManager.getActiveCall() != null) {
-            future.complete(new CallTransactionResult(
-                    CallException.CODE_CALL_CANNOT_BE_SET_TO_ACTIVE,
-                    "Already an active call. Request hold on current active call."));
-            return future;
-        }
-
         mCallsManager.requestNewCallFocusAndVerify(mCall, new OutcomeReceiver<>() {
                     @Override
                     public void onResult(Boolean result) {

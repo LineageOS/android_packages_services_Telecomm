@@ -20,12 +20,15 @@ import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.os.UserHandle;
 
 import androidx.test.filters.SmallTest;
@@ -44,23 +47,33 @@ public class BlockedNumbersUtilTests extends TelecomTestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        when(mFeatureFlags.resolveHiddenDependenciesTwo()).thenReturn(true);
     }
 
     @SmallTest
     @Test
     public void testPostNotification() {
-        BlockedNumbersUtil.updateEmergencyCallNotification(mContext, true);
+        BlockedNumbersUtil.updateEmergencyCallNotification(mContext, true, mFeatureFlags);
         NotificationManager mgr = mComponentContextFixture.getNotificationManager();
-        verify(mgr).notifyAsUser(isNull(), anyInt(), any(Notification.class),
-                any(UserHandle.class));
+        Context userContext = mock(Context.class);
+        when(mContext.createContextAsUser(any(UserHandle.class), eq(0)))
+                .thenReturn(userContext);
+        when(userContext.getSystemService(eq(NotificationManager.class)))
+                .thenReturn(mgr);
+        verify(mgr).notify(isNull(), anyInt(), any(Notification.class));
     }
 
     @SmallTest
     @Test
     public void testDismissNotification() {
-        BlockedNumbersUtil.updateEmergencyCallNotification(mContext, false);
+        BlockedNumbersUtil.updateEmergencyCallNotification(mContext, false, mFeatureFlags);
         NotificationManager mgr = mComponentContextFixture.getNotificationManager();
-        verify(mgr).cancelAsUser(isNull(), anyInt(), any(UserHandle.class));
+        Context userContext = mock(Context.class);
+        when(mContext.createContextAsUser(any(UserHandle.class), eq(0)))
+                .thenReturn(userContext);
+        when(userContext.getSystemService(eq(NotificationManager.class)))
+                .thenReturn(mgr);
+        verify(mgr).cancel(isNull(), anyInt());
     }
 
     /**

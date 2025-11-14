@@ -28,8 +28,7 @@ import android.telecom.Log;
 import android.telecom.Logging.Session;
 
 import com.android.internal.annotations.VisibleForTesting;
-
-// TODO: Needed for move to system service: import com.android.internal.R;
+import com.android.server.telecom.flags.FeatureFlags;
 
 /**
  * Plays DTMF tones locally for the caller to hear. In order to reduce (1) the amount of times we
@@ -140,9 +139,11 @@ public class DtmfLocalTonePlayer {
     private ToneHandler mHandler;
 
     private final ToneGeneratorProxy mToneGeneratorProxy;
+     private final FeatureFlags mFeatureFlags;
 
-    public DtmfLocalTonePlayer(ToneGeneratorProxy toneGeneratorProxy) {
+    public DtmfLocalTonePlayer(ToneGeneratorProxy toneGeneratorProxy, FeatureFlags f) {
         mToneGeneratorProxy = toneGeneratorProxy;
+        mFeatureFlags = f;
     }
 
     public void onForegroundCallChanged(Call oldForegroundCall, Call newForegroundCall) {
@@ -195,7 +196,7 @@ public class DtmfLocalTonePlayer {
         if (context.getResources().getBoolean(R.bool.allow_local_dtmf_tones)) {
             areLocalTonesEnabled = Settings.System.getIntForUser(
                     context.getContentResolver(), Settings.System.DTMF_TONE_WHEN_DIALING, 1,
-                    context.getUserId()) == 1;
+                    UserUtil.getUserIdFromContext(context, mFeatureFlags)) == 1;
         } else {
             areLocalTonesEnabled = false;
         }

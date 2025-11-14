@@ -1,14 +1,6 @@
 package: "com.android.server.telecom.flags"
 container: "system"
 
-# OWNER=tjstuart TARGET=24Q3
-flag {
-  name: "gen_anom_report_on_focus_timeout"
-  namespace: "telecom"
-  description: "When getCurrentFocusCall times out, generate an anom. report"
-  bug: "309541253"
-}
-
 # OWNER=tjstuart TARGET=25Q2
 flag {
   name: "disconnect_self_managed_stuck_startup_calls"

@@ -10,6 +10,17 @@ flag {
     bug: "323414215"
 }
 
+# OWNER=tgunn TARGET=26Q2
+flag {
+  name: "resolve_hidden_dependencies_two"
+  namespace: "telecom"
+  description: "Resolve hidden dependencies in Telecom related to mainline"
+  bug: "405460896"
+  metadata {
+    purpose: PURPOSE_FEATURE
+  }
+}
+
 flag {
     name: "telecom_mainline_blocked_numbers_manager"
     namespace: "telecom"

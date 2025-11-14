@@ -177,6 +177,24 @@ public final class CallLogManager extends CallsManagerListenerBase {
     }
 
     /**
+     * Log call only if Call is NOT a self-managed call OR call is a self-managed call which has
+     * indicated it should be logged in its PhoneAccount
+     */
+    void logCallIfNotSelfManaged (Call call, int type, boolean showNotificationForMissedCall,
+            CallFilteringResult result) {
+        boolean shouldCallSelfManagedLogged = call.isLoggedSelfManaged() &&
+                (call.getHandoverState() == HandoverState.HANDOVER_NONE
+                || call.getHandoverState() == HandoverState.HANDOVER_COMPLETE);
+        if (!mFeatureFlags.preventSelfManagedCallLogging() || !call.isSelfManaged() ||
+                shouldCallSelfManagedLogged) {
+            logCall(call, type, showNotificationForMissedCall, result);
+        } else {
+            Log.d(TAG, "logCallIfNotSelfManaged: skipping call logging due to self managed "
+                    + "for call = " + call);
+        }
+    }
+
+    /**
      * Log newly disconnected calls only if all of below conditions are met:
      * Call was NOT in the "choose account" phase when disconnected
      * Call is NOT a conference call which had children (unless it was remotely hosted).
@@ -191,8 +209,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
      */
     @VisibleForTesting
     public boolean shouldLogDisconnectedCall(Call call, int oldState, boolean isCallCanceled) {
-        boolean shouldCallSelfManagedLogged = call.isLoggedSelfManaged()
-                && (call.getHandoverState() == HandoverState.HANDOVER_NONE
+        boolean shouldCallSelfManagedLogged = call.isLoggedSelfManaged() &&
+                (call.getHandoverState() == HandoverState.HANDOVER_NONE
                 || call.getHandoverState() == HandoverState.HANDOVER_COMPLETE);
 
         // "Choose account" phase when disconnected
@@ -213,7 +231,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
             return false;
         }
 
-        if (mFeatureFlags.telecomSkipLogBasedOnExtra() && call.getExtras() != null
+        if (call.getExtras() != null
                 && call.getExtras().containsKey(TelecomManager.EXTRA_DO_NOT_LOG_CALL)) {
             return false;
         }
@@ -239,9 +257,8 @@ public final class CallLogManager extends CallsManagerListenerBase {
                     == Connection.CAPABILITY_DISCONNECT_FROM_CONFERENCE;
         }
         // An external and non-watch call
-        if (call.isExternalCall() && (!mContext.getPackageManager().hasSystemFeature(
-                PackageManager.FEATURE_WATCH)
-                || !mFeatureFlags.telecomLogExternalWearableCalls())) {
+        if (call.isExternalCall() && !mContext.getPackageManager().hasSystemFeature(
+                PackageManager.FEATURE_WATCH)) {
             return false;
         }
 
@@ -486,8 +503,14 @@ public final class CallLogManager extends CallsManagerListenerBase {
         String[] unloggableNumbersFromCarrierConfig = carrierConfig == null ? null
                 : carrierConfig.getStringArray(
                         CarrierConfigManager.KEY_UNLOGGABLE_NUMBERS_STRING_ARRAY);
-        String[] unloggableNumbersFromMccConfig = mContext.getResources()
-                .getStringArray(com.android.internal.R.array.unloggable_phone_numbers);
+        String[] unloggableNumbersFromMccConfig;
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            unloggableNumbersFromMccConfig = mContext.getResources()
+                    .getStringArray(com.android.server.telecom.R.array.unloggable_phone_numbers);
+        } else {
+            unloggableNumbersFromMccConfig = mContext.getResources()
+                    .getStringArray(com.android.internal.R.array.unloggable_phone_numbers);
+        }
         return Stream.concat(
                 unloggableNumbersFromCarrierConfig == null ?
                         Stream.empty() : Arrays.stream(unloggableNumbersFromCarrierConfig),

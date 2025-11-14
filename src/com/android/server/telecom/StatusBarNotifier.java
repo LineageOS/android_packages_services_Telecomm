@@ -22,8 +22,6 @@ import android.telecom.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
 
-// TODO: Needed for move to system service: import com.android.internal.R;
-
 /**
  * Manages the special status bar notifications used by the phone app.
  */

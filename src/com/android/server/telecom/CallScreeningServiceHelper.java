@@ -33,6 +33,7 @@ import android.text.TextUtils;
 
 import com.android.internal.telecom.ICallScreeningAdapter;
 import com.android.internal.telecom.ICallScreeningService;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -74,10 +75,12 @@ public class CallScreeningServiceHelper {
     private final Session mLoggingSession;
     private CompletableFuture mFuture;
     private String mPackageName;
+    private final FeatureFlags mFeatureFlags;
 
     public CallScreeningServiceHelper(Context context, TelecomSystem.SyncRoot telecomLock,
             String packageName, ParcelableCallUtils.Converter converter,
-            UserHandle userHandle, Call call, AppLabelProxy appLabelProxy) {
+            UserHandle userHandle, Call call, AppLabelProxy appLabelProxy,
+            FeatureFlags featureFlags) {
         mContext = context;
         mTelecomLock = telecomLock;
         mParcelableCallUtilsConverter = converter;
@@ -86,6 +89,7 @@ public class CallScreeningServiceHelper {
         mPackageName = packageName;
         mAppLabelProxy = appLabelProxy;
         mLoggingSession = Log.createSubsession();
+        mFeatureFlags = featureFlags;
     }
 
     /**
@@ -113,10 +117,12 @@ public class CallScreeningServiceHelper {
                 Log.continueSession(mLoggingSession, "CSSH.oSC");
                 try {
                     try {
-                        // Note: for outgoing calls, never include the restricted extras.
+                        // Note: for outgoing calls, never include the restricted extras
+                        // and PhoneAccountHandle
                         screeningService.screenCall(new CallScreeningAdapter(this),
                                 mParcelableCallUtilsConverter.toParcelableCallForScreening(mCall,
-                                        false /* areRestrictedExtrasIncluded */));
+                                        false /* areRestrictedExtrasIncluded */,
+                                        false /* includePhoneAccountHandle */));
                     } catch (RemoteException e) {
                         Log.w(CallScreeningServiceHelper.this,
                                 "Cancelling call id due to remote exception");
@@ -160,7 +166,8 @@ public class CallScreeningServiceHelper {
             }
         };
 
-        if (!bindCallScreeningService(mContext, mUserHandle, mPackageName, serviceConnection)) {
+        if (!bindCallScreeningService(mContext, mUserHandle, mPackageName, serviceConnection,
+                mFeatureFlags)) {
             Log.i(this, "bindAndGetCallIdentification - bind failed");
             mFuture.complete(null);
         }
@@ -184,7 +191,7 @@ public class CallScreeningServiceHelper {
                         Log.endSession();
                     }
                 },
-                Timeouts.getCallScreeningTimeoutMillis(mContext.getContentResolver()));
+                Timeouts.getCallScreeningTimeoutMillis(mContext, mFeatureFlags));
         return mFuture;
     }
 
@@ -197,7 +204,7 @@ public class CallScreeningServiceHelper {
      * @return {@code true} if binding succeeds, {@code false} otherwise.
      */
     public static boolean bindCallScreeningService(Context context, UserHandle userHandle,
-            String packageName, ServiceConnection serviceConnection) {
+            String packageName, ServiceConnection serviceConnection, FeatureFlags flags) {
         if (TextUtils.isEmpty(packageName)) {
             Log.i(TAG, "PackageName is empty. Not performing call screening.");
             return false;
@@ -205,8 +212,16 @@ public class CallScreeningServiceHelper {
 
         Intent intent = new Intent(CallScreeningService.SERVICE_INTERFACE)
                 .setPackage(packageName);
-        List<ResolveInfo> entries = context.getPackageManager().queryIntentServicesAsUser(
-                intent, 0, userHandle.getIdentifier());
+
+        List<ResolveInfo> entries;
+        if (flags.resolveHiddenDependenciesTwo()) {
+            entries = UserUtil.getPackageManagerFromUserHandler(context,
+                    userHandle).queryIntentServicesAsUser(intent, 0, userHandle.getIdentifier());
+        } else {
+            entries = context.getPackageManager().queryIntentServicesAsUser(
+                    intent, 0, userHandle.getIdentifier());
+        }
+
         if (entries.isEmpty()) {
             Log.i(TAG, packageName + " has no call screening service defined.");
             return false;

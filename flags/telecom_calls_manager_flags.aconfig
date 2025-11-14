@@ -1,22 +1,6 @@
 package: "com.android.server.telecom.flags"
 container: "system"
 
-# OWNER=pmadapurmath TARGET=24Q3
-flag {
-  name: "use_improved_listener_order"
-  namespace: "telecom"
-  description: "Make InCallController the first listener to trigger"
-  bug: "24244713"
-}
-
-# OWNER=tjstuart TARGET=24Q3
-flag {
-  name: "fix_audio_flicker_for_outgoing_calls"
-  namespace: "telecom"
-  description: "This fix ensures the MO calls won't switch from Active to Quite b/c setDialing was not called"
-  bug: "309540769"
-}
-
 # OWNER=breadley TARGET=24Q3
 flag {
   name: "enable_call_sequencing"
@@ -25,23 +9,34 @@ flag {
   bug: "327038818"
 }
 
-# OWNER=tjstuart TARGET=24Q4
+# OWNER=grantmenke TARGET=25Q3
 flag {
-  name: "transactional_hold_disconnects_unholdable"
+  name: "prevent_self_managed_call_logging"
   namespace: "telecom"
-  description: "Disconnect ongoing unholdable calls for CallControlCallbacks"
-  bug: "340621152"
+  description: "Prevent self managed calls from logging to the call log"
+  bug: "405942024"
   metadata {
     purpose: PURPOSE_BUGFIX
   }
 }
 
-# OWNER=tgunn TARGET=25Q2
+# OWNER=pmadapurmath TARGET=25Q3
 flag {
-  name: "enable_call_audio_watchdog"
+  name: "allow_call_on_same_connection_mgr"
   namespace: "telecom"
-  description: "Enables tracking of audio resources for voip calls to aid in diagnostics."
-  bug: "384570270"
+  description: "If two incoming calls are received at the same time from the same connection service, allow the CS to handle the second call."
+  bug: "414261900"
+  metadata {
+    purpose: PURPOSE_BUGFIX
+  }
+}
+
+# OWNER=breadley TARGET=25Q3
+flag {
+  name: "select_phone_account_before_making_room"
+  namespace: "telecom"
+  description: "Select the PhoneAccount before making room for the call"
+  bug: "417370866"
   metadata {
     purpose: PURPOSE_BUGFIX
   }

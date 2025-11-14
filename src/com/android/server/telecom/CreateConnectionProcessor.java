@@ -29,8 +29,6 @@ import android.telecom.PhoneAccountHandle;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 
-// TODO: Needed for move to system service: import com.android.internal.R;
-
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.flags.Flags;
 import com.android.server.telecom.flags.FeatureFlags;
@@ -286,24 +284,20 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
                 mConnectionAttempt++;
                 mCall.setConnectionManagerPhoneAccount(attempt.connectionManagerPhoneAccount);
                 mCall.setTargetPhoneAccount(attempt.targetPhoneAccount);
-                if (mFlags.updatedRcsCallCountTracking()) {
-                    if (Objects.equals(attempt.connectionManagerPhoneAccount,
-                            attempt.targetPhoneAccount)) {
+                if (Objects.equals(attempt.connectionManagerPhoneAccount,
+                        attempt.targetPhoneAccount)) {
+                    mCall.setConnectionService(mService);
+                } else {
+                    PhoneAccountHandle remotePhoneAccount = attempt.targetPhoneAccount;
+                    ConnectionServiceWrapper mRemoteService =
+                            mRepository.getService(remotePhoneAccount.getComponentName(),
+                            remotePhoneAccount.getUserHandle());
+                    if (mRemoteService == null) {
                         mCall.setConnectionService(mService);
                     } else {
-                        PhoneAccountHandle remotePhoneAccount = attempt.targetPhoneAccount;
-                        ConnectionServiceWrapper mRemoteService =
-                                mRepository.getService(remotePhoneAccount.getComponentName(),
-                                remotePhoneAccount.getUserHandle());
-                        if (mRemoteService == null) {
-                            mCall.setConnectionService(mService);
-                        } else {
-                            Log.v(this, "attemptNextPhoneAccount Setting RCS = %s", mRemoteService);
-                            mCall.setConnectionService(mService, mRemoteService);
-                        }
+                        Log.v(this, "attemptNextPhoneAccount Setting RCS = %s", mRemoteService);
+                        mCall.setConnectionService(mService, mRemoteService);
                     }
-                } else {
-                    mCall.setConnectionService(mService);
                 }
                 setTimeoutIfNeeded(mService, attempt);
                 if (mCall.isIncoming()) {
@@ -351,7 +345,7 @@ public class CreateConnectionProcessor implements CreateConnectionResponse {
         clearTimeout();
 
         CreateConnectionTimeout timeout = new CreateConnectionTimeout(
-                mContext, mPhoneAccountRegistrar, service, mCall, mTimeoutsAdapter);
+                mContext, mPhoneAccountRegistrar, service, mCall, mFlags, mTimeoutsAdapter);
         if (timeout.isTimeoutNeededForCall(getConnectionServices(mAttemptRecords),
                 attempt.connectionManagerPhoneAccount)) {
             mTimeout = timeout;

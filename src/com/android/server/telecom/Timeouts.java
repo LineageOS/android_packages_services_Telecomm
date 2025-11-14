@@ -16,13 +16,14 @@
 
 package com.android.server.telecom;
 
-import android.content.ContentResolver;
+import android.content.Context;
 import android.provider.DeviceConfig;
 import android.provider.Settings;
 import android.telecom.CallDiagnosticService;
 import android.telecom.CallDiagnostics;
 import android.telecom.CallRedirectionService;
 import android.telephony.ims.ImsReasonInfo;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import java.util.concurrent.TimeUnit;
 
@@ -37,56 +38,52 @@ public final class Timeouts {
         public Adapter() {
         }
 
-        public long getCallScreeningTimeoutMillis(ContentResolver cr) {
-            return Timeouts.getCallScreeningTimeoutMillis(cr);
+        public long getCallScreeningTimeoutMillis(Context c, FeatureFlags f) {
+            return Timeouts.getCallScreeningTimeoutMillis(c, f);
         }
 
-        public long getCallBindBluetoothInCallServicesDelay(ContentResolver cr) {
-            return Timeouts.getCallBindBluetoothInCallServicesDelay(cr);
+        public long getCallBindBluetoothInCallServicesDelay(Context c, FeatureFlags f) {
+            return Timeouts.getCallBindBluetoothInCallServicesDelay(c, f);
         }
 
-        public long getCallRemoveUnbindInCallServicesDelay(ContentResolver cr) {
-            return Timeouts.getCallRemoveUnbindInCallServicesDelay(cr);
+        public long getCallRemoveUnbindInCallServicesDelay(Context c, FeatureFlags f) {
+            return Timeouts.getCallRemoveUnbindInCallServicesDelay(c, f);
         }
 
-        public long getRetryBluetoothConnectAudioBackoffMillis(ContentResolver cr) {
-            return Timeouts.getRetryBluetoothConnectAudioBackoffMillis(cr);
+        public long getRetryBluetoothConnectAudioBackoffMillis(Context c, FeatureFlags f) {
+            return Timeouts.getRetryBluetoothConnectAudioBackoffMillis(c, f);
         }
 
-        public long getBluetoothPendingTimeoutMillis(ContentResolver cr) {
-            return Timeouts.getBluetoothPendingTimeoutMillis(cr);
+        public long getBluetoothPendingTimeoutMillis(Context c, FeatureFlags f) {
+            return Timeouts.getBluetoothPendingTimeoutMillis(c, f);
         }
 
-        public long getEmergencyCallbackWindowMillis(ContentResolver cr) {
-            return Timeouts.getEmergencyCallbackWindowMillis(cr);
+        public long getEmergencyCallbackWindowMillis(Context c, FeatureFlags f) {
+            return Timeouts.getEmergencyCallbackWindowMillis(c, f);
         }
 
-        public long getEmergencyCallTimeoutMillis(ContentResolver cr) {
-            return Timeouts.getEmergencyCallTimeoutMillis(cr);
+        public long getEmergencyCallTimeoutMillis(Context c, FeatureFlags f) {
+            return Timeouts.getEmergencyCallTimeoutMillis(c, f);
         }
 
-        public long getEmergencyCallTimeoutRadioOffMillis(ContentResolver cr) {
-            return Timeouts.getEmergencyCallTimeoutRadioOffMillis(cr);
+        public long getEmergencyCallTimeoutRadioOffMillis(Context c, FeatureFlags f) {
+            return Timeouts.getEmergencyCallTimeoutRadioOffMillis(c, f);
         }
 
-        public long getUserDefinedCallRedirectionTimeoutMillis(ContentResolver cr) {
-            return Timeouts.getUserDefinedCallRedirectionTimeoutMillis(cr);
+        public long getUserDefinedCallRedirectionTimeoutMillis(Context c, FeatureFlags f) {
+            return Timeouts.getUserDefinedCallRedirectionTimeoutMillis(c, f);
         }
 
-        public long getCarrierCallRedirectionTimeoutMillis(ContentResolver cr) {
-            return Timeouts.getCarrierCallRedirectionTimeoutMillis(cr);
+        public long getCarrierCallRedirectionTimeoutMillis(Context c, FeatureFlags f) {
+            return Timeouts.getCarrierCallRedirectionTimeoutMillis(c, f);
         }
 
-        public long getPhoneAccountSuggestionServiceTimeout(ContentResolver cr) {
-            return Timeouts.getPhoneAccountSuggestionServiceTimeout(cr);
+        public long getCallRecordingToneRepeatIntervalMillis(Context c, FeatureFlags f) {
+            return Timeouts.getCallRecordingToneRepeatIntervalMillis(c, f);
         }
 
-        public long getCallRecordingToneRepeatIntervalMillis(ContentResolver cr) {
-            return Timeouts.getCallRecordingToneRepeatIntervalMillis(cr);
-        }
-
-        public long getCallDiagnosticServiceTimeoutMillis(ContentResolver cr) {
-            return Timeouts.getCallDiagnosticServiceTimeoutMillis(cr);
+        public long getCallDiagnosticServiceTimeoutMillis(Context c, FeatureFlags f) {
+            return Timeouts.getCallDiagnosticServiceTimeoutMillis(c, f);
         }
 
         public long getCallStartAppOpDebounceIntervalMillis() {
@@ -225,14 +222,15 @@ public final class Timeouts {
      * Returns the timeout value from Settings or the default value if it hasn't been changed. This
      * method is safe to call from any thread, including the UI thread.
      *
-     * @param contentResolver The content resolved.
+     * @param context         To get the ContentResolver and user Id
+     * @param flags           Telecom flags to gate changes
      * @param key             Settings key to retrieve.
      * @param defaultValue    Default value, in milliseconds.
      * @return The timeout value from Settings or the default value if it hasn't been changed.
      */
-    private static long get(ContentResolver contentResolver, String key, long defaultValue) {
-        return Settings.Secure.getLongForUser(contentResolver, PREFIX + key, defaultValue,
-                        contentResolver.getUserId());
+    private static long get(Context context, FeatureFlags flags, String key, long defaultValue) {
+        return Settings.Secure.getLongForUser(context.getContentResolver(),
+                PREFIX + key, defaultValue, UserUtil.getUserIdFromContext(context, flags));
     }
 
     /**
@@ -241,8 +239,8 @@ public final class Timeouts {
      * to reuse the existing call, preventing the call from causing a start->end->start jank in the
      * in-call UI.
      */
-    public static long getNewOutgoingCallCancelMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "new_outgoing_call_cancel_ms", 500L);
+    public static long getNewOutgoingCallCancelMillis(Context c, FeatureFlags f) {
+        return get(c, f, "new_outgoing_call_cancel_ms", 500L);
     }
 
     /**
@@ -250,8 +248,8 @@ public final class Timeouts {
      * NEW_OUTGOING_CALL broadcast. This prevents malicious or poorly configured apps from
      * forever tying up the Telecom stack.
      */
-    public static long getMaxNewOutgoingCallCancelMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "max_new_outgoing_call_cancel_ms", 10000L);
+    public static long getMaxNewOutgoingCallCancelMillis(Context c, FeatureFlags f) {
+        return get(c, f, "max_new_outgoing_call_cancel_ms", 10000L);
     }
 
     /**
@@ -259,16 +257,16 @@ public final class Timeouts {
      * This timeout allows the current tone to play for a certain amount of time before either being
      * interrupted by the next tone or terminated.
      */
-    public static long getDelayBetweenDtmfTonesMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "delay_between_dtmf_tones_ms", 300L);
+    public static long getDelayBetweenDtmfTonesMillis(Context c, FeatureFlags f) {
+        return get(c, f, "delay_between_dtmf_tones_ms", 300L);
     }
 
     /**
      * Returns the amount of time to wait for an emergency call to be placed before routing to
      * a different call service. A value of 0 or less means no timeout should be used.
      */
-    public static long getEmergencyCallTimeoutMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "emergency_call_timeout_millis", 25000L /* 25 seconds */);
+    public static long getEmergencyCallTimeoutMillis(Context c, FeatureFlags f) {
+        return get(c, f, "emergency_call_timeout_millis", 25000L /* 25 seconds */);
     }
 
     /**
@@ -276,23 +274,20 @@ public final class Timeouts {
      * a different call service. This timeout is used only when the radio is powered off (for
      * example in airplane mode). A value of 0 or less means no timeout should be used.
      */
-    public static long getEmergencyCallTimeoutRadioOffMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "emergency_call_timeout_radio_off_millis",
-                60000L /* 1 minute */);
+    public static long getEmergencyCallTimeoutRadioOffMillis(Context c, FeatureFlags f) {
+        return get(c, f, "emergency_call_timeout_radio_off_millis", 60000L /* 1 minute */);
     }
 
-    public static long getCallBindBluetoothInCallServicesDelay(ContentResolver contentResolver) {
-        return get(contentResolver, "call_bind_bluetooth_in_call_services_delay",
-                2000L /* 2 seconds */);
+    public static long getCallBindBluetoothInCallServicesDelay(Context c, FeatureFlags f) {
+        return get(c, f, "call_bind_bluetooth_in_call_services_delay", 2000L /* 2 seconds */);
     }
 
     /**
      * Returns the amount of delay before unbinding the in-call services after all the calls
      * are removed.
      */
-    public static long getCallRemoveUnbindInCallServicesDelay(ContentResolver contentResolver) {
-        return get(contentResolver, "call_remove_unbind_in_call_services_delay",
-                2000L /* 2 seconds */);
+    public static long getCallRemoveUnbindInCallServicesDelay(Context c, FeatureFlags f) {
+        return get(c, f, "call_remove_unbind_in_call_services_delay", 2000L /* 2 seconds */);
     }
 
     /**
@@ -300,8 +295,8 @@ public final class Timeouts {
      * connection. This compensates for the amount of time it takes for the audio route to
      * actually change to bluetooth.
      */
-    public static long getBluetoothPendingTimeoutMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "bluetooth_pending_timeout_millis", 5000L);
+    public static long getBluetoothPendingTimeoutMillis(Context c, FeatureFlags f) {
+        return get(c, f, "bluetooth_pending_timeout_millis", 5000L);
     }
 
     /**
@@ -309,70 +304,63 @@ public final class Timeouts {
      * necessary to account for the HeadsetStateMachine sometimes not being ready when we want to
      * connect to bluetooth audio immediately after a device connects.
      */
-    public static long getRetryBluetoothConnectAudioBackoffMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "retry_bluetooth_connect_audio_backoff_millis", 500L);
+    public static long getRetryBluetoothConnectAudioBackoffMillis(Context c, FeatureFlags f) {
+        return get(c, f, "retry_bluetooth_connect_audio_backoff_millis", 500L);
     }
 
     /**
      * Returns the amount of time to wait for the phone account suggestion service to reply.
      */
-    public static long getPhoneAccountSuggestionServiceTimeout(ContentResolver contentResolver) {
-        return get(contentResolver, "phone_account_suggestion_service_timeout",
-                5000L /* 5 seconds */);
+    public static long getPhoneAccountSuggestionServiceTimeout(Context c, FeatureFlags f) {
+        return get(c, f, "phone_account_suggestion_service_timeout", 5000L /* 5 seconds */);
     }
 
     /**
      * Returns the amount of time to wait for the call screening service to allow or disallow a
      * call.
      */
-    public static long getCallScreeningTimeoutMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "call_screening_timeout", 5000L /* 5 seconds */);
+    public static long getCallScreeningTimeoutMillis(Context c, FeatureFlags f) {
+        return get(c, f, "call_screening_timeout", 5000L /* 5 seconds */);
     }
 
     /**
      * Returns the amount of time after an emergency call that incoming calls should be treated
      * as potential emergency callbacks.
      */
-    public static long getEmergencyCallbackWindowMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "emergency_callback_window_millis",
+    public static long getEmergencyCallbackWindowMillis(Context c, FeatureFlags f) {
+        return get(c, f, "emergency_callback_window_millis",
                 TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES));
     }
 
     /**
      * Returns the amount of time for an user-defined {@link CallRedirectionService}.
-     *
-     * @param contentResolver The content resolver.
      */
-    public static long getUserDefinedCallRedirectionTimeoutMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "user_defined_call_redirection_timeout",
-                5000L /* 5 seconds */);
+    public static long getUserDefinedCallRedirectionTimeoutMillis(Context c, FeatureFlags f) {
+        return get(c, f, "user_defined_call_redirection_timeout", 5000L /* 5 seconds */);
     }
 
     /**
      * Returns the amount of time for a carrier {@link CallRedirectionService}.
-     *
-     * @param contentResolver The content resolver.
      */
-    public static long getCarrierCallRedirectionTimeoutMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "carrier_call_redirection_timeout", 5000L /* 5 seconds */);
+    public static long getCarrierCallRedirectionTimeoutMillis(Context c, FeatureFlags f) {
+        return get(c, f, "carrier_call_redirection_timeout", 5000L /* 5 seconds */);
     }
 
     /**
      * Returns the number of milliseconds between two plays of the call recording tone.
      */
-    public static long getCallRecordingToneRepeatIntervalMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "call_recording_tone_repeat_interval", 15000L /* 15 seconds */);
+    public static long getCallRecordingToneRepeatIntervalMillis(Context c, FeatureFlags f) {
+        return get(c, f, "call_recording_tone_repeat_interval", 15000L /* 15 seconds */);
     }
 
     /**
      * Returns the maximum amount of time a {@link CallDiagnosticService} is permitted to take to
      * return back from {@link CallDiagnostics#onCallDisconnected(ImsReasonInfo)} and
      * {@link CallDiagnostics#onCallDisconnected(int, int)}.
-     * @param contentResolver The resolver for the config option.
      * @return The timeout in millis.
      */
-    public static long getCallDiagnosticServiceTimeoutMillis(ContentResolver contentResolver) {
-        return get(contentResolver, "call_diagnostic_service_timeout", 2000L /* 2 sec */);
+    public static long getCallDiagnosticServiceTimeoutMillis(Context c, FeatureFlags f) {
+        return get(c, f, "call_diagnostic_service_timeout", 2000L /* 2 sec */);
     }
 
     /**
@@ -494,9 +482,8 @@ public final class Timeouts {
      * power save restrictions due to the dialer needing to handle a missed call notification
      * (update call log, check VVM, etc...).
      */
-    public static long getDialerMissedCallPowerSaveExemptionTimeMillis(
-            ContentResolver contentResolver) {
-        return get(contentResolver, "dialer_missed_call_power_save_exemption_time_millis",
+    public static long getDialerMissedCallPowerSaveExemptionTimeMillis(Context c, FeatureFlags f) {
+        return get(c, f, "dialer_missed_call_power_save_exemption_time_millis",
                 30000L /*30 seconds*/);
     }
 }

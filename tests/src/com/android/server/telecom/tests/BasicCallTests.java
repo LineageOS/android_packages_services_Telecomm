@@ -627,7 +627,6 @@ public class BasicCallTests extends TelecomSystemTest {
     @LargeTest
     @Test
     public void testIncomingThenOutgoingCalls_AssociatedUsersNotEqual() throws Exception {
-        when(mFeatureFlags.associatedUserRefactorForWorkProfile()).thenReturn(true);
         InCallServiceFixture.setIgnoreOverrideAdapterFlag(true);
 
         // Receive incoming call via mPhoneAccountMultiUser
@@ -702,9 +701,6 @@ public class BasicCallTests extends TelecomSystemTest {
         mInCallServiceFixtureX.mInCallAdapter.setAudioRoute(CallAudioState.ROUTE_EARPIECE, null);
         waitForHandlerAction(mTelecomSystem.getCallsManager().getCallAudioManager()
                 .getCallAudioRouteAdapter().getAdapterHandler(), TEST_TIMEOUT);
-        // setSpeakerPhoneOn(false) gets called once during the call initiation phase
-        verify(audioManager, timeout(TEST_TIMEOUT).atLeast(1))
-                .clearCommunicationDevice();
 
         mConnectionServiceFixtureA.
                 sendSetDisconnected(outgoing.mConnectionId, DisconnectCause.REMOTE);
@@ -717,6 +713,9 @@ public class BasicCallTests extends TelecomSystemTest {
                 .abandonAudioFocusForCall();
         verify(audioManager, timeout(TEST_TIMEOUT).atLeastOnce())
                 .setMode(AudioManager.MODE_NORMAL);
+        // setSpeakerPhoneOn(false) gets called once the call ends.
+        verify(audioManager, timeout(TEST_TIMEOUT).atLeast(1))
+                .clearCommunicationDevice();
     }
 
     private void rapidFire(Runnable... tasks) {

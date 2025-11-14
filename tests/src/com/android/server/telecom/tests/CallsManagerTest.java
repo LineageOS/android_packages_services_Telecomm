@@ -16,6 +16,7 @@
 
 package com.android.server.telecom.tests;
 
+import static android.provider.CallLog.Calls.MISSED_REASON_NOT_MISSED;
 import static android.provider.CallLog.Calls.USER_MISSED_NOT_RUNNING;
 
 import static junit.framework.Assert.assertNotNull;
@@ -51,7 +52,6 @@ import static java.lang.Thread.sleep;
 
 import android.Manifest;
 import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -83,7 +83,6 @@ import android.telephony.PhoneCapability;
 import android.telephony.TelephonyManager;
 import android.util.ArraySet;
 import android.util.Pair;
-import android.widget.Toast;
 
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
@@ -96,6 +95,7 @@ import com.android.server.telecom.CallAnomalyWatchdog;
 import com.android.server.telecom.CallAudioCommunicationDeviceTracker;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioModeStateMachine;
+import com.android.server.telecom.CallAudioRouteController;
 import com.android.server.telecom.CallAudioRouteStateMachine;
 import com.android.server.telecom.CallDiagnosticServiceController;
 import com.android.server.telecom.CallEndpointController;
@@ -103,6 +103,7 @@ import com.android.server.telecom.CallEndpointControllerFactory;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.CallsManager;
+import com.android.server.telecom.TransactionalServiceWrapper;
 import com.android.server.telecom.callsequencing.CallSequencingController;
 import com.android.server.telecom.callsequencing.CallsManagerCallSequencingAdapter;
 import com.android.server.telecom.ClockProxy;
@@ -146,8 +147,6 @@ import com.android.server.telecom.ui.DisconnectedCallNotifier;
 import com.android.server.telecom.ui.ToastFactory;
 import com.android.server.telecom.callsequencing.TransactionManager;
 
-import com.google.common.base.Objects;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -170,7 +169,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @RunWith(JUnit4.class)
 public class CallsManagerTest extends TelecomTestCase {
@@ -262,6 +260,8 @@ public class CallsManagerTest extends TelecomTestCase {
     private static final Uri TEST_ADDRESS = Uri.parse("tel:555-1212");
     private static final Uri TEST_ADDRESS2 = Uri.parse("tel:555-1213");
     private static final Uri TEST_ADDRESS3 = Uri.parse("tel:555-1214");
+
+    private static final String TEST_NUMBER = "1234567890";
     private static final Map<Uri, PhoneAccountHandle> CONTACT_PREFERRED_ACCOUNT = Map.of(
             TEST_ADDRESS2, SIM_1_HANDLE,
             TEST_ADDRESS3, SIM_2_HANDLE);
@@ -299,8 +299,8 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private CallEndpointControllerFactory mCallEndpointControllerFactory;
     @Mock private CallEndpointController mCallEndpointController;
     @Mock private ConnectionServiceFocusManager mConnectionSvrFocusMgr;
-    @Mock private CallAudioRouteStateMachine mCallAudioRouteStateMachine;
-    @Mock private CallAudioRouteStateMachine.Factory mCallAudioRouteStateMachineFactory;
+    @Mock private CallAudioRouteController mCallAudioRouteController;
+    @Mock private CallAudioRouteController.Factory mCallAudioRouteControllerFactory;
     @Mock private CallAudioModeStateMachine mCallAudioModeStateMachine;
     @Mock private CallAudioModeStateMachine.Factory mCallAudioModeStateMachineFactory;
     @Mock private CallDiagnosticServiceController mCallDiagnosticServiceController;
@@ -324,6 +324,7 @@ public class CallsManagerTest extends TelecomTestCase {
     @Mock private UserManager mMockCurrentUserManager;
     @Mock private IConnectionService mIConnectionService;
     @Mock private TelecomMetricsController mMockTelecomMetricsController;
+    @Mock private Ringer.VibratorAdapter mMockVibratorAdapter;
     private CallsManager mCallsManager;
 
     @Override
@@ -341,21 +342,23 @@ public class CallsManagerTest extends TelecomTestCase {
                 any())).thenReturn(mInCallController);
         when(mCallEndpointControllerFactory.create(any(), any(), any())).thenReturn(
                 mCallEndpointController);
-        when(mCallAudioRouteStateMachineFactory.create(any(), any(), any(), any(), any(), any(),
-                anyInt(), any(), any(), any())).thenReturn(mCallAudioRouteStateMachine);
+        when(mCallAudioRouteControllerFactory.create(any(), any(), any(), any(), any(), any(),
+                any(), any(), any())).thenReturn(mCallAudioRouteController);
         when(mCallAudioModeStateMachineFactory.create(any(), any(), any(), any()))
                 .thenReturn(mCallAudioModeStateMachine);
         when(mClockProxy.currentTimeMillis()).thenReturn(System.currentTimeMillis());
         when(mClockProxy.elapsedRealtime()).thenReturn(SystemClock.elapsedRealtime());
         when(mConnSvrFocusManagerFactory.create(any())).thenReturn(mConnectionSvrFocusMgr);
         doNothing().when(mRoleManagerAdapter).setCurrentUserHandle(any());
-        when(mDisconnectedCallNotifierFactory.create(any(Context.class),any(CallsManager.class)))
+        when(mDisconnectedCallNotifierFactory.create(any(Context.class),any(CallsManager.class),
+                any(FeatureFlags.class)))
                 .thenReturn(mDisconnectedCallNotifier);
-        when(mTimeoutsAdapter.getCallDiagnosticServiceTimeoutMillis(any(ContentResolver.class)))
-                .thenReturn(2000L);
+        when(mTimeoutsAdapter.getCallDiagnosticServiceTimeoutMillis(any(Context.class),
+                any(FeatureFlags.class))).thenReturn(2000L);
         when(mTimeoutsAdapter.getNonVoipCallTransitoryStateTimeoutMillis())
                 .thenReturn(STATE_TIMEOUT);
         when(mClockProxy.elapsedRealtime()).thenReturn(0L);
+        when(mMockVibratorAdapter.hasVibrator()).thenReturn(true);
         mCallsManager = new CallsManager(
                 mComponentContextFixture.getTestDouble().getApplicationContext(),
                 mLock,
@@ -380,7 +383,7 @@ public class CallsManagerTest extends TelecomTestCase {
                 mClockProxy,
                 mAudioProcessingNotification,
                 mBluetoothStateReceiver,
-                mCallAudioRouteStateMachineFactory,
+                mCallAudioRouteControllerFactory,
                 mCallAudioModeStateMachineFactory,
                 mInCallControllerFactory,
                 mCallDiagnosticServiceController,
@@ -403,21 +406,33 @@ public class CallsManagerTest extends TelecomTestCase {
                 mTelephonyFlags,
                 (call, listener, context, timeoutsAdapter,
                         mFeatureFlags, lock) -> mIncomingCallFilterGraph,
-                mMockTelecomMetricsController);
-
+                mMockTelecomMetricsController,
+                mMockVibratorAdapter);
+        mCallsManager.setCallAudioWatchDog(null);
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SELF_MANAGED_HANDLE), any())).thenReturn(SELF_MANAGED_ACCOUNT);
         when(mPhoneAccountRegistrar.getPhoneAccount(
+                eq(SELF_MANAGED_HANDLE), any(), anyBoolean())).thenReturn(SELF_MANAGED_ACCOUNT);
+        when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SIM_1_HANDLE), any())).thenReturn(SIM_1_ACCOUNT);
+        when(mPhoneAccountRegistrar.getPhoneAccount(
+                eq(SIM_1_HANDLE), any(), anyBoolean())).thenReturn(SIM_1_ACCOUNT);
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SIM_2_HANDLE), any())).thenReturn(SIM_2_ACCOUNT);
         when(mPhoneAccountRegistrar.getPhoneAccount(
+                eq(SIM_2_HANDLE), any(), anyBoolean())).thenReturn(SIM_2_ACCOUNT);
+        when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(SIM_3_HANDLE), any())).thenReturn(SIM_3_ACCOUNT);
+        when(mPhoneAccountRegistrar.getPhoneAccount(
+                eq(SIM_3_HANDLE), any(), anyBoolean())).thenReturn(SIM_3_ACCOUNT);
         when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(CALL_PROVIDER_HANDLE), any())).thenReturn(CALL_PROVIDER_ACCOUNT);
         when(mPhoneAccountRegistrar.getPhoneAccount(
+                eq(CALL_PROVIDER_HANDLE), any(), anyBoolean())).thenReturn(CALL_PROVIDER_ACCOUNT);
+        when(mPhoneAccountRegistrar.getPhoneAccount(
                 eq(WORK_HANDLE), any())).thenReturn(WORK_ACCOUNT);
-        when(mFeatureFlags.separatelyBindToBtIncallService()).thenReturn(false);
+        when(mPhoneAccountRegistrar.getPhoneAccount(
+                eq(WORK_HANDLE), any(), anyBoolean())).thenReturn(WORK_ACCOUNT);
         when(mFeatureFlags.telecomResolveHiddenDependencies()).thenReturn(true);
         when(mContext.createContextAsUser(any(UserHandle.class), eq(0)))
                 .thenReturn(mMockCreateContextAsUser);
@@ -758,6 +773,7 @@ public class CallsManagerTest extends TelecomTestCase {
             Uri handle = invocation.getArgument(0);
             CallerInfoLookupHelper.OnQueryCompleteListener listener = invocation.getArgument(1);
             CallerInfo info = new CallerInfo();
+            info.setPhoneNumber(TEST_NUMBER);
             if (CONTACT_PREFERRED_ACCOUNT.get(handle) != null) {
                 PhoneAccountHandle pah = CONTACT_PREFERRED_ACCOUNT.get(handle);
                 info.preferredPhoneAccountComponent = pah.getComponentName();
@@ -1583,7 +1599,7 @@ public class CallsManagerTest extends TelecomTestCase {
         mCallsManager.onMediaButton(HeadsetMediaButton.LONG_PRESS);
 
         // THEN the microphone toggle mute
-        verify(mCallAudioRouteStateMachine)
+        verify(mCallAudioRouteController)
                 .sendMessageWithSessionInfo(CallAudioRouteStateMachine.TOGGLE_MUTE);
     }
 
@@ -1987,6 +2003,29 @@ public class CallsManagerTest extends TelecomTestCase {
         verify(ringingCall).reject(anyBoolean(), any(), any());
     }
 
+    @SmallTest
+    @Test
+    public void testAbortIsPropagatedToClient() {
+        // GIVEN
+        DisconnectCause abortCause = new DisconnectCause(DisconnectCause.CANCELED);
+        TransactionalServiceWrapper tsw = mock(TransactionalServiceWrapper.class);
+        Call connectingCall = addSpyCall(VOIP_1_HANDLE, CallState.CONNECTING);
+        connectingCall.setTransactionServiceWrapper(tsw);
+        connectingCall.setIsTransactionalCall(true);
+
+        // WHEN
+        when(mFeatureFlags.echoAbortTransactionalOutgoing()).thenReturn(true);
+        doReturn(true).when(connectingCall).can(Connection.CAPABILITY_HOLD);
+        connectingCall.disconnect(0, abortCause.getReason());
+
+        // THEN
+        assertTrue(connectingCall.isLocallyDisconnecting());
+        TransactionalServiceWrapper service = connectingCall.getTransactionServiceWrapper();
+        assertNotNull(service);
+        verify(service).onDisconnect(eq(connectingCall), eq(abortCause));
+    }
+
+
     /**
      * Verifies that an anomaly report is triggered when a stuck/zombie call is found and force
      * disconnected when making room for an outgoing call.
@@ -2297,7 +2336,8 @@ public class CallsManagerTest extends TelecomTestCase {
     public void testSpeakerDisabledWhenNoVideoCapabilities() throws Exception {
         Call outgoingCall = addSpyCall(CallState.NEW);
         when(mPhoneAccountRegistrar.getPhoneAccount(
-                any(PhoneAccountHandle.class), any(UserHandle.class))).thenReturn(SIM_1_ACCOUNT);
+                any(PhoneAccountHandle.class), any(UserHandle.class), anyBoolean()))
+                .thenReturn(SIM_1_ACCOUNT);
         mCallsManager.placeOutgoingCall(outgoingCall, TEST_ADDRESS, null, true,
                 VideoProfile.STATE_TX_ENABLED);
         assertFalse(outgoingCall.getStartWithSpeakerphoneOn());
@@ -2867,7 +2907,6 @@ public class CallsManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testOutgoingCallStateIsSetToAPreviousStateAndIgnored() {
-        when(mFeatureFlags.fixAudioFlickerForOutgoingCalls()).thenReturn(true);
         Call outgoingCall = addSpyCall(CallState.CONNECTING);
         mCallsManager.onSuccessfulOutgoingCall(outgoingCall, CallState.NEW);
         verify(outgoingCall, never()).setState(eq(CallState.NEW), any());
@@ -2880,7 +2919,6 @@ public class CallsManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testOutgoingCallStateCanAvoidDialingAndGoStraightToActive() {
-        when(mFeatureFlags.fixAudioFlickerForOutgoingCalls()).thenReturn(true);
         Call outgoingCall = addSpyCall(CallState.CONNECTING);
         mCallsManager.onSuccessfulOutgoingCall(outgoingCall, CallState.ACTIVE);
         verify(outgoingCall, never()).setState(eq(CallState.DIALING), any());
@@ -3413,6 +3451,7 @@ public class CallsManagerTest extends TelecomTestCase {
         verify(mComponentContextFixture.getAudioManager(), times(1)).setStreamVolume(
                 eq(AudioManager.STREAM_VOICE_CALL), anyInt(), anyInt());
     }
+
     @MediumTest
     @Test
     public void testSetCallDialingAndIncreaseVolume() {
@@ -3426,6 +3465,26 @@ public class CallsManagerTest extends TelecomTestCase {
         // We set the volume to zero above, so expect 2
         verify(mComponentContextFixture.getAudioManager(), times(2)).setStreamVolume(
                 eq(AudioManager.STREAM_VOICE_CALL), anyInt(), anyInt());
+    }
+
+    @MediumTest
+    @Test
+    public void testSetCallDialingAndCalculateAverageVolume() {
+        // This test specificaslly tests the new behavior guarded by this flag:
+        when(mFeatureFlags.resolveHiddenDependenciesTwo()).thenReturn(true);
+
+        // Start with a zero volume stream.
+        mComponentContextFixture.getAudioManager().setStreamVolume(AudioManager.STREAM_VOICE_CALL,
+                0, 0 /* flags */);
+
+        Call call = mock(Call.class);
+        mCallsManager.markCallAsDialing(call);
+
+        // Ensure we calculate the new volume using the average of AudioManager min and max volume:
+        verify(mComponentContextFixture.getAudioManager(), times(1))
+                .getStreamMaxVolume(eq(AudioManager.STREAM_VOICE_CALL));
+        verify(mComponentContextFixture.getAudioManager(), times(1))
+                .getStreamMinVolume(eq(AudioManager.STREAM_VOICE_CALL));
     }
 
     @MediumTest
@@ -3691,6 +3750,8 @@ public class CallsManagerTest extends TelecomTestCase {
         assertFalse(mCallsManager.isInSelfManagedCall(TEST_PACKAGE_NAME, TEST_USER_HANDLE));
 
         // WHEN
+        when(mPhoneAccountRegistrar.getPhoneAccount(any(), any(), anyBoolean()))
+                .thenReturn(SM_W_DIFFERENT_PACKAGE_AND_USER);
         when(mPhoneAccountRegistrar.getPhoneAccount(any(), any()))
                 .thenReturn(SM_W_DIFFERENT_PACKAGE_AND_USER);
         // Ensure contact info lookup succeeds
@@ -3761,7 +3822,6 @@ public class CallsManagerTest extends TelecomTestCase {
     @SmallTest
     @Test
     public void testBindToBtServiceSeparately() {
-        when(mFeatureFlags.separatelyBindToBtIncallService()).thenReturn(true);
         Call call = addSpyCall(CallState.NEW);
         CallFilteringResult result = new CallFilteringResult.Builder()
                 .setShouldAllowCall(true)
@@ -3786,7 +3846,8 @@ public class CallsManagerTest extends TelecomTestCase {
         CallSequencingController sequencingController = mock(CallSequencingController.class);
         CallAudioManager callAudioManager = mock(CallAudioManager.class);
         CallsManagerCallSequencingAdapter adapter = new CallsManagerCallSequencingAdapter(
-                mCallsManager, mContext, sequencingController, callAudioManager, mFeatureFlags);
+                mCallsManager, mContext, sequencingController, callAudioManager,
+                mMockTelecomMetricsController, mFeatureFlags);
         mCallsManager.setCallSequencingAdapter(adapter);
         // Explicitly disable simultaneous calling
         TelephonyManager mockTelephonyManager = mComponentContextFixture.getTelephonyManager();
@@ -3837,6 +3898,49 @@ public class CallsManagerTest extends TelecomTestCase {
         mCallsManager.processDisconnectCallAndCleanup(ongoingCall, CallState.DISCONNECTED);
         assertFalse(mCallsManager.getPendingAccountSelection().containsKey(ongoingCall.getId()));
         assertTrue(mCallsManager.getPendingAccountSelection().containsKey(pendingCall.getId()));
+    }
+
+    @SmallTest
+    @Test
+    public void testIgnoreMaxRingingCallOnSameNumber() {
+        verifyMaxRingingCallNoError(SIM_1_HANDLE, TEST_ADDRESS);
+    }
+
+    @SmallTest
+    @Test
+    public void testIgnoreMaxRingingCallOnSamePhoneAccount() {
+        verifyMaxRingingCallNoError(SIM_2_HANDLE, TEST_ADDRESS2);
+    }
+
+    private void verifyMaxRingingCallNoError(PhoneAccountHandle handle, Uri address) {
+        when(mFeatureFlags.enableCallSequencing()).thenReturn(true);
+        when(mFeatureFlags.allowCallOnSameConnectionMgr()).thenReturn(true);
+        setupCallerInfoLookupHelper();
+        ConnectionServiceWrapper service = mock(ConnectionServiceWrapper.class);
+        doReturn(handle.getComponentName()).when(service).getComponentName();
+        mCallsManager.addConnectionServiceRepositoryCache(handle.getComponentName(),
+                handle.getUserHandle(), service);
+        when(mPhoneAccountRegistrar.phoneAccountRequiresBindPermission(
+                any(PhoneAccountHandle.class))).thenReturn(true);
+
+        // WHEN
+        Call existingIncomingCall = createCall(SIM_2_HANDLE, CallState.RINGING);
+        mCallsManager.addCall(existingIncomingCall);
+        PhoneAccountHandle connectionMgr = mock(PhoneAccountHandle.class);
+        existingIncomingCall.setConnectionManagerPhoneAccount(connectionMgr);
+        when(mPhoneAccountRegistrar.getSimCallManagerFromCall(any(Call.class)))
+                .thenReturn(connectionMgr);
+        when(mMockCurrentUserManager.isAdminUser()).thenReturn(true);
+
+        // THEN, add a new incoming call with the same number as the 1st call
+        Bundle extras = new Bundle();
+        extras.putParcelable(TelecomManager.EXTRA_INCOMING_CALL_ADDRESS, address);
+        Call newCall = mCallsManager.processIncomingCallIntent(handle, extras, false);
+        // Verify we don't mark the call as auto missed and that the connection doesn't fail
+        // locally.
+        assertEquals(existingIncomingCall, mCallsManager.getRingingOrSimulatedRingingCall());
+        assertEquals(newCall.getMissedReason(), MISSED_REASON_NOT_MISSED);
+        verify(service, never()).createConnectionFailed(any());
     }
 
     private Call addSpyCall() {
@@ -3971,7 +4075,8 @@ public class CallsManagerTest extends TelecomTestCase {
         // Remap the PhoneAccounts to inherit the restriction set
         for (PhoneAccountHandle callCapableHandle : callCapableHandles) {
             PhoneAccount pa = mPhoneAccountRegistrar.getPhoneAccount(
-                    callCapableHandle, callCapableHandle.getUserHandle());
+                    callCapableHandle, callCapableHandle.getUserHandle(),
+                    true /* across profiles */);
             assertNotNull("test setup error: could not find PA for PAH:" + callCapableHandle,
                     pa);
             // For simplicity, for testing only apply restrictions to SIM accounts
@@ -3984,7 +4089,7 @@ public class CallsManagerTest extends TelecomTestCase {
                         .setSimultaneousCallingRestriction(Collections.emptySet()).build();
             }
             when(mPhoneAccountRegistrar.getPhoneAccount(eq(callCapableHandle),
-                    any())).thenReturn(pa);
+                    any(), anyBoolean())).thenReturn(pa);
         }
     }
 
@@ -4001,7 +4106,6 @@ public class CallsManagerTest extends TelecomTestCase {
             boolean expectOnResult)
             throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
-        when(mFeatureFlags.transactionalHoldDisconnectsUnholdable()).thenReturn(true);
         when(mConnectionSvrFocusMgr.getCurrentFocusCall()).thenReturn(activeCall);
         mCallsManager.getCallSequencingAdapter().transactionHoldPotentialActiveCallForNewCall(
                 newCall,

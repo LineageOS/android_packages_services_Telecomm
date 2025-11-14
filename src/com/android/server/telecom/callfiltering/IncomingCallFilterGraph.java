@@ -16,6 +16,8 @@
 
 package com.android.server.telecom.callfiltering;
 
+import static com.android.server.telecom.callfiltering.CallFilteringResult.DND_NOT_DETERMINED;
+
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -43,6 +45,7 @@ public class IncomingCallFilterGraph {
                     .setShouldAddToCallLog(true)
                     .setShouldShowNotification(true)
                     .setDndSuppressed(false)
+                    .setDndSuppressionStatus(DND_NOT_DETERMINED)
                     .build();
 
     private final CallFilterResultCallback mListener;
@@ -137,7 +140,7 @@ public class IncomingCallFilterGraph {
                     }
                 }
             }
-        }.prepare(), mTimeoutsAdapter.getCallScreeningTimeoutMillis(mContext.getContentResolver()));
+        }.prepare(), mTimeoutsAdapter.getCallScreeningTimeoutMillis(mContext, mFeatureFlags));
     }
 
     /**
@@ -151,9 +154,6 @@ public class IncomingCallFilterGraph {
     private CallFilteringResult onTimeoutCombineFinishedFilters(
             List<CallFilter> filtersList,
             CallFilteringResult currentResult) {
-        if (!mFeatureFlags.checkCompletedFiltersOnTimeout()) {
-            return currentResult;
-        }
         for (CallFilter filter : filtersList) {
             if (filter.result != null) {
                 currentResult = currentResult.combine(filter.result);

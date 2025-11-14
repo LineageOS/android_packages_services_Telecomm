@@ -31,8 +31,6 @@ import android.os.UserManager;
 import android.telecom.Log;
 import android.telecom.TelecomManager;
 
-// TODO: Needed for move to system service: import com.android.internal.R;
-
 /**
  * Activity that handles system CALL actions and forwards them to {@link CallIntentProcessor}.
  * Handles all three CALL action types: CALL, CALL_PRIVILEGED, and CALL_EMERGENCY.

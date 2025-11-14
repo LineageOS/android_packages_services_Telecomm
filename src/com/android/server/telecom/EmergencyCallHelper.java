@@ -115,7 +115,7 @@ public class EmergencyCallHelper {
 
     boolean isInEmergencyCallbackWindow(long lastEmergencyCallTimestampMillis) {
         return System.currentTimeMillis() - lastEmergencyCallTimestampMillis
-                < mTimeoutsAdapter.getEmergencyCallbackWindowMillis(mContext.getContentResolver());
+                < mTimeoutsAdapter.getEmergencyCallbackWindowMillis(mContext, mFeatureFlags);
     }
 
     private void recordEmergencyCall(Call call) {

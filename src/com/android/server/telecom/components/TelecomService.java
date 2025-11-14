@@ -20,13 +20,20 @@ import android.app.Service;
 import android.app.role.RoleManager;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
 import android.media.IAudioService;
 import android.media.ToneGenerator;
+import android.os.CombinedVibration;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.ServiceManager;
 import android.os.SystemClock;
+import android.os.SystemVibrator;
+import android.os.VibrationAttributes;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.os.VibratorManager;
 import android.provider.BlockedNumberContract;
 import android.provider.BlockedNumbersManager;
 import android.telecom.Log;
@@ -115,6 +122,60 @@ public class TelecomService extends Service implements TelecomSystem.Component {
             HandlerThread handlerThread = new HandlerThread("TelecomSystem");
             handlerThread.start();
 
+            Ringer.VibratorAdapter vibratorAdapter;
+            if (featureFlags.resolveHiddenDependenciesTwo()) {
+                final VibratorManager vibratorManager =
+                        context.getSystemService(VibratorManager.class);
+                vibratorAdapter = new Ringer.VibratorAdapter() {
+                    @Override
+                    public boolean hasVibrator() {
+                        int[] vibratorIds = vibratorManager.getVibratorIds();
+                        return vibratorIds != null && vibratorIds.length > 0;
+                    }
+
+                    @Override
+                    public void vibrate(VibrationEffect vibe, VibrationAttributes attributes) {
+                        // This is what SystemVibrator does.
+                        CombinedVibration combinedEffect = CombinedVibration.createParallel(vibe);
+                        vibratorManager.vibrate(combinedEffect, attributes);
+                    }
+
+                    @Override
+                    public void cancel() {
+                        vibratorManager.cancel();
+                    }
+
+                    @Override
+                    public Vibrator getVibrator() {
+                        return vibratorManager.getDefaultVibrator();
+                    }
+                };
+            } else {
+                // SystemVibrator extends Vibrator
+                final SystemVibrator systemVibrator = new SystemVibrator(context);
+                vibratorAdapter = new Ringer.VibratorAdapter() {
+                    @Override
+                    public boolean hasVibrator() {
+                        return systemVibrator.hasVibrator();
+                    }
+
+                    @Override
+                    public void vibrate(VibrationEffect vibe, VibrationAttributes attributes) {
+                        systemVibrator.vibrate(vibe, attributes);
+                    }
+
+                    @Override
+                    public void cancel() {
+                        systemVibrator.cancel();
+                    }
+
+                    @Override
+                    public Vibrator getVibrator() {
+                        return systemVibrator;
+                    }
+                };
+            }
+
             TelecomSystem.setInstance(
                     new TelecomSystem(
                             context,
@@ -188,9 +249,9 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                             },
                             ConnectionServiceFocusManager::new,
                             new Timeouts.Adapter(),
-                            new AsyncRingtonePlayer(),
+                            new AsyncRingtonePlayer(featureFlags),
                             new PhoneNumberUtilsAdapterImpl(),
-                            new IncomingCallNotifier(context),
+                            new IncomingCallNotifier(context, featureFlags),
                             ToneGenerator::new,
                             new CallAudioRouteStateMachine.Factory(),
                             new CallAudioModeStateMachine.Factory(),
@@ -242,12 +303,13 @@ public class TelecomService extends Service implements TelecomSystem.Component {
                                 public void updateEmergencyCallNotification(Context context,
                                         boolean showNotification) {
                                     BlockedNumbersUtil.updateEmergencyCallNotification(context,
-                                            showNotification);
+                                            showNotification, featureFlags);
                                 }
                             },
                             featureFlags,
                             new com.android.internal.telephony.flags.FeatureFlagsImpl(),
-                            handlerThread.getLooper()));
+                            handlerThread.getLooper(),
+                            vibratorAdapter));
         }
     }
 

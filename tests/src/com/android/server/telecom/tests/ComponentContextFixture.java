@@ -46,6 +46,7 @@ import android.content.IContentProvider;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -74,6 +75,7 @@ import android.os.UserManager;
 import android.os.Vibrator;
 import android.os.VibratorManager;
 import android.permission.PermissionCheckerManager;
+import android.permission.PermissionManager;
 import android.provider.BlockedNumbersManager;
 import android.telecom.ConnectionService;
 import android.telecom.Log;
@@ -261,6 +263,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
                     return mBlockedNumbersManager;
                 case Context.STATS_MANAGER_SERVICE:
                     return mStatsManager;
+                case Context.PERMISSION_SERVICE:
+                    return mPermissionManager;
                 default:
                     return null;
             }
@@ -308,6 +312,8 @@ public class ComponentContextFixture implements TestFixture<Context> {
                 return Context.APP_OPS_SERVICE;
             } else if (svcClass == StatsManager.class) {
                 return Context.STATS_MANAGER_SERVICE;
+            } else if (svcClass == PermissionManager.class) {
+                return Context.PERMISSION_SERVICE;
             }
             throw new UnsupportedOperationException(svcClass.getName());
         }
@@ -418,6 +424,13 @@ public class ComponentContextFixture implements TestFixture<Context> {
         }
 
         @Override
+        public Intent registerReceiverAsUser(BroadcastReceiver receiver, UserHandle handle,
+                IntentFilter filter, String broadcastPermission, Handler scheduler, int flags) {
+            mBroadcastReceivers.add(receiver);
+            return null;
+        }
+
+        @Override
         public void sendBroadcast(Intent intent) {
             // TODO -- need to ensure this is captured
         }
@@ -500,6 +513,12 @@ public class ComponentContextFixture implements TestFixture<Context> {
         public void startActivityAsUser(Intent intent, UserHandle userHandle) {
             // For capturing
         }
+
+        @Override
+        public SharedPreferences getSharedPreferences(String name, int mode) {
+            return mSharedPreferences;
+        }
+
     }
 
     public class FakeAudioManager extends AudioManager {
@@ -628,6 +647,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
     private final TelephonyManager mTelephonyManager = mock(TelephonyManager.class);
     private final LocationManager mLocationManager = mock(LocationManager.class);
     private final AppOpsManager mAppOpsManager = mock(AppOpsManager.class);
+    private final PermissionManager mPermissionManager = mock(PermissionManager.class);
     private final NotificationManager mNotificationManager = mock(NotificationManager.class);
     private final AccessibilityManager mAccessibilityManager = mock(AccessibilityManager.class);
     private final UserManager mUserManager = mock(UserManager.class);
@@ -650,6 +670,7 @@ public class ComponentContextFixture implements TestFixture<Context> {
     private final SensorPrivacyManager mSensorPrivacyManager = mock(SensorPrivacyManager.class);
     private final List<BroadcastReceiver> mBroadcastReceivers = new ArrayList<>();
     private final StatsManager mStatsManager = mock(StatsManager.class);
+    private final SharedPreferences mSharedPreferences = mock(SharedPreferences.class);
 
     private TelecomManager mTelecomManager = mock(TelecomManager.class);
     private BlockedNumbersManager mBlockedNumbersManager = mock(BlockedNumbersManager.class);

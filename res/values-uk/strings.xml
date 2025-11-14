@@ -138,7 +138,11 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Неможливо зателефонувати, оскільки тривають уже два виклики. Припиніть один із них або об’єднайте їх у конференцію, перш ніж здійснити новий."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Неможливо зателефонувати, оскільки тривають уже два виклики. Припиніть один із них, перш ніж здійснити новий."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Неможливо зателефонувати, оскільки поточний виклик не можна поставити на утримання. Припиніть виклик, перш ніж здійснити новий."</string>
+    <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Не вдалось активувати інший виклик, оскільки поточний не підтримує утримання. Щоб активувати виклик, що утримується, припиніть поточний."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Неможливо зателефонувати. Прийміть або відхиліть вхідний дзвінок, перш ніж здійснювати новий."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Цей код MMI недоступний для дзвінків із використанням кількох облікових записів."</string>
+    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Під час об’єднання виклик не можна завершити."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Не можна набирати коди MMI під час екстреного виклику."</string>
+    <string name="noApplications" msgid="1703149220378476198">"Цю дію не може виконати жодний додаток."</string>
+    <string name="android_system_label" msgid="2730611410547215779">"Система Android"</string>
 </resources>

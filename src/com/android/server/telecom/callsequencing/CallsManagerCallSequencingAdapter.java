@@ -33,6 +33,7 @@ import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.callsequencing.voip.OutgoingCallTransaction;
 import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.R;
+import com.android.server.telecom.metrics.TelecomMetricsController;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -50,17 +51,19 @@ public class CallsManagerCallSequencingAdapter {
     private final CallSequencingController mSequencingController;
     private final CallAudioManager mCallAudioManager;
     private final Handler mHandler;
+    private final TelecomMetricsController mMetricsController;
     private final FeatureFlags mFeatureFlags;
     private final boolean mIsCallSequencingEnabled;
 
     public CallsManagerCallSequencingAdapter(CallsManager callsManager, Context context,
             CallSequencingController sequencingController, CallAudioManager callAudioManager,
-            FeatureFlags featureFlags) {
+            TelecomMetricsController metricsController, FeatureFlags featureFlags) {
         mCallsManager = callsManager;
         mContext = context;
         mSequencingController = sequencingController;
         mCallAudioManager = callAudioManager;
         mHandler = sequencingController.getHandler();
+        mMetricsController = metricsController;
         mFeatureFlags = featureFlags;
         mIsCallSequencingEnabled = featureFlags.enableCallSequencing();
     }
@@ -199,33 +202,26 @@ public class CallsManagerCallSequencingAdapter {
             callback.onResult(true);
             return;
         }
+        // prevent bad actors from disconnecting the activeCall. Instead, clients will need to
+        // notify the user that they need to disconnect the ongoing call before making the
+        // new call ACTIVE.
+        if (isCallControlRequest
+                && !mCallsManager.canHoldOrSwapActiveCall(activeCall, newCall)) {
+            Log.i(this, mTag + "CallControlRequest exit");
+            callback.onError(new CallException("activeCall is NOT holdable or swappable, please"
+                    + " request the user disconnect the call.",
+                    CallException.CODE_CANNOT_HOLD_CURRENT_ACTIVE_CALL));
+            return;
+        }
 
-        if (mFeatureFlags.transactionalHoldDisconnectsUnholdable()) {
-            // prevent bad actors from disconnecting the activeCall. Instead, clients will need to
-            // notify the user that they need to disconnect the ongoing call before making the
-            // new call ACTIVE.
-            if (isCallControlRequest
-                    && !mCallsManager.canHoldOrSwapActiveCall(activeCall, newCall)) {
-                Log.i(this, mTag + "CallControlRequest exit");
-                callback.onError(new CallException("activeCall is NOT holdable or swappable, please"
-                        + " request the user disconnect the call.",
-                        CallException.CODE_CANNOT_HOLD_CURRENT_ACTIVE_CALL));
-                return;
-            }
-
-            if (mIsCallSequencingEnabled) {
-                mSequencingController.transactionHoldPotentialActiveCallForNewCallSequencing(
-                        newCall, callback);
-            } else {
-                // The code path without sequencing but where transactionalHoldDisconnectsUnholdable
-                // flag is enabled.
-                mCallsManager.transactionHoldPotentialActiveCallForNewCallOld(newCall,
-                        activeCall, callback);
-            }
-        } else {
-            // The unflagged path (aka original code with no flags).
-            mCallsManager.transactionHoldPotentialActiveCallForNewCallUnflagged(activeCall,
+        if (mIsCallSequencingEnabled) {
+            mSequencingController.transactionHoldPotentialActiveCallForNewCallSequencing(
                     newCall, callback);
+        } else {
+            // The code path without sequencing but where transactionalHoldDisconnectsUnholdable
+            // flag is enabled.
+            mCallsManager.transactionHoldPotentialActiveCallForNewCallOld(newCall,
+                    activeCall, callback);
         }
     }
 
@@ -367,6 +363,22 @@ public class CallsManagerCallSequencingAdapter {
     }
 
     /**
+     * Sets the call sequencing usage metrics for the passed in call. Refer to the
+     * {@link com.android.server.telecom.metrics.CallSequencingStats} class for more details.
+     * @param call The call to store sequencing metrics for.
+     */
+    public void setCallSequencingMetrics(Call call) {
+        if (!mFeatureFlags.callSequencingMetrics()) {
+            return;
+        }
+        // Add sequencing metric info based on the primary call (if present).
+        Call primaryCall = mCallsManager.getCalls().stream()
+                .filter(c -> !c.isLocallyDisconnecting() && !c.isDisconnected() && !c.equals(call))
+                .findFirst().orElse(null);
+        mMetricsController.getCallSequencingStats().setCallSequencingMetrics(call, primaryCall);
+    }
+
+    /**
      * Upon a call resume failure, we will auto-unhold the foreground call that was held. Note that
      * this should only apply for calls across phone accounts as the ImsPhoneCallTracker handles
      * this for a single phone.
@@ -374,7 +386,7 @@ public class CallsManagerCallSequencingAdapter {
      * @param callToUnhold The fg call that was held.
      */
     public void handleCallResumeFailed(Call callResumeFailed, Call callToUnhold) {
-        if (mIsCallSequencingEnabled && !mSequencingController.arePhoneAccountsSame(
+        if (mIsCallSequencingEnabled && !CallSequencingController.arePhoneAccountsSame(
                 callResumeFailed, callToUnhold)) {
             unholdCall(callToUnhold);
         }

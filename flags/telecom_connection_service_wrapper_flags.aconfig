@@ -1,14 +1,6 @@
 package: "com.android.server.telecom.flags"
 container: "system"
 
-# OWNER=grantmenke TARGET=24Q2
-flag {
-  name: "updated_rcs_call_count_tracking"
-  namespace: "telecom"
-  description: "Ensure that the associatedCallCount of CS and RCS is accurately being tracked."
-  bug: "286154316"
-}
-
 # OWNER=tjstuart TARGET=24Q4
 flag {
   name: "csw_service_interface_is_null"

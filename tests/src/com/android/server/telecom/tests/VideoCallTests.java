@@ -16,11 +16,14 @@
 
 package com.android.server.telecom.tests;
 
-import static org.junit.Assert.assertEquals;
+import static com.android.server.telecom.CallAudioRouteAdapter.SPEAKER_ON;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 import android.os.Process;
@@ -32,8 +35,10 @@ import android.telecom.VideoProfile;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 
+import com.android.server.telecom.AudioRoute;
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioRouteAdapter;
+import com.android.server.telecom.CallAudioRouteController;
 import com.android.server.telecom.CallAudioRouteStateMachine;
 
 import org.junit.After;
@@ -136,6 +141,10 @@ public class VideoCallTests extends TelecomSystemTest {
     @MediumTest
     @Test
     public void testNoAutoSpeakerphoneOnOutgoing() throws Exception {
+        // Skip test if the device doesn't support earpiece (auto)
+        CallAudioRouteController cara = (CallAudioRouteController) mTelecomSystem.getCallsManager()
+                .getCallAudioManager().getCallAudioRouteAdapter();
+        assumeTrue(cara.getAudioRouteForTesting(AudioRoute.TYPE_EARPIECE) != null);
         // Start an incoming video call.
         IdPair ids = startAndMakeActiveOutgoingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA,
@@ -150,6 +159,10 @@ public class VideoCallTests extends TelecomSystemTest {
     @MediumTest
     @Test
     public void testNoAutoSpeakerphoneOnIncoming() throws Exception {
+        // Skip test if the device doesn't support earpiece (auto)
+        CallAudioRouteController cara = (CallAudioRouteController) mTelecomSystem.getCallsManager()
+                .getCallAudioManager().getCallAudioRouteAdapter();
+        assumeTrue(cara.getAudioRouteForTesting(AudioRoute.TYPE_EARPIECE) != null);
 
         // Start an incoming video call.
         IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
@@ -266,17 +279,24 @@ public class VideoCallTests extends TelecomSystemTest {
                 .getCallAudioManager().getCallAudioModeStateMachine();
         waitForHandlerAction(camsm.getHandler(), TEST_TIMEOUT);
         final boolean[] success = {true};
+        CallAudioRouteController audioRouteController = (CallAudioRouteController) cara;
+        if (audioRouteController.isActive()) {
+            // If the routing is already active, we need to explicitly send SPEAKER_ON as it will be
+            // a pending message in the routing.
+            cara.sendMessageWithSessionInfo(SPEAKER_ON);
+            waitForHandlerActionDelayed(cara.getAdapterHandler(), TEST_TIMEOUT, TEST_TIMEOUT);
+        }
         cara.sendMessage(CallAudioRouteStateMachine.RUN_RUNNABLE, (Runnable) () -> {
             ArgumentCaptor<CallAudioState> callAudioStateArgumentCaptor = ArgumentCaptor.forClass(
                     CallAudioState.class);
             try {
-                verify(mInCallServiceFixtureX.getTestDouble(), atLeastOnce())
+                verify(mInCallServiceFixtureX.getTestDouble(), timeout(TEST_TIMEOUT).atLeastOnce())
                         .onCallAudioStateChanged(callAudioStateArgumentCaptor.capture());
             } catch (RemoteException e) {
                 fail("Remote exception in InCallServiceFixture");
             }
             List<CallAudioState> changes = callAudioStateArgumentCaptor.getAllValues();
-            assertEquals(expectedRoute, changes.get(changes.size() - 1).getRoute());
+            assertTrue(changes.stream().anyMatch(change -> change.getRoute() == expectedRoute));
             success[0] = true;
         });
         waitForHandlerAction(cara.getAdapterHandler(), TEST_TIMEOUT);

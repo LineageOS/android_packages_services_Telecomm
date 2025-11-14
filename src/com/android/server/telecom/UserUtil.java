@@ -16,9 +16,12 @@
 
 package com.android.server.telecom;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.net.Uri;
 import android.os.UserHandle;
@@ -37,6 +40,11 @@ public final class UserUtil {
 
     private static final String LOG_TAG = "UserUtil";
 
+    public static int getUserIdFromContext(Context context, FeatureFlags featureFlags){
+        return featureFlags.resolveHiddenDependenciesTwo() ? context.getUser().getIdentifier() :
+                context.getUserId();
+    }
+
     private static UserInfo getUserInfoFromUserHandle(Context context, UserHandle userHandle) {
         UserManager userManager = context.getSystemService(UserManager.class);
         return userManager.getUserInfo(userHandle.getIdentifier());
@@ -52,6 +60,12 @@ public final class UserUtil {
             Log.e(LOG_TAG, e, "Error while creating context as user = " + userHandle);
         }
         return userManager;
+    }
+
+    public static PackageManager getPackageManagerFromUserHandler(Context classLevelContext,
+                                                                   UserHandle userHandle) {
+        Context userContext = classLevelContext.createContextAsUser(userHandle, 0);
+        return userContext.getPackageManager();
     }
 
     public static boolean isManagedProfile(Context context, UserHandle userHandle,
@@ -110,8 +124,7 @@ public final class UserUtil {
                 // Only emergency calls are allowed for users with the DISALLOW_OUTGOING_CALLS
                 // restriction.
                 if (!TelephonyUtil.shouldProcessAsEmergency(context, handle)) {
-                    if (userManager.hasBaseUserRestriction(UserManager.DISALLOW_OUTGOING_CALLS,
-                            userHandle)) {
+                    if (hasDisallowOutgoingCalls(context, userManager, userHandle, featureFlags)) {
                         String reason = "of DISALLOW_OUTGOING_CALLS restriction";
                         showErrorDialogForRestrictedOutgoingCall(context,
                                 R.string.outgoing_call_not_allowed_user_restriction, tag, reason);
@@ -136,6 +149,42 @@ public final class UserUtil {
     }
 
     /**
+     * Checks if the {@link UserManager#DISALLOW_OUTGOING_CALLS} restriction is active for the given
+     * user, correctly handling managed profiles by checking the restriction on the parent user.
+     *
+     * <p>This function determines the "base" user, which is the parent user for a profile or the
+     * user itself otherwise. It then checks if the restriction is applied to that base user.
+     *
+     * @return {@code true} if outgoing calls are disallowed for the user, {@code false} otherwise.
+     * Returns {@code false} if an error occurs during the check (e.g., missing permissions).
+     */
+    private static boolean hasDisallowOutgoingCalls(
+            Context context,
+            UserManager userManager,
+            UserHandle user,
+            FeatureFlags featureFlags){
+        if(featureFlags.resolveHiddenDependenciesTwo()){
+            UserHandle parent = userManager.getProfileParent(user);
+            UserHandle baseUser = (parent != null) ? parent : user;
+            try {
+                Context baseUserContext = context.createContextAsUser(baseUser, 0);
+                UserManager baseUserManager = baseUserContext.getSystemService(UserManager.class);
+                if (baseUserManager != null) {
+                    return baseUserManager.hasUserRestriction(UserManager.DISALLOW_OUTGOING_CALLS);
+                }
+                return false;
+            } catch (Exception e) {
+                Log.e("UserUtil", e, "hasDisallowOutgoingCalls: caught exception");
+                return false;
+            }
+        }
+        else{
+            return userManager.hasBaseUserRestriction(UserManager.DISALLOW_OUTGOING_CALLS,
+                    user);
+        }
+    }
+
+    /**
      * Gets the associated user for the given call. Note: this is applicable to all calls except
      * outgoing calls as the associated user is already based off of the user placing the
      * call.
@@ -148,12 +197,8 @@ public final class UserUtil {
      * phone account handle user, otherwise return the target phone account handle user. If the
      * flag is disabled, return the legacy {@link UserHandle}.
      */
-    public static UserHandle getAssociatedUserForCall(boolean isAssociatedUserFlagEnabled,
-            PhoneAccountRegistrar phoneAccountRegistrar, UserHandle currentUser,
-            PhoneAccountHandle targetPhoneAccount) {
-        if (!isAssociatedUserFlagEnabled) {
-            return targetPhoneAccount.getUserHandle();
-        }
+    public static UserHandle getAssociatedUserForCall(PhoneAccountRegistrar phoneAccountRegistrar,
+            UserHandle currentUser, PhoneAccountHandle targetPhoneAccount) {
         // For multi-user phone accounts, associate the call with the profile receiving/placing
         // the call. For SIM accounts (that are assigned to specific users), the user association
         // will be placed on the target phone account handle user.
@@ -166,5 +211,29 @@ public final class UserUtil {
         // If target phone account handle is null or account cannot be found,
         // return the current user.
         return currentUser;
+    }
+
+    public static void processNotification(Context context, UserHandle userHandle, String tag,
+            int id, Notification notification, FeatureFlags featureFlags) {
+        if (featureFlags.resolveHiddenDependenciesTwo()) {
+            Context userContext = context.createContextAsUser(userHandle, 0);
+            NotificationManager userNotificationMgr = userContext.getSystemService(
+                    NotificationManager.class);
+            if (userNotificationMgr != null) {
+                if (notification != null) {
+                    userNotificationMgr.notify(tag, id, notification);
+                } else {
+                    userNotificationMgr.cancel(tag, id);
+                }
+            }
+        } else {
+            NotificationManager notificationMgr = (NotificationManager) context.getSystemService(
+                    Context.NOTIFICATION_SERVICE);
+            if (notification != null) {
+                notificationMgr.notifyAsUser(tag, id, notification, userHandle);
+            } else {
+                notificationMgr.cancelAsUser(tag, id, userHandle);
+            }
+        }
     }
 }

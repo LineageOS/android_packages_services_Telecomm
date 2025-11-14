@@ -429,7 +429,7 @@ public class CallSequencingController {
                         Log.w(this, "unholdCall: Unable to hold the active call (%s),"
                                         + " aborting swap to %s", activeCallId, call.getId(),
                                 call.getId());
-                        showErrorDialogForCannotHoldCall(call, false);
+                        showErrorDialogForCannotSwapCall(call);
                     } else {
                         Log.w(this, "unholdCall: %s is an emergency call, aborting swap to %s",
                                 activeCallId, call.getId());
@@ -539,7 +539,7 @@ public class CallSequencingController {
             return transactionFuture;
         }
 
-        Call liveCall = mCallsManager.getFirstCallWithLiveState();
+        Call liveCall = mCallsManager.getFirstCallWithLiveState(emergencyCall);
         Log.i(this, "makeRoomForOutgoingEmergencyCall: call = " + emergencyCall
                 + " livecall = " + liveCall);
 
@@ -705,6 +705,20 @@ public class CallSequencingController {
             }
         }
 
+        // If we are trying to make an emergency call with the same package name as the live call,
+        // then allow it so that the connection service can make its own decision
+        // about how to handle the new call relative to the current one.
+        // By default, for telephony, it will try to hold the existing call before placing the new
+        // emergency call except for if the carrier does not support holding calls for emergency.
+        // In this case, telephony will disconnect the call.
+        if (mFeatureFlags.bypassHoldForEccDial() && PhoneAccountHandle.areFromSamePackage(
+                liveCallPhoneAccount, emergencyCall.getTargetPhoneAccount())) {
+            Log.i(this, "makeRoomForOutgoingEmergencyCall: phoneAccount matches.");
+            emergencyCall.getAnalytics().setCallIsAdditional(true);
+            liveCall.getAnalytics().setCallIsInterrupted(true);
+            return transactionFuture;
+        }
+
         // At this point, if we still have an active call, then it supports holding for emergency
         // and is a managed call. It may not support holding but we will still try to hold anyway
         // (i.e. swap for Verizon). Note that there will only be one call at this stage which is
@@ -745,7 +759,7 @@ public class CallSequencingController {
 
         // NOTE: If the amount of live calls changes beyond 1, this logic will probably
         // have to change.
-        Call liveCall = mCallsManager.getFirstCallWithLiveState();
+        Call liveCall = mCallsManager.getFirstCallWithLiveState(call);
         Log.i(this, "makeRoomForOutgoingCall call = " + call + " livecall = " +
                 liveCall);
 
@@ -863,12 +877,19 @@ public class CallSequencingController {
      */
     public void disconnectCall(Call call, int previousState) {
         CompletableFuture<Boolean> disconnectFuture = call.disconnect();
+        int newState = call.getState();
+        mCallsManager.notifyCallStateChangeForDisconnect(call, previousState);
         disconnectFuture.thenComposeAsync((result) -> {
             if (result) {
                 Log.i(this, "disconnectCall: Disconnect call transaction succeeded. "
                         + "Processing associated cleanup.");
                 mCallsManager.processDisconnectCallAndCleanup(call, previousState);
             } else {
+                // Revert the disconnecting state that was set as a result of invoking
+                // Call#disconnect and make sure the reverted state is notified to the registered
+                // listeners.
+                call.setLocallyDisconnecting(false);
+                mCallsManager.notifyCallStateChangeForDisconnect(call, newState);
                 Log.i(this, "disconnectCall: Disconnect call transaction failed. "
                         + "Aborting associated cleanup.");
             }
@@ -1058,8 +1079,7 @@ public class CallSequencingController {
                 CarrierConfigManager.KEY_ALLOW_HOLD_CALL_DURING_EMERGENCY_BOOL, true);
     }
 
-    @VisibleForTesting
-    public boolean arePhoneAccountsSame(Call call1, Call call2) {
+    public static boolean arePhoneAccountsSame(Call call1, Call call2) {
         if (call1 == null || call2 == null) {
             return false;
         }
@@ -1175,6 +1195,13 @@ public class CallSequencingController {
     private void showErrorDialogForOutgoingDuringRingingCall(Call call) {
         int resourceId = R.string.callFailed_already_ringing;
         String reason = " can't place outgoing call with an unanswered incoming call.";
+        showErrorDialogForFailedCall(call, null, resourceId, reason);
+    }
+
+    private void showErrorDialogForCannotSwapCall(Call call) {
+        int resourceId = R.string.callSwapFailed_unholdable_call;
+        String reason = " unable to swap the live call. Disconnect the call to switch to "
+                + "the held call.";
         showErrorDialogForFailedCall(call, null, resourceId, reason);
     }
 

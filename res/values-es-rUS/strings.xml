@@ -138,7 +138,11 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"No puedes realizar la llamada porque hay otras dos en curso. Finaliza una de ellas o combínalas en una conferencia antes de iniciar una nueva."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"No puedes realizar la llamada porque hay otras dos en curso. Finaliza una de ellas antes de realizar una nueva."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"No puedes realizar la llamada porque hay otra que no se puede mantener en espera. Finalízala antes de iniciar una nueva."</string>
+    <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"No se puede cambiar de llamada activa porque la llamada en curso no admite la puesta en espera. Desconecta la llamada en curso para activar la que está en espera."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"No puedes realizar la llamada porque hay una llamada entrante que aún no contestas. Contéstala o recházala antes de realizar una nueva."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Este código MMI no está disponible para llamadas en varias cuentas."</string>
+    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"No se puede desconectar la llamada durante una combinación."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"No se pueden marcar códigos MMI durante las llamadas de emergencia."</string>
+    <string name="noApplications" msgid="1703149220378476198">"Ninguna app puede realizar esta acción."</string>
+    <string name="android_system_label" msgid="2730611410547215779">"Sistema Android"</string>
 </resources>

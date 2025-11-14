@@ -102,6 +102,8 @@ public class CallTest extends TelecomTestCase {
                     | PhoneAccount.CAPABILITY_CALL_PROVIDER)
             .setIsEnabled(true)
             .build();
+    private static final PhoneAccountHandle SIM_2_HANDLE = new PhoneAccountHandle(
+            COMPONENT_NAME_2, "Sim2");
     private static final long TIMEOUT_MILLIS = 1000;
 
     @Mock private CallsManager mMockCallsManager;
@@ -158,21 +160,11 @@ public class CallTest extends TelecomTestCase {
     @Test
     @SmallTest
     public void testTransactionalCallCapabilityRemapping() {
-        // ensure when the flag is disabled, the old behavior is unchanged
-        Bundle disabledFlagExtras = new Bundle();
-        Call call = createCall("1", Call.CALL_DIRECTION_INCOMING);
-        disabledFlagExtras.putInt(CallAttributes.CALL_CAPABILITIES_KEY,
-                Connection.CAPABILITY_MERGE_CONFERENCE);
-        when(mFeatureFlags.remapTransactionalCapabilities()).thenReturn(false);
-        call.setTransactionalCapabilities(disabledFlagExtras);
-        assertTrue(call.can(Connection.CAPABILITY_MERGE_CONFERENCE));
-        // enable the bug fix flag and ensure the transactional capabilities are remapped
-        Bundle enabledFlagExtras = new Bundle();
+        Bundle extras = new Bundle();
         Call call2 = createCall("2", Call.CALL_DIRECTION_INCOMING);
-        enabledFlagExtras.putInt(CallAttributes.CALL_CAPABILITIES_KEY,
+        extras.putInt(CallAttributes.CALL_CAPABILITIES_KEY,
                 CallAttributes.SUPPORTS_SET_INACTIVE);
-        when(mFeatureFlags.remapTransactionalCapabilities()).thenReturn(true);
-        call2.setTransactionalCapabilities(enabledFlagExtras);
+        call2.setTransactionalCapabilities(extras);
         assertTrue(call2.can(Connection.CAPABILITY_HOLD));
         assertTrue(call2.can(Connection.CAPABILITY_SUPPORT_HOLD));
     }
@@ -242,7 +234,6 @@ public class CallTest extends TelecomTestCase {
 
     @Test
     public void testMultipleCachedCallEvents() {
-        when(mFeatureFlags.cacheCallAudioCallbacks()).thenReturn(true);
         when(mFeatureFlags.cacheCallEvents()).thenReturn(true);
         TransactionalServiceWrapper tsw = Mockito.mock(TransactionalServiceWrapper.class);
         Call call = createCall("1", Call.CALL_DIRECTION_INCOMING);
@@ -280,7 +271,6 @@ public class CallTest extends TelecomTestCase {
 
     @Test
     public void testMultipleCachedMuteStateChanges() {
-        when(mFeatureFlags.cacheCallAudioCallbacks()).thenReturn(true);
         TransactionalServiceWrapper tsw = Mockito.mock(TransactionalServiceWrapper.class);
         Call call = createCall("1", Call.CALL_DIRECTION_INCOMING);
 
@@ -308,7 +298,6 @@ public class CallTest extends TelecomTestCase {
 
     @Test
     public void testCacheAfterServiceSet() {
-        when(mFeatureFlags.cacheCallAudioCallbacks()).thenReturn(true);
         when(mFeatureFlags.cacheCallEvents()).thenReturn(true);
         TransactionalServiceWrapper tsw = Mockito.mock(TransactionalServiceWrapper.class);
         Call call = createCall("1", Call.CALL_DIRECTION_INCOMING);
@@ -324,7 +313,6 @@ public class CallTest extends TelecomTestCase {
 
     @Test
     public void testMultipleCachedCurrentEndpointChanges() {
-        when(mFeatureFlags.cacheCallAudioCallbacks()).thenReturn(true);
         TransactionalServiceWrapper tsw = Mockito.mock(TransactionalServiceWrapper.class);
         CallEndpoint earpiece = Mockito.mock(CallEndpoint.class);
         CallEndpoint speaker = Mockito.mock(CallEndpoint.class);
@@ -358,7 +346,6 @@ public class CallTest extends TelecomTestCase {
 
     @Test
     public void testMultipleCachedAvailableEndpointChanges() {
-        when(mFeatureFlags.cacheCallAudioCallbacks()).thenReturn(true);
         TransactionalServiceWrapper tsw = Mockito.mock(TransactionalServiceWrapper.class);
         CallEndpoint earpiece = Mockito.mock(CallEndpoint.class);
         CallEndpoint bluetooth = Mockito.mock(CallEndpoint.class);
@@ -397,7 +384,6 @@ public class CallTest extends TelecomTestCase {
      */
     @Test
     public void testAllCachedCallbacks() {
-        when(mFeatureFlags.cacheCallAudioCallbacks()).thenReturn(true);
         when(mFeatureFlags.cacheCallEvents()).thenReturn(true);
         TransactionalServiceWrapper tsw = Mockito.mock(TransactionalServiceWrapper.class);
         CallEndpoint earpiece = Mockito.mock(CallEndpoint.class);

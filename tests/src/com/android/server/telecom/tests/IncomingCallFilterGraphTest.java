@@ -16,17 +16,18 @@
 
 package com.android.server.telecom.tests;
 
+import static com.android.server.telecom.callfiltering.CallFilteringResult.DND_NOT_DETERMINED;
+import static com.android.server.telecom.callfiltering.CallFilteringResult.DND_SUPPRESSED;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.util.Log;
 
 import androidx.test.filters.SmallTest;
@@ -40,6 +41,7 @@ import com.android.server.telecom.callfiltering.CallFilterResultCallback;
 import com.android.server.telecom.callfiltering.CallFilteringResult;
 import com.android.server.telecom.callfiltering.DndCallFilter;
 import com.android.server.telecom.callfiltering.IncomingCallFilterGraph;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -113,7 +115,8 @@ public class IncomingCallFilterGraphTest extends TelecomTestCase {
     public void setUp() throws Exception {
         super.setUp();
         when(mContext.getContentResolver()).thenReturn(null);
-        when(mTimeoutsAdapter.getCallScreeningTimeoutMillis(nullable(ContentResolver.class)))
+        when(mTimeoutsAdapter.getCallScreeningTimeoutMillis(nullable(Context.class), any(
+                FeatureFlags.class)))
                 .thenReturn(FILTER_TIMEOUT);
 
     }
@@ -229,13 +232,23 @@ public class IncomingCallFilterGraphTest extends TelecomTestCase {
 
         // WHEN:  DND is on and the caller cannot interrupt and the graph is processed
         when(mockRinger.shouldRingForContact(mCall)).thenReturn(false);
-        when(mFeatureFlags.checkCompletedFiltersOnTimeout()).thenReturn(true);
         dndCallFilter.startFilterLookup(IncomingCallFilterGraph.DEFAULT_RESULT);
         graph.performFiltering();
 
-        // THEN: assert shouldSuppressCallDueToDndStatus is true!
-        assertFalse(IncomingCallFilterGraph.DEFAULT_RESULT.shouldSuppressCallDueToDndStatus);
-        assertTrue(testResult.get(TIMEOUT_FILTER_SLEEP_TIME,
-                TimeUnit.MILLISECONDS).shouldSuppressCallDueToDndStatus);
+        // THEN: assert that DND is not determined or suppressed.
+        if (mFeatureFlags.voipDndFocus()) {
+            assertEquals(DND_NOT_DETERMINED,
+                    IncomingCallFilterGraph.DEFAULT_RESULT.dndSuppressionStatus);
+        } else {
+            assertFalse(IncomingCallFilterGraph.DEFAULT_RESULT.shouldSuppressCallDueToDndStatus);
+        }
+
+        if (mFeatureFlags.voipDndFocus()) {
+            assertEquals(DND_SUPPRESSED, testResult.get(TIMEOUT_FILTER_SLEEP_TIME,
+                    TimeUnit.MILLISECONDS).dndSuppressionStatus);
+        } else {
+            assertTrue(testResult.get(TIMEOUT_FILTER_SLEEP_TIME,
+                    TimeUnit.MILLISECONDS).shouldSuppressCallDueToDndStatus);
+        }
     }
 }

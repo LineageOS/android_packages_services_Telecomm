@@ -444,10 +444,9 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     @VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
     public void onRingerModeChange() {
-        if (mFeatureFlags.ensureInCarRinging()) {
-            // Stop the current ringtone before attempting to start the new ringtone:
-            stopRinging();
-        }
+        // Stop the current ringtone before attempting to start the new ringtone:
+        stopRinging();
+
         mCallAudioModeStateMachine.sendMessageWithArgs(
                 CallAudioModeStateMachine.RINGER_MODE_CHANGE, makeArgsForModeStateMachine());
     }
@@ -586,25 +585,19 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     @VisibleForTesting
     public void setCallAudioRouteFocusState(int focusState) {
-        if (mFeatureFlags.useRefactoredAudioRouteSwitching()) {
-            mCallAudioRouteAdapter.sendMessageWithSessionInfo(
-                    CallAudioRouteStateMachine.SWITCH_FOCUS, focusState, 0);
+        if (focusState == CallAudioRouteController.NO_FOCUS) {
+            mCallAudioRouteAdapter.sendMessageWithSessionInfoAtFront(
+                    CallAudioRouteController.SWITCH_FOCUS, focusState, 0);
         } else {
             mCallAudioRouteAdapter.sendMessageWithSessionInfo(
-                    CallAudioRouteStateMachine.SWITCH_FOCUS, focusState);
+                    CallAudioRouteController.SWITCH_FOCUS, focusState, 0);
         }
     }
 
     public void setCallAudioRouteFocusStateForEndTone() {
-        if (mFeatureFlags.useRefactoredAudioRouteSwitching()) {
-            mCallAudioRouteAdapter.sendMessageWithSessionInfo(
-                    CallAudioRouteStateMachine.SWITCH_FOCUS,
-                    CallAudioRouteStateMachine.ACTIVE_FOCUS, 1);
-        } else {
-            mCallAudioRouteAdapter.sendMessageWithSessionInfo(
-                    CallAudioRouteStateMachine.SWITCH_FOCUS,
-                    CallAudioRouteStateMachine.ACTIVE_FOCUS);
-        }
+        mCallAudioRouteAdapter.sendMessageWithSessionInfoAtFront(
+                CallAudioRouteController.SWITCH_FOCUS,
+                CallAudioRouteController.ACTIVE_FOCUS, 1);
     }
 
     public void notifyAudioOperationsComplete() {
@@ -787,12 +780,9 @@ public class CallAudioManager extends CallsManagerListenerBase {
 
     private void onCallEnteringRinging() {
         if (mRingingCalls.size() == 1) {
-            Log.i(this, "onCallEnteringRinging: mFeatureFlags.separatelyBindToBtIncallService() ? %s",
-                    mFeatureFlags.separatelyBindToBtIncallService());
             Log.i(this, "onCallEnteringRinging: mRingingCalls.getFirst().getBtIcsFuture() = %s",
                     mRingingCalls.getFirst().getBtIcsFuture());
-            if (mFeatureFlags.separatelyBindToBtIncallService()
-                    && mRingingCalls.getFirst().getBtIcsFuture() != null) {
+            if (mRingingCalls.getFirst().getBtIcsFuture() != null) {
                 mCallRingingFuture  = mRingingCalls.getFirst().getBtIcsFuture()
                         .thenComposeAsync((completed) -> {
                             mCallAudioModeStateMachine.sendMessageWithArgs(

@@ -82,3 +82,27 @@ flag {
   description: "Allow system apps such as accessibility to accept and end VOIP calls."
   bug: "353579043"
 }
+
+# OWNER=grantmenke TARGET=25Q4
+flag {
+  name: "reuse_original_conn_remote_conf_api"
+  is_exported: true
+  namespace: "telecom"
+  description: "Allow reusing the telephony connection when creating a new conference call."
+  bug: "391889544"
+  metadata {
+      purpose: PURPOSE_FEATURE
+  }
+}
+
+# OWNER=tgunn TARGET=26Q2
+flag {
+  name: "call_connected_indicator_preference"
+  is_exported: true
+  namespace: "telecom"
+  description: "Add call connected indicator support for playing a tone or starting a vibration"
+  bug: "146090790"
+  metadata {
+      purpose: PURPOSE_FEATURE
+  }
+}

@@ -23,6 +23,8 @@ import android.view.View;
 import android.widget.TextView;
 
 /**
+ * This class is used in respond_via_sms_settings.xml
+ *
  * Ultra-simple subclass of EditTextPreference that allows the "title" to wrap
  * onto multiple lines.
  *
@@ -31,10 +33,6 @@ import android.widget.TextView;
  * settings UI we want titles to be multi-line, since the customized messages
  * might be fairly long, and should be able to wrap.)
  *
- * TODO: This is pretty cumbersome; it would be nicer for the framework to
- * either allow modifying the title's attributes in XML, or at least provide
- * some way from Java (given an EditTextPreference) to reach inside and get a
- * handle to the "title" TextView.
  *
  * TODO: Also, it would reduce clutter if this could be an inner class in
  * RespondViaSmsManager.java, but then there would be no way to reference the
@@ -45,29 +43,22 @@ import android.widget.TextView;
  * <view class="com.android.server.telecom.Foo$Bar"> as you can with regular views.
  */
 public class MultiLineTitleEditTextPreference extends EditTextPreference {
-    public MultiLineTitleEditTextPreference(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
+    public MultiLineTitleEditTextPreference(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init();
     }
 
     public MultiLineTitleEditTextPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     public MultiLineTitleEditTextPreference(Context context) {
         super(context);
+        init();
     }
 
-    // The "title" TextView inside an EditTextPreference defaults to
-    // singleLine="true" (see preference_holo.xml under frameworks/base.)
-    // We override onBindView() purely to look up that TextView and call
-    // setSingleLine(false) on it.
-    @Override
-    protected void onBindView(View view) {
-        super.onBindView(view);
-
-        TextView textView = (TextView) view.findViewById(com.android.internal.R.id.title);
-        if (textView != null) {
-            textView.setSingleLine(false);
-        }
+    private void init() {
+        setLayoutResource(com.android.server.telecom.R.layout.preference_multiline_title_edittext);
     }
 }

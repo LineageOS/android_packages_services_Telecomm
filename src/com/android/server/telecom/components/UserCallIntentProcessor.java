@@ -36,8 +36,6 @@ import com.android.server.telecom.TelephonyUtil;
 import com.android.server.telecom.UserUtil;
 import com.android.server.telecom.flags.FeatureFlags;
 
-// TODO: Needed for move to system service: import com.android.internal.R;
-
 /**
  * Handles system CALL actions and forwards them to {@link CallIntentProcessor}.
  * Handles all three CALL action types: CALL, CALL_PRIVILEGED, and CALL_EMERGENCY.

@@ -32,6 +32,7 @@ import static org.mockito.Mockito.when;
 
 import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.UserHandle;
 import android.telecom.PhoneAccountHandle;
@@ -42,6 +43,7 @@ import com.android.server.telecom.Call;
 import com.android.server.telecom.DefaultDialerCache;
 import com.android.server.telecom.EmergencyCallHelper;
 import com.android.server.telecom.Timeouts;
+import com.android.server.telecom.flags.FeatureFlags;
 
 import org.junit.After;
 import org.junit.Before;
@@ -90,8 +92,8 @@ public class EmergencyCallHelperTest extends TelecomTestCase {
     when(mCall.isEmergencyCall()).thenReturn(true);
     when(mContext.getResources().getBoolean(R.bool.grant_location_permission_enabled)).thenReturn(
         true);
-    when(mTimeoutsAdapter.getEmergencyCallbackWindowMillis(any(ContentResolver.class))).thenReturn(
-            5000L);
+    when(mTimeoutsAdapter.getEmergencyCallbackWindowMillis(any(Context.class),
+            any(FeatureFlags.class))).thenReturn(5000L);
   }
 
   @Override

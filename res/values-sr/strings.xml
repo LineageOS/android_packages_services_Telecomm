@@ -138,7 +138,11 @@
     <string name="callFailed_too_many_calls_include_merge" msgid="2234495082825519920">"Не можете да позовете јер су два позива већ у току. Прекините један од њих или их обједините у конференцију пре упућивања новог позива."</string>
     <string name="callFailed_too_many_calls_exclude_merge" msgid="8616011288480453495">"Не можете да позовете јер су два позива већ у току. Прекините један од позива пре упућивања новог позива."</string>
     <string name="callFailed_unholdable_call" msgid="7580834131274566524">"Не можете да упутите позив јер је у току позив који не може да се стави на чекање. Прекините тај позив пре упућивања новог позива."</string>
+    <string name="callSwapFailed_unholdable_call" msgid="4779540296319850415">"Не можете да замените активни позив јер не подржава стављање на чекање. Прекините позив у току да бисте активирали позив на чекању."</string>
     <string name="callFailed_already_ringing" msgid="7931232733958098270">"Не можете да позовете јер имате долазни позив на који нисте одговорили. Примите га или одбијте пре упућивања новог позива."</string>
     <string name="callFailed_reject_mmi" msgid="5219280796733595167">"Овај MMI кôд није доступан за позиве на више налога."</string>
+    <string name="call_hangup_fail_during_merge" msgid="4216015878956379200">"Позив не може да се прекине током обједињавања."</string>
     <string name="emergencyCall_reject_mmi" msgid="5056319534549705785">"Бирање MMI кодова ноје могуће током хитног позива."</string>
+    <string name="noApplications" msgid="1703149220378476198">"Ниједна апликација не може да обавља ову радњу."</string>
+    <string name="android_system_label" msgid="2730611410547215779">"Android систем"</string>
 </resources>
