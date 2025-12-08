@@ -346,7 +346,11 @@ public class ConnectionServiceFixture implements TestFixture<IConnectionService>
         }
 
         @Override
-        public void disconnect(String callId, Session.Info info) throws RemoteException { }
+        public void disconnect(String callId, Session.Info info) {
+            try {
+                sendSetDisconnected(callId, 0);
+            } catch (Exception e) {}
+        }
 
         @Override
         public void silence(String callId, Session.Info info) throws RemoteException { }

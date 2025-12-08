@@ -76,17 +76,6 @@ flag {
     }
 }
 
-# OWNER=pmadapurmath TARGET=25Q4
-flag {
-  name: "bypass_hold_for_ecc_dial"
-  namespace: "telecom"
-  description: "When making room for an outgoing emergency call, don't send a hold request when the live call and emergency call phone accounts are the same. We will let this be handled in Telephony instead."
-  bug: "419729271"
-  metadata {
-      purpose: PURPOSE_BUGFIX
-    }
-}
-
 # OWNER=tgunn TARGET=25Q3
 flag {
   name: "voip_dnd_focus"
@@ -109,3 +98,85 @@ flag {
     }
 }
 
+# OWNER=grantmenke TARGET=26Q2
+flag {
+  name: "multi_party_anchor_conf"
+  is_exported: true
+  namespace: "telecom"
+  description: "This flag guards the behavioral and API changes required to add support for multi-party anchor conference calling"
+  bug: "400811824"
+  # is_fixed_read_only is necessary for flags that guard a newly added carrier config
+  is_fixed_read_only: true
+}
+
+# OWNER=pmadapurmath TARGET=25Q4
+flag {
+  name: "ecc_wait_for_live_call_disconnect"
+  namespace: "telecom"
+  description: "Wait up to 1s for the live call to disconnect (for same phone account) before dialing out the emergency call"
+  bug: "429986951"
+  metadata {
+      purpose: PURPOSE_BUGFIX
+    }
+}
+
+# OWNER=tjstuart TARGET=25Q4
+flag {
+  name: "fix_session_tree_logging"
+  namespace: "telecom"
+  description: "Enables a corrected implementation for printing the session tree, fixing a crash and improper log indentation."
+  bug: "427861789"
+  metadata {
+      purpose: PURPOSE_BUGFIX
+    }
+}
+
+# OWNER=tjstuart TARGET=25Q4
+flag {
+  name: "prevent_illegal_audio_processing_exit"
+  namespace: "telecom"
+  description: "Gates Audio Processing transitions to ensure when an illegal transition is requested, the call is disconnected"
+  bug: "428238530"
+}
+
+# OWNER=tjstuart TARGET=26Q1
+flag {
+  name: "maybe_reroute_audio_on_video_state_change"
+  namespace: "telecom"
+  description: "Fixes a race condition where video calls incorrectly use the earpiece by re-evaluating the audio route when the call's video state is updated."
+  bug: "439441943"
+  metadata {
+      purpose: PURPOSE_BUGFIX
+    }
+}
+
+# OWNER=pmadapurmath TARGET=26Q1
+flag {
+  name: "auto_unhold_on_call_fail"
+  namespace: "telecom"
+  description: "Attempts to unhold a call across phone accounts if the new call fails to be set up."
+  bug: "441531098"
+  metadata {
+      purpose: PURPOSE_BUGFIX
+    }
+}
+
+# OWNER=pmadapurmath TARGET=26Q2
+flag {
+  name: "support_display_name_call_log"
+  is_exported: true
+  namespace: "telecom"
+  description: "Adds support to handle storing the cnap name to be displayed in the call log"
+  bug: "429015736"
+}
+
+# OWNER=tjstuart TARGET=26Q1
+flag {
+  name: "avoid_logging_more_than_once"
+  namespace: "telecom"
+  description: "Fixes a bug where a call is logged multiple times due to multiple disconnects"
+  bug: "381210657"
+  metadata {
+      purpose: PURPOSE_BUGFIX
+    }
+}

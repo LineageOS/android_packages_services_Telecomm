@@ -41,6 +41,7 @@ import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telephony.TelephonyManager;
 
+import com.android.internal.telephony.flags.Flags;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallState;
 import com.android.server.telecom.CallerInfoLookupHelper;
@@ -132,7 +133,8 @@ public class EmergencyCallDiagnosticLoggerTest extends TelecomTestCase {
         when(mMockCallsManager.getCurrentUserHandle()).thenReturn(UserHandle.CURRENT);
 
         mEmergencyCallDiagnosticLogger = new EmergencyCallDiagnosticLogger(mTm, mBrm,
-                mTimeouts, mDbm, Runnable::run, mClockProxy);
+                mTimeouts, mDbm, Runnable::run, mClockProxy,
+                /* enableLogcatCollectionForAllEmergencyCalls= */ false);
     }
 
     @Override
@@ -304,4 +306,42 @@ public class EmergencyCallDiagnosticLoggerTest extends TelecomTestCase {
         assertEquals(0, mEmergencyCallDiagnosticLogger.getEmergencyCallsMap().size());
     }
 
+    @Test
+    public void
+            testEmergencyCallWentActiveForLongDuration_enableConfigs_shouldCollectDiagnostics()
+            throws Exception {
+        // RequiresFlagsDisabled won't work on an unexported flag, so we need
+        // to manually check the flag here.
+        if (!Flags.enableOemLogSourcesCollection()) {
+            return;
+        }
+        mEmergencyCallDiagnosticLogger = new EmergencyCallDiagnosticLogger(mTm, mBrm,
+                mTimeouts, mDbm, Runnable::run, mClockProxy,
+                /* enableLogcatCollectionForAllEmergencyCalls= */ true);
+        Call call = createCall(true, Call.CALL_DIRECTION_OUTGOING);
+        mEmergencyCallDiagnosticLogger.onCallAdded(call);
+
+        //call went active
+        mEmergencyCallDiagnosticLogger.onCallStateChanged(call, CallState.DIALING,
+                CallState.ACTIVE);
+
+        //return large value for time when call is disconnected
+        when(mClockProxy.currentTimeMillis()).thenReturn(System.currentTimeMillis() + 10000L);
+
+        call.setDisconnectCause(new DisconnectCause(DisconnectCause.ERROR));
+        mEmergencyCallDiagnosticLogger.onCallRemoved(call);
+
+        //for non-local disconnect of non-active call,  we should always be persisting some data
+        ArgumentCaptor<EmergencyCallDiagnosticData> captor =
+                ArgumentCaptor.forClass(EmergencyCallDiagnosticData.class);
+        verify(mTm, times(1)).persistEmergencyCallDiagnosticData(eq(DROP_BOX_TAG),
+                captor.capture());
+        EmergencyCallDiagnosticData ecdData = captor.getValue();
+
+        assertNotNull(ecdData);
+        assertTrue(ecdData.isLogcatCollectionEnabled());
+
+        //tracking should end
+        assertEquals(0, mEmergencyCallDiagnosticLogger.getEmergencyCallsMap().size());
+    }
 }

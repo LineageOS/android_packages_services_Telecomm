@@ -273,6 +273,7 @@ public class BlockedNumbersActivity extends ListActivity
         editText.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
         editText.addTextChangedListener(this);
         AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.add_blocked_dialog_body)
                 .setView(dialogView)
                 .setPositiveButton(R.string.block_button, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {

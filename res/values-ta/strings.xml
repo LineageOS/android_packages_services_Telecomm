@@ -19,6 +19,8 @@
     <string name="telecommAppLabel" product="default" msgid="1825598513414129827">"ஃபோன் அழைப்புகள்"</string>
     <string name="userCallActivityLabel" product="default" msgid="3605391260292846248">"ஃபோன்"</string>
     <string name="unknown" msgid="6993977514360123431">"தெரியாதவர்"</string>
+    <string name="private_num" msgid="7971471360030811411">"மறைக்கப்பட்ட எண்"</string>
+    <string name="payphone" msgid="7652075262156192657">"கட்டணத் தொலைபேசி"</string>
     <string name="notification_missedCallTitle" msgid="5060387047205532974">"தவறிய அழைப்பு"</string>
     <string name="notification_missedWorkCallTitle" msgid="6965463282259034953">"தவறிய அழைப்பு (பணி)"</string>
     <string name="notification_missedCallsTitle" msgid="3910479625507893809">"தவறிய அழைப்புகள்"</string>
@@ -43,7 +45,7 @@
     <string name="respond_via_sms_setting_title_2" msgid="4914853536609553457">"விரைவு பதில்களை மாற்று"</string>
     <string name="respond_via_sms_setting_summary" msgid="8054571501085436868"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="6579353156073272157">"விரைவு பதில்"</string>
-    <string name="respond_via_sms_confirmation_format" msgid="2932395476561267842">"<xliff:g id="PHONE_NUMBER">%s</xliff:g> க்குச் செய்தி அனுப்பப்பட்டது."</string>
+    <string name="respond_via_sms_confirmation_format" msgid="2619774063232350285">"<xliff:g id="PHONE_NUMBER">%s</xliff:g>க்கு மெசேஜ் அனுப்பப்படுகிறது."</string>
     <string name="respond_via_sms_failure_format" msgid="5198680980054596391">"செய்தியை <xliff:g id="PHONE_NUMBER">%s</xliff:g>க்கு அனுப்ப முடியவில்லை."</string>
     <string name="enable_account_preference_title" msgid="6949224486748457976">"அழைப்புக் கணக்குகள்"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="3424338207838851646">"அவசர அழைப்புகள் மட்டுமே அனுமதிக்கப்படும்."</string>

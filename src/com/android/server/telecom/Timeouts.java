@@ -229,8 +229,13 @@ public final class Timeouts {
      * @return The timeout value from Settings or the default value if it hasn't been changed.
      */
     private static long get(Context context, FeatureFlags flags, String key, long defaultValue) {
-        return Settings.Secure.getLongForUser(context.getContentResolver(),
-                PREFIX + key, defaultValue, UserUtil.getUserIdFromContext(context, flags));
+        if (flags.resolveHiddenDependenciesTwo()) {
+            return Settings.Secure.getLong(context.getContentResolver(), PREFIX + key,
+                    defaultValue);
+        } else {
+            return Settings.Secure.getLongForUser(context.getContentResolver(),
+                    PREFIX + key, defaultValue, UserUtil.getUserIdFromContext(context, flags));
+        }
     }
 
     /**

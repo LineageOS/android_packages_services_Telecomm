@@ -27,6 +27,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
 import android.telecom.Log;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -166,7 +167,7 @@ public class RespondViaSmsSettings extends PreferenceActivity
                 try {
                     Button button = ((AlertDialog) pref.getDialog())
                             .getButton(AlertDialog.BUTTON_POSITIVE);
-                    if (s.toString().length() == 0) {
+                    if (TextUtils.isEmpty(s.toString().trim())) {
                         button.setEnabled(false);
                     } else {
                         button.setEnabled(true);

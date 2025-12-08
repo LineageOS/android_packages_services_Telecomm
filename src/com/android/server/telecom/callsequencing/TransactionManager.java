@@ -26,8 +26,10 @@ import android.util.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.AnomalyReporterAdapter;
+import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.flags.FeatureFlags;
-import com.android.server.telecom.flags.Flags;
+import com.android.server.telecom.metrics.ErrorStats;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -61,10 +63,7 @@ public class TransactionManager {
     private TransactionManager() {
         mTransactions = new ArrayDeque<>();
         mCurrentTransaction = null;
-        if (Flags.enableCallSequencing()) {
-            mCompletedTransactions = new ArrayDeque<>();
-        } else
-            mCompletedTransactions = null;
+        mCompletedTransactions = new ArrayDeque<>();
     }
 
     public static TransactionManager getInstance() {
@@ -76,8 +75,8 @@ public class TransactionManager {
         return INSTANCE;
     }
 
-    public void setFeatureFlag(FeatureFlags flag){
-       mFeatureFlags = flag;
+    public void setFeatureFlag(FeatureFlags flag) {
+        mFeatureFlags = flag;
     }
 
     public void setAnomalyReporter(AnomalyReporterAdapter callAnomalyReporter){
@@ -106,6 +105,7 @@ public class TransactionManager {
                         receiver.onResult(result);
                         transactionCompleteFuture.complete(true);
                     } else {
+                        reportExceptionToMetrics(result.getResult());
                         receiver.onError(
                                 new CallException(result.getMessage(),
                                         result.getResult()));
@@ -123,6 +123,7 @@ public class TransactionManager {
             public void onTransactionTimeout(String transactionName){
                 Log.i(TAG, String.format("transaction %s timeout", transactionName));
                 try {
+                    reportExceptionToMetrics(CODE_OPERATION_TIMED_OUT);
                     receiver.onError(new CallException(transactionName + " timeout",
                             CODE_OPERATION_TIMED_OUT));
                     transactionCompleteFuture.complete(false);
@@ -184,8 +185,6 @@ public class TransactionManager {
     }
 
     private void addTransactionToHistory(CallTransaction t) {
-        if (!Flags.enableCallSequencing()) return;
-
         mCompletedTransactions.add(t);
         if (mCompletedTransactions.size() > TRANSACTION_HISTORY_SIZE) {
             mCompletedTransactions.poll();
@@ -196,10 +195,6 @@ public class TransactionManager {
      * Called when the dumpsys is created for telecom to capture the current state.
      */
     public void dump(IndentingPrintWriter pw) {
-        if (!Flags.enableCallSequencing()) {
-            pw.println("<<Flag not enabled>>");
-            return;
-        }
         synchronized (sLock) {
             pw.println("Pending Transactions:");
             pw.increaseIndent();
@@ -287,5 +282,13 @@ public class TransactionManager {
             return "SUCCESS";
         }
         return s.getTransactionResult().toString();
+    }
+
+    private void reportExceptionToMetrics(@CallException.CallErrorCode int callExceptionCode) {
+        TelecomSystem system = TelecomSystem.getInstance();
+        if (system != null && system.getMetricsController() != null) {
+            system.getMetricsController().getErrorStats().log(ErrorStats.SUB_VOIP_CALL,
+                    ErrorStats.mapCallExceptionToErrorId(callExceptionCode));
+        }
     }
 }

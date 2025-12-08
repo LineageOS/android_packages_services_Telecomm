@@ -15,9 +15,9 @@
  */
 package com.android.server.telecom;
 
-import android.telecom.CallerInfoAsyncQuery;
-
 import android.content.Context;
+
+import com.android.server.telecom.util.CallerInfoAsyncQuery;
 
 public interface CallerInfoAsyncQueryFactory {
     CallerInfoAsyncQuery startQuery(int token, Context context, String number,

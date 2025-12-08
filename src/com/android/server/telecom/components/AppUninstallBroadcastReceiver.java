@@ -20,11 +20,9 @@ import com.android.server.telecom.PhoneAccountRegistrar;
 import com.android.server.telecom.flags.Flags;
 
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.UserHandle;
 import android.provider.Settings;
 import android.telecom.TelecomManager;
 
@@ -67,7 +65,6 @@ public class AppUninstallBroadcastReceiver extends BroadcastReceiver {
             new Thread(() -> {
                 String packageName = uri.getSchemeSpecificPart();
                 handlePackageRemoved(context, packageName);
-                handleUninstallOfCallScreeningService(context, packageName);
                 result.finish();
             }).start();
         }
@@ -86,22 +83,6 @@ public class AppUninstallBroadcastReceiver extends BroadcastReceiver {
         final TelecomManager telecomManager = context.getSystemService(TelecomManager.class);
         if (telecomManager != null) {
             telecomManager.clearAccountsForPackage(packageName);
-        }
-    }
-
-    private void handleUninstallOfCallScreeningService(Context context, String packageName) {
-        ComponentName componentName = null;
-        String defaultCallScreeningApp = Settings.Secure
-            .getStringForUser(context.getContentResolver(),
-                Settings.Secure.CALL_SCREENING_DEFAULT_COMPONENT, UserHandle.USER_CURRENT);
-
-        if (defaultCallScreeningApp != null) {
-            componentName = ComponentName.unflattenFromString(defaultCallScreeningApp);
-        }
-
-        if (componentName != null && componentName.getPackageName().equals(packageName)) {
-            Settings.Secure.putStringForUser(context.getContentResolver(),
-                Settings.Secure.CALL_SCREENING_DEFAULT_COMPONENT, null, UserHandle.USER_CURRENT);
         }
     }
 }

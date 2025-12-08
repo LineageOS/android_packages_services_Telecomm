@@ -85,6 +85,8 @@ public class LogUtils {
         public static final String CSW_SET_PULLING = "CSW.sP";
         public static final String CSW_SET_DISCONNECTED = "CSW.sDc";
         public static final String CSW_SET_ON_HOLD = "CSW.sOH";
+        public static final String CSW_SET_AUDIO_PROCESSING = "CSW.sAP";
+        public static final String CSW_SET_SIMULATED_RINGING = "CSW.sSR";
         public static final String CSW_REMOVE_CALL = "CSW.rC";
         public static final String CSW_SET_IS_CONFERENCED = "CSW.sIC";
         public static final String CSW_ADD_CONFERENCE_CALL = "CSW.aCC";
@@ -111,6 +113,7 @@ public class LogUtils {
         public static final String SET_DISCONNECTING = "SET_DISCONNECTING";
         public static final String SET_SELECT_PHONE_ACCOUNT = "SET_SELECT_PHONE_ACCOUNT";
         public static final String SET_AUDIO_PROCESSING = "SET_AUDIO_PROCESSING";
+        public static final String SET_LOCAL_VOICEMAIL = "SET_LOCAL_VOICEMAIL";
         public static final String SET_SIMULATED_RINGING = "SET_SIMULATED_RINGING";
         public static final String REQUEST_RTT = "REQUEST_RTT";
         public static final String RESPOND_TO_RTT_REQUEST = "RESPOND_TO_RTT_REQUEST";
@@ -235,6 +238,7 @@ public class LogUtils {
         public static final String STOP_STREAMING = "STOP_STREAMING";
         public static final String AUDIO_ATTR = "AUDIO_ATTR";
         public static final String ANSWER_DROPS_FG = "ANSWER_DROPS_FG";
+        public static final String START_LOCAL_VOICEMAIL = "START_LOCAL_VOICEMAIL";
 
         public static class Timings {
             public static final String ACCEPT_TIMING = "accept";

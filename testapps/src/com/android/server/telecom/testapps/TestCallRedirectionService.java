@@ -57,6 +57,24 @@ public class TestCallRedirectionService extends CallRedirectionService {
         startActivity(intent);
     }
 
+
+    /**
+     * Handles request from the system to redirect an outgoing call.
+     */
+    @Override
+    public void onPlaceCall(@NonNull Uri handle, @NonNull Uri originalHandle,
+            @NonNull PhoneAccountHandle initialPhoneAccount,
+                        boolean allowInteractiveResponse) {
+        Log.i(this, "onPlaceCall: received call with OriginalHandle %s and handle %s",
+                originalHandle, handle);
+        sTestCallRedirectionService = this;
+        mDestinationPhoneAccount = initialPhoneAccount;
+        Intent intent = new Intent(this, CallRedirectionActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
+
     public void tryRedirectCallAndAskToConfirm() {
         // Provide call identification
         redirectCall(SAMPLE_HANDLE, mDestinationPhoneAccount, true);

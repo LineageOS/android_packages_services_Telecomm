@@ -144,7 +144,7 @@ public class TelecomMetricsController implements StatsManager.StatsPullAtomCallb
         if (mStats.containsKey(atomTag)) {
             return Objects.requireNonNull(mStats.get(atomTag)).pull(data);
         }
-        return StatsManager.PULL_SKIP;
+        return StatsManager.PULL_SUCCESS;
     }
 
     @VisibleForTesting

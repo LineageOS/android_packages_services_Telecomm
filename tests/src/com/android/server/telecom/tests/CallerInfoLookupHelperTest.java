@@ -32,8 +32,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.telecom.CallerInfo;
-import android.telecom.CallerInfoAsyncQuery;
 import android.telecom.Logging.Session;
 
 import androidx.test.InstrumentationRegistry;
@@ -43,6 +41,8 @@ import com.android.server.telecom.CallerInfoAsyncQueryFactory;
 import com.android.server.telecom.CallerInfoLookupHelper;
 import com.android.server.telecom.ContactsAsyncHelper;
 import com.android.server.telecom.TelecomSystem;
+import com.android.server.telecom.util.CallerInfo;
+import com.android.server.telecom.util.CallerInfoAsyncQuery;
 
 import org.junit.After;
 import org.junit.Before;

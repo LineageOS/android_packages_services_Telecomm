@@ -31,7 +31,6 @@ import android.os.HandlerThread;
 
 import androidx.test.filters.SmallTest;
 
-import com.android.server.telecom.CallAudioCommunicationDeviceTracker;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallAudioModeStateMachine;
 import com.android.server.telecom.CallAudioModeStateMachine.MessageArgs;
@@ -106,7 +105,6 @@ public class CallAudioModeTransitionTests extends TelecomTestCase {
     @Mock private SystemStateHelper mSystemStateHelper;
     @Mock private AudioManager mAudioManager;
     @Mock private CallAudioManager mCallAudioManager;
-    @Mock private CallAudioCommunicationDeviceTracker mCommunicationDeviceTracker;
     private final ModeTestParameters mParams;
     private HandlerThread mTestThread;
 
@@ -134,7 +132,7 @@ public class CallAudioModeTransitionTests extends TelecomTestCase {
     @SmallTest
     public void modeTransitionTest() {
         CallAudioModeStateMachine sm = new CallAudioModeStateMachine(mSystemStateHelper,
-                mAudioManager, mTestThread.getLooper(), mFeatureFlags, mCommunicationDeviceTracker);
+                mAudioManager, mTestThread.getLooper(), mFeatureFlags);
         sm.setCallAudioManager(mCallAudioManager);
         sm.sendMessage(mParams.initialAudioState);
         waitForHandlerAction(sm.getHandler(), TEST_TIMEOUT);

@@ -297,8 +297,8 @@ public final class TelecomBroadcastIntentProcessor {
         List<ResolveInfo> activities;
         if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
             activities = UserUtil.getPackageManagerFromUserHandler(mContext,
-                    userHandle).queryIntentActivitiesAsUser(callIntent,
-                    PackageManager.MATCH_DEFAULT_ONLY, userHandle.getIdentifier());
+                    userHandle).queryIntentActivities(callIntent,
+                    PackageManager.MATCH_DEFAULT_ONLY);
         } else {
             PackageManager packageManager = mContext.getPackageManager();
             activities = packageManager.queryIntentActivitiesAsUser(

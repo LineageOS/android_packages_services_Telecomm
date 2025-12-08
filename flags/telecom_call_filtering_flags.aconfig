@@ -8,3 +8,11 @@ flag {
   description: "Gates whether to still perform Dnd filter when phone account has skip_filter call extra."
   bug: "222333869"
 }
+
+# OWNER=breadley TARGET=25Q4
+flag {
+  name: "synchronize_conn_state"
+  namespace: "telecom"
+  description: "Locks access to the ServiceConnection to ensure consistency of state across threads"
+  bug: "409122082"
+}

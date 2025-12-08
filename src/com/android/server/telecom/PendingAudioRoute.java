@@ -21,6 +21,7 @@ import static com.android.server.telecom.CallAudioRouteAdapter.SWITCH_BASELINE_R
 import static com.android.server.telecom.CallAudioRouteController.INCLUDE_BLUETOOTH_IN_BASELINE;
 
 import android.bluetooth.BluetoothDevice;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.telecom.Log;
 import android.util.ArraySet;
@@ -84,10 +85,15 @@ public class PendingAudioRoute {
      * @param isDestActive Whether the destination will be active.
      */
     void setOrigRoute(boolean isOriginActive, AudioRoute origRoute, boolean isDestActive,
-            boolean isScoAlreadyConnected) {
+            boolean isScoAlreadyConnected, boolean isDestRouteCommunicationDevice) {
         mActive = isDestActive;
-        origRoute.onOrigRouteAsPendingRoute(isOriginActive, this, mAudioManager,
-                mBluetoothRouteManager, isScoAlreadyConnected);
+        // Skip clearing the communication device or disconnecting SCO when the current
+        // communication device is already associated with the destination route. Ensure we still
+        // clear the communication device at the end of the call.
+        if (!isDestRouteCommunicationDevice || (isOriginActive != isDestActive && !isDestActive)) {
+            origRoute.onOrigRouteAsPendingRoute(isOriginActive, this, mAudioManager,
+                    mBluetoothRouteManager, isScoAlreadyConnected);
+        }
         mOrigRoute = origRoute;
     }
 
@@ -96,9 +102,19 @@ public class PendingAudioRoute {
     }
 
     void setDestRoute(boolean active, AudioRoute destRoute, BluetoothDevice device,
-            boolean isScoAlreadyConnected) {
-        destRoute.onDestRouteAsPendingRoute(active, this, device,
-                mAudioManager, mBluetoothRouteManager, isScoAlreadyConnected);
+            boolean isScoAlreadyConnected, boolean isDestRouteCommunicationDevice,
+            boolean isMovingToActiveRouting) {
+        // Skip setting the communication device when the audio fwk reported communication device
+        // matches up with the destination route unless it's the start of the call. When Telecom
+        // becomes the mode owner, we must always set the communication device due to the previous
+        // focus owner clearing the request (clearCommunicationDevice). We'll just not add the
+        // pending message if the update isn't reflected in the communicate device update callback.
+        if (!isDestRouteCommunicationDevice || isMovingToActiveRouting) {
+            destRoute.onDestRouteAsPendingRoute(active, this, device,
+                    mAudioManager, mBluetoothRouteManager, isScoAlreadyConnected);
+        } else {
+            setCommunicationDeviceType(destRoute.getType());
+        }
         mActive = active;
         mDestRoute = destRoute;
     }

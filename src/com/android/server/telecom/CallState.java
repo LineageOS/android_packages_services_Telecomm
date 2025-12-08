@@ -133,6 +133,22 @@ public final class CallState {
     public static final int SIMULATED_RINGING = TelecomProtoEnums.SIMULATED_RINGING; // = 13
 
     /**
+     * Indicates that local voicemail processing has requested to answer the call and we're waiting
+     * to hear back from the underlying {@link android.telecom.ConnectionService} to inform us that
+     * the call has entered an active state.
+     * When the underlying {@link android.telecom.Connection} reports it is active, we will move
+     * the call to {@link #LOCAL_VOICEMAIL}.
+     */
+    public static final int ANSWERED_FOR_LOCAL_VOICEMAIL = 14;
+
+    /**
+     * Indicates that the call is active and is being handled by a
+     * {@link android.telecom.LocalVoicemailService}.
+     * Note: This does NOT map to an {@link android.telecom.Call} state.
+     */
+    public static final int LOCAL_VOICEMAIL = 15;
+
+    /**
      * Determines if a given call state is "transitory".  A transitory call state is one which a
      * call should only be in for a short duration of time before lower levels move it to a more
      * permanent stable state.

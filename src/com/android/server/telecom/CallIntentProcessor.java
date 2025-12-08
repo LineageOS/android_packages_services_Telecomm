@@ -197,7 +197,7 @@ public class CallIntentProcessor {
         boolean isPrivilegedDialer = defaultDialerCache.isDefaultOrSystemDialer(callingPackage,
                 initiatingUser.getIdentifier());
 
-        if (privateSpaceFlagsEnabled()) {
+        if (android.multiuser.Flags.enablePrivateSpaceIntentRedirection()) {
             if (!callsManager.isSelfManaged(phoneAccountHandle, initiatingUser)
                     && !TelephonyUtil.shouldProcessAsEmergency(context, handle)
                     && UserUtil.isPrivateProfile(initiatingUser, context)) {
@@ -325,11 +325,6 @@ public class CallIntentProcessor {
             errorIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivityAsUser(errorIntent, UserHandle.CURRENT);
         }
-    }
-
-    private static boolean privateSpaceFlagsEnabled() {
-        return android.multiuser.Flags.enablePrivateSpaceFeatures()
-                && android.multiuser.Flags.enablePrivateSpaceIntentRedirection();
     }
 
     private static boolean maybeRedirectToIntentForwarderForPrivate(

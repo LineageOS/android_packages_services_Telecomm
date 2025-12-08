@@ -194,9 +194,15 @@ public class DtmfLocalTonePlayer {
         final Context context = call.getContext();
         final boolean areLocalTonesEnabled;
         if (context.getResources().getBoolean(R.bool.allow_local_dtmf_tones)) {
-            areLocalTonesEnabled = Settings.System.getIntForUser(
-                    context.getContentResolver(), Settings.System.DTMF_TONE_WHEN_DIALING, 1,
-                    UserUtil.getUserIdFromContext(context, mFeatureFlags)) == 1;
+            if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                areLocalTonesEnabled = Settings.System.getInt(context.getContentResolver(),
+                        Settings.System.DTMF_TONE_WHEN_DIALING, 1) == 1;
+
+            } else {
+                areLocalTonesEnabled = Settings.System.getIntForUser(
+                        context.getContentResolver(), Settings.System.DTMF_TONE_WHEN_DIALING, 1,
+                        UserUtil.getUserIdFromContext(context, mFeatureFlags)) == 1;
+            }
         } else {
             areLocalTonesEnabled = false;
         }

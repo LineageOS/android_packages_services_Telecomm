@@ -19,6 +19,8 @@
     <string name="telecommAppLabel" product="default" msgid="1825598513414129827">"Cuộc gọi điện thoại"</string>
     <string name="userCallActivityLabel" product="default" msgid="3605391260292846248">"Điện thoại"</string>
     <string name="unknown" msgid="6993977514360123431">"Không xác định"</string>
+    <string name="private_num" msgid="7971471360030811411">"Số điện thoại riêng tư"</string>
+    <string name="payphone" msgid="7652075262156192657">"Điện thoại công cộng"</string>
     <string name="notification_missedCallTitle" msgid="5060387047205532974">"Cuộc gọi nhỡ"</string>
     <string name="notification_missedWorkCallTitle" msgid="6965463282259034953">"Cuộc gọi nhỡ về công việc"</string>
     <string name="notification_missedCallsTitle" msgid="3910479625507893809">"Cuộc gọi nhỡ"</string>
@@ -43,7 +45,7 @@
     <string name="respond_via_sms_setting_title_2" msgid="4914853536609553457">"Chỉnh sửa tin nhắn trả lời nhanh"</string>
     <string name="respond_via_sms_setting_summary" msgid="8054571501085436868"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="6579353156073272157">"Trả lời nhanh"</string>
-    <string name="respond_via_sms_confirmation_format" msgid="2932395476561267842">"Đã gửi tin nhắn tới <xliff:g id="PHONE_NUMBER">%s</xliff:g>."</string>
+    <string name="respond_via_sms_confirmation_format" msgid="2619774063232350285">"Đang gửi tin nhắn đến <xliff:g id="PHONE_NUMBER">%s</xliff:g>."</string>
     <string name="respond_via_sms_failure_format" msgid="5198680980054596391">"Không gửi được tin nhắn đến <xliff:g id="PHONE_NUMBER">%s</xliff:g>."</string>
     <string name="enable_account_preference_title" msgid="6949224486748457976">"Tài khoản gọi"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="3424338207838851646">"Chỉ được phép thực hiện cuộc gọi khẩn cấp."</string>

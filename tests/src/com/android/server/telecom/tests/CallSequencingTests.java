@@ -117,7 +117,6 @@ public class CallSequencingTests extends TelecomTestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        when(mFeatureFlags.enableCallSequencing()).thenReturn(true);
         mController = new CallSequencingController(mCallsManager, mContext, mClockProxy,
                 mAnomalyReporter, mTimeoutsAdapter, mMetricsController, mMmiUtils, mFeatureFlags);
 
@@ -196,7 +195,8 @@ public class CallSequencingTests extends TelecomTestCase {
         setActiveCallFocus(null);
         mController.answerCall(mNewCall, 0, CallsManager.REQUEST_ORIGIN_UNKNOWN);
         verify(mCallsManager, timeout(SEQUENCING_TIMEOUT_MS))
-                .requestFocusActionAnswerCall(eq(mNewCall), eq(0));
+                .requestFocusActionAnswerCall(eq(mNewCall), eq(0),
+                        eq(CallsManager.REQUEST_ORIGIN_UNKNOWN));
     }
 
     @SmallTest
@@ -205,7 +205,8 @@ public class CallSequencingTests extends TelecomTestCase {
         setupHoldActiveCallForNewCallFailMocks();
         mController.answerCall(mNewCall, 0, CallsManager.REQUEST_ORIGIN_UNKNOWN);
         verify(mCallsManager, timeout(SEQUENCING_TIMEOUT_MS).times(0))
-                .requestFocusActionAnswerCall(eq(mNewCall), eq(0));
+                .requestFocusActionAnswerCall(eq(mNewCall), eq(0),
+                        eq(CallsManager.REQUEST_ORIGIN_UNKNOWN));
     }
 
     @SmallTest
@@ -220,7 +221,8 @@ public class CallSequencingTests extends TelecomTestCase {
         when(mNewCall.isSelfManaged()).thenReturn(true);
         mController.answerCall(mNewCall, 0, CallsManager.REQUEST_ORIGIN_TELECOM_DISAMBIGUATION);
         verify(mCallsManager, timeout(SEQUENCING_TIMEOUT_MS).times(1))
-                .requestFocusActionAnswerCall(eq(mNewCall), eq(0));
+                .requestFocusActionAnswerCall(eq(mNewCall), eq(0),
+                        eq(CallsManager.REQUEST_ORIGIN_TELECOM_DISAMBIGUATION));
     }
 
     @SmallTest
@@ -514,7 +516,6 @@ public class CallSequencingTests extends TelecomTestCase {
     @SmallTest
     @Test
     public void testMakeRoomForOutgoingEmergencyCall_SamePkg() {
-        when(mFeatureFlags.bypassHoldForEccDial()).thenReturn(true);
         // Ensure that the live call and emergency call are from the same pkg.
         when(mActiveCall.getTargetPhoneAccount()).thenReturn(mHandle1);
         when(mNewCall.getTargetPhoneAccount()).thenReturn(mHandle1);

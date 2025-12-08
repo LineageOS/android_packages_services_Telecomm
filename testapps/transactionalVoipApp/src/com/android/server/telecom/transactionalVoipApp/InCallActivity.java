@@ -21,10 +21,10 @@ import static android.telecom.CallAttributes.DIRECTION_INCOMING;
 import static android.telecom.CallAttributes.DIRECTION_OUTGOING;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.OutcomeReceiver;
 import android.telecom.CallAttributes;
@@ -36,6 +36,7 @@ import android.telecom.TelecomManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class InCallActivity extends Activity {
     private static final String TAG = "InCallActivity";
@@ -46,6 +47,8 @@ public class InCallActivity extends Activity {
     private MediaPlayer mMediaPlayer;
     private AudioRecord mAudioRecord;
     private int mCallDirection = DIRECTION_INCOMING;
+    private CallAttributes mCallAttributes;
+    private String mCallId;
     private TextView mCurrentEndpointTextView;
 
     @Override
@@ -62,7 +65,14 @@ public class InCallActivity extends Activity {
         }
         if (extras != null) {
             mCallDirection = extras.getInt(Utils.sCALL_DIRECTION_KEY, DIRECTION_INCOMING);
+            mCallAttributes = extras.getParcelable(Utils.sCall_ATTRIBUTE_KEY, CallAttributes.class);
         }
+        if (mCallAttributes == null) {
+            Toast.makeText(this, getString(R.string.call_attributes_empty_error),
+                    Toast.LENGTH_SHORT).show();
+            mCallAttributes = Utils.getCallAttributes(mCallDirection);
+        }
+        updatePhoneNumber();
         mCurrentEndpointTextView = findViewById(R.id.current_endpoint);
         mCurrentEndpointTextView.setText("Endpoint/Audio Route NOT ESTABLISHED");
         updateCallId();
@@ -119,6 +129,11 @@ public class InCallActivity extends Activity {
             @Override
             public void onClick(View v) {
                 disconnectAndStopAudio();
+                // Send attributes and uuid back to main activity for referencing
+                Intent intent = new Intent();
+                intent.putExtra(Utils.sCall_UUID_EXTRA_KEY, mCallId);
+                intent.putExtra(Utils.sCall_ATTRIBUTE_KEY, mCallAttributes);
+                setResult(Activity.RESULT_OK, intent);
                 finish();
             }
         });
@@ -222,8 +237,8 @@ public class InCallActivity extends Activity {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         if (canUseCallControl()) {
-            String id = mVoipCall.mCallControl.getCallId().toString();
-            sb.append(id);
+            mCallId = mVoipCall.mCallControl.getCallId().toString();
+            sb.append(mCallId);
         } else {
             sb.append("Error Getting Id");
         }
@@ -236,17 +251,16 @@ public class InCallActivity extends Activity {
         }
     }
 
+    private void updatePhoneNumber() {
+        TextView view = findViewById(R.id.phoneNumber);
+        String phoneNumber = mCallAttributes.getAddress().getSchemeSpecificPart();
+        view.setText(phoneNumber);
+    }
+
     private void addCall() {
         mVoipCall = new MyVoipCall("123");
 
-        CallAttributes callAttributes =
-                new CallAttributes.Builder(
-                        Utils.PHONE_ACCOUNT_HANDLE,
-                        mCallDirection,
-                        "Alan Turing",
-                        Uri.parse("tel:+16506959001")).build();
-
-        mTelecomManager.addCall(callAttributes, Runnable::run,
+        mTelecomManager.addCall(mCallAttributes, Runnable::run,
                 new OutcomeReceiver<CallControl, CallException>() {
                     @Override
                     public void onResult(CallControl callControl) {

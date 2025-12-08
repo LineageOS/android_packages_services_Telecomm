@@ -19,6 +19,8 @@
     <string name="telecommAppLabel" product="default" msgid="1825598513414129827">"Telefon Zəngləri"</string>
     <string name="userCallActivityLabel" product="default" msgid="3605391260292846248">"Telefon"</string>
     <string name="unknown" msgid="6993977514360123431">"Naməlum"</string>
+    <string name="private_num" msgid="7971471360030811411">"Şəxsi nömrə"</string>
+    <string name="payphone" msgid="7652075262156192657">"Taksofon"</string>
     <string name="notification_missedCallTitle" msgid="5060387047205532974">"Buraxılmış zəng"</string>
     <string name="notification_missedWorkCallTitle" msgid="6965463282259034953">"Buraxılmış iş çağrısı"</string>
     <string name="notification_missedCallsTitle" msgid="3910479625507893809">"Buraxılmış zənglər"</string>
@@ -43,7 +45,7 @@
     <string name="respond_via_sms_setting_title_2" msgid="4914853536609553457">"Hazır cavablara düzəliş edin"</string>
     <string name="respond_via_sms_setting_summary" msgid="8054571501085436868"></string>
     <string name="respond_via_sms_edittext_dialog_title" msgid="6579353156073272157">"Tez cavab"</string>
-    <string name="respond_via_sms_confirmation_format" msgid="2932395476561267842">"Mesaj <xliff:g id="PHONE_NUMBER">%s</xliff:g> nömrəsinə göndərildi."</string>
+    <string name="respond_via_sms_confirmation_format" msgid="2619774063232350285">"Mesaj <xliff:g id="PHONE_NUMBER">%s</xliff:g> nömrəsinə göndərilir."</string>
     <string name="respond_via_sms_failure_format" msgid="5198680980054596391">"<xliff:g id="PHONE_NUMBER">%s</xliff:g> nömrəsinə mesaj göndərmək alınmadı."</string>
     <string name="enable_account_preference_title" msgid="6949224486748457976">"Hesabların çağırılması"</string>
     <string name="outgoing_call_not_allowed_user_restriction" msgid="3424338207838851646">"Yalnız təcili zənglərə icazə verilir."</string>

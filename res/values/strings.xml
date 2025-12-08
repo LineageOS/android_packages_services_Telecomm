@@ -28,6 +28,10 @@
 
     <!-- Name for an "unknown" caller. -->
     <string name="unknown">Unknown</string>
+    <!-- Incoming call screen string when the number is hidden -->
+    <string name="private_num">Private number</string>
+    <!-- Incoming call screen string when called from a pay phone -->
+    <string name="payphone">Payphone</string>
 
     <!-- Notification strings -->
     <!-- Missed call notification label, used when there's exactly one missed call -->
@@ -115,8 +119,8 @@
     <string name="respond_via_sms_edittext_dialog_title">Quick response</string>
 
     <!-- "Respond via SMS": Confirmation message shown after sending
-        a text response. [CHAR LIMIT=40] -->
-    <string name="respond_via_sms_confirmation_format">Message sent to <xliff:g id="phone_number">%s</xliff:g>.</string>
+    a text response. [CHAR LIMIT=40] -->
+    <string name="respond_via_sms_confirmation_format">Sending message to <xliff:g id="phone_number">%s</xliff:g>.</string>
 
     <!-- "Respond via SMS": Error toast shown after failing to send
         a text response. [CHAR LIMIT=40] -->

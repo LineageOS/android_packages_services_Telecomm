@@ -17,11 +17,15 @@
 package com.android.server.telecom.tests;
 
 import static junit.framework.Assert.fail;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.assertEquals;
 
 import android.telecom.Log;
 import android.telecom.Logging.Session;
 
 import androidx.test.filters.SmallTest;
+
+import com.android.server.telecom.flags.Flags;
 
 import org.junit.After;
 import org.junit.Before;
@@ -266,6 +270,44 @@ public class SessionTest extends TelecomTestCase {
         } catch (Exception e) {
             fail("Exception: " + e.getMessage());
         }
+    }
+
+    /**
+     * Creates a session tree with one parent and three leaf-node children.
+     * This structure caused a negative depth in the legacy tree traversal which caused a crash.
+     * In the new recursive traversal, it is not possible to have a negative depth so this
+     * structure is ok.
+     */
+    @SmallTest
+    @Test
+    public void testPrintTree_triggersNegativeDepthCrash() {
+        if(!Flags.fixSessionTreeLogging()){
+            return;
+        }
+        // 1. Setup the tree structure that causes the crash:
+        //      parent
+        //      / | \
+        //   c1  c2  c3
+        Session parent = createTestSession("parent", "p");
+        Session child1 = createTestSession("child1", "c1");
+        Session child2 = createTestSession("child2", "c2");
+        Session child3 = createTestSession("child3", "c3");
+
+        parent.addChild(child1);
+        child1.setParentSession(parent);
+        parent.addChild(child2);
+        child2.setParentSession(parent);
+        parent.addChild(child3);
+        child3.setParentSession(parent);
+
+        // 2. print the session tree
+        String result = parent.printFullSessionTree();
+
+        // 3. Assert the output is correct
+        assertTrue(result.contains("p@parent"));
+        assertTrue(result.contains("c1@parent_child1"));
+        assertTrue(result.contains("c2@parent_child2"));
+        assertTrue(result.contains("c3@parent_child3"));
     }
 
     private Session createTestSession(String name, String methodName) {

@@ -54,14 +54,13 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @RunWith(JUnit4.class)
 public class CallEndpointControllerTest extends TelecomTestCase {
     private static final BluetoothDevice bluetoothDevice1 =
-            BluetoothRouteManagerTest.makeBluetoothDevice("00:00:00:00:00:01");
+            CallAudioRouteControllerTest.makeBluetoothDevice("00:00:00:00:00:01");
     private static final BluetoothDevice bluetoothDevice2 =
-            BluetoothRouteManagerTest.makeBluetoothDevice("00:00:00:00:00:02");
+            CallAudioRouteControllerTest.makeBluetoothDevice("00:00:00:00:00:02");
     private static final Collection<BluetoothDevice> availableBluetooth1 =
             Arrays.asList(bluetoothDevice1, bluetoothDevice2);
     private static final Collection<BluetoothDevice> availableBluetooth2 =

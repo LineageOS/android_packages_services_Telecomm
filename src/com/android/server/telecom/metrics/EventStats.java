@@ -29,6 +29,8 @@ import android.util.StatsEvent;
 
 import androidx.annotation.VisibleForTesting;
 
+import com.android.server.telecom.Call;
+import com.android.server.telecom.CallLogManager;
 import com.android.server.telecom.TelecomStatsLog;
 import com.android.server.telecom.metrics.ApiStats.ApiEvent;
 import com.android.server.telecom.nano.PulledAtomsClass;
@@ -48,6 +50,16 @@ public class EventStats extends TelecomPulledAtom {
             .TELECOM_EVENT_STATS__EVENT__EVENT_DEFAULT_DIALER_CHANGED;
     public static final int ID_ADD_CALL = TelecomStatsLog
             .TELECOM_EVENT_STATS__EVENT__EVENT_ADD_CALL;
+    public static final int ID_LOG_VOIP_CALL_INCOMING_VOICE = TelecomStatsLog
+            .TELECOM_EVENT_STATS__EVENT__EVENT_LOG_VOIP_CALL_INCOMING_VOICE;
+    public static final int ID_LOG_VOIP_CALL_INCOMING_VIDEO = TelecomStatsLog
+            .TELECOM_EVENT_STATS__EVENT__EVENT_LOG_VOIP_CALL_INCOMING_VIDEO;
+    public static final int ID_LOG_VOIP_CALL_OUTGOING_VOICE = TelecomStatsLog
+            .TELECOM_EVENT_STATS__EVENT__EVENT_LOG_VOIP_CALL_OUTGOING_VOICE;
+    public static final int ID_LOG_VOIP_CALL_OUTGOING_VIDEO = TelecomStatsLog
+            .TELECOM_EVENT_STATS__EVENT__EVENT_LOG_VOIP_CALL_OUTGOING_VIDEO;
+    public static final int ID_CALL_BACK = TelecomStatsLog
+            .TELECOM_EVENT_STATS__EVENT__EVENT_CALL_BACK;
 
     public static final int CAUSE_UNKNOWN = TelecomStatsLog
             .TELECOM_EVENT_STATS__EVENT_CAUSE__CAUSE_UNKNOWN;
@@ -70,6 +82,13 @@ public class EventStats extends TelecomPulledAtom {
             CAUSE_CALL_TRANSACTION_BASE + CallException.CODE_CALL_NOT_PERMITTED_AT_PRESENT_TIME;
     public static final int CAUSE_CALL_TRANSACTION_OPERATION_TIMED_OUT =
             CAUSE_CALL_TRANSACTION_BASE + CallException.CODE_OPERATION_TIMED_OUT;
+    public static final int CAUSE_CALL_LOG_OPT_OUT = TelecomStatsLog
+            .TELECOM_EVENT_STATS__EVENT_CAUSE__CALL_LOG_OPT_OUT;
+    public static final int CAUSE_CALL_LOG_OPT_IN = TelecomStatsLog
+            .TELECOM_EVENT_STATS__EVENT_CAUSE__CALL_LOG_OPT_IN;
+    public static final int CAUSE_CALL_LOG_OPT_IN_EXCLUDED = TelecomStatsLog
+            .TELECOM_EVENT_STATS__EVENT_CAUSE__CALL_LOG_OPT_IN_EXCLUDED;
+
     private static final String TAG = EventStats.class.getSimpleName();
     private static final String FILE_NAME = "event_stats";
     private Map<CriticalEvent, Integer> mEventStatsMap;
@@ -99,10 +118,8 @@ public class EventStats extends TelecomPulledAtom {
                             v.getEvent(), v.getUid(), v.getEventCause(), v.getCount())));
             mEventStatsMap.clear();
             onAggregate();
-            return StatsManager.PULL_SUCCESS;
-        } else {
-            return StatsManager.PULL_SKIP;
         }
+        return StatsManager.PULL_SUCCESS;
     }
 
     @Override
@@ -147,11 +164,35 @@ public class EventStats extends TelecomPulledAtom {
         });
     }
 
+    public void onCallEnd(@NonNull Call call) {
+        int id = call.isIncoming() ? (call.hasVideoCall() ? ID_LOG_VOIP_CALL_INCOMING_VIDEO
+                : ID_LOG_VOIP_CALL_INCOMING_VOICE) : (
+                        call.hasVideoCall() ? ID_LOG_VOIP_CALL_OUTGOING_VIDEO
+                        : ID_LOG_VOIP_CALL_OUTGOING_VOICE);
+        int uid = call.getCallingPackageIdentity().mCallingPackageUid;
+        try {
+            uid = mContext.getPackageManager().getApplicationInfo(
+                    call.getTargetPhoneAccount().getComponentName().getPackageName(), 0).uid;
+        } catch (Exception e) {
+            Log.i(TAG, "failed to get the uid for " + e);
+        }
+        int cause = CallLogManager.shouldLogVoipCall(call) ? CAUSE_CALL_LOG_OPT_IN
+                : call.isTransactionalLogExcluded() ? CAUSE_CALL_LOG_OPT_IN_EXCLUDED
+                        : CAUSE_CALL_LOG_OPT_OUT;
+        log(new CriticalEvent(id, uid, cause));
+
+    }
+
     @IntDef(prefix = "ID_", value = {
             ID_UNKNOWN,
             ID_INIT,
             ID_DEFAULT_DIALER_CHANGED,
-            ID_ADD_CALL
+            ID_ADD_CALL,
+            ID_LOG_VOIP_CALL_INCOMING_VOICE,
+            ID_LOG_VOIP_CALL_INCOMING_VIDEO,
+            ID_LOG_VOIP_CALL_OUTGOING_VOICE,
+            ID_LOG_VOIP_CALL_OUTGOING_VIDEO,
+            ID_CALL_BACK
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface EventId {
@@ -167,7 +208,10 @@ public class EventStats extends TelecomPulledAtom {
             CAUSE_CALL_TRANSACTION_CALL_IS_NOT_BEING_TRACKED,
             CAUSE_CALL_TRANSACTION_CALL_CANNOT_BE_SET_TO_ACTIVE,
             CAUSE_CALL_TRANSACTION_CALL_NOT_PERMITTED_AT_PRESENT_TIME,
-            CAUSE_CALL_TRANSACTION_OPERATION_TIMED_OUT
+            CAUSE_CALL_TRANSACTION_OPERATION_TIMED_OUT,
+            CAUSE_CALL_LOG_OPT_OUT,
+            CAUSE_CALL_LOG_OPT_IN,
+            CAUSE_CALL_LOG_OPT_IN_EXCLUDED
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface CauseId {

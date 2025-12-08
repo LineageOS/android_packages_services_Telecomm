@@ -300,8 +300,8 @@ public class AudioRoute {
                         !pendingAudioRoute.getFeatureFlags().checkDeviceTypeOnRouteChange() ||
                                 (pendingAudioRoute.getFeatureFlags().checkDeviceTypeOnRouteChange()
                                         && mAudioRouteType
-                                        == DEVICE_INFO_TYPE_TO_AUDIO_ROUTE_TYPE.get(
-                                        deviceInfo.getType()));
+                                        == DEVICE_INFO_TYPE_TO_AUDIO_ROUTE_TYPE.getOrDefault(
+                                        deviceInfo.getType(), TYPE_INVALID));
                 if (BT_AUDIO_ROUTE_TYPES.contains(mAudioRouteType) && mBluetoothAddress
                         .equals(deviceInfo.getAddress())
                         && isSameDeviceType) {
@@ -436,6 +436,15 @@ public class AudioRoute {
      */
     int clearCommunicationDevice(PendingAudioRoute pendingAudioRoute,
             BluetoothRouteManager bluetoothRouteManager, AudioManager audioManager) {
+        // Only clear communication device if the destination route will be inactive; route to
+        // route transitions do not require clearing the communication device.
+        if (!pendingAudioRoute.isActive()) {
+            Log.i(this,
+                    "clearCommunicationDevice: AudioManager#clearCommunicationDevice, type=%s",
+                    DEVICE_TYPE_STRINGS.get(pendingAudioRoute.getCommunicationDeviceType()));
+            audioManager.clearCommunicationDevice();
+        }
+
         // Try to see if there's a previously set device for communication that should be cleared.
         // This only serves to help in the SCO case to ensure that we disconnect the headset.
         if (pendingAudioRoute.getCommunicationDeviceType() == AudioRoute.TYPE_INVALID) {
@@ -448,14 +457,6 @@ public class AudioRoute {
         if (shouldDisconnectSco) {
             Log.i(this, "Disconnecting SCO device via BluetoothHeadset.");
             result = bluetoothRouteManager.getDeviceManager().disconnectSco();
-        }
-        // Only clear communication device if the destination route will be inactive; route to
-        // route transitions do not require clearing the communication device.
-        if (!pendingAudioRoute.isActive()) {
-            Log.i(this,
-                    "clearCommunicationDevice: AudioManager#clearCommunicationDevice, type=%s",
-                    DEVICE_TYPE_STRINGS.get(pendingAudioRoute.getCommunicationDeviceType()));
-            audioManager.clearCommunicationDevice();
         }
 
         if (result == BluetoothStatusCodes.SUCCESS) {

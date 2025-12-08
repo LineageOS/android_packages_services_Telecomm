@@ -34,8 +34,8 @@ import android.text.TextUtils;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.flags.FeatureFlags;
+import com.android.server.telecom.util.CallerInfo;
 
-import android.telecom.CallerInfo;
 import android.util.Pair;
 
 import java.util.List;
@@ -205,9 +205,14 @@ public class RingtoneFactory {
         if(userContext == null) {
             return false;
         }
-        return !TextUtils.isEmpty(Settings.System.getStringForUser(userContext.getContentResolver(),
-                Settings.System.RINGTONE,
-                UserUtil.getUserIdFromContext(userContext, mFeatureFlags)));
+        if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+            return !TextUtils.isEmpty(Settings.System.getString(userContext.getContentResolver(),
+                    Settings.System.RINGTONE));
+        } else {
+            return !TextUtils.isEmpty(Settings.System.getStringForUser(
+                    userContext.getContentResolver(), Settings.System.RINGTONE,
+                    UserUtil.getUserIdFromContext(userContext, mFeatureFlags)));
+        }
     }
 
     private boolean isWorkContact(Call incomingCall) {

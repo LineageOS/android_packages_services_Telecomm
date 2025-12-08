@@ -43,6 +43,7 @@ import com.android.server.telecom.callsequencing.voip.ParallelTransaction;
 import com.android.server.telecom.callsequencing.voip.SerialTransaction;
 import com.android.server.telecom.callsequencing.CallTransaction;
 import com.android.server.telecom.callsequencing.CallTransactionResult;
+import com.android.server.telecom.flags.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -213,8 +214,14 @@ public class CallStreamingController extends CallsManagerListenerBase {
             Log.i(this, "processTransaction: servicePackage=%s", holders.get(0));
             Intent serviceIntent = new Intent(CallStreamingService.SERVICE_INTERFACE);
             serviceIntent.setPackage(holders.get(0));
-            List<ResolveInfo> infos = packageManager.queryIntentServicesAsUser(serviceIntent,
-                    PackageManager.GET_META_DATA, mUserHandle);
+            List<ResolveInfo> infos;
+            if (Flags.resolveHiddenDependenciesTwo()) {
+                infos = UserUtil.getPackageManagerFromUserHandler(mContext, mUserHandle).
+                        queryIntentServices(serviceIntent, PackageManager.GET_META_DATA);
+            } else {
+                infos = packageManager.queryIntentServicesAsUser(serviceIntent,
+                        PackageManager.GET_META_DATA, mUserHandle);
+            }
             if (infos.isEmpty()) {
                 Log.w(this, "processTransaction: Can't find streaming service");
                 future.complete(new CallTransactionResult(

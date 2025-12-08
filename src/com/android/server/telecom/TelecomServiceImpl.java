@@ -49,6 +49,7 @@ import android.content.pm.ParceledListSlice;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+import android.os.BadParcelableException;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -89,6 +90,7 @@ import com.android.server.telecom.callsequencing.voip.VoipCallMonitor;
 import com.android.server.telecom.components.UserCallIntentProcessorFactory;
 import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.metrics.ApiStats;
+import com.android.server.telecom.metrics.ErrorStats;
 import com.android.server.telecom.metrics.EventStats;
 import com.android.server.telecom.metrics.EventStats.CriticalEvent;
 import com.android.server.telecom.metrics.TelecomMetricsController;
@@ -97,6 +99,7 @@ import com.android.server.telecom.callsequencing.TransactionManager;
 import com.android.server.telecom.callsequencing.CallTransaction;
 import com.android.server.telecom.callsequencing.CallTransactionResult;
 import com.android.server.telecom.PackageRemovedReceiver;
+import com.android.server.telecom.util.TelecomBundleUtils;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -251,6 +254,8 @@ public class TelecomServiceImpl {
 
                                 if (call == null || !call.getId().equals(callId)) {
                                     Log.i(TAG, "addCall: onResult: call is null or id mismatch");
+                                    mMetricsController.getErrorStats().log(ErrorStats.SUB_VOIP_CALL,
+                                            ErrorStats.ERROR_TRANSACTION_UNKNOWN);
                                     onAddCallControl(callId, callEventCallback, null,
                                             new CallException(ADD_CALL_ERR_MSG,
                                                     CODE_ERROR_UNKNOWN));
@@ -271,6 +276,10 @@ public class TelecomServiceImpl {
 
                                 if (mFeatureFlags.transactionalVideoState()) {
                                     call.setTransactionalCallSupportsVideoCalling(callAttributes);
+                                }
+                                if (mFeatureFlags.integratedCallLogs()) {
+                                    call.setIsTransactionalLogExcluded(
+                                            callAttributes.isLogExcluded());
                                 }
                                 ICallControl clientCallControl = serviceWrapper.getICallControl();
 
@@ -318,6 +327,8 @@ public class TelecomServiceImpl {
                     callEventCallback.onAddCallControl(callId, TELECOM_TRANSACTION_SUCCESS,
                             callControl, null);
                 } else {
+                    mMetricsController.getErrorStats().log(ErrorStats.SUB_VOIP_CALL,
+                            ErrorStats.ERROR_TRANSACTION_UNKNOWN);
                     callEventCallback.onAddCallControl(callId,
                             CallException.CODE_ERROR_UNKNOWN,
                             null, callException);
@@ -873,14 +884,18 @@ public class TelecomServiceImpl {
                 try {
                     Log.startSession("TSI.gSCM", Log.getPackageAbbreviation(callingPackage));
                     final int callingUid = Binder.getCallingUid();
-                    final int user = UserHandle.getUserId(callingUid);
+                    final int callingUserId = mFeatureFlags.resolveHiddenDependenciesTwo() ?
+                            Binder.getCallingUserHandle().getIdentifier() :
+                            UserHandle.getUserId(callingUid);
+                    final UserHandle user = mFeatureFlags.resolveHiddenDependenciesTwo() ?
+                            Binder.getCallingUserHandle() : UserHandle.of(callingUserId);
                     long token = Binder.clearCallingIdentity();
                     try {
-                        if (user != ActivityManager.getCurrentUser()) {
+                        if (callingUserId != ActivityManager.getCurrentUser()) {
                             enforceCrossUserPermission(callingUid);
                         }
                         event.setResult(ApiStats.RESULT_NORMAL);
-                        return mPhoneAccountRegistrar.getSimCallManager(subId, UserHandle.of(user));
+                        return mPhoneAccountRegistrar.getSimCallManager(subId, user);
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
@@ -1185,6 +1200,8 @@ public class TelecomServiceImpl {
                         subId = mPhoneAccountRegistrar.getSubscriptionIdForPhoneAccount(
                                 accountHandle);
                     }
+                    if (!mPhoneAccountRegistrar.isSubscriptionIdActive(subId))
+                        return null;
                     event.setResult(ApiStats.RESULT_NORMAL);
                     return getTelephonyManager(subId).getLine1Number();
                 } catch (UnsupportedOperationException ignored) {
@@ -1266,10 +1283,12 @@ public class TelecomServiceImpl {
             try {
                 Log.startSession("TSI.gDDP", Log.getPackageAbbreviation(callingPackage));
                 int callerUserId = UserHandle.getCallingUserId();
+                UserHandle callerUser = Binder.getCallingUserHandle();
                 final long token = Binder.clearCallingIdentity();
                 try {
-                    return mDefaultDialerCache.getDefaultDialerApplication(
-                            callerUserId);
+                    return mFeatureFlags.resolveHiddenDependenciesTwo() ?
+                            mDefaultDialerCache.getDefaultDialerApplication(callerUser) :
+                            mDefaultDialerCache.getDefaultDialerApplicationLegacy(callerUserId);
                 } finally {
                     Binder.restoreCallingIdentity(token);
                 }
@@ -1299,7 +1318,10 @@ public class TelecomServiceImpl {
                 final long token = Binder.clearCallingIdentity();
                 event.setResult(ApiStats.RESULT_NORMAL);
                 try {
-                    return mDefaultDialerCache.getDefaultDialerApplication(userId);
+                    return mFeatureFlags.resolveHiddenDependenciesTwo() ?
+                            mDefaultDialerCache
+                                    .getDefaultDialerApplication(new UserHandle(userId)) :
+                            mDefaultDialerCache.getDefaultDialerApplicationLegacy(userId);
                 } finally {
                     Binder.restoreCallingIdentity(token);
                 }
@@ -1328,6 +1350,7 @@ public class TelecomServiceImpl {
         public void setSystemDialer(ComponentName testComponentName) {
             try {
                 Log.startSession("TSI.sSD");
+                Log.i(this, "setSystemDialer: %s", testComponentName);
                 enforceModifyPermission();
                 enforceShellOnly(Binder.getCallingUid(), "setSystemDialer");
                 synchronized (mLock) {
@@ -1362,6 +1385,27 @@ public class TelecomServiceImpl {
                 }
             } finally {
                 logEvent(event);
+                Log.endSession();
+            }
+        }
+
+        /**
+         * @see android.telecom.TelecomManager#isInCall
+         */
+        @Override
+        public boolean isInExternalCall(String callingPackage, String callingFeatureId) {
+            // TODO(b/435261628): Add API stats collection for this interface
+            try {
+                Log.startSession("TSI.iIC", Log.getPackageAbbreviation(callingPackage));
+                if (!canReadPhoneState(callingPackage, callingFeatureId, "isInExternalCall")) {
+                    throw new SecurityException("Only the default dialer or caller with " +
+                            "READ_PHONE_STATE permission can use this method.");
+                }
+                synchronized (mLock) {
+                    return mCallsManager.hasOngoingExternalCalls(Binder.getCallingUserHandle(),
+                            hasInAppCrossUserPermission());
+                }
+            } finally {
                 Log.endSession();
             }
         }
@@ -1958,7 +2002,11 @@ public class TelecomServiceImpl {
                                     phoneAccountHandle);
                             intent.putExtra(CallIntentProcessor.KEY_IS_INCOMING_CALL, true);
                             if (extras != null) {
-                                extras.setDefusable(true);
+                                if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                                    extras = TelecomBundleUtils.defuse(extras);
+                                } else {
+                                    extras.setDefusable(true);
+                                }
                                 intent.putExtra(TelecomManager.EXTRA_INCOMING_CALL_EXTRAS, extras);
                             }
                             mCallIntentProcessorAdapter.processIncomingCallIntent(
@@ -2146,7 +2194,11 @@ public class TelecomServiceImpl {
                         try {
                             Intent intent = new Intent(TelecomManager.ACTION_NEW_UNKNOWN_CALL);
                             if (extras != null) {
-                                extras.setDefusable(true);
+                                if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                                    extras = TelecomBundleUtils.defuse(extras);
+                                } else {
+                                    extras.setDefusable(true);
+                                }
                                 intent.putExtras(extras);
                             }
                             intent.putExtra(CallIntentProcessor.KEY_IS_UNKNOWN_CALL, true);
@@ -2296,7 +2348,11 @@ public class TelecomServiceImpl {
                         final Intent intent = new Intent(hasCallPrivilegedPermission ?
                                 Intent.ACTION_CALL_PRIVILEGED : Intent.ACTION_CALL, handle);
                         if (extras != null) {
-                            extras.setDefusable(true);
+                            if (mFeatureFlags.resolveHiddenDependenciesTwo()) {
+                                extras = TelecomBundleUtils.defuse(extras);
+                            } else {
+                                extras.setDefusable(true);
+                            }
                             intent.putExtras(extras);
                         }
                         mUserCallIntentProcessorFactory.create(mContext, userHandle)
@@ -2350,11 +2406,14 @@ public class TelecomServiceImpl {
                 enforcePermission(WRITE_SECURE_SETTINGS);
                 synchronized (mLock) {
                     int callerUserId = UserHandle.getCallingUserId();
+                    UserHandle callerUser = Binder.getCallingUserHandle();
                     long token = Binder.clearCallingIdentity();
                     event.setResult(ApiStats.RESULT_NORMAL);
                     try {
-                        return mDefaultDialerCache.setDefaultDialer(packageName,
-                                callerUserId);
+                        return mFeatureFlags.resolveHiddenDependenciesTwo() ?
+                                mDefaultDialerCache.setDefaultDialer(packageName, callerUser) :
+                                mDefaultDialerCache
+                                        .setDefaultDialerLegacy(packageName, callerUserId);
                     } finally {
                         Binder.restoreCallingIdentity(token);
                     }
@@ -2546,10 +2605,15 @@ public class TelecomServiceImpl {
                     com.android.internal.R.string.config_emergency_dialer_package);
             Intent intent = new Intent(Intent.ACTION_DIAL_EMERGENCY)
                     .setPackage(packageName);
-            ResolveInfo resolveInfo = mPackageManager.resolveActivity(intent, 0 /* flags*/);
-            if (resolveInfo == null) {
-                // No matching activity from config, fallback to default platform implementation
-                intent.setPackage(null);
+            long token = Binder.clearCallingIdentity();
+            try {
+                ResolveInfo resolveInfo = mPackageManager.resolveActivity(intent, 0 /* flags*/);
+                if (resolveInfo == null) {
+                    // No matching activity from config, fallback to default platform implementation
+                    intent.setPackage(null);
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
             }
             if (!TextUtils.isEmpty(number) && TextUtils.isDigitsOnly(number)) {
                 intent.setData(Uri.parse("tel:" + number));
@@ -3126,7 +3190,9 @@ public class TelecomServiceImpl {
         setupPackageRemovedReceiver(phoneAccountRegistrar);
 
         mDefaultDialerCache.observeDefaultDialerApplication(mContext.getMainExecutor(), userId -> {
-            String defaultDialer = mDefaultDialerCache.getDefaultDialerApplication(userId);
+            String defaultDialer = mFeatureFlags.resolveHiddenDependenciesTwo() ?
+                    mDefaultDialerCache.getDefaultDialerApplication(new UserHandle(userId)) :
+                    mDefaultDialerCache.getDefaultDialerApplicationLegacy(userId);
             if (defaultDialer == null) {
                 // We are replacing the dialer, just wait for the upcoming callback.
                 return;
@@ -3931,7 +3997,8 @@ public class TelecomServiceImpl {
         // incompatible types.
         if (icon != null && (icon.getType() == Icon.TYPE_URI
                 || icon.getType() == Icon.TYPE_URI_ADAPTIVE_BITMAP)) {
-            int callingUserId = UserHandle.getCallingUserId();
+            int callingUserId = mFeatureFlags.resolveHiddenDependenciesTwo() ?
+                    Binder.getCallingUserHandle().getIdentifier() : UserHandle.getCallingUserId();
             int requestingUserId = StatusHints.getUserIdFromAuthority(
                     icon.getUri().getAuthority(), callingUserId);
             if(callingUserId != requestingUserId) {

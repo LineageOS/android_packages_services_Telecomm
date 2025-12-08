@@ -197,10 +197,8 @@ public class ApiStats extends TelecomPulledAtom {
                             v.getApiName(), v.getUid(), v.getApiResult(), v.getCount())));
             mApiStatsMap.clear();
             onAggregate();
-            return StatsManager.PULL_SUCCESS;
-        } else {
-            return StatsManager.PULL_SKIP;
         }
+        return StatsManager.PULL_SUCCESS;
     }
 
     @Override

@@ -60,7 +60,6 @@ import android.os.ICancellationSignal;
 import android.os.Looper;
 import android.os.UserHandle;
 import android.provider.CallLog;
-import android.telecom.CallerInfo;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
@@ -79,6 +78,7 @@ import com.android.server.telecom.TelecomSystem;
 import com.android.server.telecom.components.TelecomBroadcastReceiver;
 import com.android.server.telecom.ui.MissedCallNotifierImpl;
 import com.android.server.telecom.ui.MissedCallNotifierImpl.NotificationBuilderFactory;
+import com.android.server.telecom.util.CallerInfo;
 
 import org.junit.After;
 import org.junit.Before;
@@ -93,6 +93,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 @RunWith(JUnit4.class)
 public class MissedCallNotifierImplTest extends TelecomTestCase {
@@ -198,6 +199,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         when(fakeTelephonyManager.getNetworkCountryIso()).thenReturn("US");
         doReturn(new ApplicationInfo()).when(mContext).getApplicationInfo();
         doReturn("com.android.server.telecom.tests").when(mContext).getPackageName();
+        doReturn("com.android.server.telecom.tests").when(mUserContext).getPackageName();
 
         mComponentContextFixture.putResource(R.string.notification_missedCallTitle,
                 MISSED_CALL_TITLE);
@@ -289,8 +291,8 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
     private MissedCallNotifier setupMissedCallNotificationThroughDefaultDialer() {
         mComponentContextFixture.addIntentReceiver(
                 TelecomManager.ACTION_SHOW_MISSED_CALLS_NOTIFICATION, COMPONENT_NAME);
-        when(mDefaultDialerCache.getDefaultDialerApplication(anyInt())).thenReturn(
-                DEFAULT_DIALER_PACKAGE);
+        when(mDefaultDialerCache.getDefaultDialerApplication(any()))
+                .thenReturn(DEFAULT_DIALER_PACKAGE);
         Notification.Builder builder1 = makeNotificationBuilder("builder1");
         Notification.Builder builder2 = makeNotificationBuilder("builder2");
         MissedCallNotifierImpl.NotificationBuilderFactory fakeBuilderFactory =
@@ -687,8 +689,8 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
         ArgumentCaptor<Bundle> bundleCaptor =
                 ArgumentCaptor.forClass(Bundle.class);
-        verify(mDeviceIdleControllerAdapter).exemptAppTemporarilyForEvent(
-                eq(COMPONENT_NAME.getPackageName()), anyLong(), anyInt(), any());
+        verify(mComponentContextFixture.getPowerExemptionManager()).addToTemporaryAllowList(
+                eq(COMPONENT_NAME.getPackageName()), anyInt(), anyString(), anyLong());
         verify(mContext).sendBroadcastAsUser(
                 intentCaptor.capture(),
                 any(),
@@ -705,6 +707,43 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
         // A notification should never be posted by Telecom
         verify(mNotificationManager, never()).notify(nullable(String.class), anyInt(),
                 nullable(Notification.class));
+    }
+
+    @SmallTest
+    @Test
+    public void testReloadFromDatabase_createContextFails() {
+        // GIVEN
+        TelecomSystem.setInstance(mTelecomSystem);
+        when(mTelecomSystem.isBootComplete()).thenReturn(true);
+        when(mFeatureFlags.resolveHiddenDependenciesTwo()).thenReturn(true);
+
+        // Configure mContext.createContextAsUser to throw an exception
+        when(mContext.createContextAsUser(eq(PRIMARY_USER), anyInt()))
+                .thenThrow(new IllegalStateException("Test Exception"));
+
+        CallerInfoLookupHelper mockCallerInfoLookupHelper = mock(CallerInfoLookupHelper.class);
+        MissedCallNotifier.CallInfoFactory mockCallInfoFactory =
+                mock(MissedCallNotifier.CallInfoFactory.class);
+
+        MissedCallNotifierImpl missedCallNotifier = new MissedCallNotifierImpl(mContext,
+                mPhoneAccountRegistrar, mDefaultDialerCache,
+                mock(MissedCallNotifierImpl.NotificationBuilderFactory.class),
+                mDeviceIdleControllerAdapter, mFeatureFlags);
+        missedCallNotifier.setCurrentUserHandle(PRIMARY_USER);
+
+        // WHEN
+        missedCallNotifier.reloadFromDatabase(
+                mockCallerInfoLookupHelper, mockCallInfoFactory, PRIMARY_USER);
+
+        // THEN
+        // Verify that the method returned early and did not proceed to query the database
+        verify(mUserContentResolver, never()).query(
+                any(Uri.class),
+                any(String[].class),
+                anyString(),
+                any(String[].class),
+                anyString()
+        );
     }
 
     /**
@@ -777,7 +816,7 @@ public class MissedCallNotifierImplTest extends TelecomTestCase {
 
     private void enableDialerHandlesMissedCall() {
         doReturn(COMPONENT_NAME.getPackageName()).when(mDefaultDialerCache).
-                getDefaultDialerApplication(anyInt());
+                getDefaultDialerApplication(any());
         mComponentContextFixture.addIntentReceiver(
                 TelecomManager.ACTION_SHOW_MISSED_CALLS_NOTIFICATION, COMPONENT_NAME);
     }

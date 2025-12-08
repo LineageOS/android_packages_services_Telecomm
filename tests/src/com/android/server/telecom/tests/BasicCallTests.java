@@ -54,7 +54,6 @@ import android.os.UserHandle;
 import android.provider.BlockedNumberContract;
 import android.telecom.Call;
 import android.telecom.CallAudioState;
-import android.telecom.CallerInfo;
 import android.telecom.Connection;
 import android.telecom.ConnectionRequest;
 import android.telecom.DisconnectCause;
@@ -72,6 +71,7 @@ import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
 
 import com.android.internal.telecom.IInCallAdapter;
+import com.android.server.telecom.util.CallerInfo;
 
 import com.google.common.base.Predicate;
 
@@ -125,9 +125,9 @@ public class BasicCallTests extends TelecomSystemTest {
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
 
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(ids.mCallId);
-        assertEquals(Call.STATE_DISCONNECTING,
+        assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureX.getCall(ids.mCallId).getState());
-        assertEquals(Call.STATE_DISCONNECTING,
+        assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureY.getCall(ids.mCallId).getState());
 
         when(mClockProxy.currentTimeMillis()).thenReturn(TEST_DISCONNECT_TIME);
@@ -292,9 +292,9 @@ public class BasicCallTests extends TelecomSystemTest {
         IdPair ids = startAndMakeActiveIncomingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(ids.mCallId);
-        assertEquals(Call.STATE_DISCONNECTING,
+        assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureX.getCall(ids.mCallId).getState());
-        assertEquals(Call.STATE_DISCONNECTING,
+        assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureY.getCall(ids.mCallId).getState());
 
         when(mClockProxy.currentTimeMillis()).thenReturn(TEST_DISCONNECT_TIME);
@@ -433,7 +433,7 @@ public class BasicCallTests extends TelecomSystemTest {
         assertTrueWithTimeout(new Predicate<Void>() {
             @Override
             public boolean apply(Void aVoid) {
-                return mMissedCallNotifier.missedCallsNotified.size() == 1;
+                return mMissedCallNotifier.missedCallsNotified.size() >= 1;
             }
         });
 
@@ -658,9 +658,9 @@ public class BasicCallTests extends TelecomSystemTest {
         // Ensure no issues with call disconnect.
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(incoming.mCallId);
         mInCallServiceFixtureX.mInCallAdapter.disconnectCall(outgoing.mCallId);
-        assertEquals(Call.STATE_DISCONNECTING,
+        assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureX.getCall(incoming.mCallId).getState());
-        assertEquals(Call.STATE_DISCONNECTING,
+        assertEquals(Call.STATE_DISCONNECTED,
                 mInCallServiceFixtureX.getCall(outgoing.mCallId).getState());
         InCallServiceFixture.setIgnoreOverrideAdapterFlag(false);
     }

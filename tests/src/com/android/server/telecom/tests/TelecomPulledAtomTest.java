@@ -80,7 +80,7 @@ import java.util.Random;
 
 @RunWith(AndroidJUnit4.class)
 public class TelecomPulledAtomTest extends TelecomTestCase {
-    private static final long MIN_PULL_INTERVAL_MILLIS = 23L * 60 * 60 * 1000;
+    private static final long MIN_PULL_INTERVAL_MILLIS = 5L * 60 * 60 * 1000;
     private static final long DEFAULT_TIMESTAMPS_MILLIS = 3000;
     private static final int DELAY_FOR_PERSISTENT_MILLIS = 30000;
     private static final int DELAY_TOLERANCE = 50;
@@ -223,7 +223,7 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
 
         int result = apiStats.pull(data);
 
-        assertEquals(StatsManager.PULL_SKIP, result);
+        assertEquals(StatsManager.PULL_SUCCESS, result);
         verify(apiStats, never()).onPull(any());
         assertEquals(data.size(), 0);
     }
@@ -251,7 +251,7 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
 
         int result = audioRouteStats.pull(data);
 
-        assertEquals(StatsManager.PULL_SKIP, result);
+        assertEquals(StatsManager.PULL_SUCCESS, result);
         verify(audioRouteStats, never()).onPull(any());
         assertEquals(data.size(), 0);
     }
@@ -279,7 +279,7 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
 
         int result = callStats.pull(data);
 
-        assertEquals(StatsManager.PULL_SKIP, result);
+        assertEquals(StatsManager.PULL_SUCCESS, result);
         verify(callStats, never()).onPull(any());
         assertEquals(data.size(), 0);
     }
@@ -307,7 +307,7 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
 
         int result = errorStats.pull(data);
 
-        assertEquals(StatsManager.PULL_SKIP, result);
+        assertEquals(StatsManager.PULL_SUCCESS, result);
         verify(errorStats, never()).onPull(any());
         assertEquals(data.size(), 0);
     }
@@ -337,7 +337,7 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
 
         int result = callSequencingStats.pull(data);
 
-        assertEquals(StatsManager.PULL_SKIP, result);
+        assertEquals(StatsManager.PULL_SUCCESS, result);
         verify(callSequencingStats, never()).onPull(any());
         assertEquals(data.size(), 0);
     }
@@ -987,7 +987,7 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
 
         int result = eventStats.pull(data);
 
-        assertEquals(StatsManager.PULL_SKIP, result);
+        assertEquals(StatsManager.PULL_SUCCESS, result);
         verify(eventStats, never()).onPull(any());
         assertEquals(data.size(), 0);
     }
@@ -1033,6 +1033,11 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
                 EventStats.ID_INIT,
                 EventStats.ID_DEFAULT_DIALER_CHANGED,
                 EventStats.ID_ADD_CALL,
+                EventStats.ID_LOG_VOIP_CALL_INCOMING_VOICE,
+                EventStats.ID_LOG_VOIP_CALL_INCOMING_VIDEO,
+                EventStats.ID_LOG_VOIP_CALL_OUTGOING_VOICE,
+                EventStats.ID_LOG_VOIP_CALL_OUTGOING_VIDEO,
+                EventStats.ID_CALL_BACK,
         };
         int[] causes = {
                 EventStats.CAUSE_UNKNOWN,
@@ -1045,6 +1050,9 @@ public class TelecomPulledAtomTest extends TelecomTestCase {
                 EventStats.CAUSE_CALL_TRANSACTION_CANNOT_HOLD_CURRENT_ACTIVE_CALL,
                 EventStats.CAUSE_CALL_TRANSACTION_CALL_NOT_PERMITTED_AT_PRESENT_TIME,
                 EventStats.CAUSE_CALL_TRANSACTION_OPERATION_TIMED_OUT,
+                EventStats.CAUSE_CALL_LOG_OPT_OUT,
+                EventStats.CAUSE_CALL_LOG_OPT_IN,
+                EventStats.CAUSE_CALL_LOG_OPT_IN_EXCLUDED,
         };
         Random rand = new Random();
         Map<EventStats.CriticalEvent, Integer> eventMap = new HashMap<>();

@@ -23,9 +23,11 @@ import android.os.OutcomeReceiver;
 import android.telecom.CallAttributes;
 import android.telecom.CallException;
 import android.telecom.Connection;
+import android.telecom.DisconnectCause;
 import android.telecom.Log;
 import android.telecom.PhoneAccountHandle;
 
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.telecom.Call;
 import com.android.server.telecom.CallAudioManager;
 import com.android.server.telecom.CallState;
@@ -33,6 +35,7 @@ import com.android.server.telecom.CallsManager;
 import com.android.server.telecom.callsequencing.voip.OutgoingCallTransaction;
 import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.R;
+import com.android.server.telecom.metrics.CallSequencingStats;
 import com.android.server.telecom.metrics.TelecomMetricsController;
 
 import java.util.Collection;
@@ -42,18 +45,19 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Abstraction layer for CallsManager to perform call sequencing operations through CallsManager
- * or CallSequencingController, which is controlled by {@link FeatureFlags#enableCallSequencing()}.
+ * or CallSequencingController.
  */
 public class CallsManagerCallSequencingAdapter {
-
+    // Call states representing that the call hasn't been set up yet.
+    private static final Set<Integer> SETUP_CALL_STATES =
+            Set.of(CallState.NEW, CallState.CONNECTING, CallState.SELECT_PHONE_ACCOUNT);
     private final CallsManager mCallsManager;
     private final Context mContext;
-    private final CallSequencingController mSequencingController;
+    private CallSequencingController mSequencingController;
     private final CallAudioManager mCallAudioManager;
     private final Handler mHandler;
     private final TelecomMetricsController mMetricsController;
     private final FeatureFlags mFeatureFlags;
-    private final boolean mIsCallSequencingEnabled;
 
     public CallsManagerCallSequencingAdapter(CallsManager callsManager, Context context,
             CallSequencingController sequencingController, CallAudioManager callAudioManager,
@@ -65,7 +69,6 @@ public class CallsManagerCallSequencingAdapter {
         mHandler = sequencingController.getHandler();
         mMetricsController = metricsController;
         mFeatureFlags = featureFlags;
-        mIsCallSequencingEnabled = featureFlags.enableCallSequencing();
     }
 
     /**
@@ -77,10 +80,12 @@ public class CallsManagerCallSequencingAdapter {
      */
     public void answerCall(Call incomingCall, int videoState,
             @CallsManager.RequestOrigin int requestOrigin) {
-        if (mIsCallSequencingEnabled && !incomingCall.isTransactionalCall()) {
+        if (!incomingCall.isTransactionalCall()) {
             mSequencingController.answerCall(incomingCall, videoState, requestOrigin);
         } else {
-            mCallsManager.answerCallOld(incomingCall, videoState, requestOrigin);
+            // InCallAdapter is requesting to answer the given transactional call. Must get an ack
+            // from the client via a transaction before answering.
+            incomingCall.answer(videoState);
         }
     }
 
@@ -90,11 +95,7 @@ public class CallsManagerCallSequencingAdapter {
      * @param call The call to unhold.
      */
     public void unholdCall(Call call) {
-        if (mIsCallSequencingEnabled) {
-            mSequencingController.unholdCall(call);
-        } else {
-            mCallsManager.unholdCallOld(call);
-        }
+        mSequencingController.unholdCall(call);
     }
 
     /**
@@ -118,11 +119,7 @@ public class CallsManagerCallSequencingAdapter {
      */
     public void disconnectCall(Call call) {
         int previousState = call.getState();
-        if (mIsCallSequencingEnabled) {
-            mSequencingController.disconnectCall(call, previousState);
-        } else {
-            mCallsManager.disconnectCallOld(call, previousState);
-        }
+        mSequencingController.disconnectCall(call, previousState);
     }
 
     /**
@@ -134,15 +131,7 @@ public class CallsManagerCallSequencingAdapter {
      *         was able to made for the call.
      */
     public CompletableFuture<Boolean> makeRoomForOutgoingCall(boolean isEmergency, Call call) {
-        if (mIsCallSequencingEnabled) {
-            return mSequencingController.makeRoomForOutgoingCall(isEmergency, call);
-        } else {
-            return isEmergency
-                    ? CompletableFuture.completedFuture(
-                            mCallsManager.makeRoomForOutgoingEmergencyCall(call))
-                    : CompletableFuture.completedFuture(
-                            mCallsManager.makeRoomForOutgoingCall(call));
-        }
+        return mSequencingController.makeRoomForOutgoingCall(isEmergency, call);
     }
 
     /**
@@ -151,13 +140,7 @@ public class CallsManagerCallSequencingAdapter {
      * @param call The self-managed call to set active
      */
     public void markCallAsActiveSelfManagedCall(Call call) {
-        if (mIsCallSequencingEnabled) {
-            mSequencingController.handleSetSelfManagedCallActive(call);
-        } else {
-            mCallsManager.holdActiveCallForNewCall(call);
-            mCallsManager.requestActionSetActiveCall(call,
-                    "active set explicitly for self-managed");
-        }
+        mSequencingController.handleSetSelfManagedCallActive(call);
     }
 
     /**
@@ -173,12 +156,8 @@ public class CallsManagerCallSequencingAdapter {
      */
     public CompletableFuture<CallTransaction> createTransactionalOutgoingCall(String callId,
             CallAttributes callAttributes, Bundle extras, String callingPackage) {
-        return mIsCallSequencingEnabled
-                ? mSequencingController.createTransactionalOutgoingCall(callId,
-                callAttributes, extras, callingPackage)
-                : CompletableFuture.completedFuture(new OutgoingCallTransaction(callId,
-                        mCallsManager.getContext(), callAttributes, mCallsManager, extras,
-                        mFeatureFlags));
+        return mSequencingController.createTransactionalOutgoingCall(callId,
+                callAttributes, extras, callingPackage);
     }
 
     /**
@@ -214,15 +193,8 @@ public class CallsManagerCallSequencingAdapter {
             return;
         }
 
-        if (mIsCallSequencingEnabled) {
-            mSequencingController.transactionHoldPotentialActiveCallForNewCallSequencing(
-                    newCall, callback);
-        } else {
-            // The code path without sequencing but where transactionalHoldDisconnectsUnholdable
-            // flag is enabled.
-            mCallsManager.transactionHoldPotentialActiveCallForNewCallOld(newCall,
-                    activeCall, callback);
-        }
+        mSequencingController.transactionHoldPotentialActiveCallForNewCallSequencing(
+                newCall, callback);
     }
 
     /**
@@ -242,30 +214,39 @@ public class CallsManagerCallSequencingAdapter {
             return;
         }
 
+        boolean isDisconnectingChildCall = removedCall.isDisconnectingChildCall();
+        Log.v(this, "maybeMoveHeldCallToForeground: isDisconnectingChildCall = "
+                + isDisconnectingChildCall + "call -> %s", removedCall);
+        boolean isForegroundCallHeld = foregroundCall != null
+                && foregroundCall.getState() == CallState.ON_HOLD;
+        boolean didCallDisconnectDuringSetup = SETUP_CALL_STATES.contains(
+                removedCall.getLastCallStateBeforeDisconnect());
         if (isLocallyDisconnecting) {
-            boolean isDisconnectingChildCall = removedCall.isDisconnectingChildCall();
-            Log.v(this, "maybeMoveHeldCallToForeground: isDisconnectingChildCall = "
-                    + isDisconnectingChildCall + "call -> %s", removedCall);
             // Auto-unhold the foreground call due to a locally disconnected call, except if the
             // call which was disconnected is a member of a conference (don't want to auto
             // un-hold the conference if we remove a member of the conference).
             // Also, ensure that the call we're removing is from the same ConnectionService as
             // the one we're removing.  We don't want to auto-unhold between ConnectionService
             // implementations, especially if one is managed and the other is a VoIP CS.
-            if (!isDisconnectingChildCall && foregroundCall != null
-                    && foregroundCall.getState() == CallState.ON_HOLD
+            if (!isDisconnectingChildCall && isForegroundCallHeld
                     && CallsManager.areFromSameSource(foregroundCall, removedCall)) {
                 unholdForegroundCallFuture = foregroundCall.unhold();
             }
-        } else if (foregroundCall != null &&
-                !foregroundCall.can(Connection.CAPABILITY_SUPPORT_HOLD) &&
-                foregroundCall.getState() == CallState.ON_HOLD) {
-
+        } else if (isForegroundCallHeld &&
+                !foregroundCall.can(Connection.CAPABILITY_SUPPORT_HOLD)) {
             // The new foreground call is on hold, however the carrier does not display the hold
             // button in the UI.  Therefore, we need to auto unhold the held call since the user
             // has no means of unholding it themselves.
             Log.i(this, "maybeMoveHeldCallToForeground: Auto-unholding held foreground call (call "
                     + "doesn't support hold)");
+            unholdForegroundCallFuture = foregroundCall.unhold();
+        } else if (mFeatureFlags.autoUnholdOnCallFail() && didCallDisconnectDuringSetup
+                && !isDisconnectingChildCall && isForegroundCallHeld
+                && (removedCall.getDisconnectCause().getCode() == DisconnectCause.ERROR
+                || removedCall.getDisconnectCause().getCode() == DisconnectCause.CANCELED)) {
+            // Auto-disconnect the held call if the call was disconnected with an error or canceled.
+            Log.i(this, "maybeMoveHeldCallToForeground: Auto-unholding held foreground call (due "
+                    + "to call setup failure)");
             unholdForegroundCallFuture = foregroundCall.unhold();
         }
         maybeLogFutureResultTransaction(unholdForegroundCallFuture,
@@ -286,7 +267,7 @@ public class CallsManagerCallSequencingAdapter {
      */
     public void maybeLogFutureResultTransaction(CompletableFuture<Boolean> future,
             String methodName, String sessionName, String successMsg, String failureMsg) {
-        if (mIsCallSequencingEnabled && future != null) {
+        if (future != null) {
             mSequencingController.logFutureResultTransaction(future, methodName, sessionName,
                     successMsg, failureMsg);
         }
@@ -297,11 +278,7 @@ public class CallsManagerCallSequencingAdapter {
      * the incoming connection. This is set if the ongoing calls don't support hold.
      */
     public void maybeAddAnsweringCallDropsFg(Call activeCall, Call incomingCall) {
-        if (mIsCallSequencingEnabled) {
-            mSequencingController.maybeAddAnsweringCallDropsFg(activeCall, incomingCall);
-        } else {
-            mCallsManager.maybeAddAnsweringCallDropsFgOld(activeCall, incomingCall);
-        }
+        mSequencingController.maybeAddAnsweringCallDropsFg(activeCall, incomingCall);
     }
 
     /**
@@ -313,7 +290,7 @@ public class CallsManagerCallSequencingAdapter {
      * @return {@code true} if the MMI code should be allowed, {@code false} otherwise.
      */
     public boolean shouldAllowMmiCode(Call call) {
-        return !mIsCallSequencingEnabled || !mSequencingController.hasMmiCodeRestriction(call);
+        return !mSequencingController.hasMmiCodeRestriction(call);
     }
 
     /**
@@ -323,10 +300,6 @@ public class CallsManagerCallSequencingAdapter {
      * @param calls The list of the currently tracked calls.
      */
     public void processSimultaneousCallTypes(Collection<Call> calls) {
-        // Metrics should only be tracked when call sequencing flag is enabled.
-        if (!mIsCallSequencingEnabled) {
-            return;
-        }
         // Device should have simultaneous calling supported.
         boolean isSimultaneousCallingSupported = mCallsManager.isDsdaCallingPossible();
         int type;
@@ -386,13 +359,24 @@ public class CallsManagerCallSequencingAdapter {
      * @param callToUnhold The fg call that was held.
      */
     public void handleCallResumeFailed(Call callResumeFailed, Call callToUnhold) {
-        if (mIsCallSequencingEnabled && !CallSequencingController.arePhoneAccountsSame(
-                callResumeFailed, callToUnhold)) {
+        if (!CallSequencingController.arePhoneAccountsSame(callResumeFailed, callToUnhold)) {
             unholdCall(callToUnhold);
         }
     }
 
     public Handler getHandler() {
         return mHandler;
+    }
+
+    /**
+     * Only used for testing purposes
+     */
+    @VisibleForTesting
+    public void setSequencingController(CallSequencingController controller) {
+        mSequencingController = controller;
+    }
+
+    public CallSequencingController getSequencingController() {
+        return mSequencingController;
     }
 }

@@ -84,10 +84,8 @@ public class CallSequencingStats extends TelecomPulledAtom {
                             v.getAverageDurationMs(), v.getCount())));
             mCallSequencingStatsMap.clear();
             onAggregate();
-            return StatsManager.PULL_SUCCESS;
-        } else {
-            return StatsManager.PULL_SKIP;
         }
+        return StatsManager.PULL_SUCCESS;
     }
 
     @Override

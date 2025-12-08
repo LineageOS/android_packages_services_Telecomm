@@ -103,13 +103,14 @@ class InCallAdapter extends IInCallAdapter.Stub {
             Log.startSession(LogUtils.Sessions.ICA_REJECT_CALL, mOwnerPackageAbbreviation);
 
             int callingUid = Binder.getCallingUid();
+            UserHandle callingUserHandle = Binder.getCallingUserHandle();
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
                     // Check to make sure the in-call app's user isn't restricted from sending SMS.
                     // If so, silently drop the outgoing message. Also drop message if the screen is
                     // locked.
-                    if (!mCallsManager.isReplyWithSmsAllowed(callingUid)) {
+                    if (!mCallsManager.isReplyWithSmsAllowed(callingUid, callingUserHandle)) {
                         rejectWithMessage = false;
                         textMessage = null;
                     }
@@ -416,17 +417,24 @@ class InCallAdapter extends IInCallAdapter.Stub {
     }
 
     @Override
-    public void enterBackgroundAudioProcessing(String callId) {
+    public void enterBackgroundAudioProcessing(String callId, int useCase) {
         try {
             Log.startSession(LogUtils.Sessions.ICA_ENTER_AUDIO_PROCESSING,
                     mOwnerPackageAbbreviation);
-            // TODO: enforce the extra permission.
+            mCallsManager.getContext().enforceCallingOrSelfPermission(
+                android.Manifest.permission.CAPTURE_AUDIO_OUTPUT,
+                "enterBackgroundAudioProcessing");
+            mCallsManager.getContext().enforceCallingOrSelfPermission(
+                android.Manifest.permission.MODIFY_AUDIO_ROUTING,
+                "enterBackgroundAudioProcessing");
+
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
                     Call call = mCallIdMapper.getCall(callId);
                     if (call != null) {
-                        mCallsManager.enterBackgroundAudioProcessing(call, mOwnerPackageName);
+                        mCallsManager.enterBackgroundAudioProcessing(call, mOwnerPackageName,
+                            useCase);
                     } else {
                         Log.w(this, "enterBackgroundAudioProcessing, unknown call id: %s", callId);
                     }

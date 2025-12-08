@@ -28,6 +28,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationRequest;
 import android.net.Uri;
+import android.os.BadParcelableException;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.CancellationSignal;
@@ -66,6 +67,7 @@ import com.android.internal.telecom.IVideoProvider;
 import com.android.internal.telecom.RemoteServiceCallback;
 import com.android.internal.util.Preconditions;
 import com.android.server.telecom.flags.FeatureFlags;
+import com.android.server.telecom.util.TelecomBundleUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -381,6 +383,55 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
                         mCallsManager.markCallAsOnHold(call);
                     } else {
                         // Log.w(this, "setOnHold, unknown call id: %s", msg.obj);
+                    }
+                }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
+            } finally {
+                Binder.restoreCallingIdentity(token);
+                Log.endSession();
+            }
+        }
+
+        @Override
+        public void setAudioProcessing(String callId, Session.Info sessionInfo, int useCase) {
+            Log.startSession(sessionInfo, LogUtils.Sessions.CSW_SET_AUDIO_PROCESSING,
+                mPackageAbbreviation);
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    logIncoming("setAudioProcessing %s", callId);
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null && call.isExternalCall()) {
+                        mCallsManager.markCallAsAudioProcessing(call, useCase);
+                    } else {
+                        throw new IllegalStateException("Call is not external.");
+                        // Log.w(this, "setAudioProcessing, unknown call id: %s", msg.obj);
+                    }
+                }
+            } catch (Throwable t) {
+                Log.e(ConnectionServiceWrapper.this, t, "");
+                throw t;
+            } finally {
+                Binder.restoreCallingIdentity(token);
+                Log.endSession();
+            }
+        }
+
+        @Override
+        public void setSimulatedRinging(String callId, Session.Info sessionInfo) {
+            Log.startSession(sessionInfo, LogUtils.Sessions.CSW_SET_SIMULATED_RINGING,
+                mPackageAbbreviation);
+            long token = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    logIncoming("setSimulatedRinging %s", callId);
+                    Call call = mCallIdMapper.getCall(callId);
+                    if (call != null && call.isExternalCall()) {
+                        mCallsManager.markCallAsSimulatedRinging(call);
+                    } else {
+                        // Log.w(this, "setSimulatedRinging, unknown call id: %s", msg.obj);
                     }
                 }
             } catch (Throwable t) {
@@ -993,7 +1044,11 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
-                    Bundle.setDefusable(extras, true);
+                    if (mFlags.resolveHiddenDependenciesTwo()) {
+                        extras = TelecomBundleUtils.defuse(extras);
+                    } else {
+                        Bundle.setDefusable(extras, true);
+                    }
                     Call call = mCallIdMapper.getCall(callId);
                     if (call != null) {
                         call.putConnectionServiceExtras(extras);
@@ -1277,7 +1332,11 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
             long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mLock) {
-                    Bundle.setDefusable(extras, true);
+                    if (mFlags.resolveHiddenDependenciesTwo()) {
+                        extras = TelecomBundleUtils.defuse(extras);
+                    } else {
+                        Bundle.setDefusable(extras, true);
+                    }
                     Call call = mCallIdMapper.getCall(callId);
                     if (call != null) {
                         call.onConnectionEvent(event, extras);
@@ -1869,9 +1928,16 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
 
                 GatewayInfo gatewayInfo = call.getGatewayInfo();
                 Bundle extras = call.getIntentExtras();
+                if (extras != null) {
+                    // always call extras.clone() to avoid causing crash if the extra is empty
+                    // immutable
+                    extras = (Bundle) extras.clone();
+                } else {
+                    extras = new Bundle();
+                }
+
                 if (gatewayInfo != null && gatewayInfo.getGatewayProviderPackageName() != null &&
                         gatewayInfo.getOriginalAddress() != null) {
-                    extras = (Bundle) extras.clone();
                     extras.putString(
                             TelecomManager.GATEWAY_PROVIDER_PACKAGE,
                             gatewayInfo.getGatewayProviderPackageName());
@@ -1882,10 +1948,6 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
 
                 if (call.isIncoming() && mCallsManager.getEmergencyCallHelper()
                         .getLastEmergencyCallTimeMillis() > 0) {
-                  // Add the last emergency call time to the connection request for incoming calls
-                  if (extras == call.getIntentExtras()) {
-                    extras = (Bundle) extras.clone();
-                  }
                   extras.putLong(android.telecom.Call.EXTRA_LAST_EMERGENCY_CALLBACK_TIME_MILLIS,
                       mCallsManager.getEmergencyCallHelper().getLastEmergencyCallTimeMillis());
                 }

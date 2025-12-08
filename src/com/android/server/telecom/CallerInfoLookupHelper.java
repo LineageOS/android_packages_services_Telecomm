@@ -28,8 +28,9 @@ import android.text.TextUtils;
 import android.util.Pair;
 
 import com.android.internal.annotations.VisibleForTesting;
-import android.telecom.CallerInfo;
-import android.telecom.CallerInfoAsyncQuery;
+
+import com.android.server.telecom.util.CallerInfo;
+import com.android.server.telecom.util.CallerInfoAsyncQuery;
 
 import java.util.HashMap;
 import java.util.LinkedList;
