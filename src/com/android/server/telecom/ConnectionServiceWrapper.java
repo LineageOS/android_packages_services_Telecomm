@@ -909,20 +909,25 @@ public class ConnectionServiceWrapper extends ServiceBinder implements
         public void queryRemoteConnectionServices(RemoteServiceCallback callback,
                 String callingPackage, Session.Info sessionInfo) {
             final UserHandle callingUserHandle = Binder.getCallingUserHandle();
+            final int callingUid = Binder.getCallingUid();
             Log.startSession(sessionInfo, "CSW.qRCS", mPackageAbbreviation);
-            long token = Binder.clearCallingIdentity();
             try {
-                synchronized (mLock) {
-                    logIncoming("queryRemoteConnectionServices callingPackage=" + callingPackage);
-                    ConnectionServiceWrapper.this
-                            .queryRemoteConnectionServices(callingUserHandle, callingPackage,
-                                    callback);
+                mAppOpsManager.checkPackage(callingUid, callingPackage);
+                long token = Binder.clearCallingIdentity();
+                try {
+                    synchronized (mLock) {
+                        logIncoming("queryRemoteConnectionServices callingPackage="
+                                + callingPackage);
+                        ConnectionServiceWrapper.this.queryRemoteConnectionServices(
+                                callingUserHandle, callingPackage, callback);
+                    }
+                } finally {
+                    Binder.restoreCallingIdentity(token);
                 }
             } catch (Throwable t) {
                 Log.e(ConnectionServiceWrapper.this, t, "");
                 throw t;
             } finally {
-                Binder.restoreCallingIdentity(token);
                 Log.endSession();
             }
         }
