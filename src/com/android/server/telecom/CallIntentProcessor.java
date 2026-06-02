@@ -5,6 +5,8 @@ import com.android.server.telecom.components.ErrorDialogActivity;
 import android.app.role.RoleManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
@@ -22,6 +24,7 @@ import android.telephony.DisconnectCause;
 import android.telephony.PhoneNumberUtils;
 import android.widget.Toast;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -223,7 +226,19 @@ public class CallIntentProcessor {
     private static boolean doesUserHaveDialerRoleHolder(Context context, UserHandle user) {
         Context userContext = context.createContextAsUser(user, 0);
         RoleManager roleManager = userContext.getSystemService(RoleManager.class);
-        return roleManager.getRoleHolders(RoleManager.ROLE_DIALER).size() > 0;
+        List<String> roleHolders = roleManager.getRoleHolders(RoleManager.ROLE_DIALER);
+        if (roleHolders == null || roleHolders.isEmpty()) {
+            return false;
+        }
+
+        String dialerPackage = roleHolders.get(0);
+        try {
+            ApplicationInfo info = userContext.getPackageManager()
+                    .getApplicationInfo(dialerPackage, 0);
+            return info.enabled;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
     }
 
     /**
