@@ -60,8 +60,6 @@ import com.android.server.telecom.flags.Flags;
 import com.android.server.telecom.util.CallLogUtils;
 import com.android.server.telecom.util.CallerInfo;
 
-import org.lineageos.lib.phone.SensitivePhoneNumbers;
-
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
@@ -128,7 +126,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
     private final Object mLock = new Object();
     private String mCurrentCountryIso;
     private HandlerExecutor mCountryCodeExecutor;
-    private SensitivePhoneNumbers mSensitivePhoneNumbers;
+    private Object mSensitivePhoneNumbers;
 
     private final FeatureFlags mFeatureFlags;
 
@@ -143,7 +141,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
         mAnomalyReporterAdapter = anomalyReporterAdapter;
         mCountryCodeExecutor = new HandlerExecutor(new Handler(Looper.getMainLooper()));
         mFeatureFlags = featureFlags;
-        mSensitivePhoneNumbers = SensitivePhoneNumbers.getInstance();
+        mSensitivePhoneNumbers = getSensitivePhoneNumbersInstance();
     }
 
     @Override
@@ -541,12 +539,33 @@ public final class CallLogManager extends CallsManagerListenerBase {
         }
 
         // Don't log sensitive numbers.
-        boolean isSensitiveNumber = mSensitivePhoneNumbers.isSensitiveNumber(mContext, number,
-                subId);
+        boolean isSensitiveNumber = isSensitiveNumber(number, subId);
 
         // Don't log emergency numbers if the device doesn't allow it.
         return (!isEmergency || okToLogEmergencyNumber)
                 && !isUnloggableNumber(number, configBundle) && !isSensitiveNumber;
+    }
+
+    private static Object getSensitivePhoneNumbersInstance() {
+        try {
+            Class<?> clazz = Class.forName("org.lineageos.lib.phone.SensitivePhoneNumbers");
+            return clazz.getMethod("getInstance").invoke(null);
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    private boolean isSensitiveNumber(String number, int subId) {
+        if (mSensitivePhoneNumbers == null) {
+            return false;
+        }
+        try {
+            return (boolean) mSensitivePhoneNumbers.getClass()
+                    .getMethod("isSensitiveNumber", Context.class, String.class, int.class)
+                    .invoke(mSensitivePhoneNumbers, mContext, number, subId);
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     private boolean isUnloggableNumber(String callNumber, PersistableBundle carrierConfig) {
