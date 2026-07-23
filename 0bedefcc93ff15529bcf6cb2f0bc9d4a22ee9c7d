@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc36bccd_d6a0ba93",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13648
+      },
+      "writtenOn": "2026-07-23T16:21:41Z",
+      "side": 1,
+      "message": "Shouldn\u0027t you remove org.lineageos.lib.phone from static_libs then?",
+      "revId": "0bedefcc93ff15529bcf6cb2f0bc9d4a22ee9c7d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    }
+  ]
+}
