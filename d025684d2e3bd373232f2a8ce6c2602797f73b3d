@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7713ac4e_444897a6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 37348
+      },
+      "writtenOn": "2026-09-02T11:43:29Z",
+      "side": 1,
+      "message": "If this is the bug i think it is, it has no reason to be in framework, and should be fixed at a device level\n\nsee\n\nhttps://review.lineageos.org/c/LineageOS/android_kernel_lge_msm8996/+/492482\n\nWill have another look at it",
+      "revId": "d025684d2e3bd373232f2a8ce6c2602797f73b3d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    }
+  ]
+}
