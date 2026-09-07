@@ -26,8 +26,20 @@ filegroup {
 }
 
 filegroup {
+    name: "telecom-sensitive-phone-numbers-aidl",
+    srcs: [
+        "src/com/android/server/telecom/ISensitivePhoneNumbers.aidl",
+    ],
+    path: "src",
+    visibility: ["//visibility:public"],
+}
+
+filegroup {
     name: "service-telecom-internal-srcs",
-    srcs: ["src/com/**/*.java"],
+    srcs: [
+        "src/com/**/*.java",
+        "src/com/**/*.aidl",
+    ],
     path: "src",
 }
 
@@ -244,6 +256,7 @@ android_library {
         ":framework-telecom-aidl-internal-sources",
         ":framework-telecom-aidl-export-sources",
         ":telecom_ut_fwk_internal_deps_srcs",
+        ":telecom-sensitive-phone-numbers-aidl",
     ],
     exclude_srcs: [
         "src/com/android/server/telecom/components/TelecomService.java", // This should only be used by the mainline path.
@@ -260,7 +273,6 @@ android_library {
         "modules-utils-handlerexecutor",
         "modules-utils-list-slice",
         "telecom_module_bugfix_flags-java",
-        "org.lineageos.lib.phone",
     ],
     libs: [
         "framework-telecom.impl",

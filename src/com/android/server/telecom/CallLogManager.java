@@ -32,9 +32,11 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
-import android.os.UserHandle;
 import android.os.PersistableBundle;
+import android.os.RemoteException;
+import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.CallLog;
 import android.provider.CallLog.Calls;
@@ -59,8 +61,6 @@ import com.android.server.telecom.flags.FeatureFlags;
 import com.android.server.telecom.flags.Flags;
 import com.android.server.telecom.util.CallLogUtils;
 import com.android.server.telecom.util.CallerInfo;
-
-import org.lineageos.lib.phone.SensitivePhoneNumbers;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -128,7 +128,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
     private final Object mLock = new Object();
     private String mCurrentCountryIso;
     private HandlerExecutor mCountryCodeExecutor;
-    private SensitivePhoneNumbers mSensitivePhoneNumbers;
+    private ISensitivePhoneNumbers mSensitivePhoneNumbers;
 
     private final FeatureFlags mFeatureFlags;
 
@@ -143,7 +143,7 @@ public final class CallLogManager extends CallsManagerListenerBase {
         mAnomalyReporterAdapter = anomalyReporterAdapter;
         mCountryCodeExecutor = new HandlerExecutor(new Handler(Looper.getMainLooper()));
         mFeatureFlags = featureFlags;
-        mSensitivePhoneNumbers = SensitivePhoneNumbers.getInstance();
+        mSensitivePhoneNumbers = getSensitivePhoneNumbersService();
     }
 
     @Override
@@ -541,12 +541,50 @@ public final class CallLogManager extends CallsManagerListenerBase {
         }
 
         // Don't log sensitive numbers.
-        boolean isSensitiveNumber = mSensitivePhoneNumbers.isSensitiveNumber(mContext, number,
-                subId);
+        boolean isSensitiveNumber = isSensitiveNumber(number, subId);
 
         // Don't log emergency numbers if the device doesn't allow it.
         return (!isEmergency || okToLogEmergencyNumber)
                 && !isUnloggableNumber(number, configBundle) && !isSensitiveNumber;
+    }
+
+    private ISensitivePhoneNumbers getSensitivePhoneNumbersService() {
+        if (mSensitivePhoneNumbers == null) {
+            IBinder b = getServiceBinder(ISensitivePhoneNumbers.SERVICE_NAME);
+            if (b != null) {
+                try {
+                    b.linkToDeath(() -> mSensitivePhoneNumbers = null, 0);
+                } catch (RemoteException e) {
+                    Log.w(this, "Failed to link to death on SensitivePhoneNumbersService: %s", e);
+                }
+                mSensitivePhoneNumbers = ISensitivePhoneNumbers.Stub.asInterface(b);
+            }
+        }
+        return mSensitivePhoneNumbers;
+    }
+
+    private static IBinder getServiceBinder(String name) {
+        try {
+            return (IBinder) Class.forName("android.os.ServiceManager")
+                    .getMethod("getService", String.class)
+                    .invoke(null, name);
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    private boolean isSensitiveNumber(String number, int subId) {
+        ISensitivePhoneNumbers service = getSensitivePhoneNumbersService();
+        if (service == null) {
+            return false;
+        }
+        try {
+            return service.isSensitiveNumber(number, subId);
+        } catch (RemoteException e) {
+            Log.e(this, e, "Failed to check sensitive phone number");
+            mSensitivePhoneNumbers = null;
+            return false;
+        }
     }
 
     private boolean isUnloggableNumber(String callNumber, PersistableBundle carrierConfig) {
