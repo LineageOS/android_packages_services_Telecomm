@@ -62,6 +62,8 @@ import com.android.server.telecom.flags.Flags;
 import com.android.server.telecom.util.CallLogUtils;
 import com.android.server.telecom.util.CallerInfo;
 
+import org.lineageos.services.telecom.ISensitivePhoneNumbers;
+
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
