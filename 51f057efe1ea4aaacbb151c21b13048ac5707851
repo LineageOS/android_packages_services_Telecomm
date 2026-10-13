@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5e21246_f33775c6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 17656
+      },
+      "writtenOn": "2026-10-13T20:07:56Z",
+      "side": 1,
+      "message": "Please leave open for now, I will only be able to test in November, bc I do not have a micro-SIM for my falcon device right now",
+      "revId": "51f057efe1ea4aaacbb151c21b13048ac5707851",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    }
+  ]
+}
